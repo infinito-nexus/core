@@ -1090,6 +1090,9 @@ msgstr "**バックアップ準備:** 持続的なデータ `{{ JIRA_STORAGE_PAT
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
 msgstr "**バックアップおよび災害復旧。** *svc-bkp-container-2-ローカル* によって監督される *svc-bkp-volume-2-local*バックアップポリシーをボリュームごとに明示的に作成します。 役割は、利用可能なときにファイルシステムスナップショットを好むし、スナップショットベースのバックアップ自体のためにbtrfsホストを準備することができます。 ニュース *svc-bkp-nfs-2-local* 共有 NFS エクスポートを保護します。 *svc-bkp-secrets-2-local* 秘密の材料を捕獲し、 *svc-bkp-local-2-device* 外部メディアにバックアップを同期させる。 統一された *回復する* CLI は、回復チェックと完全な Swarm の災害回復ドリルを継続的に検証しながら、復元を駆動します。 Rsync は、スーパーフィードされたファイルをそのまま保持しない *ふりがな* コピー。."
 
+msgid "**Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Backup integration:** Backup Docker Volumes snapshots the model volume when that role is present, without stopping the container."
 msgstr "**バックアップ統合:** バックアップドッカーボリュームは、コンテナを停止することなく、そのロールが存在するときにモデルのボリュームをスナップショットします。."
@@ -2428,6 +2431,12 @@ msgstr ""
 msgid "**Decentralized social networking:** Self-host the AT Protocol PDS and serve user data under your own domain."
 msgstr "**分散型ソーシャルネットワーキング:** AT プロトコル PDS をセルフホストし、独自のドメインでユーザーデータを配信します。."
 
+msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the ``cache:`` declarations, collected by the ``cache_upstreams`` and ``cache_repos`` lookups. A new upstream is added by declaring it there."
+msgstr ""
+
+msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the `cache:` declarations, collected by the `cache_upstreams` and `cache_repos` lookups. A new upstream is added by declaring it there."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Declared context windows:** A model entry carrying ``context`` publishes it as ``model_info.max_input_tokens``, and an Ollama entry also runs with that window as ``num_ctx`` instead of the server’s default, so a caller’s prompt is not silently truncated."
 msgstr "**コンテキストウィンドウを宣言:** モデルエントリーキャリング ``context`` として公開する ``model_info.max_input_tokens``, と、 Ollama エントリは、そのウィンドウで実行します。 ``num_ctx`` サーバのデフォルトではなく、呼び出し主のプロンプトはサイレントに捨てられません。."
@@ -2693,6 +2702,9 @@ msgstr "**説明:** apexとワイルドカードA/AAAAAAレコードのCloudflar
 # translated-by: libretranslate
 msgid "**Description:** Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**説明:** クラスタローカルコンテナイメージレジストリは、カスタムビルドされた画像を提供 Docker Swarm ワーカーノード"
+
+msgid "**Description:** Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
 
 # translation-refused: libretranslate truncated
 # nocheck: url
@@ -6783,6 +6795,9 @@ msgstr ""
 msgid "**Minimal scope** (client-only, no server configuration)"
 msgstr "**最小限の範囲** (クライアントのみ、サーバー構成なし)"
 
+msgid "**Mirror failover:** A repository that declares a mirror is served through a guarded location: a 5xx from its primary remote re-runs the same path against the sibling repository, while a 404 is passed straight back."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Mitigation:** Image-level mutation (`run`, `build`, `push`, `login`) and their synonyms (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) still route through `ask`, so the operator reviews them before they execute."
 msgstr "**移行:** 画像レベルの変異 (`run`, `build`, `push`, `login`) そして彼らの同義語 (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) まだルート `ask`, そのため、実行前にオペレーターがレビューします。."
@@ -8163,6 +8178,9 @@ msgstr "**持続的な状態:** 記憶およびワークスペースは取付け
 # translated-by: libretranslate
 msgid "**Persistent state:** Memory and workspace live in a volume mounted at ``/home/node/.openclaw``, with the rendered ``openclaw.json`` mounted into it, and are included in the container volume backup when that service is deployed."
 msgstr "**持続的な状態:** 記憶およびワークスペースは取付けられた容積で住んでいます ``/home/node/.openclaw``, レンダリングされた ``openclaw.json`` そのサービスが展開されると、コンテナのボリュームバックアップに搭載されます。."
+
+msgid "**Persistent store:** Proxied artefacts live in a named volume, so a redeploy reuses what earlier runs already pulled."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Persistent:** ``nftables.service`` loads every fragment at boot, so rules outlive a reboot without a unit of this project’s own. The ruleset it reads is a distribution decision, so the path follows ``os_family``: RedHat reads ``/etc/sysconfig/nftables.conf``, the others ``/etc/nftables.conf``."
@@ -11572,6 +11590,9 @@ msgstr "**参考文献**: apexとワイルドカードA/AAAAAAレコードのClo
 msgid "**description**: Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**参考文献**: クラスタローカルコンテナのイメージレジストリは、カスタムビルドされた画像を提供 Docker Swarm ワーカーノード"
 
+msgid "**description**: Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
+
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: **参考文献**:
@@ -14905,6 +14926,9 @@ msgstr "デプロイジョブのタイトルは、デプロイされた全行を
 msgid "A deploy with zero or more than one manager fails at inventory-validation time, never at runtime."
 msgstr ""
 
+msgid "A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "A deployment that keeps the shipped `DOMAIN_PRIMARY` serves names under `infinito.localhost`. Those exist in no zone, so a task that reaches the deployment's own domain from the host depends on the `myhostname` NSS module, which maps any `*.localhost` name to loopback per RFC 6761."
 msgstr "出荷を続けた展開 `DOMAIN_PRIMARY` 以下に名前をつける `infinito.localhost`. これらはゾーンがないため、ホストからデプロイメントのドメインに到達するタスクは、 `myhostname` NSS モジュール、どのマップでも `*.localhost` RFCごとのループバックの名前 6761お問い合わせ."
@@ -15571,6 +15595,12 @@ msgstr ""
 # translation-rejected: リポジトリの定義は、少なくとも1つを宣言しなければなりません。残り (``name``,
 # ``description``, ``gpgkey``, ``gpgcheck``, ``state``) それを修飾して下さい。.
 msgid "A repository definition must declare at least one of these; the rest (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."
+msgstr ""
+
+msgid "A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `listen: [80]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix."
+msgstr ""
+
+msgid "A repository may serve several hosts and a host may be served by one repository only; a repository without a host is proxied but never hijacked, which is how a client that already addresses Nexus directly is served."
 msgstr ""
 
 # translated-by: libretranslate
@@ -16341,6 +16371,9 @@ msgstr ""
 msgid "A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit."
 msgstr ""
 
+msgid "A worktree configured to follow the primary checkout reads that checkout's map without writing it: rendering there would push this branch's declarations into another tree, which is the isolation the setting exists to provide."
+msgstr ""
+
 # translated-by: libretranslate
 #, python-brace-format
 msgid "ACL user + key-prefix `{entity}:*`"
@@ -16821,16 +16854,8 @@ msgid "Add a row to the matching table above with its compose-side purpose."
 msgstr "上記にマッチしたテーブルに、コンポース・サイドの目的で行を追加します。."
 
 # translated-by: libretranslate
-msgid "Add a server-block in [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) that reverse-proxies onto the new Nexus repo path (rewrite if upstream URL prefix differs from the Nexus repo path)."
-msgstr "サーバブロックを追加 [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) 新しいネクサスレポパスへの逆プロキシ (上流 URL プレフィックスがネクサスリポジトリパスと異なる場合、再書き込み)お問い合わせ."
-
-# translated-by: libretranslate
 msgid "Add a short comment at the sensitive code path."
 msgstr "機密コードパスで短いコメントを追加します。."
-
-# translated-by: libretranslate
-msgid "Add an `extra_hosts` entry on the `infinito` service in [compose/cache.override.yml](../../../compose/cache.override.yml) for runner-side traffic."
-msgstr "追加する `extra_hosts` エントリー `infinito` サービス [compose/cache.override.yml](../../../compose/cache.override.yml) ランナー・サイド・トラフィックのため。."
 
 # translated-by: libretranslate
 msgid "Add an `svc-runner` role that provisions a dedicated machine as an Infinito.Nexus CI runner, plus a CLI entry point under `cli/administration/deploy/runner/` (path to be created) that drives an Infinito.Nexus deploy against that runner from a developer workstation."
@@ -18676,6 +18701,9 @@ msgstr "ワイルドカードのフォームが含まれているため、パー
 msgid "An explicit string value at applications['web-app-nextcloud'] .services.sso.oidc.plugin (inventory override)."
 msgstr ""
 
+msgid "An image build reaches the cache by hostname, but it cannot verify the frontend's self-signed certificate unless its Dockerfile installs the CA, so only these are safe to hijack for every build. A build that does install the CA additionally gets the TLS hosts; `sys-svc-compose`'s override generator decides that per image."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "An independent creator stack for publishing, video, audio, analytics, and community without platform lock-in."
 msgstr "プラットフォームロックインなしで公開、ビデオ、オーディオ、分析、コミュニティのための独立したクリエイタースタック。."
@@ -19315,6 +19343,9 @@ msgstr "ネットワーク上でフェッチするすべての呼び出しに適
 # translated-by: libretranslate
 msgid "Applies to: **`main` (default branch)**"
 msgstr "対象: **`main` (デフォルトブランチ)**"
+
+msgid "Apply a host's inventory to the cache declarations the roles make."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Apply every update in *updates* to disk. Returns the list of config files that were actually modified."
@@ -20849,9 +20880,8 @@ msgstr "ブーツストラップとメンテナンス **DNSの前提条件** Clo
 msgid "Bootstrap env"
 msgstr "ブーツストラップ"
 
-# translated-by: libretranslate
-msgid "Bootstrap is idempotent and runs from [package.sh](../../../scripts/docker/cache/package.sh) once the stack is healthy."
-msgstr "ブーツストラップは、意図せず、から実行されます [package.sh](../../../scripts/docker/cache/package.sh) スタックが健康なら。."
+msgid "Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap tooling is provided via Kevin's Package Manager: <https://github.com/kevinveenbirkenbach/package-manager>"
@@ -21064,6 +21094,9 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Both run from the trusted workflow ref and check out the version tag for the actual build payload, so the release artefacts match the tagged commit byte-for-byte."
 msgstr "どちらも信頼できるワークフロー ref から実行し、実際のビルドペイロード用のバージョンタグをチェックします。そのため、リリースアーファクトはタグ付けされたコミットバイトバイトと一致します。."
+
+msgid "Both sections are merged per entry, so an inventory that names one field keeps the rest of the declaration, and a key nobody declared is added."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Both sides pass `primary_apps` (not the round closure) as the BFS seed and the variant-merged services map for that round, so the reachability walk sees the same topology the inventory baked."
@@ -22571,9 +22604,8 @@ msgstr "CIヘルパーロジックを再使用可能なスクリプトとユー�
 msgid "Centralizes container execution logic"
 msgstr "コンテナ実行ロジックを一元化"
 
-# translated-by: libretranslate
-msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "インサート生成は、駆動する投げ込み式高山容器で実行されます [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) フロントエンドが始まる前に。."
+msgid "Cert generation runs in a throw-away alpine container driven by [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) before the frontend starts. It issues a leaf for each name in `INFINITO_CACHE_TLS_HOSTS` and holds no hostname of its own."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -23633,6 +23665,9 @@ msgstr "クローン、ワークステーションの設定、デプロイ OpenR
 msgid "Clone, set up the workstation, and deploy OpenTalk onto the local stack:"
 msgstr "クローン、ワークステーションの設定、デプロイ OpenTalk ローカルスタックへ:"
 
+msgid "Clone, set up the workstation, and deploy Package cache onto the local stack:"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy Package update onto the local stack:"
 msgstr "クローン、ワークステーションの設定、デプロイ Package update ローカルスタックへ:"
@@ -23993,6 +24028,9 @@ msgstr "クラスタローカル `Docker Registry <https://distribution.github.i
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "クラスタローカルコンテナイメージレジストリは、カスタムビルドされた画像を提供 Docker Swarm ワーカーノード"
 
+msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "共有ドッカーハブベースイメージプル用のクラスタローカルプルスルーキャッシュ、重複転送の切断、およびレート制限"
@@ -24113,6 +24151,9 @@ msgstr "JavaScriptを単一の行に折り込み、それを注入します ``su
 #, python-brace-format
 msgid "Collect every `<entity>.ports.public.relay.{start,end}` pair as an occupied span."
 msgstr "すべてを収集 `<entity>.ports.public.relay.{start,end}` 占有されたスパンとして対。."
+
+msgid "Collect what the package cache proxies, from ``cache:`` in meta/networks.yml."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Collection search; host/service status; PromQL query, query range, labels, metadata, and targets"
@@ -26266,6 +26307,9 @@ msgstr "デスクトップロールの依存性として宣言 `meta/main.yml`: 
 msgid "Declare it as a dependency in the desktop role’s ``meta/main.yml``:"
 msgstr "デスクトップロールの依存性として宣言 ``meta/main.yml``: : :"
 
+msgid "Declare it under `cache:` in a `meta/networks.yml`, then run `make dotenv`. That file is the single point of truth; the Nexus repo, the leaf cert, the nginx server block, the `extra_hosts` entries, `pip.conf`, `.npmrc` and the apt sources are all derived from it."
+msgstr ""
+
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Declare the image at the file root of `meta/services.yml` → `<service>.{image,version}`:"
@@ -26744,12 +26788,6 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: デプロイ LibreTranslate 翻訳者が到達したり、投げる1を実行したりすることができます。.
-msgid "Deploy a LibreTranslate the translator can reach, or run a throwaway one."
-msgstr ""
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
 # translation-rejected: アプリを含むラウンドを展開する (例) `make compose-deploy
 # apps=<application_id>`); その仕様は、他のすべてのロールのラウンド展開で実行します。.
 msgid "Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys."
@@ -26832,6 +26870,9 @@ msgstr "テストワークフローのデプロイでホストスワップを拡
 # translated-by: libretranslate
 msgid "Deploy test workflows use the `jlumbroso/free-disk-space` action to reclaim runner space before Docker pulls start. Because the actual deploy runs **inside** the `infinito` container, the host's language toolchains, build packages, and default Docker layer cache are all dead weight and MUST be reclaimed aggressively."
 msgstr "テストワークフローをデプロイする `jlumbroso/free-disk-space` Dockerが起動する前に、ランナースペースを再宣言するアクション。 実際のデプロイが実行されるため **インスタグラム** お問い合わせ `infinito` コンテナ, ホストの言語ツールチェーン, パッケージをビルド, デフォルトの Docker レイヤー キャッシュは、すべてのデッドウェイトであり、積極的に取り返される必要があります."
+
+msgid "Deploy the dedicated LibreTranslate the translator reaches."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Deploy the role and run the spec inside the shared `test-e2e-playwright` runner until every MUST in the contributor SPOT passes and the browser console is free of unhandled errors."
@@ -30469,6 +30510,9 @@ msgstr "実際に行ができることに対して、トークンピンはすべ
 # translated-by: libretranslate
 msgid "Everything else lands in ``rejected`` with a stable code: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` and ``tools_unenforceable``."
 msgstr "他のすべての土地で ``rejected`` 安定したコードを使って: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` そして、 ``tools_unenforceable``お問い合わせ."
+
+msgid "Everything the roles declare, collected."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Evidence"
@@ -34115,9 +34159,8 @@ msgstr "HTTP+SSEの (`adapter.upstream_transport: sse`)"
 msgid "HTTP/2 support, TLS/SSL integration"
 msgstr "HTTP の2 サポート、TLS/SSLの統合"
 
-# translated-by: libretranslate
-msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "エスプレッソ (ポート 443): ホスト名サーバは、専用のCAで署名しました。 によって使用される `infinito` ランナー (Ansible ドライバー `pip install`, `gem install`, `composer install`, `curl https://…`). ランナーはカリフォルニアを経由して信頼します [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)お問い合わせ."
+msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -34812,6 +34855,12 @@ msgstr "IAMについて(アイデンティティとアクセス管理) セット
 msgid "INFINITO_*-key env handlers; one module per owned key."
 msgstr ""
 
+msgid "INFINITO_CACHE_HOSTS: the hostnames the package cache fronts, collected from the ``cache:`` declarations every role makes in its meta/networks.yml."
+msgstr ""
+
+msgid "INFINITO_CACHE_HTTP_HOSTS: the hostnames the frontend serves without TLS."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path:hostname), truncated to 32 hex chars."
 msgstr "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: ホストごとの安定したNexusの管理者 パスワード: sha256(host_path:ホスト名), tuncated へ 32 ヘックス文字。."
@@ -34842,6 +34891,12 @@ msgstr "INFINITO_CACHE_REGISTRY_MAX_SIZE: レジストリキャッシュソフ�
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_STACK: whether the pull-through cache stack should run."
 msgstr "INFINITO_CACHE_STACK: プルスルーキャッシュスタックを実行するかどうか。."
+
+msgid "INFINITO_CACHE_TLS_HOSTS: the hostnames the package-cache frontend needs a leaf certificate for, being those its cache: declarations serve over HTTPS."
+msgstr ""
+
+msgid "INFINITO_CACHE_UPSTREAMS: every repository the package cache proxies, as ``name|flavor|url|distribution|repodata_depth|content_max_age`` records separated by commas, from the cache: entries the roles declare in their meta/networks.yml."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "INFINITO_CA_BUNDLE_CANDIDATES: where the distributions keep the extracted CA bundle, read from the group_vars paths SPOT (group_vars/all/05_paths.yml CA_BUNDLE_CANDIDATES)."
@@ -35541,14 +35596,6 @@ msgstr "スクリプトが終了した場合 `0` そして渡される点検は�
 # translated-by: libretranslate
 msgid "If the script exits non-zero OR the inspection surfaced a schema violation:"
 msgstr "スクリプトが非ゼロまたは検査がスキーマの違反に直面した場合:"
-
-# translated-by: libretranslate
-msgid "If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`."
-msgstr "アップストリームがHTTPのみで内部の場合`dockerd` ビルドも必要です。 `_CACHE_HTTP_HOSTNAMES` お問い合わせ [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) なので、アプリごとに `compose.cache.override.yml` それに含まれている `build.extra_hosts`お問い合わせ."
-
-# translated-by: libretranslate
-msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "上流が HTTPS を使用している場合は、それを追加します。 `HOSTNAMES` お問い合わせ [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) そのため、葉の証明書が発行されます。."
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -38221,6 +38268,9 @@ msgstr "です。 **汎用インフラヘルパー**お問い合わせ."
 msgid "It is a standalone script — no environment, no backup generation, no other drill. It resolves `baudolo-snapshot` from `PATH`, so it tests whatever the role deployed:"
 msgstr "スタンドアローンスクリプトです。環境、バックアップ生成、その他のドリルはありません。 解決する `baudolo-snapshot` から `PATH`, つまり、ロールがデプロイされたかどうかをテストします。"
 
+msgid "It is deliberately separate from `cli.meta.env`, which has to import on the bare bootstrap python and therefore cannot reach Jinja or PyYAML."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "It is designed to be used as a fallback when no central Mailu instance is available, enabling applications and system services to send email via ``localhost:25`` without additional configuration."
 msgstr "中央中央がない場合のフォールバックとして使用されるように設計されている Mailu インスタンスが利用可能で、アプリケーションとシステムサービスが電子メールを経由して送信できるようにします ``localhost:25`` 追加の構成なし。."
@@ -38954,6 +39004,9 @@ msgstr "Keycloak リダイレクト URIs/web-origins は、 `lookup('domains')` 
 # translated-by: libretranslate
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
 msgstr "キーロックの `LDAP user federation` 読み取り専用モードの領域にユーザーをミラーリングします。."
+
+msgid "Keyed by repository name, so a template resolving a host's route reaches its flavor, upstream and mirror without a second declaration. `utils.cache.hosts` is the single point of truth; the entries come from ``cache: repos:`` in the roles' ``meta/networks.yml``, and deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keys without a provider role are omitted — ``disable=`` cannot act on them."
@@ -40014,6 +40067,15 @@ msgstr "ルックアッププラグイン 🔎"
 # translated-by: libretranslate
 msgid "Lookup ``application_closure``: roles reachable from a seed application set."
 msgstr "インタビュー ``application_closure``:シードアプリケーションセットから到達可能なロール。."
+
+msgid "Lookup ``cache_records``: the repositories, as the bootstrap script reads them."
+msgstr ""
+
+msgid "Lookup ``cache_repos``: the repositories the package cache proxies."
+msgstr ""
+
+msgid "Lookup ``cache_upstreams``: the hosts the package cache answers for."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Lookup ``compose_external_networks``: the provider role ids whose overlay the compose file of ``application_id`` references as ``external: true``."
@@ -42853,6 +42915,9 @@ msgstr "外部なし — 内部 SQLite アンダー `/config`お問い合わせ.
 msgid "None when the call is run once, else its retry policy."
 msgstr "一度にコールが実行されると、そのリトライポリシーはもうありません。."
 
+msgid "None where the list does not carry both, in which case the placeholders cannot be resolved."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "None."
 msgstr "なし。."
@@ -43602,6 +43667,9 @@ msgstr ""
 msgid "One env setting: the process environment wins, ``default.env`` is the SPOT behind it."
 msgstr ""
 
+msgid "One format, two readers: the ``.env`` generator writes it to ``INFINITO_CACHE_UPSTREAMS`` for the dev stack, and the ``cache_records`` lookup hands the same string to the role's bootstrap task. Both resolve the Ubuntu mirror placeholders from ``INFINITO_APT_UBUNTU_MIRRORS``, which the image build reads too, so the mirror order has a single home."
+msgstr ""
+
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected: 1つのホストは、全フリートを実行します。 ``infinito-runner``
@@ -43614,6 +43682,9 @@ msgstr ""
 # translation-rejected: 1つのホストは、全フリートを実行します。 `infinito-runner`
 # ローカルでイメージをレンダリングし、一つのコンポースプロジェクトをレンダリングし始めて下さい `RUNNER_COUNT` インスタンス。.
 msgid "One host runs the whole fleet: the role builds the `infinito-runner` image locally, renders one compose project and starts `RUNNER_COUNT` instances."
+msgstr ""
+
+msgid "One hostname the frontend answers for, in place of its upstream."
 msgstr ""
 
 # translation-refused: libretranslate protected-span
@@ -43680,6 +43751,9 @@ msgstr ""
 # nocheck: url
 # translation-rejected: 役割によって支持される1つの回復タイプ ``files/python/recover.py``お問い合わせ.
 msgid "One recovery type backed by a role's ``files/python/recover.py``."
+msgstr ""
+
+msgid "One repository Nexus proxies."
 msgstr ""
 
 # translation-refused: libretranslate protected-span
@@ -45089,6 +45163,9 @@ msgstr "パッケージキャッシュ 📚"
 msgid "Package Manager Installation"
 msgstr "パッケージマネージャのインストール"
 
+msgid "Package cache"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Package manager"
 msgstr "パッケージマネージャー"
@@ -45280,6 +45357,9 @@ msgstr "パス `--dry-run` 書面なしでプレビューする。."
 # translated-by: libretranslate
 msgid "Pass `--dry-run` to preview, `--include-template` to also archive `000-template.md`. See `pkgmgr archive --help` for the full surface."
 msgstr "パス `--dry-run` プレビューするには、 `--include-template` アーカイブ `000-template.md`. 参照 `pkgmgr archive --help` 完全な表面のため。."
+
+msgid "Pass ``application_id`` as term 0, defaulting to the templating variable of the same name. ``http_port`` and ``proxy_internal_port`` are read from the same variables, so a role that resolved its port itself is not reported as backendless. ``applications`` comes from ``lookup('applications')``, the merged-config SPOT."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pass ``provider_self_alias=False`` for a sidecar service that must not carry the provider's own alias, and ``own_network_only=True`` for one that must not inherit the networks its provider joins as a consumer."
@@ -47486,6 +47566,9 @@ msgstr "保護されたスパンの後ろに翻訳者が落ちる文章境界を
 msgid "Put shared fixed values in one canonical source and reference them everywhere else."
 msgstr ""
 
+msgid "Put the declaration in the role that needs the upstream. An upstream no single role owns goes in [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml)."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Python CLI for init, deploy, up, down, exec, etc."
 msgstr "Python CLI は、init、デプロイ、up、down、exec、etc 用のものです。."
@@ -48714,6 +48797,9 @@ msgstr ""
 msgid "Refused: the ten remaining tools Baserow 2.3.3 implements, listed under `tools.upstream_serves`. Three of them (`create_rows`, `update_rows`, `delete_rows`) are live upstream — the image carries no env var, setting or UI toggle that removes them, so `mutating_tools_enabled: false` is enforced by the adapter and by nothing in Baserow. The other seven are shipped disabled upstream and are listed so a version bump that enables one shows up as contract drift rather than as a silently widened surface."
 msgstr ""
 
+msgid "Regenerate every derived cache file"
+msgstr ""
+
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected: Debian変更ログを再生する *パス* から CHANGELOG.mdお問い合わせ.
@@ -48735,10 +48821,6 @@ msgstr "リサイクル"
 # translated-by: libretranslate
 msgid "Register --ghcr-namespace, --ghcr-repository, --ghcr-prefix on *parser*."
 msgstr "--ghcr-namespace, --ghcr-repository, --ghcr-prefix の登録 *パサー*お問い合わせ."
-
-# translated-by: libretranslate
-msgid "Register a Nexus proxy repo in [package.sh](../../../scripts/docker/cache/package.sh)."
-msgstr "Nexus プロキシリポジトリを登録する [package.sh](../../../scripts/docker/cache/package.sh)お問い合わせ."
 
 # translated-by: libretranslate
 msgid "Register the emulation an architecture-pinned deploy needs."
@@ -49322,6 +49404,9 @@ msgstr "結束行列をレンダリングします。: どのロールがそれ�
 msgid "Render the collected service rows and aggregated totals as an aligned text table or as JSON."
 msgstr "収集したサービス行と集計された合計を整列テキストテーブルまたはJSONとしてレンダリングします。."
 
+msgid "Render the declared repositories as the records Nexus is bootstrapped from."
+msgstr ""
+
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected: 1つのCIスイープの計画をレンダリングする:すべての候補の列、そしてそれが土地。.
@@ -49339,6 +49424,9 @@ msgstr "トップレベルのレンダリング ``volumes:`` ・ ``configs:`` �
 # translated-by: libretranslate
 msgid "Render using strict Jinja2 repeatedly until:"
 msgstr "厳密なJinjaを使用してベンダー2 まで繰り返し:"
+
+msgid "Render what the package cache needs beside its role, from the declarations."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Rendered `.env` passed to the Playwright container"
@@ -50345,6 +50433,12 @@ msgstr "返品について (レジストリ, repository_name) 検証済みの Do
 msgid "Return (running_on_github, running_on_act)."
 msgstr "返品について (running_on_github, running_on_act)お問い合わせ."
 
+msgid "Return *declared* with *overrides* applied, sorted by key."
+msgstr ""
+
+msgid "Return *raw* with the Ubuntu mirror placeholders substituted."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return *value* as a list of plausible HTTP status codes."
 msgstr "返品について *バリュー* HTTPステータスコードの一覧です。."
@@ -50478,6 +50572,9 @@ msgstr "返品について ``<host>:<port>`` ノード用Tor SOCKSプロキシ�
 # translated-by: libretranslate
 msgid "Return ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` — per-round variant-closure plus a plan-constant union for the inter-round wipe."
 msgstr "返品について ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` — 丸みのあるバリアント・クロージャーと、間接的なワイプのためのプラン・コンスタント・ユニオン。."
+
+msgid "Return ``[True]`` when a port exists to probe, ``[False]`` otherwise."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return ``data`` as a CommentedMap, empty when it holds no mapping."
@@ -50703,6 +50800,15 @@ msgstr "キャプチャの全てを返す *パターン* 体の *ログイン*�
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "すべてのロールで宣言されたアドオンをすべて返す ``meta/addons/*.yml``お問い合わせ."
 
+msgid "Return every declared host as a template-ready record, keyed by host."
+msgstr ""
+
+msgid "Return every declared repository and host."
+msgstr ""
+
+msgid "Return every declared repository as a record, keyed by name."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return every declared role author, sorted and without duplicates."
 msgstr "宣言されたロールの作者、ソート、重複なしをすべて返します。."
@@ -50735,6 +50841,9 @@ msgstr "すべての正確なピップピンを下に返します ``roles/``お�
 msgid "Return every group-conditional service key that has a provider role."
 msgstr "プロバイダーの役割を持つグループごとにサービスキーを返します。."
 
+msgid "Return every host the frontend answers for on behalf of *repo*."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return every language of ``meta/languages.yml`` keyed by ISO 639-1 code."
 msgstr "すべての言語を返す ``meta/languages.yml`` ISO認証取得 639- - -1 コード。."
@@ -50750,6 +50859,9 @@ msgstr "Npmの全ての公開バージョンを返します。 *パッケージ*
 # translated-by: libretranslate
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr "リリースされたすべてのバージョンを返す ``package``, PyPI が到達できないときに空に."
+
+msgid "Return every repository as ``name|flavor|url|suite|depth|max_age``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every role directory name, sorted."
@@ -50793,6 +50905,9 @@ msgstr "人間が読まれた対立を返す `disable` 既存の在庫/host_vars
 # 各サービス提供者の役割のため。 決断はcanonicalサービス レジストリを通って行きます、従って ``provides:`` エイリアス (例)
 # ``mailu.provides: email``) 共有エンティティエント名サービスはどちらも認められています。.
 msgid "Return mapping of service_name -> application_id for the provider role of each requested service. Resolution goes through the canonical service registry, so ``provides:`` aliases (e.g. ``mailu.provides: email``) and shared entity-name services are both recognized."
+msgstr ""
+
+msgid "Return one distribution's apt source, empty where it does not use apt."
 msgstr ""
 
 # translation-refused: libretranslate protected-span
@@ -50857,6 +50972,12 @@ msgstr "からタグ名を返す ``git ls-remote --tags``, ストリップ ``ref
 # translated-by: libretranslate
 msgid "Return the (background, foreground) pair for a bond between 0 and 1."
 msgstr "戻り値 (背景、フォアグラウンド) ボンド同士の対 0 そして、 1お問い合わせ."
+
+msgid "Return the (path, repository) pairs this host serves."
+msgstr ""
+
+msgid "Return the (port, terminates TLS) pairs this host is served on."
+msgstr ""
 
 # translation-refused: libretranslate truncated
 # nocheck: url
@@ -51003,6 +51124,9 @@ msgstr "カタログを運ぶコードを返す ``domain``お問い合わせ."
 msgid "Return the codes that prove *domain* is being served at all."
 msgstr "証明するコードを返す *ドメイン* 全てでご提供しています。."
 
+msgid "Return the compose override that points every cached host at the frontend."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the compressed transfer size of ``image:reference`` in bytes."
 msgstr "圧縮された転送サイズを返す ``image:reference`` バイト。."
@@ -51018,6 +51142,9 @@ msgstr "基準を返す ``translation`` 壊れたとき、何も壊れたとき�
 # translated-by: libretranslate
 msgid "Return the current play application mapping using the shared resolver from utils/roles/applications/in_group_deps."
 msgstr "共有リゾルバを使用して、現在の再生アプリケーションマッピングを返す utils/roles/applications/in_group_deps."
+
+msgid "Return the declared repository *name*, or None where none declares it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the deploy modes a role supports, keyed by mode with its ``modes.<mode>.enabled`` SPOT value."
@@ -51090,6 +51217,9 @@ msgstr "完全なリターン ``PORT_BANDS`` によってキーを押す地図 `
 msgid "Return the highest released version of ``package``, or None."
 msgstr "リリースされた最高バージョンの戻り ``package``, または なし。."
 
+msgid "Return the hostname *repo* proxies, taken from its upstream URL."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the identifiers ``role_dir`` names its upstream product by."
 msgstr "識別子を返す ``role_dir`` アップストリーム製品名."
@@ -51105,6 +51235,9 @@ msgstr "ここに行われたコミットの ID を返します。."
 # translated-by: libretranslate
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "即時サブディレクトリを返す ``cli/<parts>/``, 実行可能なコマンドに分割 (``__main__.py`` プレゼント) カテゴリフォルダ。 空のサポートパッケージ (どこにでもコマンドを行わない) スキップします。."
+
+msgid "Return the inventory's entries for one ``cache:`` section."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the languages the server translates English into."
@@ -51146,9 +51279,15 @@ msgstr "名前を返す ``module`` 自身を定義し、それを奨励する ``
 msgid "Return the names ``source`` carries that ``translation`` dropped."
 msgstr "名前を返す ``source`` それを運ぶ ``translation`` ドロップ。."
 
+msgid "Return the nginx frontend configuration the declarations produce."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the non-overlapping offsets every protection rule claims."
 msgstr "ノンオーバーラップオフセットは、すべての保護ルールのクレームを返します。."
+
+msgid "Return the npm configuration pointing at the cached registry."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the offsets of every name ``text`` carries."
@@ -51170,6 +51309,9 @@ msgstr "パースされたマニフェストを返す (インデックス) お�
 msgid "Return the path of the ``domain`` catalog of language ``code``."
 msgstr "パスを返す ``domain`` 言語のカタログ ``code``お問い合わせ."
 
+msgid "Return the path this host serves *repo* under, or the empty string."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the people ``role_dir`` names as its authors."
 msgstr "人に戻る ``role_dir`` 著者の名前。."
@@ -51178,9 +51320,15 @@ msgstr "人に戻る ``role_dir`` 著者の名前。."
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
 msgstr "サービスごとのマウントブロックを返す (``volumes:`` + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + ``configs:`` + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + ``secrets:``) 列で始まる YAML 文字列として 0お問い合わせ."
 
+msgid "Return the pip configuration pointing at the cached PyPI hosts."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the plain translation, or what was rejected and the criterion it broke."
 msgstr "原文の翻訳を返し、拒否されたもの、そしてそれが壊れたもの。."
+
+msgid "Return the primary and fallback Ubuntu archive, without trailing slash."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the primary domain for application_id from the domains mapping:"
@@ -51267,6 +51415,9 @@ msgstr "戻り値 run_after 所有する役割によって宣言されるリス�
 # translated-by: libretranslate
 msgid "Return the same data as JSON, for a caller that wants to post-process."
 msgstr "後処理したい発信者に対して、JSON と同じデータを返します。."
+
+msgid "Return the scheme a client addresses this host with."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -51410,6 +51561,9 @@ msgstr "記録された per-version 監査が委任請求をバックアップ�
 # translated-by: libretranslate
 msgid "Return whether a role marks itself an MCP client in its own services."
 msgstr "役割が、MCP クライアントを独自のサービスでマークするかどうかを返します。."
+
+msgid "Return whether an application has a backend a vhost can probe."
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -51614,6 +51768,9 @@ msgstr "インラインスクリプト/スタイルのスニペットを指定�
 # ロールごとのマッピングなので、ステージはグループごとに生成されたタスクファイルを含む代わりにグループをループできます。
 #, python-brace-format
 msgid "Returns one ``{'role': …, 'app': …}`` mapping per role, so a stage can loop over the group instead of including a generated task file per group:"
+msgstr ""
+
+msgid "Returns one dict per host, sorted by host, carrying ``host``, ``repo``, ``routes``, ``listen``, ``read_timeout`` and ``passthrough``."
 msgstr ""
 
 # translated-by: libretranslate
@@ -53134,6 +53291,9 @@ msgstr "公開されたイメージを実行して、インベントリとデプ
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy OpenTalk to a managed server (the mounted volume persists the inventory):"
 msgstr "公開されたイメージを実行して、インベントリとデプロイを規定する OpenTalk 管理されたサーバーへ (取付けられた容積は目録を主張します): : :"
+
+msgid "Run the published image to provision the inventory and deploy Package cache to a managed server (the mounted volume persists the inventory):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy PeerTube to a managed server (the mounted volume persists the inventory):"
@@ -56772,6 +56932,9 @@ msgstr "インポートチェックをしておくと、 `utils.cache.applicatio
 msgid "Stdlib line parse on purpose: env handlers feed the .env generation, which bootstraps fresh hosts before PyYAML exists (canonical pattern: utils/storage/nfs.py)."
 msgstr ""
 
+msgid "Stdlib only: the ``.env`` generator reaches this before PyYAML exists."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Stdlib reader for the block-YAML subset the bootstrap SPOT files use."
 msgstr "ブートストラップSPOTファイルを使用するブロックYAMLサブセット用のStdlibリーダー。."
@@ -57595,6 +57758,9 @@ msgstr "Svc-bkp-secrets-2-ローカルの役割"
 # translated-by: libretranslate
 msgid "Svc-bkp-volume-2-local Role"
 msgstr "Svc-bkp-volume-の特長2-ローカルの役割"
+
+msgid "Svc-cache-package Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-elasticsearch Role"
@@ -60583,9 +60749,8 @@ msgstr "CI 選択トークンの軸線の接尾辞は運ぶかもしれません
 msgid "The backup host is NOT appended to the cluster inventory: it lives in a sibling ``backup.yml`` next to ``INV_PATH`` (same host_vars dir), deployed as a second play after the cluster one. Without a svc-swarm-node group that play resolves DEPLOYMENT_MODE=compose and IS_STACK_HOST=true on the backup host, so the backup roles run without cluster-membership special cases."
 msgstr ""
 
-# translated-by: libretranslate
-msgid "The base URL to translate against."
-msgstr "変換するベースURL。."
+msgid "The base URL to translate against. The service answers only once it has installed its models, which the caller's readiness wait covers."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The base layer of :mod:`utils.i18n.placeholders`: it knows the protection rules and nothing about damage or repair, so :mod:`utils.i18n.damage` can build on it without an import cycle."
@@ -60933,6 +61098,9 @@ msgstr ""
 msgid "The combined \"yield project files filtered through ``.gitignore``\" helper lives in :mod:`utils.cache.files` (``iter_non_ignored_files``) because it composes the cached project walk with this matcher."
 msgstr "結合される \"収穫プロジェクトファイルをフィルタリング ``.gitignore``\" ヘルパーの生活 :mod:`utils.cache.files` (``iter_non_ignored_files``) キャッシュされたプロジェクトウォークをこのコンベヤで計算するからです。."
 
+msgid "The comma-separated records, or the empty string where a placeholder stays unresolved, so a consumer's own guard reports it rather than Nexus proxying a host that does not exist."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The common pieces are:"
 msgstr "共通の部分はあります:"
@@ -61011,6 +61179,9 @@ msgstr "構成軸受け Nextcloud アプリが宣言されている ``meta/addon
 # translated-by: libretranslate
 msgid "The config-bearing Nextcloud apps are declared in `meta/addons/` under the unified addon contract (requirement 026). Each declaration carries its full `occ config:app:set` payload under `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
 msgstr "構成軸受け Nextcloud アプリが宣言されている `meta/addons/` 統一されたアドオン契約に基づく (条件: 026). 各宣言は、その全てを運ぶ `occ config:app:set` ペイロード `config:`. 有効のみのアプリストアアプリは、 `nextcloud.plugins` お問い合わせ [`meta/services.yml`](./meta/services.yml)お問い合わせ."
+
+msgid "The configured entries, or an empty mapping where no inventory answers, as in the dev stack."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The configured relay host, the loopback address, the container's alias for its host, or a swarm manager."
@@ -61129,6 +61300,9 @@ msgstr ""
 msgid "The decision repeats for the same request"
 msgstr "決定は同じ要求に対して繰り返されます"
 
+msgid "The declarations live under ``cache: hosts:`` in every role's ``meta/networks.yml`` and `utils.cache.hosts` collects them. Deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The declared codes, empty when the app declares none for this domain."
 msgstr "宣言されたコードは、アプリがこのドメインのどれも宣言したときに空にします。."
@@ -61227,6 +61401,9 @@ msgstr ""
 # translated-by: libretranslate
 msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value names the compose-only boolean."
 msgstr "検出はライン ベースです:タスク ブロックは最も近い間のスパンです `- name:` (インデントN) オフエンドラインと次のトップレベルの構造マーカーの上に (`- name:` インデント <= N、またはファイルの最後に). そのスパン内で私達はあらゆるために見ます `when:` compose-only boolean という名前のテキスト値が含まれている句。."
+
+msgid "The dev compose stack has no inventory and caches exactly what the roles declare. A deployed host caches what its configuration says, which starts from the same declarations and lets the inventory correct or extend them::"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -61926,6 +62103,9 @@ msgstr "ダイアグラムの場所 OpenTalk お問い合わせ Infinito.Nexus c
 # translated-by: libretranslate
 msgid "The diagram places Package Manager Installation in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
 msgstr "ダイアグラムの場所 Package Manager Installation お問い合わせ Infinito.Nexus cosmos: デプロイするコンポーネント (ソリューション)、それが消費する中央サービス (依存関係)、およびその外側の範囲 (フェデレーションと橋渡しの外部ネットワーク)お問い合わせ."
+
+msgid "The diagram places Package cache in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The diagram places Package update in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -63494,6 +63674,9 @@ msgstr "マニフェストのドキュメント、または生成が何も運ぶ
 msgid "The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group, and the orchestrator's group cancels for `workflow_dispatch` regardless of ref, so a manual sweep supersedes on both levels, `main` included."
 msgstr "マニュアルエントリーワークフロー (`entry-manual-steer.yml`) セット `cancel-in-progress: true` グループで、オーケストレータのグループがキャンセルされます。 `workflow_dispatch` ref に関係なく、マニュアルスイープは両方のレベルに上書きします。 `main` 含まれる。."
 
+msgid "The map itself is generated, never tracked, so no second copy of a hostname can drift; ``utils.cache.render.render_artifacts`` writes it once the value-set is built."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in its job title, between the variant number and the ⭐ of a priority row."
 msgstr "マークされた行は、 `instructions: <mode>` 行列 JSON と a 📖 ジョブのタイトルでは、バリアント番号と優先行の ◀ の間。."
@@ -63722,6 +63905,9 @@ msgstr "パイプラインの次の段階は、前の段階がプラグインを
 # translated-by: libretranslate
 msgid "The nfs-server uses the userspace `nfs-ganesha` (`ganesha`) flavor in every runtime; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` is the SPOT, and `kernel` is a per-inventory override. Ganesha is packaged for the `Debian` and `RedHat` os families only. Kernel `nfsd` in a privileged DinD node is wedge-prone: the export can be present yet the controller mount returns ENOENT, and `exportfs` can stick in D-state. If a swarm step hangs at `Reload NFS exports` from a stuck kernel-NFS mount, you MUST recover with `make swarm-clean` on the host; see the NFS gotcha in [Roundtrip Loop](roundtrip.md). You MUST NOT fall back to a compose-only sweep while swarm is blocked."
 msgstr "Nfs-server は userspace を使用します。 `nfs-ganesha` (`ganesha`) すべてのランタイムの味。 `services.nfs-server.flavor` お問い合わせ `roles/svc-storage-nfs-server/meta/services.yml` SPOTです。 `kernel` 永続的なオーバーライドです。 Ganesha は、 `Debian` そして、 `RedHat` os 家族だけ。 カーネル `nfsd` 特権の DinD ノードは wedge-prone です: エクスポートは、まだコントローラーマウントが ENOENT を返します。 `exportfs` D 状態に固執できます。 swarmのステップが掛かる場合 `Reload NFS exports` スタックしたカーネルNFSマウントから、あなたは回復しなければならない `make swarm-clean` ホスト上で; NFS の gotcha を参照してください。 [往復ループ](roundtrip.md). あなたは、群れがブロックされている間、コンポーズのみの掃引に落ちてはいけません。."
+
+msgid "The nginx upstream map, the consumer compose override and the package managers' client configuration all follow from the ``cache:`` declarations in the roles' `meta/networks.yml`. None of them is tracked; this package regenerates them. Implementation lives in `utils.cache.render`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The nightly timers (volume 01:00, nfs 01:30, secrets 01:45, device 02:00, remote pull 00:30) run independently of every step above and never fire during a lab run."
@@ -65084,6 +65270,9 @@ msgstr ""
 msgid "The role deploys end-to-end on the project's reference distribution and is covered by **at least** a smoke-level Playwright spec, but neither the deploy nor the spec depth is considered production-grade."
 msgstr ""
 
+msgid "The role deploys the frontend and owns the templates and their tuning; the dev compose stack has no inventory to render them with and comes through here instead. Every value still has one home: the hosts and repositories come from the ``cache:`` declarations, the nginx tuning from the role's ``vars/main.yml``, and only the backend address differs, because the dev stack reaches Nexus over a compose network alias while the role reaches it by its configured container."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via `SEMAPHORE_*` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak `administrator` is created at deploy time as an external Semaphore admin via `semaphore user add --admin --external`; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "役割は単一のSemaphoreの容器を配ります (埋め込まれたタスクランナーと) そしてプラットホームにそれを通ってワイヤーで縛って下さい `SEMAPHORE_*` 環境変数。 セットアップウィザードは、レンダーされたシークレットから初期管理者を参照することで迂回されます。そのため、Semaphoreのログインページに直接新しいデプロイランドを生成します。 SSO を有効にすると、 Keycloak `administrator` 外部のSemaphore管理者として配置時に作成されます `semaphore user add --admin --external`; OIDCコールバックは電子メールで一致し、Semaphore管理者としてオペレータに署名します。."
@@ -65091,6 +65280,12 @@ msgstr "役割は単一のSemaphoreの容器を配ります (埋め込まれた�
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via ``SEMAPHORE_*`` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak ``administrator`` is created at deploy time as an external Semaphore admin via ``semaphore user add --admin --external``; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "役割は単一のSemaphoreの容器を配ります (埋め込まれたタスクランナーと) そしてプラットホームにそれを通ってワイヤーで縛って下さい ``SEMAPHORE_*`` 環境変数。 セットアップウィザードは、レンダーされたシークレットから初期管理者を参照することで迂回されます。そのため、Semaphoreのログインページに直接新しいデプロイランドを生成します。 SSO を有効にすると、 Keycloak ``administrator`` 外部のSemaphore管理者として配置時に作成されます ``semaphore user add --admin --external``; OIDCコールバックは電子メールで一致し、Semaphore管理者としてオペレータに署名します。."
+
+msgid "The role deploys two containers on its inventory group's host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling [svc-registry-cache](../svc-registry-cache/README.md)."
+msgstr ""
+
+msgid "The role deploys two containers on its inventory group’s host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling `svc-registry-cache <../svc-registry-cache/README.md>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The role directory name is the `application_id`. For example `roles/web-app-mailu/meta/services.yml` is exposed as `applications['web-app-mailu'].services`, `roles/web-app-mailu/meta/server.yml` as `applications['web-app-mailu'].server`, and so on."
@@ -65661,6 +65856,9 @@ msgstr ""
 msgid "The same shape serves the repository-root file, which holds the shared collection any role and any inventory bundle may install from, and a role's own file, which holds what only that role installs."
 msgstr "同じ形状は、共有されたコレクションの任意のロールを保持し、任意の在庫バンドルがインストールできるリポジトリのルートファイルと、そのロールのインストールのみを保持するロールの独自のファイルを提供します。."
 
+msgid "The same string `.env` carries as ``INFINITO_CACHE_UPSTREAMS``, so the role's bootstrap task and the dev stack provision Nexus from one rendering. `utils.cache.records` owns the format."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The sandbox (`allowWrite`, `denyRead`, `allowedDomains`, see [sandbox.md](sandbox.md)) bounds every write, every read, and every outbound connection. `deny` rules block destructive patterns unconditionally; `ask` rules force operator review on every mutating `gh`/`docker`/`git commit`/`Skill(update-config*)` invocation. The wildcard does **not** loosen any existing guardrail; it only drops the per-shape workarounds."
 msgstr "サンドボックス (`allowWrite`, `denyRead`, `allowedDomains`, 見る [sandbox.md](sandbox.md)) すべての書き込み、すべての読み取り、すべてのアウトバウンド接続をバインドします。 `deny` ルール ブロック 破壊的なパターン 無条件; `ask` ルール 力 オペレータはすべての変異を見直します `gh`・`docker`・`git commit`・`Skill(update-config*)` 呼び出し。 ワイルドカードは **お知らせ** 既存のガードレールを緩める;それは唯一の形状の回避策をドロップします。."
@@ -65891,6 +66089,9 @@ msgstr "セットアップタスクは、フル・ファースト・ドプロ・
 # translated-by: libretranslate
 msgid "The shape each key must have is declared per role rather than here, in [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) with a `type:` and a `regex:`. The pattern rejects a truncated or whitespace-carrying paste and deliberately accepts any vendor prefix, so a provider changing its issuance format cannot turn a valid key into a failed inventory run."
 msgstr "各キーの形状は、ここでではなくロールごとに宣言されている必要があります。 [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) お問い合わせ `type:` そして、 `regex:`. パターンは、tuncated または空白の運送ペーストを拒否し、deliberately は任意のベンダープレフィックスを受け入れるので、発行形式を変更するプロバイダは、有効なキーを失敗した在庫実行に変えることができません。."
+
+msgid "The shape every consumer renders from: the ansible lookups, which then apply the inventory, and the dev stack, which does not."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shape mirrors the schema tree: nested keys stay nested. The literal string is preserved verbatim, with no rendering and no validation. Leaves WITHOUT ``default:`` are intentionally absent so the inventory's apply_schema-generated values win the merge."
@@ -66188,6 +66389,9 @@ msgstr "サイドカーが始まります ``-r`` (読み取り専用) ユーザ�
 # [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py);
 # それは束を渡って重複し、宣言の順序を維持します。.
 msgid "The single `make compose-deploy` target resolves one or more bundles into the role groups declared under `all.children` and feeds them into the standard local deploy flow when `bundles=<csv>` is set. The resolver is [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); it deduplicates across bundles and preserves declaration order."
+msgstr ""
+
+msgid "The single point of truth for the cache. A role declares the repositories it needs Nexus to proxy and, where a container must resolve an upstream by name, the hostname the frontend answers for::"
 msgstr ""
 
 # translated-by: libretranslate
@@ -71465,6 +71669,9 @@ msgstr "真の時 `role_id` マークされたカテゴリの下に座る ``invo
 msgid "True when a `web-app-mailu` host is reachable (otherwise local delivery)."
 msgstr "いつか真 `web-app-mailu` ホストは到達可能 (それ以外のローカル配送)お問い合わせ."
 
+msgid "True when a port exists for ``resolve_upstream`` to build an upstream from: the local one outside swarm, the internal one inside it. Asking that lookup for a role that has neither raises rather than returning empty."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "True when an IPv6 default route exists on a non-loopback interface."
 msgstr "IPv のとき真6 デフォルトルートは、非ループバックインターフェースに存在します。."
@@ -76223,6 +76430,9 @@ msgstr ""
 msgid "Write code so the next person can understand it quickly."
 msgstr "コードを書くと、次の人がすぐに理解できるようにします。."
 
+msgid "Write every generated cache file and return what was written."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Write every update into both requirement files."
 msgstr "すべての更新を両方の要件ファイルに書き込みます。."
@@ -76403,10 +76613,6 @@ msgid "Yield ``(role_path, meta_file)`` for every role matching *prefixes*."
 msgstr "フィードバック ``(role_path, meta_file)`` すべてのロールマッチング *プレフィックス*お問い合わせ."
 
 # translated-by: libretranslate
-msgid "Yield a LibreTranslate URL, preferring the deployed service over a new container."
-msgstr "収穫 a LibreTranslate URL は、新しいコンテナにデプロイされたサービスを好む。."
-
-# translated-by: libretranslate
 msgid "Yield absolute paths of project files matching the filter."
 msgstr "フィルターに合ったプロジェクトファイルの絶対パスを収穫します。."
 
@@ -76429,6 +76635,9 @@ msgstr "利回りの台紙はで指示します ``volume['mounts']`` ターゲ�
 # translated-by: libretranslate
 msgid "Yield project files filtered through ``.gitignore``."
 msgstr "収穫プロジェクトファイルをフィルタリング ``.gitignore``お問い合わせ."
+
+msgid "Yield the URL of the dedicated LibreTranslate, deploying it when absent."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Yields"
@@ -81080,6 +81289,9 @@ msgstr "[Nextcloud 公式サイト](https://nextcloud.com/)"
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr "[Nextcloud → ONLYOFFICE インテグレーションアプリ](https://apps.nextcloud.com/apps/onlyoffice)"
 
+msgid "[Nexus Repository](https://www.sonatype.com/products/sonatype-nexus-repository) is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. [nginx](https://nginx.org/) sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/)"
 msgstr "[ジンクス](https://nginx.org/)"
@@ -81235,6 +81447,9 @@ msgstr "[オープントーク](https://opentalk.eu/) Heinlein Groupが開発す
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr "[WireGuardのOpenWrtフォーラムディスカッション](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+
+msgid "[Package cache](roles/svc-cache-package/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package update](roles/update/)"
@@ -82189,14 +82404,6 @@ msgid "[base.md](role/services/base.md) for service registration, loading, and i
 msgstr "[base.md](role/services/base.md) サービス登録、ローディングおよび注入のため"
 
 # translated-by: libretranslate
-msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-
-# translated-by: libretranslate
-msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-
-# translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
 msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) コピーは GHCR に上流の refs だけを失います `cli.contributing.mirror.sync --only-missing`. オプションの Docker Hub 認証は、その同期中にソース側のレート制限を削減します。."
 
@@ -82205,63 +82412,16 @@ msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-image
 msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) DNS のテストと並行して欠落した上流画像をミラーリングするので、後で Docker Hub、MCR、または他の外部のレジストリの代わりに GHCR からジョブをデプロイします。 このシールドCIは、上流レートの制限、ジオブロック、および過渡レジストリの停止から。."
 
 # translated-by: libretranslate
-msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-
-# translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
 msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) 比較する `github.ref` 同じ理由で: 呼ばれたワークフローは、呼び出し者の ref を継承します。 `refs/pull/<n>/merge` お問い合わせ `pull_request` 呼び出し側が `refs/heads/main` お問い合わせ `pull_request_target` お問い合わせ インフォメーション `ci-orchestrator` 求人情報 `entry-pr-change-orchestrate.yml` フェンス `github.event_name == 'pull_request'`, つまり、オーケストラがその発信者から見ているのは、常にマージ・リファイです。そのフェンスの幅を広げることはサイレントにフォークをメインのグループに置きます。."
-
-# translated-by: libretranslate
-msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [コールリリースversion.yml](../../../../../.github/workflows/call-release-version.yml):
-# : : `🚀 Release: Version Logic`
-msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-msgstr ""
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [コールリリースversion.yml](../../../.github/workflows/call-release-version.yml)
-msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr ""
-
-# translated-by: libretranslate
-msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-
-# translated-by: libretranslate
-msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
-msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
 msgstr "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) アプリケーション行列を、ブランチの差分に対して実際に影響するロールのセットに絞り込む `origin/main`. ザ・ `discover` ジョブは有効なホワイトリストを解決する前に [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) 以下の優先順位を使用して実行します。"
 
 # translated-by: libretranslate
-msgid "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-msgstr "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-
-# translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
 msgstr "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) すべてのターゲットディストリビューションでDNSの設定を検証します。."
-
-# translated-by: libretranslate
-msgid "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-msgstr "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-
-# translated-by: libretranslate
-msgid "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-msgstr "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-
-# translated-by: libretranslate
-msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -82323,61 +82483,6 @@ msgstr "[コンテナ/](container/) ローカルコンテナ内で実行する�
 # translated-by: libretranslate
 msgid "[credentials/](../../../cli/administration/inventory/credentials/__main__.py)"
 msgstr "[認証情報](../../../cli/administration/inventory/credentials/__main__.py)"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [cron-cleanup-の特長stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml):
-# : : `🧹 Prune stale data`
-msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-msgstr ""
-
-# translated-by: libretranslate
-msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-msgstr "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-
-# translated-by: libretranslate
-msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-
-# translated-by: libretranslate
-msgid "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-msgstr "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-
-# translated-by: libretranslate
-msgid "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-msgstr "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [ログインupdate.yml](../../../../../.github/workflows/cron-update.yml)
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
-msgstr ""
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [ログインupdate.yml](../../../../../.github/workflows/cron-update.yml),
-# [エントリー-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-msgstr ""
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [ログインupdate.yml](../../../../../.github/workflows/cron-update.yml): : : `🔄
-# Update versions`
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
-msgstr ""
 
 # translated-by: libretranslate
 msgid "[csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) renders no environment and no API origin."
@@ -82467,26 +82572,6 @@ msgstr "[email.md](email.md) 電子メール検索契約をカバーします。
 msgid "[email.py](../../../../../plugins/lookup/email.py) for the plugin."
 msgstr "[email.py](../../../../../plugins/lookup/email.py) プラグイン."
 
-# translated-by: libretranslate
-msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-
-# translated-by: libretranslate
-msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-
-# translated-by: libretranslate
-msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [エントリーマニュアルsteer.yml](../../../../../.github/workflows/entry-manual-steer.yml):
-# : : `🕹️ Manual`
-msgid "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-msgstr ""
-
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected:
@@ -82496,36 +82581,8 @@ msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer
 msgstr ""
 
 # translated-by: libretranslate
-msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-
-# translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
 msgstr "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): PRスコープを検出し、条件付きでオーケストラを呼び出します。."
-
-# translated-by: libretranslate
-msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-
-# translated-by: libretranslate
-msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-
-# translated-by: libretranslate
-msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-
-# translated-by: libretranslate
-msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-
-# translated-by: libretranslate
-msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-
-# translated-by: libretranslate
-msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
@@ -82916,23 +82973,12 @@ msgstr "[systemd.unit(5) マニュアル](https://www.freedesktop.org/software/s
 msgid "[systemd/](systemd/) for WSL2 systemd helpers"
 msgstr "[システム](systemd/) WSL用2 システムヘルパー"
 
-# translated-by: libretranslate
-msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected:
 # [test-oidc-のlogin.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js)、ゲート
 # `services.sso`
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr ""
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [実験システム1-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)
-msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
@@ -83029,9 +83075,8 @@ msgstr "[type.py](../../../../utils/roles/type.py) 同じスキーマを消費�
 msgid "[update/](update/)"
 msgstr "[更新情報](update/)"
 
-# translated-by: libretranslate
-msgid "[upstreams.conf](upstreams.conf): nginx server-blocks. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
-msgstr "[upstreams.conf](upstreams.conf): nginx サーバーブロック エスプレッソ (ポート 443) 実行中のトラフィックのホスト名、HTTP (ポート 80) 内部のため-`dockerd` Dockerfile ビルド。 ビンマウント `/etc/nginx/conf.d/upstreams.conf`お問い合わせ."
+msgid "[upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[variants.md](../../contributing/design/variants.md) for what a `role#variant` row is."
@@ -83896,7 +83941,6 @@ msgstr "[ツイート] 推論はまだルートを介して [031](031-llm-gatewa
 # translation-rejected: [ツイート] LDAPのログインは、 `svc-db-openldap`, で有効
 # `PENPOT_FLAGS` (例) `enable-login-with-ldap`)お問い合わせ(ライブを検証する Penpot + + + + +
 # + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
-# + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 # OpenLDAP デプロイ。)ツイート
 msgid "[x] LDAP login is available via `svc-db-openldap`, enabled through `PENPOT_FLAGS` (e.g. `enable-login-with-ldap`). _(verified live against a Penpot + OpenLDAP deploy.)_"
 msgstr ""
@@ -84067,7 +84111,6 @@ msgstr "[ツイート] OIDC および LDAP の設定は Ansible 経由で完全�
 # nocheck: url
 # translation-rejected: [ツイート] OIDCログインは、 `web-app-keycloak`, で有効
 # `PENPOT_FLAGS` (例) `enable-login-with-oidc`)お問い合わせ(ライブを検証する Penpot + + + + +
-# + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 # + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +
 # Keycloak デプロイ。)ツイート
 msgid "[x] OIDC login is available via `web-app-keycloak`, enabled through `PENPOT_FLAGS` (e.g. `enable-login-with-oidc`). _(verified live against a Penpot + Keycloak deploy.)_"
@@ -86230,6 +86273,9 @@ msgstr "`NFS <https://en.wikipedia.org/wiki/Network_File_System>`__ (ネット�
 msgid "`N` → route a share of deploy jobs to your `[self-hosted, linux]` runners."
 msgstr "`N` → デプロイジョブの共有をルート化 `[self-hosted, linux]` ランナーズ."
 
+msgid "`Nexus Repository <https://www.sonatype.com/products/sonatype-nexus-repository>`__ is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. `nginx <https://nginx.org/>`__ sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`Nginx <https://nginx.org/>`__ is a high-performance web server and reverse proxy. This role wraps Nginx as a first-party mirror for the third-party assets other web applications declare in their CSP whitelists, so browsers fetch those assets from the deployment itself instead of contacting external hosts."
 msgstr "`Nginx <https://nginx.org/>`__ 高性能なWebサーバーとリバースプロキシです。 このロールは、CSPホワイトリストで宣言するサードパーティのアセットの他のWebアプリケーションのための最初のパーティのミラーとしてNginxをラップします。そのため、ブラウザは外部ホストに連絡するのではなく、展開自体からそれらのアセットを取得します。."
@@ -87160,6 +87206,9 @@ msgstr "``c.wiki.example.com`` → **ログイン** ``wiki.example.com`` (プラ
 msgid "``ca_cert_host`` is where sys-ca-selfsigned provisions the root CA on the host. The container-side bind-mount targets live in the ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) and reach the standalone runtime scripts as env vars and CLI arguments."
 msgstr "``ca_cert_host`` どこにあるか sys-ca-selfsigned ホストのルートCAを規定します。 コンテナ側のバインドマウントターゲットは、 ``CA_TRUST`` group_vars スプット (``inject_cert_container`` ・ ``inject_wrapper_container``) スタンドアローンのランタイムスクリプトを env vars と CLI 引数として到達します。."
 
+msgid "``canonical_domain`` is the host of ``canonical_url``, not the configured domain, so both follow the onion substitution a Tor deployment applies. A consumer that compares it against what a page actually renders would otherwise never match on an onion host."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "``central_mariadb_root_password``: The root password for the MariaDB server."
 msgstr "``central_mariadb_root_password``: ルートパスワード MariaDB サーバー。."
@@ -87179,6 +87228,9 @@ msgstr "``comments`` パーシードパーキーコメントマップから defa
 # translated-by: libretranslate
 msgid "``compose build`` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "``compose build`` クローンされたコンテンツが変更されるたびに静的出力を再焼くので、ランタイムビルドのステップなしで展開はコンテンツ主導です。."
+
+msgid "``compose.cache-consumer.yml.j2``, ``apt.list.j2``, ``npmrc.j2`` and ``pip.conf.j2`` under ``templates/``, and the shell scripts under ``files/``, belong to the development compose stack, which drives them through `render.py <../../utils/cache/render.py>`__ and `compose.py <../../cli/administration/deploy/development/compose.py>`__. The Ansible deployment reads none of them."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``compose`` (deprecated)"
@@ -87847,6 +87899,9 @@ msgstr "``relay`` そして、 ``media`` UDPです。 ``stun_turn`` TLS の変�
 # translated-by: libretranslate
 msgid "``repo`` carries the repository the names come from, defined inline on the entry that needs it: a full definition (``name``/``description``/ ``baseurl``/``gpgkey``) rendered as a yum repo, ``bootstrap_package`` for a repo shipped as a package such as ``epel-release``, ``enable_existing`` to switch on a repo the distro already ships, ``pacman_section`` to uncomment a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a community repository, or ``managed_externally`` when the role sets it up itself."
 msgstr "``repo`` リポジトリを運ぶ名前は、必要なエントリのインラインを定義します: 完全な定義 (``name``・``description``・ ``baseurl``・``gpgkey``) yumリポジトリとしてレンダリングされる、 ``bootstrap_package`` のようなパッケージとして出荷されるrepoのため ``epel-release``, ``enable_existing`` ディストロがすでに出荷しているリポジトリに切り替える ``pacman_section`` セクションを補完する ``pacman.conf`` など ``multilib``, ``copr``・``ppa`` コミュニティリポジトリ、または ``managed_externally`` ロールがそれ自体をセットアップするとき。."
+
+msgid "``repos`` or ``upstreams``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``required`` (always installed)"
@@ -88525,9 +88580,8 @@ msgstr "`base_dir` (キーワード): CAファイル用のベースディレク�
 msgid "`base` prepares the workspace and is a prerequisite for the other two. `compose` and `swarm` are independent of each other, which is what lets CI run them as separate jobs with a budget each."
 msgstr ""
 
-# translated-by: libretranslate
-msgid "`bash scripts/docker/cache/package.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
-msgstr "`bash scripts/docker/cache/package.sh` (アフター `make dotenv` または調達 `scripts/meta/env/load.sh`)"
+msgid "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`bench new-site` uses the central MariaDB's `root` to create the per-site DB on first deploy."
@@ -88661,6 +88715,9 @@ msgstr "`cluster_addr` コンテナ名からビルドされていない コン�
 # translated-by: libretranslate
 msgid "`compose build` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "`compose build` クローンされたコンテンツが変更されるたびに静的出力を再焼くので、ランタイムビルドのステップなしで展開はコンテンツ主導です。."
+
+msgid "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` and `pip.conf.j2` under `templates/`, and the shell scripts under `files/`, belong to the development compose stack, which drives them through [render.py](../../utils/cache/render.py) and [compose.py](../../cli/administration/deploy/development/compose.py). The Ansible deployment reads none of them."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`compose.volumes:` is **not** inlined into services. It lives in its own `meta/volumes.yml` (volumes are role-wide, not per-service)."
@@ -89305,6 +89362,9 @@ msgstr "`index`, `sweep` (お問い合わせ), `distros` (オプションプー�
 # translation-rejected: `infinito administration deploy development
 # <subcommand>` (Python CLI(Python CLI))
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
+msgstr ""
+
+msgid "`infinito meta cache` subcommand -- render the derived cache files."
 msgstr ""
 
 # translated-by: libretranslate
@@ -90839,6 +90899,12 @@ msgstr "`update` (オプション) ライブアップストリーム監視を制
 msgid "`update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include."
 msgstr "`update` 既存の在庫を再利用します。 `disable` サービスの無効化をレンダリングする余分変数としてansible に達しますが、include に触れない。."
 
+msgid "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ is rendered to the host and mounted into the frontend as ``conf.d/upstreams.conf``. Its content comes from the ``cache:`` sections of the roles’ ``meta/networks.yml``, so no hostname, repository or upstream URL is written in this role."
+msgstr ""
+
+msgid "`upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`user_username` is resolved from `lookup('users', user_key).username` (fallback: `user_key`)"
 msgstr "`user_username` から解決される `lookup('users', user_key).username` (フォールバック: `user_key`)"
@@ -90869,6 +90935,9 @@ msgstr "`users` ラインナップ 👥"
 # そして、その背後にある2つのテンプラヘルパーは、目的のあらゆる例外を飲み込む:
 # メタペイロードは、ラウンドでレンダリングし、まだ解決できない式は、ラウンドを飽きさせない。.
 msgid "`utils.cache.base._render_with_templar` and the two templar helpers behind it swallow every exception on purpose: a meta payload renders in rounds, and an expression that cannot resolve yet has to come back unchanged rather than abort the round."
+msgstr ""
+
+msgid "`utils.cache.records` owns the format and the mirror resolution, so the role's bootstrap task and this key cannot drift apart."
 msgstr ""
 
 # translated-by: libretranslate
@@ -91252,6 +91321,9 @@ msgstr "選択トークン (`role#0/zfs`)"
 # translated-by: libretranslate
 msgid "a short description of the issue"
 msgstr "問題の短い説明"
+
+msgid "a sibling repository proxying a different host, which the frontend falls back to when this one answers 5xx."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a source **not** starting with `/` → remote `[user@]host[:/path]`, rsync-pulled (`nfs` / `volume` / `full`)"
@@ -92750,6 +92822,9 @@ msgstr "cli.make パッケージ"
 # translated-by: libretranslate
 msgid "cli.meta package"
 msgstr "cli.meta パッケージ"
+
+msgid "cli.meta.cache package"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.ci package"
@@ -94376,6 +94451,9 @@ msgstr "行を取ることができないモード、オニオン状態の行、
 msgid "it pins a variant the role does not declare (any more): the usual case is a list carried over from an older run whose variants have since been renumbered;"
 msgstr ""
 
+msgid "its repository type, such as ``apt`` or ``raw``."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "jitsi"
 msgstr "ログイン"
@@ -94758,6 +94836,9 @@ msgstr "管理者アカウントの個人アクセストークンをミントト
 msgid "mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`."
 msgstr "管理者アカウントの個人アクセストークンをミントトし、それを説得します `sys-token-store` ふりがな `users.administrator.tokens['web-app-mattermost']`お問い合わせ."
 
+msgid "minutes Nexus serves a cached artefact for, where the repository needs something other than the stack-wide default."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "mode"
 msgstr "モード"
@@ -94857,6 +94938,9 @@ msgstr "nfs サーバー"
 # translated-by: libretranslate
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr "nftables パケットフィルタは、各ロールが独自のテーブルとして所有し、原子を置換し、起動時に再読み込みする"
+
+msgid "nginx ``proxy_read_timeout`` where the default is too short, as for a multi-gigabyte model download."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "nginx vhost-file purge helper (entity-keyed)."
@@ -95818,6 +95902,15 @@ msgstr "plugins.lookup.bounded\\ name モジュール"
 msgid "plugins.lookup.ca\\_injected module"
 msgstr "plugins.lookup.ca\\ inject モジュール"
 
+msgid "plugins.lookup.cache\\_records module"
+msgstr ""
+
+msgid "plugins.lookup.cache\\_repos module"
+msgstr ""
+
+msgid "plugins.lookup.cache\\_upstreams module"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "plugins.lookup.canonical\\_url module"
 msgstr "plugins.lookup.canonical\\ url モジュール"
@@ -96065,6 +96158,9 @@ msgstr "plugins.lookup.playwright\\ workers モジュール"
 # translated-by: libretranslate
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr "plugins.lookup.postgres\\ libraries モジュール"
+
+msgid "plugins.lookup.probeable\\_backend module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.prometheus\\_integration\\_active module"
@@ -96707,6 +96803,9 @@ msgstr "result.rc != 0 なし (result.stderr お問い合わせ ldap_modify_noop
 # translated-by: libretranslate
 msgid "return the first successfully parsed JSON value"
 msgstr "最初に成功した解析されたJSON値を返す"
+
+msgid "returns one line about the server's own progress, reported every ``PROGRESS_SECONDS`` while it installs its models. The server offers no endpoint before it is ready, so without this the wait is indistinguishable from a hang for its whole hour."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "reusable"
@@ -97380,16 +97479,18 @@ msgid "target language."
 msgstr "ターゲット言語。."
 
 # translated-by: libretranslate
-msgid "target languages to load next to the source language."
-msgstr "ソース言語の横に読み込むためのターゲット言語。."
-
-# translated-by: libretranslate
 msgid "targets: [\"{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}\"]"
 msgstr "ターゲット: [\"{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}\"]"
 
 # translated-by: libretranslate
 msgid "teardown"
 msgstr "ティアダウン"
+
+msgid "templating variables."
+msgstr ""
+
+msgid "term 0 is the application id."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "term can be:"
@@ -97467,6 +97568,9 @@ msgstr "お問い合わせ Nextcloud アプリのパスワードが属するア�
 # translated-by: libretranslate
 msgid "the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account’s permissions"
 msgstr "お問い合わせ Nextcloud アプリのパスワードが属するアカウント。すべてのツールは、そのアカウントの権限で、アダプターの転送を呼び出します。"
+
+msgid "the Nexus repository name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above"
@@ -97572,6 +97676,9 @@ msgstr "お問い合わせ `roles:` リストは空、または"
 msgid "the `root` account"
 msgstr "お問い合わせ `root` パスワード"
 
+msgid "the absolute URL it proxies."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the address the commit carries."
 msgstr "コミットが運ぶアドレス。."
@@ -97633,6 +97740,9 @@ msgstr "カタログを書く。."
 # nocheck: url
 # translation-rejected: 変更内容 "明らかに正しい"お問い合わせ.
 msgid "the change \"looks obviously correct\"."
+msgstr ""
+
+msgid "the checkout being generated for."
 msgstr ""
 
 # translated-by: libretranslate
@@ -97715,6 +97825,9 @@ msgstr "app config から読み込みます。."
 msgid "the deploy mode the row runs in."
 msgstr "展開モード 行が実行されます。."
 
+msgid "the depth a ``yum`` repository indexes."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the detected package manager."
 msgstr "検出されたパッケージマネージャ。."
@@ -97761,6 +97874,9 @@ msgstr "空のマッピング `{}` (正式なノーオーバーライドエン�
 msgid "the endpoint is configurable but both prompt-sending views are premium-licence gated; see the measurement above"
 msgstr "エンドポイントはコンフィギュレーション可能ですが、両方とも プロンプト スタンディング ビューはプレミアム ライセンス ゲートです。上記の測定を参照してください。"
 
+msgid "the entries the roles declare, keyed by name."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the entries whose role has no job at all in the source run, each with its own axis suffix intact."
 msgstr "ソースの実行中にすべてのジョブを持たないエントリ, それぞれ独自の軸サフィックス不全."
@@ -97805,15 +97921,24 @@ msgstr "各試合の最初のキャプチャグループ"
 msgid "the fix was logically inferred from a previous deploy's evidence,"
 msgstr "修正は、以前のデプロイの証拠から論理的に推論されました。"
 
+msgid "the frontend ports serving it; apt suites are plain HTTP."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the fully qualified domain being probed."
 msgstr "調査される十分に修飾されたドメイン。."
+
+msgid "the hijacked hostnames, sorted by host."
+msgstr ""
 
 # translation-refused: libretranslate protected-span lost=['databases.csv']
 # gained=['databases.csvお問い合わせ']
 # nocheck: url
 # translation-rejected: ホストの databases.csvお問い合わせ.
 msgid "the host's databases.csv."
+msgstr ""
+
+msgid "the hostname a container resolves to the frontend."
 msgstr ""
 
 # translated-by: libretranslate
@@ -97827,6 +97952,9 @@ msgstr "読書を始めるインデックス; ``0`` ソースの実行がオフ�
 # translated-by: libretranslate
 msgid "the input's name, for the messages."
 msgstr "メッセージの入力の名前。."
+
+msgid "the inventory's entries for the same section."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the job label CI emits (``🐳🧅🌀🦓🦾网络应用·Nextcloud#2``) -- the glyphs carry mode, onion state, distro, filesystem and architecture, the ``#`` shard the variants;"
@@ -97878,6 +98006,12 @@ msgstr "最後の拒否のメッセージ、何も起こらないときに空に
 # translated-by: libretranslate
 msgid "the longest value the consumer accepts; a positive integer."
 msgstr "消費者が受け入れる最長値。肯定的な整数。."
+
+msgid "the lookup plugin's loader."
+msgstr ""
+
+msgid "the lookup plugin's templar, where it has one."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the lookup's templar, or None outside a play."
@@ -97934,6 +98068,9 @@ msgstr "統合されたユーザーマッピング。."
 # translated-by: libretranslate
 msgid "the message the occurrence sits in."
 msgstr "発生したメッセージは、."
+
+msgid "the mirror list, or empty to read it from the environment."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the module results, in execution order."
@@ -98065,6 +98202,9 @@ msgstr "プロバイダーの ``services`` マッピング。."
 msgid "the provider's application id."
 msgstr "プロバイダーのアプリケーション ID。."
 
+msgid "the proxied repositories, sorted by name."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the qdrant service role id."
 msgstr "qdrantサービスの役割id。."
@@ -98115,6 +98255,12 @@ msgstr "レンダリングされたコンパスファイル。."
 msgid "the rendered config is mounted INTO a container rather than read by the host's own msmtp."
 msgstr "レンダリングされたコンフィグは、ホストの msmtp で読むのではなく、コンテナに INTO をマウントします。."
 
+msgid "the repository behind each path, for a host whose suites live side by side, as Debian's do under /debian/ and /debian-security/."
+msgstr ""
+
+msgid "the repository serving its root, when it serves only one."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the repository was cloned"
 msgstr "リポジトリはクローン化されました"
@@ -98161,6 +98307,9 @@ msgstr "ピンが住んでいるロールディレクトリ。."
 # translated-by: libretranslate
 msgid "the role installs the extension and points its OpenAI-compatible provider at the gateway in `tasks/addons/ai-llm.yml`"
 msgstr "ロールは、エクステンションをインストールし、ゲートウェイのOpenAI互換プロバイダをポイントします `tasks/addons/ai-llm.yml`"
+
+msgid "the role that declared it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the role the domain belongs to."
@@ -98441,6 +98590,9 @@ msgstr "ソースは、何も変更する必要がないとき、好ましいサ
 msgid "the structure to serialise."
 msgstr "シリアライズする構造."
 
+msgid "the suite an ``apt`` repository serves."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the target distribution, named in the skip reason."
 msgstr "スキップの理由で示されるターゲット分布。."
@@ -98484,6 +98636,9 @@ msgstr "未修正の事実名。."
 msgid "the updates to apply."
 msgstr "申請するアップデート。."
 
+msgid "the upstream hands out URLs that already carry the repository prefix, as npm does for tarballs, so those reach the backend unprefixed instead of being prefixed twice into a 404."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the upstream host, as it appears in the proxied URL."
 msgstr "上位のホストは、プロキシされた URL に表示されるようにします。."
@@ -98495,6 +98650,9 @@ msgstr "ユーザは、パスワードが、失敗メッセージのために属
 # translated-by: libretranslate
 msgid "the user's merged configuration."
 msgstr "ユーザーの統合設定。."
+
+msgid "the value INFINITO_DISTRO carries."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the value contradicts the declared type or pattern."
@@ -98609,10 +98767,6 @@ msgid "transitive shared service dependencies"
 msgstr "独立した共有サービス依存関係"
 
 # translated-by: libretranslate
-msgid "translation threads of a container this starts itself."
-msgstr "コンテナの翻訳スレッドが始まります。."
-
-# translated-by: libretranslate
 msgid "translations that altered a protected span."
 msgstr "保護されたスパンを変更した翻訳。."
 
@@ -98635,6 +98789,9 @@ msgstr "ログイン"
 # translated-by: libretranslate
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
 msgstr "tty=None 自動選択 (ローカル:真、CI:偽). live=True は stdout/stderr をストリームします。."
+
+msgid "two roles declare the same repository or host differently,     or a host names a repository nobody declares."
+msgstr ""
 
 # translation-refused: libretranslate protected-span lost=[] gained=['2']
 # nocheck: url
@@ -98663,6 +98820,9 @@ msgstr "アプリケーション[アプリケーション]['services'] 各サー
 # translated-by: libretranslate
 msgid "unpinned"
 msgstr "ログイン"
+
+msgid "unused."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "update"
@@ -98807,6 +98967,18 @@ msgstr "utils.cache.files モジュール"
 # translated-by: libretranslate
 msgid "utils.cache.gitignore module"
 msgstr "utils.cache.gitignore モジュール"
+
+msgid "utils.cache.hosts module"
+msgstr ""
+
+msgid "utils.cache.inventory module"
+msgstr ""
+
+msgid "utils.cache.records module"
+msgstr ""
+
+msgid "utils.cache.render module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cache.schema\\_credentials module"
@@ -98988,9 +99160,21 @@ msgstr "utils.env.handlers.infinito.cache パッケージ"
 msgid "utils.env.handlers.infinito.cache.conf module"
 msgstr "utils.env.handlers.infinito.cache.conf モジュール"
 
+msgid "utils.env.handlers.infinito.cache.hosts module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.stack module"
 msgstr "utils.env.handlers.infinito.cache.stack モジュール"
+
+msgid "utils.env.handlers.infinito.cache.tls module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.cache.upstreams module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.container module"
@@ -100126,6 +100310,9 @@ msgstr "グラフが解決しない場合は、サイクルとロールを命名
 msgid "when: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 msgstr "いつ: 調べる('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 
+msgid "where INFINITO_CACHE_PACKAGE_FRONTEND_CONF points."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "whether a CI runner is executing, which lowers the ceiling."
 msgstr "天井を下げるCIランナーが実行しているかどうか。."
@@ -100263,8 +100450,6 @@ msgstr "{% if lookup('prometheus_integration_active', application_id) %} ...prom
 # --retry-delay --retry-delay --retry-all-errors --retry-all-errors
 # --retry-all-errors --retry-delay --retry-delay --retry-retry-all-errors
 # --retry-all-retry-all-errors --retry-retry-delay
-# --retry-retry-all-all-errors
-# --retry-retry-all-retry-retry-all-retry-retry-retry-all-all-errors-retry-retry-retry-all-retry-retry-all-retry-all-all-retry-retry-re-retry-all-errors-retry-retry-all-retry-retry-retry-retry-all-retry-retry-all-all-retry-retry-retry-all-all-all-errors-all-all-retry-
 # 2 {{ lookup('timeout', 30) | curl }} → → TIMEOUT_FACTOR-スケールされた変形
 msgid "{{ 30 | curl }}                      -> curl -s --connect-timeout 5 --max-time 30 --retry 3 --retry-all-errors --retry-delay 2 {{ 300 | curl }}                     -> curl -s --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 {{ lookup('timeout', 30) | curl }}   -> TIMEOUT_FACTOR-scaled variant"
 msgstr ""

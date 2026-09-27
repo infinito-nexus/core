@@ -975,6 +975,9 @@ msgstr "**Còpia de seguretat a punt:** Dades persistents sota `{{ JIRA_STORAGE_
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
 msgstr "**Còpia de seguretat i recuperació del desastre.** *svc-bkp-container-2-local* és substituït per *svc-bkp-volume-2-local*, fent una política de seguretat explícita per volum. El paper prefereix les instantànies del sistema de fitxers quan estan disponibles i es poden preparar màquines btrfs per realitzar còpies de seguretat basades en instantànies. Nou *svc-bkp-nfs-2-local* Protegeix l' exportació NFS compartida, *svc-bkp-secrets-2-local* Captura material secret, i *svc-bkp-local-2-device* Sincronitza còpies de seguretat per a muntar suports externs. Un unificat *recupera* El CLI restaura les comprovacions de recuperació i un desastre complet per a la recuperació de l'Swarm contínuament verificar el camí. No es conservaran els fitxers substituïts com a *~* còpies."
 
+msgid "**Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Backup integration:** Backup Docker Volumes snapshots the model volume when that role is present, without stopping the container."
 msgstr "**Integració de la còpia de seguretat:** El volum de còpia de seguretat talla el volum del model quan aquest paper està present, sense aturar el contenidor."
@@ -2194,6 +2197,12 @@ msgstr "**Descentralitzat i Federitzat:** Connecta amb una xarxa global de servi
 msgid "**Decentralized social networking:** Self-host the AT Protocol PDS and serve user data under your own domain."
 msgstr "**Xarxa social descentralitzada:** Auto-ordinador de la policia AT Protocol i serveix per a les dades d'usuari sota el seu propi domini."
 
+msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the ``cache:`` declarations, collected by the ``cache_upstreams`` and ``cache_repos`` lookups. A new upstream is added by declaring it there."
+msgstr ""
+
+msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the `cache:` declarations, collected by the `cache_upstreams` and `cache_repos` lookups. A new upstream is added by declaring it there."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Declared context windows:** A model entry carrying ``context`` publishes it as ``model_info.max_input_tokens``, and an Ollama entry also runs with that window as ``num_ctx`` instead of the server’s default, so a caller’s prompt is not silently truncated."
 msgstr "**Declaar les finestres de context:** Una entrada de model que transporta ``context`` Ho publica com a ``model_info.max_input_tokens``, i un Ollama l' entrada també s' executa amb aquesta finestra com ``num_ctx`` No s' ha truncat l' indicatiu per omissió del servidor Umbrello, de manera que un indicatiu s' ha truncat en silenci."
@@ -2442,6 +2451,9 @@ msgstr "**Descripció:** Un rol de DNSflare per a l'Apex i el comodí A/AAAA reg
 # translated-by: libretranslate
 msgid "**Description:** Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**Descripció:** Registre d'imatges del contenidor local per a servir imatges personalitzades en Docker Swarm nodes"
+
+msgid "**Description:** Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -6119,6 +6131,9 @@ msgstr "**petjada mínima:** Petita Node.js/Expressatge servei que s'ajusti acur
 msgid "**Minimal scope** (client-only, no server configuration)"
 msgstr "**Àmbit mínima** (Només client, sense configuració del servidor)"
 
+msgid "**Mirror failover:** A repository that declares a mirror is served through a guarded location: a 5xx from its primary remote re-runs the same path against the sibling repository, while a 404 is passed straight back."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Mitigation:** Image-level mutation (`run`, `build`, `push`, `login`) and their synonyms (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) still route through `ask`, so the operator reviews them before they execute."
 msgstr "**Amigació:** mutació a nivell d' imatge (`run`, `build`, `push`, `login`) i els seus sinònims (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) Segueix camí a través `ask`, així que les ressenyes de l'operador abans d'executar-les."
@@ -7323,6 +7338,9 @@ msgstr "**Estat persistent:** La memòria i l' espai de treball viuen en un volu
 # translated-by: libretranslate
 msgid "**Persistent state:** Memory and workspace live in a volume mounted at ``/home/node/.openclaw``, with the rendered ``openclaw.json`` mounted into it, and are included in the container volume backup when that service is deployed."
 msgstr "**Estat persistent:** La memòria i l' espai de treball viuen en un volum muntat a ``/home/node/.openclaw``, amb el renderitzat ``openclaw.json`` muntat i s'inclou en la còpia de seguretat del volum del contenidor quan s' usa aquest servei."
+
+msgid "**Persistent store:** Proxied artefacts live in a named volume, so a redeploy reuses what earlier runs already pulled."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Persistent:** ``nftables.service`` loads every fragment at boot, so rules outlive a reboot without a unit of this project’s own. The ruleset it reads is a distribution decision, so the path follows ``os_family``: RedHat reads ``/etc/sysconfig/nftables.conf``, the others ``/etc/nftables.conf``."
@@ -10444,6 +10462,9 @@ msgstr "**descripció**: Cloudflare DNS Hock for apex i comodins A/AAAA registre
 # translated-by: libretranslate
 msgid "**description**: Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**descripció**: Registre d'imatges de contenidor local per a servir imatges personalitzades per a nodes de Docker Swarm"
+
+msgid "**description**: Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -13652,6 +13673,9 @@ msgstr "Un títol de treball afegit usa tota la fila que s' usarà -- rol, varia
 msgid "A deploy with zero or more than one manager fails at inventory-validation time, never at runtime."
 msgstr "Una col·lecció amb zero o més d'un gestor falla en l'hora de l'inventari de validació, mai en temps d' execució."
 
+msgid "A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "A deployment that keeps the shipped `DOMAIN_PRIMARY` serves names under `infinito.localhost`. Those exist in no zone, so a task that reaches the deployment's own domain from the host depends on the `myhostname` NSS module, which maps any `*.localhost` name to loopback per RFC 6761."
 msgstr "Un desplegament que manté els enviats `DOMAIN_PRIMARY` serveix de noms sota `infinito.localhost`. Això no existeix en cap zona, així que una tasca que abasta el propi domini de la màquina depèn de la `myhostname` NSS mòdul, que traça qualsevol `*.localhost` nom a repetir per RFC 6761."
@@ -14211,6 +14235,12 @@ msgstr "Un renderitzat `socialhome.toml` està muntada junt al fitxer d' entorn.
 # translated-by: libretranslate
 msgid "A repository definition must declare at least one of these; the rest (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."
 msgstr "Una definició del repositori ha de declarar almenys un d' aquests, la resta (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) Posa-ho."
+
+msgid "A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `listen: [80]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix."
+msgstr ""
+
+msgid "A repository may serve several hosts and a host may be served by one repository only; a repository without a host is proxied but never hijacked, which is how a client that already addresses Nexus directly is served."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A repository-local Sphinx entry point is also available at [Contribution Guide Index](docs/contributing/index.rst)."
@@ -14796,6 +14826,9 @@ msgstr "Un flux de feina que les entrades diuen que no `concurrency` dels seus p
 msgid "A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit."
 msgstr "Un flux de treball amb un `workflow_dispatch` Activar MUST mantenir-la `name:` at o a sota 25 Caràcters, forçats per [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). El menú d' enviament llista aquests noms en una columna estreta, on s' ha truncat una més llarga. Mou el mot explicatiu cap a `run-name:`, que no porta aquest límit."
 
+msgid "A worktree configured to follow the primary checkout reads that checkout's map without writing it: rendering there would push this branch's declarations into another tree, which is the isolation the setting exists to provide."
+msgstr ""
+
 # translated-by: libretranslate
 #, python-brace-format
 msgid "ACL user + key-prefix `{entity}:*`"
@@ -15230,16 +15263,8 @@ msgid "Add a row to the matching table above with its compose-side purpose."
 msgstr "Afegeix una fila a la taula coincident a dalt amb el seu propòsit de compondre."
 
 # translated-by: libretranslate
-msgid "Add a server-block in [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) that reverse-proxies onto the new Nexus repo path (rewrite if upstream URL prefix differs from the Nexus repo path)."
-msgstr "Afegeix un bloqueig del servidor [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) aquest re-proxies inversa al nou camí Nexus repo (Reescriptura si el prefix d' URL de sortida difereix del camí Nexus repo)."
-
-# translated-by: libretranslate
 msgid "Add a short comment at the sensitive code path."
 msgstr "Afegeix un petit comentari al camí de codi sensible."
-
-# translated-by: libretranslate
-msgid "Add an `extra_hosts` entry on the `infinito` service in [compose/cache.override.yml](../../../compose/cache.override.yml) for runner-side traffic."
-msgstr "Afegeix un `extra_hosts` entrada a la `infinito` servei a [compose/cache.override.yml](../../../compose/cache.override.yml) per tràfic de corredors."
 
 # translated-by: libretranslate
 msgid "Add an `svc-runner` role that provisions a dedicated machine as an Infinito.Nexus CI runner, plus a CLI entry point under `cli/administration/deploy/runner/` (path to be created) that drives an Infinito.Nexus deploy against that runner from a developer workstation."
@@ -16934,6 +16959,9 @@ msgstr "Es requereix una llista explícita per domini perquè es requereix el fo
 msgid "An explicit string value at applications['web-app-nextcloud'] .services.sso.oidc.plugin (inventory override)."
 msgstr "Un valor de cadena explícit a les aplicacions['web-app-nextcloud'] .services.sso.oidc.plugin (Sobreescriu l' inventari)."
 
+msgid "An image build reaches the cache by hostname, but it cannot verify the frontend's self-signed certificate unless its Dockerfile installs the CA, so only these are safe to hijack for every build. A build that does install the CA additionally gets the TLS hosts; `sys-svc-compose`'s override generator decides that per image."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "An independent creator stack for publishing, video, audio, analytics, and community without platform lock-in."
 msgstr "Una pila de creadora independent per publicar, vídeo, àudio, anàlisi i comunitat sense bloqueig de plataforma."
@@ -17563,6 +17591,9 @@ msgstr "Appas a cada crida que recupera la xarxa, els repositoris de la distribu
 # translated-by: libretranslate
 msgid "Applies to: **`main` (default branch)**"
 msgstr "Aplica a: **`main` (branca per omissió)**"
+
+msgid "Apply a host's inventory to the cache declarations the roles make."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Apply every update in *updates* to disk. Returns the list of config files that were actually modified."
@@ -18969,9 +19000,8 @@ msgstr "Espatlla i manté **Prequisits DNS** per la teva pila web a Cloudflare."
 msgid "Bootstrap env"
 msgstr "Bootstrack onv"
 
-# translated-by: libretranslate
-msgid "Bootstrap is idempotent and runs from [package.sh](../../../scripts/docker/cache/package.sh) once the stack is healthy."
-msgstr "L' arrencada és impotent i s' executa de [package.sh](../../../scripts/docker/cache/package.sh) Un cop la pila estigui sana."
+msgid "Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap tooling is provided via Kevin's Package Manager: <https://github.com/kevinveenbirkenbach/package-manager>"
@@ -19144,6 +19174,9 @@ msgstr "Tots dos requisits nomen les mateixes col· leccions a les mateixes vers
 # translated-by: libretranslate
 msgid "Both run from the trusted workflow ref and check out the version tag for the actual build payload, so the release artefacts match the tagged commit byte-for-byte."
 msgstr "Les dues s' executen des del flux de treball de confiança i comproven l' etiqueta de versió per a la construcció actual de pagament de construcció, de manera que els artefactes de llançament coincideixen amb l' etiqueta de publicació de bytes per a-byte."
+
+msgid "Both sections are merged per entry, so an inventory that names one field keeps the rest of the declaration, and a key nobody declared is added."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Both sides pass `primary_apps` (not the round closure) as the BFS seed and the variant-merged services map for that round, so the reachability walk sees the same topology the inventory baked."
@@ -20588,9 +20621,8 @@ msgstr "Name"
 msgid "Centralizes container execution logic"
 msgstr "La lògica d' execució del recipient"
 
-# translated-by: libretranslate
-msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "La generació de Cert corre en un recipient de tir atípina conduït per [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Abans que comenci la interfície."
+msgid "Cert generation runs in a throw-away alpine container driven by [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) before the frontend starts. It issues a leaf for each name in `INFINITO_CACHE_TLS_HOSTS` and holds no hostname of its own."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -21616,6 +21648,9 @@ msgstr "Clona, instal·la l'estació, i desplegar l'OpenResty a la pila local:"
 msgid "Clone, set up the workstation, and deploy OpenTalk onto the local stack:"
 msgstr "Clona, instal·la l'estació, i col·loqui OpenTalk a la pila local:"
 
+msgid "Clone, set up the workstation, and deploy Package cache onto the local stack:"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy Package update onto the local stack:"
 msgstr "Clona, instal·la l'estació i desplegueu-vos Package update a la pila local:"
@@ -21973,6 +22008,9 @@ msgstr "Centre- local `Docker Registry <https://distribution.github.io/distribut
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Registre d'imatges del contenidor local per a servir imatges personalitzades en Docker Swarm nodes"
 
+msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Memòria cau a través del grup per a la memòria cau compartida Docker Hub base- images, tall de transferències duplicats i límits de taxa"
@@ -22091,6 +22129,9 @@ msgstr "Redueix el vostre JavaScript en una sola línia i l' injecta via ``sub_f
 #, python-brace-format
 msgid "Collect every `<entity>.ports.public.relay.{start,end}` pair as an occupied span."
 msgstr "Recupera cada `<entity>.ports.public.relay.{start,end}` Una parella com a espai ocupat."
+
+msgid "Collect what the package cache proxies, from ``cache:`` in meta/networks.yml."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Collection search; host/service status; PromQL query, query range, labels, metadata, and targets"
@@ -24103,6 +24144,9 @@ msgstr "Declareu-ho com a dependència en el rol de l' escriptori `meta/main.yml
 msgid "Declare it as a dependency in the desktop role’s ``meta/main.yml``:"
 msgstr "Declara-la com a dependència en el rol d'escriptori ``meta/main.yml``:"
 
+msgid "Declare it under `cache:` in a `meta/networks.yml`, then run `make dotenv`. That file is the single point of truth; the Nexus repo, the leaf cert, the nginx server block, the `extra_hosts` entries, `pip.conf`, `.npmrc` and the apt sources are all derived from it."
+msgstr ""
+
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Declare the image at the file root of `meta/services.yml` → `<service>.{image,version}`:"
@@ -24539,10 +24583,6 @@ msgid "Deploy `Social Home <https://github.com/social-home-io/socialhome>`__, a 
 msgstr "Deploy `Social Home <https://github.com/social-home-io/socialhome>`__, Una plataforma social alimentada per a una sola llar. Un contenidor, una base de dades SQLite encastada, i una federació entre les llars d' Ed25519- Nogravats canals de dades WebRTC no pas d'activitatPub, ni missatges, ni botiga d'objectes."
 
 # translated-by: libretranslate
-msgid "Deploy a LibreTranslate the translator can reach, or run a throwaway one."
-msgstr "Deploy a LibreTranslate El traductor pot arribar, o executar una llança."
-
-# translated-by: libretranslate
 msgid "Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys."
 msgstr "Una ronda que inclou la vostra aplicació (Hola. `make compose-deploy apps=<application_id>`); les seves especificacions s'executen amb aquells de cada altre paper que la ronda col·loca."
 
@@ -24615,6 +24655,9 @@ msgstr "Un flux de proves de treball d' alta màquina a través de [enlarge_swap
 # translated-by: libretranslate
 msgid "Deploy test workflows use the `jlumbroso/free-disk-space` action to reclaim runner space before Docker pulls start. Because the actual deploy runs **inside** the `infinito` container, the host's language toolchains, build packages, and default Docker layer cache are all dead weight and MUST be reclaimed aggressively."
 msgstr "Desploy tests usen el flux de treball `jlumbroso/free-disk-space` Acció per a recuperar l' espai del llançador abans de començar Docker. Perquè la posició real s'està executant **dins** el `infinito` El recipient, l'eina d'idiomes de la màquina, construeix paquets, i la memòria cau per omissió de la capa de Docker són tot pes mort i MUS ha de ser recuperat agressivament."
+
+msgid "Deploy the dedicated LibreTranslate the translator reaches."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Deploy the role and run the spec inside the shared `test-e2e-playwright` runner until every MUST in the contributor SPOT passes and the browser console is free of unhandled errors."
@@ -27794,6 +27837,9 @@ msgstr "Tot un testimoni està marcat contra el que realment pot fer la fila (:f
 # translated-by: libretranslate
 msgid "Everything else lands in ``rejected`` with a stable code: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` and ``tools_unenforceable``."
 msgstr "Tota la resta en ``rejected`` amb un codi estable: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` i ``tools_unenforceable``."
+
+msgid "Everything the roles declare, collected."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Evidence"
@@ -31135,9 +31181,8 @@ msgstr "HTTP+SSE (`adapter.upstream_transport: sse`)"
 msgid "HTTP/2 support, TLS/SSL integration"
 msgstr "HTTP/2 Implementació, integració del TLS/SSL"
 
-# translated-by: libretranslate
-msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "HTTPS (port 443): per servidor de nom de màquina signat per una CA dedicada. Utilitzada per la `infinito` executador (Impressibles `pip install`, `gem install`, `composer install`, `curl https://…`)El corredor confia en la CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
+msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -31782,6 +31827,12 @@ msgstr "IAM(Gestió d' accés i identitat) està configurat mitjançant Keycloak
 msgid "INFINITO_*-key env handlers; one module per owned key."
 msgstr "INFINITO *-key env manipuladors; un mòdul per clau pròpia."
 
+msgid "INFINITO_CACHE_HOSTS: the hostnames the package cache fronts, collected from the ``cache:`` declarations every role makes in its meta/networks.yml."
+msgstr ""
+
+msgid "INFINITO_CACHE_HTTP_HOSTS: the hostnames the frontend serves without TLS."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path:hostname), truncated to 32 hex chars."
 msgstr "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: contrasenya d' administrador per màquina Nexus: sha256(host_path: nom de màquina), S' ha truncat a 32 Caràcters hexadecimals."
@@ -31813,6 +31864,12 @@ msgstr "INFINITO_CACHE_REGISTRY_MAX_SIZE: la capa tova de registre (la meitat de
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_STACK: whether the pull-through cache stack should run."
 msgstr "INFINITO_CACHE_STACK: si s' ha d' executar la pila cau a través de la memòria cau."
+
+msgid "INFINITO_CACHE_TLS_HOSTS: the hostnames the package-cache frontend needs a leaf certificate for, being those its cache: declarations serve over HTTPS."
+msgstr ""
+
+msgid "INFINITO_CACHE_UPSTREAMS: every repository the package cache proxies, as ``name|flavor|url|distribution|repodata_depth|content_max_age`` records separated by commas, from the cache: entries the roles declare in their meta/networks.yml."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "INFINITO_CA_BUNDLE_CANDIDATES: where the distributions keep the extracted CA bundle, read from the group_vars paths SPOT (group_vars/all/05_paths.yml CA_BUNDLE_CANDIDATES)."
@@ -32442,14 +32499,6 @@ msgstr "Si l' script surt `0` I la inspecció va passar, va a [Surt](#exit)."
 # translated-by: libretranslate
 msgid "If the script exits non-zero OR the inspection surfaced a schema violation:"
 msgstr "Si l' script surt de zero o de la inspecció va fer una violació d' esquemes:"
-
-# translated-by: libretranslate
-msgid "If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`."
-msgstr "Si la part superior és HTTP- només i interior...`dockerd` Les construccions les necessiten, també s' afegeixen a `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) Així que el per-app `compose.cache.override.yml` Ho inclou `build.extra_hosts`."
-
-# translated-by: libretranslate
-msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "Si la part superior usa HTTPS, afegiu- la `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) S'ha emès un cert de fulla."
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -35002,6 +35051,9 @@ msgstr "És un **Ajudador genèric d' infraestructura**."
 msgid "It is a standalone script — no environment, no backup generation, no other drill. It resolves `baudolo-snapshot` from `PATH`, so it tests whatever the role deployed:"
 msgstr "És un script independent Manveen sense entorn, sense generació de seguretat, cap altre trepant. Resol `baudolo-snapshot` des de `PATH`, Les proves fan servir el paper:"
 
+msgid "It is deliberately separate from `cli.meta.env`, which has to import on the bare bootstrap python and therefore cannot reach Jinja or PyYAML."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "It is designed to be used as a fallback when no central Mailu instance is available, enabling applications and system services to send email via ``localhost:25`` without additional configuration."
 msgstr "Està dissenyat per ser usat com a alternativa quan no és central Mailu La instància està disponible, habilitar aplicacions i serveis del sistema per enviar correu electrònic via ``localhost:25`` sense configuració addicional."
@@ -35676,6 +35728,9 @@ msgstr "Els URI de redirecció de keycloak s' han calculat `lookup('domains')` a
 # translated-by: libretranslate
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
 msgstr "Keycloak' s `LDAP user federation` Els usuaris de miralls al regne en mode de només lectura."
+
+msgid "Keyed by repository name, so a template resolving a host's route reaches its flavor, upstream and mirror without a second declaration. `utils.cache.hosts` is the single point of truth; the entries come from ``cache: repos:`` in the roles' ``meta/networks.yml``, and deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keys without a provider role are omitted — ``disable=`` cannot act on them."
@@ -36700,6 +36755,15 @@ msgstr "Connectors de cerca 🔎"
 # translated-by: libretranslate
 msgid "Lookup ``application_closure``: roles reachable from a seed application set."
 msgstr "Cerca ``application_closure``: el paper es pot assolir des d' un conjunt d' aplicacions de sembrat."
+
+msgid "Lookup ``cache_records``: the repositories, as the bootstrap script reads them."
+msgstr ""
+
+msgid "Lookup ``cache_repos``: the repositories the package cache proxies."
+msgstr ""
+
+msgid "Lookup ``cache_upstreams``: the hosts the package cache answers for."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Lookup ``compose_external_networks``: the provider role ids whose overlay the compose file of ``application_id`` references as ``external: true``."
@@ -39338,6 +39402,9 @@ msgstr "Cap SQLite externa sota `/config`."
 msgid "None when the call is run once, else its retry policy."
 msgstr "Cap quan s' executa la trucada, sinó la seva política reintentar-ho."
 
+msgid "None where the list does not carry both, in which case the placeholders cannot be resolved."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "None."
 msgstr "Cap."
@@ -39990,6 +40057,9 @@ msgstr "Un altre títol de treball i nom de artefacte: com es construeixen i lle
 msgid "One env setting: the process environment wins, ``default.env`` is the SPOT behind it."
 msgstr "Una configuració env: l' entorn del procés guanya, ``default.env`` És el SPOT al darrere."
 
+msgid "One format, two readers: the ``.env`` generator writes it to ``INFINITO_CACHE_UPSTREAMS`` for the dev stack, and the ``cache_records`` lookup hands the same string to the role's bootstrap task. Both resolve the Ubuntu mirror placeholders from ``INFINITO_APT_UBUNTU_MIRRORS``, which the image build reads too, so the mirror order has a single home."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the ``infinito-runner`` image locally, renders one compose project and starts ``RUNNER_COUNT`` instances."
 msgstr "Un ordinador té tota la flota: el rol es construeix la ``infinito-runner`` imatge local, representa un projecte compondre' l i comença ``RUNNER_COUNT`` instàncies."
@@ -39997,6 +40067,9 @@ msgstr "Un ordinador té tota la flota: el rol es construeix la ``infinito-runne
 # translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the `infinito-runner` image locally, renders one compose project and starts `RUNNER_COUNT` instances."
 msgstr "Un ordinador té tota la flota: el rol es construeix la `infinito-runner` imatge local, representa un projecte compondre' l i comença `RUNNER_COUNT` instàncies."
+
+msgid "One hostname the frontend answers for, in place of its upstream."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One integer CI setting, read through the shared env SPOT."
@@ -40033,6 +40106,9 @@ msgstr "Una consulta per executar, no una per sis. Cada fila és una ``role#vari
 # translated-by: libretranslate
 msgid "One recovery type backed by a role's ``files/python/recover.py``."
 msgstr "Un tipus de recuperació recuperat per un paper ``files/python/recover.py``."
+
+msgid "One repository Nexus proxies."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One role's measured runtime within a deploy segment."
@@ -41302,6 +41378,9 @@ msgstr "Memòria cau de paquets 📚"
 msgid "Package Manager Installation"
 msgstr "Instal· lació del gestor de paquets"
 
+msgid "Package cache"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Package manager"
 msgstr "Gestor de paquets"
@@ -41490,6 +41569,9 @@ msgstr "Passa `--dry-run` a vista prèvia sense escriure."
 # translated-by: libretranslate
 msgid "Pass `--dry-run` to preview, `--include-template` to also archive `000-template.md`. See `pkgmgr archive --help` for the full surface."
 msgstr "Passa `--dry-run` a vista prèvia, `--include-template` a l' arxiu també `000-template.md`. Mira `pkgmgr archive --help` per a tota la superfície."
+
+msgid "Pass ``application_id`` as term 0, defaulting to the templating variable of the same name. ``http_port`` and ``proxy_internal_port`` are read from the same variables, so a role that resolved its port itself is not reported as backendless. ``applications`` comes from ``lookup('applications')``, the merged-config SPOT."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pass ``provider_self_alias=False`` for a sidecar service that must not carry the provider's own alias, and ``own_network_only=True`` for one that must not inherit the networks its provider joins as a consumer."
@@ -43652,6 +43734,9 @@ msgstr "Torna enrere el límit de frase que un traductor ha deixat enrere un per
 msgid "Put shared fixed values in one canonical source and reference them everywhere else."
 msgstr "Poseu els valors fixos en una font canònica i feu-los referència a qualsevol altre lloc."
 
+msgid "Put the declaration in the role that needs the upstream. An upstream no single role owns goes in [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml)."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Python CLI for init, deploy, up, down, exec, etc."
 msgstr "Comment."
@@ -44764,6 +44849,9 @@ msgstr "Rebutjat: les deu eines restants Baserow 2.3.3 implementacions, llistats
 msgid "Refused: the ten remaining tools Baserow 2.3.3 implements, listed under `tools.upstream_serves`. Three of them (`create_rows`, `update_rows`, `delete_rows`) are live upstream — the image carries no env var, setting or UI toggle that removes them, so `mutating_tools_enabled: false` is enforced by the adapter and by nothing in Baserow. The other seven are shipped disabled upstream and are listed so a version bump that enables one shows up as contract drift rather than as a silently widened surface."
 msgstr "Rebutjat: les deu eines restants Baserow 2.3.3 implementacions, llistats sota `tools.upstream_serves`. Tres d'ells (`create_rows`, `update_rows`, `delete_rows`) són en directe a la sortida de la imatge no té cap var env, establir o commutació de la IU que els elimina, de manera que `mutating_tools_enabled: false` l' adaptador i per res s'hi obliga BaserowEls altres set són enviats deshabilitats a dalt i es llisten de manera que una versió que permet que es mostri com a derivament del contracte en lloc d' una superfície en silenci."
 
+msgid "Regenerate every derived cache file"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Regenerate the Debian changelog at *path* from CHANGELOG.md."
 msgstr "Regenera el registre de canvis Debian a *camí* des de CHANGELOG.md."
@@ -44780,10 +44868,6 @@ msgstr "Regenerant"
 # translated-by: libretranslate
 msgid "Register --ghcr-namespace, --ghcr-repository, --ghcr-prefix on *parser*."
 msgstr "Registra -- hcr- namespace, -- flcr- misher, -- hcr- prefix on *parsecr*."
-
-# translated-by: libretranslate
-msgid "Register a Nexus proxy repo in [package.sh](../../../scripts/docker/cache/package.sh)."
-msgstr "Registra un repo d' intermediari Nexus [package.sh](../../../scripts/docker/cache/package.sh)."
 
 # translated-by: libretranslate
 msgid "Register the emulation an architecture-pinned deploy needs."
@@ -45347,6 +45431,9 @@ msgstr "Renderitza la matriu d'enllaços: la qual parella de rols a la qual, i a
 msgid "Render the collected service rows and aggregated totals as an aligned text table or as JSON."
 msgstr "Renderifiqueu les files de serveis recollides i agregats totals com una taula de text alineats o com a JSON."
 
+msgid "Render the declared repositories as the records Nexus is bootstrapped from."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Render the plan of one CI sweep: every candidate row, and where it lands."
 msgstr "Renderitza el pla d'una escombrada: cada fila candidata, i on aterri."
@@ -45362,6 +45449,9 @@ msgstr "Renderitza el nivell superior ``volumes:`` / ``configs:`` / ``secrets:``
 # translated-by: libretranslate
 msgid "Render using strict Jinja2 repeatedly until:"
 msgstr "Renderitza utilitzant l' estricta Jinja2 repetidament fins:"
+
+msgid "Render what the package cache needs beside its role, from the declarations."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Rendered `.env` passed to the Playwright container"
@@ -46295,6 +46385,12 @@ msgstr "RetornQShortcut (Registre. repository_name) per un nom d' imatge validad
 msgid "Return (running_on_github, running_on_act)."
 msgstr "RetornQShortcut (running_on_github, running_on_act)."
 
+msgid "Return *declared* with *overrides* applied, sorted by key."
+msgstr ""
+
+msgid "Return *raw* with the Ubuntu mirror placeholders substituted."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return *value* as a list of plausible HTTP status codes."
 msgstr "RetornQShortcut *valor* com a llista dels codis d' estat plausibles HTTP."
@@ -46428,6 +46524,9 @@ msgstr "RetornQShortcut ``<host>:<port>`` pel servidor intermediari de node Tor 
 # translated-by: libretranslate
 msgid "Return ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` — per-round variant-closure plus a plan-constant union for the inter-round wipe."
 msgstr "RetornQShortcut ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` ufèric per part de les variants i d'una unió de plans per a netejar els límits."
+
+msgid "Return ``[True]`` when a port exists to probe, ``[False]`` otherwise."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return ``data`` as a CommentedMap, empty when it holds no mapping."
@@ -46643,6 +46742,15 @@ msgstr "Retorna cada captura de *patró* en el cos de *URL*."
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "Torna tots els punts declarats a través de tots els rols ``meta/addons/*.yml``."
 
+msgid "Return every declared host as a template-ready record, keyed by host."
+msgstr ""
+
+msgid "Return every declared repository and host."
+msgstr ""
+
+msgid "Return every declared repository as a record, keyed by name."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return every declared role author, sorted and without duplicates."
 msgstr "Retorna cada paper declarat, ordenat i sense duplicats."
@@ -46675,6 +46783,9 @@ msgstr "Retorna cada agulla exacta de pi pip sota ``roles/``."
 msgid "Return every group-conditional service key that has a provider role."
 msgstr "Retorna totes les claus del servei condicional que té un paper de proveïdor."
 
+msgid "Return every host the frontend answers for on behalf of *repo*."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return every language of ``meta/languages.yml`` keyed by ISO 639-1 code."
 msgstr "Retorna cada idioma de ``meta/languages.yml`` keyed per ISO 639-1 Codi."
@@ -46690,6 +46801,9 @@ msgstr "Retorna cada versió publicada d' un npm *paquet*."
 # translated-by: libretranslate
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr "Retorna totes les versions alliberades de ``package``, buit quan PyPIP és irrecuable."
+
+msgid "Return every repository as ``name|flavor|url|suite|depth|max_age``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every role directory name, sorted."
@@ -46733,6 +46847,9 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Return mapping of service_name -> application_id for the provider role of each requested service. Resolution goes through the canonical service registry, so ``provides:`` aliases (e.g. ``mailu.provides: email``) and shared entity-name services are both recognized."
 msgstr "Mapador de retorn de service_name -> application_id per a la funció del proveïdor de cada servei sol· licitat. La resolució va pel registre canònica, així que ``provides:`` àlies (Hola. ``mailu.provides: email``) i els serveis compartits d' entitat són reconeguts."
+
+msgid "Return one distribution's apt source, empty where it does not use apt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return one message per ``update:`` block that cannot be resolved."
@@ -46786,6 +46903,12 @@ msgstr "Retorna els noms de les etiquetes des de ``git ls-remote --tags``, despu
 # translated-by: libretranslate
 msgid "Return the (background, foreground) pair for a bond between 0 and 1."
 msgstr "Retorna la (Fons, primer pla) parella per a un lligam entre 0 i 1."
+
+msgid "Return the (path, repository) pairs this host serves."
+msgstr ""
+
+msgid "Return the (port, terminates TLS) pairs this host is served on."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the CPU architectures the role can be deployed on, or ``[]`` when it declares none and takes whatever the CI rotation assigns."
@@ -46927,6 +47050,9 @@ msgstr "Retorna els codis que porten un catàleg de ``domain``."
 msgid "Return the codes that prove *domain* is being served at all."
 msgstr "Retorna els codis que prova *Domini* Està sent servit en absolut."
 
+msgid "Return the compose override that points every cached host at the frontend."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the compressed transfer size of ``image:reference`` in bytes."
 msgstr "Retorna la mida de transferència comprimit ``image:reference`` en bytes."
@@ -46942,6 +47068,9 @@ msgstr "Retorna el criteri ``translation`` Es va trencar, buit quan no va trenca
 # translated-by: libretranslate
 msgid "Return the current play application mapping using the shared resolver from utils/roles/applications/in_group_deps."
 msgstr "Retorna el mapa actual de l' aplicació de reproducció usant el sistema de resolució compartit utils/roles/applications/in_group_deps."
+
+msgid "Return the declared repository *name*, or None where none declares it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the deploy modes a role supports, keyed by mode with its ``modes.<mode>.enabled`` SPOT value."
@@ -47011,6 +47140,9 @@ msgstr "Retorna la completa ``PORT_BANDS`` mapa keyed by ``<scope>.<category>``.
 msgid "Return the highest released version of ``package``, or None."
 msgstr "Retorna la versió més alta de ``package``, Ni res."
 
+msgid "Return the hostname *repo* proxies, taken from its upstream URL."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the identifiers ``role_dir`` names its upstream product by."
 msgstr "Retorna els identificadors ``role_dir`` noms al producte de sortida."
@@ -47026,6 +47158,9 @@ msgstr "Retorna la identitat que una entrega ha fet aquí ara mateix podria carr
 # translated-by: libretranslate
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "Retorna els subdirectoris immediats de ``cli/<parts>/``, dividit en ordres executables (``__main__.py`` present) i carpetes de categories. Paquets de suport buits (no hi ha cap ordre a sota) S'han avançat."
+
+msgid "Return the inventory's entries for one ``cache:`` section."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the languages the server translates English into."
@@ -47063,9 +47198,15 @@ msgstr "Retorna els noms ``module`` defineix si mateix, honorant- se ``__all__``
 msgid "Return the names ``source`` carries that ``translation`` dropped."
 msgstr "Retorna els noms ``source`` Porta això ``translation`` Deixa anar."
 
+msgid "Return the nginx frontend configuration the declarations produce."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the non-overlapping offsets every protection rule claims."
 msgstr "Retorna els desplaçaments no simplificats cada regla de protecció diu."
+
+msgid "Return the npm configuration pointing at the cached registry."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the offsets of every name ``text`` carries."
@@ -47087,6 +47228,9 @@ msgstr "Retorna el manifest analitzat (o index) per ``image:reference``."
 msgid "Return the path of the ``domain`` catalog of language ``code``."
 msgstr "Retorna el camí de la ``domain`` catàleg de llengües ``code``."
 
+msgid "Return the path this host serves *repo* under, or the empty string."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the people ``role_dir`` names as its authors."
 msgstr "Retorna la gent ``role_dir`` Noms com els seus autors."
@@ -47095,9 +47239,15 @@ msgstr "Retorna la gent ``role_dir`` Noms com els seus autors."
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
 msgstr "Retorna el bloc de muntatge per servei (``volumes:`` + ``configs:`` + ``secrets:``) com a cadena YAML que comença a la columna 0."
 
+msgid "Return the pip configuration pointing at the cached PyPI hosts."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the plain translation, or what was rejected and the criterion it broke."
 msgstr "Retorna la traducció senzilla, o el que es va rebutjar i el criteri que es va trencar."
+
+msgid "Return the primary and fallback Ubuntu archive, without trailing slash."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the primary domain for application_id from the domains mapping:"
@@ -47185,6 +47335,9 @@ msgstr "Retorna la run_after list declarat pel rol propi *meta_file*."
 # translated-by: libretranslate
 msgid "Return the same data as JSON, for a caller that wants to post-process."
 msgstr "Retorna les mateixes dades que JSON, per a una crida que vol post-processar."
+
+msgid "Return the scheme a client addresses this host with."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the selected and rejected MCP servers for one client role."
@@ -47321,6 +47474,9 @@ msgstr "Torna si una auditoria perversió gravada diu la delegació."
 # translated-by: libretranslate
 msgid "Return whether a role marks itself an MCP client in its own services."
 msgstr "Retorna si un paper marca un client MC en els seus propis serveis."
+
+msgid "Return whether an application has a backend a vhost can probe."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -47514,6 +47670,9 @@ msgstr "Retorna els retalls d' script/ estil inclosos a resum d' una directiva i
 #, python-brace-format
 msgid "Returns one ``{'role': …, 'app': …}`` mapping per role, so a stage can loop over the group instead of including a generated task file per group:"
 msgstr "Retorna un ``{'role': …, 'app': …}`` Mapat per paper, de manera que una etapa pot repetir sobre el grup enlloc d' incloure un fitxer de tasca generat per grup:"
+
+msgid "Returns one dict per host, sorted by host, carrying ``host``, ``repo``, ``routes``, ``listen``, ``read_timeout`` and ``passthrough``."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -48950,6 +49109,9 @@ msgstr "Executa la imatge publicada per preparar l'inventari i desplegar OpenRes
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy OpenTalk to a managed server (the mounted volume persists the inventory):"
 msgstr "Executa la imatge publicada per preparar l'inventari i desplegar OpenTalk a un servidor gestionat (el volum muntat persisteix l' inventari):"
+
+msgid "Run the published image to provision the inventory and deploy Package cache to a managed server (the mounted volume persists the inventory):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy PeerTube to a managed server (the mounted volume persists the inventory):"
@@ -52362,6 +52524,9 @@ msgstr "Atura la importació de tal manera que `utils.cache.applications` (S'han
 msgid "Stdlib line parse on purpose: env handlers feed the .env generation, which bootstraps fresh hosts before PyYAML exists (canonical pattern: utils/storage/nfs.py)."
 msgstr "Línia de stdlib a propòsit: els gestors s'alimenten de la generació .env, que a les botes les màquines fresques abans que el PyYAML existeix (Patró canònica: utils/storage/nfs.py)."
 
+msgid "Stdlib only: the ``.env`` generator reaches this before PyYAML exists."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Stdlib reader for the block-YAML subset the bootstrap SPOT files use."
 msgstr "Lector de l'Stdlib per al subconjunt del fitxer Sphop SpOT."
@@ -53123,6 +53288,9 @@ msgstr "Svc-bkp- secretos-2- Rol local"
 # translated-by: libretranslate
 msgid "Svc-bkp-volume-2-local Role"
 msgstr "Svc- bkp- volum-2- Rol local"
+
+msgid "Svc-cache-package Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-elasticsearch Role"
@@ -55866,9 +56034,8 @@ msgstr "El sufix de l' eix un testimoni de selecció CI pot portar (``#0,2@swarm
 msgid "The backup host is NOT appended to the cluster inventory: it lives in a sibling ``backup.yml`` next to ``INV_PATH`` (same host_vars dir), deployed as a second play after the cluster one. Without a svc-swarm-node group that play resolves DEPLOYMENT_MODE=compose and IS_STACK_HOST=true on the backup host, so the backup roles run without cluster-membership special cases."
 msgstr ""
 
-# translated-by: libretranslate
-msgid "The base URL to translate against."
-msgstr "L' URL de la base a traduir en contra."
+msgid "The base URL to translate against. The service answers only once it has installed its models, which the caller's readiness wait covers."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The base layer of :mod:`utils.i18n.placeholders`: it knows the protection rules and nothing about damage or repair, so :mod:`utils.i18n.damage` can build on it without an import cycle."
@@ -56183,6 +56350,9 @@ msgstr "La combinació d'un treball vermell que va morir -- tot el nom de l'arte
 msgid "The combined \"yield project files filtered through ``.gitignore``\" helper lives in :mod:`utils.cache.files` (``iter_non_ignored_files``) because it composes the cached project walk with this matcher."
 msgstr "El combinat \"S' han filtrat els fitxers del projecte a través de ``.gitignore``\" Ajudar vides en :mod:`utils.cache.files` (``iter_non_ignored_files``) Perquè compondre el projecte de memòria cau amb aquesta coincidència."
 
+msgid "The comma-separated records, or the empty string where a placeholder stays unresolved, so a consumer's own guard reports it rather than Nexus proxying a host that does not exist."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The common pieces are:"
 msgstr "Les peces comuns són:"
@@ -56252,6 +56422,9 @@ msgstr "La decoració de configuració Nextcloud S' han declarat aplicacions en 
 # translated-by: libretranslate
 msgid "The config-bearing Nextcloud apps are declared in `meta/addons/` under the unified addon contract (requirement 026). Each declaration carries its full `occ config:app:set` payload under `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
 msgstr "La decoració de configuració Nextcloud S' han declarat aplicacions en `meta/addons/` sota el contracte addon unificat (requisit 026). Cada declaració porta el seu complet `occ config:app:set` Paga la càrrega sota `config:`. Les aplicacions de llibreries d' aplicació per habilitar només es queden `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
+
+msgid "The configured entries, or an empty mapping where no inventory answers, as in the dev stack."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The configured relay host, the loopback address, the container's alias for its host, or a swarm manager."
@@ -56345,6 +56518,9 @@ msgstr "La decisió compara l' espai lliure en el sistema de fitxers que conté 
 # translated-by: libretranslate
 msgid "The decision repeats for the same request"
 msgstr "La decisió repeteix per la mateixa petició"
+
+msgid "The declarations live under ``cache: hosts:`` in every role's ``meta/networks.yml`` and `utils.cache.hosts` collects them. Deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The declared codes, empty when the app declares none for this domain."
@@ -56443,6 +56619,9 @@ msgstr "El trepant destructiu, només passa la sincronització. Prova que la cò
 # translated-by: libretranslate
 msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value names the compose-only boolean."
 msgstr "La detecció és basada en línies: el bloc de tasques és l' abast entre les més properes `- name:` (al sagnat N) Per sobre de la línia ofensa i el següent marcador estructural de nivell superior (`- name:` al sagnat <= N, o al final del fitxer)Dins d'aquest forat que busquem qualsevol `when:` La clàusula amb noms de valor textual el booleà només compondre."
+
+msgid "The dev compose stack has no inventory and caches exactly what the roles declare. A deployed host caches what its configuration says, which starts from the same declarations and lets the inventory correct or extend them::"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The dev-deploy CLI threads the variant index through three layers so a variant's `variants.yml` overlay reaches the credential subprocess."
@@ -57132,6 +57311,9 @@ msgstr "Els llocs de diagrama OpenTalk en el Infinito.Nexus cosmos: els componen
 # translated-by: libretranslate
 msgid "The diagram places Package Manager Installation in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
 msgstr "Els llocs de diagrama Package Manager Installation en el Infinito.Nexus cosmos: els components el despleguen (Capacitats), els serveis centrals consumeix (dependències), i el seu abast exterior (La Federació i les xarxes externes pontades)."
+
+msgid "The diagram places Package cache in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The diagram places Package update in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -58465,6 +58647,9 @@ msgstr "El document manifest, o cap quan la generació no n'ha estat."
 msgid "The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group, and the orchestrator's group cancels for `workflow_dispatch` regardless of ref, so a manual sweep supersedes on both levels, `main` included."
 msgstr "El flux de treball d' entrada manual (`entry-manual-steer.yml`) estableix `cancel-in-progress: true` En el seu propi grup, i el grup de orquestor cancel·la `workflow_dispatch` Sense importar la àrbitre, per tant, una escombra manual modifica en ambdós nivells, `main` inclòs."
 
+msgid "The map itself is generated, never tracked, so no second copy of a hostname can drift; ``utils.cache.render.render_artifacts`` writes it once the value-set is built."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in its job title, between the variant number and the ⭐ of a priority row."
 msgstr "La fila marcada continua `instructions: <mode>` a la matriu JSON i a 📖 en el seu títol de treball, entre la variant número i la prioritat de la fila."
@@ -58632,6 +58817,9 @@ msgstr "La següent fase en la MTAR NO s' executa quan l' anterior etapa classif
 # translated-by: libretranslate
 msgid "The nfs-server uses the userspace `nfs-ganesha` (`ganesha`) flavor in every runtime; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` is the SPOT, and `kernel` is a per-inventory override. Ganesha is packaged for the `Debian` and `RedHat` os families only. Kernel `nfsd` in a privileged DinD node is wedge-prone: the export can be present yet the controller mount returns ENOENT, and `exportfs` can stick in D-state. If a swarm step hangs at `Reload NFS exports` from a stuck kernel-NFS mount, you MUST recover with `make swarm-clean` on the host; see the NFS gotcha in [Roundtrip Loop](roundtrip.md). You MUST NOT fall back to a compose-only sweep while swarm is blocked."
 msgstr "El servidor nfs usa l' espai d' usuari `nfs-ganesha` (`ganesha`) gust en cada temps d' execució; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` és el SPOT, i `kernel` És una anul·lació pernotoria. Ganesha està empaquetada per al `Debian` i `RedHat` Només famílies. Nucli `nfsd` En un node privilegiat de DinD s' ha de resoldre: l' exportació encara pot ser present el controlador retorna ENOENT, i `exportfs` Pot enganxar-se a D-estat. Si un pas eixam penja a `Reload NFS exports` des d' un muntatge deFNES del nucli encallat, heu de recuperar-vos amb `make swarm-clean` a la màquina; mireu on s' ha obtingut NFS [Repetició de barreja](roundtrip.md). No has de tornar a una exploració de només compost mentre eixam està bloquejada."
+
+msgid "The nginx upstream map, the consumer compose override and the package managers' client configuration all follow from the ``cache:`` declarations in the roles' `meta/networks.yml`. None of them is tracked; this package regenerates them. Implementation lives in `utils.cache.render`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The nightly timers (volume 01:00, nfs 01:30, secrets 01:45, device 02:00, remote pull 00:30) run independently of every step above and never fire during a lab run."
@@ -59681,6 +59869,9 @@ msgstr "El paper col·loca un sol `registry:2` Per exemple, en mode d' intermedi
 msgid "The role deploys end-to-end on the project's reference distribution and is covered by **at least** a smoke-level Playwright spec, but neither the deploy nor the spec depth is considered production-grade."
 msgstr "El paper fa servir el final a la distribució de referència del projecte i està cobert per **com a mínim** Un nivell de fum que juga a la dreta, però no es considera que la base d'operacions ni la de producció."
 
+msgid "The role deploys the frontend and owns the templates and their tuning; the dev compose stack has no inventory to render them with and comes through here instead. Every value still has one home: the hosts and repositories come from the ``cache:`` declarations, the nginx tuning from the role's ``vars/main.yml``, and only the backend address differs, because the dev stack reaches Nexus over a compose network alias while the role reaches it by its configured container."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via `SEMAPHORE_*` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak `administrator` is created at deploy time as an external Semaphore admin via `semaphore user add --admin --external`; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "El paper col·loca el contenidor únic Semaphore (amb el seu llançador de tasques encastat) I cables a la plataforma via `SEMAPHORE_*` Variables d' entorn. L' assistent de configuració s' elimina sembrant l' administrador inicial dels secrets renderitzat, de manera que una nova entrada en la pàgina d' accés de Semaphore. Quan la SSO està habilitada, la Keycloak `administrator` es crea en temps d' desplegar com a administrador extern Semaphore mitjançant `semaphore user add --admin --external`; la crida OIDC coincideix amb ell per correu electrònic i signa l' operador en com a administrador del Semaphore."
@@ -59688,6 +59879,12 @@ msgstr "El paper col·loca el contenidor únic Semaphore (amb el seu llançador 
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via ``SEMAPHORE_*`` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak ``administrator`` is created at deploy time as an external Semaphore admin via ``semaphore user add --admin --external``; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "El paper col·loca el contenidor únic Semaphore (amb el seu llançador de tasques encastat) I cables a la plataforma via ``SEMAPHORE_*`` Variables d' entorn. L' assistent de configuració s' elimina sembrant l' administrador inicial dels secrets renderitzat, de manera que una nova entrada en la pàgina d' accés de Semaphore. Quan la SSO està habilitada, la Keycloak ``administrator`` es crea en temps d' desplegar com a administrador extern Semaphore mitjançant ``semaphore user add --admin --external``; la crida OIDC coincideix amb ell per correu electrònic i signa l' operador en com a administrador del Semaphore."
+
+msgid "The role deploys two containers on its inventory group's host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling [svc-registry-cache](../svc-registry-cache/README.md)."
+msgstr ""
+
+msgid "The role deploys two containers on its inventory group’s host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling `svc-registry-cache <../svc-registry-cache/README.md>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The role directory name is the `application_id`. For example `roles/web-app-mailu/meta/services.yml` is exposed as `applications['web-app-mailu'].services`, `roles/web-app-mailu/meta/server.yml` as `applications['web-app-mailu'].server`, and so on."
@@ -60189,6 +60386,9 @@ msgstr "Les mateixes seleccions amb tots els eixos caiguts, una entrada per rol.
 msgid "The same shape serves the repository-root file, which holds the shared collection any role and any inventory bundle may install from, and a role's own file, which holds what only that role installs."
 msgstr "La mateixa forma serveix al fitxer repositori-root, que conté la col· lecció compartida qualsevol paper i qualsevol paquet d' inventari pot instal·lar-se des del fitxer, i un fitxer de rol, que conté el que només instal·lacions de paper."
 
+msgid "The same string `.env` carries as ``INFINITO_CACHE_UPSTREAMS``, so the role's bootstrap task and the dev stack provision Nexus from one rendering. `utils.cache.records` owns the format."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The sandbox (`allowWrite`, `denyRead`, `allowedDomains`, see [sandbox.md](sandbox.md)) bounds every write, every read, and every outbound connection. `deny` rules block destructive patterns unconditionally; `ask` rules force operator review on every mutating `gh`/`docker`/`git commit`/`Skill(update-config*)` invocation. The wildcard does **not** loosen any existing guardrail; it only drops the per-shape workarounds."
 msgstr "La carpeta local (`allowWrite`, `denyRead`, `allowedDomains`, veure [sandbox.md](sandbox.md)) Limita cada escriptura, cada lectura, i totes les connexions que s'obsessionen. `deny` Patrós destructives de regles incondicionalment; `ask` Comprovació de l' operador de força en cada mutació `gh`/`docker`/`git commit`/`Skill(update-config*)` Una provocació. El comodí fa **no** Deixa anar qualsevol guàrdia existent, només cau les performes."
@@ -60376,6 +60576,9 @@ msgstr "Les tasques de configuració gestiona automàticament la primera de les 
 # translated-by: libretranslate
 msgid "The shape each key must have is declared per role rather than here, in [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) with a `type:` and a `regex:`. The pattern rejects a truncated or whitespace-carrying paste and deliberately accepts any vendor prefix, so a provider changing its issuance format cannot turn a valid key into a failed inventory run."
 msgstr "La forma en què es deu haver declarat cada tecla en comptes d' aquí, [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) amb un `type:` i a `regex:`. El patró rebutja una enganxat en blanc o una enganxat en blanc i deliberadament accepta qualsevol prefix del proveïdor, de manera que un proveïdor canvia el seu format issuance no pot convertir una clau vàlida en una execució d' inventari."
+
+msgid "The shape every consumer renders from: the ansible lookups, which then apply the inventory, and the dev stack, which does not."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shape mirrors the schema tree: nested keys stay nested. The literal string is preserved verbatim, with no rendering and no validation. Leaves WITHOUT ``default:`` are intentionally absent so the inventory's apply_schema-generated values win the merge."
@@ -60656,6 +60859,9 @@ msgstr "El port comença amb ``-r`` (Només lectura) i una llista d' àmbit que 
 # translated-by: libretranslate
 msgid "The single `make compose-deploy` target resolves one or more bundles into the role groups declared under `all.children` and feeds them into the standard local deploy flow when `bundles=<csv>` is set. The resolver is [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); it deduplicates across bundles and preserves declaration order."
 msgstr "La única `make compose-deploy` Resol un o més paquets als grups de rol declarats `all.children` i els alimenta al flux local estàndard quan `bundles=<csv>` Està establert. El mecanisme de resolució és [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); degrada a través dels paquets i preservar l'ordre de declaració."
+
+msgid "The single point of truth for the cache. A role declares the repositories it needs Nexus to proxy and, where a container must resolve an upstream by name, the hostname the frontend answers for::"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The single-database dumps, and the cluster dumps, which name their instance in the file name and go through ``baudolo-restore cluster``."
@@ -65327,6 +65533,9 @@ msgstr "Cert quan `role_id` seu a sota d' una categoria marcada ``invokable: tru
 msgid "True when a `web-app-mailu` host is reachable (otherwise local delivery)."
 msgstr "Cert quan a `web-app-mailu` la màquina és accessible (Entrega local d' altra manera)."
 
+msgid "True when a port exists for ``resolve_upstream`` to build an upstream from: the local one outside swarm, the internal one inside it. Asking that lookup for a role that has neither raises rather than returning empty."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "True when an IPv6 default route exists on a non-loopback interface."
 msgstr "Cert quan un IPv6 La ruta per omissió existeix en una interfície nologida."
@@ -69618,6 +69827,9 @@ msgstr "Escriure una prova d'integració quan el comportament que esteu verifica
 msgid "Write code so the next person can understand it quickly."
 msgstr "Escriure codi per tal que la següent persona pugui entendre-ho ràpidament."
 
+msgid "Write every generated cache file and return what was written."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Write every update into both requirement files."
 msgstr "Escriu cada actualització en ambdós fitxers de requisit."
@@ -69783,10 +69995,6 @@ msgid "Yield ``(role_path, meta_file)`` for every role matching *prefixes*."
 msgstr "Yield ``(role_path, meta_file)`` per a cada paper coincident *Prefixos*."
 
 # translated-by: libretranslate
-msgid "Yield a LibreTranslate URL, preferring the deployed service over a new container."
-msgstr "Yield a LibreTranslate URL, prefereix el servei d' ús sobre un nou contenidor."
-
-# translated-by: libretranslate
 msgid "Yield absolute paths of project files matching the filter."
 msgstr "Rendiments absoluts dels fitxers de projecte que coincideixin amb el filtre."
 
@@ -69809,6 +70017,9 @@ msgstr "Rendiments de muntatge dels dics ``volume['mounts']`` aquest objectiu ``
 # translated-by: libretranslate
 msgid "Yield project files filtered through ``.gitignore``."
 msgstr "Omet els fitxers de projecte filtrats a través de ``.gitignore``."
+
+msgid "Yield the URL of the dedicated LibreTranslate, deploying it when absent."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Yields"
@@ -74215,6 +74426,9 @@ msgstr "[Lloc web oficial següent](https://nextcloud.com/)"
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr "[L'aplicació d'Integració d'OFICE Nextclod](https://apps.nextcloud.com/apps/onlyoffice)"
 
+msgid "[Nexus Repository](https://www.sonatype.com/products/sonatype-nexus-repository) is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. [nginx](https://nginx.org/) sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/)"
 msgstr "[Nginx](https://nginx.org/)"
@@ -74374,6 +74588,9 @@ msgstr "[Opentalk](https://opentalk.eu/) és una plataforma de videoferencia de 
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr "[El Fòrum OpenWrt debattion on WiredGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+
+msgid "[Package cache](roles/svc-cache-package/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package update](roles/update/)"
@@ -75294,14 +75511,6 @@ msgid "[base.md](role/services/base.md) for service registration, loading, and i
 msgstr "[base.md](role/services/base.md) per a registre de serveis, càrrega i injecció"
 
 # translated-by: libretranslate
-msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-
-# translated-by: libretranslate
-msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-
-# translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
 msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) Copia només els refans que falten al GHCR via `cli.contributing.mirror.sync --only-missing`. Opcional Sicker Hub va reduir els límits de taxa de codi font durant aquesta sincronització."
 
@@ -75310,56 +75519,16 @@ msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-image
 msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) Qualsevol pista que falta en paral· lela amb les proves DNS tan tard col·locats de treballs GHCR en comptes de Docker Hub, MCR, o d' altres registries externes. Aquest escuts CI des dels límits de taxa de transmissió, geo-bloqueig, i registre de registres transitoris."
 
 # translated-by: libretranslate
-msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-
-# translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
 msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) Compara `github.ref` per la mateixa raó: un flux de treball anomenat Hereta el ref, que és `refs/pull/<n>/merge` per a un `pull_request` Trucada però `refs/heads/main` per a un `pull_request_target` Un. La `ci-orchestrator` treball de `entry-pr-change-orchestrate.yml` està tancat a `github.event_name == 'pull_request'`, per tant el reforor que el orquestor veu des d'aquest cridador és sempre el refest; ampliant la tanca en silenci posaria la forquilla al grup principal."
-
-# translated-by: libretranslate
-msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-
-# translated-by: libretranslate
-msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-msgstr "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-
-# translated-by: libretranslate
-msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-
-# translated-by: libretranslate
-msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-
-# translated-by: libretranslate
-msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
-msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
 msgstr "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) redueix la seva matriu d'app al conjunt de rols que realment han impactat pel diff de la branca contra `origin/main`. The `discover` El treball resol abans una llista blanca efectiva [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) Executa, usant la següent prioritat:"
 
 # translated-by: libretranslate
-msgid "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-msgstr "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-
-# translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
 msgstr "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) valida la configuració DNS a totes les distribucions destí."
-
-# translated-by: libretranslate
-msgid "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-msgstr "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-
-# translated-by: libretranslate
-msgid "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-msgstr "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-
-# translated-by: libretranslate
-msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -75416,46 +75585,6 @@ msgstr "[contenidor/](container/) conté ajuda que es posin dins del contenidor 
 # translated-by: libretranslate
 msgid "[credentials/](../../../cli/administration/inventory/credentials/__main__.py)"
 msgstr "[credencials/](../../../cli/administration/inventory/credentials/__main__.py)"
-
-# translated-by: libretranslate
-msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-msgstr "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-
-# translated-by: libretranslate
-msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-msgstr "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-
-# translated-by: libretranslate
-msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-
-# translated-by: libretranslate
-msgid "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-msgstr "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-
-# translated-by: libretranslate
-msgid "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-msgstr "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-
-# translated-by: libretranslate
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
 
 # translated-by: libretranslate
 msgid "[csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) renders no environment and no API origin."
@@ -75549,26 +75678,6 @@ msgstr "[email.md](email.md) Cobreix el contracte de cerca de correu electrònic
 msgid "[email.py](../../../../../plugins/lookup/email.py) for the plugin."
 msgstr "[email.py](../../../../../plugins/lookup/email.py) pel connector."
 
-# translated-by: libretranslate
-msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-
-# translated-by: libretranslate
-msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-
-# translated-by: libretranslate
-msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [Manual d'
-# entradasteer.yml](../../../../../.github/workflows/entry-manual-steer.yml):
-# `🕹️ Manual`
-msgid "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-msgstr ""
-
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected: [Manual d'
@@ -75579,43 +75688,8 @@ msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer
 msgstr ""
 
 # translated-by: libretranslate
-msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-
-# translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
 msgstr "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detecta un àmbit de relacions públiques i en condició crida al orquestrador."
-
-# translated-by: libretranslate
-msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-
-# translated-by: libretranslate
-msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [entry-
-# p.translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)
-msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr ""
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [entry-
-# p.translate.yml](../../../../../.github/workflows/entry-pr-translate.yml):
-# `🌐 Translate catalogs`
-msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr ""
-
-# translated-by: libretranslate
-msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-
-# translated-by: libretranslate
-msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
@@ -76002,19 +76076,8 @@ msgid "[systemd/](systemd/) for WSL2 systemd helpers"
 msgstr "[sistemad/](systemd/) per WSL2 helps del sistema"
 
 # translated-by: libretranslate
-msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-
-# translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
 msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), Portat a `services.sso`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [U- sistema de
-# provesrouter.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)
-msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr ""
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
@@ -76100,9 +76163,8 @@ msgstr "[type.py](../../../../utils/roles/type.py) consumeix el mateix esquema. 
 msgid "[update/](update/)"
 msgstr "[update/ update](update/)"
 
-# translated-by: libretranslate
-msgid "[upstreams.conf](upstreams.conf): nginx server-blocks. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
-msgstr "[upstreams.conf](upstreams.conf): nginx servidor-locks. HTTPS (port 443) per nom de màquina pel tràfic de sortida, HTTP (port 80) per al interior-`dockerd` El fitxer amarador construeix. Muntat en `/etc/nginx/conf.d/upstreams.conf`."
+msgid "[upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[variants.md](../../contributing/design/variants.md) for what a `role#variant` row is."
@@ -78647,6 +78709,9 @@ msgstr "`NFS <https://en.wikipedia.org/wiki/Network_File_System>`__ (Sistema de 
 msgid "`N` → route a share of deploy jobs to your `[self-hosted, linux]` runners."
 msgstr "`N` La ruta ascii és una part de llocs de treball per a vosaltres `[self-hosted, linux]` corredors."
 
+msgid "`Nexus Repository <https://www.sonatype.com/products/sonatype-nexus-repository>`__ is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. `nginx <https://nginx.org/>`__ sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`Nginx <https://nginx.org/>`__ is a high-performance web server and reverse proxy. This role wraps Nginx as a first-party mirror for the third-party assets other web applications declare in their CSP whitelists, so browsers fetch those assets from the deployment itself instead of contacting external hosts."
 msgstr "`Nginx <https://nginx.org/>`__ és un servidor web d' alt rendiment i servidor intermediari invers. Aquest paper ajusta Nginx com un mirall de primera part per a les altres aplicacions web de tercers declarades en les seves llistes blanques CSP, així que els navegadors reben aquests actius des del desplegament en comptes de contactar amb màquines externes."
@@ -79516,6 +79581,9 @@ msgstr "``c.wiki.example.com`` Manveen **Pare** ``wiki.example.com`` (més ``exa
 msgid "``ca_cert_host`` is where sys-ca-selfsigned provisions the root CA on the host. The container-side bind-mount targets live in the ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) and reach the standalone runtime scripts as env vars and CLI arguments."
 msgstr "``ca_cert_host`` és on sys-ca-selfsigned Especifica la CA arrel en el remot. Els objectius de desmuntatge del contenidor viuen en la ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) i arribar als scripts d' execució autònoms com a arguments env vars i CLI."
 
+msgid "``canonical_domain`` is the host of ``canonical_url``, not the configured domain, so both follow the onion substitution a Tor deployment applies. A consumer that compares it against what a page actually renders would otherwise never match on an onion host."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "``central_mariadb_root_password``: The root password for the MariaDB server."
 msgstr "``central_mariadb_root_password``: La contrasenya arrel per a la MariaDB Servidor."
@@ -79535,6 +79603,9 @@ msgstr "``comments`` és el mapa analitzat de comentaris per clau de default.env
 # translated-by: libretranslate
 msgid "``compose build`` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "``compose build`` Torna a desfer la sortida estàtica sempre que canvia el contingut clonat, per tant, s' expandeix sense deixar cap pas en execució."
+
+msgid "``compose.cache-consumer.yml.j2``, ``apt.list.j2``, ``npmrc.j2`` and ``pip.conf.j2`` under ``templates/``, and the shell scripts under ``files/``, belong to the development compose stack, which drives them through `render.py <../../utils/cache/render.py>`__ and `compose.py <../../cli/administration/deploy/development/compose.py>`__. The Ansible deployment reads none of them."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``compose`` (deprecated)"
@@ -80127,6 +80198,9 @@ msgstr "``relay`` i ``media`` són UDP. ``stun_turn`` I la seva variant TLS parl
 # translated-by: libretranslate
 msgid "``repo`` carries the repository the names come from, defined inline on the entry that needs it: a full definition (``name``/``description``/ ``baseurl``/``gpgkey``) rendered as a yum repo, ``bootstrap_package`` for a repo shipped as a package such as ``epel-release``, ``enable_existing`` to switch on a repo the distro already ships, ``pacman_section`` to uncomment a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a community repository, or ``managed_externally`` when the role sets it up itself."
 msgstr "``repo`` Porta el repositori els noms vénen, definit en la entrada que el necessita: una definició completa (``name``/``description``/ ``baseurl``/``gpgkey``) renderitzat com a ium repo, ``bootstrap_package`` per a un repo enviat com un paquet com ``epel-release``, ``enable_existing`` per canviar un repo els vaixells destros ja, ``pacman_section`` per descompondre una secció de ``pacman.conf`` tal com ``multilib``, ``copr``/``ppa`` per a un repositori comunitari o ``managed_externally`` Quan el paper s'ho estableix."
+
+msgid "``repos`` or ``upstreams``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``required`` (always installed)"
@@ -80756,9 +80830,8 @@ msgstr "`base_dir` (cadena): directori base per a fitxers CA"
 msgid "`base` prepares the workspace and is a prerequisite for the other two. `compose` and `swarm` are independent of each other, which is what lets CI run them as separate jobs with a budget each."
 msgstr "`base` Es prepara l'espai de treball i és un prerequisite per als altres dos. `compose` i `swarm` són independents els uns dels altres, que és el que permet que els executin com a treballs separats amb un pressupost cadascun."
 
-# translated-by: libretranslate
-msgid "`bash scripts/docker/cache/package.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
-msgstr "`bash scripts/docker/cache/package.sh` (després `make dotenv` o deslocalització `scripts/meta/env/load.sh`)"
+msgid "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`bench new-site` uses the central MariaDB's `root` to create the per-site DB on first deploy."
@@ -80896,6 +80969,9 @@ msgstr "`cluster_addr` No es construeix des del nom del contenidor. Compon conju
 # translated-by: libretranslate
 msgid "`compose build` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "`compose build` Torna a desfer la sortida estàtica sempre que canvia el contingut clonat, per tant, s' expandeix sense deixar cap pas en execució."
+
+msgid "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` and `pip.conf.j2` under `templates/`, and the shell scripts under `files/`, belong to the development compose stack, which drives them through [render.py](../../utils/cache/render.py) and [compose.py](../../cli/administration/deploy/development/compose.py). The Ansible deployment reads none of them."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`compose.volumes:` is **not** inlined into services. It lives in its own `meta/volumes.yml` (volumes are role-wide, not per-service)."
@@ -81494,6 +81570,9 @@ msgstr "`index`, `sweep` (requerit), `distros` (piscina opcional), `filesystem` 
 # translated-by: libretranslate
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
 msgstr "`infinito administration deploy development <subcommand>` (CLI de Python)"
+
+msgid "`infinito meta cache` subcommand -- render the derived cache files."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`infinito meta env` subcommand -- generate the project's `.env`."
@@ -82910,6 +82989,12 @@ msgstr "`update` (opcional) Controls en directe al control del riu. `update.moni
 msgid "`update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include."
 msgstr "`update` Reutilitza l' inventari existent; `disable` abasta un impossible com a extra-var que representa serveis deshabilitats, però no toca la inclusió."
 
+msgid "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ is rendered to the host and mounted into the frontend as ``conf.d/upstreams.conf``. Its content comes from the ``cache:`` sections of the roles’ ``meta/networks.yml``, so no hostname, repository or upstream URL is written in this role."
+msgstr ""
+
+msgid "`upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`user_username` is resolved from `lookup('users', user_key).username` (fallback: `user_key`)"
 msgstr "`user_username` és resolt des de `lookup('users', user_key).username` (alternatiu: `user_key`)"
@@ -82937,6 +83022,9 @@ msgstr "`users` Cerca 👥"
 # translated-by: libretranslate
 msgid "`utils.cache.base._render_with_templar` and the two templar helpers behind it swallow every exception on purpose: a meta payload renders in rounds, and an expression that cannot resolve yet has to come back unchanged rather than abort the round."
 msgstr "`utils.cache.base._render_with_templar` i els dos ajudants templar darrere d'això s'empassen cada excepció a propòsit: un meta-metratge en les rondes, i una expressió que encara no pot resoldre ha de tornar sense canvis en lloc d'avortar la ronda."
+
+msgid "`utils.cache.records` owns the format and the mirror resolution, so the role's bootstrap task and this key cannot drift apart."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`utils.inventory.bundle_apps` reads each named bundle, walks `all.children`, deduplicates the role groups across all bundles, and prints the resulting application list as CSV. The CSV is exported as `apps` before the delegated script runs."
@@ -83292,6 +83380,9 @@ msgstr "un testimoni de selecció (`role#0/zfs`)"
 # translated-by: libretranslate
 msgid "a short description of the issue"
 msgstr "una descripció curta del problema"
+
+msgid "a sibling repository proxying a different host, which the frontend falls back to when this one answers 5xx."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a source **not** starting with `/` → remote `[user@]host[:/path]`, rsync-pulled (`nfs` / `volume` / `full`)"
@@ -84744,6 +84835,9 @@ msgstr "cli.make paquet"
 # translated-by: libretranslate
 msgid "cli.meta package"
 msgstr "cli.meta paquet"
+
+msgid "cli.meta.cache package"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.ci package"
@@ -86335,6 +86429,9 @@ msgstr "Pinta un mode que la fila no pot prendre, un estat onion la fila, el mod
 msgid "it pins a variant the role does not declare (any more): the usual case is a list carried over from an older run whose variants have since been renumbered;"
 msgstr "És una variant que el rol no declararà (més): el cas habitual és una llista que es va dur a terme des d'una execució més antiga que les variants de les quals s' han privat;"
 
+msgid "its repository type, such as ``apt`` or ``raw``."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "jitsi"
 msgstr "jitsi"
@@ -86687,6 +86784,9 @@ msgstr "mint una fitxa d' accés personal per al compte d' administrador i persi
 msgid "mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`."
 msgstr "mint una fitxa d' accés personal per al compte d' administrador i persisteix amb `sys-token-store` sota `users.administrator.tokens['web-app-mattermost']`."
 
+msgid "minutes Nexus serves a cached artefact for, where the repository needs something other than the stack-wide default."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "mode"
 msgstr "mode"
@@ -86786,6 +86886,9 @@ msgstr "servidor nfs"
 # translated-by: libretranslate
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr "Filtre de paquets nftables les regles de cada rol com la seva pròpia taula, reemplaçades principalment i torna a carregar a l' arrencada"
+
+msgid "nginx ``proxy_read_timeout`` where the default is too short, as for a multi-gigabyte model download."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "nginx vhost-file purge helper (entity-keyed)."
@@ -87668,6 +87771,15 @@ msgstr "plugins.lookup.bounded\\ mòdul de nom"
 msgid "plugins.lookup.ca\\_injected module"
 msgstr "plugins.lookup.ca\\ Name"
 
+msgid "plugins.lookup.cache\\_records module"
+msgstr ""
+
+msgid "plugins.lookup.cache\\_repos module"
+msgstr ""
+
+msgid "plugins.lookup.cache\\_upstreams module"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "plugins.lookup.canonical\\_url module"
 msgstr "plugins.lookup.canonical\\ url mòdul"
@@ -87915,6 +88027,9 @@ msgstr "plugins.lookup.playwright\\ Mòdul de treball"
 # translated-by: libretranslate
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr "plugins.lookup.postgres\\ Name"
+
+msgid "plugins.lookup.probeable\\_backend module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.prometheus\\_integration\\_active module"
@@ -88542,6 +88657,9 @@ msgstr ""
 # translated-by: libretranslate
 msgid "return the first successfully parsed JSON value"
 msgstr "Torna el primer valor analitzat amb èxit JSON"
+
+msgid "returns one line about the server's own progress, reported every ``PROGRESS_SECONDS`` while it installs its models. The server offers no endpoint before it is ready, so without this the wait is indistinguishable from a hang for its whole hour."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "reusable"
@@ -89191,16 +89309,18 @@ msgid "target language."
 msgstr "Idioma de destí."
 
 # translated-by: libretranslate
-msgid "target languages to load next to the source language."
-msgstr "Idioma de destí a carregar al costat de l' idioma del codi font."
-
-# translated-by: libretranslate
 msgid "targets: [\"{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}\"]"
 msgstr "Objectius: [\"{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}\"]"
 
 # translated-by: libretranslate
 msgid "teardown"
 msgstr "Desmala"
+
+msgid "templating variables."
+msgstr ""
+
+msgid "term 0 is the application id."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "term can be:"
@@ -89273,6 +89393,9 @@ msgstr "el Nextcloud compte a on pertany la contrasenya de l' aplicació; cada e
 # translated-by: libretranslate
 msgid "the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account’s permissions"
 msgstr "el Nextcloud compte a on pertany la contrasenya de l' aplicació; cada eina crida a l' adaptador de forward s' executa amb els permisos del compteName"
+
+msgid "the Nexus repository name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above"
@@ -89375,6 +89498,9 @@ msgstr "el `roles:` La llista està buida, o"
 msgid "the `root` account"
 msgstr "el `root` compte"
 
+msgid "the absolute URL it proxies."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the address the commit carries."
 msgstr "l'adreça que porta la publicació."
@@ -89434,6 +89560,9 @@ msgstr "El catàleg a escriure."
 # translated-by: libretranslate
 msgid "the change \"looks obviously correct\"."
 msgstr "el canvi \"Sembla obvi que és correcte\"."
+
+msgid "the checkout being generated for."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the checkout the ``.env`` is generated for."
@@ -89512,6 +89641,9 @@ msgstr "la declaració com a llegit de la configuració de l' aplicació."
 msgid "the deploy mode the row runs in."
 msgstr "El mode de desplegar la fila s' executa."
 
+msgid "the depth a ``yum`` repository indexes."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the detected package manager."
 msgstr "El gestor de paquets detectat."
@@ -89552,6 +89684,9 @@ msgstr "el mapa buit `{}` (L' entrada canònica cap a l'cent), o"
 # translated-by: libretranslate
 msgid "the endpoint is configurable but both prompt-sending views are premium-licence gated; see the measurement above"
 msgstr "El punt final és configurable però les dues vistes més importants són portades de primera línia; mireu la mesura de més amunt"
+
+msgid "the entries the roles declare, keyed by name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the entries whose role has no job at all in the source run, each with its own axis suffix intact."
@@ -89600,13 +89735,22 @@ msgstr "el primer grup de captura de cada coincidència"
 msgid "the fix was logically inferred from a previous deploy's evidence,"
 msgstr "El fix era lògicment aferidat per les proves d'una visió anterior,"
 
+msgid "the frontend ports serving it; apt suites are plain HTTP."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the fully qualified domain being probed."
 msgstr "El domini qualificat que s'ha provat completament."
 
+msgid "the hijacked hostnames, sorted by host."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the host's databases.csv."
 msgstr "la màquina databases.csv."
+
+msgid "the hostname a container resolves to the frontend."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the identity provider's end-session endpoint."
@@ -89619,6 +89763,9 @@ msgstr "l' índex a on començar a llegir; ``0`` Quan s' ha indicat l' execució
 # translated-by: libretranslate
 msgid "the input's name, for the messages."
 msgstr "el nom de l' entrada, per als missatges."
+
+msgid "the inventory's entries for the same section."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the job label CI emits (``🐳🧅🌀🦓🦾网络应用·Nextcloud#2``) -- the glyphs carry mode, onion state, distro, filesystem and architecture, the ``#`` shard the variants;"
@@ -89667,6 +89814,12 @@ msgstr "L'últim missatge de negativa, buit quan no va passar res."
 # translated-by: libretranslate
 msgid "the longest value the consumer accepts; a positive integer."
 msgstr "El valor més llarg que el consumidor accepta, un enter positiu."
+
+msgid "the lookup plugin's loader."
+msgstr ""
+
+msgid "the lookup plugin's templar, where it has one."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the lookup's templar, or None outside a play."
@@ -89723,6 +89876,9 @@ msgstr "Mapatge d' usuaris fusionats."
 # translated-by: libretranslate
 msgid "the message the occurrence sits in."
 msgstr "el missatge en el que es troba l' ocurrència."
+
+msgid "the mirror list, or empty to read it from the environment."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the module results, in execution order."
@@ -89852,6 +90008,9 @@ msgstr "El proveïdor ``services`` Mapatge."
 msgid "the provider's application id."
 msgstr "ID de l' aplicació del proveïdor."
 
+msgid "the proxied repositories, sorted by name."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the qdrant service role id."
 msgstr "l' identificador del servei qdrant."
@@ -89900,6 +90059,12 @@ msgstr "el fitxer de compondre."
 msgid "the rendered config is mounted INTO a container rather than read by the host's own msmtp."
 msgstr "La configuració renderitzada està muntada en el contenidor en comptes de llegir pel propi mstp de la màquina."
 
+msgid "the repository behind each path, for a host whose suites live side by side, as Debian's do under /debian/ and /debian-security/."
+msgstr ""
+
+msgid "the repository serving its root, when it serves only one."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the repository was cloned"
 msgstr "El repositori s' ha clonat"
@@ -89943,6 +90108,9 @@ msgstr "El directori de rol viu."
 # translated-by: libretranslate
 msgid "the role installs the extension and points its OpenAI-compatible provider at the gateway in `tasks/addons/ai-llm.yml`"
 msgstr "El paper instal·la l'extensió i apunta el seu proveïdor OpenAI compatible amb el portal `tasks/addons/ai-llm.yml`"
+
+msgid "the role that declared it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the role the domain belongs to."
@@ -90205,6 +90373,9 @@ msgstr "la font del favor de les mostres, igual que preferir quan res ha de canv
 msgid "the structure to serialise."
 msgstr "l'estructura de la sèrie."
 
+msgid "the suite an ``apt`` repository serves."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the target distribution, named in the skip reason."
 msgstr "la distribució de destí, anomenada en el motiu del salt."
@@ -90245,6 +90416,9 @@ msgstr "El nom sense prefix."
 msgid "the updates to apply."
 msgstr "les actualitzacions a aplicar."
 
+msgid "the upstream hands out URLs that already carry the repository prefix, as npm does for tarballs, so those reach the backend unprefixed instead of being prefixed twice into a 404."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the upstream host, as it appears in the proxied URL."
 msgstr "la màquina de sortida, tal i com apareix en l' URL proxied."
@@ -90256,6 +90430,9 @@ msgstr "l' usuari a la contrasenya pertany, pel missatge de fallada."
 # translated-by: libretranslate
 msgid "the user's merged configuration."
 msgstr "La configuració fusionada de l' usuari."
+
+msgid "the value INFINITO_DISTRO carries."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the value contradicts the declared type or pattern."
@@ -90362,10 +90539,6 @@ msgid "transitive shared service dependencies"
 msgstr "De dependències de servei compartits transiva"
 
 # translated-by: libretranslate
-msgid "translation threads of a container this starts itself."
-msgstr "els fils de traducció d' un contenidor que s' inicia."
-
-# translated-by: libretranslate
 msgid "translations that altered a protected span."
 msgstr "traduccions que han alterat un abast protegit."
 
@@ -90388,6 +90561,9 @@ msgstr "cert"
 # translated-by: libretranslate
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
 msgstr "tty=Cap autoselects (local: Cert, CI: Fals). vius=els fluxos de confiança stdout/stderr."
+
+msgid "two roles declare the same repository or host differently,     or a host names a repository nobody declares."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "two roles demand different values for the     same topic of the same provider."
@@ -90412,6 +90588,9 @@ msgstr "sota aplicacions[app]['services'] Cada servei compta si:"
 # translated-by: libretranslate
 msgid "unpinned"
 msgstr "sense gestionar"
+
+msgid "unused."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "update"
@@ -90556,6 +90735,18 @@ msgstr "utils.cache.files mòdul"
 # translated-by: libretranslate
 msgid "utils.cache.gitignore module"
 msgstr "utils.cache.gitignore mòdul"
+
+msgid "utils.cache.hosts module"
+msgstr ""
+
+msgid "utils.cache.inventory module"
+msgstr ""
+
+msgid "utils.cache.records module"
+msgstr ""
+
+msgid "utils.cache.render module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cache.schema\\_credentials module"
@@ -90737,9 +90928,21 @@ msgstr "utils.env.handlers.infinito.cache paquet"
 msgid "utils.env.handlers.infinito.cache.conf module"
 msgstr "utils.env.handlers.infinito.cache.conf mòdul"
 
+msgid "utils.env.handlers.infinito.cache.hosts module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.stack module"
 msgstr "utils.env.handlers.infinito.cache.stack mòdul"
+
+msgid "utils.env.handlers.infinito.cache.tls module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.cache.upstreams module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.container module"
@@ -91839,6 +92042,9 @@ msgstr "Quan el gràfic no resol, nomen el cicle i els rols que queden sense ord
 # translated-by: libretranslate
 msgid "when: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 msgstr "quan: cerca('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
+
+msgid "where INFINITO_CACHE_PACKAGE_FRONTEND_CONF points."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "whether a CI runner is executing, which lowers the ceiling."

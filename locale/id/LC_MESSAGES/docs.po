@@ -978,6 +978,9 @@ msgstr "**Cadangan Siap:** Persist data di bawah `{{ JIRA_STORAGE_PATH }}`."
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
 msgstr "**Bantuan dan pemulihan bencana.** *svc-bkp-reasger-2-local* Digantikan oleh *svc-bkp-volume-2-local*, membuat kebijakan cadangan eksplisit per volume. Peran ini lebih suka snapshot filesystem ketika tersedia dan dapat mempersiapkan host btrfs untuk snapshot - berbasis backup itu sendiri. Baru *svc-bkp-nfs-2-local* melindungi ekspor NFS bersama, *svc-bkp-secrets-2-local* menangkap materi rahasia, dan *svc-bkp-local-2-device* sinkronisasi backup ke media eksternal yang dikait. Terpadu *pemulihan* CLI drive restore, sementara Compose pemeriksaan pemulihan dan berantakan penuh-pemulihan bor terus-menerus memverifikasi jalan. Rsync tidak lagi mempertahankan berkas yang diganti sebagai *~* dimengerti."
 
+msgid "**Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Backup integration:** Backup Docker Volumes snapshots the model volume when that role is present, without stopping the container."
 msgstr "**Integrasi backup:** Backup Docker Volumes snapshot model volume ketika peran yang ada, tanpa menghentikan wadah."
@@ -2199,6 +2202,12 @@ msgstr "**Dinyatakan dan Federated:** Hubungkan dengan jaringan global Matrix ho
 msgid "**Decentralized social networking:** Self-host the AT Protocol PDS and serve user data under your own domain."
 msgstr "**Jaringan sosial yang didesentralisasi:** Self-host PDS AT Protocol dan melayani data pengguna di bawah domain Anda sendiri."
 
+msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the ``cache:`` declarations, collected by the ``cache_upstreams`` and ``cache_repos`` lookups. A new upstream is added by declaring it there."
+msgstr ""
+
+msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the `cache:` declarations, collected by the `cache_upstreams` and `cache_repos` lookups. A new upstream is added by declaring it there."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Declared context windows:** A model entry carrying ``context`` publishes it as ``model_info.max_input_tokens``, and an Ollama entry also runs with that window as ``num_ctx`` instead of the server’s default, so a caller’s prompt is not silently truncated."
 msgstr "**Deklarasi jendela konteks:** Sebuah entri model membawa ``context`` menerbitkannya sebagai ``model_info.max_input_tokens``, dan Ollama entri juga berjalan dengan jendela sebagai ``num_ctx`` bukan bawaan server, jadi cepat pemanggil tidak dipotong diam-diam."
@@ -2438,6 +2447,9 @@ msgstr "**Keterangan:** Peran bootstrap Cloudflare DNS untuk apex dan wildcard A
 # translated-by: libretranslate
 msgid "**Description:** Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**Keterangan:** Cluster--lokal gambar registry kontainer untuk melayani gubahan-dibangun gambar ke Docker Swarm node pekerja"
+
+msgid "**Description:** Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -6117,6 +6129,9 @@ msgstr "**Jejak kaki minimal:** Kecil Node.js/ Layanan ekspres yang cocok rapi m
 msgid "**Minimal scope** (client-only, no server configuration)"
 msgstr "**Ruang lingkup minimal** (hanya client-, tidak ada konfigurasi server)"
 
+msgid "**Mirror failover:** A repository that declares a mirror is served through a guarded location: a 5xx from its primary remote re-runs the same path against the sibling repository, while a 404 is passed straight back."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Mitigation:** Image-level mutation (`run`, `build`, `push`, `login`) and their synonyms (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) still route through `ask`, so the operator reviews them before they execute."
 msgstr "**Mitigasi:** Mutasi tingkat Image- (`run`, `build`, `push`, `login`) dan sinonim mereka (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) masih rute melalui `ask`, jadi operator mengulas mereka sebelum mereka mengeksekusi."
@@ -7312,6 +7327,9 @@ msgstr "**Keadaan gigih:** Memori dan area kerja hidup dalam volume yang dikait 
 # translated-by: libretranslate
 msgid "**Persistent state:** Memory and workspace live in a volume mounted at ``/home/node/.openclaw``, with the rendered ``openclaw.json`` mounted into it, and are included in the container volume backup when that service is deployed."
 msgstr "**Keadaan gigih:** Memori dan area kerja hidup dalam volume yang dikait pada ``/home/node/.openclaw``, Dengan dirender ``openclaw.json`` dipasang ke dalamnya, dan termasuk dalam cadangan volume kontainer ketika layanan yang dikerahkan."
+
+msgid "**Persistent store:** Proxied artefacts live in a named volume, so a redeploy reuses what earlier runs already pulled."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Persistent:** ``nftables.service`` loads every fragment at boot, so rules outlive a reboot without a unit of this project’s own. The ruleset it reads is a distribution decision, so the path follows ``os_family``: RedHat reads ``/etc/sysconfig/nftables.conf``, the others ``/etc/nftables.conf``."
@@ -10312,6 +10330,9 @@ msgstr "**deskripsi**: Peran bootstrap Cloudflare DNS untuk apex dan wildcard A 
 # translated-by: libretranslate
 msgid "**description**: Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**deskripsi**: Cluster-local berkas gambar kontainer untuk melayani gambar yang telah dibangun Docker Swarm node pekerja"
+
+msgid "**description**: Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -13435,6 +13456,9 @@ msgstr "Sebuah judul tugas ditempatkan membawa seluruh baris yang digunakan -- p
 msgid "A deploy with zero or more than one manager fails at inventory-validation time, never at runtime."
 msgstr "Sebuah menyebarkan dengan nol atau lebih dari satu manajer gagal di inventory- waktu validasi, tidak pernah di waktu-jalan."
 
+msgid "A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "A deployment that keeps the shipped `DOMAIN_PRIMARY` serves names under `infinito.localhost`. Those exist in no zone, so a task that reaches the deployment's own domain from the host depends on the `myhostname` NSS module, which maps any `*.localhost` name to loopback per RFC 6761."
 msgstr "Sebuah penyebaran yang terus dikirim `DOMAIN_PRIMARY` melayani nama dibawah `infinito.localhost`. Mereka ada dalam zona tidak, sehingga tugas yang mencapai penyebaran sendiri domain dari host tergantung pada `myhostname` NSS modul, yang memetakan sebarang `*.localhost` nama untuk loopback per RFC 6761."
@@ -13997,6 +14021,12 @@ msgstr "Sebuah render `socialhome.toml` dikaitkan dengan berkas lingkungan. Ini 
 # translated-by: libretranslate
 msgid "A repository definition must declare at least one of these; the rest (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."
 msgstr "Sebuah definisi repositori harus mendeklarasikan paling tidak satu dari ini; sisanya (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) Itu memenuhi syarat."
+
+msgid "A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `listen: [80]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix."
+msgstr ""
+
+msgid "A repository may serve several hosts and a host may be served by one repository only; a repository without a host is proxied but never hijacked, which is how a client that already addresses Nexus directly is served."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A repository-local Sphinx entry point is also available at [Contribution Guide Index](docs/contributing/index.rst)."
@@ -14570,6 +14600,9 @@ msgstr "Sebuah alur kerja entri pemanggilan mendeklarasikan tidak `concurrency` 
 msgid "A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit."
 msgstr "Sebuah alur kerja dengan `workflow_dispatch` pemicu HARUS menjaga nya `name:` pada atau di bawah 25 karakter, dipaksa oleh [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). Menu pengiriman daftar nama-nama dalam satu kolom sempit, di mana yang lebih panjang dipotong. Pindahkan kata penjelasan ke `run-name:`, Yang tidak membawa batas tersebut."
 
+msgid "A worktree configured to follow the primary checkout reads that checkout's map without writing it: rendering there would push this branch's declarations into another tree, which is the isolation the setting exists to provide."
+msgstr ""
+
 # translated-by: libretranslate
 #, python-brace-format
 msgid "ACL user + key-prefix `{entity}:*`"
@@ -15004,16 +15037,8 @@ msgid "Add a row to the matching table above with its compose-side purpose."
 msgstr "Tambahkan baris ke tabel yang cocok di atas dengan komposisi-tujuan samping."
 
 # translated-by: libretranslate
-msgid "Add a server-block in [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) that reverse-proxies onto the new Nexus repo path (rewrite if upstream URL prefix differs from the Nexus repo path)."
-msgstr "Tambahkan sebuah server- blok dalam [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) that reverse- proxies onto the new Nexus repo path (rewrite if upstream URL prefix differs from the Nexus repo path)."
-
-# translated-by: libretranslate
 msgid "Add a short comment at the sensitive code path."
 msgstr "Tambahkan komentar singkat pada path kode sensitif."
-
-# translated-by: libretranslate
-msgid "Add an `extra_hosts` entry on the `infinito` service in [compose/cache.override.yml](../../../compose/cache.override.yml) for runner-side traffic."
-msgstr "Tambah `extra_hosts` entri pada `infinito` layanan di [compose/cache.override.yml](../../../compose/cache.override.yml) untuk lalu lintas di samping."
 
 # translated-by: libretranslate
 msgid "Add an `svc-runner` role that provisions a dedicated machine as an Infinito.Nexus CI runner, plus a CLI entry point under `cli/administration/deploy/runner/` (path to be created) that drives an Infinito.Nexus deploy against that runner from a developer workstation."
@@ -16688,6 +16713,9 @@ msgstr "Diperlukan allowlist perdomain eksplisit karena bentuk wildcard `WebFetc
 msgid "An explicit string value at applications['web-app-nextcloud'] .services.sso.oidc.plugin (inventory override)."
 msgstr "Nilai string eksplisit di aplikasi['web-app-nextcloud'] .services.sso.oidc.plugin (override inventaris)."
 
+msgid "An image build reaches the cache by hostname, but it cannot verify the frontend's self-signed certificate unless its Dockerfile installs the CA, so only these are safe to hijack for every build. A build that does install the CA additionally gets the TLS hosts; `sys-svc-compose`'s override generator decides that per image."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "An independent creator stack for publishing, video, audio, analytics, and community without platform lock-in."
 msgstr "Sebuah stack pencipta independen untuk penerbitan, video, audio, analitik, dan komunitas tanpa platform lock-in."
@@ -17300,6 +17328,9 @@ msgstr "Aplikasi ke setiap panggilan yang diambil melalui jaringan, repositori d
 # translated-by: libretranslate
 msgid "Applies to: **`main` (default branch)**"
 msgstr "Aplikasi ke: **`main` (branch baku)**"
+
+msgid "Apply a host's inventory to the cache declarations the roles make."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Apply every update in *updates* to disk. Returns the list of config files that were actually modified."
@@ -18686,9 +18717,8 @@ msgstr "Bootstrap dan mempertahankan **Prasyarat DNS** untuk tumpukan web Anda d
 msgid "Bootstrap env"
 msgstr "Bootstrap env"
 
-# translated-by: libretranslate
-msgid "Bootstrap is idempotent and runs from [package.sh](../../../scripts/docker/cache/package.sh) once the stack is healthy."
-msgstr "Bootstrap adalah idempoten dan berjalan dari [package.sh](../../../scripts/docker/cache/package.sh) Setelah tumpukan sehat."
+msgid "Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap tooling is provided via Kevin's Package Manager: <https://github.com/kevinveenbirkenbach/package-manager>"
@@ -18861,6 +18891,9 @@ msgstr "Keduanya membutuhkan berkas nama koleksi yang sama pada versi yang sama:
 # translated-by: libretranslate
 msgid "Both run from the trusted workflow ref and check out the version tag for the actual build payload, so the release artefacts match the tagged commit byte-for-byte."
 msgstr "Keduanya dijalankan dari workflow ref terpercaya dan memeriksa versi tag untuk muatan bangunan yang sebenarnya, sehingga artefak rilis cocok dengan tag commit by- for- byte."
+
+msgid "Both sections are merged per entry, so an inventory that names one field keeps the rest of the declaration, and a key nobody declared is added."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Both sides pass `primary_apps` (not the round closure) as the BFS seed and the variant-merged services map for that round, so the reachability walk sees the same topology the inventory baked."
@@ -20268,9 +20301,8 @@ msgstr "Centralkan lebih banyak logika pembantu CI ke dalam skrip dan modul util
 msgid "Centralizes container execution logic"
 msgstr "Centralize container execution logic"
 
-# translated-by: libretranslate
-msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "Generasi Cert berjalan dalam sebuah membuang-jauh alpine kontainer didorong oleh [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) sebelum antarmuka dimulai."
+msgid "Cert generation runs in a throw-away alpine container driven by [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) before the frontend starts. It issues a leaf for each name in `INFINITO_CACHE_TLS_HOSTS` and holds no hostname of its own."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -21298,6 +21330,9 @@ msgstr "Clone, siapkan tempat kerja, dan sebarkan OpenResty ke stack lokal:"
 msgid "Clone, set up the workstation, and deploy OpenTalk onto the local stack:"
 msgstr "Clone, siapkan tempat kerja, dan sebarkan OpenTalk ke stack lokal:"
 
+msgid "Clone, set up the workstation, and deploy Package cache onto the local stack:"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy Package update onto the local stack:"
 msgstr "Clone, siapkan tempat kerja, dan sebarkan Package update ke stack lokal:"
@@ -21658,6 +21693,9 @@ msgstr "Cluster-local `Docker Registry <https://distribution.github.io/distribut
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Cluster--lokal gambar registry kontainer untuk melayani gubahan-dibangun gambar ke Docker Swarm node pekerja"
 
+msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Cluster- lokal tarik-melalui cache untuk shared Docker Hub base- image menarik, memotong duplikat transfer dan batas laju"
@@ -21773,6 +21811,9 @@ msgstr "Mengumpulkan JavaScript Anda ke dalam satu baris dan menyuntikkannya mel
 #, python-brace-format
 msgid "Collect every `<entity>.ports.public.relay.{start,end}` pair as an occupied span."
 msgstr "Kumpulkan setiap `<entity>.ports.public.relay.{start,end}` pasangan sebagai rentang pendudukan."
+
+msgid "Collect what the package cache proxies, from ``cache:`` in meta/networks.yml."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Collection search; host/service status; PromQL query, query range, labels, metadata, and targets"
@@ -23811,6 +23852,9 @@ msgstr "Sebutkan sebagai ketergantungan dalam peran desktop `meta/main.yml`:"
 msgid "Declare it as a dependency in the desktop role’s ``meta/main.yml``:"
 msgstr "Sebutkan sebagai ketergantungan dalam peran desktop ``meta/main.yml``:"
 
+msgid "Declare it under `cache:` in a `meta/networks.yml`, then run `make dotenv`. That file is the single point of truth; the Nexus repo, the leaf cert, the nginx server block, the `extra_hosts` entries, `pip.conf`, `.npmrc` and the apt sources are all derived from it."
+msgstr ""
+
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Declare the image at the file root of `meta/services.yml` → `<service>.{image,version}`:"
@@ -24247,10 +24291,6 @@ msgid "Deploy `Social Home <https://github.com/social-home-io/socialhome>`__, a 
 msgstr "Menyebarkan `Social Home <https://github.com/social-home-io/socialhome>`__, platform sosial pertama yang dibuat untuk satu rumah tangga. Satu kontainer, basis data SQLite yang tertanam, dan federasi peer antara rumah tangga Ed25519-signed saluran data WebRTC - tidak ada ActivityPub, tidak ada broker pesan, tidak ada toko objek."
 
 # translated-by: libretranslate
-msgid "Deploy a LibreTranslate the translator can reach, or run a throwaway one."
-msgstr "Menyebarkan LibreTranslate penerjemah dapat mencapai, atau menjalankan satu membuang."
-
-# translated-by: libretranslate
 msgid "Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys."
 msgstr "Menyebarkan putaran yang termasuk aplikasi Anda (mis. `make compose-deploy apps=<application_id>`); spesifikasinya dijalankan dengan setiap peran lain putaran menyebar."
 
@@ -24319,6 +24359,9 @@ msgstr "Menyebarkan uji kerja mengalir dalam host swap melalui [enlarge_swap.sh]
 # translated-by: libretranslate
 msgid "Deploy test workflows use the `jlumbroso/free-disk-space` action to reclaim runner space before Docker pulls start. Because the actual deploy runs **inside** the `infinito` container, the host's language toolchains, build packages, and default Docker layer cache are all dead weight and MUST be reclaimed aggressively."
 msgstr "Menyebarkan proses tes `jlumbroso/free-disk-space` tindakan untuk merebut kembali ruang runner sebelum Docker menarik mulai. Karena pengiriman sebenarnya berjalan **didalam** yang `infinito` wadah, host 's toolchains bahasa, membuat paket, dan baku Docker lapisan cache semua berat mati dan HARUS diperoleh secara agresif."
+
+msgid "Deploy the dedicated LibreTranslate the translator reaches."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Deploy the role and run the spec inside the shared `test-e2e-playwright` runner until every MUST in the contributor SPOT passes and the browser console is free of unhandled errors."
@@ -27516,6 +27559,9 @@ msgstr "Semuanya pin token adalah diperiksa terhadap apa baris dapat benar-benar
 # translated-by: libretranslate
 msgid "Everything else lands in ``rejected`` with a stable code: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` and ``tools_unenforceable``."
 msgstr "Semuanya mendarat di ``rejected`` dengan kode stabil: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` dan ``tools_unenforceable``."
+
+msgid "Everything the roles declare, collected."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Evidence"
@@ -30838,9 +30884,8 @@ msgstr "HTTP + SSE (`adapter.upstream_transport: sse`)"
 msgid "HTTP/2 support, TLS/SSL integration"
 msgstr "HTTP /2 dukungan, integrasi TLS / SSL"
 
-# translated-by: libretranslate
-msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "HTTPS (port 443): sertifikasi server host ditandatangani oleh CA yang berdedikasi. Digunakan oleh `infinito` pelari (Ansible- didorong `pip install`, `gem install`, `composer install`, `curl https://…`)Pelari mempercayai CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
+msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -31488,6 +31533,12 @@ msgstr "IAM(Identitas dan Manajemen Akses) adalah setup via Keycloak dan LDAP."
 msgid "INFINITO_*-key env handlers; one module per owned key."
 msgstr "INFINITO _*-key env penangan; satu modul per kunci yang dimiliki."
 
+msgid "INFINITO_CACHE_HOSTS: the hostnames the package cache fronts, collected from the ``cache:`` declarations every role makes in its meta/networks.yml."
+msgstr ""
+
+msgid "INFINITO_CACHE_HTTP_HOSTS: the hostnames the frontend serves without TLS."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path:hostname), truncated to 32 hex chars."
 msgstr "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path: Nama host), dipotong ke 32 hex chars."
@@ -31515,6 +31566,12 @@ msgstr "INFINITO_CACHE_REGISTRY_MAX_SIZE: registry-cache tutup lunak (setengah d
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_STACK: whether the pull-through cache stack should run."
 msgstr "INFINITO_CACHE_STACK: apakah pengg-melalui cache stack harus berjalan."
+
+msgid "INFINITO_CACHE_TLS_HOSTS: the hostnames the package-cache frontend needs a leaf certificate for, being those its cache: declarations serve over HTTPS."
+msgstr ""
+
+msgid "INFINITO_CACHE_UPSTREAMS: every repository the package cache proxies, as ``name|flavor|url|distribution|repodata_depth|content_max_age`` records separated by commas, from the cache: entries the roles declare in their meta/networks.yml."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "INFINITO_CA_BUNDLE_CANDIDATES: where the distributions keep the extracted CA bundle, read from the group_vars paths SPOT (group_vars/all/05_paths.yml CA_BUNDLE_CANDIDATES)."
@@ -32129,14 +32186,6 @@ msgstr "Jika naskah keluar `0` Dan inspeksi berlalu, pergi ke [Keluar](#exit)."
 # translated-by: libretranslate
 msgid "If the script exits non-zero OR the inspection surfaced a schema violation:"
 msgstr "Jika naskah keluar tidak nol OR inspeksi muncul pelanggaran skema:"
-
-# translated-by: libretranslate
-msgid "If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`."
-msgstr "Jika hulu adalah HTTP-saja dan dalam-`dockerd` membangun membutuhkannya, juga menambahkannya ke `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) sehingga per- app `compose.cache.override.yml` termasuk dalam `build.extra_hosts`."
-
-# translated-by: libretranslate
-msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "Bila upstream memakai HTTPS, tambahkan ke `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) sehingga cert daun diterbitkan."
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -34720,6 +34769,9 @@ msgstr "Ini adalah **pembantu infrastruktur generik**."
 msgid "It is a standalone script — no environment, no backup generation, no other drill. It resolves `baudolo-snapshot` from `PATH`, so it tests whatever the role deployed:"
 msgstr "Ini adalah naskah standalone - tidak ada lingkungan, tidak ada generasi cadangan, tidak ada bor lainnya. Ini menyelesaikan `baudolo-snapshot` dari `PATH`, sehingga menguji apa pun peran dikerahkan:"
 
+msgid "It is deliberately separate from `cli.meta.env`, which has to import on the bare bootstrap python and therefore cannot reach Jinja or PyYAML."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "It is designed to be used as a fallback when no central Mailu instance is available, enabling applications and system services to send email via ``localhost:25`` without additional configuration."
 msgstr "Hal ini dirancang untuk digunakan sebagai fallback ketika tidak ada pusat Mailu instance tersedia, memungkinkan aplikasi dan layanan sistem untuk mengirim email melalui ``localhost:25`` tanpa konfigurasi tambahan."
@@ -35391,6 +35443,9 @@ msgstr "URIs / web-asal kunci direct yang dihitung dari `lookup('domains')` di m
 # translated-by: libretranslate
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
 msgstr "Keyjubah 's `LDAP user federation` mirror users into the realm in read-only mode."
+
+msgid "Keyed by repository name, so a template resolving a host's route reaches its flavor, upstream and mirror without a second declaration. `utils.cache.hosts` is the single point of truth; the entries come from ``cache: repos:`` in the roles' ``meta/networks.yml``, and deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keys without a provider role are omitted — ``disable=`` cannot act on them."
@@ -36422,6 +36477,15 @@ msgstr "Plugin Pencarian 🔎"
 # translated-by: libretranslate
 msgid "Lookup ``application_closure``: roles reachable from a seed application set."
 msgstr "Lookup ``application_closure``: Peran dapat dicapai dari aplikasi benih."
+
+msgid "Lookup ``cache_records``: the repositories, as the bootstrap script reads them."
+msgstr ""
+
+msgid "Lookup ``cache_repos``: the repositories the package cache proxies."
+msgstr ""
+
+msgid "Lookup ``cache_upstreams``: the hosts the package cache answers for."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Lookup ``compose_external_networks``: the provider role ids whose overlay the compose file of ``application_id`` references as ``external: true``."
@@ -39052,6 +39116,9 @@ msgstr "Tidak ada eksternal - internal SQLite di bawah `/config`."
 msgid "None when the call is run once, else its retry policy."
 msgstr "Tidak ada ketika panggilan dijalankan sekali, lain kebijakan ulang."
 
+msgid "None where the list does not carry both, in which case the placeholders cannot be resolved."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "None."
 msgstr "Tidak ada."
@@ -39710,6 +39777,9 @@ msgstr "Satu pekerjaan menyebarkan judul dan nama artefak: bagaimana mereka diba
 msgid "One env setting: the process environment wins, ``default.env`` is the SPOT behind it."
 msgstr "Satu pengaturan env: lingkungan proses menang, ``default.env`` adalah SPOT di belakangnya."
 
+msgid "One format, two readers: the ``.env`` generator writes it to ``INFINITO_CACHE_UPSTREAMS`` for the dev stack, and the ``cache_records`` lookup hands the same string to the role's bootstrap task. Both resolve the Ubuntu mirror placeholders from ``INFINITO_APT_UBUNTU_MIRRORS``, which the image build reads too, so the mirror order has a single home."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the ``infinito-runner`` image locally, renders one compose project and starts ``RUNNER_COUNT`` instances."
 msgstr "Satu host menjalankan seluruh armada: peran membangun ``infinito-runner`` gambar lokal, membuat satu projek compose dan dimulai ``RUNNER_COUNT`` Misalnya."
@@ -39717,6 +39787,9 @@ msgstr "Satu host menjalankan seluruh armada: peran membangun ``infinito-runner`
 # translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the `infinito-runner` image locally, renders one compose project and starts `RUNNER_COUNT` instances."
 msgstr "Satu host menjalankan seluruh armada: peran membangun `infinito-runner` gambar lokal, membuat satu projek compose dan dimulai `RUNNER_COUNT` Misalnya."
+
+msgid "One hostname the frontend answers for, in place of its upstream."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One integer CI setting, read through the shared env SPOT."
@@ -39753,6 +39826,9 @@ msgstr "Satu query per run, bukan satu per mode menyebarkan. Setiap baris adalah
 # translated-by: libretranslate
 msgid "One recovery type backed by a role's ``files/python/recover.py``."
 msgstr "Satu jenis pemulihan didukung oleh peran ``files/python/recover.py``."
+
+msgid "One repository Nexus proxies."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One role's measured runtime within a deploy segment."
@@ -41024,6 +41100,9 @@ msgstr "Cache Paket 📚"
 msgid "Package Manager Installation"
 msgstr "Instalasi Manajer Paket"
 
+msgid "Package cache"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Package manager"
 msgstr "Manajer paket"
@@ -41212,6 +41291,9 @@ msgstr "Pass `--dry-run` untuk pratinjau tanpa menulis."
 # translated-by: libretranslate
 msgid "Pass `--dry-run` to preview, `--include-template` to also archive `000-template.md`. See `pkgmgr archive --help` for the full surface."
 msgstr "Pass `--dry-run` ke pratinjau, `--include-template` juga arsip `000-template.md`. Lihat `pkgmgr archive --help` untuk permukaan penuh."
+
+msgid "Pass ``application_id`` as term 0, defaulting to the templating variable of the same name. ``http_port`` and ``proxy_internal_port`` are read from the same variables, so a role that resolved its port itself is not reported as backendless. ``applications`` comes from ``lookup('applications')``, the merged-config SPOT."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pass ``provider_self_alias=False`` for a sidecar service that must not carry the provider's own alias, and ``own_network_only=True`` for one that must not inherit the networks its provider joins as a consumer."
@@ -43304,6 +43386,9 @@ msgstr "Masukan kembali batas kalimat penerjemah menjatuhkan di belakang rentang
 msgid "Put shared fixed values in one canonical source and reference them everywhere else."
 msgstr "Masukan nilai tetap bersama dalam satu sumber kanonikal dan referensi mereka di tempat lain."
 
+msgid "Put the declaration in the role that needs the upstream. An upstream no single role owns goes in [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml)."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Python CLI for init, deploy, up, down, exec, etc."
 msgstr "Python CLI untuk init, menyebarkan, atas, bawah, exec, dll."
@@ -44424,6 +44509,9 @@ msgstr "Menolak: sepuluh perangkat yang tersisa Baserow 2.3.3 implementasi, terd
 msgid "Refused: the ten remaining tools Baserow 2.3.3 implements, listed under `tools.upstream_serves`. Three of them (`create_rows`, `update_rows`, `delete_rows`) are live upstream — the image carries no env var, setting or UI toggle that removes them, so `mutating_tools_enabled: false` is enforced by the adapter and by nothing in Baserow. The other seven are shipped disabled upstream and are listed so a version bump that enables one shows up as contract drift rather than as a silently widened surface."
 msgstr "Menolak: sepuluh perangkat yang tersisa Baserow 2.3.3 implementasi, terdaftar di bawah `tools.upstream_serves`. Tiga dari mereka (`create_rows`, `update_rows`, `delete_rows`) adalah live upstream - gambar tidak membawa env var, pengaturan atau UI toggle yang menghapus mereka, jadi `mutating_tools_enabled: false` dipaksa oleh adaptor dan tidak ada di BaserowTujuh lainnya dikirim ke hulu dinonaktifkan dan terdaftar sehingga benjolan versi yang memungkinkan satu muncul sebagai pergeseran kontrak bukan sebagai permukaan lebar diam-diam."
 
+msgid "Regenerate every derived cache file"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Regenerate the Debian changelog at *path* from CHANGELOG.md."
 msgstr "Mengulang changelog Debian *path* dari CHANGELOG.md."
@@ -44440,10 +44528,6 @@ msgstr "Regenerasi"
 # translated-by: libretranslate
 msgid "Register --ghcr-namespace, --ghcr-repository, --ghcr-prefix on *parser*."
 msgstr "Register --ghcr-namespace, --ghcr-repositori, --ghcr-prefix di *parser*."
-
-# translated-by: libretranslate
-msgid "Register a Nexus proxy repo in [package.sh](../../../scripts/docker/cache/package.sh)."
-msgstr "Register a Nexus proxy repo in [package.sh](../../../scripts/docker/cache/package.sh)."
 
 # translated-by: libretranslate
 msgid "Register the emulation an architecture-pinned deploy needs."
@@ -44998,6 +45082,9 @@ msgstr "Menyewa matriks obligasi: peran pasangan yang, dan seberapa erat."
 msgid "Render the collected service rows and aggregated totals as an aligned text table or as JSON."
 msgstr "Menyewa baris layanan yang dikumpulkan dan mengumpulkan total sebagai tabel teks yang selaras atau sebagai JSON."
 
+msgid "Render the declared repositories as the records Nexus is bootstrapped from."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Render the plan of one CI sweep: every candidate row, and where it lands."
 msgstr "Render rencana dari satu menyapu CI: setiap baris kandidat, dan di mana tanah."
@@ -45013,6 +45100,9 @@ msgstr "Naikkan level atas ``volumes:`` / ``configs:`` / ``secrets:`` Hadang."
 # translated-by: libretranslate
 msgid "Render using strict Jinja2 repeatedly until:"
 msgstr "Render menggunakan Jache ketat2 berulang-ulang sampai:"
+
+msgid "Render what the package cache needs beside its role, from the declarations."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Rendered `.env` passed to the Playwright container"
@@ -45940,6 +46030,12 @@ msgstr "Kembali (Daftar, repository_name) untuk memvalidasi nama citra Docker."
 msgid "Return (running_on_github, running_on_act)."
 msgstr "Kembali (running_on_github, running_on_act)."
 
+msgid "Return *declared* with *overrides* applied, sorted by key."
+msgstr ""
+
+msgid "Return *raw* with the Ubuntu mirror placeholders substituted."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return *value* as a list of plausible HTTP status codes."
 msgstr "Kembali *nilai* sebagai daftar kode status HTTP yang masuk akal."
@@ -46073,6 +46169,9 @@ msgstr "Kembali ``<host>:<port>`` untuk titik proksi Tor SOCKS."
 # translated-by: libretranslate
 msgid "Return ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` — per-round variant-closure plus a plan-constant union for the inter-round wipe."
 msgstr "Kembali ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` - Per- bulat variant- penutupan ditambah plan- konstan serikat untuk menghapus inter- bulat."
+
+msgid "Return ``[True]`` when a port exists to probe, ``[False]`` otherwise."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return ``data`` as a CommentedMap, empty when it holds no mapping."
@@ -46288,6 +46387,15 @@ msgstr "Kembali setiap penangkapan *pola* dalam tubuh *url*."
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "Kembali setiap menyatakan addon di semua roles ' ``meta/addons/*.yml``."
 
+msgid "Return every declared host as a template-ready record, keyed by host."
+msgstr ""
+
+msgid "Return every declared repository and host."
+msgstr ""
+
+msgid "Return every declared repository as a record, keyed by name."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return every declared role author, sorted and without duplicates."
 msgstr "Kembalikan setiap penulis peran yang dideklarasikan, diurutkan dan tanpa duplikat."
@@ -46320,6 +46428,9 @@ msgstr "Kembalikan setiap pin pip tepat di bawah ``roles/``."
 msgid "Return every group-conditional service key that has a provider role."
 msgstr "Kembalikan setiap kunci layanan grup-kondisional yang memiliki peran penyedia."
 
+msgid "Return every host the frontend answers for on behalf of *repo*."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return every language of ``meta/languages.yml`` keyed by ISO 639-1 code."
 msgstr "Kembalikan setiap bahasa ``meta/languages.yml`` keyed oleh ISO 639-1 kode."
@@ -46335,6 +46446,9 @@ msgstr "Kembalikan setiap versi yang diterbitkan dari sebuah npm *paket*."
 # translated-by: libretranslate
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr "Kembalikan setiap versi yang dirilis ``package``, kosong ketika PyPI tidak dapat dihubungi."
+
+msgid "Return every repository as ``name|flavor|url|suite|depth|max_age``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every role directory name, sorted."
@@ -46379,6 +46493,9 @@ msgstr "Kembali konflik yang dapat dibaca human- ketika `disable` Tidak setuju d
 # translated-by: libretranslate
 msgid "Return mapping of service_name -> application_id for the provider role of each requested service. Resolution goes through the canonical service registry, so ``provides:`` aliases (e.g. ``mailu.provides: email``) and shared entity-name services are both recognized."
 msgstr "Pemetaan kembali service_name - > application_id untuk peran penyedia dari setiap layanan yang diminta. Resolusi berjalan melalui daftar layanan kanonikal, jadi ``provides:`` alias (mis. ``mailu.provides: email``) dan layanan hak bersama-nama keduanya diakui."
+
+msgid "Return one distribution's apt source, empty where it does not use apt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return one message per ``update:`` block that cannot be resolved."
@@ -46432,6 +46549,12 @@ msgstr "Kembalikan nama tag dari ``git ls-remote --tags``, dilucuti ``refs/tags/
 # translated-by: libretranslate
 msgid "Return the (background, foreground) pair for a bond between 0 and 1."
 msgstr "Kembali (latar belakang, latar depan) pasangan untuk ikatan antara 0 dan 1."
+
+msgid "Return the (path, repository) pairs this host serves."
+msgstr ""
+
+msgid "Return the (port, terminates TLS) pairs this host is served on."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the CPU architectures the role can be deployed on, or ``[]`` when it declares none and takes whatever the CI rotation assigns."
@@ -46573,6 +46696,9 @@ msgstr "Kembalikan kode yang membawa katalog ``domain``."
 msgid "Return the codes that prove *domain* is being served at all."
 msgstr "Kembalikan kode yang membuktikan *domain* sedang dilayani sama sekali."
 
+msgid "Return the compose override that points every cached host at the frontend."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the compressed transfer size of ``image:reference`` in bytes."
 msgstr "Kembalikan ukuran transfer terkompresi dari ``image:reference`` dalam bita."
@@ -46588,6 +46714,9 @@ msgstr "Kembalikan kriteria ``translation`` pecah, kosong ketika pecah tidak ada
 # translated-by: libretranslate
 msgid "Return the current play application mapping using the shared resolver from utils/roles/applications/in_group_deps."
 msgstr "Kembalikan pemetaan aplikasi main saat ini memakai resolver bersama dari utils/roles/applications/in_group_deps."
+
+msgid "Return the declared repository *name*, or None where none declares it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the deploy modes a role supports, keyed by mode with its ``modes.<mode>.enabled`` SPOT value."
@@ -46657,6 +46786,9 @@ msgstr "Kembali penuh ``PORT_BANDS`` map keyed by ``<scope>.<category>``."
 msgid "Return the highest released version of ``package``, or None."
 msgstr "Kembalikan versi tertinggi yang dirilis ``package``, atau tidak ada."
 
+msgid "Return the hostname *repo* proxies, taken from its upstream URL."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the identifiers ``role_dir`` names its upstream product by."
 msgstr "Kembalikan identifier ``role_dir`` names produk upstream nya oleh."
@@ -46672,6 +46804,9 @@ msgstr "Kembalikan identitas yang dibuat di sini sekarang akan dibawa."
 # translated-by: libretranslate
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "Kembalikan subdirektori langsung dari ``cli/<parts>/``, split ke perintah runnable (``__main__.py`` hadir) dan kategori folder. Paket dukungan kosong (tidak ada perintah dimanapun di bawahnya) Yang dilewati."
+
+msgid "Return the inventory's entries for one ``cache:`` section."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the languages the server translates English into."
@@ -46709,9 +46844,15 @@ msgstr "Kembalikan namanya ``module`` mendefinisikan dirinya sendiri, menghormat
 msgid "Return the names ``source`` carries that ``translation`` dropped."
 msgstr "Kembalikan namanya ``source`` membawa bahwa ``translation`` Jatuh."
 
+msgid "Return the nginx frontend configuration the declarations produce."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the non-overlapping offsets every protection rule claims."
 msgstr "Kembalikan non- tumpang tindih offsets setiap aturan perlindungan klaim."
+
+msgid "Return the npm configuration pointing at the cached registry."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the offsets of every name ``text`` carries."
@@ -46733,6 +46874,9 @@ msgstr "Kembalikan manifes yang diurai (atau indeks) untuk ``image:reference``."
 msgid "Return the path of the ``domain`` catalog of language ``code``."
 msgstr "Kembali jalan ``domain`` katalog bahasa ``code``."
 
+msgid "Return the path this host serves *repo* under, or the empty string."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the people ``role_dir`` names as its authors."
 msgstr "Kembalikan orang-orang ``role_dir`` nama sebagai penulis."
@@ -46741,9 +46885,15 @@ msgstr "Kembalikan orang-orang ``role_dir`` nama sebagai penulis."
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
 msgstr "Kembalikan blok kait servis (``volumes:`` + ``configs:`` + ``secrets:``) sebagai string YAML dimulai di kolom 0."
 
+msgid "Return the pip configuration pointing at the cached PyPI hosts."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Return the plain translation, or what was rejected and the criterion it broke."
 msgstr "Kembali terjemahan polos, atau apa yang ditolak dan kriteria itu pecah."
+
+msgid "Return the primary and fallback Ubuntu archive, without trailing slash."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the primary domain for application_id from the domains mapping:"
@@ -46828,6 +46978,9 @@ msgstr "Kembali run_after daftar dideklarasikan oleh peran memiliki *meta_file*.
 # translated-by: libretranslate
 msgid "Return the same data as JSON, for a caller that wants to post-process."
 msgstr "Kembalikan data yang sama dengan JSON, untuk penelpon yang ingin memposting-proses."
+
+msgid "Return the scheme a client addresses this host with."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the selected and rejected MCP servers for one client role."
@@ -46964,6 +47117,9 @@ msgstr "Kembali apakah audit perversi direkam mendukung klaim delegasi."
 # translated-by: libretranslate
 msgid "Return whether a role marks itself an MCP client in its own services."
 msgstr "Kembali apakah tanda peran itu sendiri klien MCP dalam layanan sendiri."
+
+msgid "Return whether an application has a backend a vhost can probe."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -47156,6 +47312,9 @@ msgstr "Mengembalikan snippet skrip / gaya ke hash untuk direktif yang diberikan
 #, python-brace-format
 msgid "Returns one ``{'role': …, 'app': …}`` mapping per role, so a stage can loop over the group instead of including a generated task file per group:"
 msgstr "Kembali satu ``{'role': …, 'app': …}`` pemetaan per peran, sehingga sebuah tahap dapat loop atas grup bukan termasuk sebuah berkas tugas yang dihasilkan per grup:"
+
+msgid "Returns one dict per host, sorted by host, carrying ``host``, ``repo``, ``routes``, ``listen``, ``read_timeout`` and ``passthrough``."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -48587,6 +48746,9 @@ msgstr "Jalankan gambar yang diterbitkan untuk menyediakan persediaan dan menyeb
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy OpenTalk to a managed server (the mounted volume persists the inventory):"
 msgstr "Jalankan gambar yang diterbitkan untuk menyediakan persediaan dan menyebarkan OpenTalk ke server yang dikelola (volume yang dikait mempertahankan inventaris):"
+
+msgid "Run the published image to provision the inventory and deploy Package cache to a managed server (the mounted volume persists the inventory):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy PeerTube to a managed server (the mounted volume persists the inventory):"
@@ -52016,6 +52178,9 @@ msgstr ""
 msgid "Stdlib line parse on purpose: env handlers feed the .env generation, which bootstraps fresh hosts before PyYAML exists (canonical pattern: utils/storage/nfs.py)."
 msgstr "Perpotongan baris stdlib dengan tujuan: penangan env memberi makan .env generasi, yang bootstraps host segar sebelum PyYAML ada (pola kanonikal: utils/storage/nfs.py)."
 
+msgid "Stdlib only: the ``.env`` generator reaches this before PyYAML exists."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Stdlib reader for the block-YAML subset the bootstrap SPOT files use."
 msgstr "Pembaca stdlib untuk block- YAML subset berkas bootstrap yang digunakan."
@@ -52781,6 +52946,9 @@ msgstr "Rahasia Svc-bkp-2-lokal Peran"
 # translated-by: libretranslate
 msgid "Svc-bkp-volume-2-local Role"
 msgstr "Svc-bkp-volume-2-lokal Peran"
+
+msgid "Svc-cache-package Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-elasticsearch Role"
@@ -55478,9 +55646,8 @@ msgstr "Sumbu akhiran suatu token pilihan CI mungkin membawa (``#0,2@swarm+tor``
 msgid "The backup host is NOT appended to the cluster inventory: it lives in a sibling ``backup.yml`` next to ``INV_PATH`` (same host_vars dir), deployed as a second play after the cluster one. Without a svc-swarm-node group that play resolves DEPLOYMENT_MODE=compose and IS_STACK_HOST=true on the backup host, so the backup roles run without cluster-membership special cases."
 msgstr "Inang cadangan TIDAK ditambahkan ke persediaan cluster: ia hidup dalam saudara ``backup.yml`` sebelah ``INV_PATH`` (sama host_vars dir), dikerahkan sebagai pemain kedua setelah cluster satu. Without a svc-swarm-node grup yang bermain memecahkan DEPLOYMENT_MODE= tulis dan IS_STACK_HOST= benar pada host cadangan, sehingga peran cadangan berjalan tanpa cluster- kasus khusus keanggotaan."
 
-# translated-by: libretranslate
-msgid "The base URL to translate against."
-msgstr "URL dasar untuk diterjemahkan."
+msgid "The base URL to translate against. The service answers only once it has installed its models, which the caller's readiness wait covers."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The base layer of :mod:`utils.i18n.placeholders`: it knows the protection rules and nothing about damage or repair, so :mod:`utils.i18n.damage` can build on it without an import cycle."
@@ -55811,6 +55978,9 @@ msgstr "Kombinasi yang satu merah bekerja mati di -- semua nama artefak dibangun
 msgid "The combined \"yield project files filtered through ``.gitignore``\" helper lives in :mod:`utils.cache.files` (``iter_non_ignored_files``) because it composes the cached project walk with this matcher."
 msgstr "Gabungan \"menghasilkan berkas projek disaring melalui ``.gitignore``\" Pembantu tinggal di :mod:`utils.cache.files` (``iter_non_ignored_files``) karena itu komposes proyek cache berjalan dengan matcher ini."
 
+msgid "The comma-separated records, or the empty string where a placeholder stays unresolved, so a consumer's own guard reports it rather than Nexus proxying a host that does not exist."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The common pieces are:"
 msgstr "Bagian yang umum adalah:"
@@ -55874,6 +56044,9 @@ msgstr "Config- bantalan Nextcloud aplikasi dideklarasikan dalam ``meta/addons/`
 # translated-by: libretranslate
 msgid "The config-bearing Nextcloud apps are declared in `meta/addons/` under the unified addon contract (requirement 026). Each declaration carries its full `occ config:app:set` payload under `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
 msgstr "Config- bantalan Nextcloud aplikasi dideklarasikan dalam `meta/addons/` di bawah kontrak addon terpadu (persyaratan 026). Setiap deklarasi membawa penuh `occ config:app:set` muatan di bawah `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
+
+msgid "The configured entries, or an empty mapping where no inventory answers, as in the dev stack."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The configured relay host, the loopback address, the container's alias for its host, or a swarm manager."
@@ -55977,6 +56150,9 @@ msgstr "Keputusan membandingkan ruang bebas pada sistem berkas memegang akar dat
 msgid "The decision repeats for the same request"
 msgstr "Keputusan berulang untuk permintaan yang sama"
 
+msgid "The declarations live under ``cache: hosts:`` in every role's ``meta/networks.yml`` and `utils.cache.hosts` collects them. Deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The declared codes, empty when the app declares none for this domain."
 msgstr "Kode yang dideklarasikan, kosong ketika aplikasi tidak mendeklarasikan domain ini."
@@ -56064,6 +56240,9 @@ msgstr "The destruktif bor, hanya sinkronisasi lulus. Ini membuktikan cadangan d
 # translated-by: libretranslate
 msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value names the compose-only boolean."
 msgstr "Deteksi line- berbasis: blok tugas adalah rentang antara terdekat `- name:` (di indent N) di atas garis menyinggung dan penanda struktur tingkat atas berikutnya (`- name:` di indent < = N, atau akhir dari berkas)Dalam rentang yang kita cari `when:` clause yang nilai tekstual nama kompose- hanya boolean."
+
+msgid "The dev compose stack has no inventory and caches exactly what the roles declare. A deployed host caches what its configuration says, which starts from the same declarations and lets the inventory correct or extend them::"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The dev-deploy CLI threads the variant index through three layers so a variant's `variants.yml` overlay reaches the credential subprocess."
@@ -56753,6 +56932,9 @@ msgstr "Tempat diagram OpenTalk di Infinito.Nexus kosmos: komponen itu menyebar 
 # translated-by: libretranslate
 msgid "The diagram places Package Manager Installation in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
 msgstr "Tempat diagram Package Manager Installation di Infinito.Nexus kosmos: komponen itu menyebar (kemampuan), layanan pusat ia mengkonsumsi (Ketergantungan)Sesungguhnya pintu neraka itu tertutup, sementara mereka diikat pada tiang-tiang yang panjang di dalamnya sehingga tidak dapat bergerak dan tidak akan dapat menyelamatkan diri. (Federation dan menjembatani jaringan eksternal)."
+
+msgid "The diagram places Package cache in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The diagram places Package update in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -58077,6 +58259,9 @@ msgstr "Dokumen manifest, atau None ketika generasi tidak membawa apapun."
 msgid "The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group, and the orchestrator's group cancels for `workflow_dispatch` regardless of ref, so a manual sweep supersedes on both levels, `main` included."
 msgstr "Jalur masuk manual (`entry-manual-steer.yml`) set `cancel-in-progress: true` pada kelompok mereka sendiri, dan kelompok yang mengatur membatalkan untuk `workflow_dispatch` Terlepas dari ref, sehingga menyapu manual supersedes pada kedua tingkat, `main` Termasuk."
 
+msgid "The map itself is generated, never tracked, so no second copy of a hostname can drift; ``utils.cache.render.render_artifacts`` writes it once the value-set is built."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in its job title, between the variant number and the ⭐ of a priority row."
 msgstr "Baris ditandai membawa `instructions: <mode>` dalam matriks JSON dan 📖 dalam jabatannya, antara nomor varian dan baris prioritas."
@@ -58243,6 +58428,9 @@ msgstr "Tahap berikutnya dalam pipeline HARUS TIDAK dijalankan ketika tahap sebe
 # translated-by: libretranslate
 msgid "The nfs-server uses the userspace `nfs-ganesha` (`ganesha`) flavor in every runtime; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` is the SPOT, and `kernel` is a per-inventory override. Ganesha is packaged for the `Debian` and `RedHat` os families only. Kernel `nfsd` in a privileged DinD node is wedge-prone: the export can be present yet the controller mount returns ENOENT, and `exportfs` can stick in D-state. If a swarm step hangs at `Reload NFS exports` from a stuck kernel-NFS mount, you MUST recover with `make swarm-clean` on the host; see the NFS gotcha in [Roundtrip Loop](roundtrip.md). You MUST NOT fall back to a compose-only sweep while swarm is blocked."
 msgstr "Server nf menggunakan ruang pengguna `nfs-ganesha` (`ganesha`) rasa di setiap waktu; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` adalah SPOT, dan `kernel` adalah override perinventaris. Ganesha dikemas untuk `Debian` dan `RedHat` Hanya keluarga. Kernel `nfsd` dalam node DinD yang istimewa adalah wedge- rawan: ekspor dapat hadir namun kembali kontrol ENOENT, dan `exportfs` dapat menempel di D-state. Jika langkah kawanan hang di `Reload NFS exports` dari rantai kernel- NFS yang terjebak, Anda HARUS pulih dengan `make swarm-clean` di host; lihat NFS gotcha in [Lingkaran Roundtrip](roundtrip.md). Anda HARUS TIDAK jatuh kembali ke senyawa-hanya menyapu sementara kawanan diblokir."
+
+msgid "The nginx upstream map, the consumer compose override and the package managers' client configuration all follow from the ``cache:`` declarations in the roles' `meta/networks.yml`. None of them is tracked; this package regenerates them. Implementation lives in `utils.cache.render`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The nightly timers (volume 01:00, nfs 01:30, secrets 01:45, device 02:00, remote pull 00:30) run independently of every step above and never fire during a lab run."
@@ -59313,6 +59501,9 @@ msgstr "Peran menyebarkan satu tunggal `registry:2` instansi dalam pull- melalui
 msgid "The role deploys end-to-end on the project's reference distribution and is covered by **at least** a smoke-level Playwright spec, but neither the deploy nor the spec depth is considered production-grade."
 msgstr "Peran menyebarkan end- to-end pada distribusi referensi proyek dan ditutupi oleh **paling tidak** smoke- tingkat spesifikasi Playwright, tetapi baik menyebarkan maupun kedalaman spesifikasi dianggap produksi-grade."
 
+msgid "The role deploys the frontend and owns the templates and their tuning; the dev compose stack has no inventory to render them with and comes through here instead. Every value still has one home: the hosts and repositories come from the ``cache:`` declarations, the nginx tuning from the role's ``vars/main.yml``, and only the backend address differs, because the dev stack reaches Nexus over a compose network alias while the role reaches it by its configured container."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via `SEMAPHORE_*` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak `administrator` is created at deploy time as an external Semaphore admin via `semaphore user add --admin --external`; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "Peran menyebarkan wadah Semaphore tunggal (dengan pelari tugas tertanam) dan kabel ke platform melalui `SEMAPHORE_*` variabel lingkungan. Penyihir setup adalah bypassed dengan bibit admin awal dari rahasia yang diberikan, sehingga menyebarkan segar tanah langsung pada halaman login Semaphore. Ketika SSO diaktifkan, Keycloak `administrator` diciptakan pada waktu penyebaran sebagai admin Semaphore eksternal melalui `semaphore user add --admin --external`; panggilan OIDC cocok dengan email dan menandatangani operator sebagai admin Semaphore."
@@ -59320,6 +59511,12 @@ msgstr "Peran menyebarkan wadah Semaphore tunggal (dengan pelari tugas tertanam)
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via ``SEMAPHORE_*`` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak ``administrator`` is created at deploy time as an external Semaphore admin via ``semaphore user add --admin --external``; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "Peran menyebarkan wadah Semaphore tunggal (dengan pelari tugas tertanam) dan kabel ke platform melalui ``SEMAPHORE_*`` variabel lingkungan. Penyihir setup adalah bypassed dengan bibit admin awal dari rahasia yang diberikan, sehingga menyebarkan segar tanah langsung pada halaman login Semaphore. Ketika SSO diaktifkan, Keycloak ``administrator`` diciptakan pada waktu penyebaran sebagai admin Semaphore eksternal melalui ``semaphore user add --admin --external``; panggilan OIDC cocok dengan email dan menandatangani operator sebagai admin Semaphore."
+
+msgid "The role deploys two containers on its inventory group's host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling [svc-registry-cache](../svc-registry-cache/README.md)."
+msgstr ""
+
+msgid "The role deploys two containers on its inventory group’s host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling `svc-registry-cache <../svc-registry-cache/README.md>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The role directory name is the `application_id`. For example `roles/web-app-mailu/meta/services.yml` is exposed as `applications['web-app-mailu'].services`, `roles/web-app-mailu/meta/server.yml` as `applications['web-app-mailu'].server`, and so on."
@@ -59830,6 +60027,9 @@ msgstr "Pilihan yang sama dengan setiap sumbu menurun, satu entri per peran."
 msgid "The same shape serves the repository-root file, which holds the shared collection any role and any inventory bundle may install from, and a role's own file, which holds what only that role installs."
 msgstr "Bentuk yang sama melayani berkas repository- root, yang memegang koleksi bersama setiap peran dan setiap bundel inventaris dapat dipasang dari, dan berkas peran sendiri, yang memegang apa yang hanya penanaman peran tersebut."
 
+msgid "The same string `.env` carries as ``INFINITO_CACHE_UPSTREAMS``, so the role's bootstrap task and the dev stack provision Nexus from one rendering. `utils.cache.records` owns the format."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "The sandbox (`allowWrite`, `denyRead`, `allowedDomains`, see [sandbox.md](sandbox.md)) bounds every write, every read, and every outbound connection. `deny` rules block destructive patterns unconditionally; `ask` rules force operator review on every mutating `gh`/`docker`/`git commit`/`Skill(update-config*)` invocation. The wildcard does **not** loosen any existing guardrail; it only drops the per-shape workarounds."
 msgstr "Kotak pasir (`allowWrite`, `denyRead`, `allowedDomains`, lihat [sandbox.md](sandbox.md)) batas setiap menulis, setiap membaca, dan setiap hubungan outbound. `deny` aturan memblokir pola destruktif tanpa syarat; `ask` ulangan operator gaya aturan pada setiap mutasi `gh`/`docker`/`git commit`/`Skill(update-config*)` Doa. The wildcard does **tidak** melonggarkan setiap guardrail yang ada; itu hanya tetes perbaikan bentuk-permanen."
@@ -60025,6 +60225,9 @@ msgstr "Tugas-tugas setup menangani bootstrap penuh pertama-menyebarkan otomatis
 # translated-by: libretranslate
 msgid "The shape each key must have is declared per role rather than here, in [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) with a `type:` and a `regex:`. The pattern rejects a truncated or whitespace-carrying paste and deliberately accepts any vendor prefix, so a provider changing its issuance format cannot turn a valid key into a failed inventory run."
 msgstr "Bentuk setiap kunci harus dideklarasikan per peran daripada di sini, dalam [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) dengan `type:` dan `regex:`. Pola menolak potongan atau spacecess- membawa pasta dan sengaja menerima prefiks vendor apapun, sehingga penyedia mengubah format penerbitan tidak dapat mengubah kunci yang valid ke dalam menjalankan inventaris yang gagal."
+
+msgid "The shape every consumer renders from: the ansible lookups, which then apply the inventory, and the dev stack, which does not."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shape mirrors the schema tree: nested keys stay nested. The literal string is preserved verbatim, with no rendering and no validation. Leaves WITHOUT ``default:`` are intentionally absent so the inventory's apply_schema-generated values win the merge."
@@ -60283,6 +60486,9 @@ msgstr "Sespan dimulai dengan ``-r`` (baca-saja) dan sebuah daftar scope meliput
 # translated-by: libretranslate
 msgid "The single `make compose-deploy` target resolves one or more bundles into the role groups declared under `all.children` and feeds them into the standard local deploy flow when `bundles=<csv>` is set. The resolver is [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); it deduplicates across bundles and preserves declaration order."
 msgstr "Single `make compose-deploy` target menyelesaikan satu atau lebih bundel ke dalam grup peran dideklarasikan di bawah `all.children` dan memberikan mereka ke standar aliran menyebarkan lokal ketika `bundles=<csv>` Sudah diatur. Resolver adalah [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); itu deduplikasi di bundles dan mempertahankan perintah deklarasi."
+
+msgid "The single point of truth for the cache. A role declares the repositories it needs Nexus to proxy and, where a container must resolve an upstream by name, the hostname the frontend answers for::"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The single-database dumps, and the cluster dumps, which name their instance in the file name and go through ``baudolo-restore cluster``."
@@ -64915,6 +65121,9 @@ msgstr "Benar ketika `role_id` duduk di atau di bawah sebuah kategori ditandai `
 msgid "True when a `web-app-mailu` host is reachable (otherwise local delivery)."
 msgstr "Benar ketika `web-app-mailu` host dapat dicapai (jika tidak pengiriman lokal)."
 
+msgid "True when a port exists for ``resolve_upstream`` to build an upstream from: the local one outside swarm, the internal one inside it. Asking that lookup for a role that has neither raises rather than returning empty."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "True when an IPv6 default route exists on a non-loopback interface."
 msgstr "Benar ketika sebuah IPv6 rute baku ada pada sebuah antarmuka non-loopback."
@@ -69229,6 +69438,9 @@ msgstr "Menulis tes integrasi ketika perilaku yang Anda verifikasi tergantung pa
 msgid "Write code so the next person can understand it quickly."
 msgstr "Menulis kode sehingga orang berikutnya dapat memahaminya dengan cepat."
 
+msgid "Write every generated cache file and return what was written."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Write every update into both requirement files."
 msgstr "Tulis setiap pemutakhiran ke dalam kedua berkas kebutuhan."
@@ -69394,10 +69606,6 @@ msgid "Yield ``(role_path, meta_file)`` for every role matching *prefixes*."
 msgstr "Menyerah ``(role_path, meta_file)`` untuk setiap pencocokan peran *prefix*."
 
 # translated-by: libretranslate
-msgid "Yield a LibreTranslate URL, preferring the deployed service over a new container."
-msgstr "Menyerah LibreTranslate URL, lebih memilih layanan yang dikerahkan melalui wadah baru."
-
-# translated-by: libretranslate
 msgid "Yield absolute paths of project files matching the filter."
 msgstr "Alamat absolut dari berkas projek yang cocok dengan penyaring."
 
@@ -69420,6 +69628,9 @@ msgstr "Irama kait pada ``volume['mounts']`` target itu ``service``."
 # translated-by: libretranslate
 msgid "Yield project files filtered through ``.gitignore``."
 msgstr "Berkas projek yang disaring ``.gitignore``."
+
+msgid "Yield the URL of the dedicated LibreTranslate, deploying it when absent."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Yields"
@@ -73813,6 +74024,9 @@ msgstr "[Situs Website Resmi Nextcloud](https://nextcloud.com/)"
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr "[Nextcloud ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 
+msgid "[Nexus Repository](https://www.sonatype.com/products/sonatype-nexus-repository) is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. [nginx](https://nginx.org/) sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/)"
 msgstr "[Nginx](https://nginx.org/)"
@@ -73968,6 +74182,9 @@ msgstr "[OpenTalk](https://opentalk.eu/) adalah platform membuka video konferenc
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr "[OpenWrt Forum Diskusi di WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+
+msgid "[Package cache](roles/svc-cache-package/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package update](roles/update/)"
@@ -74905,14 +75122,6 @@ msgid "[base.md](role/services/base.md) for service registration, loading, and i
 msgstr "[base.md](role/services/base.md) untuk layanan pendaftaran, loading, dan injeksi"
 
 # translated-by: libretranslate
-msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-
-# translated-by: libretranslate
-msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-
-# translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
 msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) salinan hanya hilang hulu refs ke GHCR melalui `cli.contributing.mirror.sync --only-missing`. Opsional Docker Hub kredensial mengurangi batas kecepatan samping selama sinkron itu."
 
@@ -74921,56 +75130,16 @@ msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-image
 msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirror setiap gambar upstream hilang dalam paralel dengan tes DNS sehingga kemudian menyebarkan pekerjaan tarik dari GHCR bukan Docker Hub, MCR, atau lainnya registry eksternal. Ini perisai CI dari batas tingkat upstream, geo- blocking, dan registri transient."
 
 # translated-by: libretranslate
-msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-
-# translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
 msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) perbandingan `github.ref` untuk alasan yang sama: yang disebut alur kerja mewarisi ref pemanggil, yang `refs/pull/<n>/merge` untuk `pull_request` pemanggil tetapi `refs/heads/main` untuk `pull_request_target` Satu. The `ci-orchestrator` tugas `entry-pr-change-orchestrate.yml` berpagar untuk `github.event_name == 'pull_request'`, sehingga ref yang mengatur melihat dari penelepon yang selalu ref gabungan; memperluas pagar yang diam-diam akan menempatkan garpu berjalan ke kelompok utama."
-
-# translated-by: libretranslate
-msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-
-# translated-by: libretranslate
-msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-msgstr "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-
-# translated-by: libretranslate
-msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-
-# translated-by: libretranslate
-msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-
-# translated-by: libretranslate
-msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
-msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
 msgstr "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) orrow-action `origin/main`. `discover` pekerjaan menyelesaikan sebuah whitelist efektif sebelum [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) berjalan, menggunakan presedence berikut:"
 
 # translated-by: libretranslate
-msgid "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-msgstr "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-
-# translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
 msgstr "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validasi konfigurasi DNS di seluruh distribusi target."
-
-# translated-by: libretranslate
-msgid "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-msgstr "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-
-# translated-by: libretranslate
-msgid "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-msgstr "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-
-# translated-by: libretranslate
-msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -75027,50 +75196,6 @@ msgstr "[kontainer /](container/) memiliki pembantu yang dijalankan dalam kontai
 # translated-by: libretranslate
 msgid "[credentials/](../../../cli/administration/inventory/credentials/__main__.py)"
 msgstr "[kredensial /](../../../cli/administration/inventory/credentials/__main__.py)"
-
-# translated-by: libretranslate
-msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-msgstr "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [cron-images-cleanupci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml):
-# `🧹 Prune CI images`
-msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-msgstr ""
-
-# translated-by: libretranslate
-msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-
-# translated-by: libretranslate
-msgid "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-msgstr "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-
-# translated-by: libretranslate
-msgid "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-msgstr "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-
-# translated-by: libretranslate
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-
-# translated-by: libretranslate
-msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
 
 # translated-by: libretranslate
 msgid "[csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) renders no environment and no API origin."
@@ -75160,69 +75285,13 @@ msgstr "[email.md](email.md) meliputi kontrak pencarian email."
 msgid "[email.py](../../../../../plugins/lookup/email.py) for the plugin."
 msgstr "[email.py](../../../../../plugins/lookup/email.py) untuk plugin."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [coba.superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml):
-# `🚫 Cancel: Superseded Runs`
-msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr ""
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [coba
-# hapusbranch.yml](../../../../../.github/workflows/entry-delete-branch.yml):
-# `🚫 Cancel: Runs on Branch Delete`
-msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr ""
-
-# translated-by: libretranslate
-msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-
-# translated-by: libretranslate
-msgid "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-msgstr "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist."
 msgstr "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): mengirim penggaris manual untuk set distro yang dipilih dan whitelist."
 
 # translated-by: libretranslate
-msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-
-# translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
 msgstr "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): Mendeteksi lingkup PR dan secara kondisional memanggil para penggaris."
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [coba
-# mendekat.workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml):
-# `🚫 Cancel: PR Runs on Close`
-msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr ""
-
-# translated-by: libretranslate
-msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-
-# translated-by: libretranslate
-msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-
-# translated-by: libretranslate
-msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-
-# translated-by: libretranslate
-msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-
-# translated-by: libretranslate
-msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
@@ -75607,19 +75676,8 @@ msgid "[systemd/](systemd/) for WSL2 systemd helpers"
 msgstr "[systemd /](systemd/) untuk WSL2 Pembantu sistemd"
 
 # translated-by: libretranslate
-msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-
-# translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
 msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
-# [tes-sistem-saturouter.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)
-msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr ""
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
@@ -75701,9 +75759,8 @@ msgstr "[type.py](../../../../utils/roles/type.py) Mengkonsumsi skema yang sama.
 msgid "[update/](update/)"
 msgstr "[perbarui /](update/)"
 
-# translated-by: libretranslate
-msgid "[upstreams.conf](upstreams.conf): nginx server-blocks. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
-msgstr "[upstreams.conf](upstreams.conf): Nginx server- blok. HTTPS (port 443) per nama host untuk jalan-jalan, HTTP (port 80) Untuk batin`dockerd` Dockerfile membangun. Mengkait `/etc/nginx/conf.d/upstreams.conf`."
+msgid "[upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[variants.md](../../contributing/design/variants.md) for what a `role#variant` row is."
@@ -78373,6 +78430,9 @@ msgstr "`NFS <https://en.wikipedia.org/wiki/Network_File_System>`__ (Sistem Berk
 msgid "`N` → route a share of deploy jobs to your `[self-hosted, linux]` runners."
 msgstr "`N` Route a share of explode jobs to your `[self-hosted, linux]` Pelari."
 
+msgid "`Nexus Repository <https://www.sonatype.com/products/sonatype-nexus-repository>`__ is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. `nginx <https://nginx.org/>`__ sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`Nginx <https://nginx.org/>`__ is a high-performance web server and reverse proxy. This role wraps Nginx as a first-party mirror for the third-party assets other web applications declare in their CSP whitelists, so browsers fetch those assets from the deployment itself instead of contacting external hosts."
 msgstr "`Nginx <https://nginx.org/>`__ adalah server web berkinerja tinggi dan proksi terbalik. Peran ini membungkus Nginx sebagai cermin partai pertama untuk aset ketiga pihak aplikasi web lainnya menyatakan dalam kulit putih CSP mereka, sehingga browser mengambil aset tersebut dari penyebaran itu sendiri daripada menghubungi host eksternal."
@@ -79249,6 +79309,9 @@ msgstr "``c.wiki.example.com`` beriman **induk** ``wiki.example.com`` (tambah ``
 msgid "``ca_cert_host`` is where sys-ca-selfsigned provisions the root CA on the host. The container-side bind-mount targets live in the ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) and reach the standalone runtime scripts as env vars and CLI arguments."
 msgstr "``ca_cert_host`` adalah di mana sys-ca-selfsigned ketentuan root CA pada host. Target batang-sisi-kait hidup di ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) dan mencapai naskah runtime standalone sebagai env vars dan CLI argumen."
 
+msgid "``canonical_domain`` is the host of ``canonical_url``, not the configured domain, so both follow the onion substitution a Tor deployment applies. A consumer that compares it against what a page actually renders would otherwise never match on an onion host."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "``central_mariadb_root_password``: The root password for the MariaDB server."
 msgstr "``central_mariadb_root_password``: Kata sandi root bagi MariaDB server."
@@ -79268,6 +79331,9 @@ msgstr "``comments`` adalah peta komentar per- diurai dari default.env (lihat :f
 # translated-by: libretranslate
 msgid "``compose build`` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "``compose build`` re-bakes keluaran statis setiap kali perubahan isi kloning, jadi ekspys puas-didorong tanpa langkah build runtime apapun."
+
+msgid "``compose.cache-consumer.yml.j2``, ``apt.list.j2``, ``npmrc.j2`` and ``pip.conf.j2`` under ``templates/``, and the shell scripts under ``files/``, belong to the development compose stack, which drives them through `render.py <../../utils/cache/render.py>`__ and `compose.py <../../cli/administration/deploy/development/compose.py>`__. The Ansible deployment reads none of them."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``compose`` (deprecated)"
@@ -79869,6 +79935,9 @@ msgstr "``relay`` dan ``media`` adalah UDP. ``stun_turn`` dan varian TLS yang be
 # translated-by: libretranslate
 msgid "``repo`` carries the repository the names come from, defined inline on the entry that needs it: a full definition (``name``/``description``/ ``baseurl``/``gpgkey``) rendered as a yum repo, ``bootstrap_package`` for a repo shipped as a package such as ``epel-release``, ``enable_existing`` to switch on a repo the distro already ships, ``pacman_section`` to uncomment a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a community repository, or ``managed_externally`` when the role sets it up itself."
 msgstr "``repo`` membawa repositori nama berasal dari, definisi inline pada masukan yang membutuhkannya: sebuah definisi penuh (``name``/``description``/ ``baseurl``/``gpgkey``) dibuat sebagai yum repo, ``bootstrap_package`` untuk sebuah repo dikirim sebagai paket seperti ``epel-release``, ``enable_existing`` untuk beralih pada repo yang aliro sudah kapal, ``pacman_section`` untuk uncomment sebuah daerah dari ``pacman.conf`` seperti ``multilib``, ``copr``/``ppa`` bagi suatu repositori komunitas, atau ``managed_externally`` ketika peran set itu sendiri."
+
+msgid "``repos`` or ``upstreams``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``required`` (always installed)"
@@ -80492,9 +80561,8 @@ msgstr "`base_dir` (string): direktori dasar untuk berkas CA"
 msgid "`base` prepares the workspace and is a prerequisite for the other two. `compose` and `swarm` are independent of each other, which is what lets CI run them as separate jobs with a budget each."
 msgstr "`base` Siapkan ruang kerja dan prasyarat untuk dua lainnya. `compose` dan `swarm` independen satu sama lain, yang memungkinkan CI menjalankan mereka sebagai pekerjaan terpisah dengan anggaran masing-masing."
 
-# translated-by: libretranslate
-msgid "`bash scripts/docker/cache/package.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
-msgstr "`bash scripts/docker/cache/package.sh` (sesudah `make dotenv` atau sumber `scripts/meta/env/load.sh`)"
+msgid "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`bench new-site` uses the central MariaDB's `root` to create the per-site DB on first deploy."
@@ -80625,6 +80693,9 @@ msgstr "`cluster_addr` TIDAK HARUS dibangun dari nama wadah. Set compose `contai
 # translated-by: libretranslate
 msgid "`compose build` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "`compose build` re-bakes keluaran statis setiap kali perubahan isi kloning, jadi ekspys puas-didorong tanpa langkah build runtime apapun."
+
+msgid "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` and `pip.conf.j2` under `templates/`, and the shell scripts under `files/`, belong to the development compose stack, which drives them through [render.py](../../utils/cache/render.py) and [compose.py](../../cli/administration/deploy/development/compose.py). The Ansible deployment reads none of them."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`compose.volumes:` is **not** inlined into services. It lives in its own `meta/volumes.yml` (volumes are role-wide, not per-service)."
@@ -81230,6 +81301,9 @@ msgstr "`index`, `sweep` (dibutuhkan), `distros` (kolam opsional), `filesystem` 
 # translated-by: libretranslate
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
 msgstr "`infinito administration deploy development <subcommand>` (CLI Python)"
+
+msgid "`infinito meta cache` subcommand -- render the derived cache files."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`infinito meta env` subcommand -- generate the project's `.env`."
@@ -82633,6 +82707,12 @@ msgstr "`update` (opsional) kontrol siaran langsung pemantauan. `update.monitore
 msgid "`update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include."
 msgstr "`update` reuses persediaan yang ada; `disable` mencapai masuk akal sebagai extra-var yang membuat layanan dinonaktifkan, tetapi tidak menyentuh termasuk tersebut."
 
+msgid "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ is rendered to the host and mounted into the frontend as ``conf.d/upstreams.conf``. Its content comes from the ``cache:`` sections of the roles’ ``meta/networks.yml``, so no hostname, repository or upstream URL is written in this role."
+msgstr ""
+
+msgid "`upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`user_username` is resolved from `lookup('users', user_key).username` (fallback: `user_key`)"
 msgstr "`user_username` diselesaikan dari `lookup('users', user_key).username` (fallback: `user_key`)"
@@ -82660,6 +82740,9 @@ msgstr "`users` lookup 👥"
 # translated-by: libretranslate
 msgid "`utils.cache.base._render_with_templar` and the two templar helpers behind it swallow every exception on purpose: a meta payload renders in rounds, and an expression that cannot resolve yet has to come back unchanged rather than abort the round."
 msgstr "`utils.cache.base._render_with_templar` dan dua pembantu templar di belakangnya menelan setiap pengecualian dengan sengaja: muatan meta dibuat dalam putaran, dan sebuah ekspresi yang tidak dapat menyelesaikan belum harus kembali tidak berubah daripada membatalkan putaran."
+
+msgid "`utils.cache.records` owns the format and the mirror resolution, so the role's bootstrap task and this key cannot drift apart."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`utils.inventory.bundle_apps` reads each named bundle, walks `all.children`, deduplicates the role groups across all bundles, and prints the resulting application list as CSV. The CSV is exported as `apps` before the delegated script runs."
@@ -83013,6 +83096,9 @@ msgstr "tanda pilihan (`role#0/zfs`)"
 # translated-by: libretranslate
 msgid "a short description of the issue"
 msgstr "deskripsi pendek dari masalah"
+
+msgid "a sibling repository proxying a different host, which the frontend falls back to when this one answers 5xx."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a source **not** starting with `/` → remote `[user@]host[:/path]`, rsync-pulled (`nfs` / `volume` / `full`)"
@@ -84497,6 +84583,9 @@ msgstr "cli.make paket"
 # translated-by: libretranslate
 msgid "cli.meta package"
 msgstr "cli.meta paket"
+
+msgid "cli.meta.cache package"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.ci package"
@@ -86088,6 +86177,9 @@ msgstr "ini pin sebuah mode baris tidak dapat mengambil, sebuah keadaan bawang b
 msgid "it pins a variant the role does not declare (any more): the usual case is a list carried over from an older run whose variants have since been renumbered;"
 msgstr "ini pin sebuah varian peran tidak mendeklarasikan (lagi): kasus biasa adalah daftar yang dilakukan dari run yang lebih tua varian yang sejak itu telah direnumbered;"
 
+msgid "its repository type, such as ``apt`` or ``raw``."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "jitsi"
 msgstr "jitsi"
@@ -86440,6 +86532,9 @@ msgstr "memberi token akses pribadi untuk akun administrator dan perkuat dengan 
 msgid "mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`."
 msgstr "memberi token akses pribadi untuk akun administrator dan perkuat dengan `sys-token-store` di bawah `users.administrator.tokens['web-app-mattermost']`."
 
+msgid "minutes Nexus serves a cached artefact for, where the repository needs something other than the stack-wide default."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "mode"
 msgstr "mode"
@@ -86539,6 +86634,9 @@ msgstr "server nfs-"
 # translated-by: libretranslate
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr "nartables paket filter yang aturan masing-masing peran memiliki sebagai tabel sendiri, diganti secara atom dan dimuat ulang di boot"
+
+msgid "nginx ``proxy_read_timeout`` where the default is too short, as for a multi-gigabyte model download."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "nginx vhost-file purge helper (entity-keyed)."
@@ -87475,6 +87573,15 @@ msgstr ""
 msgid "plugins.lookup.ca\\_injected module"
 msgstr ""
 
+msgid "plugins.lookup.cache\\_records module"
+msgstr ""
+
+msgid "plugins.lookup.cache\\_repos module"
+msgstr ""
+
+msgid "plugins.lookup.cache\\_upstreams module"
+msgstr ""
+
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected: plugins.lookup.canonicalModul\ _ url
@@ -87779,6 +87886,9 @@ msgstr ""
 # nocheck: url
 # translation-rejected: plugins.lookup.postgres_ Modul perpustakaan
 msgid "plugins.lookup.postgres\\_libraries module"
+msgstr ""
+
+msgid "plugins.lookup.probeable\\_backend module"
 msgstr ""
 
 # translated-by: libretranslate
@@ -88433,6 +88543,9 @@ msgstr ""
 # translated-by: libretranslate
 msgid "return the first successfully parsed JSON value"
 msgstr "kembalikan nilai JSON pertama yang sukses diurai"
+
+msgid "returns one line about the server's own progress, reported every ``PROGRESS_SECONDS`` while it installs its models. The server offers no endpoint before it is ready, so without this the wait is indistinguishable from a hang for its whole hour."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "reusable"
@@ -89092,16 +89205,18 @@ msgid "target language."
 msgstr "target bahasa."
 
 # translated-by: libretranslate
-msgid "target languages to load next to the source language."
-msgstr "target bahasa untuk dimuat di sebelah bahasa sumber."
-
-# translated-by: libretranslate
 msgid "targets: [\"{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}\"]"
 msgstr "target: [\"{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}\"]"
 
 # translated-by: libretranslate
 msgid "teardown"
 msgstr "teardown"
+
+msgid "templating variables."
+msgstr ""
+
+msgid "term 0 is the application id."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "term can be:"
@@ -89183,6 +89298,9 @@ msgstr "yang Nextcloud akun kata sandi aplikasi milik; setiap alat memanggil Maj
 # translated-by: libretranslate
 msgid "the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account’s permissions"
 msgstr "yang Nextcloud akun kata sandi aplikasi milik; setiap alat memanggil Maju adaptor berjalan dengan izin akun itu"
+
+msgid "the Nexus repository name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above"
@@ -89293,6 +89411,9 @@ msgstr "yang `roles:` daftar kosong, atau"
 msgid "the `root` account"
 msgstr "yang `root` akun"
 
+msgid "the absolute URL it proxies."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the address the commit carries."
 msgstr "alamat yang dibawa komit."
@@ -89355,6 +89476,9 @@ msgstr "katalog untuk menulis."
 # translated-by: libretranslate
 msgid "the change \"looks obviously correct\"."
 msgstr "perubahan \"terlihat jelas benar\"."
+
+msgid "the checkout being generated for."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the checkout the ``.env`` is generated for."
@@ -89436,6 +89560,9 @@ msgstr "deklarasi seperti dibaca dari konfigurasi aplikasi."
 msgid "the deploy mode the row runs in."
 msgstr "mode penyebaran baris berjalan masuk."
 
+msgid "the depth a ``yum`` repository indexes."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the detected package manager."
 msgstr "manajer paket terdeteksi."
@@ -89476,6 +89603,9 @@ msgstr "pemetaan kosong `{}` (entri canonical no- override), atau"
 # translated-by: libretranslate
 msgid "the endpoint is configurable but both prompt-sending views are premium-licence gated; see the measurement above"
 msgstr "titik akhir dapat diatur tetapi kedua tampilan pengiriman-tujuan adalah premium-lisensi gated; lihat pengukuran di atas"
+
+msgid "the entries the roles declare, keyed by name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the entries whose role has no job at all in the source run, each with its own axis suffix intact."
@@ -89521,13 +89651,22 @@ msgstr "kelompok penangkapan pertama dari setiap pertandingan"
 msgid "the fix was logically inferred from a previous deploy's evidence,"
 msgstr "Perbaikan secara logis disimpulkan dari bukti penyebaran sebelumnya,"
 
+msgid "the frontend ports serving it; apt suites are plain HTTP."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the fully qualified domain being probed."
 msgstr "domain fully qualified sedang diperiksa."
 
+msgid "the hijacked hostnames, sorted by host."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the host's databases.csv."
 msgstr "host databases.csv."
+
+msgid "the hostname a container resolves to the frontend."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the identity provider's end-session endpoint."
@@ -89540,6 +89679,9 @@ msgstr "indeks untuk mulai membaca di; ``0`` ketika menjalankan sumber diberikan
 # translated-by: libretranslate
 msgid "the input's name, for the messages."
 msgstr "nama masukan, untuk pesan."
+
+msgid "the inventory's entries for the same section."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the job label CI emits (``🐳🧅🌀🦓🦾网络应用·Nextcloud#2``) -- the glyphs carry mode, onion state, distro, filesystem and architecture, the ``#`` shard the variants;"
@@ -89588,6 +89730,12 @@ msgstr "pesan penolakan terakhir, kosong ketika tidak ada yang terjadi."
 # translated-by: libretranslate
 msgid "the longest value the consumer accepts; a positive integer."
 msgstr "nilai terpanjang yang diterima konsumen; sebuah integer positif."
+
+msgid "the lookup plugin's loader."
+msgstr ""
+
+msgid "the lookup plugin's templar, where it has one."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the lookup's templar, or None outside a play."
@@ -89644,6 +89792,9 @@ msgstr "pemetaan pengguna yang digabung."
 # translated-by: libretranslate
 msgid "the message the occurrence sits in."
 msgstr "pesan tempat kejadian."
+
+msgid "the mirror list, or empty to read it from the environment."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the module results, in execution order."
@@ -89779,6 +89930,9 @@ msgstr "penyedia ``services`` pemetaan."
 msgid "the provider's application id."
 msgstr "id aplikasi penyedia."
 
+msgid "the proxied repositories, sorted by name."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the qdrant service role id."
 msgstr "peran id qdrant layanan."
@@ -89827,6 +89981,12 @@ msgstr "berkas compose yang dirender."
 msgid "the rendered config is mounted INTO a container rather than read by the host's own msmtp."
 msgstr "config yang dirender dipasang INTO sebuah wadah daripada dibaca oleh msmtp sendiri tuan rumah."
 
+msgid "the repository behind each path, for a host whose suites live side by side, as Debian's do under /debian/ and /debian-security/."
+msgstr ""
+
+msgid "the repository serving its root, when it serves only one."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the repository was cloned"
 msgstr "repositori telah dikloning"
@@ -89870,6 +90030,9 @@ msgstr "peran direktori pin tinggal masuk."
 # translated-by: libretranslate
 msgid "the role installs the extension and points its OpenAI-compatible provider at the gateway in `tasks/addons/ai-llm.yml`"
 msgstr "peran menginstal ekstensi dan menunjuk penyedia OpenAI- yang kompatibel di gateway dalam `tasks/addons/ai-llm.yml`"
+
+msgid "the role that declared it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the role the domain belongs to."
@@ -90132,6 +90295,9 @@ msgstr "sumber bantuan sampel, sama dengan disukai ketika tidak ada yang harus b
 msgid "the structure to serialise."
 msgstr "struktur untuk serial."
 
+msgid "the suite an ``apt`` repository serves."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the target distribution, named in the skip reason."
 msgstr "distribusi target, bernama dalam alasan melompat."
@@ -90172,6 +90338,9 @@ msgstr "nama fakta yang belum pasti."
 msgid "the updates to apply."
 msgstr "pembaruan untuk diterapkan."
 
+msgid "the upstream hands out URLs that already carry the repository prefix, as npm does for tarballs, so those reach the backend unprefixed instead of being prefixed twice into a 404."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "the upstream host, as it appears in the proxied URL."
 msgstr "upstream host, karena muncul dalam URL proxied."
@@ -90183,6 +90352,9 @@ msgstr "pengguna sandi milik, untuk pesan gagal."
 # translated-by: libretranslate
 msgid "the user's merged configuration."
 msgstr "konfigurasi merged pengguna."
+
+msgid "the value INFINITO_DISTRO carries."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the value contradicts the declared type or pattern."
@@ -90289,10 +90461,6 @@ msgid "transitive shared service dependencies"
 msgstr "ketergantungan layanan bersama transitif"
 
 # translated-by: libretranslate
-msgid "translation threads of a container this starts itself."
-msgstr "terjemahan thread dari wadah ini dimulai sendiri."
-
-# translated-by: libretranslate
 msgid "translations that altered a protected span."
 msgstr "terjemahan yang mengubah rentang perlindungan."
 
@@ -90315,6 +90483,9 @@ msgstr "benar"
 # translated-by: libretranslate
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
 msgstr "tty = Pilihan-otomatis kosong (lokal: Benar, CI: Salah). live = True stream stdout / stderr."
+
+msgid "two roles declare the same repository or host differently,     or a host names a repository nobody declares."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "two roles demand different values for the     same topic of the same provider."
@@ -90339,6 +90510,9 @@ msgstr "di bawah aplikasi[app]['services'] jika setiap layanan dihitung:"
 # translated-by: libretranslate
 msgid "unpinned"
 msgstr "unpinned"
+
+msgid "unused."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "update"
@@ -90487,6 +90661,18 @@ msgstr "utils.cache.files modul"
 # translated-by: libretranslate
 msgid "utils.cache.gitignore module"
 msgstr "utils.cache.gitignore modul"
+
+msgid "utils.cache.hosts module"
+msgstr ""
+
+msgid "utils.cache.inventory module"
+msgstr ""
+
+msgid "utils.cache.records module"
+msgstr ""
+
+msgid "utils.cache.render module"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -90682,9 +90868,21 @@ msgstr "utils.env.handlers.infinito.cache paket"
 msgid "utils.env.handlers.infinito.cache.conf module"
 msgstr "utils.env.handlers.infinito.cache.conf modul"
 
+msgid "utils.env.handlers.infinito.cache.hosts module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.stack module"
 msgstr "utils.env.handlers.infinito.cache.stack modul"
+
+msgid "utils.env.handlers.infinito.cache.tls module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.cache.upstreams module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.container module"
@@ -91856,6 +92054,9 @@ msgstr "ketika grafik tidak menyelesaikan, penamaan siklus dan peran kiri tidak 
 # translated-by: libretranslate
 msgid "when: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 msgstr "ketika: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
+
+msgid "where INFINITO_CACHE_PACKAGE_FRONTEND_CONF points."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "whether a CI runner is executing, which lowers the ceiling."
