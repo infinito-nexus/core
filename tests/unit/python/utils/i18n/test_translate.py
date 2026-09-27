@@ -199,7 +199,10 @@ class TestRefusalIsRemembered(unittest.TestCase):
         self.assertEqual(
             message.user_comments,
             [
-                f"{REFUSAL_PREFIX} {ENGINE} protected-span",
+                (
+                    f"{REFUSAL_PREFIX} {ENGINE} protected-span "
+                    "lost=['{count}'] gained=[]"
+                ),
                 URL_SUPPRESSION,
                 f"{REJECTED_PREFIX} verlustig Einträge",
             ],

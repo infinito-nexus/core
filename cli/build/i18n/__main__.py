@@ -16,6 +16,7 @@ import json
 import os
 import sys
 import tempfile
+from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 
@@ -42,6 +43,7 @@ from utils.i18n.libretranslate import (
     download_status,
     server,
 )
+from utils.i18n.placeholders import Rejected
 from utils.i18n.translate import apply, damaged, discard, pending, retry
 
 CHUNK_SIZE = 500
@@ -152,10 +154,14 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
     catalog = read_catalog(path)
     todo = pending(catalog)
     discarded = refused = damaged = 0
+    criteria: Counter[str] = Counter()
     refusal = ""
     for start in range(0, len(todo), CHUNK_SIZE):
         chunk = todo[start : start + CHUNK_SIZE]
         outcome = client.translate([m.id for m in chunk], code)
+        criteria.update(
+            value.reason for value in outcome.values if isinstance(value, Rejected)
+        )
         discarded += apply(chunk, outcome.values)
         refused += outcome.refused
         damaged += outcome.damaged
@@ -163,9 +169,10 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
         write_catalog(path, catalog)
         print(f"{domain}/{code}: {start + len(chunk)}/{len(todo)}", flush=True)
     tail = f", last refusal {refusal}" if refused else ""
+    broke = ", ".join(f"{count} {name}" for name, count in criteria.most_common())
     print(
         f"{domain}/{code}: {len(todo) - discarded} translated, {discarded} discarded "
-        f"({refused} requests refused, {damaged} damaged a protected span){tail}",
+        f"({refused} requests refused, {damaged} rejected: {broke or 'none'}){tail}",
         flush=True,
     )
 
@@ -193,7 +200,7 @@ def translate(domains: list[str], requested: list[str]) -> int:
     tuned = int(os.environ.get("INFINITO_I18N_LANES") or 0)
     lanes = min(len(work), tuned or cpus)
     batch = int(os.environ.get("INFINITO_I18N_BATCH_SIZE") or BATCH_SIZE)
-    with server(PROJECT_ROOT) as url:
+    with server(PROJECT_ROOT, codes) as url:
         client = LibreTranslate(url, max(cpus // lanes, 1), batch_size=batch)
         client.wait(
             codes,

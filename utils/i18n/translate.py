@@ -11,7 +11,7 @@ from utils.i18n.catalog import (
     REJECTED_PREFIX,
     TRANSLATION_REFUSED,
 )
-from utils.i18n.placeholders import Rejected, harms
+from utils.i18n.placeholders import Rejected, harms, protected_spans
 
 if TYPE_CHECKING:
     from babel.messages.catalog import Catalog, Message
@@ -144,6 +144,26 @@ def retry(catalog: Catalog) -> int:
     return sum(1 for message in catalog if refused(message) and clear(message))
 
 
+SPAN_CRITERION = "protected-span"
+DETAIL_SPANS = 6
+
+
+def _detail(message: Message, rejected: Rejected) -> str:
+    """Return the spans that made a rejection, for the marker to carry.
+
+    Args:
+        message: the entry being annotated.
+        rejected: what came back and why it was turned down.
+    """
+    if rejected.reason != SPAN_CRITERION or not isinstance(message.id, str):
+        return ""
+    source = protected_spans(message.id)
+    answer = protected_spans(rejected.text)
+    lost = sorted(source - answer)[:DETAIL_SPANS]
+    gained = sorted(answer - source)[:DETAIL_SPANS]
+    return f" lost={lost} gained={gained}".replace("\n", "\\n")
+
+
 def record(message: Message, rejected: Rejected | None) -> None:
     """Annotate ``message`` as unanswerable, quoting what was turned down.
 
@@ -164,7 +184,9 @@ def record(message: Message, rejected: Rejected | None) -> None:
     if rejected is None:
         message.user_comments.append(TRANSLATION_REFUSED)
         return
-    message.user_comments.append(f"{REFUSAL_PREFIX} {ENGINE} {rejected.reason}")
+    message.user_comments.append(
+        f"{REFUSAL_PREFIX} {ENGINE} {rejected.reason}{_detail(message, rejected)}"
+    )
     message.user_comments.append(URL_SUPPRESSION)
     message.user_comments.append(
         f"{REJECTED_PREFIX} {rejected.text}".replace("\n", "\\n").rstrip("\\")

@@ -32,6 +32,8 @@ DEPLOY_PID_FILE = Path("build") / "deploy.pid"
 DEPLOY_ROUTER = "deploy/main.sh"
 GPU_STAMP = Path("build") / "i18n-gpu.stamp"
 INVENTORY_VARS = Path("inventories") / "development" / "i18n.yml"
+INVENTORY_VARS_RENDERED = Path("inventories") / "development" / "i18n.rendered.yml"
+PIVOT_LANGUAGE = "en"
 
 
 def accelerated() -> bool:
@@ -186,11 +188,36 @@ def await_runner(name: str, env: dict[str, str]) -> None:
     raise RuntimeError(f"The i18n runner {name} did not reach the running state.")
 
 
-def deploy(root: Path) -> str:
+def _vars_file(root: Path, codes: list[str]) -> Path:
+    """Write the lane's host vars with ``load_only`` pinned to *codes*.
+
+    An empty ``load_only`` makes the image skip ``prefetch_models.py``, so the
+    server installs the whole argos set at runtime, where no cache reaches it.
+
+    Args:
+        root: repository root.
+        codes: the target languages this run translates into.
+
+    Returns:
+        The rendered file, beside the tracked one so the container sees it.
+    """
+    from utils.cache.yaml import dump_yaml, load_yaml
+
+    loaded = load_yaml(str(root / INVENTORY_VARS))
+    service = loaded["applications"][ROLE]["services"]["libretranslate"]
+    service["load_only"] = sorted({PIVOT_LANGUAGE, *codes})
+    rendered = root / INVENTORY_VARS_RENDERED
+    dump_yaml(rendered, loaded)
+    return rendered
+
+
+def deploy(root: Path, codes: list[str]) -> str:
     """Deploy web-svc-libretranslate alone into its own inventory and return its URL.
 
     Args:
         root: repository root.
+        codes: the target languages, pinned into the role's ``load_only`` so
+            the image bakes exactly those models through the cache.
 
     Returns:
         The base URL, empty when the service stays unreachable.
@@ -232,7 +259,7 @@ def deploy(root: Path) -> str:
             "--include",
             ROLE,
             "--vars-file",
-            f"{loaded['INFINITO_SRC_DIR']}/{INVENTORY_VARS}",
+            f"{loaded['INFINITO_SRC_DIR']}/{_vars_file(root, codes).relative_to(root)}",
         ],
         [
             *inside,
@@ -268,11 +295,12 @@ def deploy(root: Path) -> str:
 
 
 @contextmanager
-def server(root: Path) -> Iterator[str]:
+def server(root: Path, codes: list[str]) -> Iterator[str]:
     """Yield the URL of the dedicated LibreTranslate, deploying it when absent.
 
     Args:
         root: repository root.
+        codes: the target languages, which decide the models the deploy bakes.
 
     Yields:
         The base URL to translate against. The service answers only once it
@@ -289,7 +317,7 @@ def server(root: Path) -> Iterator[str]:
             "left untouched."
         )
     running = "" if unaccelerated(root) else deployed(root)
-    yield running or deploy(root)
+    yield running or deploy(root, codes)
 
 
 def lane_container(env: dict[str, str]) -> str:
