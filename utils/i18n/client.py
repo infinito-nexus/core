@@ -21,10 +21,27 @@ from utils.i18n.placeholders import Rejected, mask, unmask
 from utils.i18n.untranslatable import untranslatable
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
 SERVER_CODES = {"zh": "zh-Hans"}
 POLL_SECONDS = 5
+PROGRESS_SECONDS = 30
+OUTSTANDING_SHOWN = 12
+
+
+def _outstanding(missing: set[str], catalog_of: dict[str, str]) -> str:
+    """Return the catalog codes still missing, shortened to stay one line.
+
+    Args:
+        missing: the server codes the server does not offer yet.
+        catalog_of: server code to the catalog code the operator knows it by.
+    """
+    codes = sorted(catalog_of[code] for code in missing)
+    shown = " ".join(codes[:OUTSTANDING_SHOWN])
+    rest = len(codes) - OUTSTANDING_SHOWN
+    return f"{shown} +{rest}" if rest > 0 else shown or "none"
+
+
 REQUEST_TIMEOUT_SECONDS = 600
 RETRY_ATTEMPTS = 4
 RETRY_BACKOFF_SECONDS = 2
@@ -102,24 +119,50 @@ class LibreTranslate:
                 return set(language["targets"])
         return set()
 
-    def wait(self, codes: list[str], timeout: float) -> None:
+    def wait(
+        self,
+        codes: list[str],
+        timeout: float,
+        status: Callable[[], str] | None = None,
+    ) -> None:
         """Block until the server translates into every language of ``codes``.
 
         Args:
             codes: required target languages.
             timeout: seconds to wait before giving up.
+            status: returns one line about the server's own progress, reported
+                every ``PROGRESS_SECONDS`` while it installs its models. The
+                server offers no endpoint before it is ready, so without this
+                the wait is indistinguishable from a hang for its whole hour.
         """
         deadline = time.monotonic() + timeout
-        wanted = {self.server_code(code) for code in codes}
+        started = time.monotonic()
+        catalog_of = {self.server_code(code): code for code in codes}
+        wanted = set(catalog_of)
         missing = set(wanted)
+        answered = False
+        spoken = 0.0
         while True:
             try:
                 missing = wanted - self.targets()
+                answered = True
                 if not missing:
                     return
             except (OSError, ValueError):
-                pass
-            if time.monotonic() > deadline:
+                answered = False
+            now = time.monotonic()
+            if now - spoken >= PROGRESS_SECONDS:
+                spoken = now
+                extra = f", {status()}" if status else ""
+                print(
+                    f"LibreTranslate at {self.url}: "
+                    f"{len(wanted) - len(missing)}/{len(wanted)} ready"
+                    f"{'' if answered else ' (server silent)'}, "
+                    f"pending {_outstanding(missing, catalog_of)}, "
+                    f"waited {int(now - started)}s of {int(timeout)}s{extra}",
+                    flush=True,
+                )
+            if now > deadline:
                 raise TimeoutError(
                     f"LibreTranslate at {self.url} does not offer {sorted(missing)}"
                 )

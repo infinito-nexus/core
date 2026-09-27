@@ -17,7 +17,12 @@ from statistics import median
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import catalog_path, read_catalog
 from utils.i18n.languages import load_languages, translatable
-from utils.i18n.libretranslate import READY_TIMEOUT_SECONDS, LibreTranslate, server
+from utils.i18n.libretranslate import (
+    READY_TIMEOUT_SECONDS,
+    LibreTranslate,
+    download_status,
+    server,
+)
 from utils.i18n.translate import pending
 
 TUNING_FILE = Path("build") / "i18n-tuning.json"
@@ -83,9 +88,13 @@ def tune(cpus: int, code: str) -> dict:
         for factor in LANE_FACTORS
     ]
     runs: dict[tuple[int, int], list[float]] = {pair: [] for pair in pairs}
-    with server(PROJECT_ROOT, [code], cpus) as url:
+    with server(PROJECT_ROOT) as url:
         client = LibreTranslate(url, 1)
-        client.wait([code], READY_TIMEOUT_SECONDS)
+        client.wait(
+            [code],
+            READY_TIMEOUT_SECONDS,
+            status=lambda: download_status(PROJECT_ROOT),
+        )
         rate(url, texts, code, *pairs[0])
         for attempt in range(1, REPEATS + 1):
             for batch, lanes in pairs:

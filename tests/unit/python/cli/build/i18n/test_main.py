@@ -37,7 +37,7 @@ class TestTranslate(unittest.TestCase):
         (self.root / LANGUAGES_FILE).write_text(LANGUAGES, encoding="utf-8")
         _catalog(self.root, "de", "Hallo")
 
-    def _run(self) -> tuple[int, mock.Mock]:
+    def _run(self) -> tuple[int, mock.Mock, mock.Mock]:
         started = mock.Mock(return_value=contextlib.nullcontext("http://lt"))
         client = mock.Mock()
         client.return_value.translate.side_effect = lambda texts, code: Outcome(
@@ -48,20 +48,20 @@ class TestTranslate(unittest.TestCase):
             mock.patch.object(cli, "server", started),
             mock.patch.object(cli, "LibreTranslate", client),
         ):
-            return cli.translate(["core"], []), started
+            return cli.translate(["core"], []), started, client
 
-    def test_only_languages_with_pending_entries_start_the_container(self) -> None:
+    def test_only_languages_with_pending_entries_are_awaited(self) -> None:
         _catalog(self.root, "fr", "")
 
-        status, started = self._run()
+        status, _started, client = self._run()
 
         self.assertEqual(status, 0)
-        self.assertEqual(started.call_args.args[1], ["fr"])
+        self.assertEqual(client.return_value.wait.call_args.args[0], ["fr"])
 
     def test_nothing_pending_starts_no_container(self) -> None:
         _catalog(self.root, "fr", "Bonjour")
 
-        status, started = self._run()
+        status, started, _client = self._run()
 
         self.assertEqual(status, 0)
         started.assert_not_called()

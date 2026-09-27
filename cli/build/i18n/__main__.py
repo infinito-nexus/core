@@ -39,6 +39,7 @@ from utils.i18n.languages import (
 from utils.i18n.libretranslate import (
     READY_TIMEOUT_SECONDS,
     LibreTranslate,
+    download_status,
     server,
 )
 from utils.i18n.translate import apply, damaged, discard, pending, retry
@@ -192,9 +193,13 @@ def translate(domains: list[str], requested: list[str]) -> int:
     tuned = int(os.environ.get("INFINITO_I18N_LANES") or 0)
     lanes = min(len(work), tuned or cpus)
     batch = int(os.environ.get("INFINITO_I18N_BATCH_SIZE") or BATCH_SIZE)
-    with server(PROJECT_ROOT, codes, cpus) as url:
+    with server(PROJECT_ROOT) as url:
         client = LibreTranslate(url, max(cpus // lanes, 1), batch_size=batch)
-        client.wait(codes, READY_TIMEOUT_SECONDS)
+        client.wait(
+            codes,
+            READY_TIMEOUT_SECONDS,
+            status=lambda: download_status(PROJECT_ROOT),
+        )
         with ThreadPoolExecutor(lanes) as pool:
             for _ in pool.map(lambda job: one_catalog(client, *job), work):
                 pass

@@ -1,9 +1,8 @@
-"""Deploy a LibreTranslate the translator can reach, or run a throwaway one."""
+"""Deploy the dedicated LibreTranslate the translator reaches."""
 
 from __future__ import annotations
 
 import os
-import secrets
 import subprocess
 import time
 import urllib.request
@@ -13,7 +12,6 @@ from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml
 from utils.i18n.client import LibreTranslate, Outcome, merge
-from utils.i18n.languages import SOURCE_LANGUAGE
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
@@ -23,31 +21,17 @@ __all__ = ["LibreTranslate", "Outcome", "merge", "server"]
 
 ROLE = "web-svc-libretranslate"
 SERVICES_FILE = Path("roles") / ROLE / ROLE_FILE_META_SERVICES
-CONTAINER_PORT = 5000
-MODELS_VOLUME = "infinito-i18n-libretranslate"
-MODELS_TARGET = "/home/libretranslate/.local"
-CUDA_SUFFIX = "-cuda"
 POLL_SECONDS = 5
 READY_TIMEOUT_SECONDS = 3600
 DEPLOYED_TIMEOUT_SECONDS = 5
 DEPLOY_TIMEOUT_SECONDS = 4 * 3600
 RUNNER_TIMEOUT_SECONDS = 300
-SERVICE_TIMEOUT_SECONDS = 300
+SERVICE_TIMEOUT_SECONDS = READY_TIMEOUT_SECONDS
 INVENTORY_DIR = Path.home() / "inventories" / "infinito-i18n"
 DEPLOY_PID_FILE = Path("build") / "deploy.pid"
 DEPLOY_ROUTER = "deploy/main.sh"
 GPU_STAMP = Path("build") / "i18n-gpu.stamp"
-INVENTORY_VARS = Path("i18n") / "inventory.yml"
-
-
-def pinned_image(root: Path) -> str:
-    """Return the image reference web-svc-libretranslate deploys.
-
-    Args:
-        root: repository root.
-    """
-    service = load_yaml(root / SERVICES_FILE)["libretranslate"]
-    return f"{service['image']}:{service['version']}"
+INVENTORY_VARS = Path("inventories") / "development" / "i18n.yml"
 
 
 def accelerated() -> bool:
@@ -69,15 +53,24 @@ def accelerated() -> bool:
     return "nvidia" in runtimes.stdout
 
 
-def deployed(root: Path) -> str:
-    """Return the URL of the deployed LibreTranslate, empty when it does not answer.
+def service_url(root: Path) -> str:
+    """Return the base URL the dedicated LibreTranslate serves on.
 
     Args:
         root: repository root.
     """
     service = load_yaml(root / SERVICES_FILE)["libretranslate"]
     host = environment(root)["INFINITO_BIND_IP"]
-    url = f"http://{host}:{service['ports']['local']['http']}"
+    return f"http://{host}:{service['ports']['local']['http']}"
+
+
+def deployed(root: Path) -> str:
+    """Return the URL of the deployed LibreTranslate, empty when it does not answer.
+
+    Args:
+        root: repository root.
+    """
+    url = service_url(root)
     try:
         with urllib.request.urlopen(  # noqa: S310 - the URL is this repository's own service definition
             f"{url}/languages", timeout=DEPLOYED_TIMEOUT_SECONDS
@@ -85,27 +78,6 @@ def deployed(root: Path) -> str:
             return url
     except OSError:
         return ""
-
-
-def await_service(root: Path) -> str:
-    """Poll the deployed LibreTranslate until it answers, or give up.
-
-    A service the playbook just created needs longer than one probe's timeout
-    to serve its first request, and a single miss would send the caller off to
-    spawn a throwaway container beside the one it just deployed.
-
-    Args:
-        root: repository root.
-
-    Returns:
-        The base URL, empty when nothing answered before the deadline.
-    """
-    deadline = time.monotonic() + SERVICE_TIMEOUT_SECONDS
-    while True:
-        running = deployed(root)
-        if running or time.monotonic() > deadline:
-            return running
-        time.sleep(POLL_SECONDS)
 
 
 def unaccelerated(root: Path) -> bool:
@@ -225,6 +197,7 @@ def deploy(root: Path) -> str:
     """
     from cli.administration.deploy.development.env import compose_file_args
 
+    loaded = environment(root)
     inside = [
         "docker",
         "compose",
@@ -232,7 +205,7 @@ def deploy(root: Path) -> str:
         "exec",
         "-T",
         "-w",
-        environment(root)["INFINITO_SRC_DIR"],
+        loaded["INFINITO_SRC_DIR"],
         "i18n",
         "python",
         "-m",
@@ -247,12 +220,11 @@ def deploy(root: Path) -> str:
             "i18n",
             "up",
             "-d",
-            "--force-recreate",
             "i18n",
         ],
         [*inside[:-2], "sh", "-lc", "/usr/local/bin/package-frontend-ca.sh"],
         [*inside[:-2], "systemctl", "daemon-reload"],
-        [*inside[:-2], "bash", f"{environment(root)['INFINITO_SRC_DIR']}/{bootstrap}"],
+        [*inside[:-2], "bash", f"{loaded['INFINITO_SRC_DIR']}/{bootstrap}"],
         [
             *inside,
             "cli.administration.inventory.provision",
@@ -260,7 +232,7 @@ def deploy(root: Path) -> str:
             "--include",
             ROLE,
             "--vars-file",
-            f"{environment(root)['INFINITO_SRC_DIR']}/{INVENTORY_VARS}",
+            f"{loaded['INFINITO_SRC_DIR']}/{INVENTORY_VARS}",
         ],
         [
             *inside,
@@ -272,13 +244,12 @@ def deploy(root: Path) -> str:
             "--skip-cleanup",
         ],
     ]
-    loaded = environment(root)
     outer = {
         **loaded,
         "PYTHONUNBUFFERED": "1",
         "INFINITO_IMAGE": loaded.get("INFINITO_IMAGE") or local_image(root, loaded),
     }
-    name = f"{loaded['INFINITO_CONTAINER']}_i18n"
+    name = lane_container(loaded)
     runner = {**outer, "INFINITO_CONTAINER": name}
     for index, step in enumerate(steps):
         subprocess.run(
@@ -290,24 +261,22 @@ def deploy(root: Path) -> str:
         )
         if index == 0:
             await_runner(name, outer)
-    running = await_service(root)
-    if running and accelerated():
+    if accelerated():
         (root / GPU_STAMP).parent.mkdir(exist_ok=True)
         (root / GPU_STAMP).touch()
-    return running
+    return service_url(root)
 
 
 @contextmanager
-def server(root: Path, codes: list[str], threads: int) -> Iterator[str]:
-    """Yield a LibreTranslate URL, preferring the deployed service over a new container.
+def server(root: Path) -> Iterator[str]:
+    """Yield the URL of the dedicated LibreTranslate, deploying it when absent.
 
     Args:
         root: repository root.
-        codes: target languages to load next to the source language.
-        threads: translation threads of a container this starts itself.
 
     Yields:
-        The base URL to translate against.
+        The base URL to translate against. The service answers only once it
+        has installed its models, which the caller's readiness wait covers.
 
     Raises:
         RuntimeError: a deploy is already running, and translating would race it
@@ -320,63 +289,51 @@ def server(root: Path, codes: list[str], threads: int) -> Iterator[str]:
             "left untouched."
         )
     running = "" if unaccelerated(root) else deployed(root)
-    running = running or deploy(root)
-    if running:
-        yield running
-        return
-    with container(pinned_image(root), codes, threads) as spawned:
-        yield spawned
+    yield running or deploy(root)
 
 
-@contextmanager
-def container(image: str, codes: list[str], threads: int) -> Iterator[str]:
-    """Run LibreTranslate for ``codes`` and remove the container afterwards.
+def lane_container(env: dict[str, str]) -> str:
+    """Return the name of the container the i18n lane deploys into.
 
     Args:
-        image: image reference to run.
-        codes: target languages to load next to the source language.
-        threads: translation threads of the server.
-
-    Yields:
-        The base URL of the running server.
+        env: the process environment the deploy CLIs expect.
     """
-    name = f"infinito-i18n-libretranslate-{secrets.token_hex(4)}"
-    command = [
-        "docker",
-        "run",
-        "--detach",
-        "--name",
-        name,
-        "--publish",
-        f"127.0.0.1::{CONTAINER_PORT}",
-        "--volume",
-        f"{MODELS_VOLUME}:{MODELS_TARGET}",
-        "--env",
-        f"LT_LOAD_ONLY={','.join([SOURCE_LANGUAGE, *codes])}",
-        "--env",
-        "LT_UPDATE_MODELS=true",
-        "--env",
-        f"LT_THREADS={threads}",
-    ]
-    if accelerated():
-        command += ["--gpus", "all"]
-        image = f"{image}{CUDA_SUFFIX}"
-    started = subprocess.run(
-        [*command, image], capture_output=True, text=True, check=False
+    return f"{env['INFINITO_CONTAINER']}_i18n"
+
+
+def download_status(root: Path) -> str:
+    """Return what the dedicated LibreTranslate has pulled so far.
+
+    Its first start installs the argos models, which no cache covers today
+    (docs/contributing/environment/cache.md, "App container runtime traffic"),
+    so it downloads gigabytes before it answers. The service runs inside the
+    lane's own docker, invisible to this daemon, so the figures are the lane
+    container's, which carries that traffic.
+
+    Args:
+        root: repository root.
+
+    Returns:
+        ``lane in <received>, written <written>``, empty when the lane is not
+        running or docker does not answer. The figures cover everything the
+        lane does, the deploy included, not the model download alone.
+    """
+    stats = subprocess.run(
+        [
+            "docker",
+            "stats",
+            "--no-stream",
+            "--format",
+            "{{.NetIO}}|{{.BlockIO}}",
+            lane_container(environment(root)),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout.strip()
+    if "|" not in stats:
+        return ""
+    net, block = stats.split("|", 1)
+    return (
+        f"lane in {net.split('/')[0].strip()}, written {block.split('/')[-1].strip()}"
     )
-    if started.returncode:
-        raise RuntimeError(
-            f"docker run exited with {started.returncode}: {started.stderr.strip()}"
-        )
-    try:
-        mapping = subprocess.run(
-            ["docker", "port", name, f"{CONTAINER_PORT}/tcp"],
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout.split()[0]
-        yield f"http://{mapping}"
-    finally:
-        subprocess.run(
-            ["docker", "rm", "--force", name], capture_output=True, check=False
-        )
