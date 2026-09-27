@@ -39,4 +39,6 @@ server
   {
     return 404;
   }
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
 }
