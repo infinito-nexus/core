@@ -86,9 +86,9 @@ make install
 source scripts/meta/env/load.sh
 
 APP={{ application_deploy_ids }}
-DOMAIN=<your-domain>
+DOMAIN="<your-domain>"
 {% if application_needs_clearnet_resolver -%}
-DNS=<your-clearnet-resolver>
+DNS="<your-clearnet-resolver>"
 {% endif -%}
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
@@ -107,10 +107,10 @@ Run the published image to provision the inventory and deploy {{ application_nam
 
 ```bash
 APP={{ application_deploy_ids }}
-HOST=<your-server>
-DOMAIN=<your-domain>
+HOST="<your-server>"
+DOMAIN="<your-domain>"
 {% if application_needs_clearnet_resolver -%}
-DNS=<your-clearnet-resolver>
+DNS="<your-clearnet-resolver>"
 {% endif -%}
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
