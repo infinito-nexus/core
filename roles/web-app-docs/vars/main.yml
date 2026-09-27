@@ -29,6 +29,7 @@ DOCS_SNAPSHOT_PATHS:
   - ansible.cfg
   - assets
   - cli
+  - compose.yml
   - default.env
   - docs
   - group_vars

@@ -53,10 +53,16 @@ class TestBlock(unittest.TestCase):
 
 
 class TestPageUrl(unittest.TestCase):
-    def test_it_addresses_the_latest_version(self) -> None:
+    def test_it_addresses_the_deployed_working_tree(self) -> None:
+        """`latest` is the newest commit, which need not carry this role.
+
+        A role renamed or added since that commit has no page there, and the
+        test then reports a missing production block for a page the version
+        never had. The deployed working tree is the one the run just built.
+        """
         self.assertEqual(
             extract.page_url("http://host:8036/", "web-app-x"),
-            "http://host:8036/latest/roles/web-app-x/README.html",
+            "http://host:8036/deployed/roles/web-app-x/README.html",
         )
 
 

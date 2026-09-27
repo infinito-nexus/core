@@ -21,7 +21,7 @@ import urllib.error
 import urllib.request
 from html.parser import HTMLParser
 
-VERSION = "latest"
+VERSION = "deployed"
 HEADING = "production"
 BUILDING = 202
 
