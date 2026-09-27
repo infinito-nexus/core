@@ -188,15 +188,31 @@ def await_runner(name: str, env: dict[str, str]) -> None:
     raise RuntimeError(f"The i18n runner {name} did not reach the running state.")
 
 
-def _vars_file(root: Path, codes: list[str]) -> Path:
-    """Write the lane's host vars with ``load_only`` pinned to *codes*.
-
-    An empty ``load_only`` makes the image skip ``prefetch_models.py``, so the
-    server installs the whole argos set at runtime, where no cache reaches it.
+def baked_languages(root: Path) -> list[str]:
+    """Return every code the lane's image prefetches models for.
 
     Args:
         root: repository root.
-        codes: the target languages this run translates into.
+    """
+    from utils.i18n.languages import DOMAINS, load_languages, translatable
+
+    languages = load_languages(root)
+    codes = {PIVOT_LANGUAGE}
+    for domain in DOMAINS:
+        codes.update(translatable(languages, domain))
+    return sorted(codes)
+
+
+def _vars_file(root: Path) -> Path:
+    """Write the lane's host vars pinning which models the image bakes.
+
+    ``load_only`` reaches the Dockerfile as a build ARG, so a value that
+    follows the batch rebuilds the prefetch layer on every run and refetches
+    every model in it. Pinning the whole set keeps the ARG constant, and
+    ``from_source`` drops the reverse pairs this lane never asks for.
+
+    Args:
+        root: repository root.
 
     Returns:
         The rendered file, beside the tracked one so the container sees it.
@@ -205,19 +221,18 @@ def _vars_file(root: Path, codes: list[str]) -> Path:
 
     loaded = load_yaml(str(root / INVENTORY_VARS))
     service = loaded["applications"][ROLE]["services"]["libretranslate"]
-    service["load_only"] = sorted({PIVOT_LANGUAGE, *codes})
+    service["load_only"] = baked_languages(root)
+    service["directions"] = "from_source"
     rendered = root / INVENTORY_VARS_RENDERED
     dump_yaml(rendered, loaded)
     return rendered
 
 
-def deploy(root: Path, codes: list[str]) -> str:
+def deploy(root: Path) -> str:
     """Deploy web-svc-libretranslate alone into its own inventory and return its URL.
 
     Args:
         root: repository root.
-        codes: the target languages, pinned into the role's ``load_only`` so
-            the image bakes exactly those models through the cache.
 
     Returns:
         The base URL, empty when the service stays unreachable.
@@ -259,7 +274,7 @@ def deploy(root: Path, codes: list[str]) -> str:
             "--include",
             ROLE,
             "--vars-file",
-            f"{loaded['INFINITO_SRC_DIR']}/{_vars_file(root, codes).relative_to(root)}",
+            f"{loaded['INFINITO_SRC_DIR']}/{_vars_file(root).relative_to(root)}",
         ],
         [
             *inside,
@@ -295,12 +310,11 @@ def deploy(root: Path, codes: list[str]) -> str:
 
 
 @contextmanager
-def server(root: Path, codes: list[str]) -> Iterator[str]:
+def server(root: Path) -> Iterator[str]:
     """Yield the URL of the dedicated LibreTranslate, deploying it when absent.
 
     Args:
         root: repository root.
-        codes: the target languages, which decide the models the deploy bakes.
 
     Yields:
         The base URL to translate against. The service answers only once it
@@ -317,7 +331,7 @@ def server(root: Path, codes: list[str]) -> Iterator[str]:
             "left untouched."
         )
     running = "" if unaccelerated(root) else deployed(root)
-    yield running or deploy(root, codes)
+    yield running or deploy(root)
 
 
 def lane_container(env: dict[str, str]) -> str:

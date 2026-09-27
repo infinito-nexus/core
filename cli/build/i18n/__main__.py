@@ -200,7 +200,7 @@ def translate(domains: list[str], requested: list[str]) -> int:
     tuned = int(os.environ.get("INFINITO_I18N_LANES") or 0)
     lanes = min(len(work), tuned or cpus)
     batch = int(os.environ.get("INFINITO_I18N_BATCH_SIZE") or BATCH_SIZE)
-    with server(PROJECT_ROOT, codes) as url:
+    with server(PROJECT_ROOT) as url:
         client = LibreTranslate(url, max(cpus // lanes, 1), batch_size=batch)
         client.wait(
             codes,

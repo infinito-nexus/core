@@ -88,7 +88,7 @@ def tune(cpus: int, code: str) -> dict:
         for factor in LANE_FACTORS
     ]
     runs: dict[tuple[int, int], list[float]] = {pair: [] for pair in pairs}
-    with server(PROJECT_ROOT, [code]) as url:
+    with server(PROJECT_ROOT) as url:
         client = LibreTranslate(url, 1)
         client.wait(
             [code],

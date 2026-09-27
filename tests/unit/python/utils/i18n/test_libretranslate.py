@@ -20,7 +20,7 @@ class TestParallelDeployIsRefused(unittest.TestCase):
             mock.patch("utils.i18n.libretranslate.deploying", return_value=True),
             mock.patch("utils.i18n.libretranslate.deploy") as started,
             self.assertRaises(RuntimeError),
-            server(Path("/repo"), ["de"]),
+            server(Path("/repo")),
         ):
             pass
         started.assert_not_called()
