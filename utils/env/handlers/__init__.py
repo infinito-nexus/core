@@ -35,7 +35,11 @@ from .infinito import (
 from .infinito.ca import bundle_candidates as ca_bundle_candidates
 from .infinito.ca import cert_host as ca_cert_host
 from .infinito.cache import conf as cache_conf
+from .infinito.cache import hosts as cache_hosts
+from .infinito.cache import http_hosts as cache_http_hosts
 from .infinito.cache import stack as cache_stack
+from .infinito.cache import tls as cache_tls
+from .infinito.cache import upstreams as cache_upstreams
 from .infinito.dir import backups as dir_backups
 from .infinito.dir import secrets as dir_secrets
 from .infinito.dir import var_lib as dir_var_lib
@@ -80,6 +84,10 @@ ORDERED_HANDLERS = [
     running_on_act,
     running_on_github,
     cache_conf,
+    cache_hosts,
+    cache_http_hosts,
+    cache_tls,
+    cache_upstreams,
     cache_stack,
     tor_socks_port,
     is_wsl2,

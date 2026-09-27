@@ -260,6 +260,17 @@ roles:
       run_after: [svc-ai]
       invokable: true
 
+    cache:
+      title: "Package Caches"
+      hanzi: "缓存" # Means "cache" or "buffer".
+      description: "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
+      icon: "fas fa-warehouse"
+      bootstrap: true
+      modes:
+        compose: true
+        swarm: false
+      invokable: true
+
     registry:
       title: "Container Registries"
       hanzi: "仓库" # Means "warehouse" or "repository".

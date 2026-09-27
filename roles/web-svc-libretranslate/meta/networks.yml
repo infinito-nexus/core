@@ -1,4 +1,13 @@
 ---
+cache:
+  repos:
+    raw-argos-net:
+      flavor: raw
+      upstream: https://argos-net.com/ # nocheck: url the bare GET returns 404; the model paths Nexus prefixes under /v1/ answer 206
+  hosts:
+    argos-net.com:
+      repo: raw-argos-net
+      read_timeout: "1800s"
 local:
   subnet: 192.168.69.0/24
 overlay:

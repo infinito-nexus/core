@@ -39,6 +39,19 @@ inventories/production/
 compose/coredns/Corefile
 compose/Corefile
 
+# Rendered by `make dotenv` from the cache: declarations in
+# roles/*/meta/networks.yml. Tracking any of these would put a second,
+# drifting spelling of a cached host, suite or upstream into the repository.
+compose/package-cache-frontend/upstreams.conf
+compose.cache-consumer.yml
+compose/package-cache/pip.conf
+compose/package-cache/npmrc
+compose/package-cache/apt/*.list
+
+# The i18n lane pins load_only to the languages a run translates, so the image
+# bakes exactly those argos models instead of installing every one at runtime.
+inventories/development/i18n.rendered.yml
+
 # Host shell / editor / tooling state accidentally surfaced inside this working copy
 .ansible
 .bash_profile

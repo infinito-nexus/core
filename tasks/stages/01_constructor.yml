@@ -172,10 +172,11 @@
     service_loader_preloading: true
   changed_when: false
 
-- name: "🥾 Bootstrap NFS clients + registry + sandbox runtimes (MUST precede Preload)"
+- name: "🥾 Bootstrap storage + cache + registry + runtimes (MUST precede Preload)"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop:
     - svc-storage
+    - svc-cache
     - svc-registry
     - svc-virt
   loop_control:

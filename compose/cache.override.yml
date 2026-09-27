@@ -37,7 +37,7 @@ services:
 
   package-cache:
     image: sonatype/nexus3:3.91.1-ubi
-    container_name: infinito-package-cache
+    container_name: ${INFINITO_CACHE_PACKAGE_CONTAINER:?Run 'make dotenv' to generate the .env single source of truth}
     # Exception: fresh bind-mount is root:root and Nexus aborts unless run as root.
     user: "0:0"
     environment:

@@ -286,6 +286,7 @@ diagnose-network:
 # Note: runtime context covers distro, cache sizes, secrets, and the like.
 dotenv:
 	@python3 -m cli.meta.env
+	@python3 -m cli.meta.cache
 
 .PHONY: dotenv-force
 # Force a clean .env regeneration in a stripped environment.
@@ -295,6 +296,7 @@ dotenv-force:
 	@env -i HOME="$${HOME}" PATH="$${PATH}" \
 		INFINITO_CACHE_CONF_SOURCE="$${INFINITO_CACHE_CONF_SOURCE:-}" \
 		python3 -m cli.meta.env
+	@python3 -m cli.meta.cache
 
 .PHONY: environment-bootstrap
 # Bootstrap the local development environment.

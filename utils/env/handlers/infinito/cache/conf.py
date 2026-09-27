@@ -1,6 +1,11 @@
 """INFINITO_CACHE_PACKAGE_FRONTEND_CONF: nginx upstream map the shared
 package-cache frontend mounts, taken from the primary checkout unless
-INFINITO_CACHE_CONF_SOURCE says worktree."""
+INFINITO_CACHE_CONF_SOURCE says worktree.
+
+The map itself is generated, never tracked, so no second copy of a hostname
+can drift; ``utils.cache.render.render_artifacts`` writes it once the
+value-set is built.
+"""
 
 from __future__ import annotations
 

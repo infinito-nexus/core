@@ -32,4 +32,4 @@ LIBRETRANSLATE_MCP_CONTRACT:
 LIBRETRANSLATE_MCP_UPSTREAM_KEY: ""
 
 LIBRETRANSLATE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
-LIBRETRANSLATE_CACHE_CA_INSTALLER: scripts/docker/cache/package-frontend/ca.sh
+LIBRETRANSLATE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh
