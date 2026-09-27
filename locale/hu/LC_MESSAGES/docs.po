@@ -76946,9 +76946,8 @@ msgstr "[x] openresty létező per- app `upstream <service> { server <host>:<por
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[x] v1 Szcope egyetlen-menedzser. Több menedzser Raft- quorum HA (3+ vezetők) kifejezetten nem tartozik e követelmény hatálya alá, és [Jövőbeli kiterjesztések](#future-extensions)."
 
-# translated-by: libretranslate
-msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
-msgstr "[x] web-app-dashboard mount egy port- ui tartalom katalógus nyelvenként, hogy van egy lefordított műszerfal string, generált `core.po` a bevetés idején."
+msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -86920,9 +86919,8 @@ msgstr "port- ui egy csempe indító nélkül admin tier, így a ``administrator
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "port- ui egy csempe indító nélkül admin tier, így a `administrator` A személyben nincs egyetlen olyan felület, amellyel szemben ugyanazon a loginláncon túl érvényesíteni lehetne. SSO engedélyezve mindkét személy fut."
 
-# translated-by: libretranslate
-msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml` today, so every card and menu text stays English."
-msgstr "port- ui fordítja a kiolvasztott `config.yaml` keresztül `app/i18n/content/<code>.yaml`, egy lapos térképezés az angol forrás sztring a fordítás a kulcsok `description`, `info`, `name`, `subtitel`, `text`, `title` és `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) kizárólag `config.yaml` Ma minden kártya és menü szöveg angol."
+msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ports:"

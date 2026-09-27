@@ -167,7 +167,7 @@ def record(message: Message, rejected: Rejected | None) -> None:
     message.user_comments.append(f"{REFUSAL_PREFIX} {ENGINE} {rejected.reason}")
     message.user_comments.append(URL_SUPPRESSION)
     message.user_comments.append(
-        f"{REJECTED_PREFIX} {rejected.text}".replace("\n", "\\n")
+        f"{REJECTED_PREFIX} {rejected.text}".replace("\n", "\\n").rstrip("\\")
     )
 
 

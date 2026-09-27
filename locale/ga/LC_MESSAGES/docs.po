@@ -80854,13 +80854,7 @@ msgstr ""
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr ""
 
-# translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x x x x x] web-app-dashboard mounts amháin port-ui
-# chatalóg ábhar in aghaidh na teanga go bhfuil teaghrán Painéal na
-# nIonstraimí aistrithe, a ghintear ó `core.po` ag am imscaradh.
-msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
+msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
 msgstr ""
 
 # translated-by: libretranslate
@@ -91017,9 +91011,8 @@ msgstr "port-ui Is seoladh tíl le aon sraith admin, mar sin an ``administrator`
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "port-ui Is seoladh tíl le aon sraith admin, mar sin an `administrator` persona Tá aon dromchla admin-amháin a dhearbhú i gcoinne thar an slabhra logála céanna. Le SSO cumasaithe araon personas reáchtáil."
 
-# translated-by: libretranslate
-msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml` today, so every card and menu text stays English."
-msgstr "port-ui aistríonn an rinneadh `config.yaml` trí mheán `app/i18n/content/<code>.yaml`, mapáil cothrom ón teaghrán foinse Béarla a aistriúchán do na heochracha `description`, `info`, `name`, `subtitel`, `text`, `title` agus `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) Méideanna amháin `config.yaml` inniu, mar sin fanann gach cárta agus téacs roghchlár Béarla."
+msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ports:"

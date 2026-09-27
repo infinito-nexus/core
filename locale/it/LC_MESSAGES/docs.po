@@ -81990,9 +81990,8 @@ msgstr "[x] openresty esiste per-app `upstream <service> { server <host>:<port>;
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[x] V1 la portata è single-manager. Multimanager Raft-quorum HA (3+ manager) è esplicitamente fuori portata per questo requisito e tracciato sotto [Estensioni future](#future-extensions)."
 
-# translated-by: libretranslate
-msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
-msgstr "[x] web-app-dashboard monta un catalogo di contenuti port-ui per lingua che ha una stringa di dashboard tradotta, generata da `core.po` in tempo dispiegamento."
+msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -93000,15 +92999,7 @@ msgstr "port-ui è un lanciatore di piastrelle senza tier amministratore, quindi
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "port-ui è un lanciatore di piastrelle senza tier amministratore, quindi il `administrator` persona non ha una sola superficie di amministratore per affermare contro oltre la stessa catena di login. Con SSO ha permesso di eseguire entrambe le persone."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: porta-ui traduce il reso `config.yaml` attraverso
-# `app/i18n/content/<code>.yaml`, una mappatura piatta dalla stringa di
-# origine inglese alla sua traduzione per le chiavi `description`♪ `info`♪
-# `name`♪ `subtitel`♪ `text`♪ `title` e `warning`.
-# [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) monta
-# solo `config.yaml` oggi, quindi ogni testo carta e menu rimane inglese.
-msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml` today, so every card and menu text stays English."
+msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
 msgstr ""
 
 # translated-by: libretranslate

@@ -77713,9 +77713,8 @@ msgstr "[x] openresty 's existing per-app `upstream <service> { server <host>:<p
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[x] v1 scope adalah single-manager. Manajer ganda Raft- quorum HA (3+ manajer) secara eksplisit diluar dari lingkup untuk kebutuhan ini dan dilacak di bawah [Ekstensi Masa Depan](#future-extensions)."
 
-# translated-by: libretranslate
-msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
-msgstr "[x] web-app-dashboard mount satu port-ui katalog isi per bahasa yang memiliki string dashboard diterjemahkan, dihasilkan dari `core.po` pada waktu penyebaran."
+msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -81910,7 +81909,6 @@ msgstr "`role` adalah direktori di bawah ``roles/``, `app` peran application_id 
 # `roles/<application_id>/files/playwright/playwright.spec.js` Ikuti
 # [Kontribusi
 # `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) dan
-# [Kontribusi
 # `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md)
 # (Dan demi angin yang bertiup dengan kencang) yang bertiup sangat kencang.
 msgid "`roles/<application_id>/files/playwright/playwright.spec.js` Follow [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them."
@@ -87954,9 +87952,8 @@ msgstr "port- ui adalah sebuah peluncur ubin tanpa tingkat admin, sehingga ``adm
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "port- ui adalah sebuah peluncur ubin tanpa tingkat admin, sehingga `administrator` persona tidak memiliki admin- hanya permukaan untuk menegaskan terhadap luar rantai login yang sama. Dengan SSO diaktifkan kedua personas dijalankan."
 
-# translated-by: libretranslate
-msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml` today, so every card and menu text stays English."
-msgstr "port- ui terjemahkan yang dirender `config.yaml` melalui `app/i18n/content/<code>.yaml`, pemetaan rata dari string sumber bahasa Inggris terjemahan untuk kunci `description`, `info`, `name`, `subtitel`, `text`, `title` dan `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) hanya kait `config.yaml` hari ini, jadi setiap kartu dan menu teks tetap Inggris."
+msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ports:"

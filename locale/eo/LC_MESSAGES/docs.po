@@ -81409,13 +81409,7 @@ msgstr ""
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr ""
 
-# translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x x x x x] web-app-dashboard muntas unu
-# haveno-ui-enhavon per lingvo kiu havas tradukitan dashboard-kordon,
-# generitan deshboard-kordo, generitan de `core.po` por deploji tempon.
-msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
+msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
 msgstr ""
 
 # translated-by: libretranslate
@@ -91668,9 +91662,8 @@ msgstr "haveno-ui estas kahela lanĉilo kun neniu admin tavolo, tiel la ``admini
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "haveno-ui estas kahela lanĉilo kun neniu admin tavolo, tiel la `administrator` rolulo havas neniun admin-restriktitan surfacon por aserti kontraŭ preter la sama loginĉeno. Kun SSO ebligis ambaŭ rolulojn kuri."
 
-# translated-by: libretranslate
-msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml` today, so every card and menu text stays English."
-msgstr "haveno-ui tradukas la igitan `config.yaml` trae tra `app/i18n/content/<code>.yaml`, plata mapado de la angla fontkordo ĝis ĝia traduko por la ŝlosiloj `description`, `info`, `name`, `subtitel`, `text`, `title` kaj `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) monto nur `config.yaml` Hodiaŭ, tiel ĉiu karto kaj menuo teksto restas la angla."
+msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ports:"
@@ -95690,11 +95683,6 @@ msgstr "{{ lookup('engine', 'redis', application_id) }} plena dikta {{ lookup('e
 # nocheck: url
 # translation-rejected: {{ lookup('role_subnets', 'web-app-bigbluebutton') }}
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ["10.7.7.0/24"] {{
 # lookup('role_subnets', SOME_ROLE_LIST) }} Unu eniro per rolo
 msgid "{{ lookup('role_subnets', 'web-app-bigbluebutton') }}   # ['10.7.7.0/24'] {{ lookup('role_subnets', SOME_ROLE_LIST) }}            # one entry per role"
@@ -95739,11 +95727,6 @@ msgstr "{{ lookup('sso', application_id, 'shared') }} → Bool"
 # translation-refused: libretranslate protected-span
 # nocheck: url
 # translation-rejected: {{ lookup('subnet_address_regex') }} # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # 192.168.24+ + +
 msgid "{{ lookup('subnet_address_regex') }}          # 192\\.168\\.24\\.\\d+"

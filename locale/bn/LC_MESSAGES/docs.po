@@ -36051,7 +36051,6 @@ msgstr ""
 
 # nocheck: url
 # translation-refused: libretranslate protected-span
-# nocheck: url
 # translation-rejected: বাস্তাবায়িত হয়েছে **[আলেহান্দ্রো রোমান
 # ইবানেজ](https://social.infinito.nexus/profile/alexromanibanez/profile)**এর
 # কিছু অংশ [Infinito.Nexus প্রজেক্ট](https://s.infinito.nexus/code) এবং উত ্
@@ -36063,7 +36062,6 @@ msgstr ""
 
 # nocheck: url
 # translation-refused: libretranslate protected-span
-# nocheck: url
 # translation-rejected: বাস্তাবায়িত হয়েছে
 # **[র‌্যাব](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**এর
 # কিছু অংশ [Infinito.Nexus প্রজেক্ট](https://s.infinito.nexus/code) এবং উত ্
@@ -86225,9 +86223,8 @@ msgstr "[এক্স] Arast- র উপর উপস্থিত ইনস্�
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[এক্স] voice1 উপ্র একটি-বিজ্ঞ। মাল্টি-ম্যান রাফ্ট- অ-কোট্রি (3+ ব্যবস্থাপক) এই চাহিদা পূরণ ও অনুসরণের ক্ষেত্রে স্পষ্টভাবে: [ভবিষ্যৎ‌য়ের এক্সটেনশন](#future-extensions). ."
 
-# translated-by: libretranslate
-msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
-msgstr "[এক্স] web-app-dashboard ভাষা থেকে অনুবাদবোর্ড পংক্তি উৎপন্ন হয়েছে এমন একটি পোর্ট-কি- এর মধ্যে অন্তর্ভুক্ত একটি পোর্ট-প্রতিটি বিষয়বস্তুর ক্যাটালগ `core.po` নির্দিষ্ট সময়।."
+msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -97541,16 +97538,7 @@ msgstr "পোর্ট-কি একটি টালি লঞ্চার, ক
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "পোর্ট-কি একটি টালি লঞ্চার, কোন অ্যাডমিন টাইলার নেই, তো `administrator` একই লগ-ইন চেইনের বাইরে কোন প্রশাসক নেই। এসওএস-এর সাথে উভয় ব্যক্তিই সক্রিয় ছিল।."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: পোর্ট-কি অনুবাদ করলে অনুবাদ করা হয়েছে `config.yaml`
-# এই দিয়ে `app/i18n/content/<code>.yaml`- ইংরেজি উৎস থেকে অনুবাদের জন্য একটি
-# সমতল ম্যাপিং `description`'%s' `info`'%s' `name`'%s' `subtitel`'%s'
-# `text`'%s' `title` এবং `warning`. .
-# [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml)
-# শুধুমাত্র মাউন্ট করা হবে `config.yaml` আজ, প্রত্যেকটা কার্ড আর মেনু ইংরেজী
-# থাকবে।.
-msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml` today, so every card and menu text stays English."
+msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
 msgstr ""
 
 # translated-by: libretranslate

@@ -64506,8 +64506,6 @@ msgstr "As tres propiedades seguen a Open WebUI As obras e ningunha delas está 
 # `security.captcha` Obxecto (`{"altcha": {…}, "hcaptcha": {"key", "secret",
 # "enabled"}}`), Así que os tres `UPDATE`s = cero cero cero cero cero cero
 # cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero
-# cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero
-# cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero
 # cero cero cero cero cero e ningún `ON_ERROR_STOP` Tampouco os descartes. O
 # captcha nunca estivo activo, o que fai que `HCAPTCHA_SERVICE_ENABLED`
 # racional en `templates/playwright.env.j2` protección que non existe.
@@ -78094,9 +78092,8 @@ msgstr "[x] Páxina oficial da per-app `upstream <service> { server <host>:<port
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[x] V1 O seu ámbito de actuación é unipersonal. Raft-quorum ha (3+ Administradores) está explicitamente fóra de alcance para este requisito e segue [Extensión futura](#future-extensions)."
 
-# translated-by: libretranslate
-msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
-msgstr "[x] web-app-dashboard monta un catálogo de contido port-ui por lingua que ten unha cadea de panel traducido, xerado a partir de `core.po` despregando o tempo."
+msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -83999,9 +83996,6 @@ msgstr "bind-mounts para o rexistro-cache CA, os fragmentos cliente paquete-cach
 # nocheck: url
 # translation-rejected: to to to to to to to to to to to to to to to to to to
 # to to to to to to to to to to to to to to to to to to to to to to to to to
-# to to to to to to to to to to to to to to to to to to to to to to to to to
-# to to to to to to to to to to to to to to to to to to to to to to to to to
-# to to to to to to to to to to to to to to to to to to to to to to to to to
 # to to to to to to to to to to (falso); config/secret son conceptualmente só
 # de lectura a nivel primitivo docker; tmpfs é rw.
 msgid "bind/volume default to rw (False); config/secret are conceptually read-only at the docker primitive level; tmpfs is rw."
@@ -88287,9 +88281,8 @@ msgstr "port-ui é un lanzador de tellas sen nivel de administración, polo que 
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "port-ui é un lanzador de tellas sen nivel de administración, polo que o `administrator` A persoa non ten só unha superficie de administración para afirmar contra a mesma cadea de login. O SSO permite que ambas as persoas funcionen."
 
-# translated-by: libretranslate
-msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml` today, so every card and menu text stays English."
-msgstr "port-ui traducindo o `config.yaml` A través `app/i18n/content/<code>.yaml`, Un mapa plano da cadea de fonte inglesa á súa tradución para as chaves `description`, `info`, `name`, `subtitel`, `text`, `title` e `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) Montes únicos `config.yaml` Hoxe en día, cada carta e menú permanece en inglés."
+msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ports:"
