@@ -11,6 +11,7 @@ Absolute paths starting with '/' are resolved against the repository root.
 from __future__ import annotations
 
 import re
+import subprocess
 import unittest
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -44,7 +45,18 @@ class BrokenLink(NamedTuple):
     reason: str
 
 
-def _unresolvable(resolved: Path) -> str:
+def _tracked_paths() -> frozenset[str]:
+    """Return every path git tracks, repo-root relative."""
+    listed = subprocess.run(
+        ["git", "-C", str(PROJECT_ROOT), "ls-files", "-z"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return frozenset(entry for entry in listed.stdout.split("\0") if entry)
+
+
+def _unresolvable(resolved: Path, tracked: frozenset[str]) -> str:
     """Return why ``resolved`` cannot back a link, empty when it can.
 
     A directory is only a link target because an index page stands in for it:
@@ -52,13 +64,22 @@ def _unresolvable(resolved: Path) -> str:
     link against. A directory without one renders as a file listing in the one
     place and as a missing cross-reference in the other.
 
+    A generated file is present for whoever ran the generator and absent
+    everywhere else, including the documentation build, which reads the
+    tracked tree. Existing on this disk is therefore not enough.
+
     Args:
         resolved: the absolute path a link target resolved to.
+        tracked: every path git tracks, repo-root relative.
     """
     if not resolved.exists():
         return "no such path"
-    if resolved.is_dir() and index_page(resolved) is None:
-        return f"directory without any of {', '.join(INDEX_FILES)}"
+    if resolved.is_dir():
+        if index_page(resolved) is None:
+            return f"directory without any of {', '.join(INDEX_FILES)}"
+        return ""
+    if resolved.relative_to(PROJECT_ROOT).as_posix() not in tracked:
+        return "untracked, so it is absent from a fresh checkout and the docs build"
     return ""
 
 
@@ -122,11 +143,16 @@ def _extract_links(file: Path) -> list[tuple[int, str]]:
     return results
 
 
-def _check_file(file: Path, root: Path) -> list[BrokenLink]:
+def _check_file(file: Path, root: Path, tracked: frozenset[str]) -> list[BrokenLink]:
     """Return BrokenLink entries for every unresolvable link in file.
 
     Relative paths are resolved against the file's directory.
     Absolute paths (starting with '/') are resolved against the repo root.
+
+    Args:
+        file: the markdown file to scan.
+        root: repository root, which repo-absolute targets resolve against.
+        tracked: every path git tracks, repo-root relative.
     """
     broken: list[BrokenLink] = []
     base = file.parent
@@ -141,7 +167,7 @@ def _check_file(file: Path, root: Path) -> list[BrokenLink]:
         else:
             resolved = (base / path_part).resolve()
 
-        reason = _unresolvable(resolved)
+        reason = _unresolvable(resolved, tracked)
         if reason:
             broken.append(
                 BrokenLink(
@@ -164,9 +190,10 @@ class TestMarkdownLinks(unittest.TestCase):
         md_files = markdown_files()
         self.assertTrue(md_files, "No .md files found.")
 
+        tracked = _tracked_paths()
         broken: list[BrokenLink] = []
         for file in sorted(md_files):
-            broken.extend(_check_file(file, root))
+            broken.extend(_check_file(file, root, tracked))
 
         if not broken:
             return
