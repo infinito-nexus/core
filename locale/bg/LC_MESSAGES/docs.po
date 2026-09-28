@@ -73661,8 +73661,8 @@ msgid "[Mailu Official Website](https://mailu.io/)"
 msgstr "[Официален уебсайт на Mailu](https://mailu.io/)"
 
 # translated-by: libretranslate
-msgid "[Mailu compose setup guide](https://mailu.io/1.7/compose/setup.html)"
-msgstr "[Ръководство за композиране на Mailu](https://mailu.io/1.7/compose/setup.html)"
+msgid "[Mailu compose setup guide](https://mailu.io/2024.06/compose/setup.html)"
+msgstr "[Ръководство за композиране на Mailu](https://mailu.io/2024.06/compose/setup.html)"
 
 # translated-by: libretranslate
 msgid "[Mailu issue #1171](https://github.com/Mailu/Mailu/issues/1171)"
