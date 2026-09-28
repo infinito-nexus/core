@@ -11622,1508 +11622,2250 @@ msgstr "**تفصیل**: فیصلہ سازی، غیر متوقع انتخاب ا�
 msgid "**description**: Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr "**تفصیل**: Browser-Admin interface for the Public LLMPorts, the first Form the Doministry of the Domine پر شائع کیا گیا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
-msgstr ""
+msgstr "**تفصیل**: پیکجز کی تعمیر کے دوران جڑے ہوئے فائل آپریشنز کے لئے وقتی آلات بنائیں"
 
+# translated-by: libretranslate
 msgid "**description**: Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "**تفصیل**: مرکزی ڈکارائزڈ تلاش کے انجن میں کئی ایکسچینجز کے ذریعے شریک ہوتے ہیں جس میں پر کنسور کی وسعت ہوتی ہے۔ API کلیدیں"
 
+# translated-by: libretranslate
 msgid "**description**: Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr ""
+msgstr "**تفصیل**: مرکزی دستاویز خارج کرنے والا انجن جو غیر فعال گفتگو کے لیے فائل کو متن میں اپلوڈ کرتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
-msgstr ""
+msgstr "**تفصیل**: Central in-conscaching engine with per-consumer کلیدی اکائی، ہمارے قابل مرکزی طور پر یا بطور subed sidecar ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
-msgstr ""
+msgstr "**تفصیل**: مرکزی لوڈر کردار کے لیے جاری کردہ حصص پریفیکچرنگ اپ لوڈ کرنے اور ان کے بعد اپ لوڈ کرنے والے کردار کو مجموعی طور پر کنٹرول کرنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr ""
+msgstr "**تفصیل**: تمام OIDC-cred-cresed کے ساتھ، Nginx Snipts اور ایک زندہ حیثیت UI"
 
+# translated-by: libretranslate
 msgid "**description**: Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr ""
+msgstr "**تفصیل**: مرکزی ڈاک ٹکٹ کے ذریعے میزبانی میل کا اہتمام کرتے ہیں۔ Mailu. . . ."
 
+# translated-by: libretranslate
 msgid "**description**: Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
-msgstr ""
+msgstr "**تفصیل**: Central reursive/production DNSEC حل کرنے والا صارف صارفین اسٹاک کے لیے ایک انفنٹری آئی پی اے پر ایک انفنٹری آئی پی پر"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **تفصیل**: مرکزی تلاش اور اناطولیہ انجن جس میں
+# per-consumer نامی اسم فاعل (spaces) کے ساتھ ایک مشترکہ Decker Induction میں
+# دس افراد کی مدد کرتا ہے۔
 msgid "**description**: Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
-msgstr ""
+msgstr "**تفصیل**: مرکزی Victor Database انجن کو ذخیرہ کرنے اور تلاش کرنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "**تفصیل**: مرکزی کردار MariaDB یا PostgreSQL ڈیٹا بیس سروس نے درخواستوں کے ذریعے Docker Compose"
 
+# translated-by: libretranslate
 msgid "**description**: Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
-msgstr ""
+msgstr "**تفصیل**: Certbot-ACME سروس برائے غیر فعال واحد اور جنگلی کارڈ ٹی ایل ایس کی سند برائے این جی سی آئی اے ڈومین پر -"
 
+# translated-by: libretranslate
 msgid "**description**: Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr ""
+msgstr "**تفصیل**. . . Certbot سند"
 
+# translated-by: libretranslate
 msgid "**description**: Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
-msgstr ""
+msgstr "**تفصیل**: ڈسک کی جگہ نکالنے کے لیے صفائی کا معمول ٹیمپل فائل، پیکج کیچس، ری ایکٹر ڈکر ڈاٹا اور پرانی بیک اپس سے تیار کیا جاتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr ""
+msgstr "**تفصیل**: Client-side NFS sep for a دور سرور برآمد کرنے کے لیے ہر پلگ انس پر ایک دوری جدول مقرر کیا گیا، جس میں وقت کی مناسب حد تک رسائی کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr ""
+msgstr "**تفصیل**: Client-side Wire Constrict for Sited sound for systemd Service and ta تحریر جس میں interface MTU داخل ہوتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
-msgstr ""
+msgstr "**تفصیل**: کلپ بورڈ مینیجر جس میں قابل تجدید تاریخ، دستوری عمل اور اسکرپٹنگ معاونت ہوتی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
-msgstr ""
+msgstr "**تفصیل**: Cloudflare DNS بوٹسٹر کردار Apex اور جنگلی کارڈ اے/AAAAA ریکارڈز کے لیے کلاؤڈفلاور بوٹسٹر کردار ہے۔ (اور امریکہ) ویب اسٹاک کی بنیاد ڈومین پر"
 
+# translated-by: libretranslate
 msgid "**description**: Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "**تفصیل**: Cluster-local سانچہ:Cluster-local سانچہ:Cluster inclopment list Register for community-constitution includes Docker Swarm کارپس"
 
+# translated-by: libretranslate
 msgid "**description**: Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "**تفصیل**: Cluster-local special Cache for packs, pip, Nepm and sil artist ہر کردار کا اعلان کرتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr ""
+msgstr "**تفصیل**: Cluster-local light-hection Cache for community Decker Hub base-image lights, کاٹ کر انجروں کی منتقلی اور رفتار کی حدود ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr ""
+msgstr "**تفصیل**: Colaborative wiki پلیٹ فارم کے لیے صارف-اپنے استعمال شدہ دستاویزات کے لیے ایک داخلی فضاء اور مواد انتظامیہ کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Command-line journal application for creating and managing personal diary entries from the terminal"
-msgstr ""
+msgstr "**تفصیل**: ٹرمینل کی جانب سے ذاتی ڈائری کی تشکیل اور انتظامیہ کے لیے کمانڈ لائن روزنامہ درخواست"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **تفصیل**: انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی
+# ڈیٹابیس (IMDb) پر Camposite Stock کردار B Banding a سانچہ:TTP reut-proxox
+# fordered for web رسائی کے ساتھ
 msgid "**description**: Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Container engine runtime with Compose for building and running application containers on Linux hosts"
-msgstr ""
+msgstr "**تفصیل**: لینکس میزبانوں پر اطلاقیہ کی تیاری اور چلانے کے لیے اطلاقیہ کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr ""
+msgstr "**تفصیل**: پُل‌دار مینیجر اور کارکن حساب‌کتاب‌اُلعین کے ذریعے کام کرنے والے لوگوں کی مدد کرنے کے لئے"
 
+# translated-by: libretranslate
 msgid "**description**: Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
-msgstr ""
+msgstr "**تفصیل**اہمیت : Reveal.js پلیٹ فارم کو ایڈمنٹن، ترقی یافتہ، صارفین اور تفتیش کاروں کو پیش کرنے کے لیے پروڈیوس کیا۔"
 
+# translated-by: libretranslate
 msgid "**description**: Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "**تفصیل**: میزبان کے لئے ترتیب دیا گیا تصویر سرور Simple Icons ویب اور دستاویزات کے استعمال کے لیے برانڈ ایس وی جی اور پی این اے کے مجموعے"
 
+# translated-by: libretranslate
 msgid "**description**: Containerized relational database with automated database, user, and privilege provisioning"
-msgstr ""
+msgstr "**تفصیل**: ایس . اے ."
 
+# translated-by: libretranslate
 msgid "**description**: Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr ""
+msgstr "**تفصیل**: معلوماتی انتظامیہ کے نظام میں موضوعات اور ادائیگیوں کے ساتھ ساتھ ویب سائٹس، بلاگوں اور کثیر التعداد نیٹ ورکز کی تعمیر اور انتظامیہ کا نظام ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr ""
+msgstr "**تفصیل**: Core NGINX ویب سیریز کے ساتھ HTP اور TCP/UDP سیریز معاونت اور کارکردگی سے چلنے والے تنازعات"
 
+# translated-by: libretranslate
 msgid "**description**: Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
-msgstr ""
+msgstr "**تفصیل**: Cross-conous-condioper for Nix پیکج مینیجر کے پاس چیکم-verfite, reproducible کثیر الصوف کے ساتھ"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['2']
+# nocheck: url
+# translation-rejected: **تفصیل**: Cross-cons-serve conserves for CI,
+# سانچہ:تقویم 2/یکم تاریخ CI, سانچہ:تقویم 2/یکم تاریخ ماحول تعمیر کیے جاتے
+# ہیں۔
 msgid "**description**: Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
-msgstr ""
+msgstr "**تفصیل**: Cloudflare DNS ریکارڈز کو منظم کرنے کے لیے Data-constitude کردار (A/AAA، CNAME، MX، TXT، SRV) ایناکونڈاز اور ماحول میں"
 
+# translated-by: libretranslate
 msgid "**description**: Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
-msgstr ""
+msgstr "**تفصیل**: ہم‌عمروں کی ویڈیو میزبانی کرنے ، نشر کرنے اور زندہ نشر کرنے کے لئے موزوں ،"
 
+# translated-by: libretranslate
 msgid "**description**: Decentralized, federated platform for photo sharing and image feeds across the fediverse"
-msgstr ""
+msgstr "**تفصیل**: تصاویر کی تقسیم اور تصاویر کے لئے فراہم‌کردہ پلیٹ‌لیٹس"
 
+# translated-by: libretranslate
 msgid "**description**: Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr ""
+msgstr "**تفصیل**: ساتھیوں کے درمیان رابطے اور کمیونٹی کی عمارت کے لیے قابل ذکر سماجی شعوری کام کا پلیٹ فارم"
 
+# translated-by: libretranslate
 msgid "**description**: Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr ""
+msgstr "**تفصیل**: سیکورٹی اعزازات کے لیے منتظمین اکاؤنٹ کو ایس ایس ایچ کی کلید اور پاس ورڈ کی سند کے ساتھ شامل کیا گیا"
 
+# translated-by: libretranslate
 msgid "**description**: Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr ""
+msgstr "**تفصیل**: محفوظ پیشہ ورانہ رسائی کے لیے RSH-restrict کمانڈز اور پاس ورڈی رمزِ بعید تک رسائی کے ساتھ نظام حسابِ شمسی"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(']
+# nocheck: url
+# translation-rejected: **تفصیل**: کھیل مکمل کرنے کے بعد ایک بار نظام کی خدمات
+# جمع کرنے کے لیے ڈی این ایس اے (انگریزی:
 msgid "**description**: Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Desktop client for streaming music, playlists, and podcasts"
-msgstr ""
+msgstr "**تفصیل**: موسیقی ، ڈراما‌نگاروں اور گلوکاروں کے لئے کلائنٹ"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**مزید برآں: مدیر شبکہ میں گھر کھاتا ہوں
 msgid "**description**: Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "**تفصیل**گنوم Shell ان کا انتظام کرنے کے لئے ایک منظم آلے کو وسعت اور ترتیب دینا"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **تفصیل**: انٹرنیٹ مووی ڈیٹابیس (IMDb) پر Blu-ray ڈسک
+# ڈی کریپٹن کے لیے VLC اور AACD+ لیبارٹری کے ساتھ مل کر آرک لینکس پر کھیلا
+# جاتا ہے۔
 msgid "**description**: Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
-msgstr ""
+msgstr "**تفصیل**: دستاویزوں کے لئے دفتر کا سوٹ بچھانا ، کمپیوٹر بچھانا اور اِن پر حروف اور زبان کے حروف کے ساتھ پیش کرنا"
 
+# translated-by: libretranslate
 msgid "**description**: Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr ""
+msgstr "**تفصیل**: پردے کو ٹھنڈا کرنے اور سونے کے لئے تیار کریں، گنوم ڈیسک ٹاپ پر خود کار"
 
+# translated-by: libretranslate
 msgid "**description**: Desktop video conferencing client for online meetings, webinars, and screen sharing"
-msgstr ""
+msgstr "**تفصیل**: آن‌لائن اجلاسوں کے لئے ویڈیو کونسلنگ کلائنٹ ، ہمبینرز اور اسکرین شیئر"
 
+# translated-by: libretranslate
 msgid "**description**: Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr ""
+msgstr "**تفصیل**:3؂ شیئر کرنے کے لیے، پر کنسچر کی بوتل کی فراہمی ویب کے تمام کرداروں کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Distributed version control system for tracking source code changes and coordinating development work"
-msgstr ""
+msgstr "**تفصیل**: دائرۃ المعارف نسخہ کنٹرول سسٹم برائے جاسوسی ماخذ کوڈ تبدیلیوں اور کووردینٹنگ ترقیاتی عمل کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
-msgstr ""
+msgstr "**تفصیل**: Distro-construction base اوزار سازی کرتے ہیں۔ (لنک بنانے والے، لنک بنانے والے) ماخذ سے سوفٹ ویئر بنانے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr ""
+msgstr "**تفصیل**: Ducker Stock for ranked communication ڈیٹا بیس کے لیے بیک اپ، صارف اور اجازت نامہ انتظامیہ کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "**تفصیل**: دستاویزات کی ترمیم میں حقیقی وقت کے لیے دستاویزی سرور واپسنگ، پروڈیوس اور پیشکشیں"
 
+# translated-by: libretranslate
 msgid "**description**: Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
-msgstr ""
+msgstr "**تفصیل**: ڈرائیور نے ایم ایس آئی لیپ ٹاپ پر کنٹرول حاصل کرنے کے لئے اور آر جی بی کو روشن کرنے کے لئے"
 
+# translated-by: libretranslate
 msgid "**description**: Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
-msgstr ""
+msgstr "**تفصیل**: ای میل روبوٹ پلیٹ فارم کے لیے ایک مخصوص، نیٹ ورک-سی ڈی-"
 
+# translated-by: libretranslate
 msgid "**description**: End-of-play convergence of every deployed MCP client against the complete provider set"
-msgstr ""
+msgstr "**تفصیل**: مکمل فراہم کردہ سیٹ کے خلاف ہر شمارے میں شامل ہونے والے MCP کلائنٹ کا خاتمہ"
 
+# translated-by: libretranslate
 msgid "**description**: Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
-msgstr ""
+msgstr "**تفصیل**: انجن-اگنیسمک پرتگیزی تہ برائے مشترکہ کیچ، کوی، تلاش اور Victor engines کے ساتھ فی کس کنول فراہم کرتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
-msgstr ""
+msgstr "**تفصیل**: انٹرپرائز wiki اور ٹیم میں مواد بنانے ، منظم کرنے اور شیئر کرنے کے لیے پلیٹ فارم"
 
+# translated-by: libretranslate
 msgid "**description**: Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr ""
+msgstr "**تفصیل**: وسیع و عریض ویم پر مبنی کمانڈ لائن متن ایڈیٹر برائے ٹرمینل پرسنل کوڈ اور کیوبیک ایڈیٹنگ کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr ""
+msgstr "**تفصیل**: Federated شطرنج سرور برائے کھیل کھیلنے اور اس کی پیروی کرنے والے کھیلوں کے لئے Februs Pub کے دور میں کھیلوں اور پیروی کے لئے"
 
+# translated-by: libretranslate
 msgid "**description**: Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr ""
+msgstr "**تفصیل**: Federated, end-on-restruction پلیٹ فارم جس میں ایک ویب کلائنٹ اور پروٹوکول بریگیڈز کے ساتھ بیرونی چیٹ نیٹ ورکز تک موجود ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Federated, self-hosted platform for organizing events and building communities and groups"
-msgstr ""
+msgstr "**تفصیل**: واقعات کو منظم کرنے اور کمیونٹیز اور گروہوں کو تعمیر کرنے کے لیے فیرڈ، خود مختار پلیٹ فارم ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "**تفصیل**: فیڈریشن بریگیڈنگ لائن جوڑتی ہے (رنگ)، اے ٹی پروٹوکول (Bluesky). ، اور انڈی‌بی"
 
+# translated-by: libretranslate
 msgid "**description**: Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
-msgstr ""
+msgstr "**تفصیل**: ویب آر ٹی سی میں این ٹی ٹی سی اور حقیقی وقت رابطے کے لیے مفت اور کھلا ہوا ریلیز سرور۔"
 
+# translated-by: libretranslate
 msgid "**description**: Free and open-source desktop application for live video streaming and screen recording"
-msgstr ""
+msgstr "**تفصیل**: آزاد اور اوپنر ڈیسک ٹاپ درخواست برائے لائیو ویڈیو و اسکرین ریکارڈنگ کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Free and open-source desktop application for personal and small-business accounting and financial management"
-msgstr ""
+msgstr "**تفصیل**: ذاتی اور چھوٹے سرمایہ کاری اکاؤنٹ اور مالیاتی انتظامیہ کے لیے آزاد اور اوپنر ڈیسک ٹاپ درخواست۔"
 
+# translated-by: libretranslate
 msgid "**description**: Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
-msgstr ""
+msgstr "**تفصیل**: فرنٹ-ڈر جے ایس ٹرانسفارمنس والدین کی کھڑکیوں کو تبدیل نہیں کرتی اور بیرونی تعلقات کو نئے تبازوں میں منتقل کرتی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
-msgstr ""
+msgstr "**تفصیل**: فرنٹ-لائر بیس برائے ویب ایم ڈی- آئی ڈی:HTPS اساس، ریفٹ کلاؤڈفلائر سیٹ اپ اپ، اور پس منظر-پرکسی نقل و حمل -"
 
+# translated-by: libretranslate
 msgid "**description**: Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
-msgstr ""
+msgstr "**تفصیل**: جینیریکل اختتام پزیر ٹیسٹ سیریز میں ڈرافٹ کے اطلاق کے خلاف ڈریک میں کردار ادا کرنے والے کھلاڑیوں میں"
 
+# translated-by: libretranslate
 msgid "**description**: Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
-msgstr ""
+msgstr "**تفصیل**: جینیری کردار دولی سیلسین آئی او اطلاق کرتے ہیں اور دوسرے کرداروں میں سے گزرتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Global JavaScript injection layer for NGINX HTML responses via sub\\_filter, with CSP hashing"
-msgstr ""
+msgstr "**تفصیل**: عالمی جاوا Javascricp کیمیائی مرکب برائے NAX HTML جواب زیریں &"
 
+# translated-by: libretranslate
 msgid "**description**: Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr ""
+msgstr "**تفصیل**: NGINX-production کے لیے عالمی اسٹائل مکتوبات، روشنی کو آپس میں ملانا اور ایک فعال رنگوں سے سیاہی مائل کرنا"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**: ہارڈ ویئر اوپن ایس ایچ ڈی ایم ڈی-
 msgid "**description**: Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
-msgstr ""
+msgstr "**تفصیل**: ہارڈویئر ڈیسک ٹاپ ویب براؤزر کے ساتھ ساتھ نجی اور پاس ورڈ-منجر فضائیہ کے ذریعے انٹرپرائز پالیسیز کی مدد سے"
 
+# translated-by: libretranslate
 msgid "**description**: Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr ""
+msgstr "**تفصیل**: کسی بھی مقامی ماڈل سرور کے لئے اوپن ایل ایمس کے ساتھ API مزید نیٹ ورک"
 
+# translated-by: libretranslate
 msgid "**description**: Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
-msgstr ""
+msgstr "**تفصیل**▪ : یتیم بچوں کی صحت کا جائزہ لینے کے لئے اُن کی جِلدوں پر مشتمل ہوتی ہے جن میں سفید فام اور ہوشیار ہوتے ہیں ۔"
 
+# translated-by: libretranslate
 msgid "**description**: Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "**تفصیل**: معاون کردار CA- اعتماد کے لیے سرمایہ کاری کرتا ہے۔ Docker Compose سٹاکس اور پروجیکٹ CA کی سند کو منسوخ کرو"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**: میزبان- سطح وی پی این سروس برائے تحفظ قلب
 msgid "**description**: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
-msgstr ""
+msgstr "**تفصیل**: میزبانی کی سطح کی دیکھ بھال سسٹمڈ-جوورنلڈ انفنٹری ڈیمون کے ساتھ غیر واضح حدود اور زندہ لاگ ریزنگ کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
-msgstr ""
+msgstr "**تفصیل**: میزبانی کی سطح پر انحصار کرنے کی صلاحیت کو بلش اور زش لیس خلیات کو مشترکہ طور پر مشترکہ طور پر ملاتی ہے"
 
+# translated-by: libretranslate
 msgid "**description**: Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
-msgstr ""
+msgstr "**تفصیل**: منصوبے کی کھوج کے لیے میزبان کی سطح pyproject.toml نسخہ نظام شمسی کے ذریعے"
 
+# translated-by: libretranslate
 msgid "**description**: Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
-msgstr ""
+msgstr "**تفصیل**: میزبانی کی سطح کا کردار جڑی آر ایس اے کو فراہم کرتا ہے۔ 4096محفوظ انتظامی رسائی کے لیے bitSH کلید جوہر -"
 
+# translated-by: libretranslate
 msgid "**description**: Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr ""
+msgstr "**تفصیل**: Incloped پر مبنی راز، PKI اور خفیہ مینیجر کے ساتھ OIDCLI، گروپ-maresplicys اور Consical-seal-unseal-unseal ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr ""
+msgstr "**تفصیل**:-مریخی مرکزی کیچ اور دکان میں، مرکزی طور پر per-consumer ACL علیحدگی یا sidecar کے طور پر شیئر کیا جاتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
-msgstr ""
+msgstr "**تفصیل**: Infinito.Nexus تازہ کاری اور ہر رہائی کے لیے دستاویزات، اسفینکس کے ساتھ طلب پر بنائی گئی ہیں۔"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**. . . . .
 msgid "**description**: Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
-msgstr ""
+msgstr "**تفصیل**: نظام بندی یونٹوں کو منظم کرنے کے لیے مرکزی کردار : صفائی ، تناسب ، وقت اور مشترکہ ناکامی"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['[', ']']
+# nocheck: url
+# translation-rejected: **تفصیل**: Intel VA-API [حوالہ درکار] ہارڈ ویئر کے لیے
+# میڈیا ڈرائیور - ایکسیل ویڈیو ڈی کوڈ اور لینکس کی تقسیموں میں
 msgid "**description**: Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
-msgstr ""
+msgstr "**تفصیل**: تمام کا انٹرمیڈیٹ گراف نظریاتی عمل Infinito.Nexus آثارِقدیمہ کے لیے کردار اور ان کے القاب"
 
+# translated-by: libretranslate
 msgid "**description**: Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr ""
+msgstr "**تفصیل**: شمارے اور پروجیکٹ سافٹ وئیر ٹیموں کے لیے پلیٹ فارم ، یو ."
 
+# translated-by: libretranslate
 msgid "**description**: JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr ""
+msgstr "**تفصیل**: JavaScriptime runtime for system-side اطلاقیہ اور ترقی یافتہ ٹولنگ کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr ""
+msgstr "**تفصیل**: کیرنل بیکنڈ جو کوڈ چیٹ کو چلاتا ہے، براؤزر سینڈ باکس میں بجائے ایک برتن میں لکھتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr ""
+msgstr "**تفصیل**: Kernel-disociated Agency Agency a OpenAI-comptible کی خدمت میں وقت گزارتا ہے۔ API..."
 
+# translated-by: libretranslate
 msgid "**description**: Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
-msgstr ""
+msgstr "**تفصیل**: Kernel-isolating سانچہ:Carnel-isolating سانچہ:Sindbox بے اعتباری سے کام کرنے والا ایک مائیکرو وی ایم یا صارفی فضاء میں لوڈ کرتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr ""
+msgstr "**تفصیل**: Kernel-level NFS سرور کے لیے ایک مشترکہ خانہ بدوش درخت کو برآمد کرنے کے لیے جس میں پی آئی-وی-ڈی-نوڈے کے میزبانوں کے لئے رسائی ہوتی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
-msgstr ""
+msgstr "**تفصیل**: پیش لفظ TLS cepting Exchangement assuance اور موجودگی کے لیے."
 
+# translated-by: libretranslate
 msgid "**description**: Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
-msgstr ""
+msgstr "**تفصیل**: لیبرٹرو پر مبنی فرنٹنگ فار ایمولر، گیم انجن اور میڈیا کھلاڑیوں کے لیے جن میں ایکس ایم او اوزان مینو اسٹائل ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
-msgstr ""
+msgstr "**تفصیل**: روشنی کے وزن کے حساب سے ایم ٹی پی کلائنٹ اور ایک بیرونی ایس ٹی پی سرور کے ذریعے ڈاک بھیجنے کے لیے میل بھیج دیتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr ""
+msgstr "**تفصیل**: ہلکے وزن خودبخود Git کوڈ پرفارمنس ، ورژن کنٹرول اور محفوظ انتظامیہ کی خدمات"
 
+# translated-by: libretranslate
 msgid "**description**: Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr ""
+msgstr "**تفصیل**: ڈومین ڈومینز کے نام کا مقامی نام ، میریہوستنام کے ذریعے کام کرتا ہے NSS طےشدہ"
 
+# translated-by: libretranslate
 msgid "**description**: Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
-msgstr ""
+msgstr "**تفصیل**: Local special-signed Russe CA for settlement settlement as inner TLS orpols قبول کرتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr ""
+msgstr "**تفصیل**: Local-پہلی کراس پلیٹ فارم ڈیسک ٹاپ منیجر ایک غیر مجاز Kee-format ڈیٹا بیس میں متن محفوظ کرتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr ""
+msgstr "**تفصیل**: مقامی-پہلے اطلاعی کمانڈ سینٹر جو Slack، ڈاک اور شمار کنندگان کو ایک قابل عمل کارڈ میں داخل کرتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
-msgstr ""
+msgstr "**تفصیل**: جب تک اہم کام بند نہ ہو جائے ، اُس وقت تک کام بند نہ ہو جائے جب تک آپ کو دوبارہ شروع نہ کرنا پڑے ۔"
 
+# translated-by: libretranslate
 msgid "**description**: Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr ""
+msgstr "**تفصیل**: Loopback- واحد پوسٹفیکس ریلویز برائے ہلکے وزنی میل کی ادائیگی کے لیے مقامیہوست کے ذریعے جب کوئی مرکزی ڈاک ٹکٹ نہیں چلتا"
 
+# translated-by: libretranslate
 msgid "**description**: Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
-msgstr ""
+msgstr "**تفصیل**: تخلیق، جانچنے اور نشر کرنے کے لئے کم کوڈ کے طور پر LM اور RG کام کے حصص بطور HTP ختم کرنے کے"
 
+# translated-by: libretranslate
 msgid "**description**: Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "**تفصیل**: مارکر کردار میزبان کی حیثیت سے میزبانی کرتا ہے۔ Docker Swarm انتظاميه، انت منطقي حساب کے ساتھ svc-swarm-node"
 
+# translated-by: libretranslate
 msgid "**description**: Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "**تفصیل**: Meta Research engine for web results کے لیے پلیٹ فارم کی ضرورت کے بغیر کسی صارف کی انفصرام کو تلاش کرنے کے لیے استعمال کیا جاتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr ""
+msgstr "**تفصیل**: منیمال ٹرمینل کوڈ ایجنٹ جس میں سست رفتار مہارت کے نظام کے ساتھ، پلیٹ فارم کے خود ماڈل سیریز کی طرف پھینک دیا گیا"
 
+# translated-by: libretranslate
 msgid "**description**: Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
-msgstr ""
+msgstr "**تفصیل**: Multi language masscaster with spectural Dictionary gravision for ڈیسک ٹاپ اینڈ آفس متن کی تدوین"
 
+# translated-by: libretranslate
 msgid "**description**: NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
-msgstr ""
+msgstr "**تفصیل**: نوجوانوں کے لئے 301 ماخذ سے مراد ڈومینکس کو سرچ فوجیوں کے لیے خودکار ایس ایل کے ساتھ نشانہ بنانے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
-msgstr ""
+msgstr "**تفصیل**: جی این ٹی پی ایس کے لئے GGINX see for HTPS کے ساتھ ACME چیلنجلنگ، بندرگاہ کے ساتھ 80 جگہ 443 آتش‌فشاں پہاڑ"
 
+# translated-by: libretranslate
 msgid "**description**: NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr ""
+msgstr "**تفصیل**: NGINX سرور بلاکس جو مستقل طور پر www subdomains to an-www Apex Domines"
 
+# translated-by: libretranslate
 msgid "**description**: NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "**تفصیل**: Matomo Analytics اسکرپٹ اور noscrript تصویری گلوکار ایچ ٹی ایم ایل صفحات کی خدمت کرنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr ""
+msgstr "**تفصیل**: این این ٹی ایم ایل کی ویب سائٹس پر ایچ ٹی ایم ایل کی ویب سائٹوں پر خودکار اجازت نامہ کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
-msgstr ""
+msgstr "**تفصیل**: این ڈی این اے پر مبنی ویب پلیٹ فارم اور دوبارہ انفلیشن کے ساتھ ساتھ انفنٹری اور انفنٹری کو غیر فعال کرنے دیں"
 
+# translated-by: libretranslate
 msgid "**description**: NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr ""
+msgstr "**تفصیل**: جی‌نہیں ۔ (یمن) جنجا سے2 گر تے هو ئے"
 
+# translated-by: libretranslate
 msgid "**description**: Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
-msgstr ""
+msgstr "**تفصیل**: نیٹ ورک بھر میں تمام ڈیوائسز اور پلیٹ فارمز کو بند کرنے کے لئے نیٹ ورک-سی ڈی-"
 
+# translated-by: libretranslate
 msgid "**description**: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr ""
+msgstr "**تفصیل**: این اے ٹی یا فائرنگ کے پیچھے چلنے والی ایک وی‌ٹی‌ٹی‌ایم‌مین کی جانب سے چلنے والی ایم‌ٹی‌ٹی‌ایم‌ایس‌ایم‌ایس کرنے والی مددگار"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**:
 msgid "**description**: Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr ""
+msgstr "**تفصیل**:"
 
+# translated-by: libretranslate
 msgid "**description**: Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
-msgstr ""
+msgstr "**تفصیل**:"
 
+# translated-by: libretranslate
 msgid "**description**: Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr ""
+msgstr "**تفصیل**: Nginx- بنیاد پرست سرور برائے سرمایہ کاری ایک سرچ ڈائریکٹر سے ویب ڈیٹا راستے میں نقل کی گئی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "**تفصیل**: Node.js پیکج مینجر نے ایک پروجیکٹ ڈائریکٹر کے اندر 'npm Sc' چلاتی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "**تفصیل**: اوبطاب-storage تہہ کے لیے SeaweedFS/MinIO دوبارہ حل اور ڈیڑھ کلو میٹر کی بوتل اور ٹھوس فراہمی"
 
+# translated-by: libretranslate
 msgid "**description**: On-target automation for creating and activating swap space via a cloned swapfile script"
-msgstr ""
+msgstr "**تفصیل**: on-target Autonomation formation for a cepting squip space space کے ذریعے a cell space -"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
-msgstr ""
+msgstr "**تفصیل**: اوپن- سرسید سی آر ایم پلیٹ فارم برائے فروخت، مشتری انٹرٹینمنٹ اور کاروباری عملے کی ٹیموں کے دور میں"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
-msgstr ""
+msgstr "**تفصیل**: Open-source CRM پلیٹ فارم برائے فروخت، سروس، معاملات اور مواصلاتی انتظامیہ کے ساتھ کام کرنے کے ساتھ ساتھ کام کرتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
-msgstr ""
+msgstr "**تفصیل**: اوپن- سرسید اے آر پی سوٹ فار سی آر ایم، فروخت، حساب، جھوٹ، ایچ آر اور ویب سائٹ انتظامیہ کے لیے ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source IT and application monitoring server behind SSO with native LDAP user management"
-msgstr ""
+msgstr "**تفصیل**: Open-source IT اور اطلاقیہ SO کے پیچھے کے سرور کے ساتھ مقامی ایل ڈی اے پی صارف انتظامیہ کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source IT asset management system for tracking hardware and software inventory"
-msgstr ""
+msgstr "**تفصیل**: اوپن-source آئی ٹی سرمایہ کاری نظام برائے ہارڈ ویئر اور سافٹ ویئر فنکاری"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
-msgstr ""
+msgstr "**تفصیل**: اوپن- سرسید آئی ایس ایم او امدادی پلیٹ فارم ہے۔ (عالمی اُفق) ٹکٹ، سی ایم ڈی بی، علم بصری اور اطلاع کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
-msgstr ""
+msgstr "**تفصیل**: اوپن- سرسید پروجیکٹ انتظامیہ کے لیے اسکروم، قنبانی اور ہیبئی ٹیم کے لیے کام کرنے والے پلیٹ فارم ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
-msgstr ""
+msgstr "**تفصیل**: اوپن-source Autonomation سرور فار سی آئی/سی ڈی پائپ لائنز، عمارت اور پلگ انفلیشن کے عملے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr ""
+msgstr "**تفصیل**: اوپن سرسید کمیونٹی جواب پلیٹ فارم جمع کرنے، ووٹ ڈالنے اور اس میں موجود طلبہ اور نظریات کو ترجیح دینے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source content management system for building websites, intranets, and online applications without writing code"
-msgstr ""
+msgstr "**تفصیل**: اوپن سرسید مواد انتظامیہ برائے تعمیراتی ویب سائٹس، انٹرانیٹس اور آن لائن اطلاقیات کو تحریری کوڈ کے بغیر لکھتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
-msgstr ""
+msgstr "**تفصیل**:"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source discussion and community forum platform with moderation, notifications, and plugin support"
-msgstr ""
+msgstr "**تفصیل**: اوپن سرسید بحث و مباحثہ کے پلیٹ فارم میں اعتدال، اطلاعات اور پلگن کی حمایت کرتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
-msgstr ""
+msgstr "**تفصیل**: Open-source Ecommerce پلیٹ فارم جو Symfony اور پر بنایا گیا ہے۔ Vue.js تعمیر اور انٹرنیٹ کی دکانیں"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr ""
+msgstr "**تفصیل**: اوپن سرسید ای میل، چیٹ، فون اور ویب کے ذریعے مشتری کی درخواستوں کے لیے اور ٹکٹوں کے نظام کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source learning management system for creating, managing, and delivering online courses and e-learning"
-msgstr ""
+msgstr "**تفصیل**: اوپن سرسید درس نظامی تخلیق، انتظامیہ اور آن لائن کورسز اور ای-ای-ای-ای-"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr ""
+msgstr "**تفصیل**: اوپن سرسید کی نگرانی اور نگرانی کرنے کے لیے میٹرکس کو وقت کے حساب سے محفوظ کرنے اور انہیں پریم کیل کے ساتھ شامل کرنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source participatory democracy platform for public consultations, civic processes, and community voting"
-msgstr ""
+msgstr "**تفصیل**: عوامی مشاورت، مواصلاتی عملے اور کمیونٹی ووٹوں کے لیے اوپن- سکیورٹی ڈیموکریٹک پلیٹ فارم"
 
+# translated-by: libretranslate
 msgid "**description**: Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
-msgstr ""
+msgstr "**تفصیل**: اوپن سرسید، خود مختار ٹیم کے پلیٹ فارم کے ذریعے چینلوں، نعروں اور انفلیشنوں کے ذریعے حقیقی وقت کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr ""
+msgstr "**تفصیل**: OpenAI-comptible LLMATED a single / V1 مقامی اور میزبانی شدہ ماڈل بیک تابعین کے ساتھ اختتام پزیر ہوتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr ""
+msgstr "**تفصیل**: OpenJDK 11 وقت اور ترقی کے لیے Java Pacman پر مبنی نظاموں پر اطلاق ہوتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: OpenSSH client package for secure remote shell access and key-based authentication"
-msgstr ""
+msgstr "**تفصیل**: OpenSH کلائنٹ پیکج محفوظ دور شیل رسائی اور کلیدی تصدیق کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr ""
+msgstr "**تفصیل**: سی، سی++ اور دیگر مقامی زبانوں کے پروگراموں کی تعمیر کے لیے Optiming Coloper toolchain -"
 
+# translated-by: libretranslate
 msgid "**description**: Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
+msgstr "**تفصیل**: Orchstration Camper for per-domain NAX کے لیے TLS سند، vost Templates اور Outh کے ساتھ فراہم کی جاتی ہے۔2"
 
+# translated-by: libretranslate
 msgid "**description**: Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
-msgstr ""
+msgstr "**تفصیل**: جی این ڈی- آئی ڈی:"
 
+# translated-by: libretranslate
 msgid "**description**: Package manager for installing and managing Python packages on the target host"
-msgstr ""
+msgstr "**تفصیل**: ہدف میزبانی پر پائیو نِک پیکجوں کی تنصیب اور انتظامیہ"
 
+# translated-by: libretranslate
 msgid "**description**: Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
-msgstr ""
+msgstr "**تفصیل**: پیر وسیم ہرمز اور OpenClaw ایجنٹوں نے ایک OpenAI-compatible اختتامی پوائنٹ کے پیچھے مانگنے کی ابتدا کی۔"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**. .
 msgid "**description**: Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr ""
+msgstr "**تفصیل**: مستقل نظام صارف ایس ایچ ایجنٹ برائے وائی لینڈ ڈیسک ٹاپ کے ساتھ Git"
 
+# translated-by: libretranslate
 msgid "**description**: Placeholder stub role for a future XMPP server/container deployment, implementation pending"
-msgstr ""
+msgstr "**تفصیل**: مستقبل کے لئے جگہ‌دار اسلوب XMPP سرور/سر-مصدر ، فعال کریں"
 
+# translated-by: libretranslate
 msgid "**description**: Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr ""
+msgstr "**تفصیل**: Plug-Triggered system for system for re-link dedupted system of the local arup درخت کے مقامی پستول کے ذریعے ایک قابل استعمال USB اوزار پر لگا دیا گیا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
-msgstr ""
+msgstr "**تفصیل**: Policy-manage web براؤزر فار آرک لینکس ڈیسک ٹاپز کے ساتھ آٹو-انسٹ انفنٹری کارپوریشن توسیعات کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
-msgstr ""
+msgstr "**تفصیل**: پاور-معروف سسٹم کنٹرول کرنے کے لیے لیفٹ لیپ ٹاپ لیڈ قابل استعمال طرزِ عمل کی حامل"
 
+# translated-by: libretranslate
 msgid "**description**: Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
-msgstr ""
+msgstr "**تفصیل**: خاندانوں کے لئے پہلی سماجی پلیٹ فارم، ویب آر آر ٹی سی پر"
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['والے/سر/س']
+# nocheck: url
+# translation-rejected: **تفصیل**: انعامات-scalation پیکج اور سخت سُست کرنے
+# والے/سر/سُو/سُول کرنے والے
 msgid "**description**: Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
-msgstr ""
+msgstr "**تفصیل**: Propriryary U ڈرائیور ڈرگ غیر آزاد ہارڈ ویئر کے ذریعے آرک پر مبنی نظام کے لیے تنصیب کار چلائیں"
 
+# translated-by: libretranslate
 msgid "**description**: Provisioning role for Cloudflare wildcard DNS records (\\*.parent) on parent hosts and the apex domain"
-msgstr ""
+msgstr "**تفصیل**: کلاؤڈفلئر جنگلی کارڈ ریکارڈز کے لیے فراہم کرنا (٭*. . .) والدین کی میزبانی اور apex ڈومین پر"
 
+# translated-by: libretranslate
 msgid "**description**: Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
-msgstr ""
+msgstr "**تفصیل**: کام‌کاج کے حساب کے لئے کردار فراہم کرنا اس کے شیل ڈ‌ٹز ، ایس‌ایس ایچ اجازت‌یافتہ کلیدوں اور ماحول کے ساتھ"
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['http://keys.']
+# nocheck: url
+# translation-rejected: **تفصیل**: پر وفاقی ماحول کے لیے فراہم کردہ کردار
+# فراہم کرنا، شیل ڈtfiles اور ایس ایس ایچ کی اجازت نامہ http://keys.
 msgid "**description**: Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized\\_keys"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
-msgstr ""
+msgstr "**تفصیل**پبلک ریلی API کرداروں کے اعداد و شمار، تاریخ اور تراجم کی خدمت کرتے ہیں۔ Infinito.Nexus ہر ایک کے لیے مرکز اور مرکز"
 
+# translated-by: libretranslate
 msgid "**description**: Python CLI package manager for cloning multiple code repositories and automating common Git operations"
-msgstr ""
+msgstr "**تفصیل**: Pinsian ConstI پیکج مینیجر برائے زیادہ سے زیادہ کوڈ دوبارہ استعمال کرنے اور خودکارنگ عام کے لیے Git عمل"
 
+# translated-by: libretranslate
 msgid "**description**: Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr ""
+msgstr "**تفصیل**: GitHub-constant آلات کے لیے جاری کی جانے والی برآمدات"
 
+# translated-by: libretranslate
 msgid "**description**: Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr ""
+msgstr "**تفصیل**جواب : Git خالی کالونیوں کے لیے، غیر محفوظ تجدید، ٹیگ اپنگ اور قابل اعتماد تبدیلی کے لیے کھینچیں"
 
+# translated-by: libretranslate
 msgid "**description**: Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr ""
+msgstr "**تفصیل**: دوبارہ قابلِ تلافی ایم سی پی ایک تنگ سی سطح کو ظاہر کرنے والا"
 
+# translated-by: libretranslate
 msgid "**description**: Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
-msgstr ""
+msgstr "**تفصیل**: Doker-hosted خدمات کے لیے Decrety first-de کے ساتھ خودکار ٹی ایل ایس، ویب سووکی حمایت اور per-app vost Templing کے ساتھ-"
 
+# translated-by: libretranslate
 msgid "**description**: Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr ""
+msgstr "**تفصیل**: Friety-proxy TLS scription celling Le's institution, seconfed, یا معذور سند فراہم کرنے والے فراہم کنندگان کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
-msgstr ""
+msgstr "**تفصیل**: Saint-Acre-Act-Conferved province province for the پیش-پرox TLS کی سند کے لیے اپنے آپ کو جانچنا اور ذخیرہ کرنا"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
-msgstr ""
+msgstr "**تفصیل**: ایک این ایف ایس برآمدات کے ایک مقامی بیک‌اپ درخت میں تبدیل ہو جانے کے لیے تیار کئے جانے والے مختلف رنز کی کارکردگی"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
-msgstr ""
+msgstr "**تفصیل**: غیر فعال سندوں کو منسوخ کرنے اور منسوخ کرنے کے لیے تیار شدہ صفائی کا ذریعہ"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
-msgstr ""
+msgstr "**تفصیل**: میزبان راز ، CA ، CCME سندوں اور مقامی پیشہ‌ور ڈائریکٹروں کی شناخت"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr ""
+msgstr "**تفصیل**: ایک مقامی شعبے کے ساتھ‌ساتھ دُنیا کے برتنوں میں تبدیل ہونے والے برتنوں کے لئے تیار کئے جاتے ہیں"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
-msgstr ""
+msgstr "**تفصیل**: Scheduled Health sective owns downs for CSP-refeed source for a Poppeteer-resideed on a Poppetteer کے ذریعے Node.js چیکر"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
-msgstr ""
+msgstr "**تفصیل**: Btrfs فائل کے لیے Scheduled Health چیک چیک کریں جو غیر ضروری اوزار غلطی کے خلاف آگاہی دیتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
-msgstr ""
+msgstr "**تفصیل**: فائل سسٹم کے استعمال کے لیے صحت کی جانچ پڑتال کریں ، خبردار رہیں جب کوئی پہاڑ اپنی آگاہی کی حد سے تجاوز کر جاتا ہے"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
-msgstr ""
+msgstr "**تفصیل**: ٹیسٹڈ ہیلتھ چیک سکیننگ نظام صحافت کو روزانہ غلطیوں کے لیے اور میچوں کے بارے میں آگاہ کرتے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
-msgstr ""
+msgstr "**تفصیل**: Scheduled Health چیک کی تصدیق ہر NAX ڈومین اپنی متوقع ایچ ٹی پی کی حیثیت واپس لے جاتا ہے اور رد عمل پر ہوشیار رہتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
-msgstr ""
+msgstr "**تفصیل**▪ حالیہ وضع‌قطع برقرار رکھنے کے دوران ذمہ‌داریوں کو پورا کرنے میں ناکامی"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
-msgstr ""
+msgstr "**تفصیل**: اِس سے ظاہر ہوتا ہے کہ اِس بیماری کی وجہ سے اُن کی صحت خراب ہو جاتی ہے ۔"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
-msgstr ""
+msgstr "**تفصیل**: اس میزبان پر زیادہ سے زیادہ ایس ایچ اور رننک کے طور پر تیار کردہ میزائلوں کے طور پر"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**: جب ڈسک کا استعمال ایک حد سے زیادہ ہوتا ہے
 msgid "**description**: Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr ""
+msgstr "**تفصیل**: Scheduled systemd Service and Timer for rebalaning Btrufs فائل سسٹمز کے ذریعے محفوظ رکھنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
-msgstr ""
+msgstr "**تفصیل**: Scheduled systemd-timer working Lu's institution SSL/TLS سندوں کے ذریعے Certbot اور اس کے بعد"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
-msgstr ""
+msgstr "**تفصیل**: خود کار طور پر کام کرنے والوں کے لئے GitHub کام کی ملازمتوں میں کام کرنا"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr ""
+msgstr "**تفصیل**: خود مختار دیوان پلیٹ فارم برائے Git ماخذ-کوڈ انتظامیہ، سی آئی اے/سی ڈی پائپ لائنس اور مسئلے کی جانچ پڑتال"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
-msgstr ""
+msgstr "**تفصیل**: خود مختاری کی دیوار کو زندہ موشنرے میں حالیہ عوامی پوسٹس یا اکاؤنٹ سے ظاہر کرنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr ""
+msgstr "**تفصیل**: خود کار :5 براؤزر میں ہلکی وزنی انجن ڈیم اور کھیلوں کے لیے کھیلا جاتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
-msgstr ""
+msgstr "**تفصیل**: خود مختار LDAP ڈائریکٹری خدمات مرکزی ترقی یافتہ صارف، گروپ اور اسکیم انتظامیہ کے لیے TLS-P کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr ""
+msgstr "**تفصیل**: خوددار S3فائلوں، میڈیا، کمروں اور آئینی مواد کے لیے -"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
-msgstr ""
+msgstr "**تفصیل**: خوددار System One ایسی کلاس‌ئر جو ایسے سوالات کا جواب دیتی ہے تاکہ وہ کسی بھی طریقے سے گاڑی چلا سکے ۔"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **تفصیل**: خود کار طور پر تیار کردہ اناطولیہ
+# (Analytics) کے ساتھ مل کر تخلیق کرنے، ان کی جانچ کرنے اور ان کی ترتیب کے لیے
+# مختصر تعلقات کا انتظام کرنا
 msgid "**description**: Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr ""
+msgstr "**تفصیل**: خود کار ویب آر ٹی سی پلیٹ فارم کے اختتام کے لیے قابل اعتماد ویڈیو کونسلنگ جس میں فیڈرل توثیق کی گئی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr ""
+msgstr "**تفصیل**:خود کار براؤزر ٹول برائے متن سے QR کو کوڈ منتقل کرنے یا نجی طور پر مقامی ترجمے کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr ""
+msgstr "**تفصیل**: مقامی اور نجی آئی اے ماڈلز کے ذریعے رابطہ کرنے کے لیے خود کار گفتگو Ollama"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr ""
+msgstr "**تفصیل**: فائل سنک کے لیے خود مختار بادل پلیٹ فارم، شیئر، حقیقی وقت کی پیمائش اور ٹیم آپ کے اپنے ڈومین کے تحت فضاء کا کام کرتی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
-msgstr ""
+msgstr "**تفصیل**: خود کار ڈاٹ سرور کے ساتھ ساتھ اوپن اے ٹی پروٹوکول پر سوشل نیٹ ورک پر خود کشی کی گئی۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
-msgstr ""
+msgstr "**تفصیل**: خود ساختہ ڈیزائن اور پروٹانگ پلیٹ فارم فار یو آئی اے/UX کام، حقیقی وقتی کارکردگی اور ترقی یافتہ ہینڈوف ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
-msgstr ""
+msgstr "**تفصیل**: خود مختار ای کامرس پلیٹ فارم برائے کیٹلاگ انتظامیہ، چیک آؤٹ، فروغ اور کثیر الاشاعت آن لائن مہرے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr ""
+msgstr "**تفصیل**: خود غرضی سے تیار کردہ فقہی اور علم النجوم پلیٹ فارم جس میں انفنٹری اور ایپ پر مبنی برقیات ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr ""
+msgstr "**تفصیل**: خود نوشت تحقیق اور پڑھنے کا پلیٹ فارم"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr ""
+msgstr "**تفصیل**: خود مختار سوشل نیٹ ورک مائیکرو بلاگنگ، حقیقی وقتی اور کمیونٹی اعتدال پسندی کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
-msgstr ""
+msgstr "**تفصیل**: یک نشان دہی، کثیر تصدیق اور صارف فیڈریشن کے لیے خود شناسی اور رسائی کا انتظامیہ پلیٹ فارم ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr ""
+msgstr "**تفصیل**: خدمات اور تعمیراتی کام کو آپس میں جوڑنے کے لیے خود کارگومنٹ پلیٹ فارم"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
-msgstr ""
+msgstr "**تفصیل**: خود کار ڈاک سرور سوٹ کے ساتھ SMTP/IMAP/POP3، ویب میل، اسپم فیلڈنگ، اینٹیویرس، DKIM پر دستخط اور TLS"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr ""
+msgstr "**تفصیل**: خود مختار میڈیا سرور برائے فلموں، ٹی وی، موسیقی اور تصاویر کے ساتھ OIDC اور LDAPLPL کے ساتھ ساتھ فلموں، ٹی وی، موسیقی اور تصاویر کے لیے خود مختار میڈیا سرور ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr ""
+msgstr "**تفصیل**: خود مختار ماڈل سرور کے لئے API"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr ""
+msgstr "**تفصیل**: خودبخود نو آبادیاتی ڈیٹابیس پلیٹ فارم جس میں ڈیٹا کی تعمیر کے لیے ایک بکھرے ہوئے چہرے کی طرح کا رخ کیا جاتا ہے۔"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**: خود کش آن لائن دفتر واپس آ رہا ہے
 msgid "**description**: Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
-msgstr ""
+msgstr "**تفصیل**: خود مختار اوپن ایرپی سوٹ فار معاشیات، سی آر ایم، مصنوعات، صنعت، ایچ آر، فروخت اور منصوبوں کے لیے خود مختاری کا ذریعہ ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted open-source machine translation API for translating and detecting text across languages"
-msgstr ""
+msgstr "**تفصیل**: خود ساختہ اوپن سرسید مشین کا ترجمہ API زبانوں میں ترجمے اور متن کو جانچنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr ""
+msgstr "**تفصیل**: خود مختار شخصی آئی اے ایجنٹ ایک براؤزر کنٹرول یو آئی کے ساتھ، ریتلے بکس ایک کیٹا مائیکرو وی ایم یا جی وائسر دوڑ میں"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr ""
+msgstr "**تفصیل**: فائل سنک، شیئر اور تعاون کے لیے خود مختار پلیٹ فارم Keycloak ایس ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **تفصیل**: خبروں کے لیے خود مختار پلیٹ فارم اور ارسال
+# فہرستوں کے ساتھ ساتھ اناطولیہ (Aalytic) بھی ہے۔
 msgid "**description**: Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted platform for online accounting, bookkeeping, and business finance management"
-msgstr ""
+msgstr "**تفصیل**: آن لائن حساب، کتاب نگرانی اور کاروباری مالیاتی انتظام کے لیے خود مختار پلیٹ فارم"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr ""
+msgstr "**تفصیل**: پروجیکٹ انتظامیہ کے لیے خود مختار پلیٹ فارم، کام-پج منصوبہ بندی، گینت منصوبہ بندی اور ٹیم کی حوصلہ افزائی کرتی ہے۔"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **تفصیل**: خود کار طور پر تمام ایبٹ آباد تک رسائی کے
+# لیے
 msgid "**description**: Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr ""
+msgstr "**تفصیل**: آن لائن فروخت، رجسٹریشن انتظامیہ اور محفوظ ادائیگیوں کے ساتھ واقعات کے لیے خود مختار ٹکٹنگ پلیٹ فارم۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
-msgstr ""
+msgstr "**تفصیل**: خود کار ویب کانفرنسنگ پلیٹ فارم برائے ویژیول کلاسز، آن لائن اجلاسوں اور حقیقی وقت کی امداد کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
-msgstr ""
+msgstr "**تفصیل**: خود مختاری، تنظیم، میزبانی اور آپ کی موسیقی اور آڈیو لائبریری کو چلانے کے لیے فیڈرل پلیٹ فارم۔"
 
+# translated-by: libretranslate
 msgid "**description**: Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr ""
+msgstr "**تفصیل**: خود مختار، نجی-پہلے ویب اناطولیہ پلیٹ فارم کے لیے حقیقی وقت کی آمد اور سائٹ میٹرکس کے لیے"
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['www.instrictive.org']
+# nocheck: url
+# translation-rejected: **تفصیل**: سروس-ریجنسی کردار کینونیکل
+# www.instrictive.org`css\` سی‌ایس‌ایس‌ایس‌ڈی‌این‌اے کے جھنڈے اور ڈیزائن
 msgid "**description**: Service-registry role owning the canonical \\`css\\` flag and redirecting the CSS hostname to the CDN upstream"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
-msgstr ""
+msgstr "**تفصیل**: شیئرڈ میزبان اوپن ایس ایس ایل ایس ایل ایس ایل آئی کو شروع کرنے کے لیے ایک بار نصب کیا جاتا ہے"
 
+# translated-by: libretranslate
 msgid "**description**: Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr ""
+msgstr "**تفصیل**: شیئر کردہ پیام برائے Assync reloper for per-consumer viration میزبان اور صارف تنہائی"
 
+# translated-by: libretranslate
 msgid "**description**: Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "**تفصیل**: تمام ڈیسک ٹاپ کردار کی شیئر کریں، رجسٹریشن کا اکاؤنٹ اس کی فائلوں سے منسلک"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **تفصیل**: شیئر کردہ معلوماتی ڈیٹا بیس سرور برائے
+# اطلاقیات مرکزی ڈی این ایل ذخیرہ (انگریزی: Central Encial database) جو Decker
+# میں واقع ہے۔
 msgid "**description**: Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "**تفصیل**: تنہائی میں تبدیلی پُب کتابِ‌مُرکینگ سائٹ نے عوامی کتاب بُک کی تیاری کی Mastodon اور اُڑنے والی"
 
+# translated-by: libretranslate
 msgid "**description**: Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
-msgstr ""
+msgstr "**تفصیل**: Smart-home Autonomation used with destructions, Constructions, and a بنایا-in MCP سرور برائے AI ایک ایجنٹ رسائی"
 
+# translated-by: libretranslate
 msgid "**description**: Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr ""
+msgstr "**تفصیل**: سلطان اوپن اوپن- سرسید ویڈیو کونسلنگ پلیٹ فارم فار آڈیو/ویدو کال، اسکرین شیئر، ٹوٹنے والے کمرے اور ایس یو او کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
-msgstr ""
+msgstr "**تفصیل**: Static فائل سرور پر ایچ ٹی ٹی پی ایس پر ڈائریکٹر لسٹنگ، ویل شناخت کنندہ اور خودکار ٹی ایل ایس سند کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "**تفصیل**: سٹیٹک سائٹ کے ایجنٹ ایچ‌ایم‌ایل کی تعمیر کو ایک ایسی مشین سے تیار کرتے ہیں جس کے ذریعے اُن کا وزن بڑھ جاتا ہے ۔ Git وقتاًفوقتاً محفوظ رہیں اور ینگکس کے ذریعے اس کی خدمت کریں"
 
+# translated-by: libretranslate
 msgid "**description**: System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
-msgstr ""
+msgstr "**تفصیل**: اِس عمل کو قائم کرنے اور اِسے قائم کرنے کے لیے نظامِ انتظامیہ کا کردار locale.gen اور locale.conf رنگ"
 
+# translated-by: libretranslate
 msgid "**description**: System hostname configuration derived from the inventory host entry"
-msgstr ""
+msgstr "**تفصیل**: مصنوعی میزبان داخلے سے حاصل کردہ نظام میزبانی"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: **تفصیل**: پیکج انڈیکس کو تازگی بخشنے اور OS پیکج
+# مینیجر کے ذریعے نصب کردہ پیکج پیکج پیکج پیکج پیکج پیکج پیکجوں کو تازہ کرنے
+# کے لیے سسٹم-
 msgid "**description**: System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr ""
+msgstr "**تفصیل**: شیل سے سارے خود مختار پلیٹ فارم ماحول کو منظم کرنے اور چلانے کے لیے نظام کمانڈ لائن ری ایکٹر"
 
+# translated-by: libretranslate
 msgid "**description**: System-wide pip helper for installing or upgrading a Python package via the host's system Python"
-msgstr ""
+msgstr "**تفصیل**: میزبان کے نظام پائیپ کے ذریعے ایک پائیک پیک بنانے یا اپ گریڈ کرنے کے لئے سسٹم پیپ مددگار"
 
+# translated-by: libretranslate
 msgid "**description**: Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "**تفصیل**: Sincing L's institution کی سندوں کے لیے سسٹم سروس اور ٹائمر کے لیے Docker Compose گرین ایکسچینج جس میں گرم رفتار ہوتی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
-msgstr ""
+msgstr "**تفصیل**: کام کو شروع کرنے کے لئے کیلنڈر کے شیڈول پر کام شروع کرنے کیلئے نظام‌گیر یونٹ"
 
+# translated-by: libretranslate
 msgid "**description**: Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
-msgstr ""
+msgstr "**تفصیل**: سسٹم صاف ستھرائی سروس انفلیشن ڈکار جِن دِن دِن جِلد کے علاوہ تصویریں ، جالیں ، جالیں اور کیچ کی تعمیر"
 
+# translated-by: libretranslate
 msgid "**description**: Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "**تفصیل**: نظامت مکمل طور پر سنبھالے ہوئے کردار کے لیے۔ Docker Compose اسٹاک دوبارہ شروع، اسٹاک کے لئے سخت دوبارہ شروع کرنے کے ساتھ Mailu"
 
+# translated-by: libretranslate
 msgid "**description**: Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr ""
+msgstr "**تفصیل**: بے روزگاری یا بے روزگاری کی جانچ پڑتال کے لیے نظام وقت کی نگرانی اور ناکامی کے شعور کو بیدار کرنا"
 
+# translated-by: libretranslate
 msgid "**description**: Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
-msgstr ""
+msgstr "**تفصیل**: System-Triggered msmtp Notifer for election آپریٹرز جب ایک نگرانیی سروس یونٹ ناکام ہوتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr ""
+msgstr "**تفصیل**: سسٹم-ٹوگریڈ نوٹائفر فار سروس-کریٹریٹ کی ایک ٹیلی گرام چیٹ کے لئے"
 
+# translated-by: libretranslate
 msgid "**description**: Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "**تفصیل**: Anthropic کی جانب سے ٹرمینل کوڈ ایجنٹ نے پلیٹ فارم کی خود مختاری پر نشان لگایا API"
 
+# translated-by: libretranslate
 msgid "**description**: Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "**تفصیل**: اوپنآئی کے ٹرمینل کوڈ ایجنٹ نے پلیٹ فارم کی خود مختاری کی بجائے پلیٹ فارم کی طرف اشارہ کیا API"
 
+# translated-by: libretranslate
 msgid "**description**: Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
-msgstr ""
+msgstr "**تفصیل**: جی این ڈی- آئی ڈی:"
 
+# translated-by: libretranslate
 msgid "**description**: Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr ""
+msgstr "**تفصیل**: ٹرمینل پر مبنی متن ایڈیٹر جس میں جدید کلیدی اکائیوں اور سپائیرنگ کو نمایاں کیا جاتا ہے"
 
+# translated-by: libretranslate
 msgid "**description**: Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
-msgstr ""
+msgstr "**تفصیل**: ٹیسٹ کرکٹ کردار انجام دینے والے کرداروں کے لیے ٹیسٹ کرکٹ کا امتحان پاس کرتا ہے جو ایک ٹیسٹ ماحول ٹیمپل کا اعلان کرتا ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
-msgstr ""
+msgstr "**تفصیل**: کام کی نوعیت کے ذریعے sD یا HD پر Deckercies مرتب کریں، جس کے ساتھ Symlins on ports on RSD or HDD"
 
+# translated-by: libretranslate
 msgid "**description**: Toolchain for Python scripting, application development, and data science on Linux"
-msgstr ""
+msgstr "**تفصیل**: لینکس پر پائیس اسکرپٹنگ، درخواست ترقی اور ڈیٹا سائنس کے لیے ٹولچین"
 
+# translated-by: libretranslate
 msgid "**description**: Tor daemon publishing the node as a v3 onion service"
-msgstr ""
+msgstr "**تفصیل**: تور داعمن کو وی کے طور پر شائع کرتا ہے۔3 آن لائن سروس"
 
+# translated-by: libretranslate
 msgid "**description**: Tor network client and browser launcher for anonymous, privacy-focused web browsing"
-msgstr ""
+msgstr "**تفصیل**: ٹور نیٹ ورک کلائنٹ اور براؤزر لانچر برائے انٹلیجنس، نجی-focused web institution"
 
+# translated-by: libretranslate
 msgid "**description**: Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr ""
+msgstr "**تفصیل**قسم2 پَک‌مین کام‌شُدہ مشینوں کے لئے ہائی‌وِل‌وِس‌وِسور جس میں اِسپنج‌وے اور فضائی پیک ہوتے ہیں"
 
+# translated-by: libretranslate
 msgid "**description**: Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr ""
+msgstr "**تفصیل**: ٹیلیگرام اور ای میل چینل دونوں کے ذریعے غیر مجاز نظام اطلاع رساں سروس بھیجی جاتی ہے۔"
 
+# translated-by: libretranslate
 msgid "**description**: Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
-msgstr ""
+msgstr "**تفصیل**: ویژیول کنٹرول کلائنٹ ذاتی کارکردگیوں کے لیے، شناخت، دستخط سے قبل، اور تعلقات کو ملانے سے پہلے"
 
+# translated-by: libretranslate
 msgid "**description**: Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr ""
+msgstr "**تفصیل**: ورژن شدہ سرمایہ کاری کے لیے سی ڈی این ادائیگی کے لیے مخصوص کریں جس میں شیئر، ڈیٹنگ اور پرل ریلیز ڈائریکٹرز ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
-msgstr ""
+msgstr "**تفصیل**: ویژیول سٹوڈیو Code ایک مخصوص خوشبو میں کام کرنے والے ایڈیٹر ، میزبان کی توسیع کو جاری رکھتے ہوئے"
 
+# translated-by: libretranslate
 msgid "**description**: Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr ""
+msgstr "**تفصیل**: ویب اور آئی او API انسیبل، تررا فارم/ اوپن ٹوفو اور شیل آٹومیشن چلانے کے لیے کسی شیڈول یا طلبہ پر"
 
+# translated-by: libretranslate
 msgid "**description**: Web interface for administering LDAP directories: managing users, groups, and other directory objects"
-msgstr ""
+msgstr "**تفصیل**: ایل ڈی پی ڈائریکٹرز کو منظم کرنے کے لیے ویب ڈسک: صارفین، گروپ اور دیگر ڈائریکٹری امور کو منظم کرنا"
 
+# translated-by: libretranslate
 msgid "**description**: Web-based LDAP administration interface for managing users, groups, and directory objects"
-msgstr ""
+msgstr "**تفصیل**: ویب پر مبنی ایل ڈی پی انتظامیہ میں صارفین، جماعتوں اور ڈائریکٹری امور کو منظم کرنے کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
-msgstr ""
+msgstr "**تفصیل**: ویب پر مبنی ایل ڈی اے پی کلائنٹ کو LDAP سرورز میں جاسوسی، تلاش اور انتظامیہ کے لیے"
 
+# translated-by: libretranslate
 msgid "**description**: Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr ""
+msgstr "**تفصیل**: ویب پر مبنی انتظامیہ اور ترقیاتی پلیٹ فارم کثیر انتظامیہ کے لیے PostgreSQL سرور، اوورتھ کے ساتھ2 غیر متصل"
 
+# translated-by: libretranslate
 msgid "**description**: Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr ""
+msgstr "**تفصیل**: ویب پر مبنی انتظامیہ آلات MySQL اور MariaDB سکیکس انتظامیہ کے ساتھ، برآمد کرنا اور درآمد کرنا / درآمد کرنا"
 
+# translated-by: libretranslate
 msgid "**description**: Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "**تفصیل**: دن‌بھر کام کرنے والے لوگ Docker Compose جڑے ہوئے غیر ترقیاتی استعمال کے لیے کبوتر گروپ میں مقامی صارف کے ساتھ"
 
+# translated-by: libretranslate
 msgid "**description**: Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr ""
+msgstr "**تفصیل**: لینکس پر Arduino بورڈ کی ترقی کے لیے کامرس ٹولچین اور سیریل-پورٹ کے اجازے ہیں۔"
 
+# translated-by: libretranslate
 msgid "**description**: Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
-msgstr ""
+msgstr "**تفصیل**: Pkggar کائناتی پیکج مینیجر کے ذریعے idem process پیکج تنصیب اور تجدید کاروں کے لیے Edminer کردار"
 
+# translated-by: libretranslate
 msgid "**description**: nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr ""
+msgstr "**تفصیل**: نستعلیق فیلڈر جس کے ہر کردار کو اپنی میز کے طور پر ترتیب دیتے ہیں، ایٹمی طور پر بدل کر بوٹ پر نصب کرتے ہیں۔"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: **ڈیوائس** (`/dev/sdb1`)) نصب شدہ ڈیوائس پہلا مرحلہ
+# (درخت کو اس کے دوبارہ بحال کرتا ہے۔)، پھر `nfs → volume → secrets`
 msgid "**device** (`/dev/sdb1`, image file) → device step first (restores the tree to its restore-root), then `nfs → volume → secrets`"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**distro** -- which declared distribution the row deploys on. Per row rather than per run, so one sweep proves every distribution instead of proving one and claiming nothing about the other four, and a red row still names the exact distribution it died on."
-msgstr ""
+msgstr "**تقسیم کار** جس نے قطار کی تقسیم کا اعلان کیا اِس کے علاوہ اِن چاروں کے بارے میں بھی یہ کہا جاتا ہے کہ وہ ایک دوڑ میں حصہ نہیں لے سکتے ۔."
 
+# translated-by: libretranslate
 msgid "**dnsmasq** with the discovered WSL2 upstream DNS gateway as forwarder."
-msgstr ""
+msgstr "**دانش** اس دریافت کے ساتھ2 آگے کے طور پر DNS DNS Forts."
 
+# translated-by: libretranslate
 msgid "**dsk-gnome-caffeine:** Prevents the system from sleeping or locking automatically."
-msgstr ""
+msgstr "**dsk-gnome-caffeine:** نظام کو خودبخود سو جانے یا بند کرنے سے روکتا ہے۔."
 
+# translated-by: libretranslate
 msgid "**dsk-gnome-extensions:** Manages GNOME Shell extensions and installs the CLI GNOME Extension Manager."
-msgstr ""
+msgstr "**dsk-gnome-extensions:** گنوم گنوم Shell تنصیبات اور تنصیب کار ایس پی این اے سی آرک آئی ڈی:."
 
+# translated-by: libretranslate
 msgid "**dsk-gnome-terminal:** Installs GNOME Terminal, the official terminal emulator for GNOME."
-msgstr ""
+msgstr "**dsk-gnome-terminal:** نصب کریں GNOME Terminal- گنوم کے لیے سرکاری ٹرمینل ایم ایلجر."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1', '2',
+# '[', ']']
+# nocheck: url
+# translation-rejected: **دوگنا فراہم کنندہ** — ایک حقیقی باقی رہنے والی
+# منصوبہ بندی ۔ ایک سی آئی اونیون ڈیوس پر، tor-dated فراہم کرنے والے فراہم
+# کنندہ (یے) onion-reseration: ان کی ڈومین فہرست میں صرف درج ہے۔ `.onion` کوئی
+# واضح رابطہ نہیں ۔ خاندانی اتحاد کا حلف اٹھانے والا
+# (`utils/tls_common.py:align_domain_to_consumer`. . . .
+# `plugins/lookup/tls.py`) اس صورت میں درست ضمانتیں، تو واضح طور پر قابلِ
+# استعمال صارفین کو اب بھی ایک اونیشن مل جاتا ہے جو نہ تو حل کر سکتا ہے اور نہ
+# ہی پہنچ سکتا ہے۔ پہلا مشکل ثبوت: `web-app-fediwall` غیر متصل 2 ([ تصویر کا
+# حوالہ ]) پرنٹ `microblog.<onion>` اندر `wall-config.json.servers`؛ واضح نیٹ
+# ورک منیجر (کچھ بھی نہیں) بعض اوقات باہر باہر کی دیواروں کا انتظار
+# (`test-walls-surface-posts.js:24`؟ ّ ́ç1⁄2إ؟ ن)... اسی کلاس کو رکھنے کی توقع
+# ہے `web-app-bigbluebutton`: `web-app-nextcloud`: `web-app-opentalk` اور
+# `web-app-jitsi` سرخ (واضح نیٹو-پینر جن کے ہم جماعتوں کی طرف متوجہ ہوتے ہیں —
+# OIDC/cdn/matomo/logout — قرارداد on-profile –). Fix سمت : فراہم کرنے والا
+# فراہم کنندہ HH خاندانوں کو شائع کرنا ہوتا ہے۔ (واضح طور پر بہن‌بھائیوں کی
+# مدد کریں) لہٰذا حل کرنے والے کے پاس کچھ نہیں ہے؛ اس میں تاخیر کو دوبارہ شروع
+# کرنا شامل ہے۔ `KC_HOSTNAME` آن لائن - Keycloak کہ پہلے کیول سے نیچے گرا دیا
+# گیا تھا کیونکہ اسے صرف ایک بار دوا پیٹ موجود ہے.
 msgid "**dual-family providers** — the one real remaining design gap. On a CI onion node, tor-enabled providers (e.g. mastodon) are onion-exclusive: their domain list contains only the `.onion` canonical, no clearnet sibling. The family-alignment resolver (`utils/tls_common.py:align_domain_to_consumer`, wired into `plugins/lookup/tls.py`) correctly bails in that case, so a clearnet-pinned consumer still receives an onion URL it can neither resolve nor reach. First hard evidence: `web-app-fediwall` variant 2 (tor=false) renders `microblog.<onion>` into `wall-config.json.servers`; the clearnet browser (no SOCKS) times out waiting for mastodon wall items (`test-walls-surface-posts.js:24`, deterministic across retries). The same class is expected to keep `web-app-bigbluebutton`, `web-app-nextcloud`, `web-app-opentalk` and `web-app-jitsi` red (clearnet-pinned apps whose peer refs — OIDC/cdn/matomo/logout — resolve onion-primary). Fix direction: providers must publish BOTH families (clearnet sibling alongside the onion canonical) so the resolver has something to align to; includes re-applying the deferred `KC_HOSTNAME` onion-gate for Keycloak that was dropped from the earlier bundle because it is only needed once dual-family exists."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**file**"
-msgstr ""
+msgstr "**فائل**"
 
+# translated-by: libretranslate
 msgid "**filesystem** -- which kind the row's docker data root runs on. The two read the row's position like an odometer: the distro is the low digit and the filesystem the high one, so consecutive rows walk every pairing rather than a diagonal through it. Turning both on the position directly would cover only ``n`` of the ``n x m`` pairs whenever the two pools happen to be the same length, and no sweep would unlock it, because the sweep shifts both by the same amount."
-msgstr ""
+msgstr "**فائلیں** جو قطار کی ڈرافٹ ڈیٹا روٹ پر چلتا ہے۔ دو رکعت پڑھی گئی قطار کا مقام اودومتر کی طرح ہے : فرقوَوَّر کم کشش ثقل ہے اور فائل کا نظام اعلیٰ ہے اس لیے مسلسل قطاریں اس کے ذریعے ہر جوہر کی بجائے چلتی رہتی ہیں۔ دونوں پوزیشن کو موڑنا صرف براہ راست ڈھانپے گا۔ ``n`` کے ``n x m`` جب دو پُل ایک ہی لمبا ہو جائیں گے تو اِس میں کوئی کمی نہیں ہوگی کیونکہ اِس میں دونوں ایک ہی مقدار میں تبدیل ہو جاتے ہیں ۔."
 
+# translated-by: libretranslate
 msgid "**fullchain.pem** → The certificate"
-msgstr ""
+msgstr "**fullchain.pem** سند حاصل کریں"
 
+# translated-by: libretranslate
 msgid "**gVisor runtime:** The pinned ``runsc`` release is fetched to ``/usr/local/bin/runsc`` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
-msgstr ""
+msgstr "**گِیشور رن:** جواب ``runsc`` آزادی کی گنجائش ہے ``/usr/local/bin/runsc`` اس کی اشاعت کے خلاف اس کی تصدیق کی۔512 چیکم. کیٹا شمیم کو میزبانی کے طور پر لیا جاتا ہے؛ کردار اسے نصب نہیں کرتا ہے۔."
 
+# translated-by: libretranslate
 msgid "**gVisor runtime:** The pinned `runsc` release is fetched to `/usr/local/bin/runsc` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
-msgstr ""
+msgstr "**گِیشور رن:** جواب `runsc` آزادی کی گنجائش ہے `/usr/local/bin/runsc` اس کی اشاعت کے خلاف اس کی تصدیق کی۔512 چیکم. کیٹا شمیم کو میزبانی کے طور پر لیا جاتا ہے؛ کردار اسے نصب نہیں کرتا ہے۔."
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['baserow', 'docker', 'data management', 'databases']"
-msgstr ""
+msgstr "**galaxy_tags**: ['baserow': 'docker'، 'دتیہ انتظامیہ'، 'databases']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['bluesky', 'docker', 'social network', 'decentralized']"
-msgstr ""
+msgstr "**galaxy_tags**: ['bluesky': 'docker'، ' سماجی نیٹ ورک'، 'decentralized']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['friendica', 'docker', 'social network', 'decentralized']"
-msgstr ""
+msgstr "**galaxy_tags**: ['friendica': 'docker'، ' سماجی نیٹ ورک'، 'decentralized']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitea', 'docker', 'git', 'self-hosted', 'version control']"
-msgstr ""
+msgstr "**galaxy_tags**: ['gitea': 'docker': 'git': 'self-hosted'، 'بہت زیادہ کنٹرول']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'version control']"
-msgstr ""
+msgstr "**galaxy_tags**: ['gitlab': 'docker'، 'سی/cd'، 'self-hosted'، 'بہت زیادہ کنٹرول']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['jira', 'project management']"
-msgstr ""
+msgstr "**galaxy_tags**: ['jira'، 'پرائیوٹ انتظامیہ']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['joomla', 'docker', 'cms', 'content management', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['joomla': 'docker': 'cms'، 'کچھ انتظامیہ'، 'self-hosted']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['keycloak', 'docker', 'identity management', 'sso', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['keycloak': 'docker'، 'ای ذمہ داری'، 'sso': 'self-hosted']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['ldap', 'openldap', 'docker', 'directory', 'tls', 'identity management']"
-msgstr ""
+msgstr "**galaxy_tags**: ['ldap': 'openldap': 'docker': 'directory': 'tls'، ، 'اردو نظم']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['listmonk', 'docker', 'newsletter', 'email marketing', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['listmonk': 'docker': 'newsletter'، ' میل مارکیٹ'، 'self-hosted']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['mailu', 'docker', 'email', 'mail server', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['mailu': 'docker': 'email'، ' میل سرور'، 'self-hosted']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'microblog', 'social network']"
-msgstr ""
+msgstr "**galaxy_tags**: ['mastodon': 'docker': 'federated': 'decentralized': 'microblog'، 'سوکل نیٹ ورک']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx': 'docker'، ' ایماندار' 'web': 'automation': 'archlinux']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx': 'javascript': 'csp'، 'بزبان filter', 'injection': 'global']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx': 'logout': 'oidc': 'javascript': 'csp'، 'sub &]"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['"']
+# nocheck: url
+# translation-rejected: **galaxy_tags**: ['nginx': 'tls': 'ssl'، ' ایماندار'
+# 'letsencrypt'"خود کار".]
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['"']
+# nocheck: url
+# translation-rejected: **galaxy_tags**: ['nginx': 'tls': 'ssl'"خود کار".
+# 'certificates': 'openssl']
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
-msgstr ""
+msgstr "**galaxy_tags**: ['openresty': 'nginx': 'docker'، ' ایماندار']"
 
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'decentralized', 'open-source', 'video platform']"
-msgstr ""
+msgstr "**galaxy_tags**: ['peertube': 'video-hosting': 'docker': 'compose': 'decentralized': 'open-source'، 'ویدو پلیٹ فارم']"
 
+# translated-by: libretranslate
 msgid "**host** (`[user@]host`) → rsync-pull the whole backup tree, then `nfs → volume → secrets`"
-msgstr ""
+msgstr "**لشکر دار** (`[user@]host`) اس کے بعد، تمام بیک اپ درخت کاٹ. `nfs → volume → secrets`"
 
+# translated-by: libretranslate
 msgid "**html**"
-msgstr ""
+msgstr "**حمیل**"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["''",
+# '(', ')', 'https://prir،', 'https://union']
+# nocheck: url
+# translation-rejected: **https://union IdP — تحقیق اور REJEC کی کمیت، دوبارہ
+# نہیں.** ایڈز کا وائرس / آر ایف سی 8414 ایک https://prir، اور ایک
+# onion-settlection چاہتے ہیں۔ Keycloak اُس کے پاس کوئی بھی ایسا نہیں ہے جس سے
+# وہ انکار کر دے ۔ آن لائن پر خدمات انجام دینا چار آزاد امور پر روک ہے، اس
+# ترتیب میں: (1) `roles/svc-net-tor/templates/torrc.j2` صرف شائع کرتا ہے۔
+# `HiddenServicePort 80`''اور کوئی کردار نہیں کہتا۔ 443 اندر
+# `ports.public`/`ports.local`، `lookup('tor_ports')` اسے کبھی خارج نہیں کِیا
+# جا سکتا — سب سے پہلے تیار‌شُدہ ٹی‌ایس Keycloak تور پر مکمل طور پر قبضہ،
+# کیونکہ `nginx_ssl_header.j2` اگر/لز اور بندرگاہ ہے تو 80 منسوخ کرنا؛ (2)
+# `roles/sys-front-tls-selfsigned/tasks/00_core.yml` ایک غیر منظم سی این (CN)
+# لکھتے ہیں، جس میں ایکس ایکس (conseration X) لکھا جاتا ہے۔509' 64- ایک پر کیپ
+# 62-char v3 ononion – `group_vars/all/02_tls.yml` اس کو پہلے سے ہی محفوظ رکھا
+# ہے جڑے CA اور کسی اور کے لئے (3) `nginx_ssl_header.j2` ایک ہی شاخ میں HSTS
+# خارج کرتا ہے، اور براؤزر کسی ایچ ایس ایس کے میزبان پر بے اعتماد زنجیر کے
+# ساتھ کوئی کلک پیش نہیں کرتا، تو ایک خود کش شناختی بندھن حقیقی صارفین کو باہر
+# نکال دیتا ہے `ignoreHTTPSErrors`: (4) یہ صفر لیبر صارفین کو درست کرتا ہے،
+# کیونکہ آر ایف سی 7686 رد عمل اسم فائل پر ہوتا ہے اور اسکیم-intendent ہے. . .
+# .3 `.onion` (ہیریکا، CA/B Forum Falls 144) — کوڈ نہیں ہے ۔ یہاں تک کہ اس وقت
+# تک per-conscons تناسب قائم ہے: Libcurl کلائنٹ کے لئے Secssy. اس کے بعد ہم
+# نیٹوبی ان میں شامل نہیں ہے - یہ ایک واضحnet- واحد کردار ہے۔.
 msgid "**https on the onion IdP — investigated and REJECTED, do not re-derive.** OIDC Discovery / RFC 8414 want an https issuer, and an onion-exclusive Keycloak has none, so strict client libraries refuse it. Serving TLS on the onion is blocked on four independent things, in this order: (1) `roles/svc-net-tor/templates/torrc.j2` publishes only `HiddenServicePort 80`, and no role declares 443 in `ports.public`/`ports.local`, so `lookup('tor_ports')` can never emit it — flipping TLS on first makes Keycloak unreachable over Tor entirely, because `nginx_ssl_header.j2` is one if/else and port 80 disappears; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` writes an unguarded CN, which overflows X.509's 64-byte cap on a 62-char v3 onion — `group_vars/all/02_tls.yml` already guards exactly this for the root CA and nowhere else; (3) `nginx_ssl_header.j2` emits HSTS in the same branch, and browsers offer no click-through on an HSTS host with an untrusted chain, so a self-signed interim locks real users out while staying invisible to Playwright's `ignoreHTTPSErrors`; (4) it fixes zero libcurl consumers, because RFC 7686 refusal happens at name resolution and is scheme-independent. Unblocking needs a CA that issues for v3 `.onion` (HARICA, CA/B Forum ballot 144) — procurement, not code. Until then the per-consumer fixes stand: SOCKS proxy for libcurl clients. peertube is no longer among them - it is a clearnet-only role."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
-msgstr ""
+msgstr "**اِن اصولوں پر عمل کریں :** Modifies iptables کو وی آئی ٹی کے کلائنٹ کے لیے آگے اور NAT Masqueding کی اجازت دیتا ہے۔."
 
+# translated-by: libretranslate
 msgid "**jitsi**"
-msgstr ""
+msgstr "**جِس**"
 
+# translated-by: libretranslate
 msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the `?fallback=local` emergency hatch: local Joomla admin form login must reach the control panel). Root cause UNCONFIRMED. It is independent of the fixed OIDC-login spec: the fallback path short-circuits before the plugin's server-side discovery, so the committed `extra_hosts` fix does not cover it. The `secure => true` sticky-cookie hypothesis was rejected (`.onion` is a potentially-trustworthy origin and the e2e Firefox sets `dom.securecontext.allowlist_onions`, so Secure cookies are accepted over plain-http onion). Next step when it fails again post-fix: isolate the post-submit URL — Keycloak redirect (cookie lost) vs. form reject vs. slow control-panel render."
-msgstr ""
+msgstr "**Jomla مقامی-login گرنے والی بیک مشین** — `test-oidc-fallback.js:52` (نمبر `?fallback=local` ہنگامی صورتحال : مقامی لوگ Joomla Admin شکلوں کو کنٹرول پینل تک پہنچنا ہوگا). رے یو . ایس . یہ طے شدہ OIDC-login Spec سے باہر ہے: پلگس کے سرور کی دریافت سے قبل گریٹنگ سڑک مختصر مدتی ہے۔ `extra_hosts` اصلاح اسے ڈھانپ نہیں سکتی۔ جواب `secure => true` کیوبیک کو رد کر دیا گیا (`.onion` ایک ممکنہ طور پر پیدا ہونے والی اصل اور e ہے۔2ای Firefox سیٹ کرو `dom.securecontext.allowlist_onions`، لہذا سلامتی کے پکوانوں کو زیادہ سے زیادہ سادہ پرسن قبول کیا جاتا ہے۔). اگلا مرحلہ جب یہ دوبارہ ناکام ہو جاتا ہے تو کہ پیچھے کی سمت کو الگ کریں — Keycloak مصر (کوکی کھو دیا) vs. فارم vs. سست کنٹرول کرنے کے عمل کو مسترد."
 
+# translated-by: libretranslate
 msgid "**kubernetes** (future) is reserved as a third render backend consuming the same per-role inputs."
-msgstr ""
+msgstr "**کوبرج** (مستقبل) ایک تیسرا ادائیگی کے طور پر محفوظ کیا گیا ہے جس میں ایک ہی پری رن ان پٹ استعمال کیا جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "**legal**"
-msgstr ""
+msgstr "**قانونی**"
 
+# translated-by: libretranslate
 msgid "**license**: Infinito.Nexus Community License (Non-Commercial)"
-msgstr ""
+msgstr "**اجازت نامہ**: Infinito.Nexus کمیونٹی لائسنس (غیر معمولی)"
 
+# translated-by: libretranslate
 msgid "**litellm**"
-msgstr ""
+msgstr "**دیوار**"
 
+# translated-by: libretranslate
 msgid "**local green, CI red**: the failure is in the axis the local stack does not have. Read the CI artifact before touching the role."
-msgstr ""
+msgstr "**مقامی سبز، سی آئی سرخ**: ناکامی مقامی اسٹاک میں نہیں ہے۔ اس کردار کو چھونے سے پہلے سی آئی اے کو پڑھیں ۔."
 
+# translated-by: libretranslate
 msgid "**local red, CI green**: usually local state the runner starts without, a stale image or a volume from an earlier iteration. Confirm before reporting a regression."
-msgstr ""
+msgstr "**مقامی سرخ، سی آئی سبز**: عام طور پر مقامی ریاستوں کا آغاز بغیر ہی شروع ہوتا ہے ۔ تنصیب سے پہلے تصدیق کریں."
 
+# translated-by: libretranslate
 msgid "**logout**"
-msgstr ""
+msgstr "**مصر**"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: **مکاؤ صحت‌بخش پانی (چیک چیک چیک کریں)** — چیک کام میں
+# 4بھول بھلياں کھيلنے میں ناکام `Wait for Matomo container to be healthy` ساتھ
+# `container inspect: map has no entry for key "State"` تمام ریسي ونڈو کے لئے
+# (برتن شروع ہو گیا اور پھر ختم ہو گیا — غالباً شکست کھا کر پروں کا نقصان ہوتا
+# ہے۔)کھیل 1–3 ایس ایم اے کی نوکری میں ماتامو صحت مند، تو ٹرانسمیٹر کا درجہ
+# دیا گیا۔ (~ کے بعد سر/وپرو دباؤ3ح)کوئی کوڈ درست نہیں اگر اسے دوبارہ تبدیل
+# کیا جائے تو ایک حقیقی مکاؤ تباہی/OM کے طور پر تفتیش کریں گے۔ (برتنوں کے لیے
+# mem_limit). .
 msgid "**matomo container health flake (checkmk batch)** — in the checkmk job the 4th deploy play failed at `Wait for Matomo container to be healthy` with `container inspect: map has no entry for key \"State\"` for the whole retry window (container started, then vanished — likely crash + prune). Plays 1–3 in the SAME job deployed matomo healthy, so classified transient (resource/prune pressure after ~3h). No code fix derivable. If it recurs, investigate as a real matomo crash/OOM (container logs, mem_limit)."
 msgstr ""
 
+# translated-by: libretranslate
 #, no-python-format
 msgid "**mode** -- which of ``compose``/``swarm``/``host`` the row deploys in, drawn from the modes the role actually offers. In practice that is at most two: swarm requires the role to ship its own stack, host requires it not to. ``(position + sweep) % len(offered)`` therefore flips a row between its two modes on consecutive sweeps."
-msgstr ""
+msgstr "**موڈ** کہ - ``compose``/``swarm``/``host`` دراصل موڈ سے حاصل ہونے والی قطاروں میں یہ کردار پیش کِیا جاتا ہے ۔ عملی طور پر جو کہ زیادہ تر دو میں ہے: کھلاڑی اپنے اسٹاک کے جہاز بنانے کے لیے کردار کا تقاضا کرتے ہیں، میزبان اس کا مطالبہ نہیں کرتے۔ ``(position + sweep) % len(offered)`` لہٰذا اُسکے دو موڈوں کے درمیان ایک قطار لگا دیتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "**n8n 1.100.1** is `direction: both`: an SSE client and a Streamable HTTP server at MCP Server Trigger typeVersion 2. Managed client nodes use Bearer or Header authentication and an explicit include list, never upstream's `include: all`. Managed server triggers require Bearer authentication, connect only explicitly selected workflow tools with checked-in input schemas, stay disabled until the operator enables them, and expose read-only operations first."
-msgstr ""
+msgstr "**ن8ن 1.100.1** ہے. `direction: both`: MCP سرور ٹریگر ٹائپ ویرسن میں ایک ایس ایس ای کلائنٹ اور ایم ایس ٹی پی سرور کے قابلِ استعمال سرور ہیں۔ 2. Gmaild Commissions species settlement or history توثیق اور واضح فہرست استعمال کرتے ہیں، کبھی نہیں `include: all`. تنصیب کار کو توثیق درکار ہے، صرف براہ راست انتخاب شدہ آلات کو چیک کرنے کے ساتھ، معذور رہنے تک،."
 
+# translated-by: libretranslate
 msgid "**n8n shipped with no `allowed_groups` while declaring an `mcp` role nothing consulted**, and minted a public-API key per run that it then left standing. The gate is closed and the key is revoked before the run ends."
-msgstr ""
+msgstr "**ن8نمبر کے ساتھ `allowed_groups` پھر ان کی قَسم جو گواہی دیتے ہیں۔ `mcp` کردار کچھ بھی مشورہ نہیں**... اور ایک عوامی جگہAPI مرکزی دوڑ جو اس نے بعد میں کھڑا چھوڑ دیا. دروازہ بند ہو جاتا ہے اور دوڑ ختم ہونے سے پہلے کلے کو توڑ دیا جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "**navigator**"
-msgstr ""
+msgstr "**غیر متصل**"
 
+# translated-by: libretranslate
 msgid "**npm Installation:** Ensures the ``npm`` package manager is installed."
-msgstr ""
+msgstr "**npm آئی ڈی:** جواب ``npm`` پیکج مینیجر نصب ہے."
 
+# translated-by: libretranslate
 msgid "**npm Installation:** Ensures the `npm` package manager is installed."
-msgstr ""
+msgstr "**npm آئی ڈی:** جواب `npm` پیکج مینیجر نصب ہے."
 
+# translated-by: libretranslate
 msgid "**odoo**"
-msgstr ""
+msgstr "**اودوو**"
 
+# translated-by: libretranslate
 msgid "**openwebui**"
-msgstr ""
+msgstr "**کھلے نیٹ ورک**"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "**platforms**: [{'name': 'ArchLinux', 'versions': ['all']}, {'name': 'Debian', 'versions': ['all']}, {'name': 'EL', 'versions': ['all']}, {'name': 'Fedora', 'versions': ['all']}, {'name': 'Ubuntu', 'versions': ['all']}]"
-msgstr ""
+msgstr "**پلیٹ فارم**: [{'name': 'ArchLinux': 'versions': ['all']}: {'name': 'Debian': 'versions': ['all']}: {'name': 'EL': 'versions': ['all']}: {'name': 'Fedora': 'versions': ['all']}: {'name': 'Ubuntu': 'versions': ['all']}]"
 
+# translated-by: libretranslate
 msgid "**privkey.pem** → The private key"
-msgstr ""
+msgstr "**privkey.pem** نجی کلید ڈالیں"
 
+# translated-by: libretranslate
 msgid "**project**"
-msgstr ""
+msgstr "**منصوبہ**"
 
+# translated-by: libretranslate
 msgid "**role_name**: keyboard-color"
-msgstr ""
+msgstr "**role_name**: کي بورڈ-کوسٹر"
 
+# translated-by: libretranslate
 msgid "**roulette-wheel**"
-msgstr ""
+msgstr "**راولپنڈی -**"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')',
+# 'https://www.infous.org.org.']
+# nocheck: url
+# translation-rejected: **سرور مخالف OIDC کے طالبان** — جوملا ناکام ہو گیا
+# کیونکہ اس کی ایپ کارپوریشن سرور-ئیڈ سی دریافت کرتی ہے۔ `http://auth.<onion>`
+# کچھ نہیں `extra_hosts` نقشہ ۔ ایک ہی میکانکی اور نہیں کے ساتھ رول
+# `container_extra_hosts` ابھی تک دیکھو (درست ایک ہی لین ٹاپ ہے، سی آئی کے
+# ثبوت پر عمل کریں): تلفظ: (لگ بھگ پلگ انس) اور ذرائع ابلاغ (پُراسرار اُصول)
+# عام طور پر پی ایچ پی میں (بلند امکانات)؛ اب تقریر کی تصدیق کی گئی ہے اور اس
+# کی تصدیق کی گئی ہے۔ (بھاگو 33445831564، کام Nextcloud#7)؛Jenkins, Jira, vo,
+# Odoo, Openwebui, pretix, Zampore, Jellyfin, Listonk, xwiki, Edumodon, Proser
+# سرور-side بھی کھاتے ہیں۔ (کوئی نیٹ ورک ہدایت نہیں ہے). .2-proxy پر مبنی دادی
+# متاثر نہیں ہوتے (ثابت شدہ سبز: Prometheus AdminSO). دو ناموں سے اس فہرست کو
+# ثبوتوں پر چھوڑ دیا ہے: بملشن کو منظر عام پر آیا ہے۔ 0ای39f3اس کے
+# کوڈ-کوڈ-اپورل کی دعوت کے بعد OAuth2.Error اتصال نے بیس چار بار انکار کر دیا
+# اور جٹالب کبھی کسی عضو کے بلے باز - 31756560361 اسے حل کرنے اور متصل کرنے کی
+# دکھاتا ہے (ہمسفر ==172.30.0.10:443))؛ اس کی ناکامی تھی۔ openid_connect Grem
+# دوبارہ حاصل کر نے کے اوپر https://www.infous.org.org. اخذ شدہ بتاریخ
+# September settlement. تحقق من التاريخ في: 2389ب6ای38. .
 msgid "**server-side OIDC reachability candidates** — joomla failed because its app container performs server-side OIDC discovery against `http://auth.<onion>` without an `extra_hosts` mapping. Roles with the same mechanic and no `container_extra_hosts` lookup yet (fix is the same one-line lookup, apply on CI evidence): wordpress (daggerhart plugin) and mediawiki (PluggableAuth) are structurally identical PHP in-app plugins (high likelihood); discourse is now confirmed and pinned (run 33445831564, job Nextcloud#7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the issuer server-side too (unverified network path). oauth2-proxy-based apps are NOT affected (proven green: prometheus admin SSO). Two names have left this list on evidence: mobilizon got the lookup in 0e39f3fad after its code-to-token call raised OAuth2.Error Connection refused twenty-four times, and gitlab was NEVER a member - run 31756560361 shows it resolving and connecting (peeraddr=172.30.0.10:443); its failure was the openid_connect gem rebuilding the discovery URL over https regardless of the issuer scheme, fixed in 2389b6e38."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**simpleicons**"
-msgstr ""
+msgstr "**سادہ رنگ**"
 
+# translated-by: libretranslate
 msgid "**snipe-it**"
-msgstr ""
+msgstr "**سندھی -**"
 
+# translated-by: libretranslate
 msgid "**social-app upstream error:** the broker forwards the upstream's error response."
-msgstr ""
+msgstr "**سماجی پرچم غلطی:** توڑر کی غلطی کے جواب کو آگے بڑھا دیتا ہے۔."
 
+# translated-by: libretranslate
 msgid "**socialhome**"
-msgstr ""
+msgstr "**سماجی آگ**"
 
+# translated-by: libretranslate
 msgid "**sphinx**"
-msgstr ""
+msgstr "**سا ئيکس**"
 
+# translated-by: libretranslate
 msgid "**stock**"
-msgstr ""
+msgstr "**اسٹاک**"
 
+# translated-by: libretranslate
 msgid "**swarm** (v1) is opt-in per host via Ansible group membership. Adds: multi-host cluster, overlay networks, NFS-backed shared volumes, rolling updates, placement constraints."
-msgstr ""
+msgstr "**طےشدہ** (وی1) انسیبل گروپ ممبرشپ کے ذریعے میزبان کی پسندیدہ ہے. مزید براں: کثیر التعداد کاسٹر، زیادہ سے زیادہ گاوں والا نیٹ ورک، NFS-backedd division, rousions, settlement presss."
 
+# translated-by: libretranslate
 msgid "**sys-stk-backend**, **sys-svc-compose**, **sys-svc-proxy** and *plugins/filter/compose_volumes.py* now gate on **lookup(sso, …, is_proxy_gated)** instead of hand-combining **enabled** + **flavor**."
-msgstr ""
+msgstr "**sys-stk-backend**: **sys-svc-compose**: **sys-svc-proxy** اور *plugins/filter/compose_volumes.py* اب دروازے پر **طےشدہ(اس طرح،... is_proxy_gated)** ہاتھ کی جگہ **ممکن** + **خوشبو**. ."
 
+# translated-by: libretranslate
 msgid "**sys-stk-front-base** bootstraps the front layer that most web-facing apps need:"
-msgstr ""
+msgstr "**sys-stk-front-base** سامنے والی تہہ جو سب سے زیادہ ویب ایم ایس کی ضرورت ہے:"
 
+# translated-by: libretranslate
 msgid "**systemd-resolved** stub listener disabled to avoid port conflicts."
-msgstr ""
+msgstr "**سسٹمڈ-رُولڈ** بندرگاہوں کی لڑائیوں سے بچنے کے لئے تیار رہیں ۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(']
+# nocheck: url
+# translation-rejected: **آزمائشی ماحول کی ملازمت** — سب 5 غیر متصل کام (آرک،
+# دبئی، ابونتو، فیڈرل، سینٹیس (انگریزی:) لعنت 4ح30جب تک ترقی نہیں ہوتی (براہِ
+# راست تصویر ڈرا وٴ). ماحولیاتی، کوئی کوڈ اصلاح - اپنے بجٹ سے الگ، جس کے پاس
+# ایک تھا: 508669809 کتابوں میں بجٹ SIGKAT کے طور پر شامل کیا گیا ہے جو
+# Ad9222630 اس بات کو نوٹ کرتے ہوئے کہ اونون ای2عام طور پر معمول کو لمبا کرتا
+# ہے۔ (▪5 وقت پر سرکٹ انتظار کرتا ہے۔)، لہذا ان ملازمتوں کے تحت سب سے پہلے کیپ
+# کو نشانہ بنایا گیا ہے.
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **کردار ید غلط ہے۔** ذیابیطس یا گفتگو سے جمع ہونے والے
+# کینڈیز غلط ثابت ہوتے ہیں: `web-svc-openresty` انسان کو ڈرانے والی ہے
+# `svc-prx-openresty` حل. چیک کریں `roles/` (یعنی) مانگنے والوں کے لئے.
 msgid "**the role id is wrong.** Candidates assembled from memory or from a conversation get prefixes wrong: `web-svc-openresty` warns, `svc-prx-openresty` resolves. Check `roles/` for the id before dropping the candidate."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**the role is outside the envelope.** `web-app-minio` warns whatever is pinned, because its `lifecycle` is `eol`. That candidate does not belong on a verification line at all; no run will judge it."
-msgstr ""
+msgstr "**کردار پردہ سے باہر ہے۔** `web-app-minio` ہر چیز کو محفوظ کیا گیا ہے، کیونکہ اس کی وجہ سے، `lifecycle` ہے. `eol`. وہ طالب علم سب سے آگے لائن پر نہیں ہے."
 
+# translated-by: libretranslate
 msgid "**tor** -- whether the row deploys behind the node onion. Driven by ``sweep // 2`` so it does NOT flip in lockstep with the mode; a row walks all four mode/tor combinations over four sweeps instead of only two."
-msgstr ""
+msgstr "**قدم** - چاہے قطر کے ononon کے پیچھے لگی. موٹر وے ``sweep // 2`` لہٰذا یہ موڈ کے ساتھ بند میں تبدیل نہیں ہوتا، ایک قطار تمام چار موڈ/چار اکائیوں پر مشتمل ہوتا ہے صرف دو مدارس کی بجائے."
 
+# translated-by: libretranslate
 msgid "**v3 address algorithm** (needed for offline mint): `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + \".onion\"`, `CHECKSUM = SHA3-256(\".onion checksum\" ‖ PUBKEY ‖ VERSION)[:2]`, `VERSION = 0x03`, PUBKEY = 32-byte ed25519 master pubkey."
-msgstr ""
+msgstr "**وی3 پتہ** (صفائی کے لئے درکار): `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + \".onion\"`: `CHECKSUM = SHA3-256(\".onion checksum\" ‖ PUBKEY ‖ VERSION)[:2]`: `VERSION = 0x03`، PUBkeY = 32- الوداع25519 ماسٹر پککی."
 
+# translated-by: libretranslate
 msgid "**website**"
-msgstr ""
+msgstr "**ویب سائٹ**"
 
+# translated-by: libretranslate
 msgid "**xmpp**"
-msgstr ""
+msgstr "**زمپ**"
 
+# translated-by: libretranslate
 msgid "**⚠ Behavior Changes**"
-msgstr ""
+msgstr "**⚠ تبدیلیاں**"
 
+# translated-by: libretranslate
 msgid "**⚠️ Hardware safety is yours, not the platform's.** An agent driving motors, actuators or relays can cause physical harm. Emergency stop, current and motion limits, and fail-safe wiring are out of this platform's scope and are not enforced by this role. Provide them yourself before granting access to anything that moves."
-msgstr ""
+msgstr "**⚠️ ہارڈ ویئر تمہاری حفاظت، پلیٹ فارم نہیں ہے.** ایک ایجنٹ موٹر سائیکل چلانے ، گاڑی چلانے یا ریل گاڑی چلانے سے جسمانی نقصان ہو سکتا ہے ۔ اس پلیٹ فارم کی وسعت سے باہر ہیں اور اس کردار کی پیروی نہیں کرتے ہیں۔ کسی بھی چیز تک رسائی حاصل کرنے سے پہلے انہیں خود مہیا کریں۔."
 
+# translated-by: libretranslate
 msgid "**⚠️ Hardware safety is yours, not the platform’s.** An agent driving motors, actuators or relays can cause physical harm. Emergency stop, current and motion limits, and fail-safe wiring are out of this platform’s scope and are not enforced by this role. Provide them yourself before granting access to anything that moves."
-msgstr ""
+msgstr "**⚠️ ہارڈویئر پلیٹ‌فارم کی بجائے آپکا تحفظ ہے ۔** ایک ایجنٹ موٹر سائیکل چلانے ، گاڑی چلانے یا ریل گاڑی چلانے سے جسمانی نقصان ہو سکتا ہے ۔ ایمرجنسی روک، موجودہ اور متحرک حدود اور ناکام بے امنی اس پلیٹ فارم کی وسعت سے باہر ہیں اور اس کردار پر عمل پیرا نہیں ہیں۔ کسی بھی چیز تک رسائی حاصل کرنے سے پہلے انہیں خود مہیا کریں۔."
 
+# translated-by: libretranslate
 msgid "**🔐 One login. ♾️ Infinite applications**"
-msgstr ""
+msgstr "**🔐 ایک منزل. ♾️ غیر متصل اطلاقیے**"
 
+# translated-by: libretranslate
 msgid "**🚨 Breaking Changes**"
-msgstr ""
+msgstr "**🚨 بدلنا**"
 
+# translated-by: libretranslate
 msgid "**🧹 Removed**"
-msgstr ""
+msgstr "**🧹 حذف**"
 
+# translated-by: libretranslate
 msgid "*@playwright/test*: ^1.61.1 to ^1.62.1"
-msgstr ""
+msgstr "*@playwright/test*^ ا ب پ ربط :1.61.1 ^کے اوبنٹو کو1.62.1"
 
+# translated-by: libretranslate
 msgid "*Applications*"
-msgstr ""
+msgstr "*ایپلیکیشنز*"
 
+# translated-by: libretranslate
 msgid "*DOMAIN_PRIMARY* is now strictly validated (especially for Dashboard and OpenResty)"
-msgstr ""
+msgstr "*DOMAIN_PRIMARY* اب سختی سے کام لیا جا رہا ہے (خاص طور پر Dashboard اور OpenResty)"
 
+# translated-by: libretranslate
 msgid "*Services and infrastructure*"
-msgstr ""
+msgstr "*خدمت‌وتربیت*"
 
+# translated-by: libretranslate
 msgid "*This role is licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).*"
-msgstr ""
+msgstr "*اس کردار کو حسب ذیل لائسنس دیا جاتا ہے۔ [Infinito.Nexus کمیونٹی لائسنس (غیر معمولی)](https://s.infinito.nexus/license). .*"
 
+# translated-by: libretranslate
 msgid "*This role is licensed under the* `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__\\ *.*"
-msgstr ""
+msgstr "*اس کردار کو حسب ذیل لائسنس دیا جاتا ہے۔* `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__٭ *. .*"
 
+# translated-by: libretranslate
 msgid "*Toolchain and dependencies*"
-msgstr ""
+msgstr "*تولچان اور ٹماٹر*"
 
+# translated-by: libretranslate
 msgid "*backup-docker-to-local* (*baudolo*): pinned to 7.0.1, via 6.0.0 and 7.0.0"
-msgstr ""
+msgstr "*بیک مشین* (*بادولو*): سوال : 7.0.1، کے ذریعے 6.0.0 اور 7.0.0"
 
+# translated-by: libretranslate
 msgid "*backup-docker-to-local*: 3.1.1 to 3.1.3"
-msgstr ""
+msgstr "*بیک مشین*: 3.1.1 جگہ 3.1.3"
 
+# translated-by: libretranslate
 msgid "*baudolo*: pinned to 3.4.1"
-msgstr ""
+msgstr "*بادولو*سوال : 3.4.1"
 
+# translated-by: libretranslate
 msgid "*bootstrap*: 5.3.3 to 5.3.8, *@fortawesome/fontawesome-free*: 6.5.1 to 7.3.1"
-msgstr ""
+msgstr "*بوٹسٹر*: 5.3.3 جگہ 5.3.8: *@Fortawome/fontaweuse-free -*: 6.5.1 جگہ 7.3.1"
 
+# translated-by: libretranslate
 msgid "*brace-expansion*: overridden to ^5.0.9, past three DoS advisories"
-msgstr ""
+msgstr "*غیر متصل*^ ا ب جی این ڈی- آئی ڈی:5.0.9، گزشتہ تین تجاویز"
 
+# translated-by: libretranslate
 msgid "*entries* is the list of ``(version, date, body_markdown)`` tuples for the kept releases. *archived* is the list of ``(version, date)`` tuples for older releases that go into the trailing notice."
-msgstr ""
+msgstr "*جگہ* یہ فہرست ہے۔ ``(version, date, body_markdown)`` باقی ریلیز کیلئے تیل ۔ *محفوظہ:* یہ فہرست ہے۔ ``(version, date)`` عمررسیدہ ریلیز کے لئے برآمدات جو کہ پیچھے ہٹ جاتے ہیں."
 
+# translated-by: libretranslate
 msgid "*eslint*: ^10.6.0 to ^10.9.0, *globals*: ^17.7.0 to ^17.9.0"
-msgstr ""
+msgstr "*ایس .*^ ا ب پ ربط :10.6.0 ^کے اوبنٹو کو10.9.0: *عالمگیر*^ ا ب پ ربط :17.7.0 ^کے اوبنٹو کو17.9.0"
 
+# translated-by: libretranslate
 msgid "*footer_md* (the archived-releases notice) is folded into this entry's change body — indented like the rest — rather than appended after the trailer, because free text after the final ``--`` line is not valid changelog data and makes ``dpkg-parsechangelog`` warn. The signature time is a placeholder because CHANGELOG.md only carries calendar dates."
-msgstr ""
+msgstr "*footer_md* (محفوظہ لوڈ کی جارہی ہے) اس داخلے کے تبدیل شدہ جسم میں ڈھالا جاتا ہے — جیسے باقی کی طرح ``--`` لائن درست تبدیلی لاگس ڈیٹا اور بنا نہیں ہے۔ ``dpkg-parsechangelog`` انسان کو ڈرانے والی ہے دستخطی وقت ایک مقام ہے کیونکہ CHANGELOG.md صرف کیلنڈر کی تاریخیں ہی جنم لیتی ہیں ۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['[', ']']
+# nocheck: url
+# translation-rejected: *کلیدی -js*: 24.0.5 جگہ 26.2.4[ تصویر کا حوالہ ]
 msgid "*keycloak-js*: 24.0.5 to 26.2.4, loaded as an ES module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*make local* reinstall now works correctly when all services are disabled."
-msgstr ""
+msgstr "*جگہ* بحالی اس وقت درست کام کرتی ہے جب تمام خدمات معطل ہوں۔."
 
+# translated-by: libretranslate
 msgid "*offered* is empty -- a row the query returned always has     at least one mode, so an empty list is a bug upstream, not a case     to paper over with a fallback mode."
-msgstr ""
+msgstr "*پیشکش* خالی ہے -- ایک قطار واپس لوٹنے والا ہمیشہ ایک طریقہ ہے، تو خالی فہرست ایک بگ بینگ ہے،."
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *رنگ‌برنگی دُنیا* (پیکج-mandger git):1.15.2 'وی'1.16.0
 msgid "*pkgmgr* (package-manager git ref): v1.15.2 to v1.16.0"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*roles/sys-lint* pins the GitHub-release tools: actionlint v1.7.12, hadolint v2.15.1, shfmt v3.13.1"
-msgstr ""
+msgstr "*کردار / کردارsys-lint* GitHub-constant آلات : Actionlint v -1.7.12،2.15.1، Shfmt v3.13.1"
 
+# translated-by: libretranslate
 msgid "*row* with ``services`` narrowed to what its variant deploys."
-msgstr ""
+msgstr "*قطار* ساتھ ``services`` جس چیز کی وجہ سے اُس کا وجود کمزور ہو جاتا ہے ۔."
 
+# translated-by: libretranslate
 msgid "*ruff* (dev): 0.16.6 to 0.16.7"
-msgstr ""
+msgstr "*رافف* (کتا): 0.16.6 جگہ 0.16.7"
 
+# translated-by: libretranslate
 msgid "*ruff*: 0.16.0 to 0.16.4"
-msgstr ""
+msgstr "*رافف*: 0.16.0 جگہ 0.16.4"
 
+# translated-by: libretranslate
 msgid "*services.<entity>.ports.local.oauth2* → *ports.local.sso*"
-msgstr ""
+msgstr "*خدمات.<entity>. .ports.local.oauth2* انکار کرو *ports.local.sso*"
 
+# translated-by: libretranslate
 msgid "*stylelint*: ^16.0.0 added"
-msgstr ""
+msgstr "*ریشم*^ ا ب پ ربط :16.0.0 شامل"
 
+# translated-by: libretranslate
 msgid "*svc-ai-ollama*: 0.31.2 to 0.32.15"
-msgstr ""
+msgstr "*svc-ai-ollama*: 0.31.2 جگہ 0.32.15"
 
+# translated-by: libretranslate
 msgid "*svc-ai-ollama*: 0.32.15 to 0.34.0"
-msgstr ""
+msgstr "*svc-ai-ollama*: 0.32.15 جگہ 0.34.0"
 
+# translated-by: libretranslate
 msgid "*svc-ai-ollama*: 0.34.0 to 0.34.2"
-msgstr ""
+msgstr "*svc-ai-ollama*: 0.34.0 جگہ 0.34.2"
 
+# translated-by: libretranslate
 msgid "*svc-ai-ollama*: switched to the official *ollama* image so inference works"
-msgstr ""
+msgstr "*svc-ai-ollama*: سرکاری افسر کے پاس جائیں *اولما* تصویر اتنی بے چینی سے کام لیتی ہے۔"
 
+# translated-by: libretranslate
 msgid "*svc-bkp-container-2-local*, superseded by the volume-oriented backup roles."
-msgstr ""
+msgstr "*Svc-bk-Sainter-2- لوکل*، حجم سے ہٹ کر پیشہ ورانہ کردار ادا کیا۔."
 
+# translated-by: libretranslate
 msgid "*svc-bkp-volume-2-local*: newly on alpine 3.24"
-msgstr ""
+msgstr "*svc-bkp-volume-2-local*: نئی دُنیا 3.24"
 
+# translated-by: libretranslate
 msgid "*svc-db-elasticsearch*: 9.4.3 to 9.5.2"
-msgstr ""
+msgstr "*svc-db-elasticsearch*: 9.4.3 جگہ 9.5.2"
 
+# translated-by: libretranslate
 msgid "*svc-db-elasticsearch*: 9.5.2 to 9.5.3"
-msgstr ""
+msgstr "*svc-db-elasticsearch*: 9.5.2 جگہ 9.5.3"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *svc-db-qdrant*:1.18.2 'وی'1.19.0
 msgid "*svc-db-qdrant*: v1.18.2 to v1.19.0"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *svc-db-qdrant*:1.19.0 'وی'1.19.1
 msgid "*svc-db-qdrant*: v1.19.0 to v1.19.1"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*svc-net-tor* (Debian base): 13.6-slim to 13.7-slim"
-msgstr ""
+msgstr "*svc-net-tor* (ڈی این اے بنیاد): 13.6- معاف کیجئے گا۔ 13.7-شام"
 
+# translated-by: libretranslate
 msgid "*svc-net-tor*: newly on debian trixie-slim"
-msgstr ""
+msgstr "*svc-net-tor*: نئی دبستان تریسیم پر"
 
+# translated-by: libretranslate
 msgid "*svc-runner*: Ubuntu 24.04 to 26.04"
-msgstr ""
+msgstr "*svc-runner*: اوبنٹو 24.04 جگہ 26.04"
 
+# translated-by: libretranslate
 msgid "*sys-ctl-hlth-csp* (csp-checker): 2.2.1 to 3.0.4"
-msgstr ""
+msgstr "*sys-ctl-hlth-csp* (Csp-cheer): 2.2.1 جگہ 3.0.4"
 
+# translated-by: libretranslate
 msgid "*sys-ctl-hlth-csp*: 2.1.2 to 2.2.1"
-msgstr ""
+msgstr "*sys-ctl-hlth-csp*: 2.1.2 جگہ 2.2.1"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *sys-lint* (ریشم):3.13.1 'وی'3.14.1
 msgid "*sys-lint* (shfmt): v3.13.1 to v3.14.1"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*sys-package*, *sys-aur* and *sys-aur-install*, superseded by the distribution-independent package registry."
-msgstr ""
+msgstr "*سلیس رنگ*: *ساسر-* اور *ساس-سر-ضلع -*، تقسیم کردہ پیکج رجسٹر."
 
+# translated-by: libretranslate
 msgid "*sys-service* now uses *SOFTWARE_DOMAIN* instead of *SOFTWARE_NAME* for versioned units"
-msgstr ""
+msgstr "*sys-service* اب استعمال ہوتا ہے۔ *SOFTWARE_DOMAIN* بجائے *SOFTWARE_NAME* ورژن شدہ یونٹوں کے لیے"
 
+# translated-by: libretranslate
 msgid "*test-e2e-playwright*: v1.61.1-noble to v1.62.1-noble"
-msgstr ""
+msgstr "*test-e2e-playwright*:1.61.1'وی کے لئے.1.62.1-Noble"
 
+# translated-by: libretranslate
 msgid "*test-e2e-playwright*: v1.62.1-noble to v1.63.0-noble"
-msgstr ""
+msgstr "*test-e2e-playwright*:1.62.1'وی کے لئے.1.63.0-Noble"
 
+# translated-by: libretranslate
 msgid "*tests/lint/repository/no_legacy_sso_paths/* static guard against the legacy strings re-entering the source tree."
-msgstr ""
+msgstr "*tests/lint/repository/no_legacy_sso_paths/* وارثیت سے بچنے کی حفاظت."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "*utils/roles/applications/services/sso.py* — central resolver for **is_enabled** / **is_proxy_gated** / **is_oidc_native** plus the oauth2 sub-values (*oauth2_origin_{host,port}*, *oauth2_acl*, *oauth2_allowed_groups*)."
-msgstr ""
+msgstr "*utils/roles/applications/services/sso.py* — مرکزی حلف اٹھانے والے **is_enabled** / **is_proxy_gated** / **is_oidc_native** جمع اووت2 ذیلی مقداریں (*oauth2_origin_{میزبان،پورٹ}*: *oauth2_acl*: *oauth2_allowed_groups*). ."
 
+# translated-by: libretranslate
 msgid "*web-app-baserow*: 2.2.2 to 2.3.0"
-msgstr ""
+msgstr "*web-app-baserow*: 2.2.2 جگہ 2.3.0"
 
+# translated-by: libretranslate
 msgid "*web-app-baserow*: 2.3.0 to 2.3.1"
-msgstr ""
+msgstr "*web-app-baserow*: 2.3.0 جگہ 2.3.1"
 
+# translated-by: libretranslate
 msgid "*web-app-baserow*: 2.3.1 to 2.3.3"
-msgstr ""
+msgstr "*web-app-baserow*: 2.3.1 جگہ 2.3.3"
 
+# translated-by: libretranslate
 msgid "*web-app-baserow*: 2.3.3 to 2.3.4"
-msgstr ""
+msgstr "*web-app-baserow*: 2.3.3 جگہ 2.3.4"
 
+# translated-by: libretranslate
 msgid "*web-app-bluesky* (git ref): 1.125.0 to 1.126.0"
-msgstr ""
+msgstr "*web-app-bluesky* (دوبارہ شروع): 1.125.0 جگہ 1.126.0"
 
+# translated-by: libretranslate
 msgid "*web-app-bluesky* (git ref): 1.126.0 to 1.127.0"
-msgstr ""
+msgstr "*web-app-bluesky* (دوبارہ شروع): 1.126.0 جگہ 1.127.0"
 
+# translated-by: libretranslate
 msgid "*web-app-bluesky* (view): 1.131.1 to 1.132.0"
-msgstr ""
+msgstr "*web-app-bluesky* (نظر): 1.131.1 جگہ 1.132.0"
 
+# translated-by: libretranslate
 msgid "*web-app-bluesky* and *web-app-bridgy-fed*: upstream git refs pinned to commits"
-msgstr ""
+msgstr "*web-app-bluesky* اور *web-app-bridgy-fed*. . ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-bookwyrm*:0.9.2 'وی'0.9.3
 msgid "*web-app-bookwyrm*: v0.9.2 to v0.9.3"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: *web-app-checkmk*:2؂ LDAP کے ساتھ ForxySO، SOP کے ساتھ
+# ایک قابلِ کنٹرول کنٹرول کنٹرول ہے. دیکھیں [web-app-checkmk
+# پڑھنا](roles/web-app-checkmk/README.md). .
 msgid "*web-app-checkmk*: Checkmk behind oauth2-proxy SSO with LDAP; the SSO variant injects a reachable logout control. See the [web-app-checkmk README](roles/web-app-checkmk/README.md)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-confluence*: 10.2.14 to 10.2.15"
-msgstr ""
+msgstr "*web-app-confluence*: 10.2.14 جگہ 10.2.15"
 
+# translated-by: libretranslate
 msgid "*web-app-confluence*: 10.2.15 to 10.2.18"
-msgstr ""
+msgstr "*web-app-confluence*: 10.2.15 جگہ 10.2.18"
 
+# translated-by: libretranslate
 msgid "*web-app-dashboard*: 2.0.0 to 2.1.3"
-msgstr ""
+msgstr "*web-app-dashboard*: 2.0.0 جگہ 2.1.3"
 
+# translated-by: libretranslate
 msgid "*web-app-decidim*: 0.31.5 to 0.31.6"
-msgstr ""
+msgstr "*web-app-decidim*: 0.31.5 جگہ 0.31.6"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-erpnext*:16.23.1 'وی'16.25.0
 msgid "*web-app-erpnext*: v16.23.1 to v16.25.0"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-erpnext*:16.25.0 'وی'16.26.2
 msgid "*web-app-erpnext*: v16.25.0 to v16.26.2"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-erpnext*:16.26.2 'وی'16.32.3
 msgid "*web-app-erpnext*: v16.26.2 to v16.32.3"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-erpnext*:16.32.3 'وی'16.34.2
 msgid "*web-app-erpnext*: v16.32.3 to v16.34.2"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-erpnext*:16.34.2 'وی'16.35.0
 msgid "*web-app-erpnext*: v16.34.2 to v16.35.0"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-espocrm*: 10.0.2 to 10.0.6"
-msgstr ""
+msgstr "*web-app-espocrm*: 10.0.2 جگہ 10.0.6"
 
+# translated-by: libretranslate
 msgid "*web-app-espocrm*: 10.0.6 to 10.0.8"
-msgstr ""
+msgstr "*web-app-espocrm*: 10.0.6 جگہ 10.0.8"
 
+# translated-by: libretranslate
 msgid "*web-app-flowise*: 3.1.3 to 3.1.4"
-msgstr ""
+msgstr "*web-app-flowise*: 3.1.3 جگہ 3.1.4"
 
+# translated-by: libretranslate
 msgid "*web-app-funkwhale* (front, api): 2.0.10 to 2.0.11"
-msgstr ""
+msgstr "*web-app-funkwhale* (اگلا، اپی): 2.0.10 جگہ 2.0.11"
 
+# translated-by: libretranslate
 msgid "*web-app-funkwhale*: 2.0.4 to 2.0.6"
-msgstr ""
+msgstr "*web-app-funkwhale*: 2.0.4 جگہ 2.0.6"
 
+# translated-by: libretranslate
 msgid "*web-app-funkwhale*: 2.0.6 to 2.0.9 (api and front)"
-msgstr ""
+msgstr "*web-app-funkwhale*: 2.0.6 جگہ 2.0.9 (اپی اور پیشے)"
 
+# translated-by: libretranslate
 msgid "*web-app-funkwhale*: 2.0.9 to 2.0.10"
-msgstr ""
+msgstr "*web-app-funkwhale*: 2.0.9 جگہ 2.0.10"
 
+# translated-by: libretranslate
 msgid "*web-app-gitea*: 1.26.4 to 1.27.2"
-msgstr ""
+msgstr "*web-app-gitea*: 1.26.4 جگہ 1.27.2"
 
+# translated-by: libretranslate
 msgid "*web-app-gitea*: 1.27.2 to 1.27.3"
-msgstr ""
+msgstr "*web-app-gitea*: 1.27.2 جگہ 1.27.3"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-gitlab* (ویب سیریز، پہلوکی، ورکرزے، گوئٹے،
+# شیل، ریلوے وغیرہ ہیں۔):19.3.0 'وی'19.3.2
 msgid "*web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 to v19.3.2"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-gitlab*: 19.1.0-ee.0 to 19.1.1-ee.0"
-msgstr ""
+msgstr "*web-app-gitlab*: 19.1.0- الوداع.0 جگہ 19.1.1- الوداع.0"
 
+# translated-by: libretranslate
 msgid "*web-app-gitlab*: omnibus *gitlab-ee* 19.1.1 to CNG component images v19.1.2"
-msgstr ""
+msgstr "*web-app-gitlab*: *گلگت بلتستان -* 19.1.1 نوجوانوں کی تصویر19.1.2"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-gitlab*:19.1.2 'وی'19.3.0 (تمام چھ سی آئی ڈی
+# تصاویر ہیں۔)
 msgid "*web-app-gitlab*: v19.1.2 to v19.3.0 (all six CNG component images)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-jellyfin*: Jellyfin media server; LDAP and OIDC auth are modelled as *meta/addons* with per-addon integration hooks and specs. See the [web-app-jellyfin README](roles/web-app-jellyfin/README.md)."
-msgstr ""
+msgstr "*web-app-jellyfin*: Jellifin Media سرور؛ LDAP اور OIDC Auth کو بطور ماڈل بنایا گیا ہے۔ *ملے/ڈُون* جس کے ساتھ پری ایڈن کانسی اور ایم ایس سی ہیں۔ دیکھیں [web-app-jellyfin پڑھنا](roles/web-app-jellyfin/README.md). ."
 
+# translated-by: libretranslate
 msgid "*web-app-jira*: 11.3.10 to 11.3.11"
-msgstr ""
+msgstr "*web-app-jira*: 11.3.10 جگہ 11.3.11"
 
+# translated-by: libretranslate
 msgid "*web-app-jira*: 11.3.8 to 11.3.10"
-msgstr ""
+msgstr "*web-app-jira*: 11.3.8 جگہ 11.3.10"
 
+# translated-by: libretranslate
 msgid "*web-app-jitsi* (web, prosody, jicofo, jvb): stable-9646 to stable-11031"
-msgstr ""
+msgstr "*web-app-jitsi* (ویب، پرسودی، جیکوفو، جیوب): استحکام :9646 محفوظ جگہ11031"
 
+# translated-by: libretranslate
 msgid "*web-app-joomla*: 6.1.1-php8.3-apache to 6.1.2-php8.3-apache"
-msgstr ""
+msgstr "*web-app-joomla*: 6.1.1-php8.3- معاف کیجئے گا۔ 6.1.2-php8.3-پاچے"
 
+# translated-by: libretranslate
 msgid "*web-app-joomla*: 6.1.2-php8.3-apache to 6.1.3-php8.3-apache"
-msgstr ""
+msgstr "*web-app-joomla*: 6.1.2-php8.3- معاف کیجئے گا۔ 6.1.3-php8.3-پاچے"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-keycloak*: 26.7.0 جگہ 26.7.2، اووت2-proxic v
+# -7.15.3 'وی'7.15.4
 msgid "*web-app-keycloak*: 26.7.0 to 26.7.2, oauth2-proxy v7.15.3 to v7.15.4"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.2 to 26.7.3"
-msgstr ""
+msgstr "*web-app-keycloak*: 26.7.2 جگہ 26.7.3"
 
+# translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.3 to 26.7.4"
-msgstr ""
+msgstr "*web-app-keycloak*: 26.7.3 جگہ 26.7.4"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')', '۵']
+# nocheck: url
+# translation-rejected: *web-app-magento*۵ : کھولیں 3.7.0 جگہ 3.8.0); پی ایچ
+# پی پر منعقد ہوتا ہے۔ 8.4- پرچم اور MariaDB پر 11.4، دونوں دانستہ طور پر
+# تصاویر کے خلاف پابند تھے۔
 msgid "*web-app-magento*: OpenSearch 3.7.0 to 3.8.0; PHP held at 8.4-fpm and MariaDB at 11.4, both deliberately fenced against the image bot"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-magento*: PHP 8.5-fpm to 8.4-fpm"
-msgstr ""
+msgstr "*web-app-magento*: 8.5-فپ 8.4- پرواز"
 
+# translated-by: libretranslate
 msgid "*web-app-mailu*: 1.5.3 to 1.5.4"
-msgstr ""
+msgstr "*web-app-mailu*: 1.5.3 جگہ 1.5.4"
 
+# translated-by: libretranslate
 msgid "*web-app-matomo*: 5.11.2 to 5.13.0"
-msgstr ""
+msgstr "*web-app-matomo*: 5.11.2 جگہ 5.13.0"
 
+# translated-by: libretranslate
 msgid "*web-app-matomo*: 5.3.2 to 5.11.2"
-msgstr ""
+msgstr "*web-app-matomo*: 5.3.2 جگہ 5.11.2"
 
+# translated-by: libretranslate
 msgid "*web-app-matomo*: unpinned *latest* to pinned 5.3.2 (matches the bootstrap installer)"
-msgstr ""
+msgstr "*web-app-matomo*: *تازہ* بند 5.3.2 (بوٹسٹر انسٹال کرنے والا)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-matrix* (معاہدے):1.12.26 'وی'1.12.28
 msgid "*web-app-matrix* (Element): v1.12.26 to v1.12.28"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-matrix* (سُناپ):1.159.0 'وی'1.160.0
 msgid "*web-app-matrix* (Synapse): v1.159.0 to v1.160.0"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-matrix*:1.156.0 'وی'1.159.0، ای میل1.12.23
+# 'وی'1.12.26
 msgid "*web-app-matrix*: Synapse v1.156.0 to v1.159.0, Element v1.12.23 to v1.12.26"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-mattermost*: 11.10.1 to 11.11.0"
-msgstr ""
+msgstr "*web-app-mattermost*: 11.10.1 جگہ 11.11.0"
 
+# translated-by: libretranslate
 msgid "*web-app-mattermost*: 11.8.1 to 11.8.2"
-msgstr ""
+msgstr "*web-app-mattermost*: 11.8.1 جگہ 11.8.2"
 
+# translated-by: libretranslate
 msgid "*web-app-mattermost*: 11.8.2 to 11.8.3"
-msgstr ""
+msgstr "*web-app-mattermost*: 11.8.2 جگہ 11.8.3"
 
+# translated-by: libretranslate
 msgid "*web-app-mattermost*: 11.8.3 to 11.9.0"
-msgstr ""
+msgstr "*web-app-mattermost*: 11.8.3 جگہ 11.9.0"
 
+# translated-by: libretranslate
 msgid "*web-app-mattermost*: 11.9.0 to 11.10.1"
-msgstr ""
+msgstr "*web-app-mattermost*: 11.9.0 جگہ 11.10.1"
 
+# translated-by: libretranslate
 msgid "*web-app-mediawiki*: 1.45 to 1.46"
-msgstr ""
+msgstr "*web-app-mediawiki*: 1.45 جگہ 1.46"
 
+# translated-by: libretranslate
 msgid "*web-app-mobilizon*: 5.2.3 to 5.2.4"
-msgstr ""
+msgstr "*web-app-mobilizon*: 5.2.3 جگہ 5.2.4"
 
+# translated-by: libretranslate
 msgid "*web-app-n8n*: 1.95.3 to 1.100.1"
-msgstr ""
+msgstr "*web-app-n8n*: 1.95.3 جگہ 1.100.1"
 
+# translated-by: libretranslate
 msgid "*web-app-nextcloud* (proxy): 1.31.3-alpine to 1.31.5-alpine"
-msgstr ""
+msgstr "*web-app-nextcloud* (بائٹس): 1.31.3- فلپائن کے لئے 1.31.5- ایلن"
 
+# translated-by: libretranslate
 msgid "*web-app-nextcloud* proxy (nginx): unpinned *alpine* to pinned 1.31.2-alpine"
-msgstr ""
+msgstr "*web-app-nextcloud* بائٹس (چینس): *الہامی* بند 1.31.2- ایلن"
 
+# translated-by: libretranslate
 msgid "*web-app-nextcloud* whiteboard: unpinned *latest* to pinned v1.5.9"
-msgstr ""
+msgstr "*web-app-nextcloud* سفید تختہ : غیر متصل *تازہ* نیچے کی طرف1.5.9"
 
+# translated-by: libretranslate
 msgid "*web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3"
-msgstr ""
+msgstr "*web-app-nextcloud*: 33-fpm-Alpine - 34-fpm-Alpine, Ginx 1.31.2 جگہ 1.31.3"
 
+# translated-by: libretranslate
 msgid "*web-app-opencloud*: 4.0.7 to 7.2.0"
-msgstr ""
+msgstr "*web-app-opencloud*: 4.0.7 جگہ 7.2.0"
 
+# translated-by: libretranslate
 msgid "*web-app-opencloud*: 7.2.0 to 7.2.1"
-msgstr ""
+msgstr "*web-app-opencloud*: 7.2.0 جگہ 7.2.1"
 
+# translated-by: libretranslate
 msgid "*web-app-opencloud*: 7.2.1 to 7.2.4"
-msgstr ""
+msgstr "*web-app-opencloud*: 7.2.1 جگہ 7.2.4"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-opentalk* (لُوٹ):1.13.1 'وی'1.13.2
 msgid "*web-app-opentalk* (LiveKit): v1.13.1 to v1.13.2"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-opentalk* (لُوٹ):1.13.2 'وی'1.13.3
 msgid "*web-app-opentalk* (LiveKit): v1.13.2 to v1.13.3"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-opentalk* (لُوٹ):1.13.5 'وی'1.13.6
 msgid "*web-app-opentalk* (LiveKit): v1.13.5 to v1.13.6"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-opentalk* (لُوٹ):1.13.6 'وی'1.13.7
 msgid "*web-app-opentalk* (LiveKit): v1.13.6 to v1.13.7"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-opentalk* (RabbitMQ): 4.3.4 to 4.3.5"
-msgstr ""
+msgstr "*web-app-opentalk* (RabbitMQ): 4.3.4 جگہ 4.3.5"
 
+# translated-by: libretranslate
 msgid "*web-app-opentalk* (RabbitMQ): 4.3.5 to 4.3.6"
-msgstr ""
+msgstr "*web-app-opentalk* (RabbitMQ): 4.3.5 جگہ 4.3.6"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-opentalk*جی‌نہیں ۔1.13.3 'وی'1.13.5: RabbitMQ
+# 4.3.2 جگہ 4.3.4؛ پیشے (وی2.9.0)... (وی0.34.1) اور مصنف (وی0.16.2) اُس وقت تک
+# محفوظ رہیں جب تک کہ مقررہ وقت کو صرف نہ کِیا جائے اور اُس وقت تک اِسے خالی
+# کر دیا جائے ۔ *recorder.toml* ہجرت کی۔
 msgid "*web-app-opentalk*: LiveKit v1.13.3 to v1.13.5, RabbitMQ 4.3.2 to 4.3.4; the frontend (v2.9.0), controller (v0.34.1) and recorder (v0.16.2) stay pinned until the set is released as a bundle and *recorder.toml* is migrated"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-opentalk*:2.8.1 'وی'2.9.0
 msgid "*web-app-opentalk*: v2.8.1 to v2.9.0"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-peertube*:8.2.1 'وی'8.2.2
 msgid "*web-app-peertube*: v8.2.1 to v8.2.2"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-peertube*:8.2.2 'وی'8.2.4
 msgid "*web-app-peertube*: v8.2.2 to v8.2.4"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-peertube*:8.2.4 'وی'8.3.0
 msgid "*web-app-peertube*: v8.2.4 to v8.3.0"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-penpot* (frontend, backend, exporter): 2.17.1 to 2.17.2"
-msgstr ""
+msgstr "*web-app-penpot* (سامنے، پیچھے، برآمد کرنے والا): 2.17.1 جگہ 2.17.2"
 
+# translated-by: libretranslate
 msgid "*web-app-penpot*: 2.16.2 to 2.17.1 (frontend, backend, exporter)"
-msgstr ""
+msgstr "*web-app-penpot*: 2.16.2 جگہ 2.17.1 (سامنے، پیچھے، برآمد کرنے والا)"
 
+# translated-by: libretranslate
 msgid "*web-app-pgadmin*: 9.16 to 9.17"
-msgstr ""
+msgstr "*web-app-pgadmin*: 9.16 جگہ 9.17"
 
+# translated-by: libretranslate
 msgid "*web-app-pgadmin*: 9.17 to 9.18"
-msgstr ""
+msgstr "*web-app-pgadmin*: 9.17 جگہ 9.18"
 
+# translated-by: libretranslate
 msgid "*web-app-pihole*: 2026.06.0 to 2026.07.2"
-msgstr ""
+msgstr "*web-app-pihole*: 2026.06.0 جگہ 2026.07.2"
 
+# translated-by: libretranslate
 msgid "*web-app-pihole*: 2026.07.2 to 2026.09.0"
-msgstr ""
+msgstr "*web-app-pihole*: 2026.07.2 جگہ 2026.09.0"
 
+# translated-by: libretranslate
 msgid "*web-app-pretix* and *web-app-xwiki*: their inline plugin/extension version pins (2.3.1; 2.19.6, 9.15.7, 1.0) were removed as those addons moved into *meta/addons*"
-msgstr ""
+msgstr "*web-app-pretix* اور *web-app-xwiki*: اُن کا ان لائن پلگن/کسی ورژن پِن (2.3.1: 2.19.6: 9.15.7: 1.0) اُن میں سے بعض کو منتقل کر دیا گیا ۔ *ملے/ڈُون*"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-prometheus* (غیر متصل):0.33.0 'وی'0.33.1
 msgid "*web-app-prometheus* (Alertmanager): v0.33.0 to v0.33.1"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-prometheus* (غیر متصل):0.34.0 'وی'0.34.1
 msgid "*web-app-prometheus* (Alertmanager): v0.34.0 to v0.34.1"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-prometheus*: Prometheus v3.13.1
+# 'وی'3.14.0...0.33.1 'وی'0.34.0، Gmail-yeer v1.12.0 'وی'1.12.1
 msgid "*web-app-prometheus*: Prometheus v3.13.1 to v3.14.0, Alertmanager v0.33.1 to v0.34.0, node-exporter v1.12.0 to v1.12.1"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-prometheus*:3.12.0 'وی'3.13.0
 msgid "*web-app-prometheus*: v3.12.0 to v3.13.0"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-prometheus*:3.13.0 'وی'3.13.1
 msgid "*web-app-prometheus*: v3.13.0 to v3.13.1"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-seaweedfs*: 4.35 to 4.36"
-msgstr ""
+msgstr "*web-app-seaweedfs*: 4.35 جگہ 4.36"
 
+# translated-by: libretranslate
 msgid "*web-app-seaweedfs*: 4.36 to 4.37"
-msgstr ""
+msgstr "*web-app-seaweedfs*: 4.36 جگہ 4.37"
 
+# translated-by: libretranslate
 msgid "*web-app-seaweedfs*: 4.37 to 4.38"
-msgstr ""
+msgstr "*web-app-seaweedfs*: 4.37 جگہ 4.38"
 
+# translated-by: libretranslate
 msgid "*web-app-seaweedfs*: 4.39 to 4.44"
-msgstr ""
+msgstr "*web-app-seaweedfs*: 4.39 جگہ 4.44"
 
+# translated-by: libretranslate
 msgid "*web-app-seaweedfs*: 4.44 to 4.46"
-msgstr ""
+msgstr "*web-app-seaweedfs*: 4.44 جگہ 4.46"
 
+# translated-by: libretranslate
 msgid "*web-app-semaphore*: Semaphore UI with OIDC SSO + LDAP. The break-glass admin is sourced from the users model, OIDC admin seeding is idempotent, and the OIDC callback strips a trailing base-URL slash. Shipped at lifecycle *beta*. See the [web-app-semaphore README](roles/web-app-semaphore/README.md)."
-msgstr ""
+msgstr "*web-app-semaphore*: Semaphore UI with OIDCSO + LDAP۔ توڑ گلوکاروں کا اشتہار صارفین کے ماڈل سے ماخوذ ہے، OIDC Admin Belding ideming ہے اور OIDC کال بیک اپنگ بیس-URL کی پٹی ہے۔ زندگی پر نقش‌ونگار *بیٹ*دیکھیں . . . [web-app-semaphore پڑھنا](roles/web-app-semaphore/README.md). ."
 
+# translated-by: libretranslate
 msgid "*web-app-semaphore*: pinned v2.18.16 (new role)"
-msgstr ""
+msgstr "*web-app-semaphore*سوال :2.18.16 (نیا کردار)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-semaphore*:2.18.16 'وی'2.18.21
 msgid "*web-app-semaphore*: v2.18.16 to v2.18.21"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-semaphore*:2.18.25 'وی'2.19.8
 msgid "*web-app-semaphore*: v2.18.25 to v2.19.8"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["'وی'"]
+# nocheck: url
+# translation-rejected: *web-app-semaphore*:2.19.8 'وی'2.19.14
 msgid "*web-app-semaphore*: v2.19.8 to v2.19.14"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "*web-app-shopware*: 6.7.8.2 to 6.7.13.0, OpenSearch 3.7.0 to 3.8.0"
-msgstr ""
+msgstr "*web-app-shopware*: 6.7.8.2 جگہ 6.7.13.0، کھولیں 3.7.0 جگہ 3.8.0"
 
+# translated-by: libretranslate
 msgid "*web-app-snipe-it*: v8.6.3-alpine to v8.7.2-alpine"
-msgstr ""
+msgstr "*web-app-snipe-it*:8.6.3- وی.8.7.2- ایلن"
 
+# translated-by: libretranslate
 msgid "*web-app-socialhome*: 2026.6.16 to 2026.9.18"
-msgstr ""
+msgstr "*web-app-socialhome*: 2026.6.16 جگہ 2026.9.18"
 
+# translated-by: libretranslate
 msgid "*web-app-socialhome*: newly pinned to 2026.6.16"
-msgstr ""
+msgstr "*web-app-socialhome*سوال : 2026.6.16"
 
 msgid "*web-app-wordpress*: 7.0.1 to 7.1.0"
 msgstr ""

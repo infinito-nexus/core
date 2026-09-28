@@ -7960,1509 +7960,2598 @@ msgstr "**最小范围** (只有客户端, 没有服务器配置)"
 msgid "**Mirror failover:** A repository that declares a mirror is served through a guarded location: a 5xx from its primary remote re-runs the same path against the sibling repository, while a 404 is passed straight back."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **缓解:** 图像级突变 (`run`, (中文). `build`, (中文). `push`,
+# (中文). `login`) 及其同义词 (`docker container run`, (中文). `docker image build`,
+# (中文). `docker buildx build`, (中文). `docker image push`) 仍然通过
+# `ask`,所以操作者在执行前先审查.
 msgid "**Mitigation:** Image-level mutation (`run`, `build`, `push`, `login`) and their synonyms (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) still route through `ask`, so the operator reviews them before they execute."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **缓解:** 目标仍然无法绕过 `allowWrite`, (中文).
+# `allowedDomains`,或 `deny` 列表中选项。 一个恶意的目标,召唤 `rm -rf .` 将被停止 `rm -rf*` 拒绝规则。.
 msgid "**Mitigation:** Targets still cannot bypass `allowWrite`, `allowedDomains`, or the `deny` list. A malicious target that called `rm -rf .` would be stopped by the `rm -rf*` deny rule."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **缓解:** `docker run*` 它的同义词在 `ask`,所以操作员审查它们 (假设 5).
+# 编辑 `deny` 列表块 `sudo*`, 因此直接特权升级 通过 `sudo` 无法使用。.
 msgid "**Mitigation:** `docker run*` and its synonyms are in `ask`, so the operator reviews them (subject to Assumption 5). The `deny` list blocks `sudo*`, so direct privilege escalation via `sudo` is unavailable."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Mitigation:** `sandbox.enabled: true` with `sandbox.failIfUnavailable: true` refuses to start when the backend is unavailable. `sandbox.allowUnsandboxedCommands: false` rejects the `dangerouslyDisableSandbox: true` tool parameter, so there is no per-call escape."
-msgstr ""
+msgstr "**缓解:** `sandbox.enabled: true` 与 `sandbox.failIfUnavailable: true` 当后端无法使用时拒绝启动 。 `sandbox.allowUnsandboxedCommands: false` 拒绝 `dangerouslyDisableSandbox: true` 工具参数,所以没有每个呼叫的越狱。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **模式意识 :** 没有可选源会被跳过,没有失败,所以同一角色在自签名和Let's加密设置中都有效.
 msgid "**Mode-aware:** absent optional sources are skipped, not failed, so the same role works in both self-signed and Let's Encrypt setups."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **模式意识 :** 缺少可选源会被跳过, 而不是失败, 因此同样的角色在自签名和让我们加密的设置中都有效
+# 。.
 msgid "**Mode-aware:** absent optional sources are skipped, not failed, so the same role works in both self-signed and Let’s Encrypt setups."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Mode-selection trigger:** Membership in ``svc-swarm-node`` resolves ``DEPLOYMENT_MODE = swarm`` for every web-app role on that host."
-msgstr ""
+msgstr "**模式选择触发 :** 成员 ``svc-swarm-node`` 决定 ``DEPLOYMENT_MODE = swarm`` 在主机上每个网络应用角色。."
 
+# translated-by: libretranslate
 msgid "**Mode-selection trigger:** Membership in `svc-swarm-node` resolves `DEPLOYMENT_MODE = swarm` for every web-app role on that host."
-msgstr ""
+msgstr "**模式选择触发 :** 成员 `svc-swarm-node` 决定 `DEPLOYMENT_MODE = swarm` 在主机上每个网络应用角色。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **模式和背景:** ``agents.model``
+# 命名网关别名每个代理运行和默认进入网关的聊天模式,所以代理可以运行在比 Open WebUI默认。 这个别名的上下文窗口来自模型 ``context``
+# 并写入代理配置为 Hermes ``model.context_length`` 和 OpenClaw
+# ``contextWindow``。代理提示运行到数以万计的令牌,所以只使用 CPU 的本地模型每打开它就花费几分钟; ``agents.model``
+# 在远程模型中进行交互使用。 Hermes 拒绝下面的窗口 64000 符号和答案 HTTP 500
+# 在每一个提示上,所以一个平台,其所选别名的最小值根本没有被提供: ``/v1/models`` 和答案 404,部署说明它掉了哪个平台和为什么。
+# 其余的经纪人继续工作, 这使得一个小模型和 OpenClaw 有效的配对。 一个宣布没有窗口的别名会被报告而不是过滤,因为一个不知道其窗口运行的代理.
 msgid "**Model and context:** ``agents.model`` names the gateway alias every agent runs on and defaults to the gateway’s chat model, so agents can run on a larger model than Open WebUI’s default. The context window of that alias comes from the model’s ``context`` in the inventory and is written into the agent config as Hermes ``model.context_length`` and OpenClaw ``contextWindow``. An agent prompt runs to tens of thousands of tokens, so a CPU-only local model spends minutes per turn on it; point ``agents.model`` at a remote model for interactive use. Hermes refuses a window below 64000 tokens and answers HTTP 500 on every prompt, so a platform whose minimum the selected alias misses is not offered at all: it is left out of ``/v1/models`` and answers 404, and the deploy says which platform it dropped and why. The rest of the broker keeps working, which is what makes a small model and OpenClaw a valid pairing. An alias that declares no window is reported instead of filtered, because an agent that does not know its window runs."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **模式和背景:** `agents.model` 名称 网关别名 每一个代理运行和默认到网关的聊天模式,
+# 所以代理运行在更大的模式上比 Open WebUI'默认。 该别名的上下文窗口来自模型的 `context` 并写入代理配置为 Hermes
+# `model.context_length` 和 OpenClaw `contextWindow`。代理提示运行到数以万计的令牌,所以只使用 CPU
+# 的本地模型每打开它就花费几分钟; `agents.model` 在远程模型中进行交互使用。 Hermes 拒绝下面的窗口 64000 符号和答案
+# HTTP 500 在每一个提示上,所以一个平台,其所选别名的最小值根本没有被提供: `/v1/models` 和答案
+# 404,部署说明它掉了哪个平台和为什么。 其余的经纪人继续工作, 这使得一个小模型和 OpenClaw 有效的配对。
+# 一个宣布没有窗口的别名会被报告而不是过滤,因为一个不知道其窗口运行的代理.
 msgid "**Model and context:** `agents.model` names the gateway alias every agent runs on and defaults to the gateway's chat model, so agents can run on a larger model than Open WebUI's default. The context window of that alias comes from the model's `context` in the inventory and is written into the agent config as Hermes `model.context_length` and OpenClaw `contextWindow`. An agent prompt runs to tens of thousands of tokens, so a CPU-only local model spends minutes per turn on it; point `agents.model` at a remote model for interactive use. Hermes refuses a window below 64000 tokens and answers HTTP 500 on every prompt, so a platform whose minimum the selected alias misses is not offered at all: it is left out of `/v1/models` and answers 404, and the deploy says which platform it dropped and why. The rest of the broker keeps working, which is what makes a small model and OpenClaw a valid pairing. An alias that declares no window is reported instead of filtered, because an agent that does not know its window runs."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **模式网关密钥 :** 带着 LiteLLM Gateway
+# 已部署,该网关提供了本应用程序的每个消费者虚拟密钥别名。.
 msgid "**Model gateway key:** With the LiteLLM Gateway deployed, that gateway provisions a per-consumer virtual key aliased to this application."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Model relay:** Agents call ``http://agent-broker:<port>/llm/v1`` with their own key; the broker forwards the call to LiteLLM with the broker’s virtual key, sets the OpenAI ``user`` field to the owner and logs a JSON ``relay`` event with owner, platform, path and upstream status."
-msgstr ""
+msgstr "**型号中继 :** 特工打电话来 ``http://agent-broker:<port>/llm/v1`` 使用自己的密钥; 经纪人用经纪人的虚拟密钥向 LiteLM 转发电话, 设置 OpenAI ``user`` 字段到所有者并登录 JSON ``relay`` 带有所有者、平台、路径和上游状态的事件。."
 
+# translated-by: libretranslate
 msgid "**Model relay:** Agents call `http://agent-broker:<port>/llm/v1` with their own key; the broker forwards the call to LiteLLM with the broker's virtual key, sets the OpenAI `user` field to the owner and logs a JSON `relay` event with owner, platform, path and upstream status."
-msgstr ""
+msgstr "**型号中继 :** 特工打电话来 `http://agent-broker:<port>/llm/v1` 使用自己的密钥; 经纪人用经纪人的虚拟密钥向 LiteLM 转发电话, 设置 OpenAI `user` 字段到所有者并登录 JSON `relay` 带有所有者、平台、路径和上游状态的事件。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **模特儿们走过 [031](031-llm-gateway-model-backends.md)
+# 网关.** 每个特工的BYO模型配置点只在 `svc-ai-litellm` `/v1` + 模型别名; 它从不直接针对提供者。
+# Pis在本地没有运行大型模型;重型推论通过网关被路由到一个GPU/外部后端.
 msgid "**Models go through the [031](031-llm-gateway-model-backends.md) gateway.** Each agent's BYO-model config points only at the `svc-ai-litellm` `/v1` + a model alias; it never addresses a provider directly. The Pis run no large models locally; heavy inference is routed to a GPU/external backend by the gateway."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **通过 [031](031-llm-gateway-model-backends.md) 网关;
+# 高级工具通过 [025](025-mcp-role-integration.md) MCP (英语).**
+# Embodiment改变主机边界,而不是模型或工具平面:推论仍然通过网关,非硬件工具仍然通过MCP来.
 msgid "**Models via the [031](031-llm-gateway-model-backends.md) gateway; higher-level tools via [025](025-mcp-role-integration.md) MCP.** Embodiment changes the host boundary, not the model or tool planes: inference still goes through the gateway, and non-hardware tools still come via MCP."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Modern Dashboard:** Enjoy a sleek, user-friendly interface for managing campaigns and analyzing performance."
-msgstr ""
+msgstr "**现代 Dashboard数字 :** 享受一个方便用户的流利界面来管理运动和分析表现."
 
+# translated-by: libretranslate
 msgid "**Modern Forum Experience:** Engage in interactive, real-time discussions with a responsive, mobile-friendly design."
-msgstr ""
+msgstr "**现代论坛经验:** 与反应灵敏、便于移动的设计进行互动、实时讨论。."
 
+# translated-by: libretranslate
 msgid "**Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation."
-msgstr ""
+msgstr "**现代和可扩展性:** 为商业创新优化了以共产主义为基础的有力框架。."
 
+# translated-by: libretranslate
 msgid "**Modern search:** OpenSearch out of the box (single-node)."
-msgstr ""
+msgstr "**现代搜索 :** 打开搜索出框 (单节点)。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **现代, 响应网络接口 :** 使用直观和适应性强的UI进行无心浏览、管理和内容管理。.
 msgid "**Modern, Responsive Web Interface:** Access an intuitive and adaptive UI for effortless browsing, administration, and content management."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
-msgstr ""
+msgstr "**模块设计 :** 容易与其他WireGuard角色或网络配置角色融合."
 
+# translated-by: libretranslate
 msgid "**Modular Integration:** Integrates with common routines and roles to further enhance system security."
-msgstr ""
+msgstr "**模块集成 :** 与共同的例行活动和作用相结合,以进一步加强系统安全。."
 
+# translated-by: libretranslate
 msgid "**Modular Role Composition:** Leverages central roles for database and NGINX, ensuring consistency across deployments 🔄"
-msgstr ""
+msgstr "**模块角色构成 :** 利用数据库和NGINX的核心作用,确保各部署的一致性 🔄"
 
+# translated-by: libretranslate
 msgid "**Modular Role Composition:** Uses shared roles for DB, proxy and monitoring to keep your stack consistent 🔄"
-msgstr ""
+msgstr "**模块角色构成 :** 使用共享的 DB、 代理和监视角色来保持您的堆栈的一致性 🔄"
 
+# translated-by: libretranslate
 msgid "**Modular Scalability** 📈 Grow from small teams to global enterprises by composing only the services you need."
-msgstr ""
+msgstr "**模块可缩放性** 📈 从小团队发展到全球企业 只需要组织你需要的服务."
 
+# translated-by: libretranslate
 msgid "**Modular includes**: headers, locations, and global snippets are factored for easy extension."
-msgstr ""
+msgstr "**模块包含**:将标题、位置和全球片段作为容易扩展的考虑因素。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **模块获取失败 (`go.mod` 决议)**: 雨果模块从
+# `proxy.golang.org`。网络向主机的移动必须被本地防火墙/代理允许。.
 msgid "**Module fetch fails (`go.mod` resolution)**: Hugo modules pull from `proxy.golang.org`. Network egress to that host must be allowed by the local firewall / proxy."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Module**"
-msgstr ""
+msgstr "**模块**"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **监测和仪表板条目:** 在作为部署一部分时,用标尺和仪表板服务登记中心。.
 msgid "**Monitoring and dashboard entries:** Registers the hub with the metrics and dashboard services when those are part of the deployment."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Monitoring**   You can follow logs in real time with `journalctl -f`."
-msgstr ""
+msgstr "**监测** 您可以实时跟踪日志 `journalctl -f`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Monitoring** You can follow logs in real time with ``journalctl -f``."
-msgstr ""
+msgstr "**监测** 您可以实时跟踪日志 ``journalctl -f``。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **监测、警报和分析** 📊 内置系统,应用,安全监控采用多渠道通知.
 msgid "**Monitoring, Alerting & Analytics** 📊 Built-in system, application, and security monitoring with multi-channel notifications."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')',
+# '09', '2018', '31']
+# nocheck: url
+# translation-rejected: **监测:** 普罗米修斯刮伤 `/v1/sys/metrics` (原始内容存档于2018-09-31).
+# at the local network. 从中检测到一个密封节点 `/v1/sys/health`,该答案 503 封存时, 200 曾经解封。.
 msgid "**Monitoring:** Prometheus scrapes `/v1/sys/metrics` on the role-local network. A sealed node is detected from `/v1/sys/health`, which answers 503 while sealed and 200 once unsealed."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')',
+# '09', '2018', '31']
+# nocheck: url
+# translation-rejected: **监测:** 普罗米修斯刮伤 ``/v1/sys/metrics``
+# (原始内容存档于2018-09-31). at the local network. 从中检测到一个密封节点
+# ``/v1/sys/health``,该答案 503 封存时, 200 曾经解封。.
 msgid "**Monitoring:** Prometheus scrapes ``/v1/sys/metrics`` on the role-local network. A sealed node is detected from ``/v1/sys/health``, which answers 503 while sealed and 200 once unsealed."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **更为可靠 Git 配置 :** Git设置现在为工作站用户持续工作,没有中断或隐含的依赖关系.
 msgid "**More reliable Git configuration:** Git setup now works consistently for workstation users without broken or implicit dependencies."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **更可靠的安装和部署:** 更少的 Docker 和 OS 特定失败 (特别是CentOS流),
+# 建造更清洁的容器,在CI和当地环境中稳定地执行Python/Ansible。.
 msgid "**More reliable installs and deploys:** Fewer Docker and OS-specific failures (especially on CentOS Stream), cleaner container builds, and stable Python/Ansible execution across CI and local environments."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **更可靠的工作站设置:** 一个专用 *工作站用户* 确保部署和整合测试始终如一。.
 msgid "**More reliable workstation setups:** A dedicated *workstation user* ensures deployments and integration tests run consistently."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**More robust Mailu configuration:** Optional user roles are handled safely, avoiding configuration and runtime errors."
-msgstr ""
+msgstr "**更强壮 Mailu 配置 :** 可选用户角色得到安全处理,避免配置和运行时间错误."
 
+# translated-by: libretranslate
 msgid "**Multi-Platform Support:** Installs Wireguard tools using [pacman](https://wiki.archlinux.org/title/Pacman) on Arch Linux and [apt](https://en.wikipedia.org/wiki/APT_(software)) on Ubuntu/Debian."
-msgstr ""
+msgstr "**多格式支持 :** 安装 Wireguard 工具使用 [艺人](https://wiki.archlinux.org/title/Pacman) 关于 Arch Linux 和 [时间](https://en.wikipedia.org/wiki/APT_(software)) 在乌邦图/德比安。."
 
+# translated-by: libretranslate
 msgid "**Multi-Platform Support:** Installs Wireguard tools using `pacman <https://wiki.archlinux.org/title/Pacman>`__ on Arch Linux and `apt <https://en.wikipedia.org/wiki/APT_(software)>`__ on Ubuntu/Debian."
-msgstr ""
+msgstr "**多格式支持 :** 安装 Wireguard 工具使用 `pacman <https://wiki.archlinux.org/title/Pacman>`__ 关于 Arch Linux 和 `apt <https://en.wikipedia.org/wiki/APT_(software)>`__ 在乌邦图/德比安。."
 
+# translated-by: libretranslate
 msgid "**Multi-distro:** Supports Debian, Ubuntu (``apt``), Arch Linux (``pacman``), and Fedora/EL (``dnf``) via distro-specific task files."
-msgstr ""
+msgstr "**多盘 :** 支持Debian, Ubuntu 语录 (``apt``), 键,Arch Linux (``pacman``),和费多拉/EL (``dnf``) 通过 Distro 特定任务文件。."
 
+# translated-by: libretranslate
 msgid "**Multi-distro:** Supports Debian, Ubuntu (`apt`), Arch Linux (`pacman`), and Fedora/EL (`dnf`) via distro-specific task files."
-msgstr ""
+msgstr "**多盘 :** 支持Debian, Ubuntu 语录 (`apt`), 键,Arch Linux (`pacman`),和费多拉/EL (`dnf`) 通过 Distro 特定任务文件。."
 
+# translated-by: libretranslate
 msgid "**Multi-instance:** Provisions N runner instances per host via `RUNNER_COUNT`; each handles one CI job at a time."
-msgstr ""
+msgstr "**多重性:** 每个东道主通过 `RUNNER_COUNT`;每个处理一个CI任务一次."
 
+# translated-by: libretranslate
 msgid "**Multi-instance:** Provisions N runner instances per host via ``RUNNER_COUNT``; each handles one CI job at a time."
-msgstr ""
+msgstr "**多重性:** 每个东道主通过 ``RUNNER_COUNT``;每个处理一个CI任务一次."
 
+# translation-refused: libretranslate protected-span lost=['1'] gained=['11']
+# nocheck: url
+# translation-rejected: **多经理 HA.** 页:11 单人管理 (一个主机在 `svc-swarm-manager`).
+# 后续要求涵盖 3+ 具有Raft-q法定人数及其支持的库存形状的管理人员。.
 msgid "**Multi-manager HA.** v1 is single-manager (one host in `svc-swarm-manager`). A follow-up requirement covers 3+ managers with Raft-quorum and the inventory shape that supports it."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **贝壳引用中的多声明链是FORBIDDEN. ⛔** 您不能将独立语句链在 Bash 工具呼叫中
+# **任何** 语句分隔符 (`;`,字面新线, `&&`, (中文). `||`, (中文). `&` 背景运算符, 或 子元件/ 括号组,
+# 围绕相同的). 禁令涵盖因果依赖的链条 (`cd X && cmd`) 和可选的一样, 适用于跟踪 `&` 用于背景命令 (使用 Bash 工具
+# `run_in_background: true` 参数代替)。理由:与循环规则相同。 分开工作 **单独的 Bash 工具调用** 或使用等同的单命令
+# (`xargs`, (中文). `grep` 具有多个参数, 一个 make 目标)。 。 。.
 msgid "**Multi-statement chains in shell invocations are FORBIDDEN. ⛔** You MUST NOT chain independent statements inside a single Bash tool call with **any** statement separator (`;`, literal newline, `&&`, `||`, `&` background operator, or subshell/brace groups around the same). The ban covers causally-dependent chains (`cd X && cmd`) just as much as optional ones, and applies to trailing `&` used to background a command (use the Bash tool's `run_in_background: true` parameter instead). Reason: identical to the loop rule. Split the work across **separate Bash tool calls** or use a single-command equivalent (`xargs`, `grep` with multiple args, a make target)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Multi-wall**: declare multiple purpose-built walls (per event, hashtag, account set, …) under one deployment."
-msgstr ""
+msgstr "**多墙**: 声明多种目的墙 (每个事件,标签,账户设置,...) 在一次部署下。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **多地点管理:** 简单创建和维护多个单一网站 WordPress
+# 安装,是博客、公司内联网或教育机构网络的理想。.
 msgid "**Multisite Management:** Easily create and maintain multiple sites with a single WordPress installation, ideal for networks of blogs, corporate intranets, or educational institutions."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Multisite path** (auto-detected via `is_multisite()`): per-site roles come from `/roles/web-app-wordpress/<canonical-domain>/<role>` entries; the super-admin capability comes from `/roles/web-app-wordpress/network-administrator`. The mapper adds the user to any site they have a role for (`add_user_to_blog`) and removes them from sites it previously added them to (`remove_user_from_blog`) when a role for that site disappears from the claim. A user-meta marker (`_infinito_oidc_added_blog_ids`) records which blog memberships the mapper owns, so memberships added through `wp-admin` or the REST API outside the OIDC flow are never touched."
-msgstr ""
+msgstr "**多站点路径** (自动检测通过 `is_multisite()`):每场角色来自 `/roles/web-app-wordpress/<canonical-domain>/<role>` 条目; 超级管理员能力来自 `/roles/web-app-wordpress/network-administrator`。映射器将用户添加到任何他们可以扮演的站点。 (`add_user_to_blog`) 并把他们从它以前增加的地方移走, (`remove_user_from_blog`) 当这个网站的角色从索赔中消失时。 用户- meta 标记 (`_infinito_oidc_added_blog_ids`) 记录地图员拥有的博客成员, `wp-admin` 或 减值 API 在OIDC流外,从未触动过."
 
+# translated-by: libretranslate
 msgid "**Multi‑Server Management:**"
-msgstr ""
+msgstr "**多名公务员管理:**"
 
+# translated-by: libretranslate
 msgid "**Multi‑Server Management:**   Connect to and administer multiple PostgreSQL instances from a single interface."
-msgstr ""
+msgstr "**多名公务员管理:** 连接并管理多个 PostgreSQL 实例来自单一接口。."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **留在里面的突变命令 `allowWrite`** (譬如说. `make test`, (中文).
+# `pip install`, (中文). `docker build`,尽管建造了仍然经过 `ask`) 只是工作在沙盒下面。.
 msgid "**Mutating commands that stay inside `allowWrite`** (e.g. `make test`, `pip install`, `docker build`, though builds still route through `ask`) just work under the sandbox."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Mutating commands that target paths outside `allowWrite`** (e.g. `mv ~/file /etc/`) fail at the sandbox layer with EROFS."
-msgstr ""
+msgstr "**将目标路径移到外部的命令 `allowWrite`** (譬如说. `mv ~/file /etc/`) 与 EROFS 在沙盒层失败 。."
 
+# translated-by: libretranslate
 msgid "**NAT Support:** Configures the external interface for proper masquerading."
-msgstr ""
+msgstr "**NAT 支持 :** 配置外部接口以进行适当的伪装。."
 
+# translation-refused: libretranslate protected-span lost=['1'] gained=['11']
+# nocheck: url
+# translation-rejected: **用于状态数据库的NFS.** 页:11 保留 DB 数据卷,只保留本地数据卷,并使用节点平线。
+# 重新考虑这一点需要单独一项要求,涵盖DB特定NFS语义 (每个引擎的版本兼容性)。 。 。.
 msgid "**NFS for stateful databases.** v1 keeps DB data volumes local-only with node-pinning. Reconsidering this requires a separate requirement covering DB-specific NFS semantics (locking, fsync, version compatibility per engine)."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **NFS 支持的共享卷** 这样,Swarm调度器可以在节点之间移动一个容器而不会失去体积状态.
 msgid "**NFS-backed shared volumes** so that the Swarm scheduler can move a container between nodes without losing volume state."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**NFS-backed storage:** ``docker_registry_data`` survives container/manager restarts when storage backend is NFS."
-msgstr ""
+msgstr "**NFS 备份存储 :** ``docker_registry_data`` 当存储后端是NFS时,可以幸存容器/管理器重启."
 
+# translated-by: libretranslate
 msgid "**NFS-backed storage:** `docker_registry_data` survives container/manager restarts when storage backend is NFS."
-msgstr ""
+msgstr "**NFS 备份存储 :** `docker_registry_data` 当存储后端是NFS时,可以幸存容器/管理器重启."
 
+# translated-by: libretranslate
 msgid "**NGINX Cleanup:** Safely removes server configuration files."
-msgstr ""
+msgstr "**NGINX 清理 :** 安全删除服务器配置文件 。."
 
+# translated-by: libretranslate
 msgid "**NGINX Integration**: Sets up NGINX for handling domain-specific requests and SSL termination."
-msgstr ""
+msgstr "**NGINX 整合**: 设置NGINX,用于处理特定域请求和SSL终止."
 
+# translated-by: libretranslate
 msgid "**NGINX Reverse Proxy Integration:** Provides secure access and HTTPS termination."
-msgstr ""
+msgstr "**NGINX 反向代理集成 :** 提供安全接入和HTTPS终止."
 
+# translated-by: libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for `/cool/` paths."
-msgstr ""
+msgstr "**NGINX 反向代理服务器 :** 配置一个带有 TLS 终止和 WebSocket 支持的 public- facing 代理服务器 `/cool/` 路径。."
 
+# translated-by: libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for ``/cool/`` paths."
-msgstr ""
+msgstr "**NGINX 反向代理服务器 :** 配置一个带有 TLS 终止和 WebSocket 支持的 public- facing 代理服务器 ``/cool/`` 路径。."
 
+# translated-by: libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination for `/` and internal API calls."
-msgstr ""
+msgstr "**NGINX 反向代理服务器 :** 配置带有 TLS 终止的 public-facing 代理服务器 `/` 内部 API 电话."
 
+# translated-by: libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination for ``/`` and internal API calls."
-msgstr ""
+msgstr "**NGINX 反向代理服务器 :** 配置带有 TLS 终止的 public-facing 代理服务器 ``/`` 内部 API 电话."
 
+# translated-by: libretranslate
 msgid "**NGINX reverse proxy:** Front the Joomla container with the project's `sys-stk-front-proxy` for TLS termination and per-domain routing."
-msgstr ""
+msgstr "**NGINX 反向代理 :** 开始 Joomla 项目的容器 `sys-stk-front-proxy` TLS 终止和每个域的路由。."
 
+# translated-by: libretranslate
 msgid "**NGINX reverse proxy:** Front the Joomla container with the project’s ``sys-stk-front-proxy`` for TLS termination and per-domain routing."
-msgstr ""
+msgstr "**NGINX 反向代理 :** 开始 Joomla 项目的容器 ``sys-stk-front-proxy`` TLS 终止和每个域的路由。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **已命名状态 :** 图像声明为卷的配置和缓存目录被固定在命名的卷上,所以没有留下匿名卷。.
 msgid "**Named state:** the configuration and cache directories the image declares as volumes are pinned to named volumes, so no anonymous volume is left behind."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **窄 :** 它配置了名称解析度, 而不是其他的, 因此仅需要解析度的调用者不会更改系统主机名
 msgid "**Narrow:** it configures name resolution and nothing else, so callers that only need resolution do not also change the system hostname"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['0',
+# '00', '1', '2', '22', '3']
+# nocheck: url
+# translation-rejected: **土著 Keycloak 证监会:** 请坐
+# ``web-app-keycloak``{\fn黑体\fs22\bord1\shad0\3aHBE\4aH00\fscx67\fscy66\2cHFFFFFF\3cH808080}在经纪人面前的SSO
+# - 副驾车侧车
+# {\fn黑体\fs22\bord1\shad0\3aHBE\4aH00\fscx67\fscy66\2cHFFFFFF\3cH808080}所以未经认证的访客被转往
+# Keycloak 在他们到达网络客户端之前.
 msgid "**Native Keycloak SSO:** Sit a ``web-app-keycloak``\\ ’s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **土著 Keycloak 证监会:** 请坐
+# `web-app-keycloak`经纪人面前的SSO-副车厢侧车 所以未经认证的访客被重新导向 Keycloak 在他们到达网络客户端之前.
 msgid "**Native Keycloak SSO:** Sit a `web-app-keycloak`'s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Native LDAP:** A central-OpenLDAP connection supplies user records, roles, and contact groups; the header user (Keycloak ``preferred_username``) resolves to a real Checkmk user."
-msgstr ""
+msgstr "**原生 LDAP :** 一个中央...OpenLDAP 连接提供用户记录、角色和联系小组;信头用户 (Keycloak ``preferred_username``) 决心实现真正的 Checkmk 用户。."
 
+# translated-by: libretranslate
 msgid "**Native LDAP:** A central-OpenLDAP connection supplies user records, roles, and contact groups; the header user (Keycloak `preferred_username`) resolves to a real Checkmk user."
-msgstr ""
+msgstr "**原生 LDAP :** 一个中央...OpenLDAP 连接提供用户记录、角色和联系小组;信头用户 (Keycloak `preferred_username`) 决心实现真正的 Checkmk 用户。."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO via SSO-proxy sidecar:** Gate the FusionDirectory web UI through the project's SSO-proxy sidecar (provided by `web-app-keycloak`) for OIDC-authenticated entry."
-msgstr ""
+msgstr "**原生OIDC SSO通过SSO-副车:** 门 FusionDirectory 通过项目的 SSO- 代理车的网络用户界面 (国家 `web-app-keycloak`) 为OIDC认证条目。."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO via SSO-proxy sidecar:** Gate the FusionDirectory web UI through the project’s SSO-proxy sidecar (provided by ``web-app-keycloak``) for OIDC-authenticated entry."
-msgstr ""
+msgstr "**原生OIDC SSO通过SSO-副车:** 门 FusionDirectory 通过项目的 SSO- 代用侧车的网络用户界面 (国家 ``web-app-keycloak``) 为OIDC认证条目。."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Authenticate users against Keycloak via the ``oic-auth`` plugin, configured by JCasC at boot."
-msgstr ""
+msgstr "**原生OIDC SSO:** 认证用户反对 Keycloak 通过 ``oic-auth`` 插件,由 JCasC 在启动时配置 。."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Authenticate users against Keycloak via the `oic-auth` plugin, configured by JCasC at boot."
-msgstr ""
+msgstr "**原生OIDC SSO:** 认证用户反对 Keycloak 通过 `oic-auth` 插件,由 JCasC 在启动时配置 。."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Authenticate users against Keycloak via the in-role ``plg_system_keycloak`` plugin, with ``?fallback=local`` as an env-toggleable emergency hatch."
-msgstr ""
+msgstr "**原生OIDC SSO:** 认证用户反对 Keycloak 通过角色 ``plg_system_keycloak`` 插件,与 ``?fallback=local`` 作为可切换的应急舱门."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Authenticate users against Keycloak via the in-role `plg_system_keycloak` plugin, with `?fallback=local` as an env-toggleable emergency hatch."
-msgstr ""
+msgstr "**原生OIDC SSO:** 认证用户反对 Keycloak 通过角色 `plg_system_keycloak` 插件,与 `?fallback=local` 作为可切换的应急舱门."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Semaphore renders its own \"Sign in with Keycloak\" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`."
-msgstr ""
+msgstr "**原生OIDC SSO:** 司马phore让自己的 \"签名 Keycloak\" 按钮通过 `SEMAPHORE_OIDC_PROVIDERS`; 数据 Keycloak 客户端由 `web-app-keycloak`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Semaphore renders its own “Sign in with Keycloak” button via ``SEMAPHORE_OIDC_PROVIDERS``; the Keycloak client is auto-provisioned by ``web-app-keycloak``."
-msgstr ""
+msgstr "**原生OIDC SSO:** 司马磷让自己“与......签署......” Keycloak“ 按钮通过 ``SEMAPHORE_OIDC_PROVIDERS``; 数据 Keycloak 客户端由 ``web-app-keycloak``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
-msgstr ""
+msgstr "**原生 OIDC 口味** (`services.sso.flavor: oidc`), 而不是乌鸦2- 代用闸门:OpenBao会讲OIDC本身,所以它随之而来 [`web-app-semaphore`](../../roles/web-app-semaphore/) 而不是 [`web-app-openproject`](../../roles/web-app-openproject/)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Native Prometheus metrics** via the `services.prometheus.native_metrics` + `templates/prometheus.yml.j2` contract already used by [`web-app-gitea`](../../roles/web-app-gitea/templates/prometheus.yml.j2), scraped on the internal container port over the role-local docker network."
-msgstr ""
+msgstr "**土著 Prometheus 计量** 通过 `services.prometheus.native_metrics` + 键 `templates/prometheus.yml.j2` 合同已使用 [`web-app-gitea`](../../roles/web-app-gitea/templates/prometheus.yml.j2),在内部容器端口上刮过角色-局部插座网络."
 
+# translated-by: libretranslate
 msgid "**Native in all editions** (incl. Raw): LDAP \"connections\" sync users, contact groups, roles."
-msgstr ""
+msgstr "**所有版本的原生** (包括: 原始内容): LDAP 软件 \"connections\" 同步用户,联络小组,角色."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')',
+# '1']
+# nocheck: url
+# translation-rejected: **土著** 本地电子邮件/密码登录为 *关* 一旦OIDC是登录路径 (安全部队), (中文). *打开*
+# (b) 其他——来自 ``sso`` 服务旗。 ``PENPOT_FLAGS`` 生成 ``enable-login-with-password``
+# 页:1 ``disable-login-with-password`` 相应 (不需要联署材料注射, Penpot
+# 本地禁用密码窗体)。在本地登录时,角色拖曳本地密码 ``administrator`` 通过后端 PREPL 配置文件
+# (``enable-prepl-server``) 内 ``tasks/main.yml`` . . . . . . .
+# ``create-profile`` 为了一份新的简介, ``update-profile`` 当一个联合登录已经创建时, 设置密码; 在 OIDC
+# 下跳过拖曳。.
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the ``sso`` service flag. ``PENPOT_FLAGS`` renders ``enable-login-with-password`` / ``disable-login-with-password`` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the ``administrator`` profile via the backend PREPL (``enable-prepl-server``) in ``tasks/main.yml`` — ``create-profile`` for a fresh profile, ``update-profile`` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')',
+# '1']
+# nocheck: url
+# translation-rejected: **土著** 本地电子邮件/密码登录为 *关* 一旦OIDC是登录路径 (安全部队), (中文). *打开*
+# (b) 其他——来自 `sso` 服务旗。 `PENPOT_FLAGS` 生成 `enable-login-with-password` 页:1
+# `disable-login-with-password` 相应 (不需要联署材料注射, Penpot
+# 本地禁用密码窗体)。在本地登录时,角色拖曳本地密码 `administrator` 通过后端 PREPL 配置文件
+# (`enable-prepl-server`) 内 `tasks/main.yml` . . . . . . . `create-profile`
+# 为了一份新的简介, `update-profile` 当一个联合登录已经创建时, 设置密码; 在 OIDC 下跳过拖曳。.
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS` renders `enable-login-with-password` / `disable-login-with-password` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the `administrator` profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` — `create-profile` for a fresh profile, `update-profile` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **导航到 Pixelfed 目录 :** 一旦进入容器,航行到 Pixelfed 目录。 这通常是根目录
+# 。 Pixelfed 已安装。.
 msgid "**Navigate to Pixelfed Directory:** Once inside the container, navigate to the Pixelfed directory. This is typically the root directory where Pixelfed is installed."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Nested Docker state does not survive a teardown locally, but does in CI.** `INFINITO_DOCKER_VOLUME` is the named volume `docker` ([default.env](../../../../default.env)) and a host path (`/mnt/docker`) on GitHub. `compose down -v` removes a named volume and cannot remove a bind mount, so every workspace track starts on a clean inner daemon locally while CI carries the previous track's containers into the next one. Defects that need a container, network, or bind source to outlive a teardown cannot reproduce under act."
-msgstr ""
+msgstr "**Nested Docker状态在当地无法幸存,而是在CI中存在.** `INFINITO_DOCKER_VOLUME` 名称的音量 `docker` ([default.env](../../../../default.env)) 和主机路径 (`/mnt/docker`) 在GitHub上。 `compose down -v` 删除一个命名的音量, 不能删除绑定挂载, 因此每个工作空间轨道都从干净的内端守护进程开始 , 而 CI 将上一个音轨的容器带入下一个 。 需要容器、网络或束缚源头以超过寿命的缺陷无法在行为下复制。."
 
+# translated-by: libretranslate
 msgid "**Nested keys.** Both flat and nested credential keys are accepted, so e.g. `recaptcha.key` and `recaptcha.secret` remain nested."
-msgstr ""
+msgstr "**密钥** 平面和嵌入式证书密钥均被接受,因此例如. `recaptcha.key` 和 `recaptcha.secret` 仍为巢穴."
 
+# translated-by: libretranslate
 msgid "**Network Configuration**: Includes setup of a dedicated Docker network for MariaDB."
-msgstr ""
+msgstr "**网络配置**: 包括设置一个用于 MariaDB。 。 。."
 
+# translated-by: libretranslate
 msgid "**Network bridges are addons.** Appservice / network bridges (e.g. the Matrix `mautrix` bridges to WhatsApp, Telegram, Signal, Slack, Facebook, Instagram) are addons declared under `meta/addons/` with `mechanism: bridge`, one file per bridged network. Each bridge owns its credentials in [`meta/secrets.yml`](../contributing/design/role/services/layout.md) and is `required: false` and disabled by default. The role's former bridge declarations (e.g. `web-app-matrix`'s `vars/bridges.yml`) are absorbed into `meta/addons/`."
-msgstr ""
+msgstr "**网络桥是加通.** Appservice / 网络桥 (例如, Matrix `mautrix` 连接到WhatsApp、Telegram、信号、Slack、Facebook、Instagram的桥梁) 被宣布为附加 `meta/addons/` 与 `mechanism: bridge`,每个桥网一个文件。 每座桥都拥有自己的资质 [`meta/secrets.yml`](../contributing/design/role/services/layout.md) 并且已经 `required: false` 并默认禁用。 角色的前桥梁宣言 (譬如说. `web-app-matrix`说 `vars/bridges.yml`) 被吸收为 `meta/addons/`。 。 。."
 
+# translated-by: libretranslate
 msgid "**NetworkManager + dnsmasq**. preferred path when NetworkManager is active; configures the NM dnsmasq plugin with a wildcard zone entry."
-msgstr ""
+msgstr "**网络管理 + dnsmasq**。当NetworkManager活动时,首选路径;配置带有通配符区的 NM dnsmasq 插件。."
 
+# translated-by: libretranslate
 msgid "**Networks.** For `implementation: sidecar` or `external`, the MCP container MUST attach to the role's existing `networks.local` subnet and MUST NOT introduce a new top-level network."
-msgstr ""
+msgstr "**网易新闻.** 对于 `implementation: sidecar` 或 `external`, MCP 容器 MUST 与该角色的现有 `networks.local` 子网和 MUST 不引入新的顶级网络。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **中立选择 :** 与语言的整理不同 `unicode_ci` 在不带偏见的多语种背景下大力开展工作。.
 msgid "**Neutral choice:** Unlike language‑specific collations, `unicode_ci` works robustly in multilingual contexts without bias."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **从来没有一个普通的容器,部署就证明了这一点。** 一个飞行前探测器 宿主 `/dev/kvm`
+# 和每个运行时间的二进制,并选择实际安装的最强运行时间;选择在部署时记录。 一定不会回到平原上 `runc` 容器:绝不允许不孤立地执行模型生成的代码。.
 msgid "**Never a plain container, and the deploy proves it.** A preflight probes the host for `/dev/kvm` and for each runtime's binary, and selects the strongest runtime that is actually installed; the choice is logged at deploy time. It MUST NOT fall back to a plain `runc` container: unisolated execution of model-generated code is never allowed."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Never commit your API token to a public repository. Always keep it secure!**"
-msgstr ""
+msgstr "**永远不要承诺 API 给公共存储器的符号。 永远保持安全!**"
 
+# translated-by: libretranslate
 msgid "**Never disable.** Required by almost every app."
-msgstr ""
+msgstr "**永远不要禁用。** 几乎每个应用程序都有要求."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **手表全副武装时 别再发信了** `entry-manual-steer.yml` 声明分支的货币组
+# `cancel-in-progress`,因此第二次发送取消运行为三进制。
+# 然后循环将一个取消的运行进行分类,并将每个未完成的行报告为失败,这是一个幻象:这些行从未达成过判决.
 msgid "**Never dispatch again while the watch is armed.** `entry-manual-steer.yml` declares the branch's concurrency group with `cancel-in-progress`, so a second dispatch cancels the run being triaged. The loop then triages a cancelled run and reports every unfinished row as a failure, which is a phantom: those rows never reached a verdict."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Never enable buffering for true WebSocket connections!**   Use `proxy_buffering off;` (as in `ws_generic.conf.j2`) or connections may fail."
-msgstr ""
+msgstr "**永远不要为真正的 WebSocket 连接启用缓冲!** 使用 `proxy_buffering off;` (作为 `ws_generic.conf.j2`) 或连接可能失败。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **新的CLI能力:** 自动解析 *run_after* 安全循环检测的依赖性简化了角色分析和自动化.
 msgid "**New CLI capability:** Automatic resolution of *run_after* dependencies with safe cycle detection simplifies role analysis and automation."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **新的和重塑的角色。** *sys-svc-nss* 正在从 *sys-hostname*, (中文).
+# *web-svc-mirror* 作为隐私代理服务前端资产, PeerTube 成为仅清晰的网络,无法运行的角色被删除而不是修复.
+# CLI工具通过pip而不是pkgmgr安装.
 msgid "**New and reshaped roles.** *sys-svc-nss* is split out of *sys-hostname*, *web-svc-mirror* serves frontend assets as a privacy proxy, PeerTube becomes clearnet-only, and roles that could not run were deleted rather than repaired. CLI tools install via pip instead of pkgmgr."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **新的合同** 端口变量必须通过查询解决,调度服务必须声明 *复制品 :
+# 1*,并且音量所有堆栈角色必须声明其备份策略。 *role_path* 在壳体和指挥机构被禁止。
+# 部署模式默认、集装箱检查解析器、同步任务说明和体检申报由中央验证。 Hadolint指令和文件 *无检查*
+# 例外情况是得到承认的,而不是产生虚假的阳性。.
 msgid "**New lint contracts.** Port variables must resolve through lookups, scheduler services must declare *replicas: 1*, and volume-owning stack roles must declare their backup policy. *role_path* is forbidden in shell and command bodies. Deployment-mode defaults, container-inspection resolvers, asynchronous-task rationales and health-check declarations are validated centrally. Hadolint directives and documented *nocheck* exceptions are recognized instead of producing false positives."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **下一场云在每次运行时都计算出新的应用程序密码, 并取消任何密码 。**
+# 名称是固定和管理的,因此每个找到已存储的密码被拒绝的运行都会在账户中添加另一个有效的代号,而之前的每一个都保持了完全的访问.
+# 薄荷酒现在之前是上市和吊销每个带有该名称的标志.
 msgid "**Nextcloud minted a new app password on every run and revoked none.** The name was fixed and managed, so each run that found the stored password rejected added another valid token to the account while every previous one kept full access. The mint is now preceded by a listing and the revocation of every token carrying that name."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Nginx** (frontend) — static assets + reverse proxy onto Frappe / SocketIO"
-msgstr ""
+msgstr "**阴性** (前端) ——静态资产+反向代理到Frappe / SocketIO"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **不让我们加密 `.onion`** (ACME需要公开的DNS)。洋葱运输已经加密 + 服务器认证
+# (地址=公用钥匙)。 。 。.
 msgid "**No Let's Encrypt for `.onion`** (ACME needs public DNS). Onion transport is already encrypted + server-authenticated (address = pubkey)."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **不让我们加密** (单位:千美元) `.onion` (ACME 需要公开 DNS)。 。 。.
 msgid "**No Let's Encrypt** for `.onion` (ACME requires public DNS)."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **无让我们加密** (单位:千美元) ``.onion`` (ACME 需要公开 DNS)。 。 。.
 msgid "**No Let’s Encrypt** for ``.onion`` (ACME requires public DNS)."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **无出入境惊喜 :** 上游应用程序目录 github.com 已禁用。 无
+# ``web-svc-coturn`` 由于完全压制变量会让WebRTC一无所有,.
 msgid "**No Outbound Surprises:** The upstream app catalog fetch to github.com is disabled. Without ``web-svc-coturn`` the app still falls back to its built-in Google STUN server, since suppressing the variable entirely would leave WebRTC with none at all."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **无出入境惊喜 :** 上游应用程序目录 github.com 已禁用。 无
+# `web-svc-coturn` 由于完全压制变量会让WebRTC一无所有,.
 msgid "**No Outbound Surprises:** The upstream app catalog fetch to github.com is disabled. Without `web-svc-coturn` the app still falls back to its built-in Google STUN server, since suppressing the variable entirely would leave WebRTC with none at all."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **没有允许列表编辑** 在引入新的制作目标、脚本、工具或 shell 形状时需要 (重定向、 管道、
+# env 前缀、 引用的参数)。 。 。.
 msgid "**No allowlist edits** are needed when introducing new make targets, scripts, tooling, or shell shapes (redirects, pipes, env-prefixes, quoted args)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**No clone needed:** `/v1/tree` and `/v1/file` read any path of a ref, `/v1/log` walks its history."
-msgstr ""
+msgstr "**不需要克隆 :** `/v1/tree` 和 `/v1/file` 阅读任何路径的裁判, `/v1/log` 记录它的历史。."
 
+# translated-by: libretranslate
 msgid "**No clone needed:** ``/v1/tree`` and ``/v1/file`` read any path of a ref, ``/v1/log`` walks its history."
-msgstr ""
+msgstr "**不需要克隆 :** ``/v1/tree`` 和 ``/v1/file`` 阅读任何路径的裁判, ``/v1/log`` 记录它的历史。."
 
+# translated-by: libretranslate
 msgid "**No configuration without a key:** the file is written only once URL, key and model list are set."
-msgstr ""
+msgstr "**无密钥配置 :** 文件仅在 URL 、 密钥 和 模型 列表 设定后才被写入 。."
 
+# translated-by: libretranslate
 msgid "**No configuration without a key:** the settings file is written only once both the gateway URL and the key are set."
-msgstr ""
+msgstr "**无密钥配置 :** 设置文件仅在网关 URL 和 密钥 设定后才被写入。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **一点都没有** 或 **外部任何更改的路径
+# `roles/<role>/...`**:没有设置白名单,因此整个工作流程范围的全面部署运行.
 msgid "**No diff at all** OR **any changed path outside `roles/<role>/...`**: no whitelist is set, so the full deploy across the workflow's scope runs."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**No external database** - self-contained SQLite under `/config`."
-msgstr ""
+msgstr "**没有外部数据库** - 自成一体的SQLite在下面 `/config`。 。 。."
 
+# translated-by: libretranslate
 msgid "**No external database** - self-contained SQLite under ``/config``."
-msgstr ""
+msgstr "**没有外部数据库** - 自成一体的SQLite在下面 ``/config``。 。 。."
 
+# translated-by: libretranslate
 msgid "**No external database.** OpenBao's integrated raft storage owns all state on one persistent volume."
-msgstr ""
+msgstr "**没有外部数据库 。** OpenBao的集成木筏存储器拥有一个持续体积的所有状态."
 
+# translated-by: libretranslate
 msgid "**No external database:** Self-contained on a single persistent volume."
-msgstr ""
+msgstr "**没有外部数据库 :** 自足于一恒经卷上."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **无外部查看 :** 过滤器只操作于您明确传递给它们的数据,无法访问外部文件、 Ansible
+# 库存或运行时上下文。.
 msgid "**No external lookups:** Filters only operate on data you explicitly pass to them and cannot access external files, the Ansible inventory, or runtime context."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**No implicit token generation**"
-msgstr ""
+msgstr "**没有隐含的符号生成**"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **没有发明的配置 :** 提供者的设置留在应用程序中,因为其文件计划没有在上游记录。.
 msgid "**No invented configuration:** the provider setup stays in the application, because its file schema is not documented upstream."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**No new secret store.** Any credential an addon needs continues to be declared in [`meta/secrets.yml`](../contributing/design/role/services/layout.md) `credentials:` and read via `lookup('config', application_id, 'secrets.credentials.<name>')`."
-msgstr ""
+msgstr "**没有新的秘密店** 任何附加需要的证明继续公布于 [`meta/secrets.yml`](../contributing/design/role/services/layout.md) `credentials:` 读取 `lookup('config', application_id, 'secrets.credentials.<name>')`。 。 。."
 
+# translated-by: libretranslate
 msgid "**No state changes beyond install:** Does not enable services or write per-user OBS configuration."
-msgstr ""
+msgstr "**安装后无状态变化 :** 不启用服务或每用户写 OBS 配置 。."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **无检查指令** . . . . . . . `# nocheck:`, (中文). `# noqa:`,
+# (中文). `# shellcheck …`, (中文). `# type: ignore`, (中文). `# pragma: no
+# cover`,等编.
 msgid "**Nocheck directive** — `# nocheck:`, `# noqa:`, `# shellcheck …`, `# type: ignore`, `# pragma: no cover`, etc."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **节点标签 :** 在群居模式下,节点被标记 ``kata-capable=true``,而沙盒服务
+# 受此标签的限制。 没有这样一个节点的部署被拒绝,而不是等待。.
 msgid "**Node labelling:** In swarm mode the node is labelled ``kata-capable=true``, and sandboxed services are constrained to that label. A deploy without a single such node is refused rather than left pending."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **节点标签 :** 在群居模式下,节点被标记 `kata-capable=true`,而沙盒服务
+# 受此标签的限制。 没有这样一个节点的部署被拒绝,而不是等待。.
 msgid "**Node labelling:** In swarm mode the node is labelled `kata-capable=true`, and sandboxed services are constrained to that label. A deploy without a single such node is refused rather than left pending."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Node labels:** Per-host labels declared via ``swarm_node_labels`` in inventory are applied to the joining node."
-msgstr ""
+msgstr "**节点标签 :** 通过网站声明的每个主机标签 ``swarm_node_labels`` 在清单中,加入节点适用。."
 
+# translated-by: libretranslate
 msgid "**Node labels:** Per-host labels declared via `swarm_node_labels` in inventory are applied to the joining node."
-msgstr ""
+msgstr "**节点标签 :** 通过网站声明的每个主机标签 `swarm_node_labels` 在清单中,加入节点适用。."
 
+# translated-by: libretranslate
 msgid "**Node.js Installation:** Installs the latest Node.js version available via the system's package manager."
-msgstr ""
+msgstr "**Node.js 安装 :** 安装最新的 Node.js 通过系统的软件包管理器提供版本。."
 
+# translated-by: libretranslate
 msgid "**Node.js Installation:** Installs the latest Node.js version available via the system’s package manager."
-msgstr ""
+msgstr "**Node.js 安装 :** 安装最新的 Node.js 通过系统的软件包管理器提供版本。."
 
+# translated-by: libretranslate
 msgid "**Non-Interactive Operation:** Fully automated using `--non-interactive` and `--agree-tos`."
-msgstr ""
+msgstr "**非互动行动 :** 完全自动使用 `--non-interactive` 和 `--agree-tos`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Non-Interactive Operation:** Fully automated using ``--non-interactive`` and ``--agree-tos``."
-msgstr ""
+msgstr "**非互动行动 :** 完全自动使用 ``--non-interactive`` 和 ``--agree-tos``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Non-Invasive:** Does not alter the content of `.profile`."
-msgstr ""
+msgstr "**非侵入性 :** 不改变 `.profile`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Non-Invasive:** Does not alter the content of ``.profile``."
-msgstr ""
+msgstr "**非侵入性 :** 不改变 ``.profile``。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **并不是每个主题都是作曲项目.** 演讲是由自己的 `./launcher rebuild`
+# ([handlers/stack_host.yml](../../../web-app-discourse/handlers/stack_host.yml))
+# 并作为一个没有作曲标签的普通容器运行。
+# 钻头将这种容器当作一个主题,每当它装上这代备份的量时:它被用其他所有东西停止,并在最后重新开始,它的返回像任何其他东西一样。 左转运行它需要一个
+# `rsync --delete` 并且链条的消费者检查 读作曲的标签 看不到它 所以垃圾场的重播 会像Zammad的失败一样.
 msgid "**Not every subject is a compose project.** Discourse is built by its own `./launcher rebuild` ([handlers/stack_host.yml](../../../web-app-discourse/handlers/stack_host.yml)) and runs as a plain container with no compose label. The drill treats such a container as a subject whenever it mounts a volume this generation backed up: it is stopped with everything else and started again at the end, and its return is asserted like any other. Left running it would take an `rsync --delete` into its live data directory, and the chain's consumer check — which reads compose labels — would not see it, so the dump replay would race it exactly like the zammad failure this whole change came from."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **不用于服务器**: 本游戏本不为服务器环境设计. 优化为个人开发机.
 msgid "**Not for Server Use**: This playbook is not designed for server environments. It is optimized for individual development machines."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Not native in any edition**; Raw only via Apache `mod_auth_openidc` (manual PoC). → use the platform oauth2-proxy gate instead."
-msgstr ""
+msgstr "**任何版本中都不是本地语言**; 仅通过 Apache 初始 `mod_auth_openidc` (手动 PoC)~ 使用平台 oauth2-代之以代之门."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **不与应用程序加词混淆。** 这个 `plugins/` 目录持有 **可解药** 插件 (动作 /
+# 过滤/ 查询) 自动引擎本身。 一些应用程序 *(单位:千美元)* 调用自己的扩展名 "plugins" (例如,下一个云,
+# WordPress)。这些应用程序级别的扩展,无论应用程序在本地称之为什么,都通过统一程序予以宣布。 `meta/addons/` 合同,记录于
+# [统一添加](../docs/contributing/design/role/services/layout.md#unified-addons-metaaddons-).
+# 应用程序 "plugin" 是一个 *加词*; Ansible 插件住在这里.
 msgid "**Not to be confused with application addons.** This `plugins/` directory holds **Ansible** plugins (action / filter / lookup) that extend the automation engine itself. Some applications *also* call their own extensions \"plugins\" (e.g. Nextcloud, WordPress). Those application-level extensions, whatever the app calls them natively, are declared through the unified `meta/addons/` contract, documented in [Unified Addons](../docs/contributing/design/role/services/layout.md#unified-addons-metaaddons-). An app \"plugin\" is an *addon*; an Ansible plugin lives here."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Not** suitable for WebSocket endpoints (buffering can break WS)"
-msgstr ""
+msgstr "**没有** 适合 WebSocket 端点 (缓冲可以打破WS)"
 
+# translated-by: libretranslate
 msgid "**Numbering.** This document is `026-unified-addon-syntax.md`, forming the trio `025-mcp-role-integration` → `026-unified-addon-syntax` → `027-integration-matrix`. The pre-existing `025-mcp-role-integration` vs `025-web-app-matrix-ansible-flavor` number collision is out of this requirement's scope; a separate doc owns its resolution."
-msgstr ""
+msgstr "**编号** 此文档为 `026-unified-addon-syntax.md`,组成三重奏 `025-mcp-role-integration` → `026-unified-addon-syntax` → `027-integration-matrix`。先前存在的 `025-mcp-role-integration` 数字 `025-web-app-matrix-ansible-flavor` 数字碰撞不属于此要求的范围;单独一个文件拥有它的分辨率。."
 
+# translated-by: libretranslate
 msgid "**OAUTH2_PROXY_\\*** env / Jinja vars → **SSO_PROXY_\\***"
-msgstr ""
+msgstr "**OAUTH2_PROXY_\\*** 木卫一/金ja vars **SSO_PROXY_\\***"
 
+# translated-by: libretranslate
 msgid "**OAUTH2_SERVICE_ENABLED** + **OIDC_SERVICE_ENABLED** → single **SSO_SERVICE_ENABLED**"
-msgstr ""
+msgstr "**OAUTH2_SERVICE_ENABLED** + 键 **OIDC_SERVICE_ENABLED** 单身 **SSO_SERVICE_ENABLED**"
 
+# translated-by: libretranslate
 msgid "**OAuth2 Proxy Support:** Secure your admin interface with modern authentication."
-msgstr ""
+msgstr "**奥奥特2 代理支持 :** 保护您与现代认证的管理员界面 。."
 
+# translated-by: libretranslate
 msgid "**OAuth2 gating**: drop-in support when *web-app-keycloak's SSO-proxy sidecar* is present."
-msgstr ""
+msgstr "**奥奥特2 钓鱼**: 当 *web-app-keycloakSSO的副车* 在场。."
 
+# translated-by: libretranslate
 msgid "**OAuth2 gating**: drop-in support when *web-app-keycloak’s SSO-proxy sidecar* is present."
-msgstr ""
+msgstr "**奥奥特2 钓鱼**: 当 *web-app-keycloakSSO的副车* 在场。."
 
+# translated-by: libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by ``web-app-keycloak``\\ ’s SSO-proxy sidecar (``services.sso.enabled: true``). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr ""
+msgstr "**奥奥特2 代理门 :** 每一个请求都是由 ``web-app-keycloak``\\ SSO 的副车 (``services.sso.enabled: true``). 编辑 Keycloak 域级检察官办公室和WebAuthn流量执行 2OAuth 之前的 FA 任务2 代理机承认一个会话; KIX 本身不带 2FA逻辑."
 
+# translated-by: libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by `web-app-keycloak`'s SSO-proxy sidecar (`services.sso.enabled: true`). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr ""
+msgstr "**奥奥特2 代理门 :** 每一个请求都是由 `web-app-keycloak`SSO的副车 (`services.sso.enabled: true`). 编辑 Keycloak 域级检察官办公室和WebAuthn流量执行 2OAuth 之前的 FA 任务2 代理机承认一个会话; KIX 本身不带 2FA逻辑."
 
+# translated-by: libretranslate
 msgid "**OAuth2/SSO protection** via Keycloak and oauth2-proxy"
-msgstr ""
+msgstr "**奥奥特2保护特别安全组织** 通过 Keycloak 和欧斯2- 代号"
 
+# translated-by: libretranslate
 msgid "**OIDC Authentication:** Seamless integration with identity providers such as Keycloak."
-msgstr ""
+msgstr "**OIDC 认证 :** 与身份提供者如 Keycloak。 。 。."
 
+# translated-by: libretranslate
 msgid "**OIDC Authentication:** Single sign-on via Keycloak integration for seamless identity management across the Infinito.Nexus ecosystem."
-msgstr ""
+msgstr "**OIDC 认证 :** 单次登录通过 Keycloak 一体化,促进跨区域无缝身份管理 Infinito.Nexus 生态系统。."
 
+# translated-by: libretranslate
 msgid "**OIDC JVM CA trust (self-signed TLS only):** when `TLS_MODE == self_signed`, the backend command (in `templates/compose.yml.j2`) imports the internal CA into a writable `cacerts` copy and points the JVM at it via `JAVA_TOOL_OPTIONS`. The shared `with-ca-trust.sh` entrypoint covers the OS/NSS/env trust stores but not the JVM truststore, so without this Penpot's server-side OIDC token/userinfo calls to Keycloak fail with `PKIX path building failed`. The override is gated behind self-signed mode (it is a no-op in production, where real CA-signed certs are already trusted) and the CA path is hardcoded because the framework's CA-override re-serialises the command."
-msgstr ""
+msgstr "**OIDC JVM CA信托基金 (仅自签名 TLS)数字 :** 何时 `TLS_MODE == self_signed`, 后端命令 (内 `templates/compose.yml.j2`) 将内部 CA 导入为可写 `cacerts` 复制并标注 JVM通过 `JAVA_TOOL_OPTIONS`. 共享 `with-ca-trust.sh` 进入点包括: OS/NSS/env 信托商店,但不是JVM信托, 所以没有这个 Penpot服务器侧 OIDC 令牌/ 用户信息呼叫 Keycloak 失败 `PKIX path building failed`。该超载在自签名模式后加门 (已信任真实的 CA 签名证书, 这是生产中的禁用) 而CA路径是硬编码的,因为框架的CA-override重排命令."
 
+# translated-by: libretranslate
 msgid "**OIDC JVM CA trust (self-signed TLS only):** when ``TLS_MODE == self_signed``, the backend command (in ``templates/compose.yml.j2``) imports the internal CA into a writable ``cacerts`` copy and points the JVM at it via ``JAVA_TOOL_OPTIONS``. The shared ``with-ca-trust.sh`` entrypoint covers the OS/NSS/env trust stores but not the JVM truststore, so without this Penpot’s server-side OIDC token/userinfo calls to Keycloak fail with ``PKIX path building failed``. The override is gated behind self-signed mode (it is a no-op in production, where real CA-signed certs are already trusted) and the CA path is hardcoded because the framework’s CA-override re-serialises the command."
-msgstr ""
+msgstr "**OIDC JVM CA信托基金 (仅自签名 TLS)数字 :** 何时 ``TLS_MODE == self_signed``, 后端命令 (内 ``templates/compose.yml.j2``) 将内部 CA 导入为可写 ``cacerts`` 复制并标注 JVM通过 ``JAVA_TOOL_OPTIONS``. 共享 ``with-ca-trust.sh`` 进入点包括: OS/NSS/env 信托商店,但不是JVM信托, 所以没有这个 Penpot服务器侧 OIDC 令牌/用户信息呼叫 Keycloak 失败 ``PKIX path building failed``。该超载在自签名模式后加门 (已信任真实的 CA 签名证书, 这是生产中的禁用) 而 CA 路径是硬码的,因为框架的 CA 覆盖重排命令 。."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **OIDC SSO (英语). (可选)数字 :** 为发行商,客户端,端点,范围预配的
+# vars;与Atlassian DC SSO/OIDC 市场应用兼容.
 msgid "**OIDC SSO (Optional):** Pre-templated vars for issuer, client, endpoints, scopes; compatible with Atlassian DC SSO/OIDC marketplace apps."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **OIDC SSO (英语). (可选)数字 :** 为发行商,客户端,范围,JWKS预配的
+# vars;与Atlassian DC SSO/OIDC 市场应用兼容.
 msgid "**OIDC SSO (Optional):** Pre-templated vars for issuer, client, scopes, JWKS; compatible with Atlassian DC SSO/OIDC marketplace apps."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**OIDC SSO plugin** is **web-UI only** - native apps cannot use it (they sign in via LDAP/local)."
-msgstr ""
+msgstr "**OIDC SSO 插件** 这是 **仅网易** - 本地应用程序不能使用 (他们通过LDAP/本地)。 。 。."
 
+# translated-by: libretranslate
 msgid "**OIDC Support:** Optionally integrate with OpenID Connect for centralized authentication across your services."
-msgstr ""
+msgstr "**OIDC 支持 :** 可选择与OpenID Connect集成,用于全服务集中认证."
 
+# translated-by: libretranslate
 msgid "**OIDC provider:** inserts the Keycloak provider into ``oauth_providers``. Idempotent via ``ON CONFLICT (tenant_id, provider) DO UPDATE``."
-msgstr ""
+msgstr "**OIDC 提供者 :** 插入 Keycloak 提供者进入 ``oauth_providers``。通过 ``ON CONFLICT (tenant_id, provider) DO UPDATE``。 。 。."
 
+# translated-by: libretranslate
 msgid "**OIDC provider:** inserts the Keycloak provider into `oauth_providers`. Idempotent via `ON CONFLICT (tenant_id, provider) DO UPDATE`."
-msgstr ""
+msgstr "**OIDC 提供者 :** 插入 Keycloak 提供者进入 `oauth_providers`。通过 `ON CONFLICT (tenant_id, provider) DO UPDATE`。 。 。."
 
+# translated-by: libretranslate
 msgid "**OIDC single sign-on and SMTP:** rendered into ``gitlab.yml`` and an ``smtp_settings.rb`` initializer."
-msgstr ""
+msgstr "**OIDC单笔签名和SMTP:** 改为: ``gitlab.yml`` 和一个 ``smtp_settings.rb`` 初摄者."
 
+# translated-by: libretranslate
 msgid "**OIDC single sign-on and SMTP:** rendered into `gitlab.yml` and an `smtp_settings.rb` initializer."
-msgstr ""
+msgstr "**OIDC单笔签名和SMTP:** 改为: `gitlab.yml` 和一个 `smtp_settings.rb` 初摄者."
 
+# translated-by: libretranslate
 msgid "**OIDC** via [`web-app-keycloak`](../web-app-keycloak/) — enabled when the `sso` service is active (`flavor: oidc`, native in-app \"OpenID\" login). Adds `enable-login-with-oidc`."
-msgstr ""
+msgstr "**奥伊德科** 通过 [`web-app-keycloak`](../web-app-keycloak/) ——当 `sso` 服务已激活 (`flavor: oidc`,本地应用程序 \"OpenID\" 登录)添加 `enable-login-with-oidc`。 。 。."
 
+# translated-by: libretranslate
 msgid "**OIDC** via ```web-app-keycloak`` <../web-app-keycloak/>`__ — enabled when the ``sso`` service is active (``flavor: oidc``, native in-app “OpenID” login). Adds ``enable-login-with-oidc``."
-msgstr ""
+msgstr "**奥伊德科** 通过 ```web-app-keycloak`` <../web-app-keycloak/>`__ — enabled when the ``sso`` service is active (``flavor: oidc``, native in-app “OpenID” login). Adds ``enable-login-with-oidc``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Office Integration:** Import, export, and collaborate on Office documents (Word, Excel, PDF)."
-msgstr ""
+msgstr "**办公室整合:** 办公室文件的进出口和协作 (单词, Excel, PDF)。 。 。."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')',
+# '*']
+# nocheck: url
+# translation-rejected: **离线 Python 薄荷** (单位:千美元)25519 * 地址 * 准确的Tor密钥文件格式 *
+# 保险库 * `DOMAIN_PRIMARY`. 同上文 (已存在的密钥被重用, 永远不再重生成)。建设时不需要多克/T。.
 msgid "**Offline Python mint** at inventory build: ed25519 → address → exact Tor key-file formats → vault → `DOMAIN_PRIMARY`. Idempotent (existing key is reused, never regenerated). No Docker/Tor needed at build time."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **离线定点薄荷 :** 该v3 密钥/地址生成时不运行 Tor , 并固定在目录中
+# (稳定、可备份、可恢复)。 。 。.
 msgid "**Offline deterministic minting:** the v3 key/address is generated without running Tor and pinned in the inventory (stable, backupable, restorable)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Offline support:** Fully offline-capable for air-gapped deployments."
-msgstr ""
+msgstr "**离线支持 :** 完全离线可进行空载部署。."
 
+# translated-by: libretranslate
 msgid "**Offline-tolerant:** no tag lookup at install time, so a DNS or API outage no longer breaks ``make install-lint``."
-msgstr ""
+msgstr "**离线耐受性:** 安装时没有标记搜索, 所以是 DNS 或 API 不再中断 ``make install-lint``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Offline-tolerant:** no tag lookup at install time, so a DNS or API outage no longer breaks `make install-lint`."
-msgstr ""
+msgstr "**离线耐受性:** 安装时没有标记搜索, 所以是 DNS 或 API 不再中断 `make install-lint`。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **点播模块** 不得编为 `all.sh` 因为他们编码了一个只在特定的调用路径中才有意义的意图.
+# 唯一部署的标记是犬科的例子:
 msgid "**On-demand modules** MUST NOT be composed into `all.sh` because they encode an intent that only makes sense in a specific call path. The deploy-only marker is the canonical example:"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Once-per-play idempotency:** Wraps the dispatch in ``when: run_once_update is not defined`` and writes the flag via ``tasks/utils/once/flag.yml``, so repeated invocations within one play are no-ops."
-msgstr ""
+msgstr "**一次一击的一击能力:** 将调度包成 ``when: run_once_update is not defined`` 并通过 ``tasks/utils/once/flag.yml``,所以重复引用 在一个剧中是没有的。."
 
+# translated-by: libretranslate
 msgid "**Once-per-play idempotency:** Wraps the dispatch in `when: run_once_update is not defined` and writes the flag via `tasks/utils/once/flag.yml`, so repeated invocations within one play are no-ops."
-msgstr ""
+msgstr "**一次一击的一击能力:** 将调度包成 `when: run_once_update is not defined` 并通过 `tasks/utils/once/flag.yml`,所以重复引用 在一个剧中是没有的。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **一个CI链而不是四个工作流程.**
+# 部署工作流程崩溃成一个被一个验证任务锁定的块链,每个变体都得到自己的行和旋转的Distro,文件系统和拖转轴. 选择令牌 pin 部署轴,
+# retrigger 复制所有模式中源运行的确切选择,正则行恢复源停止的位置.
+# 叉码不再与基础寄存器符运行,工作流程符符被设定为需要它们的工作,被取代的运行被强制取消,中程预算SIGKILL被算作跳过而非绿色. Apt call
+# 站点被限制, 无法烧掉工作预算 。.
 msgid "**One CI chain instead of four workflows.** The deploy workflows collapse into a single chunk chain gated by one validation job, with every variant getting its own row and rotating distro, filesystem and tor axes. Selection tokens pin deploy axes, retriggers reproduce the exact selection of the source run in every mode, and the regular line resumes where the source stopped. Fork code no longer runs with the base repository token, workflow tokens are scoped to the jobs that need them, superseded runs are force-cancelled, and a mid-run budget SIGKILL is counted as skipped rather than green. Apt call sites are bounded so a stalled mirror cannot burn a job budget."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['*']
+# nocheck: url
+# translation-rejected: **一约三味.** ``laya`` * 为多语种检查站提供服务,并在开始时预先装货; ``torch``
+# 管理已公布的GLiformer检查站; ``onnx`` 导出一英寸8 在建设时的图表 需要大约四分之一的记忆。 每个口味都一样 ``POST
+# /v1/systemone``,所以网关不知道它要求哪一个。.
 msgid "**One contract, three flavors.** ``laya`` serves multilingual checkpoints and preloads them at start; ``torch`` runs the GLiFormer checkpoint as published; ``onnx`` exports an int8 graph at build time and needs roughly a quarter of the memory. Every flavor answers the same ``POST /v1/systemone``, so the gateway does not know which one it asked."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['*']
+# nocheck: url
+# translation-rejected: **一约三味.** `laya` * 为多语种检查站提供服务,并在开始时预先装货; `torch`
+# 管理已公布的GLiformer检查站; `onnx` 导出一英寸8 在建设时的图表 需要大约四分之一的记忆。 每个口味都一样 `POST
+# /v1/systemone`,所以网关不知道它要求哪一个。.
 msgid "**One contract, three flavors.** `laya` serves multilingual checkpoints and preloads them at start; `torch` runs the GLiFormer checkpoint as published; `onnx` exports an int8 graph at build time and needs roughly a quarter of the memory. Every flavor answers the same `POST /v1/systemone`, so the gateway does not know which one it asked."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**One file per addon.** Addon definitions live under `roles/<role>/meta/addons/`, one file per addon at `meta/addons/<addon_id>.yml`. The file-root convention applies per file: the file content IS the addon spec, with no wrapping `<addon_id>:` key (the filename stem supplies the addon id); all files are collected into `applications.<role_id>.addons` keyed by `<addon_id>` (see [layout.md](../contributing/design/role/services/layout.md)). The materialised path is `applications.<role_id>.addons.<addon_id>`, read via `lookup('config', application_id, 'addons.<addon_id>')`."
-msgstr ""
+msgstr "**每个附加文件一个。** 附加定义以 `roles/<role>/meta/addons/`,每个附加文件一个 `meta/addons/<addon_id>.yml`。每个文件都适用文件根的常规:文件内容是添加的光谱,没有包 `<addon_id>:` 键 (文件名干提供附加代号); 所有文件被收集为 `applications.<role_id>.addons` 键入 `<addon_id>` (见 [layout.md](../contributing/design/role/services/layout.md))。实际路径是 `applications.<role_id>.addons.<addon_id>`,通过 `lookup('config', application_id, 'addons.<addon_id>')`。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **每个代理都有一个指令文件.** *AGENTS.md* 现在,每个代理规则, *CLAUDE.md* 和
+# *GEMINI.md* 不见了。 他们所携带的规则 绑定每次运行的时间, 和公关模板, 范围表, 要求文件和文件 命名旧文件现在的名称
+# *AGENTS.md*。 。 。.
 msgid "**One instruction file for every agent.** *AGENTS.md* now holds every agent rule, and *CLAUDE.md* and *GEMINI.md* are gone. The rules they carried bind every runtime anyway, and the PR templates, scope tables, requirement documents and docs that named the old files now name *AGENTS.md*."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['0',
+# '00', '1', '2', '22', '3']
+# nocheck: url
+# translation-rejected: **一个节点键 + 每个应用程序子域**
+# (`<sub>.<NODE_ONION>.onion`){\fn黑体\fs22\bord1\shad0\3aHBE\4aH00\fscx67\fscy66\2cHFFFFFF\3cH808080}主机头的路
+# MVP里没有普通洋葱.
 msgid "**One node key + per-app subdomains** (`<sub>.<NODE_ONION>.onion`), Host-header-routed. No per-app onions in MVP."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **每个工具一个覆盖 :** `ACTIONLINT_VERSION`, (中文).
+# `HADOLINT_VERSION` 和 `SHFMT_VERSION` 覆盖一次性安装的标点, 不编辑角色 。.
 msgid "**One override per tool:** `ACTIONLINT_VERSION`, `HADOLINT_VERSION` and `SHFMT_VERSION` override the pin for a one-off install without editing the role."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **每个工具一个覆盖 :** ``ACTIONLINT_VERSION``, (中文).
+# ``HADOLINT_VERSION`` 和 ``SHFMT_VERSION`` 覆盖一次性安装的标点, 不编辑角色 。.
 msgid "**One override per tool:** ``ACTIONLINT_VERSION``, ``HADOLINT_VERSION`` and ``SHFMT_VERSION`` override the pin for a one-off install without editing the role."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**One premise, one place:** A second shared desktop prerequisite is added here rather than in every ``dsk-*`` role."
-msgstr ""
+msgstr "**一个前提,一个地方:** 在此添加第二个共享的桌面先决条件, 而不是在每个桌面中 ``dsk-*`` 作用。."
 
+# translated-by: libretranslate
 msgid "**One premise, one place:** A second shared desktop prerequisite is added here rather than in every `dsk-*` role."
-msgstr ""
+msgstr "**一个前提,一个地方:** 在此添加第二个共享的桌面先决条件, 而不是在每个桌面中 `dsk-*` 作用。."
 
+# translated-by: libretranslate
 msgid "**One-line Script Injection**"
-msgstr ""
+msgstr "**一行脚本注入**"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **一行脚本注入** 将您的 JavaScript 折叠为单行并经由 `sub_filter`
+# 为了最小的脚印和最大程度的兼容性。.
 msgid "**One-line Script Injection**   Collapses your JavaScript into a single line and injects it via `sub_filter` for minimal footprint and maximal compatibility."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **洋葱选入,不是港口.** 一个布林斯的分类按键地图, 命名实体的哪个类别得到一个
+# `HiddenServicePort` 在节点葱。 它宣布不编号: 端口读自 `local` 当此分类被宣布时以及从 `public` 否则,匹配什么
+# `container_ports` 发表. 碰撞探测器忽略了它.
 msgid "**Onion opt-in, not a port.** A category-keyed map of booleans naming which of the entity's own categories get a `HiddenServicePort` on the node onion. It declares no numbers: the port is read from `local` when the category is declared there and from `public` otherwise, matching what `container_ports` publishes. Collision detection ignores it."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **洋葱,防火墙和名称分辨率.** *svc-net-firewall* 拥有包过滤器作为每个角色的一个
+# nfables 表格。 Tor在两种部署模式中将邮件携带到一个.
+# 部署中一次宣布自己的地址空间,Egress范围从Docker池中移出,容器解析器跟随活桥而不是猜测的地址. 每个寄主端口都需要有明确的洋葱决定. 见
+# [svc-net-firewall](roles/svc-net-firewall/README.md)。 。 。.
 msgid "**Onions, firewall and name resolution.** *svc-net-firewall* owns the packet filter as one nftables table per role. Tor carries mail to a .onion in both deploy modes, rejects forged sources on the guarded ports, and binds its dnsmasq listeners statically so a failed re-enumeration can no longer drop every one of them. The deployment declares its own address space once, the egress range moved out of the Docker pool, and the container resolver follows the live bridge instead of a guessed address. Every host-bound port requires an explicit onion decision. See [svc-net-firewall](roles/svc-net-firewall/README.md)."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **只有桥面加通添加一个服务块.** 页:1 `<target>:` 将服务块添加到行角色中,只用于声明
+# `bridges:` 抚养 (根据决定 3),即repo内部的交叉作用集成;没有交叉作用依赖的平板加成不会增加服务块. 每个连接加的
+# `<target>:` 块带标准动态 `enabled`页:1`shared` 匹配真/假的旗帜 `meta/variants.yml` 覆盖范围,以及
+# (用于网页成对) 一个共同部署的 Playwright spec。 穿越内幕 ✅
+# 设定这是一个有限度的、机械的扩展范围,与桥梁一体化相联系,作为决定的一部分被接受 15范围很广.
 msgid "**Only bridging addons add a service block.** A `<target>:` service block is added to the row role ONLY for addons that declare a `bridges:` dependency (per Decision 3), i.e. the in-repo cross-role integrations; a plain addon with no cross-role dependency adds no service block. Each bridging addon's `<target>:` block carries the standard dynamic `enabled`/`shared` flags with matching true/false `meta/variants.yml` coverage, and (for web-facing pairs) a co-deploy Playwright spec. Across the in-repo ✅ set this is a bounded, mechanical expansion scoped to the bridging integrations, accepted as part of Decision 15's full scope."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **只有第一个开始没有用。** 洞穴在每一个开始,再次权威,所以
+# `TOOL_SERVER_CONNECTIONS` 载体是容器的状态 在任何属于禁用条目的组存在之前,该条目是安全方向:没有访问权限,而不是每个管理员。
+# 一旦供给任务 创建了小组, 它的ID生活 在象征性商店, `vars/main.yml` 在下次部署时读回它,过滤器使该条目能够使用其准确的分组赠款。
+# 从那时起,一个赤色容器重新开始恢复一个没有部署的已装好、范围正确的连接。.
 msgid "**Only the first start serves nothing.** The env is authoritative again on every start, so what `TOOL_SERVER_CONNECTIONS` carries is the state the container comes back with. Before any group exists that is a disabled entry, which is the safe direction: no access rather than every administrator. Once the provisioning task has created the group, its id lives in the token store, `vars/main.yml` reads it back on the next deploy, and the filter renders the entry enabled with its exact group grant. From then on a bare container restart restores a served, correctly scoped connection without a deploy."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **只有第一个开始没有用。** 洞穴在每一个开始,再次权威,所以
+# ``TOOL_SERVER_CONNECTIONS`` 载体是容器的状态
+# 在任何属于禁用条目的组存在之前,该条目是安全方向:没有访问权限,而不是每个管理员。 一旦供给任务 创建了小组, 它的ID生活 在象征性商店,
+# ``vars/main.yml`` 在下次部署时读回它,过滤器使该条目能够使用其准确的分组赠款。
+# 从那时起,一个赤色容器重新开始恢复一个没有部署的已装好、范围正确的连接。.
 msgid "**Only the first start serves nothing.** The env is authoritative again on every start, so what ``TOOL_SERVER_CONNECTIONS`` carries is the state the container comes back with. Before any group exists that is a disabled entry, which is the safe direction: no access rather than every administrator. Once the provisioning task has created the group, its id lives in the token store, ``vars/main.yml`` reads it back on the next deploy, and the filter renders the entry enabled with its exact group grant. From then on a bare container restart restores a served, correctly scoped connection without a deploy."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Open Identities:** Use your existing Fediverse account; no new silo account needed."
-msgstr ""
+msgstr "**打开身份 :** 使用您已有的 Fedivers 账户; 不需要新建仓账户 。."
 
+# translated-by: libretranslate
 msgid "**Open Source**: fully auditable and modifiable for custom integrations."
-msgstr ""
+msgstr "**开源**:对于自定义集成,完全可以审计和修改."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **打开 WebUI** 为本地 AI 模型提供干净、快速的聊天界面 (例如,通过 Ollama).
+# 它在您自己的基础设施上提供类似 ChatGPT 的经验,以保持提示和数据保密。.
 msgid "**Open WebUI** provides a clean, fast chat interface for working with local AI models (e.g., via Ollama). It delivers a ChatGPT-like experience on your own infrastructure to keep prompts and data private."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Open-source media streaming** - movies, shows, music, live TV from the official Jellyfin server."
-msgstr ""
+msgstr "**开源媒体流** - 电影、演出、音乐、电视直播 Jellyfin 服务器。."
 
+# translated-by: libretranslate
 msgid "**Open-source monitoring:** Hosts, services, metrics, and alerting from the Checkmk Raw all-in-one container."
-msgstr ""
+msgstr "**开源监测:** 东道主、服务、衡量标准以及从 Checkmk 原始的一号集装箱。."
 
+# translated-by: libretranslate
 msgid "**OpenAI-compatible API:** One HTTP endpoint serves every model listed in the gateway configuration."
-msgstr ""
+msgstr "**OpenAI 兼容 API数字 :** 一个HTTP端点服务于网关配置中列出的每一个模型."
 
+# translated-by: libretranslate
 msgid "**OpenAI-compatible endpoint:** The headless server answers `/v1` requests on port 1234 inside the container network."
-msgstr ""
+msgstr "**OpenAI 兼容端点 :** 无头服务器回答 `/v1` 端口请求 1234 在集装箱网络内。."
 
+# translated-by: libretranslate
 msgid "**OpenAI-compatible endpoint:** The headless server answers ``/v1`` requests on port 1234 inside the container network."
-msgstr ""
+msgstr "**OpenAI 兼容端点 :** 无头服务器回答 ``/v1`` 端口请求 1234 在集装箱网络内。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **OpenAI 兼容网关 :** 容器以 ``gateway`` 命令和答案 OpenAI 样式
+# ``/v1`` 在自己的子域上请求。.
 msgid "**OpenAI-compatible gateway:** The container starts the agent with the ``gateway`` command and answers OpenAI-style ``/v1`` requests on its own subdomain."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **OpenAI 兼容网关 :** 容器以 `gateway` 命令和答案 OpenAI 样式 `/v1`
+# 在自己的子域上请求。.
 msgid "**OpenAI-compatible gateway:** The container starts the agent with the `gateway` command and answers OpenAI-style `/v1` requests on its own subdomain."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**OpenCloud File Integration:** Pick files from OpenCloud in a meeting without re-authenticating when ``web-app-opencloud`` is deployed alongside."
-msgstr ""
+msgstr "**OpenCloud 文件集成 :** 选择文件从 OpenCloud 在一个没有重新校正的会议中 ``web-app-opencloud`` 并肩部署。."
 
+# translated-by: libretranslate
 msgid "**OpenCloud File Integration:** Pick files from OpenCloud in a meeting without re-authenticating when `web-app-opencloud` is deployed alongside."
-msgstr ""
+msgstr "**OpenCloud 文件集成 :** 选择文件从 OpenCloud 在一个没有重新校正的会议中 `web-app-opencloud` 并肩部署。."
 
+# translated-by: libretranslate
 msgid "**OpenLDAP integration** for group synchronization"
-msgstr ""
+msgstr "**OpenLDAP 集成** 用于组同步"
 
+# translated-by: libretranslate
 msgid "**OpenResty:** If using a proxy cache, purge or clear the cache directory, or temporarily disable the cache zone."
-msgstr ""
+msgstr "**打开Resty :** 如果使用代理缓存,则清除或清除缓存目录,或暂时禁用缓存区."
 
+# translated-by: libretranslate
 msgid "**OpenSearch** for catalog search (required by Magento 2.4+)"
-msgstr ""
+msgstr "**打开搜索** 用于目录搜索 (所需时间 Magento 2.4+ 键)"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **OpenTalk 交叉窗口 :** 开始于 OpenTalk 从文件上下文中不重新认证
+# ``web-app-opentalk`` 并肩部署。.
 msgid "**OpenTalk Cross-Launch:** Start a video meeting in OpenTalk from a file context without re-authenticating when ``web-app-opentalk`` is deployed alongside."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **OpenTalk 交叉窗口 :** 开始于 OpenTalk 从文件上下文中不重新认证
+# `web-app-opentalk` 并肩部署。.
 msgid "**OpenTalk Cross-Launch:** Start a video meeting in OpenTalk from a file context without re-authenticating when `web-app-opentalk` is deployed alongside."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **开通适配器提供商的网络给客户与侧车隔离无变体碰撞.** 提供商宣布 `mcp_client`
+# 盖上自己的容器 关于适配器提供者的同一声明将给其侧车提供第二个接口,以及
+# [`isolation.sh`](../../../roles/test-e2e-cli/files/shared/mcp/isolation.sh)
+# 拒绝任何东西,但完全一个, 因为持有提供者证书的侧车只必须到达提供者。.
 msgid "**Opening an adapter provider's network to its clients collides with the sidecar isolation invariant.** A provider that declares the `mcp_client` overlay puts its own containers on it. The same declaration on an adapter provider would give its sidecar a second interface, and [`isolation.sh`](../../../roles/test-e2e-cli/files/shared/mcp/isolation.sh) rejects anything but exactly one, because a sidecar holding the provider's credential must reach that provider only."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **进行部署。** 新的目标达到一个部署的应用程序: *编剧-应用执行*, (中文). *编曲程序日志* 和
+# *编曲- 重新启动*。诊断收集应用程序写到文件的日志,包括从忙箱容器中收集。
+# 健康探测器使用一个快速启动的凸起器,其窗口超过一个真正的靴子,因此慢启动器不再收获.
+# CSP健康检查接受一个Vhost宣布的状态代码,而不是放弃Vhost,并给Onion vhosts一个导航预算Tor可以满足.
 msgid "**Operating a deployment.** New make targets reach a single deployed application: *compose-app-exec*, *compose-app-logs* and *compose-app-restart*. Diagnostics collect the logs an application writes to a file, including from busybox containers. Health probes use a fast start cadence with a window that outlasts a real boot, so a slow starter is no longer reaped. The CSP health check accepts a status code a vhost declares instead of dropping the vhost, and gives onion vhosts a navigation budget Tor can meet."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **默认进入或关闭。** 保密的内含模式绝不是默认的;允许它是一种明确的操作者行动,上面的护栏是有效的。.
 msgid "**Opt-in and off by default.** Privileged embodied mode is never a default; enabling it is an explicit operator action with the guardrails above in force."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Optimized Deployment:** Suitable for use in multi-host environments to avoid redundant installations."
-msgstr ""
+msgstr "**优化部署:** 适合用于多主机环境,以避免冗余设施."
 
+# translated-by: libretranslate
 msgid "**Optional AUR Packages**"
-msgstr ""
+msgstr "**可选 AUR 软件包**"
 
+# translated-by: libretranslate
 msgid "**Optional AUR Packages**   Drop-in tasks for `aacskeys` and `libbdplus` via AUR (commented out by default)."
-msgstr ""
+msgstr "**可选 AUR 软件包** 滴入任务 `aacskeys` 和 `libbdplus` 通过AUR (默认注释)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Optional Cleanup:** Deletes redundant domain certificates when wildcard certificates are used."
-msgstr ""
+msgstr "**可选清理 :** 使用通配符证书时删除冗余域证书."
 
+# translated-by: libretranslate
 msgid "**Optional Firestore emulator:** Use the Datastore-mode emulator sidecar for non-production deployments."
-msgstr ""
+msgstr "**可选 Firestore 模拟器 :** 使用Datastore-mode模拟器侧车进行非生产部署."
 
+# translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**"
-msgstr ""
+msgstr "**可选 OAuth2 一体化:**"
 
+# translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**   Secure your pgAdmin access by integrating an external OAuth2 provider."
-msgstr ""
+msgstr "**可选 OAuth2 一体化:** 通过整合外部 OAuth 来保护您的 pgAdmin 访问权限2 供养者。."
 
+# translated-by: libretranslate
 msgid "**Optional OIDC bridge:** Load ``mod_oauth2_client`` when the OIDC variant is active, for the small set of XMPP clients that support OAuth bearer-token authentication."
-msgstr ""
+msgstr "**可选 OIDC 桥 :** 装入 ``mod_oauth2_client`` 当 OIDC 变体活动时, 对于小的一组 XMPP 支持 OAuth 无记名验证的客户端 。."
 
+# translated-by: libretranslate
 msgid "**Optional OIDC bridge:** Load `mod_oauth2_client` when the OIDC variant is active, for the small set of XMPP clients that support OAuth bearer-token authentication."
-msgstr ""
+msgstr "**可选 OIDC 桥 :** 装入 `mod_oauth2_client` 当 OIDC 变体活动时, 对于小的一组 XMPP 支持 OAuth 无记名验证的客户端 。."
 
+# translated-by: libretranslate
 msgid "**Optional Privilege Escalation:** Controlled via the ``pkgmgr_become`` variable (default: ``true``)."
-msgstr ""
+msgstr "**可选特权升级 :** 控制通过 ``pkgmgr_become`` 变量 (默认 : ``true``)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Optional Privilege Escalation:** Controlled via the `pkgmgr_become` variable (default: `true`)."
-msgstr ""
+msgstr "**可选特权升级 :** 控制通过 `pkgmgr_become` 变量 (默认 : `true`)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Optional Project Setup:** Runs ``npm ci`` in a specified folder to install exact versions from ``package-lock.json``."
-msgstr ""
+msgstr "**可选工程设置 :** 运行 ``npm ci`` 在指定的文件夹中安装精确的版本 ``package-lock.json``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Optional Project Setup:** Runs `npm ci` in a specified folder to install exact versions from `package-lock.json`."
-msgstr ""
+msgstr "**可选工程设置 :** 运行 `npm ci` 在指定的文件夹中安装精确的版本 `package-lock.json`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Optional Redis:** Toggle cache/session backend."
-msgstr ""
+msgstr "**可选 Redis数字 :** 切换缓存/ 会话后端 。."
 
+# translated-by: libretranslate
 msgid "**Optional SAML Authentication:**"
-msgstr ""
+msgstr "**可选的 SAML 认证 :**"
 
+# translated-by: libretranslate
 msgid "**Optional SAML Authentication:**   Prepare for enhanced, standards‑based authentication (integration pending)."
-msgstr ""
+msgstr "**可选的 SAML 认证 :** 准备加强基于标准的认证 (待安置)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Optional SSO Integration:** Can work with OIDC for unified login across platforms."
-msgstr ""
+msgstr "**可选SSO 整合 :** 可以与OIDC合作实现跨平台的统一登录."
 
+# translated-by: libretranslate
 msgid "**Optional Tag Pinning** (e.g. `stable`)"
-msgstr ""
+msgstr "**可选标签剪辑** (譬如说. `stable`)"
 
+# translated-by: libretranslate
 msgid "**Optional Tag Pinning** (e.g. ``stable``)"
-msgstr ""
+msgstr "**可选标签剪辑** (譬如说.``stable``)"
 
+# translated-by: libretranslate
 msgid "**Optional internal PKI:** A service flag mounts the ``pki`` engine with an internal root CA and an issuing role."
-msgstr ""
+msgstr "**可选内部公用钥匙基础结构 :** 服务旗上挂着 ``pki`` 具有内部根 CA 和发行角色的引擎。."
 
+# translated-by: libretranslate
 msgid "**Optional internal PKI:** A service flag mounts the `pki` engine with an internal root CA and an issuing role."
-msgstr ""
+msgstr "**可选内部公用钥匙基础结构 :** 服务旗上挂着 `pki` 具有内部根 CA 和发行角色的引擎。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **可选公共领域 :** 添加到应用程序中的额外清网域 保留自己的 TLS 风味 并和洋葱一起部署 。.
 msgid "**Optional public domains:** extra clearnet domains added to an app keep their own TLS flavor and deploy alongside the onion."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Optionally** include a wildcard redirect template (experimental) ⭐️"
-msgstr ""
+msgstr "**可选** 包含通配符重定向模板 (实验) ⭐️"
 
+# translation-refused: libretranslate protected-span lost=['1'] gained=['11']
+# nocheck: url
+# translation-rejected: **出境邮件 (页:11)** 何时 ``web-app-mailu``
+# Frappe的外出电子邮件账户是自动配置的, **IMAP 入境 (邮件对通信) 推迟到后续要求** (在自动提供角色的回购中没有先例 Mailu
+# 邮箱已经)。 。 。.
 msgid "**Outbound mail (v1)** — when ``web-app-mailu`` is present, Frappe’s outbound Email Account is auto-configured against the central SMTP endpoint. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** (no precedent in the repo for auto-provisioning role-owned Mailu mailboxes yet)."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=['1'] gained=['11']
+# nocheck: url
+# translation-rejected: **出境邮件 (页:11)** 何时 `web-app-mailu` Frappe的外出Email
+# Account在SMTP中心端点上自动配置. **IMAP 入境 (邮件对通信) 推迟到后续要求** (在自动提供角色的回购中没有先例 Mailu
+# 邮箱已经)。 。 。.
 msgid "**Outbound mail (v1)** — when `web-app-mailu` is present, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** (no precedent in the repo for auto-provisioning role-owned Mailu mailboxes yet)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Outbound mail:** KIX notification mail flows through the project's `sys-svc-mail-smtp` relay."
-msgstr ""
+msgstr "**出局邮件 :** KIX 通过项目的通知邮件流量 `sys-svc-mail-smtp` 中继。."
 
+# translated-by: libretranslate
 msgid "**Outbound mail:** KIX notification mail flows through the project’s ``sys-svc-mail-smtp`` relay."
-msgstr ""
+msgstr "**出局邮件 :** KIX 通知邮件流经项目 ``sys-svc-mail-smtp`` 中继。."
 
+# translated-by: libretranslate
 msgid "**Outbound network calls** are bounded by `sandbox.network.allowedDomains` (see [sandbox.md](sandbox.md))."
-msgstr ""
+msgstr "**外出网络呼叫** 以 `sandbox.network.allowedDomains` (见 [sandbox.md](sandbox.md))。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **总体影响:** 日常使用较为稳定,指令在更多环境中表现得如预期,设置/部署工作流程需要较少的故障排除.
 msgid "**Overall impact:** Day-to-day usage is more stable, commands behave as expected in more environments, and setup/deploy workflows require less troubleshooting."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Override**: Rewrites logout URLs to point at your OIDC provider’s logout endpoint."
-msgstr ""
+msgstr "**覆盖**: 重写登录 URL 以指向您的 OIDC 提供者的登录端点 。."
 
+# translated-by: libretranslate
 msgid "**Overrides** supplied through the normal Ansible variable `applications` in inventory, group vars, host vars, or role vars."
-msgstr ""
+msgstr "**覆盖** 通过正常的 Ansible 变量提供 `applications` 在存货,组 vars,主 vars,或角色 vars."
 
+# translated-by: libretranslate
 msgid "**Overrides** supplied through the normal Ansible variable `users` in inventory, group vars, host vars, or role vars."
-msgstr ""
+msgstr "**覆盖** 通过正常的 Ansible 变量提供 `users` 在存货,组 vars,主 vars,或角色 vars."
 
+# translated-by: libretranslate
 msgid "**Own STUN/TURN:** When ``web-svc-coturn`` is part of the deployment, WebRTC uses it with time-limited HMAC credentials instead of a third-party STUN server."
-msgstr ""
+msgstr "**拥有STUN/TURN:** 何时 ``web-svc-coturn`` 是部署的一部分, WebRTC 使用它时有时间限制的 HMAC 证书,而不是第三方的 STUN 服务器."
 
+# translated-by: libretranslate
 msgid "**Own STUN/TURN:** When `web-svc-coturn` is part of the deployment, WebRTC uses it with time-limited HMAC credentials instead of a third-party STUN server."
-msgstr ""
+msgstr "**拥有STUN/TURN:** 何时 `web-svc-coturn` 是部署的一部分, WebRTC 使用它时有时间限制的 HMAC 证书,而不是第三方的 STUN 服务器."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **每个角色拥有:** 每个消费者都用自己的名字宣布一个表格,所以增加了规则,并退休了需要它们的角色.
 msgid "**Owned per role:** Each consumer declares one table under its own name, so rules are added and retired with the role that needs them."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**PDS auto-provisioning:** Have the broker call ``com.atproto.server.createAccount`` on first login and cache the resulting handle and DID per Keycloak username."
-msgstr ""
+msgstr "**PDS 自动提供 :** 叫经纪人打电话 ``com.atproto.server.createAccount`` 在第一次登录和缓存时,生成的控件和按 Keycloak 用户名。."
 
+# translated-by: libretranslate
 msgid "**PDS auto-provisioning:** Have the broker call `com.atproto.server.createAccount` on first login and cache the resulting handle and DID per Keycloak username."
-msgstr ""
+msgstr "**PDS 自动提供 :** 叫经纪人打电话 `com.atproto.server.createAccount` 在第一次登录和缓存时,生成的控件和按 Keycloak 用户名。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **PDS 无法访问 :** 经纪人在创建账户或创建会话失败时设置气泡,用户在交接路径中看到 HTML
+# 错误页。 在PDS恢复完成交接后重新尝试访问.
 msgid "**PDS unreachable:** the broker bubbles up the createAccount or createSession failure and the user sees an HTML error page on the handoff route. Re-trying the visit after PDS recovery completes the handoff."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **PKI引擎船在旗后,默认关闭.** 上场的时候,戏就上场 `pki`,生成一个内部根
+# CA和一个发行角色。.
 msgid "**PKI engine ships behind a flag, default off.** When on, the play mounts `pki`, generates an internal root CA and one issuing role."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **软件包安装** 页:1 `NGINX` 和 `NGINX-mod-stream`。 。 。.
 msgid "**Package installation** of `NGINX` and `NGINX-mod-stream`."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **软件包安装** 页:1 ``NGINX`` 和 ``NGINX-mod-stream``。 。 。.
 msgid "**Package installation** of ``NGINX`` and ``NGINX-mod-stream``."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Pacman integration:** Installs the ``obs-studio`` package via the standard system package manager."
-msgstr ""
+msgstr "**Pacman 整合 :** 安装 ``obs-studio`` 通过标准系统软件包管理器提供软件包。."
 
+# translated-by: libretranslate
 msgid "**Pacman integration:** Installs the `obs-studio` package via the standard system package manager."
-msgstr ""
+msgstr "**Pacman 整合 :** 安装 `obs-studio` 通过标准系统软件包管理器提供软件包。."
 
+# translated-by: libretranslate
 msgid "**Pacman integration:** Installs the upstream ``keepassxc`` package via the standard system package manager."
-msgstr ""
+msgstr "**Pacman 整合 :** 安装上游 ``keepassxc`` 通过标准系统软件包管理器提供软件包。."
 
+# translated-by: libretranslate
 msgid "**Pacman integration:** Installs the upstream `keepassxc` package via the standard system package manager."
-msgstr ""
+msgstr "**Pacman 整合 :** 安装上游 `keepassxc` 通过标准系统软件包管理器提供软件包。."
 
+# translated-by: libretranslate
 msgid "**Parameter doc** — enumerates inputs/outputs (Python docstring `Args:`, Make `# Param:`, Ansible defaults header, Jinja macro doc)."
-msgstr ""
+msgstr "**参数 doc** - 列出投入/产出 (Python 剂量弦 `Args:`, 创建 `# Param:`, Ansible 默认标题, Jinja 宏 doc)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Pass**: `make compose-playwright role=<role>` exits `0` AND every MUST in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) holds for the resulting run."
-msgstr ""
+msgstr "**过**数字 : `make compose-playwright role=<role>` 出口 `0` 和每一个必须英寸 [捐款 `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) 暂停运行。."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "**Paths that look wrong and are not.** Policies mount at `/openbao/policies/`, because OpenBao parses *every* file under `-config` as server configuration. Storage is `/openbao/file`, not `/openbao/data`: the image pre-chowns only `/openbao/{config,logs,file}` for the non-root `openbao` user, so a volume elsewhere lands root-owned and raft cannot write. `command:` is just `server` — the entrypoint appends `-config` itself, and passing it duplicates the flag."
-msgstr ""
+msgstr "**路看起来不对,不是。** 政策启动 `/openbao/policies/`,因为 OpenBao 剖析 *每个* 文档下 `-config` 作为服务器配置。 存储为 `/openbao/file`, 没有 `/openbao/data`: 只显示图像预显示 `/openbao/{config,logs,file}` 非根数 `openbao` 使用,所以其它地方的一卷土地拥有的根和木筏不能写。 `command:` 刚刚 `server` ——入口附件 `-config` 自己,通过它 重复的旗帜。."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "**Paths that look wrong and are not.** Policies mount at ``/openbao/policies/``, because OpenBao parses *every* file under ``-config`` as server configuration. Storage is ``/openbao/file``, not ``/openbao/data``: the image pre-chowns only ``/openbao/{config,logs,file}`` for the non-root ``openbao`` user, so a volume elsewhere lands root-owned and raft cannot write. ``command:`` is just ``server`` — the entrypoint appends ``-config`` itself, and passing it duplicates the flag."
-msgstr ""
+msgstr "**路看起来不对,不是。** 政策启动 ``/openbao/policies/``,因为 OpenBao 剖析 *每个* 文档下 ``-config`` 作为服务器配置。 存储为 ``/openbao/file``, 没有 ``/openbao/data``: 只显示图像预显示 ``/openbao/{config,logs,file}`` 非根数 ``openbao`` 使用,所以其它地方的一卷土地拥有的根和木筏不能写。 ``command:`` 刚刚 ``server`` ——入口附件 ``-config`` 自己,通过它 重复的旗帜。."
 
+# translated-by: libretranslate
 msgid "**Per-Consumer Isolation:** Each consumer gets a role and user scoped to its own `<entity>-*` index namespace."
-msgstr ""
+msgstr "**消费者隔离:** 每个消费者都有自己的角色和用户范围 `<entity>-*` 索引命名空间。."
 
+# translated-by: libretranslate
 msgid "**Per-Consumer Isolation:** Each consumer gets a role and user scoped to its own ``<entity>-*`` index namespace."
-msgstr ""
+msgstr "**消费者隔离:** 每个消费者都有自己的角色和用户范围 ``<entity>-*`` 索引命名空间。."
 
+# translated-by: libretranslate
 msgid "**Per-Consumer Isolation:** Issues a scoped API key per consumer, restricted to its own collection namespace."
-msgstr ""
+msgstr "**消费者隔离:** 问题a API 每个消费者的密钥, 仅限于自己的收藏命名空间 。."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "**Per-Consumer Isolation:** OSS Qdrant has no per-user auth; each consumer is isolated by the collection-name prefix ``{entity}_``."
-msgstr ""
+msgstr "**消费者隔离:** 开放源码软件 Qdrant 没有每个用户的认证; 每个消费者被收藏名前缀隔离 ``{entity}_``。 。 。."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "**Per-Consumer Isolation:** OSS Qdrant has no per-user auth; each consumer is isolated by the collection-name prefix `{entity}_`."
-msgstr ""
+msgstr "**消费者隔离:** 开放源码软件 Qdrant 没有每个用户的认证; 每个消费者被收藏名前缀隔离 `{entity}_`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Per-app RBAC:** Members of `/roles/web-app-kix/administrator` or `/roles/web-app-kix/user` are admitted to KIX; other users are blocked at the OAuth2 proxy. The `user` role is declared via `meta/rbac.yml` so non-admin agents can be granted helpdesk access without bumping them to global administrator."
-msgstr ""
+msgstr "**每个应用程序** 成员 `/roles/web-app-kix/administrator` 或 `/roles/web-app-kix/user` 被允许进入 KIX; OAuth 其他用户被屏蔽2 代理服务器 。 那个 `user` 角色通过 `meta/rbac.yml` 因此,非管理员代理可以被允许帮助台访问,而不会碰碰他们到全球管理员."
 
+# translated-by: libretranslate
 msgid "**Per-app RBAC:** Members of ``/roles/web-app-kix/administrator`` or ``/roles/web-app-kix/user`` are admitted to KIX; other users are blocked at the OAuth2 proxy. The ``user`` role is declared via ``meta/rbac.yml`` so non-admin agents can be granted helpdesk access without bumping them to global administrator."
-msgstr ""
+msgstr "**每个应用程序** 成员 ``/roles/web-app-kix/administrator`` 或 ``/roles/web-app-kix/user`` 被允许进入 KIX; OAuth 其他用户被屏蔽2 代理服务器 。 那个 ``user`` 角色通过 ``meta/rbac.yml`` 因此,非管理员代理可以被允许帮助台访问,而不会碰碰他们到全球管理员."
 
+# translated-by: libretranslate
 msgid "**Per-consumer isolation:** Every consumer receives its own identity and bucket with bucket-scoped actions only."
-msgstr ""
+msgstr "**消费者隔离:** 每个消费者都得到自己的身份和水桶,只有桶状的动作。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **消费者虚拟密钥 :** 每个耗用应用程序都收到自己的虚拟密钥,通过网关管理员创建 API
+# 以别名命名该应用程序。.
 msgid "**Per-consumer virtual keys:** Each consuming application receives its own virtual key, created through the gateway admin API under an alias naming that application."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Per-container snapshots:** rsync `--link-dest` snapshots deduplicate unchanged files across runs."
-msgstr ""
+msgstr "**集装箱快照 :** 脉冲 `--link-dest` 截图解译未变文件横跨运行 。."
 
+# translated-by: libretranslate
 msgid "**Per-container snapshots:** rsync ``--link-dest`` snapshots deduplicate unchanged files across runs."
-msgstr ""
+msgstr "**集装箱快照 :** 脉冲 ``--link-dest`` 截图解译未变文件横跨运行 。."
 
+# translated-by: libretranslate
 msgid "**Per-domain TLS via app-level override**: extra public domains under `applications.<app>.server.domains` deploy as additional HTTPS vhosts; flavor from `applications.<app>.tls.mode` (default `TLS_MODE`). `.onion` → always HTTP. No per-domain TLS map."
-msgstr ""
+msgstr "**通过 app 级别 覆盖域 TLS**: 额外公共领域 `applications.<app>.server.domains` 配置为额外的 HTTPS vhost; 风味来自 `applications.<app>.tls.mode` (默认 `TLS_MODE`)。 。 。 `.onion` 总是HTTP。 没有每个域的 TLS 映射 。."
 
+# translated-by: libretranslate
 msgid "**Per-family dispatch:** Routes by ``ansible_facts['distribution']`` so the caller never has to gate the role with a ``when:`` clause."
-msgstr ""
+msgstr "**家庭派遣:** 路线 ``ansible_facts['distribution']`` 因此,打电话者 从来没有门角色 ``when:`` 条款。."
 
+# translated-by: libretranslate
 msgid "**Per-family dispatch:** Routes by `ansible_facts['distribution']` so the caller never has to gate the role with a `when:` clause."
-msgstr ""
+msgstr "**家庭派遣:** 路线 `ansible_facts['distribution']` 因此,打电话者 从来没有门角色 `when:` 条款。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **每个角色选入** 在一个非温和的宿主上, Swarm模式完全由团体成员触发. 每个角色
+# `DEPLOYMENT_MODE` 覆盖仅在群主机上选择退出,在非群主机上从不选择IN.
 msgid "**Per-role opt-IN** on a non-swarm host: explicitly rejected. Swarm mode is exclusively triggered by group membership. The per-role `DEPLOYMENT_MODE` override only opts OUT on a swarm host, never opts IN on a non-swarm host."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Per-role opt-OUT** on a swarm host: a role MAY override `DEPLOYMENT_MODE: compose` in its `vars/main.yml` to stay on the compose path even when the host is in `svc-swarm-node`. Role vars win over `group_vars/all` by Ansible precedence."
-msgstr ""
+msgstr "**每个角色选择不适用** 在组合主机上: 角色 May 覆盖 `DEPLOYMENT_MODE: compose` 联合国 `vars/main.yml` 即使主机在其中,仍会留在作曲路径上 `svc-swarm-node`。角色 vars 获胜 `group_vars/all` 由Ansible优先。."
 
+# translated-by: libretranslate
 msgid "**Per-round variant selection.** In round R every primary app uses variant index `R if R < its_variant_count else 0`. So a single-variant app stays on variant 0 in every round, and a 3-variant app in a 5-round deploy follows `0, 1, 2, 0, 0`."
-msgstr ""
+msgstr "**每轮变种选择.** 在 R 轮中,每个主应用程序都使用变异索引 `R if R < its_variant_count else 0`。所以,一个单变量应用程序留在变体上 0 每轮,和 3- 变异的应用程序在一个 5- 后方部署 `0, 1, 2, 0, 0`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Performance Enhancement:** Ensures adequate swap space for optimal system performance."
-msgstr ""
+msgstr "**增强性能:** 确保为最佳系统性能提供充分的交换空间。."
 
+# translated-by: libretranslate
 msgid "**Performance Optimization:** Improves overall system performance by leveraging appropriate storage media."
-msgstr ""
+msgstr "**性能优化 :** 通过利用适当的存储介质来提高系统的整体性能."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **业绩权衡:** 与 `latin1`,普遍性 `utf8mb4` 超过大多数部署的费用。.
 msgid "**Performance trade‑off:** While slightly more storage might be used compared to `latin1`, the universality of `utf8mb4` outweighs the cost for most deployments."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **权限 :** 请确保您在 Docker 容器内拥有执行这些动作的必要权限和权利 。.
 msgid "**Permissions:** Ensure you have the necessary permissions and rights within the Docker container to perform these actions."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **对部署目标有疑虑** (单位:千美元) `INFINITO_VERSION`,由
+# [sys-version](../../../roles/sys-version/) 作用。.
 msgid "**Persisted on the deploy target** for `INFINITO_VERSION`, written by the [sys-version](../../../roles/sys-version/) role."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Persistent Timers:** Optionally enables persistent timer behavior to ensure missed activations are handled."
-msgstr ""
+msgstr "**持续计时器 :** 可选择地使持续的定时器行为能够确保处理错失的激活."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **持久性剂数据:** 代理状态保存在挂载在 `/opt/data`,该 Backup Docker
+# Volumes 服务捕获而不停止容器。.
 msgid "**Persistent agent data:** Agent state is stored in a named volume mounted at `/opt/data`, which the Backup Docker Volumes service captures without stopping the container."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **持久性剂数据:** 代理状态保存在挂载在 ``/opt/data``,该 Backup Docker
+# Volumes 服务捕获而不停止容器。.
 msgid "**Persistent agent data:** Agent state is stored in a named volume mounted at ``/opt/data``, which the Backup Docker Volumes service captures without stopping the container."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **持续配置 :** 挂载 `/config` 当量级备份是部署的一部分时,将它交给容器备份服务。.
 msgid "**Persistent configuration:** Mounts `/config` as a named volume and hands it to the container backup service when volume backups are part of the deployment."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **持续配置 :** 挂载 ``/config`` 当量级备份是部署的一部分时,将它交给容器备份服务。.
 msgid "**Persistent configuration:** Mounts ``/config`` as a named volume and hands it to the container backup service when volume backups are part of the deployment."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **长期型号商店:** 挂载在 `/root/.lmstudio` 将下载的模型和服务器设置保留在调用中。.
 msgid "**Persistent model store:** A named volume mounted at `/root/.lmstudio` keeps downloaded models and server settings across redeploys."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **长期型号商店:** 挂载在 ``/root/.lmstudio``
+# 将下载的模型和服务器设置保留在调用中。.
 msgid "**Persistent model store:** A named volume mounted at ``/root/.lmstudio`` keeps downloaded models and server settings across redeploys."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **持久性状态 :** 内存和工作空间在安装在 `/home/node/.openclaw`,并作出
+# `openclaw.json` 装入其中,并在部署该服务时列入集装箱体积备份。.
 msgid "**Persistent state:** Memory and workspace live in a volume mounted at `/home/node/.openclaw`, with the rendered `openclaw.json` mounted into it, and are included in the container volume backup when that service is deployed."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **持久性状态 :** 内存和工作空间在安装在 ``/home/node/.openclaw``,并作出
+# ``openclaw.json`` 装入其中,并在部署该服务时列入集装箱体积备份。.
 msgid "**Persistent state:** Memory and workspace live in a volume mounted at ``/home/node/.openclaw``, with the rendered ``openclaw.json`` mounted into it, and are included in the container volume backup when that service is deployed."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Persistent store:** Proxied artefacts live in a named volume, so a redeploy reuses what earlier runs already pulled."
-msgstr ""
+msgstr "**持续存储 :** 近代工艺品生活在一个命名的体积中, 所以重新调配的再利用 之前运行的已经拉动。."
 
+# translated-by: libretranslate
 msgid "**Persistent:** ``nftables.service`` loads every fragment at boot, so rules outlive a reboot without a unit of this project’s own. The ruleset it reads is a distribution decision, so the path follows ``os_family``: RedHat reads ``/etc/sysconfig/nftables.conf``, the others ``/etc/nftables.conf``."
-msgstr ""
+msgstr "**持久性 :** ``nftables.service`` 将每个碎片装入靴子,因此,规则是,没有该项目本身的单位,就无法重开。 它读的规则是分配决定,所以路径遵循 ``os_family``: 红发已读 ``/etc/sysconfig/nftables.conf``、ㄤ ``/etc/nftables.conf``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Persistent:** `nftables.service` loads every fragment at boot, so rules outlive a reboot without a unit of this project's own. The ruleset it reads is a distribution decision, so the path follows `os_family`: RedHat reads `/etc/sysconfig/nftables.conf`, the others `/etc/nftables.conf`."
-msgstr ""
+msgstr "**持久性 :** `nftables.service` 装入每一个碎片,所以规则 活度超过重启 没有这个工程的单位自己的。 它读的规则是分配决定,所以路径遵循 `os_family`: 红发已读 `/etc/sysconfig/nftables.conf`、ㄤ `/etc/nftables.conf`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Persona Integration:** Extends ``dev-core`` with Python-specific tools."
-msgstr ""
+msgstr "**个人融入:** 扩展 ``dev-core`` 带有 Python 特定工具。."
 
+# translated-by: libretranslate
 msgid "**Persona Integration:** Extends ``dev-core`` with embedded-specific tools."
-msgstr ""
+msgstr "**个人融入:** 扩展 ``dev-core`` 带有嵌入式特定工具。."
 
+# translated-by: libretranslate
 msgid "**Persona Integration:** Extends `dev-core` with Python-specific tools."
-msgstr ""
+msgstr "**个人融入:** 扩展 `dev-core` 带有 Python 特定工具。."
 
+# translated-by: libretranslate
 msgid "**Persona Integration:** Extends `dev-core` with embedded-specific tools."
-msgstr ""
+msgstr "**个人融入:** 扩展 `dev-core` 带有嵌入式特定工具。."
 
+# translated-by: libretranslate
 msgid "**Persona Integration:** Serves as a reusable foundation for developer-focused workstation bundles."
-msgstr ""
+msgstr "**个人融入:** 充当开发者重点工作站捆绑的可重复使用的基础."
 
+# translated-by: libretranslate
 msgid "**Personal Attacks:** Avoid personal insults or demeaning comments toward any contributor or participant."
-msgstr ""
+msgstr "**个人攻击:** 避免辱骂或贬低任何贡献者或参与者的评论。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **身体安全是操作者的责任,角色MUSST也这么说.**
+# 这一作用并不要求将紧急停止或移动费率限制作为平台接受标准。 由于驱动马达/起动器的代理可以造成身体伤害,README MUSST显著警告硬件安全.
+# (e-stop、电流/运动限制、故障安全线) 是运营商的责任,并且不在平台的范围之内。 MUST不声称它不执行任何安全保障。.
 msgid "**Physical safety is the operator's responsibility, and the role MUST say so.** This role does NOT mandate an emergency-stop or motion rate-limits as a platform acceptance criterion. Because an agent driving motors/actuators can cause physical harm, the README MUST prominently warn that hardware safety (e-stop, current/motion limits, fail-safe wiring) is the operator's responsibility and is out of the platform's scope. The role MUST NOT claim any safety guarantee it does not enforce."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Pin**: a concrete stable v15.x semver (no `:latest`, no `:edge`, no v14 LTS, no v16 pre-release line)."
-msgstr ""
+msgstr "**键**: 混凝土稳定 v15.x 铸币局 (无 `:latest`,没有 `:edge`,没有v14 LTS,没有v16 预发线)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Pin**: a concrete stable v15.x semver (no ``:latest``, no ``:edge``, no v14 LTS, no v16 pre-release line)."
-msgstr ""
+msgstr "**键**: 混凝土稳定 v15.x 铸币局 (无 ``:latest``,没有 ``:edge``,没有v14 LTS,没有v16 预发线)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Pinned and verified:** the AppImage version and its sha256 live in the role, and a mismatch aborts the deploy."
-msgstr ""
+msgstr "**固定和核实:** AppImage 版本及其 sha256 活在角色中,不匹配会中止部署."
 
+# translated-by: libretranslate
 msgid "**Pinned tool surface:** ``files/mcp/tools.json`` holds the 24 read-only tools captured from the sidecar, pinned twice: ``tools.schema_sha256`` over the parsed mapping the adapter rehashes at startup, and ``adapter.specification_sha256`` over the file bytes."
-msgstr ""
+msgstr "**固定工具表面 :** ``files/mcp/tools.json`` 拿着 24 从侧车上捕获到的只读工具, 绑有两次: ``tools.schema_sha256`` 在启动时绘制适配器的映射图 ``adapter.specification_sha256`` 超过文件字节。."
 
+# translated-by: libretranslate
 msgid "**Pinned tool surface:** `files/mcp/tools.json` holds the 24 read-only tools captured from the sidecar, pinned twice: `tools.schema_sha256` over the parsed mapping the adapter rehashes at startup, and `adapter.specification_sha256` over the file bytes."
-msgstr ""
+msgstr "**固定工具表面 :** `files/mcp/tools.json` 拿着 24 从侧车上捕获到的只读工具, 绑有两次: `tools.schema_sha256` 在启动时绘制适配器的映射图 `adapter.specification_sha256` 超过文件字节。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **锁定上游客户端 :** 构建 ``social-app`` 网路客户端的标签,所以经纪人的
+# ``BSKY_STORAGE`` 交接与上游持久性计划保持同步。.
 msgid "**Pinned upstream client:** Build the ``social-app`` web client from a pinned tag so the broker’s ``BSKY_STORAGE`` handoff stays in sync with the upstream persistence schema."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **锁定上游客户端 :** 构建 `social-app` 绑定标签的网络客户端 所以经纪人的
+# `BSKY_STORAGE` 交接与上游持久性计划保持同步。.
 msgid "**Pinned upstream client:** Build the `social-app` web client from a pinned tag so the broker's `BSKY_STORAGE` handoff stays in sync with the upstream persistence schema."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **固定弹 (单项或捆绑)。 。 。** 输入和部署都接受 `--variant <csv>` (语义与
+# `variant=` 创建参数): 单一索引 (`1`) 针头一圆, 逗号分隔列表 (`0,1,2`) 标定该子集,空/未设置是完整的矩阵。
+# 当选择是单回合时,没有回合之间的清理运行 (没有上一回合 diff 对手); 范围外指数引起一个干净的错误。 那个 `make
+# compose-deploy mode=update` 流动情况 `variant=` 以后缀表示参数 `INFINITO_INVENTORY_DIR`
+# 页:1 `INFINITO_INVENTORY_FILE` 改为: `<base>-<idx>`
+# (单一索引),因此一个调用可以瞄准一个特定的变体而不重复完整的矩阵.
 msgid "**Pinning rounds (single or bundle).** Both init and deploy accept `--variant <csv>` (same semantics as the `variant=` make arg): a single index (`1`) pins one round, a comma-separated list (`0,1,2`) iterates that subset, and empty/unset is the full matrix. When the selection is a single round no inter-round cleanup runs (no previous round to diff against); out-of-range indices raise a clean error. The `make compose-deploy mode=update` flows honour the same `variant=` arg by suffixing `INFINITO_INVENTORY_DIR` / `INFINITO_INVENTORY_FILE` to `<base>-<idx>` (single index), so a redeploy can target one specific variant without iterating the full matrix."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1', '5',
+# '7']
+# nocheck: url
+# translation-rejected: **无法忽略的柱子。**
+# 图像标点被分类,从类中绘制出拉动引用,一个移动标记用它已经携带的标记宣布自己,一个角色的图像作为一个发布或根本不移动.
+# 更新者阅读了附加声明,订单供应商补丁计数器和5个组件版本,阅读了在数字之前作为一家人写的发行行,现在还观看了绑定的ip要求和Ansible收藏.
+# 7个角色从Debian的代号底座上移到微弱处,1个Ubuntu镜像列表带有故障,短暂的超时和健康测试服务于包缓存和图像构建两种功能. *日-亚姆尔*
+# 取消为 4.3.2 全球统一制度2883- 转弯3-五岁3嘘。.
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Pip Installation:** Installs python-pip if not already present."
-msgstr ""
+msgstr "**管道安装 :** 如果还没有安装 python- pip 。."
 
+# translated-by: libretranslate
 msgid "**Playwright exemption:** these are desktop browser extensions with no in-app web surface to drive, so they are exempt from the per-addon Playwright spec (requirement 026, Decision 11)."
-msgstr ""
+msgstr "**Playwright 豁免 :** 这些是桌面浏览器的扩展,没有可驱动的在应用程序中的网络表面,因此它们可以免用每Adon Playwright spec (所需经费 026, 决定 11)。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **插点 :** 系统d `.mount` 单元在设备出现时点火备份服务,所以备份发生时没有交互命令.
 msgid "**Plug-triggered:** a systemd `.mount` unit fires the backup service the moment the device appears, so backups happen without an interactive command."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **插点 :** 系统d ``.mount`` 单元在设备出现时点火备份服务,所以备份发生时没有交互命令.
 msgid "**Plug-triggered:** a systemd ``.mount`` unit fires the backup service the moment the device appears, so backups happen without an interactive command."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**PostgreSQL database:** all data including attachments stored in the database, no extra volumes needed."
-msgstr ""
+msgstr "**PostgreSQL 数据库 :** 所有数据,包括储存在数据库的附件,不需要额外卷数。."
 
+# translated-by: libretranslate
 msgid "**Postgres backend:** Workflow definitions, execution history, and user data persist in the central ``svc-db-postgres``."
-msgstr ""
+msgstr "**Postgres 后端 :** 工作流程定义、执行历史和用户数据在中央 ``svc-db-postgres``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Postgres backend:** Workflow definitions, execution history, and user data persist in the central `svc-db-postgres`."
-msgstr ""
+msgstr "**Postgres 后端 :** 工作流程定义、执行历史和用户数据在中央 `svc-db-postgres`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Power-aware Configuration:** Differentiates between battery, AC power, and docked state."
-msgstr ""
+msgstr "**电感知配置 :** 区分电池,AC电源,和对接状态."
 
+# translated-by: libretranslate
 msgid "**Powerful Search:** Full-text and structured search to quickly find knowledge across spaces."
-msgstr ""
+msgstr "**强大的搜索 :** 全文和结构化搜索,以快速找到跨空间的知识."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **执业:** 在所有通信中使用明确和专业的语言。 继续关注思想和项目目标,而不是个人属性.
 msgid "**Practice Professionalism:** Use clear and professional language in all communications. Maintain focus on ideas and project goals rather than personal attributes."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **预安装插件集 :** Bake 构建管道、 证书和 SCM 插件进入图像,
+# 所以首先启动时不会屏蔽插件下载。.
 msgid "**Pre-installed plugin set:** Bake build-pipeline, credentials, and SCM plugins into the image so first start-up does not block on plugin downloads."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Prefers Python 3.11+:** Installs Python 3.11+ where available and makes it the default via `/usr/local/bin/python3` and `/usr/local/bin/pip3`."
-msgstr ""
+msgstr "**偏爱 Python 3.11+ 键:** 安装 Python 3.11+ 如果有,则通过 `/usr/local/bin/python3` 和 `/usr/local/bin/pip3`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Prefers Python 3.11+:** Installs Python 3.11+ where available and makes it the default via ``/usr/local/bin/python3`` and ``/usr/local/bin/pip3``."
-msgstr ""
+msgstr "**偏爱 Python 3.11+ 键:** 安装 Python 3.11+ 如果有,则通过 ``/usr/local/bin/python3`` 和 ``/usr/local/bin/pip3``。 。 。."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **预装模型 :** 每一个条目 ``services.lmstudio.preload_models``
+# 在主机节点上下载 ``lms get --gguf``,重叠和收获像 Ollama 预推. 每个条目都带有 ``source`` 要下载的寄存器
+# ``quant`` 变体从它, ``name`` LM Studio 在库下和网关上的索引 ``alias`` 网关发布为。 ``source``
+# 是一个完整的 Hugging Face URL, 绝不是一个搜索名词: 搜索名词解决了目录列表中任何模式的首选 。 ``quant`` 附录为
+# ``@<variant>`` 并且需要:没有它 LM Studio 选择变体本身,和 ``file``, (中文). ``sha256`` 和
+# ``bytes`` 条目宣布,然后描述一个猜测,即商店检查和下载预算都是对照进行的。.
 msgid "**Preloaded models:** Every entry of ``services.lmstudio.preload_models`` is downloaded on the hosting node with ``lms get --gguf``, overlapped and reaped like the Ollama pre-pull. Each entry carries the ``source`` repository to download, the ``quant`` variant to take from it, the ``name`` LM Studio indexes that repository under and the gateway addresses it by, and the ``alias`` the gateway publishes it as. ``source`` is a full Hugging Face URL, never a search term: a search term resolves to whichever model the catalogue lists first. ``quant`` is appended as ``@<variant>`` and is required: without it LM Studio picks the variant itself, and the ``file``, ``sha256`` and ``bytes`` the entry declares then describe a guess that the store check and the download budget are both measured against."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **预装模型 :** 每一个条目 `services.lmstudio.preload_models`
+# 在主机节点上下载 `lms get --gguf`,重叠和收获像 Ollama 预推. 每个条目都带有 `source` 要下载的寄存器 `quant`
+# 变体从它, `name` LM Studio 在库下和网关上的索引 `alias` 网关发布为。 `source` 是一个完整的 Hugging
+# Face URL, 绝不是一个搜索名词: 搜索名词解决了目录列表中任何模式的首选 。 `quant` 附录为 `@<variant>` 并且需要:没有它
+# LM Studio 选择变体本身,和 `file`, (中文). `sha256` 和 `bytes`
+# 条目宣布,然后描述一个猜测,即商店检查和下载预算都是对照进行的。.
 msgid "**Preloaded models:** Every entry of `services.lmstudio.preload_models` is downloaded on the hosting node with `lms get --gguf`, overlapped and reaped like the Ollama pre-pull. Each entry carries the `source` repository to download, the `quant` variant to take from it, the `name` LM Studio indexes that repository under and the gateway addresses it by, and the `alias` the gateway publishes it as. `source` is a full Hugging Face URL, never a search term: a search term resolves to whichever model the catalogue lists first. `quant` is appended as `@<variant>` and is required: without it LM Studio picks the variant itself, and the `file`, `sha256` and `bytes` the entry declares then describe a guess that the store check and the download budget are both measured against."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Pretix Installation:** Deploys Pretix in a dedicated Docker container."
-msgstr ""
+msgstr "**Pretix 安装 :** 部署 Pretix 在一个专用的Docker容器。."
 
+# translated-by: libretranslate
 msgid "**Priority first, never mixed.** Priority rows sort to the head of the list and the split forces a chunk boundary at the priority/regular seam, so a chunk is either all priority or all regular. The seam chunk stays short rather than being topped up with regular rows -- that is what guarantees every priority row is done before the first regular one starts. Priority is never subject to the sweep offset: it leads every sweep."
-msgstr ""
+msgstr "**优先优先,从不混杂.** 优先行排序到列表的首端, 且拆分者在优先/ 常规接合处强制一个块边界, 因此一个块要么全部优先, 要么全部正常 。 接合块保持短短,而不是被固定排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排排 优先级从不受到扫荡的抵消:它引导每次扫荡."
 
+# translated-by: libretranslate
 msgid "**Privacy & Moderation:** Fine-grained controls for content visibility, moderation, and federation settings."
-msgstr ""
+msgstr "**隐私和中度 :** 对内容能见度、节制和联邦设置的精细控制。."
 
+# translated-by: libretranslate
 msgid "**Privacy-First:** Enjoy a self-hosted solution that prioritizes data ownership and privacy."
-msgstr ""
+msgstr "**隐私第一:** 享受自主托管的解决方案,优先安排数据所有权和隐私."
 
+# translated-by: libretranslate
 msgid "**Privacy-First:** Self-hosted solution ensures data ownership and GDPR-compliance."
-msgstr ""
+msgstr "**隐私第一:** 自行托管的解决方案确保了数据所有权和对GDPR的遵守。."
 
+# translated-by: libretranslate
 msgid "**Privacy-friendly**: all generation happens client-side; no data leaves your server."
-msgstr ""
+msgstr "**方便隐私**:所有世代发生客户端;没有数据离开您的服务器 。."
 
+# translated-by: libretranslate
 msgid "**Privacy-friendly**: no server-side state, no tracking, all logic runs in the browser."
-msgstr ""
+msgstr "**方便隐私**:没有服务器侧状态,没有跟踪,所有逻辑都在浏览器中运行."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **项目管理:** 与甘特图,坎班板,以及时间跟踪一起规划和跟踪项目.
+# 与销售和发票相结合,以便完成项目账单。.
 msgid "**Project Management:** Plan and track projects with Gantt charts, Kanban boards, and time tracking. Integrate with sales and invoicing for complete project billing."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**PromQL interface:** Query and explore metrics via the Prometheus web UI."
-msgstr ""
+msgstr "**PromQL 接口 :** 通过 Prometheus 网络用户界面。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **普罗米修斯跑不动 `--query.timeout`**,所以查询适配器在 15s
+# 使服务器在两分钟的默认情况下忙碌,一个范围查询的点数没有被限制,尽管答复被切换到 100 数行. 超时现在来自
+# `mcp.limits.timeout_seconds`, 和 `policy.assert_range` 拒绝一个点数超过合同的幅度
+# `result_items`,命名适合的最小步骤。.
 msgid "**Prometheus ran with no `--query.timeout`**, so a query the adapter abandoned after 15s kept the server busy for its two-minute default, and a range query's point count was unbounded although the response was truncated to 100 rows. The timeout is now derived from `mcp.limits.timeout_seconds`, and `policy.assert_range` refuses a range whose point count exceeds the contract's `result_items`, naming the smallest step that would fit."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Prometheus** metrics support"
-msgstr ""
+msgstr "**普罗米修斯** 计量支持"
 
+# translated-by: libretranslate
 msgid "**Proprietary Driver Installation**"
-msgstr ""
+msgstr "**专有驱动装置**"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **专有驱动装置** 安装最新的非免费 GPU 驱动程序 (例如,NVIDIA、AMD) 通过Arch提供
+# `mhwd` 系统。.
 msgid "**Proprietary Driver Installation**   Installs the latest non-free GPU driver (e.g., NVIDIA, AMD) provided through Arch’s `mhwd` system."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Pros:**"
-msgstr ""
+msgstr "**职业:**"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **受此保护:** `git commit*`, (中文). `git push*`, (中文).
+# `docker run*`, (中文). `docker build*`, (中文). `docker push*`, (中文). `docker
+# login*`,每个变异 `gh` 动词和每个非 GET `gh api` 打电话 如果不经审查就执行,每个方案都将具有破坏性或外部可见。.
 msgid "**Protected by this:** `git commit*`, `git push*`, `docker run*`, `docker build*`, `docker push*`, `docker login*`, every mutating `gh` verb, and every non-GET `gh api` call. Each would be destructive or externally visible if executed without review."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Proxy-aware:** Exposes HTTP on localhost, picked up by front proxy role."
-msgstr ""
+msgstr "**代理意识 :** 在本地主机上曝光HTTP,由前代理角色拾取."
 
+# translated-by: libretranslate
 msgid "**Public Key Output:** Displays and outputs the generated public SSH key."
-msgstr ""
+msgstr "**公钥输出 :** 显示并输出生成的公用SSH密钥 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **公交化主机端口.** 锁定 `0.0.0.0` 并公开上市 (或操作员防火墙允许的任何东西)。与
+# `local`。 。 。.
 msgid "**Public-facing host port.** Bound on `0.0.0.0` and exposed to the public internet (or to whatever the operator's firewall allows). Same uniqueness rule as `local`."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **公布的工具计划是一个建议,而不是一个界限。**
+# 上游请求附有合同名称的论据,作为查询参数,宣布无计划的工具接受任何东西。
+# 现在,在尺寸上限之后,根据合同对论据进行验证,因此大型有效载荷仍然因体积大而被拒绝。.
 msgid "**Published tool schemas were a suggestion, not a boundary.** An argument the contract does not name was appended to the upstream request as a query parameter, and a tool declaring no schema accepted anything. Arguments are now validated against the contract, after the size ceiling so a large payload is still refused for being large."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Pull-only trust model:** the local host owns the SSH session; provider hosts never gain credentials on this side."
-msgstr ""
+msgstr "**只拉信任模式 :** 本地主机拥有 SSH 会话; 提供者主机从未获得此侧的证书 。."
 
+# translated-by: libretranslate
 msgid "**Purpose**"
-msgstr ""
+msgstr "**目的**"
 
+# translated-by: libretranslate
 msgid "**Purpose:**   Handles \"normal\" web traffic such as HTML pages, API endpoints, and general HTTP(S) requests."
-msgstr ""
+msgstr "**目的:** 处理 \"normal\" HTML 页面等网络流量, API 端点和普通HTTP(编号) 请求。."
 
+# translated-by: libretranslate
 msgid "**Purpose:**   Handles WebSocket connections, enabling real-time features such as live updates or chats."
-msgstr ""
+msgstr "**目的:** 处理WebSocket连接,实现实时功能,如直播更新或聊天."
 
+# translated-by: libretranslate
 msgid "**Purpose:**   Proxies and caches static media files (images, icons, etc.)."
-msgstr ""
+msgstr "**目的:** 代理和缓存静态媒体文件 (图像,图标等.)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Python-based Install:** Installs ``dockreap`` (isolated, system-friendly CLI install)."
-msgstr ""
+msgstr "**基于 Python 的安装 :** 安装 ``dockreap`` (孤立、系统友好的 CLI 安装)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Python-based Install:** Installs `dockreap` (isolated, system-friendly CLI install)."
-msgstr ""
+msgstr "**基于 Python 的安装 :** 安装 `dockreap` (孤立、系统友好的 CLI 安装)。 。 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **Qdrant 运行时根本没有认证 。**
+# 它的环境设置了HTTP端口和被禁用的遥测,所以每一个到达其网络的容器都保持了对每一个集合的全读,写写和删除访问,表面的只读的承诺完全依赖于适配器的合同,只命名GET路由.
+# 引擎现在宣布 `read_only_api_key`,适配器呈现它,一个写路由被引擎拒绝,而不仅仅是适配器拒绝.
 msgid "**Qdrant ran with no authentication at all.** Its environment set the HTTP port and disabled telemetry, so every container reaching its network held full read, write and delete access to every collection, and the surface's read-only promise rested entirely on the adapter's contract naming only GET routes. The engine now declares `read_only_api_key`, the adapter presents it, and a write route is refused by the engine rather than only by the adapter."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Queue clock.** GitHub cancels a job that sat queued for ``INFINITO_CI_QUEUE_HOURS``. With ``INFINITO_CI_CONCURRENCY`` runners free and every job assumed to burn its full ``timeout-minutes``, a chunk drains in waves, and the last wave that still starts inside the queue window is ``floor(queue_hours / job_timeout)``. A chunk therefore holds at most ``concurrency * waves`` jobs. Assuming every job runs to its timeout is deliberately pessimistic -- no job can outlast it -- so the drain estimate can only overshoot, never undershoot."
-msgstr ""
+msgstr "**腾讯时钟.** GitHub 取消一个已排队的任务 ``INFINITO_CI_QUEUE_HOURS``. 与 ``INFINITO_CI_CONCURRENCY`` 跑步者自由了 每一个工作都假定会全烧掉 ``timeout-minutes``,在波浪中排水, 最后一波仍然在队列窗口中开始 ``floor(queue_hours / job_timeout)``. 因此,一个块最多可以 ``concurrency * waves`` 任务。 假设每份工作都是故意悲观的 -- -- 任何工作都无法超过 -- -- 所以排水量估计只能是过量的,从不低于。."
 
+# translated-by: libretranslate
 msgid "**Quick Setup** – the deploy commands, from the role id (invokable roles"
-msgstr ""
+msgstr "**快速设置** - 部署命令,从角色ID (可撤销的角色"
 
+# translated-by: libretranslate
 msgid "**Quick links for games**: navbar entries for selected games (e.g. platformer, pong, space shooter)."
-msgstr ""
+msgstr "**游戏快速链接**: 选定游戏的导航栏条目 (例如,平台、乒乓、空间射击)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Quick links for games**: navbar entries for selected games (e.g. platformer, pong, space shooter)."
-msgstr ""
+msgstr "**游戏快速链接**: 选定游戏的导航栏条目 (例如,平台、乒乓、空间射击)。 。 。."
 
+# translated-by: libretranslate
 msgid "**Quiet and Safe Operation:** Uses `--quiet` and `--agree-tos` flags to ensure non-interactive renewals."
-msgstr ""
+msgstr "**安静和安全行动:** 用途 `--quiet` 和 `--agree-tos` 确保非交互更新的旗帜。."
 
+# translated-by: libretranslate
 msgid "**Quiet and Safe Operation:** Uses ``--quiet`` and ``--agree-tos`` flags to ensure non-interactive renewals."
-msgstr ""
+msgstr "**安静和安全行动:** 用途 ``--quiet`` 和 ``--agree-tos`` 确保非交互更新的旗帜。."
 
+# translated-by: libretranslate
 msgid "**RBAC gate:** A user needs the ``agent-user`` role of ``web-app-hermes`` or ``web-app-openclaw``. Open WebUI lists each agent model only to that group, and the broker refuses any other caller with HTTP 403 and stops a running agent of a user who lost the role."
-msgstr ""
+msgstr "**非洲区域局大门:** 用户需要 ``agent-user`` 作用 ``web-app-hermes`` 或 ``web-app-openclaw``。打开 WebUI 只向该组列出每个代理模式, 经纪人拒绝使用 HTTP 的其他呼叫器 403 并停止一个失去角色的用户的运行代理."
 
+# translated-by: libretranslate
 msgid "**RBAC gate:** A user needs the `agent-user` role of `web-app-hermes` or `web-app-openclaw`. Open WebUI lists each agent model only to that group, and the broker refuses any other caller with HTTP 403 and stops a running agent of a user who lost the role."
-msgstr ""
+msgstr "**非洲区域局大门:** 用户需要 `agent-user` 作用 `web-app-hermes` 或 `web-app-openclaw`。打开 WebUI 只向该组列出每个代理模式, 经纪人拒绝使用 HTTP 的其他呼叫器 403 并停止一个失去角色的用户的运行代理."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **非洲区域局集团制图:** 地图 Keycloak 组路径进入 Joomla内置 `Super
+# Users`, (中文). `Editor`, 和 `Registered` 插件内的用户组。.
 msgid "**RBAC group mapping:** Map Keycloak group paths onto Joomla's built-in `Super Users`, `Editor`, and `Registered` user groups inside the plugin."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **非洲区域局集团制图:** 地图 Keycloak 组路径进入 Joomla内建 ``Super
+# Users``, (中文). ``Editor``, 和 ``Registered`` 插件内的用户组。.
 msgid "**RBAC group mapping:** Map Keycloak group paths onto Joomla’s built-in ``Super Users``, ``Editor``, and ``Registered`` user groups inside the plugin."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **非洲区域局的作用是: `administrator` 页:1 `operator` 页:1
+# `reader`。 。 。**
 msgid "**RBAC roles are `administrator` / `operator` / `reader`.**"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**RBAC** via [`meta/rbac.yml`](../contributing/design/iam/rbac.md) + the `rbac_group_path` lookup, so the Keycloak `groups` claim arrives as `/roles/web-app-openbao/<role>` and OpenBao binds those paths to policies."
-msgstr ""
+msgstr "**非洲区域局** 通过 [`meta/rbac.yml`](../contributing/design/iam/rbac.md) + 键 `rbac_group_path` 寻找,所以 Keycloak `groups` 索赔额为 `/roles/web-app-openbao/<role>` 和 OpenBao 将这些道路与政策联系在一起。."
 
+# translated-by: libretranslate
 msgid "**RBAC** — only users in the ``web-app-pihole-administrator`` group can access the dashboard"
-msgstr ""
+msgstr "**非洲区域局** - 只有用户在 ``web-app-pihole-administrator`` 组可以访问仪表板"
 
+# translated-by: libretranslate
 msgid "**RBAC** — only users in the `web-app-pihole-administrator` group can access the dashboard"
-msgstr ""
+msgstr "**非洲区域局** - 只有用户在 `web-app-pihole-administrator` 组可以访问仪表板"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **Raspberry Pi是一个真正的部署目标。** 代理图像 MUST 发布 `arm64`
+# 显示一个Pi级节点可以拉动它们,代理MUST时间表至少跨越两个标签的工人节点. 这是拱顶封面,不是拱顶独占: 相同的图像一直运行在 AMD 上64
+# CI和实验室使用的节点,所以要求一个节点可能拥有的每个架构都要发布,从不将部署固定在一个架构上.
 msgid "**Raspberry Pi is a real deploy target.** Agent images MUST publish an `arm64` manifest so a Pi-class node can pull them, and the agents MUST schedule across at least two labelled worker nodes. This is arch coverage, not arch exclusivity: the same images keep running on the amd64 nodes that CI and the lab use, so the requirement is that every architecture a node may have is published, never that a deploy is pinned to one."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **默认只读 :** 一个非...`GET`页:1`HEAD` 除非
+# `mutating_tools_enabled` 这一点是明确的。.
 msgid "**Read-only by default:** A non-`GET`/`HEAD` operation is refused unless `mutating_tools_enabled` is explicitly true."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **默认只读 :** 一个非...``GET``页:1``HEAD`` 除非
+# ``mutating_tools_enabled`` 这一点是明确的。.
 msgid "**Read-only by default:** A non-``GET``/``HEAD`` operation is refused unless ``mutating_tools_enabled`` is explicitly true."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **仅读检查命令** (`grep`, (中文). `find`, (中文). `ls`, (中文).
+# `cat`, (中文). `git log`, (中文). `docker ps`,等编.) 璶.
 msgid "**Read-only inspection commands** (`grep`, `find`, `ls`, `cat`, `git log`, `docker ps`, etc.) just work."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **仅读工具表面 :** 侧车开着 `-r` 和
+# `GITEA_READONLY=true`,它隐藏每个写工具。 剩下的是读的类别 `user`, (中文). `repository`, (中文).
+# `issue`, (中文). `pull_request`, (中文). `search`, (中文). `file`, (中文). `branch`,
+# (中文). `tag`, (中文). `commit` 和 `release`, 被钉住 `GITEA_SCOPES`。通过 MCP
+# 使实例发生任何变异,是一个明确的操作符更改命令行和符号范围。.
 msgid "**Read-only tool surface:** The sidecar runs with `-r` and `GITEA_READONLY=true`, which hides every write tool. What remains are the read categories `user`, `repository`, `issue`, `pull_request`, `search`, `file`, `branch`, `tag`, `commit` and `release`, pinned through `GITEA_SCOPES`. Making the instance mutate anything through MCP is an explicit operator change to the command line and the token scopes."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **仅读工具表面 :** 侧车开着 ``-r`` 和
+# ``GITEA_READONLY=true``,它隐藏每个写工具。 剩下的是读的类别 ``user``, (中文). ``repository``,
+# (中文). ``issue``, (中文). ``pull_request``, (中文). ``search``, (中文). ``file``,
+# (中文). ``branch``, (中文). ``tag``, (中文). ``commit`` 和 ``release``, 被钉住
+# ``GITEA_SCOPES``。通过 MCP 使实例发生任何变异,是一个明确的操作符更改命令行和符号范围。.
 msgid "**Read-only tool surface:** The sidecar runs with ``-r`` and ``GITEA_READONLY=true``, which hides every write tool. What remains are the read categories ``user``, ``repository``, ``issue``, ``pull_request``, ``search``, ``file``, ``branch``, ``tag``, ``commit`` and ``release``, pinned through ``GITEA_SCOPES``. Making the instance mutate anything through MCP is an explicit operator change to the command line and the token scopes."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Readiness gating:** Bootstrap blocks until the engine accepts connections."
-msgstr ""
+msgstr "**准备量:** 在引擎接受连接前的靴子板块."
 
+# translated-by: libretranslate
 msgid "**Reading Status & Reviews:** Mark books as “to read,” “reading,” or “finished,” and publish reviews or quotes."
-msgstr ""
+msgstr "**读取状态和评论 :** 将书籍标为“阅读”、“阅读”、“完成”并发表评论或引文。."
 
+# translated-by: libretranslate
 msgid "**Real-Time Analytics:** Monitor visitor activity and generate detailed insights instantly."
-msgstr ""
+msgstr "**实时分析:** 监测来访者的活动,立即提出详细的见解。."
 
+# translated-by: libretranslate
 msgid "**Real-Time Streaming:** Enjoy dynamic updates and real-time content delivery through dedicated streaming services."
-msgstr ""
+msgstr "**实时流线 :** 通过专用流线服务,享受动态更新和实时内容提供."
 
+# translated-by: libretranslate
 msgid "**Reasoning:**"
-msgstr ""
+msgstr "**理由:**"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **修改的审计线索 :** 每一个调用都发出提供者,消费者,工具,证书主题,地位,持续时间和相关性
+# ID,从不提供论据,响应机构或证书.
 msgid "**Redacted audit trail:** Every call emits provider, consumer, tool, credential subject, status, duration and correlation id, and never the arguments, the response body or the credential."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Redis Caching:**"
-msgstr ""
+msgstr "**红色缓存 :**"
 
+# translated-by: libretranslate
 msgid "**Redis Caching:**   Improve application performance with built‑in Redis caching support."
-msgstr ""
+msgstr "**红色缓存 :** 用内建的“ in” 改进应用程序性能 Redis 缓存支持。."
 
+# translated-by: libretranslate
 msgid "**Redis Integration:** Adds Redis support for caching and session handling."
-msgstr ""
+msgstr "**Redis 集成 :** 添加数 Redis 支持缓存和会话处理。."
 
+# translated-by: libretranslate
 msgid "**Redis** session storage for oauth2-proxy"
-msgstr ""
+msgstr "**红色** oauth 会话存储2- 代号"
 
+# translated-by: libretranslate
 msgid "**Refused early:** an unknown flavor aborts the deploy with the list of carried flavors."
-msgstr ""
+msgstr "**拒绝时间:** 未知的风味将随带的风味列表一起中止部署。."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['15']
+# nocheck: url
+# translation-rejected: **登记和变异。**
+# 一个变体可以决定它拉进的供应商的配置,一个MCP回合自行决定它携带什么,这就是这个发行的突破性变化.
+# 15个移动的针头获得了注册人可以订购的名字,每个MCP供应商都注册为共享服务, *meta/schema.yml* 完成重命名为
+# *meta/secrets.yml*,角色脚本被排序成每个语言的文件夹,以及 *元数据/元数据* 现在是一个被接受的针和插件的宣布网站。.
 msgid "**Registry and variant changes.** A variant can dictate the configuration of the providers it pulls in, and an MCP round decides for itself what it carries, which is the breaking change in this release. Fifteen moving pins gained names the registry can order, every MCP provider is registered as a shared service, *meta/schema.yml* finished its rename to *meta/secrets.yml*, role scripts are sorted into per-language folders, and *meta/addons* is now an accepted declaration site for pins and plugins."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Reload** NGINX automatically when any template changes."
-msgstr ""
+msgstr "**重新装入** 当任何模板发生变化时,NGINX会自动生效."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **重新装入更改 :** 重运行覆盖角色 `/etc/exports` 使用当前允许的IP集;处理器通过
+# `exportfs -ra` 仅当文件更改时。.
 msgid "**Reload-on-change:** Re-running the role overwrites `/etc/exports` with the current allowed-IP set; the handler reloads via `exportfs -ra` only when the file changed."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **重新装入更改 :** 重运行覆盖角色 ``/etc/exports`` 使用当前允许的IP集;处理器通过
+# ``exportfs -ra`` 仅当文件更改时。.
 msgid "**Reload-on-change:** Re-running the role overwrites ``/etc/exports`` with the current allowed-IP set; the handler reloads via ``exportfs -ra`` only when the file changed."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Remote providers:** OpenAI, Anthropic and OpenRouter each add their models when a key is configured. The keys are declared in ``meta/secrets.yml`` with the ``type`` and ``regex`` their value must satisfy, and default to the central ``API.<provider>.api_key`` entry; an unset key leaves that provider’s routes unpublished."
-msgstr ""
+msgstr "**远程提供者 :** OpenAI、Anthropic和OpenRouter在配置一个密钥时各添加他们的模型。 密钥在 ``meta/secrets.yml`` 与 ``type`` 和 ``regex`` 其价值必须满足,并且默认为中央 ``API.<provider>.api_key`` 条目; 未设置的密钥未公布提供者的路径 。."
 
+# translated-by: libretranslate
 msgid "**Remote providers:** OpenAI, Anthropic and OpenRouter each add their models when a key is configured. The keys are declared in `meta/secrets.yml` with the `type` and `regex` their value must satisfy, and default to the central `API.<provider>.api_key` entry; an unset key leaves that provider's routes unpublished."
-msgstr ""
+msgstr "**远程提供者 :** OpenAI、Anthropic和OpenRouter在配置一个密钥时各添加他们的模型。 密钥在 `meta/secrets.yml` 与 `type` 和 `regex` 其价值必须满足,并且默认为中央 `API.<provider>.api_key` 条目; 未设置的密钥离开提供者的路径未公布。."
 
+# translated-by: libretranslate
 msgid "**Removed and Renamed**"
-msgstr ""
+msgstr "**删除和重命名**"
 
+# translated-by: libretranslate
 msgid "**Removed**"
-msgstr ""
+msgstr "**删除**"
 
+# translated-by: libretranslate
 msgid "**Renamed**"
-msgstr ""
+msgstr "**已重命名**"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **报告脆弱性** 如果你发现安全弱点 Infinito.Nexus,您必须立即报告
+# [SECURITY.md](../../SECURITY.md) 千万不要公开讨论 我们鼓励主动提出脆弱性报告,以便尽快解决问题。.
 msgid "**Reporting Vulnerabilities** If you discover a security vulnerability in Infinito.Nexus, you MUST report it immediately through [SECURITY.md](../../SECURITY.md) and MUST NOT open a public issue. We encourage proactive vulnerability reporting so that issues can be addressed as quickly as possible."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Repository Cloning:** Automatically clones the Package Manager repository from GitHub."
-msgstr ""
+msgstr "**仓库克隆:** 从 GitHub 自动复制软件包管理器仓库 。."
 
+# translated-by: libretranslate
 msgid "**Repository Cloning:** Automatically fetches the latest auto-btrfs-balancer repository."
-msgstr ""
+msgstr "**仓库克隆:** 自动获取最新的自动 btrfs 平衡器寄存器 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **可复制安装:** 每个工具都解决了钉子
+# ``ref``,所以同一承诺在每个主机和每个CI运行中安装相同的linter版本.
 msgid "**Reproducible installs:** every tool resolves to the pinned ``ref``, so the same commit installs the same linter version on every host and in every CI run."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **可复制安装:** 每个工具都解决了钉子
+# `ref`,所以同一承诺在每个主机和每个CI运行中安装相同的linter版本.
 msgid "**Reproducible installs:** every tool resolves to the pinned `ref`, so the same commit installs the same linter version on every host and in every CI run."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **需要的加词是明确的,安装失败由 `required`。 。 。** 每个加丁都带布尔
+# `required` 字段 (默认 `false`). 作为已部署应用合同一部分的核心组件,如Odoo的核心模块,使用 `required:
+# true`: 总是安装, 可能省略 `enabled`,并且必须不设置 `enabled:
+# false`。该字段还规范安装失败行为:当一个加登的安装失败时, a `required: true` 附加必须的硬失败游戏 (部署停止)时,
+# `required: false` 加的必须发出警告,跳过加的,让游戏继续.
 msgid "**Required addons are explicit, and install failure is gated by `required`.** Every addon carries a boolean `required` field (default `false`). Core components that are part of the deployed app contract, such as Odoo's core modules, use `required: true`: they are always installed, MAY omit `enabled`, and MUST NOT set `enabled: false`. The field also governs install-failure behaviour: when an addon's installation fails, a `required: true` addon MUST hard-fail the play (the deploy stops), while a `required: false` addon MUST only emit a warning, skip that addon, and let the play continue."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Reset Logic:** Cleans previous Compose project files and data when `MODE_RESET` is enabled."
-msgstr ""
+msgstr "**重置逻辑 :** 清理先前的工程文件和数据 `MODE_RESET` 已启用。."
 
+# translated-by: libretranslate
 msgid "**Reset Logic:** Cleans previous Compose project files and data when ``MODE_RESET`` is enabled."
-msgstr ""
+msgstr "**重置逻辑 :** 清理先前的工程文件和数据 ``MODE_RESET`` 已启用。."
 
+# translated-by: libretranslate
 msgid "**Reset Password:**"
-msgstr ""
+msgstr "**重置密码 :**"
 
+# translated-by: libretranslate
 msgid "**Respect Boundaries:** Understand and honor others’ personal and professional boundaries."
-msgstr ""
+msgstr "**尊重边界:** 理解并尊重他人的个人和职业界限。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **响应缓存 :** 镜像资产以呆滞方式缓存,使交付速度快,抗上游停产.
 msgid "**Response caching:** Mirrored assets are cached with stale-serving, keeping delivery fast and resilient against upstream outages."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Responsive Design**: Optimized for desktop, tablet & mobile, built on Bootstrap."
-msgstr ""
+msgstr "**响应设计**: 优化用于桌面,平板电脑和移动,建于Bootstrap上."
 
+# translated-by: libretranslate
 msgid "**Responsive Design**: optimized for both desktop and mobile devices."
-msgstr ""
+msgstr "**响应设计**:对桌面和移动设备都进行了优化."
 
+# translated-by: libretranslate
 msgid "**Responsive Design:** Ensure that your website looks great on all devices with mobile-friendly themes and layouts."
-msgstr ""
+msgstr "**反应设计 :** 确保您的网站在所有设备上都具有很好的移动方便的主题和布局。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **以真实的垃圾堆进行修复。** 那个 *恢复*
+# CLI重播一代的数据库和集群垃圾堆,读取一代自己的布局而不是猜测,并将每个垃圾堆放在引擎旁观察到的备份而不是单独的名字. 那个
+# *svc-bkp-volume-2-local* 现在钻空它声称测试的每个卷, 在一个从未被丢弃的数据库上失败, 并停止备份计时器 以免它被破坏。
+# 包多洛是每个主机的固定值,其合同从包多洛本身读取.
 msgid "**Restore verified against real dumps.** The *recover* CLI replays a generation's database and cluster dumps, reads the generation's own layout instead of guessing it, and places each dump by the engine the backup observed rather than by name alone. The *svc-bkp-volume-2-local* drill now empties every volume it claims to test, fails on a database that was never dumped, and stops the backup timers before it goes destructive. Baudolo is pinned per host, its contract read from baudolo itself."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **限制引擎访问 :**
+# 经纪人只能通过与套接字代理共享的量中过滤的unix套接字到达容器引擎,该套接字不发布端口,并与该套接字运行 ``network_mode: none``
+# 写作 代理只接受经纪人制作的容器,服务,任务,网络,音量和图像调用,并拒绝包括执行和删除在内的所有其他方法和路径. 它过滤方法和路径,而不是请求机构:
+# ``volumes/create`` 保持对每个代理体积的开放,所以隔离对一个被破坏的代理体有效,它完全没有套接字,而不是对被破坏的经纪人。.
 msgid "**Restricted engine access:** The broker reaches the container engine only through a filtered unix socket in a volume shared with the socket proxy, which publishes no port and runs with ``network_mode: none`` in compose. The proxy admits only the container, service, task, network, volume and image calls the broker makes, and refuses every other method and path, including exec and delete. It filters methods and paths, not request bodies: ``volumes/create`` stays open for the per-agent volume, so the isolation holds against a compromised agent, which reaches no socket at all, not against a compromised broker."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **限制引擎访问 :**
+# 经纪人只能通过与套接字代理共享的量中过滤的unix套接字到达容器引擎,该套接字不发布端口,并与该套接字运行 `network_mode: none`
+# 写作 代理只接受经纪人制作的容器,服务,任务,网络,音量和图像调用,并拒绝包括执行和删除在内的所有其他方法和路径. 它过滤方法和路径,而不是请求机构:
+# `volumes/create` 保持对每个代理体积的开放,所以隔离对一个被破坏的代理体有效,它完全没有套接字,而不是对被破坏的经纪人。.
 msgid "**Restricted engine access:** The broker reaches the container engine only through a filtered unix socket in a volume shared with the socket proxy, which publishes no port and runs with `network_mode: none` in compose. The proxy admits only the container, service, task, network, volume and image calls the broker makes, and refuses every other method and path, including exec and delete. It filters methods and paths, not request bodies: `volumes/create` stays open for the per-agent volume, so the isolation holds against a compromised agent, which reaches no socket at all, not against a compromised broker."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['12']
+# nocheck: url
+# translation-rejected: **重试后退 :** 瞬变 SSH/rsync 故障在作为硬故障出现前,对长窗口重试最多12次.
 msgid "**Retry-with-backoff:** transient SSH/rsync failures retry up to twelve times across a long window before surfacing as a hard failure."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **可重复使用的角色 :** 可用作软件开发、CI/CD管道和建设环境的基础部分。.
 msgid "**Reusable Role:** Can be used as a foundational component for software development, CI/CD pipelines, and build environments."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Reusable dependency role** for higher-level SSH workflows"
-msgstr ""
+msgstr "**可重新使用的依赖角色** 用于高级SSH工作流程"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **需要重新调整:** [发展成果评估 0003 -
+# 每个供应商一个MCP表面,以及每个角色的处置](../architecture/decisions/0003-mcp-surface-per-provider.md)
+# 保留详尽无遗的每个角色审计和长期合同,并取代本文件,因为该文件假定一个空基线,将元数据视为执行,或标出客户端提供和端到端的授权。
+# 其余工作在以下地点跟踪: [035 -
+# MCP代理扩展和应用互联](035-mcp-proxy-expansion.md)。以下已检查的项目描述原始执行片段,不将MUST视为要求更严格的身份、撤销、运输、重新启动、代理和实用工具调用标准的证据
+# 035 已经完成。.
 msgid "**Revalidation required:** [ADR 0003 - One MCP surface per provider, and a disposition for every role](../architecture/decisions/0003-mcp-surface-per-provider.md) holds the exhaustive per-role audit and the standing contract, and supersedes this document where this document assumes an empty baseline, treats metadata as enforcement, or marks client provisioning and end-to-end authorization complete. The remaining work is tracked in [035 - MCP Proxy Expansion and Application Interconnection](035-mcp-proxy-expansion.md). Checked items below describe the original implementation slice and MUST NOT be read as proof that the stricter identity, revocation, transport, restart, proxy, and real-tool-call criteria in requirement 035 are complete."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Reverse Proxy**"
-msgstr ""
+msgstr "**反转代理服务器**"
 
+# translated-by: libretranslate
 msgid "**Reverse Proxy**   Includes the `sys-stk-front-proxy` role to configure a proxy (e.g. NGINX) for routing HTTP(S) traffic to your database UI or management endpoint."
-msgstr ""
+msgstr "**反转代理服务器** 包括 `sys-stk-front-proxy` 角色来配置代理 (例如,NGINX) 用于路由HTTP(编号) 访问数据库的 UI 或管理端点。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **反向桥主 (活动布-AT)。 。 。** 写入 AT 记录需要
+# *用来写成*谁的PDS,谁的app-password/Outh标志? 选项:一个专用服务账户,或每个用户通过登录经纪人授权书写. 未解决 +
+# 反方向推迟到后续要求。.
 msgid "**Reverse bridge ownership (ActivityPub → AT).** Writing an AT record requires *an account to write it as*. Whose PDS, whose app-password/OAuth token? Options: a dedicated service account, or per-user delegated write via the login-broker. Unresolved → reverse direction deferred to a follow-up requirement."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Reverse-Proxy Ready:** Sets `ATL_PROXY_NAME/PORT/SCHEME/SECURE` so Confluence generates correct external URLs behind HTTPS."
-msgstr ""
+msgstr "**反转Proxy准备 :** 设定 `ATL_PROXY_NAME/PORT/SCHEME/SECURE` 这样 Confluence HTTPS 后面生成正确的外部 URL。."
 
+# translated-by: libretranslate
 msgid "**Reverse-Proxy Ready:** Sets ``ATL_PROXY_NAME/PORT/SCHEME/SECURE`` so Confluence generates correct external URLs behind HTTPS."
-msgstr ""
+msgstr "**反转Proxy准备 :** 设定 ``ATL_PROXY_NAME/PORT/SCHEME/SECURE`` 这样 Confluence HTTPS 后面生成正确的外部 URL。."
 
+# translated-by: libretranslate
 msgid "**Reverse-Proxy/HTTPS Ready:** Preconfigured Atlassian Tomcat proxy envs so Jira respects external scheme/host/port."
-msgstr ""
+msgstr "**反转Proxy/HTTPS 准备 :** 预先配置的 Atlassian Tomcat 代理内存 Jira 尊重外部环境 scheme/host/port."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **反向代理信任 :** 显示 a ``configuration.yaml`` 与
+# ``default_config``, (中文). ``use_x_forwarded_for``,以及项目全局可信代用CIDRs在
+# ``trusted_proxies``. 集成中枢加入代理服务器的覆盖,所以转发的请求来自网络而不是枢纽,而只信任枢纽的子网。 Home
+# Assistant 用 HTTP 回答每一个代理请求 400。 。 。.
 msgid "**Reverse-proxy trust:** Renders a ``configuration.yaml`` with ``default_config``, ``use_x_forwarded_for``, and the project-wide trusted-proxy CIDRs listed in ``trusted_proxies``. In swarm the hub joins the proxy’s own overlay, so the forwarded request arrives from that network rather than from the hub’s, and trusting only the hub’s subnet makes Home Assistant answer every proxied request with HTTP 400."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **反向代理信任 :** 显示 a `configuration.yaml` 与
+# `default_config`, (中文). `use_x_forwarded_for`,以及项目全局可信代用CIDRs在
+# `trusted_proxies`。在群集中,中枢会加入代理机自己的覆盖,所以转发的请求会从那个网络而不是从中枢到达,而只信任中枢的子网制造. Home
+# Assistant 用 HTTP 回答每一个代理请求 400。 。 。.
 msgid "**Reverse-proxy trust:** Renders a `configuration.yaml` with `default_config`, `use_x_forwarded_for`, and the project-wide trusted-proxy CIDRs listed in `trusted_proxies`. In swarm the hub joins the proxy's own overlay, so the forwarded request arrives from that network rather than from the hub's, and trusting only the hub's subnet makes Home Assistant answer every proxied request with HTTP 400."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Risks / unknowns:**"
-msgstr ""
+msgstr "**风险/未知数:**"
 
+# translated-by: libretranslate
 msgid "**Robust API Integration:** Leverage a comprehensive API to extend functionalities and integrate with other systems."
-msgstr ""
+msgstr "**强壮 API 一体化:** 利用综合资源 API 扩展功能并与其他系统整合。."
 
+# translated-by: libretranslate
 msgid "**Robust Administration:** Automatically creates databases, users, and assigns privileges."
-msgstr ""
+msgstr "**强有力的行政管理:** 自动创建数据库,用户,并指定权限."
 
+# translated-by: libretranslate
 msgid "**Robust Authentication:** Supports LDAP and OIDC for secure identity and access management."
-msgstr ""
+msgstr "**有力认证 :** 支持LDAP和OIDC的安全身份和访问管理."
 
+# translated-by: libretranslate
 msgid "**Robust Connectivity:**"
-msgstr ""
+msgstr "**强大的连接 :**"
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **强大的连接 :** 方便地管理数据库配置、用户账户,并用内置的健康检查监测查询活动。.
 msgid "**Robust Connectivity:**   Easily manage database configurations, user accounts, and monitor query activity with built‑in health checks."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **强有力的内容管理:** 利用强大的内容管理工具有效地组织、分类和检索信息。.
 msgid "**Robust Content Management:** Organize, categorize, and retrieve information efficiently with powerful content management tools."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **强性内容调制 :** 利用强大的节制工具管理社区互动,维护安全空间。.
 msgid "**Robust Content Moderation:** Utilize powerful moderation tools to manage community interactions and maintain safe spaces."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **强有力的数据管理:** 安全可靠地储存 Moodle 应用程序和用户数据通过Docker卷。.
 msgid "**Robust Data Management:** Secure and reliable storage of both the Moodle application and user data through Docker volumes."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **强大的基础设施:** 与 PostgreSQL 用于可靠数据管理,并支持在反向代理后部署。.
 msgid "**Robust Infrastructure:** Seamlessly integrates with PostgreSQL for reliable data management and supports deployment behind a reverse proxy."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **强力媒体管理:**
+# 使用综合媒体库管理您的图像,视频,以及其他媒体,包括加强上传限制和动态内容传输的选项.
 msgid "**Robust Media Management:** Manage your images, videos, and other media with an integrated media library, including options for enhanced upload limits and dynamic content delivery."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Robust Moderation Tools:** Benefit from comprehensive tools for content management and community moderation."
-msgstr ""
+msgstr "**强调工具 :** 受益于内容管理和社区温和的综合工具。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **稳健的报告和挂板 :**
+# 通过有助于监测项目绩效和关键衡量标准的全面报告功能和可定制的仪表板获得洞察力。.
 msgid "**Robust Reporting & Dashboards:** Gain insights through comprehensive reporting features and customizable dashboards that help monitor project performance and key metrics."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Robust Reset and Recovery Tools:** Easily reset and reinitialize both the application and its underlying database."
-msgstr ""
+msgstr "**强力重置和恢复工具 :** 轻松地重新设置和重新启动应用程序及其基础数据库。."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: **强伸缩性能( P) :** 统筹利用 Redis 缓存和可靠的数据库 (MariaDB 或
+# PostgreSQL) 用于平滑缩放和高性能。.
 msgid "**Robust Scalability & Performance:** Leverage integrated Redis caching and a reliable database (MariaDB or PostgreSQL) for smooth scaling and high performance."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Robust Tracking:** Track user interactions across your website with comprehensive analytics tools."
-msgstr ""
+msgstr "**强力追踪:** 用综合分析工具跟踪用户在您的网站上的互动。."
 
+# translated-by: libretranslate
 msgid "**Role Integration:** Depends on the [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr ""
+msgstr "**角色整合:** 取决于 [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) 在应用防火墙规则之前确保WireGuard的配置适当。."
 
+# translated-by: libretranslate
 msgid "**Role Integration:** Depends on the `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr ""
+msgstr "**角色整合:** 取决于 `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ 在应用防火墙规则之前确保WireGuard的配置适当。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **基于角色的访问控制和安全:** 管理用户权限,以确保敏感信息和关键功能的安全。.
 msgid "**Role-Based Access Control & Security:** Manage user permissions precisely to ensure that sensitive information and critical functions remain secure."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Role-strategy authorisation:** Map Keycloak groups and LDAP groups onto Jenkins authorities through the ``role-strategy`` plugin."
-msgstr ""
+msgstr "**角色战略授权:** 地图 Keycloak 组和 LDAP 组进入 Jenkins 当局通过 ``role-strategy`` 插件 。."
 
+# translated-by: libretranslate
 msgid "**Role-strategy authorisation:** Map Keycloak groups and LDAP groups onto Jenkins authorities through the `role-strategy` plugin."
-msgstr ""
+msgstr "**角色战略授权:** 地图 Keycloak 组和 LDAP 组进入 Jenkins 当局通过 `role-strategy` 插件 。."
 
+# translated-by: libretranslate
 msgid "**Role:** [`roles/sys-front-inj-matomo`](../../../roles/sys-front-inj-matomo/) **Variable:** `lookup('users', 'administrator').tokens['web-app-matomo']`"
-msgstr ""
+msgstr "**角色 :** [`roles/sys-front-inj-matomo`](../../../roles/sys-front-inj-matomo/) **变量 :** `lookup('users', 'administrator').tokens['web-app-matomo']`"
 
+# translated-by: libretranslate
 msgid "**Round count.** `total_rounds = max(variant_count for app in primary_apps)`. If every primary app has only one variant, both steps degrade to a single folder and the unsuffixed inventory path is used."
-msgstr ""
+msgstr "**圆数.** `total_rounds = max(variant_count for app in primary_apps)`。如果每个主应用程序只有一个变体,则两个步骤都降解为单个文件夹,并使用未后缀的目录路径。."
 
+# translated-by: libretranslate
 msgid "**Routing.** MCP MUST be served from the role's existing `domains.canonical` origin under the `mcp.endpoint.path`. A dedicated MCP subdomain MUST NOT be added unless upstream cannot serve MCP under a path, in which case the new domain MUST be registered in `domains.canonical` and documented in the role README."
-msgstr ""
+msgstr "**游击.** MCP MUST从该角色现有的 `domains.canonical` 来源 `mcp.endpoint.path`。一个专用的 MCP 子域名 MUST 除非上游无法在路径下为 MCP 服务,否则不添加,在这种情况下,新的域名 MUST 将在 `domains.canonical` 并记录在角色README中."
 
+# translated-by: libretranslate
 msgid "**Rule Enforcement:** The arbiter validates each move for correctness."
-msgstr ""
+msgstr "**规则执行 :** 仲裁人验证每个动作是否正确。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **运行工作帽。** GitHub 覆盖工作流程运行于 ``INFINITO_CI_JOB_LIMIT``
+# 矩阵任务,在整个运行中计算。 每个非部署工作 管弦乐家链 吃到的预算, 所以这个模块静静地 和确保计算他们:
 msgid "**Run job cap.** GitHub caps a workflow run at ``INFINITO_CI_JOB_LIMIT`` matrix jobs, counted across the whole run. Every non-deploy job the orchestrator chain spawns eats into that budget, so this module statically and CONSERVATIVELY counts them:"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Run-once Setup Logic:** Ensures idempotent execution by controlling task flow with internal flags."
-msgstr ""
+msgstr "**运行一次设置逻辑 :** 通过使用内部旗帜控制任务流,确保一元执行."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **径山集装箱封装.** 医生 `ansible-playbook setup.yml`
+# 引用在一个专用的子容器内运行 (图像 : `services.matrix.runner.image`, 从
+# `files/flavor/ansible/runner/Dockerfile`). 将 MDAD 的 Ansible 运行时间与
+# Infinito-Nexus 部署容器的 Ansible 隔离开来, 因此 MDAD 可以固定它自己的 `ansible-core` 页:1
+# `community.docker` 页:1 `community.general` 版本没有与Infinito的相撞. 跑步者将:
 msgid "**Runner-container encapsulation.** MDAD's `ansible-playbook setup.yml` invocation runs inside a dedicated sub-container (image: `services.matrix.runner.image`, built from `files/flavor/ansible/runner/Dockerfile`). This isolates MDAD's Ansible runtime from the Infinito-Nexus deploy container's Ansible, so MDAD can pin its own `ansible-core` / `community.docker` / `community.general` versions without colliding with Infinito's. The runner mounts:"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: **径山集装箱封装.** 马拉维开发署 ``ansible-playbook setup.yml``
+# 引用在一个专用的子容器内运行 (图像 : ``services.matrix.runner.image``, 从
+# ``files/flavor/ansible/runner/Dockerfile``).
+# 这隔离了MDAD的Ansible运行时间与Infinito-Nexus部署容器的Ansible,因此MDAD可以固定它自己
+# ``ansible-core`` 页:1 ``community.docker`` 页:1 ``community.general``
+# 与Infinito的版本不相冲突。 跑步者将:
 msgid "**Runner-container encapsulation.** MDAD’s ``ansible-playbook setup.yml`` invocation runs inside a dedicated sub-container (image: ``services.matrix.runner.image``, built from ``files/flavor/ansible/runner/Dockerfile``). This isolates MDAD’s Ansible runtime from the Infinito-Nexus deploy container’s Ansible, so MDAD can pin its own ``ansible-core`` / ``community.docker`` / ``community.general`` versions without colliding with Infinito’s. The runner mounts:"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Runtime Limits:** Configurable `RuntimeMaxSec` per service."
-msgstr ""
+msgstr "**运行时间限制 :** 可配置 `RuntimeMaxSec` 每个服务。."
 
+# translated-by: libretranslate
 msgid "**Runtime Limits:** Configurable ``RuntimeMaxSec`` per service."
-msgstr ""
+msgstr "**运行时间限制 :** 可配置 ``RuntimeMaxSec`` 每个服务。."
 
+# translated-by: libretranslate
 msgid "**Runtime pinning:** In compose mode Hermes Agent and OpenClaw pin `SANDBOX_RUNTIME` on their service directly."
-msgstr ""
+msgstr "**运行时间 :** 在编曲模式 Hermes Agent 和 OpenClaw 针 `SANDBOX_RUNTIME` 他们直接服务。."
 
+# translated-by: libretranslate
 msgid "**Runtime pinning:** In compose mode Hermes Agent and OpenClaw pin ``SANDBOX_RUNTIME`` on their service directly."
-msgstr ""
+msgstr "**运行时间 :** 在编曲模式 Hermes Agent 和 OpenClaw 针 ``SANDBOX_RUNTIME`` 他们直接服务。."
 
+# translated-by: libretranslate
 msgid "**Runtime probing:** The container role checks every host for `/dev/kvm`, for the Kata shim binary and for docker-in-docker, and publishes the resulting choice between `kata` and `runsc` as `SANDBOX_RUNTIME`."
-msgstr ""
+msgstr "**运行时间测试 :** 容器角色检查每个主机 `/dev/kvm`,为卡塔的二进制 和多克-in-docker, 并出版 由此产生的选择 `kata` 和 `runsc` 作为 `SANDBOX_RUNTIME`。 。 。."
 
+# translated-by: libretranslate
 msgid "**Runtime probing:** The container role checks every host for ``/dev/kvm``, for the Kata shim binary and for docker-in-docker, and publishes the resulting choice between ``kata`` and ``runsc`` as ``SANDBOX_RUNTIME``."
-msgstr ""
+msgstr "**运行时间测试 :** 容器角色检查每个主机 ``/dev/kvm``,为卡塔的二进制 和多克-in-docker, 并出版 由此产生的选择 ``kata`` 和 ``runsc`` 作为 ``SANDBOX_RUNTIME``。 。 。."
 
+# translated-by: libretranslate
 msgid "**Runtime target:** Cloudflare Workers (`wrangler.jsonc` present), backed by **D1** (Cloudflare's SQLite) as the aggregator cache and **Meilisearch** (optional) for full-text + geo search."
-msgstr ""
+msgstr "**运行时间目标 :** 云旗工人 (`wrangler.jsonc` 当前),由 **D级1** (云纹的SQLite) 作为聚合缓存, **迈利搜索** (选项) 用于全文+地理搜索。."
 
+# translated-by: libretranslate
 msgid "**S3-compatible API:** Standard S3 SDKs and CLIs work against the gateway for uploads, media, attachments, and exports."
-msgstr ""
+msgstr "**编号3- 兼容 API数字 :** 标准 S3 SDKs和CLI针对上传,媒体,附件和出口的网关工作."
 
+# translated-by: libretranslate
 msgid "**S3-compatible object storage (future):** Penpot supports an ``assets-s3`` backend (``PENPOT_STORAGE_ASSETS_FS_*`` → ``PENPOT_STORAGE_ASSETS_S3_*``). It is intentionally **not** implemented here; switching the backend and adding the S3 credentials to ``meta/secrets.yml`` is the documented upgrade path."
-msgstr ""
+msgstr "**编号3- 兼容对象存储 (未来)数字 :** Penpot 支持一个 ``assets-s3`` 后端 (``PENPOT_STORAGE_ASSETS_FS_*`` → ``PENPOT_STORAGE_ASSETS_S3_*``)这是故意的 **没有** 在此执行; 切换后端并添加 S3 全权证书 ``meta/secrets.yml`` 是文档的升级路径。."
 
+# translated-by: libretranslate
 msgid "**S3-compatible object storage (future):** Penpot supports an `assets-s3` backend (`PENPOT_STORAGE_ASSETS_FS_*` → `PENPOT_STORAGE_ASSETS_S3_*`). It is intentionally **not** implemented here; switching the backend and adding the S3 credentials to `meta/secrets.yml` is the documented upgrade path."
-msgstr ""
+msgstr "**编号3- 兼容对象存储 (未来)数字 :** Penpot 支持一个 `assets-s3` 后端 (`PENPOT_STORAGE_ASSETS_FS_*` → `PENPOT_STORAGE_ASSETS_S3_*`)这是故意的 **没有** 在此执行; 切换后端并添加 S3 全权证书 `meta/secrets.yml` 是文档的升级路径。."
 
+# translated-by: libretranslate
 msgid "**SSH Authorized Keys:** Deploys keys from ``lookup('users', 'administrator').authorized_keys`` (**SPOT-only, must contain at least one key**)."
-msgstr ""
+msgstr "**SSH 授权密钥 :** 部署密钥从 ``lookup('users', 'administrator').authorized_keys`` (**只有 SPOT 键, 必须包含至少一个键**)。 。 。."
 
+# translated-by: libretranslate
 msgid "**SSH Authorized Keys:** Deploys keys from `lookup('users', 'administrator').authorized_keys` (**SPOT-only, must contain at least one key**)."
-msgstr ""
+msgstr "**SSH 授权密钥 :** 部署密钥从 `lookup('users', 'administrator').authorized_keys` (**只有 SPOT 键, 必须包含至少一个键**)。 。 。."
 
+# translated-by: libretranslate
 msgid "**SSH Environment Setup:** Establishes a secure `.ssh` directory and deploys a restricted `authorized_keys` file via a Jinja2 template."
-msgstr ""
+msgstr "**SSH 环境设置 :** 建立一个安全 `.ssh` 目录并部署限制 `authorized_keys` 档案通过锦衣卫2 模板。."
 
+# translated-by: libretranslate
 msgid "**SSH Environment Setup:** Establishes a secure ``.ssh`` directory and deploys a restricted ``authorized_keys`` file via a Jinja2 template."
-msgstr ""
+msgstr "**SSH 环境设置 :** 建立一个安全 ``.ssh`` 目录并部署限制 ``authorized_keys`` 档案通过锦衣卫2 模板。."
 
+# translated-by: libretranslate
 msgid "**SSH Key Generation:** Generates a new [RSA 4096-bit](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) SSH key pair for the root user if needed."
-msgstr ""
+msgstr "**SSH 密钥生成 :** 生成一个新的 [登记册系统管理人 4096- 键](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) 如果需要, 根用户的 SSH 密钥对 。."
 
+# translated-by: libretranslate
 msgid "**SSH Key Generation:** Generates a new `RSA 4096-bit <https://en.wikipedia.org/wiki/RSA_(cryptosystem)>`__ SSH key pair for the root user if needed."
-msgstr ""
+msgstr "**SSH 密钥生成 :** 生成一个新的 `RSA 4096-bit <https://en.wikipedia.org/wiki/RSA_(cryptosystem)>`__ 如果需要, 根用户的 SSH 密钥对 。."
 
+# translated-by: libretranslate
 msgid "**SSH Key Verification:** Checks whether a root SSH public key exists."
-msgstr ""
+msgstr "**SSH 密钥验证 :** 检查根 SSH 公钥是否存在 。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **SSH 包装脚本 :** 执行自定义 SSH 包装程序,记录和过滤收到的 SSH 命令,执行安全政策。.
 msgid "**SSH Wrapper Script:** Implements a custom SSH wrapper that logs and filters incoming SSH commands, enforcing security policies."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**SSH keys are now configured in inventory via users.<name>.authorized_keys** (single source of truth). The old CLI option to inject administrator keys and the inventory files-based authorized_keys copy were removed."
-msgstr ""
+msgstr "**SSH 密钥现在通过用户在库存中配置.<name>。 。 。authorized_keys** (单一真相来源)。旧的插入管理员密钥的 CLI 选项和基于目录文件的目录 authorized_keys 副本被删除。."
 
+# translated-by: libretranslate
 msgid "**SSO Login:** \"Login with SSO\" button (when OIDC is enabled)"
-msgstr ""
+msgstr "**SSO 登录 :** \"登录到 SSO\" 按钮 (当 OIDC 启用时)"
 
+# translated-by: libretranslate
 msgid "**SSO Login:** “Login with SSO” button (when OIDC is enabled)"
-msgstr ""
+msgstr "**SSO 登录 :** “使用SSO启动”按钮 (当 OIDC 启用时)"
 
+# translated-by: libretranslate
 msgid "**SSO authentication:** Access is protected by Keycloak via oauth2-proxy."
-msgstr ""
+msgstr "**SSO 认证 :** 访问由 Keycloak 通过欧氏2- 代号。."
 
+# translated-by: libretranslate
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
-msgstr ""
+msgstr "**SSO的风味是 `oauth2`** (欧斯2- 副车 Keycloak),不是本地OIDC——因为 Checkmk Raw没有OIDC. 乌鸦2- 代理认证对 Keycloak 和通过 `X-Remote-User`; Check的Apache网站通过 `auth_by_http_header`。这个镜子 [`web-app-openproject`](../../roles/web-app-openproject/)头- SSO 桥 (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP 标注头信任)。 。 。."
 
+# translated-by: libretranslate
 msgid "**SSO round-trip test:** ``test-oidc-login.js`` drives ``/sso/key/generate`` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
-msgstr ""
+msgstr "**SSO 往返测试 :** ``test-oidc-login.js`` 驱动器 ``/sso/key/generate`` 通过 Keycloak 登录表并声称UI不再回到自己的密码门."
 
+# translated-by: libretranslate
 msgid "**SSO round-trip test:** `test-oidc-login.js` drives `/sso/key/generate` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
-msgstr ""
+msgstr "**SSO 往返测试 :** `test-oidc-login.js` 驱动器 `/sso/key/generate` 通过 Keycloak 登录表并声称UI不再回到自己的密码门."
 
+# translated-by: libretranslate
 msgid "**SSO via Keycloak:** configured automatically on first deploy."
-msgstr ""
+msgstr "**SSO通过 Keycloak数字 :** 在第一次部署时自动配置 。."
 
+# translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted `Remote-Email` header (`templates/proxy.conf.j2`); an `EXTERNAL_HOOK_FILES` script (`files/hooks.js`, adapted from [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n's own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr ""
+msgstr "**通过 oauth 的 SSO2- 自动提供代理:** 五、结 论1 门通过共享 Keycloak OIDC 客户端 (欧斯2- 代理边缘)。打开后将认证身份转发到 n8n 作为信任 `Remote-Email` 页眉 (`templates/proxy.conf.j2`); 一个 `EXTERNAL_HOOK_FILES` 脚本 (`files/hooks.js`,从 [帕维尔索佐诺夫/n8n - 社区](https://github.com/PavelSozonov/n8n-community-sso)) 读取该页眉,自动提供本地n8第一次登录时的n用户和问题n8N的会话饼干,所以每个 Keycloak 用户直接降落在工作流程编辑器中, 无秒, n8n- 本地登录步骤 。."
 
+# translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted ``Remote-Email`` header (``templates/proxy.conf.j2``); an ``EXTERNAL_HOOK_FILES`` script (``files/hooks.js``, adapted from `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n’s own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr ""
+msgstr "**通过 oauth 的 SSO2- 自动提供代理:** 五、结 论1 门通过共享 Keycloak OIDC 客户端 (欧斯2- 代理边缘)。打开后将认证身份转发到 n8n 作为信任 ``Remote-Email`` 页眉 (``templates/proxy.conf.j2``); 一个 ``EXTERNAL_HOOK_FILES`` 脚本 (``files/hooks.js``,从 `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) 读取该页眉,自动提供本地n8第一次登录时的n用户和问题n8N 自己的会话饼干- 所以每个 Keycloak 用户直接降落在工作流程编辑器中, 无秒, n8n- 本地登录步骤 。."
 
+# translated-by: libretranslate
 msgid "**SSO** is SuiteCRM's own SAML login against Keycloak (`sso.flavor: saml` in [`meta/services.yml`](./meta/services.yml)), not a proxy in front of it. Unauthenticated requests hit the Symfony firewall's SAML entry point, which redirects to Keycloak; the assertion comes back to `/saml/acs` and establishes a real SuiteCRM session, so the app renders its own authenticated UI including its logout control. Accounts are created on first login from the assertion (`SAML_AUTO_CREATE`), and the IdP signing certificate is read from Keycloak's realm descriptor by [`files/shell/docker-entrypoint.sh`](./files/shell/docker-entrypoint.sh) at boot, over the Tor SOCKS proxy whenever the issuer is an onion, because a `.onion` issuer is unresolvable directly. `/auth` stays reachable as the local break-glass login."
-msgstr ""
+msgstr "**常设委员会** 这是 SuiteCRM自己的 SAML 登录反对 Keycloak (`sso.flavor: saml` 内 [`meta/services.yml`](./meta/services.yml)),而不是在它的前面代理。 未认证的请求击中了 Symfony 防火墙的 SAML 进入点,该进入点将重定向到 Keycloak; 断言又回到 `/saml/acs` 并建立一个真正的 SuiteCRM session,所以该应用程序会让自己的认证的UI包括它的登录控制. 从断言的第一个登录上创建账户 (`SAML_AUTO_CREATE`),并读取 IDP 签名证书 Keycloak域名描述符 [`files/shell/docker-entrypoint.sh`](./files/shell/docker-entrypoint.sh) 当发行者是洋葱时,在Tor SOCKS代理上,因为 `.onion` 发行器无法直接解决。 `/auth` 作为本地断玻璃登录,仍可访问。."
 
+# translated-by: libretranslate
 msgid "**SSO** is SuiteCRM’s own SAML login against Keycloak (``sso.flavor: saml`` in ```meta/services.yml`` <./meta/services.yml>`__), not a proxy in front of it. Unauthenticated requests hit the Symfony firewall’s SAML entry point, which redirects to Keycloak; the assertion comes back to ``/saml/acs`` and establishes a real SuiteCRM session, so the app renders its own authenticated UI including its logout control. Accounts are created on first login from the assertion (``SAML_AUTO_CREATE``), and the IdP signing certificate is read from Keycloak’s realm descriptor by ```files/shell/docker-entrypoint.sh`` <./files/shell/docker-entrypoint.sh>`__ at boot, over the Tor SOCKS proxy whenever the issuer is an onion, because a ``.onion`` issuer is unresolvable directly. ``/auth`` stays reachable as the local break-glass login."
-msgstr ""
+msgstr "**常设委员会** 这是 SuiteCRM自己的 SAML 登录反对 Keycloak (``sso.flavor: saml`` 内 ```meta/services.yml`` <./meta/services.yml>`__), not a proxy in front of it. Unauthenticated requests hit the Symfony firewall’s SAML entry point, which redirects to Keycloak; the assertion comes back to ``/saml/acs`` and establishes a real SuiteCRM session, so the app renders its own authenticated UI including its logout control. Accounts are created on first login from the assertion (``SAML_AUTO_CREATE``), and the IdP signing certificate is read from Keycloak’s realm descriptor by ```files/shell/docker-entrypoint.sh`` <./files/shell/docker-entrypoint.sh>`__ at boot, over the Tor SOCKS proxy whenever the issuer is an onion, because a ``.onion`` issuer is unresolvable directly. ``/auth`` 作为本地断玻璃登录,仍可访问。."
 
+# translated-by: libretranslate
 msgid "**SSO-Ready:** SuiteCRM's own SAML login against Keycloak, configured declaratively from the rendered env 🌐"
-msgstr ""
+msgstr "**SSO - 准备 :** SuiteCRM 自己的 SAML 登录反对 Keycloak,从渲染的掩体中声明配置 🌐"
 
+# translated-by: libretranslate
 msgid "**SSO-Ready:** SuiteCRM’s own SAML login against Keycloak, configured declaratively from the rendered env 🌐"
-msgstr ""
+msgstr "**SSO - 准备 :** SuiteCRM 自己的 SAML 登录反对 Keycloak,从渲染的掩体中声明配置 🌐"
 
+# translated-by: libretranslate
 msgid "**Safe Cleanup:** Ensures that no unused certificates are left behind."
-msgstr ""
+msgstr "**安全清理 :** 确保不留下未使用的证书。."
 
+# translated-by: libretranslate
 msgid "**Safe Defaults:** Best-effort cleanup without breaking running services."
-msgstr ""
+msgstr "**安全默认 :** 在不中断运行服务的情况下进行最佳清理 。."
 
+# translated-by: libretranslate
 msgid "**Safe Execution:** Includes validation for missing services and Docker availability."
-msgstr ""
+msgstr "**安全执行 :** 包括对缺失服务和Docker可用性的验证."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **以不信任的叉子安全 :** 树只读作数据 (安全 YAML, Babel 目录);
+# 校对和路径在看到它们之前被验证.
 msgid "**Safe with untrusted forks:** Trees are read as data only (safe YAML, Babel catalogs); refs and paths are validated before git sees them."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Sales & Service CRM:** Accounts, Contacts, Leads, Opportunities, Cases, Campaigns and more 📊"
-msgstr ""
+msgstr "**销售和服务客户关系管理:** 账户、联系人、领导、机会、案件、运动等 📊"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')',
+# '1']
+# nocheck: url
+# translation-rejected: **沙盒** (优先级 3): 其他一切运行在下面 `allowWrite` 页:1 `denyRead`
+# 页:1 `allowedDomains`. 外部写作 `allowWrite` 失败 `EROFS`; 读自 `~/.ssh`, (中文).
+# `~/.gnupg`, (中文). `~/.aws`, 等被拒绝; 与任何未在 `allowedDomains` 失败。.
 msgid "**Sandbox** (precedence 3): everything else runs under `allowWrite` / `denyRead` / `allowedDomains`. Writes outside `allowWrite` fail with `EROFS`; reads from `~/.ssh`, `~/.gnupg`, `~/.aws`, etc. are denied; outbound connections to anything not in `allowedDomains` fail."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **伸缩性和性能:** 高效管理视频转码,直播流,并通过集装箱化微服务存储.
 msgid "**Scalability and Performance:** Efficiently manage video transcoding, live streaming, and storage through containerized microservices."
 msgstr ""
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **可缩放结构 :** 受益于基于多服务,多克的设置,支持高用户负载和无缝背景处理.
 msgid "**Scalable Architecture:** Benefit from a multi-service, Docker-based setup that supports high user loads and seamless background processing."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Scalable Architecture:** Designed to handle increasing user loads and message volumes with high performance."
-msgstr ""
+msgstr "**可缩放结构 :** 其设计旨在处理高性能的不断增加的用户负荷和信件卷."
 
+# translated-by: libretranslate
 msgid "**Scalable Architecture:** Efficiently handle increasing workloads while maintaining high performance."
-msgstr ""
+msgstr "**可缩放结构 :** 高效处理不断增加的工作量,同时保持高绩效。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **可缩放结构 :** 利用基于Docker的部署,使之易于适应日益增加的交通和社区规模。.
 msgid "**Scalable Architecture:** Utilize a Docker-based deployment that adapts easily to increasing traffic and community size."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Scalable Deployment:** Leverage Docker for a portable and scalable installation that adapts as your user base grows."
-msgstr ""
+msgstr "**可扩展部署:** 用于可移植和可缩放的安装的 Leverage Docker, 随用户群的增长而适应 。."
 
+# translated-by: libretranslate
 msgid "**Scalable Deployment:** Use Docker to ensure your analytics platform can grow with your traffic demands."
-msgstr ""
+msgstr "**可扩展部署:** 使用Docker来保证您的分析平台能够随着流量需求而增长."
 
+# translated-by: libretranslate
 msgid "**Scalable Deployment:** Use Docker to ensure your event platform grows seamlessly with your community’s needs."
-msgstr ""
+msgstr "**可扩展部署:** 使用 Docker 来保证您的活动平台与您的社区需求无缝增长 。."
 
+# translated-by: libretranslate
 msgid "**Scalable Deployment:** Utilize Docker for a portable and scalable setup that adapts as your community grows."
-msgstr ""
+msgstr "**可扩展部署:** 利用Docker来进行可移动和可伸缩的设置,随着社区的发展而适应."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **可缩放服务架构 :** 利用多种服务的强力管弦 Funkwhale 举个例子.
 msgid "**Scalable Service Architecture:** Leverage the robust orchestration of multiple services to power your Funkwhale instance."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Scalable and Customizable:** Easily tailor settings and scale your Keycloak instance to meet growing demands."
-msgstr ""
+msgstr "**可缩放和自定义 :** 方便地调整设置和缩放 Keycloak 满足日益增长的需求。."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: **日程协调:** 系统化单位是全球操纵组的一部分,所以它从不比赛
+# backup/cleanup/repair 任务在同一主机上。.
 msgid "**Schedule-coordinated:** the systemd unit is part of the global manipulation group, so it never races backup/cleanup/repair jobs on the same host."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Scheduled Execution:** Integrates with a systemd timer for periodic health sweeps."
-msgstr ""
+msgstr "**计划执行 :** 与定期健康检查的系统定时器相结合。."
 
+# translated-by: libretranslate
 msgid "**Scheduled Execution:** Runs daily (or as configured) based on `SYS_SCHEDULE_CLEANUP_DOCKER`."
-msgstr ""
+msgstr "**计划执行 :** 每天运行 (或已配置) 基于 `SYS_SCHEDULE_CLEANUP_DOCKER`。 。 。."
 
 msgid "**Scheduled Execution:** Runs daily (or as configured) based on ``SYS_SCHEDULE_CLEANUP_DOCKER``."
 msgstr ""

@@ -47088,1505 +47088,2451 @@ msgstr "Yeni ambalaj lint: a *lint-packages* check, teled into *lint* Ve kendi C
 msgid "New permanent team members should follow the [onboarding document](https://s.infinito.nexus/onboarding)."
 msgstr "Yeni kalıcı ekip üyeleri takip etmeli [Onboarding document](https://s.infinito.nexus/onboarding)."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['97']
+# nocheck: url
+# translation-rejected: Yeni roller, yeni 97 yüzeyler veya kırılmaz bir şema
+# uzatma toprakları.
 msgid "New roles, new CLI surfaces, or a non-breaking schema extension lands."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "New scope files MUST be referenced from the consuming app via its `KEYCLOAK_RBAC_GROUP_CLAIM` style configuration or via the `optionalClientScopes` list in the client template."
-msgstr ""
+msgstr "Yeni kapsamı dosyaları MUST, alıcı uygulamasından kendi aracılığıyla referanslanır `KEYCLOAK_RBAC_GROUP_CLAIM` stil yapılandırması veya aracılığıyla `optionalClientScopes` Müşteri şablonunda liste."
 
+# translated-by: libretranslate
 msgid "New variables MUST follow the `TEST_E2E_PLAYWRIGHT_` prefix convention."
-msgstr ""
+msgstr "Yeni değişkenler MUST takip eder `TEST_E2E_PLAYWRIGHT_` Ad kongre."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Yeni en iyi koşu ``branch`` (İçinde in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in ``repo``) Bu aslında
+# iş dağıtmak / swarm dağıtmak içerir. Run dict geri dönüyor (Bir önbellek ile
+# ``_jobs`` anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar anahtar
+# anahtar anahtar anahtar anahtar anahtar anahtar anahtarı) Ya da hiçbiri.
 msgid "Newest run on ``branch`` (in ``repo``) that actually contains compose/ swarm deploy jobs. Returns the run dict (with a cached ``_jobs`` key) or None."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Nextcloud Applications"
-msgstr ""
+msgstr "Sonraki Bulut Uygulamaları"
 
+# translated-by: libretranslate
 msgid "Nextcloud Client ️"
-msgstr ""
+msgstr "Sonraki Bulut Müşteri ️"
 
+# translated-by: libretranslate
 msgid "Nextcloud Docs"
-msgstr ""
+msgstr "Sonrakicloud Docs"
 
+# translated-by: libretranslate
 msgid "Nextcloud Talk"
-msgstr ""
+msgstr "Nextcloud Talk"
 
+# translated-by: libretranslate
 msgid "Nextcloud config templates"
-msgstr ""
+msgstr "Sonrakicloud yapılandırma şablonları"
 
+# translated-by: libretranslate
 msgid "Nextcloud deploy-variant rebalancing: Discourse and OnlyOffice are each isolated into their own loosely-coupled partner variant, the matrix is repacked to five variants overriding only the dynamic flags, LDAP is enabled wherever SSO is on, and the database is shared outside variant 1. The GitLab 19 OAuth app now carries an organization, and *fileslibreofficeedit* is gated on OnlyOffice absence."
-msgstr ""
+msgstr "Sonrakicloud dağıtma-variant rebalancing: Discourse and OnlyOffice Her biri kendi gevşek çift ortağı varyantına izole edilir, matrix sadece dinamik bayraklar üzerinde beş şekilde yeniden paketlenir, LDAP, SSO'nun nerede olduğu konusunda etkinleştirilir ve veritabanı değişkenin dışında paylaşılır. 1. GitLab 19 OAuth uygulaması şimdi bir organizasyon taşır ve *dosyalarılibreofficeedit* Kapıda OnlyOffice yokluğu."
 
+# translated-by: libretranslate
 msgid "Nextcloud plugin pipeline"
-msgstr ""
+msgstr "Sonrakicloud eklentisi"
 
+# translated-by: libretranslate
 msgid "Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of the ``context_agent`` ExApp."
-msgstr ""
+msgstr "Sonrakicloud, AppAPI proxy'si aracılığıyla bir Model Context Protokolü endpoint hizmet ediyor ``context_agent`` ExApp."
 
+# translated-by: libretranslate
 msgid "Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of the `context_agent` ExApp."
-msgstr ""
+msgstr "Sonrakicloud, AppAPI proxy'si aracılığıyla bir Model Context Protokolü endpoint hizmet ediyor `context_agent` ExApp."
 
+# translated-by: libretranslate
 msgid "Nginx + SPA; public HTTP surface, proxies to backend/exporter."
-msgstr ""
+msgstr "Nginx + SPA; halka açık HTTP yüzeyi, proxyler arka uç / genişletici."
 
+# translated-by: libretranslate
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr ""
+msgstr "Nginx tabanlı içerik teslimat ağı paylaşılan statik varlıklara iç web uygulamaları için"
 
+# translated-by: libretranslate
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
-msgstr ""
+msgstr "Nginx tabanlı bir gizlilik proxy, aynaların ilk parti domaini altında beyaz listelenmiş üçüncü taraf varlıkları."
 
+# translated-by: libretranslate
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr ""
+msgstr "Nginx tabanlı bir sunucu statik varlıklar barındırmak için bir kaynak kılavuzundan web veri yolunda kopyaladı"
 
+# translated-by: libretranslate
 msgid "Nix project: <https://nixos.org>"
-msgstr ""
+msgstr "Nix projesi: <https://nixos.org>"
 
+# translated-by: libretranslate
 msgid "Nix project: https://nixos.org"
-msgstr ""
+msgstr "Nix projesi: https://nixos.org"
 
+# translated-by: libretranslate
 msgid "Nix releases: <https://releases.nixos.org>"
-msgstr ""
+msgstr "Nix yayınlar: <https://releases.nixos.org>"
 
+# translated-by: libretranslate
 msgid "Nix releases: https://releases.nixos.org"
-msgstr ""
+msgstr "Nix yayınlar: https://releases.nixos.org"
 
+# translated-by: libretranslate
 msgid "Nix version to install via the official installer."
-msgstr ""
+msgstr "Resmi taksitle yüklemek için Nix versiyonu."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hayır hayır hayır
 msgid "No"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "No SSO. The application authenticates against its own user table and has no OIDC client, so the reverse proxy is not SSO-gated — federation endpoints must stay publicly reachable."
-msgstr ""
+msgstr "Hayır SSO. Uygulama kendi kullanıcı masasına karşı gerçekleştirilebilir ve OIDC müşterisine sahip değildir, bu nedenle ters proxy SSO-gated değildir - federasyon uç noktaları halka açık olarak ulaşılmalıdır."
 
+# translated-by: libretranslate
 msgid "No Unsandboxed Escape Hatch 🚪"
-msgstr ""
+msgstr "No Unsandboxed Escape 🚪"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hayır hayır hayır `--mode`, `--tor`, `--distros` veya
+# `--filesystem`. Bu girişler tüm pist için bir aksak tutuyor, hangi jetler
+# zaten sıraya gidiyor ve bir token ile aynı fikirde olmayan bir koşu havuzu.
+# Onlara ulaşmanın tek nedeni, her satırın gerçekten tek bir değeri paylaştığı
+# bir çizgidir ve hatta o zaman token formu, raporun göstermek zorunda olduğu
+# şeydir.
 msgid "No `--mode`, `--tor`, `--distros` or `--filesystem`. Those inputs pin an axis for the whole run, which the tokens already do per row, and a run-level pool that disagrees with a token refuses it. The only reason to reach for them is a line where every row genuinely shares one value, and even then the token form is what the report has to show."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hayır hayır hayır ``__all__``: Re-exported isminin,
+# burada da tanımlanmış olduğu gibi otomatikdoc belgesi verdiğini ve sphinx
+# sonra her iki hedef bulur. ``ImageRef`` Annotasyon.
 msgid "No ``__all__``: declaring the re-exported name makes autodoc document the class here as well as where it is defined, and sphinx then finds two targets for every ``ImageRef`` annotation."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hayır hayır hayır `git commit` Her Kabul Criterion
+# kontrol olana kadar.
 msgid "No `git commit` until every Acceptance Criterion is checked."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "No additional bundle file format is required."
-msgstr ""
+msgstr "Ek bir paket dosya formatı gerekli değildir."
 
+# translated-by: libretranslate
 msgid "No additional bundle manifest files are required."
-msgstr ""
+msgstr "Ek bir paket açık dosyalar gerekli değildir."
 
+# translated-by: libretranslate
 msgid "No additional configuration is required."
-msgstr ""
+msgstr "Ek yapılandırma gerekli değildir."
 
+# translated-by: libretranslate
 msgid "No additional role variables are required; this role solely manages the installation of the editor."
-msgstr ""
+msgstr "Ek rol değişkenleri gerekli değildir; bu rol sadece editörün kurulumunu yönetir."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hiçbir ajanın ajan çalışmasına ev sahipliği yapması
+# gerekir: OpenClaw's browser control and filesystem access run inside the
+# guest, and Hermes' subagent execution contains inside the guest, so the
+# agent runtime is full isolatable. Tek ev sahibi talep, Hermes'in web
+# panolarıdır, hangisini istiyor `network_mode: host` ve paylaşılan bir ev
+# sahibi PID adı alanı sadece görüntülemek için **host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host host host host host
+# host host host host host host host host host host host** izole bir misafirin
+# ortaya çıkamadığı ölçümler. Bu host-monitoring görüşü kıvrılabilir ve MUST,
+# ajanın izole runtime dışına çıkmasını engellemez: ajan runtime izole kalır
+# ve host-metrics panoları ya Hermes'in gömülü / işleme modunda çalıştırılır
+# (Daha düşük host stats ile) Ya da ayrı olmayan bir şekilde bölün. `runc`
+# sidecar.
 msgid "No agent needs host access to do agent work: OpenClaw's browser control and filesystem access run inside the guest, and Hermes' subagent execution runs inside the guest, so the agent runtime is fully isolatable. The only host-level demand is Hermes' web dashboard, which wants `network_mode: host` and a shared host PID namespace solely to display **host** metrics that an isolated guest cannot expose. That host-monitoring view is severable and MUST NOT pull the agent tier out of its isolated runtime: the agent runtime stays isolated, and the host-metrics dashboard is either run in Hermes' embedded/in-process mode (with reduced host stats) or split out to a separate non-isolated `runc` sidecar."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "No ansible import: `utils.cache.base` deliberately carries none, and the env generator imports parts of `utils` on hosts that have no ansible installed."
-msgstr ""
+msgstr "Yok bir ithalat yok: `utils.cache.base` kasıtlı olarak hiçbir şey taşımaz ve env jeneratör ithalat parçaları `utils` Bu, hiçbir ansible yüklü olmayan evlere."
 
+# translated-by: libretranslate
 msgid "No auth — bare ERPNext, local-user only (break-glass / dev)."
-msgstr ""
+msgstr "Hayır auth - çıplak ERPNext, yerel kullanıcı sadece (break-cam / Dev)."
 
+# translated-by: libretranslate
 msgid "No automatic fallback generation happens."
-msgstr ""
+msgstr "Otomatik geri dönüş nesli olmaz."
 
+# translated-by: libretranslate
 msgid "No automatic queueing"
-msgstr ""
+msgstr "Otomatik kuyruk yok"
 
+# translated-by: libretranslate
 msgid "No blanket device grant, no shared host"
-msgstr ""
+msgstr "Hiçbir battaniye cihazı hibesi yok, paylaşılan ev sahibi"
 
+# translated-by: libretranslate
 msgid "No buffering means less effective for caching/optimization"
-msgstr ""
+msgstr "Buffering, caching/optimizasyon için daha az etkili anlamına gelmez"
 
+# translated-by: libretranslate
 msgid "No caching (the source is a string, not a path) — provided for symmetry with :func:`load_yaml_str` so callers never need ``import yaml`` for the parse."
-msgstr ""
+msgstr "No caching (Kaynak bir dizedir, bir yol değil) - simetri için, :func:`load_yaml_str` Bu yüzden aramacılar asla ihtiyaç duymazlar ``import yaml`` Parse için."
 
+# translated-by: libretranslate
 msgid "No changes required in application code."
-msgstr ""
+msgstr "Uygulama kodunda gerekli değişiklikler yoktur."
 
+# translated-by: libretranslate
 msgid "No client executes a deterministic real tool call in every deployment. Flowise does, through its managed Agentflow fixture; the others assert less."
-msgstr ""
+msgstr "Hiçbir müşteri her dağıtımda bir determinist gerçek araç çağrısı uygular. Akış, yönetilen Agentflow fikstürü aracılığıyla; diğerleri daha az iddia ediyor."
 
+# translated-by: libretranslate
 msgid "No consumer addresses a backend directly"
-msgstr ""
+msgstr "Hiçbir tüketici doğrudan geri göndermez"
 
+# translated-by: libretranslate
 msgid "No direct URL clicks for user actions 🚫"
-msgstr ""
+msgstr "Kullanıcı eylemleri için doğrudan URL tıklamaları 🚫"
 
+# translated-by: libretranslate
 msgid "No down/up, no entity purge. Requires a prior initialize/reinstall run that materialized the inventory."
-msgstr ""
+msgstr "Hayır / aşağı, hiçbir varlık yok. Daha önce bir başlangıç / yükleme, bu malzemeyi envantere alan bir işletme gerektirir."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hiçbir dış DB tüketici (Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Like Like Like Like Like
+# Like Like Like Like Like Like Like Like Like Like Checkmk).
 msgid "No external DB consumer (like Checkmk)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "No external DB consumer (unlike the Semaphore role, which is tracked on a separate branch/PR)."
-msgstr ""
+msgstr "Hiçbir dış DB tüketici (Semaphore rolünün aksine, bu ayrı bir şube /PR üzerinde takip edilir)."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hiçbir dış DB; iç SQLite under under under `/config`.
 msgid "No external DB; internal SQLite under `/config`."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "No external dependencies"
-msgstr ""
+msgstr "Hiçbir dış bağımlılık"
 
+# translated-by: libretranslate
 msgid "No fixed team is always required"
-msgstr ""
+msgstr "Sabit takım her zaman gerekli değildir"
 
+# translated-by: libretranslate
 msgid "No git commit until every Acceptance Criterion is checked off (`- [x]`)."
-msgstr ""
+msgstr "Her Kabul Criterion'un kontrol edildiğine kadar hayır (`- [x]`)."
 
+# translated-by: libretranslate
 msgid "No git commit until every Acceptance Criterion is checked off."
-msgstr ""
+msgstr "Her Kabul Criterion kontrol edilene kadar hiçbir şey işlemez."
 
+# translated-by: libretranslate
 msgid "No intermediate merged `users` fact exists. No other source is consulted."
-msgstr ""
+msgstr "Hiçbir orta birlik yok `users` Aslında var. Başka bir kaynak danışmaz."
 
+# translated-by: libretranslate
 msgid "No kind satisfies both, because the branch has no samples yet: pin `btrfs` and say in the report that the pin rests on the pool default rather than on evidence. Never drop the axis to avoid the question."
-msgstr ""
+msgstr "Her ikisine de bir tür satisfies yok, çünkü şube henüz örnekleri yok: pin `btrfs` Raporda, pin kanıtları yerine havuz varsayılan olarak geri kalanının geri döndüğünü söyleyin. Sorudan kaçınmak için asla eksenden düşmeyin."
 
+# translated-by: libretranslate
 msgid "No known integration to wire these two."
-msgstr ""
+msgstr "Bu ikisini kablolamak için bilinen bir entegrasyon yok."
 
+# translated-by: libretranslate
 msgid "No manual interaction is required once the role is deployed."
-msgstr ""
+msgstr "Rol dağıtıldığında manuel etkileşim gerekli değildir."
 
+# translated-by: libretranslate
 msgid "No manual intervention is required. Re-running the play is sufficient."
-msgstr ""
+msgstr "Hiçbir manuel müdahale gerekli değildir. Oyunu tekrar çalıştırma yeterlidir."
 
+# translated-by: libretranslate
 msgid "No manual operator step on deploy."
-msgstr ""
+msgstr "Dağıtım üzerinde manuel operatör adım yok."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Hiçbir manuel kayıt gerekli değildir. Bir rolde ilan
+# edilen görüntüler otomatik olarak keşfedildi ve bir sonraki ayna çalışmasına
+# dahil edildi. See See See See See [origin.md](origin.md) Doğru bildirim
+# formatı için.
 msgid "No manual registration is needed. Images declared in a role are automatically discovered and included in the next mirror run. See [origin.md](origin.md) for the correct declaration format."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "No onion vhost template, no domain lookup changes: onion domains fall out of `DOMAIN_PRIMARY`; the standard vhost serves them on `:80` because TLS resolves disabled."
-msgstr ""
+msgstr "No onion vhost şablon, hiçbir domain arama değişiklikleri: onion domains düşer `DOMAIN_PRIMARY`; standart vhost onlara hizmet eder `:80` Çünkü TLS devre dışı kalıyor."
 
+# translated-by: libretranslate
 msgid "No other source is consulted."
-msgstr ""
+msgstr "Başka bir kaynak danışmaz."
 
+# translated-by: libretranslate
 msgid "No pair of a capable client and a capable provider exists at the current pins, so every provider declares `auth_subject: service_account`."
-msgstr ""
+msgstr "Yetenekli bir müşteri ve yetenekli bir sağlayıcının bir çift mevcut pinlerde mevcut değildir, bu nedenle her sağlayıcı ilan eder `auth_subject: service_account`."
 
+# translated-by: libretranslate
 msgid "No parameters. Reads ``pyproject.toml`` from the repository root, located by walking parents from this plugin file's location."
-msgstr ""
+msgstr "Hiçbir parametre yok. Okunanlar ``pyproject.toml`` repository kökünden, bu eklenti dosyasının konumundan ebeveynler tarafından bulunan."
 
+# translated-by: libretranslate
 msgid "No personal access token (PAT) or additional secrets are required."
-msgstr ""
+msgstr "Kişisel erişim yok (PAT) veya ek sırlar gereklidir."
 
+# translated-by: libretranslate
 msgid "No personal account footprint appears in audit logs."
-msgstr ""
+msgstr "Hiçbir kişisel hesap ayak izi denetim loglarında görünür."
 
+# translated-by: libretranslate
 msgid "No positional terms are accepted. Predicate logic delegates to ``utils.roles.applications.services.sso.get_sso_config`` so callers share one source of truth with ``lookup('sso', ..., 'is_proxy_gated')`` and ``plugins/lookup/compose_volumes.py``."
-msgstr ""
+msgstr "Hiçbir pozisyonsal terim kabul edilmez. Predicate mantık delegeleri ``utils.roles.applications.services.sso.get_sso_config`` Bu yüzden callers bir gerçek kaynağı paylaşıyor ``lookup('sso', ..., 'is_proxy_gated')`` ve ``plugins/lookup/compose_volumes.py``."
 
+# translated-by: libretranslate
 msgid "No prior server-side Tor art in the repo (`desk-torbrowser` is desktop client only)"
-msgstr ""
+msgstr "Önceki sunucu-side Tor sanat in the repo (`desk-torbrowser` masaüstü müşteri sadece sadece)"
 
+# translated-by: libretranslate
 msgid "No privileged mode, no host network, pid, ipc or user namespace, no host bind mount, no container-engine socket."
-msgstr ""
+msgstr "Hiçbir ayrıcalıklı mod, ev sahibi ağ, pid, ipc veya kullanıcı adı alanı, ev sahibi olmayan bağlantı, konteyner motorlu soket değil."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['"']
+# nocheck: url
+# translation-rejected: Altında hiçbir rol yok `roles_path` De ki: "
+# application_id.
 msgid "No role under `roles_path` declares this application_id."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "No stable release; higher breakage risk; not suitable for production servers"
-msgstr ""
+msgstr "Istikrarlı bir sürüm yok; yüksek kesinti riski; üretim sunucuları için uygun değil"
 
+# translated-by: libretranslate
 msgid "No stub tests 🚫"
-msgstr ""
+msgstr "No stub testleri 🚫"
 
+# translated-by: libretranslate
 msgid "No unverified code is executed on the target system."
-msgstr ""
+msgstr "Hedef sistemi üzerinde sınırsız kod uygulanmaz."
 
+# translated-by: libretranslate
 msgid "No usage statistics collected. Usually no functional impact."
-msgstr ""
+msgstr "Hiçbir kullanım istatistikleri toplandı. Genellikle işlevsel bir etki yoktur."
 
+# translated-by: libretranslate
 msgid "No value is ever substituted. Ansible's Linux hardware collector reads `/sys/block/<dev>/size` without a None guard and takes every hardware fact with it when that read fails, which is why the facts are a preferred source here rather than the only one."
-msgstr ""
+msgstr "Hiçbir değer asla yerine getirilir. Ansible's Linux Donanım koleksiyoncusu okur `/sys/block/<dev>/size` Hiçbir muhafız olmadan ve her donanım gerçeği bu okuma başarısız olduğunda, bu yüzden gerçekler tek bir tane yerine tercih edilen bir kaynaktır."
 
+# translated-by: libretranslate
 msgid "No weighting sends a restricted request out of the cluster"
-msgstr ""
+msgstr "Kilo verme kümeden sınırlı bir istek göndermez"
 
+# translated-by: libretranslate
 msgid "No-code builder for LLM apps / agent flows"
-msgstr ""
+msgstr "LLM uygulamaları için kod oluşturma / ajan akışları"
 
+# translated-by: libretranslate
 msgid "No-op when nothing is pinned or it is the host's own; raises SystemExit when the handler cannot be registered."
-msgstr ""
+msgstr "Hiçbir şey tamamlanmadığında veya ev sahibinin kendisi; eller kayıtlı olamayacağında SistemExit'i gündeme getiriyor."
 
+# translated-by: libretranslate
 msgid "No/low-code canvas to build assistants and pipelines"
-msgstr ""
+msgstr "Yardımcılar ve boru hatları oluşturmak için No/low-code tuval"
 
+# translated-by: libretranslate
 msgid "Node Tor v3 onion identity for the harness."
-msgstr ""
+msgstr "Node Tor v3 Kullanım için giriş kimliği."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Node baz isimleri SPOT'dur default.env (Paylaşılan ile
+# paylaşılan scripts/tests/deploy/swarm/utils/topology/base.sh); Sadece
+# SWARM_NAME Prefix burada uygulanır, bu yüzden ev sahibi isimler
+# konteynerleri eşleştirir. Env alır() Keep keep keep keep keep keep keep keep
+# keep SWARM_NAME ithalat güvenli; ana() Onu çalıştırma zamanında uygular.
 msgid "Node base names are the SPOT in default.env (shared with scripts/tests/deploy/swarm/utils/topology/base.sh); only the SWARM_NAME prefix is applied here so host names match the containers. The env get() keeps SWARM_NAME import-safe; main() enforces it at run time."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Node names come from `default.env` (`INFINITO_SWARM_*_NAME`) with the `SWARM_NAME` prefix. `INFINITO_APP_VARIANTS` feeds `derive_includes` to select the active variant; in-process callers pass the map as `derive_includes(app_id, variants=...)`."
-msgstr ""
+msgstr "Node isimlerden geliyor `default.env` (`INFINITO_SWARM_*_NAME`) ile birlikte `SWARM_NAME` Ad. `INFINITO_APP_VARIANTS` beslemeler `derive_includes` Aktif değişkeni seçmek; In-process callers haritayı haritayı sanki `derive_includes(app_id, variants=...)`."
 
+# translated-by: libretranslate
 msgid "Node.js runtime provisioning for the JavaScript unit suite."
-msgstr ""
+msgstr "Node.js JavaScript ünite süiti için zaman ayırın."
 
+# translated-by: libretranslate
 msgid "Nodes the DR drill's remote-2-local unit pulls from."
-msgstr ""
+msgstr "DR tatbikatın uzaktan yok2-yerel üniteden çekilir."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Olmayan tüketiciler (Herhangi bir şey herhangi bir
+# `sys-*` rol rolü rol rolü rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rolü rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol rol
+# rol rol rol rol rol rol rol rol rol rol rol rol) MUST çağrısı
+# `lookup('email')` olmadan olmadan `application_id` Bu yüzden asla per-app
+# birleşmesi tetiklemezler.
 msgid "Non-app consumers (any `sys-*` role) MUST call `lookup('email')` without an `application_id` so they never trigger a per-app merge."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Non-application roles 🔧"
-msgstr ""
+msgstr "Non-application rolleri 🔧"
 
+# translated-by: libretranslate
 msgid "Non-empty list of in-repo service keys; each MUST resolve to a service block in the same role's `meta/services.yml`. Omit when there is no cross-role dependency."
-msgstr ""
+msgstr "In-repo servis anahtarlarının sınırsız listesi; her MUST aynı roldeki bir servis bloğuyla aynı şekilde çözülür `meta/services.yml`. Omit, haçlı bağımlılık olmadığı zaman."
 
+# translated-by: libretranslate
 msgid "Non-essential provider toggle:"
-msgstr ""
+msgstr "Non-esential sağlayıcı toggle:"
 
+# translated-by: libretranslate
 msgid "Non-onion domain → flavor from `applications.<app>.tls.mode`, else `TLS_MODE`."
-msgstr ""
+msgstr "Non-onion domain → lezzetli `applications.<app>.tls.mode`, Diğer , `TLS_MODE`."
 
+# translated-by: libretranslate
 msgid "Non-shell helper logic MUST NOT be embedded as ad-hoc shell blobs inside workflow files."
-msgstr ""
+msgstr "Non-shell helper logic MUST, iş akış dosyalarındaki ad-hoc kabuk blobs olarak gömülmez."
 
+# translated-by: libretranslate
 msgid "None external — Checkmk Raw bundles Nagios core + RRDtool; all state on one persistent volume (`/omd/sites`)."
-msgstr ""
+msgstr "Hiçbir dış - Checkmk Raw paketler Nagios çekirdeği + RRDtool; tüm devlet kalıcı bir hacimde (`/omd/sites`)."
 
+# translated-by: libretranslate
 msgid "None external — internal SQLite under `/config`."
-msgstr ""
+msgstr "Hiçbir dış - iç SQLite alt altında `/config`."
 
+# translated-by: libretranslate
 msgid "None when the call is run once, else its retry policy."
-msgstr ""
+msgstr "Çağrı bir kez çalıştırıldığında, başka yeniden deneme politikası."
 
+# translated-by: libretranslate
 msgid "None where the list does not carry both, in which case the placeholders cannot be resolved."
-msgstr ""
+msgstr "Listenin her ikisini de taşımadığı yerde, hangi durumda yer sahipleri çözülebilir."
 
+# translated-by: libretranslate
 msgid "None."
-msgstr ""
+msgstr "Hiçbir şey."
 
+# translated-by: libretranslate
 msgid "None. This role is designed to be included in NGINX server block configurations."
-msgstr ""
+msgstr "Hiçbir şey. Bu rol, NGINX sunucu blok konfigürasyonlarına dahil olmak üzere tasarlanmıştır."
 
+# translated-by: libretranslate
 msgid "Normal contributors MUST follow all rules"
-msgstr ""
+msgstr "Normal katkıda bulunanlar MUST tüm kuralları takip eder"
 
+# translated-by: libretranslate
 msgid "Normal prose"
-msgstr ""
+msgstr "Normal prose"
 
+# translated-by: libretranslate
 msgid "Normalise ``--lifecycles`` tokens into a lowercase set, splitting each on commas and whitespace so ``'alpha,beta'`` and ``'alpha beta'`` are equivalent. ``None`` (flag absent) stays ``None`` so the model falls back to its built-in default envelope."
-msgstr ""
+msgstr "Normalleşme ``--lifecycles`` Jetonları daha düşük bir yere bölmek, her birini komün ve beyaz alanda bölmek böylece ``'alpha,beta'`` ve ``'alpha beta'`` eşdeğerdir. ``None`` (Bayrak yok) Kalmak için kalır ``None`` Bu yüzden model yerleşik varsayılan zarfına geri döner."
 
+# translated-by: libretranslate
 msgid "Normalised by the loader. When the addon bridges exactly one service, reference that service's `enabled` flag instead of re-deriving group membership."
-msgstr ""
+msgstr "Yükleyici tarafından normalize. Addon köprüleri tam olarak bir hizmet olduğunda, bu hizmetin referansı `enabled` Re-deriving grubu üyeliği yerine bayrak."
 
+# translated-by: libretranslate
 msgid "Normalize a raw ``server.status_codes`` declaration."
-msgstr ""
+msgstr "Bir çiğnerek ``server.status_codes`` Açıklama."
 
+# translated-by: libretranslate
 msgid "Normalize and validate the role-level mount declaration in ``roles/<role>/meta/volumes.yml``."
-msgstr ""
+msgstr "Normalleşme ve rol düzeyindeki dağıtım bildirimini doğrulayın ``roles/<role>/meta/volumes.yml``."
 
+# translated-by: libretranslate
 msgid "Normalize service reference tokens so a caller may name either the service/entity key (e.g. ``email``, ``prometheus``) or the provider application id (e.g. ``web-app-mailu``, ``web-app-prometheus``)."
-msgstr ""
+msgstr "Normal hizmet referans belirteçleri bu yüzden bir caller ya hizmet / anahtarlık anahtar adı olabilir (E.g. ``email``, ``prometheus``) veya sağlayıcı başvurusu boş (E.g. ``web-app-mailu``, ``web-app-prometheus``)."
 
+# translated-by: libretranslate
 msgid "Not a probe: it never judges the container. Its timings are floors the composition may raise the probe's to, because the first run has a relay handshake in front of it."
-msgstr ""
+msgstr "Bir soruşturma değil: asla konteyner yargılamıyor. Onun zamanlamaları, kompozisyonun radyoyu yükseltebilir, çünkü ilk koşun önünde bir röle eli vardır."
 
+# translated-by: libretranslate
 msgid "Not a variable: cancellation is derived from the trigger. Every automatic run on a branch other than `main` is cancelled by a newer run in the same concurrency group; automatic runs on `main` are not, because a half-finished pipeline on the default branch is worse than a queued one. A manual dispatch always supersedes, `main` included: someone typed it, so it is the intent that counts, not the ref."
-msgstr ""
+msgstr "Bir değişken değil: iptal tetikleyiciden elde edilir. Her otomatik bir şubede diğerinden daha fazla çalışır `main` Aynı koncurrency grubunda yeni bir çalışan tarafından iptal edilir; otomatik çalışır `main` Değil, çünkü varsayılan şubedeki yarı finansmanlı bir boru hattı bir kuyruktan daha kötüdür. Bir kılavuz her zaman süperleri tarafından yönetilir, `main` Buna dahil olmak üzere: biri onu türünde kullandı, bu yüzden sayan niyet, değil."
 
+# translated-by: libretranslate
 msgid "Not currently possible"
-msgstr ""
+msgstr "Şu anda mümkün değil"
 
+# translated-by: libretranslate
 msgid "Not executed. No commit, no push, no PR."
-msgstr ""
+msgstr "Idam edilmedi. Hayır, zorlama, hayır PR."
 
+# translated-by: libretranslate
 msgid "Not suitable for scenarios requiring Lua/JS content injection"
-msgstr ""
+msgstr "Lua/JS içerik enjeksiyonu gerektiren senaryolar için uygun değil"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not NotNote
 msgid "Note"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Note: Django superuser enables access to `/admin`. Workspace permissions inside Baserow still need to be configured in Baserow UI/API."
-msgstr ""
+msgstr "Not: Django superuser erişim sağlar `/admin`. Workspace içeride izinler Baserow Hala yapılandırılmalıdır Baserow UI /API."
 
+# translated-by: libretranslate
 msgid "Note: Django superuser enables access to ``/admin``. Workspace permissions inside Baserow still need to be configured in Baserow UI/API."
-msgstr ""
+msgstr "Not: Django superuser erişim sağlar ``/admin``. Workspace içeride izinler Baserow Hala yapılandırılmalıdır Baserow UI /API."
 
+# translated-by: libretranslate
 msgid "Note: Many repo commands (e.g. `make`) must run in the repo root so the Makefile is found."
-msgstr ""
+msgstr "Not: Birçok repo komutları (E.g. `make`) Repo kökünde koşmak gerekir, böylece Makefile bulunur."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Notlar Notlar Notlar Notlar Not Notlar Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Notlar
 msgid "Notes"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Notes / Caveats"
-msgstr ""
+msgstr "Notlar / Caveats"
 
+# translated-by: libretranslate
 msgid "Notes on Offline Usage"
-msgstr ""
+msgstr "Offline Use Notları"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Notlar Notlar Notlar Notlar Not Notlar Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Notlar ⚠️
 msgid "Notes ⚠️"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Notlar Notlar Notlar Notlar Not Notlar Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not
+# Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Not Notlar 📝
 msgid "Notes 📝"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Notes:"
-msgstr ""
+msgstr "Notlar:"
 
+# translated-by: libretranslate
 msgid "Nothing recorded that cost, so the choice used to be made by assertion. Deploy job titles carry the whole row (:func:`utils.github.variant.axes.parse_label`) and the API gives every job a start and an end, so the cost per axis value is read back off the runs that already happened."
-msgstr ""
+msgstr "Hiçbir şey bu maliyeti kaydetti, bu yüzden iddia tarafından yapılan seçim. İş defterleri tüm sırayı taşır (:func:`utils.github.variant.axes.parse_label`) ve API Her iş bir başlangıç ve bir son verir, bu yüzden eksen değeri maliyeti zaten gerçekleşen koşulardan geri okunur."
 
+# translated-by: libretranslate
 msgid "Notifies NGINX to restart after removing configurations."
-msgstr ""
+msgstr "Yapıların kaldırılmasından sonra yeniden başlamak için NGINX'i bilgilendirin."
 
+# translated-by: libretranslate
 msgid "Notifies via systemd in case of errors during the balancing process."
-msgstr ""
+msgstr "Denge işlemi sırasında hataların durumunda sistemli değildir."
 
+# translated-by: libretranslate
 msgid "Number of runner instances to provision."
-msgstr ""
+msgstr "Puanlama için koşucu örnekleri sayısı."
 
+# translated-by: libretranslate
 msgid "Number of runner instances; auto-scales to available CPU cores."
-msgstr ""
+msgstr "Koşucu örnek sayısı; mevcut CPU çekirdeği için otomatik ölçekler."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['"']
+# nocheck: url
+# translation-rejected: Uzayların sayısı her satır BUT, ilki eklenmiştir. İlk
+# çizginin lider beyaz alanı yok - caller yerleri ``{{ lookup('depends_on', …)
+# }}`` Şablonda istenen sütunda ve Jinja substitution, bu şablonun önde gelen
+# beyaz alanı çizgiye çevirmektedir. 1"Indent. Hat Hat Hatları 2+ sonra
+# taşımak ``indent`` ekstra alanlar (YAML-relative indent) Bu yüzden çizginin
+# altında hizalıyorlar 1.
 msgid "Number of spaces every line BUT the first one is prefixed with. The first line has NO leading whitespace - the caller places ``{{ lookup('depends_on', …) }}`` at the desired column in the template, and Jinja substitution turns that template-side leading whitespace into line 1's indent. Lines 2+ then carry ``indent`` extra spaces (on top of the YAML-relative indent) so they align under line 1."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "OBS Studio"
-msgstr ""
+msgstr "OBS Studio"
 
+# translated-by: libretranslate
 msgid "OCC (Nextcloud Command Line) 🔧"
-msgstr ""
+msgstr "OCC (Nextcloud Komut Line) 🔧"
 
+# translated-by: libretranslate
 msgid "OCC command"
-msgstr ""
+msgstr "OCC komut"
 
+# translated-by: libretranslate
 msgid "OIDC"
-msgstr ""
+msgstr "OIDC"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: OIDC (yerli yerli yerli yerli yerli)
 msgid "OIDC (native)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr ""
+msgstr "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
 
+# translated-by: libretranslate
 msgid "OIDC / Keycloak"
-msgstr ""
+msgstr "OIDC / Keycloak"
 
+# translated-by: libretranslate
 msgid "OIDC / Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
-msgstr ""
+msgstr "OIDC / Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
 
+# translated-by: libretranslate
 msgid "OIDC SPOT, defines `OIDC.*`"
-msgstr ""
+msgstr "OIDC SPOT, tanımlar `OIDC.*`"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: OIDC SSO via Keycloak using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using
+# ``omniauth_openid_connect``
 msgid "OIDC SSO via Keycloak using ``omniauth_openid_connect``"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: OIDC SSO via Keycloak using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using using
+# using using using using using using using using using using using
+# `omniauth_openid_connect`
 msgid "OIDC SSO via Keycloak using `omniauth_openid_connect`"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "OIDC Support 🔐"
-msgstr ""
+msgstr "OIDC Support 🔐"
 
+# translated-by: libretranslate
 msgid "OIDC callback endpoint."
-msgstr ""
+msgstr "OIDC geri dönüş uç noktası."
 
+# translated-by: libretranslate
 msgid "OIDC client ID in the realm."
-msgstr ""
+msgstr "OIDC müşteri kimliği uzayda."
 
+# translated-by: libretranslate
 msgid "OIDC client secret."
-msgstr ""
+msgstr "OIDC müşteri sırrı."
 
+# translated-by: libretranslate
 msgid "OIDC integration follows the variant A+ pattern documented in requirement 013: ``web-app-keycloak``\\ ’s SSO-proxy sidecar is the gate, the in-role login-broker is the session-handoff agent, and the official ``social-app`` web client is the user-facing UI."
-msgstr ""
+msgstr "OIDC entegrasyonu, gerekli durumda belgelenmiş olan değişken A+ modeli takip eder 013: ``web-app-keycloak``\\ 's SSO-proxy sidecar is the door, the in-role login-broker is the session-handoff agent, and the official. ``social-app`` Web müşteri kullanıcı arayüzüdür."
 
+# translated-by: libretranslate
 msgid "OIDC integration follows the variant A+ pattern documented in requirement 013: `web-app-keycloak`'s SSO-proxy sidecar is the gate, the in-role login-broker is the session-handoff agent, and the official `social-app` web client is the user-facing UI."
-msgstr ""
+msgstr "OIDC entegrasyonu, gerekli durumda belgelenmiş olan değişken A+ modeli takip eder 013: `web-app-keycloak`“SSO-proxy sidecar kapıdır, in-role login-broker oturum açma ajanıdır ve resmin resmidir. `social-app` Web müşteri kullanıcı arayüzüdür."
 
+# translated-by: libretranslate
 msgid "OIDC is supported in this role (for example, via **Keycloak**). OIDC-specific tasks are included when enabled, allowing integration of external authentication providers seamlessly."
-msgstr ""
+msgstr "OIDC bu rolde destekleniyor (Örneğin, aracılığıyla **Keycloak**). OIDC özel görevleri etkinleştirildiği zaman dahil edilir, dış kimlik doğrulama sağlayıcılarının entegrasyonuna izin verir."
 
+# translated-by: libretranslate
 msgid "OIDC is wired in via a sidecar ``web-app-keycloak``\\ ’s SSO-proxy sidecar that fronts the human-facing web UI only. The programmatic API endpoints (``/translate``, ``/detect``, …) MUST stay reachable with API-key auth even when the UI is gated, so the OIDC gate is restricted to the UI subpath; otherwise machine clients break."
-msgstr ""
+msgstr "OIDC bir yankar aracılığıyla tellenir ``web-app-keycloak``\\ 's SSO-proxy sidecar that fronts the human-face web UI only. Programmatik API endpoints (``/translate``, ``/detect``...) MUST, ulaşılabilir kalmak API- UI kapalıyken bile, OIDC kapısı UI subpath ile sınırlandırılır; aksi takdirde makine müşterileri kırılır."
 
+# translated-by: libretranslate
 msgid "OIDC is wired in via a sidecar `web-app-keycloak`'s SSO-proxy sidecar that fronts the human-facing web UI only. The programmatic API endpoints (`/translate`, `/detect`, …) MUST stay reachable with API-key auth even when the UI is gated, so the OIDC gate is restricted to the UI subpath; otherwise machine clients break."
-msgstr ""
+msgstr "OIDC bir yankar aracılığıyla tellenir `web-app-keycloak`“SSO-proxy sidecar, insan odaklı web arayüzünü sadece önleyen. Programmatik API endpoints (`/translate`, `/detect`...) MUST, ulaşılabilir kalmak API- UI kapalıyken bile, OIDC kapısı UI subpath ile sınırlandırılır; aksi takdirde makine müşterileri kırılır."
 
+# translated-by: libretranslate
 msgid "OIDC issuer, redirect URIs, web-origins: onion — one realm, one issuer, consistent"
-msgstr ""
+msgstr "OIDC sorunr, URIs, web-origins: onion – bir alem, tek bir sorun, tutarlı, tutarlı, tutarlı, tutarlı, tutarlı, tutarlı"
 
+# translated-by: libretranslate
 msgid "OIDC provider role"
-msgstr ""
+msgstr "OIDC sağlayıcı rolü"
 
+# translated-by: libretranslate
 msgid "OIDC to Bluesky-PDS app-password broker (variant A+ per requirement 013, web-app-bluesky per-role notes)."
-msgstr ""
+msgstr "OIDC'ye Bluesky-PDS app-password broker (varyant A+ per need 013, web-app-bluesky per-role notları)."
 
+# translated-by: libretranslate
 msgid "OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse`"
-msgstr ""
+msgstr "OIDC `web-app-keycloak`, `wp-discourse` → `web-app-discourse`"
 
+# translated-by: libretranslate
 msgid "OIDC 🪪"
-msgstr ""
+msgstr "OIDC 🪪"
 
+# translated-by: libretranslate
 msgid "OIDC-side counterpart, paired user identifier"
-msgstr ""
+msgstr "OIDC-side meslektaşı, çiftleştirilmiş kullanıcı tanımlayıcısı"
 
+# translated-by: libretranslate
 msgid "OIDC/SSO plugin"
-msgstr ""
+msgstr "OIDC/SSO eklenti"
 
+# translated-by: libretranslate
 msgid "OIDC/SSO plugin: <https://github.com/9p4/jellyfin-plugin-sso>"
-msgstr ""
+msgstr "OIDC/SSO eklentisi: <https://github.com/9p4/jellyfin-plugin-sso>"
 
+# translated-by: libretranslate
 msgid "OMD site id `cmk`; single site; no external DB; one persistent volume for `/omd/sites`."
-msgstr ""
+msgstr "OMD site id `cmk`; Tek site; dış bir DB; kalıcı bir hacim için `/omd/sites`."
 
+# translated-by: libretranslate
 msgid "ON NO: omit the arg entirely."
-msgstr ""
+msgstr "NO: arg tamamen yok."
 
+# translated-by: libretranslate
 msgid "ON YES: pass `disable=\"matomo,dashboard,prometheus,email,css\"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path."
-msgstr ""
+msgstr "EVET: geçiş `disable=\"matomo,dashboard,prometheus,email,css\"` Her dağıtma emrine fiilen. Değer sağlayıcı anahtarlarının bir komünalize listesidir, bir glob değil, bir glob `web-app-*.services.*` Yol."
 
+# translated-by: libretranslate
 msgid "OS: ``debian``, ``ubuntu``, ``archlinux``, ``fedora``, ``centos``."
-msgstr ""
+msgstr "OS: ``debian``, ``ubuntu``, ``archlinux``, ``fedora``, ``centos``."
 
+# translated-by: libretranslate
 msgid "OS: `debian`, `ubuntu`, `archlinux`, `fedora`, `centos`."
-msgstr ""
+msgstr "OS: `debian`, `ubuntu`, `archlinux`, `fedora`, `centos`."
 
+# translated-by: libretranslate
 msgid "Object Classes 🧱"
-msgstr ""
+msgstr "Object Sınıfları 🧱"
 
+# translated-by: libretranslate
 msgid "Object-store (S3) consumer integration — roles not yet wired"
-msgstr ""
+msgstr "Object-store (S3) tüketici entegrasyonu - roller henüz kablolu değil"
 
+# translated-by: libretranslate
 msgid "Obsolete CLI and CI parameters"
-msgstr ""
+msgstr "Obsolete CLI ve CI parametreleri"
 
+# translated-by: libretranslate
 msgid "Obtain the extension ZIP and make it reachable from the stack host at deploy time."
-msgstr ""
+msgstr "Uzatma ZIP'i alın ve zaman dağıtmada bulunan yığıntan ulaşılabilir hale getirin."
 
+# translated-by: libretranslate
 msgid "Odometer"
-msgstr ""
+msgstr "Odometre"
 
+# translated-by: libretranslate
 msgid "Odoo ERP"
-msgstr ""
+msgstr "Odoo ERP"
 
+# translated-by: libretranslate
 msgid "Odoo modules are declared as addons in ``meta/addons/`` per the unified addon contract (requirement 026). The install path reads them from ``applications.web-app-odoo.addons``."
-msgstr ""
+msgstr "Odoo modülleri ekonlar olarak ilan edilir ``meta/addons/`` Birleştirilmiş eklenti sözleşmesi (Gereklilik 026). yükleme yolu onları okudu ``applications.web-app-odoo.addons``."
 
+# translated-by: libretranslate
 msgid "Odoo modules are declared as addons in `meta/addons/` per the unified addon contract (requirement 026). The install path reads them from `applications.web-app-odoo.addons`."
-msgstr ""
+msgstr "Odoo modülleri ekonlar olarak ilan edilir `meta/addons/` Birleştirilmiş eklenti sözleşmesi (Gereklilik 026). yükleme yolu onları okudu `applications.web-app-odoo.addons`."
 
+# translated-by: libretranslate
 msgid "Odoo's functionality is delivered through a modular architecture. The following core modules are installed by default:"
-msgstr ""
+msgstr "Odoo'nun işlevselliği modüler bir mimari ile teslim edilir. Aşağıdaki temel modüller varsayılan olarak kurulur:"
 
+# translated-by: libretranslate
 msgid "Odoo’s functionality is delivered through a modular architecture. The following core modules are installed by default:"
-msgstr ""
+msgstr "Odoo'nun işlevselliği modüler bir mimari ile teslim edilir. Aşağıdaki temel modüller varsayılan olarak kurulur:"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Off Off Off Off Off
 msgid "Off"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Off. ``mcp.enabled`` is false unless ``web-app-flowise``, ``web-app-hermes``, ``web-app-openclaw`` or ``web-app-openwebui`` is deployed alongside."
-msgstr ""
+msgstr "Off. ``mcp.enabled`` Sahte değil mi? ``web-app-flowise``, ``web-app-hermes``, ``web-app-openclaw`` veya ``web-app-openwebui`` Birlikte dağıtılır."
 
+# translated-by: libretranslate
 msgid "Off. ``mcp.enabled`` is false unless ``web-app-hermes``, ``web-app-openclaw`` or ``web-app-openwebui`` is deployed alongside."
-msgstr ""
+msgstr "Off. ``mcp.enabled`` Sahte değil mi? ``web-app-hermes``, ``web-app-openclaw`` veya ``web-app-openwebui`` Birlikte dağıtılır."
 
+# translated-by: libretranslate
 msgid "Off. ``mcp.enabled`` is false unless an MCP server role is part of the deployment."
-msgstr ""
+msgstr "Off. ``mcp.enabled`` Bir MCP sunucusu rolü dağıtımın bir parçası değildir."
 
+# translated-by: libretranslate
 msgid "Off. ``mcp.enabled`` is true only while ``web-app-hermes`` or ``web-app-openclaw`` is part of the deployment."
-msgstr ""
+msgstr "Off. ``mcp.enabled`` Sadece doğruyken ``web-app-hermes`` veya ``web-app-openclaw`` Dağıtımın bir parçasıdır."
 
+# translated-by: libretranslate
 msgid "Off. ``mcp.enabled`` is true only while ``web-app-hermes``, ``web-app-openclaw`` or ``web-app-openwebui`` is part of the deployment."
-msgstr ""
+msgstr "Off. ``mcp.enabled`` Sadece doğruyken ``web-app-hermes``, ``web-app-openclaw`` veya ``web-app-openwebui`` Dağıtımın bir parçasıdır."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Off. ``mcp.enabled`` Sadece doğruyken
+# ``web-app-hermes``, ``web-app-openclaw`` veya ``web-app-openwebui``
+# Dağıtımın bir parçasıdır. Hiçbir lisans katmanı dahil değildir:
+# ``lib/api/mcp/base.rb`` CE ağacında ve pined'de hayatlar ``v19.3.1`` Onun
+# tek kapısı, örneğin ``mcp_server_enabled``, hangisi,
+# ``app/models/application_setting.rb`` varsayılanlar varsayılan olarak
+# ``true``. Aşağıda ``19.0`` Aynı uç noktası per-user arkasında oturdu
+# ``mcp_server`` Özel bayrak, bu yüzden ``minimum_version`` Is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# ``19.0`` Bunun yerine, ``18.3`` İlk önce rotayı gönderdi.
 msgid "Off. ``mcp.enabled`` is true only while ``web-app-hermes``, ``web-app-openclaw`` or ``web-app-openwebui`` is part of the deployment. No licence tier is involved: ``lib/api/mcp/base.rb`` lives in the CE tree, and at the pinned ``v19.3.1`` its only gate is the instance setting ``mcp_server_enabled``, which ``app/models/application_setting.rb`` defaults to ``true``. Below ``19.0`` the same endpoint sat behind the per-user ``mcp_server`` feature flag, which is why ``minimum_version`` is ``19.0`` rather than the ``18.3`` that first shipped the route."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Off. ``mcp.enabled`` is true only while an MCP client role is part of the deployment."
-msgstr ""
+msgstr "Off. ``mcp.enabled`` Sadece bir MCP müşteri rolü dağıtımın bir parçasıdır."
 
+# translated-by: libretranslate
 msgid "Off. `mcp.enabled` is false unless `web-app-flowise`, `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is deployed alongside."
-msgstr ""
+msgstr "Off. `mcp.enabled` Sahte değil mi? `web-app-flowise`, `web-app-hermes`, `web-app-openclaw` veya `web-app-openwebui` Birlikte dağıtılır."
 
+# translated-by: libretranslate
 msgid "Off. `mcp.enabled` is false unless `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is deployed alongside."
-msgstr ""
+msgstr "Off. `mcp.enabled` Sahte değil mi? `web-app-hermes`, `web-app-openclaw` veya `web-app-openwebui` Birlikte dağıtılır."
 
+# translated-by: libretranslate
 msgid "Off. `mcp.enabled` is false unless an MCP server role is part of the deployment."
-msgstr ""
+msgstr "Off. `mcp.enabled` Bir MCP sunucusu rolü dağıtımın bir parçası değildir."
 
+# translated-by: libretranslate
 msgid "Off. `mcp.enabled` is true only while `web-app-hermes` or `web-app-openclaw` is part of the deployment."
-msgstr ""
+msgstr "Off. `mcp.enabled` Sadece doğruyken `web-app-hermes` veya `web-app-openclaw` Dağıtımın bir parçasıdır."
 
+# translated-by: libretranslate
 msgid "Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment."
-msgstr ""
+msgstr "Off. `mcp.enabled` Sadece doğruyken `web-app-hermes`, `web-app-openclaw` veya `web-app-openwebui` Dağıtımın bir parçasıdır."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Off. `mcp.enabled` Sadece doğruyken `web-app-hermes`,
+# `web-app-openclaw` veya `web-app-openwebui` Dağıtımın bir parçasıdır. Hiçbir
+# lisans katmanı dahil değildir: `lib/api/mcp/base.rb` CE ağacında ve pined'de
+# hayatlar `v19.3.1` Onun tek kapısı, örneğin `mcp_server_enabled`, hangisi,
+# `app/models/application_setting.rb` varsayılanlar varsayılan olarak `true`.
+# Aşağıda `19.0` Aynı uç noktası per-user arkasında oturdu `mcp_server` Özel
+# bayrak, bu yüzden `minimum_version` Is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is is is is is is is is
+# is is is is is is is is is is is is is is is is is is `19.0` Bunun yerine,
+# `18.3` İlk önce rotayı gönderdi.
 msgid "Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment. No licence tier is involved: `lib/api/mcp/base.rb` lives in the CE tree, and at the pinned `v19.3.1` its only gate is the instance setting `mcp_server_enabled`, which `app/models/application_setting.rb` defaults to `true`. Below `19.0` the same endpoint sat behind the per-user `mcp_server` feature flag, which is why `minimum_version` is `19.0` rather than the `18.3` that first shipped the route."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Off. `mcp.enabled` is true only while an MCP client role is part of the deployment."
-msgstr ""
+msgstr "Off. `mcp.enabled` Sadece bir MCP müşteri rolü dağıtımın bir parçasıdır."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Coturn Docs:
+# [https://github.com/coturn/coturn/wiki](https://github.com/coturn/coturn/wiki)
 msgid "Official Coturn Docs: [https://github.com/coturn/coturn/wiki](https://github.com/coturn/coturn/wiki)"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi Resmi
+# Resmi Resmi Resmi Resmi Resmi Resmi Resmi Coturn Docs:
+# https://github.com/coturn/coturn/wiki
 msgid "Official Coturn Docs: https://github.com/coturn/coturn/wiki"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Official micro documentation: <https://micro-editor.github.io/>"
-msgstr ""
+msgstr "Resmi mikro belge: <https://micro-editor.github.io/>"
 
+# translated-by: libretranslate
 msgid "Official micro documentation: https://micro-editor.github.io/"
-msgstr ""
+msgstr "Resmi mikro belge: https://micro-editor.github.io/"
 
+# translated-by: libretranslate
 msgid "Official neovim documentation: <https://neovim.io/>"
-msgstr ""
+msgstr "Resmi neovim belgeleri: <https://neovim.io/>"
 
+# translated-by: libretranslate
 msgid "Official neovim documentation: https://neovim.io/"
-msgstr ""
+msgstr "Resmi neovim belgeleri: https://neovim.io/"
 
+# translated-by: libretranslate
 msgid "Official site: <https://www.postfix.org/>"
-msgstr ""
+msgstr "Resmi site: <https://www.postfix.org/>"
 
+# translated-by: libretranslate
 msgid "Official site: https://www.postfix.org/"
-msgstr ""
+msgstr "Resmi site: https://www.postfix.org/"
 
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Offline Tor v3 onion-service key minting.
 msgid "Offline Tor v3 onion-service key minting."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Old redirects or headers persist even after config changes."
-msgstr ""
+msgstr "Eski yönlendirmeler veya başlıklar yapılandırılan değişikliklerden sonra bile devam eder."
 
+# translated-by: libretranslate
 msgid "Older Releases"
-msgstr ""
+msgstr "Yaşlılar"
 
+# translated-by: libretranslate
 msgid "Older backup subdirectories are validated and cleaned if they are invalid"
-msgstr ""
+msgstr "Eski yedekleme alt yönlendirmeleri onaylanır ve geçersizyse temizlenir"
 
+# translated-by: libretranslate
 msgid "Ollama, then LM Studio, then declared, then the router alias."
-msgstr ""
+msgstr "Ollama, sonra LM StudioSonra ilan etti, sonra yönlendiriciler."
 
+# translated-by: libretranslate
 msgid "Ollama: [ollama.com](https://ollama.com)"
-msgstr ""
+msgstr "Ollama: [ollama.com](https://ollama.com)"
 
+# translated-by: libretranslate
 msgid "Ollama: `ollama.com <https://ollama.com>`__"
-msgstr ""
+msgstr "Ollama: `ollama.com <https://ollama.com>`__"
 
+# translated-by: libretranslate
 msgid "Omissions"
-msgstr ""
+msgstr "Omissions"
 
+# translated-by: libretranslate
 msgid "On"
-msgstr ""
+msgstr "Onda"
 
+# translated-by: libretranslate
 msgid "On Failure"
-msgstr ""
+msgstr "Başarısızlık üzerine"
 
+# translated-by: libretranslate
 msgid "On GitHub Actions this is followed by the **deploy-test matrix** — real app deploys across Debian/Ubuntu/Arch/Fedora in throwaway containers, with Playwright/CLI end-to-end checks (`.github/workflows/call-test-deploy.yml`). This is the heavy part and the reason self-hosted runners exist."
-msgstr ""
+msgstr "GitHub Actions'ta bu takip edilir **Dağıtım matrisi** – gerçek uygulama, etrafta dağıtılır Debian/Ubuntu/Arch/Fedora Attılı konteynerler, Playwright/CLI end-to-end checks (`.github/workflows/call-test-deploy.yml`). Bu ağır kısım ve kendi barındırılan koşucuların var olması."
 
+# translated-by: libretranslate
 msgid "On Linux, follow the normal [local setup guide](../setup.md) and use the repository commands directly on your machine."
-msgstr ""
+msgstr "Linux'ta normali takip edin [yerel kurulum rehberi](../setup.md) ve repository komutlarını doğrudan makinenizde kullanın."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Linux'ta, kumbox geri dönüş gerektirir `bubblewrap`
+# (Teklifler sağlar `bwrap` ikili ikili ikili) ve `socat`. Proje, bir haç
+# dağıtım seti gemisinde
+# [`scripts/install/sandbox.sh`](../../../../../scripts/install/sandbox.sh)
+# Bu, dağıtımı algılar `/etc/os-release` Ve hem yerel paket yöneticisi ile
+# paketler kurmak. Desteklenen dağıtımlar:
 msgid "On Linux, the sandbox backend requires `bubblewrap` (provides the `bwrap` binary) and `socat`. The project ships a cross-distribution installer at [`scripts/install/sandbox.sh`](../../../../../scripts/install/sandbox.sh) that detects the distribution via `/etc/os-release` and installs both packages with the native package manager. Supported distributions:"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "On Linux, you MAY move Docker to a different data path:"
-msgstr ""
+msgstr "Linux'ta, Docker'i farklı bir veri yolunda hareket ettiriyorsunuz:"
 
+# translated-by: libretranslate
 msgid "On WSL2 or Windows, you MUST pass the additional flag to also configure and run the Windows Disk Cleanup profile. Windows manages its own system caches independently from Linux and Docker:"
-msgstr ""
+msgstr "WSL2 veya Windows, ayrıca Windows Disk Temizleme profilini yapılandırmak ve çalıştırmak için ek bayraktan geçiyorsunuz. Windows, Linux ve Docker'den bağımsız olarak kendi sistem önbelleklerini yönetiyor:"
 
+# translated-by: libretranslate
 msgid "On Windows, use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) as the development environment and run the repository commands inside WSL2, not directly in [PowerShell](https://learn.microsoft.com/en-us/powershell/). Use Ubuntu 24.04 with [Docker Desktop WSL2 integration](https://docs.docker.com/desktop/features/wsl/), enable [`systemd`](https://systemd.io/), and expect a few Windows-specific follow-up steps around [certificate authority (CA)](https://en.wikipedia.org/wiki/Certificate_authority) trust and local name resolution."
-msgstr ""
+msgstr "Windows'da, kullanın [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) Geliştirme ortamı olarak ve WSL içindeki repository komutlarını çalıştırın2Doğrudan içeride değil [PowerShell](https://learn.microsoft.com/en-us/powershell/). Ubuntu'yı kullanın 24.04 ile birlikte [Docker Desktop WSL2 entegrasyon entegrasyonu](https://docs.docker.com/desktop/features/wsl/), etkinleştirin [`systemd`](https://systemd.io/), ve birkaç Windows tabanlı takip adımlarını bekliyor [Sertifika yetki belgesi (CA CA)](https://en.wikipedia.org/wiki/Certificate_authority) Güven ve yerel isim kararı."
 
+# translated-by: libretranslate
 msgid "On `success`: `gh pr ready <pr-number>` to mark the PR ready for review."
-msgstr ""
+msgstr "Onda `success`: `gh pr ready <pr-number>` PR'yi incelemeye hazır işaretlemek için."
 
+# translated-by: libretranslate
 msgid "On a Tor node the node dnsmasq resolves ``.onion`` through Tor's DNSPort and everything else through the clearnet upstream, which is what makes per-app proxy settings unnecessary. It is only reachable on the docker bridge address because docker discards loopback resolvers, and it is absent before docker itself is installed, hence the guard."
-msgstr ""
+msgstr "Bir Tor Node dnsmasq çözüyor ``.onion`` Tor'un DNSPort'i ve her şeyi netnet upstream aracılığıyla, bu, per-app proxy ayarlarını gereksiz kılan şeydir. It is only reachable oncker köprü adresi because docker discards loopback resolvers, and it is not before docker itself is installed, bu nedenle muhafız."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Uzun bir orkestracı, koncurrency grubunu bazen
+# yolcularını geri almak için başarısız olur: yolcunun koşu seviyesindeki
+# durumu oturur `queued` - matrix işleri hala koşucular için bekliyor olan bir
+# işin normal durumu - ve yeni koşu parkları `pending` Bunun arkasında birisi
+# el tarafından süpürü iptal etti. İster ne olsun? `queued` Sebep ya da başka
+# bir semptom GitHub dışında karar veremez; observable olan grubun her zaman
+# yeniden elde etmediğidir. The The The The The The The The API İptal herhangi
+# birine bağlı değildir, bu yüzden
+# [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml)
+# Bu yardımcıları her yeni konuda da çağırın. Bu iş akışı kasıtlı olarak kabul
+# edilemez bir grup: bir grup tutan koşmak o kadar özgür olamaz.
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Son zamanlarda Docker motorunda swarm adım iş
+# kurulumunda birbort olabilir; koşmak `make act-runner-image` Bir kez ve
+# çalıştırın `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see see see
+# see see see [İş Akışı](workflow.md)).
 msgid "On a recent Docker engine the swarm step can abort at job setup; run `make act-runner-image` once and prefix the run with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see [Workflow Loop](workflow.md))."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "On each version bump of ``services.webservice.version``:"
-msgstr ""
+msgstr "Her versiyonda, ``services.webservice.version``:"
 
+# translated-by: libretranslate
 msgid "On each version bump of `services.webservice.version`:"
-msgstr ""
+msgstr "Her versiyonda, `services.webservice.version`:"
 
+# translated-by: libretranslate
 msgid "On failure, calls ``sys-ctl-alm-compose.infinito@…`` for notification."
-msgstr ""
+msgstr "Başarısızlık üzerine, aramalar ``sys-ctl-alm-compose.infinito@…`` bildirim için."
 
+# translated-by: libretranslate
 msgid "On failure, calls `sys-ctl-alm-compose.infinito@…` for notification."
-msgstr ""
+msgstr "Başarısızlık üzerine, aramalar `sys-ctl-alm-compose.infinito@…` bildirim için."
 
+# translated-by: libretranslate
 msgid "On failure: ask the operator whether to follow [ci.md](./debug/ci.md). MUST NOT mark the PR ready for review while the last CI run is failing."
-msgstr ""
+msgstr "Başarısızlık: operatörün takip edip takip etmesini isteyin [ci.md](./debug/ci.md). Son CI koşusu başarısızyken PR'yi incelemeye hazır işaretlemez."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['6']
+# nocheck: url
+# translation-rejected: İlk önce kendini yükleyenleri çalıştırın
+# `iputils-ping` + + + `iproute2` Konteyner paketi yöneticisi aracılığıyla
+# (Debian / Ubuntu apt, Arch pacman, Fedora / CentOS / RHEL dnf). installer,
+# paralel bir dağıtma çalıştırılırsa apt-lock için iki dakika kadar bekler.
+# IPv6 Prodüksiyonlar köprünün IPv6 olmadığı zaman otomatik olarak
+# kapatılıyor.6 varsayılan rota.
 msgid "On first run it self-installs `iputils-ping` + `iproute2` via the container's package manager (Debian / Ubuntu apt, Arch pacman, Fedora / CentOS / RHEL dnf). The installer waits up to two minutes for an apt-lock if a parallel deploy is running. IPv6 probes are auto-skipped when the bridge has no usable IPv6 default route."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "On macOS and Windows, you MUST use Docker Desktop settings instead of `daemon.json`."
-msgstr ""
+msgstr "Mac ve Windows'da, Docker Desktop ayarlarını yerine kullanabilirsiniz `daemon.json`."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: MacOS'ta kullanım [Lima](https://lima-vm.io/) Bu
+# nedenle proje doğrudan ev sahibi sistemde Linux ortamında çalışır. Use Use
+# Use Use Use [Homebrew](https://brew.sh/) MacOS'ta Lima'yı kurmak ve yönetmek
+# için, o zaman normal olanı çalıştırın [Linux odaklı proje
+# kurulumu](../setup.md) Lima ortamında. Bu, bu repository tarafından
+# kullanılan Linux-ilk kuruluma daha yakın olan gelişim akışını tutar.
 msgid "On macOS, use [Lima](https://lima-vm.io/) so the project runs inside a Linux environment instead of directly on the host system. Use [Homebrew](https://brew.sh/) on macOS to install and manage Lima, then run the normal [Linux-oriented project setup](../setup.md) inside the Lima environment. This keeps the development workflow closer to the Linux-first setup used by this repository."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "On platforms where distro packages are known to be problematic (e.g. Arch Linux ARM), the role deliberately avoids the system package and falls back to the official installer to ensure a working and up-to-date Nix installation."
-msgstr ""
+msgstr "Distro paketlerinin sorunlu olduğu platformlarda problemli olarak bilinmektedir (e.g. Arch Linux ARM), Ancak rol, sistem paketinden kasıtlı olarak kaçınır ve bir çalışma ve güncel Nix kurulumu sağlamak için resmi taksiye geri döner."
 
+# translated-by: libretranslate
 msgid "On platforms where distro packages are known to be problematic (e.g. Arch Linux ARM), the role deliberately avoids the system package and falls back to the official installer to ensure a working and up-to-date Nix installation."
-msgstr ""
+msgstr "Distro paketlerinin sorunlu olduğu platformlarda problemli olarak bilinmektedir (e.g. Arch Linux ARM), Ancak rol, sistem paketinden kasıtlı olarak kaçınır ve bir çalışma ve güncel Nix kurulumu sağlamak için resmi taksiye geri döner."
 
+# translated-by: libretranslate
 msgid "On small machines, you SHOULD limit validation to the role you are touching."
-msgstr ""
+msgstr "Küçük makinelerde, dokunduğunuz rol için SHOULD limiti geçerlidir."
 
+# translated-by: libretranslate
 msgid "On the **first deployment**, or after a factory reset, the token does not yet exist because the bootstrap has not run yet. A second common cause is that [`roles/sys-service-loader/tasks/load_service.yml`](../../../roles/sys-service-loader/tasks/load_service.yml) skips `load/app.yml` when the Matomo container is already reachable. In that case the container is healthy but the token file is still absent from the token store, so the variable arrives empty."
-msgstr ""
+msgstr "Onda **İlk dağıtım**Bir fabrika sıfırlamasından sonra, token henüz mevcut değil çünkü bottrap henüz çalışmıyor. İkinci ortak bir nedeni ise, [`roles/sys-service-loader/tasks/load_service.yml`](../../../roles/sys-service-loader/tasks/load_service.yml) Atlar atlar `load/app.yml` Ne zaman? Matomo konteyner zaten ulaşılabilir. Bu durumda konteyner sağlıklıdır, ancak token dosyası hala token mağazasından yoksundur, bu yüzden değişken boş gelir."
 
+# translated-by: libretranslate
 msgid "On the next `make dotenv`"
-msgstr ""
+msgstr "Sonraki sayfada `make dotenv`"
 
+# translated-by: libretranslate
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
-msgstr ""
+msgstr "Bir klonlanmış takas senaryosu aracılığıyla takas alanı oluşturmak ve aktive etmek için hedef otomasyon"
 
+# translated-by: libretranslate
 msgid "Once a compatible release ships, the next deploy run will install + enable + configure the plugin automatically without operator intervention."
-msgstr ""
+msgstr "Uyumlu bir salıverme gemisinde, bir sonraki dağıtma işlemi, otomatik olarak operatör müdahalesi olmadan yapılandırılacaktır."
 
+# translated-by: libretranslate
 msgid "Once all branch-caused failures are addressed, you MUST `git push` the branch on which you iterated to the operator's fork. For any root cause you could not resolve, you MUST file a separate issue per [External Failures](#external-failures) describing what was attempted and why it remains unresolved."
-msgstr ""
+msgstr "Tüm şube nedeniyle başarısızlıklar ele alındıktan sonra, sen MUST `git push` Operatörün Fork'a hangi dalını tuttunuz. Herhangi bir kök için çözemeyeceğinize neden olur, MUST dosyasında ayrı bir sorun [Dış Başarısızlıklar](#external-failures) Ne denediğini ve neden çözülmediğini tanımlamak."
 
+# translated-by: libretranslate
 msgid "Once enabled, you MUST:"
-msgstr ""
+msgstr "Etkinleştirdikten sonra, sen MUST:"
 
+# translated-by: libretranslate
 msgid "Once executed, the user becomes fully available in the system (for sharing, group membership, and permissions) even without logging in."
-msgstr ""
+msgstr "Bir kez idam edildiğinde, kullanıcı sistemde tamamen mevcut hale gelir. (Paylaşım, grup üyeliği ve izinler) Hatta giriş yapmadan bile."
 
+# translated-by: libretranslate
 msgid "Once the DNS changes have propagated, **press Enter** in the Certbot terminal.   If successful, Certbot will save the certificates under:"
-msgstr ""
+msgstr "DNS değişiklikleri ortaya çıktığında, **Basın girin** İçinde Certbot terminal. Başarılı olursa, Certbot Sertifikaları aşağıda koruyacak:"
 
+# translated-by: libretranslate
 msgid "Once the Matomo bootstrap has run, either later in the same play or on the next Ansible invocation, `sys-token-store` writes the token to disk. On the **next play run** the token is resolved from the store, the condition evaluates to false, and `inject.yml` executes normally: registering the site at Matomo and injecting the tracking code into the target application."
-msgstr ""
+msgstr "Bir kez Matomo Bottrap da daha sonra aynı oyunda ya da sonraki Ansible invo, `sys-token-store` Token'i diske yazın. Onda **Sonraki oyun run** Token mağazadan çözülüyor, durum sahte olarak değerlendirilir ve `inject.yml` Normalde uygulayın: Siteyi kayıt edin Matomo Takip kodunu hedef uygulamaya enjekte edin."
 
+# translated-by: libretranslate
 msgid "Once the failing mode is green in its focused loop, you MUST resume the roundtrip over the failed app plus the apps that have not run yet (`apps=\"<failed-app> <still-untested apps in complexity order>\"`), and you MUST NOT restart the full sweep from the top. Apps that already went green earlier in the same run stay green; re-running them wastes one swarm rebuild each."
-msgstr ""
+msgstr "Başarısız mod odaklandığı döngüde yeşil olduğunda, başarısız uygulama artı henüz çalıştırmamış uygulamalar üzerinde tura devam ediyorsunuz (`apps=\"<failed-app> <still-untested apps in complexity order>\"`), Ve sen üstten tam süpürü yeniden başlatmadın. Aynı koşuda daha önce yeşil olan uygulamalar yeşil kalır; Onları her biri bir swarm yeniden çalıştırın."
 
+# translated-by: libretranslate
 msgid "Once the machine is up, the repository checkout mounted into it is prepared with [scripts/tests/workspace/base/01_install.sh](../../../../../scripts/tests/workspace/base/01_install.sh), the same step the workspace suite uses: system packages through `INFINITO_PACKAGE_INSTALL_SCRIPT`, then `make install`. Only then is the block replayed, so it meets a machine prepared exactly the way the documentation tells a reader to prepare one."
-msgstr ""
+msgstr "Makine ayağa kalktıktan sonra, depozit checkout içine monte edilir [scripts/tests/workspace/base/01_install.sh](../../../../../scripts/tests/workspace/base/01_install.sh), Aynı adım iş alanı süiti kullanımları: sistem paketleri aracılığıyla `INFINITO_PACKAGE_INSTALL_SCRIPT`, Sonra, `make install`. Sadece sonra blok yeniden oynatılır, bu yüzden belgenin bir okuyucuya bir okuyucuyu hazırlamak için tam olarak hazırlanan bir makine ile tanışır."
 
+# translated-by: libretranslate
 msgid "Once the root cause is understood, you MUST apply the real fix in the repository files and then continue the redeploy loop with the usual commands from this page. In-container fixes are only for diagnosis or short validation and MUST NOT replace the repo change."
-msgstr ""
+msgstr "Kök nedeni anlaşılınca, repository dosyalarında gerçek düzeltmeyi uygulayın ve sonra bu sayfadaki normal komutlarla yeniden iş döngüsüne devam edersiniz. In-clusiveer düzeltmeler sadece tanı veya kısa geçerlilik için ve MUST'nin yenidenpo değişimini değiştirmiyor."
 
+# translated-by: libretranslate
 msgid "Once this role has been applied, you can run all CLI commands using:"
-msgstr ""
+msgstr "Bu rol uygulandıktan sonra, tüm CLI komutlarını kullanabilirsiniz:"
 
+# translated-by: libretranslate
 msgid "One Ansible module invocation the action plugin should execute."
-msgstr ""
+msgstr "Eylem eklentisini teşvik eden bir Ansible modülü uygulanmalıdır."
 
+# translated-by: libretranslate
 msgid "One OpenAI-compatible `/v1`, routes to any backend (headless, internal-only)"
-msgstr ""
+msgstr "One OpenAI-compatible `/v1`, herhangi bir backend için yollar (Başsız, iç-sadece)"
 
+# translated-by: libretranslate
 msgid "One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys there under the isolating runtime selected by the preflight (Decision #4)."
-msgstr ""
+msgstr "Bir Pi biri olarak katılır `kata-capable` Kol kolu64 Hayır; `web-app-hermes` Preflight tarafından seçilen izotermin altında orada dağıtılır. (Karar #4)."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Bir Biri `HiddenServicePort` Tüm uygulamaları kapsar:
+# her şey `<sub>.<NODE_ONION>.onion` Talep üzerine gelir `127.0.0.1:80` nerede
+# nerede nerede nerede nerede nerede nerede nerede nerede nerede nerede nerede
+# nerede nerede nerede nerede nerede nerede nerede nerede nerede nerede nerede
+# nerede nerede nerede nerede nerede nerede nerede nerede nerede nerede nerede
+# nerede nerede nerede nerede? OpenResty rotalar tarafından `Host`.
 msgid "One `HiddenServicePort` covers all apps: every `<sub>.<NODE_ONION>.onion` request arrives on `127.0.0.1:80` where OpenResty routes by `Host`."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "One ``package_name: \"<name>==<version>\"`` line."
-msgstr ""
+msgstr "Bir Biri ``package_name: \"<name>==<version>\"`` çizgi."
 
+# translated-by: libretranslate
 msgid "One ``pg_dumpall`` dump of a whole instance inside a generation."
-msgstr ""
+msgstr "Bir Biri ``pg_dumpall`` Bir nesil içinde bütün bir örnek çöp."
 
+# translated-by: libretranslate
 msgid "One ``python:<version>-slim`` container runs the service in ``files/python/infinito_docs/``:"
-msgstr ""
+msgstr "Bir Biri ``python:<version>-slim`` konteyner hizmette çalışır ``files/python/infinito_docs/``:"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "One ``{\"image\", \"track\", \"icon\", \"label\"}`` entry per image."
-msgstr ""
+msgstr "Bir Biri ``{\"image\", \"track\", \"icon\", \"label\"}`` Görüntüye giriş."
 
+# translated-by: libretranslate
 msgid "One `docker stack` per role, consistent with today's one-compose-project-per-role model. Granular `deploy / update / rm` per role is preserved. A single global stack across all Infinito services is explicitly rejected — it would couple update windows and rollback granularity across unrelated apps."
-msgstr ""
+msgstr "Bir Biri `docker stack` Her rol için, bugünün tek-kompose-proje-per-role modeli ile tutarlı. Granular `deploy / update / rm` Her rol korunuyor. Tüm Infinito hizmetlerinde tek bir küresel yığın açıkça reddedilir - bu, ilgili olmayan uygulamalar karşısında çift güncelleme pencereleri ve geri dönüş granularity olacaktır."
 
+# translated-by: libretranslate
 msgid "One `python:<version>-slim` container runs the service in `files/python/infinito_docs/`:"
-msgstr ""
+msgstr "Bir Biri `python:<version>-slim` konteyner hizmette çalışır `files/python/infinito_docs/`:"
 
+# translated-by: libretranslate
 msgid "One application role. The field order is the column order; legacy positional access (``row[0]`` … ``row[11]``) still resolves."
-msgstr ""
+msgstr "Bir uygulama rolü. Alan düzeni sütun düzenidir; miras pozisyonu erişim (``row[0]`` ... ``row[11]``) Hala çözülür."
 
+# translated-by: libretranslate
 msgid "One axis' values from cheapest to dearest."
-msgstr ""
+msgstr "Bir eksen en ucuzdan en ucuza değer."
 
+# translated-by: libretranslate
 msgid "One builder per acquisition path."
-msgstr ""
+msgstr "Satın alma yolunda bir inşaatçı."
 
+# translated-by: libretranslate
 msgid "One built version needs about 2.3 GB. Building every translated language up front multiplies that per language; `min_storage` MUST say so. `min_storage` also gates which roles a host deploys at all, so it counts the sites every deployment builds and names the growth per further language."
-msgstr ""
+msgstr "One built version needs about about 2.3 GB. Her tercüme dili dili dil başına çok fazla tutuyor; `min_storage` MUST bunu söylüyor. `min_storage` Ayrıca, ev sahibi bir mağazanın her birinde rol oynadığı kapılar, bu yüzden her dağıtım inşasını ve daha fazla dilde büyüme isimlerini sayıyor."
 
+# translated-by: libretranslate
 msgid "One canonical place to map every Infinito.Nexus knob to its MDAD counterpart; keeps MDAD's own inventory hierarchy intact."
-msgstr ""
+msgstr "Her bir kanonik yer her şeyi haritalamak için Infinito.Nexus MDAD meslektaşına knob; MDAD'ın kendi envanter hiyerarşisini sağlam tutar."
 
+# translated-by: libretranslate
 msgid "One central role per engine, mirroring `svc-db-postgres`:"
-msgstr ""
+msgstr "Motor başına bir merkezi rol, ayna `svc-db-postgres`:"
 
+# translated-by: libretranslate
 msgid "One collection pinned in both requirement files."
-msgstr ""
+msgstr "Bir koleksiyon her iki şart dosyalarında kilitlendi."
 
+# translated-by: libretranslate
 msgid "One container (compose) or one single-replica service (swarm) per user and platform, named from the platform and a hash of the user id, labelled with owner and platform."
-msgstr ""
+msgstr "Bir konteyner (Form form oluşturmak) veya tek bir tek-replica hizmeti (swarm) Kullanıcı ve platformda, platformdan ve kullanıcı kimliğinden bir tanesi, sahibi ve platformu ile etiketlendi."
 
+# translated-by: libretranslate
 msgid "One deploy job title, taken apart."
-msgstr ""
+msgstr "Bir iş unvanı dağıtın, ayrı alın."
 
+# translated-by: libretranslate
 msgid "One deploy job's title and artifact name: how they are built and read back."
-msgstr ""
+msgstr "Bir işletme adı ve sanatifact adı: nasıl inşa edilir ve geri okunurlar."
 
+# translated-by: libretranslate
 msgid "One env setting: the process environment wins, ``default.env`` is the SPOT behind it."
-msgstr ""
+msgstr "Bir env ayarı: süreç ortamı kazanır, ``default.env`` SPOT arkasında."
 
+# translated-by: libretranslate
 msgid "One format, two readers: the ``.env`` generator writes it to ``INFINITO_CACHE_UPSTREAMS`` for the dev stack, and the ``cache_records`` lookup hands the same string to the role's bootstrap task. Both resolve the Ubuntu mirror placeholders from ``INFINITO_APT_UBUNTU_MIRRORS``, which the image build reads too, so the mirror order has a single home."
-msgstr ""
+msgstr "Bir format, iki okuyucu: ``.env`` jeneratör bunu yazar ``INFINITO_CACHE_UPSTREAMS`` Dev bir yığın için ve ``cache_records`` Roln bottrap görevi için aynı dizeyi el ele alalım. Her ikisi de Ubuntu ayna yer sahibini çözüyor ``INFINITO_APT_UBUNTU_MIRRORS``, Görüntünün de okuduğu, bu yüzden ayna düzeni tek bir eve sahiptir."
 
+# translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the ``infinito-runner`` image locally, renders one compose project and starts ``RUNNER_COUNT`` instances."
-msgstr ""
+msgstr "Bir ev sahibi tüm filosu çalışır: rol inşa eder ``infinito-runner`` Yerel olarak görüntü, bir projeyi oluşturur ve başlar ``RUNNER_COUNT`` Örnekler."
 
+# translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the `infinito-runner` image locally, renders one compose project and starts `RUNNER_COUNT` instances."
-msgstr ""
+msgstr "Bir ev sahibi tüm filosu çalışır: rol inşa eder `infinito-runner` Yerel olarak görüntü, bir projeyi oluşturur ve başlar `RUNNER_COUNT` Örnekler."
 
+# translated-by: libretranslate
 msgid "One hostname the frontend answers for, in place of its upstream."
-msgstr ""
+msgstr "Bir ev sahibi adı, ön yanıtları, onun üst sınırının yerinde."
 
+# translated-by: libretranslate
 msgid "One integer CI setting, read through the shared env SPOT."
-msgstr ""
+msgstr "Bir tamsa CI ayarı, paylaşılan env SPOT aracılığıyla okuyun."
 
+# translated-by: libretranslate
 msgid "One matrix row as the ``role#variant`` the sweep rotation cannot move."
-msgstr ""
+msgstr "Bir matris satırı olarak ``role#variant`` süpürücü rotasyon hareket edemez."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Dinamik olarak kabul edilen değişken başına bir modül.
+# See See See See See [handlers DME](handlers/README.md).
 msgid "One module per dynamically-computed variable. See [handlers README](handlers/README.md)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "One module per tool, each exposing `ensure()`. See [lint README](lint/README.md)."
-msgstr ""
+msgstr "Araç başına bir modül, her biri maruz kalır `ensure()`. Gör. [lint OKME](lint/README.md)."
 
+# translated-by: libretranslate
 msgid "One of `external`, `external_container`, `localhost`, `localhost_container`."
-msgstr ""
+msgstr "One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of One Of `external`, `external_container`, `localhost`, `localhost_container`."
 
+# translated-by: libretranslate
 msgid "One package id, declared either repository-wide or by one role."
-msgstr ""
+msgstr "Bir paket id, ya repository çapında ya da tek bir rol tarafından ilan edildi."
 
+# translated-by: libretranslate
 msgid "One post-application reconciliation stage runs after every selected provider role has provisioned and probed its endpoint, builds one immutable discovery snapshot, and reconciles every client from it. No provider or client `enabled` or `shared` expression enumerates concrete peer role names. The discovery result carries selected entries and rejected ones with a stable code such as `consumer_not_allowed`, `transport_unsupported`, `auth_unsupported`, `credential_missing` or `endpoint_unreachable`."
-msgstr ""
+msgstr "Bir post-application uzlaşma aşaması, her seçilmiş sağlayıcı rolünden sonra çalışır ve uç noktasını hayal kırıklığına uğratmıştır, bir hayal edilemez keşif fotoğrafı inşa eder ve her müşteriyi ondan uzlaştırır. Hiçbir sağlayıcı veya müşteri `enabled` veya `shared` ifade beton akran rol isimleridir. Keşif sonucu seçilmiş girişleri taşır ve bunları istikrarlı bir kodla reddeder `consumer_not_allowed`, `transport_unsupported`, `auth_unsupported`, `credential_missing` veya `endpoint_unreachable`."
 
+# translated-by: libretranslate
 msgid "One query per run, not one per deploy mode. Every row is a ``role#variant`` selection, so the row basis, the ranking and the budget cut all speak the same unit and the cut can select a subset of a role's variants. Which deploy mode a row actually runs in is decided afterwards by the rotation in ``utils.github.variant.bundles``; the query only decides which rows exist."
-msgstr ""
+msgstr "İş başına bir sorgu, dağıtma modunda biri değil. Her satır bir ``role#variant`` Seçim, bu yüzden sıra, sıralama ve bütçe tüm aynı birimi konuşur ve kesim bir rol çeşidinin alt kümesini seçebilir. Hangi bir sırayı dağıtmak aslında çalışır, sonra rotasyon tarafından karar verilir ``utils.github.variant.bundles``; Soru sadece hangi satırların var olduğuna karar verir."
 
+# translated-by: libretranslate
 msgid "One recovery type backed by a role's ``files/python/recover.py``."
-msgstr ""
+msgstr "Bir rol tarafından desteklenen bir kurtarma türü ``files/python/recover.py``."
 
+# translated-by: libretranslate
 msgid "One repository Nexus proxies."
-msgstr ""
+msgstr "Bir repository Nexus proxy."
 
+# translated-by: libretranslate
 msgid "One role's measured runtime within a deploy segment."
-msgstr ""
+msgstr "Bir rol, bir dağıtma segmentinde ölçülen runtime."
 
+# translated-by: libretranslate
 msgid "One row is decided once and then read by three consumers that MUST agree on it:"
-msgstr ""
+msgstr "Bir satır bir kez karar verilir ve sonra MUST'nin kabul ettiği üç tüketici tarafından okunur:"
 
+# translated-by: libretranslate
 msgid "One row per ``meta/variants.yml`` variant of every application role."
-msgstr ""
+msgstr "Bir satır başına bir satır ``meta/variants.yml`` Her uygulama rolünün değişkeni."
 
+# translated-by: libretranslate
 msgid "One search-only key and explicit collection list per application; no collection/schema/key administration"
-msgstr ""
+msgstr "Uygulama başına sadece anahtar ve açık koleksiyon listesi; hayır collection/schema/key yönetim yönetimi"
 
+# translated-by: libretranslate
 msgid "One selection token as a :class:`Pin`."
-msgstr ""
+msgstr "One Selection token as a :class:`Pin`."
 
+# translated-by: libretranslate
 msgid "One selection token, taken apart."
-msgstr ""
+msgstr "Bir seçim token, ayrı alındı."
 
+# translated-by: libretranslate
 msgid "One service serves both block shapes, because the demands of the two overlap: a host install needs `/sbin/init` as the entrypoint and the cgroup mount to deploy systemd units, and it needs the daemon socket too, since a role without a compose template of its own still pulls in containerised dependencies. A containerised block needs that socket to nest its `docker run` one level below the machine, and a work directory mounted at the same absolute path on both sides so the bind sources it names resolve on the daemon. The union is the machine, and the block decides what it does with it."
-msgstr ""
+msgstr "Bir hizmet hem blok şekillerine hizmet eder, çünkü iki çakışmanın talepleri: ev sahibi bir yükleme ihtiyacı `/sbin/init` Giriş noktası ve cgroup sistemli birimleri dağıtmak için, ve daemon soketine de ihtiyaç duyar, çünkü kendi başına bir şablon olmadan bir rol hala konteynerli bağımlılıklara çeker. Bir konteynerli blok bu soketin nestine ihtiyacı var `docker run` Makinenin altında bir seviye ve her iki tarafta aynı mutlak yolda monte edilen bir çalışma rehberi, böylece bağ kaynakları da naemon üzerinde çözülür. Sendika makinedir ve blok bununla ne yaptığına karar verir."
 
+# translated-by: libretranslate
 msgid "One sidecar per consuming application with a database-scoped read-only principal and only schema/SELECT/SHOW/DESCRIBE tools. Never a global server on the shared engine or the root credential."
-msgstr ""
+msgstr "Bir veritabanı ile satın almak için bir yankar sadece bir ana ve sadece sadece schema/SELECT/SHOW/DESCRIBE araçlar. Paylaşılan motorda veya kök haçlı üzerinde asla küresel bir sunucu."
 
+# translated-by: libretranslate
 msgid "One single-database dump inside a generation."
-msgstr ""
+msgstr "Bir nesil içinde tek-database çöp."
 
+# translated-by: libretranslate
 msgid "One standard path lowers cognitive load."
-msgstr ""
+msgstr "Bir standart yol bilişsel yükü azaltır."
 
+# translated-by: libretranslate
 msgid "One sweep proves one architecture and claims nothing about the other, which is the defect 0001 was written against."
-msgstr ""
+msgstr "Bir süpürücü bir mimariyi kanıtlıyor ve diğeriyle ilgili hiçbir şey iddia etmiyor, bu da hata 0001 Buna karşı yazılmıştır."
 
+# translated-by: libretranslate
 msgid "One sweep proves one distribution and claims nothing about the other four, while reporting green."
-msgstr ""
+msgstr "Bir süpürücü bir dağılımı kanıtlıyor ve diğer dört hakkında hiçbir şey iddia etmiyor, yeşili rapor ederken."
 
+# translated-by: libretranslate
 msgid "One table per role is what makes the rules composable. A fragment replaces its own table and touches no other, so two roles on one host neither overwrite nor merge into each other, and a broken fragment fails alone instead of freezing everyone's rules."
-msgstr ""
+msgstr "Rol başına bir masa, kuralların uygulanabilir kılan şeydir. Bir parça kendi masasını değiştirir ve başka bir şeye dokunur, bu yüzden iki rol birbirini yazmaz veya bir araya getirir ve kırık bir parça, herkesin kurallarını dondurmak yerine yalnız başarısız olur."
 
+# translated-by: libretranslate
 msgid "One table per role is what makes the rules composable. A fragment replaces its own table and touches no other, so two roles on one host neither overwrite nor merge into each other, and a broken fragment fails alone instead of freezing everyone’s rules."
-msgstr ""
+msgstr "Rol başına bir masa, kuralların uygulanabilir kılan şeydir. Bir parça kendi masasını değiştirir ve başka bir şeye dokunur, bu yüzden iki rol birbirini yazmaz veya bir araya getirir ve kırık bir parça, herkesin kurallarını dondurmak yerine yalnız başarısız olur."
 
+# translated-by: libretranslate
 msgid "One translation per source, ``None`` where it was discarded, plus the counts that say which of the two reasons applied. The counts belong to this call: lanes share the client, so a field on the client would mix another catalog's numbers into this one's."
-msgstr ""
+msgstr "Kaynak başına bir çeviri, ``None`` Nereden kovuldu, artı uygulanan iki nedenden hangisi olduğunu söyleyen sayılar. Sayılar bu çağrıya ait: şeritler müşteriyi paylaşıyor, bu yüzden müşteri üzerinde bir alan bu bir katalogun sayısını bu kişiye karıştıracak."
 
+# translated-by: libretranslate
 msgid "One-level-deep entry under a cli/ directory."
-msgstr ""
+msgstr "Bir cli / dizin altında bir haftalık giriş."
 
+# translated-by: libretranslate
 msgid "One-liners such as a single `command:` or a short `shell:` pipeline MAY stay inline. The rule targets bodies that are themselves a program, not every shell call."
-msgstr ""
+msgstr "Tek bayraklar gibi `command:` veya kısa bir süre veya `shell:` Boru hattı May inline kalır. Kural hedefleri kendileri bir program olan bedenler, her kabuk çağrısı değil."
 
+# translated-by: libretranslate
 msgid "One-shot containers (matomo bootstrap, erpnext configurator, shopware init). They exit 0 and must never be respawned."
-msgstr ""
+msgstr "One-shot konteynerleri (matomo Bottrap, erp next configureurator, alışverişware init). 0 Ve asla respawnedilmemelidir."
 
+# translated-by: libretranslate
 msgid "One-shot validation of a curated app shape (e.g. `education-suite`)."
-msgstr ""
+msgstr "Bir görüntü şeklinin geçerliliği (E.g. `education-suite`)."
 
+# translated-by: libretranslate
 msgid "One-time scan of all include_role/import_role"
-msgstr ""
+msgstr "One-time tarama of all include_role/ /import_role"
 
+# translated-by: libretranslate
 msgid "One-time scan of all metadata"
-msgstr ""
+msgstr "Tüm metadata"
 
+# translated-by: libretranslate
 msgid "One-time scan of include_tasks/import_tasks"
-msgstr ""
+msgstr "One-time taraması include_tasks/ /import_tasks"
 
+# translated-by: libretranslate
 msgid "One-time setup (run once after cloning, outside the Claude sandbox): `git-setup-remotes --canonical git@github.com:infinito-nexus/core.git`. See the tool's [README](https://github.com/kevinveenbirkenbach/git-maintainer-tools#readme) for all flags, the `FORK_URL` environment variable, and the clone-from-canonical case."
-msgstr ""
+msgstr "One-time kurulum (Bir kez klonlamadan sonra, Claude sandbox dışında): `git-setup-remotes --canonical git@github.com:infinito-nexus/core.git`. Aracın gördüğüne bakın [DME](https://github.com/kevinveenbirkenbach/git-maintainer-tools#readme) Bütün bayraklar için, `FORK_URL` Çevre değişkeni ve klon-canonical vaka."
 
+# translated-by: libretranslate
 msgid "Onion e2e (feature/svc-net-tor) — remaining failures"
-msgstr ""
+msgstr "Onion e2e (özellik / özelliksvc-net-tor) Kalan başarısızlıklar"
 
+# translated-by: libretranslate
 msgid "Onion service extensions (phase 2, layered on a green onion core)"
-msgstr ""
+msgstr "Onion servisi uzantıları (faz aşaması 2, yeşil bir soğan çekirdeği üzerine tabakalandı)"
 
+# translated-by: libretranslate
 msgid "Online retailers and businesses operating digital storefronts."
-msgstr ""
+msgstr "Online perakendeciler ve işletmeler dijital mağaza cephelerini işletmektedir."
 
+# translated-by: libretranslate
 msgid "Only Assist-exposed entities are reachable"
-msgstr ""
+msgstr "Sadece Dr-exposed varlıklar ulaşılabilir"
 
+# translated-by: libretranslate
 msgid "Only CODEOWNERS matter"
-msgstr ""
+msgstr "Sadece KOWNERS önemlidir"
 
+# translated-by: libretranslate
 msgid "Only a clean sweep of successes retires the suite. A shard that failed, was cancelled, timed out or skipped did not run through, and a run that holds no job for the suite at all never started it -- none of those is evidence the suite is good, so the retrigger keeps asking for it."
-msgstr ""
+msgstr "Sadece temiz bir başarı süpürü süiti emekli eder. Başarısız olan bir shard iptal edildi, zamanlandı ya da atladılar, ve hiç bir zaman süit için iş olmayan bir koşu asla başlamadı - bunların hiçbiri süitin iyi olduğunu kanıtlamıyor, bu yüzden retrigger bunu sormaya devam ediyor."
 
+# translated-by: libretranslate
 msgid "Only a message that is nothing but the name qualifies. Inside a sentence the name is protected by the span machinery in :mod:`utils.i18n.placeholders`, and the sentence around it still needs translating."
-msgstr ""
+msgstr "Sadece hiçbir şey olmayan bir mesaj ama adı Açıklamalar. Bir cümle içinde isim, yay makineleri tarafından korunur :mod:`utils.i18n.placeholders`, Ve etrafındaki cümle hala ihtiyaç duyuyor."
 
+# translated-by: libretranslate
 msgid "Only a role that declares nothing falls back on its shape: a stack role (ships a compose template) is offered ``compose`` and ``swarm``, anything else is offered ``host``."
-msgstr ""
+msgstr "Sadece hiçbir şeyin şekline geri dönmediğini söyleyen bir rol: bir yığın rolü (Gemiler bir şablon oluşturma) Sunulur ``compose`` ve ``swarm``, Başka bir şey teklif edilir ``host``."
 
+# translated-by: libretranslate
 msgid "Only delete packages whose name starts with `<prefix>/`"
-msgstr ""
+msgstr "Sadece adı başlayan paketleri silmek `<prefix>/`"
 
+# translated-by: libretranslate
 msgid "Only enable WebSocket proxying (`ws.conf.j2`) for routes that actually require it, to avoid breaking buffering for standard HTTP."
-msgstr ""
+msgstr "Sadece WebSocket proxying etkinleştir (`ws.conf.j2`) Aslında ihtiyacı olan rotalar için, standart HTTP için buffering bozmaktan kaçınmak."
 
+# translated-by: libretranslate
 msgid "Only exact ``==`` pins are collected. A range or a VCS reference states an intent this cannot second-guess."
-msgstr ""
+msgstr "Sadece kesin ``==`` pins toplanır. Bir dizi veya VCS referansı, bunun ikinci aşamalar olamayacağını ifade eder."
 
+# translated-by: libretranslate
 msgid "Only go back to `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` if you have concrete evidence that the inventory or host stack is broken, or you intentionally need a fresh single-app baseline again."
-msgstr ""
+msgstr "Sadece geri dön `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` Eğer envanter veya ev sahibi yığınının kırıldığı somut kanıtlar varsa veya kasıtlı olarak tekrar taze bir tek uygulama tabanına ihtiyacınız var."
 
+# translated-by: libretranslate
 msgid "Only literal `https://<host>` tokens count as external assets:"
-msgstr ""
+msgstr "Sadece edebi `https://<host>` Jetonlar dış varlıklar olarak sayılır:"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Sadece bir swarm kümesi iş kutusu için uygundur:
+# laboratuvar altnet iş ağacı yuvası için pinlenmiş
+# (`INFINITO_SWARM_LAB_SUBNET` İçinde in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in in in in in in in in in in in in in in in
+# in in in in in in in in in in in `scripts/system/worktree/up.sh`), Bu yüzden
+# aynı çalışma ağacındaki ikinci bir küme ağ yaratımında başarısız oluyor
+# `invalid pool request: Pool overlaps`. `swarm-zombie` Bu nedenle, o subnet'i
+# başlamadan önce geri bildirimler (`utils/clean/lab_subnet.sh`)Ama bir
+# kümeyle birlikte tutuldu `keep=true` Sadece bir sonraki swarm aynı iş
+# kutusunda koşana kadar hayatta kalır. Bir sonraki koşmaya başlamadan önce
+# saklanan bir küme. Paralel kümeler ayrı çalışmaağaçlarına ihtiyaç duyar
+# (`make worktree-up`)Farklı laboratuvar octets taşır ve geri bildirimle
+# sorulmuştur; `make swarm-clean` Her iş ağacının kümelerini açıklayan kasıtlı
+# istisnadır.
 msgid "Only one swarm cluster fits per worktree: the lab subnet is pinned to the worktree slot (`INFINITO_SWARM_LAB_SUBNET` in `scripts/system/worktree/up.sh`), so a second cluster in the same worktree fails at network creation with `invalid pool request: Pool overlaps`. `swarm-zombie` therefore reclaims whatever holds that subnet before it starts (`utils/clean/lab_subnet.sh`), so a cluster kept with `keep=true` survives only until the next swarm run in the same worktree. Inspect a kept cluster before starting the next run. Parallel clusters need separate worktrees (`make worktree-up`), which carry distinct lab octets and are left untouched by the reclaim; `make swarm-clean` is the deliberate exception that clears every worktree's clusters."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Only return to `mode=reinstall` when you have concrete evidence that the inventory or the host stack itself is broken (for example DNS or network failures during the deploy)."
-msgstr ""
+msgstr "Sadece geri dön `mode=reinstall` Beton kanıtınız olduğunda, envanter veya ev sahibi yığınının kendisi kırılır (Örneğin DNS veya ağ başarısızlıkları dağıtma sırasında)."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Sadece Sadece Sadece Sadece Sadece Sadece Sadece
+# run_after Seçilen setin içinde işaret eden kenarlar kenarlardır, bu yüzden
+# bir grup dışarıda rollerden bağımsız olarak çözer.
 msgid "Only run_after edges pointing inside the selected set become edges, so a group resolves independently of the roles outside it."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Only successful jobs count. A failed job stops early or runs into a timeout, so its duration measures the failure rather than the axis, and these axes are picked between to reach a verdict cheaply."
-msgstr ""
+msgstr "Sadece başarılı işler say. Başarısız bir iş erken durur veya bir süre içinde çalışır, bu yüzden aksaktan ziyade başarısızlığı ölçer ve bu eksenler ucuz bir şekilde karar vermek için seçilir."
 
+# translated-by: libretranslate
 msgid "Only supplied values are checked: a generated one comes from the algorithm the same schema names, and the generators take no schema argument."
-msgstr ""
+msgstr "Sadece sağlanan değerler kontrol edilir: oluşturulan bir tanesi algoritmadan aynı şema isimleri gelir ve jeneratörler hiçbir şema argümanı almaz."
 
+# translated-by: libretranslate
 msgid "Only the configuration is recovered, never the selection: ``whitelist`` and ``priority`` say which roles ran, and a retrigger computes those itself. Runs from any other entry point carry an unrelated title and yield nothing at all."
-msgstr ""
+msgstr "Sadece yapılandırma geri alındı, asla seçim: ``whitelist`` ve ``priority`` Hangi rollerin koştuğunu ve bir retrigger hesaplamaları bu kendisi. Başka bir giriş noktasından Runs, ilgili bir başlık taşır ve hiçbir şey vermez."
 
+# translated-by: libretranslate
 msgid "Only the first entry of the chosen variant: a priority row runs every mode and onion state it offers, and replaying the same README block in each of them proves nothing the first replay did not. The glyph goes between the variant number and the ⭐ of a priority row, with no space between the two: they are one marker block, not two axes."
-msgstr ""
+msgstr "Sadece seçilmiş varyantın ilk girişi: öncelikli bir satır her modda çalışır ve teklif eder ve her birinde aynı OKME bloğu tekrar oynarlar, ilk replay hiçbir şey yapmadı. Sörf değişken sayısı ve bir öncelik sırası arasında geçer, ikisi arasında bir yer yoktur: iki işaretli blok değildir."
 
+# translated-by: libretranslate
 msgid "Only the mount that carries the docker data root matters. A btrfs partition elsewhere on the host changes nothing — the probe never looks at it."
-msgstr ""
+msgstr "Sadece docker veri kök meselelerini taşıyan tepe. Ev sahibi başka yerlerde bir btrfs bölümü hiçbir şey değiştirmez - Pro asla buna bakmıyor."
 
+# translated-by: libretranslate
 msgid "Only those two fields are read. Matching against every URL in the role sweeps in whatever its prose links to, and a reference to ``en.wikipedia.org/wiki/ Bourne_shell`` then turns ``Shell`` into a brand."
-msgstr ""
+msgstr "Sadece bu iki alan okunur. Her URL'ye karşı her URL'ye karşı çıkmak, prose bağlantılarının ne olursa olsun, ve bir referans için ``en.wikipedia.org/wiki/ Bourne_shell`` Sonra dönüş ``Shell`` Bir markaya."
 
+# translated-by: libretranslate
 msgid "Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally."
-msgstr ""
+msgstr "Opaque, rol-interpreted runtime maaş yükü. Lint, haritalama gerektiren içsel şeklini kısıtlamaz. Sırlar içeride `config` MUST, `lookup('config', application_id, 'secrets.credentials.<name>')` Ve MUST tam anlamıyla doğrulanamaz."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Open Open Open Open (veya yorum) Bir ‘CI
+# başarısızlığı: <role>“Başarısız dağıtmaya başlayan rolün konusu, işletme
+# eserlerine bağlantı kurmak ve belirleyici kurtarma alıntısını yapmak.
 msgid "Open (or comment on) a 'CI failure: <role>' issue per role whose deploy failed, linking the run artifacts and inlining the decisive rescue excerpt."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Open Open Open Open **Kullanıcılar
+# Kullanıcılar**Kullanıcı için arama ve onları seçin.
 msgid "Open **Users**, search for the user, and select them."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Open Questions"
-msgstr ""
+msgstr "Açık sorular"
 
+# translated-by: libretranslate
 msgid "Open WebUI consumes MCP through its native tool-server support. Every deployed shared MCP server role is rendered into `TOOL_SERVER_CONNECTIONS` as a `type: mcp` entry."
-msgstr ""
+msgstr "Open WebUI, MCP'yi yerel araç-server desteği aracılığıyla tüketmektedir. Her dağıtılan paylaşılan MCP sunucusu rolüne dönüştürülür `TOOL_SERVER_CONNECTIONS` As a as a as a `type: mcp` Giriş."
 
+# translated-by: libretranslate
 msgid "Open WebUI consumes MCP through its native tool-server support. Every deployed shared MCP server role is rendered into ``TOOL_SERVER_CONNECTIONS`` as a ``type: mcp`` entry."
-msgstr ""
+msgstr "Open WebUI, MCP'yi yerel araç-server desteği aracılığıyla tüketmektedir. Her dağıtılan paylaşılan MCP sunucusu rolüne dönüştürülür ``TOOL_SERVER_CONNECTIONS`` As a as a as a ``type: mcp`` Giriş."
 
+# translated-by: libretranslate
 msgid "Open WebUI sends `POST /v1/chat/completions` with `model: hermes` or `model: openclaw` to the broker, authenticated with the broker key and carrying the `X-OpenWebUI-User-*` headers (`ENABLE_FORWARD_USER_INFO_HEADERS=true`)."
-msgstr ""
+msgstr "Open WebUI gönderir `POST /v1/chat/completions` ile birlikte `model: hermes` veya `model: openclaw` brokere, broker anahtarı ile kimliklendi ve taşımak `X-OpenWebUI-User-*` Başlıklar (`ENABLE_FORWARD_USER_INFO_HEADERS=true`)."
 
+# translated-by: libretranslate
 msgid "Open WebUI's `ToolServerConnection` accepts bearer, session, system_oauth and oauth_2.1. A server whose scheme it cannot present is skipped rather than registered with an unusable credential, so a basic-auth server such as Jenkins does not appear here."
-msgstr ""
+msgstr "Open WebUI's `ToolServerConnection` Kabul ayıcı, seans, system_oauth ve oauth_2.1.Mevcut olmayan bir credential ile kayıt altına alınmadığı bir sunucu, bu yüzden temel sınıf bir sunucu gibi atılır. Jenkins Burada görünmüyor."
 
+# translated-by: libretranslate
 msgid "Open WebUI: [openwebui.com](https://openwebui.com)"
-msgstr ""
+msgstr "Open WebUI: [openwebui.com](https://openwebui.com)"
 
+# translated-by: libretranslate
 msgid "Open WebUI: `openwebui.com <https://openwebui.com>`__"
-msgstr ""
+msgstr "Open WebUI: `openwebui.com <https://openwebui.com>`__"
 
+# translated-by: libretranslate
 msgid "Open WebUI’s ``ToolServerConnection`` accepts bearer, session, system_oauth and oauth_2.1. A server whose scheme it cannot present is skipped rather than registered with an unusable credential, so a basic-auth server such as Jenkins does not appear here."
-msgstr ""
+msgstr "Open WebUI's ``ToolServerConnection`` Kabul ayıcı, seans, system_oauth ve oauth_2.1.Mevcut olmayan bir credential ile kayıt altına alınmadığı bir sunucu, bu yüzden temel sınıf bir sunucu gibi atılır. Jenkins Burada görünmüyor."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Open Open Open Open `/app/erpnext` – – ERPNext iniş
+# sayfası formlar (Şık değil Frappe masası).
 msgid "Open `/app/erpnext` — ERPNext landing page renders (not bare Frappe desk)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Open a [Pull Request](artefact/git/pull-request.md)."
-msgstr ""
+msgstr "Open a Open a Open [Pull Request](artefact/git/pull-request.md)."
 
+# translated-by: libretranslate
 msgid "Open an issue for unrelated failures instead of mixing them into your branch."
-msgstr ""
+msgstr "Onları şubenize karıştırmak yerine ilgili başarısızlıklar için bir sorun açın."
 
+# translated-by: libretranslate
 msgid "Open discussions block merging"
-msgstr ""
+msgstr "Açık tartışmalar blok birleşme"
 
+# translated-by: libretranslate
 msgid "Open items that only a live run can settle:"
-msgstr ""
+msgstr "Sadece canlı bir koşunun yer alabileceği açık öğeler:"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Açık açın **Grup Grup Grup Grupları** Kullanıcı
+# profilinde sekme.
 msgid "Open the **Groups** tab on the user profile."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Open the repository on GitHub."
-msgstr ""
+msgstr "GitHub'da repository açın."
 
+# translated-by: libretranslate
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
-msgstr ""
+msgstr "Açık kaynaklı CRM platformu satış, müşteri etkileşimleri ve ekipler arasındaki iş süreçleri"
 
+# translated-by: libretranslate
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
-msgstr ""
+msgstr "Açık kaynaklı CRM platformu satış, hizmet, vakalar ve iş akışı otomasyonu ile kampanya yönetimi"
 
+# translated-by: libretranslate
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
-msgstr ""
+msgstr "CRM, satış, muhasebe, envanter, HR ve web sitesi yönetimi için açık kaynak ERP paketi"
 
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Open-source IT and application monitoring server
+# behind SSO with native LDAP user management
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
-msgstr ""
+msgstr "Donanım ve yazılım envanterini takip etmek için Open-source IT varlık yönetim sistemi"
 
+# translated-by: libretranslate
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
-msgstr ""
+msgstr "Open-source ITSM ve helpdesk platform (OTRS fork) Bilet için, CMDB, bilgi tabanı ve raporlama"
 
+# translated-by: libretranslate
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
-msgstr ""
+msgstr "Open-source çevik proje yönetim platformu Scrum, Kanban ve hibrit takım iş akışları"
 
+# translated-by: libretranslate
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
-msgstr ""
+msgstr "CI/CD boru hatları için açık kaynak otomasyon sunucusu, inşalar ve eklenti tabanlı dağıtım akışları"
 
+# translated-by: libretranslate
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr ""
+msgstr "Açık kaynaklı topluluk geri yükleme platformu, oy toplamak ve özellik talepleri ve fikirlere öncelik vermek için"
 
+# translated-by: libretranslate
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
-msgstr ""
+msgstr "Açık kaynak içerik yönetim sistemi web siteleri, intranetler ve kod yazmaksızın online uygulamalar"
 
+# translated-by: libretranslate
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
-msgstr ""
+msgstr "Açık kaynaklı tartışma ve topluluk forum platformu moderasyon, bildirimler ve destek"
 
+# translated-by: libretranslate
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
-msgstr ""
+msgstr "Open-source e-ticaret platformu Symfony ve Vue.js Bina ve ölçeklendirme online mağaza cepheleri"
 
+# translated-by: libretranslate
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr ""
+msgstr "Open-source, müşteri isteklerini e-posta, sohbet, telefon ve web sitesi aracılığıyla işlemek için yardımcı ve biletleme sistemi."
 
+# translated-by: libretranslate
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
-msgstr ""
+msgstr "Açık kaynak öğrenme yönetim sistemi oluşturmak, yönetmek ve online kurslar ve e-öğrenme sağlamak için"
 
+# translated-by: libretranslate
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr ""
+msgstr "Açık kaynak izleme ve zaman serisi verileri depolamak ve bunları PromQL ile sorgulamak için araçta uyarmak"
 
+# translated-by: libretranslate
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
-msgstr ""
+msgstr "Açık kaynaklı demokrasi platformu halk danışmanlığı, sivil süreçler ve topluluk oylamaları"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Open-source pretix'in S yoktur3/object-store backend
+# (yerel yerel yerel yerel yerel yerel `MEDIA_ROOT` Sadece; no django-storages
+# /boto3, hayır yapılandırma kanca).
 msgid "Open-source pretix has no S3/object-store backend (local `MEDIA_ROOT` only; no django-storages/boto3, no config hook)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
-msgstr ""
+msgstr "Open-source, self- ev sahibi takım mesajlaşma platformu gerçek zamanlı işbirliği kanalları, iplikler ve entegrasyonlar aracılığıyla"
 
+# translated-by: libretranslate
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr ""
+msgstr "OpenAI-compatible LLM Gateway tek /v1 Yerel ve ev sahibi model geri uç noktaları per-consumer anahtarları ile"
 
+# translated-by: libretranslate
 msgid "OpenBao auto-unseals on every restart, so deploy and redeploy stay idempotent and no OpenBao-generated key material has to be written back into the inventory. The inventory is the \"existing source of trust\" upstream's caveat asks for."
-msgstr ""
+msgstr "OpenBao auto-unseals her yeniden başlar, bu yüzden dağıtma ve yeniden iş gücü idempotent kalmak ve hiçbir şey yapmamak. OpenBao- üretilen anahtar malzeme envantere geri yazılmalıdır. envanter, envanterdir. \"Mevcut güven kaynağı\" upstream's Caveat soruyor."
 
+# translated-by: libretranslate
 msgid "OpenClaw consumes MCP. Every deployed shared MCP server role is discovered through `MCP_DISCOVERED_SERVERS` and written into the agent configuration."
-msgstr ""
+msgstr "OpenClaw MCP tüketiyor. Her dağıtılan paylaşılan MCP sunucusu rolü keşfedildi `MCP_DISCOVERED_SERVERS` Ve ajan konfigürasyonuna yazılır."
 
+# translated-by: libretranslate
 msgid "OpenClaw consumes MCP. Every deployed shared MCP server role is discovered through ``MCP_DISCOVERED_SERVERS`` and written into the agent configuration."
-msgstr ""
+msgstr "OpenClaw MCP tüketiyor. Her dağıtılan paylaşılan MCP sunucusu rolü keşfedildi ``MCP_DISCOVERED_SERVERS`` Ve ajan konfigürasyonuna yazılır."
 
+# translated-by: libretranslate
 msgid "OpenClaw exposes no administrator-visible list of configured MCP servers, so the configured set is proven by a CLI test instead: [`files/test/test.sh`](./files/test/test.sh) probes the agent's `mcp` surface and fails when the exec itself fails or the output carries a `failed to start server` line. The Playwright spec covers the complementary case, that the gateway holding the MCP credentials refuses an unauthenticated caller."
-msgstr ""
+msgstr "OpenClaw, yapısal MCP sunucularının yönetici-göremez bir listesini ortaya koyuyor, bu yüzden yapılandırılan set bunun yerine bir CLI testi tarafından kanıtlanıyor: [`files/test/test.sh`](./files/test/test.sh) Ajanın sonları `mcp` Yüzey ve exec'in kendisi başarısız olduğunda başarısız olur ya da çıktı taşır `failed to start server` çizgi. Playwright spec tamamlayıcı davayı kapsar, MCP kimliklerini tutan ağ geçidinin istenmeyen bir çağrıcı reddettiği."
 
+# translated-by: libretranslate
 msgid "OpenClaw exposes no administrator-visible list of configured MCP servers, so the configured set is proven by a CLI test instead: ```files/test/test.sh`` <./files/test/test.sh>`__ probes the agent’s ``mcp`` surface and fails when the exec itself fails or the output carries a ``failed to start server`` line. The Playwright spec covers the complementary case, that the gateway holding the MCP credentials refuses an unauthenticated caller."
-msgstr ""
+msgstr "OpenClaw, yapısal MCP sunucularının yönetici-göremez bir listesini ortaya koyuyor, bu yüzden yapılandırılan set bunun yerine bir CLI testi tarafından kanıtlanıyor: ```files/test/test.sh`` <./files/test/test.sh>`__ probes the agent’s ``mcp`` surface and fails when the exec itself fails or the output carries a ``failed to start server`` çizgi. Playwright spec tamamlayıcı davayı kapsar, MCP kimliklerini tutan ağ geçidinin istenmeyen bir çağrıcı reddettiği."
 
+# translated-by: libretranslate
 msgid "OpenClaw's own CLI reference says so directly: `openclaw mcp serve` \"starts a stdio MCP server\" whose process \"the MCP client owns\". Every HTTP transport in that document belongs to the opposite direction, `openclaw mcp add --url --transport streamable-http`, which is OpenClaw acting as a client. Hermes is the same shape: both entry points, `mcp_serve.py` and `agent/transports/hermes_tools_mcp_server.py`, run the MCP SDK's stdio transport, the repository defines neither `run_streamable_http_async` nor `sse_app`, and the user-facing MCP guide describes only Hermes consuming external servers."
-msgstr ""
+msgstr "OpenClaw's own CLI reference says so directly: `openclaw mcp serve` \"bir stdio MCP sunucusu başlar\" Kimin süreci kimin \"MCP müşterisinin sahip olduğu\"Bu belgedeki her HTTP taşımacılığı, tam tersine aittir. `openclaw mcp add --url --transport streamable-http`, hangisidir OpenClaw Bir müşteri olarak hareket edin. Hermes aynı şekil: Her iki giriş noktası, `mcp_serve.py` ve `agent/transports/hermes_tools_mcp_server.py`, MCP SDK'nın stdio taşımacılıkını çalıştırın, repository ne tanımlar `run_streamable_http_async` Ya da `sse_app`, Ve kullanıcı arayüzü MCP rehberi sadece Hermes'in dış sunucularını tükettiğini açıklar."
 
+# translated-by: libretranslate
 msgid "OpenClaw: [openclaw.ai](https://openclaw.ai/)"
-msgstr ""
+msgstr "OpenClaw: [openclaw.ai](https://openclaw.ai/)"
 
+# translated-by: libretranslate
 msgid "OpenCloud delegates authentication to the central Keycloak realm and consumes user and group data from the central OpenLDAP directory. Local password login is disabled when `services.sso.enabled` is true (the default), and accounts are auto-provisioned on first OIDC login."
-msgstr ""
+msgstr "AçıkCloud delegeleri merkezine kimlik doğrulama Keycloak Ortam ve kullanıcı ve grup verileri merkezden tüketiyor OpenLDAP rehberi. Yerel şifre girişi devre dışı bırakılırken `services.sso.enabled` doğrudur (varsayılan varsayılan), ve hesaplar ilk OIDC girişinde otomatik olarak tahmin edilir."
 
+# translated-by: libretranslate
 msgid "OpenCloud env"
-msgstr ""
+msgstr "OpenCloud env"
 
+# translated-by: libretranslate
 msgid "OpenCloud reads users from the central `svc-db-openldap` service."
-msgstr ""
+msgstr "OpenCloud, kullanıcıları merkezden okur `svc-db-openldap` Servis."
 
+# translated-by: libretranslate
 msgid "OpenCloud uses the central `svc-db-openldap` instance for user and group lookups. Configuration is rendered into the role's environment file at deploy time using the `LDAP` group_var dictionary, so no LDAP value is hard-coded in the role."
-msgstr ""
+msgstr "OpenCloud merkezi kullanır `svc-db-openldap` Örneğin kullanıcı ve grup görünümleri için. Yapılama, zaman dağıtmada rolün ortamı dosyasına yapılır `LDAP` group_var Sözlük, bu yüzden hiçbir LDAP değeri rolde zor kodlanır."
 
+# translated-by: libretranslate
 msgid "OpenID Connect (OIDC) Support 🔐"
-msgstr ""
+msgstr "OpenID Connect (OIDC) Destek Desteği Destek Desteği 🔐"
 
+# translated-by: libretranslate
 msgid "OpenID Connect Generic Client 🔐"
-msgstr ""
+msgstr "OpenID Connect Generic Müşteri 🔐"
 
+# translated-by: libretranslate
 msgid "OpenIDConnect"
-msgstr ""
+msgstr "OpenIDConnect"
 
+# translated-by: libretranslate
 msgid "OpenLDAP configuration LDIFs"
-msgstr ""
+msgstr "OpenLDAP yapılandırması LDIFs"
 
+# translated-by: libretranslate
 msgid "OpenLDAP group LDIFs"
-msgstr ""
+msgstr "OpenLDAP grubu LDIFs"
 
+# translated-by: libretranslate
 msgid "OpenProject documents an MCP endpoint under `/mcp` and OAuth application setup."
-msgstr ""
+msgstr "OpenProject, MCP endpoint under `/mcp` Ve OAuth uygulama kurulumu."
 
+# translated-by: libretranslate
 msgid "OpenResty image handling Image and version are now resolved from role configuration instead of hardcoded variables. Custom overrides must be placed in config."
-msgstr ""
+msgstr "OpenResty görüntü işleme Görüntü ve sürüm artık zor kodlanmış değişkenler yerine rol yapılandırmasından çözümlenir. Özel overrides yapılandırılmalıdır."
 
+# translated-by: libretranslate
 msgid "OpenResty runs `network_mode: host`, binds 80/443, `proxy_pass http://127.0.0.1:<port>`"
-msgstr ""
+msgstr "OpenResty çalışır `network_mode: host`, bağlar 80/ /443, `proxy_pass http://127.0.0.1:<port>`"
 
+# translated-by: libretranslate
 msgid "OpenTalk authenticates users against the central Keycloak realm via OIDC and looks up users via the Keycloak admin Web API (`keycloak_webapi` backend). OpenLDAP feeds OpenTalk transitively through Keycloak's federation."
-msgstr ""
+msgstr "OpenTalk, kullanıcıları merkezi merkezine karşı otantikleştirir Keycloak OIDC aracılığıyla dünya ve kullanıcılar üzerinde görünüyor Keycloak admin Web API (`keycloak_webapi` backend). OpenLDAP yemleri OpenTalk Geçici olarak geçiş yoluyla Keycloak“Şehir."
 
+# translated-by: libretranslate
 msgid "OpenTalk authenticates users via OIDC and resolves invitee searches via `https://<keycloak>/admin/realms/<realm>/users?search=…`."
-msgstr ""
+msgstr "OpenTalk kullanıcıları OIDC aracılığıyla otantikleştirir ve davetli aramaları ile çözer `https://<keycloak>/admin/realms/<realm>/users?search=…`."
 
+# translated-by: libretranslate
 msgid "OpenTalk does not open LDAP connections itself. It relies on Keycloak's LDAP federation (`svc-db-openldap` is mapped into the central Keycloak realm) and queries Keycloak's admin Web API for user lookups. This avoids dual-source-of-truth problems and keeps LDAP credentials away from the OpenTalk service account."
-msgstr ""
+msgstr "OpenTalk, LDAP bağlantılarını kendisi açmaz. Bu, bağlıdır Keycloak's LDAP federasyonu (`svc-db-openldap` Merkeze haritalandı Keycloak alem) ve sorgular Keycloak's admin Web API kullanıcı aramaları için. Bu, dual-kaynak-of-gerçek problemlerden kaçınır ve LDAP bilgilerini uzak tutar OpenTalk Servis hesabı."
 
+# translated-by: libretranslate
 msgid "Opening the PR through a GitHub App installation token bypasses this restriction. The App counts as a distinct actor, so PR-lifecycle events fire normally and the full CI pipeline runs against every update PR."
-msgstr ""
+msgstr "PR'yi bir GitHub App tesisatı ile açmak bu kısıtlamayı atlar. App ayrı bir aktör olarak sayılır, bu yüzden PR-yaşam döngüsü normal olarak ateş eder ve CI boru hattı her güncelleme PR'ye karşı çalışır."
 
+# translated-by: libretranslate
 msgid "Opens an interactive shell in the running container or runs a one-off command."
-msgstr ""
+msgstr "Çalışan konteynerte interaktif bir kabuk açın veya tek bir komut çalıştırın."
 
+# translated-by: libretranslate
 msgid "Operating-system package managers such as [apt](https://wiki.debian.org/Apt), [pacman](https://wiki.archlinux.org/title/pacman) and [dnf](https://dnf.readthedocs.io/) keep installed software in sync with their upstream distribution repositories. Each one ships with a different command surface but they all serve the same goal: refresh the index and upgrade every installed package on the host."
-msgstr ""
+msgstr "İşletim sistemi paketi yöneticileri gibi [apt](https://wiki.debian.org/Apt), [...](https://wiki.archlinux.org/title/pacman) ve [dnf](https://dnf.readthedocs.io/) Oluşturulan yazılımları üst düzey dağıtım depoları ile senkronize edin. Farklı bir komuta yüzeyi olan her bir gemi, ancak hepsi aynı hedefe hizmet ediyorlar: her yüklü paketi ev sahibine yenilemek."
 
+# translated-by: libretranslate
 msgid "Operating-system package managers such as `apt <https://wiki.debian.org/Apt>`__, `pacman <https://wiki.archlinux.org/title/pacman>`__ and `dnf <https://dnf.readthedocs.io/>`__ keep installed software in sync with their upstream distribution repositories. Each one ships with a different command surface but they all serve the same goal: refresh the index and upgrade every installed package on the host."
-msgstr ""
+msgstr "İşletim sistemi paketi yöneticileri gibi `apt <https://wiki.debian.org/Apt>`__, `pacman <https://wiki.archlinux.org/title/pacman>`__ ve `dnf <https://dnf.readthedocs.io/>`__ Oluşturulan yazılımları üst düzey dağıtım depoları ile senkronize edin. Farklı bir komuta yüzeyi olan her bir gemi, ancak hepsi aynı hedefe hizmet ediyorlar: her yüklü paketi ev sahibine yenilemek."
 
+# translated-by: libretranslate
 msgid "Operational limits"
-msgstr ""
+msgstr "Operasyonel sınırlar"
 
+# translated-by: libretranslate
 msgid "Operations 🛠️"
-msgstr ""
+msgstr "Operasyon Operasyon Operasyonları 🛠️"
 
+# translated-by: libretranslate
 #, no-python-format
 msgid "Operator decision: 100% open source, matches the platform; OIDC handled via the oauth2-proxy gate."
-msgstr ""
+msgstr "Operatör kararı: 100% open source, platformu maçları; OIDC oauth aracılığıyla ele alındı2-proxy kapısı."
 
+# translated-by: libretranslate
 msgid "Operator decision: Keycloak SSO at the proxy, Checkmk trusts the proxy-supplied user, LDAP supplies the user record/roles/contact groups."
-msgstr ""
+msgstr "Operatör kararı: Keycloak SSO at the proxy, Checkmk Proxy destekli kullanıcıya güvenir, LDAP kullanıcıyı tedarik eder record/roles/contact Gruplar."
 
+# translated-by: libretranslate
 msgid "Operator decision: LDAP gives every client (incl. native apps) a platform identity; the OIDC plugin adds one-click web sign-in."
-msgstr ""
+msgstr "Operatör kararı: LDAP her müşteriye verir (incl. yerli uygulamalar) Bir platform kimliği; OIDC eklenti bir tıklama web işareti ekliyor."
 
+# translated-by: libretranslate
 msgid "Operator decision: enable remote-host agent registration in v1."
-msgstr ""
+msgstr "Operatör kararı: vamazan-host agent Kaydı in v1."
 
+# translated-by: libretranslate
 msgid "Operator decision: self-contained v1; libraries added in-app."
-msgstr ""
+msgstr "Operatör kararı: kendi kendine özgü vücud1; Kütüphaneler içeri eklendi."
 
+# translated-by: libretranslate
 msgid "Operator decision: smallest, host-portable surface."
-msgstr ""
+msgstr "Operatör kararı: en küçük, host-portable yüzey."
 
+# translated-by: libretranslate
 msgid "Operator fork env handlers (INFINITO_FORK_*)."
-msgstr ""
+msgstr "Operatörler (INFINITO_FORK_*)."
 
+# translated-by: libretranslate
 msgid "Operator messages MAY use the portable conversation shortcuts from the `shortcuts` skill (set up via `make install-skills`); agents MUST expand any matching shortcut before acting. The repository's own agent workflows live in the `i8-` skills catalogued in [cheatsheet.md](docs/contributing/tools/agents/cheatsheet.md)."
-msgstr ""
+msgstr "Operatör mesajları, portatif sohbet kısayollarını kullanabilir `shortcuts` beceri becerisi (Set up via via through `make install-skills`); ajanlar hareket etmeden önce herhangi bir eşleme kısayolunu genişletir. repository'nin kendi ajan iş akışları yaşıyor `i8-` Beceri kataloglandı [cheatsheet.md](docs/contributing/tools/agents/cheatsheet.md)."
 
+# translated-by: libretranslate
 msgid "Operator phrasing: \"alle möglichen bridges und services sollen enabled, aktiviert und wenn möglich integriert sein incl. video conference\"; conservative default keeps first-deploy clean. Bridges that need an operator-issued token are documented as opt-in in the role README."
-msgstr ""
+msgstr "Operatör phrasing: \"Alle möglichen köprüleri ve servisler etkinleştirildi, aktiviert und wenn möglich integriert sein incl. Video konferans\"; muhafazakar varsayılan varsayılan ilk iş başında temiz tutar. Bir operatör tarafından yazılmış tokene ihtiyaç duyan köprüler, OKME'nin rolünde opt-in olarak belgelenmiştir."
 
+# translated-by: libretranslate
 msgid "Operator phrasing: \"deprecated flavor soll der alte compose bleiben\"."
-msgstr ""
+msgstr "Operatör phrasing: \"Deprecated aroma soll der sube form bleiben\"."
 
+# translated-by: libretranslate
 msgid "Operator phrasing: \"die variants sollen die neue integration testen\"."
-msgstr ""
+msgstr "Operatör phrasing: \"Ölü varyantlar solgun ölü neue entegrasyon testien\"."
 
+# translated-by: libretranslate
 msgid "Operator's signal that the flavor is production-intended from v1; promotion to `stable` is a separate, later milestone."
-msgstr ""
+msgstr "Operatörlerin sinyali, tadın vücretsiz olduğu1; terfi için `stable` Ayrı, daha sonra bir dönüm noktası."
 
+# translated-by: libretranslate
 msgid "Operator-confirmable; Frappe's Social Login Key alone does NOT consume group claims. Persisting the map in v1 unblocks the follow-up requirement without re-litigating the mapping table."
-msgstr ""
+msgstr "Operatör-konfirmable; Frappe'nin Sosyal Giriş Key sadece grup iddiasını tüketmiyor. Haritayı vızdırmak1 Takip gereksinimini haritalama masasını yeniden tanımlamadan engeller."
 
+# translated-by: libretranslate
 msgid "Operator-confirmable; matches the convention codified in [022 Zammad Decision #7](README.md#archive). No `svc-db-` role exists for Nginx frontend because it is Frappe-coupled, not a general-purpose service."
-msgstr ""
+msgstr "Operatör-konfirmable; kongreyi uyumlu olarak eşleştirin [022 Zammad Karar #7](README.md#archive). Hayır `svc-db-` Nginx frontend için rol var çünkü Frappe-coupled, genel amaçlı bir hizmet değil."
 
+# translated-by: libretranslate
 msgid "Operator-confirmed: defer inbound; v1 = outbound only. The follow-up requirement will introduce the generic Mailu auto-mailbox hook and sweep this role at the same time."
-msgstr ""
+msgstr "Operatör-confirmed: defer inbound; v1 = outbound only. Takip gereksinimi, genel olarak genel olarak tanıtılacak Mailu oto-posta kutusu kancası ve bu rolü aynı anda süpür."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Operatör-confirmed: Bu PR kendi rolüne odaklandı.
+# Hayır hayır hayır `meta/services.yml::<app>.backup.pre_backup_hook` Alan
+# burada tanıtıldı; merkezi merkezi MariaDB + rol hacim anlıkları v1 yedekleme
+# hikayesi.
 msgid "Operator-confirmed: keep this PR focused on the role itself. No `meta/services.yml::<app>.backup.pre_backup_hook` field is introduced here; central MariaDB + role volume snapshots are the v1 backup story."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Operator-confirmed: track the actively maintained major. Self-built image (à la [015 Moodle](README.md#archive)) explicitly out of scope."
-msgstr ""
+msgstr "Operatör-confirmed: Aktif olarak büyük tutmak. Self- built image (à la [015 Moodle](README.md#archive)) Açıkça kapsamın dışında."
 
+# translated-by: libretranslate
 msgid "Operator-facing instructions for assigning these groups live in [Administration RBAC](../../docs/administration/configuration/rbac.md). The design contract is in [RBAC design](../../docs/contributing/design/iam/rbac.md)."
-msgstr ""
+msgstr "Bu grupların atanması için Operatör-oku talimatları canlı [Yönetim RBAC](../../docs/administration/configuration/rbac.md). Tasarım sözleşmesi içeride [RBAC tasarımı](../../docs/contributing/design/iam/rbac.md)."
 
+# translated-by: libretranslate
 msgid "Operator-facing instructions for assigning these groups live in `Administration RBAC <../../docs/administration/configuration/rbac.md>`__. The design contract is in `RBAC design <../../docs/contributing/design/iam/rbac.md>`__."
-msgstr ""
+msgstr "Bu grupların atanması için Operatör-oku talimatları canlı `Administration RBAC <../../docs/administration/configuration/rbac.md>`__. Tasarım sözleşmesi içeride `RBAC design <../../docs/contributing/design/iam/rbac.md>`__."
 
+# translated-by: libretranslate
 msgid "Operator-facing tooling for provisioning inventories, running dedicated deploys, and managing host secrets across an Infinito.Nexus environment."
-msgstr ""
+msgstr "Operatörlerin teslim edilmesi, adanmış dağıtmaları yürütmek ve ev sahibi sırları bir araya getirmek için araç kullanmak Infinito.Nexus Çevre."
 
+# translated-by: libretranslate
 msgid "Operator-requested: isolate MDAD's Ansible runtime from Infinito's so MDAD can pin its own `ansible-core` / collection versions without crossing into the Infinito Ansible venv."
-msgstr ""
+msgstr "Operatör tarafından sorgulandı: MDAD'ın Infinito'nun bu kadar MDAD'dan gelen Ansible runtime, kendi kendisini kendi başına taşıyabiliyor `ansible-core` Infinito Ansible venv'e geçiş olmadan koleksiyon versiyonları."
 
+# translated-by: libretranslate
 msgid "Operator-supplied `--apps` (or `--include`)"
-msgstr ""
+msgstr "Operatör-tüm `--apps` (veya `--include`)"
 
+# translated-by: libretranslate
 msgid "Operators MUST treat any unexplained read of `~/.ssh/id_*` in the transcript as a trust incident and rotate the affected keys."
-msgstr ""
+msgstr "Operatörler MUST, açıklanmamış herhangi bir okumayı tedavi ediyor `~/.ssh/id_*` Bir güven olayı olarak transkriptte ve etkilenen anahtarları döndürür."
 
+# translated-by: libretranslate
 msgid "Opt-in live third-party checks, excluded from `make test`"
-msgstr ""
+msgstr "Opt-in canlı üçüncü taraf kontrolleri, dışlanmış `make test`"
 
+# translated-by: libretranslate
 msgid "Optimised for Arch Linux, the role installs NGINX, prepares opinionated configuration snippets and exposes a simple interface for other roles to drop in new virtual-hosts."
-msgstr ""
+msgstr "Arch Linux için optimize edildi, rol NGINX'i kurdu, fikirli yapılandırma parçaları hazırlar ve yeni sanal-hosts'ta düşmemiz için diğer roller için basit bir arayüz ortaya koyar."
 
+# translated-by: libretranslate
 msgid "Optimised for Arch Linux, the role installs NGINX, prepares opinionated configuration snippets and exposes a simple interface for other roles to drop in new virtual-hosts.   It plays well with **Let’s Encrypt**, **OAuth2 Proxy**, and your existing Docker stack."
-msgstr ""
+msgstr "Arch Linux için optimize edildi, rol NGINX'i kurdu, fikirli yapılandırma parçaları hazırlar ve yeni sanal-hosts'ta düşmemiz için diğer roller için basit bir arayüz ortaya koyar. İyi oynuyor **Let's Encrypt**, **OAuth2 Proxy Proxy Proxy**Ve mevcut Docker yığınınız."
 
+# translated-by: libretranslate
 msgid "Optimize buffering"
-msgstr ""
+msgstr "Takip Et"
 
+# translated-by: libretranslate
 msgid "Optimize caching"
-msgstr ""
+msgstr "Optimize caching"
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux and Debian-based systems, this role ensures the presence of Node.js for use in Node-based applications or scripts. It serves as a foundational role for projects that depend on Node.js runtimes or utilities like Puppeteer."
-msgstr ""
+msgstr "Archlinux ve Debian tabanlı sistemler için optimize edildi, bu rol, varlığını garanti ediyor Node.js Node tabanlı uygulamalarda veya senaryolarda kullanım için. Bu, bağlı projeler için temel bir rol olarak hizmet ediyor Node.js Puppeteer gibi zaman veya hizmetler."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux environments, this role provides a lightweight, reliable solution for serving static websites. It automatically configures NGINX to serve files from a predefined directory, sets up secure HTTPS connections, and includes support for `.well-known` paths required by ACME challenges."
-msgstr ""
+msgstr "Archlinux ortamları için optimize edin, bu rol statik web sitelerine hizmet etmek için hafif, güvenilir bir çözüm sunar. NGINX'i önceden tanımlanmış bir dizinden dosyaları hizmet etmek için otomatik olarak yapılandırır ve güvenli HTTPS bağlantılarını ayarlar ve destek içerir. `.well-known` ACME meydanlarında gerekli yollar."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux environments, this role provides a lightweight, reliable solution for serving static websites. It automatically configures NGINX to serve files from a predefined directory, sets up secure HTTPS connections, and includes support for ``.well-known`` paths required by ACME challenges."
-msgstr ""
+msgstr "Archlinux ortamları için optimize edin, bu rol statik web sitelerine hizmet etmek için hafif, güvenilir bir çözüm sunar. NGINX'i önceden tanımlanmış bir dizinden dosyaları hizmet etmek için otomatik olarak yapılandırır ve güvenli HTTPS bağlantılarını ayarlar ve destek içerir. ``.well-known`` ACME meydanlarında gerekli yollar."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux systems, this role installs the ``certbot-NGINX`` package, configures a dedicated ``systemd`` service for certificate renewal, and integrates with a ``sys-timer`` to schedule periodic renewals. After a renewal, NGINX is reloaded to apply the updated certificates immediately."
-msgstr ""
+msgstr "Archlinux sistemleri için optimize edildi, bu rol üstleniyor ``certbot-NGINX`` Paket, adanmış bir şekilde yapılandırın ``systemd`` Sertifika yenilemesi için servis, ve birbiriyle entegre eder ``sys-timer`` Dönem yenilemelerini planlamak. Bir yenilemeden sonra NGINX, güncel belgeleri hemen uygulamak için yeniden yükleniyor."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux systems, this role installs the `certbot-NGINX` package, configures a dedicated `systemd` service for certificate renewal, and integrates with a `sys-timer` to schedule periodic renewals. After a renewal, NGINX is reloaded to apply the updated certificates immediately."
-msgstr ""
+msgstr "Archlinux sistemleri için optimize edildi, bu rol üstleniyor `certbot-NGINX` Paket, adanmış bir şekilde yapılandırın `systemd` Sertifika yenilemesi için servis, ve birbiriyle entegre eder `sys-timer` Dönem yenilemelerini planlamak. Bir yenilemeden sonra NGINX, güncel belgeleri hemen uygulamak için yeniden yükleniyor."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux, this role configures NGINX to act as a lightweight and efficient file server. It ensures that files are served securely, with optional directory browsing enabled, and proper MIME type handling for standard web clients."
-msgstr ""
+msgstr "Archlinux için optimize edin, bu rol küçük ve verimli bir dosya sunucusu olarak hareket etmek için NGINX'i yapılandırır. Dosyaların güvenli bir şekilde servis edildiği, opsiyonel tarama ile standart web müşterileri için uygun MIME tipi kullanım sağlar."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux, this role creates the required directory structure, installs and configures the sys-ctl-hlth-check script, and integrates with the **sys-ctl-alm-telegram** role. It uses the **sys-timer** role to schedule regular checks based on your customizable `OnCalendar` setting."
-msgstr ""
+msgstr "Archlinux için optimize edin, bu rol gerekli dizi yapısını yaratır, kurulumlar ve sys-ctl-hlth-check senaryoyu yapılandırır ve bütünlemeleri ile bütünleştirir. **sys-ctl-alm-telegram** rol. Bu, kullanır **sys-timer** Özelleştirmenize dayanan düzenli kontrolleri planlamak için rol `OnCalendar` ayarlayın."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux, this role creates the required directory structure, installs and configures the sys-ctl-hlth-check script, and integrates with the **sys-ctl-alm-telegram** role. It uses the **sys-timer** role to schedule regular checks based on your customizable ``OnCalendar`` setting."
-msgstr ""
+msgstr "Archlinux için optimize edin, bu rol gerekli dizi yapısını yaratır, kurulumlar ve sys-ctl-hlth-check senaryoyu yapılandırır ve bütünlemeleri ile bütünleştirir. **sys-ctl-alm-telegram** rol. Bu, kullanır **sys-timer** Özelleştirmenize dayanan düzenli kontrolleri planlamak için rol ``OnCalendar`` ayarlayın."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux, this role ensures secure SSL/TLS certificate generation with minimal manual intervention. It supports both ``webroot`` and ``DNS-01`` validation methods, providing flexibility based on your infrastructure needs."
-msgstr ""
+msgstr "Archlinux için optimize edin, bu rol, minimum manuel müdahale ile güvenli SSL/TLS sertifikası nesli sağlar. Her ikisini de destekliyor ``webroot`` ve ``DNS-01`` Geçerlilik yöntemleri, altyapı ihtiyaçlarınıza göre esneklik sağlar."
 
+# translated-by: libretranslate
 msgid "Optimized for Archlinux, this role ensures secure SSL/TLS certificate generation with minimal manual intervention. It supports both `webroot` and `DNS-01` validation methods, providing flexibility based on your infrastructure needs."
-msgstr ""
+msgstr "Archlinux için optimize edin, bu rol, minimum manuel müdahale ile güvenli SSL/TLS sertifikası nesli sağlar. Her ikisini de destekliyor `webroot` ve `DNS-01` Geçerlilik yöntemleri, altyapı ihtiyaçlarınıza göre esneklik sağlar."
 
+# translated-by: libretranslate
 msgid "Optimized for automated file system management, this role:"
-msgstr ""
+msgstr "Otomatik dosya sistemi yönetimi için optimize edildi, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for automated task scheduling in a [systemd](https://en.wikipedia.org/wiki/Systemd) environment, this role:"
-msgstr ""
+msgstr "Otomatik görev zamanlaması için optimize edin [Sistemd sistemid](https://en.wikipedia.org/wiki/Systemd) Çevre, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for automated task scheduling in a `systemd <https://en.wikipedia.org/wiki/Systemd>`__ environment, this role:"
-msgstr ""
+msgstr "Otomatik görev zamanlaması için optimize edin `systemd <https://en.wikipedia.org/wiki/Systemd>`__ Çevre, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for both [Arch Linux](https://wiki.archlinux.org/index.php/WireGuard) and [Ubuntu/Debian](https://wireguard.com/install/), this role performs the following tasks:"
-msgstr ""
+msgstr "Her ikisi için de optimize edildi [Arch Linux](https://wiki.archlinux.org/index.php/WireGuard) ve [Ubuntu/Debian](https://wireguard.com/install/), Bu rol aşağıdaki görevleri yerine getiriyor:"
 
+# translated-by: libretranslate
 msgid "Optimized for both `Arch Linux <https://wiki.archlinux.org/index.php/WireGuard>`__ and `Ubuntu/Debian <https://wireguard.com/install/>`__, this role performs the following tasks:"
-msgstr ""
+msgstr "Her ikisi için de optimize edildi `Arch Linux <https://wiki.archlinux.org/index.php/WireGuard>`__ ve `Ubuntu/Debian <https://wireguard.com/install/>`__, Bu rol aşağıdaki görevleri yerine getiriyor:"
 
+# translated-by: libretranslate
 msgid "Optimized for client configurations, this role:"
-msgstr ""
+msgstr "Müşteri yapılandırmaları için optimize edin, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for containerized environments, this role:"
-msgstr ""
+msgstr "Konteynerli ortamlar için optimize edin, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for effective disk space management, this role:"
-msgstr ""
+msgstr "Etkili disk uzay yönetimi için optimize edin, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for efficient caching and GZIP compression"
-msgstr ""
+msgstr "Verimli kalibrasyon ve GZIP sıkıştırması için optimize edildi"
 
+# translated-by: libretranslate
 msgid "Optimized for efficient storage management, this role:"
-msgstr ""
+msgstr "Verimli depolama yönetimi için optimize edin, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for environments with network address translation (NAT), this role:"
-msgstr ""
+msgstr "Ağ adresi çevirisi ile ortamlar için optimize edildi (NAT), Bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for idempotent cleanup operations, this role:"
-msgstr ""
+msgstr "İdempotent temizlik operasyonları için optimize edildi, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for maintaining a clean and efficient Docker environment, this role:"
-msgstr ""
+msgstr "Temiz ve verimli bir Docker ortamı korumak için optimize edin, bu rol:"
 
+# translated-by: libretranslate
 msgid "Optimized for portability and idempotency, this role performs the following tasks:"
-msgstr ""
+msgstr "Portability ve idempotency için optimize edildi, bu rol aşağıdaki görevleri yerine getiriyor:"
 
+# translated-by: libretranslate
 msgid "Optimized for prompt and comprehensive failure alerts, this role configures a unified notification service. It leverages the capabilities of both Telegram and Email notifications to ensure that administrators are quickly informed about service issues, enabling rapid troubleshooting."
-msgstr ""
+msgstr "Hızlı ve kapsamlı bir başarısızlık uyarıları için optimize edin, bu rol birleşik bir bildirim hizmeti yapılandırır. Her iki Telgraf ve E-posta bildirimlerinin hizmet sorunları hakkında hızlı bilgi sahibi olmasını sağlamak için yeteneklerinden yararlanır, hızlı bir sorun giderme sağlar."
 
+# translated-by: libretranslate
 msgid "Optimized for real-time alerts, this role is a key component of the overall ``sys-ctl-alm-compose`` suite. It ensures that, upon failure of a critical service, a Telegram message is automatically sent to notify administrators and enable prompt troubleshooting."
-msgstr ""
+msgstr "Gerçek zamanlı uyarılar için optimize edildi, bu rol genel olarak genel bir bileşendir ``sys-ctl-alm-compose`` süit. Bu, kritik bir hizmetin başarısızlığı üzerine, bir Telegram mesajı otomatik olarak yöneticileri bilgilendirmek ve sorun gidermeyi sağlamaktır."
 
+# translated-by: libretranslate
 msgid "Optimized for real-time alerts, this role is a key component of the overall `sys-ctl-alm-compose` suite. It ensures that, upon failure of a critical service, a Telegram message is automatically sent to notify administrators and enable prompt troubleshooting."
-msgstr ""
+msgstr "Gerçek zamanlı uyarılar için optimize edildi, bu rol genel olarak genel bir bileşendir `sys-ctl-alm-compose` süit. Bu, kritik bir hizmetin başarısızlığı üzerine, bir Telegram mesajı otomatik olarak yöneticileri bilgilendirmek ve sorun gidermeyi sağlamaktır."
 
+# translated-by: libretranslate
 msgid "Optimized for secure and reliable service failure notifications, this role is an integral part of the overall ``sys-ctl-alm-compose`` suite. It ensures that, upon failure of a critical service, an email alert is sent automatically to enable prompt troubleshooting."
-msgstr ""
+msgstr "Güvenli ve güvenilir hizmet başarısızlık bildirimleri için optimize edildi, bu rol genel olarak genel bir parçasıdır. ``sys-ctl-alm-compose`` süit. Bu, kritik bir hizmetin başarısızlığı üzerine, bir e-posta uyarısı otomatik olarak sorun gidermeyi sağlamak için gönderilir."
 
+# translated-by: libretranslate
 msgid "Optimized for secure and reliable service failure notifications, this role is an integral part of the overall `sys-ctl-alm-compose` suite. It ensures that, upon failure of a critical service, an email alert is sent automatically to enable prompt troubleshooting."
-msgstr ""
+msgstr "Güvenli ve güvenilir hizmet başarısızlık bildirimleri için optimize edildi, bu rol genel olarak genel bir parçasıdır. `sys-ctl-alm-compose` süit. Bu, kritik bir hizmetin başarısızlığı üzerine, bir e-posta uyarısı otomatik olarak sorun gidermeyi sağlamak için gönderilir."
 
+# translated-by: libretranslate
 msgid "Optimized for secure system administration, this role performs the following tasks:"
-msgstr ""
+msgstr "Güvenli sistem yönetimi için optimize edildi, bu rol aşağıdaki görevleri yerine getiriyor:"
 
+# translated-by: libretranslate
 msgid "Optimized for secure system management, this role performs the following:"
-msgstr ""
+msgstr "Güvenli sistem yönetimi için optimize edin, bu rol aşağıdakileri gerçekleştirir:"
 
+# translated-by: libretranslate
 msgid "Optimized for security and ease of administration, this role guarantees that sudo is installed and configured according to recommended practices. The provided sudoers file includes essential comments, host/user aliases, and defaults to help prevent misconfigurations."
-msgstr ""
+msgstr "Güvenlik ve yönetim kolaylığı için optimize edin, bu rol, sudo'nun önerilen uygulamalara göre kurulduğunu ve yapılandırıldığını garanti eder. Sağlanan sudoers dosyası, yanlış yapılandırmaları önlemeye yardımcı olmak için temel yorumları, host/user aliasları ve varsayılanları içerir."
 
+# translated-by: libretranslate
 msgid "Optimized for simplicity and idempotency, this role:"
-msgstr ""
+msgstr "Basitlik ve idempotency için optimize edin, bu rol:"
 
+# translated-by: libretranslate
 msgid "Option"
-msgstr ""
+msgstr "Seçenek seçeneği"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli Seçmeli Seçmeli Seçmeli
 msgid "Optional"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli Seçmeli Seçmeli Seçmeli (`required: false`)
+# Addons, etkinleştirilen / ayrılmış bölünmüşlerini bir şekilde ifade eder
+# [`meta/variants.yml`](#) CI matrisi her iki eyalette egzersiz yapar.
 msgid "Optional (`required: false`) addons express their enabled/disabled split as a [`meta/variants.yml`](#) axis so the CI matrix exercises both states."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli Seçmeli Seçmeli Seçmeli **Redis** Önbellek /
+# (Toggled olabilir)
 msgid "Optional **Redis** cache/session (can be toggled)"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli Seçmeli Seçmeli Seçmeli **merkezi veritabanı**
+# (MariaDB) veya uygulama-yerel DB
 msgid "Optional **central database** (MariaDB) or app-local DB"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli Seçmeli Seçmeli Seçmeli **çevrimdışı mod**
+# Hava destekli ortamlar için
 msgid "Optional **offline mode** for air-gapped environments"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Optional JWT signing for secure communication between Nextcloud and Document Server."
-msgstr ""
+msgstr "Seçmeli JWT güvenli iletişim için imza Nextcloud ve Doküman Server."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli Seçmeli Seçmeli Seçmeli Matomo Analitik
+# entegrasyon
 msgid "Optional Matomo analytics integration"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Optional Pinning 📌"
-msgstr ""
+msgstr "Seçmeli Pinning 📌"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli Seçmeli Seçmeli Seçmeli Redis backend
 msgid "Optional Redis backend"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Optional activation of experimental features (``nix-command``, ``flakes``)"
-msgstr ""
+msgstr "Deneysel özelliklerin Seçmeli aktivasyonu (``nix-command``, ``flakes``)"
 
+# translated-by: libretranslate
 msgid "Optional activation of experimental features (`nix-command`, `flakes`)"
-msgstr ""
+msgstr "Deneysel özelliklerin Seçmeli aktivasyonu (`nix-command`, `flakes`)"
 
+# translated-by: libretranslate
 msgid "Optional admin UI for the gateway (proxy + SSO); requires `svc-ai-litellm`"
-msgstr ""
+msgstr "Ağ geçidi için Seçmeli yönetim UI (+ SSO); Önkoşullar `svc-ai-litellm`"
 
+# translated-by: libretranslate
 msgid "Optional async execution"
-msgstr ""
+msgstr "Seçmeli bir uygulama"
 
+# translated-by: libretranslate
 msgid "Optional but recommended:"
-msgstr ""
+msgstr "Seçmeli ama önerilir:"
 
+# translated-by: libretranslate
 msgid "Optional database backend"
-msgstr ""
+msgstr "Seçmeli veritabanı backend"
 
+# translated-by: libretranslate
 msgid "Optional fields:"
-msgstr ""
+msgstr "Seçmeli alanlar:"
 
+# translated-by: libretranslate
 msgid "Optional invite code for gated PDS deployments."
-msgstr ""
+msgstr "Kapılı PDS dağıtımları için zorunlu davet kodu."
 
+# translated-by: libretranslate
 msgid "Optional kwarg:"
-msgstr ""
+msgstr "Seçmeli kwarg:"
 
+# translated-by: libretranslate
 msgid "Optional kwarg::"
-msgstr ""
+msgstr "Seçmeli kwarg::"
 
+# translated-by: libretranslate
 msgid "Optional lint/test extras are declared as `Recommends`/`optdepends` where supported."
-msgstr ""
+msgstr "Seçmeli lint/test ekstralar olarak ilan edilir `Recommends`/ /`optdepends` Nerede desteklenen."
 
+# translated-by: libretranslate
 msgid "Optional shell integration via `/etc/profile.d`"
-msgstr ""
+msgstr "Seçmeli kabuk entegrasyonu aracılığıyla `/etc/profile.d`"
 
+# translated-by: libretranslate
 msgid "Optional shell integration via ``/etc/profile.d``"
-msgstr ""
+msgstr "Seçmeli kabuk entegrasyonu aracılığıyla ``/etc/profile.d``"
 
+# translated-by: libretranslate
 msgid "Optional user fields"
-msgstr ""
+msgstr "Seçmeli kullanıcı alanları"
 
+# translated-by: libretranslate
 msgid "Optional versioning, lifecycle rules, and object lock"
-msgstr ""
+msgstr "Seçmeli sürümleme, yaşam döngüsü kuralları ve nesne kilit"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli. Descriptive role- level metadata (`logo`,
+# `homepage`, `video`, `display`). Dosya kökü IS `applications.<app>.info`
+# (Hayır hayır hayır hayır hayır hayır hayır `info:` sarma).
 msgid "Optional. Descriptive role-level metadata (`logo`, `homepage`, `video`, `display`). File root IS `applications.<app>.info` (no `info:` wrapper)."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli. Bir korumacının geçerli olmadığını görmezden
+# gelin **🧩 Subset** etiket; CI etiketi olmadan her zamanki gibi diff-derived
+# rolü kullanır. Etiket ayarlandığında CI dağıtılır **Sadece sadece sadece
+# sadece sadece sadece sadece sadece sadece sadece sadece sadece** Burada
+# listelenen roller - her biri mevcut olmalıdır `roles/<id>` Rehber veya koşma
+# başarısız olur. See See See See See
+# [pipeline.md](../../docs/contributing/artefact/git/pipeline.md#subset-label-).
 msgid "Optional. Ignored unless a maintainer applies the **🧩 Subset** label; without the label CI uses the diff-derived role set as usual. When the label is set, CI deploys **only** the roles listed here — each must be an existing `roles/<id>` directory, or the run fails. See [pipeline.md](../../docs/contributing/artefact/git/pipeline.md#subset-label-)."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Seçmeli. Bir korumacının geçerli olmadığını görmezden
+# gelin **🧩 Subset** etiket; CI etiketi olmadan her zamanki gibi diff-derived
+# rolü kullanır. Etiket ayarlandığında CI dağıtılır **Sadece sadece sadece
+# sadece sadece sadece sadece sadece sadece sadece sadece sadece** Burada
+# listelenen roller - her biri mevcut olmalıdır `roles/<id>` Rehber veya koşma
+# başarısız olur. See See See See See
+# [pipeline.md](../docs/contributing/artefact/git/pipeline.md#subset-label-).
 msgid "Optional. Ignored unless a maintainer applies the **🧩 Subset** label; without the label CI uses the diff-derived role set as usual. When the label is set, CI deploys **only** the roles listed here — each must be an existing `roles/<id>` directory, or the run fails. See [pipeline.md](../docs/contributing/artefact/git/pipeline.md#subset-label-)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Optional. One file per addon (file root IS the addon spec; filename stem = addon id). See [Unified Addons](#unified-addons-metaaddons-) below."
-msgstr ""
+msgstr "Seçmeli. Addon başına bir dosya (Dosya kökü Addon spec; dosya adı kök = Addon id). Gör. [Birleşik Addons](#unified-addons-metaaddons-) Aşağıda."
 
+# translated-by: libretranslate
 msgid "Optional. Variant overrides deep-merged over the assembled application payload (used by `svc-ai-ollama`, `web-app-phpmyadmin`)."
-msgstr ""
+msgstr "Seçmeli. Variant overrides deep-merged over the captured application payload (tarafından kullanılan `svc-ai-ollama`, `web-app-phpmyadmin`)."
 
+# translated-by: libretranslate
 msgid "Optionality"
-msgstr ""
+msgstr "Seçmelilik"
 
+# translated-by: libretranslate
 msgid "Optionally configure a **domain alias** so old addresses remain valid."
-msgstr ""
+msgstr "Seçmeli olarak yapılandırın **domain alias** Bu kadar eski adresler geçerli kalır."
 
+# translated-by: libretranslate
 msgid "Optionally integrates with OAuth2 proxy for authentication."
-msgstr ""
+msgstr "Seçmeli olarak OAuth ile entegre edilir2 Kimlik doğrulama için proxy."
 
+# translated-by: libretranslate
 msgid "Optionally integrates with backup cleanup if backup variables are defined."
-msgstr ""
+msgstr "Yedek değişkenleri tanımlandığında yedek temizle entegre edilir."
 
+# translated-by: libretranslate
 msgid "Optionally pins the checkout to a specific tag (e.g. `stable`)"
-msgstr ""
+msgstr "Seçmeli olarak belirli bir etiket için checkout yapın (E.g. `stable`)"
 
+# translated-by: libretranslate
 msgid "Optionally pins the checkout to a specific tag (e.g. ``stable``)"
-msgstr ""
+msgstr "Seçmeli olarak belirli bir etiket için checkout yapın (E.g.``stable``)"
 
+# translated-by: libretranslate
 msgid "Optionally prints a preview of the first N lines"
-msgstr ""
+msgstr "Seçmeli olarak ilk N hatlarının bir önizlemesini yazdırır"
 
+# translated-by: libretranslate
 msgid "Optionally removes conflicting local tags before fetching"
-msgstr ""
+msgstr "Seçmeli olarak, yerleşmeden önce yerel etiketleri ortadan kaldırır"
 
+# translated-by: libretranslate
 msgid "Optionally sets up timers linked to the services."
-msgstr ""
+msgstr "Seçmeli olarak hizmetlerle bağlantılı zamanlayıcıları ayarlar."
 
+# translated-by: libretranslate
 msgid "Optionally waits until the application responds with HTTP `200` or `302`"
-msgstr ""
+msgstr "Uygulama HTTP ile yanıt verene kadar Seçmeli olarak bekleyin `200` veya `302`"
 
+# translated-by: libretranslate
 msgid "Optionally waits until the application responds with HTTP ``200`` or ``302``"
-msgstr ""
+msgstr "Uygulama HTTP ile yanıt verene kadar Seçmeli olarak bekleyin ``200`` veya ``302``"
 
+# translated-by: libretranslate
 msgid "Optionally wires in a timer via the ``sys-timer`` role, controlled by the ``on_calendar_cleanup_certs`` variable."
-msgstr ""
+msgstr "Seçmeli olarak bir süre içinde teller ``sys-timer`` rol, kontrol edilen ``on_calendar_cleanup_certs`` değişken."
 
+# translated-by: libretranslate
 msgid "Options::"
-msgstr ""
+msgstr "Seçenekler:"
 
+# translated-by: libretranslate
 msgid "Opts a `web-app-*` role out of the dashboard tile integration. Same shape as `logout`."
-msgstr ""
+msgstr "Opts a `web-app-*` Panel karo entegrasyonunun rolü. Aynı şekli aynı şekilde `logout`."
 
+# translated-by: libretranslate
 msgid "Opts a `web-app-*` role out of the universal-logout integration. Marker MUST be directly above `logout:`. Pair with `enabled: false` and `shared: false`."
-msgstr ""
+msgstr "Opts a `web-app-*` Evrensel-logout entegrasyonunun rolü. Marker MUST doğrudan yukarıda `logout:`. Pair with `enabled: false` ve `shared: false`."
 
+# translated-by: libretranslate
 msgid "Opts an invokable role out of the required `meta/info.yml` `homepage` + `video` entries. Marker lives in `meta/main.yml` (a comment-only `info.yml` would fail the info schema lint). Reserved for fully self-written roles (backups, host plumbing) that have no upstream product page or demo video."
-msgstr ""
+msgstr "Opts gerekli rolün dışında `meta/info.yml` `homepage` + + + `video` Girişler. Marker hayatta yaşıyor `meta/main.yml` (Bir yorum-sadece `info.yml` Bilgi şema lint başarısız olur). tamamen kendi yazılı roller için (yedeklemeler, ev sahibi tesisat) Bu, geniş bir ürün sayfası veya demo videosuna sahip değildir."
 
+# translated-by: libretranslate
 msgid "Opts the entire `.py` file out of the 500-line cap."
-msgstr ""
+msgstr "Bütün Filmler `.py` Dosya dışında 500-line cap."
 
+# translated-by: libretranslate
 msgid "Opts the entire file out of the useful-comment check. Reserved for vendored / upstream config templates (e.g. Discourse `app.yml`) whose inline documentation is all intentional."
-msgstr ""
+msgstr "Yararlı çekten tüm dosyayı geri döndürür. Satıcı / upstream yapılandırma şablonları için DVD oynatıcı (E.g. Discourse `app.yml`) Hangi inline belgeleri tüm kasıtlıdır."
 
+# translated-by: libretranslate
 msgid "Opts the role's unified `services.sso` block out. Declares \"no login flow\"; paired with `enabled: false` + `shared: false`."
-msgstr ""
+msgstr "Rolün birleştirilmesi `services.sso` Blok dışarı. Aralık \"Hiçbir giriş akışı\"; çiftle `enabled: false` + + + `shared: false`."
 
+# translated-by: libretranslate
 msgid "Or request a meeting [here](https://s.infinito.nexus/meet)."
-msgstr ""
+msgstr "Veya bir toplantı talep et [İşte burada burada](https://s.infinito.nexus/meet)."
 
+# translated-by: libretranslate
 msgid "Or use **Custom Purge** to specify individual URLs."
-msgstr ""
+msgstr "Ya da kullanmak **Özel Purge** Bireysel URL'leri belirtmek için."
 
+# translated-by: libretranslate
 msgid "Orchestration"
-msgstr ""
+msgstr "Soykırım"
 
+# translated-by: libretranslate
 msgid "Orchestration 🎵"
-msgstr ""
+msgstr "Soykırım 🎵"
 
+# translated-by: libretranslate
 msgid "Order ``nodes`` so every run_after prerequisite precedes its dependents."
-msgstr ""
+msgstr "Sipariş sipariş siparişi sipariş sipariş siparişi ``nodes`` Bu yüzden her şey run_after Ön koşullar bağımlılarından öncekiler."
 
+# translated-by: libretranslate
 msgid "Order is the contract: the first route of the list is what ``LITELLM_CHAT_MODEL`` names, so a locally served model outranks a declared one, and the earlier backend outranks the later."
-msgstr ""
+msgstr "Sipariş sözleşmedir: listenin ilk rotası nedir ``LITELLM_CHAT_MODEL`` İsimler, bu yüzden yerel olarak bir ilan edilen bir model çıktı ve daha önceki geri dönüşler daha sonra."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Siparişi `siblings` korunmuştur. Duplicates in in in
+# `siblings` As-is olarak korunmuştur. ``None`` girişler boş olarak tedavi
+# edilir.
 msgid "Order of `siblings` is preserved. Duplicates in `siblings` are preserved as-is. ``None`` inputs are treated as empty."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Kullanımın siparişi: üssü kurmak (Sıra sıra sıra sıra
+# 1), Sonra her başarısız değişken için onu ve döngü sırasını pin 2 Yeşile
+# kadar, o zaman sabit koda karşı hala dokunan her değişkeni geri getiriyor 3,
+# Sonra sırayı çalıştırın 4 Bir kez end-of-iteration kapısı olarak.
 msgid "Order of use: establish the baseline (row 1), then for each failing variant pin it and loop row 2 until green, then bring every still-untouched variant up against the fixed code with row 3, then run row 4 once as the end-of-iteration gate."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Order timings so the longest wins, whatever unit it is spelled in."
-msgstr ""
+msgstr "Sipariş zamanlamaları bu kadar en uzun kazanır, ne birim büyütür."
 
+# translated-by: libretranslate
 msgid "Order 📜"
-msgstr ""
+msgstr "Sipariş sipariş siparişi sipariş sipariş siparişi 📜"
 
+# translated-by: libretranslate
 msgid "Ordered match prefixes for a redirect that targets ``host``."
-msgstr ""
+msgstr "Bu hedefleri yönlendiren bir yönlendirme için önceden ekler sipariş edildi ``host``."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Adına ait olan rol grup isimleri ``stage``, içim içi
+# arama emrinde (kategori kategori kategori kategori kategori kategori
+# kategori kategori kategori kategori kategori kategori kategori kategori
+# kategori kategori kategori kategori kategori kategori kategori kategori
+# kategori kategori kategori kategori kategori kategori kategori kategori
+# kategori kategori kategori kategori kategori kategori kategori kategori
+# kategori kategori kategori kategori kategori kategori kategori kategori
+# kategori kategori kategori kategori kategori kategori kategori kategori
+# run_after, Sonra adı). SPOT sahne bu kadar grup üyeliği takip ediyor
+# categories.yml. Bootstrap-flagged kategoriler dışlanmış (Açık adımlarla
+# koşuyorlar).
 msgid "Ordered role-group names that belong to ``stage``, in intra-stage call order (category run_after, then name). The SPOT the stage plays consume so group membership follows categories.yml. Bootstrap-flagged categories are excluded (they run via explicit steps)."
 msgstr ""
 

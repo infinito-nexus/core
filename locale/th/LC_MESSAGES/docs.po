@@ -73717,1507 +73717,2055 @@ msgstr "[ ] ที่บทบาทของ RBAC สัญญาแผนท�
 msgid "[ ] Whole flow idempotent (second run: no changes); reloads handler-driven; clear failure if Tor cannot bootstrap."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[ ] With Mailu deployed on an onion node, `<node>.onion:993` / `:587` accept connections over Tor; the extra `HiddenServicePort` lines are rendered only when Mailu is present."
-msgstr ""
+msgstr "[ ] ด้วย Mailu ใช้บนโหนดหัวหอม `<node>.onion:993` / `:587` ยอมรับการเชื่อมต่อมากกว่า Tor; พิเศษ `HiddenServicePort` แปลบรรทัดเฉพาะเมื่อ Mailu เป็นของขวัญ."
 
+# translated-by: libretranslate
 msgid "[ ] Workflow run in fork or equivalent validation"
-msgstr ""
+msgstr "[ ] การ ไหล เวียนของการทํางานในส้อมหรือความถูกต้องที่เทียบเท่ากัน"
 
+# translated-by: libretranslate
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
-msgstr ""
+msgstr "[ ] [027-integration-matrix.md](027-integration-matrix.md) ถูกสร้างขึ้นใหม่จาก [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) และพวกเขาตั้งสิ่งที่พวกเขาได้รับมอบหมายให้กระทําขึ้นเป็นการทดสอบที่ล้มเหลว (ยังไม่มีการแก้ไขด้วยมือ)เครื่องกําเนิดพลังงาน ☑️ ขอบโดยการตรวจสอบทุกบทบาท `meta/services.yml` การทํากุญแจการรวม ✅/🪙 จากแผลที่เคลือบไว้ `EDGES` แผนที่."
 
+# translated-by: libretranslate
 msgid "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
-msgstr ""
+msgstr "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) ประกาศส่วนขยายของมันใน `meta/addons/` ด้วย `mechanism: extension` และไม่ `bridges`."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: [ ] [svc-db-openldap](../../roles/svc-db-openldap/):
+# ต่อไปนี้: บริการแบ็คเอนต์ที่มี UI ใช้งานแบบจบ (UI) ครอบคลุมด้วยการทดสอบ
+# integration ไม่ใช่Playwright.
 msgid "[ ] [svc-db-openldap](../../roles/svc-db-openldap/): backend service with no end-user UI; covered by integration tests, not Playwright."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-akaunting](../../roles/web-app-akaunting/): LDAP authentication plugin."
-msgstr ""
+msgstr "[ ] [web-app-akaunting](../../roles/web-app-akaunting/): โปรแกรมเสริมการตรวจสอบสิทธิ์ของ LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-akaunting](../../roles/web-app-akaunting/): OIDC plus LDAP variant."
-msgstr ""
+msgstr "[ ] [web-app-akaunting](../../roles/web-app-akaunting/): OIDC บวก LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-baserow](../../roles/web-app-baserow/): confirm OIDC/LDAP scope."
-msgstr ""
+msgstr "[ ] [web-app-baserow](../../roles/web-app-baserow/): ยืนยัน IDC/LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-bigbluebutton](../../roles/web-app-bigbluebutton/): confirm whether the LDAP path has a Playwright-drivable surface; document the outcome."
-msgstr ""
+msgstr "[ ] [web-app-bigbluebutton](../../roles/web-app-bigbluebutton/): เปิดใช้การค้นหา."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-bluesky](../../roles/web-app-bluesky/): variant-A+ login-broker. Biber MAY require the broker's app-password handoff; document the outcome of the audit."
-msgstr ""
+msgstr "[ ] [web-app-bluesky](../../roles/web-app-bluesky/): A+ โบรกเกอร์ Baber May ต้องการ app-password off; เอกสารผลการตรวจสอบ."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): declares both `oidc` and `ldap` gates."
-msgstr ""
+msgstr "[ ] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): ประกาศทั้งสอง `oidc` ถึง `ldap` ประตู."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): has both `oidc` and `ldap` gated paths in the spec; biber should ride one of them."
-msgstr ""
+msgstr "[ ] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): มีทั้งสองอย่าง `oidc` ถึง `ldap` เส้นทางในสเปกตรัม บิสเบอร์น่าจะขี่ได้."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-dashboard](../../roles/web-app-dashboard/), [web-app-matomo](../../roles/web-app-matomo/): own admin authentication is in scope of their own admin tests; biber-as-non-admin is not a meaningful surface here. Document and exempt."
-msgstr ""
+msgstr "[ ] [web-app-dashboard](../../roles/web-app-dashboard/). [web-app-matomo](../../roles/web-app-matomo/): การตรวจสอบสิทธิ์ของ admin เองอยู่ในขอบเขตของการทดสอบ admin ของพวกเขาเอง; biber-as-non-admin ไม่ได้พื้นผิวที่มีความหมายที่นี่ เอกสารและยกเว้น."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-discourse](../../roles/web-app-discourse/) declares its plugins in `meta/addons/` with `mechanism: plugin`; `discourse-ldap-auth` carries `bridges: [ldap]` resolving to the `ldap` service block, while `docker_manager`, `discourse-activity-pub`, and `discourse-akismet` carry no `bridges`."
-msgstr ""
+msgstr "[ ] [web-app-discourse](../../roles/web-app-discourse/) ประกาศส่วนเสริมของมันใน `meta/addons/` ด้วย `mechanism: plugin`. `discourse-ldap-auth` ขน `bridges: [ldap]` การแก้ไข `ldap` บล็อกบริการในขณะที่ `docker_manager`. `discourse-activity-pub`, และ `discourse-akismet` ไม่ `bridges`."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-discourse](../../roles/web-app-discourse/): LDAP plugin."
-msgstr ""
+msgstr "[ ] [web-app-discourse](../../roles/web-app-discourse/): โปรแกรมเสริมของ LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-espocrm](../../roles/web-app-espocrm/): built-in LDAP authentication."
-msgstr ""
+msgstr "[ ] [web-app-espocrm](../../roles/web-app-espocrm/): การตรวจสอบสิทธิ์ภายใน LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-flowise](../../roles/web-app-flowise/): OIDC via oauth2-proxy."
-msgstr ""
+msgstr "[ ] [web-app-flowise](../../roles/web-app-flowise/): OIDC ผ่านโออาท2-พ็อกซี่."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-flowise](../../roles/web-app-flowise/): confirm scope."
-msgstr ""
+msgstr "[ ] [web-app-flowise](../../roles/web-app-flowise/): ยืนยันขอบเขต."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-friendica](../../roles/web-app-friendica/) declares `ldapauth` in `meta/addons/` with `bridges: [ldap]`; the `ldap` and `sso` service blocks remain in `meta/services.yml`; [tasks/03_addons.yml](../../roles/web-app-friendica/tasks/03_addons.yml) reads the addon list from the new path; deploy behaviour is unchanged."
-msgstr ""
+msgstr "[ ] [web-app-friendica](../../roles/web-app-friendica/) ประกาศ `ldapauth` ใน `meta/addons/` ด้วย `bridges: [ldap]`. `ldap` ถึง `sso` บล็อกบริการยังคงอยู่ `meta/services.yml`. [tasks/03_addons.yml](../../roles/web-app-friendica/tasks/03_addons.yml) อ่านรายการเพิ่มเติมจากพาธใหม่; พฤติกรรมที่ใช้ไปจะไม่เปลี่ยนแปลง."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-friendica](../../roles/web-app-friendica/): LDAP module surface."
-msgstr ""
+msgstr "[ ] [web-app-friendica](../../roles/web-app-friendica/): พื้นผิวของโมดูล LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): IS the LDAP admin UI; its admin login already covers the LDAP bind path by construction."
-msgstr ""
+msgstr "[ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): ต่อไปนี้คือ admin UI ของ LDAP การล็อกอินของ admin ได้ครอบคลุมพาธของ LDAP ที่เชื่อมโยงด้วยการก่อสร้าง."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): LDAP admin UI; biber as a *managed* user appears in the directory view, but the role's own login is admin-only. Audit and document."
-msgstr ""
+msgstr "[ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): admin UI ของ LDAP; biber เป็น *จัดการ* ผู้ใช้ปรากฏในมุมมองของไดเรกทอรี แต่การล็อกอินของบทบาทนี้ มีเฉพาะในโฆษณาเท่านั้น ข้อมูลและเอกสาร."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-gitea](../../roles/web-app-gitea/): OIDC plus optional LDAP."
-msgstr ""
+msgstr "[ ] [web-app-gitea](../../roles/web-app-gitea/): OIDC บวก OIDC Office."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-hugo](../../roles/web-app-hugo/), [web-app-docs](../../roles/web-app-docs/), [web-app-bridgy-fed](../../roles/web-app-bridgy-fed/), [web-app-mig](../../roles/web-app-mig/): static or pure-publishing content with no authenticated path."
-msgstr ""
+msgstr "[ ] [web-app-hugo](../../roles/web-app-hugo/). [web-app-docs](../../roles/web-app-docs/). [web-app-bridgy-fed](../../roles/web-app-bridgy-fed/). [web-app-mig](../../roles/web-app-mig/): แปรงทาสี."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['2015',
+# '5', '7']
+# nocheck: url
+# translation-rejected: [ ] [web-app-jenkins](../../roles/web-app-jenkins/):
+# สืบค้นเมื่อ 7 December 2015. สืบค้นเมื่อ 5 January.
 msgid "[ ] [web-app-jenkins](../../roles/web-app-jenkins/): Jenkins LDAP security realm is a separate auth provider from the OIDC plugin."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-jenkins](../../roles/web-app-jenkins/): OIDC plus LDAP variant."
-msgstr ""
+msgstr "[ ] [web-app-jenkins](../../roles/web-app-jenkins/): OIDC บวก LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-joomla](../../roles/web-app-joomla/) declares `plg_system_keycloak` in `meta/addons/` with `mechanism: plugin`, `source: built`, and `bridges: [sso]`."
-msgstr ""
+msgstr "[ ] [web-app-joomla](../../roles/web-app-joomla/) ประกาศ `plg_system_keycloak` ใน `meta/addons/` ด้วย `mechanism: plugin`. `source: built`, และ `bridges: [sso]`."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-joomla](../../roles/web-app-joomla/): Joomla's core LDAP authentication plugin is the LDAP-variant surface per [006 audit row](README.md#archive). Pairs with the missing biber scenario from [017](017-playwright-biber-rbac-coverage.md)."
-msgstr ""
+msgstr "[ ] [web-app-joomla](../../roles/web-app-joomla/): ปลั๊กอินตรวจความถูกต้องของ LDAP คือพื้นผิวของ LDAP [006 แถวที่ตรวจสอบ](README.md#archive). บันไดที่มีสถานการณ์แบบไบเบอร์หายไป [017](017-playwright-biber-rbac-coverage.md)."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-joomla](../../roles/web-app-joomla/): OIDC (`plg_system_keycloak`) AND LDAP variants per [006](README.md#archive). Smoking gun for this requirement: env keys were declared, never consumed."
-msgstr ""
+msgstr "[ ] [web-app-joomla](../../roles/web-app-joomla/): OIDC (`plg_system_keycloak`) และส่วนของ LDAP ต่อ [006](README.md#archive). ปืนสูบบุหรี่สําหรับความต้องการนี้: กุญแจ env ถูกประกาศไม่เคยบริโภค."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-keycloak](../../roles/web-app-keycloak/): IS the OIDC provider; LDAP federation is tested via Keycloak's own user-storage spec, not via a per-role Playwright surface."
-msgstr ""
+msgstr "[ ] [web-app-keycloak](../../roles/web-app-keycloak/): สืบค้นผ่าน OIDC Keycloakสเปกผู้ใช้เอง ไม่ใช่ผ่านพื้นผิวของเพลย์ไรท์."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-keycloak](../../roles/web-app-keycloak/): IS the OIDC provider; biber's existence in Keycloak is the prerequisite for every other role's biber scenario. The role's spec already covers the realm-side flow; this requirement does NOT touch it. Audit the spec only to confirm no drift from [004](README.md#archive)."
-msgstr ""
+msgstr "[ ] [web-app-keycloak](../../roles/web-app-keycloak/): IDC เป็นผู้ให้บริการ; การดํารงอยู่ของไบเบอร์ใน Keycloak คือเงื่อนไขสําหรับทุกสถานการณ์ สเปกของบทบาทที่ครอบคลุมการไหลของดินแดนด้าน; ความต้องการนี้ไม่สัมผัสมัน ตรวจสอบสเปคเท่านั้นเพื่อยืนยันการลอยจาก [004](README.md#archive)."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-matrix](../../roles/web-app-matrix/) declares each mautrix network bridge in `meta/addons/` with `mechanism: bridge`, `required: false`, `enabled: false` by default, and its DB credential referenced from `meta/secrets.yml`; `vars/bridges.yml` is absorbed and deleted."
-msgstr ""
+msgstr "[ ] [web-app-matrix](../../roles/web-app-matrix/) ประกาศสะพานเครือข่าย Mutrix แต่ละใน `meta/addons/` ด้วย `mechanism: bridge`. `required: false`. `enabled: false` โดยปริยายแล้ว และอ้างอิง DB ของมันจาก `meta/secrets.yml`. `vars/bridges.yml` ถูกดูดซับและลบ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['2']
+# nocheck: url
+# translation-rejected: [ ]
+# [web-app-mattermost](../../roles/web-app-mattermost/)
+# ประกาศส่วนเสริมของมันใน `meta/addons/` ด้วย `mechanism: plugin`2;
+# ระดับเสียงของส่วนเสริมยังคงอยู่ `meta/volumes.yml`.
 msgid "[ ] [web-app-mattermost](../../roles/web-app-mattermost/) declares its plugins in `meta/addons/` with `mechanism: plugin`; the plugin volumes remain in `meta/volumes.yml`."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-mattermost](../../roles/web-app-mattermost/): AD/LDAP login surface independent of OIDC."
-msgstr ""
+msgstr "[ ] [web-app-mattermost](../../roles/web-app-mattermost/): AD/LDAP พื้นผิวการล็อกอินอิสระจาก OIDC."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-mediawiki](../../roles/web-app-mediawiki/) declares `PluggableAuth` and `OpenIDConnect` in `meta/addons/` with `mechanism: extension`; `OpenIDConnect` bridges `sso`."
-msgstr ""
+msgstr "[ ] [web-app-mediawiki](../../roles/web-app-mediawiki/) ประกาศ `PluggableAuth` ถึง `OpenIDConnect` ใน `meta/addons/` ด้วย `mechanism: extension`. `OpenIDConnect` สะพาน `sso`."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-minio](../../roles/web-app-minio/): MinIO LDAP IDP."
-msgstr ""
+msgstr "[ ] [web-app-minio](../../roles/web-app-minio/): IDP. minIO."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-minio](../../roles/web-app-minio/): OIDC plus LDAP variant."
-msgstr ""
+msgstr "[ ] [web-app-minio](../../roles/web-app-minio/): OIDC บวก LDAP."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-mobilizon](../../roles/web-app-mobilizon/): confirm scope."
-msgstr ""
+msgstr "[ ] [web-app-mobilizon](../../roles/web-app-mobilizon/): ยืนยันขอบเขต."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-odoo](../../roles/web-app-odoo/) declares its `core` and `optional` modules in `meta/addons/` using `mechanism: module`, `required: true` for core modules, and the `group` label; the install path reads the new path."
-msgstr ""
+msgstr "[ ] [web-app-odoo](../../roles/web-app-odoo/) ประกาศ `core` ถึง `optional` มอดูลใน `meta/addons/` ใช้ `mechanism: module`. `required: true` สําหรับโมดูลหลัก และ `group` ป้าย; ตําแหน่งการติดตั้งอ่านพาธใหม่."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-odoo](../../roles/web-app-odoo/): `auth_ldap` module."
-msgstr ""
+msgstr "[ ] [web-app-odoo](../../roles/web-app-odoo/). `auth_ldap` โมดูล."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-opencloud](../../roles/web-app-opencloud/): trigger role for this requirement; variant 1 is LDAP-only by design but the spec gates everything on `oidcEnabled`."
-msgstr ""
+msgstr "[ ] [web-app-opencloud](../../roles/web-app-opencloud/): สืบค้นเมื่อ: 1 เป็น LDAP เท่านั้นโดยการออกแบบ แต่ประตูสเปกทุกอย่างบน `oidcEnabled`."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-openwebui](../../roles/web-app-openwebui/): confirm scope."
-msgstr ""
+msgstr "[ ] [web-app-openwebui](../../roles/web-app-openwebui/): ยืนยันขอบเขต."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-postmarks](../../roles/web-app-postmarks/): confirm scope."
-msgstr ""
+msgstr "[ ] [web-app-postmarks](../../roles/web-app-postmarks/): ยืนยันขอบเขต."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-pretix](../../roles/web-app-pretix/) declares its `oidc` plugin in `meta/addons/` with `mechanism: plugin`, the `2.3.1` pin preserved as a string `version`, and `bridges: [sso]`."
-msgstr ""
+msgstr "[ ] [web-app-pretix](../../roles/web-app-pretix/) ประกาศ `oidc` ส่วนเสริมใน `meta/addons/` ด้วย `mechanism: plugin`. `2.3.1` ปักหมุดไว้เป็นข้อความ `version`, และ `bridges: [sso]`."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-shopware](../../roles/web-app-shopware/): confirm scope."
-msgstr ""
+msgstr "[ ] [web-app-shopware](../../roles/web-app-shopware/): ยืนยันขอบเขต."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-taiga](../../roles/web-app-taiga/): OIDC."
-msgstr ""
+msgstr "[ ] [web-app-taiga](../../roles/web-app-taiga/): OIDC."
 
+# translated-by: libretranslate
 msgid "[ ] [web-app-wordpress](../../roles/web-app-wordpress/) declares its `plugin` and `mu_plugin` entries in `meta/addons/`; the OIDC plugin bridges `sso` and `wp-discourse` bridges the Discourse service."
-msgstr ""
+msgstr "[ ] [web-app-wordpress](../../roles/web-app-wordpress/) ประกาศ `plugin` ถึง `mu_plugin` รายการใน `meta/addons/`; สะพาน ส่วนเสริม OIDC `sso` ถึง `wp-discourse` สะพาน Discourse บริการ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['3']
+# nocheck: url
+# translation-rejected: [ ] [web-app-xwiki](../../roles/web-app-xwiki/)
+# ประกาศใช้ปลั๊กอิน 3 ตัว `meta/addons/`, การรักษา `version` หมุด; สะพาน
+# `sso`. `ldap`, และ `matomo` ตัดสินใจที่จะให้บริการบล็อก.
 msgid "[ ] [web-app-xwiki](../../roles/web-app-xwiki/) declares its three plugins in `meta/addons/`, preserving `version` pins; bridges `sso`, `ldap`, and `matomo` resolve to service blocks."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[ ] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../../roles/web-svc-simpleicons/), [web-svc-xmpp](../../roles/web-svc-xmpp/), [web-svc-libretranslate](../../roles/web-svc-libretranslate/): backend services with no end-user UI."
-msgstr ""
+msgstr "[ ] [web-svc-cdn](../../roles/web-svc-cdn/). [web-svc-simpleicons](../../roles/web-svc-simpleicons/). [web-svc-xmpp](../../roles/web-svc-xmpp/). [web-svc-libretranslate](../../roles/web-svc-libretranslate/): บริการแบ็คเอนต์โดยไม่มียูไอ."
 
+# translated-by: libretranslate
 msgid "[ ] `/deployed/de/` serves a page whose `<html lang>` is `de` and whose body contains the German translation of a message from the German `docs.po`; `/latest/de/` follows once the catalogs are on `main`."
-msgstr ""
+msgstr "[ ] `/deployed/de/` รับบทที่ `<html lang>` คือ `de` และ ร่าง กาย ของ เขา บรรจุ ข่าวสาร จาก ชาว เยอรมัน `docs.po`. `/latest/de/` ติดตามเมื่อแคตตาล็อกอยู่ใน `main`."
 
+# translated-by: libretranslate
 msgid "[ ] `01_restore_key.yml` restores keys with strict perms before Tor starts; never overwrites existing keys; Tor serves exactly the minted address."
-msgstr ""
+msgstr "[ ] `01_restore_key.yml` คืนค่ากุญแจที่มีperm เข้มงวดก่อนที่จะเริ่มการทํางานของ Tor และไม่มีการเขียนทับกุญแจที่มีอยู่ Tor ทําหน้าที่ตรงที่อยู่."
 
+# translated-by: libretranslate
 msgid "[ ] `CMK_SITE_ID`, `CMK_PASSWORD` (from a rendered credential), `TZ` seed the site + `cmkadmin` on first run; the stack reaches a steady running state on one persistent volume."
-msgstr ""
+msgstr "[ ] `CMK_SITE_ID`. `CMK_PASSWORD` (จากผู้เชื่อมั่น). `TZ` เมล็ดของเว็บไซต์ + `cmkadmin` การวิ่งครั้งแรก; สแต็กไปถึงรัฐวิ่งคงที่ในหนึ่งปริมาตรคงที่."
 
+# translated-by: libretranslate
 msgid "[ ] `README.md` documents edition + bump policy, the oauth2-proxy+header-auth+LDAP model, the site-path routing, the agent-receiver decision, and the no-external-DB design."
-msgstr ""
+msgstr "[ ] `README.md` พิมพ์เอกสาร + นโยบายชน, The oauth2- Proxy+หัว-auth+LDAP รุ่น, เว็บไซต์เส้นทาง, การตัดสินใจตัวแทน-ผู้รับ, และการออกแบบไม่มีการเพิ่มข้อมูล DB."
 
+# translated-by: libretranslate
 msgid "[ ] `README.md` documents image + bump policy, the auth approach + its client-coverage caveat (web-only vs all-clients), the media-storage decision, transcoding, and the no-external-DB design."
-msgstr ""
+msgstr "[ ] `README.md` เอกสาร image + นโยบายชน, วิธีการ Authet + การปกปิดลูกความ (โปรแกรมลูกข่ายเว็บเท่านั้น), การตัดสินใจของฝ่ายสื่อ การแปลงรหัส และการออกแบบที่ไม่เพิ่มข้อมูล."
 
+# translated-by: libretranslate
 msgid "[ ] `SEMAPHORE_ACCESS_KEY_ENCRYPTION` and the cookie hash/encryption secrets are generated once and persisted in the role's secret store (idempotent across redeploys)."
-msgstr ""
+msgstr "[ ] `SEMAPHORE_ACCESS_KEY_ENCRYPTION` และความลับของคุกกี้ hadh/encrippive ถูกสร้างขึ้นครั้งเดียวและยังคงอยู่ในร้านลับของบทบาท (ความ ไม่ รู้ จัก พอ ๆ กัน ระหว่าง การ ทํา สวน)."
 
+# translated-by: libretranslate
 msgid "[ ] `SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed a break-glass local admin (dedicated `breakglass` login + dedicated email, no collision with the SSO/LDAP identities) in **every** variant; no setup wizard is presented on first load. Its form login is reachable only when LDAP is disabled (Semaphore forces LDAP-only form auth otherwise)."
-msgstr ""
+msgstr "[ ] `SEMAPHORE_ADMIN`. `SEMAPHORE_ADMIN_PASSWORD`. `SEMAPHORE_ADMIN_NAME`. `SEMAPHORE_ADMIN_EMAIL` เมล็ด admin ท้องถิ่น (อุทิศ `breakglass` ล็อกอิน + ส่งอีเมลที่ อุทิศแล้ว ไม่มีการชนกับการแสดงตัวของ SSO/LADAP) ใน **ทุก** ตัวช่วยตั้งค่าไม่ถูกแสดงเมื่อโหลดครั้งแรก แบบฟอร์มของมันสามารถเข้าใช้งานได้เมื่อปิดการใช้ LDAP เท่านั้น (กองกําลัง Semaphore อย่างเดียวกับ LDAP รูปแบบ Author)."
 
+# translated-by: libretranslate
 msgid "[ ] `SEMAPHORE_DB_DIALECT=postgres` plus `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB` are wired; when `services.postgres.shared=true` the role consumes the central `svc-db-postgres` (no per-role engine), else `sys-svc-rdbms` templates a per-role Postgres."
-msgstr ""
+msgstr "[ ] `SEMAPHORE_DB_DIALECT=postgres` บวก `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB` จะถูกเชื่อมต่อเมื่อ `services.postgres.shared=true` บทบาทที่ครอบงําศูนย์กลาง `svc-db-postgres` (ไม่มีกลไกต่อรูรับข้อมูล), อื่น ๆ `sys-svc-rdbms` ต้นแบบต่อรูหนอน."
 
+# translated-by: libretranslate
 msgid "[ ] `SEMAPHORE_OIDC_PROVIDERS` is rendered as valid JSON (`keycloak` provider: `display_name`, `provider_url`=realm issuer, `client_id`, `client_secret`, `redirect_url`)."
-msgstr ""
+msgstr "[ ] `SEMAPHORE_OIDC_PROVIDERS` ได้รับการยอมรับจาก Json (`keycloak` ผู้จัดทํา: `display_name`. `provider_url`ผู้ประกาศข่าว `client_id`. `client_secret`. `redirect_url`)."
 
+# translated-by: libretranslate
 msgid "[ ] `SEMAPHORE_WEB_ROOT` is set to the canonical `https://` URL so OIDC redirect URLs resolve correctly behind the proxy."
-msgstr ""
+msgstr "[ ] `SEMAPHORE_WEB_ROOT` ถูกกําหนดให้เป็นจดหมายเวียน `https://` ที่อยู่ URL ดังนั้นที่อยู่ URL ของ OIDC จะแก้ไขค่าเบื้องหลังพร็อกซีอย่างถูกต้อง."
 
+# translated-by: libretranslate
 msgid "[ ] `TOR_EGRESS_ENABLED` defaults `false` (outbound untouched); `true` exposes SOCKS to containers, documented."
-msgstr ""
+msgstr "[ ] `TOR_EGRESS_ENABLED` ค่าปริยาย `false` (ยังไม่ได้แตะต้อง). `true` เปิดเผย SOCKS กับคอนเทนเนอร์ บันทึก."
 
+# translated-by: libretranslate
 msgid "[ ] `files/Dockerfile` pins `tor` (no `:latest`); image builds in the stack."
-msgstr ""
+msgstr "[ ] `files/Dockerfile` เข็มหมุด `tor` (ไม่ `:latest`); ภาพถ่ายสร้างขึ้นเป็นกอง."
 
+# translated-by: libretranslate
 msgid "[ ] `files/playwright/test-guest.js`: guest never reaches an authenticated surface; empty-credentials submission is rejected by the IdP."
-msgstr ""
+msgstr "[ ] `files/playwright/test-guest.js`: ต่อไปนี้: แขกไม่เคยไปถึงพื้นผิวที่ยืนยันแล้ว; การส่งแบบว่าง-ฉบับถูกปฏิเสธโดย IDP."
 
+# translated-by: libretranslate
 msgid "[ ] `files/playwright/test-login-ldap-biber.js`: LDAP login path, gated on `skipUnlessServiceEnabled('ldap')`."
-msgstr ""
+msgstr "[ ] `files/playwright/test-login-ldap-biber.js`: พาธสําหรับล็อกอินของ LDAP, เปิดใช้งาน `skipUnlessServiceEnabled('ldap')`."
 
+# translated-by: libretranslate
 msgid "[ ] `files/playwright/test-login-native-administrator.js`: break-glass local admin login, gated to **ldap-disabled** (Semaphore forces LDAP-only form auth when ldap is enabled); the skip carries a reason naming `LDAP_SERVICE_ENABLED`."
-msgstr ""
+msgstr "[ ] `files/playwright/test-login-native-administrator.js`: ล็อกอิน admin ท้องถิ่น **ปิดการใช้งานแบบ ldap** (กองกําลัง Semaphore แบบ LDAP อย่างเดียวเมื่อเปิดใช้งาน ldap); การข้ามดําเนินการตั้งชื่อเหตุผล `LDAP_SERVICE_ENABLED`."
 
+# translated-by: libretranslate
 msgid "[ ] `files/playwright/test-login-oidc-biber.js` and `test-login-oidc-administrator.js`: OIDC personas reach an authenticated surface, drive a role-specific interaction (e.g. open the Projects list / admin Users panel), and log out to a verified unauthenticated landing. Gated on `skipUnlessServiceEnabled('sso')`."
-msgstr ""
+msgstr "[ ] `files/playwright/test-login-oidc-biber.js` ถึง `test-login-oidc-administrator.js`: OCKS เข้าถึงพื้นผิวที่ยืนยันข้อมูล ไดรฟ์การโต้ตอบบทบาท (e.g. เปิดรายการโครงการ / admin ผู้ใช้), และล็อกเอาท์ไปตรวจสอบการลงจอด เปิดเมื่อ `skipUnlessServiceEnabled('sso')`."
 
+# translated-by: libretranslate
 msgid "[ ] `lookup('tls', '<x>.onion')` → http/disabled/80, no ACME attempted; app vhosts serve onion `server_name`s on `:80`; every app reachable at `<sub>.<NODE_ONION>.onion` through `HiddenServicePort 80 → 127.0.0.1:80`."
-msgstr ""
+msgstr "[ ] `lookup('tls', '<x>.onion')` ○ http/disabled/80, ไม่มี ACME พยายาม; apps vhosts ให้บริการหัวหอม `server_name`เปิด `:80`; ทุกโปรแกรมเข้าถึงได้ `<sub>.<NODE_ONION>.onion` ผ่าน `HiddenServicePort 80 → 127.0.0.1:80`."
 
+# translated-by: libretranslate
 msgid "[ ] `make compose-deploy` is green for web-app-docs, web-app-keycloak, web-app-dashboard and web-app-mig."
-msgstr ""
+msgstr "[ ] `make compose-deploy` เป็นสีเขียวสําหรับ web-app-docs. web-app-keycloak. web-app-dashboard ถึง web-app-mig."
 
+# translated-by: libretranslate
 msgid "[ ] `make compose-playwright role=web-app-semaphore` exits `0` with no stub tests and a clean logged-out final state per the contract."
-msgstr ""
+msgstr "[ ] `make compose-playwright role=web-app-semaphore` ออก `0` โดยไม่มีการทดสอบและล้างออกจากรัฐสุดท้ายต่อสัญญา."
 
+# translated-by: libretranslate
 msgid "[ ] `make i18n-translate domain=docs languages=de` fills every `msgstr` of the German `docs.po`."
-msgstr ""
+msgstr "[ ] `make i18n-translate domain=docs languages=de` ทุกรายการ `msgstr` ของคนเยอรมัน `docs.po`."
 
+# translated-by: libretranslate
 msgid "[ ] `make swarm-playwright role=web-app-openbao` passes the same specs as the compose run. *Not run: `swarm-playwright` requires the staging directory a completed deploy creates, and the `swarm-zombie` drill was cut short by the runner budget on this machine before its Playwright step. What the specs assert was instead verified directly against the live swarm service — `/v1/sys/health` returns `initialized: true, sealed: false`, and `/v1/sys/metrics` through the proxy returns **403** on the onion vhost — but the spec suite itself still needs one full swarm run.*"
-msgstr ""
+msgstr "[ ] `make swarm-playwright role=web-app-openbao` ผ่านสเปคเดียวกับงานเขียน *ไม่ทํางาน: `swarm-playwright` ต้องการไดเร็กทอรีที่ใช้ดําเนินการเสร็จสมบูรณ์ และ `swarm-zombie` สว่านถูกลดด้วยงบประมาณนักวิ่ง ในเครื่องจักรนี้ ก่อนที่จะถึงขั้นเพลย์ไรท์ สิ่ง ที่ หน่วย งาน ต่าง ๆ ยืน ยัน แทน การ ยืน ยัน โดย ตรง ต่อ การ บริการ ฝูง ชน — — `/v1/sys/health` กลับค่า `initialized: true, sealed: false`, และ `/v1/sys/metrics` ผ่านการตอบกลับของพร็อกซี **403** ที่ โอ ออน vhost — แต่ สเปกตรัม เอง ยัง คง ต้อง มี ฝูง เต็ม ฝูง.*"
 
+# translated-by: libretranslate
 msgid "[ ] `make test` green tree-wide."
-msgstr ""
+msgstr "[ ] `make test` ต้นไม้สีเขียว."
 
+# translated-by: libretranslate
 msgid "[ ] `make test` is green tree-wide (role-meta, services-contract, and playwright-parity lints pass)."
-msgstr ""
+msgstr "[ ] `make test` เป็นต้นไม้สีเขียว (Page-Meta, บริการ- service, และ playwright-parity Liins ผ่าน)."
 
+# translated-by: libretranslate
 msgid "[ ] `make test` passes with all new roles, schema entries, and lint additions in place."
-msgstr ""
+msgstr "[ ] `make test` ผ่านบทบาทใหม่ทั้งหมด รายการ Chema และ lit เสริมเข้าที่."
 
+# translated-by: libretranslate
 msgid "[ ] `make test` passes with the new role in place. _(Penpot-relevant lint + integration suites verified green on host; full in-container `make test` requires `make setup`/sudo not available in the sandbox.)_"
-msgstr ""
+msgstr "[ ] `make test` ผ่านบทบาทใหม่ไป (Pinpot- repleaselit+ integration sections. ตรวจสอบสีเขียวบนเครื่องโฮสต์; เติมเต็มด้วย `make test` ต้องการ `make setup`ไม่มีซูโดในกล่องทราย)"
 
+# translated-by: libretranslate
 msgid "[ ] `media.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to Jellyfin (`8096`); `GET /` returns the Jellyfin web UI; `JELLYFIN_PublishedServerUrl` is set to the canonical URL."
-msgstr ""
+msgstr "[ ] `media.{{ DOMAIN_PRIMARY }}` แก้ไขผ่าน `sys-svc-proxy` ถึง Jellyfin (`8096`). `GET /` กลับค่าเดิม Jellyfin เว็บยูไอ `JELLYFIN_PublishedServerUrl` กําหนดไปยังที่อยู่ URL ที่บอกรับแล้ว."
 
+# translated-by: libretranslate
 msgid "[ ] `meta/info.yml`, `server.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint."
-msgstr ""
+msgstr "[ ] `meta/info.yml`. `server.yml`. `main.yml`. `secrets.yml`. `users.yml`. `rbac.yml`. `variants.yml`. `volumes.yml` การดํารงอยู่และผ่านบทบาทของรีโป เมทต้า ไลท์."
 
+# translated-by: libretranslate
 msgid "[ ] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`)."
-msgstr ""
+msgstr "[ ] `meta/services.yml` เข็มหมุด `semaphoreui/semaphore` ยังที่มั่นอันแน่นหนา `2.x` ตัวแยกเสียง (ไม่ `:latest`)."
 
+# translated-by: libretranslate
 msgid "[ ] `meta/variants.yml` defines exactly three variants: V1 sso+ldap, V2 all-false, V3 ldap-only."
-msgstr ""
+msgstr "[ ] `meta/variants.yml` นิยามสามตัวแปรพอดี: V1 sso+ldap, V2 หลอกลวงทั้งหมด, V3 แค่น้ําเกลือ."
 
+# translated-by: libretranslate
 msgid "[ ] `meta/variants.yml` defines three variants (V1 all auth on, V2 all-false, V3 ldap-only); all deploy cleanly on a fresh box."
-msgstr ""
+msgstr "[ ] `meta/variants.yml` นิยามสามตัวแปร (วี1 ทั้งหมดเลย V2 หลอกลวงทั้งหมด, V3 ลาดยางเท่านั้น); ทั้งหมดใช้อย่างสะอาด บนกล่องใหม่."
 
+# translated-by: libretranslate
 msgid "[ ] `meta/variants.yml` defines three variants (V1 sso+ldap, V2 all-false, V3 ldap-only); all deploy cleanly on a fresh box."
-msgstr ""
+msgstr "[ ] `meta/variants.yml` นิยามสามตัวแปร (วี1 sso+ldap, V2 หลอกลวงทั้งหมด, V3 ลาดยางเท่านั้น); ทั้งหมดใช้อย่างสะอาด บนกล่องใหม่."
 
+# translated-by: libretranslate
 msgid "[ ] `monitoring.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` (and, when SSO is on, the oauth2-proxy gate) to the Checkmk site Apache; `GET /<site>/check_mk/` returns the Checkmk login/GUI."
-msgstr ""
+msgstr "[ ] `monitoring.{{ DOMAIN_PRIMARY }}` แก้ไขผ่าน `sys-svc-proxy` (และเมื่อ SSO อยู่, auth2- ประตูบ้าน) ถึง Checkmk เว็บไซต์ Apache; `GET /<site>/check_mk/` กลับค่าเดิม Checkmk ล็อกอิน/GUI."
 
+# translated-by: libretranslate
 msgid "[ ] `roles/svc-net-tor/` matches the layout; `application_id: svc-net-tor`; `run_once_svc_net_tor` guard; all meta lint green (mapping, galaxy canon, layout, bond, README)."
-msgstr ""
+msgstr "[ ] `roles/svc-net-tor/` ตรงกับแผนผัง `application_id: svc-net-tor`. `run_once_svc_net_tor` ยาม; ทุกเมต้าดินเขียว (การทําแผนที่, กาแล็คซี่, ผัง, พันธบัตร, การอ่าน)."
 
+# translated-by: libretranslate
 msgid "[ ] `roles/web-app-atmo/` exists with the standard meta surface and passes the repo's role-meta lint (per [008](README.md#archive)/[011](README.md#archive))."
-msgstr ""
+msgstr "[ ] `roles/web-app-atmo/` มีอยู่ในพื้นผิวของเมต้ามาตรฐานและผ่านบทบาทของรีโปะไลต์ (ต่อ [008](README.md#archive)/[011](README.md#archive))."
 
+# translated-by: libretranslate
 msgid "[ ] `roles/web-app-checkmk/` exists per the [Target Schema](#role-layout); image pinned to a concrete Checkmk 2.x patch (no `:latest`)."
-msgstr ""
+msgstr "[ ] `roles/web-app-checkmk/` มีอยู่ต่อ [ชุดตกแต่งเป้าหมาย](#role-layout)• ภาพ ที่ ติด กับ คอนกรีต Checkmk 2แผ่น .x (ไม่ `:latest`)."
 
+# translated-by: libretranslate
 msgid "[ ] `roles/web-app-jellyfin/` exists per the [Target Schema](#role-layout); image pinned to a concrete `10.x` patch (no `:latest`)."
-msgstr ""
+msgstr "[ ] `roles/web-app-jellyfin/` มีอยู่ต่อ [ชุดตกแต่งเป้าหมาย](#role-layout)• ภาพ ที่ ติด กับ คอนกรีต `10.x` แผ่น (ไม่ `:latest`)."
 
+# translated-by: libretranslate
 msgid "[ ] `roles/web-app-semaphore/README.md` documents image + bump policy, the chosen DB backend, OIDC + LDAP wiring, the variant matrix, the admin-bootstrap path, and the runner topology."
-msgstr ""
+msgstr "[ ] `roles/web-app-semaphore/README.md` นโยบายเอกสาร + การชน, แบ็คเอนต์จัดการแฟ้ม DB, OIDC + เครือข่าย LDAP, การเชื่อมต่อที่ไม่แน่นอน, เส้นทางของ admin-bots Boot Part, และ Superlogy."
 
+# translated-by: libretranslate
 msgid "[ ] `roles/web-app-semaphore/` exists with the layout in [Target Schema](#role-layout)."
-msgstr ""
+msgstr "[ ] `roles/web-app-semaphore/` มีอยู่พร้อมกับผังแป้นพิมพ์ใน [ชุดตกแต่งเป้าหมาย](#role-layout)."
 
+# translated-by: libretranslate
 msgid "[ ] `rsvp.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` and returns HTTP 200 on `GET /` with the atmo appview HTML."
-msgstr ""
+msgstr "[ ] `rsvp.{{ DOMAIN_PRIMARY }}` แก้ไขผ่าน `sys-svc-proxy` และผลตอบแทนของ HTTP 200 บน `GET /` ด้วยภาพ ATMo Appview HTML."
 
+# translated-by: libretranslate
 msgid "[ ] `semaphore.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to the Semaphore container and `GET /` returns HTTP 200 with the Semaphore SPA shell."
-msgstr ""
+msgstr "[ ] `semaphore.{{ DOMAIN_PRIMARY }}` แก้ไขผ่าน `sys-svc-proxy` ไปที่ตู้คอนเทนเนอร์ `GET /` จะได้ค่า HTTP 200 กับเซมาโฟเรส เอสพีเอ."
 
+# translated-by: libretranslate
 msgid "[ ] `svc-ai-agent-broker` deploys in compose and swarm mode and passes the repository lint suite."
-msgstr ""
+msgstr "[ ] `svc-ai-agent-broker` ปรับใช้ในรูปแบบการเขียนและกลุ่มและผ่านชุดที่บรรจุดิน."
 
+# translated-by: libretranslate
 msgid "[ ] `svc-ai-s1` builds, serves `/healthz`, and answers the gateway's choice question with an alias the router offered."
-msgstr ""
+msgstr "[ ] `svc-ai-s1` สร้าง, เสิร์ฟ `/healthz`, และตอบคําถามทางเลือกของประตู ด้วยชื่อปลอมที่โรเวอร์เสนอ."
 
+# translated-by: libretranslate
 msgid "[ ] `tasks/flavor/ansible/03_run_playbook.yml` invokes `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` from `{{ instance_dir }}mdad/` and exits cleanly on all three ansible-flavor variants (V1 / V2 / V3) in a fresh-host matrix deploy."
-msgstr ""
+msgstr "[ ] `tasks/flavor/ansible/03_run_playbook.yml` การร้องขอ `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` จาก `{{ instance_dir }}mdad/` และออกมาอย่างขาวสะอาดในทั้งสามสิ่ง (วี1 ฟิล์ม / V2 ฟิล์ม / V3) ในเครื่องใหม่ที่ใช้."
 
+# translated-by: libretranslate
 msgid "[ ] `templates/playwright.env.j2` exposes every env var the specs read; service flags carry `# nocheck` rationale where applicable."
-msgstr ""
+msgstr "[ ] `templates/playwright.env.j2` เปิดเผย envs ทุก สเปกอ่าน; ธงบริการดําเนินการ `# nocheck` ตรรกะที่นําไปใช้."
 
+# translated-by: libretranslate
 msgid "[ ] `tests/external/update/addons/` contains a warn-only external test that checks every addon with `update.monitored=true` for newer upstream versions."
-msgstr ""
+msgstr "[ ] `tests/external/update/addons/` มีการทดสอบภายนอกเท่านั้นเตือน ที่ตรวจสอบทุก Adron ด้วย `update.monitored=true` สําหรับรุ่นใหม่ ๆ อัพสตรีม."
 
+# translated-by: libretranslate
 msgid "[ ] `tls.py` unit tests: onion→forced off; foreign→app-level flavor; unset→`TLS_MODE`."
-msgstr ""
+msgstr "[ ] `tls.py` การทดสอบหน่วย: หัวหอม บังคับให้ปิด; รสต่างประเทศ chapp-ระดับ; Unsethapp`TLS_MODE`."
 
+# translated-by: libretranslate
 msgid "[ ] oauth2-proxy `email_domains` matches provisioned `@<NODE_ONION>.onion` users; `LDAP_DN_BASE` + CA identity resolve consistently."
-msgstr ""
+msgstr "[ ] โออาท2-พ็อกซี่ `email_domains` จับคู่ให้พอดี `@<NODE_ONION>.onion` ผู้ใช้ `LDAP_DN_BASE` + ตัวตนของ CA ได้แก้ไขอย่างสม่ําเสมอ."
 
+# translated-by: libretranslate
 msgid "[ ] web-app-docs builds the deployed working tree as the unlisted version `deployed`, because the git mirror only holds what is pushed to `main`."
-msgstr ""
+msgstr "[ ] web-app-docs สร้างต้นไม้ที่ใช้งานเป็นรุ่นที่ไม่ได้มีชื่อ `deployed`, เพราะว่ากระจกบานนี้ มีเฉพาะสิ่งที่ถูกผลักดัน `main`."
 
+# translated-by: libretranslate
 msgid "[ ] ☑️ cells (infinito-native service flags already declared in `meta/services.yml`) are NOT re-declared as `meta/addons/` addons; they remain service integrations, and only ✅/🪙 cells become new addons."
-msgstr ""
+msgstr "[ ] ☑️ เซลล์ (แฟล็กบริการอินฟินิโทโลที ได้ประกาศแล้ว `meta/services.yml`) ไม่ได้ประกาศเป็น `meta/addons/` อิเล็กตรอน; พวกมันยังคงทําการรวมบริการอยู่, และเท่านั้น ✅/🪙 เซลล์กลายเป็นสารบวกใหม่."
 
+# translated-by: libretranslate
 msgid "[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-blue?logo=github)](https://github.com/sponsors/kevinveenbirkenbach) [![View Source](https://img.shields.io/badge/View_Source-Repository-000000?logo=github&labelColor=004B8D&style=flat&borderRadius=8)](https://s.infinito.nexus/code)"
-msgstr ""
+msgstr "[ไม่![สปอนเซอร์ของกิตฮับ](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-blue?logo=github)](https://github.com/sponsors/kevinveenbirkenbach) [ไม่![แสดงต้นฉบับ](https://img.shields.io/badge/View_Source-Repository-000000?logo=github&labelColor=004B8D&style=flat&borderRadius=8)](https://s.infinito.nexus/code)"
 
+# translated-by: libretranslate
 msgid "[![Patreon](https://img.shields.io/badge/Support-Patreon-orange?logo=patreon)](https://www.patreon.com/kevinveenbirkenbach) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20Coffee-Funding-yellow?logo=buymeacoffee)](https://buymeacoffee.com/kevinveenbirkenbach) [![PayPal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://s.veen.world/paypaldonate) [![Sponsor Infinito.Nexus](https://img.shields.io/badge/Donate–Infinito.Nexus-000000?style=flat&labelColor=004B8D&logo=github-sponsors&logoColor=white&borderRadius=8)](https://github.com/sponsors/kevinveenbirkenbach)"
-msgstr ""
+msgstr "[ไม่![พาเทรออน](https://img.shields.io/badge/Support-Patreon-orange?logo=patreon)](https://www.patreon.com/kevinveenbirkenbach) [ไม่![ซื้อกาแฟให้ฉัน](https://img.shields.io/badge/Buy%20me%20a%20Coffee-Funding-yellow?logo=buymeacoffee)](https://buymeacoffee.com/kevinveenbirkenbach) [ไม่![Perpal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://s.veen.world/paypaldonate) [ไม่![ผู้สนับสนุน Infinito.Nexus](https://img.shields.io/badge/Donate–Infinito.Nexus-000000?style=flat&labelColor=004B8D&logo=github-sponsors&logoColor=white&borderRadius=8)](https://github.com/sponsors/kevinveenbirkenbach)"
 
+# translated-by: libretranslate
 msgid "[**Arch Linux**](https://archlinux.org)"
-msgstr ""
+msgstr "[**Linux**](https://archlinux.org)"
 
+# translated-by: libretranslate
 msgid "[**CentOS**](https://www.centos.org)"
-msgstr ""
+msgstr "[**เซนติเมตร**](https://www.centos.org)"
 
+# translated-by: libretranslate
 msgid "[**Debian**](https://www.debian.org)"
-msgstr ""
+msgstr "[**เดเบียน**](https://www.debian.org)"
 
+# translated-by: libretranslate
 msgid "[**Fedora**](https://fedoraproject.org)"
-msgstr ""
+msgstr "[**เฟโดรา**](https://fedoraproject.org)"
 
+# translated-by: libretranslate
 msgid "[**Homebrew**](https://brew.sh) (macOS)"
-msgstr ""
+msgstr "[**บ้าน**](https://brew.sh) (มากอส)"
 
+# translated-by: libretranslate
 msgid "[**Ubuntu**](https://ubuntu.com)"
-msgstr ""
+msgstr "[**ยูกันดา**](https://ubuntu.com)"
 
+# translated-by: libretranslate
 msgid "[**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/) (Windows Subsystem for Linux)"
-msgstr ""
+msgstr "[**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/) (ระบบย่อยของวินโดวส์สําหรับลินุกซ์)"
 
+# translated-by: libretranslate
 msgid "[--architectures \"arm64\"] [--whitelist \"...\"] [--priority \"...\"] [--modes auto] [--lifecycles \"...\"] [--sweep N] [--cli]"
-msgstr ""
+msgstr "[-- ลําดับชั้น \"arm64\"] [-- สีขาว \"...\"] [-- อภิสิทธิ์ \"...\"] [-- โหมดอัตโนมัติ] [วงจรชีวิต \"...\"] [-- sweep N] [-- Cli]"
 
+# translated-by: libretranslate
 msgid "[--branch B] [--minimum N]"
-msgstr ""
+msgstr "[-- Barnch B] [-- ไมนัม เอ็น]"
 
+# translated-by: libretranslate
 msgid "[--format json]"
-msgstr ""
+msgstr "[--format json]"
 
+# translated-by: libretranslate
 msgid "[--modes auto] [--tor auto] [--distros \"...\"] [--filesystem \"...\"] [--architectures \"...\"] [--lifecycles \"...\"]"
-msgstr ""
+msgstr "[-- โหมดอัตโนมัติ] [-- อัตโนมัติ] [-- ดิสโตรส \"...\"] [-- ระบบแฟ้ม \"...\"] [-- ลําดับชั้น \"...\"] [วงจรชีวิต \"...\"]"
 
+# translated-by: libretranslate
 msgid "[--whitelist \"...\"] [--priority \"...\"] [--lifecycles \"...\"] [--tor auto] [--distros \"...\"] [--filesystem \"...\"] [--architectures \"...\"]"
-msgstr ""
+msgstr "[-- สีขาว \"...\"] [-- อภิสิทธิ์ \"...\"] [วงจรชีวิต \"...\"] [-- อัตโนมัติ] [-- ดิสโตรส \"...\"] [-- ระบบแฟ้ม \"...\"] [-- ลําดับชั้น \"...\"]"
 
+# translated-by: libretranslate
 msgid "[/sys/health](https://openbao.org/api-docs/system/health/), [`api/sys_health.go`](https://github.com/openbao/openbao/blob/main/api/sys_health.go)"
-msgstr ""
+msgstr "[/sys/thelp](https://openbao.org/api-docs/system/health/). [`api/sys_health.go`](https://github.com/openbao/openbao/blob/main/api/sys_health.go)"
 
+# translated-by: libretranslate
 msgid "[/sys/metrics](https://openbao.org/api-docs/system/metrics/)"
-msgstr ""
+msgstr "[/ คลื่น/ มิติ](https://openbao.org/api-docs/system/metrics/)"
 
+# translated-by: libretranslate
 msgid "[000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)"
-msgstr ""
+msgstr "[000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)"
 
+# translated-by: libretranslate
 msgid "[000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)"
-msgstr ""
+msgstr "[000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)"
 
+# translated-by: libretranslate
 msgid "[000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)"
-msgstr ""
+msgstr "[000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)"
 
+# translated-by: libretranslate
 msgid "[000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)"
-msgstr ""
+msgstr "[000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)"
 
+# translated-by: libretranslate
 msgid "[000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)"
-msgstr ""
+msgstr "[000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)"
 
+# translated-by: libretranslate
 msgid "[000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)"
-msgstr ""
+msgstr "[000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)"
 
+# translated-by: libretranslate
 msgid "[000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)"
-msgstr ""
+msgstr "[000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)"
 
+# translated-by: libretranslate
 msgid "[000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)"
-msgstr ""
+msgstr "[000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)"
 
+# translated-by: libretranslate
 msgid "[000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)"
-msgstr ""
+msgstr "[000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)"
 
+# translated-by: libretranslate
 msgid "[000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)"
-msgstr ""
+msgstr "[000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)"
 
+# translated-by: libretranslate
 msgid "[000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)"
-msgstr ""
+msgstr "[000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)"
 
+# translated-by: libretranslate
 msgid "[000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)"
-msgstr ""
+msgstr "[000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)"
 
+# translated-by: libretranslate
 msgid "[000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)"
-msgstr ""
+msgstr "[000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)"
 
+# translated-by: libretranslate
 msgid "[000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)"
-msgstr ""
+msgstr "[000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)"
 
+# translated-by: libretranslate
 msgid "[000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)"
-msgstr ""
+msgstr "[000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)"
 
+# translated-by: libretranslate
 msgid "[000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)"
-msgstr ""
+msgstr "[000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)"
 
+# translated-by: libretranslate
 msgid "[000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)"
-msgstr ""
+msgstr "[000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)"
 
+# translated-by: libretranslate
 msgid "[000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)"
-msgstr ""
+msgstr "[000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)"
 
+# translated-by: libretranslate
 msgid "[000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)"
-msgstr ""
+msgstr "[000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)"
 
+# translated-by: libretranslate
 msgid "[000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)"
-msgstr ""
+msgstr "[000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)"
 
+# translated-by: libretranslate
 msgid "[000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)"
-msgstr ""
+msgstr "[000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)"
 
+# translated-by: libretranslate
 msgid "[0001](0001-ci-deploy-matrix-axes.md) for the distro and filesystem axes this extends."
-msgstr ""
+msgstr "[0001](0001-ci-deploy-matrix-axes.md) สําหรับแกนการแยกและระบบไฟล์นี้ขยายออกไป."
 
+# translated-by: libretranslate
 msgid "[0001](0001-ci-deploy-matrix-axes.md) made the distribution and the filesystem axes of the matrix row, because a run that fixes one value for all of its rows proves one combination and claims nothing about the others while reporting green."
-msgstr ""
+msgstr "[0001](0001-ci-deploy-matrix-axes.md) ทําการกระจายและแกนระบบไฟล์ของแถวเมทริกซ์ เพราะการทํางานที่แก้ไขค่าหนึ่งสําหรับทุกแถว พิสูจน์หนึ่งการจัดหมู่และไม่มีอะไรเกี่ยวกับอื่น ๆ ในขณะที่รายงานสีเขียว."
 
+# translated-by: libretranslate
 msgid "[001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)"
-msgstr ""
+msgstr "[001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)"
 
+# translated-by: libretranslate
 msgid "[002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)"
-msgstr ""
+msgstr "[002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)"
-msgstr ""
+msgstr "[002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)"
-msgstr ""
+msgstr "[002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)"
-msgstr ""
+msgstr "[002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)"
-msgstr ""
+msgstr "[002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)"
-msgstr ""
+msgstr "[002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)"
-msgstr ""
+msgstr "[002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)"
-msgstr ""
+msgstr "[002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)"
-msgstr ""
+msgstr "[002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)"
-msgstr ""
+msgstr "[002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)"
 
+# translated-by: libretranslate
 msgid "[002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)"
-msgstr ""
+msgstr "[002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)"
 
+# translated-by: libretranslate
 msgid "[003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)"
-msgstr ""
+msgstr "[003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)"
 
+# translated-by: libretranslate
 msgid "[004 - Generic RBAC role auto-provisioning](README.md#archive)"
-msgstr ""
+msgstr "[004 ต้นแบบ RBAC](README.md#archive)"
 
+# translated-by: libretranslate
 msgid "[004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)"
-msgstr ""
+msgstr "[004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)"
 
+# translated-by: libretranslate
 msgid "[004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)"
-msgstr ""
+msgstr "[004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)"
 
+# translated-by: libretranslate
 msgid "[004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)"
-msgstr ""
+msgstr "[004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)"
 
+# translated-by: libretranslate
 msgid "[004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)"
-msgstr ""
+msgstr "[004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)"
 
+# translated-by: libretranslate
 msgid "[004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)"
-msgstr ""
+msgstr "[004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)"
 
+# translated-by: libretranslate
 msgid "[005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)"
-msgstr ""
+msgstr "[005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)"
 
+# translated-by: libretranslate
 msgid "[005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)"
-msgstr ""
+msgstr "[005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)"
 
+# translated-by: libretranslate
 msgid "[005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)"
-msgstr ""
+msgstr "[005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)"
 
+# translated-by: libretranslate
 msgid "[006 - Service-gated Playwright tests](README.md#archive)"
-msgstr ""
+msgstr "[006 - การทดสอบเพลย์ไรท์](README.md#archive)"
 
+# translated-by: libretranslate
 msgid "[006 - Service-gated Playwright tests](README.md#archive) established the `skipUnlessServiceEnabled(<service>)` contract: scenarios gate on `<SERVICE>_SERVICE_ENABLED` flags so a deploy with `disable=<service>` reports `skipped` instead of `failed`. [004 - Generic RBAC auto-provisioning](README.md#archive) plus [017 - Biber RBAC coverage](017-playwright-biber-rbac-coverage.md) extend that contract to RBAC-aware non-admin scenarios."
-msgstr ""
+msgstr "[006 - การทดสอบเพลย์ไรท์](README.md#archive) จัดตั้ง `skipUnlessServiceEnabled(<service>)` สัญญา: ประตูสถานการณ์เปิด `<SERVICE>_SERVICE_ENABLED` ธงที่ใช้เพื่อใช้กับ `disable=<service>` รายงาน `skipped` แทน `failed`. [004 ประมวลผล RBAC ทั่วไป](README.md#archive) บวก [017 - ข่าวบีเบอร์ อาร์บีเอซี](017-playwright-biber-rbac-coverage.md) ขยายสัญญานั้นไปที่ อาร์บีเอซี ที่ไม่รู้สถานการณ์."
 
+# translated-by: libretranslate
 msgid "[006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)"
-msgstr ""
+msgstr "[006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)"
 
+# translated-by: libretranslate
 msgid "[007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)"
-msgstr ""
+msgstr "[007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)"
 
+# translated-by: libretranslate
 msgid "[008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)"
-msgstr ""
+msgstr "[008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)"
 
+# translated-by: libretranslate
 msgid "[008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)"
-msgstr ""
+msgstr "[008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)"
 
+# translated-by: libretranslate
 msgid "[008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)"
-msgstr ""
+msgstr "[008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)"
 
+# translated-by: libretranslate
 msgid "[008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)"
-msgstr ""
+msgstr "[008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)"
 
+# translated-by: libretranslate
 msgid "[008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)"
-msgstr ""
+msgstr "[008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)"
 
+# translated-by: libretranslate
 msgid "[014 - Dedicated CI Runner via `svc-runner` Role](014-svc-runner-ci.md) — reference for the autonomous-run procedure pattern used here"
-msgstr ""
+msgstr "[014 CI Runner ที่สละสิทธิ์ `svc-runner` บทบาท](014-svc-runner-ci.md) — อ้างอิงกระบวนการอัตโนมัติที่ใช้ที่นี่"
 
+# translated-by: libretranslate
 msgid "[017 - Playwright biber RBAC coverage](017-playwright-biber-rbac-coverage.md)"
-msgstr ""
+msgstr "[017 - การรายงานข่าวของเพลย์ไรท์ บีเบอร์ อาร์บีเอซี](017-playwright-biber-rbac-coverage.md)"
 
+# translated-by: libretranslate
 msgid "[018 - Playwright LDAP authentication coverage](018-playwright-ldap-coverage.md)"
-msgstr ""
+msgstr "[018 - รายงานการตรวจสอบสิทธิ์ของเพลย์ไรท์ LDAP](018-playwright-ldap-coverage.md)"
 
+# translated-by: libretranslate
 msgid "[01_constructor.yml](../../../../../tasks/stages/01_constructor.yml)"
-msgstr ""
+msgstr "[01ไ ม่สร้าง.yl](../../../../../tasks/stages/01_constructor.yml)"
 
+# translated-by: libretranslate
 msgid "[01_install.yml](./01_install.yml)"
-msgstr ""
+msgstr "[01ติดตั้ง.yl](./01_install.yml)"
 
+# translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
-msgstr ""
+msgstr "[021](README.md#archive) ถูกรวมเข้าด้วยกัน บทบาทใหม่ต้องกําหนดที่ดินที่รวม Schema โดยตรงไม่ได้บนมรดก2รูปทรงของบริการ / ดรอยด์."
 
+# translated-by: libretranslate
 msgid "[025 - MCP Role Integration](025-mcp-role-integration.md)"
-msgstr ""
+msgstr "[025 - การขยายบทบาท MCP](025-mcp-role-integration.md)"
 
+# translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr ""
+msgstr "[02สามารถ.yml](./02_enable.yml)"
 
+# translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
-msgstr ""
+msgstr "[031 - โปรแกรมเบื้องหลังแบบ LLM เกตเวย์](031-llm-gateway-model-backends.md)"
 
+# translated-by: libretranslate
 msgid "[031](031-llm-gateway-model-backends.md) made [`svc-ai-litellm`](../../roles/svc-ai-litellm/) the single place model backends are wired, and consumers now carry a gateway URL plus a model alias. That moved the wiring, not the choice: every consumer still names one alias, and `LITELLM_CHAT_MODEL` in [16_ai.yml](../../group_vars/all/16_ai.yml) resolves it once per deploy for everyone."
-msgstr ""
+msgstr "[031](031-llm-gateway-model-backends.md) สร้าง [`svc-ai-litellm`](../../roles/svc-ai-litellm/) แบ็คเอนต์เอกสารต้นแบบแบบเดียวถูกเชื่อมต่อ และผู้บริโภคตอนนี้พกพาที่อยู่ URL เกตเวย์ รวมทั้งชื่อต้นแบบด้วย ที่ย้ายสายไฟไม่ได้เลือก: ผู้บริโภคทุกคนยังคงตั้งชื่อหนึ่งนามแฝงและ `LITELLM_CHAT_MODEL` ใน [16ai.yml](../../group_vars/all/16_ai.yml) แก้ปัญหาได้หนึ่งครั้งต่อทุกคน."
 
+# translated-by: libretranslate
 msgid "[03_configure.yml](./03_configure.yml)"
-msgstr ""
+msgstr "[03เ พิ่ม.yl](./03_configure.yml)"
 
+# translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr ""
+msgstr "[11สี](../../../../group_vars/all/11_oidc.yml)"
 
+# translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr ""
+msgstr "[12เ ล่น.yl](../../../../group_vars/all/12_ldap.yml)"
 
+# translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
-msgstr ""
+msgstr "[ประเภทความท้าทาย ACME (วิกิพีเดียName)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
 
+# translated-by: libretranslate
 msgid "[ACME Protocol (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
-msgstr ""
+msgstr "[โพรโทคอล ACME (วิกิพีเดียName)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
 
+# translated-by: libretranslate
 msgid "[ADR 0003](../architecture/decisions/0003-mcp-surface-per-provider.md), Context and Decision"
-msgstr ""
+msgstr "[ADR 0003](../architecture/decisions/0003-mcp-surface-per-provider.md), บริบทและการตัดสินใจ"
 
+# translated-by: libretranslate
 msgid "[AGENTS.md](../../../../../AGENTS.md) forbids `for` / `while` / `until` loops in Bash invocations, and `Bash(for *)` / `Bash(while *)` / `Bash(until *)` are in `deny` to enforce the rule. Every task has a flat-form equivalent: a single `grep` with multiple file arguments, `xargs`, a recursive glob, or a dedicated tool."
-msgstr ""
+msgstr "[AGENTS.md](../../../../../AGENTS.md) ห้ามใช้ `for` / `while` / `until` วังวนในบาช ในพิธีกร และ `Bash(for *)` / `Bash(while *)` / `Bash(until *)` อยู่ใน `deny` เพื่อบังคับใช้กฎ ทุกงานมีรูปแบนแบบเดียว `grep` ด้วยอาร์กิวเมนต์หลายแฟ้ม `xargs`, หรือเครื่องมือที่อุทิศตน."
 
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: [API](roles/web-svc-api/). [Corporate
+# Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/).
+# [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/).
+# [Tor Onion Service](roles/svc-net-tor/)
 msgid "[API](roles/web-svc-api/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[AT Protocol Documentation](https://atproto.com/)"
-msgstr ""
+msgstr "[โพรโทคอล Documentation](https://atproto.com/)"
 
+# translated-by: libretranslate
 msgid "[AUR package page for Teams](https://aur.archlinux.org/packages?K=teams)"
-msgstr ""
+msgstr "[หน้าแพกเกจ AUR สําหรับทีม](https://aur.archlinux.org/packages?K=teams)"
 
+# translated-by: libretranslate
 msgid "[AUR package page for Zoom](https://aur.archlinux.org/packages/zoom)"
-msgstr ""
+msgstr "[หน้าแพกเกจ AUR สําหรับ Zoom](https://aur.archlinux.org/packages/zoom)"
 
+# translated-by: libretranslate
 msgid "[ActivityPub (W3C Recommendation)](https://www.w3.org/TR/activitypub/)"
-msgstr ""
+msgstr "[กิจกรรมPub (W3แนะนํา)](https://www.w3.org/TR/activitypub/)"
 
+# translated-by: libretranslate
 msgid "[ActivityPub (Wikipedia)](https://en.wikipedia.org/wiki/ActivityPub)"
-msgstr ""
+msgstr "[กิจกรรมPub (วิกิพีเดียName)](https://en.wikipedia.org/wiki/ActivityPub)"
 
+# translated-by: libretranslate
 msgid "[ActivityPub Specification (W3C)](https://www.w3.org/TR/activitypub/)"
-msgstr ""
+msgstr "[การจัดหมวดหมู่กิจกรรม (W3C)](https://www.w3.org/TR/activitypub/)"
 
+# translated-by: libretranslate
 msgid "[Add custom CSS injection support](https://open.project.infinito.nexus/wp/563)"
-msgstr ""
+msgstr "[การรองรับการกดปุ่มพิมพ์ CSS กําหนดเอง](https://open.project.infinito.nexus/wp/563)"
 
+# translated-by: libretranslate
 msgid "[Add support for Odoo Enterprise features (if licensed)](https://open.project.infinito.nexus/wp/561)"
-msgstr ""
+msgstr "[เพิ่มการสนับสนุนสําหรับคุณสมบัติ ODO Enterprise (หากมีใบอนุญาต)](https://open.project.infinito.nexus/wp/561)"
 
+# translated-by: libretranslate
 msgid "[Additional GitHub Issues and Discussions](https://github.com/snipe/snipe-it/issues)"
-msgstr ""
+msgstr "[ปัญหา และ การ สนทนา เพิ่ม เติม](https://github.com/snipe/snipe-it/issues)"
 
+# translated-by: libretranslate
 msgid "[Administration RBAC](../../../administration/configuration/rbac.md)"
-msgstr ""
+msgstr "[ผู้ดูแลระบบ](../../../administration/configuration/rbac.md)"
 
+# translated-by: libretranslate
 msgid "[Administrator Security Guide](docs/security/administrator.md)"
-msgstr ""
+msgstr "[คู่มือความปลอดภัยของผู้บริหาร](docs/security/administrator.md)"
 
+# translated-by: libretranslate
 msgid "[Adobe Commerce DevDocs](https://developer.adobe.com/commerce/)"
-msgstr ""
+msgstr "[อะ โดเบ](https://developer.adobe.com/commerce/)"
 
+# translated-by: libretranslate
 msgid "[Agent Broker](roles/svc-ai-agent-broker/)"
-msgstr ""
+msgstr "[เจ้าหน้าที่โบรกเกอร์](roles/svc-ai-agent-broker/)"
 
+# translated-by: libretranslate
 msgid "[Agent Broker](roles/svc-ai-agent-broker/), [Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Qdrant](roles/svc-db-qdrant/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[เจ้าหน้าที่โบรกเกอร์](roles/svc-ai-agent-broker/). [Backup Docker Volumes](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Qdrant](roles/svc-db-qdrant/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Agent `playwright.env.j2` procedure](../../files/role/playwright.env.j2.md): rendered test input contract; required whenever the spec reads a new variable."
-msgstr ""
+msgstr "[เจ้าหน้าที่ `playwright.env.j2` กระบวนการ](../../files/role/playwright.env.j2.md): ตั้งค่าสัญญาป้อนข้อมูลแบบทดสอบ ซึ่งจําเป็นเมื่อใดก็ตามก็ตามที่มีการอ่านตัวแปรใหม่."
 
+# translated-by: libretranslate
 msgid "[Agent `playwright.spec.js` procedure](../../files/role/playwright.spec.js.md): how to generate or update the spec."
-msgstr ""
+msgstr "[เจ้าหน้าที่ `playwright.spec.js` กระบวนการ](../../files/role/playwright.spec.js.md): วิธีการที่จะสร้างหรือปรับปรุงสเปก."
 
+# translated-by: libretranslate
 msgid "[Agent `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md): authoring procedure and live review."
-msgstr ""
+msgstr "[เจ้าหน้าที่ `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md): การเขียนขั้นตอนและทบทวนสด."
 
+# translated-by: libretranslate
 msgid "[Agents](PULL_REQUEST_TEMPLATE/agents.md) - agent instruction files"
-msgstr ""
+msgstr "[เจ้าหน้าที่](PULL_REQUEST_TEMPLATE/agents.md) - แฟ้มคําสั่งตัวแทน"
 
+# translated-by: libretranslate
 msgid "[Agile Manifesto](https://agilemanifesto.org/)"
-msgstr ""
+msgstr "[Agile cragio](https://agilemanifesto.org/)"
 
+# translated-by: libretranslate
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners"
-msgstr ""
+msgstr "[อะ เลฮัน โดร](https://github.com/AlejandroRomanIbanez): นักวิ่งของ CI"
 
+# translated-by: libretranslate
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for hand-built Playwright contexts"
-msgstr ""
+msgstr "[อะ เลฮัน โดร](https://github.com/AlejandroRomanIbanez): สืบค้นเมื่อ:"
 
+# translated-by: libretranslate
 msgid "[Alejandro Roman](https://github.com/AlejandroRomanIbanez)"
-msgstr ""
+msgstr "[ศ.](https://github.com/AlejandroRomanIbanez)"
 
+# translated-by: libretranslate
 msgid "[Amazon S3 API](https://aws.amazon.com/s3/)"
-msgstr ""
+msgstr "[แอ มะ ซอน3 API](https://aws.amazon.com/s3/)"
 
+# translated-by: libretranslate
 msgid "[Ansible Collection: community.general.cloudflare_dns](https://docs.ansible.com/ansible/latest/collections/community/general/cloudflare_dns_module.html)"
-msgstr ""
+msgstr "[ชุดสะสมแบบรวมได้: community.general.cloudflare_dns](https://docs.ansible.com/ansible/latest/collections/community/general/cloudflare_dns_module.html)"
 
+# translated-by: libretranslate
 msgid "[Ansible Docker Compose Role on Galaxy](https://galaxy.ansible.com/)"
-msgstr ""
+msgstr "[ความสามารถในการอ่าน Docker Compose บทบาท ของ กาแล็กซี](https://galaxy.ansible.com/)"
 
+# translated-by: libretranslate
 msgid "[Ansible Filter Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/filter.html)"
-msgstr ""
+msgstr "[ส่วนเสริมการกรองแบบรวม Documentation](https://docs.ansible.com/ansible/latest/plugins/filter.html)"
 
+# translated-by: libretranslate
 msgid "[Ansible Lookup Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)"
-msgstr ""
+msgstr "[ส่วนเสริมสําหรับค้นหา Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)"
 
+# translated-by: libretranslate
 msgid "[Ansible Playbooks Lookups](https://docs.ansible.com/ansible/latest/user_guide/playbooks_lookups.html#id3)"
-msgstr ""
+msgstr "[แบบอักษรที่ใช้เล่น](https://docs.ansible.com/ansible/latest/user_guide/playbooks_lookups.html#id3)"
 
+# translated-by: libretranslate
 msgid "[Ansible Role Directory Structure](https://docs.ansible.com/ansible/latest/user_guide/playbooks_roles.html#role-directory-structure)"
-msgstr ""
+msgstr "[โครงสร้างไดเรกทอรีแบบ help สามารถใช้ได้](https://docs.ansible.com/ansible/latest/user_guide/playbooks_roles.html#role-directory-structure)"
 
+# translated-by: libretranslate
 msgid "[Ansible Template Module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html)"
-msgstr ""
+msgstr "[มอดูลแม่แบบที่สามารถใช้งานได้](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html)"
 
+# translated-by: libretranslate
 msgid "[Ansible community.general.pacman module](https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html)"
-msgstr ""
+msgstr "[ความสามารถในการอ่าน community.general.pacman มอดูล](https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html)"
 
+# translated-by: libretranslate
 msgid "[Ansible handler best practices](https://docs.ansible.com/ansible/latest/user_guide/playbooks_handlers.html)"
-msgstr ""
+msgstr "[การฝึกที่ดีที่สุดสําหรับผู้ดูแล](https://docs.ansible.com/ansible/latest/user_guide/playbooks_handlers.html)"
 
+# translated-by: libretranslate
 msgid "[Ansible uri_module](https://docs.ansible.com/ansible/latest/modules/uri_module.html)"
-msgstr ""
+msgstr "[ความสามารถในการอ่าน uri_module](https://docs.ansible.com/ansible/latest/modules/uri_module.html)"
 
+# translated-by: libretranslate
 msgid "[Apache Tika](https://tika.apache.org/) turns an uploaded file into plain text and metadata. It reads PDF, the Office formats, mail, archives and images."
-msgstr ""
+msgstr "[อาปาเช Tika](https://tika.apache.org/) เปลี่ยนการอัปโหลดเป็นข้อความธรรมดาและข้อมูลกํากับภาพ มันอ่าน PDF รูปแบบสํานักงาน, จดหมาย, Archive และรูปภาพ."
 
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: [Arch Linux Wiki: Blu-ray
+# play](https://wiki.archlinux.org/title/Blu-ray#Using_aacskeys)
 msgid "[Arch Linux Wiki: Blu-ray Playback](https://wiki.archlinux.org/title/Blu-ray#Using_aacskeys)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Arch Linux mhwd Package](https://archlinux.org/packages/?q=manjaro)"
-msgstr ""
+msgstr "[แพ็กเกจแบบ Arch Linux](https://archlinux.org/packages/?q=manjaro)"
 
+# translated-by: libretranslate
 msgid "[Arch Linux: base-devel package](https://archlinux.org/packages/core/any/base-devel/)"
-msgstr ""
+msgstr "[Arch Linux: แพกเกจพื้นฐานName](https://archlinux.org/packages/core/any/base-devel/)"
 
+# translated-by: libretranslate
 msgid "[Arch Linux](https://archlinux.org) support MAY use the latest available package versions where no stable equivalent exists."
-msgstr ""
+msgstr "[Linux](https://archlinux.org) รองรับ May ใช้แพกเกจที่มีรุ่นล่าสุด ที่ไม่มีเสถียรภาพเทียบเท่ากัน."
 
+# translated-by: libretranslate
 msgid "[Arch Wiki: Clipboard](https://wiki.archlinux.org/title/Clipboard)"
-msgstr ""
+msgstr "[Arch Wiki: คลิปบอร์ด](https://wiki.archlinux.org/title/Clipboard)"
 
+# translated-by: libretranslate
 msgid "[ArchWiki: WireGuard](https://wiki.archlinux.org/index.php/WireGuard)"
-msgstr ""
+msgstr "[ArchWiki: การป้องกันระบบไร้สายName](https://wiki.archlinux.org/index.php/WireGuard)"
 
+# translated-by: libretranslate
 msgid "[Asset Mirror (Privacy Proxy)](roles/web-svc-mirror/)"
-msgstr ""
+msgstr "[กระจกชุดสําเร็จรูป (พร็อกซี)](roles/web-svc-mirror/)"
 
+# translated-by: libretranslate
 msgid "[Assets Server](roles/web-svc-asset/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์ข้อมูลกํากับ](roles/web-svc-asset/)"
 
+# translated-by: libretranslate
 msgid "[Assets Server](roles/web-svc-asset/), [Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์ข้อมูลกํากับ](roles/web-svc-asset/). [Backup Docker Volumes](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Assets Server](roles/web-svc-asset/), [Content Delivery Network](roles/web-svc-cdn/), [Corporate Design](roles/web-svc-css/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Simple Icons](roles/web-svc-simpleicons/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์ข้อมูลกํากับ](roles/web-svc-asset/). [Content Delivery Network](roles/web-svc-cdn/). [Corporate Design](roles/web-svc-css/). [Keycloak](roles/web-app-keycloak/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Simple Icons](roles/web-svc-simpleicons/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Assets Server](roles/web-svc-asset/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์ข้อมูลกํากับ](roles/web-svc-asset/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Author: Kevin Veen-Birkenbach](https://veen.world)"
-msgstr ""
+msgstr "[ผู้เขียน: Kevin Ven-Birkenbach](https://veen.world)"
 
+# translated-by: libretranslate
 msgid "[Awesome Sphinx Theme](https://sphinxawesome.xyz/)"
-msgstr ""
+msgstr "[Sphinx ยอดนิยม ชุดตกแต่ง](https://sphinxawesome.xyz/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [BigBlueButton](roles/web-app-bigbluebutton/), [Collabora](roles/web-svc-collabora/), [Corporate Design](roles/web-svc-css/), [Coturn](roles/web-svc-coturn/), [Dashboard](roles/web-app-dashboard/), [Discourse](roles/web-app-discourse/), [GitLab](roles/web-app-gitlab/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Mastodon](roles/web-app-mastodon/), [Matomo](roles/web-app-matomo/), [Matrix](roles/web-app-matrix/), [Mattermost](roles/web-app-mattermost/), [OnlyOffice](roles/web-svc-onlyoffice/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [OpenLDAP](roles/svc-db-openldap/), [OpenProject](roles/web-app-openproject/), [PeerTube](roles/web-app-peertube/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/), [XWiki](roles/web-app-xwiki/), [Zammad](roles/web-app-zammad/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [BigBlueButton](roles/web-app-bigbluebutton/). [Collabora](roles/web-svc-collabora/). [Corporate Design](roles/web-svc-css/). [Coturn](roles/web-svc-coturn/). [Dashboard](roles/web-app-dashboard/). [Discourse](roles/web-app-discourse/). [GitLab](roles/web-app-gitlab/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Mastodon](roles/web-app-mastodon/). [Matomo](roles/web-app-matomo/). [Matrix](roles/web-app-matrix/). [Mattermost](roles/web-app-mattermost/). [OnlyOffice](roles/web-svc-onlyoffice/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [OpenLDAP](roles/svc-db-openldap/). [OpenProject](roles/web-app-openproject/). [PeerTube](roles/web-app-peertube/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/). [XWiki](roles/web-app-xwiki/). [Zammad](roles/web-app-zammad/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Collabora](roles/web-svc-collabora/), [Corporate Design](roles/web-svc-css/), [Coturn](roles/web-svc-coturn/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Collabora](roles/web-svc-collabora/). [Corporate Design](roles/web-svc-css/). [Coturn](roles/web-svc-coturn/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Content Delivery Network](roles/web-svc-cdn/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Content Delivery Network](roles/web-svc-cdn/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Content Delivery Network](roles/web-svc-cdn/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Content Delivery Network](roles/web-svc-cdn/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Coturn](roles/web-svc-coturn/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Coturn](roles/web-svc-coturn/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Coturn](roles/web-svc-coturn/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Coturn](roles/web-svc-coturn/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Discourse](roles/web-app-discourse/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [OpenClaw](roles/web-app-openclaw/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Discourse](roles/web-app-discourse/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [OpenClaw](roles/web-app-openclaw/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Flowise](roles/web-app-flowise/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Flowise](roles/web-app-flowise/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Memcached](roles/svc-db-memcached/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [OpenLDAP](roles/svc-db-openldap/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Memcached](roles/svc-db-memcached/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [OpenLDAP](roles/svc-db-openldap/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Kata & gVisor](roles/svc-virt-kata/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Kata & gVisor](roles/svc-virt-kata/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Kata & gVisor](roles/svc-virt-kata/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Kata & gVisor](roles/svc-virt-kata/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Ollama](roles/svc-ai-ollama/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Qdrant](roles/svc-db-qdrant/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Ollama](roles/svc-ai-ollama/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Qdrant](roles/svc-db-qdrant/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Typesense](roles/svc-db-typesense/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Typesense](roles/svc-db-typesense/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [MariaDB](roles/svc-db-mariadb/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [MariaDB](roles/svc-db-mariadb/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Corporate Design](roles/web-svc-css/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Redis](roles/svc-db-redis/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Coturn](roles/web-svc-coturn/), [Dashboard](roles/web-app-dashboard/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Coturn](roles/web-svc-coturn/). [Dashboard](roles/web-app-dashboard/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Dashboard](roles/web-app-dashboard/), [Flowise](roles/web-app-flowise/), [Hermes Agent](roles/web-app-hermes/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Dashboard](roles/web-app-dashboard/). [Flowise](roles/web-app-flowise/). [Hermes Agent](roles/web-app-hermes/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Prometheus](roles/web-app-prometheus/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Prometheus](roles/web-app-prometheus/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Flowise](roles/web-app-flowise/), [Hermes Agent](roles/web-app-hermes/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Flowise](roles/web-app-flowise/). [Hermes Agent](roles/web-app-hermes/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Keycloak](roles/web-app-keycloak/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Keycloak](roles/web-app-keycloak/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Prometheus](roles/web-app-prometheus/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Prometheus](roles/web-app-prometheus/)"
 
+# translated-by: libretranslate
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ระดับเสียงของการสํารองข้อมูล](roles/svc-bkp-volume-2-local/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Backup Host Secrets](roles/svc-bkp-secrets-2-local/)"
-msgstr ""
+msgstr "[สํารองข้อมูลเครื่องลับ](roles/svc-bkp-secrets-2-local/)"
 
+# translated-by: libretranslate
 msgid "[Backup NFS](roles/svc-bkp-nfs-2-local/)"
-msgstr ""
+msgstr "[สํารองข้อมูล](roles/svc-bkp-nfs-2-local/)"
 
+# translated-by: libretranslate
 msgid "[Backup Remote Server](roles/svc-bkp-remote-2-local/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์ทางไกลแบบสํารองข้อมูล](roles/svc-bkp-remote-2-local/)"
 
+# translated-by: libretranslate
 msgid "[Backup to External Device](roles/svc-bkp-local-2-device/)"
-msgstr ""
+msgstr "[สํารองข้อมูลไปยังอุปกรณ์ภายนอก](roles/svc-bkp-local-2-device/)"
 
+# translated-by: libretranslate
 msgid "[Barracuda](https://www.barracudacentral.org/lookups)"
-msgstr ""
+msgstr "[บาร์ราคูดา](https://www.barracudacentral.org/lookups)"
 
+# translated-by: libretranslate
 msgid "[Base](roles/dsk-base/)"
-msgstr ""
+msgstr "[ฐาน](roles/dsk-base/)"
 
+# translated-by: libretranslate
 msgid "[Base](roles/dsk-base/), [Claude Code](roles/dsk-gnt-claude/), [Codex](roles/dsk-gnt-codex/)"
-msgstr ""
+msgstr "[ฐาน](roles/dsk-base/). [Claude Code](roles/dsk-gnt-claude/). [Codex](roles/dsk-gnt-codex/)"
 
+# translated-by: libretranslate
 msgid "[Base](roles/dsk-base/), [LiteLLM Gateway](roles/svc-ai-litellm/)"
-msgstr ""
+msgstr "[ฐาน](roles/dsk-base/). [LiteLLM Gateway](roles/svc-ai-litellm/)"
 
+# translated-by: libretranslate
 msgid "[Baserow Homepage](https://baserow.io/)"
-msgstr ""
+msgstr "[หน้าเว็บของบาโรว์](https://baserow.io/)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['<i>']
+# nocheck: url
+# translation-rejected: [เบสโรว์ MCP
+# เอกสารของเซิร์ฟเวอร์](https://baserow.io/user-docs/mcp-server) <i>--
+# ไม่เช็ค: url — หน้าสด (หัวเรื่อง+GET 200). baserow.io ความแหลม: 404SI Runner
+# IPs -->
 msgid "[Baserow MCP Server docs](https://baserow.io/user-docs/mcp-server) <!-- nocheck: url — page is live (HEAD+GET 200); baserow.io edge intermittently 404s CI runner IPs -->"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[BigBlueButton Docker Docs](https://docs.bigbluebutton.org/greenlight/v3/install/)"
-msgstr ""
+msgstr "[บิกบลูบัทตัน ดอกเกอร์ด็อก](https://docs.bigbluebutton.org/greenlight/v3/install/)"
 
+# translated-by: libretranslate
 msgid "[Bitnami OpenLDAP](https://hub.docker.com/r/bitnami/openldap)"
-msgstr ""
+msgstr "[บิตนามิ OpenLDAP](https://hub.docker.com/r/bitnami/openldap)"
 
+# translated-by: libretranslate
 msgid "[Bluesky Official Website](https://bsky.social/)"
-msgstr ""
+msgstr "[เว็บไซต์บลูสกีอย่างเป็นทางการ](https://bsky.social/)"
 
+# translated-by: libretranslate
 msgid "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
-msgstr ""
+msgstr "[บ้าน พัก ชั่ว คราว](https://github.com/bluesky-social/pds)"
 
+# translated-by: libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
-msgstr ""
+msgstr "[บ้าน พัก คน ชรา](https://github.com/bluesky-social/social-app)"
 
+# translated-by: libretranslate
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
-msgstr ""
+msgstr "[บลูสกี](https://bsky.social/) เป็นเครือข่ายสังคมที่มีระเบียบการใช้งาน ผู้ใช้แต่ละคนอยู่บนเซิร์ฟเวอร์ข้อมูลส่วนบุคคล (ตํารวจ) ซึ่งถือโพสต์ของผู้ใช้, ตอบกลับ, และต่อไปนี้เป็นบันทึกการลงนาม และจํานวนของมุมมองโปรแกรมอิสระ สามารถอ่านบันทึกเหล่านั้นเพื่อแปลเวลา."
 
+# translated-by: libretranslate
 msgid "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
-msgstr ""
+msgstr "[Name=ไดเรกทอรีName Documentation](https://docs.joinbookwyrm.com/)"
 
+# translated-by: libretranslate
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
-msgstr ""
+msgstr "[DookWrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
 
+# translated-by: libretranslate
 msgid "[Boy Scout Rule](https://en.wikipedia.org/wiki/Leaving_the_world_a_better_place)"
-msgstr ""
+msgstr "[กฎลูกเสือ](https://en.wikipedia.org/wiki/Leaving_the_world_a_better_place)"
 
+# translated-by: libretranslate
 msgid "[Branch Protection](docs/contributing/tools/github/branch/security.md): Rules enforced on the `main` branch."
-msgstr ""
+msgstr "[การ ป้องกัน สาขา](docs/contributing/tools/github/branch/security.md): กฎบังคับใช้ `main` สาขา."
 
+# translated-by: libretranslate
 msgid "[Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)"
-msgstr ""
+msgstr "[เฟด จิด Documentation](https://bridgy-fed.readthedocs.io/)"
 
+# translated-by: libretranslate
 msgid "[Bridgy Fed Official Site](https://fed.brid.gy/)"
-msgstr ""
+msgstr "[เครื่องราชอิสริยาภรณ์](https://fed.brid.gy/)"
 
+# translated-by: libretranslate
 msgid "[Bridgy Fed Source on GitHub](https://github.com/snarfed/bridgy-fed)"
-msgstr ""
+msgstr "[แหล่ง ที่ มา ของ บริด จี้ บน กิตติฮับ](https://github.com/snarfed/bridgy-fed)"
 
+# translated-by: libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr ""
+msgstr "[เฟด จิด](https://fed.brid.gy/) เป็นสะพานชั่วคราวระหว่างกิจกรรม (สัตว์ เลี้ยง ลูก ด้วย นม)โปรโตคอล AT (Bluesky)และอินดี้เว็บ (บทความเกี่ยวกับเว็บและไมโครformats2)มันสะท้อนอัตลักษณ์และปฏิสัมพันธ์ระหว่างเครือข่าย เพื่อให้โพสต์บนเครือข่ายหนึ่ง เข้าถึงผู้ติดตามในอื่น ๆ."
 
+# translated-by: libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
-msgstr ""
+msgstr "[CHANGELOG.md](../../../CHANGELOG.md) ที่รากคลังเก็บเก็บเก็บเก็บเก็บเก็บบรรจุการปล่อยล่าสุดในบรรทัด ผู้ส่งปล่อยที่อยู่ด้านล่าง [ด็อก/ เปลี่ยนบล็อก/](../../changelog/), เชื่อมโยงจาก `## Older Releases` ส่วนที่ด้านล่างของการเปลี่ยนแปลงการทํางาน."
 
+# translated-by: libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) is trimmed; every older entry is written to its own file under [docs/changelog/](../../changelog/) named `<padded-semver>-<release-date>.md`, and the `## Older Releases` index at the bottom of the active changelog is rebuilt from the archive directory listing so it never drifts away from what is on disk."
-msgstr ""
+msgstr "[CHANGELOG.md](../../../CHANGELOG.md) ถูกถอดออก; ทุกรายการที่เก่ากว่าจะถูกเขียนไปยังแฟ้มของตัวเองภายใต้ [ด็อก/ เปลี่ยนบล็อก/](../../changelog/) ชื่อ `<padded-semver>-<release-date>.md`, และ `## Older Releases` ดัชนีที่ด้านล่างของการเปลี่ยนแปลงที่ทํางานอยู่ ถูกสร้างใหม่จากรายการไดเร็กทอรีแฟ้มจัดเก็บ เพื่อไม่ให้มัน ลอยห่างจากสิ่งที่อยู่ในดิสก์."
 
+# translated-by: libretranslate
 msgid "[CI & Self-Hosted Runners](docs/administration/ci-runners.md) for the test gate and adding your own hardware to the CI pool."
-msgstr ""
+msgstr "[CI & hostted Runner](docs/administration/ci-runners.md) สําหรับประตูทดสอบและเพิ่มฮาร์ดแวร์ของคุณเองที่สระว่ายน้ํา CI."
 
+# translated-by: libretranslate
 msgid "[CODEOWNERS](.github/CODEOWNERS)"
-msgstr ""
+msgstr "[โค เดก ซ์](.github/CODEOWNERS)"
 
+# translated-by: libretranslate
 msgid "[CONTRIBUTING.md](CONTRIBUTING.md) covers the workflow, testing, review, and coding standards."
-msgstr ""
+msgstr "[CONTRIBUTING.md](CONTRIBUTING.md) ครอบ คลุม การ ทํา งาน, การ ทดสอบ, การ ทบทวน, และ มาตรฐาน การ คัด ลอก."
 
+# translated-by: libretranslate
 msgid "[CONTRIBUTING.md](CONTRIBUTING.md) is the single source of truth for contributor workflow, coding standards, testing, and review. You MUST read it."
-msgstr ""
+msgstr "[CONTRIBUTING.md](CONTRIBUTING.md) เป็น แหล่ง แห่ง ความ จริง เพียง แหล่ง เดียว สําหรับ การ บริจาค ผล งาน, มาตรฐาน การ คัด ลอก, การ ทดสอบ, และ การ ทบทวน. คุณต้องอ่านมัน."
 
+# translated-by: libretranslate
 msgid "[CSS on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS)"
-msgstr ""
+msgstr "[CSS บน MDN](https://developer.mozilla.org/en-US/docs/Web/CSS)"
 
+# translated-by: libretranslate
 msgid "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) styles the user-facing surfaces of web applications across the deployment. This role registers `css` as a canonical service in the deployment's service registry so consumer roles can declare CSS as a runtime dependency."
-msgstr ""
+msgstr "[แบบ CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) ฟอร์แมตพื้นผิวของเว็บของผู้ใช้ผ่านการใช้งาน ตัวลงทะเบียนนี้ `css` เพื่อเป็นบริการบริการในการบริการของบริการ เพื่อให้บทบาทผู้บริโภคสามารถประกาศ ให้ CSS เป็นตัวเชื่อมโยงระหว่างเวลา."
 
+# translated-by: libretranslate
 msgid "[Caveman](https://github.com/JuliusBrussee/caveman) is a token-compression plugin installed via `make install-skills`. It reduces output token consumption through progressively terser communication styles. `make install-skills` copies the skills from the repository pinned as `INFINITO_SKILLS_REPOSITORY` in the generated `.env` (override via `custom.env`, see `docs/contributing/customize.md`); the [skills](https://github.com/kevinveenbirkenbach/skills) repository pins every skill in its `skills-lock.json` and also supports global installs via its own `make install`. This works universally across all supported agents: Claude Code, Codex, Gemini CLI, Cursor, Copilot, Windsurf, Cline, and more."
-msgstr ""
+msgstr "[มนุษย์ถ้ํา](https://github.com/JuliusBrussee/caveman) เป็นปลั๊กอินการบีบอัดแบบแสดงอารมณ์โดย `make install-skills`. มันช่วยลดการบริโภค ผ่านรูปแบบการสื่อสาร `make install-skills` คัดลอกทักษะจากคลังสินค้าที่ยึดเป็น `INFINITO_SKILLS_REPOSITORY` ในการสร้าง `.env` (override `custom.env`, ดู `docs/contributing/customize.md`). [ทักษะ](https://github.com/kevinveenbirkenbach/skills) คลังสินค้าตรึงทุกทักษะ `skills-lock.json` และยังรองรับการติดตั้งทั่วไปผ่านทางของตัวเอง `make install`. ทํางานกับเอเจ้นท์ที่สนับสนุนทุกอย่าง รหัสน้ําเกลือ Codexจีมีนี โคลไอ Cursorนักบิน, วินด์เซอร์ฟ, ไคลน์ และอื่นๆ."
 
+# translated-by: libretranslate
 msgid "[Certbot Official Website](https://certbot.eff.org/)"
-msgstr ""
+msgstr "[Certbot website อย่างเป็นทางการ](https://certbot.eff.org/)"
 
+# translated-by: libretranslate
 msgid "[Checkmk Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
-msgstr ""
+msgstr "[Docer Docer Docords](https://docs.checkmk.com/latest/en/introduction_docker.html)"
 
+# translated-by: libretranslate
 msgid "[Checkmk GitHub Repository](https://github.com/Checkmk/checkmk)"
-msgstr ""
+msgstr "[CheckgGitHub Reposition](https://github.com/Checkmk/checkmk)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['%s']
+# nocheck: url
+# translation-rejected: [Checkk](https://checkmk.com/) (Raw / Soublic Code
+# 100เปิดแหล่ง %s) เป็นระบบติดตามและโปรแกรม บทบาทนี้ใช้ทั้งหมดอย่างเป็นทางการ
+# `checkmk/check-mk-raw` กล่องข้างหลัง Infinito.Nexus กลับค่าพร็อกซีด้วย
+# Keycloak SSO ผ่านมหาสมุทร2- ประตูโปรกซ์ และระบบจัดการผู้ใช้ภายในของ LDAP.
 #, no-python-format
 msgid "[Checkmk](https://checkmk.com/) (Raw / Community edition, 100% open source) is an IT and application monitoring system. This role deploys the official all-in-one `checkmk/check-mk-raw` container behind the Infinito.Nexus reverse proxy, with Keycloak SSO via the oauth2-proxy gate and native LDAP user management."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['%s']
+# nocheck: url
+# translation-rejected: [Checkk](https://checkmk.com/)
+# เป็นระบบติดตามการทํางานของโปรแกรมแบบ open-source IT/infra เดอะ **Raw /
+# ชุมชน** พิมพ์ (100เปิดแหล่ง %s)
+# ส่งตู้คอนเทนเนอร์ที่บรรจุในหนึ่งอย่างเป็นทางการ ที่ห่อแกนการติดตาม,
+# การจัดเก็บ RRD, และเว็บบริการ Apache — มันต้องการ **ไม่มีฐานข้อมูลภายนอก**.
 #, no-python-format
 msgid "[Checkmk](https://checkmk.com/) is an open-source IT/infrastructure & application monitoring system. The **Raw / Community** edition (100% open source) ships an official all-in-one container that bundles the monitoring core, RRD storage, and the Apache-served web GUI — it needs **no external database**."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Claude Code](https://code.claude.com/) is Anthropic's terminal coding agent. This role installs it on a workstation and points it at the platform's own model gateway instead of the vendor API."
-msgstr ""
+msgstr "[รหัสกระดาษ](https://code.claude.com/) เป็นตัวเข้ารหัสเทอร์มินัลของแอนโทรปิค บทบาทนี้ติดตั้งมันบนสถานีการทํางานและชี้มันที่ประตูจําลองของตัวเอง API."
 
+# translated-by: libretranslate
 msgid "[Cloud Native GitLab (CNG) images](https://gitlab.com/gitlab-org/build/CNG)"
-msgstr ""
+msgstr "[ชนพื้นเมืองเมฆ GitLab (CNG) รูปภาพ](https://gitlab.com/gitlab-org/build/CNG)"
 
+# translated-by: libretranslate
 msgid "[Cloudflare Dashboard → API Tokens](https://dash.cloudflare.com/profile/api-tokens)"
-msgstr ""
+msgstr "[เกล็ดเมฆ Dashboard ○ API หมึก](https://dash.cloudflare.com/profile/api-tokens)"
 
+# translated-by: libretranslate
 msgid "[Cloudflare Purge Cache Documentation](https://developers.cloudflare.com/cache/how-to/purge-cache/)"
-msgstr ""
+msgstr "[แคชสําหรับล้างเมฆ Documentation](https://developers.cloudflare.com/cache/how-to/purge-cache/)"
 
+# translated-by: libretranslate
 msgid "[Cloudmark Reset](https://csi.cloudmark.com/en/reset/)"
-msgstr ""
+msgstr "[ตั้งค่าจุดแดง](https://csi.cloudmark.com/en/reset/)"
 
+# translated-by: libretranslate
 msgid "[Codex](https://github.com/openai/codex) is OpenAI's terminal coding agent, installed on a workstation and pointed at this deployment's own model gateway instead of the vendor API."
-msgstr ""
+msgstr "[โค เดก ซ์](https://github.com/openai/codex) เป็นตัวเข้ารหัสเทอร์มินัล OpenAI ของติดตั้งบนสถานีการทํางานและชี้ไปที่ประตูจําลองนี้ของตัวเองแทนของผู้ผลิต API."
 
+# translated-by: libretranslate
 msgid "[Compose Loop](../../../agents/action/iteration/compose.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy."
-msgstr ""
+msgstr "[การวนรอบภาพ](../../../agents/action/iteration/compose.md): หลักการพื้นฐานที่ใช้, กฎการทําซ้ํา, ความไว้ใจในใบรับรอง, การเพิ่มข้อมูล."
 
+# translated-by: libretranslate
 msgid "[Compose Loop](../agents/action/iteration/compose.md)"
-msgstr ""
+msgstr "[การวนรอบภาพ](../agents/action/iteration/compose.md)"
 
+# translated-by: libretranslate
 msgid "[Compose Loop](compose.md): baseline deploy, Certificate Authority trust, Inspect-before-redeploy."
-msgstr ""
+msgstr "[การวนรอบภาพ](compose.md): การใช้งานพื้นฐาน ใบรับรอง ความไว้วางใจ, สเปกตรัม ก่อนการยกเลิก."
 
+# translated-by: libretranslate
 msgid "[Configuration](https://jellyfin.org/docs/general/administration/configuration/)"
-msgstr ""
+msgstr "[ปรับแต่ง](https://jellyfin.org/docs/general/administration/configuration/)"
 
+# translated-by: libretranslate
 msgid "[Configuration](https://semaphoreui.com/docs/admin-guide/configuration)"
-msgstr ""
+msgstr "[ปรับแต่ง](https://semaphoreui.com/docs/admin-guide/configuration)"
 
+# translated-by: libretranslate
 msgid "[Container install](https://jellyfin.org/docs/general/installation/container/)"
-msgstr ""
+msgstr "[ติดตั้งตัวบรรจุ](https://jellyfin.org/docs/general/installation/container/)"
 
+# translated-by: libretranslate
 msgid "[Container installation](https://jellyfin.org/docs/general/installation/container/)"
-msgstr ""
+msgstr "[ตัวบรรจุการติดตั้ง](https://jellyfin.org/docs/general/installation/container/)"
 
+# translated-by: libretranslate
 msgid "[Content Delivery Network](roles/web-svc-cdn/)"
-msgstr ""
+msgstr "[เครือข่ายส่งเนื้อหา](roles/web-svc-cdn/)"
 
+# translated-by: libretranslate
 msgid "[Content Delivery Network](roles/web-svc-cdn/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[เครือข่ายส่งเนื้อหา](roles/web-svc-cdn/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Content Delivery Network](roles/web-svc-cdn/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[เครือข่ายส่งเนื้อหา](roles/web-svc-cdn/). [Corporate Design](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Content Delivery Network](roles/web-svc-cdn/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[เครือข่ายส่งเนื้อหา](roles/web-svc-cdn/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Content Security Policy on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)"
-msgstr ""
+msgstr "[ข้อกําหนดความปลอดภัยภายใน MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)"
 
+# translated-by: libretranslate
 msgid "[Content delivery network on Wikipedia](https://en.wikipedia.org/wiki/Content_delivery_network)"
-msgstr ""
+msgstr "[เครือข่ายส่งเนื้อหาบนวิกิพีเดีย](https://en.wikipedia.org/wiki/Content_delivery_network)"
 
+# translated-by: libretranslate
 msgid "[Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md): authoritative MUSTs for the spec content. Every MUST there is an acceptance criterion for this loop."
-msgstr ""
+msgstr "[การมีส่วนร่วม `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md): ตามกฎหมายสําหรับเนื้อหาสเปกตรัม ทุก ๆ สิ่งที่จําเป็นก็คือ การยอมรับ."
 
+# translated-by: libretranslate
 msgid "[CopyQ official site](https://hluk.github.io/CopyQ/)"
-msgstr ""
+msgstr "[คัดลอกQ เว็บไซต์อย่างเป็นทางการ](https://hluk.github.io/CopyQ/)"
 
+# translated-by: libretranslate
 msgid "[CopyQ](https://hluk.github.io/CopyQ/) is a clipboard manager with advanced features such as editing clipboard history, creating custom actions, and scripting support."
-msgstr ""
+msgstr "[คัดลอกQ](https://hluk.github.io/CopyQ/) เป็นตัวจัดการคลิปบอร์ดที่มีคุณลักษณะขั้นสูง เช่น แก้ไขประวัติคลิปบอร์ด, สร้างการกระทําที่กําหนดเอง, และรองรับสคริปต์."
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Friendica](roles/web-app-friendica/), [Mastodon](roles/web-app-mastodon/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Friendica](roles/web-app-friendica/). [Mastodon](roles/web-app-mastodon/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [PostgreSQL](roles/svc-db-postgres/), [Prometheus](roles/web-app-prometheus/), [SeaweedFS](roles/web-app-seaweedfs/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [PostgreSQL](roles/svc-db-postgres/). [Prometheus](roles/web-app-prometheus/). [SeaweedFS](roles/web-app-seaweedfs/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Mailu](roles/web-app-mailu/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Mailu](roles/web-app-mailu/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [MariaDB](roles/svc-db-mariadb/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Matomo](roles/web-app-matomo/). [OpenLDAP](roles/svc-db-openldap/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/). [Universal Logout](roles/web-svc-logout/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Dashboard](roles/web-app-dashboard/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [Open WebUI](roles/web-app-openwebui/), [OpenClaw](roles/web-app-openclaw/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Hermes Agent](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [Matomo](roles/web-app-matomo/). [Open WebUI](roles/web-app-openwebui/). [OpenClaw](roles/web-app-openclaw/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Corporate Design](roles/web-svc-css/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[ออกแบบองค์กร](roles/web-svc-css/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Coturn](https://github.com/coturn/coturn) is a free and open-source **TURN (Traversal Using Relays around NAT)** and **STUN (Session Traversal Utilities for NAT)** server.   It enables real-time communication (RTC) applications such as **WebRTC** to work reliably across NATs and firewalls."
-msgstr ""
+msgstr "[มุม:](https://github.com/coturn/coturn) เป็นโอเพ่นซอร์สฟรี **เปลี่ยนชื่อ (การ เปลี่ยน แปลง ที่ น่า ทึ่ง)** ถึง **จุด (โปรแกรมจัดการวาระงานสําหรับ NATName)** เซิฟเวอร์ มันสามารถสื่อสารได้ตามเวลาจริง (ขนาด RTC) โปรแกรมต่าง ๆ เช่น **เว็บRTC** เพื่อตรวจผ่าน NAT และไฟร์วอลล์."
 
+# translated-by: libretranslate
 msgid "[Create a fork and a branch with the right prefix](docs/contributing/workflow.md)."
-msgstr ""
+msgstr "[สร้างส้อมและกิ่งที่มีคํานําหน้าที่เหมาะสม](docs/contributing/workflow.md)."
 
+# translated-by: libretranslate
 msgid "[Cursor](https://cursor.com/) is an AI-first code editor. This role installs it on a workstation."
-msgstr ""
+msgstr "[แปรงทาสี](https://cursor.com/) เป็นบรรณาธิการรหัสเอไอคนแรก บทบาทนี้ติดตั้งบนที่ทํางาน."
 
+# translated-by: libretranslate
 msgid "[DKIM activate](https://docs.joinpeertube.org/install/docker)"
-msgstr ""
+msgstr "[เปิดใช้งาน DKIM](https://docs.joinpeertube.org/install/docker)"
 
+# translated-by: libretranslate
 msgid "[DNF groups: development-tools](https://dnf.readthedocs.io/en/latest/command_ref.html#group-command)"
-msgstr ""
+msgstr "[กลุ่ม DNF: เครื่องมือพัฒนา](https://dnf.readthedocs.io/en/latest/command_ref.html#group-command)"
 
+# translated-by: libretranslate
 msgid "[DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)"
-msgstr ""
+msgstr "[ถอดรหัส](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)"
 
+# translated-by: libretranslate
 msgid "[Dashboard](roles/web-app-dashboard/)"
-msgstr ""
+msgstr "[แดชบอร์ด](roles/web-app-dashboard/)"
 
+# translated-by: libretranslate
 msgid "[Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[แดชบอร์ด](roles/web-app-dashboard/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Debian Wiki: iptables](https://wiki.debian.org/iptables)"
-msgstr ""
+msgstr "[Debian Wiki: Ipables](https://wiki.debian.org/iptables)"
 
+# translated-by: libretranslate
 msgid "[Debian package: build-essential](https://packages.debian.org/stable/build-essential)"
-msgstr ""
+msgstr "[แพ็กเกจ Debian: สร้าง](https://packages.debian.org/stable/build-essential)"
 
+# translated-by: libretranslate
 msgid "[Debian](https://www.debian.org) SHOULD be the primary reference distribution when behaviour differs across families."
-msgstr ""
+msgstr "[เดเบียน](https://www.debian.org) ควร จะ เป็น การ จําหน่าย จ่าย แจก ข้อ อ้างอิง หลัก เมื่อ ความ ประพฤติ ต่าง กัน ไป ใน หลาย ครอบครัว."
 
+# translated-by: libretranslate
 msgid "[Decidim Docker image](https://ghcr.io/decidim/decidim)"
-msgstr ""
+msgstr "[อิมเมจ Decidim Docer](https://ghcr.io/decidim/decidim)"
 
+# translated-by: libretranslate
 msgid "[Decidim documentation](https://docs.decidim.org/)"
-msgstr ""
+msgstr "[เอกสารถอดรหัส](https://docs.decidim.org/)"
 
+# translated-by: libretranslate
 msgid "[Deploy Guide](deploy.md) — inventory creation and deploys"
-msgstr ""
+msgstr "[แปรงทาสี](deploy.md) — รายการ สิ่ง ทรง สร้าง และ การ ใช้"
 
+# translated-by: libretranslate
 msgid "[Deploy Guide](docs/administration/deploy.md) for inventory creation, full deploys, and redeploy flows."
-msgstr ""
+msgstr "[แปรงทาสี](docs/administration/deploy.md) สําหรับการสร้างรายการสินค้าเต็มรูปแบบ และกระแสสีแดง."
 
+# translated-by: libretranslate
 msgid "[Developing Ansible Filter Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)"
-msgstr ""
+msgstr "[กําลังพัฒนาส่วนเสริมตัวกรองที่ใช้ได้](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)"
 
+# translated-by: libretranslate
 msgid "[Developing Ansible Lookup Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-lookup-plugins)"
-msgstr ""
+msgstr "[ส่วนเสริมสําหรับค้นหาName](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-lookup-plugins)"
 
+# translated-by: libretranslate
 msgid "[Development Hub](https://s.infinito.nexus/development) - general developer discussion and contributor guidance."
-msgstr ""
+msgstr "[การปรับปรุงข้อมูล UP](https://s.infinito.nexus/development) - การอภิปรายทั่วไปของนักพัฒนาและผู้มีส่วนร่วม."
 
+# translated-by: libretranslate
 msgid "[Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
-msgstr ""
+msgstr "[ย่อหาย Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
 
+# translated-by: libretranslate
 msgid "[Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)"
-msgstr ""
+msgstr "[การ ประชุม ภาค](https://github.com/discourse/discourse_docker.git)"
 
+# translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr ""
+msgstr "[ลบรายการ](https://meta.discourse.org/)"
 
+# translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
-msgstr ""
+msgstr "[แยกเว็บไซต์อย่างเป็นทางการ](https://www.discourse.org/)"
 
+# translated-by: libretranslate
 msgid "[Discussion #16470](https://github.com/orgs/jellyfin/discussions/16470)"
-msgstr ""
+msgstr "[พูดคุย #16470](https://github.com/orgs/jellyfin/discussions/16470)"
 
+# translated-by: libretranslate
 msgid "[Docker Compose reference](https://docs.docker.com/compose/compose-file/)"
-msgstr ""
+msgstr "[อ้างอิงของ Docercompost](https://docs.docker.com/compose/compose-file/)"
 
+# translated-by: libretranslate
 msgid "[Docker Health Checks Documentation](https://docs.docker.com/engine/reference/run/#healthcheck)"
-msgstr ""
+msgstr "[การ ตรวจ สุขภาพ ของ ดอกเกอร์ Documentation](https://docs.docker.com/engine/reference/run/#healthcheck)"
 
+# translated-by: libretranslate
 msgid "[Docker Hub tags](https://hub.docker.com/r/openbao/openbao)"
-msgstr ""
+msgstr "[ป้ายกํากับของดอกเกอร์](https://hub.docker.com/r/openbao/openbao)"
 
+# translated-by: libretranslate
 msgid "[Docker Hub](https://hub.docker.com/r/checkmk/check-mk-raw/), [Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
-msgstr ""
+msgstr "[ด็อกเกอร์ ฮับ](https://hub.docker.com/r/checkmk/check-mk-raw/). [ด็อกเกอร์](https://docs.checkmk.com/latest/en/introduction_docker.html)"
 
+# translated-by: libretranslate
 msgid "[Docker Registry Cache](roles/svc-registry-cache/)"
-msgstr ""
+msgstr "[แคชของ Docercontinuation](roles/svc-registry-cache/)"
 
+# translated-by: libretranslate
 msgid "[Docker Registry](roles/svc-registry-docker/)"
-msgstr ""
+msgstr "[การเปลี่ยนชื่อของ Docer](roles/svc-registry-docker/)"
 
+# translated-by: libretranslate
 msgid "[Docker Swarm Manager](roles/svc-swarm-manager/)"
-msgstr ""
+msgstr "[ตัวจัดการ Doper Swarm](roles/svc-swarm-manager/)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: [Doker Swarm](https://docs.docker.com/engine/swarm/)
+# กลุ่มโฮสต์ดอกเกอร์ จะกลายเป็นเครื่องเสมือน กลุ่มมีโหนดผู้จัดการ 1 ตัวพอดีใน
+# v1ผู้จัดการดูแลร้านราฟท์และรับบริการAPI โทร.
 msgid "[Docker Swarm](https://docs.docker.com/engine/swarm/) groups Docker hosts into a single virtual host. A swarm has exactly one manager node in v1; managers run the Raft store and accept service-API calls."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Docker Swarm](https://docs.docker.com/engine/swarm/) is Docker's built-in clustering and container-orchestration mode. It groups multiple Docker hosts into a single virtual host that can schedule services, replicate tasks, and route traffic via an internal mesh."
-msgstr ""
+msgstr "[Doker Swarm](https://docs.docker.com/engine/swarm/) เป็นโหมดจัดหมู่ของดเคอ และอุปกรณ์บรรจุบรรจุบรรจุบรรจุ มัน รวม ตัว กับ เจ้า ภาพ โด เค อร์ หลาย ตัว เข้า เป็น เจ้า ภาพ จริง ๆ ตัว เดียว ที่ สามารถ กําหนด เวลา การ บริการ, ทํา งาน จําลอง, และ ทํา การ จราจร ทาง รถไฟ โดย ทาง เมช ภาย ใน."
 
+# translated-by: libretranslate
 msgid "[Docker Swarm](roles/svc-swarm-node/)"
-msgstr ""
+msgstr "[Doker Swarm](roles/svc-swarm-node/)"
 
+# translated-by: libretranslate
 msgid "[Docker Volumes Documentation](https://docs.docker.com/storage/volumes/)"
-msgstr ""
+msgstr "[ระดับเสียงของโดกเกอร์ Documentation](https://docs.docker.com/storage/volumes/)"
 
+# translated-by: libretranslate
 msgid "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker)"
-msgstr ""
+msgstr "[ด็อกเกอร์](https://docs.semaphoreui.com/administration-guide/installation/docker)"
 
+# translated-by: libretranslate
 msgid "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker), [Docker Hub](https://hub.docker.com/r/semaphoreui/semaphore)"
-msgstr ""
+msgstr "[ด็อกเกอร์](https://docs.semaphoreui.com/administration-guide/installation/docker). [ด็อกเกอร์ ฮับ](https://hub.docker.com/r/semaphoreui/semaphore)"
 
+# translated-by: libretranslate
 msgid "[Document custom addon development workflow](https://open.project.infinito.nexus/wp/560)"
-msgstr ""
+msgstr "[การเพิ่มโครงการของเอกสาร](https://open.project.infinito.nexus/wp/560)"
 
+# translated-by: libretranslate
 msgid "[Document upgrade procedures between Odoo versions](https://open.project.infinito.nexus/wp/564)"
-msgstr ""
+msgstr "[ขั้นตอนการปรับรุ่นเอกสารระหว่างรุ่น Odou](https://open.project.infinito.nexus/wp/564)"
 
+# translated-by: libretranslate
 msgid "[Documentation](PULL_REQUEST_TEMPLATE/documentation.md) - docs only"
-msgstr ""
+msgstr "[เอกสาร](PULL_REQUEST_TEMPLATE/documentation.md) - หมอเท่านั้น"
 
+# translated-by: libretranslate
 msgid "[Documentation](roles/web-app-docs/)"
-msgstr ""
+msgstr "[เอกสาร](roles/web-app-docs/)"
 
+# translated-by: libretranslate
 msgid "[ERPNext Official Website](https://erpnext.com/)"
-msgstr ""
+msgstr "[ERP ถัดไป เว็บไซต์อย่างเป็นทางการ](https://erpnext.com/)"
 
+# translated-by: libretranslate
 msgid "[ERPNext](https://erpnext.com/) is an open-source ERP suite built on the [Frappe Framework](https://frappeframework.com/). It covers finance, CRM, inventory, manufacturing, HR, sales, projects, and websites in one self-hosted stack."
-msgstr ""
+msgstr "[ต่อไป](https://erpnext.com/) เป็นห้องสูทโอเพนซอร์สที่สร้างบน [เฟรมเวิร์กของฟรัพ](https://frappeframework.com/). มันครอบคลุมการเงิน, CRM, รายการสินค้า, การผลิต, HR, การขาย, โครงการ, และเว็บไซต์ในชั้นเดียว."
 
+# translated-by: libretranslate
 msgid "[Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
-msgstr ""
+msgstr "[เปิดใช้การเซ็นเดี่ยว (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
 
+# translated-by: libretranslate
 msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
-msgstr ""
+msgstr "[ISPCRM Documentation](https://docs.espocrm.com/) 📖"
 
+# translated-by: libretranslate
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการของ ESpoCRM](https://www.espocrm.com/) 🌍"
 
+# translated-by: libretranslate
 msgid "[Evangelos Tsakoudis](https://evangelostsak.com): Penpot role and its end-to-end test suite"
-msgstr ""
+msgstr "[เอ เฟ โซส์](https://evangelostsak.com): Pentot บทบาทและห้องทดสอบการสิ้นสุด"
 
+# translated-by: libretranslate
 msgid "[Evangelos Tsakoudis](https://evangelostsak.com): the OpenBao role with its seal, credential rotation, recovery and RBAC end-to-end suite, role-local Prometheus alert rules, and the LAM and swarm network fixes that work uncovered"
-msgstr ""
+msgstr "[เอ เฟ โซส์](https://evangelostsak.com). OpenBao บทบาทกับตรา, การหมุนตามความเป็นจริง, การฟื้นตัวและ RBC สิ้นสุดการสิ้นสุดห้องชุด, บทบาทท้องถิ่น Prometheus กฎเตือนและ LAM แก้ไขเครือข่ายที่เปิดให้บริการ"
 
+# translated-by: libretranslate
 msgid "[External Tests](testing/external.md)"
-msgstr ""
+msgstr "[การทดสอบภายนอก](testing/external.md)"
 
+# translated-by: libretranslate
 msgid "[FV Online DB – Blu-ray Tools](http://fvonline-db.bplaced.net/)"
-msgstr ""
+msgstr "[FV Online DB – เครื่องมือบลูเรย์](http://fvonline-db.bplaced.net/)"
 
+# translated-by: libretranslate
 msgid "[FastAPI](https://fastapi.tiangolo.com/)"
-msgstr ""
+msgstr "[astAPI](https://fastapi.tiangolo.com/)"
 
+# translated-by: libretranslate
 msgid "[Fediverse (Wikipedia)](https://en.wikipedia.org/wiki/Fediverse)"
-msgstr ""
+msgstr "[เส้นพริ้วไหว (วิกิพีเดียName)](https://en.wikipedia.org/wiki/Fediverse)"
 
+# translated-by: libretranslate
 msgid "[Fediwall GitHub Repository](https://github.com/defnull/fediwall)"
-msgstr ""
+msgstr "[ห้อง พัก](https://github.com/defnull/fediwall)"
 
+# translated-by: libretranslate
 msgid "[Fider GitHub](https://github.com/getfider/fider)"
-msgstr ""
+msgstr "[ไฟเดอร์กิตฮับ](https://github.com/getfider/fider)"
 
+# translated-by: libretranslate
 msgid "[Fider](https://getfider.com/) is an open-source community feedback and voting platform that allows teams to collect, prioritize, and track feature requests and ideas."
-msgstr ""
+msgstr "[ไฟเดอร์](https://getfider.com/) เป็นเสียงตอบรับจากชุมชนโอเพนซอร์ส และเวทีลงคะแนนเสียง ที่ช่วยให้ทีมเก็บรวบรวม ลําดับความสําคัญ."
 
+# translated-by: libretranslate
 msgid "[File Server](roles/web-svc-file/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์แฟ้ม](roles/web-svc-file/)"
 
+# translated-by: libretranslate
 msgid "[File Server](roles/web-svc-file/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์แฟ้ม](roles/web-svc-file/). [Matomo](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Filesystem Hierarchy Standard](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)"
-msgstr ""
+msgstr "[มาตรฐานระบบระบบแฟ้ม](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)"
 
+# translated-by: libretranslate
 msgid "[Firewall ruleset](roles/svc-net-firewall/)"
-msgstr ""
+msgstr "[กฎไฟร์วอลล์](roles/svc-net-firewall/)"
 
+# translated-by: libretranslate
 msgid "[Flowise Tools and MCP](https://docs.flowiseai.com/tutorials/tools-and-mcp)"
-msgstr ""
+msgstr "[เครื่องมือแบบฟลอฟท์และ MCP](https://docs.flowiseai.com/tutorials/tools-and-mcp)"
 
+# translated-by: libretranslate
 msgid "[Flowise tag `flowise@3.1.4`](https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.4), especially `packages/server/src/routes/custom-mcp-servers/` and `packages/server/src/services/custom-mcp-servers/`"
-msgstr ""
+msgstr "[แท็กฟลอเรส `flowise@3.1.4`](https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.4), โดยเฉพาะ `packages/server/src/routes/custom-mcp-servers/` ถึง `packages/server/src/services/custom-mcp-servers/`"
 
+# translated-by: libretranslate
 msgid "[Forum HOWTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
-msgstr ""
+msgstr "[Forum howTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
 
+# translated-by: libretranslate
 msgid "[Frappe Framework Documentation](https://docs.frappe.io/)"
-msgstr ""
+msgstr "[เฟรมเวิร์กของฟรัพ Documentation](https://docs.frappe.io/)"
 
+# translated-by: libretranslate
 msgid "[Frappe Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)"
-msgstr ""
+msgstr "[กุญแจสําหรับล็อกอินสังคม](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)"
 
+# translated-by: libretranslate
 msgid "[Friendica Docker Hub](https://hub.docker.com/_/friendica)"
-msgstr ""
+msgstr "[Friendica docerh](https://hub.docker.com/_/friendica)"
 
+# translated-by: libretranslate
 msgid "[Friendica GitHub Repository](https://github.com/friendica/docker)"
-msgstr ""
+msgstr "[บ้าน พัก เพื่อน ของ เพื่อน](https://github.com/friendica/docker)"
 
+# translated-by: libretranslate
 msgid "[Friendica Installation Documentation](https://wiki.friendi.ca/docs/install)"
-msgstr ""
+msgstr "[โพรมิเตอร์ของ Friendica Documentation](https://wiki.friendi.ca/docs/install)"
 
+# translated-by: libretranslate
 msgid "[FusionDirectory Official Website](https://www.fusiondirectory.org/)"
-msgstr ""
+msgstr "[Fiction Directy เว็บไซต์อย่างเป็นทางการ](https://www.fusiondirectory.org/)"
 
+# translated-by: libretranslate
 msgid "[FusionDirectory](https://www.fusiondirectory.org/) is a web-based LDAP administration tool that manages users, groups, and other directory objects through a pluggable interface. The application stores all of its data in an external LDAP directory, which makes it the natural front-end for the project's `svc-db-openldap` backend."
-msgstr ""
+msgstr "[ฟิวชัน Dictory](https://www.fusiondirectory.org/) เป็นเครื่องมือจัดการของ LDAP ที่ตั้งอยู่บนเว็บ ที่จัดการผู้ใช้, กลุ่ม, และวัตถุไดเร็กทอรีอื่น ๆ ผ่านส่วนเชื่อมต่อแบบเสียบปลั๊ก โปรแกรมจะเก็บข้อมูลทั้งหมดของมันไว้ในไดเร็กทอรี LDAP ภายนอก ซึ่งจะทําให้ข้อมูลดังกล่าวเป็นหน้าหลักสําหรับโครงการ `svc-db-openldap` แบ็คอัพ."
 
+# translated-by: libretranslate
 msgid "[Gist by marienfressinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
-msgstr ""
+msgstr "[Gist by Marenfresinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
 
+# translated-by: libretranslate
 msgid "[GitHub Actions self-hosted runner documentation](https://docs.github.com/en/actions/hosting-your-own-runners)"
-msgstr ""
+msgstr "[การกระทํากับ Githob](https://docs.github.com/en/actions/hosting-your-own-runners)"
 
+# translated-by: libretranslate
 msgid "[GitLab Helm charts documentation](https://docs.gitlab.com/charts/)"
-msgstr ""
+msgstr "[GitLab Helm dictionary](https://docs.gitlab.com/charts/)"
 
+# translated-by: libretranslate
 msgid "[GitLab MCP server docs](https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/)"
-msgstr ""
+msgstr "[ไดเรกทอรีบริการ MCP ของ GitLab](https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/)"
 
+# translated-by: libretranslate
 msgid "[GitLab Official Website](https://about.gitlab.com/)"
-msgstr ""
+msgstr "[GitLab อย่างเป็นทางการ website](https://about.gitlab.com/)"
 
+# translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
-msgstr ""
+msgstr "[GitLab SSO ใน Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
 
+# translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
-msgstr ""
+msgstr "[การรวม LDAP เข้ากับ Gitea](https://docs.gitea.com/administration/authentication/)"
 
+# translated-by: libretranslate
 msgid "[Gitea MCP package](https://pkg.go.dev/gitea.com/gitea/gitea-mcp)"
-msgstr ""
+msgstr "[แพกเกจ MCP ของ Gitea](https://pkg.go.dev/gitea.com/gitea/gitea-mcp)"
 
+# translated-by: libretranslate
 msgid "[Gitea Official Website](https://gitea.io/)"
-msgstr ""
+msgstr "[Gitea อย่างเป็นทางการ website](https://gitea.io/)"
 
+# translated-by: libretranslate
 msgid "[Google Postmaster](https://postmaster.google.com/) - Analyzes deliverability and spam issues for Gmail."
-msgstr ""
+msgstr "[โพสต์มาสเตอร์ของกูเกิ้ล](https://postmaster.google.com/) - ตรวจสอบความเหมาะสมในการส่งมอบและสแปมสําหรับ Gmail."
 
+# translated-by: libretranslate
 msgid "[HTML Server](roles/web-svc-html/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์ HTML](roles/web-svc-html/)"
 
+# translated-by: libretranslate
 msgid "[HTML Server](roles/web-svc-html/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์ HTML](roles/web-svc-html/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[HTTP header authentication (Werk #7819)](https://checkmk.com/werk/7819)"
-msgstr ""
+msgstr "[ยืนยันหัวจดหมาย HTTP (เว็บ7819)](https://checkmk.com/werk/7819)"
 
+# translated-by: libretranslate
 msgid "[HTTPS (Wikipedia)](https://en.wikipedia.org/wiki/HTTPS)"
-msgstr ""
+msgstr "[HTTPs (วิกิพีเดียName)](https://en.wikipedia.org/wiki/HTTPS)"
 
+# translated-by: libretranslate
 msgid "[Hackerethik](https://www.ccc.de/de/hackerethik)"
-msgstr ""
+msgstr "[แฮกเกอร์อิต](https://www.ccc.de/de/hackerethik)"
 
+# translated-by: libretranslate
 msgid "[Hermes Agent](https://hermes-agent.nousresearch.com/) is an agent runtime from Nous Research that runs tool-using agent sessions against OpenAI-compatible model backends. In gateway mode it serves an OpenAI-compatible HTTP API, where clients address the agent with the same request shape they use for a plain model."
-msgstr ""
+msgstr "[เจ้าหน้าที่เฮอมิส](https://hermes-agent.nousresearch.com/) เป็นเอเจ้นท์รันไทม์จากบริษัท Nous Research ที่ดําเนินการจัดการส่วนตัวแทนที่ใช้เครื่องมือกับ OpenAI แบบแบ็คเอนต์ ในโหมดประตูมันให้บริการ OpenAI ที่เข้ากันได้ HTTP APIที่ลูกค้าเรียกตัวแทน ด้วยรูปร่างตามที่ร้องขอมา ให้ใช้แบบธรรมดา."
 
+# translated-by: libretranslate
 msgid "[Hermes Agent](https://hermes-agent.nousresearch.com/) is an autonomous agent runtime. This role runs it in embodied mode: on a machine that is dedicated to it, with direct access to the hardware of that machine. Where the container roles put a kernel boundary between the agent and its host, here the boundary is the device itself."
-msgstr ""
+msgstr "[เจ้าหน้าที่เฮอมิส](https://hermes-agent.nousresearch.com/) เป็นตัวแทนอัตโนมัติ บทบาทนี้ดําเนินการในโหมดแฝง: บนเครื่องจักรที่อุทิศให้กับมัน ด้วยการเข้าถึงโดยตรง โดยบทบาทของคอนเทนเนอร์วางขอบเขตเคอร์เนล ระหว่างตัวแทนกับโฮสต์ ตรงนี้ขอบเขตเป็นอุปกรณ์เอง."
 
+# translated-by: libretranslate
 msgid "[Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [OpenClaw](roles/web-app-openclaw/)"
-msgstr ""
+msgstr "[เจ้าหน้าที่เฮอมิส](roles/web-app-hermes/). [Keycloak](roles/web-app-keycloak/). [LiteLLM Gateway](roles/svc-ai-litellm/). [OpenClaw](roles/web-app-openclaw/)"
 
+# translated-by: libretranslate
 msgid "[Home Assistant](https://www.home-assistant.io/) is an open-source home automation platform that connects smart-home devices from many vendors behind a single local interface. It keeps device state, dashboards, and automation rules on the machine that runs it, and exposes them through a web interface, a REST API, and a built-in MCP server."
-msgstr ""
+msgstr "[ผู้ช่วยบ้าน](https://www.home-assistant.io/) เป็นแท่นปรับอัตโนมัติแบบโอเพนซอร์ส ที่เชื่อมต่ออุปกรณ์บ้านแบบฉลาด จากผู้จําหน่ายหลายคน อยู่เบื้องหลังอินเทอร์เฟซท้องถิ่นหนึ่งเครื่อง มันรักษาสถานะอุปกรณ์, แผงวงจร, และกฏอัตโนมัติของเครื่องที่ดําเนินการมัน และเปิดเผยพวกเขาผ่านเว็บอินเทอร์เฟซ, REST APIและเซิร์ฟเวอร์เอ็มซีพี."
 
+# translated-by: libretranslate
 msgid "[How I backup dedicated root servers](https://blog.veen.world/2020/12/26/how-i-backup-dedicated-root-servers/)"
-msgstr ""
+msgstr "[สํารองเซิร์ฟเวอร์รากที่ทุ่มเท](https://blog.veen.world/2020/12/26/how-i-backup-dedicated-root-servers/)"
 
+# translated-by: libretranslate
 msgid "[Hugo documentation source: gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)"
-msgstr ""
+msgstr "[แหล่งเอกสารของฮิวโก้: Gohugoio/hugo Docs](https://github.com/gohugoio/hugoDocs)"
 
+# translated-by: libretranslate
 msgid "[Hugo official site](https://gohugo.io/)"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการของฮิวโก้](https://gohugo.io/)"
 
+# translated-by: libretranslate
 msgid "[Hugo](https://gohugo.io/) is a fast, single-binary static site generator written in Go. This role builds a Hugo site from any upstream Git repository (default: [gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)) at image-build time and serves the rendered HTML/CSS/JS via nginx. There is no database, no application server, and no dynamic backend at runtime."
-msgstr ""
+msgstr "[ฮิวโก้](https://gohugo.io/) เป็นเครื่องกําเนิดคลื่นความถี่เดียวที่เร็ว เขียนด้วยคําว่า โก บทบาทนี้สร้าง Hugo เว็บไซต์ใด ๆ จากต้นน้ํา Git คลังสื่อ (ค่าปริยาย: [Gohugoio/ Hugo Docs](https://github.com/gohugoio/hugoDocs)) ในเวลาที่สร้างอิมเมจและทําหน้าที่แปล HTML/CSS/JS ผ่าน nginx ไม่มีฐานข้อมูล, ไม่มีแม่ข่ายโปรแกรม และไม่มีแบ็คเอนต์จัดการการทํางาน."
 
+# translated-by: libretranslate
 msgid "[Implement email template customization](https://open.project.infinito.nexus/wp/562)"
-msgstr ""
+msgstr "[ปรับแต่งการตั้งค่าอีเมลเอง](https://open.project.infinito.nexus/wp/562)"
 
+# translated-by: libretranslate
 msgid "[Imprint](roles/web-svc-legal/)"
-msgstr ""
+msgstr "[พิมพ์](roles/web-svc-legal/)"
 
+# translated-by: libretranslate
 msgid "[Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)"
-msgstr ""
+msgstr "[Infinito.Nexus สัญญาอนุญาตสิทธิ์ของชุมชน (ไม่ใช้ภาษา)](https://s.infinito.nexus/license)"
 
+# translated-by: libretranslate
 msgid "[Infinito.Nexus GitHub repository](https://s.infinito.nexus/code)"
-msgstr ""
+msgstr "[Infinito.Nexus คลังสื่อ GitHub](https://s.infinito.nexus/code)"
 
+# translated-by: libretranslate
 msgid "[Infinito.Nexus Hub](https://hub.infinito.nexus/) - tutorials, FAQs, and community support."
-msgstr ""
+msgstr "[Infinito.Nexus ฮับ](https://hub.infinito.nexus/) - บทเรียน เอฟเอคิว และการสนับสนุนชุมชน."
 
+# translated-by: libretranslate
 msgid "[Infinito.Nexus Project Repository](https://s.infinito.nexus/code) 🔗"
-msgstr ""
+msgstr "[Infinito.Nexus การตอบกลับโครงการ](https://s.infinito.nexus/code) 🔗"
 
+# translated-by: libretranslate
 msgid "[Infinito.Nexus Project](https://infinito.nexus)"
-msgstr ""
+msgstr "[Infinito.Nexus โครงการ](https://infinito.nexus)"
 
+# translated-by: libretranslate
 msgid "[Installation Guide](docs/administration/installation.md) for local CLI installation, Docker execution, and source builds."
-msgstr ""
+msgstr "[คู่มือการติดตั้ง](docs/administration/installation.md) สําหรับการติดตั้ง CLI ท้องถิ่น, การประมวลผลโดเคอร์ และแหล่งสร้าง."
 
+# translated-by: libretranslate
 msgid "[Installation Guide](installation.md) — local CLI / dev setup"
-msgstr ""
+msgstr "[คู่มือการติดตั้ง](installation.md) — การ ตั้ง CLI / dev"
 
+# translated-by: libretranslate
 msgid "[Integration Tests](testing/integration.md)"
-msgstr ""
+msgstr "[การทดสอบการแทรกซึม](testing/integration.md)"
 
+# translated-by: libretranslate
 msgid "[Intel Media Driver upstream documentation](https://01.org/intel-media-sdk)"
-msgstr ""
+msgstr "[เอกสารสําหรับไดรเวอร์ของสื่อข้อมูล](https://01.org/intel-media-sdk)"
 
+# translated-by: libretranslate
 msgid "[InventoryManager](../../../utils/manager/inventory.py)"
-msgstr ""
+msgstr "[ผู้จัดจําหน่าย](../../../utils/manager/inventory.py)"
 
+# translated-by: libretranslate
 msgid "[Issue Tracker](https://s.infinito.nexus/issues)"
-msgstr ""
+msgstr "[ตัวติดตามปัญหา](https://s.infinito.nexus/issues)"
 
+# translated-by: libretranslate
 msgid "[JWT/OIDC auth](https://openbao.org/docs/auth/jwt/)"
-msgstr ""
+msgstr "[แบบแยก JWT/ OIDC](https://openbao.org/docs/auth/jwt/)"
 
+# translated-by: libretranslate
 msgid "[Jellyfin website](https://jellyfin.org)"
-msgstr ""
+msgstr "[เว็บไซต์เจลลี่ฟิน](https://jellyfin.org)"
 
+# translated-by: libretranslate
 msgid "[Jellyfin](https://jellyfin.org) is a free, open-source media server. The official `jellyfin/jellyfin` container is Debian-based, stores everything in an internal SQLite DB (**no external database**), and persists three volumes: `/config`, `/cache`, `/media`."
-msgstr ""
+msgstr "[เจลลี่ฟิน](https://jellyfin.org) เป็นแม่ข่ายสื่อแบบโอเพนซอร์สเสรี เจ้าหน้าที่ `jellyfin/jellyfin` ตู้คอนเทนเนอร์มีพื้นฐาน Debian เก็บทุกอย่างใน SQLite DB ภายใน (**ไม่มีฐานข้อมูลภายนอก**)และยังคงสามเล่ม: `/config`. `/cache`. `/media`."
 
+# translated-by: libretranslate
 msgid "[Jellyfin](https://jellyfin.org) is a free, open-source media server. This role deploys the official `jellyfin/jellyfin` container behind the Infinito.Nexus reverse proxy, with Keycloak OIDC (web) and central LDAP authentication provisioned via the Jellyfin auth plugins."
-msgstr ""
+msgstr "[เจลลี่ฟิน](https://jellyfin.org) เป็นแม่ข่ายสื่อแบบโอเพนซอร์สเสรี บทบาทนี้ใช้ทางการ `jellyfin/jellyfin` กล่องข้างหลัง Infinito.Nexus กลับค่าพร็อกซีด้วย Keycloak OCDC (เว็บ) และการตั้งค่าการตรวจสอบสิทธิ์กลางของ LDAP ผ่าน Jellyfin ปลั๊กอิน auth."
 
+# translated-by: libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr ""
+msgstr "[การปรับแต่ง JFK เป็น Code ส่วนเสริม](https://plugins.jenkins.io/configuration-as-code/)"
 
+# translated-by: libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
-msgstr ""
+msgstr "[ขนาด MCP ของ JFK โปรแกรมเสริมของแม่ข่าย](https://plugins.jenkins.io/mcp-server/)"
 
+# translated-by: libretranslate
 msgid "[Jenkins Official Website](https://www.jenkins.io/)"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการของ Jenkins](https://www.jenkins.io/)"
 
+# translated-by: libretranslate
 msgid "[Jenkins oic-auth plugin](https://plugins.jenkins.io/oic-auth/)"
-msgstr ""
+msgstr "[ปลั๊กอิน Jenkins Oic-auth](https://plugins.jenkins.io/oic-auth/)"
 
+# translated-by: libretranslate
 msgid "[Jenkins](https://www.jenkins.io/) is an open-source automation server that orchestrates the build, test, and deployment of software through pipelines, freestyle jobs, and a large plugin ecosystem."
-msgstr ""
+msgstr "[เจนกินส์](https://www.jenkins.io/) เป็นเซิร์ฟเวอร์ระบบอัตโนมัติโอเพนซอร์ส ที่กําหนดการสร้าง, ทดสอบ, และใช้ซอฟต์แวร์ผ่านทางท่อส่งน้ํามัน, งานฟรีสไตล์, และระบบนิเวศของส่วนเสริมขนาดใหญ่."
 
+# translated-by: libretranslate
 msgid "[Jira](https://www.atlassian.com/) is Atlassian’s issue and project-tracking platform. This role deploys Jira via Docker Compose, connects it to PostgreSQL, and adds proxy awareness, optional OIDC SSO, health checks, and production-oriented defaults for Infinito.Nexus."
-msgstr ""
+msgstr "[ภาษาจิระName](https://www.atlassian.com/) เป็นแพลตฟอร์มของแอตลาสเซียนและโครงการติดตาม บทบาทนี้ใช้ Jira ผ่าน Docker Composeเชื่อมต่อไปยัง PostgreSQLเพิ่มความตระหนักในพร็อกซี SSC OIDCO, การตรวจสอบสุขภาพ, และการผลิตสําหรับค่าปริยาย Infinito.Nexus."
 
+# translated-by: libretranslate
 msgid "[Jitsi Meet Project](https://jitsi.org/)"
-msgstr ""
+msgstr "[Jetsi เข้าร่วมโครงการ](https://jitsi.org/)"
 
+# translated-by: libretranslate
 msgid "[Jitsi Meet](https://jitsi.org/) is an open-source, end-to-end-encryptable video conferencing platform. Rooms run over WebRTC with a central Selective Forwarding Unit (jvb), an XMPP server (prosody) for signalling, and a conference focus daemon (jicofo)."
-msgstr ""
+msgstr "[Jetsi พบ](https://jitsi.org/) เป็นรูปแบบวิดีโอแบบเปิดให้บริการ, ตอนจบของการเข้ารหัส ห้องทํางานผ่านเว็บอาร์ทีซี ด้วยเครื่องขยายสัญญาณ (Jvb), XMPP เซิร์ฟเวอร์ (พ.ศ.) สําหรับสัญญาณและการประชุมเน้นดีมอน (จิโคโฟ)."
 
+# translated-by: libretranslate
 msgid "[Jitsi Meet](roles/web-app-jitsi/)"
-msgstr ""
+msgstr "[Jetsi พบ](roles/web-app-jitsi/)"
 
+# translated-by: libretranslate
 msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
-msgstr ""
+msgstr "[ปลั๊กอิน Prodition ของ Jetsi (คําค้น:)](https://github.com/jitsi-contrib/prosody-plugins)"
 
+# translated-by: libretranslate
 msgid "[Joomla Documentation](https://docs.joomla.org/)"
-msgstr ""
+msgstr "[จู มา ลา Documentation](https://docs.joomla.org/)"
 
+# translated-by: libretranslate
 msgid "[Joomla Official Website](https://www.joomla.org/)"
-msgstr ""
+msgstr "[จูมลา เว็บไซต์อย่างเป็นทางการ](https://www.joomla.org/)"
 
+# translated-by: libretranslate
 msgid "[Joomla](https://www.joomla.org/) is a free and open-source content management system that lets users build and run websites, intranets, and online applications without writing code. It exposes a component, module, and plugin architecture that authors and developers extend with custom content types, layouts, and integrations."
-msgstr ""
+msgstr "[จู มา ลา](https://www.joomla.org/) เป็นระบบการจัดการเนื้อหาแบบโอเพนซอร์ส ที่ให้ผู้ใช้สามารถสร้างและเรียกใช้เว็บไซต์ Intrnets และโปรแกรมออนไลน์โดยไม่ต้องเขียนโค้ด เว็บไซต์ นี้ เผย ให้ เห็น โครง สร้าง ส่วน ประกอบ, มอดูล, และ สถาปัตยกรรม ของ ผู้ เขียน และ ผู้ พัฒนา ที่ ขยาย ตัว ด้วย ชนิด ของ เนื้อหา, ผัง, และ การ ประสาน งาน ที่ กําหนด ไว้."
 
+# translated-by: libretranslate
 msgid "[Jrnl official documentation](https://jrnl.sh/)"
-msgstr ""
+msgstr "[เอกสารอย่างเป็นทางการของจูเนียร์](https://jrnl.sh/)"
 
+# translated-by: libretranslate
 msgid "[Jrnl](https://jrnl.sh/) is a simple and effective command-line journal application that allows users to create and manage personal journal entries."
-msgstr ""
+msgstr "[จูเนียร์](https://jrnl.sh/) เป็นโปรแกรมบันทึกคําสั่งที่เรียบง่ายและมีประสิทธิภาพ ที่อนุญาตให้ผู้ใช้สามารถสร้างและจัดการรายการบันทึกประจําวันส่วนตัวได้."
 
+# translated-by: libretranslate
 msgid "[Jupyter](https://jupyter.org/) runs code in a managed kernel and returns its output. This role provides that kernel as a backend for other services rather than as a notebook UI for people."
-msgstr ""
+msgstr "[จูปีเตอร์](https://jupyter.org/) ประมวลผลโค้ดในเคอร์เนลที่มีการจัดการและส่งกลับผลลัพธ์ บทบาทนี้จะให้เคอร์เนลเป็นแบ็คเอนต์สําหรับบริการอื่น แทนการใช้บันทึกข้อมูล UI สําหรับคน."
 
+# translated-by: libretranslate
 msgid "[KISS](https://en.wikipedia.org/wiki/KISS_principle)"
-msgstr ""
+msgstr "[ISS](https://en.wikipedia.org/wiki/KISS_principle)"
 
+# translated-by: libretranslate
 msgid "[KIX Start website](https://www.kixdesk.com/)"
-msgstr ""
+msgstr "[เว็บไซต์เริ่มต้น KIX](https://www.kixdesk.com/)"
 
+# translated-by: libretranslate
 msgid "[KIX Start](https://www.kixdesk.com/) is an open-source IT service management and helpdesk platform forked from OTRS. It provides ticket management, configuration management, knowledge base, and reporting for IT service teams."
-msgstr ""
+msgstr "[เริ่ม KIX](https://www.kixdesk.com/) เป็นระบบจัดการและระบบช่วยเหลือจาก OTRS รายการ นี้ จัด ให้ มี การ จัด การ เรื่อง บัตร, การ จัด การ เรื่อง ต่าง ๆ, ฐาน ความ รู้, และ การ รายงาน สําหรับ ทีม บริการ ไอที."
 
+# translated-by: libretranslate
 msgid "[KIX documentation](https://docs.kixdesk.com/)"
-msgstr ""
+msgstr "[เอกสารของ KIX](https://docs.kixdesk.com/)"
 
+# translated-by: libretranslate
 msgid "[Kata & gVisor](roles/svc-virt-kata/)"
-msgstr ""
+msgstr "[Kata & gVisor](roles/svc-virt-kata/)"
 
+# translated-by: libretranslate
 msgid "[Kata Containers](https://katacontainers.io/) is an OCI container runtime that starts each container inside a lightweight virtual machine with its own kernel instead of sharing the host kernel. [gVisor](https://gvisor.dev/) is a second isolating runtime, shipped as the single `runsc` binary, that intercepts container syscalls in a userspace kernel and runs without hardware virtualization."
-msgstr ""
+msgstr "[ตัวบรรจุ Kata](https://katacontainers.io/) เป็นเวลาทํางานของตู้คอนเทนเนอร์ของ OCI ที่จะเริ่มต้นแต่ละตู้ภายในเครื่องเสมือนเบา กับเคอร์เนลของตัวเองแทนการใช้เคอร์เนลเครื่องโฮสต์ร่วมกัน [กราฟแสดงความถี่](https://gvisor.dev/) เป็นเวลาที่แยกออกจากกันครั้งที่สอง ส่งเป็นซิงเกิล `runsc` ไบนารี, ที่ดักจับ syscals ในเคอร์เนลผู้ใช้ และทํางานโดยไม่มีอุปกรณ์จําลอง."
 
+# translated-by: libretranslate
 msgid "[KeePassXC documentation](https://keepassxc.org/docs/)"
-msgstr ""
+msgstr "[เอกสาร Ke PassXC](https://keepassxc.org/docs/)"
 
+# translated-by: libretranslate
 msgid "[KeePassXC](https://keepassxc.org/) is a free, open-source, cross-platform password manager that stores credentials in an encrypted local database compatible with the KeePass format."
-msgstr ""
+msgstr "[คีปาสเอ็กซ์ซี](https://keepassxc.org/) เป็นตัวจัดการรหัสผ่านแบบโอเพนซอร์สเสรี, ครอสแพลตฟอร์ม ที่เก็บข้อมูลไว้ในฐานข้อมูลท้องถิ่นที่มีการเข้ารหัสที่เข้ากันได้กับรูปแบบ Ke Passs."
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): ERPNext self-provider test fix"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): ERP ต่อไปการทดสอบตัวเองแก้ไข"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): LLM gateway and model backends, the declared MCP layer and its sidecar, agent employees and the kernel-isolated tier, Home Assistant, credential declaration and rotation, firewall/tor/DNS ownership, variant-dictated provider configuration, the fail-closed lints, CI selection and resume, swarm convergence, and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): ประตู และระบบสํารองแบบ LLM , ชั้น MCP ที่ประกาศใช้และรถด้านข้าง, เอเจ้นท์ พนักงาน และที่ผูกด้วยเคอร์เนล Home Assistantการประกาศและการหมุนที่น่าเชื่อถือ firewall/tor/DNS การเป็นเจ้าของ, การปรับแต่งผู้ให้บริการแบบจํากัด, การปิด lits, การเลือก CI และต่อ ๆ ไป, การรวมเครือข่าย, และการบํารุงรักษารุ่น"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): LM Studio reachability and startup, variant-narrowed CI selection, the single agent instruction file, and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world)– LM Studio เข้าถึงและเริ่มต้น, การคัดเลือก CI แบบย่อ, แฟ้มคู่มือตัวแทน และการรักษารุ่น"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): Matrix ansible flavor, role fixes and review"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): รสชาติของเมทริกซ์ การแก้บทบาทและทบทวน"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): Pi-hole email service disablement"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): ปิดการใช้งานบริการอีเมลแบบ Pi-ole"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): Pi-hole role hardening and review"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): บทบาทพายหลุมแข็งและทบทวน"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): Semaphore, Checkmk and Jellyfin roles, users-model rework, fixes and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): เซมาโฟร์ Checkmk ถึง Jellyfin บทบาท, การปรับปรุงระบบผู้ใช้ใหม่, แก้ไขและบํารุงรักษารุ่น"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): Subset-label CI scoping, runner disk fixes, version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): สืบค้นเมื่อ:"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): Swarm and NFS deployment mode, central engines and object storage, backup and recovery rework, CI pipeline, linting and tooling"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): เครื่องยนต์ส่วนกลางและที่เก็บวัตถุสํารองและฟื้นฟูการทํางานท่อส่งน้ํามัน CI, Linking และ overling"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): Tor deployment axis, SAML and cross-domain SSO, CI chunk chain, generation-level recovery, health-check and lint enforcement, multi-language test suites"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): Tor Moden Expression, Sampal and cross-colibution SSO, CI peri peritions, semigration-graphy-cheme, Check-checurer and lit Cource, selections"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): code-scanning alert resolution and recurrence guards, CI/fork-PR fixes and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): ต่อไปนี้: มติพร้อมใช้การเข้ารหัสและยามการเกิดขึ้นอีก, CI/Fork-PR และการปรับปรุงรุ่น"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): n8n review, CI fixes and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world)- n8การทบทวน, การแก้ไข CI และการปรับปรุงรุ่น"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: [เควิน เว็น-เบอร์เคนบาค](https://veen.world)):
+# บริการวัตถุ, สะพาน SSO ที่เชื่อถือได้, การแก้ไขบทบาทและทบทวน
 msgid "[Kevin Veen-Birkenbach](https://veen.world): object-store service, trusted-header SSO bridges, role fixes and review"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): per-role update PRs, fork-PR CI hardening, buildx retry, cleanup-workflow fixes and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): OR-role update Prots, Foot-PR CI ทําให้แข็งตัว, buildry, แก้ปัญหาการล้างและบํารุงรักษารุ่น"
 
 msgid "[Kevin Veen-Birkenbach](https://veen.world): review and version maintenance"
 msgstr ""

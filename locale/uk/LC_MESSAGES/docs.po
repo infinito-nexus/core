@@ -36707,1512 +36707,2098 @@ msgstr "Метадані кінцевої точки ПК"
 msgid "MCP is a client-server protocol for connecting AI hosts to external tools, resources, and prompts. Several roles in this repository deploy applications whose upstream projects document MCP support. The current tree contains 18 role-local `mcp:` blocks, but metadata presence does not prove endpoint compatibility, least-privilege credentials, application-scoped user authorization, client provisioning, or an end-to-end tool call."
 msgstr "MCP - це протокол для підключення штучного інтелекту для зовнішніх інструментів, ресурсів та підказок. Кілька ролей в цьому репозиторійному розгортанні додатків, які представляють проектний документ MCP. Поточне дерево містить 18 рольова гра `mcp:` блоки, але наявність метаданих не доводить сумісності з кінцевими точками, не менше облікових даних, авторизації додатків, надання клієнту або кінцевого виклику інструментів."
 
+# translated-by: libretranslate
 msgid "MCP server"
-msgstr ""
+msgstr "Сервер MCP"
 
+# translated-by: libretranslate
 msgid "MCP server roles"
-msgstr ""
+msgstr "Роль сервера MCP"
 
+# translated-by: libretranslate
 msgid "MCP server roles expose application capabilities through an authenticated MCP endpoint."
-msgstr ""
+msgstr "MCP серверні ролі вистосувати можливості додатків через автентифіковану точку MCP."
 
+# translated-by: libretranslate
 msgid "MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
-msgstr ""
+msgstr "Модель: MCP [025-mcp-role-integration.md](025-mcp-role-integration.md)"
 
+# translated-by: libretranslate
 msgid "MDAD inventory rendered"
-msgstr ""
+msgstr "MDAD інвентаризація"
 
+# translated-by: libretranslate
 msgid "MDAD is pulled in as a git checkout at deploy time, not vendored. Source: `https://github.com/spantaleev/matrix-docker-ansible-deploy`. Upstream ships from `master` (no release tags exist), so the pin is the concrete commit SHA `9634cc3f7956e312eaf04647d85cbab46173f2e9` (master HEAD at PR-cut time) stored in `meta/services.yml::matrix.upstream.ref`. Clone destination: `{{ lookup('container', application_id, 'directories.instance') }}mdad/`. Bump path: bump the SHA, redeploy. Operator-confirmed."
-msgstr ""
+msgstr "MDAD витягується в якості git checkout в час розгортання, не продавлюється. Джерело: `https://github.com/spantaleev/matrix-docker-ansible-deploy`. Вступні кораблі з `master` (немає тегів релізу), так що шпилька є бетонною комісією SHA `9634cc3f7956e312eaf04647d85cbab46173f2e9` (майстер HEAD в PR-розшуку) зберігати в `meta/services.yml::matrix.upstream.ref`. Клон призначення: `{{ lookup('container', application_id, 'directories.instance') }}mdad/`. Бампу шлях: купить SHA, почервоніння. Оператор-підтвердження."
 
+# translated-by: libretranslate
 msgid "MDAD knobs are rendered from ``templates/flavor/ansible/vars.yml.j2``. Central-service consumers (postgres, redis, mailu, keycloak, openldap) are wired automatically when their ``services.<name>.enabled`` toggles are true."
-msgstr ""
+msgstr "MDAD knobs подаються з ``templates/flavor/ansible/vars.yml.j2``. ЦЕНТР-СЕРВІС (postgres, redis, mailu, keycloak, openldap) автоматично провідрюється, коли їх ``services.<name>.enabled`` Торгівля."
 
+# translated-by: libretranslate
 msgid "MDAD knobs are rendered from `templates/flavor/ansible/vars.yml.j2`. Central-service consumers (postgres, redis, mailu, keycloak, openldap) are wired automatically when their `services.<name>.enabled` toggles are true."
-msgstr ""
+msgstr "MDAD knobs подаються з `templates/flavor/ansible/vars.yml.j2`. ЦЕНТР-СЕРВІС (postgres, redis, mailu, keycloak, openldap) автоматично провідрюється, коли їх `services.<name>.enabled` Торгівля."
 
+# translated-by: libretranslate
 msgid "MDAD playbook invocation"
-msgstr ""
+msgstr "MDAD ігровий посібник"
 
+# translated-by: libretranslate
 msgid "MDAD upstream pulled in cleanly"
-msgstr ""
+msgstr "MDAD витягувати в чисто"
 
+# translated-by: libretranslate
 msgid "MDAD's `ansible-playbook setup.yml` invocation is encapsulated in a dedicated sub-container (DinD #2 relative to the Infinito deploy container which is DinD #1). The runner image is built locally from `roles/web-app-matrix/files/flavor/ansible/runner/Dockerfile` and pinned via `services.matrix.runner.image`. The runner bind-mounts `/var/run/docker.sock`, `/etc/systemd/system`, `/run/systemd`, `/usr/local/bin`, `/matrix`, and the MDAD checkout so MDAD's writes land in the deploy container's namespace (same Docker daemon and systemd as the rest of the stack)."
-msgstr ""
+msgstr "МЕДА `ansible-playbook setup.yml` Запрошення до участі у заході (ДинД #2 Що стосується контейнера для розгортання Infinito, який є DinD #1). Зображення бігуна побудовано локально з `roles/web-app-matrix/files/flavor/ansible/runner/Dockerfile` і закріплюється через `services.matrix.runner.image`. Рушники `/var/run/docker.sock`, й `/etc/systemd/system`, й `/run/systemd`, й `/usr/local/bin`, й `/matrix`, і MDAD checkout так MDAD пише земельну ділянку в області розгортання простору назв контейнера (ж Docker daemon і систематизовані як решта стека)й."
 
+# translated-by: libretranslate
 msgid "MODE_FOO: true   # comment MODE_BAR: false  # comment MODE_BAZ: null   # comment"
-msgstr ""
+msgstr "MODE_FOO: Залишити коментар MODE_BAR: false # коментар MODE_BAZ: null # коментар"
 
+# translated-by: libretranslate
 msgid "MSI Keyboard Driver"
-msgstr ""
+msgstr "MSI Драйвер клавіатури"
 
+# translated-by: libretranslate
 msgid "MTU for the bridge network. Lower when the host network is tunneled."
-msgstr ""
+msgstr "МТУ для мостової мережі. Знизу при тунелі хост-мережі."
 
+# translated-by: libretranslate
 msgid "MTU 📦"
-msgstr ""
+msgstr "МТУ 📦"
 
+# translated-by: libretranslate
 msgid "MUST"
-msgstr ""
+msgstr "МУСТ"
 
+# translated-by: libretranslate
 msgid "MUST NOT"
-msgstr ""
+msgstr "НЕ МОЖЕ"
 
+# translated-by: libretranslate
 msgid "MUST NOT batch through a shell loop. If the operator answers *\"none\"*, cancel nothing."
-msgstr ""
+msgstr "НЕ пакетувати через петлі оболонки. Якщо оператор відповідей *\"none\"*, скасувати нічого."
 
+# translated-by: libretranslate
 msgid "MUST NOT be added to any deploy matrix that gates a release."
-msgstr ""
+msgstr "НЕ додано до будь-якої матриці розгортання, яка забиває випуск."
 
+# translated-by: libretranslate
 msgid "MUST NOT be deactivated from the `Plugins -> Must-Use` admin screen."
-msgstr ""
+msgstr "НЕ відхиляти від `Plugins -> Must-Use` адмін екран."
 
+# translated-by: libretranslate
 msgid "MUST NOT be placed in a subdirectory, because WordPress does not recurse into `mu-plugins`."
-msgstr ""
+msgstr "НЕ поміщається в піддиректорію, тому що WordPress не повторюється `mu-plugins`й."
 
+# translated-by: libretranslate
 msgid "MUST NOT block any release. CI MAY skip its deploy matrix entry entirely."
-msgstr ""
+msgstr "НЕ блокувати будь-який реліз. CI MAY пропускає свій вхід матриці повністю."
 
+# translated-by: libretranslate
 msgid "MUST NOT disable the sandbox"
-msgstr ""
+msgstr "НЕ відключити пісочницю"
 
+# translated-by: libretranslate
 msgid "MUST NOT have a working `tasks/` tree."
-msgstr ""
+msgstr "НЕ БУДЕ РОБОТИ `tasks/` дерево."
 
+# translated-by: libretranslate
 msgid "MUST NOT weaken `deny`"
-msgstr ""
+msgstr "НЕ Слабкий `deny`"
 
+# translated-by: libretranslate
 msgid "MUST appear in [docs/](../..) or in a referenced requirement so the intent is discoverable."
-msgstr ""
+msgstr "MUST з'являються в [коди](../..) або в довідковій вимогі, так що не існує."
 
+# translated-by: libretranslate
 msgid "MUST be deployed on the public [infinito.nexus](https://infinito.nexus/) production instance and serving real traffic. The [infinito.nexus](https://infinito.nexus/) deploy is the project's burn-in environment for release-candidate roles; coverage gaps that only surface against real users get caught here before the role graduates to `stable`."
-msgstr ""
+msgstr "MUST розгортається на публіці [infinito.nexus](https://infinito.nexus/) продакшн і обслуговування реального трафіку. Про нас [infinito.nexus](https://infinito.nexus/) Розгортання – це об’єктивне середовище проекту для вивільнених ролей; розриви покриття, які тільки поверхні від реальних користувачів зловили тут перед випускниками ролі `stable`й."
 
+# translated-by: libretranslate
 msgid "MUST be exercised by the matrix-deploy on every push."
-msgstr ""
+msgstr "MUST виконайте матрицю-розгортання на кожному штовхаті."
 
+# translated-by: libretranslate
 msgid "MUST be loaded on every request as soon as the file is present."
-msgstr ""
+msgstr "MUST буде завантажено на кожен запит, як тільки файл присутній."
 
+# translated-by: libretranslate
 msgid "MUST be tagged with a \"Deprecated\" banner in its `README.md` pointing at the successor."
-msgstr ""
+msgstr "MUST позначений з \"Deprecated\" банери `README.md` вказуючи в наступника."
 
+# translated-by: libretranslate
 msgid "MUST clearly state in its `README.md` that the project does not maintain or test it and that operators use it at their own risk."
-msgstr ""
+msgstr "МУСТ чітко стану в своєму `README.md` що проект не підтримує або перевірить його, і оператори використовують його на власний ризик."
 
+# translated-by: libretranslate
 msgid "MUST deploy cleanly via `make compose-deploy mode=reinstall` against the reference distribution."
-msgstr ""
+msgstr "MUST розгортання чисто через `make compose-deploy mode=reinstall` проти розподілу посилань."
 
+# translated-by: libretranslate
 msgid "MUST have a `tasks/main.yml` and the minimum role-meta layout from [layout.md](layout.md)."
-msgstr ""
+msgstr "MUST мати `tasks/main.yml` і мінімальна рольова планування від [layout.md](layout.md)й."
 
+# translated-by: libretranslate
 msgid "MUST keep working until removed (the test suite still covers it)."
-msgstr ""
+msgstr "MUST продовжує працювати до видалення (Тест-люкс все ще охоплює його)й."
 
+# translated-by: libretranslate
 msgid "MUST run full pipeline"
-msgstr ""
+msgstr "Повний трубопровод"
 
+# translated-by: libretranslate
 msgid "MUST ship `templates/playwright.env.j2` and `files/playwright/playwright.spec.js`, with at least one assertion that covers the role's canonical landing surface."
-msgstr ""
+msgstr "MUST корабель `templates/playwright.env.j2` і `files/playwright/playwright.spec.js`, хоча б одна заявка, яка охоплює канонічну поверхню ролі."
 
+# translated-by: libretranslate
 msgid "Machine Facts vs Run Facts 🧭"
-msgstr ""
+msgstr "Машина Facts проти Run Facts 🧭"
 
+# translated-by: libretranslate
 msgid "Machine translation of the empty and fuzzy entries of a catalog."
-msgstr ""
+msgstr "Машинний переклад порожніх і нечітких записів каталогу."
 
+# translated-by: libretranslate
 msgid "Machine translations carry the translator comment `libretranslate`. A human translation never carries it and is never overwritten."
-msgstr ""
+msgstr "Машинні переклади виконують коментар `libretranslate`. Переклад людини ніколи не несе його і ніколи не перезаписано."
 
+# translated-by: libretranslate
 msgid "Machine-readable state (`CHANGED=…`) is written to **stdout**"
-msgstr ""
+msgstr "Машинний стан (`CHANGED=…`) написано **верстка**"
 
+# translated-by: libretranslate
 msgid "Machine-readable state (``CHANGED=…``) is written to **stdout**"
-msgstr ""
+msgstr "Машинний стан (``CHANGED=…``) написано **верстка**"
 
+# translated-by: libretranslate
 msgid "Machine-specific entries MUST stay local"
-msgstr ""
+msgstr "Автоспецифічні записи MUST залишаються локальними"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['т/т/т']
+# nocheck: url
+# translation-rejected: Зроблено */ т/т/т* шлях налаштування **Вибрані**
 msgid "Made */etc/environment* path configurable **Removed**"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Made *dev-base-devel* distro-aware for default distros"
-msgstr ""
+msgstr "Зроблено *dev-base-devel* distro-aware для дистролів за замовчуванням"
 
+# translated-by: libretranslate
 msgid "Made *drv-intel* VA-API package handling distro-specific"
-msgstr ""
+msgstr "Зроблено *drv-intel* ВА-API обробка пакетів дистрофічної"
 
+# translated-by: libretranslate
 msgid "Mail egress over Tor (operator: \"must\")"
-msgstr ""
+msgstr "Поштовий індекс над Тором (оператор: \"must\")"
 
+# translated-by: libretranslate
 msgid "Mail server:"
-msgstr ""
+msgstr "Поштовий сервер:"
 
+# translated-by: libretranslate
 msgid "Mailu Dependency Detection 🚨"
-msgstr ""
+msgstr "Детекція залежностей 🚨"
 
+# translated-by: libretranslate
 msgid "Mailu is a complete mail server suite delivered as a Docker-based solution. It supports all essential email protocols, offers intuitive administration through a web interface, and integrates advanced security measures such as TLS encryption and virus scanning. Its modular architecture allows for scalable deployments and easy customization to suit diverse operational requirements."
-msgstr ""
+msgstr "Mailu - це повний пакет поштових серверів, що поставляється в якості рішення на основі Docker. Він підтримує всі необхідні протоколи електронної пошти, пропонує інтуїтивно зрозуміле адміністрування через веб-інтерфейс і інтегрує розширені заходи безпеки, такі як шифрування TLS і сканування вірусів. Його модульна архітектура дозволяє масштабувати розгортання і легко налаштувати, щоб задовольнити різні експлуатаційні вимоги."
 
+# translated-by: libretranslate
 msgid "Mailu keeps **domains, users, and aliases** in the `admin_data` database. If you rename folders only, Mailu will not recognize the new accounts."
-msgstr ""
+msgstr "Mailu зберігає **домени, користувачі та псевдоніми** У `admin_data` база даних. Якщо ви перейменуєте папки тільки, Mailu не розпізнавати нові рахунки."
 
+# translated-by: libretranslate
 msgid "Mailu links user accounts to specific domains, so changing a user's primary domain cannot be done via the admin interface. You need to update it manually via the database."
-msgstr ""
+msgstr "Mailu посилання облікові записи користувачів на певні домени, тому зміна початкового домену користувача не може бути зроблено через інтерфейс адміністратора. Вам необхідно оновити її вручну за допомогою бази даних."
 
+# translated-by: libretranslate
 msgid "Mailu listening on the onion (operator: \"if possible\")"
-msgstr ""
+msgstr "Прослуховування пошти на цибулю (оператор: \"якщо це можливо\")"
 
+# translated-by: libretranslate
 msgid "Mailu-friendly filenames (``key.pem``, ``cert.pem``)"
-msgstr ""
+msgstr "Зручні імена файлів (``key.pem``, й ``cert.pem``)"
 
+# translated-by: libretranslate
 msgid "Mailu-friendly filenames (`key.pem`, `cert.pem`)"
-msgstr ""
+msgstr "Зручні імена файлів (`key.pem`, й `cert.pem`)"
 
+# translated-by: libretranslate
 msgid "Mailu: <https://mailu.io/>"
-msgstr ""
+msgstr "Пошта: <https://mailu.io/>"
 
+# translated-by: libretranslate
 msgid "Mailu: https://mailu.io/"
-msgstr ""
+msgstr "Пошта: https://mailu.io/"
 
+# translated-by: libretranslate
 msgid "Main Categories"
-msgstr ""
+msgstr "Основні категорії"
 
+# translated-by: libretranslate
 msgid "Main files or sections changed:"
-msgstr ""
+msgstr "Змінено основні файли або розділи:"
 
+# translated-by: libretranslate
 msgid "Main repository: <https://s.infinito.nexus/code>"
-msgstr ""
+msgstr "Головна репозиторій: <https://s.infinito.nexus/code>"
 
+# translated-by: libretranslate
 msgid "Main repository: https://s.infinito.nexus/code"
-msgstr ""
+msgstr "Головна репозиторій: https://s.infinito.nexus/code"
 
+# translated-by: libretranslate
 msgid "Maintains ``roles/<id>/latest`` symlink (when version ≠ ``latest``)"
-msgstr ""
+msgstr "Головна ``roles/<id>/latest`` Симфонія (коли версія ≠ ``latest``)"
 
+# translated-by: libretranslate
 msgid "Maintains `roles/<id>/latest` symlink (when version ≠ `latest`)"
-msgstr ""
+msgstr "Головна `roles/<id>/latest` Симфонія (коли версія ≠ `latest`)"
 
+# translated-by: libretranslate
 msgid "Maintenance"
-msgstr ""
+msgstr "Послуги"
 
+# translated-by: libretranslate
 msgid "Maintenance 🛠️"
-msgstr ""
+msgstr "Послуги 🛠️"
 
+# translated-by: libretranslate
 msgid "Maintenance, dependency, and tooling updates (incl. branches created by [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
-msgstr ""
+msgstr "Обслуговування, залежність та оновлення інструментів (incl. Гілки, створені [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
+# translation-refused: libretranslate protected-span
+# lost=['proxy_hide_header'] gained=[]
+# nocheck: url
+# translation-rejected: Про насproxy_hide_header Контент-Безпека-Політика
+# more_header варіант.
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Make Installation"
-msgstr ""
+msgstr "Встановлення макіяжу"
 
+# translated-by: libretranslate
 msgid "Make Open WebUI revocation and restart behavior correct before expanding its provider set."
-msgstr ""
+msgstr "ЗАМОВИТИ Open WebUI відновлення та перезаряджання поведінкою правильним перед розширенням свого постачальника."
 
+# translated-by: libretranslate
 msgid "Make a PHP extension available, installing its package if absent."
-msgstr ""
+msgstr "Зробіть розширення PHP, встановивши його пакет, якщо немає."
 
+# translated-by: libretranslate
 msgid "Make a command available, installing it if the host lacks it."
-msgstr ""
+msgstr "Зробіть команду доступним, встановивши її, якщо хост не вистачає."
 
+# translated-by: libretranslate
 msgid "Make behavior visible in the code instead of relying on hidden assumptions."
-msgstr ""
+msgstr "Зробіть поведінку видимим у коді замість перекриття на прихованих припущеннях."
 
+# translated-by: libretranslate
 msgid "Make code readable."
-msgstr ""
+msgstr "Зробіть дані коду."
 
+# translated-by: libretranslate
 msgid "Make network name equal to get_entity_name"
-msgstr ""
+msgstr "Зробіть назву мережі, що дорівнює get_entity_name"
 
+# translated-by: libretranslate
 msgid "Make one focused change at a time."
-msgstr ""
+msgstr "Зробіть одну фокусовану зміну часу."
 
+# translated-by: libretranslate
 msgid "Make prompts SMART."
-msgstr ""
+msgstr "Зробіть підказки SMART."
 
+# translated-by: libretranslate
 msgid "Make remote backup pulls fail fast per host while continuing across providers"
-msgstr ""
+msgstr "Зробіть віддалені резервні копії, не виходячи з того, як вони продовжуються через постачальників"
 
+# translated-by: libretranslate
 msgid "Make small, safe cleanup improvements in the files you touch when they reduce friction without expanding the scope unnecessarily."
-msgstr ""
+msgstr "Зробіть невеликі, безпечні поліпшення очищення в файлах, які ви дотик, коли вони зменшують тертя без розширення обсягів необов'язково."
 
+# translated-by: libretranslate
 msgid "Make sure all mailbox files belong to the `mail:mail` user/group:"
-msgstr ""
+msgstr "Переконайтеся, що всі файли поштових скриньок належать до `mail:mail` Користувач/група:"
 
+# translated-by: libretranslate
 msgid "Make sure variant 0 pins every dynamic service-key from `meta/services.yml` to `enabled: true, shared: true`."
-msgstr ""
+msgstr "Ми можемо самі зателефонувати одержувачу 0 шпильки кожен динамічний сервіс-під ключ від `meta/services.yml` до `enabled: true, shared: true`й."
 
+# translated-by: libretranslate
 msgid "Make targets"
-msgstr ""
+msgstr "Мета"
 
+# translated-by: libretranslate
 msgid "Make targets expose stable, human-facing commands."
-msgstr ""
+msgstr "Зробляйте цілі, виконайте стабільні, людські команди."
 
+# translated-by: libretranslate
 msgid "Make the architecture the slowest odometer digit"
-msgstr ""
+msgstr "Зробіть архітектуру найшвидший odometer digit"
 
+# translated-by: libretranslate
 msgid "Make the assigned filesystem binding in every case"
-msgstr ""
+msgstr "Зробіть присвоєне налаштування файлової системи в кожному випадку"
 
+# translated-by: libretranslate
 msgid "Make the code change."
-msgstr ""
+msgstr "Зробіть зміни коду."
 
+# translated-by: libretranslate
 msgid "Make the obvious path obvious."
-msgstr ""
+msgstr "Зробіть очевидний шлях."
 
+# translated-by: libretranslate
 msgid "Make user admin via cli"
-msgstr ""
+msgstr "Зробити адміністратора через cli"
 
+# translated-by: libretranslate
 msgid "Makefile Commands 🛠️"
-msgstr ""
+msgstr "Команди файлів 🛠️"
 
+# translated-by: libretranslate
 msgid "Makes the generated local certificates trusted by the host browser."
-msgstr ""
+msgstr "Зробіть створені локальні сертифікати, довірені браузером."
 
+# translated-by: libretranslate
 msgid "Makes the token available via ``lookup('users', '<user>').tokens['<app>']``"
-msgstr ""
+msgstr "Зробіть токен, доступний через ``lookup('users', '<user>').tokens['<app>']``"
 
+# translated-by: libretranslate
 msgid "Makes the token available via `lookup('users', '<user>').tokens['<app>']`"
-msgstr ""
+msgstr "Зробіть токен, доступний через `lookup('users', '<user>').tokens['<app>']`"
 
+# translated-by: libretranslate
 msgid "Manage Low-Hardware Resources"
-msgstr ""
+msgstr "Управління низькими ресурсами"
 
+# translated-by: libretranslate
 msgid "Manage email notifications and alerts with customizable SMTP configurations."
-msgstr ""
+msgstr "Управління повідомленнями електронної пошти та сповіщеннями з налаштуваннями SMTP."
 
+# translated-by: libretranslate
 msgid "Manage the repository's per-release changelog archive: split `CHANGELOG.md` into one file per release and mirror those entries into the Debian and RPM package changelog formats."
-msgstr ""
+msgstr "Управління архівом перевипуску репозиторій: розщеплення `CHANGELOG.md` в один файл для релізу і відображення записів у форматах Debian і RPM."
 
+# translated-by: libretranslate
 msgid "Manage your customer relationships with SuiteCRM, a powerful open-source CRM platform extending SugarCRM with advanced modules, workflows, and integrations. This role integrates SuiteCRM into the Infinito.Nexus ecosystem with centralized database, mail and LDAP-ready single sign-on integration. 🚀💼"
-msgstr ""
+msgstr "Управління відносинами з клієнтами SuiteCRM, потужна CRM-платформа з відкритим вихідним кодом, що розширюється з використанням сучасних модулів, робочих процесів та інтеграції. Ця роль інтегрується SuiteCRM в Infinito.Nexus екосистема з централізованою базою даних, пошти та LDAP-прочитаного єдиного входу. 🚀💼"
 
+# translated-by: libretranslate
 msgid "Manager identification"
-msgstr ""
+msgstr "Ідентифікація"
 
+# translated-by: libretranslate
 msgid "Manages GNOME Shell extensions and integrates the CLI GNOME Extension Manager."
-msgstr ""
+msgstr "Управління GNOME Shell розширення та інтеграція менеджера з розширення GNOME."
 
+# translated-by: libretranslate
 msgid "Manages container stopping and restarting during the migration process."
-msgstr ""
+msgstr "Управління контейнерами та перезавантаженням в процесі міграції."
 
+# translated-by: libretranslate
 msgid "Mandatory additional guard"
-msgstr ""
+msgstr "Обов'язковий додатковий охоронець"
 
+# translated-by: libretranslate
 msgid "Mandatory plugins"
-msgstr ""
+msgstr "Мандативні плагіни"
 
+# translated-by: libretranslate
 msgid "Manual CI Jobs 🎯"
-msgstr ""
+msgstr "Керівництво CI Вакансії 🎯"
 
+# translated-by: libretranslate
 msgid "Manual Purge via Cloudflare Dashboard"
-msgstr ""
+msgstr "Ручний хірург через Cloudflare Dashboard"
 
+# translated-by: libretranslate
 msgid "Manual Update"
-msgstr ""
+msgstr "Оновлення"
 
+# translated-by: libretranslate
 msgid "Manual dispatch of the full orchestrator for a chosen app whitelist. The `whitelist` input accepts the `__ALL__` sentinel for forced full deploy; see the \"Diff-driven app selection\" subsection in [pipeline.md](../../../artefact/git/pipeline.md)."
-msgstr ""
+msgstr "Ручна відправка повноконструктора для обраного додатку білого списку. Про нас `whitelist` введення приймає `__ALL__` відправник для примусового повного розгортання; див. \"Вибір дифужерного додатка\" субсекція в [pipeline.md](../../../artefact/git/pipeline.md)й."
 
+# translated-by: libretranslate
 msgid "Manually re-bootstrap Nexus repos"
-msgstr ""
+msgstr "Ручне перезавантаження Nexus repos"
 
+# translated-by: libretranslate
 msgid "Manually regenerate frontend certs"
-msgstr ""
+msgstr "Ручна регенерація передових сертифікатів"
 
+# translated-by: libretranslate
 msgid "Manually trigger a sync to register the user in the Nextcloud database:"
-msgstr ""
+msgstr "Ручний запуск синхронізації для реєстрації користувача в Nextcloud база даних:"
 
+# translated-by: libretranslate
 msgid "Many CLI tools walk the same `roles/<role>/<config|vars|meta>/...yml` files multiple times during a single invocation (dependency resolution, service resolution, role introspection, ...). Each direct `yaml.safe_load(path.read_text())` re-parses YAML and re-touches disk."
-msgstr ""
+msgstr "Багато інструментів CLI, які йдуть однаково `roles/<role>/<config|vars|meta>/...yml` Файли кількох разів під час одностороннього навчання (роздільна здатність залежності, роздільна здатність служби, контроль ролі, ...). Кожен прямий `yaml.safe_load(path.read_text())` re-parses YAML і re-touches диск."
 
+# translated-by: libretranslate
 msgid "Many XMPP clients do NOT support OAuth bearer-token authentication. LDAP plus SCRAM-SHA-256 is the interoperable default. If you advertise OIDC, document the small set of XMPP clients confirmed to work (Conversations, Movim, Dino) and keep LDAP plus SCRAM as the fallback path."
-msgstr ""
+msgstr "Багато XMPP Клієнти не підтримують аутентифікацію OAuth Bearer-token. LDAP плюс SCRAM-SHA-256 є взаємопроникним за замовчуванням. Якщо ви рекламуєте OIDC, документ невеликий набір XMPP Клієнти підтвердили роботу (Конверситації, Мовим, Діно) і зберегти LDAP плюс SCRAM як шлях запобіжника."
 
+# translated-by: libretranslate
 msgid "Many integration/lint tests and CLI tools walk the whole repo and read every matching file. Doing that N times per process is wasteful — the tree doesn't change during a run. These helpers walk the tree once per process and memoise both the path list and file contents, so every caller after the first one pays near-zero cost."
-msgstr ""
+msgstr "Багато інтеграційних / лінтових тестів і CLI інструментів, які пропускають весь репо і прочитають кожен відповідний файл. До того, що N разів на процес відпрацьований — дерево не змінюється під час виконання. Ці помічники ходять з дерева один раз на процес і запам'ятовуються як список шляхів, так і вміст файлів, так що кожен дзвоник після першого платить при собівартість."
 
+# translated-by: libretranslate
 msgid "Map ``HiddenServiceDir`` filenames to their exact byte contents."
-msgstr ""
+msgstr "Карта сайту ``HiddenServiceDir`` ім'я файлу до їх точного вмісту."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Map ``app id -> {\"docker\": state, \"swarm\": state}`` from gh job dicts."
-msgstr ""
+msgstr "Карта сайту ``app id -> {\"docker\": state, \"swarm\": state}`` від gh вироків роботи."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Map ``app id -> {\"docker\": url, \"swarm\": url}`` of the job html URLs, keeping the URL of the worst shard so links point at the failing job."
-msgstr ""
+msgstr "Карта сайту ``app id -> {\"docker\": url, \"swarm\": url}`` html URL-адреси, зберігаючи URL-адресу найгіршого шкаралупа так зв'язану точку в невиконанні роботи."
 
+# translated-by: libretranslate
 msgid "Map application_ids to role directory names based on vars/main.yml in each role."
-msgstr ""
+msgstr "Карта сайту application_ids до імен каталогів ролі на основі vars/main.yml в кожній ролі."
 
+# translated-by: libretranslate
 msgid "Map each distro id onto the ``os_family`` ansible reports for it."
-msgstr ""
+msgstr "Карта кожного дистро id на ``os_family`` нездатні звіти для неї."
 
+# translated-by: libretranslate
 msgid "Map every credited person to the set of URLs they are linked with."
-msgstr ""
+msgstr "Карта кожного зараховані особи на набір URL, які вони пов'язані з."
 
+# translated-by: libretranslate
 msgid "Map every name a dump can be addressed by to its database engine."
-msgstr ""
+msgstr "Будь ласка, вкажіть будь-яке ім'я, яке може бути адресоване двигуном бази даних."
 
+# translated-by: libretranslate
 msgid "Map role -> [:class:`Failure`] for every failed deploy job."
-msgstr ""
+msgstr "Роль карти -> [:class:`Failure`] для кожного не вдалося розгорнути роботу."
 
+# translated-by: libretranslate
 msgid "Map the repository palette onto those variables. Add selector overrides only for surfaces that cannot be reached through variables."
-msgstr ""
+msgstr "Карта репозиторійної палітри на ці змінні. Для поверхонь, які не можуть досягнути змінних."
 
+# translated-by: libretranslate
 msgid "Mapping, from compose ``docker_restart_policy`` to swarm ``condition``:"
-msgstr ""
+msgstr "Мапа, від компози ``docker_restart_policy`` ковбойши ``condition``Довідник"
 
+# translated-by: libretranslate
 msgid "MariaDB database provisioning via the ``sys-svc-rdbms`` role"
-msgstr ""
+msgstr "Статус на сервери ``sys-svc-rdbms`` роль"
 
+# translated-by: libretranslate
 msgid "MariaDB database provisioning via the `sys-svc-rdbms` role"
-msgstr ""
+msgstr "Статус на сервери `sys-svc-rdbms` роль"
 
+# translated-by: libretranslate
 msgid "MariaDB isolated sidecar path"
-msgstr ""
+msgstr "MariaDB ізольований боковий шлях"
 
+# translated-by: libretranslate
 msgid "MariaDB primary DB"
-msgstr ""
+msgstr "МаріяДБ первинний ДБ"
 
+# translated-by: libretranslate
 msgid "MariaDB stays in its own inventory group with one host (the manager) so its `DEPLOYMENT_MODE` resolves to `compose` and the database remains a local-volume compose service. NFS for the DB data directory is rejected by this requirement because of the well-known locking / `fsync` semantics issues."
-msgstr ""
+msgstr "МаріяДБ проживає у власній групі інвентаризації з одним хостом (Менеджер) так, як `DEPLOYMENT_MODE` вирішує `compose` і база даних залишається локальною службою композування. NFS для каталогу даних DB відхилено цією вимогою через добре відомий блокування / `fsync` проблеми семантики."
 
+# translated-by: libretranslate
 msgid "Mark intentional exceptions."
-msgstr ""
+msgstr "Позначте навмисні виключення."
 
+# translated-by: libretranslate
 msgid "Mark the *web-app-erpnext* role's own *erpnext* provider service with the *playwright-service-flag* self-provider suppression in *meta/services.yml*, fixing the Playwright service-flag integration guard that 10.0.0 tripped by exposing ERPNext as a consumable shared service."
-msgstr ""
+msgstr "Маркування *web-app-erpnext* рольова гра *ерпнекст* Служба підтримки *флейти-сервіс-флаг* самопровідувач пригнічення в *meta/services.yml*, фіксація служби Playwright-flag, що підтримує інтеграцію 10.0.0 поїздка ERPNext як обмежений загальний сервіс."
 
+# translated-by: libretranslate
 msgid "Mark the compose flavor deprecated in `meta/info.yml`; update README."
-msgstr ""
+msgstr "Позначте смак, депресований в `meta/info.yml`; оновлення README."
 
+# translated-by: libretranslate
 msgid "Markdown 📋"
-msgstr ""
+msgstr "Розсилка 📋"
 
+# translated-by: libretranslate
 msgid "Markdown-link resolvability, CLI-category README presence, and `@todo` transparency."
-msgstr ""
+msgstr "Відхилення відключення посилання, наявність КЛІ-категорії, і `@todo` прозорість."
 
+# translated-by: libretranslate
 msgid "Marker MAY appear anywhere in the first 30 lines of the file. For file-level opt-outs that stay visible at the top."
-msgstr ""
+msgstr "Marker MAY з'являється в будь-якому місці 30 лінії файлу. Для видалення файлів, які знаходяться у верхній частині."
 
+# translated-by: libretranslate
 msgid "Marker MAY appear on any line of the file. For whole-file opt-outs."
-msgstr ""
+msgstr "Marker MAY з'являється на будь-якій лінії файлу. Для всіх форматів."
 
+# translated-by: libretranslate
 msgid "Marker MAY sit on any line of a contiguous comment block above the construct. No blank line between marker and construct."
-msgstr ""
+msgstr "Маркер MAY сидить на будь-якій лінії контигузного блоку коментаря над конструктивою. Не порожній рядок між маркером і будівництвом."
 
+# translated-by: libretranslate
 msgid "Marker MAY sit on the construct's line or on any comment line above it within the same blank-line-delimited block. Used for `.po`, where one entry stacks several comments and repeats its text in `msgid` and `msgstr`."
-msgstr ""
+msgstr "Marker MAY сидить на лінії конструювання або на будь-який рядок коментаря, над ним, в той же порожній блок. Використовується для `.po`, де один запис стежить кілька коментарів і повторює його текст в `msgid` і `msgstr`й."
 
+# translated-by: libretranslate
 msgid "Marker MUST be on the construct's line or any physical line spanned by a multi-line call."
-msgstr ""
+msgstr "Маркер MUST повинен бути на лінії конструювання або будь-який фізичний рядок, що пролягає багатолінійним викликом."
 
+# translated-by: libretranslate
 msgid "Marker MUST be on the construct's line."
-msgstr ""
+msgstr "Маркер MUST на лінії будівництва."
 
+# translated-by: libretranslate
 msgid "Marker MUST be on the immediately preceding non-empty line. Blank lines break the association."
-msgstr ""
+msgstr "Маркер MUST повинен бути на негайному препарованому лінійці. Розірвати зв’язок."
 
+# translated-by: libretranslate
 msgid "Marker files seeded into the live NFS volume and into the manager's host secrets travel the backup chain forward and are recovered back onto the live instance; the drill passes only when every marker a deployed unit captured survives the whole loop. `base.sh` runs the nine steps below; the numbers in both diagrams are its `[n/9]` log markers."
-msgstr ""
+msgstr "Маркери засіяні в живий NFS об'єм і в господарському господарстві секрети, що подорожують резервну ланцюжок вперед і повертаються назад на живий екземпляр; свердло проходить тільки тоді, коли кожен маркер розгортається блок, який вижив всю петлю. `base.sh` запускає дев'ять кроків нижче; числа в обох схемах є її `[n/9]` маркери."
 
+# translated-by: libretranslate
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Роль маркера ведучий як Docker Swarm Керівник вузла, з логічною делегованої логікою svc-swarm-node"
 
+# translated-by: libretranslate
 msgid "Marketing Positioning"
-msgstr ""
+msgstr "Маркетинг позиціонування"
 
+# translated-by: libretranslate
 msgid "Marks a `roles/*/meta/services.yml` flag whose value stays literal. Per-flag (same line) for databases. Block-level (comment block above) when both flags stay literal."
-msgstr ""
+msgstr "Марки `roles/*/meta/services.yml` прапор, значення якого залишається літровим. Пер-флаг (і т.д.) для баз даних. Блок-рівень (блок коментарів вище) коли обидва прапори залишаються літрами."
 
+# translated-by: libretranslate
 msgid "Marks a line that needs a literal IP from `NETWORK_PUBLIC_DNS_RESOLVERS` where the substitution point cannot consume the variable (CoreDNS non-Jinja templates, host-bootstrap shell, doc examples)."
-msgstr ""
+msgstr "Марки лінії, яка потребує літрової IP від `NETWORK_PUBLIC_DNS_RESOLVERS` де точка заміщення не може споживати змінну (CoreDNS не-Jinja шаблони, хост-завантаженняstrap оболонки, приклади doc)й."
 
+# translated-by: libretranslate
 msgid "Marks a line using a `<word>.{{ DOMAIN_PRIMARY }}` host literal outside the meta SPOT. Reserved for legacy domain cleanups that the canonical SPOT cannot represent."
-msgstr ""
+msgstr "Марки лінії за допомогою `<word>.{{ DOMAIN_PRIMARY }}` хост літра поза мета SPOT. Зарезервовані для очищення доменів, які не можуть представляти канонічний SPOT."
 
+# translated-by: libretranslate
 msgid "Marks a role whose `services.prometheus.native_metrics.enabled` and `templates/prometheus.yml.j2` presence are intentionally inconsistent. Reserved for prepared-but-default-off scrape fragments (operator opt-in)."
-msgstr ""
+msgstr "Марки роль, чия `services.prometheus.native_metrics.enabled` і `templates/prometheus.yml.j2` наявність навмисно невідповідних. Заповідні для підготовлених фрагментів скребків (оператор оптимізатор)й."
 
+# translated-by: libretranslate
 msgid "Marks a role's `tasks/main.yml` as intentionally re-runnable. Skips both the run-once tag check and the suffix check."
-msgstr ""
+msgstr "Марки ролі `tasks/main.yml` як навмисно багаторазово. Пропустити як контроль за тегами run-once, так і перевіркою suffix."
 
+# translated-by: libretranslate
 msgid "Marks a service whose `enabled: true` does not require `shared: true`."
-msgstr ""
+msgstr "Марки послуги, які `enabled: true` не потрібно `shared: true`й."
 
+# translated-by: libretranslate
 msgid "Marks a single line or a whole file under `roles/` as legitimately calling `docker` / `docker compose` / `docker-compose` directly."
-msgstr ""
+msgstr "Відзначає один рядок або весь файл під `roles/` як законно викликати `docker` Українська `docker compose` Українська `docker-compose` прямо."
 
+# translated-by: libretranslate
 msgid "Marks and closes stale issues and PRs, deletes inactive branches, and prunes old GHCR CI image versions."
-msgstr ""
+msgstr "Марки і закриває проблеми та PR, виводить неактивні гілки, а також приноши старі версії GHCR CI."
 
+# translated-by: libretranslate
 msgid "Marks the Ansible task as ``changed`` if:"
-msgstr ""
+msgstr "Марки незнімного завдання як ``changed`` якщо:"
 
+# translated-by: libretranslate
 msgid "Marks the Ansible task as `changed` if:"
-msgstr ""
+msgstr "Марки незнімного завдання як `changed` якщо:"
 
+# translated-by: libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr ""
+msgstr "Команди матчів точно так, як Claude Code робить: літровий префікс, `*` диких, `deny` наречених `allow`й."
 
+# translated-by: libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
-msgstr ""
+msgstr "Зберіть кожен запис користувача, який використовується для синхронізації робочих місць та списків"
 
+# translated-by: libretranslate
 msgid "Matched by prefix, so a refusal another engine recorded still counts and is still cleared by ``retry``."
-msgstr ""
+msgstr "Узгоджується з префіксом, тому відмова в іншому двигуні, записаному до тих пір, як і раніше, очищений ``retry``й."
 
+# translated-by: libretranslate
 msgid "Matches Decision 19 (playwright meta-services parity) and gives operator-visible signal on the bridge wiring."
-msgstr ""
+msgstr "Рішення матчів 19 (Паритет флейта) і надає операторно-видимий сигнал на мостовому проводці."
 
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Розширення файлів зображень (jpg, png, gif, png, png,
+# png, jpg, png, png, png, png, jpg, png, png, png, png, png, png, png, png,
+# png, png, png, png, png, png, png, png, jpg, png, png, png, png, png, png,
+# png, png, png, png, png, png, png, png, png, jpg, png, png, png, png, png,
+# png, png, png, png, png, png, png, png, png, png, png, png, png, png, png,
+# png, png, png, png, png, png, png, png, png, png, png, png, png, png, png,
+# png, png, png, png, png, )й.
 msgid "Matches image file extensions (jpg, png, gif, webp, ico, svg, etc.)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Matches the Zammad wizard-bypass pattern ([022 Decision #9](README.md#archive)); avoids a manual UI step on every fresh box."
-msgstr ""
+msgstr "Матчі Zammad Чарівний візерунок ([022 Рішення #9](README.md#archive)); уникає керівництва UI крок на кожному свіжому ящику."
 
+# translated-by: libretranslate
 msgid "Matches the `atmo.rsvp` brand and avoids colliding with Mobilizon's `event.{{ DOMAIN_PRIMARY }}`. Both can coexist as distinct event surfaces."
-msgstr ""
+msgstr "Матчі `atmo.rsvp` бренд і уникає колажування MobilizonР `event.{{ DOMAIN_PRIMARY }}`. Обидва можуть співати як різні поверхні події."
 
+# translated-by: libretranslate
 msgid "Matches the beta-lifecycle IAM rule and leaves a login path when Keycloak is unavailable — which matters more for a secrets store than for a normal app."
-msgstr ""
+msgstr "Відповідає правила та залишає за собою логінний шлях Keycloak є недоступним — що має значення для магазину секретів, ніж для нормального додатка."
 
+# translated-by: libretranslate
 msgid "Matches the convention used by web-app-erpnext / web-app-zammad / web-app-odoo."
-msgstr ""
+msgstr "Уроки конвенції, що використовуються web-app-erpnext Українська web-app-zammad Українська web-app-odooй."
 
+# translated-by: libretranslate
 msgid "Matches the platform convention used by [`web-app-openproject`](../../roles/web-app-openproject/); centralised backup + monitoring."
-msgstr ""
+msgstr "Уроки конвенції платформи, що використовується [`web-app-openproject`](../../roles/web-app-openproject/); централізоване резервне копіювання + моніторинг."
 
+# translated-by: libretranslate
 msgid "Matching files"
-msgstr ""
+msgstr "Перегляд файлів"
 
+# translated-by: libretranslate
 msgid "Materialise every ``mcp`` topic's enable state from its declared peers."
-msgstr ""
+msgstr "Матеріал ``mcp`` Увімкнути стан теми від своїх заявлених однолітків."
 
+# translated-by: libretranslate
 msgid "Materialised Path"
-msgstr ""
+msgstr "Матеріалізований шлях"
 
+# translated-by: libretranslate
 msgid "Materialised Paths 🔗"
-msgstr ""
+msgstr "Матеріаловані доріжки 🔗"
 
+# translated-by: libretranslate
 msgid "Materialised path"
-msgstr ""
+msgstr "Матеріалізований шлях"
 
+# translated-by: libretranslate
 msgid "Materialised path and loader"
-msgstr ""
+msgstr "Матеріалізований шлях і навантажувач"
 
+# translated-by: libretranslate
 msgid "Matomo Token Not Yet Available ⚠️"
-msgstr ""
+msgstr "Matomo Token Не Yet Доступний ⚠️"
 
+# translated-by: libretranslate
 msgid "Matomo analytics platform set up and accessible."
-msgstr ""
+msgstr "Платформа аналітики Matomo встановлюються і доступні."
 
+# translated-by: libretranslate
 msgid "Matomo endpoints (if services.matomo.enabled) for script-elem/connect"
-msgstr ""
+msgstr "Метомо кінцеві точки (якщо services.matomo.enabled) для скрипт-elem/connect"
 
+# translated-by: libretranslate
 msgid "Matomo healthcheck behavior Healthchecks were reworked. HTTP readiness validation is stricter. Bootstrap now retries before failing. Container health timing differs from previous versions."
-msgstr ""
+msgstr "Відновлено поведінку про здоров’я матомо. Перевірка готовності HTTP є суворим. Bootstrap тепер ретріс перед збій. Терміни зберігання контейнерів відрізняється від попередніх версій."
 
+# translated-by: libretranslate
 msgid "Matomo now waits for a real HTTP-ready state before bootstrapping, replacing the TCP check with a PHP-based /index.php healthcheck to prevent startup race conditions."
-msgstr ""
+msgstr "Matomo тепер чекає на реальний стан HTTP-ready перед завантаженням, замінивши перевірку TCP з PHP-на основі /index.php оздоровчий пункт для запобігання умов запуску."
 
+# translated-by: libretranslate
 msgid "Matomo plugin candidate"
-msgstr ""
+msgstr "Кандидат плагінів Matomo"
 
+# translated-by: libretranslate
 msgid "Matomo upgrade to 1.1.13"
-msgstr ""
+msgstr "Матомо оновлення для 1.1.13"
 
+# translated-by: libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr ""
+msgstr "Матрикс міст модернізований: Signal, Телеграма, WhatsApp і Slack міст мігрувати в міст2 config, мертві mautrix-facebook/instagram мости замінені mautrix-meta, мост-specs are gateed by розгорнутий addon, syapse завантажує мости реєстрації з встановленого каталогу, і роль тепер відстежує *матриця-докер-розгортання* з прольоту spantaleev."
 
+# translated-by: libretranslate
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
-msgstr ""
+msgstr "Матриця робочих місць не поділяють кешу докера; кожен бігун витягує свій власний `infinito` зображення"
 
+# translated-by: libretranslate
 msgid "Matrix variants"
-msgstr ""
+msgstr "Варіанти матриці"
 
+# translated-by: libretranslate
 msgid "Matrix-deploy planner."
-msgstr ""
+msgstr "Матриця-деплоте."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Matrix-deploy variant transitions can leave per-domain nginx vhost configs behind: when a service drops out of a round's include set, ``sys-svc-compose``'s aggressive docker prune removes the container, but the vhost file under ``<NGINX_DIR>/conf.d/servers/{http,https}/<domain>.conf`` survives. The next round's probe then gets HTTP 502 (nginx serves the vhost with no upstream) instead of the expected TLS-error 000."
-msgstr ""
+msgstr "Переходи варіантів Matrix-deploy можуть залишити на-домені nginx vhost за адресою: коли послуга випадає з круглого списку, ``sys-svc-compose``'s агресивний docker prune видаляє контейнер, але файл vhost під ``<NGINX_DIR>/conf.d/servers/{http,https}/<domain>.conf`` вижити. Наступний круглий зонд, потім отримує HTTP 502 (nginx є vhost без upstream) замість очікуваного TLS-error 000й."
 
+# translated-by: libretranslate
 msgid "Matrix-variant deep dive."
-msgstr ""
+msgstr "Матриця-варіантний глибокий дайв."
 
+# translated-by: libretranslate
 msgid "Matrix: @kevinveenbirkenbach:infinito.nexus"
-msgstr ""
+msgstr "Матриця: @kevinveenbirkenbach:infinito.nexus"
 
+# translated-by: libretranslate
 msgid "Matrix: `#public:infinito.nexus` - quick chat with the community."
-msgstr ""
+msgstr "Матриця: `#public:infinito.nexus` - швидкий чат з громадою."
 
+# translated-by: libretranslate
 msgid "Matrix: `@kevinveenbirkenbach:infinito.nexus`"
-msgstr ""
+msgstr "Матриця: `@kevinveenbirkenbach:infinito.nexus`"
 
+# translated-by: libretranslate
 msgid "Mattermost **Team Edition** does not support native OIDC (`MM_OPENIDSETTINGS_*`) or LDAP, since both are Enterprise-only features."
-msgstr ""
+msgstr "Матери **Новини** не підтримує рідний OIDC (`MM_OPENIDSETTINGS_*`) або LDAP, так як обидва функції Enterprise-навколо."
 
+# translated-by: libretranslate
 msgid "Mattermost **Team Edition** does not support native OIDC (``MM_OPENIDSETTINGS_*``) or LDAP, since both are Enterprise-only features."
-msgstr ""
+msgstr "Матери **Новини** не підтримує рідний OIDC (``MM_OPENIDSETTINGS_*``) або LDAP, так як обидва функції Enterprise-навколо."
 
+# translated-by: libretranslate
 msgid "Mattermost exposes a Model Context Protocol server through the prepackaged Agents plugin (``mattermost-ai``), which ships inside the pinned ``mattermost/mattermost-team-edition`` image."
-msgstr ""
+msgstr "Маттеромест виводить сервер протоколу типового контексту через плагін попередньо упаковані агенти (``mattermost-ai``), які кораблі всередині шпильки ``mattermost/mattermost-team-edition`` зображення."
 
+# translated-by: libretranslate
 msgid "Mattermost exposes a Model Context Protocol server through the prepackaged Agents plugin (`mattermost-ai`), which ships inside the pinned `mattermost/mattermost-team-edition` image."
-msgstr ""
+msgstr "Маттеромест виводить сервер протоколу типового контексту через плагін попередньо упаковані агенти (`mattermost-ai`), які кораблі всередині шпильки `mattermost/mattermost-team-edition` зображення."
 
+# translated-by: libretranslate
 msgid "Mautrix"
-msgstr ""
+msgstr "Маутрікс"
 
+# translated-by: libretranslate
 msgid "Maximally compressed, telegraphic"
-msgstr ""
+msgstr "Максимально стиснені, телеграфічні"
 
+# translated-by: libretranslate
 msgid "Maximum on-disk size. Computed by [registry_cache_max_size.py](../../../../utils/env/handlers/infinito/registry_cache_max_size.py) as half the free disk at the cache path, floor `1g`, fallback `2g`."
-msgstr ""
+msgstr "Максимальний розмір на диску. Порівняти [registry_cache_max_size.py](../../../../utils/env/handlers/infinito/registry_cache_max_size.py) як половина вільного диска на шляху кешу, поверх `1g`, падлогу `2g`й."
 
+# translated-by: libretranslate
 msgid "Maximum reduction"
-msgstr ""
+msgstr "Максимальне зменшення"
 
+# translated-by: libretranslate
 msgid "Meaning"
-msgstr ""
+msgstr "Мапа"
 
+# translated-by: libretranslate
 msgid "Means"
-msgstr ""
+msgstr "Проксимус"
 
+# translated-by: libretranslate
 msgid "Meant to be driven by ``sys-svc-mail``, which decides when to enable this relay."
-msgstr ""
+msgstr "Вимірювальні матеріали ``sys-svc-mail``, яка вирішує при увімкненні цієї реле."
 
+# translated-by: libretranslate
 msgid "Meant to be driven by `sys-svc-mail`, which decides when to enable this relay."
-msgstr ""
+msgstr "Вимірювальні матеріали `sys-svc-mail`, яка вирішує при увімкненні цієї реле."
 
+# translated-by: libretranslate
 msgid "Measure Before You Delete"
-msgstr ""
+msgstr "Заходи до відправлення"
 
+# translated-by: libretranslate
 msgid "Measure progress with working software."
-msgstr ""
+msgstr "Заходи з робочим ПЗ."
 
+# translated-by: libretranslate
 msgid "Measure the fastest client settings against the deployed LibreTranslate."
-msgstr ""
+msgstr "Виміряйте найшвидші налаштування клієнтів щодо розгортання LibreTranslateй."
 
+# translated-by: libretranslate
 msgid "Measured at"
-msgstr ""
+msgstr "Заходи"
 
+# translated-by: libretranslate
 msgid "Mechanism"
-msgstr ""
+msgstr "Механізм"
 
+# translated-by: libretranslate
 msgid "Mechanism (verify exact upstream keys before wiring)"
-msgstr ""
+msgstr "Механізм (Перевірити точні ключі до проводки)"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Mechanism: `torrc.j2` renders extra ports from `TOR_ONION_EXTRA_PORTS` (list of `{onion_port, target}`), populated when `web-app-mailu` is deployed. Mailu's front is bound to `127.0.0.1` in the onion node."
-msgstr ""
+msgstr "Механізм: `torrc.j2` надає додаткові порти з `TOR_ONION_EXTRA_PORTS` (список `{onion_port, target}`), коли `web-app-mailu` розгортається. Передній поштовий зв'язок `127.0.0.1` в вузол цибулі."
 
+# translated-by: libretranslate
 msgid "Mechanism: a Postfix transport for `.onion` next-hops via a SOCKS-aware delivery path (e.g. a `torsocks`-wrapped transport or a SOCKS relay), gated on `svc-net-tor` being active. Public-Internet mail to non-onion domains stays on the normal path."
-msgstr ""
+msgstr "Механізм: транспорт післяфікса `.onion` next-hops через шлях доставки SOCKS-Aware (Наприклад, `torsocks`-збитий транспорт або реле SOCKS), заглушка `svc-net-tor` активний. Публічно-інформаційна пошта до неонових доменів залишається на нормальному шляху."
 
+# translated-by: libretranslate
 msgid "Mechanism: the `test-e2e-playwright` runner sets the browser proxy to `socks5://127.0.0.1:9050` (with `socks5` remote DNS for `.onion` resolution) when the resolved domain ends in `.onion`."
-msgstr ""
+msgstr "Механізм: `test-e2e-playwright` Ранок встановлює браузер проксі до `socks5://127.0.0.1:9050` (з `socks5` віддалений DNS для `.onion` рішення) коли вирішені доменні кінці в `.onion`й."
 
+# translated-by: libretranslate
 msgid "Media Platform"
-msgstr ""
+msgstr "Медіа-платформа"
 
+# translated-by: libretranslate
 msgid "Media library on a **named Docker volume** (`/media`), plus `/config` + `/cache`."
-msgstr ""
+msgstr "Бібліотека медіа на сайті **названий об'єм Docker** (`/media`), й `/config` до + `/cache`й."
 
+# translated-by: libretranslate
 msgid "Medians, not means: a job that hit a queue wait or a network stall is a long tail on an otherwise cheap axis, and averaging lets one such job outvote a hundred normal ones."
-msgstr ""
+msgstr "Медіан, не означає: робота, яка вдарила черги очікування або мережевий стол, - це довгий хвостик на іншому недорогому віссі, і перестараючись дозволяє одній такій роботі виділити сто нормальних."
 
+# translated-by: libretranslate
 msgid "Meeting/status/job/log reads only"
-msgstr ""
+msgstr "Meeting/status/job/log читати тільки"
 
+# translated-by: libretranslate
 msgid "Members of the `application_administrators` LDAP group (per requirement 004) receive `groups` claims that OpenTalk maps to elevated permissions. The exact role-to-group mapping is configured via the controller's role policy file or the Keycloak realm role mapper."
-msgstr ""
+msgstr "Учасники `application_administrators` Група LDAP (на вимогу 004) отримувати `groups` стверджує, що OpenTalk карти на підвищені дозволи. Точна роль-група налаштовується через файл політики ролі контролера або його роль Keycloak рольова карта."
 
+# translated-by: libretranslate
 msgid "Members of the `application_administrators` group (per requirement 004) gain OpenCloud admin rights when they log in."
-msgstr ""
+msgstr "Учасники `application_administrators` група (на вимогу 004) Приріст OpenCloud права адміністратора, коли вони ввійшли."
 
+# translated-by: libretranslate
 msgid "Memcached has no native auth or namespace. Consumer isolation is key-prefix only and is resolved by ``lookup('engine', 'memcached', consumer_id)`` at consume time, so ``tasks/01_init.yml`` is a no-op."
-msgstr ""
+msgstr "Memcached не має рідного простору або простору імен. Споживча ізоляція є ключовою і вирішується тільки ``lookup('engine', 'memcached', consumer_id)`` при споживанні часу, так ``tasks/01_init.yml`` немає."
 
+# translated-by: libretranslate
 msgid "Memcached has no native auth or namespace. Consumer isolation is key-prefix only and is resolved by `lookup('engine', 'memcached', consumer_id)` at consume time, so `tasks/01_init.yml` is a no-op."
-msgstr ""
+msgstr "Memcached не має рідного простору або простору імен. Споживча ізоляція є ключовою і вирішується тільки `lookup('engine', 'memcached', consumer_id)` при споживанні часу, так `tasks/01_init.yml` немає."
 
+# translated-by: libretranslate
 msgid "Memoised YAML load that accepts any root shape (dict, list, scalar). Use this for files where the root is not a mapping (e.g. Ansible task lists, the root list in `meta/variants.yml`)."
-msgstr ""
+msgstr "Навантаження YAML, що приймає будь-яку кореневу форму (дикт, список, скаляр). Використовуйте це для файлів, де корінь не є картуванням (e.g. Доступні списки завдань, список кореневих завдань `meta/variants.yml`)й."
 
+# translated-by: libretranslate
 msgid "Memoised multi-document YAML load."
-msgstr ""
+msgstr "Навантажувачі YAML."
 
+# translated-by: libretranslate
 msgid "Merge Strategy 🔀"
-msgstr ""
+msgstr "Стратегія злиття 🔀"
 
+# translated-by: libretranslate
 msgid "Merge a Sibling Branch"
-msgstr ""
+msgstr "Об'єднати Sibling Branch"
 
+# translated-by: libretranslate
 msgid "Merge commits ARE allowed"
-msgstr ""
+msgstr "Допускається розміщення товарів"
 
+# translated-by: libretranslate
 msgid "Merge the adopted template into one language catalog."
-msgstr ""
+msgstr "Зайнятий шаблон на один мовний каталог."
 
+# translated-by: libretranslate
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
-msgstr ""
+msgstr "Злийте два списки диктів на заданому ключі. - список1, список2: кожен повинен бути список[Дікт] - key_name: поле, щоб відповідати, якщо обидва списки містять елемент з однаковим key_name значення, їх словники об'єднані (поля зі списку2 перезапис або додати в список1)й."
 
+# translated-by: libretranslate
 msgid "Merge without approvals"
-msgstr ""
+msgstr "Без затвердження"
 
+# translated-by: libretranslate
 msgid "Merged entry for that application. Raises when missing."
-msgstr ""
+msgstr "Зароблений запис для цієї програми. При відсутності."
 
+# translated-by: libretranslate
 msgid "Merged entry for that user. Raises when missing."
-msgstr ""
+msgstr "Зароблений запис для користувача. При відсутності."
 
+# translated-by: libretranslate
 msgid "Merged entry, or `default_value` when the entry is missing."
-msgstr ""
+msgstr "Зароблений запис або `default_value` коли запис відсутній."
 
+# translated-by: libretranslate
 msgid "Merges a pull request via API, bypassing the `gh pr merge` confirmation flow. Merges are destructive to branch state and trigger downstream CI/deploys."
-msgstr ""
+msgstr "Займіть запит за допомогою API, обходити `gh pr merge` контрольний потік. Злиття є руйнівним для галузевого стану та спрацьовує CI/deploys."
 
+# translated-by: libretranslate
 msgid "Merges the source strings of both domains into every catalog under `locale/`."
-msgstr ""
+msgstr "Зберегти початкові рядки обох доменів в кожен каталог під `locale/`й."
 
+# translated-by: libretranslate
 msgid "Merges the source strings of the `core` and `docs` domains into `locale/`, then machine-translates what a pull request leaves empty or fuzzy, one runner per language LibreTranslate supports. Each runner opens its own PR against the head branch of the triggering PR. Gated behind the `CI_ENABLE_AUTO_TRANSLATIONS` repository variable, see [configuration.md](configuration.md); pull requests from a fork are skipped. Requires the `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` repository secrets, see [secrets.md](secrets.md)."
-msgstr ""
+msgstr "Злиття вихідних рядків `core` і `docs` домени в `locale/`, потім машинно-транспортні засоби, які витягують запит листя порожнім або нечітким, один бігун на мову LibreTranslate опори. Кожен бігун відкриває власну PR-галузі під час головки тригерного PR. Згорнути за `CI_ENABLE_AUTO_TRANSLATIONS` repository змінна, див. [configuration.md](configuration.md); витягти запити з виделки пропущені. Вимоги `BOT_APP_CLIENT_ID` і `BOT_APP_PRIVATE_KEY` репозиторійні секрети, див. [secrets.md](secrets.md)й."
 
+# translated-by: libretranslate
 msgid "Merges, in order:"
-msgstr ""
+msgstr "Закупівля:"
 
+# translated-by: libretranslate
 msgid "Merging the scope's override over the declared defaults keeps every declared provider resolvable, so an override narrows values, never the provider set."
-msgstr ""
+msgstr "У зв'язку з перевизначенням об'єктів за заявленими обставинами, кожен за заявленим постачальником, що відповідає значенням вузьких зв'язків, ніколи не встановлений постачальник."
 
+# translated-by: libretranslate
 msgid "Meta 🧬"
-msgstr ""
+msgstr "Мета 🧬"
 
+# translated-by: libretranslate
 msgid "Meta-Layout Integration Tests 🗂️"
-msgstr ""
+msgstr "Тести інтеграції Meta-Layout 🗂️"
 
+# translated-by: libretranslate
 msgid "Meta-introspection commands that report on roles, applications, services, networks, ports, Jinja templates, and call order across the repository."
-msgstr ""
+msgstr "Мета-інтроспектування команд, які звітують про ролі, додатки, послуги, мережі, порти, шаблони Jinja, і замовлення виклику по репозиторію."
 
+# translated-by: libretranslate
 msgid "Metadata must be defined under:"
-msgstr ""
+msgstr "Метадані повинні бути визначені за:"
 
+# translated-by: libretranslate
 msgid "Metadata required by the Infinito Deployer (title, description, logo, etc.)"
-msgstr ""
+msgstr "Метадані для розгортання Infinito (назва, опис, логотип і т.д.)"
 
+# translated-by: libretranslate
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "Метаsearch Engine запитів платформи для веб-застосунків без використання запиту користувача до постачальника відстеження"
 
+# translated-by: libretranslate
 msgid "Method"
-msgstr ""
+msgstr "Головна"
 
+# translated-by: libretranslate
 msgid "Metrics"
-msgstr ""
+msgstr "Метрологія"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1.13.8']
+# nocheck: url
+# translation-rejected: Міграція `web-app-friendica` як перший кінець до кінця
+# зрізу (JavaScript licenses API Веб-сайт Go1.13.8) і довести розгортання
+# парності.
 msgid "Migrate `web-app-friendica` as the first end-to-end slice (addon list + bridge resolution + task rewire) and prove deploy parity."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Migrate auth to the `saml` addon (replaces oauth2-proxy + ldapauth + double-login)"
-msgstr ""
+msgstr "Міграція аута до `saml` добірка (замінює оавт2-проксі + ldapauth + double-login)"
 
+# translated-by: libretranslate
 msgid "Migrate emails using IMAP tools (e.g. `imapsync`)"
-msgstr ""
+msgstr "Міграція електронних листів за допомогою інструментів IMAP (Наприклад: `imapsync`)"
 
+# translated-by: libretranslate
 msgid "Migrated Decidim, OpenLDAP schema, Postgres grant-schema, Fider, Odoo OIDC, and svc-db-postgres SQL into dedicated files/*.sql so the inline-multiline-SQL lint stays at zero"
-msgstr ""
+msgstr "Міграція Decidimй OpenLDAP schema, Пострес грант-шмама, Fider, Odoo OIDC і svc-db-postgres SQL у виділені файли/*.sql так, що inline-multiline-SQL розмістився на нуль"
 
+# translated-by: libretranslate
 msgid "Migrated every role's meta/ to the req-008/009/010/011 layout: per-role services.yml is the single source of truth for service flags, server.yml carries per-role local subnets, ports live next to the service that owns them, run_after / lifecycle move next to the entity, and a new meta/info.yml carries non-Galaxy descriptive metadata"
-msgstr ""
+msgstr "Міграція кожної ролі мета / до req-008/009/010/011 верстка: per-role services.yml є одним джерелом правди для прапорів служби, server.yml здійснює локальні підмережі, порти, що живуть поруч з сервісом, що володіє ними, run_after / життєвий цикл, що переміщається поруч з суб'єктом, і новий meta/info.yml несе негабаритні декриптовані метадані"
 
+# translated-by: libretranslate
 msgid "Migrated runtime resolution away from legacy generated dictionaries and setup CLIs toward cached lookup plugins such as applications, users, domains, image, service, and service_registry"
-msgstr ""
+msgstr "Migrated runtime роздільна здатність від legacy генерованих словників та налаштування CLIs до кешування плагінів, таких як додатки, користувачі, домени, зображення, сервіс та налаштування service_registry"
 
+# translated-by: libretranslate
 msgid "Migrates Docker volumes with database workloads to rapid storage (SSD) for improved performance."
-msgstr ""
+msgstr "Мигрець обсяги Docker з завантаженням бази даних для швидкого зберігання (ТПВ) для підвищення продуктивності."
 
+# translated-by: libretranslate
 msgid "Migration, rollback, or security-sensitive concerns:"
-msgstr ""
+msgstr "Міграція, зворотний зв'язок або безвідмовні проблеми:"
 
+# translated-by: libretranslate
 msgid "MinIO: [www.min.io](https://www.min.io)"
-msgstr ""
+msgstr "Мініо: [www.min.io](https://www.min.io)"
 
+# translated-by: libretranslate
 msgid "MinIO: `www.min.io <https://www.min.io>`__"
-msgstr ""
+msgstr "Мініо: `www.min.io <https://www.min.io>`__"
 
+# translated-by: libretranslate
 msgid "Mini-QR is designed for simplicity, privacy, and speed."
-msgstr ""
+msgstr "Міні-QR призначений для простоти, конфіденційності та швидкості."
 
+# translated-by: libretranslate
 msgid "Mini-QR is designed for simplicity, privacy, and speed.   It offers an ad-free interface that works entirely within your local environment, making it ideal for individuals, organizations, and educational institutions that value data sovereignty.   The app runs as a single Docker container and requires no database or backend setup, enabling secure and frictionless QR generation anywhere."
-msgstr ""
+msgstr "Міні-QR призначений для простоти, конфіденційності та швидкості. Він пропонує без реклами інтерфейс, який повністю працює в межах локального середовища, що робить його ідеальним для фізичних осіб, організацій та освітніх установ, які цінують суверенітет даних. Додаток працює як єдиний контейнер Docker і не вимагає налаштування бази даних або резервного копіювання, що дозволяє забезпечити безпечне і безбарвне QR-генерування в будь-якому місці."
 
+# translated-by: libretranslate
 msgid "Minimal Hardware Resources 💾"
-msgstr ""
+msgstr "Мінімальні апаратні ресурси 💾"
 
+# translated-by: libretranslate
 msgid "Minimal file defining the application identifier for the role."
-msgstr ""
+msgstr "Мінімальний файл, що визначає ідентифікатор програми для ролі."
 
+# translated-by: libretranslate
 msgid "Minimal logging of secrets"
-msgstr ""
+msgstr "Мінімальне залогування секретів"
 
+# translated-by: libretranslate
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr ""
+msgstr "Мінімал-терміналний кодеруючий агент з мереживно-навантажувальною системою майстерності, провідований на власні моделі шлюзу"
 
+# translated-by: libretranslate
 msgid "Minimum number of usable client IPs the role's subnet MUST hold."
-msgstr ""
+msgstr "Мінімальна кількість вживаних клієнтів IP-адреса ролі MUST."
 
+# translated-by: libretranslate
 msgid "Minimum required fields:"
-msgstr ""
+msgstr "Мінімальні необхідні поля:"
 
+# translated-by: libretranslate
 msgid "Mint (or reuse) the node onion identity and return its ``.onion`` address."
-msgstr ""
+msgstr "Мінуси (або повторно) особистість вершини і повернення його ``.onion`` Контакти."
 
+# translated-by: libretranslate
 msgid "Mint a v3 onion key from ``seed`` (32 random bytes if omitted)."
-msgstr ""
+msgstr "Вимкніть v3 onion ключ від ``seed`` (32 випадкові байти, якщо вдається)й."
 
+# translated-by: libretranslate
 msgid "Mint from a base64-encoded seed."
-msgstr ""
+msgstr "З підстави64-кодоване насіння."
 
+# translated-by: libretranslate
 msgid "Mint helper & key persistence"
-msgstr ""
+msgstr "Mint помічник і ключова наполегливість"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1.13.8']
+# nocheck: url
+# translation-rejected: Mint помічник + блок тести (JavaScript licenses API
+# Веб-сайт Go1.13.8)й.
 msgid "Mint helper + unit tests (address vector, formats, idempotency)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Mirror"
-msgstr ""
+msgstr "Дзеркало"
 
+# translated-by: libretranslate
 msgid "Mirror Cleanup: Deleting Private GHCR Packages 🗑️"
-msgstr ""
+msgstr "Дзеркало очищення: Видалення приватного GHCR Пакети 🗑️"
 
+# translated-by: libretranslate
 msgid "Mirror Integration 🪞"
-msgstr ""
+msgstr "Інтеграція з дзеркалами 🪞"
 
+# translated-by: libretranslate
 msgid "Mirror Policy 📋"
-msgstr ""
+msgstr "Історія 📋"
 
+# translated-by: libretranslate
 msgid "Mirror addon-gating.js envKey(): upper-case, non-alphanumeric runs -> '_'."
-msgstr ""
+msgstr "Дзеркало addon-gating.js Увійти(): верхня кришка, неальфа-нумеричні траси -> '_'й."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Mirror bash ``: \"${KEY:=value}\"`` semantics with per-key comments."
-msgstr ""
+msgstr "Дзеркальний баш ``: \"${KEY:=value}\"`` семантика з коментарями під ключ."
 
+# translated-by: libretranslate
 msgid "Mirror the kept ``CHANGELOG.md`` entries into the package changelogs."
-msgstr ""
+msgstr "Дзеркало збережена ``CHANGELOG.md`` записи в журнали змін."
 
+# translated-by: libretranslate
 msgid "Mirror the source tree: a file at `plugins/lookup/service.py` gets its tests at `tests/unit/python/plugins/lookup/test_service.py`."
-msgstr ""
+msgstr "Дзеркало вихідного дерева: файл у `plugins/lookup/service.py` отримує свої тести `tests/unit/python/plugins/lookup/test_service.py`й."
 
+# translated-by: libretranslate
 msgid "Mirror 🪞"
-msgstr ""
+msgstr "Дзеркало 🪞"
 
+# translated-by: libretranslate
 msgid "Mirrored images follow this scheme:"
-msgstr ""
+msgstr "Знімок екрана слідувати за цією схемою:"
 
+# translated-by: libretranslate
 msgid "Mirroring remains **opt-in** via `--mirror`"
-msgstr ""
+msgstr "Дзеркальні залишки **Пошук** Зареєструватися `--mirror`"
 
+# translated-by: libretranslate
 msgid "Mirrors only the upstream images that are not yet in GHCR. Called from the orchestrator before deploy tests."
-msgstr ""
+msgstr "Дзеркальні зображення, які ще не знаходяться в GHCR. Викликається з оркестру перед проведенням випробувань."
 
+# translated-by: libretranslate
 msgid "Mirrors override **image/version only**, preserving all other service config"
-msgstr ""
+msgstr "Дзеркальна наречена **зображення/версія тільки**, зберігаючи всі інші налаштування сервісу"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['24']
+# nocheck: url
+# translation-rejected: Дзеркала plugins/lookup/database.py (Поштовий індекс):
+# гілки, на яких об'єкт-магазин двигуна (Приват24) Споживач ввімкнено і виймає
+# уніформу S3 з'єднання корисного навантаження, тому споживчі шаблони
+# залишаються двигуном-агностичним.
 msgid "Mirrors plugins/lookup/database.py (postgres|mariadb): branches on which object-store engine (seaweedfs|minio) the consumer has enabled and yields a uniform S3 connection payload, so consumer templates stay engine-agnostic."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Mirrors plugins/lookup/database.py: branches on the consumer's `services.minio.shared` flag to yield either central (shared) or embedded (local) connection details."
-msgstr ""
+msgstr "Дзеркала plugins/lookup/database.py: гілки на споживача `services.minio.shared` прапорець для виходу або центральний (Поділитися) або вбудований (Українська) деталі підключення."
 
+# translated-by: libretranslate
 msgid "Mirrors the SSO flavor pattern landed in requirement 021. Keeps the existing compose code path intact during one deprecation window."
-msgstr ""
+msgstr "Дзеркальний шаблон SSO з урахуванням вимог 021. Зберігає існуючий композитивний шлях коду під час одного вікна депрокації."
 
+# translated-by: libretranslate
 msgid "Mirrors the Zammad rollout ([022 Decision #10](README.md#archive))."
-msgstr ""
+msgstr "Дзеркала Zammad шемале ([022 Рішення #10](README.md#archive))й."
 
+# translated-by: libretranslate
 msgid "Mirrors the ``database`` lookup but for the non-RDBMS engines registered in :data:`utils.roles.applications.services.engines.ENGINES` (redis, memcached, rabbitmq, elasticsearch, typesense, qdrant, unbound). When the consumer declares ``services.<engine>.shared: true`` the connection points at the central ``svc-db-*`` / ``svc-dns-*`` stack with the consumer's own provisioned credentials; otherwise it points at the embedded sidecar inside the consumer's own stack."
-msgstr ""
+msgstr "Дзеркала ``database`` пошук, але для не-RDBMS, зареєстрованих в :data:`utils.roles.applications.services.engines.ENGINES` (redis, memcached, кролик, еластичний пошук, видиense, qdrant, unbound). Коли споживач заявляє ``services.<engine>.shared: true`` точки підключення в центральній частині ``svc-db-*`` Українська ``svc-dns-*`` стека з власними нормами споживача; в іншому випадку це вказує на вбудовану боковину всередині власної стеки споживача."
 
+# translated-by: libretranslate
 msgid "Mirrors the `odoo.erp.{{ DOMAIN_PRIMARY }}` convention used by [`web-app-odoo`](../../roles/web-app-odoo/meta/domains.yml); both ERPs sit under the `.erp.` subdomain."
-msgstr ""
+msgstr "Дзеркала `odoo.erp.{{ DOMAIN_PRIMARY }}` конвенції, що використовуються [`web-app-odoo`](../../roles/web-app-odoo/meta/domains.yml); обидва ERP сидять під `.erp.` субдомен."
 
+# translated-by: libretranslate
 msgid "Mirrors the bash ``scripts/meta/env/load.sh`` semantics:"
-msgstr ""
+msgstr "Дзеркальний баш ``scripts/meta/env/load.sh`` семантика:"
 
+# translated-by: libretranslate
 msgid "Mirrors the compose matrix deploy (``cli.administration.deploy.development.deploy``) for the swarm test cluster: for each variant round of the primary app it provisions a per-round inventory (baking that round's ``meta/variants.yml`` overlay into ``host_vars`` so the deploy sees the round's config, e.g. the keycloak totp-off variant), extends it with the swarm topology, writes runtime extras, and deploys via ``cli.administration.deploy.swarm`` (the Playwright e2e runs in-deploy). Each round mirrors the compose ``--full-cycle``: an initial deploy then an async update pass, each followed by a convergence + reachability wait; on the first round the backup + restore DR drill runs between them. Prior rounds' stacks are purged between rounds."
-msgstr ""
+msgstr "Дзеркала композної матриці розгортання (``cli.administration.deploy.development.deploy``) Для кожного варіанту круглого основного додатку він встановлює запасний інвентар (випікання, що круглий ``meta/variants.yml`` перекласти ``host_vars`` так що розгортання бачить налаштування круглого вікна, наприклад, варіант ключа), подовжує її з топологією легенів, написує додаткові витрати, і розгортається через ``cli.administration.deploy.swarm`` (Грати2e працює в-deploy). Кожен круглий дзеркала компози ``--full-cycle``: початкове розгортання, після чого проходж оновлення асинхрону, кожен з них слідує конвергенції + очікування працездатності; на першому раунді резервної копії + відновлення дрилі DR проходить між ними. Пріоритетні стеки округів очищаються між раундами."
 
+# translated-by: libretranslate
 msgid "Mirrors the existing postgres `shared` flag:"
-msgstr ""
+msgstr "Дзеркала існуючого посту `shared` прапор:"
 
+# translated-by: libretranslate
 msgid "Mirrors the former `_applications_nextcloud_oidc_flavor` group_vars helper that was removed in commit 77a0e16ea."
-msgstr ""
+msgstr "Дзеркала колишнього `_applications_nextcloud_oidc_flavor` group_vars помічник, який був видалений в коміті 77з0Увійти16ай."
 
+# translated-by: libretranslate
 msgid "Mirrors the legacy scripts/meta/env/runtime.sh logic:"
-msgstr ""
+msgstr "Дзеркальна спадщина scripts/meta/env/runtime.sh логіка:"
 
+# translated-by: libretranslate
 msgid "Missing Resolve Scripts"
-msgstr ""
+msgstr "Вишукані сценарії"
 
+# translated-by: libretranslate
 msgid "Mode"
-msgstr ""
+msgstr "Режим роботи"
 
+# translated-by: libretranslate
 msgid "Mode Reference"
-msgstr ""
+msgstr "Статус на сервери"
 
+# translated-by: libretranslate
 msgid "Mode selection (group-membership trigger)"
-msgstr ""
+msgstr "Вибір режиму (групово-помічник)"
 
+# translated-by: libretranslate
 msgid "Mode selection trigger"
-msgstr ""
+msgstr "Вибір режиму тригер"
 
+# translated-by: libretranslate
 msgid "Mode, onion state, distro and filesystem are assigned by the rotation over the sweep number, and a retrigger is a new run with a new number (``call-orchestrator.yml`` falls back to ``github.run_number``). Comparing the full deploy tokens therefore compares two different sweeps: measured against the current ranking, 2 of 277 rows matched, so every walk stopped on its first row and the regular line never left the head. The row is the coarsest identity the rotation cannot move."
-msgstr ""
+msgstr "Режим, ріпчастий стан, дистро і файлова система призначають обертанням над номером sweep, а ретригер є новим забігом з новим числом (``call-orchestrator.yml`` падає назад ``github.run_number``). Порівняти повне розгортання токени, тому порівнює дві різні лебеді: вимірюється проти поточного рейтингу, 2 з 277 рядки, що відповідають, тому кожна прогулянка припинилася на першому ряду і регулярна лінія ніколи не залишила голову. У рядку є груба ідентичність обертання не може переміщатися."
 
+# translated-by: libretranslate
 msgid "Mode, tor, distro, filesystem and architecture"
-msgstr ""
+msgstr "Режим, tor, distro, файлова система та архітектура"
 
+# translated-by: libretranslate
 msgid "Mode-aware nginx ``proxy_pass`` directive renderer (compose/swarm), SPOT."
-msgstr ""
+msgstr "Завантажити плагін ``proxy_pass`` прямий рендер (компози/сварм), SPOT."
 
+# translated-by: libretranslate
 msgid "Mode-enabled defaults a role's services must declare, from the deepest categories.yml category carrying a ``modes`` mapping (parents apply when no deeper category declares one). Empty when no category declares modes."
-msgstr ""
+msgstr "Режим роботи за замовчуванням послуги ролі повинні вказати, від найглибшого categories.yml категорія, що здійснює ``modes`` мапа (батьки застосовуються при відсутності глибокої категорії заявляє одну). Порожня при відсутності категорії заявляє режими."
 
+# translated-by: libretranslate
 msgid "Model"
-msgstr ""
+msgstr "Модель"
 
+# translated-by: libretranslate
 msgid "Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr ""
+msgstr "Модель літака (LLM шлюз) це залежить від: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
+# translated-by: libretranslate
 msgid "Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr ""
+msgstr "Модель літака це будує: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
+# translated-by: libretranslate
 msgid "Model visibility"
-msgstr ""
+msgstr "Модельна видимість"
 
+# translated-by: libretranslate
 msgid "Models route through the 031 gateway: light intents to a small local `svc-ai-ollama`, heavy reasoning to an external backend."
-msgstr ""
+msgstr "Моделі маршруту через 031 шлюз: світлі інтенси до невеликого місцевого `svc-ai-ollama`, важка причина зовнішньої задньої частини."
 
+# translated-by: libretranslate
 msgid "Models, tools, and identity are the three separate planes (031 gateway, 025 MCP, IAM account) meeting in one workflow."
-msgstr ""
+msgstr "Моделі, інструменти та ідентичність - це три окремі площини (031 шлюз, 025 MCP, IAM аккаунт) зустріч в одному робочому процесі."
 
+# translated-by: libretranslate
 msgid "Modes:"
-msgstr ""
+msgstr "Режими:"
 
+# translated-by: libretranslate
 msgid "Modify Config 🔧"
-msgstr ""
+msgstr "Налаштування 🔧"
 
+# translated-by: libretranslate
 msgid "Modify the Configuration"
-msgstr ""
+msgstr "Змінення конфігурації"
 
+# translated-by: libretranslate
 msgid "Modifying files"
-msgstr ""
+msgstr "Змінення файлів"
 
+# translated-by: libretranslate
 msgid "Module"
-msgstr ""
+msgstr "Модуль"
 
+# translated-by: libretranslate
 msgid "Module Shape"
-msgstr ""
+msgstr "Налаштування модуля"
 
+# translated-by: libretranslate
 msgid "Module Shape 📐"
-msgstr ""
+msgstr "Налаштування модуля 📐"
 
+# translated-by: libretranslate
 msgid "Module contents"
-msgstr ""
+msgstr "Зміст модуля"
 
+# translated-by: libretranslate
 msgid "Module import not at top"
-msgstr ""
+msgstr "Імпорт модуля не вгорі"
 
+# translation-refused: libretranslate protected-span lost=['snake_case']
+# gained=['snake_caseй']
+# nocheck: url
+# translation-rejected: Ім'я модуля MUST Stay нижня snake_caseй.
 msgid "Module names MUST stay lowercase snake_case."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Module utilities: <https://docs.ansible.com/ansible/latest/dev_guide/developing_module_utilities.html>"
-msgstr ""
+msgstr "Модульні утиліти: <https://docs.ansible.com/ansible/latest/dev_guide/developing_module_utilities.html>"
 
+# translated-by: libretranslate
 msgid "Modules"
-msgstr ""
+msgstr "Модуль"
 
+# translated-by: libretranslate
 msgid "Modules called (in order)"
-msgstr ""
+msgstr "Модульи, які називаються (Замовити)"
 
+# translated-by: libretranslate
 msgid "Modules in `utils/roles/` MUST NOT depend on Ansible plugin loader internals at import time so the same code can be imported from filter plugins, lookup plugins, library modules, the CLI, and tests."
-msgstr ""
+msgstr "Модульні модулі `utils/roles/` MUST NOT залежать від змінного струму навантажувача для навантажувача з можливістю імпорту, тому цей же код може бути імпортований з фільтрових плагінів, плагінів, модулів бібліотеки, CLI та тестів."
 
+# translated-by: libretranslate
 msgid "Modules in `utils/roles/` MUST stay focused on data that originates from `roles/<role>/` (`meta/services.yml`, `meta/main.yml`, `vars/`, `defaults/`) or the runtime dictionary that mirrors those files (`applications`)."
-msgstr ""
+msgstr "Модульні модулі `utils/roles/` MUST залишатися зосередженими на даних, які виникають з `roles/<role>/` (`meta/services.yml`, й `meta/main.yml`, й `vars/`, й `defaults/`) або словник робочого часу, який відображає файли (`applications`)й."
 
+# translated-by: libretranslate
 msgid "Modules in `utils/roles/applications/` MUST provide reusable helpers for reading, resolving, and validating application configuration. Helpers MUST stay independent of Ansible plugin entrypoints so the same code can be imported from filter plugins, lookup plugins, and library modules."
-msgstr ""
+msgstr "Модульні модулі `utils/roles/applications/` MUST надає багаторазові помічники для читання, вирішення та перевірки конфігурації додатків. Допомагачі MUST залишаються незалежними від точки входу до плагіна, тому цей же код можна імпортувати з плагінів фільтра, плагінів пошуку та модулів бібліотеки."
 
+# translated-by: libretranslate
 msgid "Modules in `utils/roles/applications/services/` MUST NOT take over wider application-config concerns that belong to the sibling `config` module (path-driven `applications.<id>.<dotted>` reads, schema validation)."
-msgstr ""
+msgstr "Модульні модулі `utils/roles/applications/services/` MUST НЕ приймати більш широкі проблеми налаштування додатків, які належать до дроблення `config` модуль (шлях `applications.<id>.<dotted>` Читає, перевірка схеми)й."
 
+# translated-by: libretranslate
 msgid "Modules in `utils/roles/applications/services/` MUST limit themselves to the service-graph derived from `meta/services.yml`: registry construction, dependency resolution between provider and consumer roles, and database backend selection per application."
-msgstr ""
+msgstr "Модульні модулі `utils/roles/applications/services/` MUST обмежити себе сервісом-графом, отриманим від `meta/services.yml`: Реєстраційна конструкція, роздільна здатність залежностей між постачальником та споживчими ролями, а також вибір бази даних за заявою."
 
+# translated-by: libretranslate
 msgid "Modules in `utils/roles/validation/` MUST limit themselves to checking that role artefacts and their derived names obey the constraints documented in `docs/contributing/`: legal application identifiers, deployment-target invokability, container resource shape."
-msgstr ""
+msgstr "Модульні модулі `utils/roles/validation/` MUST обмежити себе, щоб перевірити, що роль артефактів і їх одержувані імена обійми, задокументовані в `docs/contributing/`: юридичні ідентифікатори додатків, неможливість розгортання, форма контейнерного ресурсу."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Modules in `utils/templating/` MUST limit themselves to rendering `{{ ... }}` and `{% ... %}` constructs found in YAML values, lookups, and templated config strings."
-msgstr ""
+msgstr "Модульні модулі `utils/templating/` MUST обмежити себе для рендерингу `{{ ... }}` і `{% ... %}` Конструктори, знайдені в значеннях YAML, пошуки та шаблонні рядки конфігурації."
 
+# translation-refused: libretranslate protected-span
+# lost=['scripts/container/purge/entity'] gained=['1.13.8',
+# 'scripts/container/purge/entityУкраїнська']
+# nocheck: url
+# translation-rejected: Модульи під `utils/cleanup/` НЕ бере на себе
+# зобов'язання, які належать суб'єктам, які підібрали примітиви хірурга в
+# [scripts/container/purge/entityУкраїнська](../../scripts/container/purge/entity/)
+# (JavaScript licenses API Веб-сайт Go1.13.8)й.
 msgid "Modules under `utils/cleanup/` MUST NOT take over responsibilities that belong to the entity-keyed purge primitives in [scripts/container/purge/entity/](../../scripts/container/purge/entity/) (database drop, compose down, filesystem removal)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Modules under `utils/cleanup/` MUST limit themselves to wiping or normalising state that survives compose and volume purges (for example secrets, token stores, cached registry data) so the surrounding entity-keyed purge primitives stay focused on stack-level cleanup."
-msgstr ""
+msgstr "Модульи під `utils/cleanup/` MUST обмежити себе протирання або нормалізувати стан, який витримує композицію та об'ємні гнилі (наприклад секрети, токенові магазини, дані реєстрів) Таким чином, навколишній суб'єктно-примітивний примітив, що залишаються зосередженими на очищенні рівня стека."
 
+# translated-by: libretranslate
 msgid "Modules 📦"
-msgstr ""
+msgstr "Модуль 📦"
 
+# translated-by: libretranslate
 msgid "Modules 🧭"
-msgstr ""
+msgstr "Модуль 🧭"
 
+# translated-by: libretranslate
 msgid "Monitor link performance and track click data to gain valuable insights into user engagement."
-msgstr ""
+msgstr "Перевірити продуктивність посилання і відстежувати дані, щоб отримати цінні уявлення про взаємодію користувача."
 
+# translated-by: libretranslate
 msgid "Monitoring (Decision #8)"
-msgstr ""
+msgstr "Моніторинг (Рішення #8)"
 
+# translated-by: libretranslate
 msgid "Monitoring nodes,"
-msgstr ""
+msgstr "Контроль вузлів,"
 
+# translated-by: libretranslate
 msgid "Monitors disk-space usage and alerts if any filesystem usage exceeds your defined threshold."
-msgstr ""
+msgstr "Моніторинги використання дискового простору та сповіщення, якщо використання файлової системи перевищує визначений поріг."
 
+# translated-by: libretranslate
 msgid "Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical `Host` header and `X-Forwarded-Proto: https`."
-msgstr ""
+msgstr "Локшина порівнює кожного запиту `$CFG->wwwroot`. Пробе, що досягає кінцевої точки над внутрішнім походженням HTTP, відповідає перенаправленню на канонічну URL-адресу HTTPS, а не з JSON, тому абоненти повинні надсилати канонічні `Host` головки і `X-Forwarded-Proto: https`й."
 
+# translated-by: libretranslate
 msgid "Moodle compares every request against ``$CFG->wwwroot``. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical ``Host`` header and ``X-Forwarded-Proto: https``."
-msgstr ""
+msgstr "Локшина порівнює кожного запиту ``$CFG->wwwroot``. Пробе, що досягає кінцевої точки над внутрішнім походженням HTTP, відповідає перенаправленню на канонічну URL-адресу HTTPS, а не з JSON, тому абоненти повинні надсилати канонічні ``Host`` головки і ``X-Forwarded-Proto: https``й."
 
+# translated-by: libretranslate
 msgid "Moodle ships a cURL blocklist that rejects every request to `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, and only permits ports 80 and 443. Both settings gate `\\core\\files\\curl_security_helper`, which `auth_oidc` consults for the Keycloak token exchange and `\\core\\http_client` consults for the AI provider request. The gateway answers on `192.168.80.0/24`, and on an onion node `container_extra_hosts` pins the Keycloak authority to the Docker bridge gateway, which `NETWORK_DOCKER_ADDRESS_POOLS` draws from `10.208.0.0/12`. With the upstream defaults the OIDC login obtains no token and the AI provider cannot reach the gateway."
-msgstr ""
+msgstr "Moodle суден cURL блоклист, який відхиляє кожного запиту `10.0.0.0/8`, й `172.16.0.0/12` і `192.168.0.0/16`, і тільки дозволи портів 80 і 443. Обидва налаштування воріт `\\core\\files\\curl_security_helper`, які `auth_oidc` Консультації для Keycloak Обмін та обмін `\\core\\http_client` консультує з вимогою AI-провайдера. Відповіді на шлюзу `192.168.80.0/24`, і на вузол цибулі `container_extra_hosts` шпильки Keycloak орган до Докерського мосту, який `NETWORK_DOCKER_ADDRESS_POOLS` малювати з `10.208.0.0/12`. За умовчанням OIDC логін не отримує токени та AI-провайдер не може досягати шлюзу."
 
+# translated-by: libretranslate
 msgid "Moodle ships a cURL blocklist that rejects every request to ``10.0.0.0/8``, ``172.16.0.0/12`` and ``192.168.0.0/16``, and only permits ports 80 and 443. Both settings gate ``\\core\\files\\curl_security_helper``, which ``auth_oidc`` consults for the Keycloak token exchange and ``\\core\\http_client`` consults for the AI provider request. The gateway answers on ``192.168.80.0/24``, and on an onion node ``container_extra_hosts`` pins the Keycloak authority to the Docker bridge gateway, which ``NETWORK_DOCKER_ADDRESS_POOLS`` draws from ``10.208.0.0/12``. With the upstream defaults the OIDC login obtains no token and the AI provider cannot reach the gateway."
-msgstr ""
+msgstr "Moodle суден cURL блоклист, який відхиляє кожного запиту ``10.0.0.0/8``, й ``172.16.0.0/12`` і ``192.168.0.0/16``, і тільки дозволи портів 80 і 443. Обидва налаштування воріт ``\\core\\files\\curl_security_helper``, які ``auth_oidc`` Консультації для Keycloak Обмін та обмін ``\\core\\http_client`` консультує з вимогою AI-провайдера. Відповіді на шлюзу ``192.168.80.0/24``, і на вузол цибулі ``container_extra_hosts`` шпильки Keycloak орган до Докерського мосту, який ``NETWORK_DOCKER_ADDRESS_POOLS`` малювати з ``10.208.0.0/12``. За умовчанням OIDC логін не отримує токени та AI-провайдер не може досягати шлюзу."
 
+# translated-by: libretranslate
 msgid "Moodle support is plugin-based and MUST be version-compatible with the pinned Moodle LTS release."
-msgstr ""
+msgstr "Підтримка локшини є плагіном і MUST бути сумісним з пінополістиролом Moodle LTS реліз."
 
+# translated-by: libretranslate
 msgid "Moral Principles"
-msgstr ""
+msgstr "Морські принципи"
 
+# translated-by: libretranslate
 msgid "More"
-msgstr ""
+msgstr "Детальніше"
 
+# translated-by: libretranslate
 msgid "More background:"
-msgstr ""
+msgstr "Більше фону:"
 
+# translated-by: libretranslate
 msgid "More information [here](https://hub.infinito.nexus/t/infinito-nexus-ci-cd-debugging-guide/462)."
-msgstr ""
+msgstr "Більше інформації [Головна](https://hub.infinito.nexus/t/infinito-nexus-ci-cd-debugging-guide/462)й."
 
+# translated-by: libretranslate
 msgid "More information [here](https://s.infinito.nexus/localenv)."
-msgstr ""
+msgstr "Більше інформації [Головна](https://s.infinito.nexus/localenv)й."
 
+# translated-by: libretranslate
 msgid "More information [here](https://s.infinito.nexus/reviewguide)."
-msgstr ""
+msgstr "Більше інформації [Головна](https://s.infinito.nexus/reviewguide)й."
 
+# translated-by: libretranslate
 msgid "More information about this role is available in these GitHub repositories:"
-msgstr ""
+msgstr "Більше інформації про цю роль можна знайти в цих репозиторій GitHub:"
 
+# translated-by: libretranslate
 msgid "More information and detailed instructions [here](https://s.infinito.nexus/wsl2env)."
-msgstr ""
+msgstr "Більш детальна інструкція [Головна](https://s.infinito.nexus/wsl2env)й."
 
+# translated-by: libretranslate
 msgid "More information: <https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html>"
-msgstr ""
+msgstr "Більше інформації: <https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html>"
 
+# translated-by: libretranslate
 msgid "More predictable Docker engine behavior"
-msgstr ""
+msgstr "Більш передбачувана поведінка двигуна Docker"
 
+# translated-by: libretranslate
 msgid "More reliable analytics setup: Matomo is initialized automatically even if the service is unreachable or the API token is missing."
-msgstr ""
+msgstr "Більш надійне налаштування аналітики: Matomo ініціюється автоматично, навіть якщо служба ненадійна або ненадійна API токен відсутній."
 
+# translated-by: libretranslate
 msgid "More reliable releases: versioned Docker images are always built and published; latest always points to the newest version."
-msgstr ""
+msgstr "Більш надійні релізи: перевірені зображення Docker завжди побудовані і опубліковані; останні завжди точки до найновішої версії."
 
+# translated-by: libretranslate
 msgid "More robust Nix installer on Debian, Ubuntu, Fedora and CentOS systems: stale nixbld users from earlier installation attempts are cleaned up before the multi-user installer runs, and a long-standing crash on hosts where the nixbld group is absent has been resolved."
-msgstr ""
+msgstr "Більш надійний інсталятор Nix на Debian, Ubuntu, Fedora та CentOS-системах: застібки nixbld користувачів з попередніх спроб встановлення очищаються до багатокористувацького інсталятора, і довгострокова аварійна катастрофа на хостах, де нішблд група відсутня."
 
+# translated-by: libretranslate
 msgid "More stable updates: pkgmgr execution is more robust, especially in non-interactive environments and virtual environments."
-msgstr ""
+msgstr "Більш стабільні оновлення: pkgmgr виконання є більш надійним, особливо в неінтерактивних середовищах і віртуальних середовищах."
 
+# translated-by: libretranslate
 msgid "Most application roles use Docker Compose for the running services."
-msgstr ""
+msgstr "Більшість функцій додатків Docker Compose для ходових послуг."
 
+# translated-by: libretranslate
 msgid "Most declarations are narrower than :data:`DEFAULT_OK`, so this gate adds to the default instead of replacing it; narrowing it would escalate vhosts that answer perfectly well. Contract checking is a different question and belongs to ``sys-ctl-hlth-webserver``."
-msgstr ""
+msgstr "Більшість декларацій вузька, ніж :data:`DEFAULT_OK`, так що ця хвіртка додається до за замовчуванням замість заміни її; звуження її бескалувати привиди, які відповідають ідеально. Перевірка контракту - це інше питання і належить до ``sys-ctl-hlth-webserver``й."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: Найпопулярніші імена: ``roles: [administrator]``
+# означає адміністратора всюди проголошується. ``APPLICATION_SCOPED_ROLES`` є
+# винятком. Щоб читати їх з нескопченого списку, користувач кожного
+# розгортання копії програми одночасно. Вони приходять тільки від
+# ``application_roles``(Українська)
 msgid "Most role names are global: ``roles: [administrator]`` means administrator everywhere it is declared. ``APPLICATION_SCOPED_ROLES`` are the exception. Those carry a distinct grant per application, so reading them from the unscoped list would hand a user every deployed application's copy at once. They come only from ``application_roles``::"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Mount point inside the container for the nested Docker data."
-msgstr ""
+msgstr "Встановити точку всередині контейнера для нарізних даних Docker."
 
+# translated-by: libretranslate
 msgid "Mount the rendered `saml.config.php` in `compose.yml.j2` (analogous to ldapauth)."
-msgstr ""
+msgstr "Встановити рендеринг `saml.config.php` в `compose.yml.j2` (аналоговий до ldapauth)й."
 
+# translated-by: libretranslate
 msgid "Mounts NGINX configuration and Let’s Encrypt directories"
-msgstr ""
+msgstr "Налаштування NGINX та каталоги шифрування Let's"
 
+# translated-by: libretranslate
 msgid "Move duplicated helpers into `utils/`."
-msgstr ""
+msgstr "Перемістити дубліковані помічники в `utils/`й."
 
+# translated-by: libretranslate
 msgid "Move init_database.yml to an own role"
-msgstr ""
+msgstr "Мов init_database.yml власна роль"
 
+# translated-by: libretranslate
 msgid "Move the existing compose-flavor tasks + templates into the new `flavor/compose/` subdirectories without behavior change; add a flavor dispatch in `tasks/main.yml`."
-msgstr ""
+msgstr "Перемістити існуючі задачі композування + шаблони в новий `flavor/compose/` субdirectories без зміни поведінки; додати відправку аромату в `tasks/main.yml`й."
 
+# translation-refused: libretranslate protected-span lost=['main.yml']
+# gained=[]
+# nocheck: url
+# translation-rejected: Перемістити свої значення в ролі /*Українськаmain.yml
+# файл кожної ролі
 msgid "Move their values to the roles/*/config/main.yml file of each role"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Moved backend service-load decisions into a dedicated lookup plugin"
-msgstr ""
+msgstr "Переміщені рішення зворотного зв'язку в спеціальний плагін"
 
+# translated-by: libretranslate
 msgid "Moves an issue (with its history and attachments) into a different repository. The destination repo can be attacker-controlled, equivalent to data exfiltration of the issue's contents. Issue transfers must be a deliberate human action."
-msgstr ""
+msgstr "Перемістити питання (з історією та вкладеннями) в інший репозиторій. Репо призначення може бути керованим атакувальником, еквівалентним перерозподілу даних вмісту. Реквізити повинні бути навмисними людськими діями."
 
+# translated-by: libretranslate
 msgid "Moves non-database Docker volumes to mass storage (HDD) to optimize storage usage."
-msgstr ""
+msgstr "Мовы неdatabase Docker обсяги для масового зберігання (ХДП) для оптимізації використання сховища."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Переміщення тегів, які зараз здійснюють реліз, одна за
+# роль: *web-app-discourse* майстер-клас2026.8.0, й *web-app-jenkins* lts до
+# 2.568.3-лти, *web-app-openwebui* Головна 0.11.0, й *web-app-pretix*
+# стабільний 2026.7.0, й *web-app-xwiki* lts-postgres-tomcat до
+# 17.10.13-постгре-томат, *web-app-pixelfed* Останній до 20260917, й
+# *web-app-matrix* (JavaScript licenses API Веб-сайт) майстер до керма
+# шпилькою, *svc-db-memcached* альпійський 1.6.45-альпійський, *svc-db-redis*
+# альпійський 8.10.1-альпійський, *svc-prx-openresty* альпійський
+# 1.31.1.1-альпійський, *svc-runner* (Почати) buildx-стабільний1 до v0.33.0, й
+# *web-app-bigbluebutton* (труси) до v0.15.1, і nginx боковини
+# *web-app-fediwall*й *web-app-littlejs*й *web-app-taiga* і *web-svc-coturn*
+# до 1.31.6-альпійський. Основи іменних кодів Debian стали неоднорідніми
+# мітками для схуднення *svc-db-openldap* (12.15-Слім)й *svc-net-tor*
+# (13.6-Слім)й *web-app-bookwyrm*й *web-app-bridgy-fed*й *web-app-postmarks*й
+# *web-app-roulette-wheel*й *web-svc-cdn* і *web-svc-simpleicons*й
+# *web-app-flowise* Будується з вершини 24-лім замість витягування (Flowise
+# себе залишається на 3.1.4)й.
 msgid "Moving tags that now carry a release, one per role: *web-app-discourse* master to v2026.8.0, *web-app-jenkins* lts to 2.568.3-lts, *web-app-openwebui* main to 0.11.0, *web-app-pretix* stable to 2026.7.0, *web-app-xwiki* lts-postgres-tomcat to 17.10.13-postgres-tomcat, *web-app-pixelfed* latest to 20260917, *web-app-matrix* (upstream playbook ref) master to a commit pin, *svc-db-memcached* alpine to 1.6.45-alpine, *svc-db-redis* alpine to 8.10.1-alpine, *svc-prx-openresty* alpine to 1.31.1.1-alpine, *svc-runner* (BuildKit) buildx-stable-1 to v0.33.0, *web-app-bigbluebutton* (dockerize) latest to v0.15.1, and the nginx sidecars of *web-app-fediwall*, *web-app-littlejs*, *web-app-taiga* and *web-svc-coturn* to 1.31.6-alpine. The Debian codename bases became numeric slim tags in *svc-db-openldap* (12.15-slim), *svc-net-tor* (13.6-slim), *web-app-bookwyrm*, *web-app-bridgy-fed*, *web-app-postmarks*, *web-app-roulette-wheel*, *web-svc-cdn* and *web-svc-simpleicons*, and *web-app-flowise* is built from node 24-slim instead of pulled (Flowise itself stays at 3.1.4)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Multi-Entity Roles 🎛️"
-msgstr ""
+msgstr "Multi-Entity Ролі 🎛️"
 
+# translated-by: libretranslate
 msgid "Multi-Node Deployment (Raspberry Pi cluster)"
-msgstr ""
+msgstr "Multi-Node Розгортання (Малини Пі кластер)"
 
+# translated-by: libretranslate
 msgid "Multi-line shell logic in workflow `run:` blocks MUST be extracted into dedicated `.sh` files under `scripts/`."
-msgstr ""
+msgstr "Мульти-лінійна логіка оболонок в робочому процесі `run:` блоки MUST вилучаються в виділені `.sh` Файли під `scripts/`й."
 
+# translated-by: libretranslate
 msgid "Multi-tenancy / multi-site (Frappe's `bench --site`) is **out of scope** for v1. The role provisions exactly one site (`{{ canonical_domain }}`) and a single ERPNext app install."
-msgstr ""
+msgstr "Multi-tenancy / мульти-сайт (Фраппе `bench --site`) є **з точки зору** для v1. Положення про роль (`{{ canonical_domain }}`) і один ERPNext Встановлення програми."
 
+# translated-by: libretranslate
 msgid "Multi-user (daemon) installation mode"
-msgstr ""
+msgstr "Багатокористувацький (лаціна) режим монтажу"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: Кілька шляхів (Список повертається, один результат за
+# строк)(Українська)
 msgid "Multiple paths (returns list, one result per term)::"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Multiple roles or shared code"
-msgstr ""
+msgstr "Кілька ролей або спільного коду"
 
+# translated-by: libretranslate
 msgid "Multiple rules may be combined on one comment, comma-separated:"
-msgstr ""
+msgstr "Кілька правил можуть поєднуватися з одним коментуючим,"
 
+# translation-refused: libretranslate protected-span lost=['TIMEOUT_FACTOR']
+# gained=['TIMEOUT_FACTORй']
+# nocheck: url
+# translation-rejected: Мультиплікатор (номер або числовий рядок, >= 0);
+# TIMEOUT_FACTORй.
 msgid "Multiplier (number or numeric string, >= 0); TIMEOUT_FACTOR."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Multiplies every job's wall clock by the number of distributions and forces a shared time budget that silently skips the tail."
-msgstr ""
+msgstr "Багатомовні годинники кожної роботи за кількістю розподілів і сил спільного бюджету часу, який мовчить пропускає хвіст."
 
+# translated-by: libretranslate
 msgid "Multisite"
-msgstr ""
+msgstr "Веб-сайт"
 
+# translated-by: libretranslate
 msgid "Mutates per-directory `gh` config; subsequent ambiguous `gh pr/issue/run` calls would silently target the new default, which can mis-route mutations. Verb `set-default` is not in the wildcard list."
-msgstr ""
+msgstr "Mutates per-directory `gh` config; наступний ambiguous `gh pr/issue/run` Дзвінки безшумно зацікавили новий за замовчуванням, який може розшукати мутації. Верб `set-default` не в списку диких карток."
 
+# translated-by: libretranslate
 msgid "Mutating tools MUST be disabled by default when upstream supports tool filtering or scopes."
-msgstr ""
+msgstr "За замовчуванням можна відключати інструменти для фільтрування або об'ємів."
 
+# translated-by: libretranslate
 msgid "Mutating tools stay off"
-msgstr ""
+msgstr "Інструменти, що зберігаються"
 
+# translated-by: libretranslate
 msgid "Mutating variants have no tests, because no surface enables mutations. The gate exists instead: a role setting `tools.mutating_tools_enabled` without an `mcp.mutating_proofs` block naming an existing artifact for each of the five proofs fails lint."
-msgstr ""
+msgstr "Витратні варіанти не мають ніяких тестів, тому що поверхня не дозволяє мутації. Перевірки не існує: рольова установка `tools.mutating_tools_enabled` без `mcp.mutating_proofs` блокувати нав’язування існуючого артефакту для кожного з п’яти доказів не згорнеться."
 
+# translated-by: libretranslate
 msgid "Mutation against the destination repo. Verb `clone` is not in the wildcard list because it is otherwise read-only-ish (e.g. `gh repo clone` is just a git clone)."
-msgstr ""
+msgstr "Мутація проти призначення репо. Верб `clone` не в списку диких карток, оскільки це інакше читати (Наприклад: `gh repo clone` є просто git clone)й."
 
+# translated-by: libretranslate
 msgid "Mutations are classified as reversible, irreversible, external-communication, financial, identity/permission, code-execution or infrastructure-control. Any enabled mutation requires a separate opt-in variant, a distinct RBAC role where practical, an idempotency strategy, a human confirmation boundary and a tested audit event. Infrastructure control, arbitrary code execution, unrestricted filesystem access, identity administration and raw database mutation stay forbidden for shared clients."
-msgstr ""
+msgstr "Мутации класифікуються як реверсивний, незворотний, зовнішній зв'язок, фінансовий, ідентичність/місія, код-виконання або інфраструктурний контроль. Будь-який ввімкнений мутація вимагає окремого варіанту опції, відмінного ролі RBAC, де практична, стратегія idempotency, обмежений і перевірений аудиторський захід. Управління інфраструктурою, виконання довільного коду, необмежений доступ до файлової системи, управління особистістю та лікування бази даних, заборонених для спільних клієнтів."
 
+# translated-by: libretranslate
 msgid "Mutually exclusive plugins"
-msgstr ""
+msgstr "Виключні плагіни Mutually"
 
+# translated-by: libretranslate
 msgid "N/A"
-msgstr ""
+msgstr "Н/А"
 
+# translated-by: libretranslate
 msgid "NETCONF transport integration for network automation."
-msgstr ""
+msgstr "NETCONF для автоматизації мережі."
 
+# translated-by: libretranslate
 msgid "NFS Client"
-msgstr ""
+msgstr "Клієнт NFS"
 
+# translated-by: libretranslate
 msgid "NFS Server"
-msgstr ""
+msgstr "Статус на сервери"
 
+# translated-by: libretranslate
 msgid "NFS client mount src (server:path): {{ lookup('nfs_client_src') }}."
-msgstr ""
+msgstr "NFS клієнт mount src (сервер:): Довідник {{ lookup('nfs_client_src') }}й."
 
+# translated-by: libretranslate
 msgid "NFS driver block (multi-node accessible)"
-msgstr ""
+msgstr "Блок драйвера NFS (мульти-недоступний)"
 
+# translated-by: libretranslate
 msgid "NFS export base from the provider SPOT: {{ lookup('nfs_export_base') }}."
-msgstr ""
+msgstr "Експортна база NFS від провайдера SPOT: {{ lookup('nfs_export_base') }}й."
 
+# translated-by: libretranslate
 msgid "NFS export base from the provider's services.yml SPOT."
-msgstr ""
+msgstr "Експортна база NFS від провайдера services.yml СКАЧАТИ."
 
+# translated-by: libretranslate
 msgid "NFS for databases"
-msgstr ""
+msgstr "NFS для баз даних"
 
+# translated-by: libretranslate
 msgid "NFS mount fstype (nfs4/nfs): {{ lookup('nfs_fstype') }}."
-msgstr ""
+msgstr "NFS mount fstype (труси4Українська): Довідник {{ lookup('nfs_fstype') }}й."
 
+# translated-by: libretranslate
 msgid "NFS mount options: {{ lookup('nfs_mount_opts') }}."
-msgstr ""
+msgstr "Параметри кріплення NFS: {{ lookup('nfs_mount_opts') }}й."
 
+# translated-by: libretranslate
 msgid "NFS mount protocol version from the client's services.yml SPOT."
-msgstr ""
+msgstr "Версія протоколу NFS від клієнта services.yml СКАЧАТИ."
 
+# translated-by: libretranslate
 msgid "NFS placement is derived from `placement` (see `plugins/lookup/compose_volumes.py`): an unpinned role's volumes are bound to the shared NFS mount (survive a reschedule), a pinned role keeps its volumes node-local. Engine on-disk state (redis/rabbitmq/elasticsearch/sqlite/postfix-queue) **cannot live on NFS** (fsync + locking corruption), so a role that *embeds* such an engine must be pinned. Pinning whole app stacks to the manager:"
-msgstr ""
+msgstr "Встановлення NFS отримано з `placement` (Переглянути `plugins/lookup/compose_volumes.py`): об'єми непінованій ролі пов'язані з загальним NFS mount (вижити перепланування), закріплена роль зберігає свої обсяги вузлів-локального. Двигун на диску (redis/rabbitmq/elasticsearch/sqlite/postfix-queue) **не може жити на NFS** (fsync + блокування корупції), так що роль *Посольство* такий двигун повинен бути пінений. Приколіть всі додатки до менеджера:"
 
+# translated-by: libretranslate
 msgid "NFS server flavor"
-msgstr ""
+msgstr "NFS серверний аромат"
 
+# translated-by: libretranslate
 msgid "NFS-backed volumes"
-msgstr ""
+msgstr "Обсяги NFS-backed"
 
+# translated-by: libretranslate
 msgid "NGINX Certbot Automation"
-msgstr ""
+msgstr "Автоматизація NGINX"
 
+# translated-by: libretranslate
 msgid "NGINX Docker Reverse Proxy"
-msgstr ""
+msgstr "NGINX Докер зворотний проксі"
 
+# translated-by: libretranslate
 msgid "NGINX Domain Setup"
-msgstr ""
+msgstr "Налаштування домену NGINX"
 
+# translated-by: libretranslate
 msgid "NGINX Global Matomo & Theming Modifier Role"
-msgstr ""
+msgstr "NGINX Global Matomo & Theming Модифікатор роль"
 
+# translated-by: libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
-msgstr ""
+msgstr "NGINX HTTPS сертифікат"
 
+# translated-by: libretranslate
 msgid "NGINX Location Templates"
-msgstr ""
+msgstr "Шаблони розташування NGINX"
 
+# translated-by: libretranslate
 msgid "NGINX Matomo Tracking Role"
-msgstr ""
+msgstr "NGINX Matomo відстежити роль"
 
+# translated-by: libretranslate
 msgid "NGINX domain and reverse-proxy configuration"
-msgstr ""
+msgstr "NGINX домен і зворотна конфігурація"
 
+# translated-by: libretranslate
 msgid "NGINX domain setup with WebSocket and reverse-proxy configuration"
-msgstr ""
+msgstr "Налаштування домену NGINX з WebSocket та зворотно-proxy конфігурації"
 
+# translated-by: libretranslate
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
-msgstr ""
+msgstr "NGINX клей роль для 301 перенаправлення з джерела до цільових доменів з автоматичним SSL для вихідних"
 
+# translated-by: libretranslate
 msgid "NGINX hot-reload if available, otherwise restart"
-msgstr ""
+msgstr "NGINX гаряча перезавантаження, якщо це можливо, інакше перезавантажити"
 
+# translated-by: libretranslate
 msgid "NGINX installed on the target server."
-msgstr ""
+msgstr "NGINX встановлений на цільовому сервері."
 
+# translated-by: libretranslate
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr ""
+msgstr "NGINX серверні блоки, які постійно перенаправляють www субдоменів до їх неwww доменів apex"
 
+# translated-by: libretranslate
 msgid "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
-msgstr ""
+msgstr "NGINX vHost Шаблони: Basic vs. WebSocket (ws_generic)"
 
+# translated-by: libretranslate
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr ""
+msgstr "NGINX vhost для подачі статичних сайтів HTML на HTTPS з автоматичними сертифікатами Let's Encrypt"
 
+# translated-by: libretranslate
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
-msgstr ""
+msgstr "Веб-платформа NGINX і зворотна проксі з перевіреними навантаженнями на конфігурацію та інтеграцією Let's Encrypt"
 
+# translated-by: libretranslate
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr ""
+msgstr "NGINX-сервер статичної сторінки, що надає правовий відбиток (Імпресія) з Jinja2 шаблони"
 
+# translated-by: libretranslate
 msgid "NIX_CONFIG: pass-through of the caller's access-tokens line, when present."
-msgstr ""
+msgstr "NIX_CONFIG: покрокова інструкція лінії абонента, коли присутній."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['"']
+# nocheck: url
+# translation-rejected: НЕ втекти з метою: - $ - ! - "
 msgid "NOT escaped on purpose: - $ - € - ! - '"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "NOT mask the original test failure: log cleanup errors via `console.warn` rather than throwing, and let the body's assertion failure surface."
-msgstr ""
+msgstr "Не маскуйте оригінальну тестову відмову: помилки очищення колоди через `console.warn` а не кидати, і нехай поверхня провалу тіла."
 
+# translated-by: libretranslate
 msgid "NSS"
-msgstr ""
+msgstr "НСС"
 
+# translated-by: libretranslate
 msgid "Name"
-msgstr ""
+msgstr "Ім'я"
 
+# translated-by: libretranslate
 msgid "Name every question the run will **not** answer because a candidate was pinned to one side of it. A line that verifies a fix in compose and says nothing about swarm is a legitimate choice; a line that does that silently is not, because its green result reads like a full answer."
-msgstr ""
+msgstr "Ім'я кожного питання пробіг буде **нема** відповідь на те, що кандидат прикріпився до однієї сторони. Лінія, яка виправдає фіксацію в композі і каже, що нічого про ковтання є законним вибором; лінія, яка мовчить не є, тому що його зелений результат читається як повну відповідь."
 
+# translated-by: libretranslate
 msgid "Name of the application/role to check."
-msgstr ""
+msgstr "Ім'я програми/рола для перевірки."
 
+# translated-by: libretranslate
 msgid "Name of the package to install/update"
-msgstr ""
+msgstr "Назва пакета для установки / оновлення"
 
+# translated-by: libretranslate
 msgid "Name the data volume of every database provider on this host nobody consumes."
-msgstr ""
+msgstr "Назва об'єму даних кожного постачальника баз даних на цьому хості ніхто не споживає."
 
+# translated-by: libretranslate
 msgid "Name the databases a cluster dump recreates."
-msgstr ""
+msgstr "Назва бази даних кластера відтворюється."
 
+# translated-by: libretranslate
 msgid "Name the engine a dump has to be replayed with."
-msgstr ""
+msgstr "Ім'я двигуна, що має бути перероблений."
 
+# translated-by: libretranslate
 msgid "Name the running container that mounts a volume."
-msgstr ""
+msgstr "Ім'я контейнера, що монтує об'єм."
 
+# translated-by: libretranslate
 msgid "Name the services a ``docker stack deploy`` run reported acting on."
-msgstr ""
+msgstr "Назва послуги ``docker stack deploy`` запускати повідомлення, що діяли."
 
+# translated-by: libretranslate
 msgid "Named list, search, and get tools for the application's primary records"
-msgstr ""
+msgstr "Названий список, пошук та отримання інструментів для первинних записів програми"
 
+# translated-by: libretranslate
 msgid "Named volume (or host path) backing the nested Docker directory. Generator overrides to `/mnt/docker` on GHA."
-msgstr ""
+msgstr "Об'єм імен (або пройти шлях) резервне копіювання каталогу Docker. Генератор перенади для `/mnt/docker` на GHA."
 
+# translation-refused: libretranslate protected-span lost=['daemon.json']
+# gained=['daemon.jsonй']
+# nocheck: url
+# translation-rejected: Навантажувачі кріпляться під ``dns`` Головна
+# /etc/docker/daemon.jsonй.
 msgid "Nameservers pinned under the ``dns`` key of /etc/docker/daemon.json."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Namespaces prevent collisions in a large repo."
-msgstr ""
+msgstr "Назви простору запобігають зіткненню у великій репо."
 
+# translated-by: libretranslate
 msgid "Naming"
-msgstr ""
+msgstr "Нам"
 
+# translated-by: libretranslate
 msgid "Naming Convention 📛"
-msgstr ""
+msgstr "Конвенція 📛"
 
+# translated-by: libretranslate
 msgid "Naming Conventions 🏷️"
-msgstr ""
+msgstr "Нагадування конвенцій 🏷️"
 
+# translated-by: libretranslate
 msgid "Naming Lint 🏷️"
-msgstr ""
+msgstr "Нам Lint 🏷️"
 
+# translated-by: libretranslate
 msgid "Naming the category is what makes this safe. Sweeping ``ports.public`` wholesale forwards ports the deployment never publishes -- ldaps 636 is declared next to ``network.public: false``, and Mailu's implicit-TLS ports are dropped from the publish list whenever TLS is off, which an onion deployment always is."
-msgstr ""
+msgstr "Нагадування категорії є те, що це безпечно. Плетіння ``ports.public`` оптові переадресні порти розгортання ніколи не опублікування - ldaps 636 проголосувати далі ``network.public: false``, й Mailu- порти imlicit-TLS випадають з списку опублікування, коли всі ТLS вимкнено, що розгортання цибулі завжди є."
 
+# translated-by: libretranslate
 msgid "Naming 🏷️"
-msgstr ""
+msgstr "Нам 🏷️"
 
+# translated-by: libretranslate
 msgid "Narrow command-wrapper boundaries that convert any underlying failure into a domain-specific error."
-msgstr ""
+msgstr "Вузькі командно-крапкові межі, які перетворюють будь-яку основну відмову в доменній похибці."
 
+# translated-by: libretranslate
 msgid "Narrow to one role type:"
-msgstr ""
+msgstr "Боротьба з одним типом ролі:"
 
+# translated-by: libretranslate
 msgid "Native **LDAP** authentication via Symfony’s LDAP configuration"
-msgstr ""
+msgstr "Навігація **ЛДАП** автентифікації через налаштування Symfony LDAP"
 
+# translated-by: libretranslate
 msgid "Native ActivityPub federation between fediverse roles (`mastodon`, `peertube`, `pixelfed`, `funkwhale`, `mobilizon`, `bookwyrm`, `socialhome`) needs **no plugin** and is therefore not a ✅ edge unless an installable connector exists."
-msgstr ""
+msgstr "Відносна активністьПуб федерації між fediverse ролей (`mastodon`, й `peertube`, й `pixelfed`, й `funkwhale`, й `mobilizon`, й `bookwyrm`, й `socialhome`) Вимоги **немає плагіна** і тому не ✅ край, якщо існує встановлений роз'єм."
 
+# translated-by: libretranslate
 msgid "Native MCP client support requires Open WebUI `v0.6.31+` and uses Streamable HTTP. The role currently pins `version: main`, which MUST be replaced with an explicit MCP-capable tag before MCP is enabled."
-msgstr ""
+msgstr "Нативна підтримка клієнтів MCP Open WebUI `v0.6.31+` і використовує потоковий HTTP. Роль в даний час штифти `version: main`, які MUST замінюють явним тегом MCP-розбірний до MCP."
 
+# translated-by: libretranslate
 msgid "Native OIDC SSO against Keycloak for Joomla 6, with RBAC group mapping and an env-toggleable local-form fallback at `/administrator?fallback=local` (Modus 3 per requirement 013)."
-msgstr ""
+msgstr "Нативний OIDC SSO проти Keycloak для Joomla 6, з RBAC груповий картографування та енв-об’ємний локально-формний недолік `/administrator?fallback=local` (Модус 3 на вимогу 013)й."
 
+# translated-by: libretranslate
 msgid "Native auth"
-msgstr ""
+msgstr "Нативна аута"
 
+# translated-by: libretranslate
 msgid "Native server only with a dedicated least-privilege identity, a verified read-only allowlist, per-consumer grants, and an actual client tool call."
-msgstr ""
+msgstr "Нативний сервер тільки з особливою ідентичністю, перевіреним чит-only дозволяють список, надані на замовлення, а також актуальний виклик клієнтського інструменту."
 
+# translated-by: libretranslate
 msgid "Native surface"
-msgstr ""
+msgstr "Нативна поверхня"
 
+# translated-by: libretranslate
 msgid "Native-OIDC flavor precedent: [024 ERPNext](024-web-app-erpnext.md)"
-msgstr ""
+msgstr "Конкретний аромат Native-OIDC: [024 ERPNext](024-web-app-erpnext.md)"
 
+# translated-by: libretranslate
 msgid "Navigate to the ``roles/dsk-docker`` directory."
-msgstr ""
+msgstr "Навігація до ``roles/dsk-docker`` каталог."
 
+# translated-by: libretranslate
 msgid "Navigate to the ``roles/dsk-qbittorrent`` directory."
-msgstr ""
+msgstr "Навігація до ``roles/dsk-qbittorrent`` каталог."
 
+# translated-by: libretranslate
 msgid "Navigate to the ``roles/hunspell`` directory within the repository."
-msgstr ""
+msgstr "Навігація до ``roles/hunspell`` каталог в репозиторію."
 
+# translated-by: libretranslate
 msgid "Navigate to the ``roles/java`` directory within the repository."
-msgstr ""
+msgstr "Навігація до ``roles/java`` каталог в репозиторію."
 
+# translated-by: libretranslate
 msgid "Navigate to the `roles/dsk-docker` directory."
-msgstr ""
+msgstr "Навігація до `roles/dsk-docker` каталог."
 
+# translated-by: libretranslate
 msgid "Navigate to the `roles/dsk-qbittorrent` directory."
-msgstr ""
+msgstr "Навігація до `roles/dsk-qbittorrent` каталог."
 
+# translated-by: libretranslate
 msgid "Navigate to the `roles/hunspell` directory within the repository."
-msgstr ""
+msgstr "Навігація до `roles/hunspell` каталог в репозиторію."
 
+# translated-by: libretranslate
 msgid "Navigate to the `roles/java` directory within the repository."
-msgstr ""
+msgstr "Навігація до `roles/java` каталог в репозиторію."
 
+# translated-by: libretranslate
 msgid "Navigation 🔗"
-msgstr ""
+msgstr "Навігація 🔗"
 
+# translated-by: libretranslate
 msgid "Need Help?"
-msgstr ""
+msgstr "Допомога?"
 
+# translated-by: libretranslate
 msgid "Needs HTML Injection"
-msgstr ""
+msgstr "Потрібні HTML Ін'єкції"
 
+# translated-by: libretranslate
 msgid "Negation (``!``) and ``**`` globstar are intentionally not supported — the repo's ``.gitignore`` does not use them, and supporting either would require a real pathspec implementation. If a future ``.gitignore`` adds them, extend this helper rather than duplicating the logic in callers."
-msgstr ""
+msgstr "Негативна (``!``) і ``**`` globstar не підтримується - repo's ``.gitignore`` не використовувати їх, і підтримувати або вимагати виконання реальних шляхів. Що таке майбутнє? ``.gitignore`` додає їх, розширюючи цей помічник, а не пригнічує логіку у калікерах."
 
+# translated-by: libretranslate
 msgid "Neither Odoo SA nor the OCA publishes a server; the leading third party carries 197 of 231 commits from one author, keeps its access control in a separate Odoo Apps store module outside any pinnable tag, and defaults to a mutating tool scope."
-msgstr ""
+msgstr "Neither Odoo SA, ні OCA публікує сервер; провідна третя сторона несе 197 з 231 здійснює керування доступом в окремому модулі магазину Odoo Apps за межами будь-якого pinnable tag, а також за замовчуванням у сферу мутації інструментів."
 
+# translated-by: libretranslate
 msgid "Neither correction works alone, which is why both ship. Declaring 8192 while still estimating 5461 leaves the model eligible; estimating 8192 while still declaring 16384 does the same. Together the demand becomes 8192 plus the 16 output tokens, which exceeds the honest window and excludes the route. The constant is therefore `services.litellm.router_min_chars_per_token`, named as a floor rather than an average, and it is rendered into both the hook and the probe so the two cannot drift."
-msgstr ""
+msgstr "Корекція Neither працює самостійно, тому як судно. Декларування 8192 в той час як все-таки 5461 залишає за собою право моделі; 8192 в той час як все ще декларування 16384 робить те ж саме. Разом з попитом стає 8192 Плюси 16 вихідний токен, який перевищує чесний вікно і виключає маршрут. Тому `services.litellm.router_min_chars_per_token`, названий як підлогою, а не середнім, і він продається як в гачок, так і зонду, так що два не можуть дратувати."
 
+# translated-by: libretranslate
 msgid "Neither lane alone closes a question. CI says whether a row comes up green on a clean host but hands you a log hours later. The local stack answers in minutes and lets you exec into the container, but it is one host with one slot and it never proves the swarm path the way five distros do."
-msgstr ""
+msgstr "Не пров'язується окремо, закриває питання. CI говорить, чи є ряд зелений на чистому господарстві, але руки, які ви ввійде час. Відповіді локального стека за хвилину і дозволяє виводити в контейнер, але це один хост з одним слотом, і він ніколи не доводить гальмівний шлях до п'яти дистроф."
 
+# translated-by: libretranslate
 msgid "Neither side wins by default. Decide per hunk:"
-msgstr ""
+msgstr "Не більше бічних виграшів за замовчуванням. Декідка на горб:"
 
+# translated-by: libretranslate
 msgid "Neither strategy is chosen by hand. `services.litellm.router_strategy` derives from `services.jeff.enabled`: with the System One service deployed the gateway asks it, and without it there is nothing to ask, so the gateway falls to the strategy it can compute itself. Reading the service flag rather than `group_names` keeps one path from the deployment to the behaviour."
-msgstr ""
+msgstr "Стратегія Neither вибирається вручну. `services.litellm.router_strategy` старіння з `services.jeff.enabled`: з System One Послуга, розгорнута шлюзу, просить її, і без нього нічого не запитати, тому шлюзу потрапляє в стратегію, яку вона може зрозуміти себе. Читання прапора служби не більше `group_names` зберігає один шлях від розгортання до поведінки."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Nested keys are walked transparently (e.g. `credentials.recaptcha.{key,secret}`)."
-msgstr ""
+msgstr "Несподівані ключі ходять прозоро (Наприклад: `credentials.recaptcha.{key,secret}`)й."
 
+# translated-by: libretranslate
 msgid "Network & Domain Lint 🌐"
-msgstr ""
+msgstr "Статус на сервери Lint 🌐"
 
+# translated-by: libretranslate
 msgid "Network Administration"
-msgstr ""
+msgstr "Управління мережею"
 
+# translated-by: libretranslate
 msgid "Network Tests 🕸️"
-msgstr ""
+msgstr "Тести мережі 🕸️"
 
+# translated-by: libretranslate
 msgid "Network and dependency handling via shared system roles"
-msgstr ""
+msgstr "Управління мережею та залежностей через спільні ролі системи"
 
+# translated-by: libretranslate
 msgid "Network model"
-msgstr ""
+msgstr "Модель мережі"
 
+# translated-by: libretranslate
 msgid "Network or DNS failures during a local deploy count as concrete evidence that the host stack is broken. In that case, the next retry MUST be `make compose-deploy mode=reinstall apps=<roles> full_cycle=true`."
-msgstr ""
+msgstr "Мережеві або DNS-збої під час локального підрахунку розгортання як конкретні докази, які зламаються стебла. У тому випадку, наступна птиця MUST буде `make compose-deploy mode=reinstall apps=<roles> full_cycle=true`й."
 
+# translated-by: libretranslate
 msgid "Network utils 🕸️"
-msgstr ""
+msgstr "Веб-сайт 🕸️"
 
+# translated-by: libretranslate
 msgid "Network 🌐"
-msgstr ""
+msgstr "Мережа 🌐"
 
+# translated-by: libretranslate
 msgid "Network-literal hygiene: ban on hardcoded DNS resolver IPs outside `NETWORK_PUBLIC_DNS_RESOLVERS`, and on `<word>.{{ DOMAIN_PRIMARY }}` host literals outside the meta SPOT."
-msgstr ""
+msgstr "Мережева-літральна гігієна: заборона на жорсткийкодований DNS-рішення IP-адреси поза `NETWORK_PUBLIC_DNS_RESOLVERS`, і на `<word>.{{ DOMAIN_PRIMARY }}` ведучих літрів за межі мета SPOT."
 
+# translated-by: libretranslate
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
-msgstr ""
+msgstr "Мийка для блокування реклами та трекерів через всі пристрої, з DHCP та веб-адміністратором"
 
+# translated-by: libretranslate
 msgid "Network-wide super-admin: `/roles/web-app-wordpress/network-administrator`"
-msgstr ""
+msgstr "Суперадміністрування мережі: `/roles/web-app-wordpress/network-administrator`"
 
+# translated-by: libretranslate
 msgid "Network-wide super-admin: ``/roles/web-app-wordpress/network-administrator``"
-msgstr ""
+msgstr "Суперадміністрування мережі: ``/roles/web-app-wordpress/network-administrator``"
 
+# translated-by: libretranslate
 msgid "Networking"
-msgstr ""
+msgstr "Партнерство"
 
+# translated-by: libretranslate
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr ""
+msgstr "Мережевий помічник для iptables переадресації та NAT masquerading клієнтів WireGuard, що працює за NAT або брандмауер"
 
+# translated-by: libretranslate
 msgid "Networks 🌐"
-msgstr ""
+msgstr "Мережі 🌐"
 
+# translated-by: libretranslate
 msgid "Never deployed"
-msgstr ""
+msgstr "Ніколи не розгортається"
 
+# translated-by: libretranslate
 msgid "Never deployed: `lifecycle: pre-alpha`. The admission checks and the device binding are covered by static analysis and a compose-mode matrix round, but no run has attached real hardware, so the passthrough is proven only against a placeholder device."
-msgstr ""
+msgstr "Ніколи не розгортається: `lifecycle: pre-alpha`. Прийом перевірок і обов'язковий пристрій покриваються статичним аналізом і композно-моде матрицею круглим, але ніякого запуску кріпиться справжньою технікою, тому пропуск доведено тільки проти пристрою, що запускається."
 
+# translated-by: libretranslate
 msgid "Never snapshot; always use the live two-pass copy."
-msgstr ""
+msgstr "Ніколи не зніміть; завжди використовуйте живу двоходову копію."
 
+# translated-by: libretranslate
 msgid "Never start while a sweep, deploy, or gate is reading the working tree — a merge swaps files under it and has already destroyed a running roundtrip once. Stop the run first or wait for it. Untracked leftovers from an aborted merge block the next attempt: verify each against `git ls-tree -r --name-only FETCH_HEAD` before deleting, then delete them, and do not start a second in-sandbox attempt that recreates them."
-msgstr ""
+msgstr "Ніколи не починайте під час ковтання, розгортання або воріт читання робочого дерева — об'єднання ковпачок файлів під ним і вже знищила ходовий турбок один раз. Зупинити курс першим або чекати його. Невідкладені лівовери від аборту блокують наступну спробу: перевірте кожен `git ls-tree -r --name-only FETCH_HEAD` перед видаленням, потім видаліть їх, і не починайте другу спробу папки, яка відтворює їх."
 
+# translated-by: libretranslate
 msgid "Never touch this service"
-msgstr ""
+msgstr "Ніколи не доторкнутися до цього сервісу"
 
+# translated-by: libretranslate
 msgid "Never, and only together with the username."
-msgstr ""
+msgstr "Ні, і тільки разом з ім'ям користувача."
 
+# translated-by: libretranslate
 msgid "Never."
-msgstr ""
+msgstr "Ні."
 
+# translated-by: libretranslate
 msgid "Never. Both workflows declare the secret `required: false` and gate the login step on both values being non-empty."
-msgstr ""
+msgstr "Ні. Обидва робочі процеси оголошують секрет `required: false` і перев’язувати шаблон логіну на обох значеннях, які не спрощуються."
 
+# translated-by: libretranslate
 msgid "Never. Unset leaves the route unpublished."
-msgstr ""
+msgstr "Ні. Невизначте листя маршруту неопубліковано."
 
+# translated-by: libretranslate
 msgid "New *unit_name* lookup plugin for consistent versioned systemd unit generation"
-msgstr ""
+msgstr "Нові *unit_name* плагін для послідовного створення системного блоку"
 
+# translated-by: libretranslate
 msgid "New *web-app-n8n* role: n8n workflow automation (Community Edition). SSO is wired through a trusted-header edge hook that is copied and mounted only when SSO is enabled (native SSO is enterprise-only in CE), LDAP sign-in is supported, and per-scenario Playwright coverage exercises the CE edge-SSO model. Ships at lifecycle *alpha*; subnet and port collisions with the new *web-app-semaphore* role were resolved on the way in. See the [web-app-n8n README](roles/web-app-n8n/README.md)."
-msgstr ""
+msgstr "Нові *web-app-n8n* роль: n8автоматизації робочого процесу (Видання спільноти). SSO ведеться через перевірений крайовий гачок, який скопійований і монтується тільки при включенні SSO (рідний SSO - це підприємство-тільки в CE)Підтримується підписка LDAP, а також на-scenario Playwright висвітлення вправ CE край-SSO моделі. Кораблі в життєвому циклі *альфа*; субмережі та портові зіткнення з новим *web-app-semaphore* роль були вирішені на шляху. Дивитися [web-app-n8n ЗАМОВИТИ](roles/web-app-n8n/README.md)й."
 
+# translated-by: libretranslate
 msgid "New Apps"
-msgstr ""
+msgstr "Нові додатки"
 
+# translated-by: libretranslate
 msgid "New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters."
-msgstr ""
+msgstr "Нові ERPNext роль, що кораблі upstream Frappe Framework v15 стека як web-app-erpnext роль — бекенд, фронтенд, websocket, графік і два черги робітників — простягається в центральне Keycloak через вбудований Keycloak Соціальний ключ входу і в центральний OpenLDAP через доктип LDAP. Триваріантна матриця (SSO плюс LDAP, немає, LDAP тільки) Виконується End-to-end і repo-широкі пальці Незнімні імена завдань на 120 символи."
 
+# translated-by: libretranslate
 msgid "New Jitsi Meet role that adds an oauth2-proxy gated meeting surface plus matching LDAP-variant Playwright coverage. The spec layout is reorganised into a shared module and per-scenario test files so future scenarios can be added without touching the monolith."
-msgstr ""
+msgstr "Нові Jitsi Meet роль, що додає оавт2-проксіальна поверхня зустрічі плюс відповідність LDAP-variant Playwright покриття. Планування специфікацій реорганізовано в загальний модуль і засценаріо тестові файли, щоб майбутні сценарії можуть бути додані без дотику моноліту."
 
+# translated-by: libretranslate
 msgid "New OUs SHOULD NOT be invented. Place users under `OU.USERS`, RBAC roles under `OU.ROLES`, and organizational groups under `OU.GROUPS`."
-msgstr ""
+msgstr "Не придумайте. Розмістити користувачів під `OU.USERS`, Роль RBAC під `OU.ROLES`, та організаційні групи `OU.GROUPS`й."
 
+# translated-by: libretranslate
 msgid "New Penpot role (web-app-penpot, requirement 235) that ships the upstream Penpot design platform comprising frontend, backend, exporter and Redis at image version 2.5.4, wired into the central Keycloak via OIDC and into the central OpenLDAP. Native local-password login is available as a toggle that is disabled automatically under OIDC, with the native-login and registration flags derived from the SSO flag. A custom JVM truststore imports the Infinito self-signed CA so OIDC over TLS succeeds, and the role is exercised end-to-end with Playwright covering OIDC login, logout and project creation. The local subnet was moved to 192.168.105.192/28 to avoid a collision with the ERPNext range."
-msgstr ""
+msgstr "Нові Penpot роль (web-app-penpotВимоги 235) які кораблі вгору Penpot дизайн-платформа, що складається з фасаду, бекенду, експортера та Redis у версії зображень 2.5.4, дроти в центральне Keycloak через OIDC і в центральний OpenLDAPEnglishDeutschPусский简体中文中國傳統EspañolالعربيةFrançaisελληνικάDanskАнглійскаябългарскиCatalàČeskýEestiSuomiGaeilgeहिन्दीHrvatskiMagyarIndonesiaIcelandicItalianoעברי日本の한국의LietuvosLatvijasмакедонскиMalayMaltiNederlandsNorskPolskiPortuguêsRomânescSlovenskýSlovenskiShqiptarCрпскиSvenskaไทยTürkçeYкраїнськийTiếng việtייִדישKiswahili Призначений для користувача JVM Truststore імпортує Infinito самопризначений CA, так що OIDC над TLS досягається, і роль здійснюється в кінцевому підсумку з Playwright покриття OIDC логін, логотип і створення проекту. У місцевому підмережі було перенесено на 192.168.105.192Українська28 уникати зіткнення з ERPNext діапазон."
 
+# translated-by: libretranslate
 msgid "New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta."
-msgstr ""
+msgstr "Нова роль Pi-hole (*web-app-pihole*) що виводжує потоку P-hole DNS мийка і мережевий блокатор реклами, з його адміністратором веб-інтерфейс забивається за *Саунт2-проксі* і Keycloak RBAC і локальний адміністратор-password логін (Головна *ФЛКОНФ* Веб-сайт API Логін) доступний як варіант засмаги. Під час розгортання випромінювача і часового поясу, роль очікується на кінцевому пункті Pi-hole HTTP, і він працює в кінцевому підсумку з Playwright, що охоплює OAuth2, рідні та гостьові сценарії. Рольові кораблі на мотоциклі життєвого циклу."
 
+# translated-by: libretranslate
 msgid "New `--mirror` support for inventory generation"
-msgstr ""
+msgstr "Нові `--mirror` супровід виробництва інвентаризації"
 
+# translated-by: libretranslate
 msgid "New addon suggestions MUST include enough data for review: role id, addon id, upstream id, mechanism, source, catalog URL, and why the addon is considered relevant."
-msgstr ""
+msgstr "Нові пропозиції додатків MUST включають в себе достатню кількість даних для перегляду: рольова id, addon id, upstream id, механізм, джерело, URL каталогу і чому додаток вважається актуальним."
 
+# translated-by: libretranslate
 msgid "New centralized API single-point-of-truth: an *api* lookup plugin plus a global API dict so API tokens and endpoints (Cloudflare, the Nextcloud proprietary OAuth integrations) resolve from one place instead of scattered role lookups."
-msgstr ""
+msgstr "Нові централізовані API одноточно-точна форма: *апа* Шукайте плагін плюс глобальний API вирок так API токени та кінцеві точки (Хмарфляре, Nextcloud Власні інтеграції OAuth) розв’язувати з одного місця замість розсіяного пошуку ролі."
 
+# translated-by: libretranslate
 msgid "New engine-agnostic object-store service (*web-app-seaweedfs*, backed by either *SeaweedFS* or *MinIO*) that exposes a shared S3 endpoint, now consumed across 14 web-app roles for media and asset storage. Nextcloud, Decidim, Shopware, PeerTube, Pixelfed, Taiga, Fider, Akaunting, Mobilizon and Matrix route their uploads to the central bucket, each exercised end-to-end with a SeaweedFS consumer check that requires a fresh object key per upload."
-msgstr ""
+msgstr "Новий сервіс-агностичний об'єкт-магазин (*web-app-seaweedfs*, назад *SeaweedFS* або *MinIO*) що визначає спільний S3 кінцева точка, тепер споживана через 14 веб-додаткові ролі для зберігання інформації та активів. Надія, Decidimй Shopwareй PeerTubeй Pixelfedй Taigaй Fiderй Akauntingй Mobilizon і Matrix перемістити їх до центрального відро, кожен вчинив кінець-кінець з SeaweedFS Перевірка споживача, що вимагає свіжого ключа об'єкта на завантаження."
 
+# translated-by: libretranslate
 msgid "New features or enhancements"
-msgstr ""
+msgstr "Нові можливості або розширення"
 
+# translated-by: libretranslate
 msgid "New flag layout (examples):"
-msgstr ""
+msgstr "Новий макет (Приклади)Довідник"
 
+# translated-by: libretranslate
 msgid "New integration tests enforcing:"
-msgstr ""
+msgstr "Нові тести для інтеграції:"
 
+# translated-by: libretranslate
 msgid "New lint: git branch names are validated against the naming convention. Agent docs gained a hard pre-redeploy verification gate in the role iteration loop."
-msgstr ""
+msgstr "Новий відтінок: цивільні топоніми діють проти конвенції проміння. Агент докс отримав тверду передчервону перевірку воріт в ролі шеерації петлі."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1.13.8']
+# nocheck: url
+# translation-rejected: Новий розлив упаковки: *Кошик* перевірка, провід
+# *лосини* і власний CI-робочий процес, що діє на генерацію *Деб'ян/changelog*
+# з *JavaScript licenses API Веб-сайт Go1.13.8*, Специфікація Fedora з
+# *рpmspec* і арка *ПКГБУЛД* з *беш -н* syntax pass, не вдається на будь-який
+# інспектор, а не тільки на виході з незеро. Доповнення *Тест-лінт*
+# перевіряйте, що як список змін у пакеті, кожен виданий варіант і що їх
+# вхідні вікна CHANGELOG.md. Див [каталог
+# робіт](docs/contributing/tools/github/actions/workflows.md)й.
 msgid "New packaging lint: a *lint-packages* check, wired into *make lint* and its own CI workflow, validates the generated *debian/changelog* with *dpkg-parsechangelog*, the Fedora spec with *rpmspec* and the Arch *PKGBUILD* with a *bash -n* syntax pass, failing on any parser warning rather than only on a non-zero exit. A complementary *test-lint* check asserts that both package changelogs list every released version and that their inline window matches CHANGELOG.md. See [the workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "New permanent team members should follow the [onboarding document](https://s.infinito.nexus/onboarding)."
-msgstr ""
+msgstr "Нові постійні члени команди повинні дотримуватися [документ на борту](https://s.infinito.nexus/onboarding)й."
 
 msgid "New roles, new CLI surfaces, or a non-breaking schema extension lands."
 msgstr ""

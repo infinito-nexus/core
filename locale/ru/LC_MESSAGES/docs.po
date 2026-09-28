@@ -78815,1518 +78815,2021 @@ msgstr "``svc-db-redis`` (ДБ 1)"
 msgid "``svc-db-redis`` (DB 2)"
 msgstr "``svc-db-redis`` (ДБ 2)"
 
+# translated-by: libretranslate
 msgid "``svc-db-redis`` (role-local sidecar, service name ``redis``)"
-msgstr ""
+msgstr "``svc-db-redis`` (местный коляска, название службы ``redis``)"
 
+# translated-by: libretranslate
 msgid "``svc-swarm-manager`` (subset marker), ``svc-storage-nfs-client`` (no ``application_id``), ``svc-registry-docker`` (consumed by the swarm handler that pushes locally-built images, but not declared as a meta-dep so it stays out of compose-mode deploys) are added explicitly because the dep-walker only knows roles that are in the ``applications`` dict. The DR-drill backup roles arrive implicitly: the apps' ``container_backup`` service declaration pulls ``svc-bkp-volume-2-local`` into the closure, and ``svc-bkp-nfs-2-local`` deploys via its group membership on the NFS server host (``extend_inventory``) through the group-driven role includes."
-msgstr ""
+msgstr "``svc-swarm-manager`` (подмножество маркеров), ``svc-storage-nfs-client`` (нет ``application_id``), ``svc-registry-docker`` (потребляется обработчиком роя, который выталкивает локально построенные изображения, но не объявляется мета-депом, поэтому он не развертывается в режиме композиции) Они добавляются в явном виде, потому что дэп-уокер знает только те роли, которые есть в этом мире. ``applications`` Дикт. Роли резервного копирования DR-drill появляются неявно: приложения ``container_backup`` Сервисная декларация тянет ``svc-bkp-volume-2-local`` при закрытии и ``svc-bkp-nfs-2-local`` развертывается через членство в группе на сервере NFS (``extend_inventory``) Включает в себя групповую роль."
 
+# translated-by: libretranslate
 msgid "``sys-svc-mail-msmtp``: msmtp client and sendmail replacement"
-msgstr ""
+msgstr "``sys-svc-mail-msmtp``: msmtp клиент и замена электронной почты"
 
+# translated-by: libretranslate
 msgid "``sys-svc-mail``: central mail orchestration"
-msgstr ""
+msgstr "``sys-svc-mail``: Центральный почтовый оркестр"
 
+# translated-by: libretranslate
 msgid "``sys-token-store`` is a lightweight Ansible helper role for **resolving and persisting per-user application tokens** in a unified and idempotent way."
-msgstr ""
+msgstr "``sys-token-store`` Легкая роль помощника для **разрешение и сохранение токенов приложений для каждого пользователя** Единым и мощным способом."
 
+# translated-by: libretranslate
 msgid "``sys_token_store_token`` (must be non-empty)"
-msgstr ""
+msgstr "``sys_token_store_token`` (должен быть непустым)"
 
+# translated-by: libretranslate
 msgid "``system_service_run_list`` (list): list of systemd unit names to run"
-msgstr ""
+msgstr "``system_service_run_list`` (список): Список имен системных единиц для запуска"
 
+# translated-by: libretranslate
 msgid "``systemctl list-units`` reports a forking unit as active/running while its guessed main process is gone, and the containers carry no ``ps``, so the unit table alone cannot answer whether a daemon is still there. MainPID and NRestarts can."
-msgstr ""
+msgstr "``systemctl list-units`` сообщает о разветвляющем устройстве как активном / бегущем, в то время как его предполагаемый основной процесс исчез, и контейнеры не несут ``ps``, Таким образом, единичный стол не может ответить, есть ли демон. MainPID и NRestarts могут."
 
+# translated-by: libretranslate
 msgid "``target``         the one container path this entry mounts at, present"
-msgstr ""
+msgstr "``target`` один контейнерный путь, который этот вход устанавливает в настоящее время"
 
+# translated-by: libretranslate
 msgid "``target`` is the host to restore onto (``localhost`` = local); a remote host makes the recover push over ssh (rsync target / docker host / secret paths gain the remote prefix)."
-msgstr ""
+msgstr "``target`` Хозяин, чтобы восстановить (``localhost`` локальный); удаленный хост заставляет восстановление нажимать на ssh (rsync target/docker host/секретные пути получают удаленный префикс)."
 
+# translated-by: libretranslate
 msgid "``target`` is what lets ``meta/volumes.yml`` stay the single source of a container path: a role defines its constant from the registry"
-msgstr ""
+msgstr "``target`` Что позволяет ``meta/volumes.yml`` оставаться единственным источником контейнерного пути: роль определяет его константу из реестра;"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "``targets``        ``{service: container path}`` built from ``mounts``"
-msgstr ""
+msgstr "``targets`` ``{service: container path}`` построенный из ``mounts``"
 
+# translated-by: libretranslate
 msgid "``tasks/01_manager_ops.yml`` therefore rewrites ``curlsecurityblockedhosts`` to ``MOODLE_EGRESS_BLOCKED_HOSTS`` and extends ``curlsecurityallowedport`` with the port of ``MOODLE_LITELLM_CHAT_ENDPOINT`` when the ``litellm`` service is enabled. Loopback, ``0.0.0.0`` and the cloud metadata address stay blocked; the RFC1918 ranges are opened. The Docker address pool and the bridge gateway that serves the pinned Keycloak authority both live inside them."
-msgstr ""
+msgstr "``tasks/01_manager_ops.yml`` Поэтому переписывать ``curlsecurityblockedhosts`` то ``MOODLE_EGRESS_BLOCKED_HOSTS`` и расширяется ``curlsecurityallowedport`` Вместе с портом ``MOODLE_LITELLM_CHAT_ENDPOINT`` когда ``litellm`` Услуга включена. Лупбэк, ``0.0.0.0`` и адрес метаданных в облаке остается заблокированным; RFC1918 Диапазоны открываются. Докерский адресный бассейн и мостовый шлюз, обслуживающий прикрепленный Keycloak Власть живет внутри них обоих."
 
+# translated-by: libretranslate
 msgid "``tasks/utils/`` is the repository’s home for unnumbered, includable task files, so the entrypoint carries no step number."
-msgstr ""
+msgstr "``tasks/utils/`` Это дом репозитория для ненумерованных, включаемых файлов задач, поэтому точка входа не имеет номера шага."
 
+# translated-by: libretranslate
 msgid "``tcp``, ``udp``, or a list of both. One list item per transport. Omit for compose's own default, which publishes no suffix."
-msgstr ""
+msgstr "``tcp``, ``udp``, Или список обоих. Один пункт перечня на транспорт. Omit для собственного по умолчанию, который не публикует суффикс."
 
+# translated-by: libretranslate
 msgid "``templates/package.json.j2``: ``@playwright/test`` version derived from ``meta/services.yml.playwright.version``"
-msgstr ""
+msgstr "``templates/package.json.j2``: ``@playwright/test`` Версия, полученная из ``meta/services.yml.playwright.version``"
 
+# translated-by: libretranslate
 msgid "``templates/playwright.env.j2`` acts as the stable marker for discovery and as the source of environment configuration."
-msgstr ""
+msgstr "``templates/playwright.env.j2`` Действует как стабильный маркер для обнаружения и как источник конфигурации среды."
 
+# translated-by: libretranslate
 msgid "``templates/roles/README.md.j2.tmpl`` is the single source of truth for the role-README structure. :mod:`cli.build.docs.readme.schema` derives the required/optional section set from it; the lint (``tests/lint/ansible/roles/test_readme.py``) and the generator (``python -m cli.build.docs.readme``) both consume that same schema so the three never drift."
-msgstr ""
+msgstr "``templates/roles/README.md.j2.tmpl`` Это единственный источник истины для структуры «роль-Ридме». :mod:`cli.build.docs.readme.schema` получает требуемый/факультативный набор разделов из него; (``tests/lint/ansible/roles/test_readme.py``) и генератор (``python -m cli.build.docs.readme``) Оба потребляют одну и ту же схему, поэтому три никогда не дрейфуют."
 
+# translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "``templates/roles/README.md.j2.tmpl`` is the single source of truth. The required sections are the H2s the template emits with no optional context; the optional sections are the extra H2s that appear once every ``{% if ... %}``-guarded variable is supplied. Rendering the template both ways and diffing the H2 sets keeps the lint and the generator in lock-step with the template."
-msgstr ""
+msgstr "``templates/roles/README.md.j2.tmpl`` Это единственный источник истины. Требуемые разделы - это H2s шаблон излучает без дополнительного контекста; необязательные разделы являются дополнительными H2которые появляются каждый раз ``{% if ... %}``- охраняемая переменная. Оформление шаблона обоими способами и диффундирование H2 Наборы удерживают винт и генератор в шаге блокировки с шаблоном."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "``test-bridge-roster.js`` probes the Synapse ``/_matrix/client/v3/profile/{bot}`` endpoint for every enabled bridge and fails on 5xx (skipped when no bridge is enabled)."
-msgstr ""
+msgstr "``test-bridge-roster.js`` Обсуждение Synapse ``/_matrix/client/v3/profile/{bot}`` Конечная точка для каждого включенного моста и не работает 5xx (Если мост не включен)."
 
+# translated-by: libretranslate
 msgid "``test-element-call.js`` opens the Element home view and verifies a call-widget control surfaces when ``services.matrix.conferencing.element_call=true`` (skipped otherwise)."
-msgstr ""
+msgstr "``test-element-call.js`` открывает вид на дом Элемента и проверяет поверхности управления колл-виджетом, когда ``services.matrix.conferencing.element_call=true`` (пропущенный иначе)."
 
+# translated-by: libretranslate
 msgid "``test-login-ldap-admin.js`` — OpenLDAP bind, administrator."
-msgstr ""
+msgstr "``test-login-ldap-admin.js`` - OpenLDAP Связь, администратор."
 
+# translated-by: libretranslate
 msgid "``test-login-ldap-biber.js`` — OpenLDAP bind, ``biber`` (non-admin RBAC)."
-msgstr ""
+msgstr "``test-login-ldap-biber.js`` - OpenLDAP связывать, ``biber`` (неадминистративный RBAC)."
 
+# translated-by: libretranslate
 msgid "``test-login-native.js`` — administrator native (local password) login; skipped when ``sso`` is enabled (native login is disabled under OIDC)."
-msgstr ""
+msgstr "``test-login-native.js`` Родной администратор (местный пароль) логин; пропущен когда ``sso`` позволяет (Родной логин отключен под OIDC)."
 
+# translated-by: libretranslate
 msgid "``test-login-oidc-admin.js`` — OIDC via Keycloak, administrator."
-msgstr ""
+msgstr "``test-login-oidc-admin.js`` OIDC через KeycloakАдминистратор."
 
+# translated-by: libretranslate
 msgid "``test-login-oidc-biber.js`` — OIDC via Keycloak, ``biber`` (non-admin RBAC)."
-msgstr ""
+msgstr "``test-login-oidc-biber.js`` OIDC через Keycloak, ``biber`` (неадминистративный RBAC)."
 
+# translated-by: libretranslate
 msgid "``test_e2e_playwright_only_roles`` (default: ``lookup('deployment').running``, every role the round deploys, dependencies included)"
-msgstr ""
+msgstr "``test_e2e_playwright_only_roles`` (по умолчанию: ``lookup('deployment').running``, Каждая роль, которую разворачивает раунд, включает зависимости)"
 
+# translated-by: libretranslate
 msgid "``test_e2e_playwright_skip_roles`` (default: ``[]``)"
-msgstr ""
+msgstr "``test_e2e_playwright_skip_roles`` (по умолчанию: ``[]``)"
 
+# translated-by: libretranslate
 msgid "``title`` or ``description``."
-msgstr ""
+msgstr "``title`` или ``description``."
 
+# translated-by: libretranslate
 msgid "``tmpfs``, defaults to ``volume``"
-msgstr ""
+msgstr "``tmpfs``, По умолчанию для ``volume``"
 
+# translated-by: libretranslate
 msgid "``tools/list`` returns 10 tools: entity control (``HassTurnOn``, ``HassTurnOff``), timers, broadcast, to-do list read and write, date and time, and ``GetLiveContext`` for the current state."
-msgstr ""
+msgstr "``tools/list`` возвращение 10 Инструменты: управление предприятием (``HassTurnOn``, ``HassTurnOff``), таймеры, трансляция, список дел читать и писать, дата и время, и ``GetLiveContext`` для текущего состояния."
 
+# translated-by: libretranslate
 msgid "``tools_unenforceable`` is that same rule applied to the tool policy rather than the connection. A client filters by tool name, so a provider that resolves no callable name gives it nothing to pin and the rendered filter would be empty. That happens two ways, and neither is a working pairing: a surface composed at runtime keeps its contract in ``tools.categories``, which no per-tool filter can express, and a surface that withholds every tool it serves as mutating has nothing left to offer. Advertising either as a configured server would leave an agent wired to a provider it can never call."
-msgstr ""
+msgstr "``tools_unenforceable`` То же самое правило применяется к политике инструмента, а не к соединению. Клиент фильтрует по имени инструмента, поэтому поставщик, который не разрешает вызывающее имя, не дает ему ничего, чтобы закрепить, и отображаемый фильтр будет пустым. Это происходит двумя способами, и ни один из них не является рабочей парой: поверхность, составленная во время выполнения, сохраняет свой контракт. ``tools.categories``, который не может выразить ни один фильтр для инструмента, и поверхность, которая удерживает каждый инструмент, который он служит в качестве мутирующего, не имеет ничего, чтобы предложить. Реклама как настроенный сервер оставит агента подключенным к провайдеру, которому он никогда не сможет позвонить."
 
+# translated-by: libretranslate
 msgid "``tools``:           ``allowlist`` is what a reader may reach and ``writer_allowlist`` what a writer may reach; the deployment renders one contract per role, each with its own bearer, because the gateway tells callers apart by credential and by nothing else. ``allowlist`` is policy, what the platform lets a consumer reach, and is only a constraint where a gateway enforces it. ``upstream_serves`` is the observation: every tool the upstream offers at the deployed version. State it only where it DIFFERS from the allowlist; absence means the two are identical, which is the normal case for a provider that serves exactly what is allowed. The difference between them measures unenforced exposure, and a provider whose difference is non-empty needs a gateway in front. Plus schema hash and mutation policy."
-msgstr ""
+msgstr "``tools``: ``allowlist`` Что может сделать читатель и ``writer_allowlist`` Что может достичь писатель; развертывание дает один контракт на роль, каждый со своим носителем, потому что шлюз сообщает абонентам отдельно по учетным данным и ничем другим. ``allowlist`` Это политика, то, что платформа позволяет потребителю достичь, и это только ограничение, когда шлюз обеспечивает его. ``upstream_serves`` Это наблюдение: каждый инструмент, предлагаемый выше по течению, находится в развернутой версии. Укажите его только там, где он отличается от списка разрешений; отсутствие означает, что они идентичны, что является нормальным случаем для поставщика, который обслуживает именно то, что разрешено. Разница между ними измеряет невынужденное воздействие, и поставщику, чья разница не пуста, нужен шлюз впереди. Плюс хэш схемы и мутационная политика."
 
+# translated-by: libretranslate
 msgid "``topology``: ``shared_net`` | ``default_net``. Absent = beacon-only (no attachment)"
-msgstr ""
+msgstr "``topology``: ``shared_net`` ! ``default_net``. Отсутствует = только маяк (никакой привязанности)"
 
+# translated-by: libretranslate
 msgid "``transport``:       wire protocol of the endpoint."
-msgstr ""
+msgstr "``transport``: Проводной протокол конечной точки."
 
+# translated-by: libretranslate
 msgid "``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``"
-msgstr ""
+msgstr "``type`` одного из ``volume`` ! ``bind`` ! ``config`` ! ``secret``"
 
+# translated-by: libretranslate
 msgid "``user_username`` is resolved from ``lookup('users', user_key).username`` (fallback: ``user_key``)"
-msgstr ""
+msgstr "``user_username`` решается из ``lookup('users', user_key).username`` (запасной вариант: ``user_key``)"
 
+# translated-by: libretranslate
 msgid "``users.<WORKSTATION_USER>.authorized_keys`` (list; may be empty)"
-msgstr ""
+msgstr "``users.<WORKSTATION_USER>.authorized_keys`` (Список может быть пустым)"
 
+# translated-by: libretranslate
 msgid "``users.<WORKSTATION_USER>.groups`` (list)"
-msgstr ""
+msgstr "``users.<WORKSTATION_USER>.groups`` (список)"
 
+# translated-by: libretranslate
 msgid "``users.<WORKSTATION_USER>.username`` (defaults to WORKSTATION_USER if missing)"
-msgstr ""
+msgstr "``users.<WORKSTATION_USER>.username`` (по умолчанию для WORKSTATION_USER если отсутствует)"
 
+# translated-by: libretranslate
 msgid "``utils.cache.applications`` — variants + ``get_merged_applications`` (ansible-free at import time, runner-host friendly)."
-msgstr ""
+msgstr "``utils.cache.applications`` - варианты + ``get_merged_applications`` (asible-free в момент импорта, дружественный хозяин)."
 
+# translated-by: libretranslate
 msgid "``utils.cache.base``         — cross-cutting helpers (constants, deep-merge, signatures, render machinery)."
-msgstr ""
+msgstr "``utils.cache.base`` Сквозные помощники (константы, глубокое слияние, подписи, рендеринг машин)."
 
+# translated-by: libretranslate
 msgid "``utils.cache.files``        — process-wide project-tree walk + file-content cache (``read_text``, ``iter_project_files``, ``iter_non_ignored_files``)."
-msgstr ""
+msgstr "``utils.cache.files`` — Processwide project-tree walk + кэш файлового контента (``read_text``, ``iter_project_files``, ``iter_non_ignored_files``)."
 
+# translated-by: libretranslate
 msgid "``utils.cache.gitignore``    — cached ``.gitignore`` pattern loader + path matcher used by lint/integration tests that need a \"files git would track\" view without spawning git."
-msgstr ""
+msgstr "``utils.cache.gitignore`` - в клетке ``.gitignore`` загрузчик шаблона + соединитель пути, используемый для винт / интеграционных тестов, которые требуют \"Файлы, которые будут отслеживать\" Вид без нерестового глотка."
 
+# translated-by: libretranslate
 msgid "``utils.cache.yaml``         — process-wide ``load_yaml`` / ``load_yaml_any`` parser cache shared by everything that reads YAML off-disk."
-msgstr ""
+msgstr "``utils.cache.yaml`` - общепроцессуальный ``load_yaml`` / ``load_yaml_any`` Кэш парсера делится всем, что читает YAML вне диска."
 
+# translated-by: libretranslate
 msgid "``variants`` empty and ``mode``/``tor``/``distro``/``filesystem``/ ``architecture`` ``None`` each mean \"not pinned\": that axis keeps whatever the line it stands in would assign."
-msgstr ""
+msgstr "``variants`` пустой и ``mode``/``tor``/``distro``/``filesystem``/ ``architecture`` ``None`` каждое значение \"не пинать\"Эта ось сохраняет любую линию, которую она обозначает."
 
+# translated-by: libretranslate
 msgid "``virtual: true`` records that the package manager satisfies the name through an RPM ``Provides`` rather than a package of that name, so an index lookup by name legitimately finds nothing while the install works."
-msgstr ""
+msgstr "``virtual: true`` Записи, что менеджер пакетов удовлетворяет имя через RPM ``Provides`` Вместо пакета с этим именем, так что поиск индекса по имени законно ничего не находит, пока установка работает."
 
+# translated-by: libretranslate
 msgid "``vlc`` (media player with Blu-ray support)"
-msgstr ""
+msgstr "``vlc`` (медиаплеер с поддержкой Blu-ray)"
 
+# translated-by: libretranslate
 msgid "``web-app-keycloak`` — for SSO/OIDC authentication"
-msgstr ""
+msgstr "``web-app-keycloak`` - для аутентификации SSO/OIDC"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "``{# … #}`` (Jinja2)"
-msgstr ""
+msgstr "``{# … #}`` (Джинджа2)"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` (skipped when equal); non-empty result triggers ``sys-stk-front-base`` to auto-load ``web-opt-rdr-domains`` so openresty has an SNI match for DOMAIN_PRIMARY even when no app claims it. On onion nodes (``svc-net-tor`` in ``group_names`` with a provisioned ``services.tor.node``) the bare node-onion apex is scheduled as an additional source targeting the same ``DOMAIN_HOMEPAGE``, which is already family-correct there (onion-injected domain lookup); both entries require ``web-opt-rdr-domains`` in ``lookup('deployment').deployed`` so isolated CI variants do not schedule a redirect whose target is not served."
-msgstr ""
+msgstr "``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` (Пропущенный, когда равный); Непустые триггеры результата ``sys-stk-front-base`` для автозагрузки ``web-opt-rdr-domains`` Так что открытость имеет SNI матч для DOMAIN_PRIMARY Даже если ни одно приложение не заявляет об этом. На луковых узлах (``svc-net-tor`` в ``group_names`` с выделенным ``services.tor.node``) apex голого узла-ониона планируется в качестве дополнительного источника, нацеленного на тот же ``DOMAIN_HOMEPAGE``, который уже является семейным. (onion-injected domain lookup); обе записи требуют ``web-opt-rdr-domains`` в ``lookup('deployment').deployed`` Таким образом, изолированные варианты CI не планируют перенаправление, цель которого не обслуживается."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "``{application_id: config}``, mutated in place."
-msgstr ""
+msgstr "``{application_id: config}``, мутировал на месте."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "``{axis: {value: [seconds, ...]}}``; values that never appeared are left out entirely."
-msgstr ""
+msgstr "``{axis: {value: [seconds, ...]}}``; Ценности, которые никогда не появлялись, полностью исключены."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "``{role: variant payload}`` for one round."
-msgstr ""
+msgstr "``{role: variant payload}`` на один раунд."
 
+# translated-by: libretranslate
 msgid "`action_plugins/` or `plugins/action/`"
-msgstr ""
+msgstr "`action_plugins/` или `plugins/action/`"
 
+# translated-by: libretranslate
 msgid "`actions/create-github-app-token` declares both inputs as required and fails with `Error: Input required and not supplied: client-id`."
-msgstr ""
+msgstr "`actions/create-github-app-token` объявляет оба входа необходимыми и не справляется с `Error: Input required and not supplied: client-id`."
 
+# translated-by: libretranslate
 msgid "`active_variants` is the per-app variant index for the round this folder represents. Apps absent from the mapping (or with an out-of- range index) fall back to variant 0. The resolved variant payload for every app in `include` is baked into the inventory as an `applications.<app>` override, so the deploy stage no longer needs a runtime variant selector — the inventory itself is variant-resolved."
-msgstr ""
+msgstr "`active_variants` является индексом варианта per-app для круга, который представляет эта папка. Приложения, отсутствующие на карте (или с индексом вне диапазона) Возвращаясь к варианту 0. Разрешенный вариант полезной нагрузки для каждого приложения в `include` Вносится в инвентарь как `applications.<app>` Переопределить, поэтому этап развертывания больше не нуждается в селекторе вариантов выполнения — сам инвентарь решен по варианту."
 
+# translated-by: libretranslate
 msgid "`addon` / `plugin` / `mu_plugin` / `extension` / `module` / `bridge`. Selects the install path. `bridge` denotes a network/appservice bridge addon (distinct from the `bridges:` field)."
-msgstr ""
+msgstr "`addon` / `plugin` / `mu_plugin` / `extension` / `module` / `bridge`. Выберите путь установки. `bridge` Обозначает аддон моста сети/сервиса (отличающийся от `bridges:` поле)."
 
+# translated-by: libretranslate
 msgid "`addons` is **not inlined** under the primary entity: role-level extensions are a first-class, per-file topic under `meta/addons/` (see [Unified Addons](#unified-addons-metaaddons-)). The same applies to a role that spells the concept `plugins`/`extensions`/`modules`/`mu_plugins`: those declarations live under `meta/addons/`."
-msgstr ""
+msgstr "`addons` это **не очерченный** в рамках первичной сущности: расширения на уровне ролей являются первоклассной темой для каждого файла `meta/addons/` (смотреть [Единые Аддоны](#unified-addons-metaaddons-))То же самое относится к роли, которая определяет концепцию. `plugins`/`extensions`/`modules`/`mu_plugins`: Эти декларации живут под `meta/addons/`."
 
+# translated-by: libretranslate
 msgid "`administrator`: single-app authenticated journey"
-msgstr ""
+msgstr "`administrator`: Однократное аутентифицированное путешествие"
 
+# translated-by: libretranslate
 msgid "`akaunting`, `decidim`, `fider`, `listmonk`, `pretix`, `snipe-it`, `taiga`, `penpot`, `joomla`, `suitecrm`, `kix`, `opencloud`, `opentalk`, `jitsi`, `bigbluebutton`, `erpnext` show no first-party AI surface with a configurable endpoint; revisit when upstream adds one"
-msgstr ""
+msgstr "`akaunting`, `decidim`, `fider`, `listmonk`, `pretix`, `snipe-it`, `taiga`, `penpot`, `joomla`, `suitecrm`, `kix`, `opencloud`, `opentalk`, `jitsi`, `bigbluebutton`, `erpnext` не показывать первую сторону поверхности ИИ с настраиваемой конечной точкой; пересматривать, когда upstream добавляет одну"
 
+# translated-by: libretranslate
 msgid "`algorithm:` defaults to `plain` when omitted."
-msgstr ""
+msgstr "`algorithm:` по умолчанию для `plain` когда опущено."
 
+# translated-by: libretranslate
 msgid "`alicloudkms`, `awskms`, `azurekeyvault`, `gcpckms`, `kmip`, `ocikms`, `ovhcloud`, `pkcs11`, **`static`**, `tcloudpublic`, `transit`. From v2.7.0 many become external plugins; `static` and `transit` stay built in."
-msgstr ""
+msgstr "`alicloudkms`, `awskms`, `azurekeyvault`, `gcpckms`, `kmip`, `ocikms`, `ovhcloud`, `pkcs11`, **`static`**, `tcloudpublic`, `transit`. Из v2.7.0 Многие становятся внешними плагинами. `static` и `transit` Оставайтесь внутри."
 
+# translated-by: libretranslate
 msgid "`all.sh` covers every discovered application; `selection.sh` covers one or more apps passed via `apps` (or a positional argument)."
-msgstr ""
+msgstr "`all.sh` охватывает все обнаруженные приложения; `selection.sh` охватывает одно или несколько приложений, переданных через `apps` (или позиционный аргумент)."
 
+# translated-by: libretranslate
 msgid "`all.sh` discovers applications on the host via `scripts/meta/resolve/apps.sh` and runs against the full list."
-msgstr ""
+msgstr "`all.sh` Обнаруживает приложения на хосте через `scripts/meta/resolve/apps.sh` И он идет против полного списка."
 
+# translated-by: libretranslate
 msgid "`all.sh` requires:"
-msgstr ""
+msgstr "`all.sh` требует:"
 
+# translated-by: libretranslate
 msgid "`all` (default)"
-msgstr ""
+msgstr "`all` (по умолчанию)"
 
+# translated-by: libretranslate
 msgid "`allow`: pre-authorized. Additionally, `sandbox.autoAllowBashIfSandboxed: true` pre-authorizes any Bash command that runs sandboxed and matches no `deny`/`ask` rule. Agents without an equivalent OS-level sandbox MUST treat unmatched Bash as `ask`."
-msgstr ""
+msgstr "`allow`: предварительно уполномоченный. Кроме того, `sandbox.autoAllowBashIfSandboxed: true` предварительно авторизует любую команду Bash, которая работает в песочнице и не соответствует `deny`/`ask` Правило. Агенты без эквивалентной песочницы на уровне ОС ДОЛЖНЫ относиться к непревзойденному Bash как к `ask`."
 
+# translated-by: libretranslate
 msgid "`ansible.builtin.package` ships as a documentation-only stub; its logic lives in Ansible's action plugin. The action plugin here executes modules directly, so it must swap this marker for the host's `ansible_facts.pkg_mgr`."
-msgstr ""
+msgstr "`ansible.builtin.package` Поставляется как заглушка только для документации; его логика живет в плагине действия Ansible. Плагин действия здесь выполняет модули напрямую, поэтому он должен поменять этот маркер на хост. `ansible_facts.pkg_mgr`."
 
+# translated-by: libretranslate
 msgid "`ansible` (default)"
-msgstr ""
+msgstr "`ansible` (по умолчанию)"
 
+# translated-by: libretranslate
 msgid "`ansible` (default) wraps [matrix-docker-ansible-deploy](https://github.com/spantaleev/matrix-docker-ansible-deploy) (MDAD). MDAD runs ~70 upstream sub-roles to deliver Synapse, Element, every supported bridge, Element Call, and Jitsi. Infinito.Nexus pins MDAD by commit, renders an MDAD inventory from `services.matrix.*` knobs, and disables MDAD's bundled Traefik / Postgres / Redis so the central Infinito services back the stack."
-msgstr ""
+msgstr "`ansible` (по умолчанию) обертывание [матричный докер-возможное развертывание](https://github.com/spantaleev/matrix-docker-ansible-deploy) (MDAD)MDAD работает70 Подроли для доставки Synapse, Element, каждого поддерживаемого моста, Element Call и Jitsi. Infinito.Nexus PINS MDAD by commit, отображает инвентарь MDAD `services.matrix.*` knobs, and disables MDAD's bundled Traefik / Postgres / Redis Таким образом, центральные службы Infinito возвращают стек."
 
+# translated-by: libretranslate
 msgid "`api.seaweedfs.s3.*` is the public S3 endpoint and is reachable without SSO gating."
-msgstr ""
+msgstr "`api.seaweedfs.s3.*` является публичным S3 Конечная точка достижима без SSO gating."
 
+# translated-by: libretranslate
 msgid "`application_id` MUST refer to a role that declares an `rbac:` block in its `meta/services.yml`. The role may be tenant-aware (`rbac.tenancy.axis == \"domain\"`) or not (default)."
-msgstr ""
+msgstr "`application_id` должно относиться к роли, которая объявляет `rbac:` блок в его `meta/services.yml`. Роль может быть осознанной арендатором (`rbac.tenancy.axis == \"domain\"`) или нет (по умолчанию)."
 
+# translated-by: libretranslate
 msgid "`applications['<application_id>'].compose.services.email.<key>`, applied only when an `application_id` is passed."
-msgstr ""
+msgstr "`applications['<application_id>'].compose.services.email.<key>`, Применяется только тогда, когда `application_id` Пройдено."
 
+# translated-by: libretranslate
 msgid "`applications['<application_id>'].services.email.<key>`, only when an `application_id` is passed."
-msgstr ""
+msgstr "`applications['<application_id>'].services.email.<key>`, Только тогда, когда `application_id` Пройдено."
 
+# translated-by: libretranslate
 msgid "`applications_if_group_and_all_deps`. Recursive walk over Ansible meta `dependencies:` plus shared-service deps."
-msgstr ""
+msgstr "`applications_if_group_and_all_deps`. Рекурсивная прогулка по Ansible meta `dependencies:` Плюс депсы общего обслуживания."
 
+# translated-by: libretranslate
 msgid "`applications` lookup 📦"
-msgstr ""
+msgstr "`applications` искать 📦"
 
+# translated-by: libretranslate
 msgid "`apply` MUST take `(eb, ctx)` and return `None`."
-msgstr ""
+msgstr "`apply` Надо взять `(eb, ctx)` и вернуться `None`."
 
+# translated-by: libretranslate
 msgid "`apt-get install` (Ansible task in runner)"
-msgstr ""
+msgstr "`apt-get install` (Удобное задание в бегуне)"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "`apt/${INFINITO_DISTRO}.list` URL-rewrite to `package-cache:8081`"
-msgstr ""
+msgstr "`apt/${INFINITO_DISTRO}.list` URL переписать на `package-cache:8081`"
 
+# translated-by: libretranslate
 msgid "`apt/<distro>.list`: apt sources, one file per `INFINITO_DISTRO`. The matching file is mounted at `/etc/apt/sources.list.d/package-cache.list`. `apt/debian.list` routes apt through `apt-debian`, `apt/ubuntu.list` through `apt-ubuntu`; the pacman/dnf distros get an empty file, because `apt-get update` fails as a whole on a single unreachable source and must not carry a foreign distro's entry."
-msgstr ""
+msgstr "`apt/<distro>.list`: Источники apt, один файл на `INFINITO_DISTRO`. Файл соответствия установлен на `/etc/apt/sources.list.d/package-cache.list`. `apt/debian.list` маршруты, проходящие через `apt-debian`, `apt/ubuntu.list` через `apt-ubuntu`; дистрибутивы pacman/dnf получают пустой файл, потому что `apt-get update` не удается в целом на одном недостижимом источнике и не должен нести запись иностранного дистрибутива."
 
+# translated-by: libretranslate
 msgid "`apt` (mirrors)"
-msgstr ""
+msgstr "`apt` (зеркала)"
 
+# translated-by: libretranslate
 msgid "`architecture` is an axis of the matrix row, assigned per row by [axes.py](../../../utils/github/variant/axes.py) next to `mode`, `tor`, `distro` and `filesystem`."
-msgstr ""
+msgstr "`architecture` представляет собой ось матрицы строки, назначенной на строку [axes.py](../../../utils/github/variant/axes.py) рядом с `mode`, `tor`, `distro` и `filesystem`."
 
+# translated-by: libretranslate
 msgid "`ask`: requires per-invocation operator confirmation in the current conversation. A prior confirmation from another conversation MUST NOT be reused."
-msgstr ""
+msgstr "`ask`: требует подтверждения оператора вызова в текущем разговоре. Предварительное подтверждение из другого разговора не должно использоваться повторно."
 
+# translated-by: libretranslate
 msgid "`auth: none` MUST fail lint unless the endpoint is bound to localhost or an internal-only network and the role README documents why authentication is impossible upstream."
-msgstr ""
+msgstr "`auth: none` Должен выйти из строя, если конечная точка не связана с локальным хостом или внутренней сетью, и роль README документирует, почему аутентификация невозможна."
 
+# translated-by: libretranslate
 msgid "`auth: none` requires `exposure: internal`."
-msgstr ""
+msgstr "`auth: none` требует `exposure: internal`."
 
+# translated-by: libretranslate
 msgid "`auth_subject: administrator`: Home Assistant scopes the token to the account that minted it. This deployment mints it for the administrator, so a call arrives as the administrator whoever asked the client. Entity exposure still bounds the reach. Getting to the tool server is gated on the role's `mcp` RBAC group."
-msgstr ""
+msgstr "`auth_subject: administrator`: Домашний помощник передает токен на счет, который его отчеканил. Это развертывание чеканит его для администратора, поэтому вызов приходит как администратор, который спросил клиента. Разоблачение сущности по-прежнему ограничивает охват. Добраться до сервера инструментов закрыто на роли `mcp` Группа RBAC."
 
+# translated-by: libretranslate
 msgid "`auth_subject: administrator`: Mattermost bounds a call by the account the token belongs to. This deployment mints that personal access token for the administrator account, so calls arrive with that account's rights whoever asked. Reaching the tool server is gated on the role's `mcp` RBAC group."
-msgstr ""
+msgstr "`auth_subject: administrator`: Mattermost ограничивает вызов по счету, к которому принадлежит токен. Это развертывание означает, что персональный токен доступа для учетной записи администратора, поэтому вызовы приходят с правами этой учетной записи, кто бы ни попросил. Доступ к серверу инструментов закрыт на роли `mcp` Группа RBAC."
 
+# translated-by: libretranslate
 msgid "`auth_subject: administrator`: the API token is issued against the administrator account, so every call carries that account's rights no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from administering Jenkins."
-msgstr ""
+msgstr "`auth_subject: administrator`: API Токен выдается против учетной записи администратора, поэтому каждый звонок несет права этой учетной записи независимо от того, кто попросил клиента. Доступ к серверу инструментов закрыт на роли `mcp` Группа RBAC, которая является отдельным грантом от администрирования Jenkins."
 
+# translated-by: libretranslate
 msgid "`auth_subject: administrator`: the personal access token is minted against the `root` account and stored under the `administrator` key, so every call carries that account's rights no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from administering GitLab."
-msgstr ""
+msgstr "`auth_subject: administrator`: персональный токен доступа чеканится против `root` Счет и хранение под `administrator` Ключ, поэтому каждый звонок несет права этого счета независимо от того, кто спросил клиента. Доступ к серверу инструментов закрыт на роли `mcp` Группа RBAC, которая является отдельным грантом от администрирования GitLab."
 
+# translated-by: libretranslate
 msgid "`auth_subject: administrator`: the web-service token is issued against the administrator account, so a call carries that account's rights regardless of who asked the client. The attached functions are read-only, which bounds what those rights can do here. Reaching the tool server is gated on the role's `mcp` RBAC group."
-msgstr ""
+msgstr "`auth_subject: administrator`: Токен веб-сервиса выдается против учетной записи администратора, поэтому вызов несет права этой учетной записи независимо от того, кто попросил клиента. Прилагаемые функции только для чтения, что ограничивает то, что эти права могут сделать здесь. Доступ к серверу инструментов закрыт на роли `mcp` Группа RBAC."
 
+# translated-by: libretranslate
 msgid "`auth_subject: service_account | administrator` requires an explicit `tools.mutating_tools_enabled: false`."
-msgstr ""
+msgstr "`auth_subject: service_account | administrator` требует явного `tools.mutating_tools_enabled: false`."
 
+# translated-by: libretranslate
 msgid "`auth_subject: service_account`. A call arrives at Baserow as the endpoint owner regardless of who asked the client, and reaches only the one workspace that account owns. That is the second bound under the adapter's allowlist, not a substitute for it."
-msgstr ""
+msgstr "`auth_subject: service_account`. Приходит звонок Baserow Владелец конечной точки, независимо от того, кто попросил клиента, достигает только одного рабочего пространства, которым владеет учетная запись. Это вторая граница в списке разрешений адаптера, а не его замена."
 
+# translated-by: libretranslate
 msgid "`auth_subject: service_account`: [`tasks/utils/mcp/token.yml`](./tasks/utils/mcp/token.yml) creates the account `NEXTCLOUD_MCP_USERNAME` with `occ user:add` if it is missing, mints the app password against that account, and stores it under `mcp.credential.owner`. Every call carries that account's rights, not the administrator's, no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from holding a Nextcloud account."
-msgstr ""
+msgstr "`auth_subject: service_account`: [`tasks/utils/mcp/token.yml`](./tasks/utils/mcp/token.yml) Создает аккаунт `NEXTCLOUD_MCP_USERNAME` с `occ user:add` если он отсутствует, чеканит пароль приложения против этой учетной записи и хранит его под `mcp.credential.owner`. Каждый звонок несет права этой учетной записи, а не администратора, независимо от того, кто спросил клиента. Доступ к серверу инструментов закрыт на роли `mcp` Группа RBAC, которая является отдельным грантом от холдинга Nextcloud счет."
 
+# translated-by: libretranslate
 msgid "`auth_subject: user` and `auth: oidc` claim that an MCP call executes with the requesting end user's permissions. A `delegation:` block records the audit that backs the claim; without it, [`test_mcp_schema.py`](../../../../../../tests/lint/ansible/services/test_mcp_schema.py) rejects the role."
-msgstr ""
+msgstr "`auth_subject: user` и `auth: oidc` Утверждают, что вызов MCP выполняется с запросом разрешений конечного пользователя. А. `delegation:` блокирует запись аудита, который подтверждает требование; без него [`test_mcp_schema.py`](../../../../../../tests/lint/ansible/services/test_mcp_schema.py) отвергает эту роль."
 
+# translated-by: libretranslate
 msgid "`auth_subject: user` may be set only after the exact client and server prove authorization-code or token-exchange behaviour, token refresh, audience binding, revocation and expiry. A static bearer issued to the deployment is not on-behalf-of and stays `service_account`. Client-side group gating controls access to that service account; it does not recreate the caller's permissions."
-msgstr ""
+msgstr "`auth_subject: user` Он может быть установлен только после того, как точный клиент и сервер докажут поведение кода авторизации или обмена токенами, обновления токена, связывания аудитории, отзыва и истечения срока действия. Статический носитель, выданный для развертывания, не находится с полувыведения и остается `service_account`. Клиентская группа gating контролирует доступ к этой учетной записи службы; она не воссоздает разрешения абонента."
 
+# translated-by: libretranslate
 msgid "`auth_subject: user` or `auth: oidc` requires a `delegation` block; see [delegation.md](mcp/delegation.md)."
-msgstr ""
+msgstr "`auth_subject: user` или `auth: oidc` требует `delegation` Блок, см. [delegation.md](mcp/delegation.md)."
 
+# translated-by: libretranslate
 msgid "`auth_subject` MUST be `user` where upstream supports per-user authorization. `service_account` and `administrator` MUST keep mutating tools disabled by default."
-msgstr ""
+msgstr "`auth_subject` Должно быть `user` где upstream поддерживает авторизацию для каждого пользователя. `service_account` и `administrator` Необходимо продолжать мутировать инструменты, отключенные по умолчанию."
 
+# translated-by: libretranslate
 msgid "`auth_type: bearer` with the token from the discovery data"
-msgstr ""
+msgstr "`auth_type: bearer` с токеном из данных обнаружения"
 
+# translated-by: libretranslate
 msgid "`auth` reads `environment` and `tls`."
-msgstr ""
+msgstr "`auth` читать `environment` и `tls`."
 
+# translated-by: libretranslate
 msgid "`auto` is advisory and never fails the unit — every refusal is logged to the journal as `baudolo-snapshot: live copy, <reason>`, so check there if a host you expect to snapshot does not. A stated `btrfs`/`zfs` fails the unit instead, which is the point of stating it. Before every snapshot the launcher also removes the `.baudolo-*` leftovers a killed run leaves inside the data root."
-msgstr ""
+msgstr "`auto` является консультативным и никогда не подводит подразделение - каждый отказ регистрируется в журнале как `baudolo-snapshot: live copy, <reason>`, Поэтому проверьте там, если хост, который вы ожидаете, не делает снимок. Заявленный `btrfs`/`zfs` Вместо этого блок выходит из строя, и в этом заключается смысл его утверждения. Перед каждым снимком пусковая установка также удаляет `.baudolo-*` Остатки убитого бега остаются внутри корня данных."
 
+# translated-by: libretranslate
 msgid "`backend`: `cloud` or `chezmoi`"
-msgstr ""
+msgstr "`backend`: `cloud` или `chezmoi`"
 
+# translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "`base.yml.j2` embeds an engine sidecar only `{% if enabled and not shared %}`."
-msgstr ""
+msgstr "`base.yml.j2` Встроен только коляска двигателя `{% if enabled and not shared %}`."
 
+# translated-by: libretranslate
 msgid "`base_dir` (string): base directory for CA files"
-msgstr ""
+msgstr "`base_dir` (струна): Базовый каталог для файлов CA"
 
+# translated-by: libretranslate
 msgid "`base` prepares the workspace and is a prerequisite for the other two. `compose` and `swarm` are independent of each other, which is what lets CI run them as separate jobs with a budget each."
-msgstr ""
+msgstr "`base` Подготавливает рабочее пространство и является обязательным условием для двух других. `compose` и `swarm` Они независимы друг от друга, что позволяет CI управлять ими как отдельными работами с бюджетом."
 
+# translated-by: libretranslate
 msgid "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
-msgstr ""
+msgstr "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (после `make dotenv` или источник `scripts/meta/env/load.sh`)"
 
+# translated-by: libretranslate
 msgid "`bench new-site` uses the central MariaDB's `root` to create the per-site DB on first deploy."
-msgstr ""
+msgstr "`bench new-site` использует центральный MariaDB? `root` Создание DB на месте при первом развертывании."
 
+# translated-by: libretranslate
 msgid "`biber` only ever exists inside EspoCRM through OIDC auto-provisioning (`ESPOCRM_CONFIG_OIDC_CREATE_USER=true`, [`templates/env.j2`](./templates/env.j2)); the role itself seeds only the administrator account. In the `services.sso.enabled: false` matrix variants that provisioning path is gone and no native `biber` user exists, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run in every variant."
-msgstr ""
+msgstr "`biber` Внутри всегда есть только EspoCRM с помощью автопроизводства OIDC (`ESPOCRM_CONFIG_OIDC_CREATE_USER=true`, [`templates/env.j2`](./templates/env.j2))Сама роль порождает только учетную запись администратора. В этом `services.sso.enabled: false` Матрица вариантов, что путь резервирования ушел и нет родных `biber` Пользователь существует. [`templates/playwright.env.j2`](./templates/playwright.env.j2) отдавать `PERSONA_BIBER_BLOCKED=true`. Это `administrator` и `guest` Персонажи бегают в каждом варианте."
 
+# translated-by: libretranslate
 msgid "`biber`: single-app authenticated journey"
-msgstr ""
+msgstr "`biber`: Однократное аутентифицированное путешествие"
 
+# translated-by: libretranslate
 msgid "`branch_prefix.sh` validates that the PR branch prefix matches the detected scope; see [branch.md](../../../../docs/contributing/artefact/git/branch.md) for the authoritative list of valid prefixes and their CI impact"
-msgstr ""
+msgstr "`branch_prefix.sh` подтверждает, что префикс PR-отделения соответствует обнаруженному объему; см. [branch.md](../../../../docs/contributing/artefact/git/branch.md) для авторитетного списка действительных префиксов и их влияния на CI"
 
+# translated-by: libretranslate
 msgid "`bridges` (optional) MUST be a non-empty list when present. Each entry MUST name a service key that exists in the same role's `meta/services.yml`. Omit the key entirely when the addon has no cross-role dependency."
-msgstr ""
+msgstr "`bridges` (необязательный) Должен быть не пустой список при наличии. Каждая запись должна называть ключ службы, который существует в одной и той же роли. `meta/services.yml`. Опустить ключ полностью, когда аддон не имеет перекрестной зависимости."
 
+# translated-by: libretranslate
 msgid "`build.extra_hosts` DNS-hijack + frontend HTTP"
-msgstr ""
+msgstr "`build.extra_hosts` Угон DNS + frontend HTTP"
 
+# translated-by: libretranslate
 msgid "`build_dev_inventory` is the SPOT that turns a `DevInventorySpec` into a fully baked inventory folder via the `infinito administration inventory provision` CLI. `build_dev_inventory_matrix` is the orchestrator: it runs the planner and builds every round's folder."
-msgstr ""
+msgstr "`build_dev_inventory` Это место, которое превращается в `DevInventorySpec` в полностью запеченную папку инвентаря через `infinito administration inventory provision` КЛИ. `build_dev_inventory_matrix` Это оркестратор: он управляет планировщиком и строит папку каждого раунда."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "`build_dev_inventory` reads `spec.variant_selectors()` from the planner. When the round pins any variant, it appends `--app-variants <JSON>` to the `infinito administration inventory provision` invocation with the per-app `{app_id: variant_index}` mapping."
-msgstr ""
+msgstr "`build_dev_inventory` читать `spec.variant_selectors()` от планировщика. Когда круг зажимает любой вариант, он добавляет `--app-variants <JSON>` к `infinito administration inventory provision` Обращение к Per-App `{app_id: variant_index}` картографирование."
 
+# translated-by: libretranslate
 msgid "`build_service_registry_from_roles_dir`, `resolve_service_dependency_roles_from_config`. Strict-identity auto-include."
-msgstr ""
+msgstr "`build_service_registry_from_roles_dir`, `resolve_service_dependency_roles_from_config`. Строгая идентификация авто."
 
+# translated-by: libretranslate
 msgid "`builder.py` MUST NOT import individual handler modules; it MUST go through the `ORDERED_HANDLERS` list exposed by `handlers/__init__.py`."
-msgstr ""
+msgstr "`builder.py` Не следует импортировать отдельные модули обработчика; он должен проходить через `ORDERED_HANDLERS` Список, раскрытый `handlers/__init__.py`."
 
+# translated-by: libretranslate
 msgid "`canonical:` is only used on alias entries that resolve back to the primary service key."
-msgstr ""
+msgstr "`canonical:` Используется только для записей псевдонимов, которые возвращаются к основному ключу службы."
 
+# translated-by: libretranslate
 msgid "`central_mariadb_root_password`: The root password for the MariaDB server."
-msgstr ""
+msgstr "`central_mariadb_root_password`: Корневой пароль для The MariaDB Сервер."
 
+# translated-by: libretranslate
 msgid "`cert_host` (string): host path to Root CA certificate"
-msgstr ""
+msgstr "`cert_host` (струна): Путь к сертификату Root CA"
 
+# translated-by: libretranslate
 msgid "`checkmk/check-mk-raw` (Raw/Community, free); renamed `checkmk/check-mk-community` from 2.5. Pin a concrete patch tag (no `:latest`)."
-msgstr ""
+msgstr "`checkmk/check-mk-raw` (Сырая/община, свободная); переименованный `checkmk/check-mk-community` из 2.5. Наклейте бетонный патч (нет `:latest`)."
 
+# translated-by: libretranslate
 msgid "`checkmk`, `prometheus`, `matomo`, `seaweedfs`, `minio`, `mailu`, `keycloak`, `lam`, `fusiondirectory`, `phpldapadmin`, `phpmyadmin`, `pgadmin`, `pihole`, `semaphore`, `jenkins`, `gitea`, `hugo`, `docs`, `yourls`, `mini-qr`, `littlejs`, `chess`, `roulette-wheel`, `navigator`, `mig`, `dashboard`, `fediwall`, `postmarks` carry no AI surface"
-msgstr ""
+msgstr "`checkmk`, `prometheus`, `matomo`, `seaweedfs`, `minio`, `mailu`, `keycloak`, `lam`, `fusiondirectory`, `phpldapadmin`, `phpmyadmin`, `pgadmin`, `pihole`, `semaphore`, `jenkins`, `gitea`, `hugo`, `docs`, `yourls`, `mini-qr`, `littlejs`, `chess`, `roulette-wheel`, `navigator`, `mig`, `dashboard`, `fediwall`, `postmarks` не несут никакой поверхности"
 
+# translated-by: libretranslate
 msgid "`chunk_gate` (default `true`) decides whether the chain stops at its first failed chunk:"
-msgstr ""
+msgstr "`chunk_gate` (по умолчанию `true`) Решает, остановится ли цепь на своем первом неудачном куске:"
 
+# translated-by: libretranslate
 msgid "`ci.sh` exports `INFINITO_MAKE_DEPLOY=1` so `MODE_CI` (defined in `group_vars/all/01_modes.yml`) flips to `true` for the duration of a make-driven deploy. It is sourced by every deploy entry-point under `scripts/tests/deploy/local/deploy/`. Sourcing it from `all.sh` would set the marker for unrelated `make test*` or `make build*` recipes too, which is exactly what the service-gating contract forbids."
-msgstr ""
+msgstr "`ci.sh` экспорт `INFINITO_MAKE_DEPLOY=1` так `MODE_CI` (определяемый `group_vars/all/01_modes.yml`) переключаться на `true` продолжительность развертывания с искусственным приводом. Он исходит от каждой точки входа развертывания под `scripts/tests/deploy/local/deploy/`. Извлекая его из `all.sh` Установите маркер для несвязанных `make test*` или `make build*` Рецепты тоже, а это именно то, что запрещает сервисный контракт."
 
+# translated-by: libretranslate
 msgid "`classification` is required and MUST be deployable; all MCP-specific fields MUST be literals (only `enabled`/`shared` may carry Jinja)."
-msgstr ""
+msgstr "`classification` Все поля MCP должны быть буквальными; все поля MCP должны быть буквальными. (только `enabled`/`shared` кто может носить джинджа)."
 
+# translated-by: libretranslate
 msgid "`classification` is required and is one of `native_server`, `native_client`, `native_both`, `plugin_server`, `sidecar_server`, `adapter_server`. A role that cannot serve declares no `mcp` block at all."
-msgstr ""
+msgstr "`classification` Он необходим и является одним из `native_server`, `native_client`, `native_both`, `plugin_server`, `sidecar_server`, `adapter_server`. Роль, которая не может служить, не `mcp` Блокировать вообще."
 
+# translated-by: libretranslate
 msgid "`cli contributing network address suggest` gap-first subnet allocation suggestions"
-msgstr ""
+msgstr "`cli contributing network address suggest` Предложения по распределению подсетей в первую очередь"
 
+# translated-by: libretranslate
 msgid "`cli contributing network address suggest` proposes the next free per-role IPv4 subnet(s) based on the live role tree. It walks every `roles/*/meta/server.yml`, collects occupied `networks.local.subnet` assignments, picks the smallest CIDR prefix that fits the requested client count, and proposes free sub-blocks gap-first then by increment within the established umbrella blocks."
-msgstr ""
+msgstr "`cli contributing network address suggest` Предлагается следующий бесплатный IPv4 подсеть(s) На основе дерева живой роли. Он ходит каждый `roles/*/meta/server.yml`, Собирает занятые `networks.local.subnet` Задания, выбирает наименьший префикс CIDR, который соответствует запрашиваемому количеству клиентов, и предлагает бесплатные подблоки, сначала путем увеличения в пределах установленных зонтичных блоков."
 
+# translated-by: libretranslate
 msgid "`cli contributing network address suggest`: propose free per-role subnets gap-first within established umbrella blocks."
-msgstr ""
+msgstr "`cli contributing network address suggest`: Предложить бесплатные подсети для каждой роли в пределах установленных зонтичных блоков."
 
+# translated-by: libretranslate
 msgid "`cli contributing network address suggest`: propose the next free per-role IPv4 subnet(s) gap-first within the established umbrella blocks."
-msgstr ""
+msgstr "`cli contributing network address suggest`: Предложите следующий бесплатный IPv4 подсеть(s) Зазор первый в пределах установленных зонтичных блоков."
 
+# translated-by: libretranslate
 msgid "`cli contributing network ports suggest`   gap-first port allocation suggestions"
-msgstr ""
+msgstr "`cli contributing network ports suggest` Предложения по распределению портов в первую очередь"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "`cli contributing network ports suggest` proposes the next free host-bound port(s) inside a `PORT_BANDS.<scope>.<category>` band defined in [group_vars/all/08_networks.yml](../../../../group_vars/all/08_networks.yml). It walks every `roles/*/meta/services.yml`, collects occupied `<entity>.ports.{local,public}.<category>` assignments across all roles and all entities, and proposes free slots gap-first then by increment."
-msgstr ""
+msgstr "`cli contributing network ports suggest` Предлагается следующий бесплатный порт(s) внутри `PORT_BANDS.<scope>.<category>` полоса, определенная в [group_vars/all/08_networks.yml](../../../../group_vars/all/08_networks.yml). Он ходит по всем `roles/*/meta/services.yml`, Собирает занятые `<entity>.ports.{local,public}.<category>` Задания по всем ролям и всем сущностям и предлагает бесплатный разрыв слотов сначала путем увеличения."
 
+# translated-by: libretranslate
 msgid "`cli contributing network ports suggest`: propose free host-bound ports inside `PORT_BANDS.<scope>.<category>`."
-msgstr ""
+msgstr "`cli contributing network ports suggest`: Предложить бесплатные порты внутри `PORT_BANDS.<scope>.<category>`."
 
+# translated-by: libretranslate
 msgid "`cli/contributing/mirror/providers.py` contains the `GHCRProvider` class, which computes the destination image name via `image_base(img)` and provides `add_args` / `from_args` so all CLI tools share a single argument definition (SPOT)."
-msgstr ""
+msgstr "`cli/contributing/mirror/providers.py` содержит `GHCRProvider` класс, который вычисляет имя изображения назначения через `image_base(img)` и обеспечивает `add_args` / `from_args` Все инструменты CLI имеют общее определение аргумента (SPOT)."
 
+# translated-by: libretranslate
 msgid "`cli/contributing/mirror/resolver/__main__.py` reads all role images and outputs a `mirrors.yml` file under a single `applications.<role>.services.<service>` map:"
-msgstr ""
+msgstr "`cli/contributing/mirror/resolver/__main__.py` читает все ролевые изображения и выводит a `mirrors.yml` Файл под одним `applications.<role>.services.<service>` Карта:"
 
+# translated-by: libretranslate
 msgid "`cli/contributing/mirror/sync/__main__.py` copies each image from the upstream source to the GHCR mirror destination using `skopeo copy`. Supports `--only-missing` to skip already-mirrored images and `--images-per-hour` for throttling."
-msgstr ""
+msgstr "`cli/contributing/mirror/sync/__main__.py` копирует каждое изображение от источника вверх по течению до места назначения зеркала GHCR с помощью `skopeo copy`. Поддержка `--only-missing` Пропустить уже зазеркаленные изображения и `--images-per-hour` за дросселирование."
 
+# translated-by: libretranslate
 msgid "`cli/meta/env/` provides the CLI entry point invoked as `python -m cli.meta.env`."
-msgstr ""
+msgstr "`cli/meta/env/` Предоставляет точку входа CLI, указанную как `python -m cli.meta.env`."
 
+# translated-by: libretranslate
 msgid "`cluster_addr` MUST NOT be built from the container name. Compose sets `container_name:` explicitly, but swarm names every task `<stack>_<key>.<slot>.<taskid>`, so a container-name-derived address renders differently per mode. With `replicas: 1` the node only ever advertises to itself, so a loopback cluster address is mode-independent; the HA follow-up story revisits it."
-msgstr ""
+msgstr "`cluster_addr` Не следует строить из названия контейнера. Композитные наборы `container_name:` Явно, но рой называет каждую задачу `<stack>_<key>.<slot>.<taskid>`, Таким образом, адрес, полученный из имени контейнера, отображается по-разному в режиме. с `replicas: 1` Узел только когда-либо рекламирует себя, поэтому адрес кластера обратной связи является независимым от режима; история HA пересматривает его."
 
+# translated-by: libretranslate
 msgid "`compose build` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
-msgstr ""
+msgstr "`compose build` Перезагружает статический вывод всякий раз, когда изменяется клонированный контент, поэтому развертывание осуществляется на основе контента без какого-либо этапа сборки во время выполнения."
 
+# translated-by: libretranslate
 msgid "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` and `pip.conf.j2` under `templates/`, and the shell scripts under `files/`, belong to the development compose stack, which drives them through [render.py](../../utils/cache/render.py) and [compose.py](../../cli/administration/deploy/development/compose.py). The Ansible deployment reads none of them."
-msgstr ""
+msgstr "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` и `pip.conf.j2` под `templates/`, а также скриншоты под `files/`, принадлежат к композитному стеку разработки, который прогоняет их через [render.py](../../utils/cache/render.py) и [compose.py](../../cli/administration/deploy/development/compose.py). Развертывание Ansible не читает ни одного из них."
 
+# translated-by: libretranslate
 msgid "`compose.volumes:` is **not** inlined into services. It lives in its own `meta/volumes.yml` (volumes are role-wide, not per-service)."
-msgstr ""
+msgstr "`compose.volumes:` это **не** вписывается в услуги. Он живет в своем собственном `meta/volumes.yml` (Объемы являются ролевыми, а не на обслуживание)."
 
+# translated-by: libretranslate
 msgid "`compose` (deprecated)"
-msgstr ""
+msgstr "`compose` (обесцененный)"
 
+# translated-by: libretranslate
 msgid "`compose` is the in-repo Docker Compose stack. It remains installable but receives no new features."
-msgstr ""
+msgstr "`compose` Это In-Repo Docker Compose стопка. Он остается устанавливаемым, но не получает новых функций."
 
+# translated-by: libretranslate
 msgid "`config.access_grants: []`, administrator-only rather than public"
-msgstr ""
+msgstr "`config.access_grants: []`, Только администратор, а не публика"
 
+# translated-by: libretranslate
 msgid "`config` (optional) is an opaque, role-interpreted mapping holding the addon's full runtime configuration payload (e.g. Nextcloud `occ config:app` key/value sets, OIDC provider blocks). Lint MUST NOT constrain its inner shape beyond requiring a mapping; only the owning role's tasks read it. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally. Lint enforces this with a bounded heuristic: any `config` value whose key matches a secret-name pattern (`*secret*`, `*password*`, `*token*`, `*client_secret*`, `*api_key*`, case-insensitive) MUST be a `lookup(..., 'credentials.<name>')` expression; a bare literal under such a key fails lint."
-msgstr ""
+msgstr "`config` (необязательный) является непрозрачным, интерпретируемым по ролям отображением, удерживающим полезную нагрузку полной конфигурации рабочего времени аддона (Например, Nextcloud `occ config:app` Наборы ключей/значений, блоки провайдера OIDC)Линт НЕ ДОЛЖЕН ограничивать свою внутреннюю форму, не требуя отображения; только задачи хозяина роли читают его. Секреты внутри `config` Необходимо решать через `lookup('config', application_id, 'secrets.credentials.<name>')` И не должны быть вписаны буквально. Линт навязывает это ограниченной эвристикой: любой `config` значение, ключ которого соответствует шаблону секретного имени (`*secret*`, `*password*`, `*token*`, `*client_secret*`, `*api_key*`, нечувствительный к делу) Должно быть `lookup(..., 'credentials.<name>')` выражение; голый буквальный под таким ключом проваливается линт."
 
+# translated-by: libretranslate
 msgid "`container system prune -a -f` to remove unused Docker resources."
-msgstr ""
+msgstr "`container system prune -a -f` Удаление неиспользованных ресурсов Docker."
 
+# translated-by: libretranslate
 msgid "`container.py` is a **general-purpose Docker wrapper CLI** installed as:"
-msgstr ""
+msgstr "`container.py` является **Обертка Docker общего назначения CLI** Установлено как:"
 
+# translated-by: libretranslate
 msgid "`container.py` is the single failure-diagnostics entry point. The CI workflows (compose + swarm) call it once on the runner when a job fails; it captures the current level and then recurses itself through every Docker-in-Docker boundary, so one call collects evidence from the outermost runner down to the innermost application container. It always exits 1."
-msgstr ""
+msgstr "`container.py` Единая точка входа для диагностики неудач. Рабочие процессы CI (Композиция + рой) Назовите его один раз на бегуне, когда работа терпит неудачу; он захватывает текущий уровень, а затем повторяется через каждую границу Docker-in-Docker, поэтому один звонок собирает доказательства от самого внешнего бегуна до самого внутреннего контейнера приложения. Всегда выходит 1."
 
+# translated-by: libretranslate
 msgid "`container_name` — swarm rejects it alongside `deploy.replicas > 1` (\"can't set container_name and X as container name must be unique\")."
-msgstr ""
+msgstr "`container_name` Рой отвергает его вместе с `deploy.replicas > 1` (\"не может установить container_name X как название контейнера должно быть уникальным\")."
 
+# translated-by: libretranslate
 msgid "`create.yml`: network only, no compose-up"
-msgstr ""
+msgstr "`create.yml`: Сеть, только композит"
 
+# translated-by: libretranslate
 msgid "`credential.owner` MUST NOT be `administrator`. Two providers resolving to the same owner and secret abort discovery."
-msgstr ""
+msgstr "`credential.owner` Не должно быть `administrator`. Два провайдера, разрешающие одному и тому же владельцу и секретное открытие аборта."
 
+# translated-by: libretranslate
 msgid "`credentials.mcp_bearer`, sent as `Authorization: Bearer <bearer>`"
-msgstr ""
+msgstr "`credentials.mcp_bearer`, посланный как `Authorization: Bearer <bearer>`"
 
+# translated-by: libretranslate
 msgid "`crm, contacts, sale_management, account, website, project, stock` (core); `[]` (optional)"
-msgstr ""
+msgstr "`crm, contacts, sale_management, account, website, project, stock` (основной); `[]` (необязательный)"
 
+# translated-by: libretranslate
 msgid "`csvio`    — records <-> CSV (the on-disk metrics schema, a single SPOT)."
-msgstr ""
+msgstr "`csvio` - записи <-> CSV (Схема метрик на диске, один SPOT)."
 
+# translated-by: libretranslate
 msgid "`daggerhart-openid-connect-generic, wp-discourse` (+ mu-plugins)"
-msgstr ""
+msgstr "`daggerhart-openid-connect-generic, wp-discourse` (+ Mu-плагины)"
 
+# translated-by: libretranslate
 msgid "`database_name`: The name of the initial database to create."
-msgstr ""
+msgstr "`database_name`: Название исходной базы данных для создания."
 
+# translated-by: libretranslate
 msgid "`database_password`: The password for the database user."
-msgstr ""
+msgstr "`database_password`: Пароль для пользователя базы данных."
 
+# translated-by: libretranslate
 msgid "`database_username`: The username for the database user."
-msgstr ""
+msgstr "`database_username`: Имя пользователя для пользователя базы данных."
 
+# translated-by: libretranslate
 msgid "`days` (default `7`)"
-msgstr ""
+msgstr "`days` (по умолчанию `7`)"
 
+# translated-by: libretranslate
 msgid "`days` (int): certificate validity"
-msgstr ""
+msgstr "`days` (инт): Свидетельство о действительности"
 
+# translated-by: libretranslate
 msgid "`deb.debian.org`; both Ubuntu repos take the first entry of `INFINITO_APT_UBUNTU_MIRRORS`"
-msgstr ""
+msgstr "`deb.debian.org`; оба репо Ubuntu принимают первую запись `INFINITO_APT_UBUNTU_MIRRORS`"
 
+# translated-by: libretranslate
 msgid "`default:` (Jinja literal) is written verbatim and short-circuits algorithm-based generation. `validation:` is ignored for default-bearing entries."
-msgstr ""
+msgstr "`default:` (Дзинджа буквально) Это письменная дословная и короткая схемы генерации на основе алгоритма. `validation:` Игнорируется для дефолтных записей."
 
+# translated-by: libretranslate
 msgid "`default:` is **NOT rendered at inventory creation time.** The literal Jinja string is written verbatim into the inventory so that referenced variables (`CAPTCHA.RECAPTCHA.KEY`, `lookup(...)`, …) resolve only at deploy/runtime when those variables are actually defined."
-msgstr ""
+msgstr "`default:` это **Не производится во время создания инвентаря.** Буквальная строка Jinja записывается дословно в инвентарь так, чтобы ссылались на переменные. (`CAPTCHA.RECAPTCHA.KEY`, `lookup(...)`...) разрешать только при развертывании/запуске, когда эти переменные фактически определены."
 
+# translated-by: libretranslate
 msgid "`default:` values are **NOT validated.** `validation:` only applies to user-provided values, so the schema default is exempt."
-msgstr ""
+msgstr "`default:` ценности являются **Не подтверждено.** `validation:` применяется только к предоставленным пользователем значениям, поэтому схема по умолчанию освобождается."
 
+# translated-by: libretranslate
 msgid "`default_if_missing` controls the missing-file behaviour:"
-msgstr ""
+msgstr "`default_if_missing` Контролирует поведение недостающего файла:"
 
+# translated-by: libretranslate
 msgid "`delete`: fires when a branch or tag is deleted."
-msgstr ""
+msgstr "`delete`: Пожар, когда ветка или тег удалены."
 
+# translated-by: libretranslate
 msgid "`deny` takes precedence over `allow`. `settings.local.json` MAY extend project permissions locally but MUST NOT weaken `deny` rules defined here."
-msgstr ""
+msgstr "`deny` Преимущество над `allow`. `settings.local.json` Может продлить разрешение на проект на местном уровне, но не должен ослаблять `deny` Правила, определенные здесь."
 
+# translated-by: libretranslate
 msgid "`deny`: unconditional block. MUST NOT execute a matching command under any condition."
-msgstr ""
+msgstr "`deny`: Безусловный блок. Не следует выполнять соответствующую команду при любых условиях."
 
+# translated-by: libretranslate
 msgid "`derive_includes(APP_ID)` pulls it in"
-msgstr ""
+msgstr "`derive_includes(APP_ID)` тянет его внутрь"
 
+# translated-by: libretranslate
 msgid "`derive_includes(APP_ID)` pulls it in via the `container_backup` consumer"
-msgstr ""
+msgstr "`derive_includes(APP_ID)` тянет его через `container_backup` потребительский"
 
+# translated-by: libretranslate
 msgid "`derive_includes(svc-storage-nfs-server)` pulls it in via the `nfs_backup` consumer"
-msgstr ""
+msgstr "`derive_includes(svc-storage-nfs-server)` тянет его через `nfs_backup` потребительский"
 
+# translated-by: libretranslate
 msgid "`dest`: destination path (required for `cloud`)"
-msgstr ""
+msgstr "`dest`: Путь назначения (требуемый для `cloud`)"
 
+# translated-by: libretranslate
 msgid "`dev-*` for development tooling"
-msgstr ""
+msgstr "`dev-*` инструментарий развития"
 
+# translated-by: libretranslate
 msgid "`dev_nix_enable_experimental_features`   Enable experimental features such as `nix-command` and `flakes`."
-msgstr ""
+msgstr "`dev_nix_enable_experimental_features` Экспериментальные особенности, такие как `nix-command` и `flakes`."
 
+# translated-by: libretranslate
 msgid "`dev_nix_enable_shell_snippet`   Whether to install a profile snippet for automatic environment loading."
-msgstr ""
+msgstr "`dev_nix_enable_shell_snippet` Стоит ли устанавливать профильный фрагмент для автоматической загрузки среды."
 
+# translated-by: libretranslate
 msgid "`dev_nix_installer_version`   Nix version to install via the official installer."
-msgstr ""
+msgstr "`dev_nix_installer_version` Версия Nix для установки через официальный установщик."
 
+# translated-by: libretranslate
 msgid "`direction: client` unless a pinned authenticated bridge proves server behaviour. Raw MCP bearers are never persisted in JSON."
-msgstr ""
+msgstr "`direction: client` Если прикрепленный аутентифицированный мост не доказывает поведение сервера. Сырые носители MCP никогда не сохраняются в JSON."
 
+# translated-by: libretranslate
 msgid "`direction: client` unless a pinned authenticated stdio-to-HTTP bridge is added; the server-side path is `server_stdio_only`."
-msgstr ""
+msgstr "`direction: client` Если не добавлен заколоченный аутентифицированный мост stdio-to-HTTP; путь на стороне сервера `server_stdio_only`."
 
+# translated-by: libretranslate
 msgid "`direction: server | both` requires `auth`, `credential`, a complete `endpoint`, and at least one admitted client."
-msgstr ""
+msgstr "`direction: server | both` требует `auth`, `credential`, полный `endpoint`, По крайней мере, одного клиента."
 
+# translated-by: libretranslate
 msgid "`direction` MUST distinguish MCP clients from MCP servers so client roles can discover only server roles."
-msgstr ""
+msgstr "`direction` Необходимо отличать MCP-клиенты от MCP-серверов, чтобы клиентские роли могли обнаруживать только серверные роли."
 
+# translated-by: libretranslate
 msgid "`disable=matomo,prometheus` on `web-svc-cdn` cuts both roots; the whole subtree beneath them is unreachable from the surviving primary (`cdn`), so `kept = (web-svc-cdn,)`."
-msgstr ""
+msgstr "`disable=matomo,prometheus` на `web-svc-cdn` Разрезает оба корня; все подлесок под ними недостижим из сохранившихся первичных (`cdn`), Так `kept = (web-svc-cdn,)`."
 
+# translated-by: libretranslate
 msgid "`disable` effect"
-msgstr ""
+msgstr "`disable` эффект"
 
+# translated-by: libretranslate
 msgid "`discourse`: the WP->Discourse post round-trip scenario. Disabling Discourse skips it; front-page reachability and CSP baselines stay active."
-msgstr ""
+msgstr "`discourse`: WP->Discourse Сценарий круговой поездки. инвалидность Discourse Пропустите его; доступность на первой странице и базовые линии CSP остаются активными."
 
+# translated-by: libretranslate
 msgid "`distribution` (**required**) — the target OS distribution of the runner (used to pick distro-specific tasks inside `svc-runner`)."
-msgstr ""
+msgstr "`distribution` (**необходимый**) - целевое распределение ОС бегуна (Используется для выбора дистрибутивных задач внутри `svc-runner`)."
 
+# translated-by: libretranslate
 msgid "`distro` and `filesystem` are axes of the matrix row, assigned per row by [axes.py](../../../utils/github/variant/axes.py), exactly as `mode` and `tor` already are."
-msgstr ""
+msgstr "`distro` и `filesystem` являются осями матричного ряда, назначенными на строку [axes.py](../../../utils/github/variant/axes.py), Точно так же, как `mode` и `tor` Уже есть."
 
+# translated-by: libretranslate
 msgid "`distros` (optional; empty spreads the rows over every declared distro), `filesystem` (optional; empty spreads them over `zfs`, `btrfs`, `ext4`), `whitelist` (optional), `priority` (optional; app ids sorted to the head of the list and cut into chunks of their own, so every priority row is deployed before the first regular one starts, and deployed in every combination it can take: each variant × each offered mode × Tor and clearnet, in one sweep), `mode` (default `auto`), `sweep`, `resume_from_chunk` (default `0`), `chunk_gate` (default `true`), `image_wait_attempts` (default `1980`), `image_wait_sleep_seconds` (default `10`), `workspace` (default `auto`)"
-msgstr ""
+msgstr "`distros` (опционально; пустой распределяет строки по каждому объявленному дистрибутиву), `filesystem` (необязательно; пустой распространяет их `zfs`, `btrfs`, `ext4`), `whitelist` (необязательный), `priority` (необязательно; идентификаторы приложений отсортированы до главы списка и разрезаны на собственные куски, поэтому каждая строка приоритета развертывается до начала первой обычной строки и развертывается в каждой комбинации, которую она может принять: каждый вариант × каждый предлагаемый режим × Tor и клиренс, в одной развертки), `mode` (по умолчанию `auto`), `sweep`, `resume_from_chunk` (по умолчанию `0`), `chunk_gate` (по умолчанию `true`), `image_wait_attempts` (по умолчанию `1980`), `image_wait_sleep_seconds` (по умолчанию `10`), `workspace` (по умолчанию `auto`)"
 
+# translated-by: libretranslate
 msgid "`distros` (optional; empty spreads the rows over every declared distro), `filesystem` (optional; empty spreads them over `zfs`, `btrfs`, `ext4`), `whitelist` (optional; `__ALL__` forces full deploy, empty triggers diff derivation, any other value is verbatim), `lifecycles`, `mode` (default `auto`), `priority` (optional; priority rows get chunks of their own, the regular chunks run after them), `offset` (default `0`; a row count or a selection token naming where the regular line resumes), `chunk_gate` (default `true`), `sweep` (optional; empty means the run number)"
-msgstr ""
+msgstr "`distros` (опционально; пустой распределяет строки по каждому объявленному дистрибутиву), `filesystem` (необязательно; пустой распространяет их `zfs`, `btrfs`, `ext4`), `whitelist` (факультативный; `__ALL__` силы полного развертывания, пустые триггеры дифф-выведения, любое другое значение дословно), `lifecycles`, `mode` (по умолчанию `auto`), `priority` (необязательно; приоритетные строки получают свои собственные куски, обычные куски бегут за ними), `offset` (по умолчанию `0`; подсчет строк или именование токена выбора, где возобновляется обычная строка), `chunk_gate` (по умолчанию `true`), `sweep` (необязательно; пустой означает номер пробега)"
 
+# translated-by: libretranslate
 msgid "`distros` (required on call; default `debian` on manual)"
-msgstr ""
+msgstr "`distros` (требуется по вызову; по умолчанию `debian` вручную)"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "`distros` (required), `checkout_ref` (optional), `image_tag` (default `ci-${github.sha}`), `concurrency_channel` (default `default`)"
-msgstr ""
+msgstr "`distros` (необходимый), `checkout_ref` (необязательный), `image_tag` (по умолчанию `ci-${github.sha}`), `concurrency_channel` (по умолчанию `default`)"
 
+# translated-by: libretranslate
 msgid "`distros`, `filesystem` and `architectures` narrow the pools the other axes draw from. All three default to empty, which means the whole declared set. That is what a sweep wants, because the rows are spread over the pool rather than all sharing one value. Narrowing is for chasing a single distribution, filesystem or architecture."
-msgstr ""
+msgstr "`distros`, `filesystem` и `architectures` Сузьте бассейны, из которых черпают другие оси. Все три по умолчанию пусты, что означает весь заявленный набор. Это то, чего хочет развертка, потому что ряды распределены по пулу, а не все разделяют одно значение. Сужение - это погоня за одним дистрибутивом, файловой системой или архитектурой."
 
+# translated-by: libretranslate
 msgid "`distros`: a change counts as **distro-specific** only if the diff is confined to either"
-msgstr ""
+msgstr "`distros`: Изменение считается как **специфический** только в том случае, если дифф ограничивается"
 
+# translated-by: libretranslate
 msgid "`dnf` (fallback `yum`)"
-msgstr ""
+msgstr "`dnf` (откат `yum`)"
 
+# translated-by: libretranslate
 msgid "`docker --env-file` preserves the quotes emitted by the `dotenv_quote` Jinja filter. Specs MUST decode quoted values before building URLs or typing credentials. The recurring helpers `decodeDotenvQuotedValue(value)` and `normalizeBaseUrl(value)` live in [`personas/utils/dotenv.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/dotenv.js) and are re-exported through `require(\"./personas\")`. Specs that need them MUST import from `./personas`; inline copies are forbidden and caught at review."
-msgstr ""
+msgstr "`docker --env-file` Сохраняет цитаты, изданные `dotenv_quote` Фильтр Джинджи. Специфики ДОЛЖНЫ декодировать приведенные значения перед созданием URL-адресов или вводом учетных данных. Постоянные помощники `decodeDotenvQuotedValue(value)` и `normalizeBaseUrl(value)` жить в [`personas/utils/dotenv.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/dotenv.js) реэкспортируются через `require(\"./personas\")`. Виды, нуждающиеся в них, должны импортироваться из `./personas`; Встроенные копии запрещены и пойманы при просмотре."
 
+# translated-by: libretranslate
 msgid "`docker logs -f infinito-package-cache` and `docker logs -f infinito-package-cache-frontend`"
-msgstr ""
+msgstr "`docker logs -f infinito-package-cache` и `docker logs -f infinito-package-cache-frontend`"
 
+# translated-by: libretranslate
 msgid "`docker secret` (Raft-encrypted)"
-msgstr ""
+msgstr "`docker secret` (Зашифрованный рафтом)"
 
+# translated-by: libretranslate
 msgid "`docker stack deploy` does NOT understand compose's `restart:` keys (`no`, `always`, `unless-stopped`, `on-failure[:N]`). It uses a disjoint set of `condition:` values: `none`, `on-failure`, `any`. Translating between the two used to be inline Jinja in ``roles/sys-svc-container/templates/deploy.yml.j2`` -- this filter pulls it out so the call site reads as a single expression and is unit-testable."
-msgstr ""
+msgstr "`docker stack deploy` Не понимает композицию `restart:` ключи (`no`, `always`, `unless-stopped`, `on-failure[:N]`). Он использует разрозненный набор `condition:` значения: `none`, `on-failure`, `any`.Перевод между двумя раньше были inline джинджа ``roles/sys-svc-container/templates/deploy.yml.j2`` - этот фильтр вытаскивает его, так что сайт вызова читается как единое выражение и может быть протестирован."
 
+# translated-by: libretranslate
 msgid "`docker.io` (Docker Hub)"
-msgstr ""
+msgstr "`docker.io` (Docker Hub)"
 
+# translated-by: libretranslate
 msgid "`docs.infinito.example`, `here`, a descriptive label, or `setup.md`"
-msgstr ""
+msgstr "`docs.infinito.example`, `here`, Описательный ярлык, или `setup.md`"
 
+# translated-by: libretranslate
 msgid "`docs/contributing/tools/network/` covers the contract of the `address` and `ports` suggesters."
-msgstr ""
+msgstr "`docs/contributing/tools/network/` охватывает договор `address` и `ports` Предлагатели."
 
+# translated-by: libretranslate
 msgid "`domains`: canonical and alias domains"
-msgstr ""
+msgstr "`domains`: Канонические и псевдонимные домены"
 
+# translated-by: libretranslate
 msgid "`dotlinker_apply` (default: `true`): run `doli pull` after adding mappings"
-msgstr ""
+msgstr "`dotlinker_apply` (по умолчанию: `true`): Бежать `doli pull` После добавления карт"
 
+# translated-by: libretranslate
 msgid "`dotlinker_cli_name` (default: `doli`)"
-msgstr ""
+msgstr "`dotlinker_cli_name` (по умолчанию: `doli`)"
 
+# translated-by: libretranslate
 msgid "`dotlinker_config_path` (default: `~/.config/dotlinker/config.yaml`)"
-msgstr ""
+msgstr "`dotlinker_config_path` (по умолчанию: `~/.config/dotlinker/config.yaml`)"
 
+# translated-by: libretranslate
 msgid "`dotlinker_package_name` (default: `doli`)"
-msgstr ""
+msgstr "`dotlinker_package_name` (по умолчанию: `doli`)"
 
+# translated-by: libretranslate
 msgid "`dotlinker_replace` (default: `true`): pass `--replace` to `doli add`"
-msgstr ""
+msgstr "`dotlinker_replace` (по умолчанию: `true`): проход `--replace` то `doli add`"
 
+# translated-by: libretranslate
 msgid "`dotlinker_user` (required): user to run `doli` as"
-msgstr ""
+msgstr "`dotlinker_user` (необходимый): Пользователь для Run `doli` как"
 
+# translated-by: libretranslate
 msgid "`download` accepts conclusion filters (`-s` success, `-f` failed, `-c` cancelled, `-k` skipped; none fetches all), `-d` for the destination, and `-j` for the worker count. The per-job logs carry the real failing task and its error, and the artefacts carry the Playwright `error-context.md`, screenshots, and `playwright-junit.xml`."
-msgstr ""
+msgstr "`download` Принимает выводы фильтров (`-s` успех, `-f` неудавшийся, `-c` отменено, `-k` Пропущенный; никто не забирает все), `-d` Для назначения и `-j` Для подсчета рабочих. Журналы на работу несут реальную неудачную задачу и ее ошибку, а артефакты несут драматурга. `error-context.md`, Скриншоты и `playwright-junit.xml`."
 
+# translated-by: libretranslate
 msgid "`dsk-*` for workstation setup"
-msgstr ""
+msgstr "`dsk-*` Для установки рабочих станций"
 
+# translated-by: libretranslate
 msgid "`dsk-gnt-cursor` and `dsk-gnt-pi` carry no entry in that map. Cursor is a full editor rather than an extension, and neither vendor publishes an extension on Open VSX, so there is nothing to install into Code for them. Both agents are used from their own binary."
-msgstr ""
+msgstr "`dsk-gnt-cursor` и `dsk-gnt-pi` Не включайся в эту карту. Cursor - это полный редактор, а не расширение, и ни один из поставщиков не публикует расширение на Open VSX, поэтому в него нечего устанавливать. Code для них. Оба агента используются из собственной двоичной системы."
 
+# translated-by: libretranslate
 msgid "`ejabberd <https://www.ejabberd.im/>`__ is a robust, scalable, and modular XMPP server that implements the full XMPP specification plus a number of extensions (XEPs). Clients connect over TCP/TLS on ports 5222 (client-to-server) and 5269 (server-to-server), with an optional HTTP listener for the admin UI and BOSH/WebSocket bindings."
-msgstr ""
+msgstr "`ejabberd <https://www.ejabberd.im/>`__ Это надежный, масштабируемый и модульный XMPP Сервер, который реализует полный XMPP Спецификация плюс ряд расширений (XEPs). Клиенты подключаются через TCP/TLS в портах 5222 (клиент-сервер) и 5269 (сервер-сервер), с дополнительным HTTP-слушателем для интерфейса администратора и BOSH/WebSocket-связей."
 
+# translated-by: libretranslate
 msgid "`email` lookup plugin contract."
-msgstr ""
+msgstr "`email` Контракт на поиск плагинов."
 
+# translated-by: libretranslate
 msgid "`enabled` (bool)"
-msgstr ""
+msgstr "`enabled` (болтать)"
 
+# translated-by: libretranslate
 msgid "`enabled` (optional) defaults to `false` when omitted, except when `required: true` is set. When the addon bridges exactly one service, `enabled` SHOULD reference that service's `enabled` flag rather than re-deriving group membership."
-msgstr ""
+msgstr "`enabled` (необязательный) по умолчанию для `false` когда он отсутствует, за исключением `required: true` установлен. Когда аддон соединяет ровно одну услугу, `enabled` Следует указать, что услуга `enabled` Флаг вместо повторного получения членства в группе."
 
+# translated-by: libretranslate
 msgid "`enabled` / `shared` value"
-msgstr ""
+msgstr "`enabled` / `shared` ценность"
 
+# translated-by: libretranslate
 msgid "`enabled` MUST default to `false` in role defaults. Integrated roles MUST use variants to verify both `enabled=false` and `enabled=true` states."
-msgstr ""
+msgstr "`enabled` Должен быть дефолт `false` в ролевых дефолтах. Интегрированные роли должны использовать варианты для проверки обоих `enabled=false` и `enabled=true` штатов."
 
+# translated-by: libretranslate
 msgid "`enabled`/`shared` are omitted. [`utils/cache/applications.py`](../../../../../utils/cache/applications.py) derives both from the admitted clients as `\"{{ '<client>' in group_names or … }}\"`, and `false` when no client is admitted, so a surface is reachable exactly while a peer that uses it is deployed. Write either key to override that: a value in `meta/variants.yml` wins over one in `meta/mcp.yml`, and both win over the derivation. Do not hand-write a `group_names` gate: it is a second source for the derived fact and drifts when an edge changes."
-msgstr ""
+msgstr "`enabled`/`shared` Они опущены. [`utils/cache/applications.py`](../../../../../utils/cache/applications.py) исходит от признанных клиентов как `\"{{ '<client>' in group_names or … }}\"`, и `false` Когда ни один клиент не допускается, поэтому поверхность достижима точно в то время как одноранговый компьютер, который ее использует, развернут. Напишите любой ключ, чтобы преодолеть это: значение в `meta/variants.yml` Победа над одним в `meta/mcp.yml`, И оба выигрывают от деривативов. Не переписывайте руко `group_names` Ворота: это второй источник производного факта и дрейфует при изменении края."
 
+# translated-by: libretranslate
 msgid "`endpoint.service_key` MUST name a service in the same file; `endpoint.port_key` MUST resolve under its `ports.local` or `ports.internal`."
-msgstr ""
+msgstr "`endpoint.service_key` Назовите сервис в том же файле; `endpoint.port_key` должны решаться под его `ports.local` или `ports.internal`."
 
+# translated-by: libretranslate
 msgid "`ensure()` MUST be idempotent: return immediately when the tool is already on PATH (or importable, for Python modules)."
-msgstr ""
+msgstr "`ensure()` Должен быть идемпотентным: возвращайтесь сразу, когда инструмент уже на PATH (Импортируемый для модулей Python)."
 
+# translated-by: libretranslate
 msgid "`ensure()` MUST raise `RuntimeError` with a descriptive message on failure."
-msgstr ""
+msgstr "`ensure()` Надо поднять `RuntimeError` Описательное сообщение о неудаче."
 
+# translated-by: libretranslate
 msgid "`ensure_mcp_entry` binds the MCP config entry to `llm_hass_api: [\"assist\"]` in [provision_mcp.py](../../roles/web-app-homeassistant/files/python/provision_mcp.py)"
-msgstr ""
+msgstr "`ensure_mcp_entry` Связывает вход конфигураций MCP с `llm_hass_api: [\"assist\"]` в [provision_mcp.py](../../roles/web-app-homeassistant/files/python/provision_mcp.py)"
 
+# translated-by: libretranslate
 msgid "`entry-manual-steer.yml` declares `cancel-in-progress: true` outright on its own group, and the orchestrator reads `github.event_name` — which a called workflow inherits from its caller — so a manual sweep supersedes on both levels without an input to pass down."
-msgstr ""
+msgstr "`entry-manual-steer.yml` объявлять `cancel-in-progress: true` непосредственно на своей собственной группе, и оркестратор читает `github.event_name` - который называется рабочим процессом, наследуется от его абонента, поэтому ручная подметка заменяется на обоих уровнях без ввода для передачи."
 
+# translated-by: libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
-msgstr ""
+msgstr "`entry-push-latest.yml` Объявляет именно это выражение, и оно включает только `push`, где `github.ref_name` Это всегда толкаемая ветвь. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) не имеет собственной параллельной группы — это API Резервный запас для этой группы, но ее толчок работы повторяет тот же предикат, что и работа. `if`, Так что это никогда не трогает `main` тоже."
 
+# translated-by: libretranslate
 msgid "`environment` reads `external`, `TLS_ENABLED`, `DOCKER_IN_CONTAINER`."
-msgstr ""
+msgstr "`environment` читать `external`, `TLS_ENABLED`, `DOCKER_IN_CONTAINER`."
 
+# translated-by: libretranslate
 msgid "`exposure: public` additionally requires a complete `limits` block."
-msgstr ""
+msgstr "`exposure: public` Кроме того, требуется полная `limits` Блок."
 
+# translated-by: libretranslate
 msgid "`exposure: public` puts the endpoint on the role's own vhost, so it inherits what that vhost already provides: routing through the shared proxy, TLS from the platform certificate, `client_max_body_size` from `server.client_max_body_size`, and the proxy read timeout of the location it is mounted in."
-msgstr ""
+msgstr "`exposure: public` помещает конечную точку на собственный хост роли, поэтому он наследует то, что хост уже предоставляет: маршрутизацию через общий прокси, TLS из сертификата платформы, `client_max_body_size` из `server.client_max_body_size`, и прокси считывает тайм-аут местоположения, в котором он установлен."
 
+# translated-by: libretranslate
 msgid "`exposure` MUST default to `internal`. Public MCP endpoints MUST have explicit authentication, rate limiting, proxy coverage, and README documentation."
-msgstr ""
+msgstr "`exposure` Должен быть дефолт `internal`. Публичные конечные точки MCP должны иметь явную аутентификацию, ограничение скорости, покрытие прокси и документацию README."
 
+# translated-by: libretranslate
 msgid "`extend_inventory.py` expands a provisioned swarm-test inventory so the static validator and the deploy see every group the run will use. It reads `APP_ID`, `INV_PATH` and `SWARM_NAME` from the environment, merges the computed groups into `INV_PATH`, and writes a sibling `backup.yml` for the second (backup-host) play."
-msgstr ""
+msgstr "`extend_inventory.py` Расширяет предусмотренную инвентаризацию роевых испытаний, поэтому статический валидатор и развертывание видят каждую группу, которую будет использовать запуск. Он читает `APP_ID`, `INV_PATH` и `SWARM_NAME` из окружающей среды, объединяет вычисленные группы в `INV_PATH`И пишет брату брату `backup.yml` Для второго (запасной хозяин) Играй."
 
+# translated-by: libretranslate
 msgid "`external` if `external` or `TLS_ENABLED`, else `localhost`, plus `_container` suffix if `DOCKER_IN_CONTAINER` and `TLS_ENABLED` is false"
-msgstr ""
+msgstr "`external` если `external` или `TLS_ENABLED`, иначе `localhost`, плюс `_container` суффикс, если `DOCKER_IN_CONTAINER` и `TLS_ENABLED` ложный"
 
+# translated-by: libretranslate
 msgid "`extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP"
-msgstr ""
+msgstr "`extra_hosts` Записи DNS-захват имен хостов HTTPS вверх по течению к статическому IP интерфейса"
 
+# translated-by: libretranslate
 msgid "`extra_vars` wins over the implicit `STORAGE_CONSTRAINED` / `RUNTIME` overrides so callers (and tests) keep the documented \"user-provided vars always win\" behaviour without re-implementing the merge."
-msgstr ""
+msgstr "`extra_vars` Победа над неявным `STORAGE_CONSTRAINED` / `RUNTIME` Переопределяет так звонящие (и испытания) Держите документированные \"Пользователи всегда выигрывают\" поведения без повторного осуществления слияния."
 
+# translated-by: libretranslate
 msgid "`false` (or `true` when `required: true`)"
-msgstr ""
+msgstr "`false` (или `true` когда `required: true`)"
 
+# translated-by: libretranslate
 msgid "`false` for `external_container` and `localhost`, else equal to `tls`"
-msgstr ""
+msgstr "`false` для `external_container` и `localhost`, При прочих равных `tls`"
 
+# translated-by: libretranslate
 msgid "`false` if not `external`, else `TLS_ENABLED`"
-msgstr ""
+msgstr "`false` Если нет `external`, иначе `TLS_ENABLED`"
 
+# translated-by: libretranslate
 msgid "`false` while MCP servers are discovered"
-msgstr ""
+msgstr "`false` когда обнаруживаются MCP-серверы"
 
+# translated-by: libretranslate
 msgid "`false`, `0`, `no`, `off`, `none`, or empty"
-msgstr ""
+msgstr "`false`, `0`, `no`, `off`, `none`, или пустой"
 
+# translated-by: libretranslate
 msgid "`feature`, `update`, `documentation`, and `agent` branches MUST NOT reference a ticket ID. `alert-autofix` branches reference the alert ID instead of a ticket ID. `dependabot` branches are created automatically and MUST NOT be renamed."
-msgstr ""
+msgstr "`feature`, `update`, `documentation`, и `agent` Отделения не должны ссылаться на идентификатор билета. `alert-autofix` Ветви ссылаются на идентификатор оповещения вместо идентификатора билета. `dependabot` Ветви создаются автоматически и не должны быть переименованы."
 
+# translated-by: libretranslate
 msgid "`filer.seaweedfs.s3.*` serves the filer web UI behind an admin-only oauth2-proxy."
-msgstr ""
+msgstr "`filer.seaweedfs.s3.*` служит файловый веб-интерфейс за только администратором oauth2- Прокси."
 
+# translated-by: libretranslate
 msgid "`files/configure-auth.sh` (run on the deploy host) completes the first-run wizard (seeds the break-glass admin), installs both plugins via Jellyfin's own `/Packages` installer, writes the plugin configs, and restarts."
-msgstr ""
+msgstr "`files/configure-auth.sh` (Запуск на хосте развертывания) Завершил первый пробег волшебник (Семена админ брейк-стекла)Установите оба плагина через Jellyfinсобственный `/Packages` установщик, пишет конфигурации плагинов и перезагружает."
 
+# translated-by: libretranslate
 msgid "`files/playwright.config.js`: shared Playwright configuration"
-msgstr ""
+msgstr "`files/playwright.config.js`: Общая конфигурация Playwright"
 
+# translated-by: libretranslate
 msgid "`files/python/policy.py` validates it at startup. A contract missing a limit, carrying an empty allowlist, naming a wildcard path or lacking a pinned schema hash is refused before the process serves anything."
-msgstr ""
+msgstr "`files/python/policy.py` Это подтверждается при запуске. Контракт, не имеющий предела, несущий пустой список разрешений, называющий путь wildcard или не имеющий хэша с прикрепленной схемой, отклоняется до того, как процесс что-либо обслуживает."
 
+# translated-by: libretranslate
 msgid "`filter_dynamic_inventory`. Restricts the materialised groups to the `--include` set."
-msgstr ""
+msgstr "`filter_dynamic_inventory`. Ограничивает материализованные группы `--include` Готово."
 
+# translated-by: libretranslate
 msgid "`filter_plugins/` or `plugins/filter/`"
-msgstr ""
+msgstr "`filter_plugins/` или `plugins/filter/`"
 
+# translated-by: libretranslate
 msgid "`force_regen` (bool): if true, remove and regenerate key/cert"
-msgstr ""
+msgstr "`force_regen` (болтать): Если это правда, удалите и восстановите ключ / сертификат"
 
+# translated-by: libretranslate
 msgid "`from` is a reserved word in Jinja. It MUST be accessed with bracket notation (`email['from']`), not dotted access."
-msgstr ""
+msgstr "`from` Это зарезервированное слово в джиндже. Он должен быть доступен с помощью скобки (`email['from']`), Не пунктирный доступ."
 
+# translated-by: libretranslate
 msgid "`from` reads `external` and the `no-reply` user."
-msgstr ""
+msgstr "`from` читать `external` и `no-reply` пользователь."
 
+# translated-by: libretranslate
 msgid "`frontend` vs. `backend` is derived from the role name prefix, not stored in config."
-msgstr ""
+msgstr "`frontend` vs. `backend` является производным от префикса имени роли, не хранящегося в конфигурации."
 
+# translated-by: libretranslate
 msgid "`ftp.debian.org`, `security.debian.org`; both Ubuntu repos take the second entry of `INFINITO_APT_UBUNTU_MIRRORS`"
-msgstr ""
+msgstr "`ftp.debian.org`, `security.debian.org`; оба репозитории Ubuntu занимают второе место `INFINITO_APT_UBUNTU_MIRRORS`"
 
+# translated-by: libretranslate
 msgid "`full avg60` from /proc/pressure/memory in percent. 0.0 on failure."
-msgstr ""
+msgstr "`full avg60` от /proc/pressure/memory в процентах. 0.0 О неудаче."
 
+# translated-by: libretranslate
 msgid "`full_cycle=true` adds the async update pass (pass 2) and SHOULD stay on for the baseline. The behaviour, per-variant interleaving, and `--full-cycle` flag mechanics are documented in [variants.md](../design/variants.md)."
-msgstr ""
+msgstr "`full_cycle=true` Обновление Async Update Pass (проход 2) и должны оставаться на исходном уровне. Поведение, переменное переплетение и `--full-cycle` Механика флага задокументирована [variants.md](../design/variants.md)."
 
+# translated-by: libretranslate
 msgid "`full_cycle=true` is the expensive form, not the complete one: it adds pass 2, credential rotation and the recovery drill. It does not gate the CLI tests, which run on `RUNTIME` instead."
-msgstr ""
+msgstr "`full_cycle=true` Это дорогая форма, а не полная: она добавляет пропуск 2, вращение учетных данных и бурение восстановления. Он не включает тесты CLI, которые работают на `RUNTIME` Вместо этого."
 
+# translated-by: libretranslate
 msgid "`full` orchestration: resolve source, discover repos, recover in order"
-msgstr ""
+msgstr "`full` оркестровка: устраняйте источник, открывайте репо, восстанавливайте по порядку"
 
+# translated-by: libretranslate
 msgid "`galaxy_info.author` in `meta/main.yml`"
-msgstr ""
+msgstr "`galaxy_info.author` в `meta/main.yml`"
 
+# translated-by: libretranslate
 msgid "`gem`, `composer`, `go`, `curl https://…` (Ansible task in runner)"
-msgstr ""
+msgstr "`gem`, `composer`, `go`, `curl https://…` (Удобное задание в бегуне)"
 
+# translated-by: libretranslate
 msgid "`get_entity_name('web-app-matomo') == 'matomo'`, so every non-compose top-level key (`site_name`, `performance`, …) is inlined under `matomo.<key>`:"
-msgstr ""
+msgstr "`get_entity_name('web-app-matomo') == 'matomo'`, Таким образом, каждый несоставной ключ верхнего уровня (`site_name`, `performance`...) вписывается в `matomo.<key>`:"
 
+# translated-by: libretranslate
 msgid "`get_merged_applications` is invoked transitively by `lookup('applications', ...)` and by `lookup('config', application_id, 'services.<x>.<y>')`. Tasks that read service flags through these lookups always see real Python values, never raw Jinja strings."
-msgstr ""
+msgstr "`get_merged_applications` Призывается транзитивно `lookup('applications', ...)` и `lookup('config', application_id, 'services.<x>.<y>')`. Задачи, которые читают флаги служб через эти поиски, всегда видят реальные значения Python, а не сырые строки Jinja."
 
+# translated-by: libretranslate
 msgid "`get_variants`, `get_application_defaults`, `get_merged_applications`. Stage 1 variant loader and the runtime renderer."
-msgstr ""
+msgstr "`get_variants`, `get_application_defaults`, `get_merged_applications`. Стадия 1 Вариант погрузчика и рендерера времени выполнения."
 
+# translated-by: libretranslate
 msgid "`gh * <verb>*` (archive, cancel, close, comment, create, delete, develop, edit, fork, link, lock, pin, ready, rename, reopen, rerun, review, unlink, unlock, unpin, upload)"
-msgstr ""
+msgstr "`gh * <verb>*` (архивировать, отменять, закрывать, комментировать, создавать, удалять, разрабатывать, редактировать, вилку, ссылку, блокировку, булавку, готовую, переименовывать, повторно открывать, перезапускать, просматривать, разблокировать, разблокировать, разблокировать, загружать)"
 
+# translated-by: libretranslate
 msgid "`gh api` switches implicitly from GET to POST as soon as a body-flag is present; no explicit `-X`/`--method` is required. Without these ask rules the broad `Bash(*)` allow would let body-carrying `gh api` POSTs through silently. Short forms (`-f`, `-F`), long forms (`--field`, `--raw-field`), and file input (`--input`) are all listed so no spelling slips past. A future gh-CLI body-flag would need to be added here explicitly."
-msgstr ""
+msgstr "`gh api` неявно переключается с GET на POST, как только присутствует флаг тела; нет явного `-X`/`--method` Требуется. Без этих правил широкие `Bash(*)` позволяет носить тело `gh api` Постс через молчание. Короткие формы (`-f`, `-F`)Длинные формы (`--field`, `--raw-field`)и файл ввода (`--input`) Все перечислены, так что никаких орфографических проскальзываний. Будущий флаг тела gh-CLI должен быть добавлен здесь явно."
 
+# translated-by: libretranslate
 msgid "`gh config set editor /tmp/evil.sh` plants a binary that runs the next time any `gh` subcommand opens an editor (e.g. `gh issue create` without `--body`), a deferred-execution backdoor that survives the current session. Persistent CLI config belongs to a deliberate operator decision."
-msgstr ""
+msgstr "`gh config set editor /tmp/evil.sh` Установите двоичную систему, которая работает в следующий раз `gh` Подкомиссия открывает редактор (Например. `gh issue create` без `--body`), бэкдор с отложенным исполнением, который переживает текущую сессию. Стойкая конфигурация CLI принадлежит преднамеренному решению оператора."
 
+# translated-by: libretranslate
 msgid "`gh workflow run` does NOT print the new run id. Resolve it by repeating the same list query until the returned databaseId is non-empty AND differs from `<prev-run-id>`. That value is `<run-id>`. Each repeat MUST be a separate tool invocation; no shell loop. Do NOT accept a result equal to `<prev-run-id>`; that would attach the watcher to the stale run and return its old exit status immediately."
-msgstr ""
+msgstr "`gh workflow run` Не печатает новый Run ID. Решите его, повторяя один и тот же запрос списка до тех пор, пока возвращенная база данных Id не станет пустой и не будет отличаться от `<prev-run-id>`. Эта ценность является `<run-id>`. Каждый повтор должен быть отдельным призывом к инструменту; без петли оболочки. Не принимайте результат, равный `<prev-run-id>`Это прикрепит наблюдателя к застойному бегу и немедленно вернет его старый статус выхода."
 
+# translated-by: libretranslate
 msgid "`gh` CLI's cache directory (HTTP response cache + extension metadata). Granted because every `gh` invocation writes cache entries at startup; denying it would require every `gh` call to be wrapped with an `XDG_CACHE_HOME=/tmp/...` env prefix, which adds a shell shape that falls out of sandbox auto-allow and forces per-subcommand allow entries. Auth tokens are **not** stored here (they live in `~/.config/gh/`, which stays read-only). Persistence trade-off is identical to `~/.cache/pip` / `~/.cache/pre-commit`: cache poisoning, if it occurred, would survive reboots, but API auth is server-side so the blast radius is bounded to wrong-output-to-operator."
-msgstr ""
+msgstr "`gh` CLI's Cache Directory (HTTP-ответ кэш + метаданные расширения). Да, потому что каждый `gh` вызов записывает записи кэша при запуске; отрицание этого потребует каждого `gh` Призыв быть завернутым в `XDG_CACHE_HOME=/tmp/...` Префикс env, который добавляет форму оболочки, которая выпадает из песочницы автоматически, и силы по подкоманде допускают входы. Токены Auth являются **не** хранится здесь (Они живут в `~/.config/gh/`, который остается только для чтения)Настойчивый компромисс идентичен `~/.cache/pip` / `~/.cache/pre-commit`: Отравление кэшем, если оно произойдет, переживет перезагрузку, но API auth находится на стороне сервера, поэтому радиус взрыва ограничен неправильным выходом-оператором."
 
+# translated-by: libretranslate
 msgid "`ghcr_namespace`, `ghcr_prefix` (default `mirror`), `repo_root` (default `.`), `images_per_hour` (throttle)"
-msgstr ""
+msgstr "`ghcr_namespace`, `ghcr_prefix` (по умолчанию `mirror`), `repo_root` (по умолчанию `.`), `images_per_hour` (дроссель)"
 
+# translated-by: libretranslate
 msgid "`ghcr_namespace`, `ghcr_prefix` (default `mirror`), `repo_root` (default `.`), `source_repository`, `source_ref`, plus throttling knobs"
-msgstr ""
+msgstr "`ghcr_namespace`, `ghcr_prefix` (по умолчанию `mirror`), `repo_root` (по умолчанию `.`), `source_repository`, `source_ref`, плюс дросселирующие ручки"
 
+# translated-by: libretranslate
 msgid "`ghcr_namespace`, `ghcr_prefix` (default `mirror`), `visibility` (`private`/`public`/`internal`, default `private`), `dry_run`"
-msgstr ""
+msgstr "`ghcr_namespace`, `ghcr_prefix` (по умолчанию `mirror`), `visibility` (`private`/`public`/`internal`, по умолчанию `private`), `dry_run`"
 
+# translated-by: libretranslate
 msgid "`git push --force` is blocked"
-msgstr ""
+msgstr "`git push --force` блокируется"
 
+# translated-by: libretranslate
 msgid "`git push` targets the same-named branch on the remote."
-msgstr ""
+msgstr "`git push` мишенями одноимённой ветки на пульте."
 
+# translated-by: libretranslate
 msgid "`git push`, `git fetch`, and `git clone` over SSH all require `ssh(1)` to read `~/.ssh/` (private keys, `known_hosts`, `config`). With `~/.ssh` in `denyRead`, `ssh` fails with `Host key verification failed` / `Could not read from remote repository`, which makes the `ask`-gated `Bash(git push*)` rule unreachable in practice."
-msgstr ""
+msgstr "`git push`, `git fetch`, и `git clone` SSH все требует `ssh(1)` читать `~/.ssh/` (приватные ключи, `known_hosts`, `config`)С ним `~/.ssh` в `denyRead`, `ssh` Неудачники с `Host key verification failed` / `Could not read from remote repository`, который делает `ask`помолвленный `Bash(git push*)` Правило недоступно на практике."
 
+# translated-by: libretranslate
 msgid "`git-setup-remotes` writes three git-config keys that together route pushes:"
-msgstr ""
+msgstr "`git-setup-remotes` пишет три ключа git-config, которые вместе толкают маршрут:"
 
+# translated-by: libretranslate
 msgid "`github`   — a run/job URL -> records (downloads the CSV artifacts via `gh`)."
-msgstr ""
+msgstr "`github` - Run/Job URL -> Записи (Скачать артефакты CSV через `gh`)."
 
+# translated-by: libretranslate
 msgid "`graphql_allowlist` or `openapi_allowlist`"
-msgstr ""
+msgstr "`graphql_allowlist` или `openapi_allowlist`"
 
+# translated-by: libretranslate
 msgid "`graphql_allowlist`: checked-in persisted operations only, with runtime introspection and arbitrary query text rejected;"
-msgstr ""
+msgstr "`graphql_allowlist`: только проверенные операции, с интроспекциями времени выполнения и произвольным текстом запроса;"
 
+# translated-by: libretranslate
 msgid "`groupOfNames` requires at least one `member` attribute. The placeholder DN exists so newly created empty groups remain schema-valid until the first real member is added."
-msgstr ""
+msgstr "`groupOfNames` Требуется хотя бы один `member` атрибут. Заполнитель DN существует, поэтому вновь созданные пустые группы остаются действительными до тех пор, пока не будет добавлен первый реальный член."
 
+# translated-by: libretranslate
 msgid "`group` (optional) is a free label used by roles that partition addons (e.g. Odoo `core` vs `optional`). It MUST NOT affect enablement."
-msgstr ""
+msgstr "`group` (необязательный) Это бесплатная метка, используемая ролями, которые добавляют разделы. (например, Odoo `core` vs `optional`)Это не должно влиять на стимулирование."
 
+# translated-by: libretranslate
 msgid "`guest`: cannot log in anywhere"
-msgstr ""
+msgstr "`guest`: Не может войти в любое место"
 
+# translated-by: libretranslate
 msgid "`host_vars/<host>.yml` carries the variant-resolved `applications.<app>` block plus connection vars, become password, etc."
-msgstr ""
+msgstr "`host_vars/<host>.yml` Включает разрешённый вариант `applications.<app>` блокировать плюс соединение vars, стать паролем и т.д."
 
+# translated-by: libretranslate
 msgid "`host_vars/<host>.yml` is where variant data ends up after the deep-merge. The strings inside are still raw, including any Jinja templates from `meta/services.yml` that no variant override replaced."
-msgstr ""
+msgstr "`host_vars/<host>.yml` где данные о вариантах заканчиваются после глубокого слияния. Струны внутри все еще сырые, включая любые шаблоны Цзиньцзя. `meta/services.yml` Ни один из вариантов не был заменен."
 
+# translated-by: libretranslate
 msgid "`host` reads `environment`."
-msgstr ""
+msgstr "`host` читать `environment`."
 
+# translated-by: libretranslate
 msgid "`hostname` (**required**) — the target server that will host the runner."
-msgstr ""
+msgstr "`hostname` (**необходимый**) - целевой сервер, на котором будет размещен бегун."
 
+# translated-by: libretranslate
 msgid "`http://giteamcpupstream:8080/mcp`, own network only"
-msgstr ""
+msgstr "`http://giteamcpupstream:8080/mcp`, Только собственная сеть"
 
+# translated-by: libretranslate
 msgid "`http://nginx:80/webservice/mcp/server.php` on the shared MCP overlay"
-msgstr ""
+msgstr "`http://nginx:80/webservice/mcp/server.php` Обсуждение MCP Overlay"
 
+# translated-by: libretranslate
 msgid "`if_missing` (default)"
-msgstr ""
+msgstr "`if_missing` (по умолчанию)"
 
+# translated-by: libretranslate
 msgid "`image` MUST be the image name as it appears in a `docker pull` command, without the tag."
-msgstr ""
+msgstr "`image` Имя должно быть таким, каким оно появляется в `docker pull` Командир, без бирки."
 
+# translated-by: libretranslate
 msgid "`implementation: adapter` requires `classification: adapter_server` and a pinned, hash-checked contract:"
-msgstr ""
+msgstr "`implementation: adapter` требует `classification: adapter_server` и хеш-контракт с зажатым хэш-контрактом:"
 
+# translated-by: libretranslate
 msgid "`include_filter`, when provided, is the set of role names a caller has already filtered (e.g. by `disable` removal of provider roles). Each round's include is intersected with this set before being baked, so the inventory and `--include` flag stay aligned with whatever the deploy step will actually deploy."
-msgstr ""
+msgstr "`include_filter`, когда это предусмотрено, это набор имен ролей, которые абонент уже отфильтровал (например, `disable` Устранение ролей провайдера). Каждый раунд включает в себя пересекается с этим набором перед выпечкой, поэтому инвентарь и `--include` Флаг остается согласованным с любым шагом развертывания, который будет фактически развернут."
 
+# translated-by: libretranslate
 msgid "`index.html` ships an inline pre-paint theme bootstrap, and the rendered header is `script-src-elem 'self' https://cdn.…` with no hash, so it is blocked and the first paint flashes the wrong theme. Pinning `csp.hashes.script-src-elem` fixes it but has to be re-pinned on every image bump; the flash is the cheaper trade until the theme matters."
-msgstr ""
+msgstr "`index.html` Поставляется встроенный предварительно написанный тематический бутстрап, а отображаемый заголовок `script-src-elem 'self' https://cdn.…` без хеширования, поэтому он блокируется и первая краска мигает не на ту тему. Пиннинг `csp.hashes.script-src-elem` Он исправляет это, но должен быть повторно закреплен на каждом ударе изображения; вспышка является более дешевой торговлей, пока тема не имеет значения."
 
+# translated-by: libretranslate
 msgid "`index`, `sweep` (required), `distros` (optional pool), `filesystem` (optional pool), `whitelist` (optional; explicit value wins over diff), `priority`, `lifecycles`, `modes` (default `auto`), `tor`, `marker`"
-msgstr ""
+msgstr "`index`, `sweep` (необходимый), `distros` (опциональный бассейн), `filesystem` (опциональный бассейн), `whitelist` (необязательно; явная ценность побеждает дифф), `priority`, `lifecycles`, `modes` (по умолчанию `auto`), `tor`, `marker`"
 
+# translated-by: libretranslate
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
-msgstr ""
+msgstr "`infinito administration deploy development <subcommand>` (Python CLI)"
 
+# translated-by: libretranslate
 msgid "`infinito meta cache` subcommand -- render the derived cache files."
-msgstr ""
+msgstr "`infinito meta cache` subcommand - визуализация производных файлов кэша."
 
+# translated-by: libretranslate
 msgid "`infinito meta env` subcommand -- generate the project's `.env`."
-msgstr ""
+msgstr "`infinito meta env` подкоманды - генерировать проект `.env`."
 
+# translated-by: libretranslate
 msgid "`infinito-nexus/core` in a fork"
-msgstr ""
+msgstr "`infinito-nexus/core` вилкой"
 
+# translated-by: libretranslate
 msgid "`init.py` writes the inventory; `deploy/cli.py` decides which application ids to hand to `cli.administration.deploy.dedicated`. Both derive their per-round set from the same `plan_dev_inventory_matrix` closure and MUST apply the same `prune_orphans_after_disable` cut with the same round-merged services map. `validate_application_ids` rejects any id that is absent from the inventory, so a deploy-side set wider than the init-side set aborts the run before the first role deploys."
-msgstr ""
+msgstr "`init.py` пишет инвентарь; `deploy/cli.py` Решает, какие приложения передать `cli.administration.deploy.dedicated`. Оба получают свой круг из одного и того же `plan_dev_inventory_matrix` Закрытие должно быть одинаковым `prune_orphans_after_disable` Вырезана с помощью той же карты круглых слияний. `validate_application_ids` Отклоняет любой идентификатор, который отсутствует в инвентаре, поэтому набор на стороне развертывания шире, чем набор на стороне нахождения, прерывает запуск до развертывания первой роли."
 
+# translated-by: libretranslate
 msgid "`initialize/` creates or refreshes the inventory; existing entity state is kept."
-msgstr ""
+msgstr "`initialize/` создает или обновляет инвентаризацию; существующее состояние организации сохраняется."
 
+# translated-by: libretranslate
 msgid "`initialize` / `reinstall` rebuild the inventory through `init.py`; this is the only path that prunes the include set. `deploy` re-derives the same pruned set for its deploy ids (see below)."
-msgstr ""
+msgstr "`initialize` / `reinstall` Восстановить инвентаризацию через `init.py`; это единственный путь, который обрезает набор включений. `deploy` повторно получает тот же обрезанный набор для развертывания ids (см. ниже)."
 
+# translated-by: libretranslate
 msgid "`internal` / `local` / `public` Split 🧭"
-msgstr ""
+msgstr "`internal` / `local` / `public` Раскол 🧭"
 
+# translated-by: libretranslate
 msgid "`internal` is intentionally excluded — internal container ports live in per-container network namespaces and never collide."
-msgstr ""
+msgstr "`internal` Внутренние контейнерные порты живут в пространствах имен каждой контейнерной сети и никогда не сталкиваются."
 
+# translated-by: libretranslate
 msgid "`internal` ports are NOT supported by the suggester; they are dictated by upstream container images (`gitea=3000`, `postgres=5432`, …) and not allocated from a project-managed pool. Internal ports are recorded in `services.<entity>.ports.internal.<category>` directly by the contributor."
-msgstr ""
+msgstr "`internal` Порты не поддерживаются автором предложения; они диктуются изображениями контейнеров вверх по течению. (`gitea=3000`, `postgres=5432`...) не выделяется из проектно-управляемого пула. Внутренние порты регистрируются в `services.<entity>.ports.internal.<category>` непосредственно вкладчиком."
 
+# translated-by: libretranslate
 msgid "`internal`, container network only"
-msgstr ""
+msgstr "`internal`, Только контейнерная сеть"
 
+# translated-by: libretranslate
 msgid "`inventories/bundles/servers/` describes concrete deployment shapes such as a personal server, a community hub, or a sovereign cloud setup. They decide which roles are active together and which ones stay out."
-msgstr ""
+msgstr "`inventories/bundles/servers/` описывает конкретные формы развертывания, такие как персональный сервер, концентратор сообщества или настройка суверенного облака. Они решают, какие роли активны вместе, а какие остаются."
 
+# translated-by: libretranslate
 msgid "`inventory.yml` (or equivalent)"
-msgstr ""
+msgstr "`inventory.yml` (эквивалентный)"
 
+# translated-by: libretranslate
 msgid "`is_command` is True when the directory itself contains ``__main__.py`` (a runnable subcommand); False for category folders that only group further commands and have no entry point of their own."
-msgstr ""
+msgstr "`is_command` Это верно, когда сам каталог содержит ``__main__.py`` (управляемая подкоманда); Ложные для папок категорий, которые только группируют дополнительные команды и не имеют собственной точки входа."
 
+# translated-by: libretranslate
 msgid "`is_explicit_truth` treats **both** forms as truth at resolve time:"
-msgstr ""
+msgstr "`is_explicit_truth` лечить **оба** Формы как истина в момент разрешения:"
 
+# translated-by: libretranslate
 msgid "`jellyfin/jellyfin` (Docker Hub + `ghcr.io`); tags `latest`, `X.Y`, `X.Y.Z`. Pin a concrete `10.x` patch."
-msgstr ""
+msgstr "`jellyfin/jellyfin` (Docker Hub + `ghcr.io`); теги `latest`, `X.Y`, `X.Y.Z`. Пин бетонный `10.x` пластырь."
 
+# translated-by: libretranslate
 msgid "`jq` is installed for the app-discovery step in `apps/initialize/all.sh`."
-msgstr ""
+msgstr "`jq` установлен для шага обнаружения приложения в `apps/initialize/all.sh`."
 
+# translated-by: libretranslate
 msgid "`kas` (Kubernetes agent server, workspaces), `pages`, `registry` and `mailroom` are not deployed; `gitlab.yml` disables them."
-msgstr ""
+msgstr "`kas` (Агентский сервер Kubernetes, рабочие пространства), `pages`, `registry` и `mailroom` не развернуты; `gitlab.yml` отключает их."
 
+# translated-by: libretranslate
 msgid "`kcadm.sh config credentials` failed during the keycloak admin login phase (likely transient or env-scoped)."
-msgstr ""
+msgstr "`kcadm.sh config credentials` не удалось во время фазы входа администратора Keycloak (вероятный переходный или энв-скопированный)."
 
+# translated-by: libretranslate
 msgid "`kept` are the members still reachable from a surviving primary app once every role in `disabled_app_ids` is cut from the graph; `pruned` are the orphaned remainder (the disabled roots themselves excluded). Reachability walks the same `dependencies` + `services` edges the round's closure was built from — `run_after` is NOT followed, matching ``CombinedResolver(follow_run_after=False)`` — using `services_overrides` so the variant-merged topology matches what the inventory bakes."
-msgstr ""
+msgstr "`kept` члены все еще доступны из выжившего основного приложения, когда каждая роль в `disabled_app_ids` вырезается из графа; `pruned` Оставшиеся сиротами (Исключены сами корни инвалидов). Достижимость ходит одинаково `dependencies` + `services` Закрытие раунда было построено из... `run_after` Не соблюдается, соответствие ``CombinedResolver(follow_run_after=False)`` - использовать `services_overrides` Таким образом, слитая с вариантом топология соответствует тому, что выпекает инвентарь."
 
+# translated-by: libretranslate
 msgid "`key_bits` (int): RSA key size"
-msgstr ""
+msgstr "`key_bits` (инт): Размер ключа RSA"
 
+# translated-by: libretranslate
 msgid "`key_host` (string): host path to Root CA private key"
-msgstr ""
+msgstr "`key_host` (струна): Путь к Root CA Private Key"
 
+# translated-by: libretranslate
 msgid "`key` names the pinned key and defaults to `version`; an entity with several pins declares a list of such blocks. Types:"
-msgstr ""
+msgstr "`key` Назовите прикрепленный ключ и по умолчанию `version`; Сущность с несколькими значками объявляет список таких блоков. Типы:"
 
+# translated-by: libretranslate
 msgid "`latest` is the last commit of the default branch. It is built at start and rebuilt whenever a fetch finds a new commit; the previous build stays online until the new one replaces it."
-msgstr ""
+msgstr "`latest` является последним обязательством ветви по умолчанию. Он строится с самого начала и перестраивается всякий раз, когда результат находит новое обязательство; предыдущая сборка остается в сети, пока новая не заменит ее."
 
+# translated-by: libretranslate
 msgid "`laya`, `torch` or `onnx`; the role refuses anything else"
-msgstr ""
+msgstr "`laya`, `torch` или `onnx`; Роль отказывается от всего остального"
 
+# translated-by: libretranslate
 msgid "`ldap`: the three RBAC scenarios additionally depend on LDAP group sync; disabling LDAP skips them alongside OIDC."
-msgstr ""
+msgstr "`ldap`: Три сценария RBAC также зависят от синхронизации группы LDAP; отключение LDAP пропускает их вместе с OIDC."
 
+# translated-by: libretranslate
 msgid "`ldapauth` is the only path that materialises a `friendica.user` row, so its enablement derives directly from the `ldap` service flag. The oauth2-proxy `sso` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in [`meta/services.yml`](./meta/services.yml). The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr ""
+msgstr "`ldapauth` Это единственный путь, который материализует `friendica.user` , так что его включение происходит непосредственно от `ldap` Флаг службы. Оут2-прокси `sso` Ворота перед хостом - это передние ворота, а не аддонный мост, и остается в [`meta/services.yml`](./meta/services.yml). Путь входа в LDAP покрыт существующим спецификацией LDAP Playwright (требование 018)Таким образом, не добавляется спецификация аддона."
 
+# translated-by: libretranslate
 msgid "`libaacs` (AACS decryption library)"
-msgstr ""
+msgstr "`libaacs` (Библиотека расшифровки AACS)"
 
+# translated-by: libretranslate
 msgid "`libbluray` (Blu-ray playback support library)"
-msgstr ""
+msgstr "`libbluray` (Библиотека поддержки воспроизведения Blu-ray)"
 
+# translated-by: libretranslate
 msgid "`library/` modules,"
-msgstr ""
+msgstr "`library/` модули,"
 
+# translated-by: libretranslate
 msgid "`lifecycle: alpha` puts this role into the CI deploy matrix before it has ever run against a real host, deliberately: the first CI round is its first execution. Everything below the first live `make compose-deploy apps=web-app-socialhome` is design-by-source-reading."
-msgstr ""
+msgstr "`lifecycle: alpha` Помещает эту роль в матрицу развертывания CI до того, как она когда-либо намеренно столкнется с реальным хостом: первый раунд CI - это ее первое исполнение. Все ниже первого живого `make compose-deploy apps=web-app-socialhome` Дизайн по источнику чтения."
 
+# translated-by: libretranslate
 msgid "`lmstudio/llmster-preview:cpu` publishes one `linux/amd64` manifest, runs `/app/daemon-run.sh` as its entrypoint and exposes `1234/tcp` (measured against the registry config blob on 2026-08-28). The role wires that server and the gateway routes `lmstudio/default` to it, but a completion additionally needs a model in the container's store on an x86 node with the memory to load it. Until such a node joins the deployment, verify the gateway against `svc-ai-ollama` and leave the LM Studio completion criterion unchecked."
-msgstr ""
+msgstr "`lmstudio/llmster-preview:cpu` публикует один `linux/amd64` Явный, бежит `/app/daemon-run.sh` В качестве отправной точки и разоблачения `1234/tcp` (Измеряется по отношению к реестру config blob на 2026-08-28). Роль проводов, которые сервер и маршруты шлюза `lmstudio/default` к нему, но для завершения дополнительно нужна модель в магазине контейнера на x86 Узел с памятью для загрузки. Пока такой узел не присоединится к развертыванию, проверьте шлюз против `svc-ai-ollama` и оставить LM Studio Критерий завершения без проверки."
 
+# translated-by: libretranslate
 msgid "`locale-gen` only re-runs when the template changes"
-msgstr ""
+msgstr "`locale-gen` Перезапускается только при изменении шаблона"
 
+# translated-by: libretranslate
 msgid "`locale.conf`: sets `LANG` and `LANGUAGE` environment variables"
-msgstr ""
+msgstr "`locale.conf`: наборы `LANG` и `LANGUAGE` переменные среды"
 
+# translated-by: libretranslate
 msgid "`locale.gen`: uncomment or specify the locales you need"
-msgstr ""
+msgstr "`locale.gen`: откомментировать или указать нужные вам места"
 
+# translated-by: libretranslate
 msgid "`localhost` for `external_container`, `localhost`, `localhost_container`, else the `web-app-mailu` domain"
-msgstr ""
+msgstr "`localhost` для `external_container`, `localhost`, `localhost_container`, В остальном `web-app-mailu` домен"
 
+# translated-by: libretranslate
 msgid "`logparse` — Ansible run log -> records (splits by matrix round/pass markers)."
-msgstr ""
+msgstr "`logparse` - Ansible run log -> записи (Расщепление по матричным круглым/пассовым маркерам)."
 
+# translated-by: libretranslate
 msgid "`lookup('applications'[, application_id])`. Returns the rendered application payload."
-msgstr ""
+msgstr "`lookup('applications'[, application_id])`. Возвращает оказанную полезную нагрузку приложения."
 
+# translated-by: libretranslate
 msgid "`lookup('config', application_id, 'services.<x>.<y>')`. Resolves nested config paths and renders Jinja via `_render_with_templar`."
-msgstr ""
+msgstr "`lookup('config', application_id, 'services.<x>.<y>')`. Решает вложенные конфигурационные пути и визуализирует Джинджу через `_render_with_templar`."
 
+# translated-by: libretranslate
 msgid "`lookup('config', …)` Path Validation 🔎"
-msgstr ""
+msgstr "`lookup('config', …)` Проверка пути 🔎"
 
+# translated-by: libretranslate
 msgid "`lookup('users', user_key).authorized_keys` (list; may be empty)"
-msgstr ""
+msgstr "`lookup('users', user_key).authorized_keys` (Список может быть пустым)"
 
+# translated-by: libretranslate
 msgid "`lookup('users', user_key).username` (defaults to `user_key`)"
-msgstr ""
+msgstr "`lookup('users', user_key).username` (по умолчанию для `user_key`)"
 
+# translated-by: libretranslate
 msgid "`lookup_plugins/` or `plugins/lookup/`"
-msgstr ""
+msgstr "`lookup_plugins/` или `plugins/lookup/`"
 
+# translated-by: libretranslate
 msgid "`main.yml`: The main task file that handles the installation of GnuCash."
-msgstr ""
+msgstr "`main.yml`: Основной файл задачи, который обрабатывает установку GnuCash."
 
+# translated-by: libretranslate
 msgid "`main` keeps tracking `origin/main` for `git pull`, independent of the push override."
-msgstr ""
+msgstr "`main` Продолжайте отслеживать `origin/main` для `git pull`, Независимость от Push Override."
 
+# translated-by: libretranslate
 msgid "`make act-*` aborts with `failed to copy content to container: mkdirat var/run...` because the stock runner image's `/var/run` symlink trips Docker 28/29's stricter `docker cp`."
-msgstr ""
+msgstr "`make act-*` аборт с `failed to copy content to container: mkdirat var/run...` Изображение биржевого бегуна `/var/run` Обсуждение Docker 28/29более строгий `docker cp`."
 
+# translated-by: libretranslate
 msgid "`make autoformat` and `make test` MUST be green before a roundtrip; the loop does not re-run them per app."
-msgstr ""
+msgstr "`make autoformat` и `make test` Должен быть зеленым перед обходом; цикл не перезапускает их в приложении."
 
+# translated-by: libretranslate
 msgid "`make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (no `variant=`)"
-msgstr ""
+msgstr "`make compose-deploy mode=reinstall apps=<roles> full_cycle=true` (нет `variant=`)"
 
+# translated-by: libretranslate
 msgid "`make compose-deploy mode=update apps=<roles> variant=<idx>` — repeat until that variant is green"
-msgstr ""
+msgstr "`make compose-deploy mode=update apps=<roles> variant=<idx>` Повторяйте, пока этот вариант не станет зеленым."
 
+# translated-by: libretranslate
 msgid "`make compose-deploy` in the [Makefile](../../../Makefile)"
-msgstr ""
+msgstr "`make compose-deploy` в [Макефиль](../../../Makefile)"
 
+# translated-by: libretranslate
 msgid "`make compose-playwright role=<role>` (or `make swarm-playwright role=<role>` against the swarm cluster) exited `0` on its last invocation, run WITHOUT any `pw=\"--grep …\"` narrowing, so the entire spec (every test and every persona) ran and ALL passed. Redeploying while only a grepped subset is green and other tests are red or unrun is FORBIDDEN: the full suite MUST be green in the container first."
-msgstr ""
+msgstr "`make compose-playwright role=<role>` (или `make swarm-playwright role=<role>` против роевого скопления) вышедший `0` В своем последнем призыве бегите без всякого `pw=\"--grep …\"` сужение, так что весь спектр (Каждый тест и каждый человек) Побежал и все прошло. Перезагрузка, в то время как только подмножество с прорезью зеленое, а другие тесты красные или незапущенные, запрещена: полный набор должен быть зеленым в контейнере в первую очередь."
 
+# translated-by: libretranslate
 msgid "`make environment-bootstrap` also installs the repository's local `pre-commit` hooks for this checkout."
-msgstr ""
+msgstr "`make environment-bootstrap` Также устанавливается локальный репозиторий `pre-commit` Крючки для этой проверки."
 
+# translated-by: libretranslate
 msgid "`make install-lint` used to ask GitHub for each tool's latest tag at install time. That made every installation depend on the network resolving `api.github.com`, and it silently changed the linter version between two runs of the same commit. Pinning moves the version into the repository, where it is reviewable and reproducible."
-msgstr ""
+msgstr "`make install-lint` Используется для запроса GitHub на последний тег каждого инструмента во время установки. Это сделало каждую установку зависимой от решения сети. `api.github.com`, И он молча изменил версию linter между двумя прогонами одного и того же коммита. Пиннинг перемещает версию в репозиторий, где она является рецензируемой и воспроизводимой."
 
+# translated-by: libretranslate
 msgid "`make install` completed on the control machine (installs Ansible and Python dependencies)."
-msgstr ""
+msgstr "`make install` выполнено на контрольной машине (Установка зависимостей Ansible и Python)."
 
+# translated-by: libretranslate
 msgid "`make test` is enforced automatically by the pre-commit hook before every commit for changes that include at least one file that is not `.md`, `.rst`, or `.txt`. You do NOT need to run it manually."
-msgstr ""
+msgstr "`make test` автоматически выполняется крюком перед каждым обязательством для изменений, которые включают по крайней мере один файл, который не `.md`, `.rst`, или `.txt`. Вам не нужно запускать его вручную."
 
+# translated-by: libretranslate
 msgid "`make test` is run automatically by pre-commit before every commit when staged changes include at least one file that is not `.md`, `.rst`, or `.txt`. You do NOT need to run it manually. The pre-commit hook enforces it."
-msgstr ""
+msgstr "`make test` выполняется автоматически с помощью предварительного задания перед каждым совершением, когда поэтапные изменения включают по меньшей мере один файл, который не является `.md`, `.rst`, или `.txt`. Вам не нужно запускать его вручную. Крючок предварительного задания обеспечивает это."
 
+# translated-by: libretranslate
 msgid "`master.seaweedfs.s3.*` serves the master web UI behind the same admin-only oauth2-proxy."
-msgstr ""
+msgstr "`master.seaweedfs.s3.*` обслуживает основной веб-интерфейс за тем же администратором только oauth2- Прокси."
 
+# translated-by: libretranslate
 msgid "`mastodon`, `pixelfed`, `friendica`, `socialhome`, `bookwyrm`, `mobilizon`, `funkwhale`, `bluesky`, `bridgy-fed`, `jellyfin` ship no configurable AI surface"
-msgstr ""
+msgstr "`mastodon`, `pixelfed`, `friendica`, `socialhome`, `bookwyrm`, `mobilizon`, `funkwhale`, `bluesky`, `bridgy-fed`, `jellyfin` Корабль без настраиваемой поверхности ИИ"
 
+# translated-by: libretranslate
 msgid "`match` keeps only the versions carrying that prefix (and filters server-side on Docker Hub), `strip: true` removes it again so a pin without the upstream's `v` stays without it."
-msgstr ""
+msgstr "`match` сохраняет только версии, несущие этот префикс (Фильтры на стороне сервера в Docker Hub), `strip: true` Удалите его снова, так что булавка без верхнего потока `v` Остается без него."
 
+# translated-by: libretranslate
 msgid "`mcp-server` pinned to `0.190.ve5a_6581ffc96` in [`files/plugins.txt`](./files/plugins.txt)"
-msgstr ""
+msgstr "`mcp-server` прикрепленный к `0.190.ve5a_6581ffc96` в [`files/plugins.txt`](./files/plugins.txt)"
 
+# translated-by: libretranslate
 msgid "`mcp.enabled` resolves to `true` only when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the same deployment, and is `false` otherwise. While it is `true` the deploy:"
-msgstr ""
+msgstr "`mcp.enabled` Решиться на `true` Только когда `web-app-hermes`, `web-app-openclaw` или `web-app-openwebui` является частью одного и того же процесса и `false` Иначе. Пока это `true` Развертывание:"
 
+# translated-by: libretranslate
 msgid "`mcp` declares the Model Context Protocol surface GitLab serves natively from its Rails API."
-msgstr ""
+msgstr "`mcp` Поверхность протокола Model Context GitLab Служит родным от своих рельсов API."
 
+# translated-by: libretranslate
 msgid "`mcp` service block: fields, allowed values, endpoint metadata, client discovery."
-msgstr ""
+msgstr "`mcp` Блок обслуживания: поля, допустимые значения, метаданные конечной точки, открытие клиента."
 
+# translated-by: libretranslate
 msgid "`mechanism` (required) MUST be one of `addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`. It records the upstream installation mechanism and selects which task path installs the addon. `mechanism: bridge` denotes a network/appservice bridge addon (see Confirmed Decision 13) and is distinct from the `bridges:` field below."
-msgstr ""
+msgstr "`mechanism` (необходимый) должен быть одним из `addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`. Он записывает механизм установки вверх по течению и выбирает, какой путь задачи устанавливает аддон. `mechanism: bridge` Обозначает аддон моста сети/сервиса (См. Подтвержденное решение 13) Отличается от него и `bridges:` поле ниже."
 
+# translated-by: libretranslate
 msgid "`merge_ref.sh` resolves the merge ref used for forked PR workflows"
-msgstr ""
+msgstr "`merge_ref.sh` разрешает слияние ref, используемое для разветвленных рабочих процессов PR"
 
+# translated-by: libretranslate
 msgid "`meta/addons/<addon_id>.yml.<...>` materialises at `applications.<role_id>.addons.<addon_id>.<...>`, consistent with the file-root convention in [layout.md](../contributing/design/role/services/layout.md)."
-msgstr ""
+msgstr "`meta/addons/<addon_id>.yml.<...>` материализоваться в `applications.<role_id>.addons.<addon_id>.<...>`, В соответствии с соглашением File-root в [layout.md](../contributing/design/role/services/layout.md)."
 
+# translated-by: libretranslate
 msgid "`meta/addons/` is also the download list: `MEDIAWIKI_EXT_NAMES` keeps only the addons whose `enabled` resolves true, so a deployment without the matching service never pulls that tarball or runs composer for it."
-msgstr ""
+msgstr "`meta/addons/` Также есть список загрузки: `MEDIAWIKI_EXT_NAMES` Сохранились только те, кто `enabled` Решает правду, поэтому развертывание без службы соответствия никогда не тянет этот тарбол или запускает композитора для него."
 
+# translated-by: libretranslate
 msgid "`meta/csp.yml` whitelists `blob:` on `script-src` for the audio worklet the DM composer builds with `URL.createObjectURL`; worklet modules load under `script-src`, not `worker-src`. The bundle registers no service worker and constructs no `Worker`. Whether the Preact bundle also needs `unsafe-inline` for style attributes is unknown until a browser reports violations."
-msgstr ""
+msgstr "`meta/csp.yml` белые списки `blob:` на `script-src` для аудио-произведения, которое композитор DM создает вместе с `URL.createObjectURL`; рабочие модули загружаются под `script-src`Нет. `worker-src`. Пакет не регистрирует обслуживающего работника и не строит `Worker`. Требуется ли также пакет Preact `unsafe-inline` атрибуты стиля неизвестны, пока браузер не сообщит о нарушениях."
 
+# translated-by: libretranslate
 msgid "`meta/info.yml` is OPTIONAL. A role with none of the four fields does not grow the file. Consumers MUST treat a missing file or missing field as absent / default, and `display` defaults to `true`."
-msgstr ""
+msgstr "`meta/info.yml` Опционально. Роль ни в одном из четырех полей не увеличивает файл. Потребители должны рассматривать отсутствующий файл или отсутствующее поле как отсутствующее / по умолчанию. `display` по умолчанию для `true`."
 
+# translated-by: libretranslate
 msgid "`meta/languages.yml` lists the 184 ISO 639-1 languages with English name, native name and text direction. It is the single source for every language list in core."
-msgstr ""
+msgstr "`meta/languages.yml` Список 184 ISO 639-1 Языки с английским именем, родным именем и текстовым направлением. Это единственный источник для каждого языкового списка в ядре."
 
+# translated-by: libretranslate
 msgid "`meta/secrets.yml` consolidates two structures under the `credentials:` top-level key:"
-msgstr ""
+msgstr "`meta/secrets.yml` объединяет две структуры под `credentials:` Ключ верхнего уровня:"
 
+# translated-by: libretranslate
 msgid "`meta/services.yml` delta"
-msgstr ""
+msgstr "`meta/services.yml` дельта"
 
+# translated-by: libretranslate
 msgid "`meta/services.yml` excerpt"
-msgstr ""
+msgstr "`meta/services.yml` выдержка"
 
+# translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (native OIDC, no oauth2-proxy)"
-msgstr ""
+msgstr "`meta/services.yml` выдержка (OIDC, No Oauth2-прокси)"
 
+# translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (oauth2-proxy flavor, no external DB)"
-msgstr ""
+msgstr "`meta/services.yml` выдержка (оут2-прокси-вкус, без внешнего DB)"
 
+# translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (proposed shape)"
-msgstr ""
+msgstr "`meta/services.yml` выдержка (Предлагаемая форма)"
 
+# translated-by: libretranslate
 msgid "`meta/variants.yml` (matrix dimension × ansible-vs-compose dimension)"
-msgstr ""
+msgstr "`meta/variants.yml` (размерность матрицы × ansible-vs-compose)"
 
+# translated-by: libretranslate
 msgid "`meta/variants.yml` (three variants per Decision #11)"
-msgstr ""
+msgstr "`meta/variants.yml` (Три варианта решения #11)"
 
+# translated-by: libretranslate
 msgid "`meta/variants.yml` (three variants, mirroring openproject)"
-msgstr ""
+msgstr "`meta/variants.yml` (Три варианта, зеркальный openproject)"
 
+# translated-by: libretranslate
 msgid "`meta/variants.yml` adds new variants that exercise the ansible flavor (V1 ansible + sso + ldap + email + all-bridges; V2 ansible + no auth; V3 ansible + ldap-only). Existing compose-flavor variants are renamed `Vcompose-*` and stay for regression coverage."
-msgstr ""
+msgstr "`meta/variants.yml` добавляет новые варианты, которые упражняют съедобный вкус (V1 asible + sso + ldap + электронная почта + все мосты; V2 ausible + no auth; V3 asible + ldap). Существующие варианты композитного вкуса переименованы `Vcompose-*` Оставайтесь для регрессионного покрытия."
 
+# translated-by: libretranslate
 msgid "`meta/variants.yml` defines three variants (mirrors the `web-app-kix` / `web-app-zammad` pattern):"
-msgstr ""
+msgstr "`meta/variants.yml` Определяет три варианта (зеркальное отражение `web-app-kix` / `web-app-zammad` шаблон):"
 
+# translated-by: libretranslate
 msgid "`meta/variants.yml` defines three variants, mirroring the [`web-app-kix`](../../roles/web-app-kix/meta/variants.yml) / [`web-app-zammad`](../../roles/web-app-zammad/meta/variants.yml) pattern: (V1) `sso` + `ldap` both enabled, (V2) all dynamic services flags `false`, (V3) `ldap` only."
-msgstr ""
+msgstr "`meta/variants.yml` Определяет три варианта, отражая [`web-app-kix`](../../roles/web-app-kix/meta/variants.yml) / [`web-app-zammad`](../../roles/web-app-zammad/meta/variants.yml) шаблон: (V1) `sso` + `ldap` Оба были способны, (V2) Флаги всех динамических сервисов `false`, (V3) `ldap` Только."
 
+# translated-by: libretranslate
 msgid "`model`    — the `RoleRuntime` record (one role's time within a segment)."
-msgstr ""
+msgstr "`model` - `RoleRuntime` рекорд (Время одной роли в одном сегменте)."
 
+# translated-by: libretranslate
 msgid "`monitored` (bool, default `false`), `catalog` (a supported adapter), `upstream_id` (defaults to the addon id)."
-msgstr ""
+msgstr "`monitored` (Болт, дефолт `false`), `catalog` (Поддерживаемый адаптер), `upstream_id` (По умолчанию для Addon id)."
 
+# translated-by: libretranslate
 msgid "`moodlehq/moodle-docker <https://github.com/moodlehq/moodle-docker>`__ (extension list reference)"
-msgstr ""
+msgstr "`moodlehq/moodle-docker <https://github.com/moodlehq/moodle-docker>`__ (Перечень расширений)"
 
+# translated-by: libretranslate
 msgid "`msi-perkeyrgb <https://github.com/Askannz/msi-perkeyrgb>`__ is a tool for setting dynamic per-key RGB keyboard colors on MSI laptops."
-msgstr ""
+msgstr "`msi-perkeyrgb <https://github.com/Askannz/msi-perkeyrgb>`__ Это инструмент для настройки динамических цветов RGB клавиатуры на ноутбуках MSI."
 
+# translated-by: libretranslate
 msgid "`msmtp <https://marlam.de/msmtp/>`__ as a lightweight sendmail-compatible SMTP client, and"
-msgstr ""
+msgstr "`msmtp <https://marlam.de/msmtp/>`__ в качестве легкого почтово-совместимого SMTP-клиента, и"
 
+# translated-by: libretranslate
 msgid "`mu-plugins` is a WordPress core convention for **must-use plugins**. WordPress automatically loads every top-level `*.php` file in that directory before normal plugins, without a database activation record. As a result, code shipped here:"
-msgstr ""
+msgstr "`mu-plugins` является WordPress Основная конвенция для **обязательное использование плагинов**WordPress автоматически загружает каждый верхний уровень `*.php` файл в этом каталоге перед обычными плагинами, без записи активации базы данных. В результате, код отправлен здесь:"
 
+# translated-by: libretranslate
 msgid "`n8n <https://n8n.io/>`__ is an open-source workflow automation platform. Connect services, transform data, and build integrations using a visual low-code editor or custom JavaScript/Python nodes."
-msgstr ""
+msgstr "`n8n <https://n8n.io/>`__ Это платформа автоматизации рабочих процессов с открытым исходным кодом. Подключайте службы, преобразуйте данные и создавайте интеграции с помощью визуального редактора с низким кодом или пользовательских узлов JavaScript / Python."
 
+# translated-by: libretranslate
 msgid "`n8n_workflow`: a checked-in workflow with a stable ownership marker, explicit input schema, explicit connected tools, and a bearer-protected trigger;"
-msgstr ""
+msgstr "`n8n_workflow`: проверенный рабочий процесс со стабильным маркером собственности, явной схемой ввода, явными подключенными инструментами и триггером, защищенным на предъявителя;"
 
+# translated-by: libretranslate
 msgid "`name.sh` resolves the concrete repository name once for callers It prefers explicit env overrides (`INFINITO_IMAGE_REPOSITORY`, `REPO_PREFIX`) before GitHub or git metadata."
-msgstr ""
+msgstr "`name.sh` Решает конкретное имя хранилища один раз для абонентов Предпочитает явное env overrides (`INFINITO_IMAGE_REPOSITORY`, `REPO_PREFIX`) перед GitHub или git метаданными."
 
+# translated-by: libretranslate
 msgid "`name`: unique mapping id"
-msgstr ""
+msgstr "`name`: Уникальный картографический идентификатор"
 
+# translated-by: libretranslate
 msgid "`named_query`: checked-in parameterized read queries or views through an application-specific read-only database principal, never arbitrary SQL;"
-msgstr ""
+msgstr "`named_query`: Проверка параметризованных запросов на чтение или просмотров с помощью принципала базы данных только для чтения, никогда не произвольного SQL;"
 
+# translated-by: libretranslate
 msgid "`network_role_id`: the role whose network to create. Name and subnet are derived from it."
-msgstr ""
+msgstr "`network_role_id`: Роль, сеть которой нужно создавать. Название и подсеть взяты из него."
 
+# translated-by: libretranslate
 msgid "`networks:` is a top-level section of each role's `meta/server.yml`. The file-root convention applies: there is no wrapping `server:` key, and the file content IS `applications.<app>.server`."
-msgstr ""
+msgstr "`networks:` Это раздел верхнего уровня каждой роли. `meta/server.yml`. Применяется конвенция File-root: обертки нет `server:` Ключ и содержимое файла IS `applications.<app>.server`."
 
+# translated-by: libretranslate
 msgid "`nftables <https://www.netfilter.org/projects/nftables/>`__ is the packet filtering framework of the Linux kernel and the successor to ``iptables``. Its rules live in memory: a reboot drops them unless something loads them again."
-msgstr ""
+msgstr "`nftables <https://www.netfilter.org/projects/nftables/>`__ является фреймворком фильтрации пакетов ядра Linux и преемником ``iptables``. Его правила живут в памяти: перезагрузка бросает их, если что-то не загружает их снова."
 
+# translated-by: libretranslate
 msgid "`no-reply` user's `web-app-mailu` token, else empty string"
-msgstr ""
+msgstr "`no-reply` пользователя `web-app-mailu` Токен, еще пустая строка"
 
+# translated-by: libretranslate
 msgid "`noqa` and `nocheck` are case-insensitive synonyms in the parser. Every project rule MUST use `nocheck:` because `# noqa: <code>` is also parsed by ruff as a flake8 directive and warns on non-flake8 keys. Reserve `noqa:` for real flake8 / ruff codes (`E402`, `F401`, …). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hard-rejects `# noqa: <code>` whose codes do not match `[A-Z]+\\d+`."
-msgstr ""
+msgstr "`noqa` и `nocheck` Нечувствительные к случаю синонимы в парсере. Все правила проекта должны быть `nocheck:` Потому что `# noqa: <code>` Он также рассматривается как чешуйка.8 Предупреждение и предостережение о несвежем8 Ключи. резерв `noqa:` Настоящий хлопок8 / ruff-коды (`E402`, `F401`...). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) отверженный `# noqa: <code>` чьи коды не совпадают `[A-Z]+\\d+`."
 
+# translated-by: libretranslate
 msgid "`npm install` (Ansible task in runner)"
-msgstr ""
+msgstr "`npm install` (Удобное задание в бегуне)"
 
+# translated-by: libretranslate
 msgid "`npm.py` MAY import from `system_pkg.py` to bootstrap npm itself; no other cross-imports between these four are allowed."
-msgstr ""
+msgstr "`npm.py` Может импортировать из `system_pkg.py` Загрузить сам npm; никакие другие кросс-импорты между этими четырьмя не допускаются."
 
+# translated-by: libretranslate
 msgid "`npmrc`: npm configuration. Mounted at `/root/.npmrc`. Routes npm through `npm-proxy`."
-msgstr ""
+msgstr "`npmrc`: Конфигурация npm. На вершине `/root/.npmrc`. Маршруты npm `npm-proxy`."
 
+# translated-by: libretranslate
 msgid "`occ config:app:set` plus optional hook"
-msgstr ""
+msgstr "`occ config:app:set` плюс дополнительный крюк"
 
+# translated-by: libretranslate
 msgid "`oidc-authenticator` and `ldap-authenticator` are mutually exclusive auth backends (only one may be enabled; see [`tasks/01_validation.yml`](./tasks/01_validation.yml)), each deriving its enablement from its bridged service flag. The OIDC/LDAP runtime configuration (provider URLs, bind DN, secrets) lives in the XWiki property templates and is read via `lookup('config', application_id, 'secrets.credentials.<name>')`; the addon `config:` carries only the installer coordinate."
-msgstr ""
+msgstr "`oidc-authenticator` и `ldap-authenticator` являются взаимоисключающими бэкэндами (Может быть только один; см. [`tasks/01_validation.yml`](./tasks/01_validation.yml))Каждый из них получает свое разрешение от своего флага. Конфигурация времени выполнения OIDC/LDAP (URL-адреса провайдера, связывание DN, секреты) живет в XWiki шаблоны свойств и читается через `lookup('config', application_id, 'secrets.credentials.<name>')`; надстройка `config:` Носит только координаты установщика."
 
+# translated-by: libretranslate
 msgid "`oidc` (v2.3.1)"
-msgstr ""
+msgstr "`oidc` (v2.3.1)"
 
+# translated-by: libretranslate
 msgid "`oidc`: baseline admin OIDC round-trip plus the three RBAC scenarios (subscriber/editor/administrator)."
-msgstr ""
+msgstr "`oidc`: базовый администратор OIDC round-trip плюс три сценария RBAC (subscriber/editor/administrator)."
 
+# translated-by: libretranslate
 msgid "`onion` Forwarding Opt-In 🧅"
-msgstr ""
+msgstr "`onion` Продвижение Opt-In 🧅"
 
+# translated-by: libretranslate
 msgid "`openai_conversation/config_flow.py` contains no `base_url` (0 matches), so the OpenAI agent cannot be pointed anywhere but the vendor. The only configurable local path is the separate `ollama` integration, whose `config_flow.py` carries `CONF_URL` (7 matches) but speaks Ollama's native API rather than the gateway's OpenAI-compatible surface"
-msgstr ""
+msgstr "`openai_conversation/config_flow.py` не содержит `base_url` (0 матчи), Таким образом, агент OpenAI не может быть указан нигде, кроме продавца. Единственный настраиваемый локальный путь — это отдельный. `ollama` Интеграция, которая `config_flow.py` перевозить `CONF_URL` (7 матчи) Но говорит Ollamaродной API Вместо OpenAI-совместимой поверхности шлюза"
 
+# translated-by: libretranslate
 msgid "`openapi_allowlist`: a checked-in, versioned, hash-pinned API description plus explicit operation identifiers;"
-msgstr ""
+msgstr "`openapi_allowlist`: проверенный, версия, хеш-пиннинг API описание плюс явные идентификаторы операций;"
 
+# translated-by: libretranslate
 msgid "`openbao/openbao` on Docker Hub. Tags carry **no `v` prefix** (`2.6.2`, not `v2.6.2`), unlike the GitHub release names."
-msgstr ""
+msgstr "`openbao/openbao` В Docker Hub. Тэги несут **нет `v` префикс** (`2.6.2`, Нет. `v2.6.2`), В отличие от названия GitHub."
 
+# translated-by: libretranslate
 msgid "`openssl_conf_host` (string): host path for generated openssl.cnf"
-msgstr ""
+msgstr "`openssl_conf_host` (струна): Путь хоста для генерируемого openssl.cnf"
 
+# translated-by: libretranslate
 msgid "`ordered`: ordered primary service entries for the service loader"
-msgstr ""
+msgstr "`ordered`: заказанные первичные служебные записи для сервисного погрузчика"
 
+# translated-by: libretranslate
 msgid "`output stream file` (**optional**, with a documented default value) — file path the deploy's stdout/stderr stream is written to; the default MUST be a stable, documented path under `/tmp/`."
-msgstr ""
+msgstr "`output stream file` (**необязательный**, с документированным значением по умолчанию) - путь файла, на который записан поток stdout/stderr развертывания; по умолчанию должен быть стабильный, документированный путь `/tmp/`."
 
+# translated-by: libretranslate
 msgid "`owner.sh` resolves the concrete repository owner once for callers"
-msgstr ""
+msgstr "`owner.sh` Решает конкретный владелец хранилища один раз для абонентов"
 
+# translated-by: libretranslate
 msgid "`package.json` and `playwright.config.js` are provided centrally by this role:"
-msgstr ""
+msgstr "`package.json` и `playwright.config.js` Эта роль обеспечивается централизованно:"
 
+# translated-by: libretranslate
 msgid "`package_name` (string)   Name of the Python package to install (e.g., `dockreap`, `backup-docker-to-local`)."
-msgstr ""
+msgstr "`package_name` (струна) Название пакета Python для установки (например, `dockreap`, `backup-docker-to-local`)."
 
+# translated-by: libretranslate
 msgid "`page.context().clearCookies()` is permitted only as a final cleanup AFTER a click attempt and only when the click chain itself could not produce a verifiable logged-out state."
-msgstr ""
+msgstr "`page.context().clearCookies()` Допускается только в качестве окончательной очистки после попытки клика и только тогда, когда сама цепочка кликов не может создать проверяемое состояние."
 
+# translated-by: libretranslate
 msgid "`page.goto` is only permitted to put the browser on the next surface (open the dashboard, open a protected URL to trigger an auth redirect, etc.); it MUST NOT be used to *invoke* an action that the UI exposes as a click target."
-msgstr ""
+msgstr "`page.goto` Разрешается только поместить браузер на следующую поверхность (Откройте панель инструментов, откройте защищенный URL-адрес, чтобы запустить перенаправление auth и т. Д.); Он не должен использоваться для *ссылаться* действие, которое UI раскрывает как цель клика."
 
+# translated-by: libretranslate
 msgid "`parser.py`, `runtime.py`, and `writer.py` MUST NOT import from `builder.py` or [`handlers/`](handlers/)."
-msgstr ""
+msgstr "`parser.py`, `runtime.py`, и `writer.py` Не следует импортировать из `builder.py` или [`handlers/`](handlers/)."
 
+# translated-by: libretranslate
 msgid "`password` (should come from vault/credentials)"
-msgstr ""
+msgstr "`password` (должен исходить из хранилища / учетных данных)"
 
+# translated-by: libretranslate
 msgid "`pip install` (Ansible task in runner)"
-msgstr ""
+msgstr "`pip install` (Удобное задание в бегуне)"
 
+# translated-by: libretranslate
 msgid "`pip.conf` URL-rewrite"
-msgstr ""
+msgstr "`pip.conf` переписать URL"
 
+# translated-by: libretranslate
 msgid "`pip.conf`: pip configuration. Mounted at `/etc/pip.conf`. Routes pip through `pypi-proxy`."
-msgstr ""
+msgstr "`pip.conf`: Pip конфигурация. На вершине `/etc/pip.conf`. Маршруты проходят через `pypi-proxy`."
 
+# translated-by: libretranslate
 msgid "`pip.py`, `npm.py`, `github_release.py`, and `system_pkg.py` MAY import from `primitives.py`."
-msgstr ""
+msgstr "`pip.py`, `npm.py`, `github_release.py`, и `system_pkg.py` Может импортировать из `primitives.py`."
 
+# translated-by: libretranslate
 msgid "`pki` is inlined under the primary entity, not declared as a service key: it is a role-local feature toggle with no provider role, so a `pki:` service key would fail service resolution."
-msgstr ""
+msgstr "`pki` включена в основной объект, не объявлена в качестве ключа обслуживания: это ролевая локальная функция переключаться без роли поставщика, поэтому `pki:` Сервисный ключ может не дать разрешения на обслуживание."
 
+# translated-by: libretranslate
 msgid "`plan_dev_inventory_matrix` → `_resolve_round_include` runs `CombinedResolver(follow_run_after=False)` over each primary app and unions the results."
-msgstr ""
+msgstr "`plan_dev_inventory_matrix` ? `_resolve_round_include` бегать `CombinedResolver(follow_run_after=False)` По каждому первичному приложению и союзам результаты."
 
+# translated-by: libretranslate
 msgid "`planned`, `pre-alpha`, `alpha`, `beta`, `stable`, `deprecated`. Unknown values fail the lint."
-msgstr ""
+msgstr "`planned`, `pre-alpha`, `alpha`, `beta`, `stable`, `deprecated`. Неизвестные значения не работают."
 
+# translated-by: libretranslate
 msgid "`playwright.config.js` MUST remain centralized in `roles/test-e2e-playwright/files/` and `package.json` in `roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy into the staging dir). You MUST NOT duplicate or override either per role."
-msgstr ""
+msgstr "`playwright.config.js` должны быть централизованными в `roles/test-e2e-playwright/files/` и `package.json` в `roles/test-e2e-playwright/templates/package.json.j2` (вводимые в сквозной). Вы не должны дублировать или отменять любую роль."
 
+# translated-by: libretranslate
 msgid "`playwright.config.js` and `package.json` are central, NOT per-role. See [Playwright Tests → Role-Local Files](../../../actions/testing/playwright.md#role-local-files-)."
-msgstr ""
+msgstr "`playwright.config.js` и `package.json` Они центральные, а не ролевые. Видишь? [Playwright Tests → Ролевые локальные файлы](../../../actions/testing/playwright.md#role-local-files-)."
 
+# translated-by: libretranslate
 msgid "`playwright.spec.js` — orchestrator: TLS baseline, project creation, image asset upload, and the `guest`/`biber`/`administrator` personas. The `biber` / `administrator` personas are declared blocked via `PERSONA_*_BLOCKED` (mirroring `web-app-taiga`): Penpot's in-app \"OpenID\" entry and SPA user-menu logout aren't driveable by the generic persona helper, so both users' real auth is exercised by the dedicated login companions above."
-msgstr ""
+msgstr "`playwright.spec.js` — оркестратор: базовый уровень TLS, создание проекта, загрузка имиджевого актива и `guest`/`biber`/`administrator` Персонажи. The `biber` / `administrator` Лица, объявленные заблокированными через `PERSONA_*_BLOCKED` (зеркальный `web-app-taiga`): Оригинальное:Penpot's in-app \"OpenID\" Вход и выход из пользовательского меню SPA не могут управляться общим помощником персоны, поэтому реальный аут обоих пользователей осуществляется выделенными компаньонами входа выше."
 
+# translated-by: libretranslate
 msgid "`playwright.version` in `meta/services.yml` is the single source of truth for the default Playwright version; the central `templates/package.json.j2` pins it via the `image_version` filter."
-msgstr ""
+msgstr "`playwright.version` в `meta/services.yml` является единственным источником истины для версии Playwright по умолчанию; `templates/package.json.j2` Сделать это через `image_version` Фильтр."
 
+# translated-by: libretranslate
 msgid "`plg_system_keycloak` is built imperatively inside the Joomla container and speaks OIDC against Keycloak. Its enablement derives directly from the `sso` service flag, and its OIDC runtime contract (issuer, client id/secret, redirect/end-session URLs, fallback toggle, and RBAC group paths) lives under the addon's `config:` block, which [`templates/env.j2`](./templates/env.j2) renders into the `JOOMLA_OIDC_*` plugin environment."
-msgstr ""
+msgstr "`plg_system_keycloak` Императивно построен внутри Joomla Контейнер и OIDC выступают против KeycloakЕго способность непосредственно вытекает из `sso` Флаг сервиса и контракт на время выполнения OIDC (эмитент, идентификатор клиента / секрет, перенаправление / конец сессии URL, обратный переключатель и групповые пути RBAC) Жизнь под аддоном `config:` блокировать, который [`templates/env.j2`](./templates/env.j2) входить в состав `JOOMLA_OIDC_*` Плагиновая среда."
 
+# translated-by: libretranslate
 msgid "`port` (**optional**, MAY be omitted) — SSH/connection port for the target host."
-msgstr ""
+msgstr "`port` (**необязательный**Может быть опущен) - порт SSH/connection для целевого хоста."
 
+# translated-by: libretranslate
 msgid "`port` reads `external` and `tls`."
-msgstr ""
+msgstr "`port` читать `external` и `tls`."
 
+# translated-by: libretranslate
 msgid "`ports.internal`, `ports.local` and `ports.public` are **always** category-keyed maps, even when the map has only one entry. Polymorphic int-or-map values are NOT supported. The category names are: `http`, `database`, `websocket`, `oauth2`, `ldap`, `ssh`, `ldaps`, `stun_turn`, `stun_turn_tls`, `federation`, plus the structured `relay` block under `public:`."
-msgstr ""
+msgstr "`ports.internal`, `ports.local` и `ports.public` есть **всегда** Карты с ключами категорий, даже если на карте есть только одна запись. Полиморфные значения int-or-map не поддерживаются. Названия категорий: `http`, `database`, `websocket`, `oauth2`, `ldap`, `ssh`, `ldaps`, `stun_turn`, `stun_turn_tls`, `federation`, плюс структурированный `relay` блокировать `public:`."
 
+# translated-by: libretranslate
 msgid "`ports.onion` names the categories that answer on the node onion. Only the named categories are forwarded."
-msgstr ""
+msgstr "`ports.onion` Назовите категории, которые отвечают на луке узла. Пересылаются только названные категории."
 
+# translated-by: libretranslate
 msgid "`ports.public.relay`, when present, is a map with two integer keys `start` and `end` directly under `relay` (no nested entity-or-key sub-level), with `start < end`. Only one relay range per entity is supported."
-msgstr ""
+msgstr "`ports.public.relay`, когда присутствует карта с двумя целочисленными ключами `start` и `end` непосредственно под `relay` (ни один вложенный объект или ключ подуровня), с `start < end`. Поддерживается только один диапазон реле на единицу."
 
+# translated-by: libretranslate
 msgid "`primitives.py` MUST NOT import from any other module in this package."
-msgstr ""
+msgstr "`primitives.py` Не следует импортировать из любого другого модуля в этом пакете."
 
+# translated-by: libretranslate
 msgid "`priority` names the roles that lead. They sort to the head of the list and the split forces a chunk boundary at the priority/regular seam, so a chunk is either all priority or all regular — the seam chunk stays short rather than being topped up. That is what guarantees every priority row is deployed before the first regular one starts. Priority rows wear a trailing `⭐` in their job name and never move with the sweep offset."
-msgstr ""
+msgstr "`priority` Назовите роли, которые ведут. Они сортируют до главы списка, и раскол заставляет границу куска по приоритетному / обычному шву, поэтому куска является либо приоритетом, либо регулярным — куска шва остается короткой, а не увенчанной. Именно это гарантирует развертывание каждой строки приоритетов до начала первой регулярной строки. Приоритетные ряды носят трекинг `⭐` на своем рабочем месте и никогда не двигаться со сменой зачистки."
 
+# translated-by: libretranslate
 msgid "`prometheus_readonly`: query, query-range, labels, metadata and targets with explicit lookback, sample, response and timeout limits;"
-msgstr ""
+msgstr "`prometheus_readonly`: запрос, диапазон запросов, ярлыки, метаданные и цели с явным оглядкой, выборкой, ответом и временными ограничениями;"
 
+# translated-by: libretranslate
 msgid "`provides:` is only used when the public service name differs from the entity name."
-msgstr ""
+msgstr "`provides:` используется только тогда, когда наименование государственной услуги отличается от названия организации."
 
+# translated-by: libretranslate
 msgid "`proxy.conf`: systemd drop-in for `docker.service`. Sets `HTTP_PROXY`/`HTTPS_PROXY` to the proxy and registers [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) as `ExecStartPre`."
-msgstr ""
+msgstr "`proxy.conf`: Systemd drop-in для `docker.service`. Наборы `HTTP_PROXY`/`HTTPS_PROXY` Прокси и регистры [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) как `ExecStartPre`."
 
+# translated-by: libretranslate
 msgid "`pull_policy` — swarm rejects it as \"Additional property pull_policy is not allowed\" (compose-only extension)."
-msgstr ""
+msgstr "`pull_policy` Рой отвергает его как \"Дополнительное имущество pull_policy не допускается\" (только расширение)."
 
+# translated-by: libretranslate
 msgid "`pull_request` / `pull_request_target`: fires on PR lifecycle events (`opened`, `synchronize`, `reopened`, `ready_for_review`, `closed`, `converted_to_draft`). The `_target` variant runs with the base-branch secrets and is used to grant fork PRs controlled access to privileged steps."
-msgstr ""
+msgstr "`pull_request` / `pull_request_target`: Пожары на мероприятиях жизненного цикла PR (`opened`, `synchronize`, `reopened`, `ready_for_review`, `closed`, `converted_to_draft`). Это `_target` Вариант работает с секретами базовой ветви и используется для предоставления контролируемого доступа к привилегированным шагам."
 
+# translated-by: libretranslate
 msgid "`push`: fires when commits land on a branch."
-msgstr ""
+msgstr "`push`: Огонь, когда совершается посадка на ветку."
 
+# translated-by: libretranslate
 msgid "`pypi.org` (incl. `files.pythonhosted.org`)"
-msgstr ""
+msgstr "`pypi.org` (в т.ч. `files.pythonhosted.org`)"
 
+# translated-by: libretranslate
 msgid "`random_hex_32` yields 64 hex characters = exactly the 32 bytes the static seal requires, with no prefix to strip at render time (unlike `base64_prefixed_32`, which prepends `base64:`)."
-msgstr ""
+msgstr "`random_hex_32` доходность 64 Hex-персонажи = точно 32 байты, требуемые статической печатью, без префикса для полоски в момент рендеринга (в отличие от `base64_prefixed_32`, которые предваряют `base64:`)."
 
+# translated-by: libretranslate
 msgid "`rbac.tenancy` schema 📐"
-msgstr ""
+msgstr "`rbac.tenancy` схема 📐"
 
+# translated-by: libretranslate
 msgid "`rbac_group_path` lookup plugin 🧭"
-msgstr ""
+msgstr "`rbac_group_path` Искать плагин 🧭"
 
+# translated-by: libretranslate
 msgid "`recover full <source> <target>` recovers every type present in the backup, in order, adapting to the source:"
-msgstr ""
+msgstr "`recover full <source> <target>` Восстанавливает каждый тип, присутствующий в резервной копии, по порядку, адаптируясь к источнику:"
 
+# translated-by: libretranslate
 msgid "`regex:` MUST NOT pin a vendor's key prefix. OpenAI moved issuance from `sk-` to `sk-proj-` without notice, and Anthropic issues `sk-ant-api03-`; a schema that encoded either would reject a valid key and abort inventory creation, which is a hard failure for a value that was correct."
-msgstr ""
+msgstr "`regex:` Не следует закреплять приставку ключа поставщика. OpenAI перенесла выпуск `sk-` то `sk-proj-` без предупреждения и антропные проблемы `sk-ant-api03-`; схема, которая закодировала либо отклонит действительный ключ и прервет создание инвентаря, что является тяжелым провалом для значения, которое было правильным."
 
+# translated-by: libretranslate
 msgid "`registry-cache` MITM via `HTTP_PROXY` env on `dockerd`"
-msgstr ""
+msgstr "`registry-cache` через MITM `HTTP_PROXY` на `dockerd`"
 
+# translated-by: libretranslate
 msgid "`reinstall/` recreates the inventory and purges existing entities first."
-msgstr ""
+msgstr "`reinstall/` Сначала воссоздает инвентаризацию и очищает существующие объекты."
 
+# translated-by: libretranslate
 msgid "`relay` Port Ranges 📡"
-msgstr ""
+msgstr "`relay` Портовые хребты 📡"
 
+# translated-by: libretranslate
 msgid "`render`   — records -> text in the format chosen via `--format`."
-msgstr ""
+msgstr "`render` - Записи -> текст в выбранном формате `--format`."
 
+# translated-by: libretranslate
 msgid "`repository/name.sh` resolves the concrete repository name once for callers"
-msgstr ""
+msgstr "`repository/name.sh` Решает конкретное имя хранилища один раз для абонентов"
 
+# translated-by: libretranslate
 msgid "`repository/owner.sh` resolves the concrete repository owner once for callers"
-msgstr ""
+msgstr "`repository/owner.sh` Решает конкретный владелец хранилища один раз для абонентов"
 
+# translated-by: libretranslate
 msgid "`required` (always installed)"
-msgstr ""
+msgstr "`required` (всегда установленный)"
 
+# translated-by: libretranslate
 msgid "`required` (always installed, vendored)"
-msgstr ""
+msgstr "`required` (Всегда установлен, продавец)"
 
+# translated-by: libretranslate
 msgid "`required` (optional) defaults to `false`. When `required: true`, the addon is part of the role's baseline install contract, is treated as enabled even when `enabled` is omitted, and MUST NOT set `enabled: false`. `required` also gates install-failure handling: a failed install of a `required: true` addon MUST hard-fail the play; a failed install of a `required: false` addon MUST emit a warning, skip the addon, and continue."
-msgstr ""
+msgstr "`required` (необязательный) по умолчанию для `false`. Когда `required: true`, аддон является частью базового контракта на установку роли, рассматривается как включенный, даже если `enabled` Опущен, и не должен устанавливаться `enabled: false`. `required` также вентиляторная установка-неисправность: неудавшаяся установка `required: true` Аддон ДОЛЖЕН с трудом провалить игру; неудачная установка `required: false` Аддон должен выдать предупреждение, пропустить аддон и продолжить."
 
+# translated-by: libretranslate
 msgid "`required` is True when some deployed app has the service with both `enabled: true` AND `shared: true`, directly or transitively through its own enabled service dependencies. This is the flag consumers should gate on when deciding whether to load, integrate with, or configure the service. A plain `enabled` flag is not enough on its own, because a service that is enabled but never shared with another app is not actually contractually required by anyone."
-msgstr ""
+msgstr "`required` Это верно, когда какое-то развернутое приложение имеет службу с обоими. `enabled: true` И `shared: true`, непосредственно или транзитивно через собственные зависимые сервисы. Это флаг, который потребители должны включить при принятии решения о загрузке, интеграции или настройке сервиса. Простая `enabled` Одного флага недостаточно, потому что услуга, которая включена, но никогда не передается другому приложению, на самом деле не требуется по контракту."
 
+# translated-by: libretranslate
 msgid "`requirements.galaxy.yml`   Primary source using **Ansible Galaxy**."
-msgstr ""
+msgstr "`requirements.galaxy.yml` Первичный источник с использованием **Невероятная Галактика**."
 
+# translated-by: libretranslate
 msgid "`requirements.git.yml`   **Git-based fallback** used when Galaxy is unavailable or unstable."
-msgstr ""
+msgstr "`requirements.git.yml` **Gitоснованный на откате** Галактика недоступна или нестабильна."
 
+# translated-by: libretranslate
 msgid "`requirepass` for the `default` (admin) user, sourced from the `REDIS_PASSWORD` credential."
-msgstr ""
+msgstr "`requirepass` для `default` (админ) Пользователь, полученный из `REDIS_PASSWORD` Удостоверение."
 
+# translated-by: libretranslate
 msgid "`resource_readonly` or `n8n_workflow`"
-msgstr ""
+msgstr "`resource_readonly` или `n8n_workflow`"
 
+# translated-by: libretranslate
 msgid "`resource_readonly`: checked-in rules for exposing a bounded, non-secret published content set as MCP resources rather than pretending it is an action API."
-msgstr ""
+msgstr "`resource_readonly`: Правила регистрации для разоблачения ограниченного, несекретного опубликованного контента, установленного в качестве ресурсов MCP, а не притворяться, что это действие API."
 
+# translated-by: libretranslate
 msgid "`role` MUST appear under `rbac.roles.<role>` or be the implicit `administrator` that the role-list contract auto-adds."
-msgstr ""
+msgstr "`role` должны появляться под `rbac.roles.<role>` или быть неявным `administrator` Ролевой список контрактных автодобавок."
 
+# translated-by: libretranslate
 msgid "`role` is the directory under ``roles/``, `app` the role's application_id -- the value the deployment whitelist and `application_allowed` speak in."
-msgstr ""
+msgstr "`role` Это каталог под ``roles/``, `app` Роль application_id - значение белого списка развертывания и `application_allowed` Говори."
 
+# translated-by: libretranslate
 msgid "`roles/<application_id>/files/playwright/playwright.spec.js` Follow [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them."
-msgstr ""
+msgstr "`roles/<application_id>/files/playwright/playwright.spec.js` Следить [Вклад `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) и [Вклад `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) при их создании."
 
+# translated-by: libretranslate
 msgid "`roles/<role>/files/playwright/playwright.spec.js` exists."
-msgstr ""
+msgstr "`roles/<role>/files/playwright/playwright.spec.js` существует."
 
+# translated-by: libretranslate
 msgid "`roles/<role>/meta/services.yml` for anything an operator may override, because the inventory's `applications.<role>` block is deep-merged on top of it and `lookup('config', application_id, '<path>')` reads the result."
-msgstr ""
+msgstr "`roles/<role>/meta/services.yml` Для всего, что оператор может отменить, потому что инвентарь `applications.<role>` блок глубоко сливается поверх него и `lookup('config', application_id, '<path>')` читает результат."
 
+# translated-by: libretranslate
 msgid "`roles/<role>/vars/main.yml` for values derived from that configuration, and for those the role fixes. Role vars outrank inventory variables, so a value placed here cannot be overridden per host."
-msgstr ""
+msgstr "`roles/<role>/vars/main.yml` для значений, полученных из этой конфигурации, и для тех, которые фиксируются ролью. Ролевые классы превосходят инвентарные переменные, поэтому значение, размещенное здесь, не может быть переоценено на хост."
 
+# translated-by: libretranslate
 msgid "`roles/sys-ca-selfsigned/`. generates the self-signed Root CA inside the container"
-msgstr ""
+msgstr "`roles/sys-ca-selfsigned/`. генерирует самоподписанный корневой CA внутри контейнера"
 
+# translated-by: libretranslate
 msgid "`roles/sys-ca-selfsigned/`. role that generates the self-signed Root CA inside the container"
-msgstr ""
+msgstr "`roles/sys-ca-selfsigned/`. роль, которая генерирует самоподписанный корневой CA внутри контейнера;"
 
+# translated-by: libretranslate
 msgid "`roles/test-e2e-playwright/defaults/main.yml` reads the host value into `test_e2e_playwright_keep` via `lookup('env', 'INFINITO_PLAYWRIGHT_KEEP')`. Inventory MAY override the role variable per environment in `group_vars` or `host_vars`."
-msgstr ""
+msgstr "`roles/test-e2e-playwright/defaults/main.yml` Считает значение хоста в `test_e2e_playwright_keep` через `lookup('env', 'INFINITO_PLAYWRIGHT_KEEP')`. Инвентаризация может переопределить переменную роли в каждой среде `group_vars` или `host_vars`."
 
+# translated-by: libretranslate
 msgid "`roles/test-e2e-playwright/files/playwright.config.js` (copied as-is)"
-msgstr ""
+msgstr "`roles/test-e2e-playwright/files/playwright.config.js` (копировать как есть)"
 
+# translated-by: libretranslate
 msgid "`roles/test-e2e-playwright/files/playwright.config.js` switches `trace`, `screenshot`, and `video` to `on` when the container value is `true`. It otherwise leaves the failure-only defaults (`retain-on-failure` for trace and video, `only-on-failure` for screenshot)."
-msgstr ""
+msgstr "`roles/test-e2e-playwright/files/playwright.config.js` переключатель `trace`, `screenshot`, и `video` то `on` когда значение контейнера `true`. В противном случае остается только по умолчанию (`retain-on-failure` для отслеживания и видео, `only-on-failure` для скриншота)."
 
+# translated-by: libretranslate
 msgid "`roles/test-e2e-playwright/tasks/02_run_one.yml` forwards the resolved value into the Playwright container as `-e INFINITO_PLAYWRIGHT_KEEP={{ test_e2e_playwright_keep }}`."
-msgstr ""
+msgstr "`roles/test-e2e-playwright/tasks/02_run_one.yml` пересылает разрешенное значение в контейнер Playwright как `-e INFINITO_PLAYWRIGHT_KEEP={{ test_e2e_playwright_keep }}`."
 
+# translated-by: libretranslate
 msgid "`roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy; pins `@playwright/test` from `meta/services.yml.playwright.version`)"
-msgstr ""
+msgstr "`roles/test-e2e-playwright/templates/package.json.j2` (развёртывание; булавки `@playwright/test` из `meta/services.yml.playwright.version`)"
 
+# translated-by: libretranslate
 msgid "`roles/web-app-taiga/templates/style.css.j2` is the Taiga role override."
-msgstr ""
+msgstr "`roles/web-app-taiga/templates/style.css.j2` Это Taiga Роль превыше всего."
 
+# translated-by: libretranslate
 msgid "`roles` (**required**) — the set of roles to deploy onto the runner (accepts space- and comma-separated lists, matching the normalisation used by [cli/administration/deploy/dedicated/command.py](../../cli/administration/deploy/runner/command.py))."
-msgstr ""
+msgstr "`roles` (**необходимый**) — набор ролей для развертывания на бегуна (принимает списки, разделенные пространством и запятой, соответствующие нормализации, используемой [cli/administration/deploy/dedicated/command.py](../../cli/administration/deploy/runner/command.py))."
 
+# translated-by: libretranslate
 msgid "`routine.yml`: wrapper with immediate compose-up"
-msgstr ""
+msgstr "`routine.yml`: Обертка с немедленным композицией"
 
+# translated-by: libretranslate
 msgid "`routine/backup/base.sh` (+ per-host routines in [`routine/backup/`](routine/backup/))"
-msgstr ""
+msgstr "`routine/backup/base.sh` (+ хост рутины в [`routine/backup/`](routine/backup/))"
 
+# translated-by: libretranslate
 msgid "`run_after:` entries are role names, not service keys."
-msgstr ""
+msgstr "`run_after:` Записи - это имена ролей, а не ключи обслуживания."
 
+# translated-by: libretranslate
 msgid "`run_after:` from `meta/services.yml.<entity>.run_after` is an ordering hint only (see [base.md](role/services/base.md)); it MUST NOT pull roles into the include set."
-msgstr ""
+msgstr "`run_after:` из `meta/services.yml.<entity>.run_after` Это всего лишь подсказка (смотреть [base.md](role/services/base.md))Он не должен втягивать роли в набор включений."
 
+# translated-by: libretranslate
 msgid "`run_after:` walk"
-msgstr ""
+msgstr "`run_after:` ходить"
 
+# translated-by: libretranslate
 msgid "`run_after:`, when present, is a non-empty list of role names."
-msgstr ""
+msgstr "`run_after:`, когда присутствует, не пустой список имен ролей."
 
+# translated-by: libretranslate
 msgid "`run_after` Dependency Tests ⏭️"
-msgstr ""
+msgstr "`run_after` Тесты на зависимость s️"
 
+# translated-by: libretranslate
 msgid "`run_after` Rules"
-msgstr ""
+msgstr "`run_after` Правила"
 
+# translated-by: libretranslate
 msgid "`run_after` and `lifecycle` 🌱"
-msgstr ""
+msgstr "`run_after` и `lifecycle` 🌱"
 
+# translated-by: libretranslate
 msgid "`run_once_web_app_mailu is defined` assertion failed in `sys-svc-mail`, indicating the service-loader did not preload Mailu in the keycloak-only deploy path."
-msgstr ""
+msgstr "`run_once_web_app_mailu is defined` Утверждение провалилось в `sys-svc-mail`, указывая, что сервис-погрузчик не предустанавливал Mailu Путь развертывания только в Keycloak."
 
+# translated-by: libretranslate
 msgid "`runner_docker_base` defaults to `/mnt/docker`. Override via inventory `host_vars` for non-standard machines."
-msgstr ""
+msgstr "`runner_docker_base` по умолчанию для `/mnt/docker`. Пересмотр через инвентарь `host_vars` для нестандартных машин."
 
+# translated-by: libretranslate
 msgid "`s3_prefix`: list, head and get through a dedicated read-only policy restricted to named buckets and prefixes;"
-msgstr ""
+msgstr "`s3_prefix`: Список, глава и получить через специальную политику только для чтения, ограниченную названными ведрами и префиксами;"
 
+# translated-by: libretranslate
 msgid "`sandbox.allowUnsandboxedCommands: false`: MUST NOT use per-call escape hatches (e.g. `dangerouslyDisableSandbox`)."
-msgstr ""
+msgstr "`sandbox.allowUnsandboxedCommands: false`: Не следует использовать аварийные люки (Например. `dangerouslyDisableSandbox`)."
 
+# translated-by: libretranslate
 msgid "`sandbox.filesystem`: `allowWrite` bounds write scope; `denyRead` paths MUST NOT be read."
-msgstr ""
+msgstr "`sandbox.filesystem`: `allowWrite` пределов написать объем; `denyRead` Пути не следует читать."
 
+# translated-by: libretranslate
 msgid "`sandbox.network`: outbound calls MUST go to hosts matching `allowedDomains`. Unix-socket connections are permitted only if `allowAllUnixSockets: true`; listening on local ports is permitted only if `allowLocalBinding: true`."
-msgstr ""
+msgstr "`sandbox.network`: исходящие звонки ДОЛЖНЫ идти к хостам `allowedDomains`. Unix-сокеты разрешены только в том случае, если `allowAllUnixSockets: true`; Прослушивание в местных портах разрешается только в том случае, если `allowLocalBinding: true`."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: `schedule`: cron-based periodic runs (периодические
+# циклы) (UTC).
 msgid "`schedule`: cron-based periodic runs (UTC)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "`scope.sh` resolves whether a Pull Request is agents-only, documentation-only, or full scope"
-msgstr ""
+msgstr "`scope.sh` решает, является ли запрос Pull только агентами, только документацией или полным объемом"
 
+# translated-by: libretranslate
 msgid "`scripts/install/package.sh` builds and installs the local package for the current distro (Arch, Debian/Ubuntu, Fedora), so dependency resolution is performed by the distro package manager from package metadata."
-msgstr ""
+msgstr "`scripts/install/package.sh` Создает и устанавливает локальный пакет для текущего дистрибутива (Arch, Debian/Ubuntu, Fedora), Таким образом, разрешение зависимостей выполняется дистрибутором пакетов из метаданных пакетов."
 
+# translated-by: libretranslate
 msgid "`scripts/meta/wait/mirrors.sh` waits for fork PRs until all required mirror images are available in GHCR before letting the deploy tests proceed. This is necessary because fork PRs cannot push images themselves; the `pull_request_target` event handles that."
-msgstr ""
+msgstr "`scripts/meta/wait/mirrors.sh` Ждет вилочных PR, пока все необходимые зеркальные изображения не будут доступны в GHCR, прежде чем позволить тестам развертывания продолжиться. Это необходимо, потому что вилочные PR не могут сами нажимать изображения. `pull_request_target` Событие справляется с этим."
 
+# translated-by: libretranslate
 msgid "`scripts/tests/deploy/local/exec/container.sh` is a direct-entry shell script example."
-msgstr ""
+msgstr "`scripts/tests/deploy/local/exec/container.sh` Является примером сценария с прямым входом."
 
+# translated-by: libretranslate
 msgid "`scripts/tests/deploy/utils/filesystem/resolve.sh` serves a kind only when the **host kernel** carries it: `zfs` needs `/dev/zfs` or a `modinfo zfs` hit, the others need an entry in `/proc/filesystems` or a module. The distro images carry only the userland (`scripts/install/filesystem.sh`)."
-msgstr ""
+msgstr "`scripts/tests/deploy/utils/filesystem/resolve.sh` Служит только тогда, когда **ядро хоста** несет его: `zfs` потребности `/dev/zfs` или `modinfo zfs` Удар, остальным нужен вход `/proc/filesystems` или модуль. Изображения дистрибутива несут только пользовательскую территорию (`scripts/install/filesystem.sh`)."
 
+# translated-by: libretranslate
 msgid "`secrets.credentials.*` paths are populated by `apply_schema()` at `applications.<app>.secrets.credentials.<…>`, so the credential file obeys the same file-root rule as every other `meta/<topic>.yml`."
-msgstr ""
+msgstr "`secrets.credentials.*` Пути населены `apply_schema()` в `applications.<app>.secrets.credentials.<…>`, Таким образом, файл учетных данных подчиняется тому же правилу корня файла, что и любой другой. `meta/<topic>.yml`."
 
+# translated-by: libretranslate
 msgid "`selection.sh` requires the caller to supply the application set explicitly."
-msgstr ""
+msgstr "`selection.sh` требует от абонента предоставить приложение, установленное явно."
 
+# translated-by: libretranslate
 msgid "`selection.sh` requires:"
-msgstr ""
+msgstr "`selection.sh` требует:"
 
+# translated-by: libretranslate
 msgid "`semaphoreui/semaphore` (Docker Hub + `ghcr.io`); pin a concrete stable `2.x` semver (no `:latest`)."
-msgstr ""
+msgstr "`semaphoreui/semaphore` (Docker Hub + `ghcr.io`); прикрепить бетонную конюшню `2.x` семвер (нет `:latest`)."
 
+# translated-by: libretranslate
 msgid "`server` Block Tests 🛡️"
-msgstr ""
+msgstr "`server` Блок-тесты 🛡️"
 
+# translated-by: libretranslate
 msgid "`service_key` MUST name an existing top-level service entry in the same `meta/services.yml`, and `port_key` MUST name an existing key under `services.<service_key>.ports.local`."
-msgstr ""
+msgstr "`service_key` Назовите существующий вход на высшем уровне в том же `meta/services.yml`, и `port_key` Назовите существующий ключ `services.<service_key>.ports.local`."
 
+# translated-by: libretranslate
 msgid "`services.<engine>.enabled: true` + `shared: false` -> **embedded** sidecar (current behaviour), for single-host / opt-out."
-msgstr ""
+msgstr "`services.<engine>.enabled: true` + `shared: false` -> **встроенный** коляска (Текущее поведение), Для одного хозяина / opt-out."
 
+# translated-by: libretranslate
 msgid "`services.<engine>.enabled: true` + `shared: true` -> **central**: the consumer connects to the central engine over the shared cross-stack network using the `<engine>` lookup and its own provisioned credentials."
-msgstr ""
+msgstr "`services.<engine>.enabled: true` + `shared: true` -> **центральный**: потребитель подключается к центральному движку через общую сеть перекрестного стека с использованием `<engine>` Поиск и собственные предоставленные учетные данные."
 
+# translated-by: libretranslate
 msgid "`services.code.flavor` picks one of `code-oss`, `vscodium` or `vscode`. The three builds conflict at package level, so the role removes the other two before installing the chosen one."
-msgstr ""
+msgstr "`services.code.flavor` выбрать один из `code-oss`, `vscodium` или `vscode`. Три строят конфликт на уровне пакета, поэтому роль удаляет два других, прежде чем установить выбранный."
 
+# translated-by: libretranslate
 msgid "`services.libretranslate`: image and version"
-msgstr ""
+msgstr "`services.libretranslate`: Изображение и версия"
 
+# translated-by: libretranslate
 msgid "`services.matomo`: enable analytics"
-msgstr ""
+msgstr "`services.matomo`: Позволяет аналитика"
 
+# translated-by: libretranslate
 msgid "`services.matrix.conferencing.element_call` and `services.matrix.conferencing.jitsi` toggle MDAD's Element Call / Jitsi stacks (ansible flavor only). Both default to true."
-msgstr ""
+msgstr "`services.matrix.conferencing.element_call` и `services.matrix.conferencing.jitsi` Обсуждение MDAD Element Call / Jitsi (только аромат). Оба по умолчанию верны."
 
+# translated-by: libretranslate
 msgid "`services.openwebui.embedding_model`, `.image_model`, `.speech_to_text_model` and `.text_to_speech_model` route embeddings, images, speech recognition and speech synthesis through the gateway; an embedding model set here also replaces the sentence-transformer the image otherwise downloads from Hugging Face on first start"
-msgstr ""
+msgstr "`services.openwebui.embedding_model`, `.image_model`, `.speech_to_text_model` и `.text_to_speech_model` встраивание маршрута, изображения, распознавание речи и синтез речи через шлюз; модель встраивания, установленная здесь, также заменяет преобразование предложения изображение, которое загружается из Обнимающего лица при первом запуске"
 
+# translated-by: libretranslate
 msgid "`services.redis`: enable Redis backend"
-msgstr ""
+msgstr "`services.redis`: Позволяет Redis обратный"
 
 msgid "`services.s1.flavor` selects which implementation answers that contract. `laya` runs [Laya](https://huggingface.co/convaiinnovations/laya), the default; `torch` and `onnx` run [jeff](https://github.com/logan-markewich/jeff) over a GLiFormer encoder, which is what the role carried before. Neither upstream ships a container image, so the role builds one and bakes the checkpoints into it. Baking keeps the deploy free of a download at container start, which is the failure mode a sibling role's model pull already hit."
 msgstr ""

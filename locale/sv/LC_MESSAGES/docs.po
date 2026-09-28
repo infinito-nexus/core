@@ -94331,1736 +94331,2443 @@ msgstr "titel"
 msgid "to ``aliases``. Set it when the overlay also has a topology whose own ``aliases`` (e.g. the entity name) must NOT land on the proxy."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "to get a list of available commands and options."
-msgstr ""
+msgstr "för att få en lista över tillgängliga kommandon och alternativ."
 
+# translated-by: libretranslate
 msgid "to-dos"
-msgstr ""
+msgstr "To-Dos"
 
+# translated-by: libretranslate
 msgid "tokens containing unresolved Jinja (`{{ ... }}`) point at deployment-own domains and are skipped,"
-msgstr ""
+msgstr "Tokens som innehåller olöst Jinja (`{{ ... }}`) peka på distribuerings-egna domäner och är hoppade,"
 
+# translated-by: libretranslate
 msgid "top-level variable name in group_vars/all/05_paths.yml."
-msgstr ""
+msgstr "Variabelt toppnivå i group_vars/all/05_paths.yml."
 
+# translated-by: libretranslate
 msgid "top-level variable name whose value is a YAML block sequence."
-msgstr ""
+msgstr "toppnivåvariabelt namn vars värde är en YAML blocksekvens."
 
+# translated-by: libretranslate
 msgid "tor"
-msgstr ""
+msgstr "Tor"
 
+# translated-by: libretranslate
 msgid "total tries, including the first."
-msgstr ""
+msgstr "totala försök, inklusive den första."
 
+# translated-by: libretranslate
 msgid "transitive shared service dependencies"
-msgstr ""
+msgstr "transitiva delade serviceberoenden"
 
+# translated-by: libretranslate
 msgid "translations that altered a protected span."
-msgstr ""
+msgstr "översättningar som förändrade ett skyddat spann."
 
+# translated-by: libretranslate
 msgid "tree to resolve against; the repository root when omitted."
-msgstr ""
+msgstr "träd att lösa mot; förvaringsroten när utelämnas."
 
+# translated-by: libretranslate
 msgid "triggers Mailu startup via the Infinito.Nexus helper (``utils/load/app.yml``),"
-msgstr ""
+msgstr "triggers Mailu Startup via Infinito.Nexus Hjälpare (``utils/load/app.yml``),"
 
+# translated-by: libretranslate
 msgid "triggers Mailu startup via the Infinito.Nexus helper (`utils/load/app.yml`),"
-msgstr ""
+msgstr "triggers Mailu Startup via Infinito.Nexus Hjälpare (`utils/load/app.yml`),"
 
+# translated-by: libretranslate
 msgid "true"
-msgstr ""
+msgstr "sanning sant"
 
+# translated-by: libretranslate
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
-msgstr ""
+msgstr "tty=Inga automatiska val (Lokalt: True, CI: False). live=Sanna strömmar stdout/stderr."
 
+# translated-by: libretranslate
 msgid "two roles declare the same repository or host differently,     or a host names a repository nobody declares."
-msgstr ""
+msgstr "två roller förklarar samma förvar eller värd annorlunda, eller ett värdnamn en förvaring ingen förklarar."
 
+# translated-by: libretranslate
 msgid "two roles demand different values for the     same topic of the same provider."
-msgstr ""
+msgstr "Två roller kräver olika värden för samma ämne som samma leverantör."
 
+# translated-by: libretranslate
 msgid "type"
-msgstr ""
+msgstr "Typtyp"
 
+# translated-by: libretranslate
 msgid "ublock-origin"
-msgstr ""
+msgstr "ublock-origin"
 
+# translated-by: libretranslate
 msgid "ubuntu"
-msgstr ""
+msgstr "ubuntu"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: under ansökningar[app app app app]['services'] varje
+# tjänst räknas om:
 msgid "under applications[app]['services'] each service is counted if:"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "unpinned"
-msgstr ""
+msgstr "Unpinned"
 
+# translated-by: libretranslate
 msgid "unused."
-msgstr ""
+msgstr "Oanvänd."
 
+# translated-by: libretranslate
 msgid "update"
-msgstr ""
+msgstr "uppdatera"
 
+# translated-by: libretranslate
 msgid "update docs if the operator workflow changes"
-msgstr ""
+msgstr "uppdatera docs om operatörens arbetsflöde ändras"
 
+# translated-by: libretranslate
 msgid "update tests if the contract changes"
-msgstr ""
+msgstr "uppdateringstest om kontraktet ändras"
 
+# translated-by: libretranslate
 msgid "update the bundle only if composition changes"
-msgstr ""
+msgstr "uppdatera bunten endast om kompositionen ändras"
 
+# translated-by: libretranslate
 msgid "update the role first"
-msgstr ""
+msgstr "uppdatera rollen först"
 
+# translated-by: libretranslate
 msgid "upgrade database"
-msgstr ""
+msgstr "Uppgradera databas"
 
+# translated-by: libretranslate
 msgid "upgrade version"
-msgstr ""
+msgstr "Uppgradera version"
 
+# translated-by: libretranslate
 msgid "upper bound of concurrently running agents; a request beyond it gets HTTP 503"
-msgstr ""
+msgstr "övre gränsen av samtidig drift agenter; en begäran bortom det får HTTP 503"
 
+# translated-by: libretranslate
 msgid "upstream commit the ``torch`` and ``onnx`` flavors build from; upstream publishes no tags"
-msgstr ""
+msgstr "Upstream begår ``torch`` och ``onnx`` smaker bygga från; uppströms publicerar inga taggar"
 
+# translated-by: libretranslate
 msgid "upstream commit the `torch` and `onnx` flavors build from; upstream publishes no tags"
-msgstr ""
+msgstr "Upstream begår `torch` och `onnx` smaker bygga från; uppströms publicerar inga taggar"
 
+# translated-by: libretranslate
 msgid "upstream git URL taken from the git requirements file."
-msgstr ""
+msgstr "uppströms git URL tas från git krav filen."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['t.ex']
+# nocheck: url
+# translation-rejected: uppströms förvar utan registret, t.ex.
+# ``postgis/postgis``.
 msgid "upstream repository without the registry, e.g. ``postgis/postgis``."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "upstream source"
-msgstr ""
+msgstr "Upstream source"
 
+# translated-by: libretranslate
 msgid "upstream timeout every calling route carries."
-msgstr ""
+msgstr "Uppströms timeout varje samtalsrutt bär."
 
+# translated-by: libretranslate
 msgid "usable cores."
-msgstr ""
+msgstr "användbara kärnor."
 
+# translated-by: libretranslate
 msgid "user lookup (``core_user_get_users_by_field``)"
-msgstr ""
+msgstr "Användarlookup (``core_user_get_users_by_field``)"
 
+# translated-by: libretranslate
 msgid "user lookup (`core_user_get_users_by_field`)"
-msgstr ""
+msgstr "Användarlookup (`core_user_get_users_by_field`)"
 
+# translated-by: libretranslate
 msgid "user to escalate to, None for the connection default."
-msgstr ""
+msgstr "användare att eskalera till, Ingen för anslutningsstandarden."
 
+# translated-by: libretranslate
 msgid "user-supplied ``redirect_domain_mappings`` (if any)"
-msgstr ""
+msgstr "användartillhandahållen ``redirect_domain_mappings`` (Om någon)"
 
+# translated-by: libretranslate
 msgid "users and teams: look up, add members, update profiles,"
-msgstr ""
+msgstr "användare och team: titta upp, lägga till medlemmar, uppdatera profiler,"
 
+# translated-by: libretranslate
 msgid "utils package"
-msgstr ""
+msgstr "Utils Pack"
 
+# translated-by: libretranslate
 msgid "utils.annotations package"
-msgstr ""
+msgstr "utils.annotations Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.annotations.message module"
-msgstr ""
+msgstr "utils.annotations.message modul"
 
+# translated-by: libretranslate
 msgid "utils.annotations.summarize module"
-msgstr ""
+msgstr "utils.annotations.summarize modul"
 
+# translated-by: libretranslate
 msgid "utils.annotations.suppress module"
-msgstr ""
+msgstr "utils.annotations.suppress modul"
 
+# translated-by: libretranslate
 msgid "utils.annotations.task\\_gate module"
-msgstr ""
+msgstr "utils.annotations.task\\ gate modul"
 
+# translated-by: libretranslate
 msgid "utils.ansible\\_log module"
-msgstr ""
+msgstr "utils.ansible\\ log modul"
 
+# translated-by: libretranslate
 msgid "utils.cache package"
-msgstr ""
+msgstr "utils.cache Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.cache.api module"
-msgstr ""
+msgstr "utils.cache.api modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.applications module"
-msgstr ""
+msgstr "utils.cache.applications modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.base module"
-msgstr ""
+msgstr "utils.cache.base modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.carrier module"
-msgstr ""
+msgstr "utils.cache.carrier modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.domains module"
-msgstr ""
+msgstr "utils.cache.domains modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.errors module"
-msgstr ""
+msgstr "utils.cache.errors modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.files module"
-msgstr ""
+msgstr "utils.cache.files modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.gitignore module"
-msgstr ""
+msgstr "utils.cache.gitignore modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.hosts module"
-msgstr ""
+msgstr "utils.cache.hosts modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.inventory module"
-msgstr ""
+msgstr "utils.cache.inventory modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.records module"
-msgstr ""
+msgstr "utils.cache.records modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.render module"
-msgstr ""
+msgstr "utils.cache.render modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.cache.schema'] gained=['utils.cache.schemaCredentials']
+# nocheck: url
+# translation-rejected: utils.cache.schemaCredentials modul
 msgid "utils.cache.schema\\_credentials module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.cache.users package"
-msgstr ""
+msgstr "utils.cache.users Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.cache.users.placeholders module"
-msgstr ""
+msgstr "utils.cache.users.placeholders modul"
 
+# translated-by: libretranslate
 msgid "utils.cache.yaml module"
-msgstr ""
+msgstr "utils.cache.yaml modul"
 
+# translated-by: libretranslate
 msgid "utils.cert\\_utils module"
-msgstr ""
+msgstr "utils.cert\\ utils modul"
 
+# translated-by: libretranslate
 msgid "utils.claude package"
-msgstr ""
+msgstr "utils.claude Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.claude.settings\\_sort module"
-msgstr ""
+msgstr "utils.claude.settings\\ sort modul"
 
+# translated-by: libretranslate
 msgid "utils.cleanup package"
-msgstr ""
+msgstr "utils.cleanup Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.cleanup.databases\\_csv module"
-msgstr ""
+msgstr "utils.cleanup.databases\\ csv modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.cleanup.nginx'] gained=['utils.cleanup.nginxVhosts']
+# nocheck: url
+# translation-rejected: utils.cleanup.nginxVhosts modul
 msgid "utils.cleanup.nginx\\_vhosts module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.cleanup.pycache\\_only\\_dirs module"
-msgstr ""
+msgstr "utils.cleanup.pycache\\ only\\ dirs modul"
 
+# translated-by: libretranslate
 msgid "utils.cleanup.tokens module"
-msgstr ""
+msgstr "utils.cleanup.tokens modul"
 
+# translated-by: libretranslate
 msgid "utils.diagnostics package"
-msgstr ""
+msgstr "utils.diagnostics Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.diagnostics.container module"
-msgstr ""
+msgstr "utils.diagnostics.container modul"
 
+# translated-by: libretranslate
 msgid "utils.distros module"
-msgstr ""
+msgstr "utils.distros modul"
 
+# translated-by: libretranslate
 msgid "utils.docker package"
-msgstr ""
+msgstr "utils.docker Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.docker.healthcheck package"
-msgstr ""
+msgstr "utils.docker.healthcheck Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.docker.healthcheck.compose module"
-msgstr ""
+msgstr "utils.docker.healthcheck.compose modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.healthcheck.prefixes module"
-msgstr ""
+msgstr "utils.docker.healthcheck.prefixes modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.healthcheck.probes module"
-msgstr ""
+msgstr "utils.docker.healthcheck.probes modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.image package"
-msgstr ""
+msgstr "utils.docker.image Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.docker.image.discovery module"
-msgstr ""
+msgstr "utils.docker.image.discovery modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.image.pin module"
-msgstr ""
+msgstr "utils.docker.image.pin modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.image.ref module"
-msgstr ""
+msgstr "utils.docker.image.ref modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.mirror module"
-msgstr ""
+msgstr "utils.docker.mirror modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.paths\\_utils module"
-msgstr ""
+msgstr "utils.docker.paths\\ utils modul"
 
+# translated-by: libretranslate
 msgid "utils.docker.registry module"
-msgstr ""
+msgstr "utils.docker.registry modul"
 
+# translated-by: libretranslate
 msgid "utils.domains package"
-msgstr ""
+msgstr "utils.domains Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.domains.application\\_domain\\_index module"
-msgstr ""
+msgstr "utils.domains.application\\ domain\\ index modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.domains.default'] gained=['utils.domains.defaultPrimär']
+# nocheck: url
+# translation-rejected: utils.domains.defaultPrimär modul
 msgid "utils.domains.default\\_primary module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.domains.list module"
-msgstr ""
+msgstr "utils.domains.list modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.domains.primary'] gained=['utils.domains.primaryDomänmodul']
+# nocheck: url
+# translation-rejected: utils.domains.primaryDomänmodul
 msgid "utils.domains.primary\\_domain module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env package"
-msgstr ""
+msgstr "utils.env Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.builder module"
-msgstr ""
+msgstr "utils.env.builder modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers package"
-msgstr ""
+msgstr "utils.env.handlers Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.act\\_platform\\_image module"
-msgstr ""
+msgstr "utils.env.handlers.act\\ platform\\ image modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.env.handlers.docker']
+# gained=['utils.env.handlers.dockerPlatform']
+# nocheck: url
+# translation-rejected: utils.env.handlers.dockerPlatform modul
 msgid "utils.env.handlers.docker\\_platform module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.env.handlers.gha'] gained=['utils.env.handlers.ghaGenomgående']
+# nocheck: url
+# translation-rejected: utils.env.handlers.ghaGenomgående modul
 msgid "utils.env.handlers.gha\\_passthrough module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.github\\_repository\\_owner module"
-msgstr ""
+msgstr "utils.env.handlers.github\\ repository\\ owner modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito package"
-msgstr ""
+msgstr "utils.env.handlers.infinito Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.ca package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.ca Paketpaket"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.env.handlers.infinito.ca.bundle']
+# gained=['utils.env.handlers.infinito.ca.bundleKandidater']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.ca.bundleKandidater modul
 msgid "utils.env.handlers.infinito.ca.bundle\\_candidates module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.ca.cert\\_host module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.ca.cert\\ host module"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.conf module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.conf modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.hosts module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.hosts modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.http\\ hosts modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.stack module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.stack modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.tls module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.tls modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.upstreams module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.upstreams modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.container module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.container modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.dir package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.dir Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.dir.backups module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.dir.backups modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.dir.secrets module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.dir.secrets modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.dir.var\\_lib module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.dir.var\\ lib modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.distros module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.distros modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.docker\\_volume module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.docker\\ volume modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.domain module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.domain modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.fork package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.fork Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.fork.account module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.fork.account modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.fork.repository\\_url module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.fork.repository\\ url modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.env.handlers.infinito.git']
+# gained=['utils.env.handlers.infinito.gitIdentitetsmodul']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.gitIdentitetsmodul
 msgid "utils.env.handlers.infinito.git\\_identity module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.gpu\\_count module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.gpu\\ count modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.i18n package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.i18n Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.i18n.libretranslate module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.i18n.libretranslate modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.i18n.tuning module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.i18n.tuning modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.image module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.image modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.image\\_repository module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.image\\ repository module"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.inventory module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.inventory modul"
 
+# translation-refused: libretranslate protected-span lost=['2',
+# 'utils.env.handlers.infinito.is']
+# gained=['utils.env.handlers.infinito.isWsl2']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.isWsl2 modul
 msgid "utils.env.handlers.infinito.is\\_wsl2 module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.outer\\ network\\ mtu modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache paket"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.env.handlers.infinito.package']
+# gained=['utils.env.handlers.infinito.packageCache.admin']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.packageCache.admin\
+# password modul
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['cache.blobstore']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
+# max modul
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['cache.direct']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.package\ cache.direct\ mem
+# modul
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.env.handlers.infinito.package']
+# gained=['utils.env.handlers.infinito.packageCache.heap']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.packageCache.heap modul
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.parent\\_image module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.parent\\ image modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.playwright package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.playwright Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.playwright.reports\\_base\\_dir module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.playwright.reports\\ base\\ dir modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.playwright.stage\\_base\\_dir module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.playwright.stage\\ base\\ dir modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.pull\\_policy module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.pull\\ politisk modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.registry\\_cache\\_max\\_size module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.registry\\ cache\\ max\\ size modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.rescue Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue.diagnostics\\_dir module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.rescue.diagnostics\\ dir modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue.dns53\\_sampler\\_log module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.rescue.dns53\\ sampler\\ log modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue.local\\_dumps\\_dir module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.rescue.local\\ dumps\\ dir modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on paket"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['on.act']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.running\ on.act module
 msgid "utils.env.handlers.infinito.running\\_on.act module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['on.github']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.running\ on.github modul
 msgid "utils.env.handlers.infinito.running\\_on.github module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\ nfs paket"
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['nfs.export']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.export\ base
+# modul
 msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[]
+# gained=['nfs.state']
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.state\ path
+# module
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.tor\\_socks\\_port module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.tor\\ socks\\ port modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.worker package"
-msgstr ""
+msgstr "utils.env.handlers.infinito.worker Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.worker.cpu module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.worker.cpu modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.worker.fetch module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.worker.fetch modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.nix\\_config module"
-msgstr ""
+msgstr "utils.env.handlers.nix\\ config modul"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.passthrough module"
-msgstr ""
+msgstr "utils.env.handlers.passthrough modul"
 
+# translated-by: libretranslate
 msgid "utils.env.loader module"
-msgstr ""
+msgstr "utils.env.loader modul"
 
+# translated-by: libretranslate
 msgid "utils.env.parser module"
-msgstr ""
+msgstr "utils.env.parser modul"
 
+# translated-by: libretranslate
 msgid "utils.env.runtime module"
-msgstr ""
+msgstr "utils.env.runtime modul"
 
+# translated-by: libretranslate
 msgid "utils.env.writer module"
-msgstr ""
+msgstr "utils.env.writer modul"
 
+# translated-by: libretranslate
 msgid "utils.get\\_url module"
-msgstr ""
+msgstr "utils.get\\ url modul"
 
+# translated-by: libretranslate
 msgid "utils.github package"
-msgstr ""
+msgstr "utils.github Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.github.playwright\\_summary module"
-msgstr ""
+msgstr "utils.github.playwright\\ summär modul"
 
+# translated-by: libretranslate
 msgid "utils.github.pytest\\_summary module"
-msgstr ""
+msgstr "utils.github.pytest\\ summär modul"
 
+# translation-refused: libretranslate protected-span lost=['utils.github.run']
+# gained=['utils.github.runNamnmodulen']
+# nocheck: url
+# translation-rejected: utils.github.runNamnmodulen
 msgid "utils.github.run\\_name module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.github.variant package"
-msgstr ""
+msgstr "utils.github.variant Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.github.variant.axes module"
-msgstr ""
+msgstr "utils.github.variant.axes modul"
 
+# translated-by: libretranslate
 msgid "utils.github.variant.instructions module"
-msgstr ""
+msgstr "utils.github.variant.instructions modul"
 
+# translated-by: libretranslate
 msgid "utils.github.variant.label module"
-msgstr ""
+msgstr "utils.github.variant.label modul"
 
+# translated-by: libretranslate
 msgid "utils.github.variant.pools module"
-msgstr ""
+msgstr "utils.github.variant.pools modul"
 
+# translated-by: libretranslate
 msgid "utils.github.variant.selection module"
-msgstr ""
+msgstr "utils.github.variant.selection modul"
 
+# translated-by: libretranslate
 msgid "utils.github.variant.tor module"
-msgstr ""
+msgstr "utils.github.variant.tor modul"
 
+# translated-by: libretranslate
 msgid "utils.handler package"
-msgstr ""
+msgstr "utils.handler Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.handler.vault module"
-msgstr ""
+msgstr "utils.handler.vault modul"
 
+# translated-by: libretranslate
 msgid "utils.handler.yaml module"
-msgstr ""
+msgstr "utils.handler.yaml modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n package"
-msgstr ""
+msgstr "utils.i18n Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.i18n.catalog module"
-msgstr ""
+msgstr "utils.i18n.catalog modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.client module"
-msgstr ""
+msgstr "utils.i18n.client modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.damage module"
-msgstr ""
+msgstr "utils.i18n.damage modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.extract module"
-msgstr ""
+msgstr "utils.i18n.extract modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.keyed module"
-msgstr ""
+msgstr "utils.i18n.keyed modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.languages module"
-msgstr ""
+msgstr "utils.i18n.languages modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.libretranslate module"
-msgstr ""
+msgstr "utils.i18n.libretranslate modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.limits module"
-msgstr ""
+msgstr "utils.i18n.limits modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.names module"
-msgstr ""
+msgstr "utils.i18n.names modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.placeholders module"
-msgstr ""
+msgstr "utils.i18n.placeholders modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.repairs module"
-msgstr ""
+msgstr "utils.i18n.repairs modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.spans module"
-msgstr ""
+msgstr "utils.i18n.spans modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.translate module"
-msgstr ""
+msgstr "utils.i18n.translate modul"
 
+# translated-by: libretranslate
 msgid "utils.i18n.untranslatable module"
-msgstr ""
+msgstr "utils.i18n.untranslatable modul"
 
+# translated-by: libretranslate
 msgid "utils.install package"
-msgstr ""
+msgstr "utils.install Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.install.collections module"
-msgstr ""
+msgstr "utils.install.collections modul"
 
+# translated-by: libretranslate
 msgid "utils.install.github\\_release module"
-msgstr ""
+msgstr "utils.install.github\\ release modul"
 
+# translated-by: libretranslate
 msgid "utils.install.interpreters module"
-msgstr ""
+msgstr "utils.install.interpreters modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint package"
-msgstr ""
+msgstr "utils.install.lint Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.actionlint module"
-msgstr ""
+msgstr "utils.install.lint.actionlint modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.ansible package"
-msgstr ""
+msgstr "utils.install.lint.ansible Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.ansible.collections module"
-msgstr ""
+msgstr "utils.install.lint.ansible.collections modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.ansible.commands module"
-msgstr ""
+msgstr "utils.install.lint.ansible.commands modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.ansible.lint module"
-msgstr ""
+msgstr "utils.install.lint.ansible.lint modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.eslint module"
-msgstr ""
+msgstr "utils.install.lint.eslint modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.hadolint module"
-msgstr ""
+msgstr "utils.install.lint.hadolint modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.markdownlint\\_cli2 module"
-msgstr ""
+msgstr "utils.install.lint.markdownlint\\ cli2 modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.mbake module"
-msgstr ""
+msgstr "utils.install.lint.mbake modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.install.lint.mermaid'] gained=['utils.install.lint.mermaidCli']
+# nocheck: url
+# translation-rejected: utils.install.lint.mermaidCli-modulen
 msgid "utils.install.lint.mermaid\\_cli module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.install.lint.packages module"
-msgstr ""
+msgstr "utils.install.lint.packages modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.php module"
-msgstr ""
+msgstr "utils.install.lint.php modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.pinned module"
-msgstr ""
+msgstr "utils.install.lint.pinned modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.playwright module"
-msgstr ""
+msgstr "utils.install.lint.playwright modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.ruby module"
-msgstr ""
+msgstr "utils.install.lint.ruby modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.ruff module"
-msgstr ""
+msgstr "utils.install.lint.ruff modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.shellcheck module"
-msgstr ""
+msgstr "utils.install.lint.shellcheck modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.shfmt module"
-msgstr ""
+msgstr "utils.install.lint.shfmt modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.sqlfluff module"
-msgstr ""
+msgstr "utils.install.lint.sqlfluff modul"
 
+# translated-by: libretranslate
 msgid "utils.install.lint.stylelint module"
-msgstr ""
+msgstr "utils.install.lint.stylelint modul"
 
+# translated-by: libretranslate
 msgid "utils.install.node module"
-msgstr ""
+msgstr "utils.install.node modul"
 
+# translated-by: libretranslate
 msgid "utils.install.npm module"
-msgstr ""
+msgstr "utils.install.npm modul"
 
+# translated-by: libretranslate
 msgid "utils.install.php module"
-msgstr ""
+msgstr "utils.install.php modul"
 
+# translated-by: libretranslate
 msgid "utils.install.pip module"
-msgstr ""
+msgstr "utils.install.pip modul"
 
+# translated-by: libretranslate
 msgid "utils.install.primitives module"
-msgstr ""
+msgstr "utils.install.primitives modul"
 
+# translated-by: libretranslate
 msgid "utils.install.ruby module"
-msgstr ""
+msgstr "utils.install.ruby modul"
 
+# translated-by: libretranslate
 msgid "utils.install.system\\_pkg module"
-msgstr ""
+msgstr "utils.install.system\\ pkg modul"
 
+# translated-by: libretranslate
 msgid "utils.inventory package"
-msgstr ""
+msgstr "utils.inventory Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.inventory.bundle\\_apps module"
-msgstr ""
+msgstr "utils.inventory.bundle\\ apps modul"
 
+# translated-by: libretranslate
 msgid "utils.inventory.groups module"
-msgstr ""
+msgstr "utils.inventory.groups modul"
 
+# translated-by: libretranslate
 msgid "utils.kcadm\\_json module"
-msgstr ""
+msgstr "utils.kcadm\\ json modul"
 
+# translated-by: libretranslate
 msgid "utils.manager package"
-msgstr ""
+msgstr "utils.manager Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.manager.credential\\_key module"
-msgstr ""
+msgstr "utils.manager.credential\\ key modul"
 
+# translated-by: libretranslate
 msgid "utils.manager.inventory module"
-msgstr ""
+msgstr "utils.manager.inventory modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.manager.value'] gained=['utils.manager.valueGeneratormodul']
+# nocheck: url
+# translation-rejected: utils.manager.valueGeneratormodul
 msgid "utils.manager.value\\_generator module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.meta package"
-msgstr ""
+msgstr "utils.meta Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.meta.authors module"
-msgstr ""
+msgstr "utils.meta.authors modul"
 
+# translated-by: libretranslate
 msgid "utils.meta.identity module"
-msgstr ""
+msgstr "utils.meta.identity modul"
 
+# translated-by: libretranslate
 msgid "utils.meta.port\\_bands module"
-msgstr ""
+msgstr "utils.meta.port\\ bands modul"
 
+# translated-by: libretranslate
 msgid "utils.meta.role package"
-msgstr ""
+msgstr "utils.meta.role Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.meta.role.brands module"
-msgstr ""
+msgstr "utils.meta.role.brands modul"
 
+# translated-by: libretranslate
 msgid "utils.meta.role.names module"
-msgstr ""
+msgstr "utils.meta.role.names modul"
 
+# translated-by: libretranslate
 msgid "utils.meta.role.titles module"
-msgstr ""
+msgstr "utils.meta.role.titles modul"
 
+# translated-by: libretranslate
 msgid "utils.meta.scan module"
-msgstr ""
+msgstr "utils.meta.scan modul"
 
+# translated-by: libretranslate
 msgid "utils.networks package"
-msgstr ""
+msgstr "utils.networks Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.networks.address module"
-msgstr ""
+msgstr "utils.networks.address modul"
 
+# translated-by: libretranslate
 msgid "utils.networks.attachments module"
-msgstr ""
+msgstr "utils.networks.attachments modul"
 
+# translated-by: libretranslate
 msgid "utils.networks.lookup\\_context module"
-msgstr ""
+msgstr "utils.networks.lookup\\ kontextmodul"
 
+# translated-by: libretranslate
 msgid "utils.networks.proxy module"
-msgstr ""
+msgstr "utils.networks.proxy modul"
 
+# translated-by: libretranslate
 msgid "utils.networks.render module"
-msgstr ""
+msgstr "utils.networks.render modul"
 
+# translated-by: libretranslate
 msgid "utils.nexus package"
-msgstr ""
+msgstr "utils.nexus Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.nexus.list\\_apt\\_proxy\\_repos module"
-msgstr ""
+msgstr "utils.nexus.list\\ apt\\ proxy\\ repos modul"
 
+# translated-by: libretranslate
 msgid "utils.packages package"
-msgstr ""
+msgstr "utils.packages Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.packages.calls module"
-msgstr ""
+msgstr "utils.packages.calls modul"
 
+# translated-by: libretranslate
 msgid "utils.packages.facts module"
-msgstr ""
+msgstr "utils.packages.facts modul"
 
+# translated-by: libretranslate
 msgid "utils.packages.outcome module"
-msgstr ""
+msgstr "utils.packages.outcome modul"
 
+# translated-by: libretranslate
 msgid "utils.packages.plan module"
-msgstr ""
+msgstr "utils.packages.plan modul"
 
+# translated-by: libretranslate
 msgid "utils.packages.registry module"
-msgstr ""
+msgstr "utils.packages.registry modul"
 
+# translated-by: libretranslate
 msgid "utils.packages.schema module"
-msgstr ""
+msgstr "utils.packages.schema modul"
 
+# translated-by: libretranslate
 msgid "utils.packages.sources module"
-msgstr ""
+msgstr "utils.packages.sources modul"
 
+# translated-by: libretranslate
 msgid "utils.parse\\_trace module"
-msgstr ""
+msgstr "utils.parse\\ trace modul"
 
+# translated-by: libretranslate
 msgid "utils.paths module"
-msgstr ""
+msgstr "utils.paths modul"
 
+# translated-by: libretranslate
 msgid "utils.recovery package"
-msgstr ""
+msgstr "utils.recovery Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.recovery.base module"
-msgstr ""
+msgstr "utils.recovery.base modul"
 
+# translated-by: libretranslate
 msgid "utils.recovery.databases module"
-msgstr ""
+msgstr "utils.recovery.databases modul"
 
+# translated-by: libretranslate
 msgid "utils.recovery.docker module"
-msgstr ""
+msgstr "utils.recovery.docker modul"
 
+# translated-by: libretranslate
 msgid "utils.recovery.layout module"
-msgstr ""
+msgstr "utils.recovery.layout modul"
 
+# translated-by: libretranslate
 msgid "utils.recovery.manifest module"
-msgstr ""
+msgstr "utils.recovery.manifest modul"
 
+# translated-by: libretranslate
 msgid "utils.reexport module"
-msgstr ""
+msgstr "utils.reexport modul"
 
+# translated-by: libretranslate
 msgid "utils.roles package"
-msgstr ""
+msgstr "utils.roles Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications package"
-msgstr ""
+msgstr "utils.roles.applications Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.config module"
-msgstr ""
+msgstr "utils.roles.applications.config modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.in\\_group\\_deps module"
-msgstr ""
+msgstr "utils.roles.applications.in\\ group\\ deps modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.mcp module"
-msgstr ""
+msgstr "utils.roles.applications.mcp modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.mounts module"
-msgstr ""
+msgstr "utils.roles.applications.mounts modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services package"
-msgstr ""
+msgstr "utils.roles.applications.services Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.config module"
-msgstr ""
+msgstr "utils.roles.applications.services.config modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.database module"
-msgstr ""
+msgstr "utils.roles.applications.services.database modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.engines module"
-msgstr ""
+msgstr "utils.roles.applications.services.engines modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.errors module"
-msgstr ""
+msgstr "utils.roles.applications.services.errors modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.registry module"
-msgstr ""
+msgstr "utils.roles.applications.services.registry modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.resolver module"
-msgstr ""
+msgstr "utils.roles.applications.services.resolver modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.resources module"
-msgstr ""
+msgstr "utils.roles.applications.services.resources modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.services.sso module"
-msgstr ""
+msgstr "utils.roles.applications.services.sso modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.status\\_codes module"
-msgstr ""
+msgstr "utils.roles.applications.status\\ koder modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.topics module"
-msgstr ""
+msgstr "utils.roles.applications.topics modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.applications.variants module"
-msgstr ""
+msgstr "utils.roles.applications.variants modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.categories module"
-msgstr ""
+msgstr "utils.roles.categories modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.credits module"
-msgstr ""
+msgstr "utils.roles.credits modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.dependency\\_resolver module"
-msgstr ""
+msgstr "utils.roles.dependency\\ resolver modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.deploy module"
-msgstr ""
+msgstr "utils.roles.deploy modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.display module"
-msgstr ""
+msgstr "utils.roles.display modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.entity package"
-msgstr ""
+msgstr "utils.roles.entity Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.roles.entity.apps module"
-msgstr ""
+msgstr "utils.roles.entity.apps modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.entity.name module"
-msgstr ""
+msgstr "utils.roles.entity.name modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.guide module"
-msgstr ""
+msgstr "utils.roles.guide modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.lifecycle module"
-msgstr ""
+msgstr "utils.roles.lifecycle modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.mapping module"
-msgstr ""
+msgstr "utils.roles.mapping modul"
 
+# translation-refused: libretranslate protected-span lost=['utils.roles.meta']
+# gained=['utils.roles.metaLookup']
+# nocheck: url
+# translation-rejected: utils.roles.metaLookup modul
 msgid "utils.roles.meta\\_lookup module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.roles.order module"
-msgstr ""
+msgstr "utils.roles.order modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.rbac package"
-msgstr ""
+msgstr "utils.roles.rbac Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.roles.rbac.scoped module"
-msgstr ""
+msgstr "utils.roles.rbac.scoped modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.required\\_by\\_coverage module"
-msgstr ""
+msgstr "utils.roles.required\\ by\\ coverage modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.stage module"
-msgstr ""
+msgstr "utils.roles.stage modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.type module"
-msgstr ""
+msgstr "utils.roles.type modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.validation package"
-msgstr ""
+msgstr "utils.roles.validation Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.roles.validation.deploy\\_id module"
-msgstr ""
+msgstr "utils.roles.validation.deploy\\ id modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.validation.invokable module"
-msgstr ""
+msgstr "utils.roles.validation.invokable modul"
 
+# translated-by: libretranslate
 msgid "utils.roles.validation.resources module"
-msgstr ""
+msgstr "utils.roles.validation.resources modul"
 
+# translated-by: libretranslate
 msgid "utils.sizes module"
-msgstr ""
+msgstr "utils.sizes modul"
 
+# translated-by: libretranslate
 msgid "utils.software module"
-msgstr ""
+msgstr "utils.software modul"
 
+# translated-by: libretranslate
 msgid "utils.storage package"
-msgstr ""
+msgstr "utils.storage Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.storage.constrained module"
-msgstr ""
+msgstr "utils.storage.constrained modul"
 
+# translated-by: libretranslate
 msgid "utils.storage.nfs module"
-msgstr ""
+msgstr "utils.storage.nfs modul"
 
+# translation-refused: libretranslate protected-span lost=['utils.symbol']
+# gained=['utils.symbolGlossary']
+# nocheck: url
+# translation-rejected: utils.symbolGlossary module
 msgid "utils.symbol\\_glossary module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.templating package"
-msgstr ""
+msgstr "utils.templating Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.templating.ansible module"
-msgstr ""
+msgstr "utils.templating.ansible modul"
 
+# translated-by: libretranslate
 msgid "utils.templating.jinja module"
-msgstr ""
+msgstr "utils.templating.jinja modul"
 
+# translated-by: libretranslate
 msgid "utils.terminal\\_aliases module"
-msgstr ""
+msgstr "utils.terminal\\ aliases modul"
 
+# translated-by: libretranslate
 msgid "utils.tests package"
-msgstr ""
+msgstr "utils.tests Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm package"
-msgstr ""
+msgstr "utils.tests.swarm Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm.backup\\_repos module"
-msgstr ""
+msgstr "utils.tests.swarm.backup\\ repos modul"
 
+# translation-refused: libretranslate protected-span
+# lost=['utils.tests.swarm.derive']
+# gained=['utils.tests.swarm.deriveInkluderar']
+# nocheck: url
+# translation-rejected: utils.tests.swarm.deriveInkluderar modulen
 msgid "utils.tests.swarm.derive\\_includes module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm.extend\\_inventory module"
-msgstr ""
+msgstr "utils.tests.swarm.extend\\ inventory module"
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm.force\\_shared\\_db module"
-msgstr ""
+msgstr "utils.tests.swarm.force\\ shared\\ db modul"
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm.matrix module"
-msgstr ""
+msgstr "utils.tests.swarm.matrix modul"
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm.write package"
-msgstr ""
+msgstr "utils.tests.swarm.write Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm.write.extras module"
-msgstr ""
+msgstr "utils.tests.swarm.write.extras modul"
 
+# translated-by: libretranslate
 msgid "utils.tests.swarm.write.hosts\\_entries module"
-msgstr ""
+msgstr "utils.tests.swarm.write.hosts\\ entries modul"
 
+# translated-by: libretranslate
 msgid "utils.tls\\_common module"
-msgstr ""
+msgstr "utils.tls\\ vanlig modul"
 
+# translated-by: libretranslate
 msgid "utils.tor\\_onion module"
-msgstr ""
+msgstr "utils.tor\\ onion modul"
 
+# translated-by: libretranslate
 msgid "utils.update package"
-msgstr ""
+msgstr "utils.update Paketpaket"
 
+# translated-by: libretranslate
 msgid "utils.update.addons module"
-msgstr ""
+msgstr "utils.update.addons modul"
 
+# translated-by: libretranslate
 msgid "utils.update.base module"
-msgstr ""
+msgstr "utils.update.base modul"
 
+# translated-by: libretranslate
 msgid "utils.update.collection\\_source module"
-msgstr ""
+msgstr "utils.update.collection\\ source modul"
 
+# translated-by: libretranslate
 msgid "utils.update.docker module"
-msgstr ""
+msgstr "utils.update.docker modul"
 
+# translated-by: libretranslate
 msgid "utils.update.galaxy module"
-msgstr ""
+msgstr "utils.update.galaxy modul"
 
+# translated-by: libretranslate
 msgid "utils.update.pip module"
-msgstr ""
+msgstr "utils.update.pip modul"
 
+# translated-by: libretranslate
 msgid "utils.update.repository module"
-msgstr ""
+msgstr "utils.update.repository modul"
 
+# translated-by: libretranslate
 msgid "utils.update.source module"
-msgstr ""
+msgstr "utils.update.source modul"
 
+# translation-refused: libretranslate protected-span lost=['utils.yaml']
+# gained=['utils.yamlBootstrap']
+# nocheck: url
+# translation-rejected: utils.yamlBootstrap modul
 msgid "utils.yaml\\_bootstrap module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "utils/env 📐"
-msgstr ""
+msgstr "Verktyg/env 📐"
 
+# translated-by: libretranslate
 msgid "utils/install"
-msgstr ""
+msgstr "Utils/install"
 
+# translated-by: libretranslate
 msgid "v1"
-msgstr ""
+msgstr "v.1"
 
+# translated-by: libretranslate
 msgid "v1 scope summary"
-msgstr ""
+msgstr "v.1 omfattning sammanfattning"
 
+# translated-by: libretranslate
 msgid "v2026.7.20"
-msgstr ""
+msgstr "v.2026.7.20"
 
+# translated-by: libretranslate
 msgid "vCPU"
-msgstr ""
+msgstr "vCPU"
 
+# translated-by: libretranslate
 msgid "valid image/version syntax"
-msgstr ""
+msgstr "giltig bild/version syntax"
 
+# translated-by: libretranslate
 msgid "validates and applies `run_after:` from `meta/services.yml.<primary_entity>`"
-msgstr ""
+msgstr "validera och tillämpa `run_after:` Från `meta/services.yml.<primary_entity>`"
 
+# translated-by: libretranslate
 msgid "validation/conversion helpers,"
-msgstr ""
+msgstr "validering/konverteringshjälpare,"
 
+# translated-by: libretranslate
 msgid "value"
-msgstr ""
+msgstr "Värdevärde"
 
+# translated-by: libretranslate
 msgid "variables dict"
-msgstr ""
+msgstr "variabler dikt"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['t.ex']
+# nocheck: url
+# translation-rejected: variant CSV jobb täcker, t.ex. ``'0,1'`` (``''``:
+# Ingen).
 msgid "variant CSV the job covers, e.g. ``'0,1'`` (``''``: none)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "variant index per app, as at provision time."
-msgstr ""
+msgstr "variant index per app, som vid bestämmelsetid."
 
+# translated-by: libretranslate
 msgid "variants"
-msgstr ""
+msgstr "varianter"
 
+# translated-by: libretranslate
 msgid "vars/"
-msgstr ""
+msgstr "Vars/"
 
+# translated-by: libretranslate
 msgid "vault password used to encrypt each value."
-msgstr ""
+msgstr "valv lösenord som används för att kryptera varje värde."
 
+# translated-by: libretranslate
 msgid "vault password used to encrypt."
-msgstr ""
+msgstr "valv lösenord som används för att kryptera."
 
+# translated-by: libretranslate
 msgid "vault/__main__.py contains the original implementation."
-msgstr ""
+msgstr "vault/__main__.py innehåller den ursprungliga implementeringen."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: version version version 19 hårdkoder en
+# leverantörsmodell för AI-serveråtgärder; en konfigurerbar slutpunkt behöver
+# tredjepartsmoduler
 msgid "version 19 hardcodes a vendor model for AI server actions; a configurable endpoint needs third-party modules"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "volume entry mapping; ``nfs: false`` opts it out of the rewrite."
-msgstr ""
+msgstr "volympost kartläggning; ``nfs: false`` Väljer det ur omskrivningen."
 
+# translated-by: libretranslate
 msgid "volume-managed plugins (`plugins`, `client-plugins`)"
-msgstr ""
+msgstr "Volymstyrda plugins (`plugins`, `client-plugins`)"
 
+# translated-by: libretranslate
 msgid "wait for every stack service to converge"
-msgstr ""
+msgstr "Vänta på varje stack service att konvergera"
 
+# translated-by: libretranslate
 msgid "waits until the app is reachable"
-msgstr ""
+msgstr "Väntar tills appen är tillgänglig"
 
+# translated-by: libretranslate
 msgid "want-path is optional and MUST be the second positional argument"
-msgstr ""
+msgstr "vilja-path är valfri och måste vara det andra positionella argumentet"
 
+# translated-by: libretranslate
 msgid "want-path is optional and MUST be the second positional argument if used"
-msgstr ""
+msgstr "vilja-väg är valfri och måste vara det andra positionella argumentet om det används"
 
+# translated-by: libretranslate
 msgid "web-app-opencloud TODO 📝"
-msgstr ""
+msgstr "web-app-opencloud Todo 📝"
 
+# translated-by: libretranslate
 msgid "web-app-opentalk TODO 📝"
-msgstr ""
+msgstr "web-app-opentalk Todo 📝"
 
+# translated-by: libretranslate
 msgid "website"
-msgstr ""
+msgstr "Webbplats"
 
+# translated-by: libretranslate
 msgid "what ``tune`` returned."
-msgstr ""
+msgstr "Vad är vad ``tune`` returneras."
 
+# translated-by: libretranslate
 msgid "what came back and why it was turned down, ``None`` when the server never answered at all."
-msgstr ""
+msgstr "Vad som kom tillbaka och varför det vändes ner, ``None`` När servern aldrig svarade alls."
 
+# translated-by: libretranslate
 msgid "what came back for it."
-msgstr ""
+msgstr "Vad kom tillbaka för det."
 
+# translated-by: libretranslate
 msgid "what came back for the entry."
-msgstr ""
+msgstr "Vad kom tillbaka för inträdet."
 
+# translated-by: libretranslate
 msgid "what the provider declares for the topic today."
-msgstr ""
+msgstr "vad leverantören förklarar för ämnet idag."
 
+# translated-by: libretranslate
 msgid "what the pulling role demands."
-msgstr ""
+msgstr "vad dragningsrollen kräver."
 
+# translated-by: libretranslate
 msgid "what the run permits, already narrowed by its own input."
-msgstr ""
+msgstr "vad körningen tillåter, som redan begränsats av sin egen ingång."
 
+# translated-by: libretranslate
 msgid "what the server produced."
-msgstr ""
+msgstr "vad servern producerade."
 
+# translated-by: libretranslate
 msgid "what to call the axis in the refusal."
-msgstr ""
+msgstr "vad man ska kalla axeln i vägran."
 
+# translated-by: libretranslate
 msgid "whatever a round-trip load returned."
-msgstr ""
+msgstr "Vad en rundtur last återvände."
 
+# translated-by: libretranslate
 msgid "whatever the inventory holds for the field."
-msgstr ""
+msgstr "Oavsett vad lagret har för fältet."
 
+# translated-by: libretranslate
 msgid "when a role in the group declares no application_id."
-msgstr ""
+msgstr "när en roll i gruppen förklarar nej application_id."
 
+# translated-by: libretranslate
 msgid "when given and at least one route exists, one further route under that alias. The pre-call hook rewrites it to whichever route can serve the request, so this entry exists to make the alias listable and MUST never answer: it raises, because a router that silently served the default would hide its own failure behind a plausible reply."
-msgstr ""
+msgstr "när det ges och minst en rutt finns, en ytterligare rutt under det alias. Pre-call hook skriver det till vilken rutt kan tjäna begäran, så denna post finns för att göra alias listable och MÅSTE aldrig svara: det höjer, eftersom en router som tyst tjänade standarden skulle dölja sitt eget misslyckande bakom ett trovärdigt svar."
 
+# translated-by: libretranslate
 msgid "when present (TLS self-signed CA-inject runs)"
-msgstr ""
+msgstr "När närvarande (TLS självsignerade CA-injekt löper)"
 
+# translated-by: libretranslate
 msgid "when present (role provides it)"
-msgstr ""
+msgstr "När närvarande (roll ger den)"
 
+# translated-by: libretranslate
 msgid "when set and the registry can filter server-side, the substring every returned tag carries."
-msgstr ""
+msgstr "när det är inställt och registret kan filtrera server-side, substring varje returnerad tag bär."
 
+# translated-by: libretranslate
 msgid "when the graph does not resolve, naming the cycle and the     roles left unsorted so the failure is actionable."
-msgstr ""
+msgstr "när diagrammet inte löser, namnger cykeln och de roller som lämnas osorterade så att misslyckandet är användbart."
 
+# translated-by: libretranslate
 msgid "when: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
-msgstr ""
+msgstr "När: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 
+# translated-by: libretranslate
 msgid "where INFINITO_CACHE_PACKAGE_FRONTEND_CONF points."
-msgstr ""
+msgstr "där var INFINITO_CACHE_PACKAGE_FRONTEND_CONF poäng."
 
+# translated-by: libretranslate
 msgid "whether a CI runner is executing, which lowers the ceiling."
-msgstr ""
+msgstr "om en CI-löpare utför, vilket sänker taket."
 
+# translated-by: libretranslate
 msgid "whether oauth2-proxy fronts the application."
-msgstr ""
+msgstr "om oauth2-proxy fronter programmet."
 
+# translated-by: libretranslate
 msgid "whether role names and titles take part. They do when a request is masked, so the translator never sees them, and they do not when two texts are compared: German capitalises every noun, so the lowercase ``shell extensions`` becomes ``Shell-Erweiterungen`` and a set comparison would read the capital as a surplus span."
-msgstr ""
+msgstr "om rollnamn och titlar deltar. De gör när en förfrågan maskeras, så översättaren aldrig ser dem, och de gör inte när två texter jämförs: Tyska kapitaliserar varje substantiv, så undre fallet. ``shell extensions`` Blir ``Shell-Erweiterungen`` och en bestämd jämförelse skulle läsa huvudstaden som ett överskott."
 
+# translated-by: libretranslate
 msgid "whether the row's variant may take an onion at all."
-msgstr ""
+msgstr "om radens variant kan ta en lök alls."
 
+# translated-by: libretranslate
 msgid "whether the suite reaches its target over Tor. A run against a `.onion` address waits on circuits rather than on the CPU: measured on one Nextcloud variant at equal mode and filesystem, the sidecar took 4817s over Tor against 911s on clearnet, and Tor burns no browser CPU. The CPU divisor cannot describe that phase, so the count is raised instead of derived from cores. Raised by a factor rather than freed, because every worker holds its own circuits."
-msgstr ""
+msgstr "om sviten når sitt mål över Tor. En körning mot en `.onion` adress väntar på kretsar snarare än på CPU: mätt på en Nextcloud variant på lika läge och filsystem, sidovagnen tog 4817över Tor mot 911s på clearnet, och Tor bränner ingen webbläsare CPU. CPU-divisorn kan inte beskriva den fasen, så räkningen höjs istället för att härledas från kärnor. Uppfostrad av en faktor snarare än befriad, eftersom varje arbetare har sina egna kretsar."
 
+# translated-by: libretranslate
 msgid "wildcard tokens (`*`) cannot be mirrored deterministically,"
-msgstr ""
+msgstr "Wildcard tokens (`*`) kan inte speglas deterministiskt,"
 
+# translated-by: libretranslate
 msgid "wire the cells to the server's write endpoint."
-msgstr ""
+msgstr "tråda cellerna till serverns skrivpunkt."
 
+# translated-by: libretranslate
 msgid "with a lower bound of 1024 MB."
-msgstr ""
+msgstr "med en lägre gräns 1024 MB."
 
+# translated-by: libretranslate
 msgid "with a lower bound of 512 MB."
-msgstr ""
+msgstr "med en lägre gräns 512 MB."
 
+# translated-by: libretranslate
 msgid "with documented defaults (`backend: local`, no `nfs` sub-block required when disabled)."
-msgstr ""
+msgstr "med dokumenterade standarder (`backend: local`, Nej, nej `nfs` sub-block krävs när funktionshindrade)."
 
+# translated-by: libretranslate
 msgid "with documented defaults. The set of worker hosts is NOT listed here — workers are derived from group membership (`svc-swarm-node` minus `svc-swarm-manager`). Duplicating the list as a `swarm.worker_nodes` group_var is explicitly rejected: it would drift out of sync with the Ansible inventory."
-msgstr ""
+msgstr "med dokumenterade standarder. Arbetarvärdarna är inte listade här - arbetarna härrör från gruppmedlemskap (`svc-swarm-node` Minus `svc-swarm-manager`). Duplicera listan som en `swarm.worker_nodes` group_var är uttryckligen avvisad: det skulle driva ur synkronisering med Ansible inventeringen."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "with no terms, return ``{\"key\": [...], \"applications\": {...}}`` for the constructor to park in `_INFINITO_APPLICATIONS_RENDERED`"
-msgstr ""
+msgstr "utan villkor, returnera ``{\"key\": [...], \"applications\": {...}}`` För byggaren att parkera i `_INFINITO_APPLICATIONS_RENDERED`"
 
+# translated-by: libretranslate
 msgid "with specific, descriptive messages."
-msgstr ""
+msgstr "med specifika, beskrivande meddelanden."
 
+# translated-by: libretranslate
 msgid "worker threads for credentials generation."
-msgstr ""
+msgstr "arbetartrådar för referensgenerering."
 
+# translated-by: libretranslate
 msgid "workers dropped when the role is `placement: manager`"
-msgstr ""
+msgstr "arbetare tappade när rollen är `placement: manager`"
 
+# translated-by: libretranslate
 msgid "would end up calling the lookup plugin named url's run method like this::"
-msgstr ""
+msgstr "Skulle sluta ringa uppslagsplugin som heter url's run-metoden så här:"
 
+# translated-by: libretranslate
 msgid "wrapping internal APIs or internal infrastructure semantics,"
-msgstr ""
+msgstr "omslag av interna API eller intern infrastruktur semantik,"
 
+# translated-by: libretranslate
 msgid "write stack/service diagnostics on failure, one file per topic under the rescue dir"
-msgstr ""
+msgstr "skriva stack/service diagnostik på misslyckande, en fil per ämne under räddningsdir"
 
+# translated-by: libretranslate
 msgid "write the topology SPOT into `$GITHUB_ENV`"
-msgstr ""
+msgstr "Skriv topologin SPOT in `$GITHUB_ENV`"
 
+# translated-by: libretranslate
 msgid "wrong term count, empty application_id, or an entry     that is not a dict."
-msgstr ""
+msgstr "fel termräkning, tom application_id, eller en post som inte är en dikt."
 
+# translated-by: libretranslate
 msgid "xmpp"
-msgstr ""
+msgstr "xmpp"
 
+# translated-by: libretranslate
 msgid "yes"
-msgstr ""
+msgstr "Ja"
 
+# translated-by: libretranslate
 msgid "yes (down + up)"
-msgstr ""
+msgstr "Ja (ner + upp)"
 
+# translated-by: libretranslate
 msgid "yes (shared entities)"
-msgstr ""
+msgstr "Ja (delade enheter)"
 
+# translated-by: libretranslate
 msgid "yes for `relay`"
-msgstr ""
+msgstr "ja för `relay`"
 
+# translated-by: libretranslate
 msgid "your preferred contact method for follow-up"
-msgstr ""
+msgstr "din föredragna kontaktmetod för uppföljning"
 
+# translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "{% if lookup('prometheus_integration_active', application_id) %} ...prometheus monitoring block... {% endif %}"
-msgstr ""
+msgstr "{% if lookup('prometheus_integration_active', application_id) %} Prometheus övervakning block... {% endif %}"
 
+# translated-by: libretranslate
 msgid "{{ 30 | curl }}                      -> curl -s --connect-timeout 5 --max-time 30 --retry 3 --retry-all-errors --retry-delay 2 {{ 300 | curl }}                     -> curl -s --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 {{ lookup('timeout', 30) | curl }}   -> TIMEOUT_FACTOR-scaled variant"
-msgstr ""
+msgstr "{{ 30 | curl }} -> curl -s -connect-timeout 5 Max-time 30 Retreat 3 -Renry-all-errors - fördröjning 2 {{ 300 | curl }} -> curl -s -connect-timeout 5 Max-time 300 Retreat 3 -Renry-all-errors - fördröjning 2 {{ lookup('timeout', 30) | curl }} -> TIMEOUT_FACTOR-skalad variant"
 
+# translated-by: libretranslate
 msgid "{{ SOFTWARE_DOMAIN | ca_cert_host }}  -> /etc/<software_domain>/ca/root-ca.crt"
-msgstr ""
+msgstr "{{ SOFTWARE_DOMAIN | ca_cert_host }} -> /etc/<software_domain>/ca/root-ca.crt"
 
+# translated-by: libretranslate
 msgid "{{ lookup('compose_replicas') }}              # topology default {{ lookup('compose_replicas', 1) }}           # force replicas: 1 {{ lookup('compose_replicas', N) }}           # force replicas: N"
-msgstr ""
+msgstr "{{ lookup('compose_replicas') }} # topologi standard {{ lookup('compose_replicas', 1) }} # force replikas: 1 {{ lookup('compose_replicas', N) }} # force replikas: N"
 
+# translated-by: libretranslate
 msgid "{{ lookup('container_deploy') | indent(4) }}                # topology default {{ lookup('container_deploy', replicas=1) | indent(4) }}    # single-writer sidecar {{ lookup('container_deploy', replicas=n) | indent(4) }}    # explicit; '' = default"
-msgstr ""
+msgstr "{{ lookup('container_deploy') | indent(4) }} # topologi standard {{ lookup('container_deploy', replicas=1) | indent(4) }} # single-writer sidecar {{ lookup('container_deploy', replicas=n) | indent(4) }} # explicit; '' = standard"
 
+# translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr ""
+msgstr "{{ lookup('container_mail_marker') }} -> /tmp/email_sent"
 
+# translated-by: libretranslate
 msgid "{{ lookup('domains') }}                          -> full canonical-domains map {{ lookup('domains', application_id) }}          -> subtree for one role {{ lookup('domains', application_id, default) }} -> subtree with fallback"
-msgstr ""
+msgstr "{{ lookup('domains') }} -> Full Canonical-domains karta {{ lookup('domains', application_id) }} subtree för en roll {{ lookup('domains', application_id, default) }} subtree med fallback"
 
+# translated-by: libretranslate
 msgid "{{ lookup('engine', 'redis', application_id) }}            # full dict {{ lookup('engine', 'redis', application_id, 'url') }}     # one field"
-msgstr ""
+msgstr "{{ lookup('engine', 'redis', application_id) }} # full dikt {{ lookup('engine', 'redis', application_id, 'url') }} # Ett fält"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['"', '1']
+# nocheck: url
+# translation-rejected: {{ lookup('role_subnets', 'web-app-bigbluebutton') }}
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # ["10.7.7.0///24"] {{
+# lookup('role_subnets', SOME_ROLE_LIST) }} # 1 post per roll
 msgid "{{ lookup('role_subnets', 'web-app-bigbluebutton') }}   # ['10.7.7.0/24'] {{ lookup('role_subnets', SOME_ROLE_LIST) }}            # one entry per role"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id) }}              → full dict"
-msgstr ""
+msgstr "{{ lookup('sso', application_id) }} Full dikt"
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'enabled') }}         → bool"
-msgstr ""
+msgstr "{{ lookup('sso', application_id, 'enabled') }} Bool"
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'flavor') }}          → str"
-msgstr ""
+msgstr "{{ lookup('sso', application_id, 'flavor') }} → Str"
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_enabled') }}      → bool"
-msgstr ""
+msgstr "{{ lookup('sso', application_id, 'is_enabled') }} Bool"
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_oidc_native') }}  → bool"
-msgstr ""
+msgstr "{{ lookup('sso', application_id, 'is_oidc_native') }} Bool"
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_proxy_gated') }}  → bool"
-msgstr ""
+msgstr "{{ lookup('sso', application_id, 'is_proxy_gated') }} Bool"
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'logout_url') }}      → str, oauth2-proxy sign-out wrapping OIDC.CLIENT.LOGOUT_URL when the app is proxy-gated"
-msgstr ""
+msgstr "{{ lookup('sso', application_id, 'logout_url') }} Str, oauth2Proxy sign-out wrapping OIDC.CLIENT.LOGOUT_URL när appen är proxy-gated"
 
+# translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'shared') }}          → bool"
-msgstr ""
+msgstr "{{ lookup('sso', application_id, 'shared') }} Bool"
 
+# translated-by: libretranslate
 msgid "{{ lookup('subnet_address_regex') }}          # 192\\.168\\.24\\.\\d+"
-msgstr ""
+msgstr "{{ lookup('subnet_address_regex') }} # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 192\\.168\\.24\\d+"
 
+# translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr ""
+msgstr "{{ lookup('tor_socks_proxy') }} Socks5H://tor:<port> (svärm)"
 
+# translated-by: libretranslate
 msgid "‍ Author Information"
-msgstr ""
+msgstr "Författare Information"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['"']
+# nocheck: url
+# translation-rejected: "Smarta standarder":
 msgid "“Smart defaults”:"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "↓ row wires → col"
-msgstr ""
+msgstr "Rosa rad trådar → col"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['😂']
+# nocheck: url
+# translation-rejected: 😂️ **Versioning logik** till bust browser cache
 msgid "⏱️ **Versioning logic** to bust browser cache"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "⏳ Wait for asynchronous resources to become available"
-msgstr ""
+msgstr "Vänta på asynkrona resurser för att bli tillgängliga"
 
+# translated-by: libretranslate
 msgid "☑️ : already wired via an infinito-native service flag in the row role's `meta/services.yml` (cell links to that declaration);"
-msgstr ""
+msgstr "☑️ : redan ansluten via en infinito-native service flagga i rad rollen `meta/services.yml` (celllänkar till den förklaringen);"
 
+# translated-by: libretranslate
 msgid "☑️ edges are derived automatically by scanning every role's `meta/services.yml` for integration service keys (`sso`→keycloak, `matomo`→matomo, `prometheus`→prometheus, `email`→mailu, `dashboard`, `css`, `logout`, `cdn`, `coturn`, `collabora`, `onlyoffice`, `libretranslate`, `litellm`). `ldap`/`redis`/`mariadb` map to `svc-db-*` roles that are off these axes and are not shown. The `litellm` column is the AI gateway surface of [036](036-native-ai-gateway-integration.md): the service key resolves to `svc-ai-litellm`, which is off-axis, so the edge is drawn to the `litellm` entity that fronts it."
-msgstr ""
+msgstr "☑️ kanter kommer automatiskt genom att skanna varje roll `meta/services.yml` för integrationstjänstnycklar (`sso`→keycloak, `matomo`→matomo, `prometheus`Prometheus, `email`→mailu, `dashboard`, `css`, `logout`, `cdn`, `coturn`, `collabora`, `onlyoffice`, `libretranslate`, `litellm`). `ldap`///`redis`///`mariadb` Karta över `svc-db-*` roller som är av dessa axlar och inte visas. och `litellm` Kolumn är AI gateway ytan av [036](036-native-ai-gateway-integration.md): servicenyckeln beslutar att `svc-ai-litellm`, som är off-axel, så kanten dras till `litellm` Entitet som frontar den."
 
+# translated-by: libretranslate
 msgid "☕ **[Buy Us a Coffee](https://buymeacoffee.com/kevinveenbirkenbach)**"
-msgstr ""
+msgstr "☕ **[Köp oss kaffe](https://buymeacoffee.com/kevinveenbirkenbach)**"
 
+# translated-by: libretranslate
 msgid "☕️ Support Us"
-msgstr ""
+msgstr "☕️ Stöd oss"
 
+# translated-by: libretranslate
 msgid "⚠️ **Do not paste that expression into a workflow that listens on `pull_request_target`.** There `github.ref` is the *base* branch, so `github.ref_name` is literally `main` and the rule collapses to a constant `false` — every pull request would stop cancelling its predecessor. `entry-pr-change-orchestrate.yml` therefore declares `cancel-in-progress: true` outright."
-msgstr ""
+msgstr "⚠️ **klistra inte in det uttrycket i ett arbetsflöde som lyssnar på `pull_request_target`.** Där `github.ref` är den *bas bas* gren, så `github.ref_name` är bokstavligen `main` och regeln kollapsar till en konstant `false` - varje dragförfrågan skulle sluta avbryta sin föregångare. `entry-pr-change-orchestrate.yml` Därför förklarar `cancel-in-progress: true` direkt."
 
+# translated-by: libretranslate
 msgid "⚠️ **Forced overwrite — do not work in `main`.** When the sync runs, the current repository's `main` is **force-pushed** from the source repository's `main`. Any commit that exists only on the fork's `main` is **discarded without warning** on the next push to any covered branch. Never commit or merge work directly into `main` on a synced repository. Always work on a `feature/**`, `fix/**`, or `hotfix/**` branch; treat `main` as a read-only mirror of the source. If you must use `main` as a working branch, disable the sync first (see **To disable the sync** below)."
-msgstr ""
+msgstr "⚠️ **Tvingad överskrivning - inte arbeta i `main`.** När synkroniseringen går, är det aktuella förvaret `main` är att **force-pushed** från källförvarets `main`Alla begåvningar som bara finns på gaffelns `main` är att **Kasserad utan varning** på nästa push till någon täckt gren. Begå aldrig eller slå samman arbete direkt in `main` på ett synkroniserat förvar. Arbeta alltid på en `feature/**`, `fix/**`, eller `hotfix/**` gren; behandla `main` Som en lätt spegel av källan. Om du måste använda `main` som en fungerande gren, inaktivera synkroniseringen först (se**Att inaktivera synkroniseringen** nedanför)."
 
+# translated-by: libretranslate
 msgid "⚠️ **Warning:** Always back up your database before performing manual operations."
-msgstr ""
+msgstr "⚠️ **Varning:** Alltid säkerhetskopiera din databas innan du utför manuella operationer."
 
+# translated-by: libretranslate
 msgid "⚠️ After this script runs, WSL2 must be fully restarted before systemd-dependent steps (DNS, AppArmor, etc.) will work."
-msgstr ""
+msgstr "⚠️ Efter detta skript körs, WSL2 måste omstartas fullt ut innan systemd-beroende steg (DNS, AppArmor, etc.) kommer att fungera."
 
+# translated-by: libretranslate
 msgid "✅ **Beautiful UI:** Clean, modern, and responsive interface."
-msgstr ""
+msgstr "✅ **Vackert UI:** Ren, modern och responsiv gränssnitt."
 
+# translated-by: libretranslate
 msgid "✅ **Greenlight** (v3) frontend support"
-msgstr ""
+msgstr "✅ **Greenlight** (v.3) frontend stöd"
 
+# translated-by: libretranslate
 msgid "✅ **Verify the DNS record** before continuing:"
-msgstr ""
+msgstr "✅ **Verifiera DNS-posten** innan du fortsätter:"
 
+# translated-by: libretranslate
 msgid "✅ : a verified upstream app↔app plugin exists but is not yet declared as an addon (cell links to the plugin page), the backlog;"
-msgstr ""
+msgstr "✅ En verifierad uppströms appapp plugin existerar men förklaras ännu inte som en addon (celllänkar till pluginsidan), backlog;"
 
+# translated-by: libretranslate
 msgid "✅ LDAP (with custom DN and filters)"
-msgstr ""
+msgstr "✅ LDAP (med anpassad DN och filter)"
 
+# translated-by: libretranslate
 msgid "✅ No dependencies"
-msgstr ""
+msgstr "✅ Inga beroenden"
 
+# translated-by: libretranslate
 msgid "✅ OpenID Connect (OIDC)"
-msgstr ""
+msgstr "✅ OpenID Connect (OIDC)"
 
+# translated-by: libretranslate
 msgid "✅ Separate lint execution from tool installation and environment bootstrap"
-msgstr ""
+msgstr "✅ Separat lint utförande från verktygsinstallation och miljöbootstrap"
 
+# translated-by: libretranslate
 msgid "❌ : no known integration;"
-msgstr ""
+msgstr "❌ Ingen känd integration;"
 
+# translated-by: libretranslate
 msgid "❌ Has dependencies"
-msgstr ""
+msgstr "❌ Har beroende"
 
+# translated-by: libretranslate
 msgid "❌ No application-specific logic"
-msgstr ""
+msgstr "❌ Ingen applikationsspecifik logik"
 
+# translated-by: libretranslate
 msgid "❌ No encryption"
-msgstr ""
+msgstr "❌ Ingen kryptering"
 
+# translated-by: libretranslate
 msgid "❌ No token generation"
-msgstr ""
+msgstr "❌ Ingen token generation"
 
+# translated-by: libretranslate
 msgid "❌ No user management"
-msgstr ""
+msgstr "❌ Ingen användarhantering"
 
+# translated-by: libretranslate
 msgid "➡ **Go to your DNS provider** and create a new **TXT record**:"
-msgstr ""
+msgstr "➡ **Gå till din DNS-leverantör** och skapa en ny **TXT rekord**Från:"
 
+# translated-by: libretranslate
 msgid "🆔 numbers the rows of this table, 1..n, and 🔰 names the 🆔 of the earlier row that already embeds this one -- empty when nothing does. A row with a 🔰 is redundant coverage: whatever it would prove, the row it points at proves first. 🐑 marks the other reason a row is cut: it shares its service set with an earlier role, which stands in for it."
-msgstr ""
+msgstr "nummer raderna i denna tabell, 1..n, och 🔰 namn på den tidigare raden som redan bäddar in den här - tom när ingenting gör det. En rad med en 🔰 är redundant täckning: vad det än skulle bevisa, raden det pekar på bevisar först. 🐑 markerar den andra anledningen till att en rad skärs: den delar sin tjänst med en tidigare roll, som står i för den."
 
+# translated-by: libretranslate
 msgid "🌍 **Multilingual UI:** Used by teams worldwide."
-msgstr ""
+msgstr "🌍 **Flerspråkigt UI:** Används av lag över hela världen."
 
+# translated-by: libretranslate
 msgid "🌐 **Reverse Proxy Ready:** Integrates with NGINX using the ``sys-stk-front-proxy`` role."
-msgstr ""
+msgstr "🌐 **Omvänd proxy redo:** Integrerar med NGINX med hjälp av ``sys-stk-front-proxy`` roll."
 
+# translated-by: libretranslate
 msgid "🌐 **Reverse Proxy Ready:** Integrates with NGINX using the `sys-stk-front-proxy` role."
-msgstr ""
+msgstr "🌐 **Omvänd proxy redo:** Integrerar med NGINX med hjälp av `sys-stk-front-proxy` roll."
 
+# translated-by: libretranslate
 msgid "🌐 Docker Image: ``ghcr.io/lyqht/mini-qr:latest``"
-msgstr ""
+msgstr "🌐 Docker Image: ``ghcr.io/lyqht/mini-qr:latest``"
 
+# translated-by: libretranslate
 msgid "🌐 Docker Image: `ghcr.io/lyqht/mini-qr:latest`"
-msgstr ""
+msgstr "🌐 Docker Image: `ghcr.io/lyqht/mini-qr:latest`"
 
+# translated-by: libretranslate
 msgid "🌐 Try It Live"
-msgstr ""
+msgstr "🌐 Försök att leva"
 
+# translated-by: libretranslate
 msgid "🌒 **Dark mode support** out of the box"
-msgstr ""
+msgstr "🌒 **Dark mode stöd** ur lådan"
 
+# translated-by: libretranslate
 msgid "🎧 Installs the official [Spotify AUR package](https://aur.archlinux.org/packages/spotify)"
-msgstr ""
+msgstr "🎧 Installerar den officiella [Spotify AUR-paket](https://aur.archlinux.org/packages/spotify)"
 
+# translated-by: libretranslate
 msgid "🎧 Installs the official `Spotify AUR package <https://aur.archlinux.org/packages/spotify>`__"
-msgstr ""
+msgstr "🎧 Installerar den officiella `Spotify AUR package <https://aur.archlinux.org/packages/spotify>`__"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: 🎨 **Dynamisk Theming** via via via
+# [`colorscheme-generator`](https://github.com/kevinveenbirkenbach/colorscheme-generator/)
 msgid "🎨 **Dynamic Theming** via [`colorscheme-generator`](https://github.com/kevinveenbirkenbach/colorscheme-generator/)"
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: 🎨 **Dynamisk Theming** via via via
+# ```colorscheme-generator``
+# <https://github.com/kevinveenbirkenbach/colorscheme-generator/>`
 msgid "🎨 **Dynamic Theming** via ```colorscheme-generator`` <https://github.com/kevinveenbirkenbach/colorscheme-generator/>`__"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "🎨 [UI Menus: XMB, Ozone, GLUI, RGUI](https://docs.libretro.com/)"
-msgstr ""
+msgstr "🎨 [UI Menus: XMB, Ozone, GLUI, RGUI](https://docs.libretro.com/)"
 
+# translated-by: libretranslate
 msgid "🎯 **Bootstrap override compatibility**"
-msgstr ""
+msgstr "🎯 **Bootstrap överskrider kompatibiliteten**"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: 🏖️ Installera OS-nivå Claude Code Sandbox beroenden
+# (`bubblewrap`, `socat`) via via via `sandbox.sh`, som täcker Debian, Ubuntu,
+# Fedora, CentOS/RHEL/Rocky/Alma, och Arch; också utsatt som `make
+# install-agent`
 msgid "🏖️ Install OS-level Claude Code sandbox dependencies (`bubblewrap`, `socat`) via `sandbox.sh`, covering Debian, Ubuntu, Fedora, CentOS/RHEL/Rocky/Alma, and Arch; also exposed as `make install-agent`"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "🏗️ Build container images for local and CI workflows"
-msgstr ""
+msgstr "🏗️ Bygg behållare bilder för lokala och CI arbetsflöden"
 
+# translated-by: libretranslate
 msgid "🏷️ Resolve the highest version tag that still needs release backfill"
-msgstr ""
+msgstr "🏷️ Lös den högsta versionstaggen som fortfarande behöver släppa backfill"
 
+# translated-by: libretranslate
 msgid "🐍 Bootstrap virtual environments and editable project dependencies"
-msgstr ""
+msgstr "🐍 Bootstrap virtuella miljöer och redigerbara projektberoende"
 
+# translated-by: libretranslate
 msgid "🐧 Install ad-hoc APT packages for CI and workflow jobs via `apt.sh`"
-msgstr ""
+msgstr "🐧 Installera ad hoc APT-paket för CI och arbetsflödesjobb via `apt.sh`"
 
+# translated-by: libretranslate
 msgid "🐳 **Docker-Based Deployment:** Easy containerized setup of backend, frontend, async workers, and events service."
-msgstr ""
+msgstr "🐳 **Dockerbaserad distribution:** Enkelt containeriserad installation av backend, frontend, async arbetare och evenemangstjänst."
 
+# translated-by: libretranslate
 msgid "🐳 **Docker-based** deployment via official [bigbluebutton/docker](https://github.com/bigbluebutton/docker)"
-msgstr ""
+msgstr "🐳 **Docker-baserade** Utplacering via officiella [Bigbluebutton / Docker](https://github.com/bigbluebutton/docker)"
 
+# translated-by: libretranslate
 msgid "🐳 **Docker-based** deployment via official `bigbluebutton/docker <https://github.com/bigbluebutton/docker>`__"
-msgstr ""
+msgstr "🐳 **Docker-baserade** Utplacering via officiella `bigbluebutton/docker <https://github.com/bigbluebutton/docker>`__"
 
+# translated-by: libretranslate
 msgid "👉 **Contributor impact:**"
-msgstr ""
+msgstr "👉 **Bidragsgivarens påverkan:**"
 
+# translated-by: libretranslate
 msgid "👉 **Meaning for contributors:**"
-msgstr ""
+msgstr "👉 **Betydelse för bidragsgivare:**"
 
+# translated-by: libretranslate
 msgid "👉 Commits with secrets are NOT blocked"
-msgstr ""
+msgstr "👉 Begåvningar med hemligheter blockeras inte"
 
+# translated-by: libretranslate
 msgid "👉 Contributors MUST update dependencies manually"
-msgstr ""
+msgstr "👉 Bidragsgivare MÅSTE uppdatera beroenden manuellt"
 
+# translated-by: libretranslate
 msgid "👉 Contributors may not have access to full dependency insights"
-msgstr ""
+msgstr "👉 Bidragsgivare får inte ha tillgång till fullständiga beroendeinsikter"
 
+# translated-by: libretranslate
 msgid "👉 No automatic upgrade PRs"
-msgstr ""
+msgstr "👉 Ingen automatisk uppgradering PR"
 
+# translated-by: libretranslate
 msgid "👉 Secrets may accidentally be committed"
-msgstr ""
+msgstr "👉 Hemligheter kan av misstag begås"
 
+# translated-by: libretranslate
 msgid "👉 Security issues may be detected automatically"
-msgstr ""
+msgstr "👉 Säkerhetsfrågor kan upptäckas automatiskt"
 
+# translated-by: libretranslate
 msgid "👉 Suggested fixes may appear"
-msgstr ""
+msgstr "👉 Föreslagna korrigeringar kan förekomma"
 
+# translated-by: libretranslate
 msgid "👉 Vulnerabilities may go unnoticed"
-msgstr ""
+msgstr "👉 Sårbarheter kan gå obemärkt"
 
+# translated-by: libretranslate
 msgid "💙 **[GitHub Sponsors](https://github.com/sponsors/kevinveenbirkenbach)**"
-msgstr ""
+msgstr "💙 **[GitHub Sponsorer](https://github.com/sponsors/kevinveenbirkenbach)**"
 
+# translated-by: libretranslate
 msgid "💡 **Smart Fallback to Localhost**"
-msgstr ""
+msgstr "💡 **Smart Fallback till Localhost**"
 
+# translated-by: libretranslate
 msgid "💡 **Tip:** Mailu must be aware of the domain both in its configuration and the database for mail routing and certificate issuance to work correctly."
-msgstr ""
+msgstr "💡 **Tips:** Mailu måste vara medveten om domänen både i sin konfiguration och databasen för e-postruttning och certifikatutfärdande för att fungera korrekt."
 
+# translated-by: libretranslate
 msgid "💡 Tip: This method is useful when you're using federated login and want to avoid managing separate local admin credentials."
-msgstr ""
+msgstr "💡 Tips: Denna metod är användbar när du använder federerad inloggning och vill undvika att hantera separata lokala administratörsuppgifter."
 
+# translated-by: libretranslate
 msgid "💬 [Support and Contact](../SUPPORT.md) · Hub: <https://hub.infinito.nexus/> · Matrix: `#public:infinito.nexus`"
-msgstr ""
+msgstr "💬 [Support och kontakt](../SUPPORT.md) · Hub: <https://hub.infinito.nexus/> · MatrixFrån: `#public:infinito.nexus`"
 
+# translated-by: libretranslate
 msgid "💳 **[PayPal](https://s.veen.world/paypaldonate)**"
-msgstr ""
+msgstr "💳 **[PayPal](https://s.veen.world/paypaldonate)**"
 
+# translated-by: libretranslate
 msgid "💾 **Postfix Installation on Arch Linux**"
-msgstr ""
+msgstr "💾 **Postfix Installation på Arch Linux**"
 
+# translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
-msgstr ""
+msgstr "📁 **Unified CSS Base Konfiguration** Utplacering för alla NGINX-applikationer"
 
+# translated-by: libretranslate
 msgid "📈 **Burn-down Charts & Metrics:** Monitor velocity and progress."
-msgstr ""
+msgstr "📈 **Burn-down Charts & Metrics:** Övervaka hastighet och framsteg."
 
+# translated-by: libretranslate
 msgid "📌 **Agile Workflows:** Supports Scrum, Kanban, Scrumban, and Epics."
-msgstr ""
+msgstr "📌 **Agila arbetsflöden:** Stöder Scrum, Kanban, Scrumban och Epics."
 
+# translated-by: libretranslate
 msgid "📎 **Attachments & Wiki:** Collaborate with file uploads and internal documentation."
-msgstr ""
+msgstr "📎 **Bilagor & Wiki:** Samarbeta med filuppladdningar och intern dokumentation."
 
+# translated-by: libretranslate
 msgid "📖 About This Project"
-msgstr ""
+msgstr "📖 Om detta projekt"
 
+# translated-by: libretranslate
 msgid "📖 marks the row that replays the role's README instructions after its deploy, and names the mode the replay runs in -- which is the guide's own, not the row's (:mod:`utils.roles.guide`)."
-msgstr ""
+msgstr "📖 markerar raden som spelar rollens README-instruktioner efter dess utplacering, och namn på det läge som replayen körs in - vilket är guidens eget, inte radens (:mod:`utils.roles.guide`)."
 
+# translated-by: libretranslate
 msgid "📚 Keep script-based workflows discoverable and easier to navigate"
-msgstr ""
+msgstr "📚 Håll skriptbaserade arbetsflöden upptäckas och lättare att navigera"
 
+# translated-by: libretranslate
 msgid "📚 [RetroArch on ArchWiki](https://wiki.archlinux.org/title/RetroArch)"
-msgstr ""
+msgstr "📚 [RetroArch På ArchWiki](https://wiki.archlinux.org/title/RetroArch)"
 
+# translated-by: libretranslate
 msgid "📦 Build and install distro package metadata via `package.sh` (Arch/Debian/Ubuntu/Fedora)"
-msgstr ""
+msgstr "📦 Bygg och installera distro paketmetadata via `package.sh` (Arch/Debian/Ubuntu/Fedora)"
 
+# translated-by: libretranslate
 msgid "📦 Install Python, Ansible, and lint dependencies for supported environments"
-msgstr ""
+msgstr "📦 Installera Python, Ansible och linta beroenden för stödda miljöer"
 
+# translated-by: libretranslate
 msgid "📦 Publish, retag, and maintain image artifacts in registries"
-msgstr ""
+msgstr "📦 Publicera, retag och bibehålla bildartefakter i register"
 
+# translated-by: libretranslate
 msgid "📦 Upstream Dockerfile: [View on GitHub](https://github.com/lyqht/mini-qr/blob/main/Dockerfile)"
-msgstr ""
+msgstr "📦 Upstream Dockerfile: [Visa på GitHub](https://github.com/lyqht/mini-qr/blob/main/Dockerfile)"
 
+# translated-by: libretranslate
 msgid "📦 Upstream Dockerfile: `View on GitHub <https://github.com/lyqht/mini-qr/blob/main/Dockerfile>`__"
-msgstr ""
+msgstr "📦 Upstream Dockerfile: `View on GitHub <https://github.com/lyqht/mini-qr/blob/main/Dockerfile>`__"
 
+# translated-by: libretranslate
 msgid "📦 Wait for CI and mirror images to become available in registries"
-msgstr ""
+msgstr "📦 Vänta på CI och spegelbilder för att bli tillgängliga i register"
 
+# translated-by: libretranslate
 msgid "📨 **Email Backend:** Supports SMTP and console backends for development."
-msgstr ""
+msgstr "📨 **Email Backend:** Stöder SMTP och konsolbackends för utveckling."
 
+# translated-by: libretranslate
 msgid "📨 **msmtp Client Configuration**"
-msgstr ""
+msgstr "📨 **msmtp kundkonfiguration**"
 
+# translated-by: libretranslate
 msgid "📬 SMTP integration and Greenlight admin creation"
-msgstr ""
+msgstr "📬 SMTP integration och Greenlight admin skapelse"
 
+# translated-by: libretranslate
 msgid "🔁 **Async & Realtime Events:** Includes RabbitMQ and support for Taiga’s event system."
-msgstr ""
+msgstr "🔁 **Async & Realtime Events:** Inkluderar RabbitMQ och stöd för TaigaHändelsesystemet."
 
+# translated-by: libretranslate
 msgid "🔄 **Custom Workflows:** Define your own states, priorities, and permissions."
-msgstr ""
+msgstr "🔄 **Anpassade arbetsflöden:** Definiera dina egna tillstånd, prioriteringar och behörigheter."
 
+# translated-by: libretranslate
 msgid "🔄 **Mailu Integration (when available)**"
-msgstr ""
+msgstr "🔄 **Mailu Integration (när det är tillgängligt)**"
 
+# translated-by: libretranslate
 msgid "🔍 Resolve identifiers, references, and computed inputs"
-msgstr ""
+msgstr "🔍 Lösa identifierare, referenser och beräknade ingångar"
 
+# translated-by: libretranslate
 msgid "🔎 Check whether expected CI or release images are still missing"
-msgstr ""
+msgstr "🔎 Kontrollera om förväntat CI eller släpp bilder fortfarande saknas"
 
+# translated-by: libretranslate
 msgid "🔎 Keep lint entry points small, explicit, and callable from `make`"
-msgstr ""
+msgstr "🔎 Håll lint ingångspunkter små, explicita och ringbara från `make`"
 
+# translated-by: libretranslate
 msgid "🔎 Poll external systems until expected artifacts are ready"
-msgstr ""
+msgstr "🔎 Omröstning externa system tills förväntade artefakter är klara"
 
+# translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/) can be layered in front of Taiga when you want proxy-level access control in addition to Taiga's own authentication flow."
-msgstr ""
+msgstr "🔐 **Valfri OAuth2 Proxy access guard:** [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/) kan läggas framför Taiga när du vill ha åtkomstkontroll på proxynivå utöver Taigaegen autentisering flöde."
 
+# translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ can be layered in front of Taiga when you want proxy-level access control in addition to Taiga’s own authentication flow."
-msgstr ""
+msgstr "🔐 **Valfri OAuth2 Proxy access guard:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ kan läggas framför Taiga när du vill ha åtkomstkontroll på proxynivå utöver TaigaDet egna autentiseringsflödet."
 
+# translated-by: libretranslate
 msgid "🔐 **SSO with OIDC & LDAP** (optional)"
-msgstr ""
+msgstr "🔐 **SSO med OIDC & LDAP** (Valfritt)"
 
+# translated-by: libretranslate
 msgid "🔐 **SSO/Authentication Plugins:** OpenID Connect, LDAP, GitHub, GitLab and more."
-msgstr ""
+msgstr "🔐 **SSO/Authentication Plugins:** OpenID Connect, LDAP, GitHub, GitLab och mer."
 
+# translated-by: libretranslate
 msgid "🔑 **LDAP direct login (Option A, default off):** [`taiga-contrib-ldap-auth-ext`](https://github.com/Monogramm/taiga-contrib-ldap-auth-ext) enables users to log into Taiga directly with their LDAP credentials via the Taiga login form. Settings are appended to `config.py` at container startup."
-msgstr ""
+msgstr "🔑 **LDAP direkt inloggning (Alternativ A, standard)Från:** [`taiga-contrib-ldap-auth-ext`](https://github.com/Monogramm/taiga-contrib-ldap-auth-ext) gör det möjligt för användare att logga in Taiga direkt med sina LDAP-uppgifter via Taiga Inloggningsformulär. Inställningar läggs till `config.py` vid containerstart."
 
+# translated-by: libretranslate
 msgid "🔑 **LDAP direct login (Option A, default off):** ```taiga-contrib-ldap-auth-ext`` <https://github.com/Monogramm/taiga-contrib-ldap-auth-ext>`__ enables users to log into Taiga directly with their LDAP credentials via the Taiga login form. Settings are appended to ``config.py`` at container startup."
-msgstr ""
+msgstr "🔑 **LDAP direkt inloggning (Alternativ A, standard)Från:** ```taiga-contrib-ldap-auth-ext`` <https://github.com/Monogramm/taiga-contrib-ldap-auth-ext>`__ enables users to log into Taiga directly with their LDAP credentials via the Taiga login form. Settings are appended to ``config.py`` vid containerstart."
 
+# translated-by: libretranslate
 msgid "🔑 **Let’s Encrypt Integration**"
-msgstr ""
+msgstr "🔑 **Låt oss kryptera integration**"
 
+# translated-by: libretranslate
 msgid "🔑 **Let’s Encrypt Integration**   Pulls in challenge configuration and CAA-record management for automatic certificate issuance and renewal."
-msgstr ""
+msgstr "🔑 **Låt oss kryptera integration** Pulls in challenge configuration och CAA-record management för automatisk certifikatutgivning och förnyelse."
 
+# translated-by: libretranslate
 msgid "🔑 **OIDC login via Keycloak (Option B, default on):** [`taiga-contrib-oidc-auth`](https://github.com/taigaio/taiga-contrib-oidc-auth) enables SSO via Keycloak → LDAP. **Note:** The OIDC plugin is not published on PyPI and requires a custom `taiga-front` image with the frontend plugin built in (CoffeeScript/Gulp). Without the custom frontend image the SSO button will not appear in the UI."
-msgstr ""
+msgstr "🔑 **OIDC inloggning via Keycloak (Alternativ B, standard på)Från:** [`taiga-contrib-oidc-auth`](https://github.com/taigaio/taiga-contrib-oidc-auth) möjliggör SSO via Keycloak LDAP. **Notera:** OIDC-pluginet publiceras inte på PyPI och kräver en anpassad `taiga-front` bild med frontend plugin byggd i (CoffeeScript/Gulp)Utan den anpassade frontend-bilden visas inte SSO-knappen i UI."
 
+# translated-by: libretranslate
 msgid "🔑 **OIDC login via Keycloak (Option B, default on):** ```taiga-contrib-oidc-auth`` <https://github.com/taigaio/taiga-contrib-oidc-auth>`__ enables SSO via Keycloak → LDAP. **Note:** The OIDC plugin is not published on PyPI and requires a custom ``taiga-front`` image with the frontend plugin built in (CoffeeScript/Gulp). Without the custom frontend image the SSO button will not appear in the UI."
-msgstr ""
+msgstr "🔑 **OIDC inloggning via Keycloak (Alternativ B, standard på)Från:** ```taiga-contrib-oidc-auth`` <https://github.com/taigaio/taiga-contrib-oidc-auth>`__ enables SSO via Keycloak → LDAP. **Note:** The OIDC plugin is not published on PyPI and requires a custom ``taiga-front`` bild med frontend plugin byggd i (CoffeeScript/Gulp)Utan den anpassade frontend-bilden visas inte SSO-knappen i UI."
 
+# translated-by: libretranslate
 msgid "🔒 **Automatic HTTPS Redirect**"
-msgstr ""
+msgstr "🔒 **Automatisk HTTPS Redirect**"
 
+# translated-by: libretranslate
 msgid "🔒 **Automatic HTTPS Redirect**   Sets up port 80 → 443 redirect and serves `/.well-known/acme-challenge/` for Certbot."
-msgstr ""
+msgstr "🔒 **Automatisk HTTPS Redirect** Ställ in port 80 → 443 omdirigera och tjänar `/.well-known/acme-challenge/` För Certbot."
 
+# translated-by: libretranslate
 msgid "🔒 **Loopback-Only Configuration**"
-msgstr ""
+msgstr "🔒 **Loopback-Only Configuration**"
 
+# translated-by: libretranslate
 msgid "🔧 **Note**: The database layer should be decoupled in a future release to improve modularity and integration."
-msgstr ""
+msgstr "🔧 **Note**Databasskiktet ska frikopplas i en framtida release för att förbättra modulariteten och integrationen."
 
+# translated-by: libretranslate
 msgid "🔧 Keep image-focused automation grouped in one place"
-msgstr ""
+msgstr "🔧 Håll bildfokuserad automation grupperad på ett ställe"
 
+# translated-by: libretranslate
 msgid "🔧 Request Your Setup"
-msgstr ""
+msgstr "🔧 Begär din inställning"
 
+# translated-by: libretranslate
 msgid "🔴 Required. MUST NOT be disabled."
-msgstr ""
+msgstr "🔴 Krävs. Måste inte inaktiveras."
 
+# translated-by: libretranslate
 msgid "🕹️ [RetroArch - Official Site](https://www.retroarch.com/)"
-msgstr ""
+msgstr "🕹️ [RetroArch - Officiell webbplats](https://www.retroarch.com/)"
 
+# translated-by: libretranslate
 msgid "🗂️ Keep lookup and resolution logic grouped in one place"
-msgstr ""
+msgstr "🗂️ Håll uppslag och resolution logik grupperad på ett ställe"
 
+# translated-by: libretranslate
 msgid "🗂️ Keep missing-state lookup logic grouped separately from general resolvers"
-msgstr ""
+msgstr "🗂️ Håll missing-state lookup logik grupperas separat från allmänna beslutsfattare"
 
+# translated-by: libretranslate
 msgid "🗃️ **Backlog & Sprint Management:** Create user stories, tasks, and sprints with ease."
-msgstr ""
+msgstr "🗃️ **Backlog & Sprint Management:** Skapa användarberättelser, uppgifter och sprintar med lätthet."
 
+# translated-by: libretranslate
 msgid "🙏 Thank you for your contribution to [Infinito.Nexus](https://Infinito.Nexus)."
-msgstr ""
+msgstr "🙏 Tack för ditt bidrag till [Infinito.Nexus](https://Infinito.Nexus)."
 
+# translated-by: libretranslate
 msgid "🚦 **Handler-Safe**"
-msgstr ""
+msgstr "🚦 **Handler-Safe**"
 
+# translated-by: libretranslate
 msgid "🚦 **Handler-Safe**   Triggers an NGINX reload only when necessary, minimizing service interruptions."
-msgstr ""
+msgstr "🚦 **Handler-Safe** Triggers en NGINX reload endast vid behov, minimera serviceavbrott."
 
+# translated-by: libretranslate
 msgid "🚫 **No Local Mailbox Delivery**"
-msgstr ""
+msgstr "🚫 **Inga lokala Mailbox-leveranser**"
 
+# translated-by: libretranslate
 msgid "🚫 **No duplication** – tasks run once per deployment"
-msgstr ""
+msgstr "🚫 **Ingen dubblering** - Arbetsuppgifter körs en gång per utplacering"
 
+# translated-by: libretranslate
 msgid "🛠 Resolves the package through the registry id ``spotify`` in ```meta/packages.yml`` <meta/packages.yml>`__"
-msgstr ""
+msgstr "🛠 Löser paketet genom registret id ``spotify`` in i ```meta/packages.yml`` <meta/packages.yml>`"
 
+# translated-by: libretranslate
 msgid "🛠 Resolves the package through the registry id `spotify` in [`meta/packages.yml`](meta/packages.yml)"
-msgstr ""
+msgstr "🛠 Löser paketet genom registret id `spotify` in i [`meta/packages.yml`](meta/packages.yml)"
 
+# translated-by: libretranslate
 msgid "🛠 Volume patching and Docker Compose customization"
-msgstr ""
+msgstr "🛠 Volym patching och Docker Compose anpassning"
 
+# translated-by: libretranslate
 msgid "🛠️ Keep host preparation separate from lint, build, and test execution"
-msgstr ""
+msgstr "🛠️ Håll värdberedning separat från lint, bygga och testa utförande"
 
+# translated-by: libretranslate
 msgid "🛠️ Organize operational helpers for development, CI, release, and maintenance"
-msgstr ""
+msgstr "🛠️ Organisera operativa hjälpare för utveckling, CI, release och underhåll"
 
+# translated-by: libretranslate
 msgid "🟠 Optional. Can be disabled, but reduces functionality."
-msgstr ""
+msgstr "🟠 Valfritt. Kan inaktiveras, men minskar funktionaliteten."
 
+# translated-by: libretranslate
 msgid "🟢 Safe to disable. Usually no functional impact."
-msgstr ""
+msgstr "🟢 Säker att inaktivera. Vanligtvis ingen funktionell effekt."
 
+# translated-by: libretranslate
 msgid "🧊 Install the ext4, btrfs and zfs userlands via `filesystem.sh` (distro packages, EPEL for btrfs on CentOS, the AUR PKGBUILD for zfs on Arch, the zfsonlinux repository on Fedora/CentOS); the kernel side comes from the host"
-msgstr ""
+msgstr "🧊 Installera ext4, btrfs och zfs användarland via `filesystem.sh` (distro paket, EPEL för btrfs på CentOS, AUR PKGBUILD för zfs på Arch, zfsonlinux repository på Fedora / CentOS); Kärnsidan kommer från värden"
 
+# translated-by: libretranslate
 msgid "🧠 [RetroArch - Wikipedia](https://en.wikipedia.org/wiki/RetroArch)"
-msgstr ""
+msgstr "🧠 [RetroArch Wikipedia](https://en.wikipedia.org/wiki/RetroArch)"
 
+# translated-by: libretranslate
 msgid "🧩 **Composable Design**"
-msgstr ""
+msgstr "🧩 **Komponerbar design**"
 
+# translated-by: libretranslate
 msgid "🧩 **Composable Design:** Integrates cleanly with other Infinito.Nexus infrastructure roles."
-msgstr ""
+msgstr "🧩 **Komponerbar design:** Integrerar rent med andra Infinito.Nexus infrastrukturroller."
 
+# translated-by: libretranslate
 msgid "🧩 **Integration with Infinito.Nexus**"
-msgstr ""
+msgstr "🧩 **Integration med Infinito.Nexus**"
 
+# translated-by: libretranslate
 msgid "🧩 **Theme support for Keycloak, Nextcloud, Gitea, LAM, Peertube, and more**"
-msgstr ""
+msgstr "🧩 **Temastöd för Keycloak, Nextcloud, Gitea, LAMPeertube och mer**"
 
+# translated-by: libretranslate
 msgid "🧩 Custom OAuth2 flows via ENV vars"
-msgstr ""
+msgstr "🧩 Anpassad OAuth2 flöden via ENV varierar"
 
+# translated-by: libretranslate
 msgid "🧩 Derive runtime values from repository and workflow context"
-msgstr ""
+msgstr "🧩 Deriva runtime-värden från repository och workflow-kontext"
 
+# translated-by: libretranslate
 msgid "🧩 Upstream project: [lyqht/mini-qr](https://github.com/lyqht/mini-qr)"
-msgstr ""
+msgstr "🧩 Upstream projekt: [lyqht/mini-qr](https://github.com/lyqht/mini-qr)"
 
+# translated-by: libretranslate
 msgid "🧩 Upstream project: `lyqht/mini-qr <https://github.com/lyqht/mini-qr>`__"
-msgstr ""
+msgstr "🧩 Upstream projekt: `lyqht/mini-qr <https://github.com/lyqht/mini-qr>`__"
 
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: 🧩 [Libretro - Modular Emulator
+# Framework](https://www.libretro.com/)
 msgid "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "🧪 Workarounds for known Docker Compose or Etherpad issues"
-msgstr ""
+msgstr "🧪 Workarounds för kända Docker Compose Etherpad frågor"
 
+# translated-by: libretranslate
 msgid "🧭 Centralize readiness checks outside build and release scripts"
-msgstr ""
+msgstr "🧭 Centralisera beredskapskontroller utanför bygga och släppa skript"
 
+# translated-by: libretranslate
 msgid "🧭 Separate responsibilities into focused subdirectories with clear scope"
-msgstr ""
+msgstr "🧭 Separata ansvar i fokuserade underkataloger med tydlig omfattning"
 
+# translated-by: libretranslate
 msgid "🧱 Automatic `.env` templating and domain/NGINX integration"
-msgstr ""
+msgstr "🧱 Automatisk `.env` mallning och domän/NGINX integration"
 
+# translated-by: libretranslate
 msgid "🧱 Automatic ``.env`` templating and domain/NGINX integration"
-msgstr ""
+msgstr "🧱 Automatisk ``.env`` mallning och domän/NGINX integration"
 
+# translated-by: libretranslate
 msgid "🧹 **Domain Cleanup**"
-msgstr ""
+msgstr "🧹 **Domain Cleanup**"
 
+# translated-by: libretranslate
 msgid "🧹 **Domain Cleanup**   Removes obsolete or orphaned server blocks before enabling HTTPS."
-msgstr ""
+msgstr "🧹 **Domain Cleanup** Ta bort föråldrade eller föräldralösa serverblock innan du aktiverar HTTPS."
 
+# translated-by: libretranslate
 msgid "🧹 Execute focused lint checks for workflows, Ansible, Python, and shell scripts"
-msgstr ""
+msgstr "🧹 Utför fokuserade lintkontroller för arbetsflöden, Ansible, Python och skalskript"
 
+# translated-by: libretranslate
 msgid "🪙 : same as ✅ but gated behind a commercial / paid tier;"
-msgstr ""
+msgstr "🪙 Samma som ✅ men gated bakom en kommersiell / betald nivå;"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: 🪞 Peka på en Ubuntu-bilds apt-källor vid
+# `INFINITO_APT_UBUNTU_MIRRORS` via via via `apt-mirrors.sh`, kör först i
+# bildbyggnaden: apt försöker speglarna i listorder och går vidare när man
+# misslyckas eller håller tyst för 10 bilder av andra distros lämnas orörda
 msgid "🪞 Point an Ubuntu image's apt sources at `INFINITO_APT_UBUNTU_MIRRORS` via `apt-mirrors.sh`, run first in the image build: apt tries the mirrors in list order and moves on when one fails or stays silent for 10 s; images of other distros are left untouched"
 msgstr ""
 
