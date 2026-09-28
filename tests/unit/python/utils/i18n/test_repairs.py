@@ -12,6 +12,7 @@ from typing import ClassVar
 
 from utils.i18n.placeholders import (
     collapse,
+    collapsed,
     harms,
     mask,
     recapitalise,
@@ -150,6 +151,23 @@ class TestTruncated(unittest.TestCase):
         source = "A" * 200
 
         self.assertFalse(truncated(source, "B" * 180))
+
+
+class TestCollapsed(unittest.TestCase):
+    SOURCE = "Central identity provider issuing tokens for every service"
+
+    def test_a_label_in_place_of_a_passage_is_reported(self) -> None:
+        self.assertTrue(collapsed(self.SOURCE, "Name"))
+
+    def test_a_language_that_says_it_in_fewer_characters_survives(self) -> None:
+        self.assertFalse(collapsed(self.SOURCE, "为每个服务签发令牌的中央身份提供者"))
+
+    def test_an_entry_below_the_floor_may_shrink(self) -> None:
+        self.assertFalse(collapsed("Save the configuration", "Lage"))
+
+    def test_truncated_does_not_reach_this_band(self) -> None:
+        """The gap this rule fills: truncated's floor starts past these sources."""
+        self.assertFalse(truncated(self.SOURCE, "Name"))
 
 
 class TestWriterAndGateAgree(unittest.TestCase):

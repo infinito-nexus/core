@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import html
 
+from utils.i18n.damage import COLLAPSE_FLOOR as COLLAPSE_FLOOR
+from utils.i18n.damage import COLLAPSE_RATIO as COLLAPSE_RATIO
 from utils.i18n.damage import ECHO_FLOOR as ECHO_FLOOR
 from utils.i18n.damage import LATIN_FLOOR as LATIN_FLOOR
 from utils.i18n.damage import LATIN_SHARE as LATIN_SHARE
@@ -22,6 +24,7 @@ from utils.i18n.damage import TRUNCATION_FLOOR as TRUNCATION_FLOOR
 from utils.i18n.damage import TRUNCATION_RATIO as TRUNCATION_RATIO
 from utils.i18n.damage import WORDS as WORDS
 from utils.i18n.damage import Rejected as Rejected
+from utils.i18n.damage import collapsed as collapsed
 from utils.i18n.damage import harms as harms
 from utils.i18n.damage import missing_names as missing_names
 from utils.i18n.damage import protected_spans as protected_spans

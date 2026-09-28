@@ -19,6 +19,8 @@ MARKUP = '[]`*{}()"'
 STRUCTURE = "[]{}`*()"
 TRUNCATION_FLOOR = 120
 TRUNCATION_RATIO = 0.5
+COLLAPSE_FLOOR = 40
+COLLAPSE_RATIO = 0.15
 ECHO_FLOOR = 30
 STUTTER = re.compile(r"\b(\w+)(?:\s+\1\b){2,}", re.IGNORECASE | re.UNICODE)
 WORDS = re.compile(r"[^\W\d_]{2,}", re.UNICODE)
@@ -145,6 +147,28 @@ def truncated(source: str, translation: str) -> bool:
     )
 
 
+def collapsed(source: str, translation: str) -> bool:
+    """Return whether ``translation`` is a fragment rather than a rendering.
+
+    A server that gives up on a passage answers it with a label: four distinct
+    sentences all come back as ``Name``. ``truncated`` does not see it, because
+    its floor starts where these sources end, and every other rule passes: a
+    label carries no span, no name, no markup and no stutter.
+
+    The ratio sits far below ``TRUNCATION_RATIO`` so that a language which
+    genuinely says the same in fewer characters survives it. Chinese renders a
+    58-character source in 17, which is a fifth of the source and twice this
+    floor; the label that prompted the rule is a fifteenth.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    return (
+        len(source) > COLLAPSE_FLOOR and len(translation) < len(source) * COLLAPSE_RATIO
+    )
+
+
 def structure(text: str) -> Counter:
     """Return the markup characters of ``text`` with their multiplicity.
 
@@ -201,6 +225,8 @@ def reason(source: str, translation: str, language: str = "") -> str:
         return "untranslated"
     if truncated(source, translation):
         return "truncated"
+    if collapsed(source, translation):
+        return "collapsed"
     if structure(translation) != structure(source):
         return "structure"
     if tighten(translation) != translation:
