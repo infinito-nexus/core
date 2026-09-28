@@ -38,8 +38,8 @@ cleanup() {
 }
 
 sweep_dead_machines() {
-	docker ps -aq --filter "name=^${PROJECT_PREFIX}" --filter status=exited |
-		xargs -r docker rm -f >/dev/null 2>&1
+	container ps -aq --filter "name=^${PROJECT_PREFIX}" --filter status=exited |
+		xargs -r container rm -f >/dev/null 2>&1
 	return 0
 }
 
