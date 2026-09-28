@@ -1,0 +1,15 @@
+---
+# nocheck: embedded-state-on-nfs argos model archives, content-addressed and re-downloadable, kept node-local on purpose
+# nocheck: nfs-false-data-loss  Reason: a node that fetched a model holds the same archive every other node would fetch, so nothing written here has to reach another node
+models:
+  type: bind
+  source: "{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.models_dir') }}"
+  mounts:
+    - service: libretranslate-engine
+      # Exception: a bind is never seeded from the image, so mounting it over
+      # the argos package path would shadow what the build baked there.
+      when: "{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.loading_model') != 'build' }}"
+      # Exception: meta may not read the role var, so the user branch of
+      # vars/main.yml is repeated here.
+      target: "{{ ['/root' if (lookup('applications') | resource_filter('svc-ai-libretranslate-engine', 'gpu', 'libretranslate-engine', false) | bool) else '/home/libretranslate',
+        '.local/share/argos-translate/packages'] | path_join }}"

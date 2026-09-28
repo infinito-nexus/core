@@ -1,0 +1,35 @@
+---
+# nocheck: playwright-service-flag — translation engine without a browser surface of its own
+libretranslate-engine:
+  name: libretranslate-engine
+  healthcheck:
+    test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
+    # nocheck: healthcheck-timing-override  the probe starts a venv interpreter, which does not finish inside the 5s default
+    timeout: 10s
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: libretranslate/libretranslate
+  version: v1.9.6
+  custom: true
+  min_storage: 402MB
+  load_only: []
+  loading_model: lazy
+  models_dir: "{{ [DIR_CACHE, 'models', 'libretranslate'] | path_join }}"
+  directions: both
+  ports:
+    local:
+      http: 8097
+    internal:
+      http: 5000
+  lifecycle: beta
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  gpu: true
