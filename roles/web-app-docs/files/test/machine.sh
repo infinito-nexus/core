@@ -78,4 +78,4 @@ echo "=== Preparing it for Infinito.Nexus (${PREPARE}) ==="
 in_machine bash "${PREPARE}"
 
 echo "=== Replaying the instructions in that machine ==="
-machine exec -T -w "${workdir}" machine bash -s <"${BLOCK}"
+machine exec -T -w "${workdir}" machine bash -e -s <"${BLOCK}"
