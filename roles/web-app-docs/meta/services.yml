@@ -51,7 +51,7 @@ docs:
   run_after:
     - web-app-matomo
   lifecycle: beta
-  cpus: "2"
+  cpus: "95%"
   mem_reservation: 512m
   mem_limit: 4g
   pids_limit: 512
