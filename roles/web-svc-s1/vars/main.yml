@@ -1,0 +1,4 @@
+---
+application_id: web-svc-s1
+
+entity_name: "{{ application_id | get_entity_name }}"

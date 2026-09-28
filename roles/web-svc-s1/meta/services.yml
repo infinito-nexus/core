@@ -7,6 +7,7 @@ s1:
   bond: 1
   enabled: true
   shared: true
+  provides: s1_api
   cpus: "0.2"
   mem_reservation: 64m
   mem_limit: 128m
