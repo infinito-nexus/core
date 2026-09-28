@@ -4,4 +4,7 @@ FROM ${MACHINE_BASE_IMAGE}
 COPY init.sh /tmp/docs-guide-init.sh
 RUN /bin/sh /tmp/docs-guide-init.sh && rm -f /tmp/docs-guide-init.sh
 
+ENV container=docker
+STOPSIGNAL SIGRTMIN+3
+
 ENTRYPOINT ["/sbin/init"]

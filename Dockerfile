@@ -67,6 +67,9 @@ RUN set -euo pipefail; \
     proc-sys-fs-binfmt_misc.mount || true; \
   systemd-machine-id-setup || true
 
+RUN set -euo pipefail; \
+  systemctl mask getty.target console-getty.service getty-static.service getty@.service
+
 ENV container=docker
 STOPSIGNAL SIGRTMIN+3
 

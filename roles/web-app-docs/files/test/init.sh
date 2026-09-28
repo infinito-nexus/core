@@ -6,7 +6,14 @@
 
 set -e
 
-[ -e /sbin/init ] && exit 0
+mask_units_that_escape_the_container() {
+	systemctl mask getty.target console-getty.service getty-static.service getty@.service tmp.mount
+}
+
+if [ -e /sbin/init ]; then
+	mask_units_that_escape_the_container
+	exit 0
+fi
 
 APT_OPTS="-o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
 
@@ -31,3 +38,4 @@ fi
 
 grep -q myhostname /etc/nsswitch.conf || sed -i "s/^hosts:.*/& myhostname/" /etc/nsswitch.conf
 [ -e /sbin/init ] || ln -sf /lib/systemd/systemd /sbin/init
+mask_units_that_escape_the_container
