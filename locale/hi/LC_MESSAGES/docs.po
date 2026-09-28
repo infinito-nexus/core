@@ -973,8 +973,9 @@ msgstr "**बैकअप तैयार:** के तहत लगातार
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
 msgstr "**बैकअप और आपदा वसूली।** *Svc-bkp-container-2-स्थानीय* द्वारा supersed है *svc-bkp-volume-2-local*, प्रति मात्रा बैकअप नीति स्पष्ट करना। भूमिका उपलब्ध होने पर फ़ाइल सिस्टम स्नैपशॉट पसंद करती है और स्नैपशॉट-आधारित बैकअप के लिए btrfs होस्ट तैयार कर सकती है। नया *svc-bkp-nfs-2-local* साझा NFS निर्यात की रक्षा करता है, *svc-bkp-secrets-2-local* गुप्त सामग्री पर कब्जा, और *svc-bkp-local-2-device* बाहरी मीडिया को माउंट करने के लिए बैकअप को सिंक्रनाइज़ करता है। एकीकृत *वसूली* CLI ड्राइव पुनर्स्थापित करता है, जबकि Compose वसूली की जाँच करता है और एक पूर्ण स्वarm आपदा वसूली ड्रिल लगातार रास्ते को सत्यापित करता है। Rsync अब supersed फ़ाइलों को बनाए रखने के रूप में *~* प्रतियां."
 
+# translated-by: libretranslate
 msgid "**Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream."
-msgstr ""
+msgstr "**मुफ्त बैकअप:** वॉल्यूम बैकअप-डिसेबल है और इसका बैकअप उपभोक्ता बंद रहता है; इसमें प्रत्येक कलाकृति इसके अपस्ट्रीम से फिर से प्राप्त होती है।."
 
 # translated-by: libretranslate
 msgid "**Backup integration:** Backup Docker Volumes snapshots the model volume when that role is present, without stopping the container."
@@ -2181,11 +2182,13 @@ msgstr "**विकेंद्रीकृत और Federated:** वैश्�
 msgid "**Decentralized social networking:** Self-host the AT Protocol PDS and serve user data under your own domain."
 msgstr "**विकेंद्रीकृत सामाजिक नेटवर्किंग:** एटी प्रोटोकॉल पीडीएस को स्व-होस्ट करें और अपने डोमेन के तहत उपयोगकर्ता डेटा की सेवा करें।"
 
+# translated-by: libretranslate
 msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the ``cache:`` declarations, collected by the ``cache_upstreams`` and ``cache_repos`` lookups. A new upstream is added by declaring it there."
-msgstr ""
+msgstr "**घोषणा संचालित:** प्रत्येक प्रत्यावर्ती और प्रत्येक उत्तरित होस्टनाम से आता है ``cache:`` घोषणा, द्वारा एकत्र ``cache_upstreams`` और ``cache_repos`` लुकअप। यहीं घोषित करके एक नया अपस्ट्रीम जोड़ा जाता है।."
 
+# translated-by: libretranslate
 msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the `cache:` declarations, collected by the `cache_upstreams` and `cache_repos` lookups. A new upstream is added by declaring it there."
-msgstr ""
+msgstr "**घोषणा संचालित:** प्रत्येक प्रत्यावर्ती और प्रत्येक उत्तरित होस्टनाम से आता है `cache:` घोषणा, द्वारा एकत्र `cache_upstreams` और `cache_repos` लुकअप। यहीं घोषित करके एक नया अपस्ट्रीम जोड़ा जाता है।."
 
 # translated-by: libretranslate
 msgid "**Declared context windows:** A model entry carrying ``context`` publishes it as ``model_info.max_input_tokens``, and an Ollama entry also runs with that window as ``num_ctx`` instead of the server’s default, so a caller’s prompt is not silently truncated."
@@ -2435,8 +2438,9 @@ msgstr "**विवरण:** apex और वाइल्डकार्ड A/AAA
 msgid "**Description:** Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**विवरण:** कस्टम निर्मित छवियों की सेवा के लिए क्लस्टर-स्थानीय कंटेनर छवि रजिस्ट्री Docker Swarm कार्यकर्ता नोड"
 
+# translated-by: libretranslate
 msgid "**Description:** Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "**विवरण:** पैकेज अपस्ट्रीम के लिए क्लस्टर-स्थानीय प्रॉक्सी कैश, एपीटी, पीप, एनपीएम और कच्चे कलाकृतियों की सेवा हर भूमिका घोषणा करती है"
 
 # translated-by: libretranslate
 msgid "**Description:** Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -6061,8 +6065,9 @@ msgstr "**न्यूनतम पदचिह्न:** छोटा Node.js/�
 msgid "**Minimal scope** (client-only, no server configuration)"
 msgstr "**न्यूनतम क्षेत्र** (ग्राहक केवल, कोई सर्वर विन्यास नहीं)"
 
+# translated-by: libretranslate
 msgid "**Mirror failover:** A repository that declares a mirror is served through a guarded location: a 5xx from its primary remote re-runs the same path against the sibling repository, while a 404 is passed straight back."
-msgstr ""
+msgstr "**मिरर विफलता:** एक ऐसी स्थिति जो दर्पण को घोषित करती है, उसे संरक्षित स्थान के माध्यम से परोसा जाता है: एक 5अपने प्राथमिक रिमोट से एक्सएक्स ने भाई-बहनी के खिलाफ एक ही रास्ता फिर से शुरू किया, जबकि एक 404 सीधे वापस पारित किया जाता है।."
 
 # translated-by: libretranslate
 msgid "**Mitigation:** Image-level mutation (`run`, `build`, `push`, `login`) and their synonyms (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) still route through `ask`, so the operator reviews them before they execute."
@@ -7229,8 +7234,9 @@ msgstr "**लगातार स्थिति:** मेमोरी और व
 msgid "**Persistent state:** Memory and workspace live in a volume mounted at ``/home/node/.openclaw``, with the rendered ``openclaw.json`` mounted into it, and are included in the container volume backup when that service is deployed."
 msgstr "**लगातार स्थिति:** मेमोरी और वर्कस्पेस एक वॉल्यूम में लाइव पर घुड़सवार ``/home/node/.openclaw``, प्रतिपादन के साथ ``openclaw.json`` इसमें घुड़सवार, और उस सेवा को तैनात होने पर कंटेनर वॉल्यूम बैकअप में शामिल किया गया है।"
 
+# translated-by: libretranslate
 msgid "**Persistent store:** Proxied artefacts live in a named volume, so a redeploy reuses what earlier runs already pulled."
-msgstr ""
+msgstr "**लगातार स्टोर:** Proxied artefacts एक नामित मात्रा में रहते हैं, इसलिए एक redeploy पहले से ही खींचे गए क्या रनों का पुन: उपयोग करता है।."
 
 # translated-by: libretranslate
 msgid "**Persistent:** ``nftables.service`` loads every fragment at boot, so rules outlive a reboot without a unit of this project’s own. The ruleset it reads is a distribution decision, so the path follows ``os_family``: RedHat reads ``/etc/sysconfig/nftables.conf``, the others ``/etc/nftables.conf``."
@@ -10194,8 +10200,9 @@ msgstr "**विवरण**apex और वाइल्डकार्ड A/AAAA 
 msgid "**description**: Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**विवरण**: कस्टम निर्मित छवियों की सेवा के लिए क्लस्टर-स्थानीय कंटेनर छवि रजिस्ट्री Docker Swarm कार्यकर्ता नोड"
 
+# translated-by: libretranslate
 msgid "**description**: Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "**विवरण**पैकेज अपस्ट्रीम के लिए क्लस्टर-स्थानीय प्रॉक्सी कैश, एपीटी, पीप, एनपीएम और कच्चे कलाकृतियों की सेवा हर भूमिका घोषणा करती है"
 
 # translated-by: libretranslate
 msgid "**description**: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -13328,8 +13335,9 @@ msgstr "एक परिनियोजित नौकरी का शीर�
 msgid "A deploy with zero or more than one manager fails at inventory-validation time, never at runtime."
 msgstr "शून्य या एक से अधिक प्रबंधक के साथ तैनात करने के लिए सूची-वैलिडेशन समय में विफल रहता है, कभी नहीं रनटाइम पर।"
 
+# translated-by: libretranslate
 msgid "A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged."
-msgstr ""
+msgstr "एक परिनियोजित होस्ट अपनी सूची से किसी भी को सही या विस्तारित कर सकता है `applications.svc-cache-package.repos` और `.upstreams`; देव स्टैक की कोई सूची नहीं है और घोषणाओं का अपरिवर्तित उपयोग करता है।."
 
 # translated-by: libretranslate
 msgid "A deployment that keeps the shipped `DOMAIN_PRIMARY` serves names under `infinito.localhost`. Those exist in no zone, so a task that reaches the deployment's own domain from the host depends on the `myhostname` NSS module, which maps any `*.localhost` name to loopback per RFC 6761."
@@ -13878,11 +13886,13 @@ msgstr "प्रस्तुत `socialhome.toml` पर्यावरण फ�
 msgid "A repository definition must declare at least one of these; the rest (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."
 msgstr "एक रिपॉज़िटरी परिभाषा को कम से कम एक घोषित करना चाहिए; बाकी (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) इसे अर्हता प्राप्त करना।"
 
+# translated-by: libretranslate
 msgid "A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `listen: [80]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix."
-msgstr ""
+msgstr "एक प्रस्तावना नेक्सस द्वारा प्रत्यावर्ती है। एक मेजबान को इसके अलावा फ्रंटेंड द्वारा जवाब दिया जाता है, इसलिए एक ग्राहक अपने वास्तविक अपस्ट्रीम यूआरएल को संबोधित करता रहता है। `listen: [80]` यह सादे पर काम करता है और कोई प्रमाण पत्र जारी करता है; `paths:` एक मेजबान के तहत कई भंडारों का नक्शा; `mirror:` एक रिपोजिटरी नाम पर भाई-बहन फ्रंटेंड के खिलाफ वापस लौटते हैं `502`, `503` या `504`; `passthrough: true` एक अपस्ट्रीम को सूट करता है कि पहले से ही यूआरएल को रिपोजिटरी उपसर्ग को ले जाता है।."
 
+# translated-by: libretranslate
 msgid "A repository may serve several hosts and a host may be served by one repository only; a repository without a host is proxied but never hijacked, which is how a client that already addresses Nexus directly is served."
-msgstr ""
+msgstr "एक भंडार कई मेजबानों की सेवा कर सकता है और एक मेजबान को केवल एक भंडार द्वारा परोसा जा सकता है; एक मेजबान के बिना एक भंडारी को प्रत्याशित किया जाता है लेकिन कभी भी हेजैक नहीं किया जाता है, जो कि एक ग्राहक है जो पहले से ही नेक्सस को सीधे सेवा प्रदान किया जाता है।."
 
 # translated-by: libretranslate
 msgid "A repository-local Sphinx entry point is also available at [Contribution Guide Index](docs/contributing/index.rst)."
@@ -14429,8 +14439,9 @@ msgstr "एक वर्कफ़्लो प्रविष्टि कॉल
 msgid "A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit."
 msgstr "एक वर्कफ़्लो के साथ `workflow_dispatch` MUST को ट्रिगर करें `name:` नीचे 25 वर्ण, द्वारा लागू [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). डिस्पैच मेनू उन नामों को एक संकीर्ण कॉलम में सूचीबद्ध करता है, जहां एक लंबे समय तक truncated है। व्याख्यात्मक शब्दों में स्थानांतरित करें `run-name:`, जो ऐसी कोई सीमा नहीं है।"
 
+# translated-by: libretranslate
 msgid "A worktree configured to follow the primary checkout reads that checkout's map without writing it: rendering there would push this branch's declarations into another tree, which is the isolation the setting exists to provide."
-msgstr ""
+msgstr "एक वर्कट्री ने प्राथमिक चेकआउट पढ़ने का पालन करने के लिए कॉन्फ़िगर किया है कि चेकआउट के नक्शे को लिखित बिना: प्रस्तुत करने से इस शाखा की घोषणाओं को दूसरे पेड़ में धकेल दिया जाएगा, जो अलगाव है जो सेटिंग प्रदान करने के लिए मौजूद है।."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -16510,8 +16521,9 @@ msgstr "एक स्पष्ट प्रति डोमेन अनुम�
 msgid "An explicit string value at applications['web-app-nextcloud'] .services.sso.oidc.plugin (inventory override)."
 msgstr "अनुप्रयोगों पर एक स्पष्ट स्ट्रिंग मूल्य['web-app-nextcloud'] ।services.sso.oidc.plugin (सूची ओवरराइड)।"
 
+# translated-by: libretranslate
 msgid "An image build reaches the cache by hostname, but it cannot verify the frontend's self-signed certificate unless its Dockerfile installs the CA, so only these are safe to hijack for every build. A build that does install the CA additionally gets the TLS hosts; `sys-svc-compose`'s override generator decides that per image."
-msgstr ""
+msgstr "एक छवि निर्माण होस्टनाम द्वारा कैश तक पहुंच जाता है, लेकिन यह फ्रंटेंड के स्वयं-सिग्न प्रमाण पत्र को सत्यापित नहीं कर सकता जब तक कि इसकी डोकरफ़ाइल सीए को स्थापित नहीं करता है, इसलिए केवल ये हर निर्माण के लिए हाइजैक के लिए सुरक्षित हैं। एक निर्माण जो सीए को अतिरिक्त रूप से स्थापित करता है उसे टीएलएस होस्ट प्राप्त होता है; `sys-svc-compose`'s override generator' का फैसला करता है कि प्रति छवि।."
 
 # translated-by: libretranslate
 msgid "An independent creator stack for publishing, video, audio, analytics, and community without platform lock-in."
@@ -17119,8 +17131,9 @@ msgstr "प्रत्येक कॉल पर लागू होता ह�
 msgid "Applies to: **`main` (default branch)**"
 msgstr "इसके लिए लागू: **`main` (डिफ़ॉल्ट शाखा)**"
 
+# translated-by: libretranslate
 msgid "Apply a host's inventory to the cache declarations the roles make."
-msgstr ""
+msgstr "एक मेजबान की सूची को कैश घोषणाओं पर लागू करें जो भूमिकाएं बनाते हैं।."
 
 # translated-by: libretranslate
 msgid "Apply every update in *updates* to disk. Returns the list of config files that were actually modified."
@@ -18503,8 +18516,9 @@ msgstr "बूटस्ट्रैप और रखरखाव **DNS Prerequis
 msgid "Bootstrap env"
 msgstr "बूटस्ट्रैप env"
 
+# translated-by: libretranslate
 msgid "Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own."
-msgstr ""
+msgstr "बूटस्ट्रैप idempotent है और रन से [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) एक बार स्टैक स्वस्थ होता है। यह खत्म हो गया `INFINITO_CACHE_UPSTREAMS` और अपने स्वयं के कोई भंडार नहीं रखता है।."
 
 # translated-by: libretranslate
 msgid "Bootstrap tooling is provided via Kevin's Package Manager: <https://github.com/kevinveenbirkenbach/package-manager>"
@@ -18678,8 +18692,9 @@ msgstr "दोनों आवश्यकता फ़ाइलों को �
 msgid "Both run from the trusted workflow ref and check out the version tag for the actual build payload, so the release artefacts match the tagged commit byte-for-byte."
 msgstr "दोनों विश्वसनीय वर्कफ़्लो रेफरी से चलाते हैं और वास्तविक बिल्ड पेलोड के लिए संस्करण टैग की जांच करते हैं, इसलिए रिलीज आर्टिफैक्ट्स टैग किए गए byte-for-byte से मेल खाते हैं।"
 
+# translated-by: libretranslate
 msgid "Both sections are merged per entry, so an inventory that names one field keeps the rest of the declaration, and a key nobody declared is added."
-msgstr ""
+msgstr "दोनों वर्गों को प्रति प्रविष्टि में विलय कर दिया जाता है, इसलिए एक सूची जिसका नाम एक क्षेत्र बाकी घोषणा रखता है, और घोषित कोई भी जोड़ा जाता है।."
 
 # translated-by: libretranslate
 msgid "Both sides pass `primary_apps` (not the round closure) as the BFS seed and the variant-merged services map for that round, so the reachability walk sees the same topology the inventory baked."
@@ -20085,8 +20100,9 @@ msgstr "वर्कफ़्लो दोहराव को कम करन�
 msgid "Centralizes container execution logic"
 msgstr "कंटेनर निष्पादन तर्क"
 
+# translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) before the frontend starts. It issues a leaf for each name in `INFINITO_CACHE_TLS_HOSTS` and holds no hostname of its own."
-msgstr ""
+msgstr "सेवा उत्पादन एक फेंक-अवे अल्पाइन कंटेनर द्वारा संचालित में चलाता है [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) आगे बढ़ने से पहले। यह प्रत्येक नाम के लिए एक पत्ती जारी करता है `INFINITO_CACHE_TLS_HOSTS` और अपने आप का कोई होस्टनाम नहीं रखता है।."
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -21109,8 +21125,9 @@ msgstr "क्लोन ने वर्कस्टेशन की स्थ�
 msgid "Clone, set up the workstation, and deploy OpenTalk onto the local stack:"
 msgstr "क्लोन ने वर्कस्टेशन की स्थापना की और स्थानीय स्टैक पर OpenTalk को तैनात किया:"
 
+# translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy Package cache onto the local stack:"
-msgstr ""
+msgstr "क्लोन ने कार्य केंद्र स्थापित किया और तैनात किया Package cache स्थानीय स्टैक पर:"
 
 # translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy Package update onto the local stack:"
@@ -21469,8 +21486,9 @@ msgstr "क्लस्टर-स्थानीय `Docker Registry <https://di
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "कस्टम निर्मित छवियों की सेवा के लिए क्लस्टर-स्थानीय कंटेनर छवि रजिस्ट्री Docker Swarm कार्यकर्ता नोड"
 
+# translated-by: libretranslate
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "पैकेज अपस्ट्रीम के लिए क्लस्टर-स्थानीय प्रॉक्सी कैश, एपीटी, पीप, एनपीएम और कच्चे कलाकृतियों की सेवा हर भूमिका घोषणा करती है"
 
 # translated-by: libretranslate
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -21593,8 +21611,9 @@ msgstr "अपनी जावास्क्रिप्ट को एक ह�
 msgid "Collect every `<entity>.ports.public.relay.{start,end}` pair as an occupied span."
 msgstr "प्रत्येक `<entity>.ports.public.relay.{start,end}` एक कब्जे वाली अवधि के रूप में जोड़ी।"
 
+# translated-by: libretranslate
 msgid "Collect what the package cache proxies, from ``cache:`` in meta/networks.yml."
-msgstr ""
+msgstr "क्या पैकेज कैश प्रॉक्सी एकत्र, से ``cache:`` में meta/networks.yml।."
 
 # translated-by: libretranslate
 msgid "Collection search; host/service status; PromQL query, query range, labels, metadata, and targets"
@@ -23624,8 +23643,9 @@ msgstr "इसे डेस्कटॉप भूमिका में नि�
 msgid "Declare it as a dependency in the desktop role’s ``meta/main.yml``:"
 msgstr "इसे डेस्कटॉप भूमिका में निर्भरता के रूप में घोषित करें ``meta/main.yml``:"
 
+# translated-by: libretranslate
 msgid "Declare it under `cache:` in a `meta/networks.yml`, then run `make dotenv`. That file is the single point of truth; the Nexus repo, the leaf cert, the nginx server block, the `extra_hosts` entries, `pip.conf`, `.npmrc` and the apt sources are all derived from it."
-msgstr ""
+msgstr "इसे नीचे देखें `cache:` में `meta/networks.yml`, फिर दौड़ना `make dotenv`. वह फ़ाइल सत्य का एक बिंदु है; नेक्सस रेपो, लीफ Cert, nginx सर्वर ब्लॉक, `extra_hosts` प्रविष्टियां `pip.conf`, `.npmrc` और उपयुक्त स्रोतों से यह सब से व्युत्पन्न हैं।."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -24142,8 +24162,9 @@ msgstr "डिप्लॉय टेस्ट वर्कफ़्लोज़ 
 msgid "Deploy test workflows use the `jlumbroso/free-disk-space` action to reclaim runner space before Docker pulls start. Because the actual deploy runs **inside** the `infinito` container, the host's language toolchains, build packages, and default Docker layer cache are all dead weight and MUST be reclaimed aggressively."
 msgstr "डिप्लॉय टेस्ट वर्कफ़्लोज़ `jlumbroso/free-disk-space` डॉकर शुरू होने से पहले रनर स्पेस को पुनः प्राप्त करने के लिए कार्रवाई। क्योंकि वास्तविक तैनाती रन **अंदर** The number of the `infinito` कंटेनर, मेजबान की भाषा टूलचेन, पैकेज का निर्माण और डिफ़ॉल्ट डोकर परत कैश सभी मृत वजन हैं और MUST को आक्रामक रूप से पुनः प्राप्त किया जाता है।"
 
+# translated-by: libretranslate
 msgid "Deploy the dedicated LibreTranslate the translator reaches."
-msgstr ""
+msgstr "समर्पित तैनाती LibreTranslate अनुवादक पहुँचता है।."
 
 # translated-by: libretranslate
 msgid "Deploy the role and run the spec inside the shared `test-e2e-playwright` runner until every MUST in the contributor SPOT passes and the browser console is free of unhandled errors."
@@ -27328,8 +27349,9 @@ msgstr "क्या पंक्ति वास्तव में क्य�
 msgid "Everything else lands in ``rejected`` with a stable code: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` and ``tools_unenforceable``."
 msgstr "अन्य सभी क्षेत्रों में ``rejected`` एक स्थिर कोड के साथ: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` और ``tools_unenforceable``।"
 
+# translated-by: libretranslate
 msgid "Everything the roles declare, collected."
-msgstr ""
+msgstr "सभी भूमिकाओं की घोषणा, एकत्र की गई।."
 
 # translated-by: libretranslate
 msgid "Evidence"
@@ -30628,8 +30650,9 @@ msgstr "HTTP+SSE (`adapter.upstream_transport: sse`)"
 msgid "HTTP/2 support, TLS/SSL integration"
 msgstr "HTTP2 समर्थन, TLS/SSL एकीकरण"
 
+# translated-by: libretranslate
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh)."
-msgstr ""
+msgstr "एच.टी. (बंदरगाह 443): एक समर्पित सीए द्वारा हस्ताक्षरित प्रति-होस्टनाम सर्वर certs। द्वारा प्रयुक्त `infinito` धावक (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`)रनर CA के माध्यम से विश्वास करता है [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh)।."
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -31274,11 +31297,13 @@ msgstr "आईएएम(पहचान और अभिगम प्रबं�
 msgid "INFINITO_*-key env handlers; one module per owned key."
 msgstr "INFINITO*-key env handlers; प्रति स्वामित्व कुंजी एक मॉड्यूल।"
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_HOSTS: the hostnames the package cache fronts, collected from the ``cache:`` declarations every role makes in its meta/networks.yml."
-msgstr ""
+msgstr "INFINITO_CACHE_HOSTS: मेजबान नाम पैकेज कैश फ्रंट, से एकत्र ``cache:`` प्रत्येक भूमिका में उसकी घोषणा meta/networks.yml।."
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_HTTP_HOSTS: the hostnames the frontend serves without TLS."
-msgstr ""
+msgstr "INFINITO_CACHE_HTTP_HOSTS: मेजबान नाम फ्रंटेंड टीएलएस के बिना कार्य करता है।."
 
 # प्रति-होस्ट नेक्सस व्यवस्थापक पासवर्ड: शा256(host_pathनाम), करने के लिए
 # truncated 32 हेक्स चार.
@@ -31313,11 +31338,13 @@ msgstr "INFINITO_CACHE_REGISTRY_MAX_SIZE: रजिस्ट्री कैश 
 msgid "INFINITO_CACHE_STACK: whether the pull-through cache stack should run."
 msgstr "INFINITO_CACHE_STACK: क्या पुल के माध्यम से कैश स्टैक चलाना चाहिए।"
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_TLS_HOSTS: the hostnames the package-cache frontend needs a leaf certificate for, being those its cache: declarations serve over HTTPS."
-msgstr ""
+msgstr "INFINITO_CACHE_TLS_HOSTS: मेजबान नाम पैकेज कैश फ्रंटेंड के लिए एक पत्ती प्रमाण पत्र की आवश्यकता होती है, जो इसके कैश होने के नाते: घोषणाओं को HTTPS परोसते हैं।."
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_UPSTREAMS: every repository the package cache proxies, as ``name|flavor|url|distribution|repodata_depth|content_max_age`` records separated by commas, from the cache: entries the roles declare in their meta/networks.yml."
-msgstr ""
+msgstr "INFINITO_CACHE_UPSTREAMS: प्रत्येक पैकेज कैश प्रॉक्सी को रिपोजिट करता है, जैसा कि ``name|flavor|url|distribution|repodata_depth|content_max_age`` कैश से अल्पाकों द्वारा अलग किए गए रिकॉर्ड: उनकी भूमिकाओं को प्रविष्ट करता है meta/networks.yml।."
 
 # translated-by: libretranslate
 msgid "INFINITO_CA_BUNDLE_CANDIDATES: where the distributions keep the extracted CA bundle, read from the group_vars paths SPOT (group_vars/all/05_paths.yml CA_BUNDLE_CANDIDATES)."
@@ -34475,8 +34502,9 @@ msgstr "यह एक है **सामान्य बुनियादी �
 msgid "It is a standalone script — no environment, no backup generation, no other drill. It resolves `baudolo-snapshot` from `PATH`, so it tests whatever the role deployed:"
 msgstr "यह एक स्टैंडअलोन स्क्रिप्ट है - कोई पर्यावरण, कोई बैकअप पीढ़ी, कोई अन्य ड्रिल नहीं। यह हल `baudolo-snapshot` से `PATH`, तो यह जो भी भूमिका तैनात परीक्षण:"
 
+# translated-by: libretranslate
 msgid "It is deliberately separate from `cli.meta.env`, which has to import on the bare bootstrap python and therefore cannot reach Jinja or PyYAML."
-msgstr ""
+msgstr "यह जानबूझकर से अलग है `cli.meta.env`, जिसे नंगे बूटस्ट्रैप पायथन पर आयात करना पड़ता है और इसलिए जिंजा या PyYAML तक नहीं पहुंच सकता है।."
 
 # translated-by: libretranslate
 msgid "It is designed to be used as a fallback when no central Mailu instance is available, enabling applications and system services to send email via ``localhost:25`` without additional configuration."
@@ -35150,8 +35178,9 @@ msgstr ""
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
 msgstr "कीक्लोक `LDAP user federation` उपयोगकर्ताओं को पढ़ने-केवल मोड में रियल्म में प्रतिबिंबित करता है।"
 
+# translated-by: libretranslate
 msgid "Keyed by repository name, so a template resolving a host's route reaches its flavor, upstream and mirror without a second declaration. `utils.cache.hosts` is the single point of truth; the entries come from ``cache: repos:`` in the roles' ``meta/networks.yml``, and deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
-msgstr ""
+msgstr "पुनर्स्थापना नाम से की गई, इसलिए होस्ट के मार्ग को हल करने वाला एक टेम्पलेट दूसरे घोषणा के बिना अपने स्वाद, अपस्ट्रीम और दर्पण तक पहुंचता है। `utils.cache.hosts` सत्य का एक बिंदु है; प्रविष्टियों से आते हैं ``cache: repos:`` भूमिकाओं में ``meta/networks.yml``, और तैनात, सूची उन्हें सही या विस्तारित कर सकती है; देखें `utils.cache.inventory`।."
 
 # translated-by: libretranslate
 msgid "Keys without a provider role are omitted — ``disable=`` cannot act on them."
@@ -36170,14 +36199,17 @@ msgstr "लुकअप प्लगइन 🔎"
 msgid "Lookup ``application_closure``: roles reachable from a seed application set."
 msgstr "लुकअप ``application_closure``: एक बीज अनुप्रयोग सेट से सुलभ भूमिकाएं।"
 
+# translated-by: libretranslate
 msgid "Lookup ``cache_records``: the repositories, as the bootstrap script reads them."
-msgstr ""
+msgstr "लुकअप ``cache_records``: भंडार, जैसा कि बूटस्ट्रैप स्क्रिप्ट ने उन्हें पढ़ा।."
 
+# translated-by: libretranslate
 msgid "Lookup ``cache_repos``: the repositories the package cache proxies."
-msgstr ""
+msgstr "लुकअप ``cache_repos``: पैकेज कैश प्रॉक्सी."
 
+# translated-by: libretranslate
 msgid "Lookup ``cache_upstreams``: the hosts the package cache answers for."
-msgstr ""
+msgstr "लुकअप ``cache_upstreams``: मेजबान पैकेज कैश उत्तर के लिए।."
 
 # translated-by: libretranslate
 msgid "Lookup ``compose_external_networks``: the provider role ids whose overlay the compose file of ``application_id`` references as ``external: true``."
@@ -38814,8 +38846,9 @@ msgstr "कोई बाहरी - आंतरिक SQLite `/config`।"
 msgid "None when the call is run once, else its retry policy."
 msgstr "जब कॉल एक बार चली जाती है, तो उसकी वापसी नीति।"
 
+# translated-by: libretranslate
 msgid "None where the list does not carry both, in which case the placeholders cannot be resolved."
-msgstr ""
+msgstr "कोई भी जहां सूची दोनों नहीं होती है, जिसके मामले में प्लेसहोल्डर को हल नहीं किया जा सकता है।."
 
 # translated-by: libretranslate
 msgid "None."
@@ -39473,8 +39506,9 @@ msgstr "एक तैनात नौकरी का शीर्षक और 
 msgid "One env setting: the process environment wins, ``default.env`` is the SPOT behind it."
 msgstr "एक एनवी सेटिंग: प्रक्रिया पर्यावरण जीतता है, ``default.env`` इसके पीछे SPOT है।"
 
+# translated-by: libretranslate
 msgid "One format, two readers: the ``.env`` generator writes it to ``INFINITO_CACHE_UPSTREAMS`` for the dev stack, and the ``cache_records`` lookup hands the same string to the role's bootstrap task. Both resolve the Ubuntu mirror placeholders from ``INFINITO_APT_UBUNTU_MIRRORS``, which the image build reads too, so the mirror order has a single home."
-msgstr ""
+msgstr "एक प्रारूप, दो पाठक: ``.env`` जनरेटर इसे लिखने के लिए ``INFINITO_CACHE_UPSTREAMS`` देव स्टैक के लिए, और ``cache_records`` भूमिका के बूटस्ट्रैप कार्य के लिए एक ही स्ट्रिंग को देखो। दोनों से उबंटू दर्पण प्लेसहोल्डर को हल करते हैं ``INFINITO_APT_UBUNTU_MIRRORS``, जो छवि भी पढ़ती है, इसलिए दर्पण के आदेश में एक ही घर है।."
 
 # translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the ``infinito-runner`` image locally, renders one compose project and starts ``RUNNER_COUNT`` instances."
@@ -39484,8 +39518,9 @@ msgstr "एक मेजबान पूरे बेड़े को चला�
 msgid "One host runs the whole fleet: the role builds the `infinito-runner` image locally, renders one compose project and starts `RUNNER_COUNT` instances."
 msgstr "एक मेजबान पूरे बेड़े को चलाता है: भूमिका का निर्माण करता है `infinito-runner` स्थानीय रूप से छवि, एक रचना परियोजना प्रस्तुत करता है और शुरू होता है `RUNNER_COUNT` उदाहरण"
 
+# translated-by: libretranslate
 msgid "One hostname the frontend answers for, in place of its upstream."
-msgstr ""
+msgstr "एक मेजबान ने अपने अपस्ट्रीम के स्थान पर, फ्रंटेंड उत्तर का नाम दिया।."
 
 # translated-by: libretranslate
 msgid "One integer CI setting, read through the shared env SPOT."
@@ -39523,8 +39558,9 @@ msgstr "प्रति रन एक क्वेरी, प्रति पर
 msgid "One recovery type backed by a role's ``files/python/recover.py``."
 msgstr "एक वसूली प्रकार एक भूमिका द्वारा समर्थित ``files/python/recover.py``।"
 
+# translated-by: libretranslate
 msgid "One repository Nexus proxies."
-msgstr ""
+msgstr "एक भंडारी नेक्सस प्रॉक्सी।."
 
 # translated-by: libretranslate
 msgid "One role's measured runtime within a deploy segment."
@@ -40792,8 +40828,9 @@ msgstr "पैकेज कैश 📚"
 msgid "Package Manager Installation"
 msgstr "पैकेज प्रबंधक स्थापना"
 
+# translated-by: libretranslate
 msgid "Package cache"
-msgstr ""
+msgstr "पैकेज कैश"
 
 # translated-by: libretranslate
 msgid "Package manager"
@@ -40988,8 +41025,9 @@ msgstr "पास `--dry-run` बिना लेखन के पूर्व�
 msgid "Pass `--dry-run` to preview, `--include-template` to also archive `000-template.md`. See `pkgmgr archive --help` for the full surface."
 msgstr "पास `--dry-run` पूर्वावलोकन करना `--include-template` संग्रह `000-template.md`. देखें `pkgmgr archive --help` पूर्ण सतह के लिए।"
 
+# translated-by: libretranslate
 msgid "Pass ``application_id`` as term 0, defaulting to the templating variable of the same name. ``http_port`` and ``proxy_internal_port`` are read from the same variables, so a role that resolved its port itself is not reported as backendless. ``applications`` comes from ``lookup('applications')``, the merged-config SPOT."
-msgstr ""
+msgstr "पास ``application_id`` टर्म 0, एक ही नाम के अस्थायी चर के लिए डिफ़ॉल्ट। ``http_port`` और ``proxy_internal_port`` उसी चर से पढ़े जाते हैं, इसलिए एक ऐसी भूमिका जो अपने बंदरगाह को हल करती है, उसे बैकएंडलेस नहीं बताया जाता है। ``applications`` से आता है ``lookup('applications')``, merged-config SPOT."
 
 # translated-by: libretranslate
 msgid "Pass ``provider_self_alias=False`` for a sidecar service that must not carry the provider's own alias, and ``own_network_only=True`` for one that must not inherit the networks its provider joins as a consumer."
@@ -43086,8 +43124,9 @@ msgstr "वाक्य सीमा को वापस रखो एक अन
 msgid "Put shared fixed values in one canonical source and reference them everywhere else."
 msgstr "एक canonical स्रोत में साझा मूल्य डाल दिया और उन्हें हर जगह संदर्भ दिया।"
 
+# translated-by: libretranslate
 msgid "Put the declaration in the role that needs the upstream. An upstream no single role owns goes in [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml)."
-msgstr ""
+msgstr "इस घोषणा को उस भूमिका में डाल दें जिसे अपस्ट्रीम की आवश्यकता होती है। एक अपस्ट्रीम कोई भी भूमिका का मालिक नहीं होता है [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml)।."
 
 # translated-by: libretranslate
 msgid "Python CLI for init, deploy, up, down, exec, etc."
@@ -44198,8 +44237,9 @@ msgstr "इनकार: दस शेष उपकरण Baserow 2.3.3 का�
 msgid "Refused: the ten remaining tools Baserow 2.3.3 implements, listed under `tools.upstream_serves`. Three of them (`create_rows`, `update_rows`, `delete_rows`) are live upstream — the image carries no env var, setting or UI toggle that removes them, so `mutating_tools_enabled: false` is enforced by the adapter and by nothing in Baserow. The other seven are shipped disabled upstream and are listed so a version bump that enables one shows up as contract drift rather than as a silently widened surface."
 msgstr "इनकार: दस शेष उपकरण Baserow 2.3.3 कार्यान्वयन, नीचे सूचीबद्ध `tools.upstream_serves`. उनमें से तीन (`create_rows`, `update_rows`, `delete_rows`) लाइव अपस्ट्रीम - छवि में कोई एनवी वी, सेटिंग या यूआई टॉगल नहीं होता है जो उन्हें हटा देता है, इसलिए `mutating_tools_enabled: false` एडाप्टर द्वारा लागू किया जाता है और इसमें कुछ भी नहीं है Baserowअन्य सातों को विकलांग अपस्ट्रीम भेज दिया जाता है और इसलिए एक संस्करण टक्कर सूचीबद्ध किया जाता है जो किसी को चुपचाप चौड़ी सतह के बजाय अनुबंध बहाव के रूप में दिखाता है।."
 
+# translated-by: libretranslate
 msgid "Regenerate every derived cache file"
-msgstr ""
+msgstr "हर व्युत्पन्न कैश फ़ाइल को पुनर्जीवित करें"
 
 # translated-by: libretranslate
 msgid "Regenerate the Debian changelog at *path* from CHANGELOG.md."
@@ -44781,8 +44821,9 @@ msgstr "बॉन्ड मैट्रिक्स को प्रस्तु
 msgid "Render the collected service rows and aggregated totals as an aligned text table or as JSON."
 msgstr "एकत्र की गई सेवा पंक्तियों और कुल मिलाकर एक संरेखित पाठ तालिका या JSON के रूप में प्रस्तुत करें।."
 
+# translated-by: libretranslate
 msgid "Render the declared repositories as the records Nexus is bootstrapped from."
-msgstr ""
+msgstr "रिकॉर्ड नेक्सस के रूप में घोषित रिपॉज़िटरी को प्रस्तुत करना बूटस्ट्रैप किया गया है।."
 
 # translated-by: libretranslate
 msgid "Render the plan of one CI sweep: every candidate row, and where it lands."
@@ -44800,8 +44841,9 @@ msgstr "शीर्ष स्तर प्रस्तुत करें ``vol
 msgid "Render using strict Jinja2 repeatedly until:"
 msgstr "रेंडर सख्त जिन्जा का उपयोग कर2 बार-बार जब तक:"
 
+# translated-by: libretranslate
 msgid "Render what the package cache needs beside its role, from the declarations."
-msgstr ""
+msgstr "घोषणाओं से पैकेज कैश को अपनी भूमिका के बगल में क्या करना चाहिए?"
 
 # translated-by: libretranslate
 msgid "Rendered `.env` passed to the Playwright container"
@@ -45722,11 +45764,13 @@ msgstr "वापसी (रजिस्ट्री, repository_name) एक �
 msgid "Return (running_on_github, running_on_act)."
 msgstr "वापसी (running_on_github, running_on_act)।."
 
+# translated-by: libretranslate
 msgid "Return *declared* with *overrides* applied, sorted by key."
-msgstr ""
+msgstr "वापसी *घोषित* साथ *ओवरराइड* लागू, कुंजी द्वारा क्रमबद्ध।."
 
+# translated-by: libretranslate
 msgid "Return *raw* with the Ubuntu mirror placeholders substituted."
-msgstr ""
+msgstr "वापसी *कच्चा* उबंटू दर्पण प्लेसहोल्डर प्रतिस्थापन के साथ।."
 
 # translated-by: libretranslate
 msgid "Return *value* as a list of plausible HTTP status codes."
@@ -45862,8 +45906,9 @@ msgstr "वापसी ``<host>:<port>`` नोड टोर ऑक्टा �
 msgid "Return ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` — per-round variant-closure plus a plan-constant union for the inter-round wipe."
 msgstr "वापसी ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` - प्रति राउंड वेरिएंट-क्लोज़र प्लस इंटर-राउंड वाइप के लिए एक प्लान- कॉन्स्टेंट यूनियन।."
 
+# translated-by: libretranslate
 msgid "Return ``[True]`` when a port exists to probe, ``[False]`` otherwise."
-msgstr ""
+msgstr "वापसी ``[True]`` जब एक बंदरगाह जांच के लिए मौजूद है, ``[False]`` अन्यथा।."
 
 # translated-by: libretranslate
 msgid "Return ``data`` as a CommentedMap, empty when it holds no mapping."
@@ -46079,14 +46124,17 @@ msgstr "प्रत्येक पर कब्जा *पैटर्न* श
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "सभी भूमिकाओं में हर घोषित addon लौटें ``meta/addons/*.yml``।."
 
+# translated-by: libretranslate
 msgid "Return every declared host as a template-ready record, keyed by host."
-msgstr ""
+msgstr "प्रत्येक घोषित होस्ट को टेम्पलेट-रीडी रिकॉर्ड के रूप में वापस लौटें, होस्ट द्वारा कुंजी।."
 
+# translated-by: libretranslate
 msgid "Return every declared repository and host."
-msgstr ""
+msgstr "प्रत्येक घोषित भंडार और होस्ट वापस लौटें।."
 
+# translated-by: libretranslate
 msgid "Return every declared repository as a record, keyed by name."
-msgstr ""
+msgstr "प्रत्येक घोषित रिपॉज़िटरी को रिकॉर्ड के रूप में लौटाएं, जिसका नाम नाम है।."
 
 # translated-by: libretranslate
 msgid "Return every declared role author, sorted and without duplicates."
@@ -46120,8 +46168,9 @@ msgstr "नीचे हर सटीक पिप पिन लौटाएं 
 msgid "Return every group-conditional service key that has a provider role."
 msgstr "प्रत्येक ग्रुप-कंडीशनल सर्विस कुंजी को लौटाएं जिसमें एक प्रदाता भूमिका होती है।."
 
+# translated-by: libretranslate
 msgid "Return every host the frontend answers for on behalf of *repo*."
-msgstr ""
+msgstr "प्रत्येक मेजबान की ओर से फ्रंटेंड उत्तर वापस लौटें *रेपो*।."
 
 # translated-by: libretranslate
 msgid "Return every language of ``meta/languages.yml`` keyed by ISO 639-1 code."
@@ -46139,8 +46188,9 @@ msgstr "एक npm का हर प्रकाशित संस्करण 
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr "प्रत्येक जारी संस्करण को वापस करें ``package``, जब Pypi पहुंच योग्य है तो खाली।."
 
+# translated-by: libretranslate
 msgid "Return every repository as ``name|flavor|url|suite|depth|max_age``."
-msgstr ""
+msgstr "हर प्रस्ताव को लौटाने के रूप में ``name|flavor|url|suite|depth|max_age``।."
 
 # translated-by: libretranslate
 msgid "Return every role directory name, sorted."
@@ -46186,8 +46236,9 @@ msgstr ""
 msgid "Return mapping of service_name -> application_id for the provider role of each requested service. Resolution goes through the canonical service registry, so ``provides:`` aliases (e.g. ``mailu.provides: email``) and shared entity-name services are both recognized."
 msgstr "की वापसी मानचित्रण service_name -> application_id प्रत्येक अनुरोध सेवा की प्रदाता भूमिका के लिए। संकल्प canonical सेवा रजिस्ट्री के माध्यम से चला जाता है, इसलिए ``provides:`` Alia (उदाहरण ``mailu.provides: email``) और साझा इकाई नाम सेवाओं दोनों मान्यता प्राप्त हैं।."
 
+# translated-by: libretranslate
 msgid "Return one distribution's apt source, empty where it does not use apt."
-msgstr ""
+msgstr "एक वितरण के स्रोत को वापस लौटें, खाली जहां यह उपयुक्त नहीं है।."
 
 # translated-by: libretranslate
 msgid "Return one message per ``update:`` block that cannot be resolved."
@@ -46242,11 +46293,13 @@ msgstr "से रिटर्न टैग नाम ``git ls-remote --tags``, 
 msgid "Return the (background, foreground) pair for a bond between 0 and 1."
 msgstr "वापसी (पृष्ठभूमि, अग्रभूमि) बीच में एक बंधन के लिए जोड़ी 0 और 1।."
 
+# translated-by: libretranslate
 msgid "Return the (path, repository) pairs this host serves."
-msgstr ""
+msgstr "वापसी (पथ, भंडार) जोड़े इस होस्ट को कार्य करता है।."
 
+# translated-by: libretranslate
 msgid "Return the (port, terminates TLS) pairs this host is served on."
-msgstr ""
+msgstr "वापसी (बंदरगाह, TLS समाप्त) इस होस्ट को जोड़े परोसा जाता है।."
 
 # translated-by: libretranslate
 msgid "Return the CPU architectures the role can be deployed on, or ``[]`` when it declares none and takes whatever the CI rotation assigns."
@@ -46388,8 +46441,9 @@ msgstr "उस कोड को वापस करें जो एक सू�
 msgid "Return the codes that prove *domain* is being served at all."
 msgstr "जो कोड साबित करता है *डोमेन* सभी परोसा जा रहा है।."
 
+# translated-by: libretranslate
 msgid "Return the compose override that points every cached host at the frontend."
-msgstr ""
+msgstr "प्रत्येक कैश्ड होस्ट को फ्रंटेंड में इंगित करता है।."
 
 # translated-by: libretranslate
 msgid "Return the compressed transfer size of ``image:reference`` in bytes."
@@ -46407,8 +46461,9 @@ msgstr "वापसी ``translation`` जब यह कोई टूट गय
 msgid "Return the current play application mapping using the shared resolver from utils/roles/applications/in_group_deps."
 msgstr "मौजूदा प्ले एप्लिकेशन मैपिंग को साझा हलकों का उपयोग करके वापस करें utils/roles/applications/in_group_deps."
 
+# translated-by: libretranslate
 msgid "Return the declared repository *name*, or None where none declares it."
-msgstr ""
+msgstr "घोषित भंडार वापस लौटें *नाम*कोई भी ऐसा नहीं है जहां कोई इसे घोषित नहीं करता है।."
 
 # translated-by: libretranslate
 msgid "Return the deploy modes a role supports, keyed by mode with its ``modes.<mode>.enabled`` SPOT value."
@@ -46478,8 +46533,9 @@ msgstr "पूर्ण वापसी ``PORT_BANDS`` नक्शा द्व
 msgid "Return the highest released version of ``package``, or None."
 msgstr "का उच्चतम जारी संस्करण वापस ``package``, कोई नहीं."
 
+# translated-by: libretranslate
 msgid "Return the hostname *repo* proxies, taken from its upstream URL."
-msgstr ""
+msgstr "मेजबान नाम वापस लौटें *रेपो* प्रॉक्सी, अपने अपस्ट्रीम यूआरएल से लिया।."
 
 # translated-by: libretranslate
 msgid "Return the identifiers ``role_dir`` names its upstream product by."
@@ -46497,8 +46553,9 @@ msgstr "अब यहां की गई पहचान वापस लौट
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "तत्काल उपनिर्देशों को वापस लौटें ``cli/<parts>/``, रनेबल कमांड में विभाजित (``__main__.py`` वर्तमान) और श्रेणी फ़ोल्डर। खाली समर्थन पैकेज (नीचे कहीं भी कोई आदेश नहीं) छोड़ दिया जाता है।."
 
+# translated-by: libretranslate
 msgid "Return the inventory's entries for one ``cache:`` section."
-msgstr ""
+msgstr "एक के लिए सूची की प्रविष्टियों को वापस लौटें ``cache:`` अनुभाग।."
 
 # translated-by: libretranslate
 msgid "Return the languages the server translates English into."
@@ -46536,15 +46593,17 @@ msgstr "नाम वापस लौटें ``module`` खुद को प�
 msgid "Return the names ``source`` carries that ``translation`` dropped."
 msgstr "नाम वापस लौटें ``source`` वहन करना ``translation`` गिरा दिया।."
 
+# translated-by: libretranslate
 msgid "Return the nginx frontend configuration the declarations produce."
-msgstr ""
+msgstr "Nginx frontend विन्यास घोषणाओं का उत्पादन वापस लौटें।."
 
 # translated-by: libretranslate
 msgid "Return the non-overlapping offsets every protection rule claims."
 msgstr "प्रत्येक सुरक्षा नियम का दावा करने वाले गैर ओवरलैपिंग ऑफ़सेट वापस लौटें।."
 
+# translated-by: libretranslate
 msgid "Return the npm configuration pointing at the cached registry."
-msgstr ""
+msgstr "कैश्ड रजिस्ट्री पर इंगित करने वाले npm कॉन्फ़िगरेशन को वापस करें।."
 
 # translated-by: libretranslate
 msgid "Return the offsets of every name ``text`` carries."
@@ -46566,8 +46625,9 @@ msgstr "पार्सेड प्रकटन वापस लौटें (�
 msgid "Return the path of the ``domain`` catalog of language ``code``."
 msgstr "पथ लौटें ``domain`` भाषा सूची ``code``।."
 
+# translated-by: libretranslate
 msgid "Return the path this host serves *repo* under, or the empty string."
-msgstr ""
+msgstr "इस मेजबान कार्य करता है *रेपो* नीचे, या खाली स्ट्रिंग।."
 
 # translated-by: libretranslate
 msgid "Return the people ``role_dir`` names as its authors."
@@ -46577,15 +46637,17 @@ msgstr "लोगों को वापस लौटें ``role_dir`` इस�
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
 msgstr "प्रति सेवा माउंट ब्लॉक वापस लौटें (``volumes:`` + ``configs:`` + ``secrets:``) कॉलम पर शुरू होने वाले YAML स्ट्रिंग के रूप में 0।."
 
+# translated-by: libretranslate
 msgid "Return the pip configuration pointing at the cached PyPI hosts."
-msgstr ""
+msgstr "कैश्ड पिपीआई होस्ट पर पॉइंटिंग पिप कॉन्फ़िगरेशन को वापस करें।."
 
 # translated-by: libretranslate
 msgid "Return the plain translation, or what was rejected and the criterion it broke."
 msgstr "सादे अनुवाद वापस लौटें, या क्या अस्वीकार कर दिया गया था और उस अपराध को तोड़ दिया।."
 
+# translated-by: libretranslate
 msgid "Return the primary and fallback Ubuntu archive, without trailing slash."
-msgstr ""
+msgstr "प्राइमरी और फ्लेमबैक उबंटू संग्रह को वापस लौटें, बिना किसी निशाने के।."
 
 # translated-by: libretranslate
 msgid "Return the primary domain for application_id from the domains mapping:"
@@ -46671,8 +46733,9 @@ msgstr "वापसी run_after भूमिका स्वामित्व
 msgid "Return the same data as JSON, for a caller that wants to post-process."
 msgstr "उसी डेटा को JSON के रूप में लौटाएं, एक कॉलर के लिए जो पोस्ट-प्रोसेस करना चाहता है।."
 
+# translated-by: libretranslate
 msgid "Return the scheme a client addresses this host with."
-msgstr ""
+msgstr "इस योजना को एक ग्राहक के साथ इस होस्ट को संबोधित करता है।."
 
 # translated-by: libretranslate
 msgid "Return the selected and rejected MCP servers for one client role."
@@ -46810,8 +46873,9 @@ msgstr "रिटर्न कि क्या एक रिकॉर्ड प�
 msgid "Return whether a role marks itself an MCP client in its own services."
 msgstr "वापस लौटें कि क्या भूमिका खुद को अपनी सेवाओं में एक MCP क्लाइंट को चिह्नित करती है।."
 
+# translated-by: libretranslate
 msgid "Return whether an application has a backend a vhost can probe."
-msgstr ""
+msgstr "रिटर्न कि क्या एक आवेदन में एक वापसी है एक भूत जांच कर सकते हैं।."
 
 # (``compose`` (c) ``swarm`` (c) ``host``)।.
 # translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
@@ -47001,8 +47065,9 @@ msgstr "एक दिए गए निर्देश के लिए हैश
 msgid "Returns one ``{'role': …, 'app': …}`` mapping per role, so a stage can loop over the group instead of including a generated task file per group:"
 msgstr "एक वापसी ``{'role': …, 'app': …}`` प्रति भूमिका मैपिंग, इसलिए एक चरण समूह पर प्रति समूह एक उत्पन्न कार्य फ़ाइल सहित लूप कर सकता है:"
 
+# translated-by: libretranslate
 msgid "Returns one dict per host, sorted by host, carrying ``host``, ``repo``, ``routes``, ``listen``, ``read_timeout`` and ``passthrough``."
-msgstr ""
+msgstr "प्रति होस्ट एक ct लौटें, मेजबान द्वारा क्रमबद्ध, ले जाना ``host``, ``repo``, ``routes``, ``listen``, ``read_timeout`` और ``passthrough``।."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -48431,8 +48496,9 @@ msgstr "सूची को प्रावधान करने और तै�
 msgid "Run the published image to provision the inventory and deploy OpenTalk to a managed server (the mounted volume persists the inventory):"
 msgstr "सूची को प्रावधान करने और तैनात करने के लिए प्रकाशित छवि को चलाएं OpenTalk प्रबंधित सर्वर (घुड़सवार मात्रा सूची जारी रहती है):"
 
+# translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy Package cache to a managed server (the mounted volume persists the inventory):"
-msgstr ""
+msgstr "सूची को प्रावधान करने और तैनात करने के लिए प्रकाशित छवि को चलाएं Package cache प्रबंधित सर्वर (घुड़सवार मात्रा सूची जारी रहती है):"
 
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy PeerTube to a managed server (the mounted volume persists the inventory):"
@@ -51809,8 +51875,9 @@ msgstr "इतना है कि आयात चीप रहता है `u
 msgid "Stdlib line parse on purpose: env handlers feed the .env generation, which bootstraps fresh hosts before PyYAML exists (canonical pattern: utils/storage/nfs.py)."
 msgstr "उद्देश्य पर Stdlib लाइन पार्स: env handlers फ़ीड .env पीढ़ी, जो बूटस्ट्रैप्स ताजा मेजबान पहले PyYAML मौजूद है (कैनोनिकल पैटर्न: utils/storage/nfs.py)।."
 
+# translated-by: libretranslate
 msgid "Stdlib only: the ``.env`` generator reaches this before PyYAML exists."
-msgstr ""
+msgstr "केवल Stdlib: ``.env`` जनरेटर इससे पहले कि PyYAML मौजूद है पहुँचता है।."
 
 # translated-by: libretranslate
 msgid "Stdlib reader for the block-YAML subset the bootstrap SPOT files use."
@@ -52569,8 +52636,9 @@ msgstr "Svc-bkp-secrets-2-स्थानीय भूमिका"
 msgid "Svc-bkp-volume-2-local Role"
 msgstr "Svc-bkp-volume-2-स्थानीय भूमिका"
 
+# translated-by: libretranslate
 msgid "Svc-cache-package Role"
-msgstr ""
+msgstr "Svc कैश पैकेज रोल"
 
 # translated-by: libretranslate
 msgid "Svc-db-elasticsearch Role"
@@ -55235,8 +55303,9 @@ msgstr "धुरी एक सीआई चयन टोकन ले जा �
 msgid "The backup host is NOT appended to the cluster inventory: it lives in a sibling ``backup.yml`` next to ``INV_PATH`` (same host_vars dir), deployed as a second play after the cluster one. Without a svc-swarm-node group that play resolves DEPLOYMENT_MODE=compose and IS_STACK_HOST=true on the backup host, so the backup roles run without cluster-membership special cases."
 msgstr "बैकअप होस्ट क्लस्टर सूची में नहीं है: यह एक भाई बहन में रहता है ``backup.yml`` आगे ``INV_PATH`` (समान host_vars हिन्दी), क्लस्टर एक के बाद एक दूसरे के रूप में तैनात। बिना svc-swarm-node समूह है कि नाटक हल DEPLOYMENT_MODE=अनुभव और IS_STACK_HOST= बैकअप होस्ट पर, इसलिए बैकअप भूमिकाएं क्लस्टर-सदस्यता विशेष मामलों के बिना चलती हैं।."
 
+# translated-by: libretranslate
 msgid "The base URL to translate against. The service answers only once it has installed its models, which the caller's readiness wait covers."
-msgstr ""
+msgstr "आधार यूआरएल के खिलाफ अनुवाद करने के लिए। सेवा केवल तभी उत्तर देती है जब उसने अपने मॉडल को स्थापित किया है, जो कॉलर की तत्परता प्रतीक्षा कवर करती है।."
 
 # translated-by: libretranslate
 msgid "The base layer of :mod:`utils.i18n.placeholders`: it knows the protection rules and nothing about damage or repair, so :mod:`utils.i18n.damage` can build on it without an import cycle."
@@ -55535,8 +55604,9 @@ msgstr "संयोजन एक लाल तैनाती नौकरी �
 msgid "The combined \"yield project files filtered through ``.gitignore``\" helper lives in :mod:`utils.cache.files` (``iter_non_ignored_files``) because it composes the cached project walk with this matcher."
 msgstr "संयुक्त \"उत्पादन परियोजना फ़ाइलों के माध्यम से फ़िल्टर ``.gitignore``\" हेल्पर में रहता है :mod:`utils.cache.files` (``iter_non_ignored_files``) क्योंकि यह इस मैचर के साथ कैश्ड प्रोजेक्ट वॉक की रचना करता है।."
 
+# translated-by: libretranslate
 msgid "The comma-separated records, or the empty string where a placeholder stays unresolved, so a consumer's own guard reports it rather than Nexus proxying a host that does not exist."
-msgstr ""
+msgstr "अल्पसंख्यक रिकॉर्ड, या खाली स्ट्रिंग जहां एक प्लेसहोल्डर अनसुलझ रहता है, इसलिए एक उपभोक्ता की खुद की गार्ड नेक्सस के बजाय एक मेजबान को प्रॉक्सी करने की रिपोर्ट करता है जो मौजूद नहीं है।."
 
 # translated-by: libretranslate
 msgid "The common pieces are:"
@@ -55605,8 +55675,9 @@ msgstr "विन्यास-असर Nextcloud ऐप में घोषि�
 msgid "The config-bearing Nextcloud apps are declared in `meta/addons/` under the unified addon contract (requirement 026). Each declaration carries its full `occ config:app:set` payload under `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
 msgstr "विन्यास-असर Nextcloud ऐप में घोषित किया गया है `meta/addons/` एकीकृत addon अनुबंध के तहत (आवश्यकता 026). प्रत्येक घोषणा अपने पूर्ण किया जाता है `occ config:app:set` नीचे पेलोड `config:`. सक्षम-केवल ऐपस्टोर ऐप नीचे रहता है `nextcloud.plugins` में [`meta/services.yml`](./meta/services.yml)।."
 
+# translated-by: libretranslate
 msgid "The configured entries, or an empty mapping where no inventory answers, as in the dev stack."
-msgstr ""
+msgstr "कॉन्फ़िगर प्रविष्टियों, या एक खाली मानचित्रण जहां कोई सूची उत्तर नहीं है, जैसा कि देव स्टैक में है।."
 
 # translated-by: libretranslate
 msgid "The configured relay host, the loopback address, the container's alias for its host, or a swarm manager."
@@ -55701,8 +55772,9 @@ msgstr "निर्णय डॉकर्स के डेटा रूट क�
 msgid "The decision repeats for the same request"
 msgstr "निर्णय उसी अनुरोध के लिए दोहराता है"
 
+# translated-by: libretranslate
 msgid "The declarations live under ``cache: hosts:`` in every role's ``meta/networks.yml`` and `utils.cache.hosts` collects them. Deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
-msgstr ""
+msgstr "घोषणाओं के तहत रहते हैं ``cache: hosts:`` हर भूमिका में ``meta/networks.yml`` और `utils.cache.hosts` उन्हें इकट्ठा करना वितरित, सूची उन्हें सही या विस्तारित कर सकती है; देखें `utils.cache.inventory`।."
 
 # translated-by: libretranslate
 msgid "The declared codes, empty when the app declares none for this domain."
@@ -55799,8 +55871,9 @@ msgstr "निष्क्रिय ड्रिल, सिंक पास क�
 msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value names the compose-only boolean."
 msgstr "पता लगाने की रेखा आधारित है: कार्य ब्लॉक निकटतम के बीच की अवधि है `- name:` (Indent N) ऑफेंडिंग लाइन और अगले शीर्ष स्तर के संरचनात्मक मार्कर के ऊपर (`- name:` Indent <= N, or फ़ाइल का अंत)उस अवधि के भीतर हम किसी भी के लिए देखते हैं `when:` खंड जिसका पाठ्य मूल्य रचना-केवल बोलान का नाम है।."
 
+# translated-by: libretranslate
 msgid "The dev compose stack has no inventory and caches exactly what the roles declare. A deployed host caches what its configuration says, which starts from the same declarations and lets the inventory correct or extend them::"
-msgstr ""
+msgstr "देव रचना स्टैक में कोई सूची और कैश नहीं है जो वास्तव में भूमिकाओं की घोषणा करती है। एक तैनात होस्ट कैश जो इसके विन्यास कहते हैं, जो उसी घोषणाओं से शुरू होता है और सूची को सही करने या उन्हें विस्तारित करने देता है:"
 
 # translated-by: libretranslate
 msgid "The dev-deploy CLI threads the variant index through three layers so a variant's `variants.yml` overlay reaches the credential subprocess."
@@ -56491,8 +56564,9 @@ msgstr "आरेख स्थान OpenTalk में Infinito.Nexus cosmos: �
 msgid "The diagram places Package Manager Installation in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
 msgstr "आरेख स्थान Package Manager Installation में Infinito.Nexus cosmos: घटक यह तैनात करता है (क्षमताओं), यह केंद्रीय सेवाओं का उपभोग करता है (निर्भरता), और इसकी बाहरी पहुंच (फेडरेशन और पुल बाह्य नेटवर्क)।."
 
+# translated-by: libretranslate
 msgid "The diagram places Package cache in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr ""
+msgstr "आरेख स्थान Package cache में Infinito.Nexus cosmos: घटक यह तैनात करता है (क्षमताओं), यह केंद्रीय सेवाओं का उपभोग करता है (निर्भरता), और इसकी बाहरी पहुंच (फेडरेशन और पुल बाह्य नेटवर्क)।."
 
 # translated-by: libretranslate
 msgid "The diagram places Package update in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -57829,8 +57903,9 @@ msgstr "जब पीढ़ी कोई नहीं रखती तब प्
 msgid "The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group, and the orchestrator's group cancels for `workflow_dispatch` regardless of ref, so a manual sweep supersedes on both levels, `main` included."
 msgstr "मैनुअल प्रविष्टि वर्कफ़्लो (`entry-manual-steer.yml`) सेट `cancel-in-progress: true` अपने स्वयं के समूह पर, और ऑर्केस्ट्रेटर समूह के लिए रद्द कर देता है `workflow_dispatch` रेफरी की परवाह किए बिना, इसलिए एक मैनुअल स्वीप दोनों स्तरों पर निर्भर करता है, `main` शामिल हैं।."
 
+# translated-by: libretranslate
 msgid "The map itself is generated, never tracked, so no second copy of a hostname can drift; ``utils.cache.render.render_artifacts`` writes it once the value-set is built."
-msgstr ""
+msgstr "मानचित्र स्वयं उत्पन्न होता है, कभी ट्रैक नहीं किया जाता है, इसलिए होस्टनाम की कोई दूसरी प्रतिलिपि बहाव नहीं हो सकती है; ``utils.cache.render.render_artifacts`` इसे एक बार मान सेट बनाया जाता है।."
 
 # translated-by: libretranslate
 msgid "The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in its job title, between the variant number and the ⭐ of a priority row."
@@ -57987,8 +58062,9 @@ msgstr "पाइपलाइन में अगले चरण को नि�
 msgid "The nfs-server uses the userspace `nfs-ganesha` (`ganesha`) flavor in every runtime; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` is the SPOT, and `kernel` is a per-inventory override. Ganesha is packaged for the `Debian` and `RedHat` os families only. Kernel `nfsd` in a privileged DinD node is wedge-prone: the export can be present yet the controller mount returns ENOENT, and `exportfs` can stick in D-state. If a swarm step hangs at `Reload NFS exports` from a stuck kernel-NFS mount, you MUST recover with `make swarm-clean` on the host; see the NFS gotcha in [Roundtrip Loop](roundtrip.md). You MUST NOT fall back to a compose-only sweep while swarm is blocked."
 msgstr "Nfs-server उपयोगकर्तास्पेस का उपयोग करता है `nfs-ganesha` (`ganesha`) प्रत्येक रनटाइम में स्वाद; `services.nfs-server.flavor` में `roles/svc-storage-nfs-server/meta/services.yml` SPOT है, और `kernel` प्रति इन्वेंटरी ओवरराइड है। गणेश के लिए पैकेज है `Debian` और `RedHat` ओस परिवार केवल। कर्नेल `nfsd` एक विशेषाधिकार प्राप्त DinD नोड में वेज-प्रवण है: निर्यात अभी तक प्रस्तुत किया जा सकता है नियंत्रक माउंट रिटर्न ENOENT, और `exportfs` डी-स्टेट में छड़ी कर सकते हैं। यदि एक swarm कदम पर लटका `Reload NFS exports` एक फंसे कर्नेल-NFS माउंट से, आप MUST के साथ ठीक हो जाओ `make swarm-clean` मेजबान पर, देखें NFS gotcha in [राउंडट्रिप लूप](roundtrip.md). आप नहीं तो एक रचना-केवल स्वीप करने के लिए वापस गिर जाते हैं जबकि झंडा अवरुद्ध है।."
 
+# translated-by: libretranslate
 msgid "The nginx upstream map, the consumer compose override and the package managers' client configuration all follow from the ``cache:`` declarations in the roles' `meta/networks.yml`. None of them is tracked; this package regenerates them. Implementation lives in `utils.cache.render`."
-msgstr ""
+msgstr "Nginx अपस्ट्रीम नक्शा, उपभोक्ता ओवरराइड और पैकेज प्रबंधकों के क्लाइंट कॉन्फ़िगरेशन को पूरा करता है ``cache:`` भूमिकाओं में घोषणा `meta/networks.yml`. उनमें से कोई भी ट्रैक नहीं है; यह पैकेज उन्हें पुनर्जीवित करता है। कार्यान्वयन में रहता है `utils.cache.render`।."
 
 # translated-by: libretranslate
 msgid "The nightly timers (volume 01:00, nfs 01:30, secrets 01:45, device 02:00, remote pull 00:30) run independently of every step above and never fire during a lab run."
@@ -59007,8 +59083,9 @@ msgstr "भूमिका एक एकल तैनाती `registry:2` उ�
 msgid "The role deploys end-to-end on the project's reference distribution and is covered by **at least** a smoke-level Playwright spec, but neither the deploy nor the spec depth is considered production-grade."
 msgstr "भूमिका परियोजना के संदर्भ वितरण पर अंत से अंत की तैनाती करती है और इसे कवर किया जाता है **कम से कम** एक स्मोक लेवल प्लेराइट स्पेक, लेकिन न तो तैनाती और न ही स्पेक गहराई को प्रोडक्शन-ग्रेड माना जाता है।."
 
+# translated-by: libretranslate
 msgid "The role deploys the frontend and owns the templates and their tuning; the dev compose stack has no inventory to render them with and comes through here instead. Every value still has one home: the hosts and repositories come from the ``cache:`` declarations, the nginx tuning from the role's ``vars/main.yml``, and only the backend address differs, because the dev stack reaches Nexus over a compose network alias while the role reaches it by its configured container."
-msgstr ""
+msgstr "भूमिका फ्रंटेंड को तैनात करती है और टेम्पलेट्स और उनके ट्यूनिंग का मालिक है; देव रचना स्टैक में उन्हें प्रस्तुत करने के लिए कोई सूची नहीं है और इसके बजाय यहां से आता है। हर कीमत अभी भी एक घर है: मेजबान और भंडार से आते हैं ``cache:`` घोषणाएं, भूमिका की शुरुआत से nginx ट्यूनिंग ``vars/main.yml``, और केवल बैकेंड पता अलग है, क्योंकि देव स्टैक नेक्सस को एक रचना नेटवर्क उपनाम पर पहुंचता है जबकि भूमिका इसके कॉन्फ़िगर कंटेनर द्वारा पहुंचती है।."
 
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via `SEMAPHORE_*` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak `administrator` is created at deploy time as an external Semaphore admin via `semaphore user add --admin --external`; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
@@ -59018,11 +59095,13 @@ msgstr "भूमिका एकल Semaphore कंटेनर की तै�
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via ``SEMAPHORE_*`` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak ``administrator`` is created at deploy time as an external Semaphore admin via ``semaphore user add --admin --external``; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "भूमिका एकल Semaphore कंटेनर की तैनाती (अपने एम्बेडेड कार्य धावक के साथ) और यह मंच के माध्यम से तार ``SEMAPHORE_*`` पर्यावरण चर। सेटअप विज़ार्ड को प्रदान किए गए रहस्यों से प्रारंभिक व्यवस्थापक को बीजिंग द्वारा बाईपास किया जाता है, इसलिए Semaphore लॉगिन पृष्ठ पर सीधे एक ताजा तैनाती भूमि। जब SSO सक्षम हो जाता है, Keycloak ``administrator`` बाहरी Semaphore व्यवस्थापक के रूप में तैनात समय पर बनाया गया है ``semaphore user add --admin --external``; OIDC कॉलबैक ईमेल द्वारा इसे मेल खाता है और ऑपरेटर को Semaphore व्यवस्थापक के रूप में इंगित करता है।."
 
+# translated-by: libretranslate
 msgid "The role deploys two containers on its inventory group's host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling [svc-registry-cache](../svc-registry-cache/README.md)."
-msgstr ""
+msgstr "भूमिका अपने सूची समूह के होस्ट पर दो कंटेनरों को तैनात करती है: भंडार प्रबंधक और इसके nginx frontend। दोनों प्रबंधक पर रचना मोड में चलाते हैं, जैसे भाई बहन [svc-registry-cache](../svc-registry-cache/README.md)।."
 
+# translated-by: libretranslate
 msgid "The role deploys two containers on its inventory group’s host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling `svc-registry-cache <../svc-registry-cache/README.md>`__."
-msgstr ""
+msgstr "भूमिका अपने सूची समूह के होस्ट पर दो कंटेनरों को तैनात करती है: भंडार प्रबंधक और इसके nginx frontend। दोनों प्रबंधक पर रचना मोड में चलाते हैं, जैसे भाई बहन `svc-registry-cache <../svc-registry-cache/README.md>`__।."
 
 # translated-by: libretranslate
 msgid "The role directory name is the `application_id`. For example `roles/web-app-mailu/meta/services.yml` is exposed as `applications['web-app-mailu'].services`, `roles/web-app-mailu/meta/server.yml` as `applications['web-app-mailu'].server`, and so on."
@@ -59506,8 +59585,9 @@ msgstr "प्रत्येक अक्ष के साथ समान च�
 msgid "The same shape serves the repository-root file, which holds the shared collection any role and any inventory bundle may install from, and a role's own file, which holds what only that role installs."
 msgstr "एक ही आकार में रिपॉज़िटरी-रूट फ़ाइल होती है, जो साझा संग्रह को किसी भी भूमिका रखती है और किसी भी सूची बंडल से स्थापित हो सकता है, और एक भूमिका की अपनी फ़ाइल, जिसमें केवल वही भूमिका स्थापित होती है।."
 
+# translated-by: libretranslate
 msgid "The same string `.env` carries as ``INFINITO_CACHE_UPSTREAMS``, so the role's bootstrap task and the dev stack provision Nexus from one rendering. `utils.cache.records` owns the format."
-msgstr ""
+msgstr "एक ही स्ट्रिंग `.env` वहन करना ``INFINITO_CACHE_UPSTREAMS``, इसलिए भूमिका के बूटस्ट्रैप कार्य और देव स्टैक प्रावधान नेक्सस एक प्रतिपादन से। `utils.cache.records` प्रारूप का मालिक है।."
 
 # translated-by: libretranslate
 msgid "The sandbox (`allowWrite`, `denyRead`, `allowedDomains`, see [sandbox.md](sandbox.md)) bounds every write, every read, and every outbound connection. `deny` rules block destructive patterns unconditionally; `ask` rules force operator review on every mutating `gh`/`docker`/`git commit`/`Skill(update-config*)` invocation. The wildcard does **not** loosen any existing guardrail; it only drops the per-shape workarounds."
@@ -59691,8 +59771,9 @@ msgstr "सेटअप कार्य स्वचालित रूप स�
 msgid "The shape each key must have is declared per role rather than here, in [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) with a `type:` and a `regex:`. The pattern rejects a truncated or whitespace-carrying paste and deliberately accepts any vendor prefix, so a provider changing its issuance format cannot turn a valid key into a failed inventory run."
 msgstr "प्रत्येक कुंजी के आकार को यहां की तुलना में प्रति भूमिका घोषित किया जाना चाहिए। [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) एक साथ `type:` और a `regex:`. पैटर्न एक truncated या whitespace-carrying पेस्ट को खारिज कर देता है और जानबूझकर किसी भी विक्रेता उपसर्ग को स्वीकार करता है, इसलिए एक प्रदाता अपने जारी प्रारूप को बदलने के लिए एक वैध कुंजी को विफल सूची रन में बदल नहीं सकता है।."
 
+# translated-by: libretranslate
 msgid "The shape every consumer renders from: the ansible lookups, which then apply the inventory, and the dev stack, which does not."
-msgstr ""
+msgstr "प्रत्येक उपभोक्ता को आकार देने से: ansible lookup, जो तब इन्वेंट्री और देव स्टैक को लागू करता है, जो नहीं करता है।."
 
 # translated-by: libretranslate
 msgid "The shape mirrors the schema tree: nested keys stay nested. The literal string is preserved verbatim, with no rendering and no validation. Leaves WITHOUT ``default:`` are intentionally absent so the inventory's apply_schema-generated values win the merge."
@@ -59930,8 +60011,9 @@ msgstr "साइडकार शुरू होता है ``-r`` (केव
 msgid "The single `make compose-deploy` target resolves one or more bundles into the role groups declared under `all.children` and feeds them into the standard local deploy flow when `bundles=<csv>` is set. The resolver is [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); it deduplicates across bundles and preserves declaration order."
 msgstr "एकल `make compose-deploy` लक्ष्य के तहत घोषित भूमिका समूहों में एक या अधिक बंडलों को हल करता है `all.children` और उन्हें मानक स्थानीय तैनाती प्रवाह में फ़ीड जब `bundles=<csv>` निर्धारित है। हलक में है [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); यह पूरे बंडलों को डुप्लिकेट करता है और घोषणा आदेश को संरक्षित करता है।."
 
+# translated-by: libretranslate
 msgid "The single point of truth for the cache. A role declares the repositories it needs Nexus to proxy and, where a container must resolve an upstream by name, the hostname the frontend answers for::"
-msgstr ""
+msgstr "कैश के लिए सच्चाई का एक बिंदु। एक भूमिका घोषणा करती है कि उसे प्रॉक्सी को नेक्सस की आवश्यकता होती है और जहां एक कंटेनर को नाम से एक अपस्ट्रीम को हल करना चाहिए, मेजबान नाम के लिए फ्रंटेंड उत्तर:"
 
 # translated-by: libretranslate
 msgid "The single-database dumps, and the cluster dumps, which name their instance in the file name and go through ``baudolo-restore cluster``."
@@ -64434,8 +64516,9 @@ msgstr "सच `role_id` किसी श्रेणी को चिह्न�
 msgid "True when a `web-app-mailu` host is reachable (otherwise local delivery)."
 msgstr "सच `web-app-mailu` मेजबान पहुंच योग्य है (अन्यथा स्थानीय वितरण)।."
 
+# translated-by: libretranslate
 msgid "True when a port exists for ``resolve_upstream`` to build an upstream from: the local one outside swarm, the internal one inside it. Asking that lookup for a role that has neither raises rather than returning empty."
-msgstr ""
+msgstr "जब एक बंदरगाह के लिए मौजूद है ``resolve_upstream`` से एक अपस्ट्रीम बनाने के लिए: स्थानीय एक बाहर swarm, आंतरिक एक इसके अंदर। एक ऐसी भूमिका के लिए उस लुक को पूछते हुए जो न तो खाली होने के बजाय उठता है।."
 
 # translated-by: libretranslate
 msgid "True when an IPv6 default route exists on a non-loopback interface."
@@ -68676,8 +68759,9 @@ msgstr "जब आप सत्यापन कर रहे हैं तो �
 msgid "Write code so the next person can understand it quickly."
 msgstr "इसलिए अगले व्यक्ति इसे जल्दी समझ सकता है।."
 
+# translated-by: libretranslate
 msgid "Write every generated cache file and return what was written."
-msgstr ""
+msgstr "प्रत्येक उत्पन्न कैश फ़ाइल लिखें और क्या लिखा गया था वापस लौटें।."
 
 # translated-by: libretranslate
 msgid "Write every update into both requirement files."
@@ -68875,8 +68959,9 @@ msgstr "यील्ड माउंट dicts in ``volume['mounts']`` लक्�
 msgid "Yield project files filtered through ``.gitignore``."
 msgstr "यील्ड प्रोजेक्ट फ़ाइलों के माध्यम से फ़िल्टर किया गया ``.gitignore``।."
 
+# translated-by: libretranslate
 msgid "Yield the URL of the dedicated LibreTranslate, deploying it when absent."
-msgstr ""
+msgstr "समर्पित यूआरएल को यील्ड करें LibreTranslateजब यह अनुपस्थित होता है तो इसे तैनात करना।."
 
 # translated-by: libretranslate
 msgid "Yields"
@@ -73218,8 +73303,9 @@ msgstr "[Nextcloud आधिकारिक वेबसाइट](https://nextc
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr "[Nextcloud → ONLYOFFICE इंटीग्रेशन ऐप](https://apps.nextcloud.com/apps/onlyoffice)"
 
+# translated-by: libretranslate
 msgid "[Nexus Repository](https://www.sonatype.com/products/sonatype-nexus-repository) is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. [nginx](https://nginx.org/) sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
-msgstr ""
+msgstr "[Nexus Repository](https://www.sonatype.com/products/sonatype-nexus-repository) एक रिपोजिटरी प्रबंधक है जो प्रॉक्सी पैकेज रजिस्ट्री को पैकेज करता है और एक कलाकृति प्रदान करता है जिसे पहले से ही स्थानीय डिस्क से प्राप्त किया गया है। [nginx](https://nginx.org/) इसके सामने बैठता है और अपस्ट्रीम होस्टनामों के लिए जवाब देता है, इसलिए एक पैकेज मैनेजर यूआरएल को बनाए रखता है और फिर भी प्रॉक्सी के माध्यम से पढ़ता है।."
 
 # translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/)"
@@ -73381,8 +73467,9 @@ msgstr "[OpenTalk](https://opentalk.eu/) हेनलीन ग्रुप द�
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
-msgstr ""
+msgstr "[पैकेज कैश](roles/svc-cache-package/)"
 
 # translated-by: libretranslate
 msgid "[Package update](roles/update/)"
@@ -74952,8 +75039,9 @@ msgstr "[type.py](../../../../utils/roles/type.py) उसी स्कीमा 
 msgid "[update/](update/)"
 msgstr "[अद्यतन](update/)"
 
+# translated-by: libretranslate
 msgid "[upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role."
-msgstr ""
+msgstr "[upstreams.conf.j2](./templates/upstreams.conf.j2) मेजबान को प्रस्तुत किया जाता है और फ्रंटेंड में आगे बढ़े जैसा `conf.d/upstreams.conf`. इसकी सामग्री से आती है `cache:` भूमिकाओं के वर्ग `meta/networks.yml`, इसलिए कोई होस्टनाम, रिपोजिटरी या अपस्ट्रीम यूआरएल इस भूमिका में लिखा गया है।."
 
 # translated-by: libretranslate
 msgid "[variants.md](../../contributing/design/variants.md) for what a `role#variant` row is."
@@ -77368,8 +77456,9 @@ msgstr "`NFS <https://en.wikipedia.org/wiki/Network_File_System>`__ (नेट�
 msgid "`N` → route a share of deploy jobs to your `[self-hosted, linux]` runners."
 msgstr "`N` → अपने लिए तैनात नौकरियों का एक हिस्सा रूट करें `[self-hosted, linux]` धावक."
 
+# translated-by: libretranslate
 msgid "`Nexus Repository <https://www.sonatype.com/products/sonatype-nexus-repository>`__ is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. `nginx <https://nginx.org/>`__ sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
-msgstr ""
+msgstr "`Nexus Repository <https://www.sonatype.com/products/sonatype-nexus-repository>`__ एक रिपोजिटरी प्रबंधक है जो प्रॉक्सी पैकेज रजिस्ट्री को पैकेज करता है और एक कलाकृति प्रदान करता है जिसे पहले से ही स्थानीय डिस्क से प्राप्त किया गया है। `nginx <https://nginx.org/>`__ इसके सामने बैठता है और अपस्ट्रीम होस्टनामों के लिए जवाब देता है, इसलिए एक पैकेज मैनेजर यूआरएल को बनाए रखता है और फिर भी प्रॉक्सी के माध्यम से पढ़ता है।."
 
 # translated-by: libretranslate
 msgid "`Nginx <https://nginx.org/>`__ is a high-performance web server and reverse proxy. This role wraps Nginx as a first-party mirror for the third-party assets other web applications declare in their CSP whitelists, so browsers fetch those assets from the deployment itself instead of contacting external hosts."
@@ -78195,8 +78284,9 @@ msgstr "``c.wiki.example.com`` → **माता पिता** ``wiki.example.
 msgid "``ca_cert_host`` is where sys-ca-selfsigned provisions the root CA on the host. The container-side bind-mount targets live in the ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) and reach the standalone runtime scripts as env vars and CLI arguments."
 msgstr "``ca_cert_host`` कहाँ है sys-ca-selfsigned मेजबान पर रूट सीए का प्रावधान करता है। कंटेनर साइड बाइंडिंग-माउंट लक्ष्य में रहते हैं ``CA_TRUST`` group_vars स्पॉट (``inject_cert_container`` / ``inject_wrapper_container``) और env vars और CLI तर्क के रूप में स्टैंडअलोन रनटाइम स्क्रिप्ट तक पहुंचें।."
 
+# translated-by: libretranslate
 msgid "``canonical_domain`` is the host of ``canonical_url``, not the configured domain, so both follow the onion substitution a Tor deployment applies. A consumer that compares it against what a page actually renders would otherwise never match on an onion host."
-msgstr ""
+msgstr "``canonical_domain`` का मेजबान है ``canonical_url``, इसलिए दोनों प्याज प्रतिस्थापन एक टोर तैनाती लागू होता है का पालन करें। एक उपभोक्ता जो इसे वास्तव में प्रस्तुत करने वाले पृष्ठ के खिलाफ तुलना करता है, अन्यथा कभी भी ऑनियन होस्ट पर मैच नहीं करेगा।."
 
 # translated-by: libretranslate
 msgid "``central_mariadb_root_password``: The root password for the MariaDB server."
@@ -78218,8 +78308,9 @@ msgstr "``comments`` पार्स्ड प्रति कुंजी ट�
 msgid "``compose build`` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "``compose build`` जब भी क्लोन सामग्री बदल जाती है तो फिर से स्थैतिक उत्पादन को रोक देता है, इसलिए तैनाती बिना किसी रनटाइम बिल्ड स्टेप के कंटेंट-चालित होती है।."
 
+# translated-by: libretranslate
 msgid "``compose.cache-consumer.yml.j2``, ``apt.list.j2``, ``npmrc.j2`` and ``pip.conf.j2`` under ``templates/``, and the shell scripts under ``files/``, belong to the development compose stack, which drives them through `render.py <../../utils/cache/render.py>`__ and `compose.py <../../cli/administration/deploy/development/compose.py>`__. The Ansible deployment reads none of them."
-msgstr ""
+msgstr "``compose.cache-consumer.yml.j2``, ``apt.list.j2``, ``npmrc.j2`` और ``pip.conf.j2`` नीचे ``templates/``, और नीचे खोल स्क्रिप्ट ``files/``, विकास रचना स्टैक से संबंधित है, जो उन्हें माध्यम से ड्राइव करता है `render.py <../../utils/cache/render.py>`__ और `compose.py <../../cli/administration/deploy/development/compose.py>`__. Ansible तैनाती उनमें से कोई नहीं पढ़ती है।."
 
 # translated-by: libretranslate
 msgid "``compose`` (deprecated)"
@@ -78805,8 +78896,9 @@ msgstr "``relay`` और ``media`` यूडीपी हैं। ``stun_turn``
 msgid "``repo`` carries the repository the names come from, defined inline on the entry that needs it: a full definition (``name``/``description``/ ``baseurl``/``gpgkey``) rendered as a yum repo, ``bootstrap_package`` for a repo shipped as a package such as ``epel-release``, ``enable_existing`` to switch on a repo the distro already ships, ``pacman_section`` to uncomment a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a community repository, or ``managed_externally`` when the role sets it up itself."
 msgstr "``repo`` वह स्थान रखता है जिसे नाम से जाना जाता है, उसे उस प्रविष्टि पर परिभाषित किया गया है जिसे इसकी आवश्यकता होती है: एक पूर्ण परिभाषा (``name``/``description``/ ``baseurl``/``gpgkey``) एक yum रेपो के रूप में प्रस्तुत किया गया, ``bootstrap_package`` एक रेपो के लिए एक पैकेज के रूप में भेज दिया जाता है जैसे ``epel-release``, ``enable_existing`` एक रेपो पहले से ही जहाजों पर स्विच करने के लिए, ``pacman_section`` का एक खंड uncomment करने के लिए ``pacman.conf`` जैसे ``multilib``, ``copr``/``ppa`` एक सामुदायिक भंडार के लिए, या ``managed_externally`` जब भूमिका खुद को निर्धारित करती है।."
 
+# translated-by: libretranslate
 msgid "``repos`` or ``upstreams``."
-msgstr ""
+msgstr "``repos`` या ``upstreams``।."
 
 # translated-by: libretranslate
 msgid "``required`` (always installed)"
@@ -79408,8 +79500,9 @@ msgstr "`base_dir` (स्ट्रिंग): सीए फ़ाइलों �
 msgid "`base` prepares the workspace and is a prerequisite for the other two. `compose` and `swarm` are independent of each other, which is what lets CI run them as separate jobs with a budget each."
 msgstr "`base` वर्कस्पेस तैयार करता है और अन्य दो के लिए एक शर्त है। `compose` और `swarm` एक दूसरे से स्वतंत्र हैं, जो वह है जो उन्हें एक बजट के साथ अलग-अलग नौकरियों के रूप में चलाने देता है।."
 
+# translated-by: libretranslate
 msgid "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
-msgstr ""
+msgstr "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (बाद में `make dotenv` या सोर्सिंग `scripts/meta/env/load.sh`)"
 
 # translated-by: libretranslate
 msgid "`bench new-site` uses the central MariaDB's `root` to create the per-site DB on first deploy."
@@ -79541,8 +79634,9 @@ msgstr "`cluster_addr` नहीं बनाया जाना चाहिए
 msgid "`compose build` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "`compose build` जब भी क्लोन सामग्री बदल जाती है तो फिर से स्थैतिक उत्पादन को रोक देता है, इसलिए तैनाती बिना किसी रनटाइम बिल्ड स्टेप के कंटेंट-चालित होती है।."
 
+# translated-by: libretranslate
 msgid "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` and `pip.conf.j2` under `templates/`, and the shell scripts under `files/`, belong to the development compose stack, which drives them through [render.py](../../utils/cache/render.py) and [compose.py](../../cli/administration/deploy/development/compose.py). The Ansible deployment reads none of them."
-msgstr ""
+msgstr "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` और `pip.conf.j2` नीचे `templates/`, और नीचे खोल स्क्रिप्ट `files/`, विकास रचना स्टैक से संबंधित है, जो उन्हें माध्यम से ड्राइव करता है [render.py](../../utils/cache/render.py) और [compose.py](../../cli/administration/deploy/development/compose.py). Ansible तैनाती उनमें से कोई नहीं पढ़ती है।."
 
 # translated-by: libretranslate
 msgid "`compose.volumes:` is **not** inlined into services. It lives in its own `meta/volumes.yml` (volumes are role-wide, not per-service)."
@@ -80143,8 +80237,9 @@ msgstr "`index`, `sweep` (आवश्यक), `distros` (वैकल्पि�
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
 msgstr "`infinito administration deploy development <subcommand>` (पायथन CLI)"
 
+# translated-by: libretranslate
 msgid "`infinito meta cache` subcommand -- render the derived cache files."
-msgstr ""
+msgstr "`infinito meta cache` subcommand - व्युत्पन्न कैश फ़ाइलों को प्रदान करें।."
 
 # translated-by: libretranslate
 msgid "`infinito meta env` subcommand -- generate the project's `.env`."
@@ -81516,11 +81611,13 @@ msgstr "`update` (वैकल्पिक) लाइव अपस्ट्र�
 msgid "`update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include."
 msgstr "`update` मौजूदा सूची का पुन: उपयोग करता है; `disable` एक अतिरिक्त-var के रूप में संभव पहुंचता है जो सेवाओं को अक्षम करता है, लेकिन इसमें शामिल नहीं है।."
 
+# translated-by: libretranslate
 msgid "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ is rendered to the host and mounted into the frontend as ``conf.d/upstreams.conf``. Its content comes from the ``cache:`` sections of the roles’ ``meta/networks.yml``, so no hostname, repository or upstream URL is written in this role."
-msgstr ""
+msgstr "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ मेजबान को प्रस्तुत किया जाता है और फ्रंटेंड में आगे बढ़े जैसा ``conf.d/upstreams.conf``. इसकी सामग्री से आती है ``cache:`` भूमिकाओं के वर्ग ``meta/networks.yml``, इसलिए कोई होस्टनाम, रिपोजिटरी या अपस्ट्रीम यूआरएल इस भूमिका में लिखा गया है।."
 
+# translated-by: libretranslate
 msgid "`upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
-msgstr ""
+msgstr "`upstreams.conf`: nginx सर्वर ब्लॉक, से उत्पन्न `cache:` द्वारा घोषणा [render.py](../../utils/cache/render.py) और इसलिए खोलना। एच.टी. (बंदरगाह 443) रनर-साइड ट्रैफिक के लिए प्रति होस्टनाम, HTTP (बंदरगाह 80) आंतरिक`dockerd` डोकरफ़ाइल बनाता है। Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`।."
 
 # translated-by: libretranslate
 msgid "`user_username` is resolved from `lookup('users', user_key).username` (fallback: `user_key`)"
@@ -81550,8 +81647,9 @@ msgstr "`users` लुकअप 👥"
 msgid "`utils.cache.base._render_with_templar` and the two templar helpers behind it swallow every exception on purpose: a meta payload renders in rounds, and an expression that cannot resolve yet has to come back unchanged rather than abort the round."
 msgstr "`utils.cache.base._render_with_templar` और इसके पीछे दो टेम्पलर सहायक उद्देश्य पर हर अपवाद को निगलते हैं: एक मेटा पेलोड राउंड में प्रस्तुत करता है, और एक अभिव्यक्ति जो हल नहीं कर सकती है, फिर भी इसे वापस नहीं आना चाहिए, बल्कि राउंड को खत्म करने की बजाय।."
 
+# translated-by: libretranslate
 msgid "`utils.cache.records` owns the format and the mirror resolution, so the role's bootstrap task and this key cannot drift apart."
-msgstr ""
+msgstr "`utils.cache.records` प्रारूप और दर्पण संकल्प का मालिक है, इसलिए भूमिका का बूटस्ट्रैप कार्य और यह कुंजी अलग नहीं हो सकती है।."
 
 # translated-by: libretranslate
 msgid "`utils.inventory.bundle_apps` reads each named bundle, walks `all.children`, deduplicates the role groups across all bundles, and prints the resulting application list as CSV. The CSV is exported as `apps` before the delegated script runs."
@@ -81896,8 +81994,9 @@ msgstr "एक चयन टोकन (`role#0/zfs`)"
 msgid "a short description of the issue"
 msgstr "मुद्दे का संक्षिप्त विवरण"
 
+# translated-by: libretranslate
 msgid "a sibling repository proxying a different host, which the frontend falls back to when this one answers 5xx."
-msgstr ""
+msgstr "एक अलग होस्ट को प्रॉक्सी करने वाला एक भाई-बहन, जो फ्रंटेंड तब वापस आ जाता है जब यह एक जवाब 5xx."
 
 # translated-by: libretranslate
 msgid "a source **not** starting with `/` → remote `[user@]host[:/path]`, rsync-pulled (`nfs` / `volume` / `full`)"
@@ -83355,8 +83454,9 @@ msgstr "cli.make पैकेज"
 msgid "cli.meta package"
 msgstr "cli.meta पैकेज"
 
+# translated-by: libretranslate
 msgid "cli.meta.cache package"
-msgstr ""
+msgstr "cli.meta.cache पैकेज"
 
 # translated-by: libretranslate
 msgid "cli.meta.ci package"
@@ -84939,8 +85039,9 @@ msgstr "यह एक मोड को पिन नहीं ले सकत�
 msgid "it pins a variant the role does not declare (any more): the usual case is a list carried over from an older run whose variants have since been renumbered;"
 msgstr "यह एक संस्करण पिन करता है, भूमिका घोषित नहीं होती है (अधिक): सामान्य मामला एक पुराने रन से ले जाने वाली एक सूची है जिसका वेरिएंट तब से खारिज कर दिया गया है;"
 
+# translated-by: libretranslate
 msgid "its repository type, such as ``apt`` or ``raw``."
-msgstr ""
+msgstr "इसके भंडार प्रकार जैसे ``apt`` या ``raw``।."
 
 # translated-by: libretranslate
 msgid "jitsi"
@@ -85294,8 +85395,9 @@ msgstr "व्यवस्थापक खाते के लिए एक व�
 msgid "mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`."
 msgstr "व्यवस्थापक खाते के लिए एक व्यक्तिगत एक्सेस टोकन को टकसाल करता है और इसके साथ रहता है `sys-token-store` नीचे `users.administrator.tokens['web-app-mattermost']`।."
 
+# translated-by: libretranslate
 msgid "minutes Nexus serves a cached artefact for, where the repository needs something other than the stack-wide default."
-msgstr ""
+msgstr "मिनट नेक्सस एक कैश्ड आर्टिफैक्ट के लिए काम करता है, जहां भंडार को स्टैक-वाइड डिफ़ॉल्ट के अलावा कुछ अन्य की आवश्यकता होती है।."
 
 # translated-by: libretranslate
 msgid "mode"
@@ -85397,8 +85499,9 @@ msgstr "nfs-server"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr "nftables पैकेट फ़िल्टर जिसका नियम प्रत्येक भूमिका अपनी खुद की मेज के रूप में मालिक है, परमाणु रूप से बदल दिया और बूट पर फिर से लोड किया गया"
 
+# translated-by: libretranslate
 msgid "nginx ``proxy_read_timeout`` where the default is too short, as for a multi-gigabyte model download."
-msgstr ""
+msgstr "nginx ``proxy_read_timeout`` जहां डिफ़ॉल्ट बहुत छोटा है, एक बहु-गिगाबाइट मॉडल डाउनलोड के लिए।."
 
 # translated-by: libretranslate
 msgid "nginx vhost-file purge helper (entity-keyed)."
@@ -86284,14 +86387,17 @@ msgstr "plugins.lookup.bounded\\ name मॉड्यूल"
 msgid "plugins.lookup.ca\\_injected module"
 msgstr "plugins.lookup.ca\\ injected मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "plugins.lookup.cache\\_records module"
-msgstr ""
+msgstr "plugins.lookup.cache\\ records मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "plugins.lookup.cache\\_repos module"
-msgstr ""
+msgstr "plugins.lookup.cache\\ repos मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "plugins.lookup.cache\\_upstreams module"
-msgstr ""
+msgstr "plugins.lookup.cache\\ upstream मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.canonical\\_url module"
@@ -86541,8 +86647,9 @@ msgstr "plugins.lookup.playwright\\ workers मॉड्यूल"
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr "plugins.lookup.postgres\\ libraries मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "plugins.lookup.probeable\\_backend module"
-msgstr ""
+msgstr "plugins.lookup.probeable\\ backend मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.prometheus\\_integration\\_active module"
@@ -87178,8 +87285,9 @@ msgstr ""
 msgid "return the first successfully parsed JSON value"
 msgstr "पहले सफलतापूर्वक प्रस्तुत जेएसओएन मूल्य वापस लौटें"
 
+# translated-by: libretranslate
 msgid "returns one line about the server's own progress, reported every ``PROGRESS_SECONDS`` while it installs its models. The server offers no endpoint before it is ready, so without this the wait is indistinguishable from a hang for its whole hour."
-msgstr ""
+msgstr "सर्वर की अपनी प्रगति के बारे में एक पंक्ति वापस आती है, हर बार रिपोर्ट करता है ``PROGRESS_SECONDS`` जबकि यह अपने मॉडल को स्थापित करता है। सर्वर तैयार होने से पहले कोई समापन बिंदु प्रदान नहीं करता है, इसलिए इसके बिना प्रतीक्षा अपने पूरे घंटे के लिए एक हैंग से अविस्मरणीय है।."
 
 # translated-by: libretranslate
 msgid "reusable"
@@ -87835,11 +87943,13 @@ msgstr "लक्ष्य: [\"{{ native_prometheus_application_id | native_metr
 msgid "teardown"
 msgstr "फाड़ना"
 
+# translated-by: libretranslate
 msgid "templating variables."
-msgstr ""
+msgstr "परिवर्तनशील."
 
+# translated-by: libretranslate
 msgid "term 0 is the application id."
-msgstr ""
+msgstr "अवधि 0 आवेदन आईडी है।."
 
 # translated-by: libretranslate
 msgid "term can be:"
@@ -87913,8 +88023,9 @@ msgstr "The number of the Nextcloud एप्लिकेशन पासवर�
 msgid "the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account’s permissions"
 msgstr "The number of the Nextcloud खाता पासवर्ड से संबंधित है; हर टूल उस खाता की अनुमति के साथ एडाप्टर फॉरवर्ड्स रन को कॉल करता है"
 
+# translated-by: libretranslate
 msgid "the Nexus repository name."
-msgstr ""
+msgstr "नेक्सस रिपोज़िटरी नाम।."
 
 # translated-by: libretranslate
 msgid "the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above"
@@ -88017,8 +88128,9 @@ msgstr "The number of the `roles:` सूची खाली है, या"
 msgid "the `root` account"
 msgstr "The number of the `root` खाता"
 
+# translated-by: libretranslate
 msgid "the absolute URL it proxies."
-msgstr ""
+msgstr "यूआरएल यह प्रॉक्सी।."
 
 # translated-by: libretranslate
 msgid "the address the commit carries."
@@ -88080,8 +88192,9 @@ msgstr "लिखने के लिए सूची।."
 msgid "the change \"looks obviously correct\"."
 msgstr "परिवर्तन \"स्पष्ट रूप से सही दिखता है\"।."
 
+# translated-by: libretranslate
 msgid "the checkout being generated for."
-msgstr ""
+msgstr "चेकआउट के लिए उत्पन्न किया जा रहा है।."
 
 # translated-by: libretranslate
 msgid "the checkout the ``.env`` is generated for."
@@ -88160,8 +88273,9 @@ msgstr "एप्लिकेशन कॉन्फ़िगरेशन से 
 msgid "the deploy mode the row runs in."
 msgstr "परिनियोजित मोड पंक्ति में चलती है।."
 
+# translated-by: libretranslate
 msgid "the depth a ``yum`` repository indexes."
-msgstr ""
+msgstr "गहराई ``yum`` भंडार अनुक्रमणिका."
 
 # translated-by: libretranslate
 msgid "the detected package manager."
@@ -88204,8 +88318,9 @@ msgstr "खाली मैपिंग `{}` (कैनोनिकल नो �
 msgid "the endpoint is configurable but both prompt-sending views are premium-licence gated; see the measurement above"
 msgstr "अंत बिंदु विन्यास योग्य है लेकिन दोनों तत्काल समाप्त दृष्टिकोण प्रीमियम लाइसेंस गेट हैं; ऊपर माप देखें"
 
+# translated-by: libretranslate
 msgid "the entries the roles declare, keyed by name."
-msgstr ""
+msgstr "प्रविष्टियों की भूमिकाओं की घोषणा, नाम से की गई।."
 
 # translated-by: libretranslate
 msgid "the entries whose role has no job at all in the source run, each with its own axis suffix intact."
@@ -88251,22 +88366,25 @@ msgstr "प्रत्येक मैच का पहला कैप्च�
 msgid "the fix was logically inferred from a previous deploy's evidence,"
 msgstr "फिक्स को तार्किक रूप से पिछली तैनाती के सबूतों से प्रभावित किया गया था,"
 
+# translated-by: libretranslate
 msgid "the frontend ports serving it; apt suites are plain HTTP."
-msgstr ""
+msgstr "यह सेवा करने वाले फ्रंटेंड पोर्ट; उपयुक्त सूट सादे HTTP हैं।."
 
 # translated-by: libretranslate
 msgid "the fully qualified domain being probed."
 msgstr "पूरी तरह से योग्य डोमेन की जांच की जा रही है।."
 
+# translated-by: libretranslate
 msgid "the hijacked hostnames, sorted by host."
-msgstr ""
+msgstr "मेजबान द्वारा क्रमबद्ध, hijacked होस्टनाम।."
 
 # translated-by: libretranslate
 msgid "the host's databases.csv."
 msgstr "मेजबान databases.csv।."
 
+# translated-by: libretranslate
 msgid "the hostname a container resolves to the frontend."
-msgstr ""
+msgstr "होस्टनाम एक कंटेनर फ्रंटेंड को हल करता है।."
 
 # translated-by: libretranslate
 msgid "the identity provider's end-session endpoint."
@@ -88280,8 +88398,9 @@ msgstr "पढ़ना शुरू करने के लिए सूचक�
 msgid "the input's name, for the messages."
 msgstr "संदेश के लिए इनपुट का नाम।."
 
+# translated-by: libretranslate
 msgid "the inventory's entries for the same section."
-msgstr ""
+msgstr "उसी अनुभाग के लिए सूची की प्रविष्टियां।."
 
 # translated-by: libretranslate
 msgid "the job label CI emits (``🐳🧅🌀🦓🦾网络应用·Nextcloud#2``) -- the glyphs carry mode, onion state, distro, filesystem and architecture, the ``#`` shard the variants;"
@@ -88331,11 +88450,13 @@ msgstr "अंतिम इनकार संदेश, खाली जब क
 msgid "the longest value the consumer accepts; a positive integer."
 msgstr "सबसे लंबे मूल्य उपभोक्ता स्वीकार करता है; एक सकारात्मक पूर्णांक।."
 
+# translated-by: libretranslate
 msgid "the lookup plugin's loader."
-msgstr ""
+msgstr "लुकअप प्लगइन का लोडर।."
 
+# translated-by: libretranslate
 msgid "the lookup plugin's templar, where it has one."
-msgstr ""
+msgstr "लुकअप प्लगइन का टेम्पलर, जहां यह एक है।."
 
 # translated-by: libretranslate
 msgid "the lookup's templar, or None outside a play."
@@ -88393,8 +88514,9 @@ msgstr "विलय उपयोगकर्ता मैपिंग।."
 msgid "the message the occurrence sits in."
 msgstr "संदेश में बैठते हैं।."
 
+# translated-by: libretranslate
 msgid "the mirror list, or empty to read it from the environment."
-msgstr ""
+msgstr "दर्पण सूची, या इसे पर्यावरण से पढ़ने के लिए खाली।."
 
 # translated-by: libretranslate
 msgid "the module results, in execution order."
@@ -88524,8 +88646,9 @@ msgstr "प्रदाता ``services`` मानचित्रण."
 msgid "the provider's application id."
 msgstr "प्रदाता का अनुप्रयोग आईडी।."
 
+# translated-by: libretranslate
 msgid "the proxied repositories, sorted by name."
-msgstr ""
+msgstr "प्रत्यायित भंडार, नाम द्वारा क्रमबद्ध।."
 
 # translated-by: libretranslate
 msgid "the qdrant service role id."
@@ -88575,11 +88698,13 @@ msgstr "प्रदान की गई रचना फ़ाइल।."
 msgid "the rendered config is mounted INTO a container rather than read by the host's own msmtp."
 msgstr "प्रदान किए गए विन्यास को मेजबान के अपने msmtp द्वारा पढ़ने के बजाय एक कंटेनर में रखा जाता है।."
 
+# translated-by: libretranslate
 msgid "the repository behind each path, for a host whose suites live side by side, as Debian's do under /debian/ and /debian-security/."
-msgstr ""
+msgstr "प्रत्येक पथ के पीछे रिपॉज़िटरी, एक मेजबान के लिए जिसका सूट पक्ष में रहता है, जैसा कि डेबियन के तहत / डेबियन / और / डेबियन-सुरक्षा / करता है।."
 
+# translated-by: libretranslate
 msgid "the repository serving its root, when it serves only one."
-msgstr ""
+msgstr "जब यह केवल एक ही कार्य करता है, तो वह अपनी जड़ की सेवा करता है।."
 
 # translated-by: libretranslate
 msgid "the repository was cloned"
@@ -88625,8 +88750,9 @@ msgstr "भूमिका निर्देशिका में पिन �
 msgid "the role installs the extension and points its OpenAI-compatible provider at the gateway in `tasks/addons/ai-llm.yml`"
 msgstr "भूमिका विस्तार स्थापित करती है और प्रवेश द्वार पर अपने OpenAI-compatible प्रदाता को इंगित करती है `tasks/addons/ai-llm.yml`"
 
+# translated-by: libretranslate
 msgid "the role that declared it."
-msgstr ""
+msgstr "वह भूमिका जो इसे घोषित करती है।."
 
 # translated-by: libretranslate
 msgid "the role the domain belongs to."
@@ -88889,8 +89015,9 @@ msgstr "स्रोत नमूने पक्ष को पसंद कर�
 msgid "the structure to serialise."
 msgstr "क्रमबद्ध करने के लिए संरचना।."
 
+# translated-by: libretranslate
 msgid "the suite an ``apt`` repository serves."
-msgstr ""
+msgstr "एक सूट ``apt`` रिपॉज़िटरी कार्य करता है।."
 
 # translated-by: libretranslate
 msgid "the target distribution, named in the skip reason."
@@ -88932,8 +89059,9 @@ msgstr "unprefixed तथ्य नाम।."
 msgid "the updates to apply."
 msgstr "आवेदन करने के लिए अद्यतन।."
 
+# translated-by: libretranslate
 msgid "the upstream hands out URLs that already carry the repository prefix, as npm does for tarballs, so those reach the backend unprefixed instead of being prefixed twice into a 404."
-msgstr ""
+msgstr "अपस्ट्रीम उन यूआरएल को बाहर निकालता है जो पहले से ही रिपॉज़िटरी उपसर्ग को ले जाते हैं, क्योंकि एनपीएम टारबॉल्स के लिए करता है, इसलिए वे बैकएंड तक पहुंचते हैं, जबकि दो बार एक में उपसर्ग होने के बजाय अप्रयुक्त होते हैं। 404।."
 
 # translated-by: libretranslate
 msgid "the upstream host, as it appears in the proxied URL."
@@ -88947,8 +89075,9 @@ msgstr "उपयोगकर्ता पासवर्ड विफलता 
 msgid "the user's merged configuration."
 msgstr "उपयोगकर्ता का विलय विन्यास।."
 
+# translated-by: libretranslate
 msgid "the value INFINITO_DISTRO carries."
-msgstr ""
+msgstr "मूल्य INFINITO_DISTRO वहन करता है।."
 
 # translated-by: libretranslate
 msgid "the value contradicts the declared type or pattern."
@@ -89078,8 +89207,9 @@ msgstr "सच"
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
 msgstr "Tty=None ऑटो-चयन (स्थानीय: सच). लाइव = TRue धारा stdout / stderr।."
 
+# translated-by: libretranslate
 msgid "two roles declare the same repository or host differently,     or a host names a repository nobody declares."
-msgstr ""
+msgstr "दो भूमिकाएं एक ही रिपॉज़िटरी या मेजबान को अलग-अलग घोषित करती हैं, या एक मेजबान नाम एक रिपोज़िटरी नोबॉडी घोषित करता है।."
 
 # translated-by: libretranslate
 msgid "two roles demand different values for the     same topic of the same provider."
@@ -89105,8 +89235,9 @@ msgstr "अनुप्रयोग[अनुप्रयोग]['services'] य
 msgid "unpinned"
 msgstr "unpinned"
 
+# translated-by: libretranslate
 msgid "unused."
-msgstr ""
+msgstr "अप्रयुक्त."
 
 # translated-by: libretranslate
 msgid "update"
@@ -89252,17 +89383,21 @@ msgstr "utils.cache.files मॉड्यूल"
 msgid "utils.cache.gitignore module"
 msgstr "utils.cache.gitignore मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.cache.hosts module"
-msgstr ""
+msgstr "utils.cache.hosts मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.cache.inventory module"
-msgstr ""
+msgstr "utils.cache.inventory मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.cache.records module"
-msgstr ""
+msgstr "utils.cache.records मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.cache.render module"
-msgstr ""
+msgstr "utils.cache.render मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.cache.schema\\_credentials module"
@@ -89444,21 +89579,25 @@ msgstr "utils.env.handlers.infinito.cache पैकेज"
 msgid "utils.env.handlers.infinito.cache.conf module"
 msgstr "utils.env.handlers.infinito.cache.conf मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.hosts module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.hosts मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.http\\ hosts मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.stack module"
 msgstr "utils.env.handlers.infinito.cache.stack मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.tls module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.tls मॉड्यूल"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.upstreams module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.upstreams मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.container module"
@@ -90602,8 +90741,9 @@ msgstr "जब ग्राफ हल नहीं होता है, तो �
 msgid "when: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 msgstr "कब: लुकअप('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 
+# translated-by: libretranslate
 msgid "where INFINITO_CACHE_PACKAGE_FRONTEND_CONF points."
-msgstr ""
+msgstr "कहाँ INFINITO_CACHE_PACKAGE_FRONTEND_CONF अंक।."
 
 # translated-by: libretranslate
 msgid "whether a CI runner is executing, which lowers the ceiling."

@@ -271,9 +271,10 @@ msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "عام تصاویر کی خدمت کے لیے کلاسٹر-لوکل سانچہ:Cluster-local نگاری رجسٹر Docker Swarm کارپس"
 
+# translated-by: libretranslate
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Cluster-local Consey Cache for packs, pap, Nepm and sound artist ہر کردار کا اعلان کرتا ہے۔"
 
 # translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -1261,9 +1262,10 @@ msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Tor کے ذریعے اس میں زیادہ وقت لگ سکتا ہے۔"
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "پیکج کانچ"
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -1380,9 +1382,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "عوامی میدان API کرداروں کے اعداد و شمار، تاریخ اور تراجم کی خدمت کرتے ہیں۔ Infinito.Nexus ہر ایک کے لیے مرکز اور مرکز"
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr ""
+msgstr "پیک کیچ کے ذریعے کیچ - ایکسچینج اور ٹی ایل ایس فرنٹنگ جو ان کے لئے جواب دیتی ہے -."
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"

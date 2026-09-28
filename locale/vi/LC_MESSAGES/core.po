@@ -268,9 +268,10 @@ msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Danh sách công cụ chứa ảnh nhómlocal để phục vụ các ảnh được xây dựng riêng Docker Swarm nút nhân"
 
+# translated-by: libretranslate
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Bộ nhớ tạm hợp lệ tập hợp cho gói Upstreams, phục vụ apt, pim, npm và artecate mỗi vai trò tuyên bố"
 
 # translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -1221,9 +1222,10 @@ msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Qua Tor việc này có thể lâu hơn."
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "Name"
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -1333,9 +1335,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "CÔNG VIỆC API Đang phục vụ dữ liệu, lịch sử và các bản dịch của Infinito.Nexus Cho mỗi phần lõi và nĩa của nó"
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr ""
+msgstr "Bộ nhớ tạm kéo qua cho gói ngược dòng - kho phục hồi ủy nhiệm và giao diện điều khiển hệ thống hệ thống phụ trợ trả lời cho họ."
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"

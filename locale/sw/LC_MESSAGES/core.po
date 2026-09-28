@@ -276,9 +276,10 @@ msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Cluster-local kontena picha Usajili kwa ajili ya kutumikia desturi kujengwa picha kwa Docker Swarm wafanyakazi nodes"
 
+# translated-by: libretranslate
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Cluster-local wakala cache kwa upstreams mfuko, kuwahudumia apt, pip, npm na artefacts ghafi kila jukumu linatangaza"
 
 # translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -1248,9 +1249,10 @@ msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Kupitia Tor inaweza kuchukua muda mrefu."
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "Hifadhi ya Caches"
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -1360,9 +1362,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "API ya umma inayotumikia data ya jukumu, historia na tafsiri Infinito.Nexus kwa kila pumzi na pumzi yake."
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr ""
+msgstr "Pull-through caches kwa upstreams mfuko - repositories wakala na TLS frontend kwamba majibu kwa ajili yao."
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"

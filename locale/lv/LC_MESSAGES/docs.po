@@ -979,8 +979,9 @@ msgstr "**Rezerves kopija gatava:** Pastāvīgi dati zem `{{ JIRA_STORAGE_PATH }
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
 msgstr "**Rezerves un katastrofu seku novēršana.** *Svc-bkp-konteiners2- lokāls* aizstāj *svc-bkp-volume-2-local*, padarot rezerves politiku skaidri katram apjomam. Loma dod priekšroku failu sistēmas momentuzņēmumiem, kad tie ir pieejami, un var sagatavot btrfs datorus pašu momentuzņēmumu bāzētiem dublējumiem. Jauns *svc-bkp-nfs-2-local* aizsargā kopīgo NFS eksportu, *svc-bkp-secrets-2-local* gūst slepenus materiālus un *svc-bkp-local-2-device* sinhronizē rezerves kopijas piemontētiem ārējiem datu nesējiem. Vienota *atgūt* CLI diskus atjauno, bet Compose reģenerācijas pārbaudes un pilnu Swarm katastrofu atgūšanas urbi nepārtraukti pārbaudīt ceļu. Rsync vairs nesaglabā aizstātos failus kā *~* kopijas."
 
+# translated-by: libretranslate
 msgid "**Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream."
-msgstr ""
+msgstr "**Bezmaksas rezerves kopēšana:** Apjoms ir izslēgts no rezerves rezerves, un tā rezerves patērētājs paliek izslēgts; katrs artefakts tajā ir atkārtoti reģistrējams no augšas."
 
 # translated-by: libretranslate
 msgid "**Backup integration:** Backup Docker Volumes snapshots the model volume when that role is present, without stopping the container."
@@ -2194,11 +2195,13 @@ msgstr "**Decentralizēti un federēti:** Savienoties ar globālu tīklu Matrix 
 msgid "**Decentralized social networking:** Self-host the AT Protocol PDS and serve user data under your own domain."
 msgstr "**Decentralizēti sociālie tīkli:** Pašsaņem AT protokolu PDS un apkalpo lietotāja datus zem sava domēna."
 
+# translated-by: libretranslate
 msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the ``cache:`` declarations, collected by the ``cache_upstreams`` and ``cache_repos`` lookups. A new upstream is added by declaring it there."
-msgstr ""
+msgstr "**Deklarācija veikta:** Katrs proxied krātuve un katrs atbildēja hostname nāk no ``cache:`` Deklarācijas, ko apkopojusi ``cache_upstreams`` kā arī ``cache_repos`` lookups. Tiek pievienots jauns augšpusējs, deklarējot to tur."
 
+# translated-by: libretranslate
 msgid "**Declaration driven:** Every proxied repository and every answered hostname comes from the `cache:` declarations, collected by the `cache_upstreams` and `cache_repos` lookups. A new upstream is added by declaring it there."
-msgstr ""
+msgstr "**Deklarācija veikta:** Katrs proxied krātuve un katrs atbildēja hostname nāk no `cache:` Deklarācijas, ko apkopojusi `cache_upstreams` kā arī `cache_repos` lookups. Tiek pievienots jauns augšpusējs, deklarējot to tur."
 
 # translated-by: libretranslate
 msgid "**Declared context windows:** A model entry carrying ``context`` publishes it as ``model_info.max_input_tokens``, and an Ollama entry also runs with that window as ``num_ctx`` instead of the server’s default, so a caller’s prompt is not silently truncated."
@@ -2440,8 +2443,9 @@ msgstr "**Apraksts:** Cloudflare DNS bootstrap loma apex un wildcard A/AAAA iera
 msgid "**Description:** Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**Apraksts:** Cluster-local konteinera attēlu reģistrs, kas kalpo pēc pasūtījuma izveidotu attēlu Docker Swarm darba ņēmēju mezgli"
 
+# translated-by: libretranslate
 msgid "**Description:** Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "**Apraksts:** Cluster-local starpniekservera kešatmiņa paketei augšpusē, apkalpojot apt, pip, npm un jēlas artefakti katru lomu deklarē"
 
 # translated-by: libretranslate
 msgid "**Description:** Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -6084,8 +6088,9 @@ msgstr "**Minimālais nospiedums:** Mazs Node.js/Express pakalpojums, kas labi i
 msgid "**Minimal scope** (client-only, no server configuration)"
 msgstr "**Minimālā darbības joma** (tikai klients, nav servera konfigurācijas)"
 
+# translated-by: libretranslate
 msgid "**Mirror failover:** A repository that declares a mirror is served through a guarded location: a 5xx from its primary remote re-runs the same path against the sibling repository, while a 404 is passed straight back."
-msgstr ""
+msgstr "**Spoguļa kļūme:** Repozitoriju, kas deklarē spoguli, apkalpo caur aizsargātu vietu: a 5xx no tās primārās tālvadības atkārtoti vada to pašu ceļu pret brāļa vai māsas repozitoriju, bet 404 tiek nodota taisni atpakaļ."
 
 # translated-by: libretranslate
 msgid "**Mitigation:** Image-level mutation (`run`, `build`, `push`, `login`) and their synonyms (`docker container run`, `docker image build`, `docker buildx build`, `docker image push`) still route through `ask`, so the operator reviews them before they execute."
@@ -7274,8 +7279,9 @@ msgstr "**Pastāvīgs stāvoklis:** Atmiņa un darba telpa dzīvo apjomā, kas m
 msgid "**Persistent state:** Memory and workspace live in a volume mounted at ``/home/node/.openclaw``, with the rendered ``openclaw.json`` mounted into it, and are included in the container volume backup when that service is deployed."
 msgstr "**Pastāvīgs stāvoklis:** Atmiņa un darba telpa dzīvo apjomā, kas montēts pie ``/home/node/.openclaw``, ar kausētu ``openclaw.json`` uzstādīti tajā un ir iekļauti konteinera tilpuma dublējumā, kad šis pakalpojums tiek izvērsts."
 
+# translated-by: libretranslate
 msgid "**Persistent store:** Proxied artefacts live in a named volume, so a redeploy reuses what earlier runs already pulled."
-msgstr ""
+msgstr "**Pastāvīga uzglabāšana:** Izteiktie artefakti dzīvo noteiktā tilpumā, tāpēc pārdisplejs atkārtoti izmanto to, ko agrāk jau ir velk."
 
 # translated-by: libretranslate
 msgid "**Persistent:** ``nftables.service`` loads every fragment at boot, so rules outlive a reboot without a unit of this project’s own. The ruleset it reads is a distribution decision, so the path follows ``os_family``: RedHat reads ``/etc/sysconfig/nftables.conf``, the others ``/etc/nftables.conf``."
@@ -10232,8 +10238,9 @@ msgstr "**apraksts**: Cloudflare DNS bootstrap loma apex un wildcard A/AAAA iera
 msgid "**description**: Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "**apraksts**: Cluster-local konteinera attēlu reģistrs, lai kalpotu pēc pasūtījuma izveidotus attēlus Docker Swarm darba ņēmēju mezgli"
 
+# translated-by: libretranslate
 msgid "**description**: Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "**apraksts**: Cluster-local proxy kešatmiņa paketes augšpusē, apkalpo apt, pip, npm un jēla artefakti katru lomu deklarē"
 
 # translated-by: libretranslate
 msgid "**description**: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -13387,8 +13394,9 @@ msgstr "Izvietošanas darba nosaukums satur visu rindu, ko tas izvietots - lomu,
 msgid "A deploy with zero or more than one manager fails at inventory-validation time, never at runtime."
 msgstr "Izvietošana ar nulli vai vairāk nekā viens pārvaldnieks neizdodas inventarizācijas-validācijas laikā, nekad laikā."
 
+# translated-by: libretranslate
 msgid "A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged."
-msgstr ""
+msgstr "Izvietotais saimnieks var labot vai paplašināt to no tās inventāra saskaņā ar `applications.svc-cache-package.repos` kā arī `.upstreams`; dev steka nav inventāra un izmanto deklarācijas nemainītā."
 
 # translated-by: libretranslate
 msgid "A deployment that keeps the shipped `DOMAIN_PRIMARY` serves names under `infinito.localhost`. Those exist in no zone, so a task that reaches the deployment's own domain from the host depends on the `myhostname` NSS module, which maps any `*.localhost` name to loopback per RFC 6761."
@@ -13950,11 +13958,13 @@ msgstr "Rēķins `socialhome.toml` ir montēts līdzās vides failam. Tam ir tie
 msgid "A repository definition must declare at least one of these; the rest (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."
 msgstr "Krātuves definīcijai jādeklarē vismaz viens no tiem; pārējie (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) kvalificē to."
 
+# translated-by: libretranslate
 msgid "A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `listen: [80]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix."
-msgstr ""
+msgstr "Repozitoriju proksē Nekss. Uz resursdatoru papildus atbild priekšpuse, tāpēc klients turpina risināt savu reālo augšpusējo URL. `listen: [80]` tas kalpo vienkāršā HTTP un neizdod sertifikātu; `paths:` kartē vairākus repozitorijus zem viena resursdatora; `mirror:` par repozitorija nosaukumu brālim un māsai priekšā retries pret `502`, `503` vai `504`; `passthrough: true` Piemērots augšpusē, kas veic URL jau turot repozitorija prefiksu."
 
+# translated-by: libretranslate
 msgid "A repository may serve several hosts and a host may be served by one repository only; a repository without a host is proxied but never hijacked, which is how a client that already addresses Nexus directly is served."
-msgstr ""
+msgstr "Repozitorijs var apkalpot vairākus resursdatorus un resursdatoru var apkalpot tikai viens repozitorijs; repozitorijs bez resursdatora tiek proxied, bet nekad nolaupīts, kas ir kā klients, kas jau adresē Nexus tieši tiek apkalpots."
 
 # translated-by: libretranslate
 msgid "A repository-local Sphinx entry point is also available at [Contribution Guide Index](docs/contributing/index.rst)."
@@ -14506,8 +14516,9 @@ msgstr "Darbplūsma ierakstu zvanu paziņo nē `concurrency` pats: tā darba vie
 msgid "A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit."
 msgstr "Darba plūsma ar `workflow_dispatch` trigeris jāsaglabā `name:` vai zemāk 25 rakstu zīmes, ko izpilda [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). Nosūtīšanas izvēlne sarakstu šos vārdus vienā šaurā kolonnā, kur garāks viens ir saīsināts. Pārvietot paskaidrojuma tekstu uz `run-name:`, kam nav šāda ierobežojuma."
 
+# translated-by: libretranslate
 msgid "A worktree configured to follow the primary checkout reads that checkout's map without writing it: rendering there would push this branch's declarations into another tree, which is the isolation the setting exists to provide."
-msgstr ""
+msgstr "Darbkoks, kas konfigurēts, lai sekotu primārajai izrakstīšanās reizei, nolasa, ka izrakstīšanās karte, to nerakstot: renderējot tur tiktu iegrūžtas šī zara deklarācijas citā kokā, kas ir izolācija, ko nodrošina iestatījums."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -16573,8 +16584,9 @@ msgstr "Nepieciešams skaidri formulēts katram domēna atļautajam sarakstam, j
 msgid "An explicit string value at applications['web-app-nextcloud'] .services.sso.oidc.plugin (inventory override)."
 msgstr "Skaidra virknes vērtība programmās['web-app-nextcloud'] .services.sso.oidc.plugin (inventarizācijas atslēga)."
 
+# translated-by: libretranslate
 msgid "An image build reaches the cache by hostname, but it cannot verify the frontend's self-signed certificate unless its Dockerfile installs the CA, so only these are safe to hijack for every build. A build that does install the CA additionally gets the TLS hosts; `sys-svc-compose`'s override generator decides that per image."
-msgstr ""
+msgstr "Attēla veidošana sasniedz kešatmiņu pēc datora nosaukuma, bet tas nevar pārbaudīt priekšpuses pašparakstīto sertifikātu, ja vien tā Dockerfile neinstalē CA, tāpēc tikai tie ir droši, lai nolaupītu katru būvēto. Būve, kas uzstāda CA, papildus saņem TLS saimniekus; `sys-svc-compose`aizstāj ģenerators nolemj, ka uz vienu attēlu."
 
 # translated-by: libretranslate
 msgid "An independent creator stack for publishing, video, audio, analytics, and community without platform lock-in."
@@ -17181,8 +17193,9 @@ msgstr "Attiecas uz katru zvanu, kas atnes pa tīklu, sadales paša repozitoriji
 msgid "Applies to: **`main` (default branch)**"
 msgstr "Piemēro: **`main` (noklusētais zars)**"
 
+# translated-by: libretranslate
 msgid "Apply a host's inventory to the cache declarations the roles make."
-msgstr ""
+msgstr "Pielietot resursdatora inventāru kešatmiņas deklarācijām lomus."
 
 # translated-by: libretranslate
 msgid "Apply every update in *updates* to disk. Returns the list of config files that were actually modified."
@@ -18582,8 +18595,9 @@ msgstr "Bootstrap un uzturēšana **DNS priekšnosacījumi** jūsu tīmekļa kau
 msgid "Bootstrap env"
 msgstr "Punduržubīte"
 
+# translated-by: libretranslate
 msgid "Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own."
-msgstr ""
+msgstr "Bootstrap ir idempotent un iet no [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) kad kaudze ir vesela. Tas ir apvilkts `INFINITO_CACHE_UPSTREAMS` un tam nav sava repozitorija."
 
 # translated-by: libretranslate
 msgid "Bootstrap tooling is provided via Kevin's Package Manager: <https://github.com/kevinveenbirkenbach/package-manager>"
@@ -18757,8 +18771,9 @@ msgstr "Abu prasību faili nosauc tās pašas kolekcijas vienās un tajās paš�
 msgid "Both run from the trusted workflow ref and check out the version tag for the actual build payload, so the release artefacts match the tagged commit byte-for-byte."
 msgstr "Abi palaist no uzticamas darbplūsmas ref un pārbaudīt versijas tagu par faktisko būvēt derīgo slodzi, tāpēc atbrīvot artefacts atbilst tagged nodot bayte- for-bayte."
 
+# translated-by: libretranslate
 msgid "Both sections are merged per entry, so an inventory that names one field keeps the rest of the declaration, and a key nobody declared is added."
-msgstr ""
+msgstr "Abas sadaļas tiek apvienotas par katru ierakstu, tā inventarizācija, kas nosauc vienu lauku saglabā pārējo deklarācijas daļu, un atslēga neviens deklarētais netiek pievienots."
 
 # translated-by: libretranslate
 msgid "Both sides pass `primary_apps` (not the round closure) as the BFS seed and the variant-merged services map for that round, so the reachability walk sees the same topology the inventory baked."
@@ -20185,8 +20200,9 @@ msgstr "Centralizēta vairāk CI palīga loģika atkārtoti izmantojamos skripto
 msgid "Centralizes container execution logic"
 msgstr "Centralizē konteinera izpildes loģiku"
 
+# translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) before the frontend starts. It issues a leaf for each name in `INFINITO_CACHE_TLS_HOSTS` and holds no hostname of its own."
-msgstr ""
+msgstr "Sertu paaudze darbojas izmetamo Alpu konteinerā ar [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) pirms sākas priekšpuse. Tas izdod lapu katram nosaukumam `INFINITO_CACHE_TLS_HOSTS` un tam nav sava uzņēmēja vārda."
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -21212,8 +21228,9 @@ msgstr "Klons, izveido darbstaciju un izvieto OpenResty par vietējo steku:"
 msgid "Clone, set up the workstation, and deploy OpenTalk onto the local stack:"
 msgstr "Klons, izveido darbstaciju un izvieto OpenTalk par vietējo steku:"
 
+# translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy Package cache onto the local stack:"
-msgstr ""
+msgstr "Klons, izveido darbstaciju un izvieto Package cache par vietējo steku:"
 
 # translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy Package update onto the local stack:"
@@ -21572,8 +21589,9 @@ msgstr "Kopa-vietējs `Docker Registry <https://distribution.github.io/distribut
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Cluster-local konteinera attēlu reģistrs, kas kalpo pēc pasūtījuma izveidotu attēlu Docker Swarm darba ņēmēju mezgli"
 
+# translated-by: libretranslate
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Cluster-local starpniekservera kešatmiņa paketei augšpusē, apkalpojot apt, pip, npm un jēlas artefakti katru lomu deklarē"
 
 # translated-by: libretranslate
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -21697,8 +21715,9 @@ msgstr "Sajauciet JavaScript vienā līnijā un injicējiet to caur ``sub_filter
 msgid "Collect every `<entity>.ports.public.relay.{start,end}` pair as an occupied span."
 msgstr "Savākt katru `<entity>.ports.public.relay.{start,end}` pāris kā aizņemts laidums."
 
+# translated-by: libretranslate
 msgid "Collect what the package cache proxies, from ``cache:`` in meta/networks.yml."
-msgstr ""
+msgstr "Savākt to, ko pakete keša proxies, no ``cache:`` skaits meta/networks.yml."
 
 # translated-by: libretranslate
 msgid "Collection search; host/service status; PromQL query, query range, labels, metadata, and targets"
@@ -23713,8 +23732,9 @@ msgstr "Deklarēt, ka darbvirsmas loma ir atkarīga `meta/main.yml`:"
 msgid "Declare it as a dependency in the desktop role’s ``meta/main.yml``:"
 msgstr "Deklarēt to kā atkarību no darbvirsmas lomu ``meta/main.yml``:"
 
+# translated-by: libretranslate
 msgid "Declare it under `cache:` in a `meta/networks.yml`, then run `make dotenv`. That file is the single point of truth; the Nexus repo, the leaf cert, the nginx server block, the `extra_hosts` entries, `pip.conf`, `.npmrc` and the apt sources are all derived from it."
-msgstr ""
+msgstr "Deklarēt `cache:` ā `meta/networks.yml`, pēc tam palaist `make dotenv`. Šis fails ir viens patiesības punkts; Nexus repo, lapu cert, Nginx servera bloks, `extra_hosts` ierakstus, `pip.conf`, `.npmrc` un visi apt avoti ir iegūti no tā."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -24221,8 +24241,9 @@ msgstr "Izvietot testa darbplūsmas palielināt hosta mijmaiņas caur [enlarge_s
 msgid "Deploy test workflows use the `jlumbroso/free-disk-space` action to reclaim runner space before Docker pulls start. Because the actual deploy runs **inside** the `infinito` container, the host's language toolchains, build packages, and default Docker layer cache are all dead weight and MUST be reclaimed aggressively."
 msgstr "Izvietot testa darbplūsmas izmantot `jlumbroso/free-disk-space` darbība, lai atgūtu skrējēja vietu pirms Docker velk startu. Tāpēc, ka faktiskā izvietošana notiek **iekšpuse** gads `infinito` konteiners, uzņēmēja valodas rīku ķēdes, veidot paketes, un noklusējuma Docker slāņa kešatmiņa ir visi miris svars un ir jāatgūst agresīvi."
 
+# translated-by: libretranslate
 msgid "Deploy the dedicated LibreTranslate the translator reaches."
-msgstr ""
+msgstr "Izvietot veltīto LibreTranslate tulkotājs sasniedz."
 
 # translated-by: libretranslate
 msgid "Deploy the role and run the spec inside the shared `test-e2e-playwright` runner until every MUST in the contributor SPOT passes and the browser console is free of unhandled errors."
@@ -27391,8 +27412,9 @@ msgstr "Viss žetonu adatas tiek pārbaudīta pret to, ko rinda faktiski var dar
 msgid "Everything else lands in ``rejected`` with a stable code: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` and ``tools_unenforceable``."
 msgstr "Viss pārējais nokļūst ``rejected`` ar stabilu kodu: ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``, ``credential_missing``, ``endpoint_unreachable`` kā arī ``tools_unenforceable``."
 
+# translated-by: libretranslate
 msgid "Everything the roles declare, collected."
-msgstr ""
+msgstr "Viss, kas tiek deklarēts, savākts."
 
 # translated-by: libretranslate
 msgid "Evidence"
@@ -30706,6 +30728,14 @@ msgstr "HTTP+SSE (`adapter.upstream_transport: sse`)"
 msgid "HTTP/2 support, TLS/SSL integration"
 msgstr "HTTP/2 atbalsts, TLS/SSL integrācija"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['375',
+# '7,5']
+# nocheck: url
+# translation-rejected: HTTPS (ports 443): katra resursdatora servera
+# sertifikāti, ko parakstījusi īpaša CA. Izmanto `infinito` skrējējs (kuru
+# jauda pārsniedz 7,5 kVA, bet nepārsniedz 375 kVA `pip install`, `gem
+# install`, `composer install`, `curl https://…`). Skrējējs uzticas CA ar
+# [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh).
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh)."
 msgstr ""
 
@@ -31352,11 +31382,13 @@ msgstr "IAM(Identitātes un piekļuves pārvaldība) ir iestatīts caur Keycloak
 msgid "INFINITO_*-key env handlers; one module per owned key."
 msgstr "INFINITO *-key env apstrādātāji; viens modulis uz vienu īpašumā atslēgu."
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_HOSTS: the hostnames the package cache fronts, collected from the ``cache:`` declarations every role makes in its meta/networks.yml."
-msgstr ""
+msgstr "INFINITO_CACHE_HOSTS: hostnames paketes keša frontes, savākti no ``cache:`` paziņojumi par katru lomu, kas meta/networks.yml."
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_HTTP_HOSTS: the hostnames the frontend serves without TLS."
-msgstr ""
+msgstr "INFINITO_CACHE_HTTP_HOSTS: hostnames priekšpuse kalpo bez TLS."
 
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path:hostname), truncated to 32 hex chars."
@@ -31386,11 +31418,13 @@ msgstr "INFINITO_CACHE_REGISTRY_MAX_SIZE: reģistra cache mīkstais vāciņš (p
 msgid "INFINITO_CACHE_STACK: whether the pull-through cache stack should run."
 msgstr "INFINITO_CACHE_STACK: vai vajadzētu palaist pull-through kešatmiņas steku."
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_TLS_HOSTS: the hostnames the package-cache frontend needs a leaf certificate for, being those its cache: declarations serve over HTTPS."
-msgstr ""
+msgstr "INFINITO_CACHE_TLS_HOSTS: hostnames package-cache frontend nepieciešams lapu sertifikāts, kas ir tās kešatmiņa: deklarācijas kalpo virs HTTPS."
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_UPSTREAMS: every repository the package cache proxies, as ``name|flavor|url|distribution|repodata_depth|content_max_age`` records separated by commas, from the cache: entries the roles declare in their meta/networks.yml."
-msgstr ""
+msgstr "INFINITO_CACHE_UPSTREAMS: katrs repozitorijs paketes kešatmiņas proxies, kā ``name|flavor|url|distribution|repodata_depth|content_max_age`` ieraksti, kas atdalīti ar komatiem, no kešatmiņas: ieraksti lomas deklarēt to meta/networks.yml."
 
 # translated-by: libretranslate
 msgid "INFINITO_CA_BUNDLE_CANDIDATES: where the distributions keep the extracted CA bundle, read from the group_vars paths SPOT (group_vars/all/05_paths.yml CA_BUNDLE_CANDIDATES)."
@@ -34533,8 +34567,9 @@ msgstr "Tā ir **vispārīgs infrastruktūras palīgs**."
 msgid "It is a standalone script — no environment, no backup generation, no other drill. It resolves `baudolo-snapshot` from `PATH`, so it tests whatever the role deployed:"
 msgstr "Tas ir standalone skripts — nav vides, nav rezerves paaudzes, nav citu urbi. Tas novērš `baudolo-snapshot` no `PATH`, lai tā pārbauda, neatkarīgi no funkcijām, kas izvietotas:"
 
+# translated-by: libretranslate
 msgid "It is deliberately separate from `cli.meta.env`, which has to import on the bare bootstrap python and therefore cannot reach Jinja or PyYAML."
-msgstr ""
+msgstr "Tas ir apzināti nošķirts no `cli.meta.env`, kam ir jāimportē uz kailas bootstrap pitona un tāpēc nevar sasniegt Jinja vai PyYAML."
 
 # translated-by: libretranslate
 msgid "It is designed to be used as a fallback when no central Mailu instance is available, enabling applications and system services to send email via ``localhost:25`` without additional configuration."
@@ -35214,8 +35249,9 @@ msgstr "Keycloak novirzīt URIs/web-origins aprēķina no `lookup('domains')` iz
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
 msgstr "Keycloak's `LDAP user federation` spoguļo lietotājus tikai lasāma režīmā."
 
+# translated-by: libretranslate
 msgid "Keyed by repository name, so a template resolving a host's route reaches its flavor, upstream and mirror without a second declaration. `utils.cache.hosts` is the single point of truth; the entries come from ``cache: repos:`` in the roles' ``meta/networks.yml``, and deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
-msgstr ""
+msgstr "Keyed ar repozitorija nosaukumu, tāpēc šablons atrisinot uzņēmēja maršrutu sasniedz savu garšu, augšpus un spoguli bez otrās deklarācijas. `utils.cache.hosts` ir viens punkts patiesības; ieraksti nāk no ``cache: repos:`` lomās” ``meta/networks.yml``, un izvieto, inventāru var labot vai pagarināt tos; skatīt `utils.cache.inventory`."
 
 # translated-by: libretranslate
 msgid "Keys without a provider role are omitted — ``disable=`` cannot act on them."
@@ -36235,14 +36271,17 @@ msgstr "Meklēt spraudņus 🔎"
 msgid "Lookup ``application_closure``: roles reachable from a seed application set."
 msgstr "Meklēšana ``application_closure``: lomas sasniedzamas no sēklu pieteikumu komplektu."
 
+# translated-by: libretranslate
 msgid "Lookup ``cache_records``: the repositories, as the bootstrap script reads them."
-msgstr ""
+msgstr "Meklēšana ``cache_records``: repozitoriji, kā bootstrap skripts lasa tos."
 
+# translated-by: libretranslate
 msgid "Lookup ``cache_repos``: the repositories the package cache proxies."
-msgstr ""
+msgstr "Meklēšana ``cache_repos``: krātuves paketes keša proxies."
 
+# translated-by: libretranslate
 msgid "Lookup ``cache_upstreams``: the hosts the package cache answers for."
-msgstr ""
+msgstr "Meklēšana ``cache_upstreams``: saimnieki pakete kešatmiņa atbildes."
 
 # translated-by: libretranslate
 msgid "Lookup ``compose_external_networks``: the provider role ids whose overlay the compose file of ``application_id`` references as ``external: true``."
@@ -38898,8 +38937,9 @@ msgstr "Nav ārējo – iekšējais SQLite zem `/config`."
 msgid "None when the call is run once, else its retry policy."
 msgstr "Nav, ja zvans tiek izpildīts vienreiz, citādi tās atkārtotās izskatīšanas politika."
 
+# translated-by: libretranslate
 msgid "None where the list does not carry both, in which case the placeholders cannot be resolved."
-msgstr ""
+msgstr "Nav, ja sarakstā nav abu, tādā gadījumā vietturus nevar atrisināt."
 
 # translated-by: libretranslate
 msgid "None."
@@ -39562,8 +39602,9 @@ msgstr "Viens izvietot darba nosaukums un artefaktu nosaukums: kā tie tiek būv
 msgid "One env setting: the process environment wins, ``default.env`` is the SPOT behind it."
 msgstr "Viens env iestatījums: procesa vide uzvar, ``default.env`` ir SPOT aiz tā."
 
+# translated-by: libretranslate
 msgid "One format, two readers: the ``.env`` generator writes it to ``INFINITO_CACHE_UPSTREAMS`` for the dev stack, and the ``cache_records`` lookup hands the same string to the role's bootstrap task. Both resolve the Ubuntu mirror placeholders from ``INFINITO_APT_UBUNTU_MIRRORS``, which the image build reads too, so the mirror order has a single home."
-msgstr ""
+msgstr "Viens formāts, divi lasītāji: ``.env`` ģenerators raksta to ``INFINITO_CACHE_UPSTREAMS`` dev steka un ``cache_records`` lookup rokas pašu virkni lomu bootstrap uzdevumu. Abi atrisināt Ubuntu spoguļa vietturi no ``INFINITO_APT_UBUNTU_MIRRORS``, ko attēls veidot skan pārāk, tāpēc spogulis pasūtījums ir viena māja."
 
 # translated-by: libretranslate
 msgid "One host runs the whole fleet: the role builds the ``infinito-runner`` image locally, renders one compose project and starts ``RUNNER_COUNT`` instances."
@@ -39573,8 +39614,9 @@ msgstr "Viens saimnieks vada visu floti: loma veido ``infinito-runner`` Name ``R
 msgid "One host runs the whole fleet: the role builds the `infinito-runner` image locally, renders one compose project and starts `RUNNER_COUNT` instances."
 msgstr "Viens saimnieks vada visu floti: loma veido `infinito-runner` Name `RUNNER_COUNT` Gadījumi."
 
+# translated-by: libretranslate
 msgid "One hostname the frontend answers for, in place of its upstream."
-msgstr ""
+msgstr "Viens saimnieks nosaukums frontend atbildes, vietā tās augšpusē."
 
 # translated-by: libretranslate
 msgid "One integer CI setting, read through the shared env SPOT."
@@ -39612,8 +39654,9 @@ msgstr "Viens vaicājums katrā braucienā, nevis viens katrā izvēršanas rež
 msgid "One recovery type backed by a role's ``files/python/recover.py``."
 msgstr "Viens atgūšanas veids, ko papildina loma ``files/python/recover.py``."
 
+# translated-by: libretranslate
 msgid "One repository Nexus proxies."
-msgstr ""
+msgstr "Viena krātuve Nexus proxies."
 
 # translated-by: libretranslate
 msgid "One role's measured runtime within a deploy segment."
@@ -40885,8 +40928,9 @@ msgstr "Pakotņu kešatmiņa 📚"
 msgid "Package Manager Installation"
 msgstr "Pakotņu pārvaldnieka instalācija"
 
+# translated-by: libretranslate
 msgid "Package cache"
-msgstr ""
+msgstr "Pakotņu kešs"
 
 # translated-by: libretranslate
 msgid "Package manager"
@@ -41081,8 +41125,9 @@ msgstr "Caurlaide `--dry-run` priekšskatījums bez rakstīšanas."
 msgid "Pass `--dry-run` to preview, `--include-template` to also archive `000-template.md`. See `pkgmgr archive --help` for the full surface."
 msgstr "Caurlaide `--dry-run` priekšskatījums, `--include-template` arī arhivēt `000-template.md`. Skatīt `pkgmgr archive --help` pilnai virsmai."
 
+# translated-by: libretranslate
 msgid "Pass ``application_id`` as term 0, defaulting to the templating variable of the same name. ``http_port`` and ``proxy_internal_port`` are read from the same variables, so a role that resolved its port itself is not reported as backendless. ``applications`` comes from ``lookup('applications')``, the merged-config SPOT."
-msgstr ""
+msgstr "Caurlaide ``application_id`` kā termins 0, kas nepilda templating mainīgais ar tādu pašu nosaukumu. ``http_port`` kā arī ``proxy_internal_port`` tiek nolasīti no tiem pašiem mainīgajiem, tāpēc loma, kas atrisināja savu portu pats netiek ziņots kā bezmugurkaulnieks. ``applications`` ir no ``lookup('applications')``, apvienotās konfigurācijas SPOT."
 
 # translated-by: libretranslate
 msgid "Pass ``provider_self_alias=False`` for a sidecar service that must not carry the provider's own alias, and ``own_network_only=True`` for one that must not inherit the networks its provider joins as a consumer."
@@ -43185,8 +43230,9 @@ msgstr "Nolieciet teikuma robežu, kurā tulkotājs nokrita aiz aizsargāta laid
 msgid "Put shared fixed values in one canonical source and reference them everywhere else."
 msgstr "Vienā kanoniskā avotā ievietojiet kopējas fiksētās vērtības un uzrakstiet tās visur citur."
 
+# translated-by: libretranslate
 msgid "Put the declaration in the role that needs the upstream. An upstream no single role owns goes in [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml)."
-msgstr ""
+msgstr "Ieviest deklarāciju par lomu, kam ir nepieciešama augšupēja. Augšupnevienai lomai pieder [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml)."
 
 # translated-by: libretranslate
 msgid "Python CLI for init, deploy, up, down, exec, etc."
@@ -44292,8 +44338,9 @@ msgstr "Noraidīts: desmit atlikušie instrumenti Baserow 2.3.3 pasākumi, kas u
 msgid "Refused: the ten remaining tools Baserow 2.3.3 implements, listed under `tools.upstream_serves`. Three of them (`create_rows`, `update_rows`, `delete_rows`) are live upstream — the image carries no env var, setting or UI toggle that removes them, so `mutating_tools_enabled: false` is enforced by the adapter and by nothing in Baserow. The other seven are shipped disabled upstream and are listed so a version bump that enables one shows up as contract drift rather than as a silently widened surface."
 msgstr "Noraidīts: desmit atlikušie instrumenti Baserow 2.3.3 pasākumi, kas uzskaitīti turpmāk `tools.upstream_serves`. Trīs no tiem (`create_rows`, `update_rows`, `delete_rows`) ir dzīvot augšpusē — attēlā nav env var, iestatījums vai UI pārslēgt, kas tos noņem, tāpēc `mutating_tools_enabled: false` tiek īstenota ar adapteri un nekas Baserow. Pārējie septiņi tiek nosūtīti invalīdi uz augšu, un tie ir uzskaitīti tā, ka versija izcilnis, kas ļauj viens parādās kā līguma drift, nevis kā klusi paplašināta virsma."
 
+# translated-by: libretranslate
 msgid "Regenerate every derived cache file"
-msgstr ""
+msgstr "Pārģenerēt katru atvasināto kešatmiņas failu"
 
 # translated-by: libretranslate
 msgid "Regenerate the Debian changelog at *path* from CHANGELOG.md."
@@ -44866,8 +44913,9 @@ msgstr "Renderēt obligāciju matricu: kas lomas pāris ar kuru, un cik cieši."
 msgid "Render the collected service rows and aggregated totals as an aligned text table or as JSON."
 msgstr "Attēlot savāktās pakalpojumu rindas un apkopotās kopsummas kā izlīdzinātu teksta tabulu vai kā JSON."
 
+# translated-by: libretranslate
 msgid "Render the declared repositories as the records Nexus is bootstrapped from."
-msgstr ""
+msgstr "Renderējiet deklarētos repozitorijus, jo ieraksti Nexus ir ielādēti."
 
 # translated-by: libretranslate
 msgid "Render the plan of one CI sweep: every candidate row, and where it lands."
@@ -44885,8 +44933,9 @@ msgstr "Renderēt augšējo līmeni ``volumes:`` / ``configs:`` / ``secrets:`` b
 msgid "Render using strict Jinja2 repeatedly until:"
 msgstr "Renderēt, lietojot striktu Jinja2 atkārtoti līdz:"
 
+# translated-by: libretranslate
 msgid "Render what the package cache needs beside its role, from the declarations."
-msgstr ""
+msgstr "Attēlot to, kas paketes kešatmiņa ir nepieciešama blakus tās lomai, no deklarācijām."
 
 # translated-by: libretranslate
 msgid "Rendered `.env` passed to the Playwright container"
@@ -45810,11 +45859,13 @@ msgstr "Atgriešanās (reģistrs, repository_name) apstiprināta Docker attēla 
 msgid "Return (running_on_github, running_on_act)."
 msgstr "Atgriešanās (running_on_github, running_on_act)."
 
+# translated-by: libretranslate
 msgid "Return *declared* with *overrides* applied, sorted by key."
-msgstr ""
+msgstr "Atgriešanās *deklarēti* kur: *aizstāj* piemērots, sakārtots pēc atslēgas."
 
+# translated-by: libretranslate
 msgid "Return *raw* with the Ubuntu mirror placeholders substituted."
-msgstr ""
+msgstr "Atgriešanās *jēls* ar aizstātiem Ubuntu spoguļu vietturiem."
 
 # translated-by: libretranslate
 msgid "Return *value* as a list of plausible HTTP status codes."
@@ -45950,8 +46001,9 @@ msgstr "Atgriešanās ``<host>:<port>`` mezgla Tor SOCKS starpniekserverim."
 msgid "Return ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` — per-round variant-closure plus a plan-constant union for the inter-round wipe."
 msgstr "Atgriešanās ``[(round_index, inventory_dir, round_variants, include, purge_set), ...]`` — visu variantu noslēgšana kopā ar plānu pastāvīgu savienību attiecībā uz starpapaļo salveti."
 
+# translated-by: libretranslate
 msgid "Return ``[True]`` when a port exists to probe, ``[False]`` otherwise."
-msgstr ""
+msgstr "Atgriešanās ``[True]`` ja pastāv zondēšanas ports, ``[False]`` citādi."
 
 # translated-by: libretranslate
 msgid "Return ``data`` as a CommentedMap, empty when it holds no mapping."
@@ -46167,14 +46219,17 @@ msgstr "Atgriezties katru uztveršanas *modelis* ķermeņa *url*."
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "Atgriež katru deklarēto papildinājumu visās lomās” ``meta/addons/*.yml``."
 
+# translated-by: libretranslate
 msgid "Return every declared host as a template-ready record, keyed by host."
-msgstr ""
+msgstr "Atgriezt katru deklarēto resursdatoru kā sagataves gatavs ierakstu, atslēgu resursdators."
 
+# translated-by: libretranslate
 msgid "Return every declared repository and host."
-msgstr ""
+msgstr "Atgriezt katru deklarēto repozitoriju un resursdatoru."
 
+# translated-by: libretranslate
 msgid "Return every declared repository as a record, keyed by name."
-msgstr ""
+msgstr "Atgriezt katru deklarēto repozitoriju kā ierakstu, atslēgu ar nosaukumu."
 
 # translated-by: libretranslate
 msgid "Return every declared role author, sorted and without duplicates."
@@ -46208,8 +46263,9 @@ msgstr "Atgriezt katru precīzu pip pin zem ``roles/``."
 msgid "Return every group-conditional service key that has a provider role."
 msgstr "Atgriešanās katru grupu nosacījumiem pakalpojumu atslēgu, kas ir pakalpojumu sniedzēja loma."
 
+# translated-by: libretranslate
 msgid "Return every host the frontend answers for on behalf of *repo*."
-msgstr ""
+msgstr "Atgriezt katru saimnieks priekšējās atbildes vārdā *repo darījumi*."
 
 # translated-by: libretranslate
 msgid "Return every language of ``meta/languages.yml`` keyed by ISO 639-1 code."
@@ -46227,8 +46283,9 @@ msgstr "Atgriešanās katru publicēto versiju npm *Iepakojums*."
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr "Atgriezt katru atbrīvoto versiju ``package``, tukšs, ja PyPI nav sasniedzams."
 
+# translated-by: libretranslate
 msgid "Return every repository as ``name|flavor|url|suite|depth|max_age``."
-msgstr ""
+msgstr "Atgriezt katru repozitoriju kā ``name|flavor|url|suite|depth|max_age``."
 
 # translated-by: libretranslate
 msgid "Return every role directory name, sorted."
@@ -46270,8 +46327,9 @@ msgstr "Atgriezt cilvēklasāmus konfliktus, kad `disable` nepiekrīt esošajam 
 msgid "Return mapping of service_name -> application_id for the provider role of each requested service. Resolution goes through the canonical service registry, so ``provides:`` aliases (e.g. ``mailu.provides: email``) and shared entity-name services are both recognized."
 msgstr "Atgriešanās kartēšana service_name - BAR application_id attiecībā uz katra pieprasītā pakalpojuma sniedzēja lomu. Izšķirtspēja iet caur kanonisko pakalpojumu reģistru, tāpēc ``provides:`` aizstājvārdi (Piemēram, ``mailu.provides: email``) un tiek atzīti abi kopīgie uzņēmuma nosaukuma pakalpojumi."
 
+# translated-by: libretranslate
 msgid "Return one distribution's apt source, empty where it does not use apt."
-msgstr ""
+msgstr "Atgriezt viena distributīva trāpīgs avots, tukšs, ja tas neizmanto t."
 
 # translated-by: libretranslate
 msgid "Return one message per ``update:`` block that cannot be resolved."
@@ -46326,11 +46384,13 @@ msgstr "Atgriezt tagu vārdus no ``git ls-remote --tags``, no kuriem ``refs/tags
 msgid "Return the (background, foreground) pair for a bond between 0 and 1."
 msgstr "Atgriezt (fons, priekšplāns) pāri par saiti starp 0 kā arī 1."
 
+# translated-by: libretranslate
 msgid "Return the (path, repository) pairs this host serves."
-msgstr ""
+msgstr "Atgriezt (ceļš, krātuve) pāri šis saimnieks kalpo."
 
+# translated-by: libretranslate
 msgid "Return the (port, terminates TLS) pairs this host is served on."
-msgstr ""
+msgstr "Atgriezt (osta, pārtrauc TLS) pāri šis saimnieks tiek pasniegts."
 
 # translated-by: libretranslate
 msgid "Return the CPU architectures the role can be deployed on, or ``[]`` when it declares none and takes whatever the CI rotation assigns."
@@ -46472,8 +46532,9 @@ msgstr "Atsūtiet kodus, kas satur katalogu ``domain``."
 msgid "Return the codes that prove *domain* is being served at all."
 msgstr "Norādiet kodus, kas pierāda *domēns* tiek pasniegta vispār."
 
+# translated-by: libretranslate
 msgid "Return the compose override that points every cached host at the frontend."
-msgstr ""
+msgstr "Atgriezt komponēto, ka punkti katru kešatmiņas resursdatoru pie priekšpuses."
 
 # translated-by: libretranslate
 msgid "Return the compressed transfer size of ``image:reference`` in bytes."
@@ -46491,8 +46552,9 @@ msgstr "Atgriešanās pie kritērija ``translation`` lauza, tukši, kad tā sabo
 msgid "Return the current play application mapping using the shared resolver from utils/roles/applications/in_group_deps."
 msgstr "Atgriezt pašreizējo atskaņošanas programmu kartēšanu, izmantojot kopīgoto atskaņotāju no utils/roles/applications/in_group_deps."
 
+# translated-by: libretranslate
 msgid "Return the declared repository *name*, or None where none declares it."
-msgstr ""
+msgstr "Atgriezt deklarēto repozitoriju *nosaukums*, vai nav, ja neviens to nepaziņo."
 
 # translated-by: libretranslate
 msgid "Return the deploy modes a role supports, keyed by mode with its ``modes.<mode>.enabled`` SPOT value."
@@ -46562,8 +46624,9 @@ msgstr "Atgriezt pilnībā ``PORT_BANDS`` kartes taustiņu ``<scope>.<category>`
 msgid "Return the highest released version of ``package``, or None."
 msgstr "Atgriezt augstāko izlaisto versiju ``package``, vai nav."
 
+# translated-by: libretranslate
 msgid "Return the hostname *repo* proxies, taken from its upstream URL."
-msgstr ""
+msgstr "Atgriezt datora nosaukumu *repo darījumi* pilnvaras, kas ņemtas no tā augšpusējā URL."
 
 # translated-by: libretranslate
 msgid "Return the identifiers ``role_dir`` names its upstream product by."
@@ -46581,8 +46644,9 @@ msgstr "Atdodiet identitāti, kas tagad ir izdarīta."
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "Atgriezt tiešo apakšdirektoriju ``cli/<parts>/``, sadalīts izpildāmās komandās (``__main__.py`` nav) un kategoriju mapes. Tukšas atbalsta pakotnes (zem tās nav komandas) tiek izlaisti."
 
+# translated-by: libretranslate
 msgid "Return the inventory's entries for one ``cache:`` section."
-msgstr ""
+msgstr "Atgriezt inventāra ierakstus par vienu ``cache:`` iedaļa."
 
 # translated-by: libretranslate
 msgid "Return the languages the server translates English into."
@@ -46620,15 +46684,17 @@ msgstr "Atgriež vārdus ``module`` definē sevi, godinot savu ``__all__``."
 msgid "Return the names ``source`` carries that ``translation`` dropped."
 msgstr "Atgriež vārdus ``source`` nes, ka ``translation`` nokritusi."
 
+# translated-by: libretranslate
 msgid "Return the nginx frontend configuration the declarations produce."
-msgstr ""
+msgstr "Atgriezt Nginx priekšpuses konfigurāciju deklarācijas ražot."
 
 # translated-by: libretranslate
 msgid "Return the non-overlapping offsets every protection rule claims."
 msgstr "Atgriezt nepārklāšanos kompensē visas aizsardzības noteikumu prasības."
 
+# translated-by: libretranslate
 msgid "Return the npm configuration pointing at the cached registry."
-msgstr ""
+msgstr "Atgriezt npm konfigurāciju, kas norāda uz kešatmiņas reģistru."
 
 # translated-by: libretranslate
 msgid "Return the offsets of every name ``text`` carries."
@@ -46650,8 +46716,9 @@ msgstr "Atgriez manifestu (vai indekss) aizstāj ``image:reference``."
 msgid "Return the path of the ``domain`` catalog of language ``code``."
 msgstr "Atgriezt ceļu ``domain`` valodas katalogs ``code``."
 
+# translated-by: libretranslate
 msgid "Return the path this host serves *repo* under, or the empty string."
-msgstr ""
+msgstr "Atgriež ceļu, ko šis dators kalpo *repo darījumi* zem, vai tukša virkne."
 
 # translated-by: libretranslate
 msgid "Return the people ``role_dir`` names as its authors."
@@ -46661,15 +46728,17 @@ msgstr "Atgriezt cilvēkus ``role_dir`` vārdus kā tā autori."
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
 msgstr "Atgriezt uz-service mount bloku (``volumes:`` + ``configs:`` + ``secrets:``) kā YAML virkni sākot no kolonnas 0."
 
+# translated-by: libretranslate
 msgid "Return the pip configuration pointing at the cached PyPI hosts."
-msgstr ""
+msgstr "Atgriezt pip konfigurāciju, kas norāda uz kešatmiņas PyPI saimniekiem."
 
 # translated-by: libretranslate
 msgid "Return the plain translation, or what was rejected and the criterion it broke."
 msgstr "Atgriežas vienkāršs tulkojums, vai kas tika noraidīts, un kritērijs tas lauza."
 
+# translated-by: libretranslate
 msgid "Return the primary and fallback Ubuntu archive, without trailing slash."
-msgstr ""
+msgstr "Atgriezt primāro un atkāpšanās Ubuntu arhīvu, bez trailing slash."
 
 # translated-by: libretranslate
 msgid "Return the primary domain for application_id from the domains mapping:"
@@ -46755,8 +46824,9 @@ msgstr "Atgriezt run_after saraksts, ko deklarējuši pienākumi, kuriem pieder 
 msgid "Return the same data as JSON, for a caller that wants to post-process."
 msgstr "Atgrieziet tos pašus datus kā JSON, zvanītājam, kurš vēlas pēcprocesu."
 
+# translated-by: libretranslate
 msgid "Return the scheme a client addresses this host with."
-msgstr ""
+msgstr "Atgriezt shēmu klients adreses šo resursdatoru ar."
 
 # translated-by: libretranslate
 msgid "Return the selected and rejected MCP servers for one client role."
@@ -46897,8 +46967,9 @@ msgstr "Norādiet, vai reģistrētais per-version audits atbalsta delegācijas p
 msgid "Return whether a role marks itself an MCP client in its own services."
 msgstr "Atgriezties par to, vai loma ir MCP klients savos pakalpojumos."
 
+# translated-by: libretranslate
 msgid "Return whether an application has a backend a vhost can probe."
-msgstr ""
+msgstr "Atgriezties vai programma ir aizmugure vhost var zonde."
 
 # translated-by: libretranslate
 msgid "Return whether the role opts into deploy ``mode`` (``compose`` | ``swarm`` | ``host``)."
@@ -47085,8 +47156,9 @@ msgstr "Atgriežas tiešsaistes skriptu / stila fragmentus hash par konkrētu di
 msgid "Returns one ``{'role': …, 'app': …}`` mapping per role, so a stage can loop over the group instead of including a generated task file per group:"
 msgstr "Atgriež vienu ``{'role': …, 'app': …}`` kartēšana katrai lomai, lai skatuve varētu apvilkt grupu, nevis pievienot ģenerētu uzdevumu failu katrai grupai:"
 
+# translated-by: libretranslate
 msgid "Returns one dict per host, sorted by host, carrying ``host``, ``repo``, ``routes``, ``listen``, ``read_timeout`` and ``passthrough``."
-msgstr ""
+msgstr "Atgriež vienu dikti katram uzņēmējam, sakārtoti pēc uzņēmējas, veicot ``host``, ``repo``, ``routes``, ``listen``, ``read_timeout`` kā arī ``passthrough``."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -48516,8 +48588,9 @@ msgstr "Palaist publicēto attēlu, lai nodrošinātu inventāra un izvietojumu 
 msgid "Run the published image to provision the inventory and deploy OpenTalk to a managed server (the mounted volume persists the inventory):"
 msgstr "Palaist publicēto attēlu, lai nodrošinātu inventāra un izvietojumu OpenTalk uz pārvaldītu serveri (uzstādītais apjoms turpina inventarizāciju):"
 
+# translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy Package cache to a managed server (the mounted volume persists the inventory):"
-msgstr ""
+msgstr "Palaist publicēto attēlu, lai nodrošinātu inventāra un izvietojumu Package cache uz pārvaldītu serveri (uzstādītais apjoms turpina inventarizāciju):"
 
 # translated-by: libretranslate
 msgid "Run the published image to provision the inventory and deploy PeerTube to a managed server (the mounted volume persists the inventory):"
@@ -51886,8 +51959,9 @@ msgstr "Paliek importa-lēts, lai `utils.cache.applications` (patērēts uz GitH
 msgid "Stdlib line parse on purpose: env handlers feed the .env generation, which bootstraps fresh hosts before PyYAML exists (canonical pattern: utils/storage/nfs.py)."
 msgstr "Stdlib līnijas parse mērķim: env apstrādātāji barot .env paaudze, kas bootstraps svaigu saimniekiem pirms PyYAML pastāv (kanoniskais raksts: utils/storage/nfs.py)."
 
+# translated-by: libretranslate
 msgid "Stdlib only: the ``.env`` generator reaches this before PyYAML exists."
-msgstr ""
+msgstr "Tikai Stdlib: ``.env`` ģenerators sasniedz šo, pirms PyYAML pastāv."
 
 # translated-by: libretranslate
 msgid "Stdlib reader for the block-YAML subset the bootstrap SPOT files use."
@@ -52668,8 +52742,9 @@ msgstr "Svc-bkp-sekretāri2- vietējā loma"
 msgid "Svc-bkp-volume-2-local Role"
 msgstr "Svc- bkp tilpums2- vietējā loma"
 
+# translated-by: libretranslate
 msgid "Svc-cache-package Role"
-msgstr ""
+msgstr "Svc-cache paketes loma"
 
 # translated-by: libretranslate
 msgid "Svc-db-elasticsearch Role"
@@ -55332,8 +55407,9 @@ msgstr "Ass sufiksam var būt CI izvēles marķierierīce (``#0,2@swarm+tor``) i
 msgid "The backup host is NOT appended to the cluster inventory: it lives in a sibling ``backup.yml`` next to ``INV_PATH`` (same host_vars dir), deployed as a second play after the cluster one. Without a svc-swarm-node group that play resolves DEPLOYMENT_MODE=compose and IS_STACK_HOST=true on the backup host, so the backup roles run without cluster-membership special cases."
 msgstr "Rezerves resursdators NAV pievienots klastera inventāram: tas dzīvo brālim vai māsai ``backup.yml`` blakus ``INV_PATH`` (tas pats host_vars rež.), izvietots kā otru spēli pēc klastera vienu. Bez svc-swarm-node grupa, kas atrisina DEPLOYMENT_MODE=komponēt un IS_STACK_HOST=patiesi uz rezerves resursdatora, tāpēc rezerves lomas darbojas bez klastera dalības īpašos gadījumos."
 
+# translated-by: libretranslate
 msgid "The base URL to translate against. The service answers only once it has installed its models, which the caller's readiness wait covers."
-msgstr ""
+msgstr "Bāzes URL tulkot pret. Serviss atbild tikai tad, kad ir uzstādījis savus modeļus, kurus zvanītāja gatavība nogaida."
 
 # translated-by: libretranslate
 msgid "The base layer of :mod:`utils.i18n.placeholders`: it knows the protection rules and nothing about damage or repair, so :mod:`utils.i18n.damage` can build on it without an import cycle."
@@ -55638,8 +55714,9 @@ msgstr "Kombinācija viens sarkans izvietot darbu nomira - viss artefakts nosauk
 msgid "The combined \"yield project files filtered through ``.gitignore``\" helper lives in :mod:`utils.cache.files` (``iter_non_ignored_files``) because it composes the cached project walk with this matcher."
 msgstr "Kopā \"& Projekts ``.gitignore``\" palīgs dzīvo :mod:`utils.cache.files` (``iter_non_ignored_files``) jo tas veido kešatmiņas projektu iet ar šo matrica."
 
+# translated-by: libretranslate
 msgid "The comma-separated records, or the empty string where a placeholder stays unresolved, so a consumer's own guard reports it rather than Nexus proxying a host that does not exist."
-msgstr ""
+msgstr "Ar komatu atdalīti ieraksti vai tukša virkne, kurā vietturis paliek neatrisināts, tāpēc paša patērētāja sargs tos ziņo, nevis Nexus starpniekserveris, kas neeksistē."
 
 # translated-by: libretranslate
 msgid "The common pieces are:"
@@ -55710,8 +55787,9 @@ msgstr "Konfigurācija Nextcloud lietotnes ir deklarētas ``meta/addons/`` saska
 msgid "The config-bearing Nextcloud apps are declared in `meta/addons/` under the unified addon contract (requirement 026). Each declaration carries its full `occ config:app:set` payload under `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
 msgstr "Konfigurācija Nextcloud lietotnes ir deklarētas `meta/addons/` saskaņā ar vienotu papildlīgumu (prasība 026). Katrā deklarācijā ir pilns `occ config:app:set` lietderīgā krava zem `config:`. Aktivizēt tikai progrtore lietotnes palikt zem `nextcloud.plugins` skaits [`meta/services.yml`](./meta/services.yml)."
 
+# translated-by: libretranslate
 msgid "The configured entries, or an empty mapping where no inventory answers, as in the dev stack."
-msgstr ""
+msgstr "Konfigurētie ieraksti, vai tukša kartēšana, kur nav inventāra atbildes, kā dev kaudze."
 
 # translated-by: libretranslate
 msgid "The configured relay host, the loopback address, the container's alias for its host, or a swarm manager."
@@ -55806,8 +55884,9 @@ msgstr "Lēmums salīdzina brīvo vietu uz failu sistēmas turot Docker datu sak
 msgid "The decision repeats for the same request"
 msgstr "Lēmums atkārtojas tajā pašā pieprasījumā"
 
+# translated-by: libretranslate
 msgid "The declarations live under ``cache: hosts:`` in every role's ``meta/networks.yml`` and `utils.cache.hosts` collects them. Deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
-msgstr ""
+msgstr "Deklarācijas dzīvo zem ``cache: hosts:`` visās lomās ``meta/networks.yml`` kā arī `utils.cache.hosts` savāc tos. Izvietots, inventārs var tos labot vai pagarināt; skatīt `utils.cache.inventory`."
 
 # translated-by: libretranslate
 msgid "The declared codes, empty when the app declares none for this domain."
@@ -55897,8 +55976,9 @@ msgstr "Destruktīva urbi, sinhronizācija tikai iet. Tas pierāda, ka rezerves 
 msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value names the compose-only boolean."
 msgstr "Detektēšana balstās uz rindu: uzdevumu bloks ir laidums starp tuvāko `- name:` (N ievilkumā) virs pārkāpēja līnijas un nākamā augšējā līmeņa strukturālā marķiera (`- name:` atruna:). Šajā laidumā mēs meklējam jebkuru `when:` klauzula, kuras teksta vērtības apzīmē tikai komponējošo buljonu."
 
+# translated-by: libretranslate
 msgid "The dev compose stack has no inventory and caches exactly what the roles declare. A deployed host caches what its configuration says, which starts from the same declarations and lets the inventory correct or extend them::"
-msgstr ""
+msgstr "Dev komponēt kaudze nav inventāra un kešatmiņas tieši to, ko lomas deklarēt. Izvietotā resursdatora kešatmiņa, ko tās konfigurācija saka, kas sākas no tām pašām deklarācijām un ļauj inventāram labot vai pagarināt tās:"
 
 # apakšprocesu.
 # translation-refused: libretranslate truncated
@@ -56597,8 +56677,9 @@ msgstr "Diagrammas vietas OpenTalk kas Infinito.Nexus kosmoss: komponenti, ko ta
 msgid "The diagram places Package Manager Installation in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
 msgstr "Diagrammas vietas Package Manager Installation kas Infinito.Nexus kosmoss: komponenti, ko tas izvieto; (spējas), centrālos pakalpojumus tā patērē (atkarības), un tās uz āru sasniedz (federācijas un pagaidu ārējie tīkli;)."
 
+# translated-by: libretranslate
 msgid "The diagram places Package cache in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr ""
+msgstr "Diagrammas vietas Package cache kas Infinito.Nexus kosmoss: komponenti, ko tas izvieto; (spējas), centrālos pakalpojumus tā patērē (atkarības), un tās uz āru sasniedz (federācijas un pagaidu ārējie tīkli;)."
 
 # translated-by: libretranslate
 msgid "The diagram places Package update in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -57918,8 +57999,9 @@ msgstr "Saraksta dokuments, vai Nav, ja paaudzei nav."
 msgid "The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group, and the orchestrator's group cancels for `workflow_dispatch` regardless of ref, so a manual sweep supersedes on both levels, `main` included."
 msgstr "Manuālā ieraksta darbplūsma (`entry-manual-steer.yml`) komplekti `cancel-in-progress: true` par savu grupu, un orķestra grupa atceļ par `workflow_dispatch` neatkarīgi no ref, tāpēc manuālā slaucīšana aizstāj abos līmeņos, `main` iekļauti."
 
+# translated-by: libretranslate
 msgid "The map itself is generated, never tracked, so no second copy of a hostname can drift; ``utils.cache.render.render_artifacts`` writes it once the value-set is built."
-msgstr ""
+msgstr "Pati karte ir izveidota, tā nekad netiek izsekota, tāpēc neviena otra resursdatora kopija nevar dreifēt; ``utils.cache.render.render_artifacts`` raksta to, kad vērtību komplekts ir uzbūvēts."
 
 # translated-by: libretranslate
 msgid "The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in its job title, between the variant number and the ⭐ of a priority row."
@@ -58066,8 +58148,9 @@ msgstr "Nākamais posms cauruļvadā NEDRĪKST izpildīt, kad iepriekšējais po
 msgid "The nfs-server uses the userspace `nfs-ganesha` (`ganesha`) flavor in every runtime; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` is the SPOT, and `kernel` is a per-inventory override. Ganesha is packaged for the `Debian` and `RedHat` os families only. Kernel `nfsd` in a privileged DinD node is wedge-prone: the export can be present yet the controller mount returns ENOENT, and `exportfs` can stick in D-state. If a swarm step hangs at `Reload NFS exports` from a stuck kernel-NFS mount, you MUST recover with `make swarm-clean` on the host; see the NFS gotcha in [Roundtrip Loop](roundtrip.md). You MUST NOT fall back to a compose-only sweep while swarm is blocked."
 msgstr "Nfs serveris izmanto lietotāja vietu `nfs-ganesha` (`ganesha`) garša katrā skriešanas laikā; `services.nfs-server.flavor` skaits `roles/svc-storage-nfs-server/meta/services.yml` ir SPOT un `kernel` ir inventārs. Ganesha ir iepakots `Debian` kā arī `RedHat` tikai os ģimenes. Kodols `nfsd` priviliģētā Dind mezgls ir ķīļa-prone: eksports var būt klāt, bet kontrolieris mount atgriež ENOENT, un `exportfs` var palikt D-state. Ja bara solis karājas `Reload NFS exports` no iestrēdzis kodols-NFS mount, jums ir atgūt ar `make swarm-clean` uz uzņēmēja; skatīt NFS gotcha in [Apaļsvītra cilpa](roundtrip.md). Jums nav jāatgriežas pie komponēt tikai slaucīšana, kamēr bars ir bloķēts."
 
+# translated-by: libretranslate
 msgid "The nginx upstream map, the consumer compose override and the package managers' client configuration all follow from the ``cache:`` declarations in the roles' `meta/networks.yml`. None of them is tracked; this package regenerates them. Implementation lives in `utils.cache.render`."
-msgstr ""
+msgstr "Nginx augšpusējā karte, patērētāju komponēšana un paketes pārvaldītāju klientu konfigurācija izriet no ``cache:`` paziņojumi par lomām” `meta/networks.yml`. Neviens no tiem nav izsekots; šis iepakojums tos reģenerē. Īstenošana `utils.cache.render`."
 
 # translated-by: libretranslate
 msgid "The nightly timers (volume 01:00, nfs 01:30, secrets 01:45, device 02:00, remote pull 00:30) run independently of every step above and never fire during a lab run."
@@ -59095,8 +59178,9 @@ msgstr "Nozīme ir viena `registry:2` piemēram, izvilkt-through starpniekserver
 msgid "The role deploys end-to-end on the project's reference distribution and is covered by **at least** a smoke-level Playwright spec, but neither the deploy nor the spec depth is considered production-grade."
 msgstr "Uzdevumi, kas attiecas uz projekta atsauces izplatīšanu, ir izklāstīti **vismaz** dūmu līmenis Playwright spec, bet ne izvietojumu, ne spec dziļumu uzskata par ražošanas kvalitātes."
 
+# translated-by: libretranslate
 msgid "The role deploys the frontend and owns the templates and their tuning; the dev compose stack has no inventory to render them with and comes through here instead. Every value still has one home: the hosts and repositories come from the ``cache:`` declarations, the nginx tuning from the role's ``vars/main.yml``, and only the backend address differs, because the dev stack reaches Nexus over a compose network alias while the role reaches it by its configured container."
-msgstr ""
+msgstr "Loma izvieto frontend un pieder veidnes un to tuning; dev kompožu kaudze nav inventarizācijas, lai padarītu tos ar un nāk caur šeit vietā. Katrai vērtībai joprojām ir viena mājas: saimnieki un krātuves nāk no ``cache:`` paziņojumi, kas izriet no ``vars/main.yml``, un tikai aizmugures adrese atšķiras, jo dev kaudze sasniedz Nexus virs komponēt tīkla segvārdus, bet loma sasniedz to ar tā konfigurēto konteineru."
 
 # translated-by: libretranslate
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via `SEMAPHORE_*` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak `administrator` is created at deploy time as an external Semaphore admin via `semaphore user add --admin --external`; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
@@ -59106,11 +59190,13 @@ msgstr "Loma izvieto vienu Semaphore konteineru (ar iestrādātu darba skrējēj
 msgid "The role deploys the single Semaphore container (with its embedded task runner) and wires it into the platform via ``SEMAPHORE_*`` environment variables. The setup wizard is bypassed by seeding the initial admin from rendered secrets, so a fresh deploy lands directly on the Semaphore login page. When SSO is enabled, the Keycloak ``administrator`` is created at deploy time as an external Semaphore admin via ``semaphore user add --admin --external``; the OIDC callback matches it by email and signs the operator in as a Semaphore admin."
 msgstr "Loma izvieto vienu Semaphore konteineru (ar iestrādātu darba skrējēju) un vadus to platformas caur ``SEMAPHORE_*`` vides mainīgie lielumi. Uzstādīšanas vednis tiek apiets, sējot sākotnējo admin no padarītajiem noslēpumiem, tāpēc svaigu izvietot zemes tieši Semaphore pieteikšanās lapā. Kad SSO ir ieslēgts, Keycloak ``administrator`` ir izveidota izvietošanas laikā kā ārējo Semaphore admin caur ``semaphore user add --admin --external``; OIDC zvanu atbilst to pa e-pastu un paraksta operatoru kā Semaphore admin."
 
+# translated-by: libretranslate
 msgid "The role deploys two containers on its inventory group's host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling [svc-registry-cache](../svc-registry-cache/README.md)."
-msgstr ""
+msgstr "Loma izvieto divus konteinerus tās inventāra grupas saimnieks: repozitorija pārvaldnieks un tā nginx priekšpuse. Abi palaist komponēt režīmā vadītājs, piemēram, brālis [svc-registry-cache](../svc-registry-cache/README.md)."
 
+# translated-by: libretranslate
 msgid "The role deploys two containers on its inventory group’s host: the repository manager and its nginx frontend. Both run in compose mode on the manager, like the sibling `svc-registry-cache <../svc-registry-cache/README.md>`__."
-msgstr ""
+msgstr "Uzskaites grupas saimnieka uzdevums ir izvietot divus konteinerus: repozitorija pārvaldnieku un Nginx priekšpusi. Abi palaist komponēt režīmā vadītājs, piemēram, brālis `svc-registry-cache <../svc-registry-cache/README.md>`__."
 
 # translated-by: libretranslate
 msgid "The role directory name is the `application_id`. For example `roles/web-app-mailu/meta/services.yml` is exposed as `applications['web-app-mailu'].services`, `roles/web-app-mailu/meta/server.yml` as `applications['web-app-mailu'].server`, and so on."
@@ -59594,8 +59680,9 @@ msgstr "Vienas un tās pašas izvēles ar katru asi samazinājās, pa vienam ier
 msgid "The same shape serves the repository-root file, which holds the shared collection any role and any inventory bundle may install from, and a role's own file, which holds what only that role installs."
 msgstr "Tāda pati forma kalpo repozitorija root failu, kas tur dalīto vākšanu jebkuru lomu un jebkurš inventāra paketi var instalēt no, un loma paša failu, kas tur tikai šo lomu instalēt."
 
+# translated-by: libretranslate
 msgid "The same string `.env` carries as ``INFINITO_CACHE_UPSTREAMS``, so the role's bootstrap task and the dev stack provision Nexus from one rendering. `utils.cache.records` owns the format."
-msgstr ""
+msgstr "Tā pati virkne `.env` veic kā ``INFINITO_CACHE_UPSTREAMS``, tāpēc loma bootstrap uzdevums un dev steka noteikums Nexus no vienas renderēšanas. `utils.cache.records` pieder formāts."
 
 # translated-by: libretranslate
 msgid "The sandbox (`allowWrite`, `denyRead`, `allowedDomains`, see [sandbox.md](sandbox.md)) bounds every write, every read, and every outbound connection. `deny` rules block destructive patterns unconditionally; `ask` rules force operator review on every mutating `gh`/`docker`/`git commit`/`Skill(update-config*)` invocation. The wildcard does **not** loosen any existing guardrail; it only drops the per-shape workarounds."
@@ -59779,8 +59866,9 @@ msgstr "Uzstādīšanas uzdevumi apstrādā pilnu pirmās izvietošanas bootstra
 msgid "The shape each key must have is declared per role rather than here, in [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) with a `type:` and a `regex:`. The pattern rejects a truncated or whitespace-carrying paste and deliberately accepts any vendor prefix, so a provider changing its issuance format cannot turn a valid key into a failed inventory run."
 msgstr "Katras atslēgas forma ir deklarēta par lomu, nevis šeit, jo [roles/svc-ai-litellm/meta/secrets.yml](../../../../../roles/svc-ai-litellm/meta/secrets.yml) ar `type:` un a `regex:`. Modelis noraida atdalītu vai atstarpi nesošu pastu un apzināti pieņem jebkuru pārdevēja priedēkli, tāpēc pakalpojuma sniedzējs, mainot savu izdošanas formātu, nevar pārvērst derīgu atslēgu neveiksmīgā inventāra braucienā."
 
+# translated-by: libretranslate
 msgid "The shape every consumer renders from: the ansible lookups, which then apply the inventory, and the dev stack, which does not."
-msgstr ""
+msgstr "Forma katrs patērētājs renderē no: ansible lookups, kas pēc tam piemēro inventāra, un dev steka, kas nav."
 
 # translated-by: libretranslate
 msgid "The shape mirrors the schema tree: nested keys stay nested. The literal string is preserved verbatim, with no rendering and no validation. Leaves WITHOUT ``default:`` are intentionally absent so the inventory's apply_schema-generated values win the merge."
@@ -60008,8 +60096,9 @@ msgstr "Blakusvāģis sākas ar ``-r`` (tikai lasāms) un darbības jomas saraks
 msgid "The single `make compose-deploy` target resolves one or more bundles into the role groups declared under `all.children` and feeds them into the standard local deploy flow when `bundles=<csv>` is set. The resolver is [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); it deduplicates across bundles and preserves declaration order."
 msgstr "Viens `make compose-deploy` mērķis atrisina vienu vai vairākus grupējumus lomu grupās deklarēto `all.children` un ievada tos standarta vietējā izvietojuma plūsmu, kad `bundles=<csv>` ir iestatīts. Atrisinātājs ir [`utils.inventory.bundle_apps`](../../utils/inventory/bundle_apps.py); tas deduplicē pa saišķiem un saglabā deklarēšanas kārtību."
 
+# translated-by: libretranslate
 msgid "The single point of truth for the cache. A role declares the repositories it needs Nexus to proxy and, where a container must resolve an upstream by name, the hostname the frontend answers for::"
-msgstr ""
+msgstr "Vienots patiesības punkts kešam. Loma paziņo repozitorijiem, kas tiem vajadzīgi Nexus, lai pilnvarotu, un, ja konteineram ir jāatrisina augšpusē pēc nosaukuma, resursdatora nosaukums, uz kuru priekšējā daļa atbild par:"
 
 # translated-by: libretranslate
 msgid "The single-database dumps, and the cluster dumps, which name their instance in the file name and go through ``baudolo-restore cluster``."
@@ -64479,8 +64568,9 @@ msgstr "Patiess, kad `role_id` atrodas marķētā kategorijā vai zemāk ``invok
 msgid "True when a `web-app-mailu` host is reachable (otherwise local delivery)."
 msgstr "Patiess, ja `web-app-mailu` resursdators ir sasniedzams (citādi vietējā piegāde)."
 
+# translated-by: libretranslate
 msgid "True when a port exists for ``resolve_upstream`` to build an upstream from: the local one outside swarm, the internal one inside it. Asking that lookup for a role that has neither raises rather than returning empty."
-msgstr ""
+msgstr "Patiess, ja ports eksistē ``resolve_upstream`` izveidot augšpusi no: vietējā ārpus bara, iekšējā tajā. Jautāt, ka meklēt lomu, kas nav ne rada, nevis atgriež tukšu."
 
 # translated-by: libretranslate
 msgid "True when an IPv6 default route exists on a non-loopback interface."
@@ -68742,8 +68832,9 @@ msgstr "Uzrakstīt integrācijas testu, kad uzvedība jūs verificējat ir atkar
 msgid "Write code so the next person can understand it quickly."
 msgstr "Rakstiet kodu, lai nākamais cilvēks varētu to ātri saprast."
 
+# translated-by: libretranslate
 msgid "Write every generated cache file and return what was written."
-msgstr ""
+msgstr "Rakstiet katru ģenerēto keša failu un atgrieziet rakstīto."
 
 # translated-by: libretranslate
 msgid "Write every update into both requirement files."
@@ -68933,8 +69024,9 @@ msgstr "Mount dicts in ``volume['mounts']`` šis mērķis ``service``."
 msgid "Yield project files filtered through ``.gitignore``."
 msgstr "Projekts ``.gitignore``."
 
+# translated-by: libretranslate
 msgid "Yield the URL of the dedicated LibreTranslate, deploying it when absent."
-msgstr ""
+msgstr "Iegūt atvēlētā URL LibreTranslate, izvietojot to prombūtnē."
 
 # translated-by: libretranslate
 msgid "Yields"
@@ -73264,8 +73356,9 @@ msgstr "[Nextcloud oficiālā tīmekļa vietne](https://nextcloud.com/)"
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr "[Nextcloud → TIKAIOFFICE Integrācijas App](https://apps.nextcloud.com/apps/onlyoffice)"
 
+# translated-by: libretranslate
 msgid "[Nexus Repository](https://www.sonatype.com/products/sonatype-nexus-repository) is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. [nginx](https://nginx.org/) sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
-msgstr ""
+msgstr "[Nexus repozitorijs](https://www.sonatype.com/products/sonatype-nexus-repository) ir repozitorija pārvaldnieks, kas proxies pakotņu reģistrus un apkalpo artefaktu, kas jau ir ielādēts no vietējā diska. [nginx](https://nginx.org/) atrodas tā priekšā un atbild uz augšpusējiem hostnames paši, tāpēc pakešu pārvaldnieks saglabā URL tas tika būvēts ar un joprojām lasa caur starpniekserveri."
 
 # translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/)"
@@ -73423,8 +73516,9 @@ msgstr "[OpenTalk](https://opentalk.eu/) ir suverēna atvērtā pirmkoda videoko
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr "[OpenWrt foruma diskusija par WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 
+# translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
-msgstr ""
+msgstr "[Pakotņu kešs](roles/svc-cache-package/)"
 
 # translated-by: libretranslate
 msgid "[Package update](roles/update/)"
@@ -74991,8 +75085,9 @@ msgstr "[type.py](../../../../utils/roles/type.py) patērē to pašu shēmu. Tas
 msgid "[update/](update/)"
 msgstr "[atjaunināt/](update/)"
 
+# translated-by: libretranslate
 msgid "[upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role."
-msgstr ""
+msgstr "[upstreams.conf.j2](./templates/upstreams.conf.j2) ir renderēta uz resursdatoru un uzstādīts priekšpusē kā `conf.d/upstreams.conf`. Tās saturs nāk no `cache:` funkciju sadaļas” `meta/networks.yml`, tāpēc neviens resursdators nosaukums, krātuve vai augšupējs URL nav rakstīts šajā lomā."
 
 # translated-by: libretranslate
 msgid "[variants.md](../../contributing/design/variants.md) for what a `role#variant` row is."
@@ -77439,8 +77534,9 @@ msgstr "`NFS <https://en.wikipedia.org/wiki/Network_File_System>`__ (Tīkla fail
 msgid "`N` → route a share of deploy jobs to your `[self-hosted, linux]` runners."
 msgstr "`N` → maršrutu daļa izvietot darbus uz jūsu `[self-hosted, linux]` skrējēji."
 
+# translated-by: libretranslate
 msgid "`Nexus Repository <https://www.sonatype.com/products/sonatype-nexus-repository>`__ is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. `nginx <https://nginx.org/>`__ sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
-msgstr ""
+msgstr "`Nexus Repository <https://www.sonatype.com/products/sonatype-nexus-repository>`__ ir repozitorija pārvaldnieks, kas proxies pakotņu reģistrus un apkalpo artefaktu, kas jau ir ielādēts no vietējā diska. `nginx <https://nginx.org/>`__ atrodas tā priekšā un atbild uz augšpusējiem hostnames paši, tāpēc pakešu pārvaldnieks saglabā URL tas tika būvēts ar un joprojām lasa caur starpniekserveri."
 
 # translated-by: libretranslate
 msgid "`Nginx <https://nginx.org/>`__ is a high-performance web server and reverse proxy. This role wraps Nginx as a first-party mirror for the third-party assets other web applications declare in their CSP whitelists, so browsers fetch those assets from the deployment itself instead of contacting external hosts."
@@ -78266,8 +78362,9 @@ msgstr "``c.wiki.example.com`` → **vecāks** ``wiki.example.com`` (plus ``exam
 msgid "``ca_cert_host`` is where sys-ca-selfsigned provisions the root CA on the host. The container-side bind-mount targets live in the ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) and reach the standalone runtime scripts as env vars and CLI arguments."
 msgstr "``ca_cert_host`` kur sys-ca-selfsigned nodrošina saknes CA uz uzņēmēja. Konteinera puses piesaistes-montēšanas mērķi dzīvo ``CA_TRUST`` group_vars SPOT (``inject_cert_container`` / ``inject_wrapper_container``) un sasniegt standalone runtime skriptus kā env vars un CLI argumentus."
 
+# translated-by: libretranslate
 msgid "``canonical_domain`` is the host of ``canonical_url``, not the configured domain, so both follow the onion substitution a Tor deployment applies. A consumer that compares it against what a page actually renders would otherwise never match on an onion host."
-msgstr ""
+msgstr "``canonical_domain`` ir ``canonical_url``, nevis konfigurēto domēnu, tāpēc abi sekot sīpolu aizvietošanu Tor izvietošana attiecas. Patērētājs, kas salīdzina to ar to, ko lapa faktiski renderē citādi nekad nesakristu ar sīpolu saimnieku."
 
 # translated-by: libretranslate
 msgid "``central_mariadb_root_password``: The root password for the MariaDB server."
@@ -78289,8 +78386,9 @@ msgstr "``comments`` ir parsed uz taustiņu komentāru karti no default.env (ska
 msgid "``compose build`` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "``compose build`` atkārtoti bakes statisko izvades ikreiz, kad klonētā saturs mainās, tāpēc izvieto ir satura virzīta bez palaist laiku veidot soli."
 
+# translated-by: libretranslate
 msgid "``compose.cache-consumer.yml.j2``, ``apt.list.j2``, ``npmrc.j2`` and ``pip.conf.j2`` under ``templates/``, and the shell scripts under ``files/``, belong to the development compose stack, which drives them through `render.py <../../utils/cache/render.py>`__ and `compose.py <../../cli/administration/deploy/development/compose.py>`__. The Ansible deployment reads none of them."
-msgstr ""
+msgstr "``compose.cache-consumer.yml.j2``, ``apt.list.j2``, ``npmrc.j2`` kā arī ``pip.conf.j2`` zem ``templates/``, un čaulas skripti zem ``files/``, pieder izstrādes komponēt kaudze, kas vada tos caur `render.py <../../utils/cache/render.py>`__ kā arī `compose.py <../../cli/administration/deploy/development/compose.py>`__. Assible izvietošana nolasa neviens no tiem."
 
 # translated-by: libretranslate
 msgid "``compose`` (deprecated)"
@@ -78867,8 +78965,9 @@ msgstr "``relay`` kā arī ``media`` ir UDP. ``stun_turn`` un tā TLS variants d
 msgid "``repo`` carries the repository the names come from, defined inline on the entry that needs it: a full definition (``name``/``description``/ ``baseurl``/``gpgkey``) rendered as a yum repo, ``bootstrap_package`` for a repo shipped as a package such as ``epel-release``, ``enable_existing`` to switch on a repo the distro already ships, ``pacman_section`` to uncomment a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a community repository, or ``managed_externally`` when the role sets it up itself."
 msgstr "``repo`` glabā repozitoriju nosaukumus, kas ir iegūti: pilna definīcija (``name``/``description``/ ``baseurl``/``gpgkey``) repo veidā, ``bootstrap_package`` par repo, kas nosūtīts kā pakete, piemēram, ``epel-release``, ``enable_existing`` ieslēgt repo jau kuģi, ``pacman_section`` atkomentēt ``pacman.conf`` piemēram: ``multilib``, ``copr``/``ppa`` Kopienas repozitorijam vai ``managed_externally`` kad tā pati ir izveidota."
 
+# translated-by: libretranslate
 msgid "``repos`` or ``upstreams``."
-msgstr ""
+msgstr "``repos`` vai ``upstreams``."
 
 # translated-by: libretranslate
 msgid "``required`` (always installed)"
@@ -79478,8 +79577,9 @@ msgstr "`base_dir` (virkne): bāzes mape CA failiem"
 msgid "`base` prepares the workspace and is a prerequisite for the other two. `compose` and `swarm` are independent of each other, which is what lets CI run them as separate jobs with a budget each."
 msgstr "`base` sagatavo darba vietu un ir priekšnoteikums pārējiem diviem. `compose` kā arī `swarm` ir neatkarīgi viens no otra, kas ļauj CI vadīt tos kā atsevišķas darba vietas ar budžetu katram."
 
+# translated-by: libretranslate
 msgid "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`)"
-msgstr ""
+msgstr "`bash roles/svc-cache-package/files/shell/bootstrap.sh` (pēc `make dotenv` vai iegūšanas `scripts/meta/env/load.sh`)"
 
 # translated-by: libretranslate
 msgid "`bench new-site` uses the central MariaDB's `root` to create the per-site DB on first deploy."
@@ -79611,8 +79711,9 @@ msgstr "`cluster_addr` NEDRĪKST būt izgatavoti no iepakojuma nosaukuma. Kompo�
 msgid "`compose build` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step."
 msgstr "`compose build` atkārtoti bakes statisko izvades ikreiz, kad klonētā saturs mainās, tāpēc izvieto ir satura virzīta bez palaist laiku veidot soli."
 
+# translated-by: libretranslate
 msgid "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` and `pip.conf.j2` under `templates/`, and the shell scripts under `files/`, belong to the development compose stack, which drives them through [render.py](../../utils/cache/render.py) and [compose.py](../../cli/administration/deploy/development/compose.py). The Ansible deployment reads none of them."
-msgstr ""
+msgstr "`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` kā arī `pip.conf.j2` zem `templates/`, un čaulas skripti zem `files/`, pieder izstrādes komponēt kaudze, kas vada tos caur [render.py](../../utils/cache/render.py) kā arī [compose.py](../../cli/administration/deploy/development/compose.py). Assible izvietošana nolasa neviens no tiem."
 
 # translated-by: libretranslate
 msgid "`compose.volumes:` is **not** inlined into services. It lives in its own `meta/volumes.yml` (volumes are role-wide, not per-service)."
@@ -80209,8 +80310,9 @@ msgstr "`index`, `sweep` (nepieciešams), `distros` (fakultatīva grupa), `files
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
 msgstr "`infinito administration deploy development <subcommand>` (Python CLI)"
 
+# translated-by: libretranslate
 msgid "`infinito meta cache` subcommand -- render the derived cache files."
-msgstr ""
+msgstr "`infinito meta cache` apakškomanda -- renderēt atvasinātos kešatmiņas failus."
 
 # translated-by: libretranslate
 msgid "`infinito meta env` subcommand -- generate the project's `.env`."
@@ -81590,11 +81692,13 @@ msgstr "`update` (Pēc izvēles) kontroles tiek veiktas augšupēji. `update.mon
 msgid "`update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include."
 msgstr "`update` atkārtoti izmanto esošo uzskaiti; `disable` sasniedz ansible kā ekstra-var, kas sniedz pakalpojumus invalīdiem, bet neskar iekļaut."
 
+# translated-by: libretranslate
 msgid "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ is rendered to the host and mounted into the frontend as ``conf.d/upstreams.conf``. Its content comes from the ``cache:`` sections of the roles’ ``meta/networks.yml``, so no hostname, repository or upstream URL is written in this role."
-msgstr ""
+msgstr "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ ir renderēta uz resursdatoru un uzstādīts priekšpusē kā ``conf.d/upstreams.conf``. Tās saturs nāk no ``cache:`` funkciju sadaļas” ``meta/networks.yml``, tāpēc neviens resursdators nosaukums, krātuve vai augšupējs URL nav rakstīts šajā lomā."
 
+# translated-by: libretranslate
 msgid "`upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
-msgstr ""
+msgstr "`upstreams.conf`: nginx servera bloki, kas iegūti no `cache:` Deklarācijas [render.py](../../utils/cache/render.py) un tāpēc atsekoja. HTTPS (ports 443) katram skrējēja puses satiksmes resursdatoram, HTTP (ports 80) lietošanai`dockerd` Dockerfile būvē. Imitēt pie `/etc/nginx/conf.d/upstreams.conf`."
 
 # translated-by: libretranslate
 msgid "`user_username` is resolved from `lookup('users', user_key).username` (fallback: `user_key`)"
@@ -81624,8 +81728,9 @@ msgstr "`users` Lookup 👥"
 msgid "`utils.cache.base._render_with_templar` and the two templar helpers behind it swallow every exception on purpose: a meta payload renders in rounds, and an expression that cannot resolve yet has to come back unchanged rather than abort the round."
 msgstr "`utils.cache.base._render_with_templar` un divi templar palīgi aiz tā norij katru izņēmumu pēc mērķa: meta derīgā krava renders kārtās, un izteiksme, kas nevar atrisināt vēl nāk atpakaļ nemainīgs, nevis pārtraukt kārtu."
 
+# translated-by: libretranslate
 msgid "`utils.cache.records` owns the format and the mirror resolution, so the role's bootstrap task and this key cannot drift apart."
-msgstr ""
+msgstr "`utils.cache.records` pieder formāts un spogulis izšķirtspēju, tāpēc loma ir bootstrap uzdevums un šī atslēga nevar dreifēt atsevišķi."
 
 # translated-by: libretranslate
 msgid "`utils.inventory.bundle_apps` reads each named bundle, walks `all.children`, deduplicates the role groups across all bundles, and prints the resulting application list as CSV. The CSV is exported as `apps` before the delegated script runs."
@@ -81970,8 +82075,9 @@ msgstr "izvēles marķierierīce (`role#0/zfs`)"
 msgid "a short description of the issue"
 msgstr "īss emisijas apraksts"
 
+# translated-by: libretranslate
 msgid "a sibling repository proxying a different host, which the frontend falls back to when this one answers 5xx."
-msgstr ""
+msgstr "sensora krātuve, kas pārvada citu resursdatoru, uz kuru priekšpuse atgriežas tad, kad šis atbild 5xx."
 
 # translated-by: libretranslate
 msgid "a source **not** starting with `/` → remote `[user@]host[:/path]`, rsync-pulled (`nfs` / `volume` / `full`)"
@@ -83433,8 +83539,9 @@ msgstr "cli.make Iepakojums"
 msgid "cli.meta package"
 msgstr "cli.meta Iepakojums"
 
+# translated-by: libretranslate
 msgid "cli.meta.cache package"
-msgstr ""
+msgstr "cli.meta.cache Iepakojums"
 
 # translated-by: libretranslate
 msgid "cli.meta.ci package"
@@ -85018,8 +85125,9 @@ msgstr "tas pieskaras režīmam, ko rinda nevar ieņemt, sīpols norāda rindu, 
 msgid "it pins a variant the role does not declare (any more): the usual case is a list carried over from an older run whose variants have since been renumbered;"
 msgstr "tas pieskaras variantam, kuru loma nedeklarē (vēl): Parastais gadījums ir saraksts, kas pārņemts no senākas kārtas, kuras varianti kopš tā laika ir pārnumurēti;"
 
+# translated-by: libretranslate
 msgid "its repository type, such as ``apt`` or ``raw``."
-msgstr ""
+msgstr "tā repozitorija veids, piemēram: ``apt`` vai ``raw``."
 
 # translated-by: libretranslate
 msgid "jitsi"
@@ -85377,8 +85485,9 @@ msgstr "naudas kaltuves personīgo piekļuvi marķierierīce administratora kont
 msgid "mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`."
 msgstr "naudas kaltuves personīgo piekļuvi marķierierīce administratora kontam un saglabāt to ar `sys-token-store` zem `users.administrator.tokens['web-app-mattermost']`."
 
+# translated-by: libretranslate
 msgid "minutes Nexus serves a cached artefact for, where the repository needs something other than the stack-wide default."
-msgstr ""
+msgstr "minūtes Nexus kalpo kešatmiņas artefaktu, kur repozitorijā ir nepieciešams kaut kas cits, nekā steka mērogā noklusējuma."
 
 # translated-by: libretranslate
 msgid "mode"
@@ -85480,8 +85589,9 @@ msgstr "nfs-serveris"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr "nftables pakešu filtrs, kura noteikumi katrai lomai pieder kā sava tabula, aizstāts atomiski un pārlādēts boot"
 
+# translated-by: libretranslate
 msgid "nginx ``proxy_read_timeout`` where the default is too short, as for a multi-gigabyte model download."
-msgstr ""
+msgstr "nginx ``proxy_read_timeout`` ja noklusējuma ir pārāk īsa, tāpat kā vairāku gigabaitu modeļa lejupielādei."
 
 # translated-by: libretranslate
 msgid "nginx vhost-file purge helper (entity-keyed)."
@@ -86389,14 +86499,17 @@ msgstr "plugins.lookup.bounded\\ name modulis"
 msgid "plugins.lookup.ca\\_injected module"
 msgstr "plugins.lookup.ca\\ injicētais modulis"
 
+# translated-by: libretranslate
 msgid "plugins.lookup.cache\\_records module"
-msgstr ""
+msgstr "plugins.lookup.cache\\ ierakstu modulis"
 
+# translated-by: libretranslate
 msgid "plugins.lookup.cache\\_repos module"
-msgstr ""
+msgstr "plugins.lookup.cache\\ repos modulis"
 
+# translated-by: libretranslate
 msgid "plugins.lookup.cache\\_upstreams module"
-msgstr ""
+msgstr "plugins.lookup.cache\\ augšteces modulis"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.canonical\\_url module"
@@ -86661,8 +86774,9 @@ msgstr "plugins.lookup.playwright\\ workers modulis"
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "plugins.lookup.probeable\\_backend module"
-msgstr ""
+msgstr "plugins.lookup.probeable\\ backend modulis"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.prometheus\\_integration\\_active module"
@@ -87287,8 +87401,9 @@ msgstr "result.rc ! = 0 un nevis (result.stderr י ldap_modify_noop)"
 msgid "return the first successfully parsed JSON value"
 msgstr "atgriež pirmo veiksmīgi analizēto JSON vērtību"
 
+# translated-by: libretranslate
 msgid "returns one line about the server's own progress, reported every ``PROGRESS_SECONDS`` while it installs its models. The server offers no endpoint before it is ready, so without this the wait is indistinguishable from a hang for its whole hour."
-msgstr ""
+msgstr "atgriež vienu rindu par servera paša progresu, ziņots katru ``PROGRESS_SECONDS`` kamēr tas uzstāda savus modeļus. Serveris piedāvā nekādu galapunktu, pirms tas ir gatavs, tāpēc bez šī jāgaida ir nenodalāms no pakārt visu savu stundu."
 
 # translated-by: libretranslate
 msgid "reusable"
@@ -87952,11 +88067,13 @@ msgstr "mērķi: [\"{{ native_prometheus_application_id | native_metrics_target(
 msgid "teardown"
 msgstr "Nodalīšana"
 
+# translated-by: libretranslate
 msgid "templating variables."
-msgstr ""
+msgstr "templating mainīgie."
 
+# translated-by: libretranslate
 msgid "term 0 is the application id."
-msgstr ""
+msgstr "termiņš 0 ir pieteikuma ID."
 
 # translated-by: libretranslate
 msgid "term can be:"
@@ -88030,8 +88147,9 @@ msgstr "gads Nextcloud konts programmas parole pieder; katrs rīks zvans adapter
 msgid "the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account’s permissions"
 msgstr "gads Nextcloud konts app paroli pieder; katrs rīks zvanu adapteri priekšu darbojas ar šī konta atļaujas"
 
+# translated-by: libretranslate
 msgid "the Nexus repository name."
-msgstr ""
+msgstr "Nexus repozitorija nosaukums."
 
 # translated-by: libretranslate
 msgid "the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above"
@@ -88134,8 +88252,9 @@ msgstr "gads `roles:` saraksts ir tukšs vai"
 msgid "the `root` account"
 msgstr "gads `root` konts"
 
+# translated-by: libretranslate
 msgid "the absolute URL it proxies."
-msgstr ""
+msgstr "absolūtais URL, ko tas dod."
 
 # translated-by: libretranslate
 msgid "the address the commit carries."
@@ -88197,8 +88316,9 @@ msgstr "katalogā rakstīt."
 msgid "the change \"looks obviously correct\"."
 msgstr "izmaiņas \"izskatās acīmredzami pareizs\"."
 
+# translated-by: libretranslate
 msgid "the checkout being generated for."
-msgstr ""
+msgstr "ģenerētā izrakstīšanās."
 
 # translated-by: libretranslate
 msgid "the checkout the ``.env`` is generated for."
@@ -88277,8 +88397,9 @@ msgstr "deklarācija no programmas konfigurācijas."
 msgid "the deploy mode the row runs in."
 msgstr "izvietošanas režīmā, kurā rinda darbojas."
 
+# translated-by: libretranslate
 msgid "the depth a ``yum`` repository indexes."
-msgstr ""
+msgstr "dziļums a ``yum`` repozitoriju indeksi."
 
 # translated-by: libretranslate
 msgid "the detected package manager."
@@ -88321,8 +88442,9 @@ msgstr "tukša kartēšana `{}` (ieraksts par kanonisko nepārnešanu), vai"
 msgid "the endpoint is configurable but both prompt-sending views are premium-licence gated; see the measurement above"
 msgstr "beigu punkts ir konfigurējams, bet abi tūlītēji noslieces skati ir augstākās licences; skatīt mērījumu iepriekš;"
 
+# translated-by: libretranslate
 msgid "the entries the roles declare, keyed by name."
-msgstr ""
+msgstr "ierakstus, kurus deklarē lomas, atslēgas veidā norādot nosaukumu."
 
 # translated-by: libretranslate
 msgid "the entries whose role has no job at all in the source run, each with its own axis suffix intact."
@@ -88368,22 +88490,25 @@ msgstr "katras atbilstības pirmā tveršanas grupa"
 msgid "the fix was logically inferred from a previous deploy's evidence,"
 msgstr "labojums loģiski izrietēja no iepriekšējās izvietošanas pierādījumiem,"
 
+# translated-by: libretranslate
 msgid "the frontend ports serving it; apt suites are plain HTTP."
-msgstr ""
+msgstr "frontend porti, kas to apkalpo; apt svītas ir vienkāršas HTTP."
 
 # translated-by: libretranslate
 msgid "the fully qualified domain being probed."
 msgstr "pilnībā kvalificētā kontrolējamā joma."
 
+# translated-by: libretranslate
 msgid "the hijacked hostnames, sorted by host."
-msgstr ""
+msgstr "nolaupītie saimniekvārdi, kas sakārtoti pēc saimnieka."
 
 # translated-by: libretranslate
 msgid "the host's databases.csv."
 msgstr "saimnieks databases.csv."
 
+# translated-by: libretranslate
 msgid "the hostname a container resolves to the frontend."
-msgstr ""
+msgstr "resursdatora nosaukums, ko konteiners atrod priekšpusē."
 
 # translated-by: libretranslate
 msgid "the identity provider's end-session endpoint."
@@ -88397,8 +88522,9 @@ msgstr "indekss, pēc kura sāk nolasīšanu; ``0`` ja avota skrējienam nav pie
 msgid "the input's name, for the messages."
 msgstr "ievades nosaukumu ziņojumiem."
 
+# translated-by: libretranslate
 msgid "the inventory's entries for the same section."
-msgstr ""
+msgstr "inventarizācijas ierakstus tajā pašā iedaļā."
 
 # translated-by: libretranslate
 msgid "the job label CI emits (``🐳🧅🌀🦓🦾网络应用·Nextcloud#2``) -- the glyphs carry mode, onion state, distro, filesystem and architecture, the ``#`` shard the variants;"
@@ -88448,11 +88574,13 @@ msgstr "pēdējā atteikuma ziņojums, tukšs, ja neviens nav noticis."
 msgid "the longest value the consumer accepts; a positive integer."
 msgstr "garākā vērtība, ko patērētājs pieņem; vesels skaitlis."
 
+# translated-by: libretranslate
 msgid "the lookup plugin's loader."
-msgstr ""
+msgstr "Lookup spraudņa ielādētājs."
 
+# translated-by: libretranslate
 msgid "the lookup plugin's templar, where it has one."
-msgstr ""
+msgstr "lookup spraudnis templar, kur tas ir viens."
 
 # translated-by: libretranslate
 msgid "the lookup's templar, or None outside a play."
@@ -88510,8 +88638,9 @@ msgstr "apvienoto lietotāju kartēšana."
 msgid "the message the occurrence sits in."
 msgstr "ziņojums, kurā atrodas notikums."
 
+# translated-by: libretranslate
 msgid "the mirror list, or empty to read it from the environment."
-msgstr ""
+msgstr "spoguļu saraksts vai tukšs, lai to izlasītu no vides."
 
 # translated-by: libretranslate
 msgid "the module results, in execution order."
@@ -88641,8 +88770,9 @@ msgstr "pakalpojumu sniedzēja ``services`` kartēšana."
 msgid "the provider's application id."
 msgstr "pakalpojumu sniedzēja lietojumprogrammas ID."
 
+# translated-by: libretranslate
 msgid "the proxied repositories, sorted by name."
-msgstr ""
+msgstr "Proxied repozitoriji, sakārtoti pēc nosaukuma."
 
 # translated-by: libretranslate
 msgid "the qdrant service role id."
@@ -88692,11 +88822,13 @@ msgstr "renderētais fails."
 msgid "the rendered config is mounted INTO a container rather than read by the host's own msmtp."
 msgstr "renderētā konfigurācija ir iemontēta konteinerā, nevis lasīta paša datora msmtp."
 
+# translated-by: libretranslate
 msgid "the repository behind each path, for a host whose suites live side by side, as Debian's do under /debian/ and /debian-security/."
-msgstr ""
+msgstr "repozitorijs aiz katra ceļa, uzņēmējam, kura apartamenti dzīvo blakus, kā Debian darīt zem / Debian/ un /debian-security/."
 
+# translated-by: libretranslate
 msgid "the repository serving its root, when it serves only one."
-msgstr ""
+msgstr "repozitorijs, kas kalpo tā saknei, ja tas kalpo tikai vienai."
 
 # translated-by: libretranslate
 msgid "the repository was cloned"
@@ -88742,8 +88874,9 @@ msgstr "loma direktoriju pin dzīvo."
 msgid "the role installs the extension and points its OpenAI-compatible provider at the gateway in `tasks/addons/ai-llm.yml`"
 msgstr "loma uzstāda paplašinājumu un norāda tā OpenAI saderīgu pakalpojumu sniedzēju pie vārtejā, `tasks/addons/ai-llm.yml`"
 
+# translated-by: libretranslate
 msgid "the role that declared it."
-msgstr ""
+msgstr "lomu, kas to deklarēja."
 
 # translated-by: libretranslate
 msgid "the role the domain belongs to."
@@ -89006,8 +89139,9 @@ msgstr "avots, kuram paraugi dod priekšroku, ir vienāds ar vēlamo, ja nekas n
 msgid "the structure to serialise."
 msgstr "struktūru, kas jāsterilizē."
 
+# translated-by: libretranslate
 msgid "the suite an ``apt`` repository serves."
-msgstr ""
+msgstr "numurs ``apt`` glabātuve kalpo."
 
 # translated-by: libretranslate
 msgid "the target distribution, named in the skip reason."
@@ -89049,8 +89183,9 @@ msgstr "neprecīzu faktu nosaukumu."
 msgid "the updates to apply."
 msgstr "piemērojamie atjauninājumi."
 
+# translated-by: libretranslate
 msgid "the upstream hands out URLs that already carry the repository prefix, as npm does for tarballs, so those reach the backend unprefixed instead of being prefixed twice into a 404."
-msgstr ""
+msgstr "augšupejošās rokās URL, kas jau ir repozitorija prefiksu, kā npm dara tarballs, lai tie sasniegtu aizmuguri bez prefiksa, nevis prefikss divreiz 404."
 
 # translated-by: libretranslate
 msgid "the upstream host, as it appears in the proxied URL."
@@ -89064,8 +89199,9 @@ msgstr "lietotājs parole pieder, par kļūdas ziņojumu."
 msgid "the user's merged configuration."
 msgstr "lietotāja apvienoto konfigurāciju."
 
+# translated-by: libretranslate
 msgid "the value INFINITO_DISTRO carries."
-msgstr ""
+msgstr "vērtība INFINITO_DISTRO nēsā."
 
 # translated-by: libretranslate
 msgid "the value contradicts the declared type or pattern."
@@ -89195,8 +89331,9 @@ msgstr "patiess"
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
 msgstr "tty=nav autoizvēles (vietējais: True, CI: Aplams). live=true strauti stdout/stderr."
 
+# translated-by: libretranslate
 msgid "two roles declare the same repository or host differently,     or a host names a repository nobody declares."
-msgstr ""
+msgstr "divas lomas deklarē vienu un to pašu repozitoriju vai resursdatoru atšķirīgi, vai resursdators nosauc repozitoriju neviens nav paziņojis."
 
 # translated-by: libretranslate
 msgid "two roles demand different values for the     same topic of the same provider."
@@ -89222,8 +89359,9 @@ msgstr "pieteikumi[lietotne]['services'] katru pakalpojumu uzskaita, ja:"
 msgid "unpinned"
 msgstr "nesapinies"
 
+# translated-by: libretranslate
 msgid "unused."
-msgstr ""
+msgstr "neizmantots."
 
 # translated-by: libretranslate
 msgid "update"
@@ -89369,17 +89507,21 @@ msgstr "utils.cache.files modulis"
 msgid "utils.cache.gitignore module"
 msgstr "utils.cache.gitignore modulis"
 
+# translated-by: libretranslate
 msgid "utils.cache.hosts module"
-msgstr ""
+msgstr "utils.cache.hosts modulis"
 
+# translated-by: libretranslate
 msgid "utils.cache.inventory module"
-msgstr ""
+msgstr "utils.cache.inventory modulis"
 
+# translated-by: libretranslate
 msgid "utils.cache.records module"
-msgstr ""
+msgstr "utils.cache.records modulis"
 
+# translated-by: libretranslate
 msgid "utils.cache.render module"
-msgstr ""
+msgstr "utils.cache.render modulis"
 
 # translated-by: libretranslate
 msgid "utils.cache.schema\\_credentials module"
@@ -89564,21 +89706,25 @@ msgstr "utils.env.handlers.infinito.cache Iepakojums"
 msgid "utils.env.handlers.infinito.cache.conf module"
 msgstr "utils.env.handlers.infinito.cache.conf modulis"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.hosts module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.hosts modulis"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.http\\ hosts modulis"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.stack module"
 msgstr "utils.env.handlers.infinito.cache.stack modulis"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.tls module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.tls modulis"
 
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.upstreams module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.cache.upstreams modulis"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.container module"
@@ -90719,8 +90865,9 @@ msgstr "kad grafiku neatrisina, cikla nosaukumu un lomas, kas palikušas nešķi
 msgid "when: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 msgstr "kad: lookup('ca_injected', application_id) {{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else ... }}"
 
+# translated-by: libretranslate
 msgid "where INFINITO_CACHE_PACKAGE_FRONTEND_CONF points."
-msgstr ""
+msgstr "kur INFINITO_CACHE_PACKAGE_FRONTEND_CONF punktus."
 
 # translated-by: libretranslate
 msgid "whether a CI runner is executing, which lowers the ceiling."
