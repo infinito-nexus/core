@@ -16,7 +16,8 @@ S1_NVIDIA_RUNTIME: /usr/bin/nvidia-container-runtime
 S1_LAYA_DEVICE: "{{ 'cuda' if S1_GPU | bool else 'cpu' }}"
 
 S1_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
-S1_MODEL_ROOT: "/opt/s1/models"
+S1_MODEL_ROOT: "{{ lookup('volume', application_id, 'models').target }}"
+S1_IMAGE_MODEL_ROOT: /opt/s1/image-models
 
 S1_LAYA_CHECKPOINTS: "{{ lookup('config', application_id, 'services.s1.laya.checkpoints') }}"
 S1_LAYA_REPOS: "{{ S1_LAYA_CHECKPOINTS | map(attribute='repo') | join(',') }}"
@@ -25,3 +26,4 @@ S1_JEFF_REPOSITORY: "{{ lookup('config', application_id, 'services.s1.jeff.repos
 S1_JEFF_REF: "{{ lookup('config', application_id, 'services.s1.jeff.ref') }}"
 S1_JEFF_MODEL_REPO: "{{ lookup('config', application_id, 'services.s1.jeff.model_repo') }}"
 S1_JEFF_MODEL_PATH: "{{ [S1_MODEL_ROOT, S1_JEFF_MODEL_REPO | basename] | path_join }}"
+S1_JEFF_IMAGE_MODEL_PATH: "{{ [S1_IMAGE_MODEL_ROOT, S1_JEFF_MODEL_REPO | basename] | path_join }}"

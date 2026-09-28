@@ -19,9 +19,10 @@
         S1_JEFF_REF: "{{ S1_JEFF_REF }}"
         S1_JEFF_MODEL_REPO: "{{ S1_JEFF_MODEL_REPO }}"
         S1_JEFF_MODEL_PATH: "{{ S1_JEFF_MODEL_PATH }}"
+        S1_JEFF_IMAGE_MODEL_PATH: "{{ S1_JEFF_IMAGE_MODEL_PATH }}"
     {{ lookup('compose_only', 'container_name', S1_CONTAINER) }}
-    expose:
-      - "{{ S1_PORT }}"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_ports', ['s1', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}

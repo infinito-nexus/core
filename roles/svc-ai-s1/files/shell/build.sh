@@ -39,8 +39,8 @@ if [ "${S1_FLAVOR}" = "onnx" ]; then
 fi
 
 pip install --no-cache-dir "jeff${extra} @ git+${S1_JEFF_REPOSITORY}@${S1_JEFF_REF}" huggingface_hub
-hf download "${S1_JEFF_MODEL_REPO}" --local-dir "${S1_JEFF_MODEL_PATH}"
+hf download "${S1_JEFF_MODEL_REPO}" --local-dir "${S1_JEFF_IMAGE_MODEL_PATH}"
 
 if [ "${S1_FLAVOR}" = "onnx" ]; then
-	python -c "from jeff.backends.onnx_export import export_encoder; export_encoder('${S1_JEFF_MODEL_PATH}', int8=True)"
+	python -c "from jeff.backends.onnx_export import export_encoder; export_encoder('${S1_JEFF_IMAGE_MODEL_PATH}', int8=True)"
 fi

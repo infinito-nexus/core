@@ -1,0 +1,9 @@
+---
+# nocheck: embedded-state-on-nfs laya and jeff checkpoints, content-addressed and re-downloadable, kept node-local on purpose
+# nocheck: nfs-false-data-loss  Reason: a node that fetched a checkpoint holds the same files every other node would fetch, so nothing written here has to reach another node
+models:
+  type: bind
+  source: "{{ lookup('config', 'svc-ai-s1', 'services.s1.models_dir') }}"
+  mounts:
+    - service: s1
+      target: /opt/s1/models
