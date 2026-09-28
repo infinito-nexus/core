@@ -13867,1507 +13867,2236 @@ msgstr "*web-app-socialhome*: 2026.6.16 جگہ 2026.9.18"
 msgid "*web-app-socialhome*: newly pinned to 2026.6.16"
 msgstr "*web-app-socialhome*سوال : 2026.6.16"
 
+# translated-by: libretranslate
 msgid "*web-app-wordpress*: 7.0.1 to 7.1.0"
-msgstr ""
+msgstr "*web-app-wordpress*: 7.0.1 جگہ 7.1.0"
 
+# translated-by: libretranslate
 msgid "*web-app-yourls*: 1.10.4-apache to 1.10.6-apache"
-msgstr ""
+msgstr "*web-app-yourls*: 1.10.4- معاف کیجئے گا۔ 1.10.6-پاچے"
 
+# translated-by: libretranslate
 msgid "*web-app-zammad*: 6.5.0 to 7.1.2"
-msgstr ""
+msgstr "*web-app-zammad*: 6.5.0 جگہ 7.1.2"
 
+# translated-by: libretranslate
 msgid "*web-svc-coturn*: 4.14.0 to 4.17.2"
-msgstr ""
+msgstr "*web-svc-coturn*: 4.14.0 جگہ 4.17.2"
 
+# translated-by: libretranslate
 msgid "*web-svc-coturn*: 4.17.2 to 4.18.0"
-msgstr ""
+msgstr "*web-svc-coturn*: 4.17.2 جگہ 4.18.0"
 
+# translated-by: libretranslate
 msgid "*web-svc-logout*: *latest* to universal-logout v1.3.1"
-msgstr ""
+msgstr "*web-svc-logout*: *تازہ* عالمی پیمانے پر1.3.1"
 
+# translated-by: libretranslate
 msgid "*web-svc-xmpp*: 26.04 to 26.07"
-msgstr ""
+msgstr "*web-svc-xmpp*: 26.04 جگہ 26.07"
 
+# translated-by: libretranslate
 msgid "- ``(payload_bytes, total_bytes)`` on success - ``(\"SKIPPED\", reason)`` when ping is unavailable or lacks CAP_NET_RAW - ``(None, None)`` when every probe size is dropped"
-msgstr ""
+msgstr "- ``(payload_bytes, total_bytes)`` کامیابی پر - ``(\"SKIPPED\", reason)`` جب پُراسرار یا ناقص ہو تو CAP_NET_RAW - ``(None, None)`` جبکہ ہر پرے کی مقدار گرتی ہے۔"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: access-date=, date=, archive-date= (معاونت) ----
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "--retry count; --retry-all-errors makes it cover transport-layer resets (exit 35/52/56), the class that hard-fails deploys on flaky CI egress. Pass 0 to opt a call out of retrying."
-msgstr ""
+msgstr "--بریٹ کاؤنٹی؛ --ٹری-سب دہشت گرد اسے نقل و حمل-لائر ری سیٹ بناتے ہیں۔ (خارج کرو 35/52/56)، وہ کلاس جو کہ سخت رکاوٹوں پر محیط ہے رسائی 0 ری ایکٹر سے ایک فون منتخب کرنے کے لئے."
 
+# translation-refused: libretranslate protected-span lost=['5',
+# 'host.docker.internal'] gained=['-@gmail5هاںhost.docker.internal']
+# nocheck: url
+# translation-rejected: -@gmail5هاںhost.docker.internal:<port> (پرنٹ)
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid ".NET SDK is never needed; safe to remove"
-msgstr ""
+msgstr "."
 
+# translated-by: libretranslate
 msgid "0 on success, 2 when no catalog offers the language."
-msgstr ""
+msgstr "0 کامیابی پر۔ 2 جب کوئی کیٹلاگ زبان نہیں پیش کرتی۔."
 
+# translated-by: libretranslate
 msgid "000 - Template"
-msgstr ""
+msgstr "000 - ٹیمپل"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: 0001: Distro and فائل نظام شمسی نظام اکائیات (system)
+# ہیں۔ 🧭
 msgid "0001: Distro and filesystem are deploy-matrix axes 🧭"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: 0002: سی پی یو آرکیٹیکچر (انگریزی: CPU architecture)
+# ایک بین الاقوامی خطہ ہے۔ 🏗️
 msgid "0002: The CPU architecture is a deploy-matrix axis 🏗️"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "0003: One MCP surface per provider, and a disposition for every role 🔌"
-msgstr ""
+msgstr "0003: ایک ایم پی پی سطح کی سطح پر فراہم کِیا جاتا ہے اور ہر کردار کے لئے ایک معیار 🔌"
 
+# translated-by: libretranslate
 msgid "001 - Nextcloud Talk TURN relay"
-msgstr ""
+msgstr "001 - Nextcloud گفتگو کریں"
 
+# translated-by: libretranslate
 msgid "001 - Service Registry Refactoring"
-msgstr ""
+msgstr "001 - سروس رجسٹرنگ"
 
+# translated-by: libretranslate
 msgid "003 - Reduce `applications` and `users` to lookup-only access"
-msgstr ""
+msgstr "003 - غیر متصل `applications` اور `users` صرف تلاش کے لئے"
 
+# translated-by: libretranslate
 msgid "004 - Generic RBAC role auto-provisioning via OpenLDAP"
-msgstr ""
+msgstr "004 - Generic RBAC کردار Auto-consting - OpenLDAP"
 
+# translated-by: libretranslate
 msgid "005 - WordPress Multisite support for OIDC-driven RBAC"
-msgstr ""
+msgstr "005 - WordPress OIDC-reseration RBAC کے لئے Multisite معاونت"
 
+# translated-by: libretranslate
 msgid "006 - Service-gated Playwright tests"
-msgstr ""
+msgstr "006 - سروس کی طرف سے مجموعی ٹیسٹ کیے گئے"
 
+# translated-by: libretranslate
 msgid "007 - WordPress to Discourse post round-trip"
-msgstr ""
+msgstr "007 - WordPress جگہ Discourse جگہ"
 
+# translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr ""
+msgstr "008 - کردار Meta Layout دوبارہ شروع کرنا"
 
+# translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
-msgstr ""
+msgstr "009 - پیر-رولے نیٹ ورکس اور پورٹس ہجرت -"
 
+# translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr ""
+msgstr "010 - کردار میتا - `run_after` / `lifecycle` ہجرت"
 
+# translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
-msgstr ""
+msgstr "011 - کردار `meta/info.yml` ہجرت"
 
+# translated-by: libretranslate
 msgid "012 - Package Cache (Nexus 3 OSS)"
-msgstr ""
+msgstr "012 - پیکج کیچ - (ناکس 3 اوس)"
 
+# translated-by: libretranslate
 msgid "013 - Sub-Beta-to-Beta Lifecycle Promotion for `web-*` Roles"
-msgstr ""
+msgstr "013 - ذیلی ضلع-Beta Lifecycle Production for - `web-*` کردار"
 
+# translated-by: libretranslate
 msgid "014 - Dedicated CI Runner via `svc-runner` Role"
-msgstr ""
+msgstr "014 - کے ذریعے `svc-runner` کردار"
 
+# translated-by: libretranslate
 msgid "015 - KIX Service Management integration"
-msgstr ""
+msgstr "015 - KIX خدمتی انتظام"
 
+# translated-by: libretranslate
 msgid "015 - OpenCloud and OpenTalk IAM integration"
-msgstr ""
+msgstr "015 - OpenCloud اور OpenTalk امی"
 
+# translated-by: libretranslate
 msgid "015: Self-built Moodle image (replaces `bitnamilegacy/moodle`)"
-msgstr ""
+msgstr "015: خود کار : Moodle تصویر (جگہ `bitnamilegacy/moodle`)"
 
+# translated-by: libretranslate
 msgid "016 - Fediwall multi-wall via OIDC-protected runtime upload"
-msgstr ""
+msgstr "016 - Fediwall OIDC محفوظ کرنے کے ذریعے کثیر فاصلے پر چلائیں"
 
+# translated-by: libretranslate
 msgid "016 - web-app-hugo (Static Site Generator)"
-msgstr ""
+msgstr "016 - web-app-hugo (سٹیکل سائٹ جنورٹر)"
 
+# translated-by: libretranslate
 msgid "017 - Playwright `biber` non-admin RBAC coverage"
-msgstr ""
+msgstr "017 - پلے ورک `biber` غیر ترمیم شدہ RBAC کوریج"
 
+# translated-by: libretranslate
 msgid "018 - Playwright LDAP authentication coverage"
-msgstr ""
+msgstr "018 - پلے کریں."
 
+# translated-by: libretranslate
 msgid "019 - Playwright meta/services.yml parity coverage"
-msgstr ""
+msgstr "019 - پلے ورک meta/services.yml جگہ"
 
+# translated-by: libretranslate
 msgid "020 - CI Run 25705903504 Deploy-Failure Remediation Loop"
-msgstr ""
+msgstr "020 - سی بھاگ 25705903504 Deploy-Failure Rediction لوپ -"
 
+# translated-by: libretranslate
 msgid "021 - SSO Flavor Migration (oauth2 + oidc → unified `sso` service)"
-msgstr ""
+msgstr "021 -SO Flavor ہجرت - (اووت2 + oidc آپس میں متحد `sso` خدمت)"
 
+# translated-by: libretranslate
 msgid "022 - Zammad Helpdesk Role with OIDC SSO"
-msgstr ""
+msgstr "022 - Zammad یو . ایس ."
 
+# translated-by: libretranslate
 msgid "023 - Docker Swarm Deployment with NFS-backed Shared Volumes"
-msgstr ""
+msgstr "023 - Docker Swarm این ایف ایس - پیچھے ہٹ جانے والے شیئرڈ نسخے کے ساتھ مل کر"
 
+# translated-by: libretranslate
 msgid "023 - Setup Penpot"
-msgstr ""
+msgstr "023 - سیٹ. Penpot"
 
+# translated-by: libretranslate
 msgid "024 - ERPNext Role with OIDC SSO"
-msgstr ""
+msgstr "024 - ERPNext عالمی اُفق"
 
+# translated-by: libretranslate
 msgid "025 - MCP Role Integration"
-msgstr ""
+msgstr "025 - MCP رول اندراج -"
 
+# translated-by: libretranslate
 msgid "025 - Matrix Role Ansible Flavor (matrix-docker-ansible-deploy)"
-msgstr ""
+msgstr "025 - Matrix کردار ادا کرنا (Matrix-decker-ansible-deploy -)"
 
+# translated-by: libretranslate
 msgid "026 - Unified Addon Syntax"
-msgstr ""
+msgstr "026 - unifed Adon Stax -"
 
+# translated-by: libretranslate
 msgid "027 - Integration Matrix"
-msgstr ""
+msgstr "027 - انٹرٹینمنٹ - Matrix"
 
+# translated-by: libretranslate
 msgid "028 - Semaphore UI Role with OIDC SSO + LDAP"
-msgstr ""
+msgstr "028 - Semaphore UI اِس سلسلے میں ایک مثال پر غور کریں ۔"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(']
+# nocheck: url
+# translation-rejected: 028 - atmo.rsvp (پاک صحیفوں کی روشنی میں) کردار +
+# Mobilizon/ عمل آوری (انگریزی:
 msgid "028 - atmo.rsvp (AT Protocol Events) Role + Mobilizon/ActivityPub Bridge"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "029 - Checkmk Role with oauth2-proxy SSO + LDAP"
-msgstr ""
+msgstr "029 - Checkmk اووت کیساتھ کردار2-پرکسی ایس او + ایل ڈی اے پی -"
 
+# translated-by: libretranslate
 msgid "030 - Jellyfin Role with LDAP / OIDC SSO"
-msgstr ""
+msgstr "030 - Jellyfin ایل‌ڈی‌پی / ایڈز کی بیماری"
 
+# translated-by: libretranslate
 msgid "031 - LLM Gateway and Model Backends (LiteLLM)"
-msgstr ""
+msgstr "031 -LLM Gateway اور ماڈل بیکن (لٹویا)"
 
+# translated-by: libretranslate
 msgid "031 - svc-net-tor: Full Tor Onion Node"
-msgstr ""
+msgstr "031 - svc-net-torتیسرا بچہ"
 
+# translated-by: libretranslate
 msgid "031 - svc-net-tor: Tor Onion-Service Provider (injected alongside the clearnet domain)"
-msgstr ""
+msgstr "031 - svc-net-tor: صور آن لائن فراہم کنندہ (واضحنیٹ ڈومین کے ساتھ منسلک)"
 
+# translated-by: libretranslate
 msgid "032 - Kernel-Isolated AI Agent Employees with Flowise Supervisor"
-msgstr ""
+msgstr "032 - Kernel-Iside AI ایجنٹ کے ساتھ کام کرنے والے Flowise غالب"
 
+# translated-by: libretranslate
 msgid "032 - OpenBao Secrets Manager with Keycloak OIDC, RBAC Policies and Static-Seal Auto-Unseal"
-msgstr ""
+msgstr "032 - OpenBao ساتھ منیجر Keycloak OIDC, RBAC Policies and Static-Seal Auto-Unseal"
 
+# translated-by: libretranslate
 msgid "033 - Home Assistant Role with MCP Server Surface"
-msgstr ""
+msgstr "033 - Home Assistant ایم‌سی‌سی‌ڈی سرور کے ساتھ کردار"
 
+# translated-by: libretranslate
 msgid "034 - Embodied Robot Platform for Hermes (svc-ai-robot)"
-msgstr ""
+msgstr "034 - ای میل Robot Platform ہرمز کیلئے (svc-ai-robot)"
 
+# translated-by: libretranslate
 msgid "035 - MCP Proxy Expansion and Application Interconnection"
-msgstr ""
+msgstr "035 - MCP Prooks and اطلاقیہ Incclation"
 
+# translated-by: libretranslate
 msgid "036 - Native AI Gateway Integration"
-msgstr ""
+msgstr "036 - جی ہاں!"
 
+# translated-by: libretranslate
 msgid "037 - Gettext Catalogs with LibreTranslate Autotranslation"
-msgstr ""
+msgstr "037 - LibreTranslate خودکار"
 
+# translated-by: libretranslate
 msgid "037 - Per-User Agents on Demand from Open WebUI"
-msgstr ""
+msgstr "037 - پیر-User ضرورت سے متعلق ایجنٹ Open WebUI"
 
+# translated-by: libretranslate
 msgid "038 - System One Model Router"
-msgstr ""
+msgstr "038 - System One مڈل روٹر"
 
+# translated-by: libretranslate
 msgid "039 - Core i18n Consumers"
-msgstr ""
+msgstr "039 - کورے i -18نمبر"
 
+# translated-by: libretranslate
 msgid "1 when the catalog changed on disk, 0 otherwise."
-msgstr ""
+msgstr "1 جبکہ ڈسک پر کیٹلاگ تبدیل کر دی گئی۔ 0 دیگر."
 
+# translated-by: libretranslate
 msgid "1-indexed line of the pin."
-msgstr ""
+msgstr "1- پن کی لائن."
 
+# translated-by: libretranslate
 msgid "1. Add the new domain and users in Mailu"
-msgstr ""
+msgstr "1. نئے ڈومین اور صارفین کو شامل کریں Mailu"
 
+# translated-by: libretranslate
 msgid "1. Collect the candidates"
-msgstr ""
+msgstr "1. طالبان کو جمع کرو"
 
+# translated-by: libretranslate
 msgid "1. Deploy Target"
-msgstr ""
+msgstr "1. . ."
 
+# translated-by: libretranslate
 msgid "1. Dispatch the CI lane"
-msgstr ""
+msgstr "1. س . ع ."
 
+# translated-by: libretranslate
 msgid "1. Fork Prerequisites ⏳"
-msgstr ""
+msgstr "1. Fork Prefectures"
 
+# translated-by: libretranslate
 msgid "1. Free runners"
-msgstr ""
+msgstr "1. آزادانہ دوڑ"
 
+# translated-by: libretranslate
 msgid "1. Log In to Cloudflare"
-msgstr ""
+msgstr "1۔ ۔"
 
+# translated-by: libretranslate
 msgid "1. Search for the User in LDAP"
-msgstr ""
+msgstr "1. . . User ایل‌ڈی‌پی میں"
 
+# translated-by: libretranslate
 msgid "1. Title (required) 🏷️"
-msgstr ""
+msgstr "1. عنوان (درکار) 🏷️"
 
+# translated-by: libretranslate
 msgid "1. Variant resolution"
-msgstr ""
+msgstr "1. ."
 
+# translated-by: libretranslate
 msgid "10. Installation Tests 📦"
-msgstr ""
+msgstr "10... میں امتحانات 📦"
 
+# translated-by: libretranslate
 msgid "11. Development Environment 🛠️"
-msgstr ""
+msgstr "11. ترقی‌پذیر ماحول 🛠️"
 
+# translated-by: libretranslate
 msgid "12. Done 🏁"
-msgstr ""
+msgstr "12. . . 🏁"
 
+# translated-by: libretranslate
 msgid "14 GB"
-msgstr ""
+msgstr "14 جی بی"
 
+# translated-by: libretranslate
 msgid "16 GB"
-msgstr ""
+msgstr "16 جی بی"
 
+# translated-by: libretranslate
 msgid "18.x"
-msgstr ""
+msgstr "18."
 
+# translated-by: libretranslate
 msgid "2. Arm the watch"
-msgstr ""
+msgstr "2. اسلحہ گھڑی"
 
+# translated-by: libretranslate
 msgid "2. Copy or move existing Maildir contents"
-msgstr ""
+msgstr "2. کاپی یا نقل و حمل موجودہ میلدیر مواد"
 
+# translated-by: libretranslate
 msgid "2. Create the User in Nextcloud from LDAP"
-msgstr ""
+msgstr "2. . بنائیں User اندر Nextcloud ایل‌ڈی‌پی سے"
 
+# translated-by: libretranslate
 msgid "2. Description (required) 📖"
-msgstr ""
+msgstr "2. تفصیل (درکار) 📖"
 
+# translated-by: libretranslate
 msgid "2. Group materialisation"
-msgstr ""
+msgstr "2. گروہی مواد"
 
+# translated-by: libretranslate
 msgid "2. Host Definition"
-msgstr ""
+msgstr "2. . ."
 
+# translated-by: libretranslate
 msgid "2. Measure the axes before choosing them"
-msgstr ""
+msgstr "2۔ ۔ ۔ ۔ ۔ ۔"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['۲۹']
+# nocheck: url
+# translation-rejected: 2. کھولیں API صفحہ ۲۹
 msgid "2. Open the API Tokens Page"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "2. Push"
-msgstr ""
+msgstr "2. ."
 
+# translated-by: libretranslate
 msgid "2. Security 🛡️"
-msgstr ""
+msgstr "2. سیکورٹی 🛡️"
 
+# translated-by: libretranslate
 msgid "3 of 9"
-msgstr ""
+msgstr "3 جواب 9"
 
+# translated-by: libretranslate
 msgid "3. Click **Create Token**"
-msgstr ""
+msgstr "3. پر کلک کرو **شیئر تخلیق کریں**"
 
+# translated-by: libretranslate
 msgid "3. Draft the PR"
-msgstr ""
+msgstr "3. . ."
 
+# translated-by: libretranslate
 msgid "3. Further sections (optional) ➕"
-msgstr ""
+msgstr "3. مزید حصے (غیر متصل) ➕"
 
+# translated-by: libretranslate
 msgid "3. Host-vars baking"
-msgstr ""
+msgstr "3. میزبانوں کی تیاری"
 
+# translated-by: libretranslate
 msgid "3. Linting 🧹"
-msgstr ""
+msgstr "3. . 🧹"
 
+# translated-by: libretranslate
 msgid "3. Overview (required) 🗺️"
-msgstr ""
+msgstr "3. . . . (درکار) 🗺️"
 
+# translated-by: libretranslate
 msgid "3. Remove old Dovecot index files"
-msgstr ""
+msgstr "3. قدیم ڈکوٹا انڈیکس فائل کو حذف کریں"
 
+# translated-by: libretranslate
 msgid "3. Role Activation"
-msgstr ""
+msgstr "3. عمل"
 
+# translated-by: libretranslate
 msgid "3. Run the local lane against what CI cannot settle for you"
-msgstr ""
+msgstr "3... مقامی بلے بازوں کو چلائیں جو کہ سی آئی کے لئے آپ کے لئے نہیں کر سکتے"
 
+# translated-by: libretranslate
 msgid "3. Synchronize All Known Users (Optional)"
-msgstr ""
+msgstr "3. تمام معروف صارفوں کو تیار کرنا (غیر متصل)"
 
+# translated-by: libretranslate
 msgid "3. The filesystem is the one axis with a host condition"
-msgstr ""
+msgstr "3. فائل کا نظام میزبانی حالت کے ساتھ اکائی ہے۔"
 
+# translated-by: libretranslate
 msgid "30 minutes, because a deploy row takes 47 minutes in compose and 84 in swarm at the median (`cli.administration.deploy.ci.timings`). A tick under fifteen minutes mostly re-reads the same in-progress jobs; one over an hour lets a whole chunk finish unnoticed."
-msgstr ""
+msgstr "30 منٹ 47 منٹ منصوبہ بندی اور 84 میدانِ‌جنگ میں (`cli.administration.deploy.ci.timings`). پندرہ منٹ کے نیچے ایک ٹیک اکثر ایک ہی وقت میں ایک بار پھر پڑھا جاتا ہے."
 
+# translated-by: libretranslate
 msgid "4. Bundle Metadata"
-msgstr ""
+msgstr "4."
 
+# translated-by: libretranslate
 msgid "4. CI Image Build 🐳"
-msgstr ""
+msgstr "4. تصویر بنانا 🐳"
 
+# translated-by: libretranslate
 msgid "4. Features (required) ✨"
-msgstr ""
+msgstr "4. تصویریں (درکار) ✨"
 
+# translated-by: libretranslate
 msgid "4. Fix file permissions"
-msgstr ""
+msgstr "4.Fix فائل کے اجازہ"
 
+# translated-by: libretranslate
 msgid "4. Let the lanes correct each other"
-msgstr ""
+msgstr "4. ."
 
+# translated-by: libretranslate
 msgid "4. Select **Custom Token**"
-msgstr ""
+msgstr "4. منتخب کریں **نقل و حمل**"
 
+# translated-by: libretranslate
 msgid "4. Trigger Manual CI"
-msgstr ""
+msgstr "4. ٹریگر Manual CII"
 
+# translated-by: libretranslate
 msgid "4. Validate, then dispatch"
-msgstr ""
+msgstr "4. پھر ارسال کریں"
 
+# translated-by: libretranslate
 msgid "5. Close each question explicitly"
-msgstr ""
+msgstr "5. ہر سوال کو بند کرو"
 
+# translated-by: libretranslate
 msgid "5. Close the loop"
-msgstr ""
+msgstr "5... بند کرو."
 
+# translated-by: libretranslate
 msgid "5. Code Tests 🧪"
-msgstr ""
+msgstr "5. کو دیکھیں ۔ 🧪"
 
+# translated-by: libretranslate
 msgid "5. No Role-Specific Configuration"
-msgstr ""
+msgstr "5. کوئی رول-Specific sound."
 
+# translated-by: libretranslate
 msgid "5. Report what the run can and cannot answer"
-msgstr ""
+msgstr "5. رپورٹ کریں کہ آپ کیا کر سکتے ہیں اور جواب نہیں دے سکتے"
 
+# translated-by: libretranslate
 msgid "5. Restart services and test login"
-msgstr ""
+msgstr "5. اِس شمارے میں"
 
+# translated-by: libretranslate
 msgid "5. Set Permissions"
-msgstr ""
+msgstr "5... اجازت دیں"
 
+# translated-by: libretranslate
 msgid "5. Use Cases (optional) 🎯"
-msgstr ""
+msgstr "5. کیس استعمال کریں (غیر متصل) 🎯"
 
+# translated-by: libretranslate
 msgid "6. (Optional) Keep the old domain as an alias"
-msgstr ""
+msgstr "6. . (غیر متصل) قدیم ڈومین کو بطور ایبٹ آباد رکھنا"
 
+# translated-by: libretranslate
 msgid "6. Code Quality Gate 🚦"
-msgstr ""
+msgstr "6. جگہ جگہ 🚦"
 
+# translated-by: libretranslate
 msgid "6. Developer Notes (optional) 🔧"
-msgstr ""
+msgstr "6. ترقی‌یافتہ نوٹ (غیر متصل) 🔧"
 
+# translation-refused: libretranslate protected-span lost=['6'] gained=['6۵']
+# nocheck: url
+# translation-rejected: 6۵ .
 msgid "6. Zone Resources"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "64 GB RAM"
-msgstr ""
+msgstr "64 جم"
 
+# translated-by: libretranslate
 msgid "7 GB"
-msgstr ""
+msgstr "7 جی بی"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['[', ']']
+# nocheck: url
+# translation-rejected: 7[ تصویر کا حوالہ ]
 msgid "7. Create and Save the Token"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "7. DNS Tests 🌐"
-msgstr ""
+msgstr "7. DNS ٹیسٹ 🌐"
 
+# translated-by: libretranslate
 msgid "7. Further Resources (optional) 🔗"
-msgstr ""
+msgstr "7. مزید وسائل (غیر متصل) 🔗"
 
+# translated-by: libretranslate
 msgid "8. Image Mirroring 🪞"
-msgstr ""
+msgstr "8. تصویر 🪞"
 
+# translated-by: libretranslate
 msgid "9 of 9"
-msgstr ""
+msgstr "9 جواب 9"
 
+# translated-by: libretranslate
 msgid "9. Deploy Tests 🚀"
-msgstr ""
+msgstr "9... ڈگری امتحانات 🚀"
 
+# translated-by: libretranslate
 msgid "::warning title=<t>,file=<f>,line=<l>,col=<c>::<message> ::error   title=<t>,...::<message> ::notice  title=<t>,...::<message>"
-msgstr ""
+msgstr ": بشارتی عنوان=<t>...file=<f>، لائن =<l>،ول ==<c>:<message> : دہشت گردی کا عنوان=<t>،...<message> :<t>،...<message>"
 
+# translated-by: libretranslate
 msgid ":data:`DEFAULT_OK` plus whatever the app declares for this domain."
-msgstr ""
+msgstr ":data:`DEFAULT_OK` اور جو بھی ایپ اس ڈومین کے لئے اعلان کرتی ہے۔."
 
+# translated-by: libretranslate
 msgid ":data:`FILE_META_CATEGORIES` stays repository-root *relative* and is not pre-joined onto ``PROJECT_ROOT`` at import time on purpose: the root is not fixed. ``utils.roles.validation.invokable`` is exercised against a patched ``PROJECT_ROOT`` and test fixtures build the file inside a temporary tree. A module level absolute constant would freeze the root at import time and silently ignore both."
-msgstr ""
+msgstr ":data:`FILE_META_CATEGORIES` باقی جگہ *رشتہ دار* اور وہ پوشیدہ بات نہیں ہے ``PROJECT_ROOT`` مقررہ وقت پر درآمد کرنا: جڑ کا تعین نہیں ہوتا۔ ``utils.roles.validation.invokable`` ایک متضاد کے خلاف عمل کیا جاتا ہے۔ ``PROJECT_ROOT`` اور عارضی درخت کے اندر فائل کو ٹیسٹ کرو. اگر آپ اِس بات پر غور کریں گے کہ آیا آپ نے کبھی سوچا بھی نہیں ہے تو آپ کیا کریں گے ؟."
 
+# translated-by: libretranslate
 msgid ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` otherwise."
-msgstr ""
+msgstr ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` دیگر."
 
+# translated-by: libretranslate
 msgid ":data:`utils.roles.mapping.ROLE_TYPE_USER` for the bare ``user`` role and every ``user-<…>`` sibling (name-based);"
-msgstr ""
+msgstr ":data:`utils.roles.mapping.ROLE_TYPE_USER` صاف پانی کے لئے ``user`` کردار اور ہر کردار ``user-<…>`` بھائی (نام پر مبنی):"
 
+# translated-by: libretranslate
 msgid ":func:`_run_deploy` is the SPOT for how a single ``cli.administration.deploy.dedicated`` invocation is assembled: the inventory/password file layout, the ansible CLI flags, the ``-e`` var encoding, and which host environment variables are forwarded into the container."
-msgstr ""
+msgstr ":func:`_run_deploy` ایک کس طرح ایک کے لئے SPOT ہے ``cli.administration.deploy.dedicated`` دعا جمع کی جاتی ہے: فنکار/سر ورڈ فائل کو الٹ دیا جاتا ہے، انساب کے پرچم، ``-e`` اور جس میزبان ماحول میں تبدیلی لائی جاتی ہے ، اُسے برتن میں بھیج دیا جاتا ہے ۔."
 
+# translated-by: libretranslate
 msgid ":func:`archived_releases_from_directory` parses their filenames back into ``(version, date)`` tuples sorted descending."
-msgstr ""
+msgstr ":func:`archived_releases_from_directory` اُن کی لاشوں کو واپس اندر لے جاتا ہے ``(version, date)`` نیچے نیچے مختلف."
 
+# translated-by: libretranslate
 msgid ":func:`build_index_section` renders the ``## Older Releases`` block that links every archive file from the trimmed ``CHANGELOG.md``."
-msgstr ""
+msgstr ":func:`build_index_section` پرنٹ ``## Older Releases`` بند کریں ہر محفوظہ کی فائل کو ترامیم سے ``CHANGELOG.md``. ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')',
+# '[', ']']
+# nocheck: url
+# translation-rejected: :func:`ensure_node_onion` قبل- منٹ (یا دوبارہ استعمال)
+# [حوالہ درکار] [حوالہ درکار] کے اونن کو واپس لے کر اپنے پتے واپس لے جاتے ہیں،
+# ریپو جڑ میں پوشیدہ کلیدی فائلیں محفوظ کرتے ہیں۔ جواب ``svc-net-tor`` کردار
+# ان کلیدوں کو دوڑنے والے دہم میں نقل کرتے ہیں تاکہ یہ پتہ بالکل ویسا ہی چلتا
+# ہے؛ فنکار فراہم کنندہ اس پتے کو لکھتا ہے۔
+# ``applications.svc-net-tor.services.tor.node``. اونیون (انگریزی: Oonion) ایک
+# عارضی وقت ہے؛ (ایک غیر متوقع منٹ کی فراہمی سے مطابقت نہیں کرے گا). .
 msgid ":func:`ensure_node_onion` pre-mints (or reuses) the node's onion and returns its address, storing the authoritative hidden-service key files at the repo root. The ``svc-net-tor`` role copies those keys into the running daemon so it serves exactly that address; the inventory provisioner writes the address into ``applications.svc-net-tor.services.tor.node``. The onion is a deploy-time input; there is no in-deploy minting (a random mint would not match the provisioned node)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid ":func:`existing_archives` lists the archive files on disk."
-msgstr ""
+msgstr ":func:`existing_archives` ڈسک میں محفوظہ فائلیں شامل کریں."
 
+# translated-by: libretranslate
 msgid ":func:`failed_selections` reproduces the combination that broke, which is what a handful of red rows deserves. Once most of the ranking is red the question is no longer which combination broke but whether the role comes up at all, and a token per combination spends the priority budget proving the same role red twice. The role name lets the rotation pick the axes."
-msgstr ""
+msgstr ":func:`failed_selections` ٹوٹنے والے ملاپ کو دوبارہ شروع کریں جو کہ سرخ قطاروں کا ایک حصہ ہے ایک بار جب زیادہ تر کرنسی سرخ ہو جاتی ہے تو سوال یہ نہیں ہوتا کہ کس طرح ملاپ کیا جاتا ہے لیکن کیا کردار بالکل سامنے آتا ہے اور ایک معرکہ ہر ملاپ سے ترجیحی بجٹ دو بار اسی کردار کو ثابت کرتا ہے۔ کردار کا نام گردش کو اختیار کرنے دیتا ہے۔."
 
+# translated-by: libretranslate
 msgid ":func:`image_healthcheck` plus which address answered."
-msgstr ""
+msgstr ":func:`image_healthcheck` اس کے علاوہ جو پتہ چلتا ہے."
 
+# translated-by: libretranslate
 msgid ":func:`is_path_gitignored` — pure matcher: does a repo-relative POSIX-style path match any of the supplied patterns?"
-msgstr ""
+msgstr ":func:`is_path_gitignored` — خالص میچر: کیا کسی بھی فراہم کردہ نمونوں میں سے کسی بھی رد عمل کا مقابلہ کرتا ہے؟?"
 
+# translated-by: libretranslate
 msgid ":func:`is_suppressed_anywhere`: anywhere in the file (used by the run-once schema check)."
-msgstr ""
+msgstr ":func:`is_suppressed_anywhere`: فائل میں کہیں بھی (آر ٹی کنس اسکیم چیک استعمال کرتا ہے۔). ."
 
+# translated-by: libretranslate
 msgid ":func:`is_suppressed_at`: same line, line above, or either."
-msgstr ""
+msgstr ":func:`is_suppressed_at`:."
 
+# translated-by: libretranslate
 msgid ":func:`is_suppressed_in_head`: anywhere in the first N lines (file-level opt-outs)."
-msgstr ""
+msgstr ":func:`is_suppressed_in_head`: پہلی این لائن میں کہیں بھی (فائل کی بڑھتی ہوئی بلندیوں). ."
 
+# translated-by: libretranslate
 msgid ":func:`load_gitignore_patterns` — read non-empty, non-comment, non-negated lines from ``<root>/.gitignore``. Cached process-wide."
-msgstr ""
+msgstr ":func:`load_gitignore_patterns` — غیر جانبدار، غیر منظم، غیر متناسب لکیریں پڑھیں ``<root>/.gitignore``. کیم ورک پورے."
 
+# translated-by: libretranslate
 msgid ":func:`md_body_after_header` strips the version header line off an entry body so the remainder can be mirrored into package changelogs."
-msgstr ""
+msgstr ":func:`md_body_after_header` ورژن کے سرے کو کسی داخلی جسم سے ہٹا کر اس طرح باقی رہ جانے والے شخص کو پیکج تبدیل لاگس میں ڈھالا جا سکتا ہے۔."
 
+# translated-by: libretranslate
 msgid ":func:`reason` is the single predicate both ends of the pipeline ask, and :func:`harms` is its boolean face; the rest of this module are the criteria it folds together."
-msgstr ""
+msgstr ":func:`reason` پائپ لائن کے دونوں سرے ہیں، اور :func:`harms` اس کا بُرا چہرہ ہے ؛ باقی معیار اسے آپس میں ملانے لگتے ہیں ۔."
 
+# translated-by: libretranslate
 msgid ":func:`render_compose_networks` -> top-level ``networks:`` block (column 0)"
-msgstr ""
+msgstr ":func:`render_compose_networks` - بالائی سطح ``networks:`` بلاک (کالم 0)"
 
+# translated-by: libretranslate
 msgid ":func:`render_container_networks` -> per-service ``networks:`` attachment (4-space indent)"
-msgstr ""
+msgstr ":func:`render_container_networks` -رہے ہیں. ``networks:`` وابستگی (4-space indent)"
 
+# translated-by: libretranslate
 msgid ":func:`samples` output."
-msgstr ""
+msgstr ":func:`samples` برآمد."
 
+# translated-by: libretranslate
 msgid ":func:`split_into_entries` splits a CHANGELOG body by version headers and separates any pre-existing ``## Older Releases`` block."
-msgstr ""
+msgstr ":func:`split_into_entries` ورژن کے سربراہوں کی طرف سے ایک CHAUG جسم تقسیم کرکے کسی بھی پریفیکچرنگ کو الگ کرتا ہے۔ ``## Older Releases`` بلاک."
 
+# translated-by: libretranslate
 msgid ":func:`trim_and_archive` keeps the most recent ``N`` entries inline, writes every older one to its own file under the archive directory, and rebuilds the ``## Older Releases`` index from the archive listing on every run."
-msgstr ""
+msgstr ":func:`trim_and_archive` حالیہ سب سے زیادہ برقرار رکھتا ہے۔ ``N`` ان لائن میں شامل ہونے والے ہر بڑے شخص کو محفوظہ ڈائریکٹری کے تحت اپنے ہی فائل میں لکھتا ہے اور پھر دوبارہ تعمیر کرتا ہے۔ ``## Older Releases`` محفوظہ سے فہرست حاصل کی جارہی ہے."
 
+# translated-by: libretranslate
 msgid ":meth:`RoleDisplayName.decode` accepts a raw role id unchanged, so every consumer can decode unconditionally and a human dispatching a run by hand never has to type hanzi."
-msgstr ""
+msgstr ":meth:`RoleDisplayName.decode` ایک تباہ کن کردار کو تسلیم کرتے ہوئے ہر صارف ڈی‌کووڈ کی نقل‌مکانی کر سکتا ہے اور ہاتھ کی طرف سے چلنے والی دوڑنے والے انسان کو کبھی بھی ہنزی کی قسم نہیں لینی پڑتی ۔."
 
+# translated-by: libretranslate
 msgid ":mod:`.builder`         — :func:`build_dev_inventory` + matrix orchestrator"
-msgstr ""
+msgstr ":mod:`.builder` — :func:`build_dev_inventory` + matrix settor"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: :mod:`.cli` — :func:`add_parser` + :func:`handler`)،
+# عروج اور گردش/سفر کی نقل و حمل
 msgid ":mod:`.cli`   — :func:`add_parser` + :func:`handler`, arg parsing and the round/pass orchestration loop"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: :mod:`.drill` — :func:`_maybe_recover_drill`)،
+# پشتو/رنگ
 msgid ":mod:`.drill` — :func:`_maybe_recover_drill`, backup/recover verification"
 msgstr ""
 
+# translated-by: libretranslate
 msgid ":mod:`.legacy_resolver` — ``CombinedResolver``-driven include resolution"
-msgstr ""
+msgstr ":mod:`.legacy_resolver` — ``CombinedResolver``- فیصلہ کن حل شامل ہے"
 
+# translated-by: libretranslate
 msgid ":mod:`.payload`         — variant payload pick + ``--vars`` bake"
-msgstr ""
+msgstr ":mod:`.payload` — زیادہ‌تر لوگ اِس بات کا خیال رکھتے ہیں کہ اُنہیں اِستعمال کرنا چاہئے ۔ ``--vars`` مصر"
 
+# translated-by: libretranslate
 msgid ":mod:`.purge` — :func:`_purge_app_entities`, inter-round entity cleanup"
-msgstr ""
+msgstr ":mod:`.purge` — :func:`_purge_app_entities`، بین الاقوامی صفائی"
 
+# translated-by: libretranslate
 msgid ":mod:`.rotate` — :func:`_rotate_credentials`, inter-pass credential rotation"
-msgstr ""
+msgstr ":mod:`.rotate` — :func:`_rotate_credentials`...، باہمی طور پر آنے والی گردش"
 
+# translated-by: libretranslate
 msgid ":mod:`.run`   — :func:`_run_deploy`, one deploy pass inside the container"
-msgstr ""
+msgstr ":mod:`.run` — :func:`_run_deploy`، ایک برتن کے اندر سے گزرتا ہے"
 
+# translated-by: libretranslate
 msgid ":mod:`.spec`            — :class:`~.spec.DevInventorySpec` + ``PlanEntry`` type"
-msgstr ""
+msgstr ":mod:`.spec` — :class:`~.spec.DevInventorySpec` + ``PlanEntry`` قسم"
 
+# translated-by: libretranslate
 msgid ":mod:`utils.i18n.damage`   whether what came back broke any of them"
-msgstr ""
+msgstr ":mod:`utils.i18n.damage` اگر ان میں سے کسی کے پیچھے کیا ہوا"
 
+# translated-by: libretranslate
 msgid ":mod:`utils.i18n.repairs`  the cosmetic repairs a restored string goes through"
-msgstr ""
+msgstr ":mod:`utils.i18n.repairs` ایک بحال شدہ تار کی مرمت کرتا ہے۔"
 
+# translated-by: libretranslate
 msgid ":mod:`utils.i18n.spans`    which parts are protected, and how they are masked"
-msgstr ""
+msgstr ":mod:`utils.i18n.spans` جس کے کچھ حصے محفوظ ہوتے ہیں اور یہ کیسے غائب کیے جاتے ہیں۔"
 
+# translation-refused: libretranslate protected-span lost=['*'] gained=['%s',
+# 'https://www.com*۔']
+# nocheck: url
+# translation-rejected: <comment-prefix> (noqa|noche):
+# <rule>(https://www.com*۔ ، %s*<rule>)*
 msgid "<comment-prefix> (noqa|nocheck): <rule>(\\s*,\\s*<rule>)*"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "<https://gist.github.com/mtigas/565718bbb928ce439e95> — subdomain hidden-service reference"
-msgstr ""
+msgstr "<https://gist.github.com/mtigas/565718bbb928ce439e95> — ذیل میں چھپنے والے حوالہ جات شامل ہیں۔"
 
+# translated-by: libretranslate
 msgid "<https://spec.torproject.org/address-spec> — v3 address + key formats"
-msgstr ""
+msgstr "<https://spec.torproject.org/address-spec> — v3 پتے + کلید فارمیٹ"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: <https://www.rfc-editor.org/rfc/rfc7686.html> —
+# `.onion` access-date= (معاونت)
 msgid "<https://www.rfc-editor.org/rfc/rfc7686.html> — `.onion` special-use domain"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "<https://www.w3.org/TR/secure-contexts/> — `.onion` secure context"
-msgstr ""
+msgstr "<https://www.w3.org/TR/secure-contexts/> — `.onion` محفوظ سیاق‌وسباق"
 
+# translated-by: libretranslate
 msgid "@signalbot:yourdomain.tld"
-msgstr ""
+msgstr "@signalbot:yourdomain.tld"
 
+# translated-by: libretranslate
 msgid "@slackbot:yourdomain.tld"
-msgstr ""
+msgstr "@slackbot:yourdomain.tld"
 
+# translated-by: libretranslate
 msgid "@telegrambot:yourdomain.tld"
-msgstr ""
+msgstr "@Teegrambot:yourdomain.tld"
 
+# translated-by: libretranslate
 msgid "@whatsappbot:yourdomain.tld"
-msgstr ""
+msgstr "@sappbot:yourdomain.tld"
 
+# translated-by: libretranslate
 msgid "A \"version\" here is a tag of the shape ``(<channel>-)?v?<numeric-semver><patch>?(-<flavor>)?``, where the numeric part has 1 to 5 dot-separated components, the optional leading ``<channel>-`` is a release line written before the number (e.g. the LiteLLM tag ``main-v1.77.7-stable`` or the Jitsi tag ``stable-9646``), the optional ``<patch>`` is a vendor counter written as a letter and a number (e.g. the Checkmk tag ``2.4.0p32``), and the optional ``-<flavor>`` suffix is an opaque discriminator (e.g. the Docker Official Image tag ``5.4.5-php8.3-apache`` or the npm-style ``1.2.3-alpha``)."
-msgstr ""
+msgstr "جواب \"version\" یہاں شکل کا ٹیگ ہے۔ ``(<channel>-)?v?<numeric-semver><patch>?(-<flavor>)?``، جہاں نیوکلیئر حصہ موجود ہے۔ 1 جگہ 5 جمع کرنے کے اجزاء ``<channel>-`` نمبر سے پہلے لکھا ہوا رہائی لائن ہے۔ (مثلاً LiteLM ٹیگ ``main-v1.77.7-stable`` یا پھر جیسی ٹیگ ``stable-9646``)... ``<patch>`` حروف اور تعداد کے طور پر لکھا جانے والا ایک مصدر ہے۔ (مثلا Checkmk ٹیگ ``2.4.0p32``)“ ``-<flavor>`` سفکس ایک اوپسک ڈسکینٹر ہے۔ (بطور۔ Ducker Official نگاری ٹیگ۔ ``5.4.5-php8.3-apache`` یا npm-style ``1.2.3-alpha``). ."
 
+# translated-by: libretranslate
 msgid "A **dedicated, single-tenant, network-segmented** device (robot controller / SBC), NOT a shared cluster node. This device is Hermes' body."
-msgstr ""
+msgstr "جواب **مخصوص، واحد- نیٹ ورک-** ڈیوائس (روبوٹ کی کارکردگی / ایس بی سی)، ایک مشترکہ دادی نہیں. یہ اوزار ہرمز کا جسم ہے۔."
 
+# translated-by: libretranslate
 msgid "A **sweep** is one orchestrator run. It builds a single ordered list of `role#variant` rows, assigns each row a deploy mode and a tor state, and deploys the list in serial **chunk** blocks."
-msgstr ""
+msgstr "جواب **بند** ایک گیسور چلا رہا ہے. یہ ایک ہی فرضی فہرست بناتا ہے۔ `role#variant` قطاریں ، ہر قطار کو ترتیب دینے والا موڈ اور ٹور ریاست مقرر کرتا ہے اور سری میں فہرست کو ترتیب دیتا ہے۔ **چچا** بلاک."
 
+# translated-by: libretranslate
 msgid "A **variant** is the role's assembled per-role meta payload (the same payload `applications.<app>` exposes; see [layout.md](../../../design/role/services/layout.md)) deep-merged with the matching list entry. The deep-merge follows the same rules as the [`applications`](../plugins/lookup/applications.md) lookup: dictionaries merge recursively, scalars and lists are replaced, and the entry has precedence."
-msgstr ""
+msgstr "جواب **غیر متصل** کردار کا مجموعہ فی راولا ادائیگی ہے۔ (وہی لوڈ کرتا ہے `applications.<app>` ظاہر؛ دیکھیں [layout.md](../../../design/role/services/layout.md)) ملتان فہرست متعلقہ مضامین دھن کمار انہی اصولوں کی پیروی کرتے ہیں۔ [`applications`](../plugins/lookup/applications.md) غور کریں : اِس کی جگہ اِستعمال کی جاتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A *chunk* is one serial block of deploy jobs in the orchestrator. Two independent ceilings bound it, and the smaller one wins:"
-msgstr ""
+msgstr "جواب *چچا* ایس . اے . اسے دو خود مختاری بند کر دیتی ہے اور سب سے چھوٹی جیت ہوتی ہے:"
 
+# translated-by: libretranslate
 msgid "A *relevant* candidate with no matching declared addon becomes a :class:`CatalogSuggestion` (added disabled by update automation)."
-msgstr ""
+msgstr "جواب *متعلقہ* طالبان کے ساتھ کسی بھی تعاون نے اضافہ کرنے کا اعلان کیا :class:`CatalogSuggestion` (اپ ڈیٹ کے ذریعے معذور کو شامل کیا گیا ہے۔). ."
 
+# translated-by: libretranslate
 msgid "A *sweep* is one orchestrator run. It deploys its rows in serial chunk blocks, each small enough that its last runner wave still starts inside the queue window (:mod:`cli.meta.ci.slots` sizes them). Two rules shape the split:"
-msgstr ""
+msgstr "جواب *بند* ایک گیسور چلا رہا ہے. یہ سیری چیک بلاکوں میں اپنی قطاروں کو جما دیتا ہے، ہر چھوٹی سی لہر کہ اس کی آخری لہر اب بھی قطری کھڑکی کے اندر شروع ہوتی ہے۔ (:mod:`cli.meta.ci.slots` ان کو حجم). دو اصول منقسم ہیں:"
 
+# translated-by: libretranslate
 msgid "A :class:`ModuleCall` is one Ansible module invocation, a :class:`RetryPolicy` says how often it may be repeated. Both are plain data, so a plan can be built and asserted without an Ansible connection."
-msgstr ""
+msgstr "جواب :class:`ModuleCall` دُعا کرنا :class:`RetryPolicy` یہ بیان کرتا ہے کہ اسے کتنی بار دہرایا جا سکتا ہے ۔ دونوں ہی سادہ اعداد و شمار ہوتے ہیں، اس لیے ایک منصوبہ بنایا جا سکتا ہے اور بغیر انسیبل رابطہ کے۔."
 
+# translated-by: libretranslate
 msgid "A CLI `README.md` MUST contain at least an H1 title and one description paragraph. Further sections are OPTIONAL and MAY be added when contributors need extra context that does not belong in the runtime help."
-msgstr ""
+msgstr "چین `README.md` اسپنج میں کم از کم ایچ1 عنوان اور ایک تفسیر پیراگراف۔ اِس کے علاوہ اِس میں اَور بھی بہت سی باتیں شامل ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A CLI `README.md` MUST stay focused on what kind of sub-commands the category groups. A CLI `README.md` MUST NOT list the sub-commands themselves, because the CLI help system already does that automatically. A CLI `README.md` MUST NOT describe individual sub-command flags or option signatures, because each runnable sub-command exposes its own argparse `--help`."
-msgstr ""
+msgstr "چین `README.md` اس پر توجہ مرکوز رکھیں کہ کس طرح کے ذیلی جماعتوں کو چلائے۔ چین `README.md` کم از کم ذیلی کمانڈز کی فہرست نہیں ہے، کیونکہ FUKI مدد کرنے کا نظام پہلے ہی یہ خود کار طور پر کرتا ہے. چین `README.md` کرس اینڈرسن انفرادی زیر انتظام جھنڈے یا دستخط کو بیان نہیں کرتا، کیوں کہ ہر رن نا قابل استعمال ذیلی کمانڈ اپنے عروج کو ظاہر کرتی ہے۔ `--help`. ."
 
+# translated-by: libretranslate
 msgid "A CLI category folder MAY contain a `README.md` that describes the category. The first paragraph of that file is read by the CLI help system ([help.py](../../../../../cli/core/help.py)) and surfaced as the category's one-line description in `infinito --help`, `infinito <category>`, and `infinito --tree`."
-msgstr ""
+msgstr "اِس شمارے میں `README.md` اِس سے ظاہر ہوتا ہے کہ اِس کا مطلب یہ ہے کہ اِس کا مطلب یہ نہیں کہ ہم اِس پر عمل کریں ۔ اس فائل کا پہلا پیراگراف KUKI معاون نظام پڑھا جاتا ہے۔ ([help.py](../../../../../cli/core/help.py)) اور اس کی ایک لائن وضاحت کے طور پر `infinito --help`: `infinito <category>`، اور `infinito --tree`. ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: کمانڈ غیر رمزِ بعید تکلم (کا نام) ہے/ جس میں main .py.
 msgid "A CLI command is a Python package directory under cli/ that contains __main__.py."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A CODEOWNER MUST approve"
-msgstr ""
+msgstr "اِس کی ایک مثال"
 
+# translated-by: libretranslate
 msgid "A GitHub Actions / CI run failed and needs triage"
-msgstr ""
+msgstr "ایک GitHub عمل / CII چلا جاتا ہے اور اسے ٹریج کی ضرورت ہوتی ہے۔"
 
+# translated-by: libretranslate
 msgid "A GitHub App installation token SHOULD be used because:"
-msgstr ""
+msgstr "ایک GitHub app کی تنصیب کی علامت استعمال کی جاتی ہے کیونکہ:"
 
+# translated-by: libretranslate
 msgid "A GitHub Personal Access Token (PAT) with ``repo`` scope, exported as ``RUNNER_API_TOKEN`` (or ``GH_TOKEN``) on the control machine."
-msgstr ""
+msgstr "ایک شخصی رسائی (پَت) ساتھ ``repo`` وسعت، جتنا ``RUNNER_API_TOKEN`` (یا ``GH_TOKEN``) کنٹرول مشین پر."
 
+# translated-by: libretranslate
 msgid "A GitHub Personal Access Token (PAT) with `repo` scope, exported as `RUNNER_API_TOKEN` (or `GH_TOKEN`) on the control machine."
-msgstr ""
+msgstr "ایک شخصی رسائی (پَت) ساتھ `repo` وسعت، جتنا `RUNNER_API_TOKEN` (یا `GH_TOKEN`) کنٹرول مشین پر."
 
+# translated-by: libretranslate
 msgid "A Matrix mautrix bridge becomes one addon entry per bridged network, absorbing the former `vars/bridges.yml`:"
-msgstr ""
+msgstr "جواب Matrix Mautrix Bridge ایک داخلی فی بریگیڈ نیٹ ورک بن جاتا ہے، جس سے پہلے کو درست کیا جاتا ہے۔ `vars/bridges.yml`:"
 
+# translated-by: libretranslate
 msgid "A Moodle-compatible plugin pinned, an exact web-service function allowlist, a restricted service user, and proof that unlisted functions cannot be invoked."
-msgstr ""
+msgstr "جواب Moodle-competified پلگ انڈ، ایک مکمل ویب ورک کاری کی اجازت دیتا ہے، ایک محدود سروس صارف، اور اس بات کا ثبوت ہے کہ غیر مجاز کام کرنے والے کو قبول نہیں کیا جا سکتا۔."
 
+# translated-by: libretranslate
 msgid "A Nextcloud plugin that previously lived as a standalone config file moves wholesale into its `config:` block:"
-msgstr ""
+msgstr "جواب Nextcloud پلگ ان جو اس سے پہلے کھڑے ہوئے ایک پائیدار فائل کے طور پر رہتے تھے `config:` بلاک:"
 
+# translated-by: libretranslate
 msgid "A Playwright scenario asserts that an unauthenticated request to the endpoint is never answered with a 2xx."
-msgstr ""
+msgstr "ایک ڈراما‌نگار کا کہنا ہے کہ آخر تک ایک غیرمتوقع درخواست کا جواب کبھی نہیں دیا جاتا 2xx."
 
+# translated-by: libretranslate
 msgid "A Playwright-enabled role must provide:"
-msgstr ""
+msgstr "ایک ڈراما سیریل کردار فراہم کرنا ضروری ہے:"
 
+# translated-by: libretranslate
 msgid "A Tor node's resolv.conf names only the local dnsmasq, so probing its entries alone cannot say whether the pinned upstream was still alive when that dnsmasq went silent. Anything unreadable or keyless yields []."
-msgstr ""
+msgstr "ایک تور دادی resolv.conf اسم صرف مقامی ننکانہ صاحب کے نام ہیں، لہٰذا اس کے واحد حصے پر انحصار کرنے سے یہ نہیں کہہ سکتے کہ آیا اسپنجاب ابھی زندہ تھا جب کہ ننکانہس خاموش ہو گیا۔ کوئی بھی چیز قابلِ‌قبول یا ناگزیر نہیں []. ."
 
+# translated-by: libretranslate
 msgid "A `Dockerfile.j2` with **Jinja2 control-flow logic** emits a **warning only**. The warning signals that the file should be reviewed to see whether the logic can be eliminated and the file migrated."
-msgstr ""
+msgstr "جواب `Dockerfile.j2` ساتھ **جنجا2 کنٹرول معقولات** خارج کرتا ہے۔ **ڈرانے والے کو ڈرانے والے**. آگاہی کے اشارے کہ فائل کا جائزہ لیا جائے تاکہ دیکھیں کہ منطق کو ختم کیا جا سکے اور فائل ہجرت کی۔."
 
+# translated-by: libretranslate
 msgid "A `Dockerfile.j2` with **no Jinja2 control-flow logic** causes a **test failure**. It MUST be migrated to `files/Dockerfile` with `ARG` declarations."
-msgstr ""
+msgstr "جواب `Dockerfile.j2` ساتھ **کوئی جنجا نہیں2 کنٹرول معقولات** ایک وجہ **ٹیسٹ ناکام**. . یہ نقل مکانی کی جاتی ہے۔ `files/Dockerfile` ساتھ `ARG` ہمم."
 
+# translated-by: libretranslate
 msgid "A `SYSTEM_EMAIL_<KEY>` variable defined in inventory, group vars, or host vars. No such file ships with the project. This form is an escape hatch for site-specific overrides."
-msgstr ""
+msgstr "جواب `SYSTEM_EMAIL_<KEY>` فنکاری ، گروپ وارز یا میزبانی میں تبدیلی کی وضاحت کی گئی ۔ منصوبے کے ساتھ ایسے فائل جہاز نہیں. یہ شکل سائٹ کے استعمالات کے لیے ایک فراری مرکب ہے۔."
 
+# translated-by: libretranslate
 msgid "A ``database = '*'`` row dumps a whole instance with ``pg_dumpall``. It goes back through ``baudolo-restore cluster`` with the instance's superuser; its ``\\connect`` lines name the databases, while the consumers sit in the compose project of the engine, so both are checked."
-msgstr ""
+msgstr "جواب ``database = '*'`` قطار مکمل طور پر ایک مثال ``pg_dumpall``. . یہ واپس چلا جاتا ہے ``baudolo-restore cluster`` مثال کے طور پر، اس کے ساتھ ``\\connect`` لکیروں کو ڈیٹابیس کا نام دیتے ہیں، جب کہ صارفین انجن کے تنصیب کردہ منصوبے میں بیٹھ جاتے ہیں، تو دونوں کا جائزہ لیا جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A ``host_gateway`` upstream resolves through ``host.docker.internal`` in ``/etc/hosts`` (host gateway), which the request-time ``resolver`` cannot see, so it renders as a literal directive like compose."
-msgstr ""
+msgstr "جواب ``host_gateway`` پلگ انس حل کرتا ہے۔ ``host.docker.internal`` اندر ``/etc/hosts`` (میزبانی)، جسے طلبہ وقت کہتے ہیں۔ ``resolver`` لہٰذا اِس کا مطلب ہے کہ اِس کا مطلب یہ ہے کہ اِس کا مطلب ہے کہ اِس کا مطلب یہ ہے کہ اِس کا مطلب پورا ہونا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A ``maxmemory`` ceiling derived from the service ``mem_limit`` with an ``allkeys-lru`` policy."
-msgstr ""
+msgstr "جواب ``maxmemory`` خدمت سے حاصل ہونے والی چھت ``mem_limit`` کے ساتھ ``allkeys-lru`` پالیسی."
 
+# translated-by: libretranslate
 msgid "A ``mount --make-rshared /`` runs once in the deploy container before the runner starts, because MDAD’s systemd units bind-mount ``/matrix/synapse/storage`` with ``bind-propagation=slave``, which requires shared/slave propagation on the source."
-msgstr ""
+msgstr "جواب ``mount --make-rshared /`` شروع ہونے سے پہلے کیمرا میں ایک بار چلتا ہے، کیونکہ MDAD کی نظامت یونٹوں کو جکڑے ہوئے ``/matrix/synapse/storage`` ساتھ ``bind-propagation=slave``۔ ، جس کے ماخذ پر مشترکہ/غلامی کی ضرورت ہوتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A ``svc-bkp-*`` pre-backup hook for ``bench backup`` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard ``svc-bkp-*`` driver picking up the central MariaDB DB and the role’s named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr ""
+msgstr "جواب ``svc-bkp-*`` قبل از سر نو شروع کريں ``bench backup`` وائیرڈ میں نصب نہیں کیا گیا1 (مندرجہ ذیل تقاضوں پر قابو پائیں). .1 پشتو کہانی معیار پر انحصار کرتی ہے۔ ``svc-bkp-*`` ڈرائیور مرکز اٹھا لیتا ہے۔ MariaDB ڈی بی اور اس کردار کے نام کی جِلد ۔ پرواز میں Frappe-reshot بنانے کے لئے، چلانے کے لئے:"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: جواب ``type: volume`` داخل کیا جا سکتا ہے ``nfs:
+# false`` اسے دوبارہ شروع کرنے کے لئے Greens NFS دوبارہ سے شروع کرنے کے لئے:
+# پھر حجم کو ایک پلیٹ فارم سلفر-لوکل کے نام سے قائم رکھتا ہے جب بھی
+# ``storage.backend`` ہے. ``nfs`` (مثلاً جیٹلی ذخیرہ ذخیرہ شدہ ذخیرہ جس کو NFS
+# پر حرام قرار دیا جاتا ہے۔). . . ``nfs`` اہمیت (باہر ``true``) uid/gid/mode
+# این ایف ایس کی ذیلی تقسیم) دوبارہ مصنف کو رکھنے.
 msgid "A ``type: volume`` entry may set ``nfs: false`` to opt out of the swarm NFS rewrite: the volume then stays a plain node-local named volume even when ``storage.backend`` is ``nfs`` (e.g. gitaly repository storage, which upstream forbids on NFS). Any other ``nfs`` value (absent, ``true``, or the uid/gid/mode dict consumed by the NFS subdir pre-creation) keeps the rewrite."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A `deprecated` role:"
-msgstr ""
+msgstr "جواب `deprecated` کردار:"
 
+# translated-by: libretranslate
 msgid "A `maxmemory` ceiling derived from the service `mem_limit` with an `allkeys-lru` policy."
-msgstr ""
+msgstr "جواب `maxmemory` خدمت سے حاصل ہونے والی چھت `mem_limit` کے ساتھ `allkeys-lru` پالیسی."
 
+# translated-by: libretranslate
 msgid "A `mount --make-rshared /` runs once in the deploy container before the runner starts, because MDAD's systemd units bind-mount `/matrix/synapse/storage` with `bind-propagation=slave`, which requires shared/slave propagation on the source."
-msgstr ""
+msgstr "جواب `mount --make-rshared /` شروع ہونے سے پہلے ایک بار کیمرا میں چلا جاتا ہے، کیونکہ MDAD کی نظامت یونٹوں کو جکڑے ہوئے `/matrix/synapse/storage` ساتھ `bind-propagation=slave`۔ ، جس کے ماخذ پر مشترکہ/غلامی کی ضرورت ہوتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A `required: false` addon whose install step fails MUST register the failure, emit a warning (role log line plus, in CI, a GitHub Actions warning annotation via `utils.annotations.message.warning`), skip the addon's remaining steps, and let the play continue."
-msgstr ""
+msgstr "جواب `required: false` ایسے شخص جن کا نصب‌العین ناکامی کی وجہ سے ناکام ہو گیا ہے وہ آگاہی فراہم کرتا ہے (کردار لاگ لائن جمع، سی آئی اے میں، ایک GitHub عمل کے ذریعے آگاہی دیتا ہے۔ `utils.annotations.message.warning`)، اضافہ کے باقی اقدامات کو جاری رکھیں اور کھیل جاری رکھیں."
 
+# translated-by: libretranslate
 msgid "A `required: true` addon whose install step fails MUST fail the play (no `failed_when: false` swallowing the error)."
-msgstr ""
+msgstr "جواب `required: true` اضافہ جس کے تنصیبی مراحل کو ناکام بنانے میں ناکامی (کچھ نہیں `failed_when: false` غلطی کو نگلنا). ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: جواب `required_by` گھونسلے کی جگہ بلاک کریں `compose:`
+# / `swarm:` ایک داخلی موڈ کو وسعت دینے کے لیے ذیلی سطحیں (پلیٹ بلاک کا اطلاق
+# ہر موڈ میں ہوتا ہے۔))؛ انفنٹری طریقہ کار کردار کے تعین سے متعلق ہے۔ (بٹانے
+# والے svc-swarm-node):
 msgid "A `required_by` block MAY instead nest `compose:` / `swarm:` sub-blocks to scope the requirement to one deploy mode (a flat block applies in every mode); the deploy mode is inferred from the role set (swarm pulls in svc-swarm-node):"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A `svc-bkp-*` pre-backup hook for `bench backup` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard `svc-bkp-*` driver picking up the central MariaDB DB and the role's named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr ""
+msgstr "جواب `svc-bkp-*` قبل از سر نو شروع کريں `bench backup` وائیرڈ میں نصب نہیں کیا گیا1 (مندرجہ ذیل تقاضوں پر قابو پائیں). .1 پشتو کہانی معیار پر انحصار کرتی ہے۔ `svc-bkp-*` ڈرائیور مرکز اٹھا لیتا ہے۔ MariaDB ڈی بی اور کردار کی نامزدگی ہے۔ پرواز میں Frappe-reshot بنانے کے لئے، چلانے کے لئے:"
 
+# translated-by: libretranslate
 msgid "A `templates/Dockerfile.j2` is acceptable when the file contains Jinja2 control-flow logic that cannot be expressed through Docker `ARG` alone, for example a conditional build step that installs an optional component only when a feature flag is enabled."
-msgstr ""
+msgstr "جواب `templates/Dockerfile.j2` فائل میں جنجا شامل ہے جبکہ قابل قبول ہے۔2 قابو پانے والا منطقہ جسے Decker کے ذریعے بیان نہیں کیا جا سکتا۔ `ARG` مثال کے طور پر ، جب کسی خاص جھنڈے کی نمائش ممکن ہوتی ہے تو اس میں کوئی خاص کردار ادا کرنے کی صلاحیت ہوتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A `v*` tag push fans out into two CI workflows:"
-msgstr ""
+msgstr "جواب `v*` کھلاڑیوں کو دو سی آئی اے کام کرنے والے طیاروں میں اڑا دیں:"
 
+# translated-by: libretranslate
 msgid "A bare `mode=update` without `variant=` on a matrix-variant role. Every `mode=update` MUST carry `variant=<idx>` (row 2). A missing `variant=` is never a reason to switch to `mode=reinstall`."
-msgstr ""
+msgstr "ایک رکاوٹ `mode=update` بغیر- `variant=` ایک مراٹھی کردار پر۔ ہر کوئی `mode=update` بھاری بوجھ `variant=<idx>` (قطار 2). ایک گم شدہ `variant=` کبھی بھی تبدیلی لانے کی ایک وجہ نہیں ہے `mode=reinstall`. ."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "A bare list is shorthand for ``{names: [...], source: repo}``. An empty list states that the package is deliberately not installed on that family, which counts as covered; a *missing* key is a coverage gap."
-msgstr ""
+msgstr "مختصر فہرست کے لیے مختص ہے۔ ``{names: [...], source: repo}``. ایک خالی فہرست میں بتایا گیا ہے کہ پیکج کو دانستہ طور پر اس خاندان پر نصب نہیں کیا جاتا، جو حساب رکھتا ہے؛ *غیر متصل* کلیدی خلا ہے."
 
+# translated-by: libretranslate
 msgid "A bare role name loses to any token that narrows the same row: writing ``role role#1@swarm`` asks for a specific deploy, not for that deploy plus a rotation-picked one on top."
-msgstr ""
+msgstr "ایک غیر معمولی کردار کسی بھی اشارے کو کھو دیتا ہے جو ایک ہی قطار کو تنگ کرتا ہے: تحریر: ``role role#1@swarm`` اس کے لئے نہیں ہے کہ ایک گردش کرنے والا ایک اوپر سے اوپر ہے."
 
+# translated-by: libretranslate
 msgid "A bare run id resolves owner/repo from ``repo_override`` or the current gh repo."
-msgstr ""
+msgstr "ایک بے قاعدہ چلا جاتا ہے ``repo_override`` یا موجودہ ghpo."
 
+# translated-by: libretranslate
 msgid "A baseline deploy for `<role>` completed successfully in the current environment."
-msgstr ""
+msgstr "ایک بنیاد `<role>` موجودہ ماحول میں کامیابی سے مکمل کیا۔."
 
+# translated-by: libretranslate
 msgid "A bind on `127.0.0.1:5672` plus the shared cross-stack overlay network for consumers."
-msgstr ""
+msgstr "طوق `127.0.0.1:5672` اور صارفین کے لئے مشترکہ کراسstack زیادہ سے زیادہ."
 
+# translated-by: libretranslate
 msgid "A bind on `127.0.0.1:6379` plus the shared cross-stack overlay network for consumers."
-msgstr ""
+msgstr "طوق `127.0.0.1:6379` اور صارفین کے لئے مشترکہ کراسstack زیادہ سے زیادہ."
 
+# translated-by: libretranslate
 msgid "A bind on ``127.0.0.1:5672`` plus the shared cross-stack overlay network for consumers."
-msgstr ""
+msgstr "طوق ``127.0.0.1:5672`` اور صارفین کے لئے مشترکہ کراسstack زیادہ سے زیادہ."
 
+# translated-by: libretranslate
 msgid "A bind on ``127.0.0.1:6379`` plus the shared cross-stack overlay network for consumers."
-msgstr ""
+msgstr "طوق ``127.0.0.1:6379`` اور صارفین کے لئے مشترکہ کراسstack زیادہ سے زیادہ."
 
+# translated-by: libretranslate
 msgid "A blank ``current`` (the addon tracks the app default) never produces a suggestion, and a non-semver ``latest`` is ignored so the checker never proposes a non-comparable tag."
-msgstr ""
+msgstr "جمع ``current`` (اضافہ ایپی کمیت کی سمت کرتا ہے۔) کبھی کوئی تجویز پیش نہیں کی جاتی اور نہ ہی غیر ضروری ہے۔ ``latest`` چیکر کو نظر انداز کیا جاتا ہے تو کبھی بھی غیر مصدقہ ٹیگ کی تجویز نہیں ہوتی۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=["''",
+# '(', ')']
+# nocheck: url
+# translation-rejected: بلاک ڈیوائس (جگہ ``/dev/``) ایس کے اوپر میزبان پر بحال
+# کیا جاتا ہے۔ (میزبان کو دوبارہ چیک آؤٹ لے جانا ہوگا)'' پھر واپس لوٹنے والا
+# درخت سرسوتی ہے۔ ایک تصویری فائل (انگریزی: Rensc-reded) ہے اور مقامی طور پر
+# بحال کیا گیا ہے۔ اِس کا نتیجہ کیا ہوتا ہے ؟.
 msgid "A block device (remote path under ``/dev/``) is recovered on the host over ssh (the host must carry the repo checkout), then the restored backup tree is rsync-pulled. An image file is rsync-pulled and recovered locally. Either way the result is a local backup root the caller then recovers from."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A block naming a key the entity does not carry, or a type the resolver does not know, would otherwise pin nothing and say nothing."
-msgstr ""
+msgstr "اگر آپ کسی ایسے ادارے کو اِستعمال کرتے ہیں جس کا مقصد یہ نہیں ہے کہ آپ اُسے بتائیں تو آپ اُس کے بارے میں کچھ بھی نہیں کہیں گے ۔."
 
+# translated-by: libretranslate
 msgid "A block that only one side has is usually a feature the other never had. Check whether it was superseded before dropping it — grep for its variables."
-msgstr ""
+msgstr "ایسا بلاک جو صرف ایک طرف ہے وہ عام طور پر دوسری خصوصیت ہے کبھی نہیں تھا۔ اِس بات کا جائزہ لیں کہ آیا اِسے گِرا دینے سے پہلے ہی اِسے دوبارہ تبدیل کِیا گیا تھا یا نہیں ۔."
 
+# translated-by: libretranslate
 msgid "A body that asserts only constants (`expect(1).toBe(1)`) without driving any role surface is rejected on review."
-msgstr ""
+msgstr "ایسا جسم جو صرف مستقل دعوی کرتا ہے۔ (`expect(1).toBe(1)`) کسی بھی کردار کی سطح کو چلانے کے بغیر تنقید پر رد کیا جاتا ہے۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایسا جسم جو کسی جسم کو لے جاتا ہے۔ `TODO`: `STUB`:
+# `FIXME`) `XXX` نشان کو مسترد کر دیا جاتا ہے۔ اِس معاہدے پر عمل کرنے کے لئے
+# ضروری ہے کہ وہ کام میں تاخیر نہ کرے ۔.
 msgid "A body that carries a `TODO`, `STUB`, `FIXME`, or `XXX` marker is rejected. The contract requires real flows, not deferred work."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A body that contains only `skipUnlessServiceEnabled(...)` (or any combination of helper calls) without at least one `expect(...)`, `await <fn>(...)`, or equivalent real-flow step is rejected."
-msgstr ""
+msgstr "ایسا جسم جس میں صرف جسم موجود ہو۔ `skipUnlessServiceEnabled(...)` (یا کسی معاون کو ملا کر پکارتے ہیں۔) کم سے کم `expect(...)`: `await <fn>(...)`. . . . ."
 
+# translated-by: libretranslate
 msgid "A branch is ready to be opened as a pull request"
-msgstr ""
+msgstr "ایک شاخ کشش طلب کے طور پر کھولنے کے لیے تیار ہے۔"
 
+# translated-by: libretranslate
 msgid "A bridged service block MUST carry the standard `enabled` / `shared` flags so requirement 019 (services.yml parity) and the SSO/LDAP coverage requirements (017, 018) continue to apply unchanged."
-msgstr ""
+msgstr "ایک بریگیڈ سروس بلاک کا معیار رکھتا ہے `enabled` / `shared` جھنڈے اتنے لازمی 019 (services.yml جگہ) اور SO/LDAP کی شرائط پر (017: 018) غیرضروری طور پر کام جاری رکھیں ۔."
 
+# translated-by: libretranslate
 msgid "A built-in (embedded) runner executes tasks in the main container; external `semaphore runner` agents are optional for scale-out."
-msgstr ""
+msgstr "ایک تعمیر شدہ (پرنٹ) سرمایہ کاری بنیادی برتن میں کام انجام دیتی ہے؛ `semaphore runner` پیمانے کی حد کے لئے ایجنٹ ہیں."
 
+# translated-by: libretranslate
 msgid "A built-in ``rabbitmq-diagnostics ping`` healthcheck."
-msgstr ""
+msgstr "ایک تعمیر شدہ ``rabbitmq-diagnostics ping`` صحت کا جائزہ لیں ۔."
 
+# translated-by: libretranslate
 msgid "A built-in `rabbitmq-diagnostics ping` healthcheck."
-msgstr ""
+msgstr "ایک تعمیر شدہ `rabbitmq-diagnostics ping` صحت کا جائزہ لیں ۔."
 
+# translated-by: libretranslate
 msgid "A bulleted list of the most important capabilities. Each item MUST start with a **bold** label followed by a colon and a short explanation."
-msgstr ""
+msgstr "اہم ترین صلاحیتوں کی ایک گول فہرست۔ ہر آئٹمس شروع ہوتا ہے **بہادر** اسکے بعد ایک کالونی اور مختصر وضاحت کی گئی ۔."
 
+# translated-by: libretranslate
 msgid "A candidate the curated relevance rules reject is silently dropped so broad marketplaces never produce unreviewable noise."
-msgstr ""
+msgstr "اسکے علاوہ بازاروں میں ایسے لوگ بھی ہوتے ہیں جو اُن کی آواز سنتے ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A capability neither catalogued nor declared counts as absent, and a limit neither catalogued nor declared is not enforced."
-msgstr ""
+msgstr "اُس نے نہ تو کوئی کتاب لکھی ہے اور نہ ہی اُس کی شناخت کی جاتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A change is incompatible with prior inventories, on-disk role-meta layout, deploy CLI, or stored runtime state."
-msgstr ""
+msgstr "ایک تبدیلی کو قبل از وقت تبدیل کر دیا جاتا ہے، اس کے اوپر."
 
+# translated-by: libretranslate
 msgid "A changed source becomes an empty entry, a removed source disappears."
-msgstr ""
+msgstr "ایک تبدیل شدہ ماخذ خالی داخلی ہو جاتا ہے، ایک حذف شدہ ماخذ غائب ہو جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A classic personal access token MAY be used as a fallback for unrelated automation, but it MUST NOT be used here because user-bound credentials expand the blast radius and require manual rotation."
-msgstr ""
+msgstr "ایک کلاسیکی ذاتی رسائی کی نشان دہی کے طور پر استعمال کی جاتی ہے، لیکن اس کا استعمال یہاں نہیں کیا جا سکتا کیونکہ صارف کی ترقی کی سندوں کو وسیع کرتا ہے اور دستی گردش کی ضرورت پڑتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A clean `down && up` is required after the change: `make compose-up` alone recreates the bridge but compose then re-attaches existing containers with dynamic IPs instead of the static `default.env` ones, which breaks CoreDNS."
-msgstr ""
+msgstr "ایک صاف `down && up` تبدیلی کے بعد لازمی ہے: `make compose-up` صرف اس پل کو حل کرتا ہے لیکن پھر اسے دوبارہ شروع کر دیتا ہے جس میں متحرک آئی پی کے ساتھ `default.env` جو کورے DNS توڑ."
 
+# translated-by: libretranslate
 msgid "A client declares what it can present instead of what it serves:"
-msgstr ""
+msgstr "ایک کلائنٹ اس بات کا اعلان کرتا ہے کہ جو کچھ وہ کر سکتا ہے وہ اس کی بجائے موجود ہو سکتا ہے:"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['[', ']']
+# nocheck: url
+# translation-rejected: ایک کلائنٹ کردار انکشاف کرتا ہے کہ سرور کرداروں کو
+# منظرِ عام پر لانے کے قابل بناتا ہے، اس کے بعد سرور کو ہر ایک سے منسلک کرتا
+# ہے۔ `/mcp` [ نقشہ ] کسی بھی طالب علم کی فہرست مشکل کوڈ نہیں ہے اور نہ ہی کسی
+# براؤزر-side settlement میں شامل ہے۔.
 msgid "A client role discovers enabled shared server roles through the lookup, resolves the per-server credential, then connects server-to-server to each `/mcp` endpoint over Streamable HTTP. No candidate list is hard-coded and no browser-side fetch is involved."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A client-only block MUST NOT declare an `endpoint`."
-msgstr ""
+msgstr "صرف ایک شناختی بلاک نہیں `endpoint`. ."
 
+# translated-by: libretranslate
 msgid "A closing bracket that moves in front of a protected span takes the full stop behind it with it, which leaves the sentence running on."
-msgstr ""
+msgstr "حفاظتی مدت کے سامنے حرکت کرنے والی ایک بند کیمرا اس کے پیچھے پورا بند رکھتی ہے جس پر یہ سزا جاری رہتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A cluster row states the cluster marker where a single-database row names a database, so :func:`credentials_of` would file every instance under the same key and keep only the first. Cluster credentials are therefore keyed by instance."
-msgstr ""
+msgstr "ایک کلر قطر کو کہتے ہیں جس میں ایک اکائی-database کے عنوان سے ڈیٹا بیس درج ہیں، :func:`credentials_of` اِس سلسلے میں ایک مثال پر غور کریں ۔ مثال کے طور پر ، کلسٹر کے نمونے کی کُنجی ہوتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A cold server answers its opening requests well above its steady rate, and the pair measured first used to inherit that and win every sweep. Repeating a pair back to back does not help, because all of its runs then sit inside the same opening window. The grid is therefore walked once per pass and the passes are what repeat, so the bonus lands on one run of one pair and the median drops it. The recorded spread says whether the winner is a real difference or the noise the whole grid sits in."
-msgstr ""
+msgstr "ایک سرد سرور اس کی ابتدائی درخواستوں کا جواب اپنے ٹھوس رفتار سے دیتے ہیں اور جوڑے کا پہلے یہ اندازہ لگایا جاتا ہے کہ وہ اپنے وارثوں کو حاصل کرنے کے لئے استعمال کرتا ہے ۔ ایک جوڑے کو واپس لوٹنے سے مدد نہیں ملتی کیونکہ اس کی تمام دوڑ پھر ایک ہی اوپن کھڑکی کے اندر بیٹھ جاتی ہے ۔ لہٰذا ، اس میں ایک مرتبہ گردش کی جاتی ہے اور یہ گزرتے وقت دوبارہ پیدا ہوتے ہیں ، لہٰذا ایک جوڑے کے ایک رُخ پر بسنے والی زمین اور میڈیسن اسے نیچے پھینک دیتی ہے ۔ درج شدہ بکھرے ہوئے کا کہنا ہے کہ آیا جیتنے والا ایک حقیقی فرق ہے یا شور میں پورے گلکر بیٹھتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A colon suffix on `<source>` is classified by shape:"
-msgstr ""
+msgstr "ایک کالونی کی بنیاد `<source>` شکل کے لحاظ سے درجہ دیا گیا ہے:"
 
+# translated-by: libretranslate
 msgid "A complete digital learning environment for schools, academies, and universities."
-msgstr ""
+msgstr "اسکول، اکیڈمی اور یونیورسٹیوں کے لیے مکمل ڈیجیٹل تعلیم کا ماحول۔."
 
+# translated-by: libretranslate
 msgid "A computed fallback defined in `_compute(short_key, resolved, variables)`."
-msgstr ""
+msgstr "اِس کی ایک وجہ یہ ہے کہ اِس میں کوئی تبدیلی نہیں آئی ۔ `_compute(short_key, resolved, variables)`. ."
 
+# translated-by: libretranslate
 msgid "A concrete end-to-end illustration of how the pieces compose. Nothing here is a new mechanism; it maps onto the decisions above."
-msgstr ""
+msgstr "ایک تصدیق شدہ اختتامی تصویر کہ کس طرح ٹکڑوں کے ٹکڑے کس طرح. یہاں کوئی بھی چیز نہیں ہے ؛ یہ اوپر کے فیصلوں پر نقش ہوتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A condition that makes the replay unprovable."
-msgstr ""
+msgstr "ایک ایسی شرط جس کی وجہ سے رینے کا عمل بے ترتیب ہو جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A confirmed hit is cached on disk. The probe stays on the upstream registry: it exists to prove the declared pin is still pullable from where the deploy pulls it, which a mirrored copy cannot answer for."
-msgstr ""
+msgstr "ایک تصدیق شدہ چوٹ ڈسک پر کی گئی ہے. پروئر رجسٹر پر قائم رہتا ہے: یہ ثابت کرنے کے لئے موجود ہے کہ یہ ابھی تک موجود ہے کہ وہ کہاں سے اسے کھینچتا ہے، جسے ایک آئینے کی نقل جواب نہیں دے سکتی۔."
 
+# translated-by: libretranslate
 msgid "A constant hides the role id the substring rule looks for, so every SPOT of this kind MUST be listed here or the roles referencing it silently drop their provider from the static closure."
-msgstr ""
+msgstr "ایک مسلسل یہ کردار چھپتا رہتا ہے کہ اس قسم کا ہر SPOT یہاں درج کیا جاتا ہے یا کرداروں کی طرف اشارہ کرتا ہے."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: ایک صارف (انگریزی: Person) ایک صارفی کردار ہے جس کے ضم
+# شدہ شمارے میں فراہم کردہ انجن کی ایک شیئر ڈیٹا بیس (data) کی سہولت حاصل ہوتی
+# ہے؛ ایک مخصوص ڈیٹا بیس کے ساتھ ایک کردار اپنی اپنی ہی پہچان لاتا ہے اور
+# فراہم کرنے والے کا کوئی صارف نہیں۔ صارف کے بغیر فراہم کنندہ صرف ڈیٹابیس اپنے
+# انجن کو اپنے لیے تخلیق کرتا ہے، اس لیے کوئی نہیں databases.csv اِسے قطار میں
+# رکھ کر بڈولو نے اِس کی جِلد کو ریکارڈ کِیا ہے ۔.
 msgid "A consumer is a deployed role whose merged config enables a shared database of the provider's engine; a role with a dedicated database brings its own volume and is no consumer of the provider. A provider without a consumer holds only the databases its engine creates for itself, so no databases.csv row names it and baudolo records its volume undumped."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A consumer reaches it as ``http://searxng:8080/search?q=<query>`` once it declares ``searxng`` in its own ``meta/services.yml`` with ``enabled`` and ``shared`` set. ``web-app-openwebui`` ships that flag and sends ``WEB_SEARCH_ENGINE=searxng`` with it."
-msgstr ""
+msgstr "ایک صارف اس تک پہنچتا ہے ``http://searxng:8080/search?q=<query>`` ایک بار جب یہ بیان کرتی ہے ``searxng`` اپنے آپ میں ``meta/services.yml`` ساتھ ``enabled`` اور ``shared`` سیٹ. ``web-app-openwebui`` وہ جہاز جو جھنڈے اور بھیجے جاتے ہیں۔ ``WEB_SEARCH_ENGINE=searxng`` ساتھ."
 
+# translated-by: libretranslate
 msgid "A consumer reaches it as ``http://tika:9998`` once it declares ``tika`` in its own ``meta/services.yml`` with ``enabled`` and ``shared`` set, which is what attaches the consumer to this role’s network. ``web-app-openwebui`` ships that flag and sends ``CONTENT_EXTRACTION_ENGINE=tika`` with it."
-msgstr ""
+msgstr "ایک صارف اس تک پہنچتا ہے ``http://tika:9998`` ایک بار جب یہ بیان کرتی ہے ``tika`` اپنے آپ میں ``meta/services.yml`` ساتھ ``enabled`` اور ``shared`` جس میں صارفین کو اس کردار کے نیٹ ورک کے لئے استعمال کِیا جاتا ہے ۔ ``web-app-openwebui`` وہ جہاز جو جھنڈے اور بھیجے جاتے ہیں۔ ``CONTENT_EXTRACTION_ENGINE=tika`` ساتھ."
 
+# translated-by: libretranslate
 msgid "A consumer reaches it as `http://searxng:8080/search?q=<query>` once it declares `searxng` in its own `meta/services.yml` with `enabled` and `shared` set. `web-app-openwebui` ships that flag and sends `WEB_SEARCH_ENGINE=searxng` with it."
-msgstr ""
+msgstr "ایک صارف اس تک پہنچتا ہے `http://searxng:8080/search?q=<query>` ایک بار جب یہ بیان کرتی ہے `searxng` اپنے آپ میں `meta/services.yml` ساتھ `enabled` اور `shared` سیٹ. `web-app-openwebui` وہ جہاز جو جھنڈے اور بھیجے جاتے ہیں۔ `WEB_SEARCH_ENGINE=searxng` ساتھ."
 
+# translated-by: libretranslate
 msgid "A consumer reaches it as `http://tika:9998` once it declares `tika` in its own `meta/services.yml` with `enabled` and `shared` set, which is what attaches the consumer to this role's network. `web-app-openwebui` ships that flag and sends `CONTENT_EXTRACTION_ENGINE=tika` with it."
-msgstr ""
+msgstr "ایک صارف اس تک پہنچتا ہے `http://tika:9998` ایک بار جب یہ بیان کرتی ہے `tika` اپنے آپ میں `meta/services.yml` ساتھ `enabled` اور `shared` جس میں صارفین کو اس کردار کے نیٹ ورک سے منسلک کیا جاتا ہے۔ `web-app-openwebui` وہ جہاز جو جھنڈے اور بھیجے جاتے ہیں۔ `CONTENT_EXTRACTION_ENGINE=tika` ساتھ."
 
+# translated-by: libretranslate
 msgid "A consumer selecting `auto` receives a completion"
-msgstr ""
+msgstr "ایک صارف کا انتخاب `auto` مکمل حاصل"
 
+# translated-by: libretranslate
 msgid "A consumer user named `<entity>` is restricted to keys matching `<entity>:*`."
-msgstr ""
+msgstr "صارف کا نام `<entity>` کلیدوں کي بورڈوں پر محدود `<entity>:*`. ."
 
+# translated-by: libretranslate
 msgid "A consuming role MAY override a shared service's config field in its own ``meta/services.yml`` ``services.<key>`` block. When it does not, the value falls back to the *provider* role's native declaration — the role whose entity name is ``<key>`` (e.g. ``svc-net-tor`` for ``tor``). This keeps provider defaults (e.g. ``tor.exclusive`` / ``tor.primary``) in one place while every consumer stays free to override the field per app."
-msgstr ""
+msgstr "ایک کھانے والا کردار اپنے آپ میں ایک مشترکہ خدمت کے میدان کو منتقل کرتا ہے۔ ``meta/services.yml`` ``services.<key>`` بلاک. جب یہ نہیں ہوتا تو قیمت واپس گر جاتی ہے۔ *فراہم کُنندہ* کردار کا اصل اعلان — وہ کردار جس کا بنیادی نام ہے۔ ``<key>`` (جی ہاں. ``svc-net-tor`` کے لئے ``tor``)...یہ فراہم کُنندہ فراہم کُنندہ جاری ہے (جی ہاں. ``tor.exclusive`` / ``tor.primary``) ایک جگہ پر جب ہر صارفین میدان کو فی ایپ بنانے کے لئے آزاد رہتے ہیں."
 
+# translation-refused: libretranslate protected-span lost=[] gained=["''"]
+# nocheck: url
+# translation-rejected: ایک برتن جو رن ٹائم کے سروس کے ذریعے حل کرتا ہے
+# 127.0.0.11'' جو چیز نیٹ ورک کے ساتھ بنائی گئی ہے وہ آگے ہے؛ ``inspect``
+# صندوق پر پتہ دکھائی دیتا ہے لیکن اس کے پیچھے کبھی بھی آگے نہیں بڑھتا ۔.
 msgid "A container resolves through the runtime's embedded server on 127.0.0.11, which forwards to whatever the network was created with, so ``inspect`` on the container shows the address but never the forwarder behind it."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A content publishing and distribution ecosystem for creators and media organizations."
-msgstr ""
+msgstr "تخلیق کاروں اور میڈیا تنظیموں کے لیے مواد کی اشاعت اور تقسیم۔."
 
+# translated-by: libretranslate
 msgid "A cyber-resilient sovereign infrastructure foundation for high-assurance environments."
-msgstr ""
+msgstr "ایک خیبر پختونخوا کے اعلیٰ ماحولیاتی اداروں کی بنیاد."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: اِس سلسلے میں ایک مثال پر غور کریں ۔ اِس میں یہ بھی
+# بتایا گیا ہے کہ اِس کا کیا مطلب ہے ۔.
 msgid "A declaration names exactly one probe and any number of prefixes, either as one string or as a list. This module owns that grammar: the aliases, the validation and the timing arithmetic that decides what a composed probe inherits."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A declaration wins over the catalog, and an uncatalogued route claims nothing"
-msgstr ""
+msgstr "ایک اعلان کیٹلاگ پر جیت لیتا ہے اور کوئی بھی دعویٰ نہیں کرتا"
 
+# translated-by: libretranslate
 msgid "A declared `traits.speed` still wins, because a declaration is the operator overriding the measurement and the next deploy must not overwrite it back."
-msgstr ""
+msgstr "اعلان `traits.speed` اب بھی جیت جاتا ہے، کیونکہ ایک اعلان ہے کہ ایک آپریٹر ہے پیمائش کے اوپر اور اگلے حصے میں اسے واپس نہیں لکھنا چاہیے۔."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "A declared value that is a ``{start, end}`` mapping renders as ``start-end`` on both sides, so a relay range needs no special term."
-msgstr ""
+msgstr "ایک اعلان کردہ قدر جو ایک ہے ``{start, end}`` انداز ``start-end`` دونوں طرف، تو ریلنگ رینج کو کوئی خاص اصطلاح درکار نہیں۔."
 
+# translated-by: libretranslate
 msgid "A dedicated bot/service identity instead of administrator credentials, and read/search tools separated from post/channel management."
-msgstr ""
+msgstr "منتظمین کی بجائے ایک مخصوص بوٹ/عام شناخت، اور تحقیقی آلات کو پوسٹ/کتب انتظامیہ سے الگ کر دیا گیا۔."
 
+# translated-by: libretranslate
 msgid "A dedicated disk mounted straight onto `/var/lib/docker` needs no special layout: baudolo carves its snapshot **inside** the subject, as `<data root>/.baudolo-<tag>`, so source and destination are always on the same filesystem. Placing it beside the subject would fail with `EXDEV` exactly on that layout, since the parent directory then belongs to a different filesystem."
-msgstr ""
+msgstr "ایک مخصوص ڈسک براہِ‌راست نیچے ڈالی گئی `/var/lib/docker` کوئی خاص ڈھانچے کی ضرورت نہیں ہے: Baudolo اس کے سوراخوں کو اڑا دیتا ہے۔ **اندر** موضوع، بطور۔ `<data root>/.baudolo-<tag>`، لہذا ، ماخذ اور منزل ہمیشہ ایک ہی فائل سسٹم پر ہوتی ہے۔ اس کے بعد اس موضوع پر بحث کی جائے گی۔ `EXDEV` بالکل اس پر، کیونکہ والدین کی ڈائریکٹری کا تعلق ایک مختلف نظام سے ہے."
 
+# translated-by: libretranslate
 msgid "A dedicated disk mounted straight onto ``/var/lib/docker`` needs no special layout: baudolo carves its snapshot **inside** the subject, as ``<data root>/.baudolo-<tag>``, so source and destination are always on the same filesystem. Placing it beside the subject would fail with ``EXDEV`` exactly on that layout, since the parent directory then belongs to a different filesystem."
-msgstr ""
+msgstr "ایک مخصوص ڈسک براہِ‌راست نیچے ڈالی گئی ``/var/lib/docker`` کوئی خاص ڈھانچے کی ضرورت نہیں ہے: Baudolo اس کے سوراخوں کو اڑا دیتا ہے۔ **اندر** موضوع، بطور۔ ``<data root>/.baudolo-<tag>``، لہذا ، ماخذ اور منزل ہمیشہ ایک ہی فائل سسٹم پر ہوتی ہے۔ اس کے بعد اس موضوع پر بحث کی جائے گی۔ ``EXDEV`` بالکل اس پر، کیونکہ والدین کی ڈائریکٹری کا تعلق ایک مختلف نظام سے ہے."
 
+# translated-by: libretranslate
 msgid "A dedicated network per agent whose only other member is the broker."
-msgstr ""
+msgstr "ایک مخصوص نیٹ ورک فی ایجنٹ جس کے صرف دوسرے ممبر ہی ہارر ہیں۔."
 
+# translated-by: libretranslate
 msgid "A dedicated volume per user and platform holds the agent's state; it survives a stop."
-msgstr ""
+msgstr "ایک مخصوص حجم ہر صارف اور پلیٹ فارم ایجنٹ کی حالت کو برقرار رکھتا ہے، یہ ایک روک تھام کے."
 
+# translated-by: libretranslate
 msgid "A demanded capability must be proven, while a disqualifier needs explicit evidence"
-msgstr ""
+msgstr "ایک درخواست‌نامے کو ثابت کرنا چاہئے جب کہ ایک شخص کو واضح ثبوت کی ضرورت ہے"
 
+# translated-by: libretranslate
 msgid "A deploy job is titled ``<mode glyph><tor glyph><distro glyph><filesystem glyph><architecture glyph><display name> <variant>`` with an optional trailing ⭐ for a priority row. The middle is resolved through the display-name codec rather than matched as a raw role id: job names carry display names, so a regex over ``web-app-…`` silently matched nothing and every failure went unreported."
-msgstr ""
+msgstr "ایک کام کا عنوان ہے ``<mode glyph><tor glyph><distro glyph><filesystem glyph><architecture glyph><display name> <variant>`` ایک قطار میں آگے بڑھنے کے بعد درمیانے درجے کو بطور settlear کردار Id کی بجائے ڈسپلے نام کوڈc کے ذریعے حل کیا جاتا ہے: کام کا نام نمایاں طور پر اسمِ سالمات کو چلاتا ہے، اس طرح ری ایکس اوپر ``web-app-…`` تنہائی میں کچھ بھی نہیں اور ہر ناکامی کا شکار ہو گیا۔."
 
+# translated-by: libretranslate
 msgid "A deploy job title carries the whole row it deployed -- role, variant, mode, onion state, distro, filesystem, architecture -- and :mod:`utils.github.variant.selection` is the grammar that writes it back down."
-msgstr ""
+msgstr "ایک فرضی کام کے عنوان سے پورا قطر اس کا حامل ہوتا ہے -- کردار، غیر واضح، موڈ، اونیون ریاست، ڈسکرو، فائل سسٹم، آرکیٹیکچر - :mod:`utils.github.variant.selection` وہ گرامی ہے جو اسے واپس نیچے لکھتے ہیں۔."
 
+# translated-by: libretranslate
 msgid "A deploy with zero or more than one manager fails at inventory-validation time, never at runtime."
-msgstr ""
+msgstr "صفر یا ایک سے زیادہ مینیجر کے ساتھ ایک آلہ ایجاد کرنے کے وقت میں ناکام رہتا ہے،."
 
+# translated-by: libretranslate
 msgid "A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged."
-msgstr ""
+msgstr "اِس طرح وہ اِس بات کو درست کر سکتے ہیں کہ اُن کے دل میں کیا ہے ۔ `applications.svc-cache-package.repos` اور `.upstreams`؛ ڈی‌وی اسٹاک میں کوئی جھوٹ نہیں ہے اور اِس کی مدد سے اِس کا استعمال کِیا جاتا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A deployment that keeps the shipped `DOMAIN_PRIMARY` serves names under `infinito.localhost`. Those exist in no zone, so a task that reaches the deployment's own domain from the host depends on the `myhostname` NSS module, which maps any `*.localhost` name to loopback per RFC 6761."
-msgstr ""
+msgstr "ایک ایسا عمل جس کی وجہ سے اُس کا وجود برقرار رہتا ہے `DOMAIN_PRIMARY` زیریں نام خدمات `infinito.localhost`. جو کسی زون میں موجود ہیں، تو ایک ایسا کام جو میزبان کی جانب سے اس کے خود ڈومین تک پہنچ جاتا ہے۔ `myhostname` NSS جو کوئی نقشے `*.localhost` نام 6761. ."
 
+# translated-by: libretranslate
 msgid "A deployment that keeps the shipped ``DOMAIN_PRIMARY`` serves names under ``infinito.localhost``. Those exist in no zone, so a task that reaches the deployment’s own domain from the host depends on the ``myhostname`` NSS module, which maps any ``*.localhost`` name to loopback per RFC 6761."
-msgstr ""
+msgstr "ایک ایسا عمل جس کی وجہ سے اُس کا وجود برقرار رہتا ہے ``DOMAIN_PRIMARY`` زیریں نام خدمات ``infinito.localhost``. جو کوئی زون میں موجود ہیں، تو ایک ایسا کام جو میزبان کے خود مختار ڈومین تک پہنچ جاتا ہے۔ ``myhostname`` NSS جو کوئی نقشے ``*.localhost`` نام 6761. ."
 
+# translated-by: libretranslate
 msgid "A detailed documentation for the use and administration of Nextcloud on Infinito.Nexus you will find [here](docs/README.md)."
-msgstr ""
+msgstr "استعمال اور انتظامیہ کے لیے تفصیلی دستاویزات ہیں۔ Nextcloud پر Infinito.Nexus آپ کو پتہ چل جائے گا [یہاں](docs/README.md). ."
 
+# translated-by: libretranslate
 msgid "A detailed documentation for the use and administration of Nextcloud on Infinito.Nexus you will find `here <docs/README.md>`__."
-msgstr ""
+msgstr "استعمال اور انتظامیہ کے لیے تفصیلی دستاویزات ہیں۔ Nextcloud پر Infinito.Nexus آپ کو پتہ چل جائے گا `here <docs/README.md>`__. ."
 
+# translated-by: libretranslate
 msgid "A digital administration and documentation platform for structured organizations."
-msgstr ""
+msgstr "انفنٹری تنظیموں کے لیے ڈیجیٹل انتظامیہ اور دستاویزی پلیٹ فارم۔."
 
+# translated-by: libretranslate
 msgid "A disposition change belongs in the ADR, because the audit is the authoritative list two lints read. A newly met criterion belongs here."
-msgstr ""
+msgstr "ایک قسم کی تبدیلی ADR میں ہوتی ہے، کیونکہ Audit وہ فہرست ہے جس میں دو ہندسوں کو پڑھا جاتا ہے۔ ایک نئی ملی ہوئی شرح یہاں ہے."
 
+# translated-by: libretranslate
 msgid "A distro ships the interpreter and its extensions as separate packages, so a present ``php`` binary says nothing about them and ``ensure_command_present`` returns early on one. The extension is therefore probed against ``php -m``."
-msgstr ""
+msgstr "ایک منتشر جہاز مترجم اور اس کی توسیع کو الگ پیکجوں کے طور پر، تو ایک موجود ``php`` بنری ان کے بارے میں کچھ بھی نہیں کہتی اور نہیں کہتی۔ ``ensure_command_present`` ایک پر جلدی واپس آ جاتا ہے. لہٰذا توسیع کو مخالف سمت میں رکھا جاتا ہے۔ ``php -m``. ."
 
+# translated-by: libretranslate
 msgid "A docs `README.md` MUST NOT act as a manual index, table of contents, or page inventory."
-msgstr ""
+msgstr "جواب `README.md` اِس کے علاوہ اِس میں کوئی شک نہیں کہ آپ اِن میں سے کسی بھی چیز کو اِستعمال نہیں کریں گے ۔."
 
+# translated-by: libretranslate
 msgid "A docs `README.md` MUST NOT duplicate navigation that Sphinx already provides."
-msgstr ""
+msgstr "جواب `README.md` اس بات کا یقین نہ کریں کہ پہلے سے ہی اسفینکس فراہم کرتا ہے."
 
+# translated-by: libretranslate
 msgid "A docs `README.md` MUST NOT list the `.md` or `.rst` files in the directory."
-msgstr ""
+msgstr "جواب `README.md` فائل فہرست حاصل کی جارہی ہے `.md` یا `.rst` ڈائریکٹری میں فائلیں۔."
 
+# translated-by: libretranslate
 msgid "A docs `README.md` MUST describe the audience, subject area, or boundary of the documentation in that directory when that context helps readers."
-msgstr ""
+msgstr "جواب `README.md` اُس وقت جب یہ سیاق‌وسباق پڑھنے والوں کی مدد کرتا ہے تو اُن کے سامعین ، موضوعات یا حدود کو بیان کرتا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A docs `README.md` MUST explain what kind of documentation lives in that directory and what scope that documentation covers. It MUST help readers understand the subject area and boundary of the folder without replacing the documentation pages themselves."
-msgstr ""
+msgstr "جواب `README.md` اُس نے کہا : ” مَیں نے اِس بات پر غور کِیا ہے کہ مَیں کس طرح کی دستاویزی فلموں میں رہتا ہوں ۔ اس سے پڑھنے والوں کو یہ سمجھنے میں مدد ملتی ہے کہ وہ اِس کے بارے میں کیا سوچتے ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A docs `README.md` MUST stay short and scope-focused."
-msgstr ""
+msgstr "جواب `README.md` کم اور وسیع پیمانے پر رہنے."
 
+# translated-by: libretranslate
 msgid "A failing pre-state snapshot aborts the deploy (no `suppress_flush`): no update proceeds without a successful backup of the state it is about to change. `svc-bkp-local-2-device` is never started at deploy time (no device present); it stays plug-triggered via its `.mount` unit."
-msgstr ""
+msgstr "ایک ناکامی سے پہلے کی حالت میں داخل ہونے والی غلطی (کچھ نہیں `suppress_flush`): ریاست کی فلاحی پشتو کے بغیر کوئی تجدیدی برآمدات نہیں ہیں۔ `svc-bkp-local-2-device` آغاز کبھی نہیں ہوا ہے (کوئی ڈیوائس موجود نہیں ہے)؛ یہ اس کے ذریعے سے بنایا گیا ہے `.mount` یونٹ."
 
+# translated-by: libretranslate
 msgid "A failure whose root cause is container runtime state (config, plugin, user binding, env) is by definition reproducible-there and does NOT qualify for the post-deploy-state exception."
-msgstr ""
+msgstr "ایک ضلع جس کی بنیادی وجہ سانچہ:Tran runme state ہے۔ (Gmail، پلگ ان، صارف بنگ، انv) اس کی وضاحت Reproducibed- وہاں ہے اور اس کے بعد کی جانے والی ریاستوں کے لیے اس کا حق نہیں ہے۔."
 
+# translated-by: libretranslate
 msgid "A fallback MUST stay inside the permitted set, and a run whose whole permitted set is unservable MUST fail rather than leave it. The job title and the artifact name carry the kind the matrix assigned; the step summary carries the effective one."
-msgstr ""
+msgstr "اِس کی اجازت‌نامہ کے اندر رہنے کی اجازت ہے ۔ اِس کا مطلب ہے کہ اِس کام کا نام اور اِس نام کا مطلب ہے کہ اِس بات کا خاص خیال رکھنا ۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: کبھی خاموش نہیں ۔ کام کا عنوان اور نام‌ونشان مٹانے کی
+# قسم رکھتا ہے *تفویض*)
+# [docker_dataroot.sh](../../scripts/tests/deploy/utils/filesystem/docker_dataroot.sh)
+# لکھتے ہیں۔ *مؤثر* مرحلہ اختصار میں فائل اور وجہ تسمیہ۔ جب ایک رن کو فائل
+# سسٹم پیڈینٹ راہ ثابت کرنا ہوتا ہے تو اس کے عنوان کی بجائے اختصار پڑھنا یا
+# اسے مانگنے کے لیے دوڑنے والی نوعیت کا نام لینا ہوتا ہے۔ اِس کی کیا وجہ ہے ؟
+# `svc-bkp-volume-2-local` معاملہ یہ ہے: یہ صرف بریف اور زیف پر کام کرتا ہے۔.
 msgid "A fallback is reported, never silent. The job title and artifact name carry the kind the matrix *assigned*, while [docker_dataroot.sh](../../scripts/tests/deploy/utils/filesystem/docker_dataroot.sh) writes the *effective* filesystem and the reason into the step summary. When a run has to prove a filesystem-dependent path, read the summary rather than the title, or name the kind on the run to make it a demand. The snapshot mode of `svc-bkp-volume-2-local` is the case that matters: it only engages on btrfs and zfs."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A federated and community-driven platform for discussion, media sharing, and social networking."
-msgstr ""
+msgstr "بات چیت، میڈیا شیئر اور سوشل نیٹ ورکنگ کے لئے ایک فیڈریشن اور کمیونٹی کے پلیٹ فارم۔."
 
+# translated-by: libretranslate
 msgid "A filesystem row states the kind the matrix *assigned*. A deploy may fall back from it when the host kernel cannot serve it (``scripts/tests/deploy/utils/filesystem/resolve.sh``) and the title does not record that, so read that axis as a preference ranking and prove the kind separately before pinning it."
-msgstr ""
+msgstr "فائل کا نظام ترتیب دینے والا مریخ کی طرح کہلاتا ہے۔ *تفویض*. . جب فوج کا سپہ سالار اس کی خدمت نہیں کر سکتا (``scripts/tests/deploy/utils/filesystem/resolve.sh``) اور عنوان میں درج نہیں ہے کہ، اس طرح پڑھا کہ اکیس ترجیحی درجہ بندی کے طور پر اور اس سے پہلے الگ قسم کا ثابت کرتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A final `make compose-deploy mode=reinstall apps=<role> full_cycle=true` run has completed with the spec passing against the freshly provisioned stack. Inner-loop passes alone do NOT satisfy this gate."
-msgstr ""
+msgstr "اختتام `make compose-deploy mode=reinstall apps=<role> full_cycle=true` تازہ فراہم کردہ اسٹاک کے خلاف اسپیس سے گزرنے والی دوڑ مکمل ہو چکی ہے۔ اندرونی لوپ صرف اس دروازے کو مطمئن نہیں کرتا."
 
+# translated-by: libretranslate
 msgid "A flag is ``true`` only when the addon is both ``enabled`` AND ``required``. Optional addons (``required: false``) are intentionally skipped by the spec suite — they are a variant axis, not a guaranteed surface — so their gate flag is ``false`` even when enabled."
-msgstr ""
+msgstr "ایک جھنڈا ہے ``true`` صرف جب اضافہ ہوتا ہے دونوں ``enabled`` اور ``required``. . . (``required: false``) اِس لئے اُن کا دروازہ اُن کی طرف اشارہ کرتا ہے ۔ ``false`` جب بھی ممکن تھا ۔."
 
+# translated-by: libretranslate
 msgid "A fork PR triggers a `pull_request_target` run that builds and mirrors any new images needed by the fork, authenticating to GHCR with the per-job `GITHUB_TOKEN`."
-msgstr ""
+msgstr "ایک اہم کردار `pull_request_target` جو چلانے اور آئین بنانے کے لیے ضروری ہر نئی تصاویر بناتے ہیں، جس کی بنیاد پر پیر کے ساتھ GHCR کی تصدیق کی جاتی ہے۔ `GITHUB_TOKEN`. ."
 
+# translated-by: libretranslate
 msgid "A fourth variant was built first and then withdrawn: `tests/integration/roles/meta/variants/test_limit.py` caps a role at three, on the stated ground that variants exercise dynamic-flag polarities rather than enumerate features, and the `# nocheck: variant-limit` escape would have been a suppression bought to keep a design that fits in three anyway."
-msgstr ""
+msgstr "پہلے ایک چوتھا تعمیر کیا گیا اور پھر کنارہ کش ہو گئے: `tests/integration/roles/meta/variants/test_limit.py` تین پر ایک کردار کی کفالت کرتے ہیں، یہ بیان کیا گیا ہے کہ فعال-flag کی کارکردگی کو شمار کرنے کی بجائے `# nocheck: variant-limit` اگر تین صورتوں میں ایسا ہوتا تو اِس سے بچنے کے لئے ایک بہت بڑی چیز خریدی جاتی ۔."
 
+# translated-by: libretranslate
 msgid "A fragment can only ever be stricter than the host already is. In nftables an ``accept`` terminates its own base chain and nothing more: the packet still traverses every other chain at that hook, and a ``drop`` in any of them wins. A rule that has to overrule a policy someone else set, such as the ``DROP`` docker installs on forwarded packets, does not belong in a fragment at all; it belongs in the chain that carries that policy."
-msgstr ""
+msgstr "ایک ٹکڑا پہلے ہی میزبان سے زیادہ سخت ہو سکتا ہے۔ ایک خطرناک صورتحال ``accept`` اپنی بنیادی زنجیر اور کچھ زیادہ نہیں ۔ ``drop`` ان میں سے کسی میں فتح حاصل کی۔ ایک ایسا قانون جس کے لیے کسی اور کی پالیسی کو نافذ کرنا ہو جیسے کہ ``DROP`` ڈرافٹ پر تنصیبیں، کسی ٹکڑے میں شامل نہیں ہوتی بلکہ یہ وہ زنجیر میں ہے جو سیاست کو چلاتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A fragment can only ever be stricter than the host already is. In nftables an `accept` terminates its own base chain and nothing more: the packet still traverses every other chain at that hook, and a `drop` in any of them wins. A rule that has to overrule a policy someone else set, such as the `DROP` docker installs on forwarded packets, does not belong in a fragment at all; it belongs in the chain that carries that policy."
-msgstr ""
+msgstr "ایک ٹکڑا پہلے ہی میزبان سے زیادہ سخت ہو سکتا ہے۔ ایک خطرناک صورتحال `accept` اپنی بنیادی زنجیر اور کچھ زیادہ نہیں ۔ `drop` ان میں سے کسی میں فتح حاصل کی۔ ایک ایسا قانون جس کے لیے کسی اور کی پالیسی کو نافذ کرنا ہو جیسے کہ `DROP` ڈرافٹ پر تنصیبیں، کسی ٹکڑے میں شامل نہیں ہوتی بلکہ یہ وہ زنجیر میں ہے جو سیاست کو چلاتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A fully sovereign private cloud infrastructure designed for organizations that require full control over their data, identity, and service stack."
-msgstr ""
+msgstr "مکمل طور پر خود مختار نجی بادل کے لیے بنایا گیا ایک ایسا آلہ جو ان کے ڈیٹا، شناخت اور سروس اسٹاک پر مکمل کنٹرول درکار ہو۔."
 
+# translated-by: libretranslate
 msgid "A gateway with no router alias loads no hook"
-msgstr ""
+msgstr "کسی بھی طرح کا پانی نہیں بہہتا"
 
+# translated-by: libretranslate
 msgid "A generated value is exempt because the algorithm that produced it is named by the same schema, and `generate_value()` takes no schema argument."
-msgstr ""
+msgstr "ایک پیداواری قدر اس لیے ممنوع ہے کیونکہ جو الجبرا اس کو تیار کیا جاتا ہے اسے اسی اسکیم سے منسوب کیا جاتا ہے، `generate_value()` کوئی اندازہ لگا لیں."
 
+# translated-by: libretranslate
 msgid "A generation directory, decomposed into baudolo-restore's arguments."
-msgstr ""
+msgstr "ایک طبقہ ڈائریکٹر،، Baudolo-restore کے دلائل میں تبدیل."
 
+# translation-refused: libretranslate protected-span lost=[] gained=["''"]
+# nocheck: url
+# translation-rejected: ایک طبقہ اس کردار کی ڈیٹا بیس فہرستوں میں بطور مجموعی
+# طور پر ذخیرہ کرتا ہے، فائل کا درخت نہیں۔ (`--only-sql`)''لہٰذا انہیں اپنے
+# قدم سے بحال کیا جاتا ہے:
 msgid "A generation stores this role's databases as sql dumps, not as a file tree (`--only-sql`), so they are restored by their own step:"
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=["''"]
+# nocheck: url
+# translation-rejected: ایک نسل اس کردار کی ڈیٹا بیس فہرستوں میں شمارندی جال
+# کے طور پر ذخیرہ کرتی ہے، فائل کا درخت نہیں ہوتا ہے۔ (``--only-sql``)''لہٰذا
+# انہیں اپنے قدم سے بحال کیا جاتا ہے:
 msgid "A generation stores this role’s databases as sql dumps, not as a file tree (``--only-sql``), so they are restored by their own step:"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A global MCP server would attach to the shared engine; the alternative is one sidecar per consuming application with a database-scoped read-only principal."
-msgstr ""
+msgstr "ایک عالمی MCP سرور شیئر انجن سے منسلک ہو گا؛ متبادل ایک طرفدار شخص ہے جو ڈیٹابیس پڑھنے والے صرف پرنسپل کے ساتھ ساتھ ایک طرفدار پر اطلاقیہ ہے."
 
+# translated-by: libretranslate
 msgid "A good architecture is still usable on smaller machines."
-msgstr ""
+msgstr "ایک اچھا آرکیٹیکٹ اب بھی چھوٹی مشینوں پر دستیاب ہے."
 
+# translated-by: libretranslate
 msgid "A green local workspace run does not clear CI"
-msgstr ""
+msgstr "ایک سرسبز مقامی کام گاہ سی آئی اے واضح نہیں کرتی۔"
 
+# translated-by: libretranslate
 msgid "A green run on the fork does not speak for `infinito-nexus/core`. Tags do not follow a fork, and repository variables differ, so a step gated on either never runs there. Check the repository whose failure you are claiming to have fixed."
-msgstr ""
+msgstr "چوک پر ایک سبز دوڑ `infinito-nexus/core`. ٹیگس کسی فاروق کی پیروی نہیں کرتے، اور ذخیرہ شدہ متغیرات مختلف ہیں، اس لیے ایک قدم والا دروازہ یا تو وہاں کبھی نہیں چلتا۔ اِس بات کا جائزہ لیں کہ آپ کس کی ناکامی کا دعویٰ کر رہے ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A grep for `meta/addons/` before implementation MUST return nothing, and that baseline MUST be recorded in the implementing PR."
-msgstr ""
+msgstr "ایک گُنا `meta/addons/` کسی چیز پر عمل کرنے سے پہلے، اور یہ بنیادین لائن پر عمل آوری میں درج کیا جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A handful of variables are documented next to their consumer because they cannot have a static default:"
-msgstr ""
+msgstr "بہت سی تبدیلی اپنے صارفین کے پاس اس لئے آ جاتی ہے کیونکہ اُن کے پاس کوئی شناختی منصوبہ نہیں ہے:"
 
+# translated-by: libretranslate
 msgid "A handler MAY import stdlib, [parser.py](../parser.py), [runtime.py](../runtime.py), and any repo module whose own import closure is stdlib-only. The whole closure MUST import and run on the bare bootstrap python, before any dependency is installed. `utils.cache.files` and [yaml_bootstrap.py](../../yaml_bootstrap.py) qualify; `utils.cache.yaml` does not, because it imports PyYAML. Read SPOT files with `utils.cache.files.read_text` plus `utils.yaml_bootstrap.load_block` or a stdlib line parse. `load_block` accepts block mappings, block lists and string scalars only, and raises `BootstrapYamlError` on everything else, so a SPOT file read this way MUST stay inside that subset. [test_bare_bootstrap.py](../../../tests/integration/meta/env/test_bare_bootstrap.py) enforces this by running the generator with every non-stdlib import blocked."
-msgstr ""
+msgstr "ایک چھوٹی سی دکان کی درآمد [parser.py](../parser.py): [runtime.py](../runtime.py)، اور کوئی بھی ریپو ایمپل جس کی درآمدی بندش کی خود مختاری صرف اسٹلبی - تمام بند درآمد کر کے کسی بھی برآمدے کو نصب کرنے سے پہلے `utils.cache.files` اور [yaml_bootstrap.py](../../yaml_bootstrap.py) لائق؛ `utils.cache.yaml` نہیں، کیونکہ یہ PyYML درآمد کرتا ہے. ساتھ فائلیں پڑھیں `utils.cache.files.read_text` جمع `utils.yaml_bootstrap.load_block` یا ایک sdlib line settle. `load_block` بلاک نقشہ، بلاک فہرستیں اور سٹرکچر صرف، اور اپلوڈ کریں `BootstrapYamlError` اور سب کچھ، تو ایک SPOT فائل نے اس طرح پڑھا کہ اس سب سیٹ کے اندر رہ. [test_bare_bootstrap.py](../../../tests/integration/meta/env/test_bare_bootstrap.py) اس کو ہر غیر سکیورٹی درآمدی بلاک کے ساتھ چلانے سے جاری کرتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A handler MUST NOT import another handler. Cross-handler data flows through `eb.get(...)` / `eb.set(...)` only."
-msgstr ""
+msgstr "ایک مال‌ودولت حاصل کرنے کے لئے اُس کی ضرورت ہوتی ہے ۔ کراس لینڈر ڈیٹا کے ذریعے چلتا ہے۔ `eb.get(...)` / `eb.set(...)` صرف."
 
+# translated-by: libretranslate
 msgid "A handler MUST NOT import from [writer.py](../writer.py) or [builder.py](../builder.py) at runtime. The `EnvBuilder` and `BuildContext` types MAY be referenced under `TYPE_CHECKING` for annotations only."
-msgstr ""
+msgstr "مال‌ودولت حاصل کرنے کی اہمیت [writer.py](../writer.py) یا [builder.py](../builder.py) چلاتے وقت. جواب `EnvBuilder` اور `BuildContext` انواع کا حوالہ ذیل میں دیا جاتا ہے۔ `TYPE_CHECKING` صرف علامات کے لئے."
 
+# translated-by: libretranslate
 msgid "A handler module name MUST match the lowercase of the variable it owns:"
-msgstr ""
+msgstr "ایک انفنٹری اسم فاعل اسم فاعل اسم فاعل اسم فاعل اسم فاعل اسم فاعل اسم فاعل اسم فاعل اسم فاعل اسماء جو اسے خود مختار کرتا ہے:"
 
+# translated-by: libretranslate
 msgid "A handler that targets a conditional branch (GHA-only, NIX-only, ...) MUST self-check the relevant `ctx` flag and return early. The registry calls every handler unconditionally."
-msgstr ""
+msgstr "ایک ایسی دُنیا جس میں ایک برانچ ہے (Gha- صرف، NX- صرف، ...) متعلقہ خود کو جانچنا `ctx` جھنڈے اور جلدی واپس لوٹے۔ رجسٹر کو ہر قسم کے پتوں کو کہتے ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A high-performance e-commerce stack optimized for conversion and analytics."
-msgstr ""
+msgstr "تبدیلی اور اناطولیہ کے لیے ایک اعلیٰ درجے کی E-commerce Stock Economided."
 
+# translated-by: libretranslate
 msgid "A higher-level orchestration wrapper, *sys-stk-front-proxy* ties together several lower-level roles:"
-msgstr ""
+msgstr "ایک اعلیٰ درجے کی مریخی پٹی *sys-stk-front-proxy* تعلقات کئی ذیلی سطح کے کرداروں کو آپس میں جوڑ دیتے ہیں:"
 
+# translated-by: libretranslate
 msgid "A host that cannot serve it"
-msgstr ""
+msgstr "ایسا لشکر جو اس کی خدمت نہیں کر سکتا۔"
 
+# translated-by: libretranslate
 msgid "A host that cannot serve the assigned kind"
-msgstr ""
+msgstr "ایسا گروہ جس کی خدمت نہیں کی جا سکتی"
 
+# translated-by: libretranslate
 msgid "A jeff that cannot be reached rejects the request. It is not routed around, because the caller named an alias precisely so it would not have to know which model answered, and substituting a different decider would make that answer mean something else."
-msgstr ""
+msgstr "ایک جوف جو اس درخواست کو رد نہیں کیا جا سکتا۔ اُس نے کہا : ” مَیں نے اِس بات کو تسلیم نہیں کِیا کہ مَیں نے اِس بات کا یقین کر لیا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A job URL narrows the download to that job's app; a bare run URL pulls every `role-runtimes-*` artifact in the run."
-msgstr ""
+msgstr "اس کام کی ایپ تک ایک کام کرنے کے لئے ایک کام کر رہا ہے `role-runtimes-*` دوڑ میں رکاوٹ."
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایک ملازمت کی اہمیت جو کبھی ختم نہیں ہوئی تھی ، جب
+# ایڈگر نے رپورٹ دی ``failed``)، یا جب کوئی حکم غیر ضروری واپس آیا ``rc``. کیا
+# ایک حقیقی ناکامی کو کوئی فرق نہیں API اور مختلف کلیدوں میں زندگی بسر کرنا:
+# اسے درمیان میں ڈال دو ``msg`` (بادل کی تہہ میں جواب "ایک جیسا نوشتہ پہلے ہی
+# موجود ہے۔")، احکامات اس میں ڈال دیں ``stdout`` (``ollama pull`` پرنٹ "تا
+# حال" اور وہ غیر حاجت مندوں کو باہر نکالتا ہے۔)۔ دونوں کی تلاشی لی جاتی ہے تو
+# ایک پکارنے والا مریض سے گزرتا ہے اور اُسے یہ معلوم نہیں ہوتا کہ اُسے کس چیز
+# کی ضرورت ہے ۔.
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A job title states its whole combination, which lets `--failed` replay the mode, onion state and distribution, and makes a plan table row comparable to the job it predicts."
-msgstr ""
+msgstr "ایک ملازمت کا عنوان اس کے پورے ملاپ کو بیان کرتا ہے، جو کہ دیتا ہے۔ `--failed` طریقہ کار کو دوبارہ بند کرنا، اونیون ریاست اور تقسیم کرنا اور منصوبہ بندی کو اس کام کے برابر بنانا۔."
 
+# translated-by: libretranslate
 msgid "A job's green conclusion is **NOT** evidence for a specific change. Before citing a run as proof, you MUST locate the line in that job's log where the change executed: a Playwright spec's `✓` (a leading `-` means the spec was skipped), the env var inside the container, or the command text of an `if:`-gated step. If the string is absent, report the run as silent on the change, not as supporting it."
-msgstr ""
+msgstr "ایک کام کا سبز نتیجہ ہے۔ **نہیں** ایک مخصوص تبدیلی کے ثبوت. ثبوت کے طور پر دوڑنے سے پہلے، آپ نے اس کام کے لاگ میں لائن تلاش کی جہاں تبدیلی کی گئی تھی: `✓` (لیڈر `-` جس کا مطلب ہے Spec تھا)، برتن کے اندر، یا کسی کا کمانڈ متن `if:`- اقدام. اِس کی بجائے اُس کی مدد کریں ۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایک ایسی کُنجی جو کہ کچھ ماحول ہر دوڑ کو بتاتا ہے
+# لہٰذا کسی مخصوص عمل کے ذریعے لکھی جاتی ہے `eb.set`... برآمد کرنے والی شیل اب
+# بھی اپنے ہی چلانے کے لئے جیت جاتا ہے، کیونکہ
+# [load.sh](../../scripts/meta/env/load.sh) غیر درج شدہ جواب دینے والی اقدار
+# کو محفوظ کریں جب یہ ماخوذ ہو۔ `.env`) ؛ فائل سے حاصل ہونے والی کمی کو برقرار
+# رکھتا ہے۔ `INFINITO_RUNNING_ON_GITHUB` اور `INFINITO_CACHE_STACK` اس طرح
+# لکھا گیا ہے۔ آئیں ، دیکھیں کہ اِس کا کیا نتیجہ نکلا ۔ `.env` اور دوڑنا مناسب
+# طور پر مختلف ہو سکتا ہے `.env` کوئی اختیار نہیں ہے.
 msgid "A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB` and `INFINITO_CACHE_STACK` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A key's comment is the most recent contiguous block of `# ...` lines directly above the `KEY=...` line, joined with single spaces. Section headers (`# --- ... ---`) are treated as separators: they reset the pending comment so the next key starts fresh, instead of inheriting the heading line as its own documentation."
-msgstr ""
+msgstr "ایک کلید کا تبصرہ حالیہ کمیت کا بلاک ہے۔ `# ...` لکیریں براہ راست اوپر `KEY=...` لکیر، ایک جگہ ملا کر سیکشن سربراہ (`# --- ... ---`) ان کے علاج کے طور پر کیے جاتے ہیں: وہ پیکنگ تبصرے کو دوبارہ ترتیب دیتے ہیں تو اگلی کلید تازہ شروع ہوتی ہے، بجائے کہ سمتی لکیر کو اپنی دستاویزات کے طور پر وارث بنانا شروع کرتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A label that silently stops resolving to arm64 turns the whole axis into a green lie."
-msgstr ""
+msgstr "ایک ایسا لیبل جو خاموشی سے بازوؤں کو حل کرنا بند کر دیتا ہے۔64 پورے محور کو ایک سبز جھوٹ میں تبدیل."
 
+# translated-by: libretranslate
 msgid "A lightweight, Docker-powered UI framework that offers Infinito.Nexus users a unified interface to access all their applications in one intuitive dashboard. 🚀"
-msgstr ""
+msgstr "ایک ہلکے وزن، Decker کی طاقت ور یو آئی فریم ورک جو پیش کرتا ہے۔ Infinito.Nexus صارفین آپس میں ایک ساتھ ان کے تمام اطلاقیے تک رسائی حاصل کرنے کے لئے ایک دوسرے سے ملا جلا وطنی 🚀"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: بیرونی تعلقات کی فہرست سافٹ ویئر یا انفنٹری سے متعلق
+# ہے۔ رمزِ بعید تکلم (کالنگ کوڈ) ایک فرضی لیبل یا ڈومین نام ہوتا ہے۔ مکمل دادی
+# کا استعمال کبھی نہیں.
 msgid "A list of external links relevant to the software or the deployment. Link text MUST be a descriptive label or the domain name. Never use the full URL."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A literal ``shared: false`` (not a Jinja expression) is the role author pinning an engine the central provider cannot serve. Honouring it is only safe on a manager-pinned role, where the volume stays node-local and the sidecar carries the matching placement constraint."
-msgstr ""
+msgstr "اصلی ``shared: false`` (کوئی جنجا اظہار نہیں) یہ کردار مصنف ایک انجن فراہم کرنے والا مرکزی فراہم کرنے والا آلہ ہے ۔ اس کی عزت صرف ایک مینیجر کے کردار پر محفوظ ہے، جس میں حجم برقرار رہ جاتا ہے اور پہلوکار جوڑنے والی جگہ لے لیتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A local deploy is failing on the host"
-msgstr ""
+msgstr "ایک مقامی انفنٹری میزبان پر ناکام رہی ہے۔"
 
+# translated-by: libretranslate
 msgid "A location not starting with ``/`` is a remote ``[user@]host:/path``."
-msgstr ""
+msgstr "جگہ شروع نہیں ہوتی ``/`` دور دراز ہے۔ ``[user@]host:/path``. ."
 
+# translated-by: libretranslate
 msgid "A long-running worker (own image, gated on both endpoints present) that:"
-msgstr ""
+msgstr "ایک لمبے عرصے کا کارکن (خود تصویر، دونوں اختتامی نقطوں پر موجود دروازے) کہ:"
 
+# translated-by: libretranslate
 msgid "A malformed filter expression."
-msgstr ""
+msgstr "کیا آپ کو یاد ہے ؟."
 
+# translated-by: libretranslate
 msgid "A manager-pinned role keeps its volumes node-local (``swarm_nfs_backed``) and its DB sidecar carries the matching placement constraint, so a literal ``shared: false`` there is honoured instead of overridden — Magento hard-fails ``setup:install`` on the central MariaDB major."
-msgstr ""
+msgstr "ایک مینیجر-پنر کردار اس کی جِلد کو برقرار رکھتا ہے۔ (``swarm_nfs_backed``) اور اس کی DB پہلوی کار جوڑنے والی جگہ پر دباؤ ڈال دیتا ہے، تو ایک حقیقی ``shared: false`` جس پر زیادہ معتبر ہیں۔ Magento سخت دباؤ ``setup:install`` مرکز پر MariaDB بڑے."
 
+# translated-by: libretranslate
 msgid "A mapping deep-merges, so naming one key changes that key and nothing else. ``null`` empties the topic, which is the only way to say \"bring nothing\": merged, an empty mapping is a no-op and would leave exactly the services the round was trying to shed."
-msgstr ""
+msgstr "ایک نقشے کی گہرائیوں، تو ایک کلیدی تبدیلی کا پتہ لگانا جو کلیدی اور کچھ اور کچھ بھی نہیں۔ ``null`` موضوع کو ترتیب دیں، جو کہ واحد طریقہ ہے۔ \"کچھ بھی نہیں\": مخلوط، خالی نقشہ نواں ہے اور اس چکر میں مکمل خدمات چھوڑنے کی کوشش کرتا تھا۔."
 
+# translated-by: libretranslate
 msgid "A mapping of docker volume names and database names to ``postgres`` or ``mariadb``. Both volume spellings are emitted per application, because which one a host used depends on ``shared``, which is inventory-dependent and therefore unknowable from a checkout - and both spellings resolve to the same engine anyway."
-msgstr ""
+msgstr "ایک نقشہ‌جات ``postgres`` یا ``mariadb``. دونوں حجم کے مرکبات ہر اطلاق کو ختم کر رہے ہیں، کیونکہ ایک میزبان کا انحصار اس پر ہوتا ہے۔ ``shared``۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔."
 
+# translated-by: libretranslate
 msgid "A marker value MUST be a non-empty string. If the marker key is present but the value is of the wrong YAML type, empty, or whitespace- only, the role's typing is broken: :func:`get_role_types` raises :class:`RoleTypeError` so the misconfiguration surfaces at the first call instead of silently degrading to a different type."
-msgstr ""
+msgstr "ایک نشاندار قدرے غیر زہریلی تار ہے۔ اگر نشان زدہ کلید موجود ہو لیکن قیمت غلط یاس ایم ایل قسم، خالی یا سفید space- :func:`get_role_types` بلند کریں :class:`RoleTypeError` لہٰذا یہ غلط سطحیں پہلی مرتبہ ایک مختلف قسم کی شرمناک حرکت کی بجائے شرمندگی کا باعث بنتی ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A matching `SYSTEM_EMAIL_<KEY>` variable defined anywhere in Ansible variable scope (inventory, group vars, host vars)."
-msgstr ""
+msgstr "ايک جيسي `SYSTEM_EMAIL_<KEY>` تبدیلی کا تعین کسی بھی جگہ انسیبل متغیر فضاء میں کیا جاتا ہے۔ (جھوٹ، گروہ وار، میزبان وغیرہ ہیں۔). ."
 
+# translated-by: libretranslate
 msgid "A measured rate reaches `traits.speed`, and a declared one outranks it"
-msgstr ""
+msgstr "ایک پیمائشی شرح تک پہنچتی ہے۔ `traits.speed`، اور ایک اعلان یہ ہے"
 
+# translated-by: libretranslate
 msgid "A message prepared for an HTML-mode translation request."
-msgstr ""
+msgstr "ایک پیغام جو ایچ ٹی ایم ایل کے موڈی ترجمان کی درخواست کے لیے تیار کیا گیا۔."
 
+# translated-by: libretranslate
 msgid "A minted Tor v3 onion key and its ``HiddenServiceDir`` file contents."
-msgstr ""
+msgstr "ایک نہایت تیز رفتار3 اِن سوالوں پر غور کریں : ``HiddenServiceDir`` فائل مواد."
 
+# translated-by: libretranslate
 msgid "A missing event indicates a coverage regression in the deploy chain (typically: a once-flag swallowed an include before the role could run)."
-msgstr ""
+msgstr "ایک گم شدہ واقعہ کولکاتا کی زنجیر میں کوریج کو ظاہر کرتا ہے۔ (جواب: ایک بار ایک پل نے اس کردار کو چلانے سے پہلے شامل کیا). ."
 
+# translated-by: libretranslate
 msgid "A missing secret resolves to an empty string in workflow expressions. The workflow run starts and proceeds normally until the token-minting step:"
-msgstr ""
+msgstr "ایک گم‌شُدہ راز کام کے اظہارات میں خالی تار کو حل کرتا ہے ۔ کام کال شروع ہوتا ہے اور عام طور پر اس وقت تک وصول کرتا ہے جب تک کہ اشاروں کی منٹنگ قدم نہ اٹھائے:"
 
+# translated-by: libretranslate
 msgid "A model entry MAY still carry a `traits` mapping (`vision`, `tools`, `max_output`, `cost`), and it wins over the catalog. That is for what the catalog does not know: `openrouter/auto`, the mock, and a local tag such as `ollama/qwen2.5:0.5b` that is absent although its family is present. `context` keeps its existing home on the entry, feeds `AI_MODEL_CONTEXTS` and `num_ctx`, and outranks the catalogued window."
-msgstr ""
+msgstr "ایک ماڈل داخلی میزائل اب بھی ایک حاملہ ہے۔ `traits` نقشہ (`vision`: `tools`: `max_output`: `cost`)، اور یہ کیٹلاگ پر فتح. یہی وجہ ہے کہ کیٹلاگ نہیں جانتے: `openrouter/auto`، مذاق، اور مقامی ٹیگ جیسے `ollama/qwen2.5:0.5b` یہ اُس کا خاندان نہیں ہے ۔ `context` اس کا موجودہ گھر داخلے پر رکھ کر کھانا فراہم کرتا ہے `AI_MODEL_CONTEXTS` اور `num_ctx`. . . ."
 
+# translated-by: libretranslate
 msgid "A model that already carries a rate is not measured at all. Re-measuring everything on every deploy would send traffic whose result the tolerance below discards anyway, and that traffic is the entire live surface of this step: it is what can hang, what can fail the deploy, and what the deploy waits for. `services.litellm.router_speed_remeasure` discards the stored numbers once, for the case where the hardware under them changed."
-msgstr ""
+msgstr "ایک ایسا ماڈل جو پہلے ہی سے رفتار کا حامل ہوتا ہے اس کا اندازہ نہیں لگایا جاتا۔ ہر کرنسی پر ہر چیز کو دوبارہ ٹریفک بھیج دیا جاتا جس کے نتیجے میں زیریں ٹریفک بالکل ختم ہو جاتی ہے، اور یہ کہ ٹریفک اس مرحلے کی پوری زندہ سطح ہے: یہ وہ چیز ہے جس کے حصول کے قابل ہو سکتا ہے، `services.litellm.router_speed_remeasure` ایک بار ذخیرہ شدہ نمبروں کو ختم کر دیتا ہے، کیونکہ اس صورت میں جس میں ہارڈ ویئر نے ان کے نیچے تبدیلی کی تھی۔."
 
+# translated-by: libretranslate
 msgid "A model that already carries a rate sends no request, and the remeasure switch sends them again"
-msgstr ""
+msgstr "ایک ایسا ماڈل جو پہلے ہی سے ایک رفتار کا حامل ہوتا ہے، کوئی درخواست بھیجتا ہے اور دوبارہ جاری کرتا ہے۔"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: ایک ماڈل جو ایجنٹ خدمات انجام دیتا ہے اس کے ضمنی
+# کھڑکیاں علامات میں ظاہر کرتا ہے: `context` ایک پر `AI_LOCAL_MODELS` داخلے یا
+# کسی پر `services.litellm.remote_models` داخل. اسے LiteLM بھیجتا ہے۔ Ollama
+# بطور `num_ctx` اور اُسے (آپ کی زبان میں) پڑھ کر سناتا ہے،
+# `model_info.max_input_tokens`، اور بھکر اسے ایجنٹ ایمپل میں ہرمز کے طور پر
+# لکھتا ہے۔ `model.context_length` اور OpenClaw `contextWindow`. Ollama ایجنٹ
+# اپنی مرضی سے اپنی ڈیٹنگ کھڑکی کی طرف متوجہ کرتا ہے اور ایجنٹ اپنی کھڑکیاں
+# خود ہی سوچتا ہے۔.
 msgid "A model that serves agents declares its context window in tokens: `context` on an `AI_LOCAL_MODELS` entry or on a `services.litellm.remote_models` entry. LiteLLM sends it to Ollama as `num_ctx` and publishes it as `model_info.max_input_tokens`, and the broker writes it into the agent config as Hermes `model.context_length` and OpenClaw `contextWindow`. Without it Ollama truncates the agent's prompt to its own default window and the agents assume windows of their own."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A module MAY read tool-specific environment overrides (e.g. `ACTIONLINT_VERSION`, `RUFF_PIP_SPEC`) at call time."
-msgstr ""
+msgstr "ایک مجوزہ نظام آلات سے متعلقہ ماحولیاتی نظام کو پڑھتا ہے۔ (جی ہاں. `ACTIONLINT_VERSION`: `RUFF_PIP_SPEC`) وقت."
 
+# translated-by: libretranslate
 msgid "A module name MUST match the lowercase snake_case of the tool it installs:"
-msgstr ""
+msgstr "اهله نام snake_case آلے سے اوزار نصب کرتا ہے:"
 
+# translated-by: libretranslate
 msgid "A monitored declared addon whose pinned ``version`` is behind the candidate's ``latest`` becomes a :class:`VersionSuggestion`."
-msgstr ""
+msgstr "ایک نگہبان نے اضافین کا اعلان کِیا جس کا پُر لگا ہوا تھا ``version`` طالبان کے پیچھے ہے۔ ``latest`` ایک بن جائے گا :class:`VersionSuggestion`. ."
 
+# translated-by: libretranslate
 msgid "A name is skipped. Every other protected span ends in a delimiter, so a letter right behind it can only be the text the boundary was lost from, but a name ends in a word character and an agglutinative language suffixes it: ``Baserow`` is found inside the Bengali ``Baserowo`` and the punctuation would land inside the word."
-msgstr ""
+msgstr "ایک نام ہے. ہر دیگر حفاظتی دور ایک delimister میں ختم ہوتا ہے، چنانچہ اس کے پس منظر میں ایک خطبہ صرف عبارت ہی غائب ہو سکتا ہے، لیکن ایک نام ایک حرفی میں ختم ہو جاتا ہے اور ایک لغتی صوتیات اسے کہتے ہیں: ``Baserow`` بنگالی کے اندر پایا جاتا ہے۔ ``Baserowo`` اور پنجابی لفظ کے اندر ہی زمین ہوتا۔."
 
+# translated-by: libretranslate
 msgid "A name with more than one URL is a conflict the caller decides about; this function reports rather than resolves it."
-msgstr ""
+msgstr "ایک سے زیادہ ایسے نام ہیں جن کے ساتھ ایک شخص کا جھگڑا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A new addon surfaced by a catalog adapter that is not yet declared."
-msgstr ""
+msgstr "کیٹل کامبیٹر کی طرف سے ایک نیا اضافہ جس کا اعلان ابھی تک نہیں کِیا گیا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A new app MUST:"
-msgstr ""
+msgstr "ایک نیا ایپیٹڈ:"
 
+# translated-by: libretranslate
 msgid "A new helper MUST live in the subfolder that matches its responsibility. New responsibilities MAY motivate a new subfolder, but MUST NOT flatten back into the top level."
-msgstr ""
+msgstr "ایک نیا مددگار اُس زیرِزمین رہتا ہے جو اُس کی ذمہ‌داری کو پورا کرتا ہے ۔ نئی ذمہ‌داریوں کی وجہ سے لوگ نئے سرے سے اُوپر نہیں اُترتے ۔."
 
+# translated-by: libretranslate
 msgid "A new key MUST be placed in `RESOLUTION_ORDER` after every key it depends on, and the administrator key table MUST be updated to document the new field."
-msgstr ""
+msgstr "نئے کلیدی ڈھانچے میں رکھا جاتا ہے۔ `RESOLUTION_ORDER` اس کی ہر کلید پر انحصار کرنے کے بعد منتظم کلیدی تختے کی تجدید کی جاتی ہے تاکہ نئے شعبے پر دستخط کیے جا سکیں۔."
 
+# translated-by: libretranslate
 msgid "A new role `svc-ai-agent-broker` runs the broker and a restricted container-API proxy."
-msgstr ""
+msgstr "ایک نیا کردار `svc-ai-agent-broker` ہارنے والا اور بند کرنے والاAPI دادی."
 
+# translated-by: libretranslate
 msgid "A new shared service MUST:"
-msgstr ""
+msgstr "ایک نئی شعری خدمت کا آغاز:"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایک نو رن `mode=reinstall` جیسے کہ ناکامی یا کوڈ بدل
+# جاتا ہے ۔ صرف قطار 1 اور 4 غیر متصل `variant=`. . ناکام رہنے والے شخص کو
+# دوبارہ ترتیب دینے کے لئے اسے قطار سے اتارنے کے لئے 2) ؛ کسی بھی چیز کو
+# دوبارہ بحال کرنے کے لئے پورے مریخ کو دوبارہ کبھی نہ چھوڑیں۔.
 msgid "A no-variant `mode=reinstall` as the reaction to a failed variant or a code change. Only rows 1 and 4 omit `variant=`. To retry one failing variant, pin it with row 2; never restart the whole matrix to retry a single variant."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A number is that many rows; anything else is a selection token (:mod:`utils.github.variant.selection`) and the start is the first regular row it names. Resuming at a role beats counting rows by hand: the ranking shifts whenever a variant is added, so the index that meant 'carry on behind nextcloud' yesterday means something else today, while the token still says it."
-msgstr ""
+msgstr "ایک عدد یہ ہے کہ بہت سی قطاریں؛ کوئی بھی چیز انتخابی علامت ہے۔ (:mod:`utils.github.variant.selection`) اور ابتدا اس نام کی پہلی باقاعدہ قطار ہے۔ ایک کردار شکست خوردہ قطاروں کو ہاتھ سے گننے پر دوبارہ کوشش کرنا: ranking transport جب بھی کسی بلے باز کو شامل کیا جاتا ہے، تو انڈیکس کا مطلب ہے کہ کل ' پچھلی بلے باز' کا مطلب آج کچھ اور ہے، جبکہ نشان اب بھی کہتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A parsed README: everything before the first H2, then its H2 blocks."
-msgstr ""
+msgstr "پہلے H سے پہلے سب کچھ2، پھر اس کا H2 بلاک."
 
+# translated-by: libretranslate
 msgid "A path is yielded iff it survives both the in-process skip-dir pruning of :func:`iter_project_files` and the ``.gitignore`` match."
-msgstr ""
+msgstr "ایک راستے کو زیر کیا جاتا ہے اگر وہ دونوں کو محفوظ رکھتا ہے :func:`iter_project_files` اور ``.gitignore`` میچ."
 
+# translated-by: libretranslate
 msgid "A per-tool module MAY import from `utils.cache` (for `PROJECT_ROOT`) and from stdlib."
-msgstr ""
+msgstr "ایک پرو کلو میٹر درآمد `utils.cache` (کے لئے `PROJECT_ROOT`) اور اسلوب سے."
 
+# translated-by: libretranslate
 msgid "A per-tool module MUST NOT import another per-tool module. Shared logic flows through `utils.install.primitives`, `utils.install.pip`, `utils.install.npm`, `utils.install.github_release`, and `utils.install.system_pkg` only."
-msgstr ""
+msgstr "ایک فی کلو میٹر کے ایک دوسرے پر انحصار کرنے کی درآمد نہیں ہے. شیئرڈ منطق کے ذریعے چلتا ہے۔ `utils.install.primitives`: `utils.install.pip`: `utils.install.npm`: `utils.install.github_release`، اور `utils.install.system_pkg` صرف."
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایک شخص کی نظر میں یہ بات ناکام ہو جاتی ہے کہ اُس کا
+# سفر ختم نہیں ہو سکتا ۔ خاموش `test.skip(...)` وقت گزرنے کے ساتھ ساتھ "اتصال
+# کا اضافہ نہیں کیا جاسکتا": "کوئی سطح مرتفع نہیں") "کوئی admin UII نشان نہیں"
+# کیا آپ کو یاد ہے ؟ دُکھ‌تکلیف کا خاتمہ (ٹوٹے ہوئے یو ڈی سی کی نقشہ سازی، یو
+# پی اے کے بٹن کو ہٹا دیا، غلط طریقے سے اووت کا نشانہ بنایا گیا۔2-proxox، غیر
+# منظم UIIs) ایک سبز رنگ کے سبز پتے کے پیچھے.
 msgid "A persona scenario MUST fail loudly when its contracted journey cannot execute end-to-end. A silent `test.skip(...)` on runtime detection of \"no logout button\", \"no authenticated surface\", or \"no admin UI marker\" is FORBIDDEN. Silent skips hide real regressions (broken OIDC mapping, removed logout button, misconfigured oauth2-proxy, drifted UI selectors) behind a green deploy."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایک شخص یہ دیکھ کر حیران رہ جاتا ہے کہ صرف تصاویر ہی
+# نہیں ہوتیں ۔ اِس کے بعد (یا براہ راست کردار کی سطح پر جب کوئی ایٹم درکار
+# نہیں ہوتا))، ہر فرد کی جانب سے ایک حقیقی، app-rection interaction کو چلاتی
+# ہے تاکہ وہ یہ بات ثابت کرے کہ اس کردار کو صارف کے اندر داخل کرنے کے لیے نہیں
+# بلکہ صرف قابل رسائی ہے۔.
 msgid "A persona scenario that only logs in and logs out is NOT enough. After the auth chain settles (or directly on the role surface when no auth is required), every persona MUST drive a real, app-specific interaction so the spec proves the role is responsive to user input, not just reachable."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A personal digital sovereignty stack for individuals controlling their own data."
-msgstr ""
+msgstr "لوگوں کے لیے ایک ذاتی ڈیجیٹل حاکمیت اسٹاک اپنے ڈیٹا کو کنٹرول کرتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A pin MUST be a quoted string, never an unquoted number. `\"\"` tracks the app default."
-msgstr ""
+msgstr "اِس میں کوئی شک نہیں کہ اُن کی تعداد بہت کم ہے ۔ `\"\"` ایپی فا ئل چلا وٴ."
 
+# translated-by: libretranslate
 msgid "A pin the Docker updater (`image` + `version`) and the repository updater (`repository` + `ref`) do not reach names its upstream next to itself:"
-msgstr ""
+msgstr "ایک پَر (`image` + `version`) اور اِس محفوظ عمارت کی تجدید (`repository` + `ref`) اس کے نام اپنے پاس نہیں آتے:"
 
+# translated-by: libretranslate
 msgid "A platform may refuse a window it considers too small. Hermes requires 64000 tokens and answers `HTTP 500` with \"below the minimum 64,000 required by Hermes Agent\" for anything less, so `web-app-hermes` declares `services.hermes.min_context` and the broker withholds any platform whose minimum the selected model misses: it is absent from `/v1/models` and answers 404, while every other platform keeps serving. Refusing the whole deploy instead would block a pairing that works, since OpenClaw declares no minimum and the broker pulls Hermes into its closure either way. A model that declares no window at all is reported rather than withheld: an agent that does not know its window runs."
-msgstr ""
+msgstr "ہو سکتا ہے کہ کوئی پلیٹ‌فارم بہت چھوٹا خیال کرے ۔ ہرمز لازمی ہوتا ہے۔ 64000 علامات اور جواب `HTTP 500` ساتھ \"نیچے کم 64,000 ضرورت Hermes Agent\" کچھ کم کے لئے، تو `web-app-hermes` خطاب `services.hermes.min_context` اِس سے ظاہر ہوتا ہے کہ اِن میں سے کوئی بھی اِنسان نہیں ہے ۔ `/v1/models` جواب 404، جب کہ ہر دوسرے پلیٹ فارم کی خدمت جاری ہے. پورے کیمرا کو ختم کرنے کی بجائے ایک جوڑے کو بلاک کریں گے جو کہ کام کرتا ہے، کیونکہ OpenClaw کم‌ازکم کوئی بھی شخص ہرمز کو اپنے بند میں نہیں لاتا ۔ ایک ایسا نمونہ جو کسی بھی کھڑکی کی اطلاع نہیں دیتا، اسے روکنے کی بجائے: ایسا ایجنٹ جو اس کی کھڑکی سے واقف نہ ہو۔."
 
+# translated-by: libretranslate
 msgid "A plug-and-go backup of the local backup tree to an external block device (typically a swappable USB drive). The transfer is hard-link deduplicated against the previous snapshot, so each plug-in yields a complete, browsable point-in-time copy without doubling disk usage."
-msgstr ""
+msgstr "کسی بیرونی بلاک اوزار تک مقامی بیک اپ درخت کی ایک kle-and-go پیچھے ہٹ (ایک قابل قبول USB گاڑی استعمال کریں). منتقلی سخت لنک ڈرائنگ ڈرائنگ کے خلاف کی گئی ہے، لہٰذا ہر پلگ ان کو ایک مکمل، قابلِ استعمال نقطہ استعمال کے بغیر."
 
+# translated-by: libretranslate
 msgid "A plugin MAY ship an appstore release that lags the pinned Nextcloud server major. In that case OCC emits the marker string `is not compatible with this version of the server` and exits non-zero. The pipeline MUST treat this as a non-fatal condition:"
-msgstr ""
+msgstr "ایک پلگ انس کشتی جو پاخانہ کو محفوظ رکھتی ہے Nextcloud سرور اعظم. اس صورت میں او سی آئی اے نشان زدہ تار خارج کرتا ہے۔ `is not compatible with this version of the server` اور غیر ضروری چیزیں باہر نکال دیتی ہیں۔ پائپ لائنوں کا یہ علاج غیر افسانوی شرط کے طور پر کیا جاتا ہے:"
 
+# translated-by: libretranslate
 msgid "A plugin entry MAY set `mandatory: true`. This inverts the tolerance above: when the plugin is `enabled` for the current deployment but its install result is not `runnable` (incompatible with the pinned server major, or unavailable on the appstore), [01_install.yml](./01_install.yml) aborts the deployment with `ansible.builtin.fail` instead of emitting the skip warning."
-msgstr ""
+msgstr "پلگ ان داخلے کا انتظام `mandatory: true`. یہ اوپر نرمی سے کام لیتا ہے: جب پلگ ان ہو `enabled` موجودہ تناسب کے لیے مگر اس کی تنصیب کا نتیجہ نہیں ہے۔ `runnable` (پر معلوم شدہ سرور اعظم کے ساتھ، یا اس میں غیر ماخوذ): [01 متناسقات:](./01_install.yml) شمولیت سے متعلق `ansible.builtin.fail` نہیں ہیں ڈر سنانے والے."
 
+# translated-by: libretranslate
 msgid "A pool of two or more stays a preference because the matrix already narrowed each row to one kind out of it: falling back to the other kind the run allowed is inside what the operator asked for, while failing the row is not. A run whose whole pool is unservable fails rather than leaving the pool."
-msgstr ""
+msgstr "ایک دو یا دو سے زیادہ کو ترجیح دیتا ہے کیونکہ مریخ پہلے ہی سے ہر قطار کو ایک طرح سے تنگ کرتا تھا: دوسری قسم کی طرف گر جانا دوسری قسم کی اجازت ہے ایک ایسی دوڑ جس کا پورا پورا پُل خالی نہیں چھوڑ دیتا ۔."
 
+# translated-by: libretranslate
 msgid "A pool or token of exactly one kind is read as a human naming it, so the applying step **fails the row instead of substituting** a kind the host can serve. Pinning a kind the runner cannot deliver therefore produces a red job that says nothing about the question."
-msgstr ""
+msgstr "ایک قسم کا پُل یا نشان ایک انسانی شناختی عمل کے طور پر پڑھا جاتا ہے لہٰذا اس پر عمل کرنا **توڑ پھوڑ کی بجائے قطار کو ناکام کرتا ہے۔** ایک مہربان میزبان خدمت کر سکتا ہے ۔ لہٰذا ، کسی ایسے شخص کی مدد کرنے سے اُسے کوئی ایسا کام نہیں کرنا چاہئے جو اِس سوال کا جواب نہ دے ۔."
 
+# translated-by: libretranslate
 msgid "A practical long-term target is:"
-msgstr ""
+msgstr "ایک عملی طویل ہدف یہ ہے:"
 
+# translated-by: libretranslate
 msgid "A prefix cannot judge the container, so the probe keeps the verdict and the prefix only ever RAISES a timing -- the composed start period is the longest of the two, never the prefix's alone. Lowering it once would have cut a fifteen minute start window down to two."
-msgstr ""
+msgstr "ایک پُراسرار برتن کا فیصلہ نہیں کر سکتا، لہٰذا پریپ فیصلہ کو برقرار رکھتا ہے اور پُر لگا دیتا ہے صرف ایک وقت ہے -- ایک بار نیچے ایک پندرہ منٹ کے بعد دو طرف کھڑکی شروع ہو جاتی."
 
+# translated-by: libretranslate
 msgid "A prefix does something on the way past -- sending a smoke mail is the only one so far -- and deliberately cannot decide liveness. That separation is what lets a probe stay the single verdict."
-msgstr ""
+msgstr "ماضی کی راہ میں کوئی ایسا کام کرتا ہے جس سے سگریٹ نوشی کا اہتمام ہوتا ہے اِس سے ظاہر ہوتا ہے کہ اُس کا فیصلہ صرف ایک ہی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A prefix mask leaves a contiguous run of low bits free, so per octet the addresses span exactly ``network_address`` to ``broadcast_address``. The cross product of those four ranges is the network, which makes the octet decomposition exact for any prefix length, aligned or not."
-msgstr ""
+msgstr "اِس وجہ سے پتوں کے پتوں کو مناسب وقت دیا جاتا ہے ``network_address`` جگہ ``broadcast_address``. ان چار حصوں کی کراس کی پیداوار نیٹ ورک ہے، جس کی وجہ سے کسی بھی قسم کی لمبائی، تناسب یا نہ ہونے کے لیے octection درست ہو جاتا ہے۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['[', ']',
+# '۶']
+# nocheck: url
+# translation-rejected: پہلا اندراج داخلی ہو سکتا ہے
+# (``web-app-zammad#1@compose+tor``)[ صفحہ ۶ پر تصویر ] صرف حروفِ تہجی کے
+# سامنے اسم کو حالت کے خلاف حل کیا جاتا ہے۔.
 msgid "A priority entry may pin axes (``web-app-zammad#1@compose+tor``), and the pin rides along into the retrigger: the entry never ran, so the run holds no evidence that the axes it named were the wrong ones. Only the name in front of the axis suffix is resolved against the statuses."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A priority role can fall behind the discovery budget cut in every mode, so the run holds no job for it and :func:`failed_roles` cannot see it — it is neither green nor red, it simply never ran. Carrying it into the retrigger is the only way it ever gets deployed."
-msgstr ""
+msgstr "ایک ترجیحی کردار ہر موڈ میں دریافت شدہ بجٹ کی کٹ کے پیچھے گر سکتا ہے، اس لیے چلانے کا کوئی کام اس کے لیے نہیں ہے :func:`failed_roles` یہ نہ تو سبز ہے نہ سرخ ۔ اس کو اپریگر میں داخل کرنا صرف وہی طریقہ ہے جو اسے کبھی ہضم کر لیتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A privacy-first foundation for enterprises running AI locally and keeping sensitive data on-prem."
-msgstr ""
+msgstr "انٹرپرائز کے لیے پہلی نجی بنیاد AI مقامی طور پر چلانے اور حساس اعداد و شمار کو جاری رکھنے کے لئے."
 
+# translated-by: libretranslate
 msgid "A professional collaboration and identity management stack for modern organizations."
-msgstr ""
+msgstr "جدید تنظیموں کے لیے ایک پیشہ ور تعاون اور شناختی انتظامیہ۔."
 
+# translated-by: libretranslate
 msgid "A prompt above the server's state limit is truncated rather than rejected as a routing failure"
-msgstr ""
+msgstr "سرور کی ریاست کی سرحد سے اوپر ایک فوری طور پر عارضی طور پر ناکامی کے طور پر رد عمل کی بجائے باقاعدہ طور پر کیا جاتا ہے۔"
 
+# translated-by: libretranslate
 msgid "A prose deprecation value is not read as a date"
-msgstr ""
+msgstr "پرویز مشرف کو تاریخ کے طور پر نہیں پڑھا جاتا ہے۔"
 
+# translated-by: libretranslate
 msgid "A provider writes its credential to the token store during its own role run, and each client resolves the providers it may reach from that store. This role runs at the end of the server stage, after every provider has written and before the end-to-end tests read the converged state."
-msgstr ""
+msgstr "اُس نے اپنے کردار کے دوران اشاروں کی دُکان کو خط لکھا ۔ یہ کردار سرور اسٹیج کے اختتام پر چلتا ہے، ہر فراہم کنندہ نے لکھا ہے اور اختتامی امتحانات سے پہلے وہ بیک وقت ریاست پڑھتی ہے۔."
 
+# translated-by: libretranslate
 msgid "A proxy repo that holds a cached copy serves it when its remote is unreachable, regardless of `metadataMaxAge` (measured). `autoBlock` is therefore off: while a remote is auto-blocked Nexus answers `404 Remote Auto Blocked` instead of falling back to that cached copy. The mirror repos below only come into play when nothing is cached either."
-msgstr ""
+msgstr "جب اس کی دُوردراز نقل‌مکانی کی جاتی ہے `metadataMaxAge` (انداز). . `autoBlock` لہٰذا یہ ختم ہو گیا ہے: جب ایک بعید از خود کار رفتار نکس جواب دیتا ہے۔ `404 Remote Auto Blocked` اس کیچ کاپی میں واپس گرنے کی بجائے. آئین کے تحت رد عمل صرف اُس وقت ہوتا ہے جب کوئی چیز کیچ نہیں ہوتی ۔."
 
+# translated-by: libretranslate
 msgid "A question MUST NOT modify files, code, or state. Only explicit commands MAY."
-msgstr ""
+msgstr "کسی سوال کے جواب میں فائلوں ، کوڈ یا ریاست میں شامل نہیں ہے ۔ صرف واضح احکام کے مطابق."
 
+# translated-by: libretranslate
 msgid "A question is answered when its CI row is green **and** the local lane cleared it, or when one lane was deliberately out of scope and the report says which. Anything else is open, however green the run looks."
-msgstr ""
+msgstr "سوال کا جواب اس وقت دیا جاتا ہے جب اس کا سی آئی قطر سبز ہوتا ہے۔ **اور** اِس کی وجہ یہ تھی کہ اُس نے اِسے صاف کِیا ۔ کچھ اَور بھی کھلی ہے ، اگرچہ دوڑ سرسبز نظر آتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A random bearer key per agent, known only to the broker, used in both directions."
-msgstr ""
+msgstr "ایک حادثاتی کار کلید ہر ایجنٹ، جسے صرف توڑر سے جانا جاتا ہے، دونوں سمتوں میں استعمال کیا جاتا ہے."
 
+# translated-by: libretranslate
 msgid "A rapid deployment stack for startups building software products and services."
-msgstr ""
+msgstr "شروع کرنے والے سافٹ ویئر مصنوعات اور خدمات بنانے کے لیے تیز رفتار سرمایہ کاری اسٹاک۔."
 
+# translated-by: libretranslate
 msgid "A record MUST NOT be written for a choice that a reader can recover from the code alone, such as a helper's signature or a local refactoring."
-msgstr ""
+msgstr "کسی ایسے انتخاب کے لیے ریکارڈ آف لائن درج نہیں کیا جاتا کہ پڑھنے والا واحد کوڈ سے رجوع کر سکتا ہے، جیسے کہ مددگار کے دستخط یا مقامی دوبارہ شروع کر سکتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A record MUST be numbered in the order it was accepted, and its number MUST NOT be reused."
-msgstr ""
+msgstr "اسے قبول کرنے کے حکم میں ایک ریکارڈ شمار کِیا جاتا ہے اور اس کی تعداد کو دوبارہ استعمال نہیں کِیا جا سکتا ۔."
 
+# translated-by: libretranslate
 msgid "A record MUST cover a decision whose reversal would be expensive: a contract between components, a data or naming shape other code depends on, or a rule that governs a whole subsystem."
-msgstr ""
+msgstr "ایک ریکارڈ ایک ایسے فیصلے کا احاطہ کرتا ہے جس کی قیمت چکانی پڑتی ہے : اجزا کے درمیان کوئی معاہدہ ، ڈیٹا یا دیگر کوڈ کی تشکیل کا انحصار اس پر ہوتا ہے یا ایک ایسا قانون جو پورے نظام کو حکومت کرتا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A record MUST describe the decision as it stands today, including the alternatives that were weighed and why they lost, so a later reader can tell a deliberate constraint from an accident."
-msgstr ""
+msgstr "ایک ریکارڈ بیان کرتا ہے کہ آجکل جب یہ ثابت‌شُدہ ہے تو اس فیصلے میں متبادلات بھی شامل ہیں اور وہ کیوں کھو جاتے ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A recover mirrors a snapshot into a live target directory (``rsync -a --delete``), so the target's current state would be lost without a net. The flow therefore first runs the role's deployed backup service (``systemctl start`` on the role's unit), which applies the usual differential backup logic to the live data before anything is overwritten. Roles subclass :class:`DirectoryRecovery`, set ``unit_pattern`` and ship a thin ``files/python/recover.py`` CLI around it (enforced by ``tests/lint/ansible/roles/test_bkp_roles_have_recover.py``)."
-msgstr ""
+msgstr "ایک بحال‌شُدہ شخص ایک زندہ نشانہ خانہ‌خانہ میں داخل ہو جاتا ہے (``rsync -a --delete``)، لہذا ہدف کی موجودہ حالت نیٹو کے بغیر کھو دی جاتی۔ اس لیے بہاؤ سب سے پہلے کردار کی کمرشل سروس چلاتی ہے۔ (``systemctl start`` کردار کی اکائی پر)۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ ۔ درج ذیل درجہ :class:`DirectoryRecovery`, جگہ ``unit_pattern`` اور ان کی جو تیرتے پھرتے ہیں ``files/python/recover.py`` اس کے ارد گرد (جگہ ``tests/lint/ansible/roles/test_bkp_roles_have_recover.py``). ."
 
+# translated-by: libretranslate
 msgid "A recurring property of these extensions is that many of them exist **only to bridge into another role**: `ldapauth` and `user_ldap` bridge to `svc-db-openldap`; `sociallogin`, `oidc-authenticator`, `OpenIDConnect`, `plg_system_keycloak`, and the WordPress OIDC plugin bridge to the SSO provider (`web-app-keycloak`); `wp-discourse` bridges to `web-app-discourse`; XWiki's `matomo` plugin bridges to `web-app-matomo`. Today that bridge is implicit. This requirement makes it explicit: **an addon that bridges to another role MUST declare the bridged service, and that service MUST be present in the role's `meta/services.yml`.**"
-msgstr ""
+msgstr "ان توسیعات کی ایک قابل ذکر ملکیت یہ ہے کہ ان میں سے بہت سے موجود ہیں۔ **صرف دوسرے کردار میں قسمت کرنے کے لئے**: `ldapauth` اور `user_ldap` پلي ميں `svc-db-openldap`: `sociallogin`: `oidc-authenticator`: `OpenIDConnect`: `plg_system_keycloak`، WordPress نیٹ ورک پلگ ان (`web-app-keycloak`): `wp-discourse` بائٹس `web-app-discourse`؛ ایکس ویکی `matomo` پلگ ان `web-app-matomo`. . آج وہ پُل بہت تیز ہے ۔ اِس شرط سے یہ واضح ہو جاتا ہے : **ایک اضافہ جو کہ ایک دوسرے کردار کے لئے بریگیڈ سروس کا اعلان کرتا ہے، اور یہ سروس انورٹر کردار میں موجود ہے۔ `meta/services.yml`. .**"
 
+# translated-by: libretranslate
 msgid "A red job could not be reproduced by re-running its sweep, which is the property the whole rotation exists to provide."
-msgstr ""
+msgstr "ایک سرخ کام کو دوبارہ واپس نہیں کیا جا سکتا تھا، جو فراہم کرنے کے لئے پورے گردش ہے."
 
+# translated-by: libretranslate
 msgid "A refusal names the token and why. Fix the token, never the check: a variant that no longer exists means the list was carried over from an older run, and dropping the pin only moves the wrong row into the queue."
-msgstr ""
+msgstr "اِس کی کیا وجہ ہے ؟ Fix sign، کبھی چیک نہیں: ایک قابل ذکر آلہ جو اب موجود نہیں ہے، اس فہرست کو ایک بڑی دوڑ سے جاری کیا گیا تھا اور پیپ کو صرف غلط قطار میں منتقل کر دیتا ہے."
 
+# translated-by: libretranslate
 msgid "A refusal records what the server answered under the masking of the day. A source change clears it by itself, because the entry is then new; a change to the masking or to the damage predicate does not, and those entries would stay skipped forever."
-msgstr ""
+msgstr "ایک ردِعمل نے اُس دن کے حجاب کے نیچے جوکچھ پیش کِیا اُس کا جواب دیا ۔ ایک ماخذ اسے خود سے صاف کرتا ہے، کیونکہ اس وقت داخلے کا عمل نیا ہوتا ہے؛ حجاب کی تبدیلی یا نقصان پر مبنی نہیں ہوتا اور جو داخلے ہمیشہ کے لیے قائم رہتے ہیں۔."
 
+# translated-by: libretranslate
 msgid "A regex over dotted octets, e.g. ``192\\.168\\.24\\.\\d+`` for a /24 or ``192\\.168\\.(24|25)\\.\\d+`` for a /23."
-msgstr ""
+msgstr "ایک بار پھر سے اُس کے جسم میں کوئی نقص آتا ہے ۔ ``192\\.168\\.24\\.\\d+`` ایک / کے لئے24 یا ``192\\.168\\.(24|25)\\.\\d+`` ایک / کے لئے23. ."
 
+# translated-by: libretranslate
 msgid "A release tag (``vX.Y.Z``) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once."
-msgstr ""
+msgstr "آزادی کا ٹیگ (``vX.Y.Z``) پہلی بار کوئی اسے کھولتا ہے۔ براؤزر ایک ترقی پزیر بار دکھاتا ہے اور ایک بار تعمیر کی جاتی ہے۔ داغ کبھی تبدیل نہیں ہوتے اس لیے ہر ٹیگ صرف ایک بار تعمیر کیا جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A release tag (`vX.Y.Z`) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once."
-msgstr ""
+msgstr "آزادی کا ٹیگ (`vX.Y.Z`) پہلی بار کوئی اسے کھولتا ہے۔ براؤزر ایک ترقی پزیر بار دکھاتا ہے اور ایک بار تعمیر کی جاتی ہے۔ داغ کبھی تبدیل نہیں ہوتے اس لیے ہر ٹیگ صرف ایک بار تعمیر کیا جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A remote source (``[user@]host:/path``) is returned as-is with the default target (its colon is the rsync host separator). Otherwise a colon suffix is a restore target only when absolute; a relative suffix is rejected here (device parses those itself)."
-msgstr ""
+msgstr "دور دراز ماخذ (``[user@]host:/path``) طے شدہ ہدف کے ساتھ بطور-ایس واپس کیا جاتا ہے۔ (اِس کا کالونی کا سب سے بڑا میزبان ہے). ورنہ ایک کالونی صوفیکس صرف مکمل طور پر نشانہ ہے؛ (ڈیوائس ان کو اپنے آپ میں منتقل کرتی ہے۔). ."
 
+# translated-by: libretranslate
 msgid "A rendered ``socialhome.toml`` is mounted alongside the environment file. It carries exactly one setting — ``[standalone].external_url`` — because that value has no ``SH_*`` environment equivalent upstream and federation pairing returns ``422 NOT_CONFIGURED`` without it."
-msgstr ""
+msgstr "عمل ``socialhome.toml`` ماحول فائل کے ساتھ ساتھ سوار کیا جاتا ہے۔ یہ مکمل طور پر ایک سیٹ ہوتا ہے — ``[standalone].external_url`` — کیونکہ اس قدروقیمت کی کوئی گنجائش نہیں ہے ``SH_*`` ماحولیاتی طور پر انفلیشن اور فیڈریشن جوہر کے برابر ہوتا ہے۔ ``422 NOT_CONFIGURED`` بغیر۔."
 
+# translated-by: libretranslate
 msgid "A rendered `socialhome.toml` is mounted alongside the environment file. It carries exactly one setting — `[standalone].external_url` — because that value has no `SH_*` environment equivalent upstream and federation pairing returns `422 NOT_CONFIGURED` without it."
-msgstr ""
+msgstr "عمل `socialhome.toml` ماحول فائل کے ساتھ ساتھ سوار کیا جاتا ہے۔ یہ مکمل طور پر ایک سیٹ ہوتا ہے — `[standalone].external_url` — کیونکہ اس قدروقیمت کی کوئی گنجائش نہیں ہے `SH_*` ماحولیاتی طور پر انفلیشن اور فیڈریشن جوہر کے برابر ہوتا ہے۔ `422 NOT_CONFIGURED` بغیر۔."
 
+# translated-by: libretranslate
 msgid "A repository definition must declare at least one of these; the rest (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."
-msgstr ""
+msgstr "جگہ جگہ کو ان میں سے کم از کم ایک کا اعلان کرنا ہوگا؛ باقی (``name``: ``description``: ``gpgkey``: ``gpgcheck``: ``state``) اسے حاصل."
 
+# translated-by: libretranslate
 msgid "A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `listen: [80]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix."
-msgstr ""
+msgstr "ایک پناہ‌گاہ نکسس سے منسوب ہے ۔ ایک میزبان کو پہلے سے زیادہ جواب دیا جاتا ہے ، لہٰذا ایک کلائنٹ اپنا اصلی خنجر استعمال کرتا رہتا ہے ۔ `listen: [80]` اسے سادہ ایچ ٹی پی پر خدمات انجام دیتے ہیں اور کوئی سند نہیں؛ `paths:` ایک میزبان کے نیچے کئی نقشہ جات؛ `mirror:` پناہ‌گزین بہن‌بھائیوں کے نام پر `502`: `503` یا `504`: `passthrough: true` اسے ملا جلا دو جسے ہاتھ پہلے ہی سے نصب کیا گیا تھا."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: ایک پناہ‌گاہ کئی سپاہیوں کی خدمت کر سکتی ہے اور شاید
+# اُسے صرف ایک کمرے میں رکھا جا سکتا ہے ۔.
 msgid "A repository may serve several hosts and a host may be served by one repository only; a repository without a host is proxied but never hijacked, which is how a client that already addresses Nexus directly is served."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A repository-local Sphinx entry point is also available at [Contribution Guide Index](docs/contributing/index.rst)."
-msgstr ""
+msgstr "ایک محفوظ-لوکل اسکینکس داخلی پوائنٹ بھی دستیاب ہے۔ [خیانت کاروں کی رہنمائی](docs/contributing/index.rst). ."
 
+# translated-by: libretranslate
 msgid "A request stays local while a local model can serve it, switch or not"
-msgstr ""
+msgstr "ایک درخواست مقامی رہتی ہے جبکہ ایک مقامی ماڈل اس کی خدمت کر سکتا ہے، رد عمل یا نہ کر سکتا ہے۔"
 
+# translated-by: libretranslate
 msgid "A request whose demands exceed a model's capabilities never reaches it"
-msgstr ""
+msgstr "ایک درخواست جس کے مطالبات ایک ماڈل کی صلاحیتوں سے تجاوز کرتے ہیں وہ کبھی نہیں پہنچ پاتے"
 
+# translated-by: libretranslate
 msgid "A requirement is complete when:"
-msgstr ""
+msgstr "ایک شرط مکمل ہوتی ہے جب:"
 
+# translated-by: libretranslate
 msgid "A retrigger inherits the window its source was given: the rows in front of that window were proven by the runs before it, and re-walking them from the head would redeploy a green stretch that nobody doubts. The source run's own ``offset`` input is that window's start."
-msgstr ""
+msgstr "کھڑکی کے وارثوں کو اس کا ماخذ دیا گیا: اس کھڑکی کے سامنے کی قطاریں اس سے پہلے دوڑنے سے ثابت ہوتی تھیں اور پھر سر سے دوبارہ باہر پھینک دیتی تھیں جو کوئی شکیہ نہیں ہوتا۔ ماخذ خود چلا رہا ہے ``offset`` انپٹ یہ ہے کہ دری شروع ہے."
 
+# translated-by: libretranslate
 msgid "A reusable [Model Context Protocol](https://modelcontextprotocol.io/) adapter, instantiated once per provider application. Each instance fronts exactly one upstream, holds only that upstream's least-privileged credential, and exposes only the operations its checked-in contract names."
-msgstr ""
+msgstr "دوبارہ شروع [ماڈل کنگز پروٹوکول](https://modelcontextprotocol.io/) اِس سلسلے میں ایک مثال پر غور کریں ۔ ہر مثال کے سامنے مکمل طور پر، صرف اس بات کا یقین رکھتا ہے کہ جینز کی کم سے کم کارکردگی اور صرف اس کے چیک معاہدے کے نام کو ظاہر کرتا ہے."
 
+# translated-by: libretranslate
 msgid "A reusable `Model Context Protocol <https://modelcontextprotocol.io/>`__ adapter, instantiated once per provider application. Each instance fronts exactly one upstream, holds only that upstream’s least-privileged credential, and exposes only the operations its checked-in contract names."
-msgstr ""
+msgstr "دوبارہ شروع `Model Context Protocol <https://modelcontextprotocol.io/>`__ اِس سلسلے میں ایک مثال پر غور کریں ۔ ہر مثال کے سامنے مکمل طور پر ایک خنجر ہوتا ہے، صرف اس بات کا حامل ہوتا ہے کہ جینز کی کم از کم مقدار میں ہونے والی کارکردگی، اور صرف اس کے چیک معاہدے میں کئے گئے نام کو ظاہر کرتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A role MAY belong to more than one type. ``svc-opt-ssd-hdd`` is the canonical example: it declares both ``application_id`` and ``system_service_id`` and is therefore an application AND a system service. :func:`get_role_types` returns the full set so callers that care about scope (e.g. lint tests asserting \"this file is allowed for applications\") can use simple set membership."
-msgstr ""
+msgstr "ایک کردار کا تعلق ایک سے زیادہ قسم سے ہے۔ ``svc-opt-ssd-hdd`` کنڑا مثال ہے: یہ دونوں بیان کرتی ہے۔ ``application_id`` اور ``system_service_id`` تو یہ ایک درخواست اور نظام خدمت ہے. :func:`get_role_types` پورے سیٹ کو اتنی جلدی واپس کر دیں کہ وسعت کا خیال رکھتا ہو۔ (ای ایس . \"یہ فائل درخواستوں کے لیے حلال ہے۔\") سادہ سیٹ ممبرشپ استعمال کر سکتے ہیں۔."
 
+# translated-by: libretranslate
 msgid "A role MAY belong to several types simultaneously (for example an application that also ships a systemd unit). The returned frozenset contains every type whose marker matches; the user / tooling fallbacks fire only when no marker resolves."
-msgstr ""
+msgstr "ایک کردار کا تعلق کئی قسم کے کام سے ہوتا ہے۔ (مثال کے طور پر ایک اطلاق جو نظام اکائی بھی جہاز بناتا ہے۔). واپس سرد سیٹ میں ہر قسم کا نشان ہوتا ہے جس کی نشان دہی کرنے والے میچ ؛ صارف / آلات کے ذریعے فائرنگ صرف اس وقت ہوتی ہے جب کوئی نشاندار حل نہیں ہوتا۔."
 
+# translated-by: libretranslate
 msgid "A role MAY omit the file entirely. The loader then exposes exactly one variant equal to the assembled per-role meta payload (`meta/services.yml` + `meta/server.yml` + `meta/rbac.yml` + `meta/volumes.yml` + `apply_schema()`'d `meta/secrets.yml`) unchanged."
-msgstr ""
+msgstr "ایک کردار نے فائل کو مکمل طور پر ختم کر دیا۔ اس کے بعد لوڈ کرنے والا مکمل طور پر جمع شدہ پرو میٹر کی ادائیگی کے برابر ایک کر دیتا ہے۔ (`meta/services.yml` + `meta/server.yml` + `meta/rbac.yml` + `meta/volumes.yml` + `apply_schema()`'ڈ `meta/secrets.yml`) جی ہاں."
 
+# translated-by: libretranslate
 msgid "A role MUST be able to answer four questions clearly:"
-msgstr ""
+msgstr "ایک کردار نگاری چار سوالوں کے جواب دینے کے قابل ہے:"
 
+# translated-by: libretranslate
 msgid "A role aggregated to its id loses what actually broke: the retrigger then redeploys every variant of it, in whatever mode and onion state the sweep rotation happens to pick, and the combination that failed may not be among them. Each failed job therefore contributes its own ``role#variant@mode+tor`` token (:mod:`utils.github.variant.selection`), so the priority line replays that job and nothing else."
-msgstr ""
+msgstr "ایک کردار اپنے آئیڈیل کو کھو دیتا ہے جو اصل میں ٹوٹ جاتا ہے: پھر اس کے بعد اس کے ہر رد عمل میں، جو بھی موڈ اور اونی حالت میں اس کے گرد گردش کرتی ہے، ہر ناکام کام اسی وجہ سے اپنا کام خود کرتا ہے۔ ``role#variant@mode+tor`` نشانی (:mod:`utils.github.variant.selection`)، تو ترجیح لائن اس کام کو دوبارہ شروع کرتی ہے اور کچھ نہیں."
 
+# translated-by: libretranslate
 msgid "A role can be pulled into the inventory through any of three paths and they compose, not exclude one another:"
-msgstr ""
+msgstr "ایک کردار کو کسی بھی تین راستوں کے ذریعے فنکاری میں کھینچ لیا جا سکتا ہے اور وہ ایک دوسرے کو بے دخل نہیں کرتے:"
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایک کردار بیان کرتا ہے `meta/mcp.yml` جب یہ اصل میں
+# ایم سی پی کی خدمت یا فروخت کرتا ہے۔ فائل ایک قابل ذکر اندراج ہے، سروس داخلہ
+# نہیں ہے: کوئی بھی کردار ایم سی پی فراہم نہیں کرتا، اس لیے سروس رجسٹرڈ جوہر
+# اور صارف نہیں کر سکتا اور `mcp_consumer` جھنڈے میں `meta/services.yml` اس کی
+# بجائے. وکابری میں رہتے ہیں۔
+# [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py))؛
+# سختی سے چلنے والا آلہ ہے۔
+# [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py).
+# .
 msgid "A role declares `meta/mcp.yml` when it actually serves or consumes MCP. The file is a capability descriptor, not a service entry: no single role provides MCP, so the service registry cannot pair provider and consumer, and the `mcp_consumer` flag in `meta/services.yml` does it instead. Vocabulary lives in [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py); the hard lint is [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A role declares it twice and the two may differ: the ``README.md`` heading is what a reader sees, ``galaxy_info.name`` what the metadata carries. The heading wins where both exist, because the documentation is built from it."
-msgstr ""
+msgstr "ایک کردار اس کو دو بار بیان کرتا ہے اور دونوں مختلف ہو سکتے ہیں: ``README.md`` ایک پڑھنے والا کیا دیکھتا ہے ``galaxy_info.name`` کیا ملاٹا چلا جاتا ہے. اوکاڑہ فتح کرتا ہے جہاں دونوں موجود ہیں، کیونکہ دستاویزات اس سے بنائی گئی ہیں۔."
 
+# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# nocheck: url
+# translation-rejected: ایک کردار ڈائریکٹری کا نام کبھی انگریزی رسم الخط نہیں
+# ہوتا، اس لیے یہ کہیں بھی محفوظ ہوتا ہے۔ ایک عنوان اکثر ایک ہی لفظ کافی ہوتا
+# ہے کہ دونوں پڑھنے والوں کی تعداد کم ہو جاتی ہے: ``Unbound`` ایک DNS کے حل
+# کرنے والا اور ادویہ ہے۔ ``Shell`` ایک کردار اور ایک عام ناول ہے۔ کیٹلاگتوں
+# پر پیمائش کی گئی، دار الحکومت انہیں الگ کرتا ہے: 47932 ترجمہ‌نگاروں کی تعداد
+# میں اضافہ 22 فیصد ``(Unbound, etc.)`` تبدیل کریں ``(Ungebunden, etc.)``)،
+# جبکہ 40698 جو مثل تلچھٹ کے ہے 40 فیصد معاملات اور ان پڑھنے والوں کا مطلب عام
+# عبارت تھا۔ (``shell extensions``: ``user-driven documentation``). .
 msgid "A role directory name is never an English phrase, so it is protected wherever it appears. A title is a single word often enough that the two readings collide: ``Unbound`` is a DNS resolver and an adjective, ``Shell`` a role and a common noun. Measured over the catalogs, the capital separates them: of 47932 capitalised occurrences the translator altered 22 percent, among them ``(Unbound, etc.)`` turning into ``(Ungebunden, etc.)``, while the 40698 lowercase ones it altered in 40 percent of cases and those readings were the common noun the text meant (``shell extensions``, ``user-driven documentation``)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A role id is the machine handle (``web-app-nextcloud``); the display name is what a human reads off a GitHub Actions job or run title (``网络应用·Nextcloud``). The category path renders as the ``hanzi`` labels ``meta/categories.yml`` declares, run together into one block, then a ``·``, then the role's own ``README.md`` heading or the part of the id the categories do not already carry."
-msgstr ""
+msgstr "ایک کردار Id ہے مشین ہینڈل (``web-app-nextcloud``)؛ نمائش نام وہ ہے جو ایک انسان کسی GitHub کام سے ہٹا کر یا عنوان چلا رہا ہو۔ (``网络应用·Nextcloud``). ``hanzi`` لیبل ``meta/categories.yml`` بتاتے ہیں، ایک بلاک میں، پھر ایک ساتھ چلتے ہیں۔ ``·``، پھر کردار خود ``README.md`` اِن میں سے کچھ تو پہلے ہی موجود نہیں ہیں ۔."
 
+# translated-by: libretranslate
 msgid "A role is a stack role iff it ships ``templates/compose.yml.j2``, any ``templates/*.compose.yml.j2`` sibling, or a ``templates/compose.*.yml.j2`` variant such as ``compose.override.yml.j2``."
-msgstr ""
+msgstr "ایک کردار اگر وہ جہازوں کی شناخت کرے تو اسٹاک کردار ہے۔ ``templates/compose.yml.j2``: ``templates/*.compose.yml.j2`` بھائی، یا ایک ``templates/compose.*.yml.j2`` مثلاً ``compose.override.yml.j2``. ."
 
+# translated-by: libretranslate
 msgid "A role is considered Playwright-enabled if it provides:"
-msgstr ""
+msgstr "اگر یہ فراہم کرتا ہے تو ایک کردار Playwright-side سمجھا جاتا ہے:"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: ایک کردار فنکاری کمال کے لیے خدمت کا اعلان کرتا رہتا
+# ہے لیکن اس صارفی فہرست سے مقررہ طور پر منتخب کر سکتا ہے۔
+# ``services.<service>.scrape: false`` یا ``services.<service>.track: false``.
+# . ``scrape: false`` استعمال کیا جاتا ہے۔ 301- سمتی سمت - صرف vosts کہ اعلان
+# کرتے ہیں ``services.prometheus`` (تو کردار-ویرنگ معاہدہ مطمئن رہتا ہے۔) ابھی
+# تک لیوے-پرومیتھیس کے ذریعے کبھی کوئی درخواست کی خدمت نہیں کرتے، اس لیے وہ
+# کوئی خارج کرتے ہیں۔ ``app="<role>"`` لیبل اور کوئی بلاک ہدف نہیں ہے.
+# ``track: false`` شمسی نظامِ شمسی (Symmetric Matomo Aut-tut) ہے جس کا مطلب ہے
+# کہ اِس کا مطلب ہے کہ اِس میں اِس کا استعمال کِیا جاتا ہے ۔ (خود کار) اور
+# 301- وہ اعلان کرتا ہے ``services.matomo`` کردار-ویرنگ محفوظ رکھیں لیکن کوئی
+# صارف-TML صفحہ ایک قابل اعتماد ``_paq`` سفیر، تو انہیں نیچے پھینک دیا جاتا
+# ہے۔ ``MATOMO_TARGET_ROLES_JSON`` اور مکاؤ ریپر ای2معاہدے.
 msgid "A role keeps declaring the service for inventory completeness but can opt out of this consumer-target list by setting ``services.<service>.scrape: false`` or ``services.<service>.track: false``. ``scrape: false`` is used by 301-redirect-only vhosts that declare ``services.prometheus`` (so the role-wiring contract stays satisfied) yet never serve a request through lua-resty-prometheus, so they emit no ``app=\"<role>\"`` label and have no scrape target. ``track: false`` is the symmetric matomo opt-out: static-file (autoindex) and 301-redirect vhosts that declare ``services.matomo`` keep the role-wiring intact but carry no user-facing HTML page worth a ``_paq`` tracker, so they are dropped from ``MATOMO_TARGET_ROLES_JSON`` and the matomo tracker e2e contract."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A role may consume an engine either *embedded* (a sidecar inside its own stack) or *central* (a single pinned ``svc-db-*`` / ``svc-dns-*`` stack shared by many roles), selected per consumer with the ``shared`` flag exactly like the RDBMS (postgres / mariadb) pattern in :mod:`utils.roles.applications.services.database`."
-msgstr ""
+msgstr "ایک کردار بھی انجن کھا سکتا ہے۔ *پرنٹ* (ایک جانبدار) یا *مرکز* (ایک واحد پاخانہ ``svc-db-*`` / ``svc-dns-*`` اسٹاک کو بہت سے کرداروں سے شیئر کیا جاتا ہے۔)، ، صارفین کے ساتھ منتخب ``shared`` جھنڈے کی طرح (پوسٹگر / مرید) انداز :mod:`utils.roles.applications.services.database`. ."
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: ایک کردار جس کا نام خود مختاری رکھا گیا ہے۔
+# (``update``) باقی باقی باقی نہیں رہ جاتی ۔.
 msgid "A role named after its own category (``update``) leaves no remainder; the whole id stands in, so the fragment is never empty."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: اِس لئے میزبان کو اپنے دونوں موڈز کے درمیان ایک دوسرے
+# کی موجودگی کی ضرورت ہوتی ہے ۔ تور پھیر `sweep // 2` تو اس کولکتہ میں تبدیل
+# نہیں کیا جاتا: ایک قطار چار موڈ/tor آپس میں صرف دو کی بجائے چار مداروں پر
+# مشتمل تمام چار مدارس کو آپس میں ملاتی ہے۔ ڈسکرو اور فائل سسٹم کو اوڈومیٹر کی
+# طرح پڑھاتے ہیں، فرقو کو کم کھدائی کے طور پر پڑھتے ہیں، اسی طرح مسلسل قطاریں
+# اس کے ذریعے دو پُل کے جوڑنے کی بجائے ہر جوڑے کو چلتی رہتی ہیں۔ دونوں جگہ کا
+# براہ راست احاطہ کرنا صرف اتنا ہی زیادہ ہوتا جتنا کہ پولُس ایک ہی لمبا ہوتا
+# ہے اور کوئی بھی حصّہ یہ نہیں کرے گا کیونکہ یہ دونوں ایک ہی مقدار میں تبدیل
+# ہو جاتا ہے ۔ تیسری اوم‌ڈومیٹر کی کھدائی کی بجائے ، اس مقام پر نقش‌کاری کرتی
+# ہے ۔ دو مقداریں ہیں پانچ فرقوں کے ساتھ اور پندرہ فرقوں/فل سسٹم پوزیشنوں کے
+# ساتھ، تو یہ تیزی سے چلنے والی ہر جوڑے تک پہنچ جاتا ہے، جب کہ اسے آہستہ آہستہ
+# آہستہ District کے ساتھ چند قطاروں کا کردار ادا کرنا ہوتا ہے ٹھوس قطاروں نے
+# موڈ/tor گردش کو مکمل طور پر تبدیل کر دیا اور پورے کراس خطے کو ایک ہی وقت میں
+# حاصل کر لیا؛ ان کی تقسیم، فائل اور آرکیٹیکٹ ان ملاپوں پر چلتی ہے، اس طرح ایک
+# ترجیحی کردار میں کئی تقسیمات ثابت ہوتے ہیں۔.
 msgid "A role offers at most two modes in practice — swarm needs its own stack, host needs the absence of one — so a row flips between its two modes on consecutive sweeps. Tor turns on `sweep // 2` so it does not flip in lockstep: a row walks all four mode/tor combinations over four sweeps instead of only two. Distro and filesystem read the position like an odometer, the distro as the low digit, so consecutive rows walk every pairing of the two pools rather than a diagonal through it. Turning both on the position directly would cover only as many pairings as the pools are long whenever they happen to be the same length, and no sweep would unlock that, because the sweep shifts both by the same amount. The architecture rotates on the position directly rather than as a third odometer digit. Two values are coprime with both five distros and the fifteen distro/filesystem positions, so walking it fastest still reaches every pairing, while making it the slowest digit would hand a role with few rows one architecture forever - and the point of the axis is that a role's own variants split over both. Priority rows skip the mode/tor rotation entirely and take the whole cross-product at once; their distro, filesystem and architecture walk on across those combinations, so one priority role proves several distributions in one sweep."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A role tagged `alpha`:"
-msgstr ""
+msgstr "ایک کردار `alpha`:"
 
+# translated-by: libretranslate
 msgid "A role tagged `eol`:"
-msgstr ""
+msgstr "ایک کردار `eol`:"
 
+# translated-by: libretranslate
 msgid "A role tagged `planned`:"
-msgstr ""
+msgstr "ایک کردار `planned`:"
 
+# translated-by: libretranslate
 msgid "A role tagged `pre-alpha`:"
-msgstr ""
+msgstr "ایک کردار `pre-alpha`:"
 
+# translated-by: libretranslate
 msgid "A role tagged `rc`:"
-msgstr ""
+msgstr "ایک کردار `rc`:"
 
+# translated-by: libretranslate
 msgid "A role that declares no users contributes none, so the result follows the deployment rather than everything the repository could ever deploy. Two roles sharing a user must agree on its policy: the account is one thing, so silently picking one declaration would hand the other role a password its application rejects."
-msgstr ""
+msgstr "ایک ایسا کردار جو کسی بھی صارف کو کوئی خبر نہیں دیتا، لہٰذا اس کے نتیجے میں ہر چیز کے حصول کی بجائے انفلیشن کی پیروی کی جا سکتی ہے۔ ایک صارف کو اس کی پالیسی پر عمل کرنے والے دو کردار اس بات پر متفق ہونا چاہئے : اکاؤنٹ ایک چیز ہے لہٰذا خاموشی سے ایک اعلان لینا دوسرے کے ذاتی کردار کو رد کر دے گا ۔."
 
+# translated-by: libretranslate
 msgid "A role that declares none takes the run's whole pool, which is what spreads both architectures evenly over its variants: every row of the catalogue advances the same rotation, so a role's consecutive rows alternate rather than repeating one architecture."
-msgstr ""
+msgstr "ایک ایسا کردار جو کسی کو بتاتا ہے کہ دوڑ کا پورا پُل نہیں لیتا، جو کہ دونوں آرکیٹیکٹوں کو اس کے محوروں پر پھیلا دیتا ہے: کیٹلاگ کا ہر قطر ایک ہی گردش کو آگے بڑھا دیتا ہے، اس لیے ایک آرکیٹیکچر کو دوبارہ دہرانے کی بجائے کردار کی مسلسل قطاروں کا متبادل ہوتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A role that hands ``sys-pip-install`` a bare package name follows whatever pip resolves; one that pins ``name==version`` freezes it, and nothing thaws it again. The docker updater keeps image tags current and dependabot reads ``pyproject.toml``; neither sees a version inside an Ansible task variable, so a pin set once ages silently."
-msgstr ""
+msgstr "ایک کردار جو ہاتھ ``sys-pip-install`` ایک چھوٹا پیکج نام جو بھی پپ حل کرتا ہے ؛ ایک پِن ``name==version`` یہ دوبارہ کچھ نہیں کرتا. ڈریک اپگر تصویر ٹائیگر کرنٹ کو برقرار رکھتا ہے اور انحصاربوت پڑھتا ہے۔ ``pyproject.toml``؛ اور نہ ہی کوئی ایسا نسخہ دیکھ سکتا ہے جس میں کوئی تبدیلی واقع ہو ۔."
 
+# translated-by: libretranslate
 msgid "A role that only one architecture can run declares it on its primary service entity, next to `modes`:"
-msgstr ""
+msgstr "ایک ایسا کردار جو صرف ایک آرکیٹیکٹ ہی اسے اس کی بنیادی خدمتی اکائی پر رپورٹ کر سکتا ہے، آگے بڑھتی ہے۔ `modes`:"
 
+# translated-by: libretranslate
 msgid "A role usually owns one capability:"
-msgstr ""
+msgstr "عام طور پر ایک کردار کا مالک ہوتا ہے:"
 
+# translated-by: libretranslate
 msgid "A role whose own asserts need something the dependency closure does not supply (a served model, a second backend) carries them here, because ``--include`` filters the generated inventory to the ids it is given literally: a provider pulled in as a dependency runs, but never joins ``group_names``, so a flag gated on that stays false and the deploy the README documents stops on the assert."
-msgstr ""
+msgstr "ایک ایسا کردار جس کے اپنے دعوے کے مطابق کسی ایسی چیز کی ضرورت ہوتی ہے جس کی عکس بندی نہ ہو۔ (ایک خدمت گار ماڈل، دوسرا بیک) ان کو یہاں لے جاتا ہے، کیونکہ ``--include`` اسے بننے والی ایجادات کو یقینی بنایا جاتا ہے : ایک ایسا فراہم کنندہ جو بطور انفنٹری دوڑ میں نکالا جاتا ہے مگر کبھی شامل نہیں ہوتا۔ ``group_names``, اس طرح ، اس پر ایک جھنڈے کا دروازہ غلط رہ گیا اور اس کے بارے میں معلومات حاصل کرنے والی دستاویزات کو روک دیا گیا ہے."
 
+# translated-by: libretranslate
 msgid "A role whose upstream images are amd64-only must say so in `meta/services.yml`, or half its rows fail on the image pull. That failure is loud and names the role, which is the intended way to discover the gap."
-msgstr ""
+msgstr "ایسا کردار جس کی عکس بندی کی گئی ہو۔64- صرف میں کہنا ہوگا `meta/services.yml`. . . یہ ناکامی بلند اور کردار کے نام ہیں، جس کا مقصد خلا کو دریافت کرنا ہے۔."
 
+# translated-by: libretranslate
 msgid "A role with few rows would never leave its first architecture, and per-role spread is the point of the axis."
-msgstr ""
+msgstr "چند قطاروں کے ساتھ ایک کردار اپنا پہلا آرکیٹیکچر کبھی نہیں چھوڑتے اور پری رن پھیلتے ہوئے اکیس کا نقطہ نظر ہے۔."
 
+# translated-by: libretranslate
 msgid "A role's `meta/services.yml` MAY contain (per-service-entity):"
-msgstr ""
+msgstr "ایک کردار ہے۔ `meta/services.yml` خضاب میں (پری سرکشی):"
 
+# translated-by: libretranslate
 msgid "A role's author is declared in ``galaxy_info.author`` and rendered without a link, so nothing here feeds the README generator any more. What remains backs the ``credits-attribution`` lint: it reads the linked mentions already present in prose and holds them to one link per person."
-msgstr ""
+msgstr "ایک کردار کے مصنف کا اعلان کیا جاتا ہے۔ ``galaxy_info.author`` اور بغیر کسی بندھن کے بنایا جاتا ہے، تو یہاں کچھ بھی نہیں ہے کوئی بھی چیز جسے پڑھنے والے کو مزید کھانا فراہم کرتا ہے۔ باقی چیزیں ``credits-attribution`` کتابِ‌مُقدس میں جس بات کا ذکر کِیا گیا ہے ، اُس کا ذکر اِس میں پہلے ہی سے موجود ہے ۔."
 
+# translated-by: libretranslate
 msgid "A role's entry for its own entity is skipped: a role does not bond to itself, and those entries carry unrelated topics such as users or domains."
-msgstr ""
+msgstr "کسی کردار کا اپنے وجود کے لیے داخلی اندراج یہ ہے: ایک کردار اپنے آپ سے وابستہ نہیں ہوتا اور ان اندراج شدہ موضوعات کو استعمال کرنے والے یا ڈومین جیسے غیر متعلقہ موضوعات کو اختیار کرتے ہیں۔."
 
+# translated-by: libretranslate
 msgid "A role's lifecycle value sits on a single linear axis from `planned` (no code yet) to `eol` (end of life). A subset of stages is the **tested** envelope: roles in those stages MUST be exercised by the project's automated test suite on every change, and a failing test blocks the release. Stages outside that envelope MAY ship without automated coverage."
-msgstr ""
+msgstr "ایک کردار کی حیاتیاتی قدر ایک واحد لکیری اکائی پر بیٹھتی ہے۔ `planned` (کوئی کوڈ ابھی تک نہیں) جگہ `eol` (زندگی کے اختتام)۔ ۔ ۔ ۔ **جانچ** لپیٹ: ان مرحلے میں کردار ادا کیے جاتے ہیں منصوبہ بندی ٹیسٹ سوٹ ہر تبدیلی پر، باہر کے باہر کے باہر، باہر باہر کے جہاز کو احاطہ کئے بغیر."
 
+# translated-by: libretranslate
 msgid "A role's task that reads its own service flag therefore picks up the runtime-resolved value, even when the inventory carried a Jinja string for that flag: the conditional evaluates against the play's actual `group_names`, which reflects which other application groups the host joined."
-msgstr ""
+msgstr "ایک کردار کا کام جو خود اپنی خدمت کے جھنڈ کو پڑھ رہا ہے اس لیے دوڑ دوڑنے کی اہمیت کا انتخاب کرتا ہے، حتیٰ کہ جب فنکار نے اس جھنڈے کے لیے ایک جنجا تار جاری کیا: کھیل کی اصلیت کے خلاف تجزیہ کرتا ہے۔ `group_names`. . . . ."
 
+# translated-by: libretranslate
 msgid "A round deploys a provider once, so the role that pulls it in is the only place that can say how lean it has to be. A variant entry may therefore carry any application config topic under the service it depends on::"
-msgstr ""
+msgstr "ایک چکر ایک بار فراہم کنندہ کرتا ہے، اس لیے اسے کھینچنے والا کردار واحد جگہ ہے جو یہ کہہ سکتا ہے کہ اسے کس طرح کھڑا ہونا چاہیے۔ کسی بھی درخواست کا اطلاق اس پر ہو سکتا ہے:"
 
+# translated-by: libretranslate
 msgid "A round picks one variant per role, and that choice decides two things no single role's `meta/services.yml` can state on its own: which providers the role still pulls in, and how lean those providers have to be (:mod:`utils.roles.applications.topics`). Both are resolved here, so the matrix planner's include set, the inventory bake and the CI selection read one answer instead of three."
-msgstr ""
+msgstr "ایک چکر میں ایک دوسرے کے کردار کا انتخاب کرتا ہے اور یہ انتخاب دو چیزوں کا فیصلہ کرتا ہے کوئی واحد کردار نہیں `meta/services.yml` اپنی ہی ذات پر ریاست: جو کردار کو اب بھی کشش پیدا کرتی ہے اور ان پر کس طرح تکیہ کرتی ہے۔ (:mod:`utils.roles.applications.topics`). دونوں یہاں حل ہو جاتے ہیں، تو مریخ کے مدارس میں سیٹ شامل ہے، تین کی بجائے ایجادی تناسب اور سی آئی اے کا انتخاب ایک جواب پڑھا جاتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A row several tokens name is emitted once per token, which is the whole point of the axes: ``role#1@compose+tor role#1@swarm+tor`` is one variant that failed in two modes, and it has to come back as two deploys. Two tokens narrowing a row the same way collapse into one, so a duplicate in the input cannot become two jobs racing for one artifact name."
-msgstr ""
+msgstr "ایک قطار میں کئی نشانوں کا نام ایک مرتبہ ہر نشانی سے مٹا دیا جاتا ہے، جو کہ تمام نقطوں کا نقطہ ہے: ``role#1@compose+tor role#1@swarm+tor`` دو موڈ میں ناکام ہونے والا ایک آلہ ہے، اور اسے دو رنز کے طور پر واپس آنا پڑتا ہے۔ ایک قطار میں دو نشانات تنگ کرتے ہیں جو ایک ہی طرح میں ٹوٹ جاتے ہیں لہٰذا ایک ہی نام کے لئے دو نوکریاں نہیں بن سکتیں ۔."
 
+# translated-by: libretranslate
 msgid "A row the priority line claims is never the answer. ``regular`` is discovered without the priority line (see the retrigger's ``_ranking``), so it still holds rows the run will hand to that line instead (:func:`cli.meta.ci.matrix.candidates`): a variant-less pin takes its whole role, a pinned one takes those variants. Naming such a row would emit an offset that resolves against nothing once the run applies the priority line, and abort the discovery of every chunk."
-msgstr ""
+msgstr "ایک قطار میں اِس کا جواب کبھی نہیں ملتا ۔ ``regular`` ترجیحی لائن کے بغیر انکشاف کیا جاتا ہے۔ (ریفرنگر دیکھیں ``_ranking``)... تو، تو اب بھی یہ دوڑ کو اس کی جگہ پر ہاتھ لگائے گا. (:func:`cli.meta.ci.matrix.candidates`): ایک بے رحم پن اپنے پورے کردار کو لیتا ہے، ایک پُراسرار کردار لیتا ہے اِس قطار کو استعمال کرنے سے ہم ایک ایسے نظام کو نکال سکتے ہیں جو کسی بھی چیز کے خلاف حل نہیں کرتا ۔."
 
+# translated-by: libretranslate
 msgid "A row's position is its index in the uncapped discovery order, not its index inside a chunk, so slicing the list into chunks never changes what a row is assigned. A priority row, which deploys several mode/tor combinations at once, walks the distro and filesystem rotations across those combinations rather than repeating one pair."
-msgstr ""
+msgstr "ایک قطار کا قیام اس کا انڈیکس ہے غیر مصدقہ دریافت شدہ حکم میں نہیں، اس کے انڈیکس کو چیک کے اندر نہیں، اس طرح فہرست کو کبھی تبدیل کرنے کے لئے کبھی بھی نہیں کیا جاتا ایک ترجیحی قطار، جس میں ایک ہی وقت میں کئی موڈ/ٹر ملاپ کیا جاتا ہے، ان ملاپوں کو دوبارہ شروع کرنے کی بجائے ان نظاموں میں گردش کرتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A run that names a kind to chase a filesystem-dependent path could go green on a different one."
-msgstr ""
+msgstr "ایک دوڑ جس کا نام کسی فائل کے نظام کے بارے میں تلاش کرنے کے لئے ایک مہربانانہ طریقہ ہے."
 
+# translated-by: libretranslate
 msgid "A run that permits two or more kinds is a preference, not a demand. The matrix has already narrowed each row to one kind out of that pool, so falling back to another kind the run allowed stays inside what the operator asked for, while failing the row does not. A run whose whole permitted pool is unservable fails rather than leaving the pool."
-msgstr ""
+msgstr "ایک دوڑ جو دو یا دو سے زیادہ اقسام کی اجازت دیتا ہے، ایک ترجیح ہے، طلب نہیں. مریخ نے پہلے ہی ہر قطار کو اس پُل میں سے ایک تک محدود کر دیا ہے، تو ایک اور قسم کی دوڑ میں واپس گر جانے کی اجازت دی ہے ایک دوڑ جس کی ساری اجازت شدہ پُل کو چھوڑ کر بے قابو ہو جاتا ہے ۔."
 
+# translated-by: libretranslate
 msgid "A run the source carries itself is left alone, because an aligned block in a code sample means its spacing."
-msgstr ""
+msgstr "ایک دوڑ خود بخود باقی رہ جاتی ہے، کیونکہ کسی کوڈ نمونے میں ایک متحرک بلاک اس کا مطلب ہے."
 
+# translated-by: libretranslate
 msgid "A run-wide choice cannot cover them. Five distributions and three filesystems are fifteen combinations, and a sweep that fixes one pair for all of its rows would need fifteen sweeps to say anything about the rest, while reporting green the whole time."
-msgstr ""
+msgstr "ایک روداد انتخاب انہیں ڈھانپ نہیں سکتا۔ پانچ تقسیمات اور تین فائل سسٹمز پندرہ آپس میں مل جاتے ہیں اور ایک جوہر کو اس کی تمام قطاروں کے لیے ٹھیک کر دیتے ہیں."
 
+# translated-by: libretranslate
 msgid "A same-size swapfile helps absorb memory spikes on Linux. On Windows and macOS, you SHOULD keep enough free disk space available for virtual memory and local caches."
-msgstr ""
+msgstr "اسی طرح سے ایک سوپفل لینکس پر میموریل کو جذب کرنے میں مدد دیتا ہے۔ ونڈوز اور میکوز پر، آپ ویژیول میموری اور مقامی کیچس کے لیے کافی مفت ڈسک کی سہولت رکھتی ہیں۔."
 
+# translated-by: libretranslate
 msgid "A sample whose install failed is recorded as ``None`` and ranks worse than any duration, so an outage counts fully rather than being dropped."
-msgstr ""
+msgstr "ایک ایسا نمونہ جس کی تنصیب ناکام ہو گئی ہو۔ ``None`` ہر مقررہ وقت سے زیادہ بدتر، تو نیچے گرنے کی بجائے مکمل حساب."
 
+# translated-by: libretranslate
 msgid "A scheduled differential backup of the NFS export onto the local backup directory. Each run stores a discrete snapshot under `<backups>/<machine-hash>/backup-nfs-to-local/<generation>/files/`, hard-linked against the previous generation via rsync `--link-dest`."
-msgstr ""
+msgstr "این ایف ایس برآمد کی ایک طے شدہ بیک اپ مقامی بیک مشین ہر دوڑ کے دوران ایک نہایت ہیرے کے نیچے سوراخ لگائے جاتے ہیں `<backups>/<machine-hash>/backup-nfs-to-local/<generation>/files/`. ، ماضی کی نسل کے خلاف `--link-dest`. ."
 
+# translated-by: libretranslate
 msgid "A scheduled differential backup of the NFS export onto the local backup directory. Each run stores a discrete snapshot under ``<backups>/<machine-hash>/backup-nfs-to-local/<generation>/files/``, hard-linked against the previous generation via rsync ``--link-dest``."
-msgstr ""
+msgstr "این ایف ایس برآمد کی ایک طے شدہ بیک اپ مقامی بیک مشین ہر دوڑ کے دوران ایک نہایت ہیرے کے نیچے سوراخ لگائے جاتے ہیں ``<backups>/<machine-hash>/backup-nfs-to-local/<generation>/files/``. ، ماضی کی نسل کے خلاف ``--link-dest``. ."
 
+# translated-by: libretranslate
 msgid "A scheduled pull-style backup that replicates the backup trees of one or more remote provider hosts onto this host via SSH + rsync. The receiving side is the trust anchor: each retrieval is a discrete snapshot, hard-linked against the previous one, with a retry loop guarding against transient network failures."
-msgstr ""
+msgstr "ایک مقررہ کھینچنے والا پشتو جو کہ ایک یا زیادہ سے زیادہ دور فراہم کرنے والے اس میزبان کے ذریعہ میزبان کے طور پر جانا جاتا ہے. حاصل کردہ جانب ایک ٹرسٹی لنگر ہے: ہر کام کرنے والا ایک خطرناک آلہ ہوتا ہے جو ماضی کے خلاف سخت تھا، جس میں عبوری نیٹ ورک ناکامیوں کے خلاف ایک ریبری محافظ ہوتا ہے۔."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: ایک مناسب کام (`cron-*.yml`) قطر `Category:` ما وٴ س
+# `name:` اِس سلسلے میں ایک مثال پر غور کریں ۔.
 msgid "A scheduled workflow (`cron-*.yml`) drops the `Category:` schema: its `name:` MUST read as one short sentence saying what the run does, because the Actions list shows scheduled runs next to each other with no PR or branch to tell them apart."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: ایک اندازے کے مطابق، اس میزبان کو ایک مقامی بیک مشین
+# ڈائریکٹر کے پاس فائل ادائیگیاں حلقہ بند کر دی جاتی ہیں رمزِ بعید تکلم؛
+# ڈیٹابیس اپنے آپ کو ایک مرکزی بیج فائل میں درج کرتی ہیں اس طرح ہر بیک اپ بھی
+# ایک ضمنی لومڑ (condile lampshot) ڈالتی ہیں۔
+# [بادولو](https://github.com/kevinveenbirkenbach/backup-docker-to-local). .
 msgid "A scheduled, deduplicating backup of every Docker container's data on this host to a local backup directory. File payloads are captured with rsync hard-link snapshots; databases register themselves into a central seed file so each backup run also dumps a consistent SQL snapshot via [baudolo](https://github.com/kevinveenbirkenbach/backup-docker-to-local)."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: ایک اندازے کے مطابق ، اس میزبان کو ایک مقامی بیک‌اپ
+# ڈائریکٹر کے پاس ہر ڈِک‌کُن کِیا جاتا ہے ۔ فائل ادائیگیاں حلقہ بند کر دی جاتی
+# ہیں رمزِ بعید تکلم؛ ڈیٹابیس اپنے آپ کو ایک مرکزی بیج فائل میں درج کرتی ہیں
+# اس طرح ہر بیک اپ بھی ایک ضمنی لومڑ (condile lampshot) ڈالتی ہیں۔ `baudolo
+# <https://github.com/kevinveenbirkenbach/backup-docker-to-local>`__. .
 msgid "A scheduled, deduplicating backup of every Docker container’s data on this host to a local backup directory. File payloads are captured with rsync hard-link snapshots; databases register themselves into a central seed file so each backup run also dumps a consistent SQL snapshot via `baudolo <https://github.com/kevinveenbirkenbach/backup-docker-to-local>`__."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A scheduled, deduplicating backup of the host's generated secret material to the local backup directory: the Infinito.Nexus secrets and tokens, the self-signed root CA, the Let's Encrypt account + certificates, the ACME DNS credentials, and the node identity (ssh host keys + machine-id). None of this lives in a docker volume, the NFS export or the operator inventory, so it is the gap the volume/nfs backup roles do not cover."
-msgstr ""
+msgstr "ایک شیڈول، میزبان کی تیار کردہ خفیہ مواد مقامی بیک مشین خانہ: Infinito.Nexus راز اور اشارات، خود ساختہ جڑے CA، آئیے انفنٹری اکاؤنٹ + سند، ACME DNS District، اور Food know (یش میزبان کلید + مشین-d). اس زندگی میں سے کوئی بھی نہیں ایک ڈرافٹ حجم میں، این ایف ایس ایکسپورٹ یا آپریٹر فنکاری میں، تو یہ حجم/nfsback کرداروں پر حاوی نہیں ہوتا۔."
 
+# translated-by: libretranslate
 msgid "A scheduled, deduplicating backup of the host’s generated secret material to the local backup directory: the Infinito.Nexus secrets and tokens, the self-signed root CA, the Let’s Encrypt account + certificates, the ACME DNS credentials, and the node identity (ssh host keys + machine-id). None of this lives in a docker volume, the NFS export or the operator inventory, so it is the gap the volume/nfs backup roles do not cover."
-msgstr ""
+msgstr "میزبان کے خفیہ مواد کو مقامی پیشہ ور ڈائریکٹروں کو تیار کرنے کا ایک شیڈول ، اشتہاری طور پر Infinito.Nexus راز اور اشارات، خود ساختہ جڑے CA، Le's infer account + سند، ACME DNS District اور Formation کی شناخت۔ (یش میزبان کلید + مشین-d). اس زندگی میں سے کوئی بھی نہیں ایک ڈرافٹ حجم میں، این ایف ایس ایکسپورٹ یا آپریٹر فنکاری میں، تو یہ حجم/nfsback کرداروں پر حاوی نہیں ہوتا۔."
 
+# translated-by: libretranslate
 msgid "A script in this directory MUST work across every distro variant that the runner image is built for (currently Debian, Ubuntu, Arch, Fedora, CentOS). Tool availability differs across these variants, so a script SHOULD branch on `command -v <tool>` rather than on distro IDs."
-msgstr ""
+msgstr "اس ڈائریکٹری میں ایک تحریر ہر دور میں کام کرتی ہے کہ تصویر کی تعمیر کی جاتی ہے۔ (موجودہ ڈویژن، اوبنٹو، آرک، فیڈورا، CentOS). `command -v <tool>` اس کی بجائے اختلافی شناخت پر۔."
 
+# translated-by: libretranslate
 msgid "A script that is bind-mounted from this directory into a fixed in-container path (see [compose.yml](../../compose.yml)) MUST keep its git executable bit, because Docker bind-mounts preserve host file permissions and the in-container caller (systemd, dockerd, the entrypoint) cannot recover from a non-executable mount."
-msgstr ""
+msgstr "ایک ایسی تحریر جو اس ادارے سے جڑے ہوئے ایک مقررہ راستے میں جکڑی ہوئی ہے۔ (دیکھیں [compose.yml](../../compose.yml)) Gmail اپنے git exect کو تھوڑا سا رکھ لیتے ہیں، کیونکہ Ducker bond-mounts میزبانی اجازہ اور انکگر کال کرنے والا (نظام، ڈکارڈ، داخلی پوائنٹ) غیر نصب العین سے نجات نہیں پا سکتی۔."
 
+# translated-by: libretranslate
 msgid "A second tag next to every image, which the registry cleanup then has to protect as children of the plain tag. Pushing by digest gives the same manifest list without it."
-msgstr ""
+msgstr "ہر تصویر کے قریب دوسرا ٹیگ جس کے بعد رجسٹرڈ صفائی‌ستھرائی کو سادہ ٹیگ کے بچوں کے طور پر تحفظ حاصل ہوتا ہے ۔ اِس سے ظاہر ہوتا ہے کہ یہ فہرست اِس کے بغیر ہی دی جاتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A secret denylist such as `grep -v 'password|token|key'` does **NOT** count as protection: it is case-sensitive, and secrets also travel inside URL paths. Local deploys run with `MASK_CREDENTIALS_IN_LOGS` disabled, so `no_log` does not mask these tasks."
-msgstr ""
+msgstr "ایک خفیہ ردِعمل `grep -v 'password|token|key'` کرتا ہے **نہیں** حفاظت کے طور پر شمار کیا جاتا ہے: یہ صورت حال ہے اور خفیہ طور پر داخلی راستوں کے اندر بھی سفر کرتی ہے۔ مقامی نقل و حمل کے ساتھ چلتے ہیں۔ `MASK_CREDENTIALS_IN_LOGS` معذور، تو `no_log` ان کاموں کو چھپانے میں کوئی کسر نہیں رکھتے۔."
 
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: ایک انتخابی علامت کے نام ایک کردار اور اس کو اس طرح
+# تنگ کیا جاتا ہے کہ کردار کی قطاروں کو کسی اور جگہ طے کیا جائے : جسے چلانے
+# والے موڈ چلاتے ہیں، چاہے یہ قطر اس کے پیچھے چلا جائے، اِس کے بعد اِس قطار کو
+# اِستعمال کِیا جاتا ہے ۔.
 msgid "A selection token names a role and MAY narrow the axes that role's rows would otherwise be assigned: which variants run, which deploy mode, whether the row goes behind the node onion, which distribution it deploys on, which filesystem its docker data root runs on and which CPU architecture it lands on. What a token leaves open stays open, exactly as an unpinned run leaves it: the priority line covers every mode and onion state the row can take, and the sweep rotation picks the distro, the filesystem and the architecture on both lines."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "A selection token names a row that has to exist *on this branch* (:mod:`utils.github.variant.selection`). Nothing else in the chain can tell the operator that early: the matrix builder raises on the first bad token, one per chunk job, so a stale list costs one full CI round per entry and reports the second problem only after the first is fixed. Every problem is collected here instead, and the exit code gates the run."
-msgstr ""
+msgstr "انتخابی نام ایک قطار جو وجود میں آئے گی *اس شاخ پر* (:mod:`utils.github.variant.selection`). . زنجیر میں کچھ اور نہیں کہہ سکتا کہ شروع میں مریخ بنانے والا معمار پہلی بری نشانی پر کھڑا ہوتا ہے، ایک شخص، چینک کام، تو ایک مکمل فہرست خرچ کر کے ایک مکمل سی آئی راؤنڈ ہر داخلے پر خرچ کرتا ہے اور پہلا طے کرنے کے بعد ہی دوسرا مسئلہ بتا دیتا ہے۔ ہر مسئلہ یہاں کی بجائے جمع کیا جاتا ہے اور آؤٹ کوڈ دروازے دوڑ جاتے ہیں۔."
 
+# translated-by: libretranslate
 msgid "A server that loses its way answers ``Cloud`` with ``Cloud Cloud Cloud``. Every other rule passes it: the spans survive, the markup count survives, it is no echo, and ``truncated`` only watches the short side."
-msgstr ""
+msgstr "ایک سرور جو جوابات کھو دیتا ہے۔ ``Cloud`` ساتھ ``Cloud Cloud Cloud``. ہر دوسرا قانون اس سے گزرتا ہے: دن بچتا رہتا ہے، نشان زدہ ہوتا ہے، یہ کچھ نہیں ہے، ``truncated`` صرف مختصر پہلو دیکھتا ہے."
 
+# translated-by: libretranslate
 msgid "A service is a reusable dependency that an application enables via `services.<service_key>`."
-msgstr ""
+msgstr "ایک خدمت ایک رد عمل ہے جو ایک درخواست کے ذریعے ممکن بناتی ہے۔ `services.<service_key>`. ."
 
+# translated-by: libretranslate
 msgid "A service key is group-conditional when some role declares it with a Jinja ``enabled`` expression rather than a literal, i.e. the shape ``tests/integration/roles/meta/services/test_dynamic_flags.py`` enforces. Those keys are the ones a test deploy may drop without changing what the role under test is: their providers are co-deployed only because a host happens to be in the provider's group."
-msgstr ""
+msgstr "ایک سروس کلید گروہ بندی ہے جبکہ کچھ کردار اسے جنجا سے بتاتے ہیں۔ ``enabled`` اظہار لفظی کی بجائے یعنی شکل ``tests/integration/roles/meta/services/test_dynamic_flags.py`` ختم. یہ وہ کلیدیں ہیں جو جانچ پڑتال کے تحت کردار کو تبدیل کیے بغیر گرا سکتے ہیں: ان کے فراہم کنندے صرف اسی وجہ سے ہوتے ہیں کہ میزبان گروپ میں ہوتا ہے۔."
 
+# translated-by: libretranslate
 msgid "A service that spells its probe out instead of picking a flavor."
-msgstr ""
+msgstr "ایک ایسی خدمت جو خوشبو لینے کی بجائے اپنے پَر کھول دیتی ہے ۔."
 
+# translated-by: libretranslate
 msgid "A services.<key> flag (``enabled`` / ``shared``) MAY be true if it is the literal Python ``True``, any string containing the substring ``in group_names``, or a string referencing a `GROUP_GATED_CONSTANTS` entry. Negated and compound predicates (``\"{{ 'X' not in group_names }}\"``) match on purpose: they are true on some node shape, and the static closure is the co-deploy superset. Mirrors the substring test at ``tests/integration/roles/meta/services/test_dynamic_flags.py:194``."
-msgstr ""
+msgstr "ایک سروس.<key> جھنڈ (``enabled`` / ``shared``) صحیح اگر یہ اصلی پانامہ ہے تو ``True``، کوئی بھی نعرہ جس میں زیرِزمین سوراخ ہوتے ہیں۔ ``in group_names``. . . `GROUP_GATED_CONSTANTS` داخل. اِس کے بعد اُس نے کہا : ” مَیں اِس بات کو تسلیم کرتا ہوں کہ مَیں نے اُس کی مدد کی ہے ۔ “ (``\"{{ 'X' not in group_names }}\"``) میچ مقصود پر: وہ کسی مرکب شکل پر سچ ہیں اور برقی بند کا ہمزہ ہے۔ ذیلی امتحان پاس کریں ``tests/integration/roles/meta/services/test_dynamic_flags.py:194``. ."
 
+# translated-by: libretranslate
 msgid "A shared mapper that imports every LDAP group with `preserve.group.inheritance=true` MUST NOT be used. Role names recur across applications (`administrator`, `editor`, ...) and Keycloak's `GroupTreeResolver` keys its lookup map on the group name, so the second `administrator` silently overwrites the first."
-msgstr ""
+msgstr "ایک مشترکہ نقشہ ساز جو ہر ایل ڈی پی گروپ کو اپنے ساتھ درآمد کرتا ہے۔ `preserve.group.inheritance=true` استعمال نہیں کیا جاتا. اطلاقیہوں پر دوبارہ نام (`administrator`: `editor`،...) اور Keycloak' `GroupTreeResolver` گروپ کے نام پر اس کا روشن نقشہ کلیدیں، `administrator` سب سے پہلے لکھنے والوں پر خاموشی."
 
+# translated-by: libretranslate
 msgid "A short paragraph that describes what the **role** does: what it deploys, configures, and integrates. Reference any companion documentation files (e.g. `Administration.md`) here using file-name link text."
-msgstr ""
+msgstr "مختصر پیراگراف جس میں بتایا گیا ہے کہ کس چیز کی وضاحت کی گئی ہے ۔ **کردار** کیا یہ کام کرتی ہے ؟ کسی دوست کی خفیہ فائل کا ذکر کریں (جی ہاں. `Administration.md`) یہاں فائل کا نام."
 
+# translated-by: libretranslate
 msgid "A short paragraph that describes what the **software** is. You MUST NOT describe what the role does here. Link the software name to its official website on first use."
-msgstr ""
+msgstr "مختصر پیراگراف جس میں بتایا گیا ہے کہ کس چیز کی وضاحت کی گئی ہے ۔ **سافٹ وئیر** ہے. آپ یہ نہیں بتا سکتے کہ یہاں کیا کردار ادا کرتا ہے ۔ پہلے استعمال پر سافٹ وئیر کا نام اس کی باضابطہ ویب سائٹ پر لنک."
 
+# translated-by: libretranslate
 msgid "A sidecar ``web-app-keycloak`` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the ``X-Forwarded-*`` identity headers on every proxied request."
-msgstr ""
+msgstr "ایک طرفدار ``web-app-keycloak`` اووت2- لگتا ہے کہ. Keycloak (اے . Keycloak) اور ان کے اوپر لکھنا ``X-Forwarded-*`` ہر بنیاد پر شناختی سربراہوں کی درخواست."
 
 msgid "A sidecar `web-app-keycloak` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the `X-Forwarded-*` identity headers on every proxied request."
 msgstr ""

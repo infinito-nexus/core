@@ -75767,1507 +75767,2066 @@ msgstr ""
 msgid "[Kevin Veen-Birkenbach](https://veen.world): per-role update PRs, fork-PR CI hardening, buildx retry, cleanup-workflow fixes and version maintenance"
 msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): OR-role update Prots, Foot-PR CI ทําให้แข็งตัว, buildry, แก้ปัญหาการล้างและบํารุงรักษารุ่น"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): review and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): สืบค้นและบํารุงรักษารุ่น"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): trusted-fork-PR flow, fork main sync, package-changelog generator and packaging lint, cleanup automation"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): ไดเรกทอรี: flow ที่เชื่อถือได้- first-PR, crack setting หลัก, เครื่องกําเนิดเปลี่ยนภาคของแพกเกจ และคอมแพ็กเกจ liint, การล้างอัตโนมัติ"
 
+# translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): unified addon syntax, API single-point-of-truth, Nextcloud integrations and variant rebalancing, CI variant bundling, resource governance, Matrix bridge migration and version maintenance"
-msgstr ""
+msgstr "[เควิน เว็น-เบอร์เคนบาค](https://veen.world): ไวยากรณ์รวม API แค่จุดเดียวของความจริง Nextcloud การควบรวมและรวมกิจการกันใหม่, การจัดแจงทรัพยากร Matrix การ อพยพ และ การ บํารุง รักษา แบบ สะพาน"
 
+# translated-by: libretranslate
 msgid "[Keycloak GitHub Repository](https://github.com/keycloak/keycloak)"
-msgstr ""
+msgstr "[ชั้นวางของคีย์โคลัก กิตฮับ](https://github.com/keycloak/keycloak)"
 
+# translated-by: libretranslate
 msgid "[Keycloak Official Website](https://www.keycloak.org/)"
-msgstr ""
+msgstr "[Keycloak website อย่างเป็นทางการ](https://www.keycloak.org/)"
 
+# translated-by: libretranslate
 msgid "[LDAP Account Manager Official Website](https://www.ldap-account-manager.org/)"
-msgstr ""
+msgstr "[ตัวจัดการบัญชีผู้ใช้ของ LDAP อย่างเป็นทางการ Website](https://www.ldap-account-manager.org/)"
 
+# translated-by: libretranslate
 msgid "[LDAP Account Manager](https://github.com/LDAPAccountManager/docker)"
-msgstr ""
+msgstr "[ตัวจัดการบัญชีผู้ใช้ของ LDAP](https://github.com/LDAPAccountManager/docker)"
 
+# translated-by: libretranslate
 msgid "[LDAP Integration Guide](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)"
-msgstr ""
+msgstr "[คู่มือการเข้าใช้ของ LDAP](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)"
 
+# translated-by: libretranslate
 msgid "[LDAP discussion #2106](https://github.com/semaphoreui/semaphore/discussions/2106)"
-msgstr ""
+msgstr "[อภิปรายกับ LDAP #2106](https://github.com/semaphoreui/semaphore/discussions/2106)"
 
+# translated-by: libretranslate
 msgid "[LDAP plugin](https://github.com/jellyfin/jellyfin-plugin-ldapauth)"
-msgstr ""
+msgstr "[โปรแกรมเสริม LDAP](https://github.com/jellyfin/jellyfin-plugin-ldapauth)"
 
+# translated-by: libretranslate
 msgid "[LDAP self-hosting](https://joeeey.com/blog/selfhosting-sso-ldap-part-3/)"
-msgstr ""
+msgstr "[การจัดการด้วยตนเองของ LDAP](https://joeeey.com/blog/selfhosting-sso-ldap-part-3/)"
 
+# translated-by: libretranslate
 msgid "[LDAP user management](https://docs.checkmk.com/latest/en/ldap.html)"
-msgstr ""
+msgstr "[การจัดการผู้ใช้ LDAP](https://docs.checkmk.com/latest/en/ldap.html)"
 
+# translated-by: libretranslate
 msgid "[LID Switch Driver](roles/drv-lid-switch/)"
-msgstr ""
+msgstr "[สลับไดรเวอร์แบบ LID](roles/drv-lid-switch/)"
 
+# translated-by: libretranslate
 msgid "[LM Studio](https://lmstudio.ai/) is a runtime for open large language models. Its headless server mode loads models from a local store and answers chat and completion requests over an OpenAI-compatible HTTP API, so prompts and model weights stay on the machine that runs them."
-msgstr ""
+msgstr "[สตูดิโอ LM](https://lmstudio.ai/) เป็นเวลาเปิดโมเดลภาษาขนาดใหญ่ โหมดของเซิร์ฟเวอร์ที่ไม่มีหัวของมันโหลดรุ่นจากร้านค้าท้องถิ่น และตอบการสนทนาและการเติมข้อมูลให้สมบูรณ์ APIดังนั้น การกระตุ้นและน้ําหนักแบบจําลอง จะอยู่ในเครื่องจักรที่ขับเคลื่อนมัน."
 
+# translated-by: libretranslate
 msgid "[LM Studio](roles/svc-ai-lmstudio/), [Ollama](roles/svc-ai-ollama/), [PostgreSQL](roles/svc-db-postgres/), [System One](roles/svc-ai-s1/)"
-msgstr ""
+msgstr "[สตูดิโอ LM](roles/svc-ai-lmstudio/). [Ollama](roles/svc-ai-ollama/). [PostgreSQL](roles/svc-db-postgres/). [System One](roles/svc-ai-s1/)"
 
+# translated-by: libretranslate
 msgid "[Laya](https://laya.aay.sh/) is a local-first notification command center that aggregates Slack, mail, issue trackers and calendars into approvable action cards."
-msgstr ""
+msgstr "[เลย์ยา](https://laya.aay.sh/) เป็นศูนย์การแจ้งเตือนที่อ่านแล้วภายในเครื่อง ที่คอมไพล์ slack, mail, โปรแกรมติดตาม, และปฏิทินต่าง ๆ มาใช้กับการ์ดการกระทําที่ใช้ได้."
 
+# translated-by: libretranslate
 msgid "[Let's Encrypt](https://letsencrypt.org/)"
-msgstr ""
+msgstr "[มาเข้ารหัสกันเถอะ](https://letsencrypt.org/)"
 
+# translated-by: libretranslate
 msgid "[Linux](platform/linux.md)"
-msgstr ""
+msgstr "[ลินุกซ์](platform/linux.md)"
 
+# translated-by: libretranslate
 msgid "[Listmonk GitHub Repository](https://github.com/knadh/listmonk/)"
-msgstr ""
+msgstr "[Name=ไดเรกทอรีName](https://github.com/knadh/listmonk/)"
 
+# translated-by: libretranslate
 msgid "[Listmonk Installation Documentation](https://listmonk.app/docs/installation/)"
-msgstr ""
+msgstr "[สมุดที่อยู่ Documentation](https://listmonk.app/docs/installation/)"
 
+# translated-by: libretranslate
 msgid "[Listmonk Official Website](https://listmonk.app/)"
-msgstr ""
+msgstr "[โปรแกรมท่องเว็บอย่างเป็นทางการName](https://listmonk.app/)"
 
+# translated-by: libretranslate
 msgid "[LiteLLM Admin UI](roles/web-app-litellm/)"
-msgstr ""
+msgstr "[LiteLLM Admin UI](roles/web-app-litellm/)"
 
+# translated-by: libretranslate
 msgid "[LiteLLM Gateway](roles/svc-ai-litellm/)"
-msgstr ""
+msgstr "[LiteLailM เกตเวย์](roles/svc-ai-litellm/)"
 
+# translated-by: libretranslate
 msgid "[LiteLLM](https://docs.litellm.ai/) is an LLM gateway that exposes an OpenAI-compatible HTTP API and forwards each request to a configured model backend, local or hosted. Clients authenticate with virtual API keys that the gateway issues and stores in its own database."
-msgstr ""
+msgstr "[LiteLailM](https://docs.litellm.ai/) เป็นประตู LLM ที่เปิดเผย OpenAI ที่เข้ากันได้ HTTP API และส่งต่อการร้องขอไปยังโปรแกรมเบื้องหลังรุ่นที่ปรับแต่งไว้แล้ว, ภายในระบบ หรือเครื่องโฮสต์ Comment=ไคลเอนต์ตรวจสอบจดหมายName API กุญแจที่ไขประตู และเก็บข้อมูลไว้ในฐานข้อมูล."
 
+# translated-by: libretranslate
 msgid "[LiteLLM](https://docs.litellm.ai/) is an LLM gateway that puts a single OpenAI-compatible API in front of many model providers. Its admin UI is the gateway's built-in web interface for virtual API keys, teams, budgets and rate limits, model routing, and request and spend logs."
-msgstr ""
+msgstr "[LiteLailM](https://docs.litellm.ai/) เป็นประตู LLM ที่ทําให้หนึ่ง OpenAI เข้ากันได้ API ต่อหน้าผู้จัดหาโมเดลหลายคน Admin UI เป็นส่วนเชื่อมต่อเว็บของเกตเวย์สําหรับระบบเสมือน API กุญแจ, ทีม, งบประมาณ และอัตรา จํากัด, โมเดลโรมาต, และคําขอและใช้บันทึก."
 
+# translated-by: libretranslate
 msgid "[Local purge guide](../../../scripts/tests/deploy/local/purge/README.md): Local deploy cleanup helpers."
-msgstr ""
+msgstr "[ส่วนเสริมการล้างข้อมูลภายใน](../../../scripts/tests/deploy/local/purge/README.md): สืบค้นเมื่อ:."
 
+# translated-by: libretranslate
 msgid "[Local reset guide](../../../scripts/tests/deploy/local/reset/README.md): Local state reset helpers."
-msgstr ""
+msgstr "[ส่วนเสริมการตั้งค่าใหม่ภายใน](../../../scripts/tests/deploy/local/reset/README.md): ผู้ช่วยเหลือท้องถิ่น."
 
+# translated-by: libretranslate
 msgid "[MCP Adapter](roles/svc-ai-mcp-adapter/)"
-msgstr ""
+msgstr "[ตัวปรับเลขทศนิยม](roles/svc-ai-mcp-adapter/)"
 
+# translated-by: libretranslate
 msgid "[MCP service block](../../docs/contributing/design/role/services/mcp.md)"
-msgstr ""
+msgstr "[บล็อคบริการ MCP](../../docs/contributing/design/role/services/mcp.md)"
 
+# translated-by: libretranslate
 msgid "[MCP user delegation audit](../../docs/contributing/design/role/services/mcp/delegation.md)"
-msgstr ""
+msgstr "[ตัวแสดงสถานะผู้ใช้ MCP](../../docs/contributing/design/role/services/mcp/delegation.md)"
 
+# translated-by: libretranslate
 msgid "[MXToolbox](https://mxtoolbox.com)"
-msgstr ""
+msgstr "[กล่องเครื่องมือ MX](https://mxtoolbox.com)"
 
+# translated-by: libretranslate
 msgid "[Magento Open Source](https://magento.com/)"
-msgstr ""
+msgstr "[มาเกนโตะ เปิดแหล่ง](https://magento.com/)"
 
+# translated-by: libretranslate
 msgid "[Mailu GitHub repository](https://github.com/Mailu/Mailu)"
-msgstr ""
+msgstr "[คลังดนตรี Mimeu](https://github.com/Mailu/Mailu)"
 
+# translated-by: libretranslate
 msgid "[Mailu Official Website](https://mailu.io/)"
-msgstr ""
+msgstr "[เว็บไซต์ Mailu อย่างเป็นทางการ](https://mailu.io/)"
 
+# translated-by: libretranslate
 msgid "[Mailu compose setup guide](https://mailu.io/1.7/compose/setup.html)"
-msgstr ""
+msgstr "[คู่มือการตั้งค่าการเขียน Mailu](https://mailu.io/1.7/compose/setup.html)"
 
+# translated-by: libretranslate
 msgid "[Mailu issue #1171](https://github.com/Mailu/Mailu/issues/1171)"
-msgstr ""
+msgstr "[ปัญหา Mailu #1171](https://github.com/Mailu/Mailu/issues/1171)"
 
+# translated-by: libretranslate
 msgid "[Mailu issue #1719](https://github.com/Mailu/Mailu/issues/1719)"
-msgstr ""
+msgstr "[ปัญหา Mailu #1719](https://github.com/Mailu/Mailu/issues/1719)"
 
+# translated-by: libretranslate
 msgid "[Mailu issue #2135](https://github.com/Mailu/Mailu/issues/2135)"
-msgstr ""
+msgstr "[ปัญหา Mailu #2135](https://github.com/Mailu/Mailu/issues/2135)"
 
+# translated-by: libretranslate
 msgid "[Mailu issue #2827](https://github.com/Mailu/Mailu/issues/2827)"
-msgstr ""
+msgstr "[ปัญหา Mailu #2827](https://github.com/Mailu/Mailu/issues/2827)"
 
+# translated-by: libretranslate
 msgid "[Mailu-OIDC](https://github.com/heviat/Mailu-OIDC)"
-msgstr ""
+msgstr "[เมกะไบต์](https://github.com/heviat/Mailu-OIDC)"
 
+# translated-by: libretranslate
 msgid "[Mailu](https://mailu.io/) as a full-featured mail server (when available),"
-msgstr ""
+msgstr "[จดหมาย](https://mailu.io/) เป็นแม่ข่ายจดหมายแบบเต็มขนาด (เมื่อมี)."
 
+# translated-by: libretranslate
 msgid "[Make a focused change](docs/contributing/workflow.md)."
-msgstr ""
+msgstr "[ทํา การ เปลี่ยน แปลง ที่ สําคัญ](docs/contributing/workflow.md)."
 
+# translated-by: libretranslate
 msgid "[Makefile Commands](../../../../../docs/contributing/tools/make.md). canonical Make target index for this area"
-msgstr ""
+msgstr "[คําสั่งสร้างแฟ้ม](../../../../../docs/contributing/tools/make.md). สร้างดัชนีเป้าหมายสําหรับพื้นที่นี้"
 
+# translated-by: libretranslate
 msgid "[Makefile commands](../tools/make.md): All available make targets."
-msgstr ""
+msgstr "[คําสั่งสร้างแฟ้ม](../tools/make.md): ทั้งหมดที่มี ทําให้เป้าหมาย."
 
+# translated-by: libretranslate
 msgid "[Makefile](../../../Makefile)"
-msgstr ""
+msgstr "[สร้างแฟ้ม](../../../Makefile)"
 
+# translated-by: libretranslate
 msgid "[Makefile](../../../Makefile) and [scripts/](../../../scripts/) for supported commands"
-msgstr ""
+msgstr "[สร้างแฟ้ม](../../../Makefile) ถึง [สคริปต์/](../../../scripts/) คําสั่งที่รองรับ"
 
+# translated-by: libretranslate
 msgid "[Mastodon Configuration Guide](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
-msgstr ""
+msgstr "[คู่มือการปรับแต่ง Mastodon](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 
+# translated-by: libretranslate
 msgid "[Mastodon Documentation](https://docs.joinmastodon.org/)"
-msgstr ""
+msgstr "[มาสโตดอน Documentation](https://docs.joinmastodon.org/)"
 
+# translated-by: libretranslate
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
-msgstr ""
+msgstr "[วารสาร มาส โต ดอน กิต ฮับ](https://github.com/mastodon/mastodon/issues/7958)"
 
+# translated-by: libretranslate
 msgid "[Mastodon Official Website](https://joinmastodon.org/)"
-msgstr ""
+msgstr "[Mastodon เว็บไซต์อย่างเป็นทางการ](https://joinmastodon.org/)"
 
+# translated-by: libretranslate
 msgid "[Matomo Official Website](https://matomo.org/)"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการมาโตโมะ](https://matomo.org/)"
 
+# translated-by: libretranslate
 msgid "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[มาโทโมะ](roles/web-app-matomo/). [Prometheus](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Matrix Documentation](https://matrix.org/docs/)"
-msgstr ""
+msgstr "[เมทริกซ์ Documentation](https://matrix.org/docs/)"
 
+# translated-by: libretranslate
 msgid "[Matrix Official Website](https://matrix.org/)"
-msgstr ""
+msgstr "[เว็บไซต์ของเมทริกซ์อย่างเป็นทางการ](https://matrix.org/)"
 
+# translated-by: libretranslate
 msgid "[Mattermost Configuration Settings](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)"
-msgstr ""
+msgstr "[ตั้งค่าค่าปรับแต่งค่ามัธยา](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['5']
+# nocheck: url
+# translation-rejected: [ติดตั้ง Matt5Doger
+# แล้ว](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)
 msgid "[Mattermost Docker Install](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Mattermost MCP Server docs](https://github.com/mattermost/mattermost-plugin-agents/blob/master/mcpserver/README.md)"
-msgstr ""
+msgstr "[มัตตาร์ เอกสารของเซิร์ฟเวอร์](https://github.com/mattermost/mattermost-plugin-agents/blob/master/mcpserver/README.md)"
 
+# translated-by: libretranslate
 msgid "[Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
-msgstr ""
+msgstr "[คู่มือ attlefest SSO](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
 
+# translated-by: libretranslate
 msgid "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
-msgstr ""
+msgstr "[มีเดียWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
 
+# translated-by: libretranslate
 msgid "[MediaWiki Official Website](https://www.mediawiki.org/)"
-msgstr ""
+msgstr "[มีเดียWiki อย่างเป็นทางการ Website](https://www.mediawiki.org/)"
 
+# translated-by: libretranslate
 msgid "[Memcached official documentation](https://memcached.org/)"
-msgstr ""
+msgstr "[เอกสารอย่างเป็นทางการ](https://memcached.org/)"
 
+# translated-by: libretranslate
 msgid "[Meta Infinite Graph Homepage](https://github.com/kevinveenbirkenbach/meta-infinite-graph)"
-msgstr ""
+msgstr "[หน้าหลัก](https://github.com/kevinveenbirkenbach/meta-infinite-graph)"
 
+# translated-by: libretranslate
 msgid "[Mobilizon Official Website](https://mobilizon.org)"
-msgstr ""
+msgstr "[โมบิลิซอน เว็บไซต์อย่างเป็นทางการ](https://mobilizon.org)"
 
+# translated-by: libretranslate
 msgid "[Model Context Protocol](https://modelcontextprotocol.io/)"
-msgstr ""
+msgstr "[โพรโทคอลคอนเท็กซ์ของโมเดล](https://modelcontextprotocol.io/)"
 
+# translated-by: libretranslate
 msgid "[Moodle Developer Documentation: Docker images](https://moodledev.io/general/app/development/setup/docker-images)"
-msgstr ""
+msgstr "[ผู้พัฒนา moodle Documentationแฟ้มภาพ:](https://moodledev.io/general/app/development/setup/docker-images)"
 
+# translated-by: libretranslate
 msgid "[Moodle MCP plugin](https://moodle.org/plugins/webservice_mcp)"
-msgstr ""
+msgstr "[ปลั๊กอิน Moodle MCP](https://moodle.org/plugins/webservice_mcp)"
 
+# translated-by: libretranslate
 msgid "[Moodle Official Website](https://moodle.org/)"
-msgstr ""
+msgstr "[Moodle website อย่างเป็นทางการ](https://moodle.org/)"
 
+# translated-by: libretranslate
 msgid "[Moving from iptables to nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)"
-msgstr ""
+msgstr "[ย้ายจาก ipables ไปยัง nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)"
 
+# translated-by: libretranslate
 msgid "[NFS Client](roles/svc-storage-nfs-client/)"
-msgstr ""
+msgstr "[โปรแกรมลูกข่าย NFS](roles/svc-storage-nfs-client/)"
 
+# translated-by: libretranslate
 msgid "[NFS Server](roles/svc-storage-nfs-server/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์บริการ NFS](roles/svc-storage-nfs-server/)"
 
+# translated-by: libretranslate
 msgid "[NFS](https://en.wikipedia.org/wiki/Network_File_System) (Network File System) is a kernel-level protocol for sharing files over a network. The server exports a directory tree under defined access rules; clients mount it as if it were a local filesystem."
-msgstr ""
+msgstr "[บริการ NFS](https://en.wikipedia.org/wiki/Network_File_System) (ระบบแฟ้มเครือข่าย) เป็นโพรโทคอลระดับเคอร์เนล สําหรับการแบ่งปันแฟ้มผ่านเครือข่าย เซิร์ฟเวอร์ส่งออกไดเร็กทอรีต้นไม้ภายใต้กฏการเข้าใช้ที่กําหนด; โปรแกรมลูกข่ายจะเมานท์มัน ราวกับเป็นระบบแฟ้มภายในเครื่องหนึ่ง."
 
+# translated-by: libretranslate
 msgid "[NFS](https://en.wikipedia.org/wiki/Network_File_System) (Network File System) lets a host mount a directory exported by a remote server as if it were a local filesystem. The client packages provide the kernel helpers and userspace tools to perform that mount."
-msgstr ""
+msgstr "[บริการ NFS](https://en.wikipedia.org/wiki/Network_File_System) (ระบบแฟ้มเครือข่าย) ให้เครื่องโฮสต์ทําการเมานท์ไดเร็กทอรีที่ส่งมาจากเซิร์ฟเวอร์ทางไกล ประหนึ่งเป็นระบบแฟ้มภายในเครื่อง แพกเกจของไคลเอนต์ ให้ส่วนช่วยเหลือของเคอร์เนล และเครื่องของผู้ใช้เพื่อทําการเมานท์."
 
+# translated-by: libretranslate
 msgid "[NGINX Official Website](https://NGINX.org/)"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการ NGINX](https://NGINX.org/)"
 
+# translated-by: libretranslate
 msgid "[NGINX `sub_filter` Module](http://NGINX.org/en/docs/http/ngx_http_sub_module.html)"
-msgstr ""
+msgstr "[INX `sub_filter` มอดูล](http://NGINX.org/en/docs/http/ngx_http_sub_module.html)"
 
+# translated-by: libretranslate
 msgid "[NGINX documentation](https://nginx.org/en/docs/)"
-msgstr ""
+msgstr "[เอกสารของ NGINX](https://nginx.org/en/docs/)"
 
+# translated-by: libretranslate
 msgid "[Network debugging](../actions/debugging/network.md): `make diagnose-network` (DNS / TCP / TLS / PMTU diagnostics inside the dev container) plus MTU / IPv6 / connectivity troubleshooting."
-msgstr ""
+msgstr "[การดีบั๊กเครือข่าย](../actions/debugging/network.md). `make diagnose-network` (DNS / TCP / TLS / PMTU วิเคราะห์ภายในตู้คอนเทนเนอร์) เพิ่ม MTU / IPV6 เชื่อมโยงปัญหาในการยิง."
 
+# translated-by: libretranslate
 msgid "[Networking Fixes & Issues](https://stackoverflow.com/questions/53347951/web-app-network-not-found)"
-msgstr ""
+msgstr "[ระบบเครือข่ายและปัญหา](https://stackoverflow.com/questions/53347951/web-app-network-not-found)"
 
+# translated-by: libretranslate
 msgid "[Nextcloud Admin Manual](https://docs.nextcloud.com/server/latest/admin_manual/)"
-msgstr ""
+msgstr "[คู่มือ Admin ถัดไป](https://docs.nextcloud.com/server/latest/admin_manual/)"
 
+# translated-by: libretranslate
 msgid "[Nextcloud Context Agent docs](https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html)"
-msgstr ""
+msgstr "[ภาพประกอบกลุ่มเมฆถัดไป](https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html)"
 
+# translated-by: libretranslate
 msgid "[Nextcloud Docker Documentation](https://github.com/nextcloud/docker)"
-msgstr ""
+msgstr "[ตัวจับกลุ่มเมฆถัดไป Documentation](https://github.com/nextcloud/docker)"
 
+# translated-by: libretranslate
 msgid "[Nextcloud Official Website](https://nextcloud.com/)"
-msgstr ""
+msgstr "[เว็บไซต์ของกลุ่มเมฆถัดไป](https://nextcloud.com/)"
 
+# translated-by: libretranslate
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
-msgstr ""
+msgstr "[กลุ่ม เมฆ ถัด ไป](https://apps.nextcloud.com/apps/onlyoffice)"
 
+# translated-by: libretranslate
 msgid "[Nexus Repository](https://www.sonatype.com/products/sonatype-nexus-repository) is a repository manager that proxies package registries and serves an artefact it has already fetched from local disk. [nginx](https://nginx.org/) sits in front of it and answers for the upstream hostnames themselves, so a package manager keeps the URLs it was built with and still reads through the proxy."
-msgstr ""
+msgstr "[การประชุมของเน็กซัส](https://www.sonatype.com/products/sonatype-nexus-repository) เป็นตัวจัดการคลังแพกเกจที่ทําการคอมไพล์ของแพกเกจ และให้บริการแบบ Artfact ได้ดึงมาจากดิสก์ภายในแล้ว [nginx](https://nginx.org/) นั่งอยู่ด้านหน้าและคําตอบสําหรับม้าน้ําขึ้นตัวเองเพื่อให้ผู้จัดการแพ็คเกจเก็บที่อยู่ URL ที่มันถูกสร้างไปด้วยและยังคงอ่านผ่านพร็อกซี."
 
+# translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/)"
-msgstr ""
+msgstr "[ช่องสัญญาณ](https://nginx.org/)"
 
+# translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/) is a high-performance web server and reverse proxy. This role wraps Nginx as a first-party mirror for the third-party assets other web applications declare in their CSP whitelists, so browsers fetch those assets from the deployment itself instead of contacting external hosts."
-msgstr ""
+msgstr "[ช่องสัญญาณ](https://nginx.org/) เป็นเซิร์ฟเวอร์เว็บที่มีประสิทธิภาพสูง และเป็นพร็อกซีย้อนกลับ บทบาทนี้ จะรวม Nginx เป็นกระจกเงาย่อยแรก สําหรับสินทรัพย์ภาคที่สามของเว็บไซต์อื่น ๆ ที่ประกาศในบัญชีสีขาวของ CPS ดังนั้นเบราว์เซอร์จึงได้รับสินทรัพย์เหล่านั้นจากตัวปฏิบัติการเอง แทนที่จะติดต่อกับโฮสต์ภายนอก."
 
+# translated-by: libretranslate
 msgid "[Nginx](https://nginx.org/) is a high-performance web server and reverse proxy. This role wraps Nginx as an internal Content Delivery Network that serves static assets such as CSS and JavaScript bundles for other web applications in the stack."
-msgstr ""
+msgstr "[ช่องสัญญาณ](https://nginx.org/) เป็นเซิร์ฟเวอร์เว็บที่มีประสิทธิภาพสูง และเป็นพร็อกซีย้อนกลับ บทบาทนี้จะครอบคลุม Nginx เป็นภายใน Content Delivery Network ที่ให้บริการสินทรัพย์แบบคงที่ เช่น CSS และชุดจาวาสคริปต์สําหรับโปรแกรมอื่น ๆ ในกองเรียง."
 
+# translated-by: libretranslate
 msgid "[OBS Studio knowledge base](https://obsproject.com/kb/)"
-msgstr ""
+msgstr "[ศูนย์ความรู้ OBS](https://obsproject.com/kb/)"
 
+# translated-by: libretranslate
 msgid "[OBS Studio](https://obsproject.com/)"
-msgstr ""
+msgstr "[OBS Studio](https://obsproject.com/)"
 
+# translated-by: libretranslate
 msgid "[OBS Studio](https://obsproject.com/) is a free, open-source application for video recording and live streaming, widely used for screencasts, broadcasting, and content creation."
-msgstr ""
+msgstr "[OBS Studio](https://obsproject.com/) เป็นโปรแกรมโอเพนซอร์สฟรี สําหรับบันทึกวิดีโอและการถ่ายทอดสด ที่ถูกใช้อย่างแพร่หลายสําหรับการถ่ายหน้าจอ การออกอากาศ และเนื้อหา."
 
+# translated-by: libretranslate
 msgid "[OIDC / Keycloak configuration](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
-msgstr ""
+msgstr "[OIDC / Keycloak การปรับแต่ง](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
 
+# translated-by: libretranslate
 msgid "[OIDC Login Plugin (pulsejet)](https://github.com/pulsejet/nextcloud-oidc-login)"
-msgstr ""
+msgstr "[โปรแกรมเสริมล็อกอิน OIDC (ชีพจร)](https://github.com/pulsejet/nextcloud-oidc-login)"
 
+# translated-by: libretranslate
 msgid "[ONLYOFFICE Document Server on Docker Hub](https://hub.docker.com/r/onlyoffice/documentserver)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์เอกสาร LNFFFFE บน Docer Hut](https://hub.docker.com/r/onlyoffice/documentserver)"
 
+# translated-by: libretranslate
 msgid "[Odoo ERP](roles/web-app-odoo/)"
-msgstr ""
+msgstr "[ODO ERP](roles/web-app-odoo/)"
 
+# translated-by: libretranslate
 msgid "[Official Collabora CODE website](https://www.collaboraonline.com/code/)"
-msgstr ""
+msgstr "[อย่างเป็นทางการ Collabora เว็บไซต์ CODE](https://www.collaboraonline.com/code/)"
 
+# translated-by: libretranslate
 msgid "[Official Keycloak Documentation](https://www.keycloak.org/documentation.html)"
-msgstr ""
+msgstr "[อย่างเป็นทางการ Keycloak Documentation](https://www.keycloak.org/documentation.html)"
 
+# translated-by: libretranslate
 msgid "[Official Memcached Docker image on Docker Hub](https://hub.docker.com/_/memcached)"
-msgstr ""
+msgstr "[อย่างเป็นทางการ Memcached ภาพดอกเกอร์บนดอกเกอร์ ฮับ](https://hub.docker.com/_/memcached)"
 
+# translated-by: libretranslate
 msgid "[Official ONLYOFFICE Document Server Documentation](https://helpcenter.onlyoffice.com/docs/)"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์เอกสารอย่างเป็นทางการ Documentation](https://helpcenter.onlyoffice.com/docs/)"
 
+# translated-by: libretranslate
 msgid "[Official Pixelfed website](https://pixelfed.org/)"
-msgstr ""
+msgstr "[อย่างเป็นทางการ Pixelfed เว็บไซต์](https://pixelfed.org/)"
 
+# translated-by: libretranslate
 msgid "[Official RabbitMQ Docker image on Docker Hub](https://hub.docker.com/_/rabbitmq)"
-msgstr ""
+msgstr "[อย่างเป็นทางการ RabbitMQ ภาพดอกเกอร์บนดอกเกอร์ ฮับ](https://hub.docker.com/_/rabbitmq)"
 
+# translated-by: libretranslate
 msgid "[Official Redis Docker image on Docker Hub](https://hub.docker.com/_/redis)"
-msgstr ""
+msgstr "[อย่างเป็นทางการ Redis ภาพดอกเกอร์บนดอกเกอร์ ฮับ](https://hub.docker.com/_/redis)"
 
+# translated-by: libretranslate
 msgid "[Official phpldapadmin Homepage](https://github.com/leenooks/phpLDAPadmin)"
-msgstr ""
+msgstr "[pppdadmin homepage อย่างเป็นทางการ](https://github.com/leenooks/phpLDAPadmin)"
 
+# translated-by: libretranslate
 msgid "[Ollama Model Library](https://ollama.com/library)"
-msgstr ""
+msgstr "[ไลบรารีโมเดลโอลามะ](https://ollama.com/library)"
 
+# translated-by: libretranslate
 msgid "[Ollama](https://ollama.com) is a local model server that runs open LLMs on your hardware and exposes a simple HTTP API. Prompts and data stay on your machines, making it the backbone for privacy-first AI."
-msgstr ""
+msgstr "[โอ ล ลา มา](https://ollama.com) เป็นเซิร์ฟเวอร์แบบท้องถิ่นที่เรียกใช้งาน LLM บนฮาร์ดแวร์ของคุณ และเปิดบริการ HTTP แบบง่ายๆ APIการปลุกเตือนและข้อมูลอยู่ในเครื่องของคุณ ทําให้เป็นกระดูกสันหลังสําหรับความเป็นส่วนตัวครั้งแรก AI."
 
+# translated-by: libretranslate
 msgid "[Open WebUI MCP docs](https://docs.openwebui.com/features/extensibility/mcp/)"
-msgstr ""
+msgstr "[เปิดเอกสาร MCP](https://docs.openwebui.com/features/extensibility/mcp/)"
 
+# translated-by: libretranslate
 msgid "[Open a Pull Request with the right template](docs/contributing/artefact/git/pull-request.md)."
-msgstr ""
+msgstr "[เปิดการร้องขอดึงโดยใช้ต้นแบบที่ถูกต้อง](docs/contributing/artefact/git/pull-request.md)."
 
+# translated-by: libretranslate
 msgid "[OpenBao](https://openbao.org/) is an identity-based secrets and encryption manager governed by the Linux Foundation. It stores application credentials, API keys, service and database credentials, automation and agent identities, short-lived tokens and encryption keys behind a policy engine, and can act as an internal certificate authority."
-msgstr ""
+msgstr "[เปิดบาว](https://openbao.org/) เป็นความลับและผู้จัดการการเข้ารหัส ที่ถูกควบคุมโดยมูลนิธิลินุกซ์ มันเก็บข้อมูลโปรแกรม API กุญแจ, บริการ และ ฐานข้อมูล การแสดงตัวอัตโนมัติ และ การแสดงตัวตัวแทน, สัญลักษณ์สั้น ๆ และกุญแจเข้ารหัส ข้างหลังกลไกนโยบาย, และสามารถทําหน้าที่เป็น อํานาจของใบรับรองภายในได้."
 
+# translated-by: libretranslate
 msgid "[OpenBao](https://openbao.org/) is the Linux-Foundation-governed fork of HashiCorp Vault: an identity-based secrets and encryption manager with a KV store, a PKI engine, pluggable auth methods and a built-in web UI."
-msgstr ""
+msgstr "[เปิดบาว](https://openbao.org/) คือ ส้อมที่ฝังอยู่ในลินุกซ์-ฟลายเจอร์ของ HashiCorp Wault เป็นข้อมูลส่วนตัวและตัวจัดการการเข้ารหัส กับร้าน KV เครื่องยนต์ PKI ปลั๊ก Authorable และสร้างเว็บยูไอ."
 
+# translated-by: libretranslate
 msgid "[OpenClaw](https://openclaw.ai/) is an open-source personal AI agent that runs on hardware you control. It ships a gateway process with a browser Control UI next to its CLI and TUI, keeps persistent memory and a workspace on disk, and performs browser and filesystem tasks inside its own sandbox."
-msgstr ""
+msgstr "[อักขระ OpenCraw](https://openclaw.ai/) เป็นเจ้าหน้าที่ AI ของโอเพนซอร์ส ที่ใช้ฮาร์ดแวร์ที่คุณควบคุม มันส่งขั้นตอนเกตเวย์ที่มี UI ควบคุมของเบราว์เซอร์ ถัดจาก CLI และ TUI ของมัน คงหน่วยความจําและพื้นที่การทํางานบนดิสก์."
 
+# translated-by: libretranslate
 msgid "[OpenCloud documentation](https://docs.opencloud.eu/)"
-msgstr ""
+msgstr "[เอกสาร OpenCloud](https://docs.opencloud.eu/)"
 
+# translated-by: libretranslate
 msgid "[OpenCloud](https://opencloud.eu/) is a sovereign self-hosted file sync, share, and collaboration platform maintained by the Heinlein Group. It is a fork of the OpenCloud Infinite Scale codebase and is published as the `opencloudeu/opencloud` container image."
-msgstr ""
+msgstr "[เปิด](https://opencloud.eu/) เป็นแฟ้มที่มีเครื่องควบคุมด้วยตนเอง ที่เข้ากันได้, แบ่งปัน, และแพลตฟอร์มความร่วมมือของกลุ่มไฮน์ลีน มันเป็นส้อมของ OpenCloud มาตราฐานรหัสอนันต์และได้รับการตีพิมพ์เป็น `opencloudeu/opencloud` รูปตู้คอนเทนเนอร์."
 
+# translated-by: libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
-msgstr ""
+msgstr "[ปูมบันทึกแบบ OpenID เชื่อมต่อ RP](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
 
+# translated-by: libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/)"
-msgstr ""
+msgstr "[ด็อก OpenID](https://docs.semaphoreui.com/administration-guide/openid/)"
 
+# translated-by: libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/), [Keycloak config](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
-msgstr ""
+msgstr "[ด็อก OpenID](https://docs.semaphoreui.com/administration-guide/openid/). [Keycloak ปรับแต่ง](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
 
+# translated-by: libretranslate
 msgid "[OpenProject MCP Server docs](https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/)"
-msgstr ""
+msgstr "[เปิดโครงการ MCP เอกสารของเซิร์ฟเวอร์](https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/)"
 
+# translated-by: libretranslate
 msgid "[OpenResty Docker Hub](https://hub.docker.com/r/openresty/openresty)"
-msgstr ""
+msgstr "[OpenResty Docer Humber](https://hub.docker.com/r/openresty/openresty)"
 
+# translated-by: libretranslate
 msgid "[OpenResty Official Documentation](https://openresty.org/)"
-msgstr ""
+msgstr "[เปิดเผยอย่างเป็นทางการ Documentation](https://openresty.org/)"
 
+# translated-by: libretranslate
 msgid "[OpenSSH security recommendations](https://www.openssh.com/security.html)"
-msgstr ""
+msgstr "[แนะนําความปลอดภัยแบบ OpenSSH](https://www.openssh.com/security.html)"
 
+# translated-by: libretranslate
 msgid "[OpenSearch](https://opensearch.org/)"
-msgstr ""
+msgstr "[เปิดการค้นหา](https://opensearch.org/)"
 
+# translated-by: libretranslate
 msgid "[OpenTalk documentation](https://docs.opentalk.eu/)"
-msgstr ""
+msgstr "[เปิดเอกสาร](https://docs.opentalk.eu/)"
 
+# translated-by: libretranslate
 msgid "[OpenTalk setup template](https://gitlab.opencode.de/opentalk/ot-setup)"
-msgstr ""
+msgstr "[เปิดแม่แบบการตั้งค่า Chiasmus](https://gitlab.opencode.de/opentalk/ot-setup)"
 
+# translated-by: libretranslate
 msgid "[OpenTalk](https://opentalk.eu/) is a sovereign open-source video conferencing platform developed by the Heinlein Group. It combines a Rust controller, a LiveKit-based WebRTC media server, and a React web frontend."
-msgstr ""
+msgstr "[เปิดหน้าต่าง](https://opentalk.eu/) เป็นเวทีโอเพนซอร์สวิดีโอ ที่พัฒนาโดยกลุ่มไฮน์ลีน มันรวมเครื่องควบคุม Russt, เว็บไซต์ Life Kit ที่อยู่บนเว็บอาร์ทีซี, และเว็บฟร้อนท์."
 
+# translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
-msgstr ""
+msgstr "[การสนทนา OpenWrt Forum on Wire Search](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 
+# translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
-msgstr ""
+msgstr "[แคชของแพกเกจ](roles/svc-cache-package/)"
 
+# translated-by: libretranslate
 msgid "[Package update](roles/update/)"
-msgstr ""
+msgstr "[ปรับปรุงแพกเกจ](roles/update/)"
 
+# translated-by: libretranslate
 msgid "[PeerTube GitHub Issues](https://github.com/Chocobozzz/PeerTube/issues/3091)"
-msgstr ""
+msgstr "[ปัญหา เพื่อน บ้าน กิตติม บุบ](https://github.com/Chocobozzz/PeerTube/issues/3091)"
 
+# translated-by: libretranslate
 msgid "[PeerTube Official Documentation](https://docs.joinpeertube.org/install-docker)"
-msgstr ""
+msgstr "[เพื่อนร่วมชั้น Documentation](https://docs.joinpeertube.org/install-docker)"
 
+# translated-by: libretranslate
 msgid "[Penpot Configuration Guide](https://help.penpot.app/technical-guide/configuration/)"
-msgstr ""
+msgstr "[คู่มือการปรับแต่ง Pentot](https://help.penpot.app/technical-guide/configuration/)"
 
+# translated-by: libretranslate
 msgid "[Penpot Docker Guide](https://github.com/penpot/penpot/tree/main/docker)"
-msgstr ""
+msgstr "[คู่มือปากกาดอกเกอร์](https://github.com/penpot/penpot/tree/main/docker)"
 
+# translated-by: libretranslate
 msgid "[Penpot Official Website](https://penpot.app/)"
-msgstr ""
+msgstr "[Pentot อย่างเป็นทางการ website](https://penpot.app/)"
 
+# translated-by: libretranslate
 msgid "[Penpot](https://penpot.app/) is an open-source design and prototyping platform (a self-hostable Figma alternative). This requirement tracks a new `web-app-penpot` Ansible role that deploys Penpot's containerized stack and wires it into the Infinito.Nexus ecosystem (identity, reverse proxy, marketplace, backup)."
-msgstr ""
+msgstr "[ปากกา](https://penpot.app/) เป็นรูปแบบโอเพนซอร์ส และแพลตฟอร์มประกอบ (เป็นทางเลือกที่ควบคุมตัวเองได้)ข้อ เรียก ร้อง นี้ จะ ติด ตาม ข้อ เรียก ร้อง ใหม่ `web-app-penpot` บทบาทที่ใช้ได้ Penpotกองบรรจุของและติดเป็น Infinito.Nexus ระบบนิเวศ (การแสดงตัว, ย้อนกลับพร็อกซี, ตลาด, สํารอง)."
 
+# translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr ""
+msgstr "[จัดวางแนวกํากับต่อ Role](../contributing/design/role/services/layout.md)"
 
+# translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"
-msgstr ""
+msgstr "[เอเย่นต์พาย](roles/dsk-gnt-pi/)"
 
+# translated-by: libretranslate
 msgid "[Pi](https://github.com/earendil-works/pi) is a minimal terminal coding agent with a lazy-loading skill system. This role installs it on a workstation and registers the platform's model gateway as its provider."
-msgstr ""
+msgstr "[พาย](https://github.com/earendil-works/pi) เป็นตัวเข้ารหัสที่น้อยที่สุด กับระบบควบคุมความเร็วที่ขี้เกียจ บทบาทนี้ติดตั้งบนสถานีแรงงาน และลงทะเบียนประตูของชานชาลาเป็นผู้ให้บริการ."
 
+# translated-by: libretranslate
 msgid "[Pipeline](PULL_REQUEST_TEMPLATE/pipeline.md) - CI/CD"
-msgstr ""
+msgstr "[เส้นพริ้วไหว](PULL_REQUEST_TEMPLATE/pipeline.md) CI/CD"
 
+# translated-by: libretranslate
 msgid "[Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)"
-msgstr ""
+msgstr "[คลังดนตรีของ GitHub](https://github.com/pixelfed/pixelfed)"
 
+# translated-by: libretranslate
 msgid "[Play Blu-ray with VLC Guide](https://videobyte.de/play-blu-ray-with-vlc)"
-msgstr ""
+msgstr "[เล่น Bloo-ray ด้วยคําแนะนําของ VLC](https://videobyte.de/play-blu-ray-with-vlc)"
 
+# translated-by: libretranslate
 msgid "[Playwright Spec Loop](../../../agents/action/iteration/playwright.md): spec-only inner loop against the already-running stack."
-msgstr ""
+msgstr "[วนสลับการเล่น](../../../agents/action/iteration/playwright.md): วงจรภายในเฉพาะกับกองที่ทํางานอยู่แล้ว."
 
+# translated-by: libretranslate
 msgid "[Playwright Tests](../../../contributing/actions/testing/playwright.md): framework SPOT for runner, image pin, and recording tools."
-msgstr ""
+msgstr "[ทดสอบการเล่น](../../../contributing/actions/testing/playwright.md): เฟรม SPOT สําหรับนักวิ่ง เข็มหมุดภาพ และเครื่องมือบันทึกเสียง."
 
+# translated-by: libretranslate
 msgid "[Playwright Tests](testing/playwright.md)"
-msgstr ""
+msgstr "[ทดสอบการเล่น](testing/playwright.md)"
 
+# translated-by: libretranslate
 msgid "[Playwright](https://playwright.dev/) runs inside Docker via the shared `test-e2e-playwright` role."
-msgstr ""
+msgstr "[รายการเล่น](https://playwright.dev/) ทํางานภายในโดกเกอร์ผ่านทางการแบ่งปัน `test-e2e-playwright` บทบาท."
 
+# translated-by: libretranslate
 msgid "[PostgreSQL Backup Documentation](https://www.postgresql.org/docs/current/backup-dump.html)"
-msgstr ""
+msgstr "[โพสต์เกรสQL สํารองข้อมูล Documentation](https://www.postgresql.org/docs/current/backup-dump.html)"
 
+# translated-by: libretranslate
 msgid "[PostgreSQL Docker Image](https://hub.docker.com/_/postgres)"
-msgstr ""
+msgstr "[PostgrestQL ภาพดอกเกอร์](https://hub.docker.com/_/postgres)"
 
+# translated-by: libretranslate
 msgid "[Postmarks (GitHub)](https://github.com/ckolderup/postmarks)"
-msgstr ""
+msgstr "[เครื่องหมายไปรษณีย์ (กิตฮับ)](https://github.com/ckolderup/postmarks)"
 
+# translated-by: libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored"
-msgstr ""
+msgstr "[โรค แพ นิก](https://github.com/pragepani): ไดเรกทอรีแคชที่อ่านได้:"
 
+# translated-by: libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite"
-msgstr ""
+msgstr "[โรค แพ นิก](https://github.com/pragepani): บทพายและชุดทดสอบเพลย์ไรท์"
 
+# translated-by: libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)"
-msgstr ""
+msgstr "[โรค แพ นิก](https://github.com/pragepani). web-app-n8n บทบาท (อัตโนมัติทํางาน, ส่วนหัวแบบขอบ SSO, LDAP, Playwright)"
 
+# translated-by: libretranslate
 msgid "[Pretix Documentation](https://docs.pretix.eu/en/latest/)"
-msgstr ""
+msgstr "[พรีทริกซ์ Documentation](https://docs.pretix.eu/en/latest/)"
 
+# translated-by: libretranslate
 msgid "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
-msgstr ""
+msgstr "[พรีทริกซ์ กิตติฮับ Reposition](https://github.com/pretix/pretix)"
 
+# translated-by: libretranslate
 msgid "[Pretix Official Website](https://pretix.eu/)"
-msgstr ""
+msgstr "[pritix อย่างเป็นทางการ Website](https://pretix.eu/)"
 
+# translated-by: libretranslate
 msgid "[Prometheus Documentation](https://prometheus.io/docs/)"
-msgstr ""
+msgstr "[โพรมีธีอุส Documentation](https://prometheus.io/docs/)"
 
+# translated-by: libretranslate
 msgid "[Prometheus](https://prometheus.io/) is an open-source systems monitoring and alerting toolkit that collects and stores time-series metrics and provides a powerful query language (PromQL)."
-msgstr ""
+msgstr "[โพรมีธีอุส](https://prometheus.io/) เป็นระบบบริการ Open-source คอยติดตามและแจ้งเตือนเครื่องมือที่สะสมและจัดเก็บเวลาเมตริกซ์ (ISPQL)."
 
+# translated-by: libretranslate
 msgid "[Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[โพรมีธีอุส](roles/web-app-prometheus/). [Tor Onion Service](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Proprietary Drivers](roles/drv-non-free/)"
-msgstr ""
+msgstr "[นัก ขับ รถ ประจํา ทาง](roles/drv-non-free/)"
 
+# translated-by: libretranslate
 msgid "[Public demo: fediwall.social](https://fediwall.social/)"
-msgstr ""
+msgstr "[ตัวอย่างสาธารณะ: fediwall.social](https://fediwall.social/)"
 
+# translated-by: libretranslate
 msgid "[Published container images](https://github.com/social-home-io/socialhome/pkgs/container/socialhome)"
-msgstr ""
+msgstr "[จัดเก็บรูปภาพต่าง ๆ](https://github.com/social-home-io/socialhome/pkgs/container/socialhome)"
 
+# translated-by: libretranslate
 msgid "[Purge guide](../../../scripts/system/purge/README.md): Canonical entry points for cleanup."
-msgstr ""
+msgstr "[ทิศทางการล้าง](../../../scripts/system/purge/README.md): ทางเข้าสําหรับทําความสะอาด."
 
+# translated-by: libretranslate
 msgid "[Push to your fork](docs/contributing/workflow.md)."
-msgstr ""
+msgstr "[ผลักดันไปที่ส้อมของคุณ](docs/contributing/workflow.md)."
 
+# translated-by: libretranslate
 msgid "[Qdrant Docker Image](https://hub.docker.com/r/qdrant/qdrant)"
-msgstr ""
+msgstr "[ภาพของ Qdrant Docer](https://hub.docker.com/r/qdrant/qdrant)"
 
+# translated-by: libretranslate
 msgid "[Qdrant Snapshots](https://qdrant.tech/documentation/concepts/snapshots/)"
-msgstr ""
+msgstr "[การจับภาพแบบ Qdrange](https://qdrant.tech/documentation/concepts/snapshots/)"
 
+# translated-by: libretranslate
 msgid "[RBAC Wikipedia](https://de.wikipedia.org/wiki/Role_Based_Access_Control)"
-msgstr ""
+msgstr "[วิกิพีเดียName](https://de.wikipedia.org/wiki/Role_Based_Access_Control)"
 
+# translated-by: libretranslate
 msgid "[RBAC design](../../contributing/design/iam/rbac.md)"
-msgstr ""
+msgstr "[ออกแบบ RBAC](../../contributing/design/iam/rbac.md)"
 
+# translated-by: libretranslate
 msgid "[README.md](../../../.github/workflows/README.md) for the selection-token grammar and the per-axis rotation table."
-msgstr ""
+msgstr "[README.md](../../../.github/workflows/README.md) สําหรับไวยากรณ์ที่เลือกและตารางการหมุนแกน."
 
+# translated-by: libretranslate
 msgid "[README.md](../../../.github/workflows/README.md) for the token grammar and the per-axis rotation table."
-msgstr ""
+msgstr "[README.md](../../../.github/workflows/README.md) สําหรับสัญลักษณ์ไวยากรณ์และตารางการหมุนแกน."
 
+# translated-by: libretranslate
 msgid "[Redirector](roles/web-opt-rdr-domains/)"
-msgstr ""
+msgstr "[เปลี่ยนทิศทาง](roles/web-opt-rdr-domains/)"
 
+# translated-by: libretranslate
 msgid "[Redis ACL documentation](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
-msgstr ""
+msgstr "[ทําซ้ําเอกสาร ACL](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
 
+# translated-by: libretranslate
 msgid "[Releases](https://github.com/openbao/openbao/releases)"
-msgstr ""
+msgstr "[การปล่อย](https://github.com/openbao/openbao/releases)"
 
+# translated-by: libretranslate
 msgid "[Relevant Issue Tracker](https://github.com/friendica/friendica/issues)"
-msgstr ""
+msgstr "[แทร็กเกอร์ปัญหาการยกระดับ](https://github.com/friendica/friendica/issues)"
 
+# translated-by: libretranslate
 msgid "[Repository Settings](docs/contributing/tools/github/repository.md): Repository-wide security configuration."
-msgstr ""
+msgstr "[ตั้งค่าโครงการ](docs/contributing/tools/github/repository.md): การตั้งค่าระบบรักษาความปลอดภัย."
 
+# translated-by: libretranslate
 msgid "[Request review and address feedback in your fork](docs/contributing/actions/review.md)."
-msgstr ""
+msgstr "[ร้องขอข้อมูลทบทวนและที่อยู่ ในส้อมของคุณ](docs/contributing/actions/review.md)."
 
+# translated-by: libretranslate
 msgid "[Reset Password for MariaDB/MySQL in Docker](https://wolfgang.gassler.org/reset-password-mariadb-mysql-docker/)"
-msgstr ""
+msgstr "[ตั้งค่ารหัสผ่านใหม่ MariaDB/ MySQL ใน Doker](https://wolfgang.gassler.org/reset-password-mariadb-mysql-docker/)"
 
+# translated-by: libretranslate
 msgid "[Restrict SSH to rsync](http://gergap.de/restrict-ssh-to-rsync.html)"
-msgstr ""
+msgstr "[จํากัด SSH กับ rsync](http://gergap.de/restrict-ssh-to-rsync.html)"
 
+# translated-by: libretranslate
 msgid "[RetroArch](https://www.retroarch.com/) is a frontend for emulators, game engines, and media players powered by the [Libretro](https://www.libretro.com/) framework. It supports multiple UI styles including [XMB](https://en.wikipedia.org/wiki/XrossMediaBar) and [Ozone](https://docs.libretro.com/), and provides a unified interface for retro gaming across platforms."
-msgstr ""
+msgstr "[แก้ไขโครงการหลัก...](https://www.retroarch.com/) เป็นฉากหน้าสําหรับนักจําลอง เครื่องยนต์เกม และเครื่องเล่นสื่อที่ขับเคลื่อนโดย [Libretro](https://www.libretro.com/) กรอบ รองรับรูปแบบ UI หลายๆ แบบ [XMB](https://en.wikipedia.org/wiki/XrossMediaBar) ถึง [โอโซน](https://docs.libretro.com/), และจัดหาตัวเชื่อมต่อรวม สําหรับเกมย้อนยุคข้ามเวที."
 
+# translated-by: libretranslate
 msgid "[Role Documentation](https://s.infinito.nexus/code/tree/main/roles/sys-ctl-mtn-cert-deploy)"
-msgstr ""
+msgstr "[บทบาท Documentation](https://s.infinito.nexus/code/tree/main/roles/sys-ctl-mtn-cert-deploy)"
 
+# translated-by: libretranslate
 msgid "[Roulette Wheel on GitHub](https://github.com/p-wojt/roulette-wheel)"
-msgstr ""
+msgstr "[เครื่อง ยนต์ รูเล็ตต์ บน กิตติฮับ](https://github.com/p-wojt/roulette-wheel)"
 
+# translation-refused: libretranslate protected-span lost=['Node.js']
+# gained=['Node.jsโปรแกรมท']
+# nocheck: url
+# translation-rejected: [ล้อรูเล็ต](https://github.com/p-wojt/roulette-wheel)
+# คือ Node.jsโปรแกรมที่จําลองล้อรูเล็ตในเว็บ.
 msgid "[Roulette Wheel](https://github.com/p-wojt/roulette-wheel) is a Node.js-based front-end application that simulates a roulette wheel in the browser."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Rsync and sudo integration](https://askubuntu.com/questions/719439/using-rsync-with-sudo-on-the-destination-machine)"
-msgstr ""
+msgstr "[Rsync และ sudo integration](https://askubuntu.com/questions/719439/using-rsync-with-sudo-on-the-destination-machine)"
 
+# translated-by: libretranslate
 msgid "[SMART](https://en.wikipedia.org/wiki/SMART_criteria)"
-msgstr ""
+msgstr "[ขนาด SMAT](https://en.wikipedia.org/wiki/SMART_criteria)"
 
+# translated-by: libretranslate
 msgid "[SPOT](https://en.wikipedia.org/wiki/Single_source_of_truth)"
-msgstr ""
+msgstr "[SPOT](https://en.wikipedia.org/wiki/Single_source_of_truth)"
 
+# translated-by: libretranslate
 msgid "[SRP](https://en.wikipedia.org/wiki/Single-responsibility_principle)"
-msgstr ""
+msgstr "[ขนาด SRP](https://en.wikipedia.org/wiki/Single-responsibility_principle)"
 
+# translated-by: libretranslate
 msgid "[SSH (Secure Shell)](https://en.wikipedia.org/wiki/Secure_Shell) is a cryptographic network protocol for operating network services securely over an unsecured network. The [OpenSSH](https://www.openssh.com/) project provides the reference implementation, including `ssh-agent` for managing authentication keys."
-msgstr ""
+msgstr "[SSH (ปลอดภัย Shell)](https://en.wikipedia.org/wiki/Secure_Shell) เป็นโปรโตคอลของเครือข่ายการเข้ารหัส สําหรับบริการเครือข่ายปฏิบัติการ ความปลอดภัยบนเครือข่ายที่ไม่ปลอดภัย เดอะ [เปิด](https://www.openssh.com/) โครงการ ต่าง ๆ จัด ให้ มี การ อ้างอิง ถึง วิธี การ ต่าง ๆ รวม ถึง `ssh-agent` สําหรับจัดการกุญแจการตรวจสอบสิทธิ์."
 
+# translated-by: libretranslate
 msgid "[SSH Command Restrictions via authorized_keys](https://www.thomas-krenn.com/de/wiki/Ausf%C3%BChrbare_SSH-Kommandos_per_authorized_keys_einschr%C3%A4nken)"
-msgstr ""
+msgstr "[คําสั่ง SSH แบบจํากัดผ่านทาง authorized_keys](https://www.thomas-krenn.com/de/wiki/Ausf%C3%BChrbare_SSH-Kommandos_per_authorized_keys_einschr%C3%A4nken)"
 
+# translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
-msgstr ""
+msgstr "[SSHOPEDDS กับเครื่องควบคุมสัญญาณไฟ IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
 
+# translated-by: libretranslate
 msgid "[SSL-Tools Mailserver Test](https://de.ssl-tools.net/mailservers/)"
-msgstr ""
+msgstr "[ทดสอบเซิร์ฟเวอร์จดหมายของ SSL](https://de.ssl-tools.net/mailservers/)"
 
+# translated-by: libretranslate
 msgid "[SSO/OIDC plugin](https://github.com/9p4/jellyfin-plugin-sso)"
-msgstr ""
+msgstr "[ปลั๊กอิน SSO/ OIDC](https://github.com/9p4/jellyfin-plugin-sso)"
 
+# translated-by: libretranslate
 msgid "[Sapere aude](https://en.wikipedia.org/wiki/Sapere_aude): use your own reason with courage and responsibility."
-msgstr ""
+msgstr "[อะด](https://en.wikipedia.org/wiki/Sapere_aude): จง ใช้ เหตุ ผล ของ คุณ เอง ด้วย ความ กล้า หาญ และ ความ รับ ผิด ชอบ."
 
+# translated-by: libretranslate
 msgid "[Scaling a Mastodon Server](https://www.digitalocean.com/community/tutorials/how-to-scale-your-mastodon-server)"
-msgstr ""
+msgstr "[เฉือน Mastodon เซิร์ฟเวอร์](https://www.digitalocean.com/community/tutorials/how-to-scale-your-mastodon-server)"
 
+# translated-by: libretranslate
 msgid "[SearXNG](https://docs.searxng.org/) is a metasearch engine. It forwards a query to other search engines and returns the merged result without an account and without a tracking profile."
-msgstr ""
+msgstr "[ภาษาเซอร์ซงName](https://docs.searxng.org/) เป็นกลไกสํารวจ มันจะส่งการสอบถามไปยังกลไกการค้นหาอื่น ๆ และส่งกลับผลการรวมโดยไม่มีบัญชีผู้ใช้ และไม่มีโพรไฟล์ติดตาม."
 
+# translated-by: libretranslate
 msgid "[SeaweedFS Wiki](https://github.com/seaweedfs/seaweedfs/wiki)"
-msgstr ""
+msgstr "[นก นางแอ่น วิกิName](https://github.com/seaweedfs/seaweedfs/wiki)"
 
+# translated-by: libretranslate
 msgid "[SeaweedFS on GitHub](https://github.com/seaweedfs/seaweedfs)"
-msgstr ""
+msgstr "[นก นางแอ่น บน กิตติฮับ](https://github.com/seaweedfs/seaweedfs)"
 
+# translated-by: libretranslate
 msgid "[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, and files. It exposes an S3-compatible API, so applications store and retrieve objects with standard S3 SDKs and CLIs."
-msgstr ""
+msgstr "[นก นางแอ่น](https://github.com/seaweedfs/seaweedfs) เป็น ระบบ เก็บ ของ ที่ มี การ จําหน่าย อย่าง รวด เร็ว สําหรับ ก้อน หิน, วัตถุ, และ แฟ้ม ต่าง ๆ. มันเปิดโปง S3- เข้ากันได้ APIดังนั้น โปรแกรมที่เก็บไว้ และเรียกวัตถุที่มีมาตรฐาน S3 SDKs และCLIs."
 
+# translated-by: libretranslate
 msgid "[Self-Hosted Runner](roles/svc-runner/)"
-msgstr ""
+msgstr "[โปรแกรมทํางานด้วยตนเอง](roles/svc-runner/)"
 
+# translated-by: libretranslate
 msgid "[Self-hosting Bluesky with Docker and SWAG](https://therobbiedavis.com/selfhosting-bluesky-with-web-app-and-swag/)"
-msgstr ""
+msgstr "[การควบคุมตัวเอง Bluesky กับโดเกอร์และเอสเอจี](https://therobbiedavis.com/selfhosting-bluesky-with-web-app-and-swag/)"
 
+# translated-by: libretranslate
 msgid "[Semaphore Documentation](https://docs.semaphoreui.com/)"
-msgstr ""
+msgstr "[เซมาโฟเร Documentation](https://docs.semaphoreui.com/)"
 
+# translated-by: libretranslate
 msgid "[Semaphore GitHub Repository](https://github.com/semaphoreui/semaphore)"
-msgstr ""
+msgstr "[ระเบียงเซมาโฟเร กิตฮับ](https://github.com/semaphoreui/semaphore)"
 
+# translated-by: libretranslate
 msgid "[Semaphore UI Official Website](https://semaphoreui.com/)"
-msgstr ""
+msgstr "[Semaphore UI เว็บไซต์อย่างเป็นทางการ](https://semaphoreui.com/)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: [เซมาโฟเร อูไอ](https://semaphoreui.com/) (ก่อนหน้านี้
+# *เซมาโฟเร ที่ หา ยาก*, เรโป `semaphoreui/semaphore`) เป็นโอเพนซอร์ส
+# เว็บยูไอแบบโก API สําหรับการทํางานหนังสือเล่นที่อ่านง่าย, Teroriform/
+# opentofu planguage และเชลล์สคริปต์ในตาราง หรือในความต้องการ
+# มันส่งรูปตู้คอนเทนเนอร์อย่างเป็นทางการ `semaphoreui/semaphore`
+# และได้รับการปรับแต่งเกือบทั้งหมดผ่าน `SEMAPHORE_*` ตัวแปรแวดล้อม
+# (ต้องการใช้คอนเทนเนอร์) ขอสาบานต่อเมฆที่พยุง (ฝน) อย่างหนัก `config.json`.
 msgid "[Semaphore UI](https://semaphoreui.com/) (formerly *Ansible Semaphore*, repo `semaphoreui/semaphore`) is an open-source, Go-based web UI and API for running Ansible playbooks, Terraform/OpenTofu plans, and shell scripts on a schedule or on demand. It ships a single official container image `semaphoreui/semaphore` and is configured almost entirely through `SEMAPHORE_*` environment variables (preferred for containers) or a mounted `config.json`."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Semaphore UI](https://semaphoreui.com/) is a modern web UI and API for running Ansible playbooks, Terraform/OpenTofu plans, and shell scripts on a schedule or on demand. This role deploys the official [`semaphoreui/semaphore`](https://github.com/semaphoreui/semaphore) container behind the Infinito.Nexus reverse proxy with central PostgreSQL, native Keycloak OIDC Single Sign-On, and optional LDAP login."
-msgstr ""
+msgstr "[เซมาโฟเร อูไอ](https://semaphoreui.com/) เป็นยูไอสมัยใหม่ API สําหรับการทํางานหนังสือเล่นที่อ่านง่าย, Teroriform/ opentofu planguage และเชลล์สคริปต์ในตาราง หรือในความต้องการ บทบาทนี้ใช้ทางการ [`semaphoreui/semaphore`](https://github.com/semaphoreui/semaphore) กล่องข้างหลัง Infinito.Nexus ย้อนกลับพร็อกซีโดยใช้ศูนย์กลาง PostgreSQLพื้นเมือง Keycloak OIDC ซิงเกิล เข้าสู่ระบบ และเพิ่มการล็อกอินของ LDAP."
 
+# translated-by: libretranslate
 msgid "[Server](PULL_REQUEST_TEMPLATE/server.md) - `web-*` roles"
-msgstr ""
+msgstr "[เซิร์ฟเวอร์](PULL_REQUEST_TEMPLATE/server.md) - `web-*` บทบาท"
 
+# translated-by: libretranslate
 msgid "[Set up your local environment](docs/contributing/environment/setup.md)."
-msgstr ""
+msgstr "[ตั้งค่าสภาพแวดล้อมท้องถิ่นของคุณ](docs/contributing/environment/setup.md)."
 
+# translated-by: libretranslate
 msgid "[Setting up Keycloak behind a Reverse Proxy](https://www.keycloak.org/server/reverseproxy)"
-msgstr ""
+msgstr "[กําลังตั้งค่า Keycloak เบื้องหลังพร็อกซีแบบย้อนกลับ](https://www.keycloak.org/server/reverseproxy)"
 
+# translated-by: libretranslate
 msgid "[Shopware Developer Documentation](https://developer.shopware.com/)"
-msgstr ""
+msgstr "[ผู้พัฒนาร้านค้า Documentation](https://developer.shopware.com/)"
 
+# translated-by: libretranslate
 msgid "[Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการของร้านค้า](https://www.shopware.com/en/) <! -- ไม่ตรวจสอบ: url; วงจรการเปลี่ยนในการตรวจสอบเว็บไซต์มีชีวิตอยู่เมื่อเข้าชมอย่างโต้ตอบ -->"
 
+# translated-by: libretranslate
 msgid "[Shopware Store (Plugins)](https://store.shopware.com/en/)"
-msgstr ""
+msgstr "[ร้านค้า (ส่วนเสริม)](https://store.shopware.com/en/)"
 
+# translated-by: libretranslate
 msgid "[Snipe‑IT Official Documentation](https://snipe-it.readme.io/)"
-msgstr ""
+msgstr "[ภาษาสไนเปตอย่างเป็นทางการ Documentation](https://snipe-it.readme.io/)"
 
+# translated-by: libretranslate
 msgid "[Social Home source](https://github.com/social-home-io/socialhome)"
-msgstr ""
+msgstr "[แหล่ง สังคม สงเคราะห์](https://github.com/social-home-io/socialhome)"
 
+# translated-by: libretranslate
 msgid "[Sociallogin Plugin (Official)](https://apps.nextcloud.com/apps/sociallogin)"
-msgstr ""
+msgstr "[ส่วนเสริมสังคมนิยมName (อย่างเป็นทางการ)](https://apps.nextcloud.com/apps/sociallogin)"
 
+# translated-by: libretranslate
 msgid "[Spamhaus](https://check.spamhaus.org/)"
-msgstr ""
+msgstr "[สแปม](https://check.spamhaus.org/)"
 
+# translated-by: libretranslate
 msgid "[Sphinx Official Website](https://www.sphinx-doc.org/)"
-msgstr ""
+msgstr "[สฟิงค์เว็บไซต์อย่างเป็นทางการ](https://www.sphinx-doc.org/)"
 
+# translated-by: libretranslate
 msgid "[Stack Overflow: Invalid Host Header with Webpack Dev Server](https://stackoverflow.com/questions/43619644/i-am-getting-an-invalid-host-header-message-when-connecting-to-webpack-dev-ser)"
-msgstr ""
+msgstr "[ส่วนจัดการจดหมายไม่ถูกต้อง:](https://stackoverflow.com/questions/43619644/i-am-getting-an-invalid-host-header-message-when-connecting-to-webpack-dev-ser)"
 
+# translated-by: libretranslate
 msgid "[Static Web Page (Wikipedia)](https://en.wikipedia.org/wiki/Static_web_page)"
-msgstr ""
+msgstr "[โพสต์ติกหน้าเว็บ (วิกิพีเดียName)](https://en.wikipedia.org/wiki/Static_web_page)"
 
+# translated-by: libretranslate
 msgid "[Storage Optimizer](roles/svc-opt-ssd-hdd/)"
-msgstr ""
+msgstr "[เครื่องมือจับภาพ](roles/svc-opt-ssd-hdd/)"
 
+# translated-by: libretranslate
 msgid "[Subnetting Basics](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
-msgstr ""
+msgstr "[พื้นฐานย่อย](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 
+# translated-by: libretranslate
 msgid "[SuiteCRM Documentation](https://docs.suitecrm.com/) 📖"
-msgstr ""
+msgstr "[โปรแกรมชุด Documentation](https://docs.suitecrm.com/) 📖"
 
+# translated-by: libretranslate
 msgid "[SuiteCRM Official Website](https://suitecrm.com/) 🌍"
-msgstr ""
+msgstr "[Website อย่างเป็นทางการ WatchECRM](https://suitecrm.com/) 🌍"
 
+# translated-by: libretranslate
 msgid "[Svc Engine](https://example.com/) is an application."
-msgstr ""
+msgstr "[กลไกของ Svc](https://example.com/) คือใบสมัครงาน."
 
+# translated-by: libretranslate
 msgid "[Svc Objstore](https://example.com/) is an application."
-msgstr ""
+msgstr "[Obstoire ของ Svc](https://example.com/) คือใบสมัครงาน."
 
+# translated-by: libretranslate
 msgid "[Swapfile](roles/svc-opt-swapfile/)"
-msgstr ""
+msgstr "[แฟ้มหน่วยความจําเสมือน](roles/svc-opt-swapfile/)"
 
+# translated-by: libretranslate
 msgid "[SysPass issue #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
-msgstr ""
+msgstr "[# มีคําถาม #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
 
+# translated-by: libretranslate
 msgid "[System One](roles/svc-ai-s1/)"
-msgstr ""
+msgstr "[ระบบหนึ่ง](roles/svc-ai-s1/)"
 
+# translated-by: libretranslate
 msgid "[System](PULL_REQUEST_TEMPLATE/system.md) - `sys-*`, `svc-*`, `dev-*`, `drv-*`"
-msgstr ""
+msgstr "[ระบบ](PULL_REQUEST_TEMPLATE/system.md) - `sys-*`. `svc-*`. `dev-*`. `drv-*`"
 
+# translated-by: libretranslate
 msgid "[Systemd (Wikipedia)](https://en.wikipedia.org/wiki/Systemd)"
-msgstr ""
+msgstr "[ระบบ (วิกิพีเดียName)](https://en.wikipedia.org/wiki/Systemd)"
 
+# translated-by: libretranslate
 msgid "[Systemd Timers Documentation](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)"
-msgstr ""
+msgstr "[ตัวจับเวลาของระบบ Documentation](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)"
 
+# translated-by: libretranslate
 msgid "[TDD](https://en.wikipedia.org/wiki/Test-driven_development)"
-msgstr ""
+msgstr "[แบบ TDD](https://en.wikipedia.org/wiki/Test-driven_development)"
 
+# translated-by: libretranslate
 msgid "[TURN REST API credential scheme](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00)"
-msgstr ""
+msgstr "[กลับ เยี่ยม API ชุดรหัสอักขระ](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00)"
 
+# translated-by: libretranslate
 msgid "[Taiga](https://www.taiga.io/) is a powerful and intuitive open-source project management platform tailored for agile teams. Whether you're practicing Scrum, Kanban, or a custom hybrid workflow, Taiga offers a rich, customizable environment to plan, track, and collaborate on your projects, without the complexity of enterprise tools or the vendor lock-in of SaaS platforms."
-msgstr ""
+msgstr "[ไทกะ](https://www.taiga.io/) เป็นแพลตฟอร์มการจัดการโครงการโอเพนซอร์ส ที่มีประสิทธิภาพและตรงตามสัญชาตญาณ ไม่ว่าคุณจะกําลังฝึกสครัม คันบัน หรืองานลูกผสมที่กําหนดเอง Taiga ให้มีสภาพแวดล้อมที่อุดมไปด้วย การวางแผน, แทร็ค, และความร่วมมือในโครงการของคุณ โดยไม่ต้องมีความซับซ้อนของเครื่องมือ enterprise."
 
+# translated-by: libretranslate
 msgid "[Terminal aliases and agent shortcuts](shell/alias.md): the `i8*` shell aliases (`make install-alias`) and the agent conversation shortcuts, printed together by `make alias`; `make onboard` sets up a developer workstation end to end."
-msgstr ""
+msgstr "[ชื่อแฟ้มและทางลัดตัวแทนเทอร์มินัล](shell/alias.md). `i8*` ชื่อแฟ้มจากเชลล์ (`make install-alias`) และตัวแทนการสนทนาทางลัด, พิมพ์ร่วมกันโดย `make alias`. `make onboard` การจัดตั้งศูนย์พัฒนางาน จะสิ้นสุดลง."
 
+# translated-by: libretranslate
 msgid "[Test E2E Cli](https://example.com/) is an application."
-msgstr ""
+msgstr "[ทดสอบ E2ECli](https://example.com/) คือใบสมัครงาน."
 
+# translated-by: libretranslate
 msgid "[Three Laws of Robotics](https://simple.wikipedia.org/wiki/Three_Laws_of_Robotics)"
-msgstr ""
+msgstr "[กฎ สาม ประการ ของ หุ่น ยนต์](https://simple.wikipedia.org/wiki/Three_Laws_of_Robotics)"
 
+# translated-by: libretranslate
 msgid "[Tor Onion Service](roles/svc-net-tor/)"
-msgstr ""
+msgstr "[บริการ ตอร์ โอ นิ ออน](roles/svc-net-tor/)"
 
+# translated-by: libretranslate
 msgid "[Tor Project documentation](https://www.torproject.org/)"
-msgstr ""
+msgstr "[เอกสารของ Tor Project](https://www.torproject.org/)"
 
+# translated-by: libretranslate
 msgid "[UFW and SSH via WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
-msgstr ""
+msgstr "[UFW และ SSH ผ่านการป้องกันระบบไร้สาย](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
 
+# translated-by: libretranslate
 msgid "[Unit Tests](testing/unit.md)"
-msgstr ""
+msgstr "[ทดสอบหน่วย](testing/unit.md)"
 
+# translated-by: libretranslate
 msgid "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
-msgstr ""
+msgstr "[ปูมบันทึกระบบปฏิบัติการสากล GitHub Reposition](https://github.com/kevinveenbirkenbach/universal-logout)"
 
+# translated-by: libretranslate
 msgid "[Use the development guide](docs/contributing/actions/testing.md)."
-msgstr ""
+msgstr "[ใช้คู่มือพัฒนา](docs/contributing/actions/testing.md)."
 
+# translated-by: libretranslate
 msgid "[User Security Guide](docs/security/user.md)"
-msgstr ""
+msgstr "[คู่มือความปลอดภัยของผู้ใช้](docs/security/user.md)"
 
+# translated-by: libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr ""
+msgstr "[สตูดิโอภาพ Code](https://code.visualstudio.com/) เป็นบรรณาธิการโค้ดที่มีประสิทธิภาพ กับระบบนิเวศของส่วนเสริมที่กว้างขวาง รองรับงานพัฒนา ดูสิ [Arch Wiki - เครื่องมือพัฒนา](https://wiki.archlinux.org/title/Category:Development) และทั่วไป [วิศวกรรมซอฟต์แวร์](https://en.wikipedia.org/wiki/Software_engineering) ที่วิกิพีเดีย."
 
+# translated-by: libretranslate
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
-msgstr ""
+msgstr "[สตูดิโอภาพ Code](https://github.com/microsoft/vscode) ในรสชาติที่เลือกได้: การกระจายตัว Code - การสร้าง OSS, VSCodium หรือ Microsoft ของตัวเอง."
 
+# translated-by: libretranslate
 msgid "[WP Discourse Plugin](https://wordpress.org/plugins/wp-discourse/)"
-msgstr ""
+msgstr "[WP Discourse โปรแกรมเสริม](https://wordpress.org/plugins/wp-discourse/)"
 
+# translated-by: libretranslate
 msgid "[WSL2](https://learn.microsoft.com/en-us/windows/wsl/)-specific steps MUST be guarded by a WSL2 detection check before execution."
-msgstr ""
+msgstr "[WSL2](https://learn.microsoft.com/en-us/windows/wsl/)- ต้องป้องกันทุกขั้นตอนด้วย WSL2 การตรวจสอบการตรวจสอบก่อนที่จะดําเนินการ."
 
+# translated-by: libretranslate
 msgid "[Werk #7819](https://checkmk.com/werk/7819), [omd_https](https://docs.checkmk.com/latest/en/omd_https.html)"
-msgstr ""
+msgstr "[เว็บ7819](https://checkmk.com/werk/7819). [omd_https](https://docs.checkmk.com/latest/en/omd_https.html)"
 
+# translated-by: libretranslate
 msgid "[Wikipedia](https://en.wikipedia.org/wiki/Keycloak)"
-msgstr ""
+msgstr "[วิกิพีเดียName](https://en.wikipedia.org/wiki/Keycloak)"
 
+# translated-by: libretranslate
 msgid "[Wildcard Certificate Setup (SETUP.md)](./SETUP.md)"
-msgstr ""
+msgstr "[ตั้งค่าใบรับรองไวล์การ์ด (SETUP.md)](./SETUP.md)"
 
+# translated-by: libretranslate
 msgid "[Wildcard Certificates (Wikipedia)](https://en.wikipedia.org/wiki/Wildcard_certificate)"
-msgstr ""
+msgstr "[ใบรับรองไวลด์การ์ด (วิกิพีเดียName)](https://en.wikipedia.org/wiki/Wildcard_certificate)"
 
+# translated-by: libretranslate
 msgid "[Windows (WSL2)](platform/windows-wsl2.md)"
-msgstr ""
+msgstr "[หน้าต่าง (WSL2)](platform/windows-wsl2.md)"
 
+# translated-by: libretranslate
 msgid "[WireGuard Client behind NAT](roles/svc-net-wireguard-firewalled/)"
-msgstr ""
+msgstr "[โปรแกรมลูกข่ายเครือข่ายเบื้องหลัง NAT](roles/svc-net-wireguard-firewalled/)"
 
+# translated-by: libretranslate
 msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
-msgstr ""
+msgstr "[การเชื่อมต่อกันแบบไร้สาย ตายบน Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 
+# translated-by: libretranslate
 msgid "[WireGuard Documentation](https://www.wireguard.com/)"
-msgstr ""
+msgstr "[ป้องกันระบบไร้สาย Documentation](https://www.wireguard.com/)"
 
+# translated-by: libretranslate
 msgid "[WireGuard NAT and Firewall Issues](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
-msgstr ""
+msgstr "[ระบบ ป้องกัน หลอด ไฟ และ ปัญหา ไฟ](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 
+# translated-by: libretranslate
 msgid "[WireGuard Permissions Issue Discussion](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
-msgstr ""
+msgstr "[การ พูด คุย เรื่อง ความ ปลอด ภัย ทาง สาย](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
 
+# translated-by: libretranslate
 msgid "[Wireguard Client](roles/svc-net-wireguard-plain/)"
-msgstr ""
+msgstr "[ไคลเอนต์ไวร์การ์ด](roles/svc-net-wireguard-plain/)"
 
+# translated-by: libretranslate
 msgid "[WordPress Multisite Documentation](https://wordpress.org/support/article/create-a-network/)"
-msgstr ""
+msgstr "[คําเติมมัลติไซต์ Documentation](https://wordpress.org/support/article/create-a-network/)"
 
+# translated-by: libretranslate
 msgid "[WordPress Official Website](https://wordpress.org/)"
-msgstr ""
+msgstr "[WordPrests website](https://wordpress.org/)"
 
+# translated-by: libretranslate
 msgid "[WordPress Plugin Repository](https://wordpress.org/plugins/)"
-msgstr ""
+msgstr "[โปรแกรมเสริมสําหรับกระจายคํา](https://wordpress.org/plugins/)"
 
+# translated-by: libretranslate
 msgid "[WordPress](https://en.wordpress.org/) is a versatile and widely used [content management system (CMS)](https://en.wikipedia.org/wiki/Content_management_system) that powers millions of websites, from blogs and portfolios to e-commerce and corporate sites. This deployment provides a containerized WordPress instance optimized for multisite operation, advanced media management, and extensive plugin support, allowing you to fully leverage the rich features of the WordPress software."
-msgstr ""
+msgstr "[ตําแหน่ง:](https://en.wordpress.org/) มีประโยชน์และมีประโยชน์อย่างกว้างขวาง [ระบบจัดการเนื้อหา (แบบ CMS)](https://en.wikipedia.org/wiki/Content_management_system) ที่ให้อํานาจแก่เว็บไซต์นับล้าน ๆ เว็บไซต์ จากบล็อกและผลงานต่างๆ ไปเป็นเว็บไซต์ e-commerce และ Internations การ ใช้ วิธี นี้ ทํา ให้ ภาชนะ บรรจุ WordPress ตัว อย่าง เช่น ได้ รับ การ ปรับ ปรุง ให้ ดี ที่ สุด สําหรับ การ ดําเนิน งาน หลาย ประเภท, การ จัด การ เรื่อง สื่อ ต่าง ๆ อย่าง ดี, และ การ สนับสนุน อย่าง กว้าง ขวาง โดย ให้ คุณ มี ส่วน ส่ง เสริม อย่าง เต็ม ที่ ใน การ จัด การ เรื่อง ต่าง ๆ อัน อุดม ของ WordPress ซอฟท์แวร์."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['90']
+# nocheck: url
+# translation-rejected: [หมุน & 90](../agents/action/iteration/workflow.md)
 msgid "[Workflow Loop](../agents/action/iteration/workflow.md)"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[Workstation User](roles/user-workstation/)"
-msgstr ""
+msgstr "[ผู้ใช้สถานีทํางาน](roles/user-workstation/)"
 
+# translated-by: libretranslate
 msgid "[Workstation](PULL_REQUEST_TEMPLATE/workstation.md) - `dsk-*` roles"
-msgstr ""
+msgstr "[ที่ทํางาน](PULL_REQUEST_TEMPLATE/workstation.md) - `dsk-*` บทบาท"
 
+# translated-by: libretranslate
 msgid "[World Wide Web](roles/web-opt-rdr-www/)"
-msgstr ""
+msgstr "[เว็บทั่วโลก](roles/web-opt-rdr-www/)"
 
+# translated-by: libretranslate
 msgid "[XMPP](roles/web-svc-xmpp/)"
-msgstr ""
+msgstr "[ข้อมูล XMP](roles/web-svc-xmpp/)"
 
+# translated-by: libretranslate
 msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
-msgstr ""
+msgstr "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
 
+# translated-by: libretranslate
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
-msgstr ""
+msgstr "[ระเบียง XWiki GitHub](https://github.com/xwiki/xwiki-platform)"
 
+# translated-by: libretranslate
 msgid "[XWiki Official Website](https://www.xwiki.org/)"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการ XWiki](https://www.xwiki.org/)"
 
+# translated-by: libretranslate
 msgid "[YAGNI](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)"
-msgstr ""
+msgstr "[YAGNI](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)"
 
+# translated-by: libretranslate
 msgid "[YOURLS GitHub Repository](https://github.com/YOURLS/YOURLS)"
-msgstr ""
+msgstr "[บ้าน พัก ของ คุณ](https://github.com/YOURLS/YOURLS)"
 
+# translated-by: libretranslate
 msgid "[YOURLS Official Website](https://yourls.org/)"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการของคุณ](https://yourls.org/)"
 
+# translated-by: libretranslate
 msgid "[Yahoo Sender Hub](https://senders.yahooinc.com/) - Provides insights and delivery reports for Yahoo."
-msgstr ""
+msgstr "[ผู้ส่ง Yoo](https://senders.yahooinc.com/) - ให้ข้อมูลและรายงานการส่งมอบให้ยาฮู."
 
+# translated-by: libretranslate
 msgid "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
-msgstr ""
+msgstr "[YouTube Tuble](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
 
+# translated-by: libretranslate
 msgid "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
-msgstr ""
+msgstr "[ซามาด Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
 
+# translated-by: libretranslate
 msgid "[Zammad GitHub](https://github.com/zammad/zammad)"
-msgstr ""
+msgstr "[ซัมมาด กิตฮุบ](https://github.com/zammad/zammad)"
 
+# translated-by: libretranslate
 msgid "[Zammad Official Website](https://zammad.org/)"
-msgstr ""
+msgstr "[Sammad เว็บไซต์อย่างเป็นทางการ](https://zammad.org/)"
 
+# translated-by: libretranslate
 msgid "[Zammad](https://zammad.org/) is an open-source helpdesk and ticketing system. Agents handle customer requests across email, chat, phone and web; customers can open tickets from a self-service portal."
-msgstr ""
+msgstr "[ซามาด](https://zammad.org/) เป็นระบบช่วยเหลือโอเพนซอร์ส และระบบขายตั๋ว เจ้าหน้าที่จัดการกับลูกค้าที่ร้องขอผ่านอีเมล์ การสนทนา โทรศัพท์ และเว็บ ลูกค้าสามารถเปิดตั๋วจากประตูบริการตนเอง."
 
+# translated-by: libretranslate
 msgid "[Zen of Python](https://en.wikipedia.org/wiki/Zen_of_Python)"
-msgstr ""
+msgstr "[Zen of Python](https://en.wikipedia.org/wiki/Zen_of_Python)"
 
+# translated-by: libretranslate
 msgid "[Zoom](https://zoom.us/) is a popular video conferencing application for online meetings, webinars, and collaboration."
-msgstr ""
+msgstr "[ย่อ/ ขยาย](https://zoom.us/) เป็นรายการที่ได้รับความนิยมของวิดีโอ เพื่อร่วมประชุมออนไลน์ เวบินเนอร์ และความร่วมมือ."
 
+# translated-by: libretranslate
 msgid "[__init__.py](__init__.py) MUST list every handler module in `ORDERED_HANDLERS`."
-msgstr ""
+msgstr "[ไ ม่ ม่ ติ](__init__.py) ต้องรายการโมดูลของผู้ดูแลทุกตัว `ORDERED_HANDLERS`."
 
+# translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/address/suggest/__main__.py)"
-msgstr ""
+msgstr "[หลัก หนึ่งตัว](../../../../cli/contributing/network/address/suggest/__main__.py)"
 
+# translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
-msgstr ""
+msgstr "[หลัก หนึ่งตัว](../../../../cli/contributing/network/ports/suggest/__main__.py)"
 
+# translated-by: libretranslate
 msgid "[__main__.py](__main__.py) maps each CLI group to a fixed set of `ensure()` calls:"
-msgstr ""
+msgstr "[หลัก หนึ่งตัว](__main__.py) แผนที่แต่ละกลุ่ม CLI ไปเป็นชุดคงที่ของ `ensure()` โทรศัพท์:"
 
+# translated-by: libretranslate
 msgid "[`../`](../). TLS administration scripts"
-msgstr ""
+msgstr "[`../`](../). สคริปต์จัดการระบบ TLS"
 
+# translated-by: libretranslate
 msgid "[`../`](../). systemd administration scripts"
-msgstr ""
+msgstr "[`../`](../). สคริปต์จัดการระบบ"
 
+# translated-by: libretranslate
 msgid "[`../common.sh`](../common.sh). shared variables and helper functions used by `linux.sh`"
-msgstr ""
+msgstr "[`../common.sh`](../common.sh). ใช้ฟังก์ชันตัวแปรและผู้ช่วยร่วมกัน `linux.sh`"
 
+# translated-by: libretranslate
 msgid "[`../remove.sh`](../remove.sh). teardown script that undoes the DNS configuration"
-msgstr ""
+msgstr "[`../remove.sh`](../remove.sh). ยกเลิกการดึงข้อมูลสคริปต์ที่ยกเลิกการปรับแต่ง DNS"
 
+# translated-by: libretranslate
 msgid "[`.claude/settings.json`](.claude/settings.json) is the single source of truth for agent permissions, independent of runtime. Its `permissions` (`allow`/`ask`/`deny`) and `sandbox` sections are both binding, regardless of runtime (Claude Code, Codex, Gemini, other)."
-msgstr ""
+msgstr "[`.claude/settings.json`](.claude/settings.json) เป็นแหล่งแห่งความจริงเพียงแหล่งเดียว สําหรับสิทธิของตัวแทน อิสระของเวลาทํางาน มัน `permissions` (`allow`/`ask`/`deny`) ถึง `sandbox` ทั้งสองส่วนจะผูก ไม่คํานึงถึงเวลา (Claude Code. Codex, เจมีนี, อื่น ๆ)."
 
+# translated-by: libretranslate
 msgid "[`9p4/jellyfin-plugin-sso`](https://github.com/9p4/jellyfin-plugin-sso) — OIDC/SAML one-click, **web UI only** (native apps cannot use it); third-party."
-msgstr ""
+msgstr "[`9p4/jellyfin-plugin-sso`](https://github.com/9p4/jellyfin-plugin-sso) - OIDC/SAML หนึ่งคลิก **เว็บ UI เท่านั้น** (แอพพลิเคชันใช้ไม่ได้)ปาร์ตีที่สาม."
 
+# translated-by: libretranslate
 msgid "[`cli/administration/inventory/`](../../cli/administration/inventory/) — mint integration point"
-msgstr ""
+msgstr "[`cli/administration/inventory/`](../../cli/administration/inventory/) -จุดรวม"
 
+# translated-by: libretranslate
 msgid "[`common.sh`](common.sh) for shared DNS variables and helper functions"
-msgstr ""
+msgstr "[`common.sh`](common.sh) สําหรับฟังก์ชันตัวแปร DNS และตัวช่วยเหลือร่วมกัน"
 
+# translated-by: libretranslate
 msgid "[`config.yaml.j2`](../../../../../../roles/web-app-hermes/templates/config.yaml.j2) renders one static `Authorization` header per server; no user session exists at render time"
-msgstr ""
+msgstr "[`config.yaml.j2`](../../../../../../roles/web-app-hermes/templates/config.yaml.j2) แสดงผลแบบคงที่ `Authorization` ส่วนหัวต่อเซิร์ฟเวอร์; ไม่มีวาระการใช้งานของผู้ใช้ที่แสดงเวลา"
 
+# translated-by: libretranslate
 msgid "[`config/`](config/) holds the `lookup('config', …)` path-validation suite. The four classifier tests share a single cached project scan exposed by `_scan.iter_matches` and `_scan.get_context`; validation helpers live in `_validate.py`."
-msgstr ""
+msgstr "[`config/`](config/) ถือ `lookup('config', …)` ห้องควบคุมเส้นทาง การทดสอบสี่ประเภท แบ่งปันโครงการเดียวที่มีแคช สแกนโดย `_scan.iter_matches` ถึง `_scan.get_context`; สืบค้นเมื่อ: `_validate.py`."
 
+# translated-by: libretranslate
 msgid "[`default.env`](../../../default.env) holds the committed defaults for every static key (network defaults like DNS, subnet, gateway, domain included), each preceded by a one-line comment. Edit this file to change a default or to read the per-variable documentation."
-msgstr ""
+msgstr "[`default.env`](../../../default.env) เก็บค่าปริยายที่ตั้งไว้สําหรับทุกปุ่มคงที่ (ค่าปริยายของเครือข่ายเช่น DNS, Subnet, เกตเวย์, โดเมนรวม)แต่ละคนมาก่อนด้วยประโยคเดียว แก้ไขแฟ้มนี้ เพื่อเปลี่ยนค่าปริยายหรืออ่านเอกสารแบบแต่ละตัวแปรได้."
 
+# translated-by: libretranslate
 msgid "[`docs/agents/action/`](docs/agents/action/) holds one runbook per action and is read on demand, not at session start: read a runbook when the matching `i8-` skill routes you to it, or when you are about to perform that action without one. It is the bulk of the agent documentation, and every runbook in it is inert until its action is the task."
-msgstr ""
+msgstr "[`docs/agents/action/`](docs/agents/action/) เก็บบันทึกการทํางานหนึ่งเล่มต่อการกระทําและอ่านด้วยความต้องการ ไม่ใช่เมื่อเริ่มวาระงาน: อ่านคู่มือทํางานเมื่อเข้าคู่ `i8-` ความ สามารถ จะ นํา คุณ ไป สู่ เป้า หมาย นั้น หรือ เมื่อ คุณ กําลัง จะ ทํา สิ่ง นั้น โดย ไม่ มี เลย. มันเป็นเอกสารของเอเจ้นท์จํานวนมาก และทุกรายการในนั้นจะไม่รู้จนกว่าจะลงมือ."
 
+# translated-by: libretranslate
 msgid "[`env/`](../../../utils/env/) (under `utils/`) holds the parser, runtime helpers, writer, and one handler module per dynamically-computed variable under [`handlers/`](../../../utils/env/handlers/)."
-msgstr ""
+msgstr "[`env/`](../../../utils/env/) (ภายใต้ `utils/`) เก็บตัววิเคราะห์, ตัวช่วยเหลือการทํางาน, นักเขียน, และโมดูลของตัวจัดการต่อตัวแปรที่ประมวลผลได้ [`handlers/`](../../../utils/env/handlers/)."
 
+# translated-by: libretranslate
 msgid "[`jellyfin-plugin-ldapauth`](https://github.com/jellyfin/jellyfin-plugin-ldapauth) — official-catalog plugin; **works on ALL clients** (web + native apps)."
-msgstr ""
+msgstr "[`jellyfin-plugin-ldapauth`](https://github.com/jellyfin/jellyfin-plugin-ldapauth) - ปลั๊กอินคาตาล็อกอย่างเป็นทางการ **ทํางานกับไคลเอนต์ทั้งหมด** (แอพพลิเคชันแบบเว็บ + แบบทั่วไป)."
 
+# translated-by: libretranslate
 msgid "[`load.sh`](../../../scripts/meta/env/load.sh) is the shell loader; it sources `.env` and auto-generates it on a cold clone."
-msgstr ""
+msgstr "[`load.sh`](../../../scripts/meta/env/load.sh) คือ กระปุก บรรจุ เปลือก หอย; เป็น แหล่ง ที่ มา `.env` และผลิตอัตโนมัติบนโคลนเย็น."
 
+# translated-by: libretranslate
 msgid "[`mcp_authorization`](../../../../../../plugins/filter/mcp/authorization.py) raises for `auth: oidc`, because a rendered config cannot carry a caller's token, and `mcp_authorization_is_renderable` returns `false` so the static-config clients drop the server instead of presenting a wrong secret."
-msgstr ""
+msgstr "[`mcp_authorization`](../../../../../../plugins/filter/mcp/authorization.py) ยกมาสําหรับ `auth: oidc`, เพราะว่าการปรับแต่งที่ถูกแก้ไขแล้ว ไม่สามารถถือป้ายโทรศัพท์ได้ `mcp_authorization_is_renderable` กลับค่า `false` ดังนั้นลูกค้าแบบคงที่จะวางเซิร์ฟเวอร์แทนการนําเสนอความลับที่ไม่ถูกต้อง."
 
+# translated-by: libretranslate
 msgid "[`mcp_tool_server_connections`](../../../../../../plugins/filter/mcp/tool_server_connections.py) emits `auth_type: system_oauth` with an empty `key` for those servers, so Open WebUI resolves the caller's own token per request."
-msgstr ""
+msgstr "[`mcp_tool_server_connections`](../../../../../../plugins/filter/mcp/tool_server_connections.py) ปล่อย `auth_type: system_oauth` ด้วยช่องว่าง `key` สําหรับเซิร์ฟเวอร์พวกนั้น Open WebUI แก้ไขสัญลักษณ์ของโทรเอง."
 
+# translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) admits only the Prometheus administrator RBAC group through the oauth2-proxy gate, so the `biber` persona is denied before it ever reaches a Prometheus page: [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. That denial is not lost coverage — this role's own spec asserts it for every consumer, together with the admin reach and scrape-target parity checks. The `administrator` persona is blocked only when `services.sso.enabled` is false: without the co-deployed Keycloak there is no proxy in front of Prometheus, hence no login round-trip and no logout control to drive. The `guest` persona and the baseline reachability assertions run unconditionally."
-msgstr ""
+msgstr "[`meta/services.yml`](./meta/services.yml) ยอมรับเฉพาะ Prometheus ผู้ดูแลระบบ RBAC Group ผ่าน Oauth2- ประตูชัย `biber` คนเราถูกปฏิเสธก่อนที่จะไปถึง Prometheus หน้า: [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ `PERSONA_BIBER_BLOCKED=true`. การปฏิเสธนั้นยังไม่สูญหาย สเปกของบทบาทนี้ยืนยันกับผู้บริโภคทุกคน ร่วมกับโฆษณาที่เข้าถึง เดอะ `administrator` คนจะถูกบล็อคเฉพาะเมื่อ `services.sso.enabled` ความเท็จ: ปราศจากการร่วม Keycloak ไม่มีพร็อกซีข้างหน้า Prometheusจึงไม่มีการล็อกอินเข้ารอบและไม่มีการควบคุมออกจากไดรฟ์ เดอะ `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข."
 
+# translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) admits only the `web-app-lam` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list in the development inventory. The proxy denies `biber` before LAM is ever reached, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`."
-msgstr ""
+msgstr "[`meta/services.yml`](./meta/services.yml) ยอมรับเฉพาะ `web-app-lam` กลุ่มผู้บริหาร RBAC ไปยัง Oauth2-พ็อกซี่ (`sso.oauth2.allowed_groups`)และ `biber` เก็บรายการบทบาทว่างไว้ในรายการรายการรายการพัฒนา ถูกปฏิเสธพร็อกซี `biber` ก่อน LAM ได้ถึงที่หมายแล้ว [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ `PERSONA_BIBER_BLOCKED=true`."
 
+# translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) declares no `sso` service, so this role is never registered as a Keycloak client. Its only HTTP surface is the anonymous logout conductor and the `/logout` endpoints proxied by [`templates/logout-proxy.conf.j2`](./templates/logout-proxy.conf.j2) — there is no login form, no account and no session to end. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The service's real coverage is per consumer: [`files/playwright/playwright.spec.js`](./files/playwright/playwright.spec.js) parameterises the injected logout JS over `roles_with_service('logout')`."
-msgstr ""
+msgstr "[`meta/services.yml`](./meta/services.yml) ประกาศว่าไม่ `sso` หน้าที่นี้ไม่เคยจดทะเบียน Keycloak ลูกความ พื้นผิว HTTP เท่านั้น ที่เป็นคอนดักเตอร์ล็อกเอาต์และ `/logout` จุดปลายระบุโดย [`templates/logout-proxy.conf.j2`](./templates/logout-proxy.conf.j2) -ไม่มีแบบฟอร์มล็อกอิน ไม่มีบัญชี และไม่มีวาระการใช้งานที่จะสิ้นสุด [`templates/playwright.env.j2`](./templates/playwright.env.j2) ดังนั้น จงประกาศ `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. รายงานข่าวจริงของบริการ ต่อผู้บริโภค: [`files/playwright/playwright.spec.js`](./files/playwright/playwright.spec.js) พารามิเตอร์ต่าง ๆ ของการล็อกเอาต์ JS ออกมากกว่า `roles_with_service('logout')`."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: [`meta/services.yml`](./meta/services.yml) เข็มหมุด
+# `sso.enabled` ถึง `logout.enabled` ถึง `false`, และบทบาทที่ไม่มีบัญชีหมากรุก
+# [`templates/env.j2`](./templates/env.j2) แปลเฉพาะ `APP_ADMIN_URL` /
+# `APP_ADMIN_EMAIL` ติดต่อคู่ ทั้งที่ `biber` และ (มะลาอิกะฮฺ)
+# ผู้ควบคุมอย่างรัดกุม `administrator` คนมีพื้นผิวการล็อกอินตรงนี้
+# [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ
+# `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ
+# `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข.
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled` and `logout.enabled` to `false`, and the role seeds no chess account — [`templates/env.j2`](./templates/env.j2) renders only the `APP_ADMIN_URL` / `APP_ADMIN_EMAIL` contact pair. Neither the `biber` nor the `administrator` persona has a login surface here, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled` and `logout.enabled` to `false`; the navigator is a read-only front-end over the role graph with no accounts and no auth layer. There is nothing for the `biber` or `administrator` persona to log in to, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
-msgstr ""
+msgstr "[`meta/services.yml`](./meta/services.yml) เข็มหมุด `sso.enabled` ถึง `logout.enabled` ถึง `false`; ตัวนําร่องเป็นแบบอ่านได้อย่างเดียว ตลอดกราฟบทบาทที่ไม่มีบัญชี และไม่มีชั้น auth ไม่มีอะไรสําหรับ `biber` หรือ `administrator` คนที่จะล็อกอินเข้าไป [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข."
 
+# translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled` and `logout.enabled` to `false`; the role serves the upstream LittleJS build from a static nginx image and ships no auth layer at all. There is nothing for the `biber` or `administrator` persona to log in to, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
-msgstr ""
+msgstr "[`meta/services.yml`](./meta/services.yml) เข็มหมุด `sso.enabled` ถึง `logout.enabled` ถึง `false`; บทบาทนี้ทําหน้าที่ที่ต้นน้ํา LittleJS สร้างจากอิมเมจ nginx แบบคงที่และเรือไม่มีชั้น auth เลย ไม่มีอะไรสําหรับ `biber` หรือ `administrator` คนที่จะล็อกอินเข้าไป [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: [`meta/services.yml`](./meta/services.yml) เข็มหมุด
+# `sso.enabled` ถึง `false` ถึง [`tasks/main.yml`](./tasks/main.yml) ไม่เตรียม
+# Confluence บัญชี — บัญชี การ สร้าง เป็น ของ ตัว ช่วย ใน การ เตรียม การ แรก.
+# ทั้งที่ `biber` และ (มะลาอิกะฮฺ) ผู้ควบคุมอย่างรัดกุม `administrator`
+# คนที่มีเอกสารรับรองที่จะลงนามด้วยดังนั้น
+# [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ
+# `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ
+# `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข.
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled` to `false` and [`tasks/main.yml`](./tasks/main.yml) provisions no Confluence account — account creation belongs to the licensed first-run setup wizard. Neither the `biber` nor the `administrator` persona has credentials to sign in with, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
 msgstr ""
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: [`meta/services.yml`](./meta/services.yml) เข็มหมุด
+# `sso.enabled` ถึง `false` ถึง [`tasks/main.yml`](./tasks/main.yml) ไม่เตรียม
+# Jira บัญชี — บัญชี การ สร้าง เป็น ของ ตัว ช่วย ใน การ เตรียม การ แรก.
+# ทั้งที่ `biber` และ (มะลาอิกะฮฺ) ผู้ควบคุมอย่างรัดกุม `administrator`
+# คนที่มีเอกสารรับรองที่จะลงนามด้วยดังนั้น
+# [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ
+# `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ
+# `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข.
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled` to `false` and [`tasks/main.yml`](./tasks/main.yml) provisions no Jira account — account creation belongs to the licensed first-run setup wizard. Neither the `biber` nor the `administrator` persona has credentials to sign in with, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled`, `logout.enabled` and `email.enabled` to `false`; the role serves a static single-page wheel with no accounts and no auth layer. There is nothing for the `biber` or `administrator` persona to log in to, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
-msgstr ""
+msgstr "[`meta/services.yml`](./meta/services.yml) เข็มหมุด `sso.enabled`. `logout.enabled` ถึง `email.enabled` ถึง `false`; บทบาทนี้ทําหน้าที่ล้อแบบหน้าเดียวแบบคงที่ ไม่มีบัญชี และไม่มีชั้น auth ไม่มีอะไรสําหรับ `biber` หรือ `administrator` คนที่จะล็อกอินเข้าไป [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['1']
+# nocheck: url
+# translation-rejected: [`meta/services.yml`](./meta/services.yml) เข็มหมุด
+# `sso.enabled`. `logout.enabled` ถึง `redis.enabled` ถึง `false`;
+# สืบค้นเมื่อ% 1 ไม่มีอะไรสําหรับ `biber` หรือ `administrator`
+# คนที่จะล็อกอินเข้าไป
+# [`templates/playwright.env.j2`](./templates/playwright.env.j2) ประกาศ
+# `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ
+# `guest` อุปสงค์และความเหมาะสมพื้นฐาน ทํางานอย่างไม่มีเงื่อนไข.
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled`, `logout.enabled` and `redis.enabled` to `false`; the upstream image is a client-side QR generator with no accounts and no server-side session. There is nothing for the `biber` or `administrator` persona to log in to, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[`openclaw.json.j2`](../../../../../../roles/web-app-openclaw/templates/openclaw.json.j2) renders one static `Authorization` header per server"
-msgstr ""
+msgstr "[`openclaw.json.j2`](../../../../../../roles/web-app-openclaw/templates/openclaw.json.j2) แสดงผลแบบคงที่ `Authorization` ส่วนหัวต่อเซิร์ฟเวอร์"
 
+# translated-by: libretranslate
 msgid "[`package-cache-frontend`](../../../compose/package-cache-frontend/README.md) runs `nginx:alpine` and reverse-proxies upstream package-manager hostnames onto the matching Nexus repo path. Combined with `extra_hosts` DNS-hijack on consumers, package managers can hit their real upstream URL and still flow through the cache."
-msgstr ""
+msgstr "[`package-cache-frontend`](../../../compose/package-cache-frontend/README.md) ทํางาน `nginx:alpine` และย้อนกลับ prexies ขึ้นแพ็กเกจ manager ชื่อตามเส้นทางที่ตรงกับ Naxus repo รวมเข้ากับ `extra_hosts` DNS-Hijack on ผู้บริโภค ผู้จัดการแพกเกจสามารถตีที่อยู่ URL ต้นน้ําจริงของพวกเขาและยังคงไหลผ่านแคช."
 
+# translated-by: libretranslate
 msgid "[`package-cache`](../../../compose/package-cache/README.md) runs `sonatype/nexus3` and exposes pull-through proxies for package-manager downloads:"
-msgstr ""
+msgstr "[`package-cache`](../../../compose/package-cache/README.md) ทํางาน `sonatype/nexus3` และเปิดโปงสัญญาอนุญาตสิทธิ์ในการดาวน์โหลดแพกเกจ:"
 
+# translated-by: libretranslate
 msgid "[`playwright.env.j2`](../../../agents/files/role/playwright.env.j2.md): rendered test input surface, variable naming, and entry-point selection"
-msgstr ""
+msgstr "[`playwright.env.j2`](../../../agents/files/role/playwright.env.j2.md): แปรงทาสี"
 
+# translated-by: libretranslate
 msgid "[`playwright.spec.js` (role file rules)](../../artefact/files/role/playwright.specs.js.md): what the spec MUST contain, including logged-out final state and console cleanliness."
-msgstr ""
+msgstr "[`playwright.spec.js` (กฎแฟ้มบทบาท)](../../artefact/files/role/playwright.specs.js.md): สเปกตรัมจะบรรจุเอาไว้ รวมถึงระบบความสะอาด."
 
+# translated-by: libretranslate
 msgid "[`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md): what the role-local spec MUST contain (entry point, scenarios, selectors, final state)"
-msgstr ""
+msgstr "[`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md): สิ่งที่ต้องมีลักษณะเฉพาะภายในบทบาท (จุดเข้า, ฉาก, ผู้เลือก, รัฐสุดท้าย)"
 
+# translated-by: libretranslate
 msgid "[`plugins/filter/mcp/authorization.py`](../../../plugins/filter/mcp/authorization.py) rendered `oidc` as a stored bearer. It acquired, refreshed, exchanged and revoked nothing, so a rendered deployment bearer was user delegation in name only."
-msgstr ""
+msgstr "[`plugins/filter/mcp/authorization.py`](../../../plugins/filter/mcp/authorization.py) แปล `oidc` ขอสาบานต่อลมที่พัดออกมาติดต่อกัน มันได้รับ, สดชื่น, แลกเปลี่ยนและยกเลิกอะไร ดังนั้นผู้ถืออาวุธที่ถูกแปลคือผู้แทนในชื่อเท่านั้น."
 
+# translated-by: libretranslate
 msgid "[`plugins/lookup/mcp_servers.py`](../../../plugins/lookup/mcp_servers.py) read every provider token from `users.administrator.tokens` and copied that deployment credential to every selected client. `auth_subject` was returned as metadata and selected nothing."
-msgstr ""
+msgstr "[`plugins/lookup/mcp_servers.py`](../../../plugins/lookup/mcp_servers.py) อ่านตั๋วทั้งหมดจากผู้ให้บริการ `users.administrator.tokens` และเลียนแบบความเชื่อถือนั้น ให้กับลูกค้าที่ถูกเลือกทุกคน `auth_subject` ถูกส่งคืนเป็นข้อมูลกํากับและยังไม่ได้เลือกเลย."
 
+# translated-by: libretranslate
 msgid "[`plugins/lookup/roles_with_service.py`](../../../plugins/lookup/roles_with_service.py) discovered all shared providers with no consumer allowlist, and several role flags named concrete peer roles in `group_names`, which does not scale past the first few clients."
-msgstr ""
+msgstr "[`plugins/lookup/roles_with_service.py`](../../../plugins/lookup/roles_with_service.py) ค้นพบผู้ให้บริการทั้งหมดที่มีไม่มีใบอนุญาตผู้บริโภคและธงบทบาทหลายชื่อ คอนกรีตบทบาทใน `group_names`, ซึ่งไม่ได้ขยายขนาดผ่านลูกค้าไม่กี่รายแรก."
 
+# translated-by: libretranslate
 msgid "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) — TLS resolution"
-msgstr ""
+msgstr "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) — การ ลง ความ เห็น แบบ TLS"
 
+# translated-by: libretranslate
 msgid "[`registry-cache`](../../../compose/registry-cache/README.md) runs `rpardini/docker-registry-proxy` and transparently MITMs every Docker image pull from the inner `dockerd`, regardless of upstream registry (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, …). The runner trusts the proxy CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
-msgstr ""
+msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) ทํางาน `rpardini/docker-registry-proxy` และ MITM แบบโปร่งใส ทุกภาพที่ถูกดึงออกมาจากด้านใน `dockerd`, ไม่ว่าจะเกิดอะไรขึ้น (`docker.io`. `ghcr.io`. `mcr.microsoft.com`....)นักวิ่งไว้ใจองค์กรพร็อกซีผ่าน [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
 
+# translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
-msgstr ""
+msgstr "[`remove.sh`](remove.sh) สําหรับ DNS การรื้อถอน"
 
+# translated-by: libretranslate
 msgid "[`roles/svc-ai-ollama/`](../../roles/svc-ai-ollama/) — archetype"
-msgstr ""
+msgstr "[`roles/svc-ai-ollama/`](../../roles/svc-ai-ollama/) — แบบ ฉบับ"
 
+# translated-by: libretranslate
 msgid "[`roles/svc-runner/README.md`](../../roles/svc-runner/README.md) — the runner role in full"
-msgstr ""
+msgstr "[`roles/svc-runner/README.md`](../../roles/svc-runner/README.md) นักวิ่งมีบทบาทอย่างเต็มที่"
 
+# translated-by: libretranslate
 msgid "[`svc-ai-litellm`](../svc-ai-litellm/) publishes one routing alias. When this service is deployed, the gateway's pre-call hook asks it which of the eligible models should answer, passing the prompt as the state and the surviving aliases as the options of a single `choice` question. `services.litellm.router.strategy` follows `services.s1.enabled`, so deploying this role is what switches the gateway from a weighted score to a System One decision."
-msgstr ""
+msgstr "[`svc-ai-litellm`](../svc-ai-litellm/) ตีพิมพ์นามแฝงที่ออกมา เมื่อบริการนี้มีการดําเนินการ ตะขอก่อนการโทรของประตูถามมันของแบบจําลองที่เหมาะสม ควรตอบ, ผ่านทันทีเป็นรัฐและนามแฝงที่รอดชีวิตเป็นตัวเลือกของซิงเกิล `choice` คําถาม `services.litellm.router.strategy` ตาม `services.s1.enabled`, เพื่อใช้บทบาทนี้คือสิ่งที่เปลี่ยนประตู จากคะแนนน้ําหนักเป็น System One การตัดสินใจ."
 
+# translated-by: libretranslate
 msgid "[`svc-ai-ollama`](../../roles/svc-ai-ollama/), [`svc-ai-lmstudio`](../../roles/svc-ai-lmstudio/), OpenRouter"
-msgstr ""
+msgstr "[`svc-ai-ollama`](../../roles/svc-ai-ollama/). [`svc-ai-lmstudio`](../../roles/svc-ai-lmstudio/), เปิดเผย"
 
+# translated-by: libretranslate
 msgid "[`tasks/01_admin.yml`](./tasks/01_admin.yml) provisions only the administrator in Shopware's user table. [`meta/services.yml`](./meta/services.yml) pins `services.sso.flavor: oidc`, so no oauth2-proxy fronts the role and the storefront carries no authenticated surface at all; the Keycloak login provider that [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) configures covers the administration backend alone. `biber` therefore has no account in any matrix variant and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` unconditionally."
-msgstr ""
+msgstr "[`tasks/01_admin.yml`](./tasks/01_admin.yml) การตั้งค่าเฉพาะผู้ดูแลระบบใน Shopwareตารางผู้ใช้ [`meta/services.yml`](./meta/services.yml) เข็มหมุด `services.sso.flavor: oidc`, ดังนั้นไม่มี2ด้านหน้าบทบาทและหน้าร้านดําเนินการไม่มีพื้นผิวยืนยันที่ทั้งหมด; Keycloak ผู้ให้บริการล็อกอินที่ [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) ปรับแต่งการครอบคลุมโปรแกรมเบื้องหลังการบริหารเท่านั้น `biber` ดังนั้นจึงไม่มีบัญชีใด ๆ ในเมทริกซ์ [`templates/playwright.env.j2`](./templates/playwright.env.j2) แปล `PERSONA_BIBER_BLOCKED=true` ไร้เงื่อนไข."
 
+# translated-by: libretranslate
 msgid "[`tasks/01_setup.yml`](./tasks/01_setup.yml) seeds only the administrator into Magento's admin table (`bin/magento setup:install --admin-user`, credentials from [`templates/env.j2`](./templates/env.j2)); `biber` reaches the backend solely through the oauth2-proxy declared in [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrix variants that proxy is absent and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
-msgstr ""
+msgstr "[`tasks/01_setup.yml`](./tasks/01_setup.yml) เมล็ดพันธุ์เฉพาะผู้ดูแลระบบเท่านั้น Magentoตารางโฆษณา (`bin/magento setup:install --admin-user`, เอกสารรับรองจาก [`templates/env.j2`](./templates/env.j2)). `biber` ถึง แบ็คเอนต์ แบ็คเอนต์ โดย ทาง จดหมาย2โพรซีประกาศใน [`meta/services.yml`](./meta/services.yml). ใน `services.sso.enabled: false` เมทริกซ์ `biber` ไม่มีบัญชีส่วนตัว [`templates/playwright.env.j2`](./templates/playwright.env.j2) แปล `PERSONA_BIBER_BLOCKED=true`. เดอะ `administrator` อัตตาคงการล็อกอินโดย `ADMIN_NATIVE_PASSWORD` และทุก ๆ สิ่งทั้งนั้น."
 
+# translated-by: libretranslate
 msgid "[`tasks/05_administrator.yml`](./tasks/05_administrator.yml) creates the account with `tootctl accounts create` and never sets or captures a password, so `ADMIN_PASSWORD` — the Keycloak secret — cannot drive Mastodon's native `/auth/sign_in`; `biber` has no Mastodon account at all, since the OIDC sign-in ([`templates/env.j2`](./templates/env.j2)) is the only path that would create one. In the `services.sso.enabled: false` matrix variants that path is removed, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The SeaweedFS companion scenario ([`files/playwright/test-seaweedfs.js`](./files/playwright/test-seaweedfs.js)) drives the same admin journey and skips on the same flag."
-msgstr ""
+msgstr "[`tasks/05_administrator.yml`](./tasks/05_administrator.yml) สร้างบัญชีด้วย `tootctl accounts create` และไม่ตั้งค่าหรือจับภาพรหัสผ่านดังนั้น `ADMIN_PASSWORD` - Keycloak เคล็ด ลับ — ไม่ อาจ ขับ Mastodonคนพื้นเมือง `/auth/sign_in`. `biber` ไม่มี Mastodon บัญชีทั้งหมดเนื่องจากเข้าสู่ระบบ OIDC ([`templates/env.j2`](./templates/env.j2)) เป็นเส้นทางเดียวที่จะสร้างมัน ใน `services.sso.enabled: false` เมทริกซ์ตัดเส้นทางออกไป [`templates/playwright.env.j2`](./templates/playwright.env.j2) แปล `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ SeaweedFS สถานะสหาย ([`files/playwright/test-seaweedfs.js`](./files/playwright/test-seaweedfs.js)) ไดรฟ์เดียวกันการเดินทางและข้ามบนธงเดียวกัน."
 
+# translated-by: libretranslate
 msgid "[`tasks/utils/ai_gateway.yml`](tasks/utils/ai_gateway.yml) runs after `update.php`. It includes the shared gateway consumer contract, then reads both globals back out of the running container with `maintenance/run.php getConfiguration --format=json` and asserts the provider, the base URL and the model, so an unconfigured surface cannot reach a green deploy."
-msgstr ""
+msgstr "[`tasks/utils/ai_gateway.yml`](tasks/utils/ai_gateway.yml) ประมวลผลหลังจาก `update.php`. มันรวมสัญญาผู้บริโภคที่ใช้ร่วมกัน แล้วอ่านทั้งโลกกลับมา `maintenance/run.php getConfiguration --format=json` และยืนยันผู้ให้บริการ ที่อยู่ URL พื้นฐานและรุ่น ดังนั้นพื้นผิวที่ไม่ปรับแต่ง จึงไม่สามารถถึงเครื่องสีเขียวได้."
 
+# translated-by: libretranslate
 msgid "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) creates a dedicated non-superuser owner (`mcp@<canonical-domain>`, unusable password) plus its own workspace, and binds the endpoint to that pair."
-msgstr ""
+msgstr "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) สร้างเจ้าของที่ไม่ได้อุทิศตัว (`mcp@<canonical-domain>`, รหัสผ่านที่ไม่สามารถใช้ได้) รวมทั้งที่ทํางานของมันเอง และผูกจุดปลายให้กับคู่นั้น."
 
+# translated-by: libretranslate
 msgid "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password for the dedicated MCP account via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`."
-msgstr ""
+msgstr "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) กําลังรอเสียงหัวใจ ExApp, ลงทะเบียนดีมอนที่ใช้งานและโปรแกรม ExApp (เส้นทาง `^/mcp`, คํากริยา `POST,GET,DELETE`, เข้าสู่ระดับ `1`)เปิดใช้งานโปรแกรม ExApp, ให้ใช้รหัสผ่านของ App สําหรับบัญชีผู้ใช้ MCP ที่อุทิศให้ `occ user:auth-tokens:add`, ยืนมันผ่าน `sys-token-store` ภายใต้ `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, และยืนยันว่ามีการยืนยัน `initialize` คําตอบ `200`."
 
+# translated-by: libretranslate
 msgid "[`templates/config.exs.j2`](./templates/config.exs.j2) wires Keycloak as the only login provider this role configures, and [`tasks/main.yml`](./tasks/main.yml) creates no Mobilizon account; `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` ([`templates/env.j2`](./templates/env.j2)) additionally closes the database login whenever LDAP is on. In the `services.sso.enabled: false` matrix variants neither persona has credentials, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline assertions run unconditionally."
-msgstr ""
+msgstr "[`templates/config.exs.j2`](./templates/config.exs.j2) สายไฟ Keycloak เป็นผู้ให้บริการล็อกอินเท่านั้นที่ตั้งค่านี้ และ [`tasks/main.yml`](./tasks/main.yml) สร้าง Mobilizon บัญชี `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` ([`templates/env.j2`](./templates/env.j2)) นอกจากนี้ยังปิดการล็อกอินฐานข้อมูล เมื่อไรก็ตามที่มี LDAP อยู่ ใน `services.sso.enabled: false` เมทริกซ์ไม่ระบุตัวตน [`templates/playwright.env.j2`](./templates/playwright.env.j2) แปล `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true`. เดอะ `guest` คนและฐานยืนยัน ทํางานโดยไม่มีเงื่อนไข."
 
+# translated-by: libretranslate
 msgid "[`templates/env.j2`](./templates/env.j2) seeds only the administrator into SuiteCRM (`SUITECRM_ADMIN_USERNAME` / `SUITECRM_ADMIN_PASSWORD`); `biber` reaches the app through SuiteCRM's own SAML login against Keycloak, where `SAML_AUTO_CREATE` mints the account on first assertion. In the `services.sso.enabled: false` matrix variants there is no SAML entry point and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` for the generic persona journeys (the LDAP spec still signs `biber` in from the directory). The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
-msgstr ""
+msgstr "[`templates/env.j2`](./templates/env.j2) เมล็ดพันธุ์เฉพาะผู้ดูแลระบบเท่านั้น SuiteCRM (`SUITECRM_ADMIN_USERNAME` / `SUITECRM_ADMIN_PASSWORD`). `biber` ถึงโปรแกรมผ่านทาง SuiteCRMล็อกอิน SAML ของตัวเองด้วย Keycloakที่ไหน `SAML_AUTO_CREATE` คิด บัญชี ใน การ ยืน ยัน ครั้ง แรก. ใน `services.sso.enabled: false` เมทริกซ์ `biber` ไม่มีบัญชีส่วนตัว [`templates/playwright.env.j2`](./templates/playwright.env.j2) แปล `PERSONA_BIBER_BLOCKED=true` สําหรับบุคคลทั่วไปที่เดินทาง (สเปกของ LDAP ยังเป็นสัญญาณ `biber` จากไดเรกทอรี). เดอะ `administrator` อัตตาคงการล็อกอินโดย `ADMIN_NATIVE_PASSWORD` และทุก ๆ สิ่งทั้งนั้น."
 
+# translated-by: libretranslate
 msgid "[`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in every matrix variant, because the shared persona helper cannot drive this role's sign-in in any of them. Three independent reasons, each sufficient on its own:"
-msgstr ""
+msgstr "[`templates/playwright.env.j2`](./templates/playwright.env.j2) แปล `PERSONA_BIBER_BLOCKED=true` ถึง `PERSONA_ADMINISTRATOR_BLOCKED=true` ในทุกๆเมทริกซ์, เพราะผู้ช่วยร่วม ไม่สามารถผลักดันให้บทบาทนี้ เข้าสู่ระบบได้ เหตุผลอิสระสามข้อ แต่ละเหตุผลก็เพียงพอ"
 
+# translated-by: libretranslate
 msgid "[actions/runner releases](https://github.com/actions/runner/releases)"
-msgstr ""
+msgstr "[การกระทํา/ ผู้ทํางานปล่อย](https://github.com/actions/runner/releases)"
 
+# translated-by: libretranslate
 msgid "[address.md](../../../tools/network/address.md) describes the `cli contributing network address suggest` helper."
-msgstr ""
+msgstr "[address.md](../../../tools/network/address.md) อธิบายว่า `cli contributing network address suggest` ผู้ช่วย."
 
+# translated-by: libretranslate
 msgid "[address.md](address.md) is the sibling helper for subnets."
-msgstr ""
+msgstr "[address.md](address.md) เป็น พี่ หรือ น้อง ที่ ช่วย สนับสนุน เครือ ข่าย สังคม."
 
+# translated-by: libretranslate
 msgid "[address/](address/)"
-msgstr ""
+msgstr "[ที่อยู่/](address/)"
 
+# translated-by: libretranslate
 msgid "[admit.yml](../../roles/svc-ai-robot/tasks/utils/admit.yml), included by each agent before it deploys"
-msgstr ""
+msgstr "[admit.yml](../../roles/svc-ai-robot/tasks/utils/admit.yml), รวมทั้งตัวแทนรายละคน ก่อนที่จะถูกนําไปใช้"
 
+# translated-by: libretranslate
 msgid "[apparmor/](apparmor/) for AppArmor maintenance helpers"
-msgstr ""
+msgstr "[อิเล็กตรอน](apparmor/) สําหรับผู้ช่วยดูแล AppArmor"
 
+# translated-by: libretranslate
 msgid "[applications.py (cache)](../../../../../../utils/cache/applications.py)"
-msgstr ""
+msgstr "[applications.py (แคช)](../../../../../../utils/cache/applications.py)"
 
+# translated-by: libretranslate
 msgid "[applications.py (cache)](../../../utils/cache/applications.py)"
-msgstr ""
+msgstr "[applications.py (แคช)](../../../utils/cache/applications.py)"
 
+# translated-by: libretranslate
 msgid "[applications.py (cache)](../../../utils/cache/applications.py) `_build_variants`, [inventory/payload.py](../../../cli/administration/deploy/development/inventory/payload.py) `_resolve_variant_payloads`"
-msgstr ""
+msgstr "[applications.py (แคช)](../../../utils/cache/applications.py) `_build_variants`. [inventory/payload.py](../../../cli/administration/deploy/development/inventory/payload.py) `_resolve_variant_payloads`"
 
+# translated-by: libretranslate
 msgid "[applications.py (lookup)](../../../plugins/lookup/applications.py)"
-msgstr ""
+msgstr "[applications.py (ค้นหา)](../../../plugins/lookup/applications.py)"
 
+# translated-by: libretranslate
 msgid "[applications/](applications/README.md) helpers around the central `applications` dict and the role config that feeds it."
-msgstr ""
+msgstr "[โปรแกรม/](applications/README.md) ผู้ช่วยเหลือรอบใจกลาง `applications` บิดและบทบาทปรับแต่งที่ให้อาหารมัน."
 
+# translated-by: libretranslate
 msgid "[apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
-msgstr ""
+msgstr "[apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
 
+# translated-by: libretranslate
 msgid "[apt](https://wiki.debian.org/Apt)"
-msgstr ""
+msgstr "[apt](https://wiki.debian.org/Apt)"
 
+# translated-by: libretranslate
 msgid "[atmo.rsvp](https://atmo.rsvp) is an open-source, AT-Protocol-native event platform. Its defining property is that **events live on the user's account, not on the app**: an event is a `community.lexicon.calendar.event` record and an RSVP is a `community.lexicon.calendar.rsvp` record, both stored in the user's Personal Data Server (PDS) repo. The atmo app itself is \"just a view\" (an appview/aggregator) over those records, so RSVPs and events are portable across any app on the open social web."
-msgstr ""
+msgstr "[atmo.rsvp](https://atmo.rsvp) เป็นเวทีเปิดให้บริการ AT-Protocol-National สมบัติของมันก็คือ **เหตุการณ์ที่ถ่ายทอดสดบนบัญชีผู้ใช้ของผู้ใช้ ไม่ใช่ในโปรแกรม**เหตุการณ์ที่เป็น `community.lexicon.calendar.event` สถิติและ RSSVP `community.lexicon.calendar.rsvp` บันทึกทั้งคู่ถูกเก็บไว้ในเซิร์ฟเวอร์ข้อมูลส่วนตัวของผู้ใช้ (ตํารวจ) เรโป Apps Atmo เอง \"แค่มุมมอง\" (โปรแกรมเรียกดู/ ตัวรวบรวมภาพ) จากบันทึกเหล่านั้น RSSVPs และเหตุการณ์ต่าง ๆ จึงถูกพกพาผ่านแอพใด ๆ บนเว็บเปิดสังคม."
 
+# translated-by: libretranslate
 msgid "[base.md](base.md) covers the service registration, loading, and injection model."
-msgstr ""
+msgstr "[base.md](base.md) ครอบคลุมการลงทะเบียน การโหลดและการฉีด."
 
+# translated-by: libretranslate
 msgid "[base.md](base.md) for the broader service registration, loading, and injection model."
-msgstr ""
+msgstr "[base.md](base.md) สําหรับลงทะเบียนให้บริการที่กว้างขึ้น การโหลดและการฉีดรูปแบบ."
 
+# translated-by: libretranslate
 msgid "[base.md](role/services/base.md) for service registration, loading, and injection"
-msgstr ""
+msgstr "[base.md](role/services/base.md) สําหรับลงทะเบียนบริการ การโหลดและการฉีด"
 
+# translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) สําเนาที่ขาดไปคือ GHCR ผ่าน `cli.contributing.mirror.sync --only-missing`. ใบรับรองของ Docerker Hubb สํารองลดอัตราการจํากัดจากแหล่ง ระหว่างการเทียบข้อมูล."
 
+# translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) สะท้อนภาพที่ขาดหายไปใด ๆ ที่ตรงกับการทดสอบ DNS ดังนั้นในภายหลังดําเนินการงานดึงจาก GHCR แทน Docer Hubb, MCR หรือ retricisty ภายนอกอื่น ๆ โล่นี้ CI จากขีด จํากัด กระแสน้ํา, ขอบเขตภูมิศาสตร์และ ค่าใช้จ่ายชั่วคราว."
 
+# translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
-msgstr ""
+msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) เปรียบเทียบ `github.ref` ด้วยเหตุผลเดียวกัน: การไหลของแรงงาน เป็นมรดกของกรรมการผู้โทร `refs/pull/<n>/merge` สําหรับ `pull_request` เรียกแต่ `refs/heads/main` สําหรับ `pull_request_target` หนึ่ง เดอะ `ci-orchestrator` งาน `entry-pr-change-orchestrate.yml` มีกําแพงกั้น `github.event_name == 'pull_request'`, ฉะนั้นกรรมการวงออร์เคสตร้าจึงมองเห็นจากผู้โทรที่มักจะเป็นกรรมการรวม; การขยายรั้วที่เงียบสงบจะทําให้ส้อมวิ่งเข้าไปในกลุ่มหลัก."
 
+# translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
-msgstr ""
+msgstr "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) จํากัด app matrix ของมันไปยังชุดของบทบาทที่ ผลกระทบโดยการกระจายของสาขากับ `origin/main`. เดอะ `discover` งานแก้ไขสีขาวที่มีประสิทธิภาพก่อน [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) ทํางาน โดยใช้ลําดับก่อนต่อไปนี้:"
 
+# translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
-msgstr ""
+msgstr "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) ยืนยันการปรับแต่ง DNS ในทุกการกระจายตัวเป้าหมาย."
 
+# translated-by: libretranslate
 msgid "[cancel/](cancel/)"
-msgstr ""
+msgstr "[ยกเลิก/](cancel/)"
 
+# translated-by: libretranslate
 msgid "[castling.club GitHub Repository](https://github.com/stephank/castling.club)"
-msgstr ""
+msgstr "[castling.club ไดเรกทอรี Github](https://github.com/stephank/castling.club)"
 
+# translated-by: libretranslate
 msgid "[ci/](ci/README.md): CI container image deploy."
-msgstr ""
+msgstr "[CE/](ci/README.md): แฟ้มภาพ CI เปิดใช้งาน."
 
+# translated-by: libretranslate
 msgid "[cleanup-failed-backups](https://github.com/kevinveenbirkenbach/cleanup-failed-backups)"
-msgstr ""
+msgstr "[การล้างข้อมูลล้มเหลว](https://github.com/kevinveenbirkenbach/cleanup-failed-backups)"
 
+# translated-by: libretranslate
 msgid "[cleanup/](cleanup/)"
-msgstr ""
+msgstr "[ทําการล้าง/ ทําความสะอาด](cleanup/)"
 
+# translated-by: libretranslate
 msgid "[cli.py (provision)](../../../cli/administration/inventory/provision/cli.py)"
-msgstr ""
+msgstr "[cli.py (ตั้งค่า)](../../../cli/administration/inventory/provision/cli.py)"
 
+# translated-by: libretranslate
 msgid "[compose.yml](../../../../compose.yml) exposes three env vars on the `infinito` service that cap its memory, swap, and CPU ceiling. For the authoritative variable reference (names, defaults, purpose) see the SPOT in [compose.yml.md](../../artefact/files/compose.yml.md). This page SHOULD NOT duplicate that table and MUST link back to it when a contributor needs the precise definitions."
-msgstr ""
+msgstr "[compose.yml](../../../../compose.yml) เปิดเผยสามเหตุการณ์ `infinito` ให้บริการที่ครอบคลุมหน่วยความจํา, สลับ และเพดาน CPU สําหรับอ้างอิงตัวแปรอันศักดิ์สิทธิ์ (ชื่อ, ค่าปริยาย, วัตถุประสงค์) ดู SPOT ใน [compose.yml.md](../../artefact/files/compose.yml.md). หน้านี้ไม่ควรจะซ้ําตาราง และต้องเชื่อมต่อกลับไป เมื่อผู้มีส่วนร่วมต้องการคําจํากัดความที่แน่นอน."
 
+# translated-by: libretranslate
 msgid "[compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/administration/deploy/development/compose.py) and [down.py](../../../cli/administration/deploy/development/down.py) via [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`."
-msgstr ""
+msgstr "[compose/cache.override.yml](../../../compose/cache.override.yml) อยู่เหนือฐาน [compose.yml](../../../compose.yml) โดย [compose.py](../../../cli/administration/deploy/development/compose.py) ถึง [down.py](../../../cli/administration/deploy/development/down.py) ผ่าน [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`."
 
+# translated-by: libretranslate
 msgid "[config.py (lookup)](../../../plugins/lookup/config.py)"
-msgstr ""
+msgstr "[config.py (ค้นหา)](../../../plugins/lookup/config.py)"
 
+# translated-by: libretranslate
 msgid "[config/](../../../../tests/integration/ansible/lookups/config/)"
-msgstr ""
+msgstr "[ปรับแต่ง/ การปรับแต่ง](../../../../tests/integration/ansible/lookups/config/)"
 
+# translated-by: libretranslate
 msgid "[configuration.md](configuration.md): repository variables that control CI behaviour."
-msgstr ""
+msgstr "[configuration.md](configuration.md): ตัวแปรที่ควบคุมพฤติกรรมของ CI."
 
+# translated-by: libretranslate
 msgid "[configuration.md](configuration.md): repository variables that gate the same workflows."
-msgstr ""
+msgstr "[configuration.md](configuration.md): ตัวแปรของคลัง ที่ประตูทํางานไหลเดียวกัน."
 
+# translated-by: libretranslate
 msgid "[container/](container/) contains helpers that run inside the local container."
-msgstr ""
+msgstr "[ภาชนะ /](container/) มีผู้ช่วยเหลือที่ทํางานอยู่ภายในตู้เก็บแฟ้มภายในเครื่อง."
 
+# translated-by: libretranslate
 msgid "[credentials/](../../../cli/administration/inventory/credentials/__main__.py)"
-msgstr ""
+msgstr "[การแสดงตัว/](../../../cli/administration/inventory/credentials/__main__.py)"
 
+# translated-by: libretranslate
 msgid "[csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) renders no environment and no API origin."
-msgstr ""
+msgstr "[csp_filters.py](../../plugins/filter/csp_filters.py) เพิ่มแหล่งกําเนิดของผู้ให้บริการ `connect-src` เฉพาะธงลักษณะที่รู้จักกันเช่น `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) ไม่มีสภาพแวดล้อม ไม่มี API ต้นกําเนิด."
 
+# translated-by: libretranslate
 msgid "[database.py](database.py) resolves the active database backend for an application (`mariadb`, `postgres`, ...) from its services map."
-msgstr ""
+msgstr "[database.py](database.py) แก้ไขแบ็คเอนต์ฐานข้อมูลที่ทํางานอยู่สําหรับโปรแกรม (`mariadb`. `postgres`....) จากแผนที่บริการ."
 
+# translated-by: libretranslate
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
-msgstr ""
+msgstr "[deployment-modes.md](../../contributing/design/deployment-modes.md) สําหรับ `mode` แกน."
 
+# translated-by: libretranslate
 msgid "[dev CLI tree](../../../cli/administration/deploy/development/)"
-msgstr ""
+msgstr "[ไม่สนใจต้นไม้ CLI](../../../cli/administration/deploy/development/)"
 
+# translated-by: libretranslate
 msgid "[development/](development/README.md): matrix deploy, include resolution, `disable` and orphan pruning (with diagrams)."
-msgstr ""
+msgstr "[การพัฒนา/](development/README.md): การใช้งานเมทริกซ์ รวมถึงมติ `disable` และบรรดาเด็กกําพร้า (ด้วยแผนภาพ)."
 
+# translated-by: libretranslate
 msgid "[dnf](https://dnf.readthedocs.io/)"
-msgstr ""
+msgstr "[dnf](https://dnf.readthedocs.io/)"
 
+# translated-by: libretranslate
 msgid "[dnf](https://dnf.readthedocs.io/en/latest/)"
-msgstr ""
+msgstr "[dnf](https://dnf.readthedocs.io/en/latest/)"
 
+# translated-by: libretranslate
 msgid "[dns/](dns/) for local DNS setup and teardown"
-msgstr ""
+msgstr "[ds/](dns/) สําหรับการตั้งค่า DNS ภายในระบบและการฉีก"
 
+# translated-by: libretranslate
 msgid "[docker-jitsi-meet (upstream)](https://github.com/jitsi/docker-jitsi-meet)"
-msgstr ""
+msgstr "[ดอกเกอร์- กิตติ-เมตต์ (อยู่เหนือสายน้ํา)](https://github.com/jitsi/docker-jitsi-meet)"
 
+# translated-by: libretranslate
 msgid "[docker/](docker/) for Docker-related network helpers"
-msgstr ""
+msgstr "[ตัวจับข้อมูล /](docker/) สําหรับผู้ช่วยเครือข่ายของดอกเกอร์ที่เกี่ยวข้อง"
 
+# translated-by: libretranslate
 msgid "[docs/changelog/README.md](../../changelog/README.md) describes the archive directory layout."
-msgstr ""
+msgstr "[docs/changelog/README.md](../../changelog/README.md) อธิบายผังไดเรกทอรีจัดเก็บ."
 
+# translated-by: libretranslate
 msgid "[docs/contributing/](../../)"
-msgstr ""
+msgstr "[docs/contrituary/](../../)"
 
+# translated-by: libretranslate
 msgid "[docs/contributing/](../../) for workflow and constraints"
-msgstr ""
+msgstr "[docs/contrituary/](../../) สําหรับการทํางานและข้อจํากัด"
 
+# translated-by: libretranslate
 msgid "[docs/contributing/actions/debugging/network.md](../../../docs/contributing/actions/debugging/network.md) explains how to read the diagnose output and how to fix MTU / IPv6 / connectivity issues."
-msgstr ""
+msgstr "[docs/contributing/actions/debugging/network.md](../../../docs/contributing/actions/debugging/network.md) จง อธิบาย วิธี อ่าน ผล การ วินิจฉัย และ วิธี แก้ไข เอ็ม ที ยู / ไอ พีฟ6 / ปัญหาการเชื่อมต่อ."
 
+# translated-by: libretranslate
 msgid "[dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) calls them `plugins`/`extensions` and loops over `services.gnome-extensions.plugins`."
-msgstr ""
+msgstr "[dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) เรียกพวกเขา `plugins`/`extensions` ขอสาบานต่อนาวา ที่แล่นไปอย่างสะดวกสบาย `services.gnome-extensions.plugins`."
 
+# translated-by: libretranslate
 msgid "[ejabberd Container Documentation](https://docs.ejabberd.im/CONTAINER/)"
-msgstr ""
+msgstr "[ตัวบรรจุ ejabeld Documentation](https://docs.ejabberd.im/CONTAINER/)"
 
+# translated-by: libretranslate
 msgid "[ejabberd Official Website](https://www.ejabberd.im/)"
-msgstr ""
+msgstr "[เว็บไซต์อย่างเป็นทางการ](https://www.ejabberd.im/)"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# nocheck: url
+# translation-rejected: [ลบช่องว่าง](https://www.ejabberd.im/) คือ
+# (มะลาอิกะฮฺ) ผู้ทรงเกียรติเป็นผู้คุ้มกันรักษา XMPP
+# เซิร์ฟเวอร์ที่จะใช้แบบเต็ม XMPP ส่วนขยาย (XEP). ลูกข่ายเชื่อมต่อผ่าน TCP/TLS
+# บนพอร์ต 5222 (โปรแกรมลูกข่าย) ถึง 5269
+# (เซิร์ฟเวอร์ต่อเซิร์ฟเวอร์)กับผู้ฟังของ HTTP สําหรับโฆษณายูไอและ BOSH/Web
+# Champles.
 msgid "[ejabberd](https://www.ejabberd.im/) is a robust, scalable, and modular XMPP server that implements the full XMPP specification plus a number of extensions (XEPs). Clients connect over TCP/TLS on ports 5222 (client-to-server) and 5269 (server-to-server), with an optional HTTP listener for the admin UI and BOSH/WebSocket bindings."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[email.md](../../../../administration/configuration/email.md) for the administrator configuration reference."
-msgstr ""
+msgstr "[email.md](../../../../administration/configuration/email.md) สําหรับอ้างอิงการตั้งค่าผู้ดูแลระบบ."
 
+# translated-by: libretranslate
 msgid "[email.md](../../contributing/design/role/services/email.md) for the plugin contract and extension rules."
-msgstr ""
+msgstr "[email.md](../../contributing/design/role/services/email.md) สําหรับสัญญาและขยายนามสกุลของปลั๊กอิน."
 
+# translated-by: libretranslate
 msgid "[email.md](email.md) covers the email lookup contract."
-msgstr ""
+msgstr "[email.md](email.md) ครอบคลุมสัญญาการค้นหาอีเมล."
 
+# translated-by: libretranslate
 msgid "[email.py](../../../../../plugins/lookup/email.py) for the plugin."
-msgstr ""
+msgstr "[email.py](../../../../../plugins/lookup/email.py) สําหรับส่วนเสริม."
 
+# translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist."
-msgstr ""
+msgstr "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): ส่งออร์เคสตร้ามาด้วยตัวเอง สําหรับชุดถอดชุดและสีขาว."
 
+# translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
-msgstr ""
+msgstr "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): ตรวจจับกล้อง PR และเงื่อนไขเรียกว่า ออร์เคสตรา."
 
+# translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): ต่อ ไป นี้ เป็น ข้อ แนะ บาง ประการ. ดูขั้นตอนการปล่อยผู้มีส่วนร่วม [release.md](../../actions/release.md)."
 
+# translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
-msgstr ""
+msgstr "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
 
+# translated-by: libretranslate
 msgid "[files/test/test.sh](../../roles/web-app-homeassistant/files/test/test.sh), which drives the shared MCP contract harness inside the provider's own network"
-msgstr ""
+msgstr "[files/test/test.sh](../../roles/web-app-homeassistant/files/test/test.sh), ซึ่งขับเคลื่อนตัวควบคุมสัญญา MCP ร่วมกัน ภายในเครือข่ายของผู้ให้บริการ"
 
+# translated-by: libretranslate
 msgid "[frappe_docker (upstream container reference)](https://github.com/frappe/frappe_docker)"
-msgstr ""
+msgstr "[frappe_docker (อ้างอิงไปยังตู้คอนเทนเนอร์)](https://github.com/frappe/frappe_docker)"
 
+# translated-by: libretranslate
 msgid "[github/](github/) contains GitHub workflow helper scripts."
-msgstr ""
+msgstr "[กิทูบ /](github/) มีสคริปต์ช่วยทํางานแบบ GitHub อยู่ด้วย."
 
+# translated-by: libretranslate
 msgid "[hadolint](https://github.com/hadolint/hadolint)"
-msgstr ""
+msgstr "[ฮาโดลินท์](https://github.com/hadolint/hadolint)"
 
+# translated-by: libretranslate
 msgid "[hugomods/hugo Docker images](https://hub.docker.com/r/hugomods/hugo)"
-msgstr ""
+msgstr "[chukods/ Hugo Doker image](https://hub.docker.com/r/hugomods/hugo)"
 
+# translated-by: libretranslate
 msgid "[i18n/](i18n/)"
-msgstr ""
+msgstr "[ฉัน18n/](i18n/)"
 
+# translated-by: libretranslate
 msgid "[image_discovery.py](../../../../../utils/docker/image/discovery.py) enumerates all role images from both sources above. It is used by the mirror pipeline (`cli/contributing/mirror/`) and the external version-check test ([`tests/external/update/docker/test_image_versions.py`](../../../../../tests/external/update/docker/test_image_versions.py))."
-msgstr ""
+msgstr "[image_discovery.py](../../../../../utils/docker/image/discovery.py) นับจํานวนบทบาทต่าง ๆ จากแหล่งต่าง ๆ เบื้องบน มันถูกใช้โดยท่อส่งกระจก (`cli/contributing/mirror/`) และการทดสอบรุ่นภายนอก ([`tests/external/update/docker/test_image_versions.py`](../../../../../tests/external/update/docker/test_image_versions.py))."
 
+# translated-by: libretranslate
 msgid "[infinito-http-ca-trust.php](infinito-http-ca-trust.php) points WordPress's HTTP API at the deployment's CA bundle so outbound calls to internal HTTPS endpoints (OIDC discovery, REST loopback) verify instead of failing."
-msgstr ""
+msgstr "[infinito-http-ca-trust.php](infinito-http-ca-trust.php) จุด WordPressHTTP API ที่ศูนย์ปฏิบัติการของ CA ติดต่อกันเพื่อโทรไปยังจุดปลาย HTTPs ภายใน (การค้นพบ OIDC, REST Rack back) ตรวจสอบแทนความล้มเหลว."
 
+# translated-by: libretranslate
 msgid "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) sends server-side `wp_remote_*` calls whose host ends in `.onion` through the Tor SOCKS proxy named by `WORDPRESS_OIDC_SOCKS_PROXY`, which [env.j2](../../templates/env.j2) sets only when the OIDC issuer is an onion, so a clearnet deployment never routes through Tor."
-msgstr ""
+msgstr "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) ส่งแม่ข่ายแล้ว `wp_remote_*` โทรที่โฮสต์ของเขาสิ้นสุดใน `.onion` ผ่านพร็อกซี Tor SOCKS ที่ชื่อ `WORDPRESS_OIDC_SOCKS_PROXY`, ซึ่ง [env.j2](../../templates/env.j2) การตั้งค่าเฉพาะเมื่อ OIDC ผู้ออกจําหน่ายเป็นหัวหอมเพื่อให้การใช้งาน ชัดเจนไม่เคยเส้นทางผ่าน Tor."
 
+# translated-by: libretranslate
 msgid "[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) implements the OIDC -> WordPress role contract:"
-msgstr ""
+msgstr "[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) ใช้ OIDC -> WordPress สัญญาบทบาท:"
 
+# translated-by: libretranslate
 msgid "[instructions.md](instructions.md): how the role README's Production block is replayed inside a deploy row."
-msgstr ""
+msgstr "[instructions.md](instructions.md): วิธีการที่บทบาทการผลิตบล็อก ถูกเล่นภายในแถวดําเนินการ."
 
+# translated-by: libretranslate
 msgid "[inventories/bundles/](../../../inventories/bundles/) for deployment shapes"
-msgstr ""
+msgstr "[นักประดิษฐ์/ บูลเลส/](../../../inventories/bundles/) แปรงทาสี"
 
+# translated-by: libretranslate
 msgid "[inventory-args ...] -- [deploy-args ...]"
-msgstr ""
+msgstr "[รายการสินค้า...] -- [ปรับใช้อาร์ก...]"
 
+# translated-by: libretranslate
 msgid "[inventory/](../../../cli/administration/deploy/development/inventory/__init__.py)"
-msgstr ""
+msgstr "[รายการสินค้า /](../../../cli/administration/deploy/development/inventory/__init__.py)"
 
+# translated-by: libretranslate
 msgid "[ipv6/](ipv6/) for IPv6 enable/restore helpers"
-msgstr ""
+msgstr "[IPIV6/](ipv6/) สําหรับ IPv6 เปิด/ หยุดการทํางานโปรแกรมช่วยเหลือ"
 
+# translated-by: libretranslate
 msgid "[layout.md](../../design/role/services/layout.md) describes the per-entity `ports` shape."
-msgstr ""
+msgstr "[layout.md](../../design/role/services/layout.md) อธิบายค่าต่อค่า `ports` รูปร่าง."
 
+# translated-by: libretranslate
 msgid "[layout.md](../../design/role/services/layout.md) describes the per-role `networks:` shape in `meta/server.yml`."
-msgstr ""
+msgstr "[layout.md](../../design/role/services/layout.md) อธิบายค่าต่อรู `networks:` รูปร่าง `meta/server.yml`."
 
+# translated-by: libretranslate
 msgid "[lint.md](../actions/testing/lint.md) for code and framework rules"
-msgstr ""
+msgstr "[lint.md](../actions/testing/lint.md) สําหรับรหัสและกฏกรอบ"
 
+# translated-by: libretranslate
 msgid "[local deploy scripts](../../../scripts/tests/deploy/local/)"
-msgstr ""
+msgstr "[สคริปต์ที่ถูกใช้ภายใน](../../../scripts/tests/deploy/local/)"
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "[logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) inlines [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) as a `{language: {key: text, dir}}` object, and [logout-panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) picks the language from `<html lang>` and `navigator.language`. Its 29 non-English blocks are the only human translations core owns."
-msgstr ""
+msgstr "[logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) แสดงในตัวจดหมาย [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) ในฐานะ `{language: {key: text, dir}}` วัตถุ และ [logout-panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) เลือกภาษาจาก `<html lang>` ถึง `navigator.language`. มัน 29 บล็อกที่ไม่ใช่ภาษาอังกฤษ เป็นแกนแปลของมนุษย์เท่านั้น."
 
+# translated-by: libretranslate
 msgid "[macOS](platform/macos.md)"
-msgstr ""
+msgstr "[มากอส](platform/macos.md)"
 
+# translated-by: libretranslate
 msgid "[main.yml](../../../../../roles/sys-service-loader/tasks/main.yml) is the single loader entry point for all shared services."
-msgstr ""
+msgstr "[main.yml](../../../../../roles/sys-service-loader/tasks/main.yml) เป็นจุดรับโหลดหนึ่งจุด สําหรับบริการที่ใช้ร่วมกันทั้งหมด."
 
+# translated-by: libretranslate
 msgid "[mapping.py](../../../../utils/roles/mapping.py) is the only authoritative location for this schema. It exposes the path constants, the `ROLE_FILES` dict that scopes each path per role type, and the `mandatory`, `allowed` and `marker` flags that drive both lint enforcement and role-type detection. Every consumer (lint tests, role-type detection, the CLI documented below) MUST read from this file. Adding a new role type or a new role file MUST happen here first; the rest of the system reads the dict at runtime."
-msgstr ""
+msgstr "[mapping.py](../../../../utils/roles/mapping.py) เป็นสถานที่เดียว ตามกฎหมายสําหรับเชมานี้ มันทําให้เส้นทางคงที่, `ROLE_FILES` ขอบเขตที่ขอบเขตแต่ละเส้นทางต่อประเภทบทบาท และ `mandatory`. `allowed` ถึง `marker` ธงที่ไดรฟ์ทั้งบังคับและประเภทบทบาทการตรวจสอบ ผู้บริโภคทุกคน (การทดสอบ, ตรวจจับประเภทบทบาท, CLI เอกสารด้านล่างนี้) ต้องอ่านจากแฟ้มนี้ การเพิ่มประเภทบทบาทใหม่ หรือแฟ้มบทบาทใหม่ จะเกิดขึ้นที่นี่ก่อน; ส่วนอื่นของระบบอ่าน disc ขณะทํางาน."
 
+# translated-by: libretranslate
 msgid "[moodlehq/moodle-docker](https://github.com/moodlehq/moodle-docker) (extension list reference)"
-msgstr ""
+msgstr "[โปรแกรมจัดการระบบเสียงName](https://github.com/moodlehq/moodle-docker) (อ้างอิงรายการนามสกุล)"
 
+# translated-by: libretranslate
 msgid "[msi-perkeyrgb](https://github.com/Askannz/msi-perkeyrgb) is a tool for setting dynamic per-key RGB keyboard colors on MSI laptops."
-msgstr ""
+msgstr "[แถบชุดลวดลายStencils](https://github.com/Askannz/msi-perkeyrgb) เป็นเครื่องมือสําหรับตั้งค่าความผันผวนต่อคีย์แบบ RGB บนแล็ปท็อปของ MSI."
 
+# translated-by: libretranslate
 msgid "[msmtp](https://marlam.de/msmtp/) as a lightweight sendmail-compatible SMTP client, and"
-msgstr ""
+msgstr "[มิลลิวินาที](https://marlam.de/msmtp/) ในฐานะลูกค้าของ SMTP ที่เข้ากันได้กับจดหมายเบา ๆ และ"
 
+# translated-by: libretranslate
 msgid "[n8n Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
-msgstr ""
+msgstr "[n8ตัวแปลงเสียง Documentation](https://docs.n8n.io/hosting/installation/docker/)"
 
+# translated-by: libretranslate
 msgid "[n8n GitHub](https://github.com/n8n-io/n8n)"
-msgstr ""
+msgstr "[n8ขนาดของลวดลายStencils](https://github.com/n8n-io/n8n)"
 
+# translated-by: libretranslate
 msgid "[n8n Official Website](https://n8n.io/)"
-msgstr ""
+msgstr "[n8เว็บไซต์อย่างเป็นทางการ n](https://n8n.io/)"
 
+# translated-by: libretranslate
 msgid "[n8n tag `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95.3), especially `packages/@n8n/nodes-langchain/nodes/mcp/` and `packages/cli/src/public-api/v1/handlers/`"
-msgstr ""
+msgstr "[n8แท็ก n `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95.3), โดยเฉพาะ `packages/@n8n/nodes-langchain/nodes/mcp/` ถึง `packages/cli/src/public-api/v1/handlers/`"
 
+# translated-by: libretranslate
 msgid "[n8n](https://n8n.io/) is an open-source workflow automation platform. Connect services, transform data, and build integrations using a visual low-code editor or custom JavaScript/Python nodes."
-msgstr ""
+msgstr "[n8n](https://n8n.io/) เป็นแท่นทํางานแบบโอเพนซอร์ส เชื่อมต่อบริการ, แปลงข้อมูล, และสร้างการผนวกรวมโดยใช้เครื่องมือแก้ไขรหัสภาพต่ํา หรือ จาวาสคริปต์/ Python ที่กําหนดเอง."
 
+# translated-by: libretranslate
 msgid "[network/](network/) for DNS and IPv6 helpers"
-msgstr ""
+msgstr "[เครือข่าย/](network/) สําหรับ DNS และ IPv6 ผู้ช่วยเหลือ"
 
+# translated-by: libretranslate
 msgid "[neutralize.yml](./neutralize.yml) stops and masks the apt-daily units, gated on a running systemd (`/run/systemd/system`, the sd_booted convention)."
-msgstr ""
+msgstr "[neutralize.yml](./neutralize.yml) หยุดและหน้ากาก apt-dadly หน่วย ประตูบนระบบการทํางาน (`/run/systemd/system`. sd_booted การ ประชุม ภาค)."
 
+# translated-by: libretranslate
 msgid "[nft(8) manual page](https://www.netfilter.org/projects/nftables/manpage.html)"
-msgstr ""
+msgstr "[nft(8) หน้าคู่มือ](https://www.netfilter.org/projects/nftables/manpage.html)"
 
+# translated-by: libretranslate
 msgid "[nftables Wiki](https://wiki.nftables.org/)"
-msgstr ""
+msgstr "[Nftables Wiki](https://wiki.nftables.org/)"
 
+# translated-by: libretranslate
 msgid "[nftables](https://www.netfilter.org/projects/nftables/) is the packet filtering framework of the Linux kernel and the successor to `iptables`. Its rules live in memory: a reboot drops them unless something loads them again."
-msgstr ""
+msgstr "[แปรงทาสี](https://www.netfilter.org/projects/nftables/) คือกรอบการกรองแพ็กเกจของเคอร์เนลลินุกซ์และผู้สืบทอด `iptables`. กฎของมันอยู่ในความทรงจํา การรีบูททิ้งพวกเขา."
 
+# translated-by: libretranslate
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
-msgstr ""
+msgstr "[เปิดกลุ่มก้อนเมฆบนโดกเกอร์ฮับ](https://hub.docker.com/r/opencloudeu/opencloud)"
 
+# translated-by: libretranslate
 #, no-python-format
 msgid "[packaging/debian/changelog](../../../packaging/debian/changelog) and the `%changelog` section of [packaging/fedora/infinito-nexus.spec](../../../packaging/fedora/infinito-nexus.spec) are regenerated from the kept CHANGELOG.md entries, with a trailing notice that points at [docs.infinito.nexus](https://docs.infinito.nexus/) for further releases and a plain-text list of the archived versions and their dates (no links)."
-msgstr ""
+msgstr "[packaging/debian/changelog](../../../packaging/debian/changelog) และ `%changelog` ส่วนของ [packaging/fedora/infinito-nexus.spec](../../../packaging/fedora/infinito-nexus.spec) ถูก สร้าง ขึ้น ใหม่ จาก ที่ เก็บ ไว้ CHANGELOG.md รายการ, มีเครื่องหมายต่อท้ายจุดที่ [docs.infinito.nexus](https://docs.infinito.nexus/) สําหรับการปล่อยข้อมูลเพิ่มเติม และรายการข้อความธรรมดาของรุ่นที่จัดเก็บและวันที่ของจดหมาย (ไม่มีที่อยู่เชื่อมโยง)."
 
+# translated-by: libretranslate
 msgid "[pacman](https://man.archlinux.org/man/pacman.8)"
-msgstr ""
+msgstr "[แพ็คแมน](https://man.archlinux.org/man/pacman.8)"
 
+# translated-by: libretranslate
 msgid "[pacman](https://wiki.archlinux.org/title/pacman)"
-msgstr ""
+msgstr "[แพ็คแมน](https://wiki.archlinux.org/title/pacman)"
 
+# translated-by: libretranslate
 msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
-msgstr ""
+msgstr "[ห้องเก็บเอกสาร pdsadmin](https://github.com/lhaig/pdsadmin)"
 
+# translated-by: libretranslate
 msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
-msgstr ""
+msgstr "[พ.ศ. Documentation](https://www.pgadmin.org/docs/)"
 
+# translated-by: libretranslate
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
-msgstr ""
+msgstr "[PgAdmin หน้าเว็บอย่างเป็นทางการ](https://www.pgadmin.org/)"
 
+# translated-by: libretranslate
 msgid "[phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
-msgstr ""
+msgstr "[ตัวบรรจุ PhPDAPadmin Docer Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 
+# translated-by: libretranslate
 msgid "[phpLDAPadmin Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
-msgstr ""
+msgstr "[พ.ศ. Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 
+# translated-by: libretranslate
 msgid "[pipeline.md](../../../artefact/git/pipeline.md): how the orchestrator routes PR runs."
-msgstr ""
+msgstr "[pipeline.md](../../../artefact/git/pipeline.md): วิธีการที่วงออร์เคสตราเส้นทางทํางาน."
 
+# translated-by: libretranslate
 msgid "[pipeline.md](../artefact/git/pipeline.md) covers the broader CI orchestrator that hands off to the release workflows."
-msgstr ""
+msgstr "[pipeline.md](../artefact/git/pipeline.md) ครอบ คลุม วง ออร์ เคส ตรา ซี ไอ ที่ กว้าง กว่า ซึ่ง ส่ง ไป ยัง การ ไหล เวียน ของ งาน ออก มา."
 
+# translated-by: libretranslate
 msgid "[playwright-recorder](https://github.com/kevinveenbirkenbach/playwright-recorder)"
-msgstr ""
+msgstr "[ตัวบันทึกการเล่น](https://github.com/kevinveenbirkenbach/playwright-recorder)"
 
+# translated-by: libretranslate
 msgid "[plugin-sso](https://github.com/9p4/jellyfin-plugin-sso)"
-msgstr ""
+msgstr "[ปลั๊กอินโซ](https://github.com/9p4/jellyfin-plugin-sso)"
 
+# translated-by: libretranslate
 msgid "[port.md](../../../tools/network/port.md) describes the `cli contributing network ports suggest` helper."
-msgstr ""
+msgstr "[port.md](../../../tools/network/port.md) อธิบายว่า `cli contributing network ports suggest` ผู้ช่วย."
 
+# translated-by: libretranslate
 msgid "[port.md](port.md) is the sibling helper for host-bound ports."
-msgstr ""
+msgstr "[port.md](port.md) คือผู้ช่วยเหลือพี่น้องของท่าเรือ."
 
+# translated-by: libretranslate
 msgid "[ports/](ports/)"
-msgstr ""
+msgstr "[พอร์ต/](ports/)"
 
+# translated-by: libretranslate
 msgid "[pr.sh](../../../../../scripts/github/update/open/pr.sh) reads `APP_SLUG` from the environment and resolves the App's bot user via `gh api /users/<slug>[bot]`. The resolved login and numeric user ID are written into `git config user.name` and `git config user.email` in the `<id>+<slug>[bot]@users.noreply.github.com` form that GitHub accepts for verified commits. When `APP_SLUG` is unset, the script falls back to the `github-actions[bot]` identity. That branch is reached only when the script is invoked outside the workflow, for example a local smoke test where the caller has set `GH_TOKEN` to something other than an App token."
-msgstr ""
+msgstr "[pr.sh](../../../../../scripts/github/update/open/pr.sh) อ่าน `APP_SLUG` จากสภาพแวดล้อมและแก้ไขผู้ใช้ของแอปผ่าน `gh api /users/<slug>[bot]`. ล็อกอินและหมายเลขผู้ใช้ที่มีการแก้ไขถูกเขียนเข้า `git config user.name` ถึง `git config user.email` ใน `<id>+<slug>[bot]@users.noreply.github.com` รูปแบบที่กิตฮับยอมรับในการตรวจสอบ ดําเนินการ เมื่อ `APP_SLUG` ยังไม่ตั้งค่า สคริปต์จะถอยกลับไป `github-actions[bot]` ตัวตน สาขา นั้น จะ ถึง เฉพาะ เมื่อ มี การ เรียก สคริปต์ นอก แหล่ง งาน ตัว อย่าง เช่น การ ทดสอบ ควัน ใน ท้อง ถิ่น ที่ ผู้ มา เยี่ยม ได้ กําหนด ไว้ `GH_TOKEN` กับอย่างอื่นที่ไม่ใช่เหรียญแอป."
 
+# translated-by: libretranslate
 msgid "[probe.py](../../roles/svc-ai-litellm/files/test/probe.py), on every gateway deploy that serves more than one declared window"
-msgstr ""
+msgstr "[probe.py](../../roles/svc-ai-litellm/files/test/probe.py), ทุกประตูที่ให้บริการมากกว่าหนึ่งหน้าต่างประกาศ"
 
+# translated-by: libretranslate
 msgid "[probe.py](../../roles/svc-ai-litellm/files/test/probe.py), run on every gateway deploy"
-msgstr ""
+msgstr "[probe.py](../../roles/svc-ai-litellm/files/test/probe.py), วิ่งทุกประตูที่เปิด"
 
+# translated-by: libretranslate
 msgid "[probe_auth.py](../../roles/svc-ai-litellm/files/python/probe_auth.py), run on every gateway deploy; unit-tested in [test_probe_auth.py](../../tests/unit/python/roles/svc-ai-litellm/files/test_probe_auth.py)"
-msgstr ""
+msgstr "[probe_auth.py](../../roles/svc-ai-litellm/files/python/probe_auth.py), ทํางานในทุกประตู เปิดใช้งาน; หน่วยทดสอบใน [test_probe_auth.py](../../tests/unit/python/roles/svc-ai-litellm/files/test_probe_auth.py)"
 
+# translated-by: libretranslate
 msgid "[prom/prometheus Docker image](https://hub.docker.com/r/prom/prometheus)"
-msgstr ""
+msgstr "[อิมเมจของ Prometheus Doker](https://hub.docker.com/r/prom/prometheus)"
 
+# translated-by: libretranslate
 msgid "[pull.py](../../../roles/sys-svc-compose/files/python/pull.py) delegates to the same wrapper so `pull` and `build --pull` operations see the identical `-f` set."
-msgstr ""
+msgstr "[pull.py](../../../roles/sys-svc-compose/files/python/pull.py) ผู้แทนห่อผ้าผืนเดิม `pull` ถึง `build --pull` การดําเนินการดูเหมือนกัน `-f` เซ็ท."
 
+# translated-by: libretranslate
 msgid "[purge/](purge/) for container-local cleanup helpers"
-msgstr ""
+msgstr "[ลบ/ ล้าง](purge/) สําหรับเครื่องมือช่วยทําความสะอาดภายใน"
 
+# translated-by: libretranslate
 msgid "[purge/](purge/) for host and repository cleanup helpers"
-msgstr ""
+msgstr "[ลบ/ ล้าง](purge/) สําหรับโฮสต์และโปรแกรมช่วยทําความสะอาดคลัง"
 
+# translated-by: libretranslate
 msgid "[rabbitmqctl management documentation](https://www.rabbitmq.com/docs/cli)"
-msgstr ""
+msgstr "[เอกสารการจัดการกระต่าย](https://www.rabbitmq.com/docs/cli)"
 
+# translated-by: libretranslate
 msgid "[rbac_group_path](../../../../plugins/lookup/rbac_group_path.py) is the **only** sanctioned way to derive the OIDC group path for an application role. Consumers MUST call it:"
-msgstr ""
+msgstr "[rbac_group_path](../../../../plugins/lookup/rbac_group_path.py) คือ **เท่านั้น** ผ่านวิธีการหาพาธของกลุ่มผู้ใช้ OIDC สําหรับบทบาทของโปรแกรม ผู้ บริโภค ต้อง เรียก ว่า:"
 
+# translated-by: libretranslate
 msgid "[ready.yml](./ready.yml) is the entry point: it gates the neutralize include on `DOCKER_IN_CONTAINER` and always waits for the dpkg lock."
-msgstr ""
+msgstr "[ready.yml](./ready.yml) คือจุดเข้า มันเปิดประตู `DOCKER_IN_CONTAINER` และรอล็อคตลอดเวลา."
 
+# translated-by: libretranslate
 msgid "[registry.py](registry.py) builds the service registry from roles and resolves shared-service auto-include edges (`services.<X>.enabled` AND `services.<X>.shared`) to provider role names."
-msgstr ""
+msgstr "[registry.py](registry.py) สร้างการลงทะเบียนบริการจากบทบาทและแก้ไขขอบบริการที่ใช้ร่วมกันอัตโนมัติ (`services.<X>.enabled` และ `services.<X>.shared`) ชื่อผู้ให้บทบาท."
 
+# translated-by: libretranslate
 msgid "[release/](release/)"
-msgstr ""
+msgstr "[ปล่อย/ ปล่อย](release/)"
 
+# translated-by: libretranslate
 msgid "[requirements.md (agent guide)](../agents/action/requirements.md)"
-msgstr ""
+msgstr "[requirements.md (เจ้าหน้าที่ไกด์)](../agents/action/requirements.md)"
 
+# translated-by: libretranslate
 msgid "[requirements.md (contributor guide)](../contributing/requirements.md)"
-msgstr ""
+msgstr "[requirements.md (ส่วนเสริมผู้มีส่วนร่วม)](../contributing/requirements.md)"
 
+# translated-by: libretranslate
 msgid "[resolve/](resolve/)"
-msgstr ""
+msgstr "[แก้ไข/](resolve/)"
 
+# translated-by: libretranslate
 msgid "[roles/](../../../roles/) for behavior"
-msgstr ""
+msgstr "[บทบาท/](../../../roles/) สําหรับพฤติกรรม"
 
+# translated-by: libretranslate
 msgid "[roles/web-app-wordpress/meta/services.yml](../../../roles/web-app-wordpress/meta/services.yml) declares `services.discourse.shared: true` plus a fallback `enabled: \"{{ 'web-app-discourse' in group_names }}\"`."
-msgstr ""
+msgstr "[roles/web-app-wordpress/meta/services.yml](../../../roles/web-app-wordpress/meta/services.yml) ประกาศ `services.discourse.shared: true` เพิ่มความล้มเหลว `enabled: \"{{ 'web-app-discourse' in group_names }}\"`."
 
+# translated-by: libretranslate
 msgid "[roles/web-app-wordpress/meta/variants.yml](../../../roles/web-app-wordpress/meta/variants.yml) variant 0 (canonical Single-Site) overrides `services.discourse.enabled: true`. Variant 1 (Multisite) overrides it to `false`."
-msgstr ""
+msgstr "[roles/web-app-wordpress/meta/variants.yml](../../../roles/web-app-wordpress/meta/variants.yml) คุณสมบัติ 0 (รายการเดี่ยว) แทนที่ `services.discourse.enabled: true`. ศ. 1 (มัลติไซต์) ใช้แทน `false`."
 
+# translated-by: libretranslate
 msgid "[ruff](https://github.com/astral-sh/ruff)"
-msgstr ""
+msgstr "[แบน](https://github.com/astral-sh/ruff)"
 
+# translated-by: libretranslate
 msgid "[runner/](runner/)"
-msgstr ""
+msgstr "[นักวิ่ง/](runner/)"
 
+# translated-by: libretranslate
 msgid "[scripts/](../../../scripts/)"
-msgstr ""
+msgstr "[สคริปต์/](../../../scripts/)"
 
+# translated-by: libretranslate
 msgid "[seal concepts](https://openbao.org/docs/concepts/seal/)"
-msgstr ""
+msgstr "[การประทับตรา](https://openbao.org/docs/concepts/seal/)"
 
+# translated-by: libretranslate
 msgid "[seal stanza](https://openbao.org/docs/configuration/seal/)"
-msgstr ""
+msgstr "[ตราประทับ](https://openbao.org/docs/configuration/seal/)"
 
+# translated-by: libretranslate
 msgid "[secrets.md](secrets.md): repository secrets that workflows consume, and the failure mode when they are missing."
-msgstr ""
+msgstr "[secrets.md](secrets.md): การ เก็บ รักษา ความ ลับ."
 
+# translated-by: libretranslate
 msgid "[service_registry.py lookup plugin](../../../../../plugins/lookup/service_registry.py)"
-msgstr ""
+msgstr "[service_registry.py ปลั๊กอินค้นหา](../../../../../plugins/lookup/service_registry.py)"
 
+# translated-by: libretranslate
 msgid "[service_registry.py lookup](../../../../../plugins/lookup/service_registry.py)"
-msgstr ""
+msgstr "[service_registry.py ค้นหา](../../../../../plugins/lookup/service_registry.py)"
 
+# translated-by: libretranslate
 msgid "[setup/](setup/) for DNS setup scripts"
-msgstr ""
+msgstr "[ตั้งค่า/](setup/) สําหรับสคริปต์ตั้งค่า DNS"
 
+# translated-by: libretranslate
 msgid "[shellcheck](https://github.com/koalaman/shellcheck)"
-msgstr ""
+msgstr "[ตรวจสอบเชลล์](https://github.com/koalaman/shellcheck)"
 
+# translated-by: libretranslate
 msgid "[sshd_config manual](https://man7.org/linux/man-pages/man5/sshd_config.5.html)"
-msgstr ""
+msgstr "[sshd_config คู่มือ](https://man7.org/linux/man-pages/man5/sshd_config.5.html)"
 
+# translated-by: libretranslate
 msgid "[static seal](https://openbao.org/docs/configuration/seal/static/)"
-msgstr ""
+msgstr "[ตราตายตัว](https://openbao.org/docs/configuration/seal/static/)"
 
+# translated-by: libretranslate
 msgid "[svc-prx-openresty](../../../roles/svc-prx-openresty/) remains the reverse proxy in BOTH modes. Under swarm it is rendered as a Swarm service pinned to the manager node via `deploy.placement.constraints: node.role == manager`."
-msgstr ""
+msgstr "[svc-prx-openresty](../../../roles/svc-prx-openresty/) ยังเป็นพร็อกซีย้อนกลับในโหมดทั้งสอง ภายใต้กลุ่มจะถูกแปลงเป็นบริการสวาร์มที่ยึดกับโหนดผู้จัดการผ่านทาง `deploy.placement.constraints: node.role == manager`."
 
+# translated-by: libretranslate
 msgid "[sync/](sync/)"
-msgstr ""
+msgstr "[ปรับเทียบข้อมูล/](sync/)"
 
+# translated-by: libretranslate
 msgid "[system/](system/) contains host and system-facing helpers."
-msgstr ""
+msgstr "[ระบบ/ ระบบ](system/) มีผู้ช่วยเหลือและผู้ควบคุมระบบ."
 
+# translated-by: libretranslate
 msgid "[systemctl](https://www.freedesktop.org/software/systemd/man/systemctl.html)"
-msgstr ""
+msgstr "[ระบบ Ctrl](https://www.freedesktop.org/software/systemd/man/systemctl.html)"
 
+# translated-by: libretranslate
 msgid "[systemd - Manager Configuration](https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html)"
-msgstr ""
+msgstr "[ระบบ - การปรับแต่งตัวจัดการ](https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html)"
 
+# translated-by: libretranslate
 msgid "[systemd - Service Units](https://www.freedesktop.org/software/systemd/man/systemd.service.html)"
-msgstr ""
+msgstr "[ระบบ - หน่วยบริการ](https://www.freedesktop.org/software/systemd/man/systemd.service.html)"
 
+# translated-by: libretranslate
 msgid "[systemd - Timer Units](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)"
-msgstr ""
+msgstr "[ระบบ - หน่วยจับเวลา](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)"
 
+# translated-by: libretranslate
 msgid "[systemd-analyze](https://www.freedesktop.org/software/systemd/man/systemd-analyze.html)"
-msgstr ""
+msgstr "[แว่นขยายระบบ](https://www.freedesktop.org/software/systemd/man/systemd-analyze.html)"
 
+# translated-by: libretranslate
 msgid "[systemd.unit(5) manual](https://www.freedesktop.org/software/systemd/man/systemd.unit.html)"
-msgstr ""
+msgstr "[systemd.unit(5) คู่มือ](https://www.freedesktop.org/software/systemd/man/systemd.unit.html)"
 
+# translated-by: libretranslate
 msgid "[systemd/](systemd/) for WSL2 systemd helpers"
-msgstr ""
+msgstr "[ระบบ/](systemd/) สําหรับ WSL2 ผู้ช่วยเหลือของระบบ"
 
+# translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr ""
+msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js)# ประตูเปิดอยู่ `services.sso`"
 
+# translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
-msgstr ""
+msgstr "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) เก็บการเรียกร้อง, การไม่มีบทบาทใด ๆ ในบัญชี, และการขาดความน่าเชื่อถือครั้งที่สองสําหรับมัน มากกว่าบทบาทที่ได้มาจากการสแกน sandbox-Runter มากกว่ารายการ."
 
+# translated-by: libretranslate
 msgid "[test_config_model_list.py](../../tests/unit/python/roles/svc-ai-litellm/templates/test_config_model_list.py), and the role's own routing probe on every deploy"
-msgstr ""
+msgstr "[test_config_model_list.py](../../tests/unit/python/roles/svc-ai-litellm/templates/test_config_model_list.py), และบทบาทของเครื่องสํารวจตัวเองในทุกการดําเนินการ"
 
+# translated-by: libretranslate
 msgid "[test_coverage.py](../../../../tests/integration/roles/meta/variants/test_coverage.py) consults `get_role_types` so the variant-coverage requirement only applies to roles that include `ROLE_TYPE_APPLICATION` in their type set."
-msgstr ""
+msgstr "[test_coverage.py](../../../../tests/integration/roles/meta/variants/test_coverage.py) ที่ปรึกษา `get_role_types` ดังนั้นความต้องการที่ครอบคลุมเฉพาะกับบทบาทที่รวมถึง `ROLE_TYPE_APPLICATION` ในรูปแบบของพวกเขา."
 
+# translated-by: libretranslate
 msgid "[test_email.py](../../../../../tests/unit/python/plugins/lookup/test_email.py) for unit tests."
-msgstr ""
+msgstr "[test_email.py](../../../../../tests/unit/python/plugins/lookup/test_email.py) สําหรับการทดสอบหน่วย."
 
+# translated-by: libretranslate
 msgid "[test_invoked.py](test_invoked.py) — every `notify:` MUST resolve to a `listen:` topic (never to a handler name), every `listen:` MUST be notified by someone, and both MUST spell out as `[a-z_-]+`."
-msgstr ""
+msgstr "[test_invoked.py](test_invoked.py) -ทุก `notify:` ต้องมุ่งมั่นที่จะ `listen:` หัวข้อ (ไม่เคยใช้ชื่อผู้ดูแล)ทุก `listen:` ต้องได้รับแจ้งจากใครบางคน และทั้งคู่ต้องสะกดออกมาว่า `[a-z_-]+`."
 
+# translated-by: libretranslate
 msgid "[test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) and [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py)"
-msgstr ""
+msgstr "[test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) ถึง [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py)"
 
+# translated-by: libretranslate
 msgid "[test_mapping.py](../../../../tests/integration/roles/meta/test_mapping.py) iterates every role and every entry in `ROLE_FILES`, then reports forbidden files, missing mandatory files, forbidden entries, and missing mandatory entries in one structured fail report."
-msgstr ""
+msgstr "[test_mapping.py](../../../../tests/integration/roles/meta/test_mapping.py) เรียงลําดับทุกบทบาท และทุกรายการใน `ROLE_FILES`, จาก นั้น ก็ รายงาน เอกสาร ต้อง ห้าม, แฟ้ม ที่ ขาด ไป, รายการ ที่ ต้อง ห้าม, และ รายการ ที่ ขาด ไป ใน รายงาน หนึ่ง ที่ ไม่ ได้ รับ การ แก้ไข."
 
+# translated-by: libretranslate
 msgid "[test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py), over role `templates/` and `vars/`"
-msgstr ""
+msgstr "[test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py), เกินบทบาท `templates/` ถึง `vars/`"
 
+# translated-by: libretranslate
 msgid "[test_names_static.py](test_names_static.py) — a `listen:`-bearing handler entry MUST carry a static name (no Jinja templating)."
-msgstr ""
+msgstr "[test_names_static.py](test_names_static.py) - `listen:`ผู้จัดการที่อดทนต้องพกชื่อตาย (ไม่มีจินจาชั่วคราว)."
 
+# translated-by: libretranslate
 msgid "[test_robot_admission_guard.py](../../tests/lint/ansible/services/test_robot_admission_guard.py), deriving the agent set from `svc-ai-robot`'s own service flags"
-msgstr ""
+msgstr "[test_robot_admission_guard.py](../../tests/lint/ansible/services/test_robot_admission_guard.py), จากตัวแทนชุดจาก `svc-ai-robot`ธงบริการเป็นของตัวเอง"
 
+# translated-by: libretranslate
 msgid "[test_router_hook.py](../../tests/unit/python/roles/svc-ai-litellm/templates/test_router_hook.py), against an injected catalog"
-msgstr ""
+msgstr "[test_router_hook.py](../../tests/unit/python/roles/svc-ai-litellm/templates/test_router_hook.py), กับแคตตาล็อกที่ถูกฉีด"
 
+# translated-by: libretranslate
 msgid "[test_sandboxed_no_host_socket.py](../../tests/lint/ansible/services/test_sandboxed_no_host_socket.py), scoped to the roles whose templates pin `SANDBOX_RUNTIME`"
-msgstr ""
+msgstr "[test_sandboxed_no_host_socket.py](../../tests/lint/ansible/services/test_sandboxed_no_host_socket.py), สืบค้นถึงบทบาทของต้นแบบ `SANDBOX_RUNTIME`"
 
+# translated-by: libretranslate
 msgid "[test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py) scans git-tracked plus untracked-but-not-ignored text files for literal public `http://` and `https://` URLs."
-msgstr ""
+msgstr "[test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py) สแกนด้วย git-tracked บวก untracked- but-non-dictioned files for public `http://` ถึง `https://` ที่อยู่ URL."
 
+# translated-by: libretranslate
 msgid "[testing.md](../actions/testing.md) for refactoring, debugging, and testing"
-msgstr ""
+msgstr "[testing.md](../actions/testing.md) สําหรับการทดสอบ, การดีบั๊ก, และการทดสอบ"
 
+# translated-by: libretranslate
 msgid "[tests/](../../../tests/)"
-msgstr ""
+msgstr "[ทดสอบ/](../../../tests/)"
 
 msgid "[tests/](../../../tests/) for the expected contracts"
 msgstr ""
