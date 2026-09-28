@@ -8,11 +8,6 @@ s1:
   enabled: true
   shared: true
   provides: s1_api
-  cpus: "0.2"
-  mem_reservation: 64m
-  mem_limit: 128m
-  pids_limit: 64
-  min_storage: "1GB"
   lifecycle: alpha
 
 # nocheck: playwright-service-flag — the API carries no dashboard tile
