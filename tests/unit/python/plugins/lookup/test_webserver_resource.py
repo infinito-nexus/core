@@ -8,19 +8,41 @@ from plugins.lookup.webserver_resource import PROXY_ROLE, LookupModule
 RESOURCE = {"cpus": "0.5", "pids_limit": 512, "host_cpus": 20}
 
 
-def _run(key, proxy, app, application_id="web-app-docs", service_name=""):
+class _Templar:
+    def __init__(self, resolved):
+        self._resolved = resolved
+
+    def template(self, value):
+        return self._resolved.get(value, value)
+
+
+def _run(
+    key,
+    proxy,
+    app,
+    application_id="web-app-docs",
+    service_name="",
+    declared_as=None,
+    templar=None,
+):
     applications = {
         PROXY_ROLE: {"services": {"openresty": {key: proxy}}},
         application_id: {"services": {"docs": {key: app}}},
     }
-    variables = {"application_id": application_id, "service_name": service_name}
+    variables = {
+        "application_id": declared_as or application_id,
+        "service_name": service_name,
+    }
     with (
         patch("plugins.lookup.webserver_resource.ApplicationsLookup") as apps,
         patch("plugins.lookup.webserver_resource.ResourceLookup") as resource,
     ):
         apps.return_value.run.return_value = [applications]
         resource.return_value.run.side_effect = lambda terms, **_k: [RESOURCE[terms[0]]]
-        return LookupModule().run([key], variables=variables)
+        lookup = LookupModule()
+        if templar is not None:
+            lookup._templar = templar
+        return lookup.run([key], variables=variables)
 
 
 class TestWebserverResource(unittest.TestCase):
@@ -39,6 +61,22 @@ class TestWebserverResource(unittest.TestCase):
         result = _run("pids_limit", proxy=1024, app=512)
         self.assertEqual(result, [512])
         self.assertIsInstance(result[0], int)
+
+    def test_an_application_id_that_is_still_a_template_is_resolved(self):
+        """sys-stk-full sets application_id from a variable, so the play holds
+        the unrendered string and the lookup must template it itself."""
+        result = _run(
+            "cpus",
+            proxy="4",
+            app="2",
+            declared_as="{{ sys_stk_full_application_id }}",
+            templar=_Templar({"{{ sys_stk_full_application_id }}": "web-app-docs"}),
+        )
+        self.assertEqual(result, [2.0])
+
+    def test_a_plain_application_id_is_not_sent_through_the_templar(self):
+        result = _run("cpus", proxy="4", app="2", templar=_Templar({}))
+        self.assertEqual(result, [2.0])
 
     def test_an_unknown_key_is_refused(self):
         with self.assertRaises(AnsibleError):

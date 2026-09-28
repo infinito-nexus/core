@@ -26,6 +26,24 @@ _CAST = {"cpus": float, "pids_limit": int}
 
 
 class LookupModule(LookupBase):
+    def _rendered(self, value: Any) -> str:
+        """Return *value* as text, resolving it when it is still a template.
+
+        A variable read out of the play's variables is raw, so a role whose
+        ``application_id`` is itself a template (``sys-stk-full`` sets it from
+        ``sys_stk_full_application_id``) hands back the unrendered string. An
+        expression that names the same variable is templated before the lookup
+        ever sees it, which is why the inline form this replaced never hit it.
+
+        Args:
+            value: the variable as the play holds it.
+        """
+        text = str(value or "")
+        templar = getattr(self, "_templar", None)
+        if templar is None or "{{" not in text:
+            return text
+        return str(templar.template(text))
+
     def run(
         self,
         terms: list[Any],
@@ -46,8 +64,8 @@ class LookupModule(LookupBase):
             )
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
-        application_id = str(vars_.get("application_id") or "")
-        service_name = str(vars_.get("service_name") or "")
+        application_id = self._rendered(vars_.get("application_id"))
+        service_name = self._rendered(vars_.get("service_name"))
 
         applications = ApplicationsLookup().run([], variables=vars_, **kwargs)[0]
         resource = ResourceLookup()
