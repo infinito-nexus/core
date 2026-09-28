@@ -6,10 +6,6 @@ models:
   source: "{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.models_dir') }}"
   mounts:
     - service: libretranslate-engine
-      # Exception: a bind is never seeded from the image, so mounting it over
-      # the argos package path would shadow what the build baked there.
       when: "{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.loading_model') != 'build' }}"
-      # Exception: meta may not read the role var, so the user branch of
-      # vars/main.yml is repeated here.
       target: "{{ ['/root' if (lookup('applications') | resource_filter('svc-ai-libretranslate-engine', 'gpu', 'libretranslate-engine', false) | bool) else '/home/libretranslate',
         '.local/share/argos-translate/packages'] | path_join }}"

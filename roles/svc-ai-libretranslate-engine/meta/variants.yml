@@ -2,9 +2,6 @@
 # Matrix-deploy variant overrides for svc-ai-libretranslate-engine.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
-# Exception: load_only stays at two languages in every variant because the
-# full set is 13 GB of Argos archives.
-
 - services:
     libretranslate-engine:
       loading_model: lazy
