@@ -318,6 +318,11 @@ belong to the entry's group, and the entry's `cancel-in-progress` reaches them.
 one, so a run whose only live job is theirs stays outside the entry's group and
 waits for the fallback.
 
+A job that runs after a failed `needs` guards its `if:` with `!cancelled()`, not
+`always()`, so a cancel stops it. Only `done` and `report-main-failures` keep
+`always()`: they report the cancelled run. Enforced by
+[test_workflow_cancellable_jobs_no_always.py](../../tests/lint/repository/test_workflow_cancellable_jobs_no_always.py).
+
 ## Scheduled and standalone
 
 ```mermaid

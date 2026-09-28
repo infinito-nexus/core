@@ -117,7 +117,7 @@ jobs:
       - check-ci-images
       - build-ci-images-if-missing
     if: |
-      always() &&
+      !cancelled() &&
       needs.check-ci-images.result == 'success' &&
       (
         needs.build-ci-images-if-missing.result == 'success' ||
