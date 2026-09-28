@@ -861,6 +861,15 @@ test-main-merged:
 test-merge-signed:
 	@bash scripts/git/assert/merge_signed.sh
 
+.PHONY: test-oracle
+# Run the suite whose verdict comes from a model (not part of the `test` fan-out).
+# Note: brings the tools lane up first, because the checks run inside the stack's container and cannot deploy the model they ask.
+test-oracle: install
+	@"$${PYTHON}" -m utils.inventory.tools
+	@INFINITO_TEST_TYPE="oracle" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
+
 .PHONY: test-performance
 # Run the runtime-performance suite (not part of the `test` fan-out).
 test-performance: install
