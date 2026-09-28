@@ -23,6 +23,7 @@ applications:
     services:
       libretranslate-engine:
         models_dir: [[ models_dir ]]/libretranslate
+        loading_model: task
         directions: from_source
         load_only:
 [% for code in load_only %]
