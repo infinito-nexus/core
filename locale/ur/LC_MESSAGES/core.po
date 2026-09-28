@@ -982,7 +982,7 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "تخلیق، جانچنے اور نشر کرنے کے لیے کم کوڈ کے طور پر کام کرنے والا منظری معمار ایچ ٹی ٹی پی ختم کرنے کے لیے LM اور نشر کرنے کے لیے"
 
-msgctxt "role:svc-ai-libretranslate:description"
+msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr ""
 

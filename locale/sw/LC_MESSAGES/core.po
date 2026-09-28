@@ -973,7 +973,7 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Mjenzi wa chini wa kificho wa kujenga, kupima, na kuchapisha kazi za LLM na RAG kama mwisho wa HTTP"
 
-msgctxt "role:svc-ai-libretranslate:description"
+msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr ""
 

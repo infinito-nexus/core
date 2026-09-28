@@ -954,7 +954,7 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Οπτικός κατασκευαστής χαμηλού κώδικα για τη δημιουργία, δοκιμή και δημοσίευση ροών εργασίας LLM και RAG ως τελικά σημεία HTTP"
 
-msgctxt "role:svc-ai-libretranslate:description"
+msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr ""
 

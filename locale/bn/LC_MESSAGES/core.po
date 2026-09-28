@@ -961,7 +961,7 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "HTTP শেষ হওয়ার সময় হিসাবে HTTP SM ও RG কাজের প্রবাহ তৈরি, পরীক্ষা, এবং প্রকাশ করার জন্য নিম্ন-কোড নির্মাতা, অনুসন্ধান ও প্রকাশ করুন"
 
-msgctxt "role:svc-ai-libretranslate:description"
+msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr ""
 
