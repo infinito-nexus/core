@@ -9,6 +9,14 @@ INVOKABLE = ["web-app-docs", "web-app-nextcloud", "svc-db-postgres", "dsk-gnt-cl
 NO_PIN = {ENV_VAR: ""}
 
 
+class _Templar:
+    def __init__(self, resolved):
+        self._resolved = resolved
+
+    def template(self, value):
+        return self._resolved.get(value, value)
+
+
 class TestGuideRole(unittest.TestCase):
     def test_the_only_invokable_peer_wins(self):
         self.assertEqual(
@@ -115,6 +123,23 @@ class TestGuideRoleLookup(unittest.TestCase):
             },
         )
         self.assertEqual(result, ["web-app-docs"])
+
+    @patch.dict(os.environ, NO_PIN)
+    @patch("plugins.lookup.guide_role.list_invokable_app_ids")
+    def test_a_variable_that_is_still_a_template_is_resolved(self, invokable):
+        """The play holds application_id raw, so a role that sets it from
+        another variable would otherwise be compared as '{{ ... }}'."""
+        invokable.return_value = INVOKABLE
+        lookup = LookupModule()
+        lookup._templar = _Templar({"{{ stack_app }}": "web-app-docs"})
+        result = lookup.run(
+            [],
+            variables={
+                "application_id": "{{ stack_app }}",
+                "group_names": ["web-app-docs", "web-app-nextcloud"],
+            },
+        )
+        self.assertEqual(result, ["web-app-nextcloud"])
 
     @patch.dict(os.environ, {ENV_VAR: "  dsk-gnt-claude  "})
     @patch("plugins.lookup.guide_role.list_invokable_app_ids")

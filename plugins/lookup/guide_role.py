@@ -24,6 +24,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.lookup.deployment import running_apps
 from utils.roles.validation.invokable import list_invokable_app_ids
+from utils.templating.vars import resolve_var
 
 ENV_VAR = "APP_ID"
 
@@ -60,7 +61,14 @@ class LookupModule(LookupBase):
     ) -> list[str]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         application_id = (
-            str(terms[0]) if terms else str(vars_.get("application_id", ""))
+            str(terms[0])
+            if terms
+            else str(
+                resolve_var(
+                    getattr(self, "_templar", None), vars_.get("application_id")
+                )
+                or ""
+            )
         )
         return [
             guide_role(
