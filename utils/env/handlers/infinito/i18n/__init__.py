@@ -1,1 +1,1 @@
-"""Gettext and LibreTranslate env handlers."""
+"""Gettext env handlers."""

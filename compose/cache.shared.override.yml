@@ -11,7 +11,7 @@ services:
     networks:
       cache:
 
-  i18n:
+  tools:
     networks:
       cache:
 

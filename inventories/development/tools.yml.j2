@@ -1,0 +1,40 @@
+---
+# Host vars the tools runner deploys its toolchain services with.
+# Rendered by utils.inventory.tools with square-bracket delimiters, so the
+# curly-brace expressions below stay untouched for the deploy to resolve.
+
+TLS_MODE: self_signed
+
+TIMEOUT_FACTOR: 4
+
+DOCKER_BIND_HOST: 0.0.0.0
+
+RESOURCE_HOST_CPUS_OVERRIDE: "{{ ansible_facts['processor_nproc'] }}"
+
+SIZE_PERCENT_CLEANUP_DISC_SPACE: 98
+
+users:
+  administrator:
+    authorized_keys:
+      - ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito
+
+applications:
+  svc-ai-libretranslate-engine:
+    services:
+      libretranslate-engine:
+        models_dir: [[ models_dir ]]/libretranslate
+        directions: from_source
+        load_only:
+[% for code in load_only %]
+          - [[ code ]]
+[% endfor %]
+        cpus: "{{ lookup('resource', 'host_cpus') }}"
+        mem_limit: "{{ lookup('resource', 'mem_limit') }}"
+        pids_limit: 4096
+  svc-ai-s1:
+    secrets:
+      credentials:
+        api_key: [[ s1_api_key ]]
+    services:
+      s1:
+        models_dir: [[ models_dir ]]/s1

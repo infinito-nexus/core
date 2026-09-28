@@ -29,7 +29,14 @@ def compose_file_args() -> list[str]:
         out += ["-f", "compose/gpu.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
         out += ["-f", "compose/noports.override.yml"]
-    out += ["-f", "compose/i18n.override.yml"]
+    if all(
+        (os.environ.get(key) or "").strip()
+        for key in (
+            "INFINITO_TOOLS_LIBRETRANSLATE_PORT",
+            "INFINITO_TOOLS_MODELS_HOST_PATH",
+        )
+    ):
+        out += ["-f", "compose/tools.override.yml"]
     return out
 
 

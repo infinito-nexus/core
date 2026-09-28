@@ -37,6 +37,7 @@ from .infinito.ca import cert_host as ca_cert_host
 from .infinito.cache import conf as cache_conf
 from .infinito.cache import hosts as cache_hosts
 from .infinito.cache import http_hosts as cache_http_hosts
+from .infinito.cache import paths as cache_paths
 from .infinito.cache import stack as cache_stack
 from .infinito.cache import tls as cache_tls
 from .infinito.cache import upstreams as cache_upstreams
@@ -45,7 +46,6 @@ from .infinito.dir import secrets as dir_secrets
 from .infinito.dir import var_lib as dir_var_lib
 from .infinito.fork import account as fork_account
 from .infinito.fork import repository_url as fork_repository_url
-from .infinito.i18n import libretranslate as i18n_libretranslate
 from .infinito.i18n import tuning as i18n_tuning
 from .infinito.package_cache import admin_password as package_cache_admin_password
 from .infinito.package_cache import blobstore_max as package_cache_blobstore_max
@@ -60,6 +60,8 @@ from .infinito.running_on import act as running_on_act
 from .infinito.running_on import github as running_on_github
 from .infinito.swarm_nfs import export_base as swarm_nfs_export_base
 from .infinito.swarm_nfs import state_path as swarm_nfs_state_path
+from .infinito.tools import libretranslate as tools_libretranslate
+from .infinito.tools import models as tools_models
 from .infinito.worker import cpu as worker_cpu
 from .infinito.worker import fetch as worker_fetch
 
@@ -89,6 +91,7 @@ ORDERED_HANDLERS = [
     cache_tls,
     cache_upstreams,
     cache_stack,
+    cache_paths,
     tor_socks_port,
     is_wsl2,
     ca_bundle_candidates,
@@ -109,7 +112,8 @@ ORDERED_HANDLERS = [
     registry_cache_max_size,
     git_identity,
     gpu_count,
-    i18n_libretranslate,
+    tools_libretranslate,
+    tools_models,
     i18n_tuning,
     package_cache_heap,
     package_cache_direct_mem,

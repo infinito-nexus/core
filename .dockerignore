@@ -48,9 +48,7 @@ compose/package-cache/pip.conf
 compose/package-cache/npmrc
 compose/package-cache/apt/*.list
 
-# The i18n lane pins load_only to the languages a run translates, so the image
-# bakes exactly those argos models instead of installing every one at runtime.
-inventories/development/i18n.rendered.yml
+inventories/development/tools.rendered.yml
 
 # Host shell / editor / tooling state accidentally surfaced inside this working copy
 .ansible

@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml
 from utils.i18n.client import LibreTranslate, Outcome, merge
+from utils.inventory.tools import LANE_SERVICE
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
@@ -19,7 +20,8 @@ if TYPE_CHECKING:
 
 __all__ = ["LibreTranslate", "Outcome", "merge", "server"]
 
-ROLE = "web-svc-libretranslate"
+ROLE = "svc-ai-libretranslate-engine"
+SERVICE_KEY = "libretranslate-engine"
 SERVICES_FILE = Path("roles") / ROLE / ROLE_FILE_META_SERVICES
 POLL_SECONDS = 5
 READY_TIMEOUT_SECONDS = 3600
@@ -27,12 +29,10 @@ DEPLOYED_TIMEOUT_SECONDS = 5
 DEPLOY_TIMEOUT_SECONDS = 4 * 3600
 RUNNER_TIMEOUT_SECONDS = 300
 SERVICE_TIMEOUT_SECONDS = READY_TIMEOUT_SECONDS
-INVENTORY_DIR = Path.home() / "inventories" / "infinito-i18n"
+INVENTORY_DIR = Path.home() / "inventories" / "infinito-tools"
 DEPLOY_PID_FILE = Path("build") / "deploy.pid"
 DEPLOY_ROUTER = "deploy/main.sh"
-GPU_STAMP = Path("build") / "i18n-gpu.stamp"
-INVENTORY_VARS = Path("inventories") / "development" / "i18n.yml"
-INVENTORY_VARS_RENDERED = Path("inventories") / "development" / "i18n.rendered.yml"
+GPU_STAMP = Path("build") / "tools-gpu.stamp"
 PIVOT_LANGUAGE = "en"
 
 
@@ -61,7 +61,7 @@ def service_url(root: Path) -> str:
     Args:
         root: repository root.
     """
-    service = load_yaml(root / SERVICES_FILE)["libretranslate"]
+    service = load_yaml(root / SERVICES_FILE)[SERVICE_KEY]
     host = environment(root)["INFINITO_BIND_IP"]
     return f"http://{host}:{service['ports']['local']['http']}"
 
@@ -164,7 +164,7 @@ def local_image(root: Path, env: dict[str, str]) -> str:
 
 
 def await_runner(name: str, env: dict[str, str]) -> None:
-    """Block until the i18n runner is up, so no exec falls back to another container.
+    """Block until the tools runner is up, so no exec falls back to another container.
 
     Args:
         name: container name of the runner.
@@ -185,7 +185,7 @@ def await_runner(name: str, env: dict[str, str]) -> None:
         if state.stdout.strip() == "true":
             return
         time.sleep(POLL_SECONDS)
-    raise RuntimeError(f"The i18n runner {name} did not reach the running state.")
+    raise RuntimeError(f"The tools runner {name} did not reach the running state.")
 
 
 def baked_languages(root: Path) -> list[str]:
@@ -208,34 +208,30 @@ def _vars_file(root: Path) -> Path:
 
     ``load_only`` reaches the Dockerfile as a build ARG, so a value that
     follows the batch rebuilds the prefetch layer on every run and refetches
-    every model in it. Pinning the whole set keeps the ARG constant, and
-    ``from_source`` drops the reverse pairs this lane never asks for.
+    every model in it. Pinning the whole set keeps the ARG constant.
 
     Args:
         root: repository root.
 
     Returns:
-        The rendered file, beside the tracked one so the container sees it.
+        The rendered file, beside the template so the container sees it.
     """
-    from utils.cache.yaml import dump_yaml, load_yaml
+    from utils.inventory.tools import render
 
-    loaded = load_yaml(str(root / INVENTORY_VARS))
-    service = loaded["applications"][ROLE]["services"]["libretranslate"]
-    service["load_only"] = baked_languages(root)
-    service["directions"] = "from_source"
-    rendered = root / INVENTORY_VARS_RENDERED
-    dump_yaml(rendered, loaded)
-    return rendered
+    return render(root, baked_languages(root))
 
 
-def deploy(root: Path) -> str:
-    """Deploy web-svc-libretranslate alone into its own inventory and return its URL.
+def deploy(root: Path, roles: tuple[str, ...] = (ROLE,)) -> str:
+    """Deploy the named roles into the tools lane's own inventory.
 
     Args:
         root: repository root.
+        roles: the application ids to provision and deploy. Defaults to the
+            translation engine, so the i18n targets are unaffected by callers
+            that bring up a different tool.
 
     Returns:
-        The base URL, empty when the service stays unreachable.
+        The translation engine's base URL, empty when it stays unreachable.
     """
     from cli.administration.deploy.development.env import compose_file_args
 
@@ -248,7 +244,7 @@ def deploy(root: Path) -> str:
         "-T",
         "-w",
         loaded["INFINITO_SRC_DIR"],
-        "i18n",
+        LANE_SERVICE,
         "python",
         "-m",
     ]
@@ -259,10 +255,10 @@ def deploy(root: Path) -> str:
             "compose",
             *compose_file_args(),
             "--profile",
-            "i18n",
+            LANE_SERVICE,
             "up",
             "-d",
-            "i18n",
+            LANE_SERVICE,
         ],
         [*inside[:-2], "sh", "-lc", "/usr/local/bin/package-frontend-ca.sh"],
         [*inside[:-2], "systemctl", "daemon-reload"],
@@ -272,7 +268,7 @@ def deploy(root: Path) -> str:
             "cli.administration.inventory.provision",
             str(INVENTORY_DIR),
             "--include",
-            ROLE,
+            *roles,
             "--vars-file",
             f"{loaded['INFINITO_SRC_DIR']}/{_vars_file(root).relative_to(root)}",
         ],
@@ -335,12 +331,12 @@ def server(root: Path) -> Iterator[str]:
 
 
 def lane_container(env: dict[str, str]) -> str:
-    """Return the name of the container the i18n lane deploys into.
+    """Return the name of the container the tools lane deploys into.
 
     Args:
         env: the process environment the deploy CLIs expect.
     """
-    return f"{env['INFINITO_CONTAINER']}_i18n"
+    return f"{env['INFINITO_CONTAINER']}_{LANE_SERVICE}"
 
 
 def download_status(root: Path) -> str:

@@ -23,6 +23,8 @@ _LOCAL_PRIMARY = {
     "INFINITO_CACHE_STACK": "",
     "INFINITO_PUBLISH_PORTS": "",
     "INFINITO_GPU_COUNT": "0",
+    "INFINITO_TOOLS_LIBRETRANSLATE_PORT": "8097",
+    "INFINITO_TOOLS_MODELS_HOST_PATH": "/var/cache/infinito/core/cache/models",
 }
 
 _WORKTREE = {
@@ -44,7 +46,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.override.yml",
                 "-f",
-                "compose/i18n.override.yml",
+                "compose/tools.override.yml",
             ],
         )
 
@@ -62,7 +64,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.shared.override.yml",
                 "-f",
-                "compose/i18n.override.yml",
+                "compose/tools.override.yml",
             ],
         )
 
@@ -76,7 +78,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.override.yml",
                 "-f",
-                "compose/i18n.override.yml",
+                "compose/tools.override.yml",
             ],
         )
 
@@ -92,7 +94,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.override.yml",
                 "-f",
-                "compose/i18n.override.yml",
+                "compose/tools.override.yml",
             ],
         )
 
@@ -106,7 +108,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/worktree.override.yml",
                 "-f",
-                "compose/i18n.override.yml",
+                "compose/tools.override.yml",
             ],
         )
 
@@ -114,7 +116,7 @@ class TestComposeFileArgs(unittest.TestCase):
     def test_ci_loads_no_override_at_all(self) -> None:
         self.assertEqual(
             compose_file_args(),
-            ["-f", "compose.yml", "-f", "compose/i18n.override.yml"],
+            ["-f", "compose.yml", "-f", "compose/tools.override.yml"],
         )
 
     @patch.dict(
@@ -136,6 +138,25 @@ class TestComposeFileArgs(unittest.TestCase):
     )
     def test_a_host_with_a_gpu_adds_the_reservation(self) -> None:
         self.assertIn("compose/gpu.override.yml", compose_file_args())
+
+    @patch.dict(
+        os.environ,
+        {**_LOCAL_PRIMARY, "INFINITO_TOOLS_LIBRETRANSLATE_PORT": ""},
+        clear=False,
+    )
+    def test_a_stale_env_drops_the_tools_lane_instead_of_aborting(self) -> None:
+        """The lane's override carries `:?` guards, which fire even behind its
+        profile, so layering it in against an .env that predates those keys
+        would abort every compose command rather than only the lane."""
+        self.assertNotIn("compose/tools.override.yml", compose_file_args())
+
+    @patch.dict(
+        os.environ,
+        {**_LOCAL_PRIMARY, "INFINITO_TOOLS_MODELS_HOST_PATH": ""},
+        clear=False,
+    )
+    def test_the_models_path_gates_the_tools_lane_too(self) -> None:
+        self.assertNotIn("compose/tools.override.yml", compose_file_args())
 
 
 if __name__ == "__main__":  # pragma: no cover

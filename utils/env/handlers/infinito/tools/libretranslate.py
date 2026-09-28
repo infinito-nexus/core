@@ -1,5 +1,5 @@
-"""INFINITO_I18N_LIBRETRANSLATE_PORT: loopback port the i18n runner forwards to
-its LibreTranslate, read from roles/web-svc-libretranslate/meta/services.yml."""
+"""INFINITO_TOOLS_LIBRETRANSLATE_PORT: loopback port the tools runner forwards
+to its LibreTranslate, read from roles/svc-ai-libretranslate-engine/meta/services.yml."""
 
 from __future__ import annotations
 
@@ -12,9 +12,9 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 if TYPE_CHECKING:
     from utils.env.builder import BuildContext, EnvBuilder
 
-KEY = "INFINITO_I18N_LIBRETRANSLATE_PORT"
-COMMENT = "Loopback port the i18n runner forwards to its LibreTranslate."
-SERVICES = f"roles/web-svc-libretranslate/{ROLE_FILE_META_SERVICES}"
+KEY = "INFINITO_TOOLS_LIBRETRANSLATE_PORT"
+COMMENT = "Loopback port the tools runner forwards to its LibreTranslate."
+SERVICES = f"roles/svc-ai-libretranslate-engine/{ROLE_FILE_META_SERVICES}"
 HTTP_PORT = re.compile(r"^\s+local:\n\s+http:\s*(\d+)\s*$", re.MULTILINE)
 
 
