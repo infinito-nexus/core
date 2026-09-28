@@ -5,6 +5,13 @@
   vars:
     handler_role_name: "sys-svc-compose"
 
+- name: "🐳 Prepare the compose stack before anything can flush its handlers"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+  when: run_once_sys_svc_compose is not defined
+
 - name: "📄 Render the frontend map for '{{ application_id }}'"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
@@ -22,13 +29,6 @@
   loop:
     - "{{ CACHE_PACKAGE_CA_DIR_HOST }}"
     - "{{ CACHE_PACKAGE_CERTS_DIR_HOST }}"
-
-- name: "🐳 Prepare the compose stack before anything can flush its handlers"
-  ansible.builtin.include_role:
-    name: sys-svc-compose
-  vars:
-    compose_handlers_flush: false
-  when: run_once_sys_svc_compose is not defined
 
 - name: "🔐 Issue the frontend CA and one leaf per TLS host"
   ansible.builtin.command:
