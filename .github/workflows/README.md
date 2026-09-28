@@ -318,6 +318,15 @@ belong to the entry's group, and the entry's `cancel-in-progress` reaches them.
 one, so a run whose only live job is theirs stays outside the entry's group and
 waits for the fallback.
 
+The `deploy` job of `call-test-deploy.yml` holds a job-level group keyed on every
+matrix axis: `mode`, `tor`, `distro`, `filesystem`, `apps` and `variant`. One
+deployment runs at a time across all branches; an identical one from another
+run queues behind it (`queue: max`), and a cancel removes a queued one.
+
+On `pull_request` and `pull_request_target` the deploy and workspace matrices
+run `fail-fast`: the first failed row cancels its siblings in that matrix. Push
+and manual runs keep every row.
+
 A job that runs after a failed `needs` guards its `if:` with `!cancelled()`, not
 `always()`, so a cancel stops it. Only `done` and `report-main-failures` keep
 `always()`: they report the cancelled run. Enforced by

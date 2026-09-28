@@ -243,14 +243,15 @@ jobs:
     timeout-minutes: 355
     needs: discover
 
-    # TODO: blocks the queue and prevents job cancelling.
-    # concurrency:
-    #   group: "infinito-deploy-${{ matrix.mode }}-${{ matrix.tor }}-${{ matrix.apps }}#${{ matrix.variant }}"
-    #   cancel-in-progress: false
-    #   queue: max
+    # TODO: verify in a CI deploy that a cancel drops queued jobs from this
+    # group and that an identical row of a second run queues behind it.
+    concurrency:
+      group: "infinito-deploy-${{ matrix.mode }}-${{ matrix.tor }}-${{ matrix.distro }}-${{ matrix.filesystem }}-${{ matrix.apps }}#${{ matrix.variant }}"
+      cancel-in-progress: false
+      queue: max
 
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
       matrix:
         include: ${{ fromJson(needs.discover.outputs.apps) }}
 

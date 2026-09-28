@@ -54,7 +54,7 @@ jobs:
       queue: max
 
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
       matrix:
         include: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
