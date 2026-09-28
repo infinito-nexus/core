@@ -15,7 +15,8 @@ BLOCK="${1:?}"
 : "${DOCS_TEST_SRC_DIR:?}"
 
 STAGE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT="docs-guide-${DOCS_TEST_ROLE}"
+PROJECT_PREFIX="docs-guide-"
+PROJECT="${PROJECT_PREFIX}${DOCS_TEST_ROLE}"
 PREPARE="scripts/tests/workspace/base/01_install.sh"
 SYSTEMD_TRIES=40
 SYSTEMD_DELAY=3
@@ -33,6 +34,12 @@ in_machine() {
 
 cleanup() {
 	machine down -v --rmi local --remove-orphans >/dev/null 2>&1
+	return 0
+}
+
+sweep_dead_machines() {
+	docker ps -aq --filter "name=^${PROJECT_PREFIX}" --filter status=exited |
+		xargs -r docker rm -f >/dev/null 2>&1
 	return 0
 }
 
@@ -70,6 +77,7 @@ MACHINE_BASE_IMAGE="$(base_image)"
 export MACHINE_BASE_IMAGE
 
 echo "=== Machine: ${MACHINE_BASE_IMAGE} ==="
+sweep_dead_machines
 trap cleanup EXIT
 machine up -d --build --pull always
 await_systemd
