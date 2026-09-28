@@ -8,5 +8,9 @@
       package_install:
         id: python-pip
 
+    - name: 🧱 python headers for the sdists pip is asked to build
+      package_install:
+        id: python-dev
+
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_pip is not defined

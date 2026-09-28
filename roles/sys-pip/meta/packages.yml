@@ -6,3 +6,10 @@ python-pip:
     - python3-pip
   RedHat:
     - python3-pip
+python-dev:
+  Archlinux:
+    - python
+  Debian:
+    - python3-dev
+  RedHat:
+    - python3-devel
