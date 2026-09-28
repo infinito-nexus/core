@@ -957,6 +957,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "tógálaí amhairc íseal-chód le haghaidh LLM agus RAG a chruthú, a thástáil, agus a fhoilsiú mar chríochphointí HTTP"
 
+msgctxt "role:svc-ai-libretranslate:description"
+msgid "Machine translation engine without a web surface, for pipelines that call it directly"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1346,6 +1350,10 @@ msgstr "Freastalaithe Proxy"
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "REST API Poiblí ag freastal ar shonraí ról, stair agus aistriúcháin de Infinito.Nexus do gach ref de chroí agus a forks"
+
+msgctxt "role:web-svc-s1:description"
+msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
