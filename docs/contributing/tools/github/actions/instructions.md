@@ -18,6 +18,8 @@ The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in i
 
 The marker adds `web-app-docs` to that row's `apps`, so the documentation is deployed beside the role under test. Its own CLI test then reads the role's page, takes the Production block out of the rendered HTML, and runs it.
 
+One role per deploy, never a list. [guide_role.py](../../../../../plugins/lookup/guide_role.py) names it from `APP_ID`, the row's own app, which [run.py](../../../../../cli/administration/deploy/development/deploy/run.py) forwards into the infinito container where Ansible runs. A deploy that carries no `APP_ID`, or one whose app publishes no Production block, draws an invokable peer of the round at random instead.
+
 Reading the block off the page rather than out of the tree is the point: a reader copies from the site, so that is what has to work. Nothing in the repository is consulted at replay time.
 
 ## The machine 🐳
@@ -41,5 +43,5 @@ The CLI test prints the block it fetched and the output of the replay. The role'
 To reproduce one locally, deploy the role together with the documentation and let the CLI test run:
 
 ```bash
-make compose-deploy mode=reinstall apps=<role>,web-app-docs full_cycle=false
+APP_ID=<role> make compose-deploy mode=reinstall apps=<role>,web-app-docs full_cycle=false
 ```
