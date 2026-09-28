@@ -20,7 +20,7 @@ CACHE_PACKAGE_INIT_IMAGE: "{{ lookup('config', application_id, 'services.fronten
 CACHE_PACKAGE_BLOBSTORE_MAX: "{{ lookup('config', application_id, 'services.package.blobstore_max') }}"
 CACHE_PACKAGE_MAX_AGE_MIN: "{{ lookup('config', application_id, 'services.package.content_max_age_min') }}"
 CACHE_PACKAGE_METADATA_MAX_AGE_MIN: "{{ lookup('config', application_id, 'services.package.metadata_max_age_min') }}"
-CACHE_PACKAGE_ADMIN_PASSWORD: "{{ lookup('credentials', application_id, 'admin_password') }}"
+CACHE_PACKAGE_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.admin_password') }}"
 
 CACHE_PACKAGE_BACKEND: "http://{{ CACHE_PACKAGE_CONTAINER }}:{{ CACHE_PACKAGE_PORT }}"
 CACHE_PACKAGE_CERTS_DIR: "{{ lookup('volume', application_id, 'frontend_certs').target }}"
