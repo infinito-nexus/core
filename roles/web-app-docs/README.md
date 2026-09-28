@@ -38,6 +38,7 @@ Override these keys of `services.docs` in the inventory:
 | `source_repository` | Repository to document, e.g. a fork |
 | `fetch_interval` | Seconds between two fetches of new commits and tags |
 | `build_jobs` | Parallel Sphinx processes per build; raise `cpus` and `mem_limit` with it |
+| `cpus` | Container CPU cap; also takes a percentage of the host, e.g. `50%`, see [sys-svc-container](../sys-svc-container/README.md#resource-limits) |
 
 ```yaml
 applications:

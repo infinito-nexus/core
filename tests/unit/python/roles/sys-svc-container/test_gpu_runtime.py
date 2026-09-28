@@ -16,6 +16,7 @@ BASE = {
     "application_id": "web-svc-libretranslate",
     "service_name": "libretranslate",
     "RESOURCE_CPUS": "1",
+    "RESOURCE_HOST_CPUS": "8",
     "RESOURCE_MEM_LIMIT": "1g",
     "RESOURCE_MEM_RESERVATION": "256m",
     "RESOURCE_PIDS_LIMIT": "512",
@@ -38,7 +39,7 @@ class TestGpuRuntimeRegistration(unittest.TestCase):
             autoescape=select_autoescape(),
         )
         env.filters["bool"] = _ansible_bool
-        env.filters["resource_filter"] = lambda _apps, _id, key, _svc, default: (
+        env.filters["resource_filter"] = lambda _apps, _id, key, _svc, default, **_k: (
             wants_gpu if key == "gpu" else default
         )
         env.globals["lookup"] = lambda name, *a, **k: {}
@@ -73,7 +74,7 @@ class TestGpuRuntimeRegistration(unittest.TestCase):
             autoescape=select_autoescape(),
         )
         env.filters["bool"] = _ansible_bool
-        env.filters["resource_filter"] = lambda _apps, _id, key, _svc, default: (
+        env.filters["resource_filter"] = lambda _apps, _id, key, _svc, default, **_k: (
             True if key == "gpu" else default
         )
         env.globals["lookup"] = lambda name, *a, **k: {}
