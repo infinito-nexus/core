@@ -251,6 +251,7 @@ jobs:
           REPO_PREFIX: ${{ steps.owner.outputs.name }}
           CI_TAG: ${{ needs.pools.outputs.image_tag }}
           INFINITO_DISTROS: ${{ join(fromJson(needs.pools.outputs.matrix), ' ') }}
+          IMAGE_ARCHITECTURES: ${{ join(fromJson(needs.pools.outputs.architectures), ' ') }}
           WAIT_ATTEMPTS: "90"
           WAIT_SLEEP_SECONDS: "10"
         run: ./scripts/meta/wait/ci_images.sh
