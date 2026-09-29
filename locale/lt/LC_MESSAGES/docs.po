@@ -51080,7 +51080,7 @@ msgstr "Savarankiškai aptarnaujamas media serveris, skirtas srautiniam filmavim
 
 # translated-by: libretranslate
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr "Name API"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -54689,7 +54689,7 @@ msgstr "Bandymų gairės 🧪"
 
 # translated-by: libretranslate
 msgid "Test scenarios executed by the Playwright runner"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test titles MUST follow the `<persona>: <flow>` naming convention so the reporter groups runs by persona without parsing."

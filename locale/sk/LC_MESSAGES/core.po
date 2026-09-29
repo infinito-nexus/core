@@ -572,7 +572,7 @@ msgstr "Docker Swarm cluster bootstrap a uzol-členstvo role pre multi-hostiteľ
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"

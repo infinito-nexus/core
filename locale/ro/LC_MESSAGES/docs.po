@@ -16711,7 +16711,7 @@ msgstr "Comment."
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin that safely joins URL components from a list."
-msgstr "Comment."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin: get_role"
@@ -18499,7 +18499,7 @@ msgstr "Persone blocate"
 
 # translated-by: libretranslate
 msgid "Blocked — possible only with a provider-side change"
-msgstr "Blocat"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Blocker"
@@ -26283,7 +26283,7 @@ msgstr "Fişiere goale la suprafaţă `{}` (Potrivire `yaml.safe_load(...) or {}
 
 # translated-by: libretranslate
 msgid "Empty key or out-of-deployment base URL fails the deploy"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
@@ -37851,7 +37851,7 @@ msgstr "Muta valorile lor la roluri /*/config/main.yml fișier al fiecărui rol"
 
 # translated-by: libretranslate
 msgid "Moved backend service-load decisions into a dedicated lookup plugin"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Moves an issue (with its history and attachments) into a different repository. The destination repo can be attacker-controlled, equivalent to data exfiltration of the issue's contents. Issue transfers must be a deliberate human action."
@@ -49996,7 +49996,7 @@ msgstr "Auto-hosted System One Serviciul decizional. Răspunde la întrebări sc
 
 # translated-by: libretranslate
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
@@ -51831,7 +51831,7 @@ msgstr "Pas"
 
 # translated-by: libretranslate
 msgid "Step 1 — Provision runner instances on the target server"
-msgstr "Pas 1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Step 2 — Activate self-hosted CI routing"
@@ -85751,7 +85751,7 @@ msgstr "Ceapa"
 
 # translated-by: libretranslate
 msgid "only      – restrict the run to a subset of the managed sections"
-msgstr "numai"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "only hard failures (❌) count; cancelled, timed out and still running are left out."
@@ -87658,7 +87658,7 @@ msgstr "roluri/ dosare"
 
 # translated-by: libretranslate
 msgid "roles_dir — roles directory for the postgres connection split"
-msgstr "roles_dir"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "rotate ``applications.<app>.credentials.*``."
@@ -88033,7 +88033,7 @@ msgstr "sfinx"
 
 # translated-by: libretranslate
 msgid "split service database to postgres and mariadb"
-msgstr "b."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "src"

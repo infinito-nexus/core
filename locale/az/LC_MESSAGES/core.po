@@ -1204,7 +1204,7 @@ msgstr "Open-source öyrənmə sistemi yaratmaq, idarə etmək və online kursla
 # translated-by: libretranslate
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "PromQL"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-decidim:description"

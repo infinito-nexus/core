@@ -51938,7 +51938,7 @@ msgstr "Vaihe"
 
 # translated-by: libretranslate
 msgid "Step 1 — Provision runner instances on the target server"
-msgstr "Vaihe 1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Step 2 — Activate self-hosted CI routing"
@@ -86167,7 +86167,7 @@ msgstr "lähtö pysähtyy muuttumaan, TAI"
 
 # translated-by: libretranslate
 msgid "override  – regenerate every managed section, overwriting the current"
-msgstr "ohita"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "package ids that declared nothing for this distribution."
@@ -87728,7 +87728,7 @@ msgstr "roolit/ hakemisto"
 
 # translated-by: libretranslate
 msgid "roles_dir — roles directory for the postgres connection split"
-msgstr "roles_dir"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "rotate ``applications.<app>.credentials.*``."

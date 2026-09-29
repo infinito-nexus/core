@@ -16817,7 +16817,7 @@ msgstr "কর্মের প্রগতি 🌍"
 
 # translated-by: libretranslate
 msgid "Acts as the role entry point and includes the main task flow."
-msgstr "সা. কা."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ad-hoc `community.docker.docker_network` calls or `docker network create` / `container network create` shell-outs in role tasks are forbidden by [test_network_create_via_util.py](../../../../../tests/lint/ansible/modules/test_network_create_via_util.py)."
@@ -32429,7 +32429,7 @@ msgstr "নির্দেশনা মেনে চল AGENTS.md- তারপ�
 
 # translated-by: libretranslate
 msgid "Follow the live deploy log in a separate terminal:"
-msgstr ":"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Follow the naming schema and shell-extraction rules in [workflow.md](../../../artefact/files/github/workflow.md)."
@@ -45021,7 +45021,7 @@ msgstr "v বশবর্তী হয়েছে1 একটি অসাধা
 
 # translated-by: libretranslate
 msgid "Out of scope: database/runtime engine extensions"
-msgstr "পরিধি:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Out of scope: no LDAP scenario"
@@ -46908,7 +46908,7 @@ msgstr "প্রক্সি বাফারের ক্ষেত্রে ত
 
 # translated-by: libretranslate
 msgid "Prevents disk pressure and runaway image sizes"
-msgstr "ডিস্ক"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Prevents multiple runs in one play by setting a ``run_once_sys_ctl_cln_certs`` fact."
@@ -74628,7 +74628,7 @@ msgstr "আমরা একটি পছন্দ করি কারণ অপ�
 
 # translated-by: libretranslate
 msgid "Were variables, defaults, and shared logic kept DRY?"
-msgstr "তাই না?"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "What \"exercise the service\" means at each gate inside the persona flows. Non-exhaustive; new services inherit the same shape (real end-to-end check that fails when the integration breaks, gated via `skipUnlessServiceEnabled`)."
@@ -98994,7 +98994,7 @@ msgstr "এটা **`bridges:` ক্ষেত্র** ইন-পোটোটি
 
 # translated-by: libretranslate
 msgid "the CPU architecture pool the run draws from; a role that declares its own narrows it further."
-msgstr "সি. পি."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the CPU count lane factors scale from."

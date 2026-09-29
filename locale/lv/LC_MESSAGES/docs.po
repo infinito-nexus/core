@@ -16740,7 +16740,7 @@ msgstr "Noklusētais (22)"
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin for retrieving application IDs."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin that safely joins URL components from a list."
@@ -22084,7 +22084,7 @@ msgstr "Skaitļot darbības jomu no `git diff --name-only origin/main...<branch>
 
 # translated-by: libretranslate
 msgid "Compute the canonical OIDC group path for an application role."
-msgstr "Comment."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Compute the compose-resource footprint of a role and its shared dependencies."
@@ -28292,7 +28292,7 @@ msgstr "Ielādēt ar `git fetch fork <branch>`, saraksts, kas ir ienākošo, pē
 
 # translated-by: libretranslate
 msgid "Fetch-once cache and parser for the operator's terminal aliases."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fetching and Clustering 📥"
@@ -30216,7 +30216,7 @@ msgstr "Vispārējs mirrors.yml iepakojumā cli.contributing.mirror.resolver."
 
 # translated-by: libretranslate
 msgid "Generate the invokable-role overview table in the repository README."
-msgstr "Vispārējs."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Generated Sections 🤖"

@@ -86040,7 +86040,7 @@ msgstr "цикъл: \"{{ lookup('stage_groups', 'server') }}\""
 
 # translated-by: libretranslate
 msgid "loopback and cloud-metadata addresses stay denied"
-msgstr "a."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "macOS"
@@ -91863,7 +91863,7 @@ msgstr "- Да.️ **Логика за превод** да бюст браузъ
 
 # translated-by: libretranslate
 msgid "⏳ Wait for asynchronous resources to become available"
-msgstr "."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "☑️ : already wired via an infinito-native service flag in the row role's `meta/services.yml` (cell links to that declaration);"

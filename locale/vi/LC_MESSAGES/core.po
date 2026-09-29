@@ -1093,7 +1093,7 @@ msgstr "Máy chủ dựa vào Nginx để tổ chức các tài sản tĩnh đã
 # translated-by: libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr "Node.js Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"

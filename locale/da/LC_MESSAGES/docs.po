@@ -17012,7 +17012,7 @@ msgstr "Angivelig standard (22)"
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin for retrieving application IDs."
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin that safely joins URL components from a list."
@@ -69677,7 +69677,7 @@ msgstr "Wikipedia: `Traversal Using Relays around NAT <https://en.wikipedia.org/
 
 # translated-by: libretranslate
 msgid "Wildcard Certificate Setup with Let's Encrypt"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Wildcard ``ROLE_TYPE_ALL`` collapses repetition: a single entry with ``\"type\": ROLE_TYPE_ALL`` applies to every concrete role type. A concrete-type entry that appears alongside the wildcard MUST take precedence so a contributor can spell out one per-type exception without losing the shared default."

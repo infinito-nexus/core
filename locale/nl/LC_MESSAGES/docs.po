@@ -83731,7 +83731,7 @@ msgstr "de 5 node containers, node image + lab netwerk (SPOT samenstellen)"
 
 # translated-by: libretranslate
 msgid "default   – add a managed section only when it is missing."
-msgstr "default."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "default behavior is strict=True (missing keys raise)"
@@ -85611,7 +85611,7 @@ msgstr "uitvoer stopt met veranderen, OF"
 
 # translated-by: libretranslate
 msgid "override  – regenerate every managed section, overwriting the current"
-msgstr "override"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "package ids that declared nothing for this distribution."

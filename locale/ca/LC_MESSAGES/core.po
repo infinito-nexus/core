@@ -247,7 +247,7 @@ msgstr "Configuració NFS del client per a muntar una exportació al servidor re
 # translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-plain:description"
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Funció Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
@@ -642,7 +642,7 @@ msgstr "Servidor d'escacs Federats per jugar i seguir jocs validats de regles so
 # translated-by: libretranslate
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"

@@ -20649,7 +20649,7 @@ msgstr "Klient- side NFS nastavení pro montáž vzdáleného serveru export na 
 
 # translated-by: libretranslate
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Client-side configuration bind-mounted into the `infinito` runner so that pip, npm, and apt route through the Sonatype Nexus 3 OSS pull-through proxy."
@@ -50121,7 +50121,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr "Name Ollama"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
@@ -58633,7 +58633,7 @@ msgstr "Prostředí projektu je ve vlastnictví jediného generátoru, který ne
 
 # translated-by: libretranslate
 msgid "The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The project-owned server passes ownership, licence, pinning and read-only default, but its HTTP transport serves one session per process, which upstream asserts in `src/test/transport.test.ts` at `v0.3.1`; the deploy probe alone would leave it restart-required."
@@ -91530,7 +91530,7 @@ msgstr "🔄 **Mailu Integrace (pokud je k dispozici)**"
 
 # translated-by: libretranslate
 msgid "🔍 Resolve identifiers, references, and computed inputs"
-msgstr "🔍 Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🔎 Check whether expected CI or release images are still missing"

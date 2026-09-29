@@ -13873,7 +13873,7 @@ msgstr "Bir məlumat adları tam bir prob və ya bir string kimi və ya siyahıs
 
 # translated-by: libretranslate
 msgid "A declaration wins over the catalog, and an uncatalogued route claims nothing"
-msgstr "A , , , , ,"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A declared `traits.speed` still wins, because a declaration is the operator overriding the measurement and the next deploy must not overwrite it back."
@@ -41402,7 +41402,7 @@ msgstr "Open-source öyrənmə sistemi yaratmaq, idarə etmək və online kursla
 
 # translated-by: libretranslate
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "PromQL"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
@@ -52736,7 +52736,7 @@ msgstr "Şirkət versiyası istifadəçiləri."
 
 # translated-by: libretranslate
 msgid "Shell helpers that prepare and inspect the GitHub-hosted runner host around image-build and deploy steps."
-msgstr "Oxunub: . . ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shell helpers that run inside the `infinito` runner container defined by the top-level [compose.yml](../../compose.yml). They cover container lifecycle (entry, healthcheck) and integration with peer compose services (e.g. the `registry-cache` pull-through proxy)."
@@ -78837,7 +78837,7 @@ msgstr "[x] C `connect-src` ağlist mayonical host və onun daxildir `wss://` va
 
 # translated-by: libretranslate
 msgid "[x] Client roles render MCP connection configuration from role metadata and secrets, not from hard-coded role names."
-msgstr "[x] Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Client roles whose upstream offers an administrator-visible list of configured MCP servers expose it in Playwright coverage. A client without such a surface instead has its configured servers proven at deploy time, and its README states which of the two applies."

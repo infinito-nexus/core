@@ -1660,7 +1660,7 @@ msgstr "Savarankiškai aptarnaujamas media serveris, skirtas srautiniam filmavim
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr "Name API"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url

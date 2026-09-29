@@ -19841,7 +19841,7 @@ msgstr "สะพาน (บทบาท ของ บริการ)"
 
 # translated-by: libretranslate
 msgid "Bridges: in-repo dependency vs network bridge"
-msgstr "สะพาน:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Briefly describe the CI/CD or pipeline change and the expected effect."
@@ -30029,7 +30029,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Flattens nested category tree to all possible category paths."
-msgstr "แบน."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Flavor dispatch"
@@ -31342,7 +31342,7 @@ msgstr "การอ้างอิงบทบาทเต็ม, พารา�
 
 # translated-by: libretranslate
 msgid "Full stack — everything that can be true, is true."
-msgstr "ม."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Full-matrix iteration flow"
@@ -41773,7 +41773,7 @@ msgstr "โอปทิเมตสําหรับการดําเนิ
 
 # translated-by: libretranslate
 msgid "Optimized for maintaining a clean and efficient Docker environment, this role:"
-msgstr "บทนี้:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Optimized for portability and idempotency, this role performs the following tasks:"

@@ -48222,7 +48222,7 @@ msgstr "Baca band untuk `<scope>.<category>` Dari `PORT_BANDS`. Jika tidak hadir
 
 # translated-by: libretranslate
 msgid "Read the contributor SPOT and treat every MUST there as a non-negotiable acceptance criterion for the generated spec."
-msgstr "- Tidak."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Read the deploy axes an operator pins in ``whitelist`` and ``priority``."

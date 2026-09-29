@@ -1809,7 +1809,7 @@ msgstr "openssl 명령을 호출하는 역할에 한 번 OpenSSL CLI를 보장 �
 # translated-by: libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr "개인 정보 보호 정책"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"

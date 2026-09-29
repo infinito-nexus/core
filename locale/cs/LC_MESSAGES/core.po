@@ -249,7 +249,7 @@ msgstr "Klient- side NFS nastavení pro montáž vzdáleného serveru export na 
 # translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-plain:description"
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"

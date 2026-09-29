@@ -1294,7 +1294,7 @@ msgstr "Lūdzu, atstājiet šo lapu atvērtu līdz tas ir izdarīts."
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"

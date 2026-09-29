@@ -1506,7 +1506,7 @@ msgstr "**CSP Resource Valleyation:** اپپیٹر کو براؤزر براؤز�
 
 # translated-by: libretranslate
 msgid "**CSP integration**: Automatically appends the required script hash into your CSP policy via the role’s CSP helper."
-msgstr "**انتخاب**. . ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CSP** allows ``unsafe-inline``/``unsafe-eval`` for ``script-src-elem`` and ``blob:`` workers/images, required by Penpot’s SPA and worker-based renderer."
@@ -35713,7 +35713,6 @@ msgstr ""
 
 # nocheck: url
 # translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
-# nocheck: url
 # translation-rejected: جواب **[ع
 # .](https://social.infinito.nexus/profile/alexromanibanez/profile)**. . .
 # [Infinito.Nexus منصوبہ بندی](https://s.infinito.nexus/code) اور (اس کے
@@ -35725,7 +35724,6 @@ msgstr ""
 
 # nocheck: url
 # translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
-# nocheck: url
 # translation-rejected: جواب **[انجیلوس
 # تسکاودس](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**.
 # . . [Infinito.Nexus منصوبہ بندی](https://s.infinito.nexus/code) اور (اس کے

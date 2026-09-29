@@ -59452,7 +59452,7 @@ msgstr "저수준 설치 도우미."
 
 # translated-by: libretranslate
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr "개인 정보 보호 정책"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shared permissions SHOULD be promoted"

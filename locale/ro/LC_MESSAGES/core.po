@@ -1566,7 +1566,7 @@ msgstr "Auto-hosted System One Clasificator care răspunde la întrebări tastat
 # translated-by: libretranslate
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
@@ -1917,7 +1917,7 @@ msgstr "Rolul de întreținere programat pentru reporniri complete Docker Compos
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"
