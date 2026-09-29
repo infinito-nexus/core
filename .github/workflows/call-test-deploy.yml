@@ -352,6 +352,7 @@ jobs:
         shell: bash
         env:
           apps: ${{ matrix.instructions != '' && format('{0},web-app-docs', matrix.apps) || matrix.apps }}
+          guide_host: ${{ matrix.instructions != '' && 'web-app-docs' || '' }}
           variant: ${{ matrix.variant }}
           disable: ${{ matrix.disable || inputs.disable }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
