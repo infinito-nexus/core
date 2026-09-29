@@ -76,6 +76,27 @@ def generate_commands(src):
             "--output-file",
             generated / "roles_overview.json",
         ),
+        _generator(
+            "make_targets",
+            "--makefile",
+            src / "Makefile",
+            "--output-file",
+            generated / "make_targets.rst",
+        ),
+        _generator(
+            "aliases",
+            "--aliases-file",
+            src / "aliases",
+            "--output-file",
+            generated / "aliases.rst",
+        ),
+        _generator(
+            "cli_commands",
+            "--cli-dir",
+            src / "cli",
+            "--output-file",
+            generated / "cli_commands.rst",
+        ),
         _generator("readmes", "--generated-dir", generated),
         _module(
             "cli.build.docs.readme",
