@@ -10,3 +10,10 @@
       {{ ("--load_only_lang_codes " ~ LIBRETRANSLATE_ENGINE_LOAD_ONLY) if LIBRETRANSLATE_ENGINE_LOAD_ONLY else "" }}'
   register: libretranslate_engine_install
   changed_when: "'Installed' in libretranslate_engine_install.stdout"
+
+- name: "🔄 Restart {{ application_id }} so it loads what was installed"
+  when: libretranslate_engine_install.changed | default(false) | bool
+  ansible.builtin.command:
+    # nocheck: raw-docker, container-exec-resolver  the server reads its package list once at startup, so models installed into the running container stay invisible until it restarts
+    cmd: "container restart {{ LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS }}"
+  changed_when: true
