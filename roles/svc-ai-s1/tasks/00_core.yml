@@ -19,6 +19,9 @@
     path: "{{ S1_MODELS_DIR }}"
     state: directory
     mode: "0755"
+  delegate_to: "{{ item }}"
+  run_once: true
+  loop: "{{ query('node_hosts') }}"
 
 - name: "🎮 Look for the GPU and the runtime that hands it to a container"
   ansible.builtin.stat:

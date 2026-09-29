@@ -7,6 +7,9 @@
     state: directory
     owner: "{{ LIBRETRANSLATE_ENGINE_UID }}"
     mode: "0755"
+  delegate_to: "{{ item }}"
+  run_once: true
+  loop: "{{ query('node_hosts') }}"
 
 - name: "🧩 load the container manager for {{ application_id }}"
   include_role:
