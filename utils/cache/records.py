@@ -4,16 +4,19 @@ One format, two readers: the ``.env`` generator writes it to
 ``INFINITO_CACHE_UPSTREAMS`` for the dev stack, and the ``cache_records``
 lookup hands the same string to the role's bootstrap task. Both resolve the
 Ubuntu mirror placeholders from ``INFINITO_APT_UBUNTU_MIRRORS``, which the
-image build reads too, so the mirror order has a single home.
+image build reads too, so the mirror order has a single home. That key is read
+through :func:`utils.env.parser.env_setting`, never off the process
+environment alone: the ansible lookup runs in a container that was handed a
+curated env and never sourced ``.env``, so ``default.env`` has to stay
+reachable behind it.
 
 Stdlib only: the ``.env`` generator reaches this before PyYAML exists.
 """
 
 from __future__ import annotations
 
-import os
-
 from utils.cache.hosts import declarations
+from utils.env.parser import env_setting
 
 MIRRORS_KEY = "INFINITO_APT_UBUNTU_MIRRORS"
 PRIMARY = "${UBUNTU_PRIMARY}"
@@ -27,7 +30,8 @@ def mirrors(raw: str = "") -> tuple[str, str] | None:
     """Return the primary and fallback Ubuntu archive, without trailing slash.
 
     Args:
-        raw: the mirror list, or empty to read it from the environment.
+        raw: the mirror list, or empty to read it from the process
+            environment with ``default.env`` behind it.
 
     Returns:
         None where the list does not carry both, in which case the
@@ -35,7 +39,7 @@ def mirrors(raw: str = "") -> tuple[str, str] | None:
     """
     found = [
         entry.rstrip("/")
-        for entry in (raw or os.environ.get(MIRRORS_KEY, "")).strip('"').split()
+        for entry in (raw or env_setting(MIRRORS_KEY)).strip('"').split()
         if entry
     ]
     if len(found) < 2:
@@ -54,7 +58,8 @@ def records(raw_mirrors: str = "") -> str:
     """Return every repository as ``name|flavor|url|suite|depth|max_age``.
 
     Args:
-        raw_mirrors: the mirror list, or empty to read it from the environment.
+        raw_mirrors: the mirror list, or empty to read it from the process
+            environment with ``default.env`` behind it.
 
     Returns:
         The comma-separated records, or the empty string where a placeholder
