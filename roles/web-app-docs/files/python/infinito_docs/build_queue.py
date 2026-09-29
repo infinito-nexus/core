@@ -44,7 +44,10 @@ class Queue:
         lane.mkdir(parents=True, exist_ok=True)
         if background and (self.queue / marker).exists():
             return
-        (lane / marker).touch(exist_ok=True)
+        queued = lane / marker
+        if queued.exists():
+            return
+        queued.touch()
 
     def _dequeue(self, marker):
         """Drop ``marker`` from both lanes.

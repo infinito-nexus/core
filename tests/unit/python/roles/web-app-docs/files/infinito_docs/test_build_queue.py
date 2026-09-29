@@ -109,6 +109,19 @@ class TestDrain(QueueFixture, unittest.TestCase):
 
         self.assertEqual(self.library.next_queued(), "latest:de")
 
+    def test_polling_does_not_send_the_awaited_build_to_the_back(self) -> None:
+        """The visitor polls every 30s, and each poll re-requests. Refreshing
+        the marker's mtime would make waiting for a build prevent it."""
+        self.library._dequeue("latest")
+        self._serve("latest")
+        self._index("latest", ["de"])
+        self.library.request("latest", "de")
+        self.library.request("v14.2.0")
+
+        self.library.request("latest", "de")
+
+        self.assertEqual(self.library.next_queued(), "latest:de")
+
     def test_the_background_lane_is_drained_once_the_front_is_empty(self) -> None:
         self.library._dequeue("latest")
         self._serve("latest")
