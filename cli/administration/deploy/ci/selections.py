@@ -117,9 +117,7 @@ def collapse_failures(tokens: Iterable[str], hard: Iterable[str]) -> list[str]:
         sorted, deduplicated role ids and selection tokens.
     """
     roles = set(collapse_to_roles(hard))
-    pinned = {
-        token for token in tokens if selection.parse(token).app not in roles
-    }
+    pinned = {token for token in tokens if selection.parse(token).app not in roles}
     return sorted(roles | pinned)
 
 

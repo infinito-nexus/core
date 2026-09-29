@@ -393,9 +393,7 @@ class TestOverSharedTranslation(unittest.TestCase):
         return sorted(str(message.id) for message in over_shared(catalog))
 
     def test_every_sharer_beyond_the_limit_is_returned(self) -> None:
-        catalog = self._catalog(
-            [self.LONG_A, self.LONG_B, self.LONG_C], self.SHARED
-        )
+        catalog = self._catalog([self.LONG_A, self.LONG_B, self.LONG_C], self.SHARED)
 
         self.assertEqual(
             self._ids(catalog), sorted([self.LONG_A, self.LONG_B, self.LONG_C])
@@ -407,9 +405,7 @@ class TestOverSharedTranslation(unittest.TestCase):
         self.assertEqual(over_shared(catalog), [])
 
     def test_short_sources_may_share_one(self) -> None:
-        catalog = self._catalog(
-            [self.SHORT_A, self.SHORT_B, self.SHORT_C], "Datei"
-        )
+        catalog = self._catalog([self.SHORT_A, self.SHORT_B, self.SHORT_C], "Datei")
 
         self.assertEqual(over_shared(catalog), [])
 

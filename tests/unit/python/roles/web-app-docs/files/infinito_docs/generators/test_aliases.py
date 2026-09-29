@@ -37,12 +37,12 @@ class TestParse(unittest.TestCase):
 
     def test_the_trailing_comment_is_captured(self) -> None:
         self.assertEqual(
-            dict((n, c) for n, _, c in self._parse(ALIASES))["i8far"],
+            {n: c for n, _, c in self._parse(ALIASES)}["i8far"],
             "does a far thing",
         )
 
     def test_a_make_wrapper_carries_no_comment(self) -> None:
-        self.assertIsNone(dict((n, c) for n, _, c in self._parse(ALIASES))["i8bui"])
+        self.assertIsNone({n: c for n, _, c in self._parse(ALIASES)}["i8bui"])
 
     def test_an_unparseable_alias_line_raises(self) -> None:
         """Skipping it would drop the alias from the page with no trace."""
