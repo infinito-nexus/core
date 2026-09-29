@@ -44,6 +44,7 @@ API_KEY = "toolsLaneTestKeyNotASecret0000000000"
 LIBRETRANSLATE_ROLE = "svc-ai-libretranslate-engine"
 S1_ROLE = "svc-ai-s1"
 LANE_SERVICE = "tools"
+PROBE_TIMEOUT_SECONDS = 10
 
 
 def models_dir() -> str:
@@ -82,6 +83,88 @@ def lane_url(root: Path, role: str, service_key: str) -> str:
     return f"http://{LANE_SERVICE}:{port}"
 
 
+def host_url(root: Path, role: str, service_key: str) -> str:
+    """Return the URL the host reaches a lane service on.
+
+    The runner republishes the lane's ports through
+    ``compose/tools.override.yml``, so a caller on the host uses the bind
+    address rather than the compose service name :func:`lane_url` gives a
+    sibling container.
+
+    Args:
+        root: repository root.
+        role: application id owning the service.
+        service_key: key under ``meta/services.yml``.
+    """
+    from utils.i18n.libretranslate import environment
+
+    services = load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)
+    port = services[service_key]["ports"]["local"]["http"]
+    return f"http://{environment(root)['INFINITO_BIND_IP']}:{port}"
+
+
+def _answers(url: str) -> bytes | None:
+    """Return what ``url`` served, or None when it did not answer.
+
+    Args:
+        url: absolute URL to read.
+    """
+    import urllib.error
+    import urllib.request
+
+    try:
+        with urllib.request.urlopen(url, timeout=PROBE_TIMEOUT_SECONDS) as response:  # noqa: S310 - the URL is this repository's own service definition
+            return response.read()
+    except (urllib.error.URLError, OSError, ValueError):
+        return None
+
+
+def _base_subtag(code: str) -> str:
+    """Return the language subtag of ``code``, dropping any script or region.
+
+    The lane pins ``zh`` and the engine reports the same language as
+    ``zh-Hans``. Comparing the codes as given never matches, which would leave
+    the readiness check permanently false.
+
+    Args:
+        code: an ISO 639-1 code, optionally with a subtag.
+    """
+    return code.split("-", 1)[0].strip().lower()
+
+
+def serving(root: Path, load_only: list[str]) -> bool:
+    """Return whether the lane's engine already carries everything asked of it.
+
+    Reachability alone is not enough: the engine answers as soon as it has
+    booted, with whatever subset of models it found, and a run that then waits
+    for the rest waits forever. The language set it reports is compared
+    against what the lane pins.
+
+    Only the engine is judged. It is the one lane service the runner
+    republishes to the host, and the expensive one: a deploy reinstalls its
+    whole model selection and restarts it. The lane is deployed as a unit, so
+    an engine that carries the full selection is one the deploy already
+    finished. A sibling that is down anyway reports itself, because each check
+    states which address failed to answer.
+
+    Args:
+        root: repository root.
+        load_only: the language codes the lane pins.
+    """
+    import json
+
+    body = _answers(
+        f"{host_url(root, LIBRETRANSLATE_ROLE, 'libretranslate-engine')}/languages"
+    )
+    if body is None:
+        return False
+    try:
+        served = {_base_subtag(entry["code"]) for entry in json.loads(body)}
+    except (ValueError, KeyError, TypeError):
+        return False
+    return {_base_subtag(code) for code in load_only} <= served
+
+
 def render(root: Path, load_only: list[str]) -> Path:
     """Write the tools lane host vars and return the rendered file.
 
@@ -118,11 +201,16 @@ def render(root: Path, load_only: list[str]) -> Path:
 
 
 def ensure(root: Path, roles: tuple[str, ...]) -> None:
-    """Bring the named lane roles up.
+    """Bring the named lane roles up, unless they already serve.
 
     Must run on the host: the lane is deployed with ``docker compose``, whose
     bind mounts name host paths, so the same call from inside a container of
     the stack resolves them against the wrong filesystem.
+
+    A deploy installs the whole model selection and restarts the engine onto
+    it, which costs minutes. Every caller of this function wants a lane that
+    answers, not a lane that was just rebuilt, so one that already answers
+    with everything asked of it is left alone.
 
     Args:
         root: repository root.
@@ -132,7 +220,13 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
         RuntimeError: a deploy already holds the container stack this one
             would touch.
     """
-    from utils.i18n.libretranslate import deploy, deploying
+    from utils.i18n.libretranslate import baked_languages, deploy, deploying
+
+    if serving(root, baked_languages(root)):
+        print(
+            f"tools lane already serves {', '.join(roles)}; not deploying", flush=True
+        )
+        return
 
     if deploying(root):
         raise RuntimeError(
@@ -140,6 +234,7 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
             "would touch. Wait for it to finish and re-run. The running deploy "
             "is left untouched."
         )
+    print(f"tools lane deploying {', '.join(roles)}", flush=True)
     deploy(root, roles=roles)
 
 
