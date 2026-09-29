@@ -32,7 +32,7 @@ msgstr "E-poçt"
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
-msgstr "E-poçt ünvanı"
+msgstr "E-poçt ünvanı."
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-cursor:description"
@@ -242,10 +242,12 @@ msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
 msgstr "Kompüter faylları, paket önbellekləri, isteğe bağlı Docker data və yaşlı backups yeniləndirilməsi üçün disk space reclaiming rutin"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-plain:description"
@@ -552,10 +554,12 @@ msgctxt "role:web-app-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Qalereya3- Paylaşılan, web-app rolları arasında per-consumer kova təqdimatı üçün uyğun obyekt mağazası"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-base-devel:description"
@@ -786,10 +790,12 @@ msgctxt "role:svc-net-wireguard-core:description"
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr "Wg-quick konfiqurasiyası ilə Host-level WireGuard VPN xidməti, paketi yükləyir və IP-i təhlükəsiz squl üçün sctl"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-shell:description"
@@ -806,10 +812,12 @@ msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "Bir kök RSA-nın evüstü rolu 4096- Secure avtomatik idarəetmə giriş üçün SSH key cüt"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-redis:description"
@@ -866,10 +874,12 @@ msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr "Proqram komandaları üçün fayl və layihə izleme platforması, çevik boardlar, işıqlar, və isteğe bağlı OIDC SSO"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -956,9 +966,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "HTTP endpoints kimi LLM və RAG işlərini yaratmaq, test və yayımlamaq üçün aşağı kodlu görsel inşaatçı"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "Bir web sənaye olmadan maşın çeviri motor, birbaşa çağıran borular üçün"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
@@ -1178,10 +1189,12 @@ msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
 msgstr "Symfony və Vue.js onlayn mağazafronts bina və səhifə"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-moodle:description"
@@ -1353,9 +1366,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "İctimai REST API rol data, tarixi və çeviriləri Infinito.Nexus əsas və onun forks"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "İctimai vhost System One Qeyd API Oxunub svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1570,10 +1584,12 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "End-to-end-encryptable video konferencing üçün WebRTC platforma"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
@@ -1625,10 +1641,12 @@ msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
 msgstr "Bir imza-on, multi-faktor təhlükəsizlik və istifadə idarəetmə platforması"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mailu:description"
@@ -1650,15 +1668,19 @@ msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr "Self-poçt ünvanı veriləndirilməsi və məlumatların yaradılması və məlumatlaşdırılması üçün yayılmış məlumat bazası platformasını qeyd etdi"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-libretranslate:description"
@@ -1695,10 +1717,12 @@ msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr "Xüsusi dəstək və menyu interfeyssi ilə bütün istifadə edilmiş proqramlar üçün Self- hosting portalı"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bigbluebutton:description"
@@ -1821,10 +1845,12 @@ msgctxt "category:dev:title"
 msgid "Software Development Utilties"
 msgstr "Utilties proqramı"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
@@ -1992,7 +2018,7 @@ msgstr "Əməkdaşlıq"
 # translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
-msgstr "E-poçt ünvanı"
+msgstr "E-poçt ünvanı."
 
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:description"
@@ -2029,10 +2055,12 @@ msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "Axtarış2 Pacman işstations virtual maşınlar üçün hipervisor, çekirdek modulları və uzatma paketi ilə"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:update:title"

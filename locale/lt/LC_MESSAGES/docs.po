@@ -2603,9 +2603,11 @@ msgstr "**Aprašymas:** Darbastalio media- player nustatymai su VLC ir AACS / BD
 msgid "**Description:** Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "**Aprašymas:** Darbastalio biuro rinkinys dokumentams, skaičiuoklėms ir pristatymams su išsivadavimo fontais ir kalbų paketais"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: **Aprašymas:** Name
 msgid "**Description:** Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Desktop video conferencing client for online meetings, webinars, and screen sharing"
@@ -2913,9 +2915,11 @@ msgstr "**Aprašymas:** Nginx- based content condition network for service share
 msgid "**Description:** Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
 msgstr "**Aprašymas:** Nginx pagrįstas privatumo proxy, kuris atspindi whiteelpoint trijų šalių turtą pagal pirmos partijos domeno"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: **Aprašymas:** Name
 msgid "**Description:** Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
@@ -13847,9 +13851,11 @@ msgstr "Sklypas gali būti griežtesnis nei šeimininkas. n `accept` nutraukia s
 msgid "A fully sovereign private cloud infrastructure designed for organizations that require full control over their data, identity, and service stack."
 msgstr "Visiškai nepriklausoma privati debesijos infrastruktūra, skirta organizacijoms, kurios turi visiškai kontroliuoti savo duomenis, tapatybę ir paslaugų krūvą."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "A gateway with no router alias loads no hook"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A generated value is exempt because the algorithm that produced it is named by the same schema, and `generate_value()` takes no schema argument."
@@ -14727,9 +14733,11 @@ msgstr "Kito prašymo metu vėl pradedamas vartoti vaistinis preparatas, kurio k
 msgid "A structured secret in the prompt forces the same restriction even when the switch is on. Only unambiguous shapes count (PEM headers, `sk-`, `ghp_`, `github_pat_`, `AKIA`, `xox[bapsr]-`, `AIza`); a pattern like `password=` would match prose and teach callers to click past the refusal. This is a second lock and not the guarantee, because any such pattern has false negatives. The guarantee is that this restriction is a filter applied before any ranking: a restricted request has no remote candidate left to rank, whatever weight locality carries in decision 9."
 msgstr "Struktūrinė paslaptis greitosios jėgos tą patį apribojimą, net kai jungiklis yra įjungtas. Tik nedviprasmiškų formų skaičius (PEM antraštės, `sk-`, `ghp_`, `github_pat_`, `AKIA`, `xox[bapsr]-`, `AIza`); modelis kaip `password=` atitiktų prose ir mokyti skambinančius spustelėkite pro atsisakymo. Tai yra antra spyna, o ne garantija, nes bet koks toks modelis turi klaidingus neigiamus. Garantija yra tai, kad šis apribojimas yra filtras taikomas prieš bet reitingą: ribotas prašymas neturi nuotolinio kandidato į reitingą, nepriklausomai nuo svorio vietovė vykdo sprendimą 9."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "A subclass of str to represent vault-encrypted strings."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A suite is turned off only when every job of it came back green; one that failed, was cancelled or never ran at all keeps it on the retrigger, so a retrigger spends its runners on what is not yet proven."
@@ -17163,9 +17171,11 @@ msgstr "Sumanus nusprendžia, kas turėtų egzistuoti."
 msgid "Ansible default (22)"
 msgstr "Antarktinis numatytasis (22)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Ansible filter plugin for retrieving application IDs."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin that safely joins URL components from a list."
@@ -19430,9 +19440,11 @@ msgstr "Naršyklės pasitikėjimas"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr "Naršymo pagrindu besisukančio rato programėlė sprendimų priėmimui, atsitiktiniam pasirinkimui ir žaidimui"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Buckets, users, access keys, and fine-grained policies"
@@ -23495,9 +23507,11 @@ msgstr "Sukurti PG modelio įrašą administracijoje > Žvalgybos skydelis > Nus
 msgid "Create the matching test file under `tests/unit/` if it does not exist."
 msgstr "Sukurti atitikimo bandymo failą po `tests/unit/` jei jos nėra."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: @ info: whatsthis.
 msgid "Create the matching test file under the correct directory if it does not exist."
-msgstr "@ info: whatsthis."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Create the repository-wide MCP audit and close the classification for every role."
@@ -28723,9 +28737,11 @@ msgstr "Grįžimas prie šio vaidmens (`sys-svc-mail-smtp`) ir siųsti per `loca
 msgid "Fallback shape for a generation that cannot state its own."
 msgstr "Atsilikimo forma kartai, kuri negali pasakyti savo."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Familiar multi-chat interface with quick model switching"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Family"
@@ -29207,9 +29223,11 @@ msgstr "Nustatyti sugadintą prisijungimo, bootstrap arba integracijos srautą e
 msgid "Fix broken shared infrastructure, package, service, or automation behavior"
 msgstr "Taisyti sugadintas bendrą infrastruktūrą, paketą, paslaugą, ar automatizavimo elgesį"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Fix broken workstation setup, launch, or package behavior"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fix contradictory guidance between `AGENTS.md` and `docs/agents/*`"
@@ -39300,9 +39318,11 @@ msgstr "Nginx- based content condition network for service share static assets t
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
 msgstr "Nginx pagrįstas privatumo proxy, kuris atspindi whiteelpoint trijų šalių turtą pagal pirmos partijos domeno"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Nix project: <https://nixos.org>"
@@ -41791,9 +41811,11 @@ msgstr "Apdorojimas ir apdaila ``CHANGELOG.md`` SPAT."
 msgid "Parse argv into ``(args, passthrough, modes_spec)``."
 msgstr "Name ``(args, passthrough, modes_spec)``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Parse human-readable memory size strings to bytes."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Parse include_tasks/import_tasks from tasks/main.yml. Only accepts simple, non-Jinja names."
@@ -42749,9 +42771,11 @@ msgstr "Playwright-spec gedimai yra ALWAYS atkuriamas gyvų kamino: jūs PRIVALO
 msgid "Please do not open a public issue or pull request for a security problem."
 msgstr "Prašome nekelti viešo klausimo arba nereikalauti saugumo problemos."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pluggable model backends via OpenAI-compatible API or direct Ollama"
@@ -50996,9 +51020,11 @@ msgstr "Savarankiškai patalpintas URL trumpinys, skirtas kurti, stebėti ir val
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Savarankiškai patalpinta WebRTC platforma, skirta galiniam šifravimui vaizdo konferencijoms su federacijos autentiškumo patvirtinimu"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
@@ -51076,9 +51102,11 @@ msgstr "Patalpinta atvirojo kodo ERP komplektas finansams, CRM, inventorizacija,
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr "Savarankiškas atvirojo kodo aparato vertimas API tekstui išversti ir aptikti visomis kalbomis"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
@@ -51096,9 +51124,11 @@ msgstr "Patalpinta internetinė apskaitos, buhalterijos ir verslo finansų valdy
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
 msgstr "Savarankiškai veikianti projektų valdymo, darbo paketų sekimo, Gantt planavimo ir komandinio bendradarbiavimo platforma"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted runners (opt-in overflow)"
@@ -52604,9 +52634,11 @@ msgstr "Automatiniai vykdomieji moduliai (įdėta `library/`)."
 msgid "Standalone executable modules MUST live in `library/`."
 msgstr "Atskiri vykdomieji moduliai PRIVALO gyventi `library/`."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Standard filesystem layout the recover console restores into."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Standard package manager on macOS; widely used in CI runners"
@@ -53102,13 +53134,17 @@ msgstr "Griežtas SAN planavimas `CURRENT_PLAY_DOMAINS_ALL`"
 msgid "Strict failure on un-executable persona cases"
 msgstr "Griežtas nevykdomųjų persona bylų nevykdymas"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Strict multi-pass Jinja rendering to prevent leaked templates"
-msgstr "Name"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Strict rendering helper for lookup/filter plugins."
-msgstr "Name."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Strict validation fails fast only where silent misconfiguration would be dangerous"
@@ -53502,9 +53538,11 @@ msgstr "Palaiko modernias funkcijas ir konfigūravimo parinktis GNOME Terminal."
 msgid "Supports query parts introduced by elements starting with '?' or '&'"
 msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Supports standard HTTP/S traffic alongside WebSockets"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Supports the schema:"
@@ -66738,9 +66776,11 @@ msgstr "Triggers Mailu paleisti per ``utils/load/app.yml``."
 msgid "Triggers Mailu startup via `utils/load/app.yml`."
 msgstr "Triggers Mailu paleisti per `utils/load/app.yml`."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Triggers a restart on configuration changes"
-msgstr "Name"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -70764,9 +70804,11 @@ msgstr "Vikipedija: `Session Traversal Utilities for NAT <https://en.wikipedia.o
 msgid "Wikipedia: `Traversal Using Relays around NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
 msgstr "Vikipedija: `Traversal Using Relays around NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Wildcard Certificate Setup with Let's Encrypt"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Wildcard ``ROLE_TYPE_ALL`` collapses repetition: a single entry with ``\"type\": ROLE_TYPE_ALL`` applies to every concrete role type. A concrete-type entry that appears alongside the wildcard MUST take precedence so a contributor can spell out one per-type exception without losing the shared default."
@@ -90259,9 +90301,11 @@ msgstr "vaidmuo: pvz ``svc-db-postgres`` paslauga: pvz ``postgres`` pavadinimas:
 msgid "role_name/__main__.py contains the original implementation."
 msgstr "role_name/__main__.py kuriame yra pirminis įgyvendinimas."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: @ info: whatsthis.
 msgid "roles directory the service registry is built from."
-msgstr "@ info: whatsthis."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "roles directory the variants and service registry are read from."
@@ -93472,9 +93516,11 @@ msgstr "variantai"
 msgid "vars/"
 msgstr "karai /"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: @ info: whatsthis.
 msgid "vault password used to encrypt each value."
-msgstr "@ info: whatsthis."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "vault password used to encrypt."

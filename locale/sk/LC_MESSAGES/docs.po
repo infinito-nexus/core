@@ -46024,13 +46024,17 @@ msgstr "Návrat morskej panny ``flowchart`` zdroj (žiadne kódy ploty) za úloh
 msgid "Return a new ``webserver_csp_hashes_extra_by_app``-shaped dict with ``snippet`` appended (deduplicated) to ``<application_id>.<directive>``."
 msgstr "Návrat nového ``webserver_csp_hashes_extra_by_app``- v tvare písma s ``snippet`` Príloha (deduplikované) do ``<application_id>.<directive>``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return a password satisfying what the user's own declaration demands."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return a provider's topic after one override is applied."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return a regex matching every address inside ``subnet``, and no other."
@@ -46048,17 +46052,23 @@ msgstr "Návrat ruamel skalar označený ako !vault. Opätovne používa existuj
 msgid "Return a run_after cycle as a role list with the start repeated, or None."
 msgstr "Návrat a run_after cyklus ako zoznam rolí so štartom opakovať, alebo žiadne."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return a server bound to loopback and the URL it listens on."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return a shell-safe password for a declared user."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return a sorted list of communication-channel app IDs that are deployed on this host."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return a sorted list of deployed application IDs that satisfy all of:"
@@ -46072,9 +46082,11 @@ msgstr "Description Prometheus Pravidlá varovania patria do tohto nasadenia: ka
 msgid "Return a template catalog holding the translatable part of ``messages``."
 msgstr "Description ``messages``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return all currently occupied subnets at the requested prefix length."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return all role IDs whose meta/services.yml declares the given service as a consumer/provider — i.e. the entry carries at least one of ``enabled`` / ``shared`` / ``provides``. Pure metadata entries (e.g. a primary entity that only carries ``lifecycle``/``run_after``) are intentionally excluded so `disable` doesn't add bogus ``enabled: false`` overrides that turn metadata into spurious provider declarations downstream."
@@ -46100,17 +46112,21 @@ msgstr "Description total_connections / number_of_roles_with_database_type_postg
 msgid "Return an inventory value with its Jinja resolved."
 msgstr "Vrátiť hodnotu zásob s Jinja vyriešený."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return catalogues keyed by the English source text, as port-ui reads them."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return deduplicated role-group names from the given bundle inventories."
 msgstr "Návrat deduplikované názvy rolových skupín z daných zásob balíkov."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return entries per second for one setting pair."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every archive file under *archive_dir* sorted descending by filename. Returns ``[]`` when the directory does not exist."
@@ -46124,37 +46140,51 @@ msgstr "Description *vzorka* v tele *url*."
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "Description ``meta/addons/*.yml``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every declared host as a template-ready record, keyed by host."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every declared repository and host."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every declared repository as a record, keyed by name."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every declared role author, sorted and without duplicates."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every declared role title, sorted and without duplicates."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every declared source that moved ahead of its pin."
 msgstr "Vráťte každý deklarovaný zdroj, ktorý sa posunul pred jeho kolíkom."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every declared username with the password policy it asks for."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every declared version source that is not suppressed."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every dotted key path reachable from a nested mapping."
@@ -46164,9 +46194,11 @@ msgstr "Vrátiť každý bodkovaný kľúč prístupný z vnoreného mapovania."
 msgid "Return every exact pip pin under ``roles/``."
 msgstr "Description ``roles/``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every group-conditional service key that has a provider role."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every host the frontend answers for on behalf of *repo*."
@@ -46192,9 +46224,11 @@ msgstr "Description ``package``, prázdne, keď PyPI je nedosiahnuteľný."
 msgid "Return every repository as ``name|flavor|url|suite|depth|max_age``."
 msgstr "Description ``name|flavor|url|suite|depth|max_age``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every role directory name, sorted."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every role on either end of a bond, in stable order."
@@ -46204,17 +46238,21 @@ msgstr "Vrátiť každú úlohu na každom konci puta, v stabilnom stave."
 msgid "Return every role reachable from ``seeds`` through meta and service edges."
 msgstr "Návrat každej úlohy dosiahnuteľnej z ``seeds`` cez meta a servisné hrany."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every role title that names an upstream product, sorted."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every semver-checkable ``(repository, ref)`` declaration under ``roles/*/meta/services.yml`` and ``roles/*/meta/addons/*.yml`` whose ref is not suppressed."
 msgstr "Description ``(repository, ref)`` vyhlásenie v ``roles/*/meta/services.yml`` a ``roles/*/meta/addons/*.yml`` ktorého rozhodca nie je potláčaný."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return every upstream version the entry's declared source offers."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return every usable translation of ``catalog``."
@@ -46232,17 +46270,21 @@ msgstr "Vrátiť konflikty čitateľné ľuďmi, ak `disable` nesúhlasí s exis
 msgid "Return mapping of service_name -> application_id for the provider role of each requested service. Resolution goes through the canonical service registry, so ``provides:`` aliases (e.g. ``mailu.provides: email``) and shared entity-name services are both recognized."
 msgstr "Mapovanie návratov service_name - > application_id pre úlohu poskytovateľa každej požadovanej služby. Rozlíšenie ide cez register kánonických služieb, takže ``provides:`` Prezývky (napr. ``mailu.provides: email``) a obe zdieľané služby s názvom jednotky sú uznané."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return one distribution's apt source, empty where it does not use apt."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return one message per ``update:`` block that cannot be resolved."
 msgstr "Description ``update:`` blok, ktorý nemožno vyriešiť."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return one update per entry whose source offers a newer version."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return one update per pin that PyPI has moved past."
@@ -46313,9 +46355,11 @@ msgstr "Description *obrázok* ktorého názov obsahuje *zápas*."
 msgid "Return the H1 heading text of ``<folder>/README.md`` with any trailing emoji preserved. Returns ``None`` when the file is missing or its first non-blank line is not an H1 heading."
 msgstr "Návrat H1 text nadpisu ``<folder>/README.md`` so zachovanými emojimi. Description ``None`` keď súbor chýba alebo jeho prvý riadok nie je H1 Mieri."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the SMTP endpoint msmtp relays through."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the URL a client connects to."
@@ -46373,9 +46417,11 @@ msgstr "Návrat ``socks5h://`` URL súrodenec kontajner používa na dosiahnutie
 msgid "Return the address Docker assigns as the gateway of ``subnet``."
 msgstr "Description ``subnet``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the aliases file content, downloading once per repository."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the app whose guide is replayed, ``application_id`` when it is alone."
@@ -46393,9 +46439,11 @@ msgstr "Vrátiť užitočné zaťaženie aplikácií *premenné*, cached per key
 msgid "Return the apps the operator asked for, the round's groups otherwise."
 msgstr "Vrátiť aplikácie, o ktoré operátor požiadal, skupiny kola inak."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the bond a user typed, or None when they cleared the field."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the byte size of `log_path` inside `container`, or 0 if absent."
@@ -46421,9 +46469,11 @@ msgstr "Vrátiť katalóg uložený v ``path``."
 msgid "Return the checkout that owns the repository, given any worktree."
 msgstr "Vrátiť checkout, ktorý vlastní úložisko, za predpokladu, že akýkoľvek pracovný strom."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the client application ids a provider admits, sorted."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the codes of ``domain`` LibreTranslate can machine-translate."
@@ -46437,9 +46487,11 @@ msgstr "Vrátiť kódy, ktoré nesú katalóg ``domain``."
 msgid "Return the codes that prove *domain* is being served at all."
 msgstr "Vrátiť kódy, ktoré dokazujú *doména* je vôbec slúžil."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the compose override that points every cached host at the frontend."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the compressed transfer size of ``image:reference`` in bytes."
@@ -46481,45 +46533,59 @@ msgstr "Description ``modes``, ``MODES`` Poradie bez ohľadu na ich ``enabled`` 
 msgid "Return the deterministic ``.po`` serialisation of ``catalog``."
 msgstr "Description ``.po`` seriesation of ``catalog``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the distro id from /etc/os-release, lowercased; empty string when unreadable."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the docker bridge gateway containers can reach the host on."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the emoji mapped to *word*, or *word* itself when unmapped."
 msgstr "Description *slovo*alebo *slovo* sám, keď je neporazený."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the engine-wide key a data-owning qdrant consumer presents."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the entries of ``catalog`` that still need a translation."
 msgstr "Description ``catalog`` ktoré stále potrebujú preklad."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the entries whose translation altered a protected span or the markup around it."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the extensions the php CLI currently loads, lower-cased."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the first paragraph below the H1 heading in ``<folder>/README.md``. Headings, leading blank lines, and trailing paragraphs are skipped. Returns ``\"-\"`` when no readable description is available."
 msgstr "Description1 Názov v ``<folder>/README.md``. Okruhy, prázdne čiary a za sebou idúce odseky sú preskočené. Description ``\"-\"`` ak nie je k dispozícii žiadny čitateľný opis."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the free bytes on the filesystem where Docker's data grows."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the full HTML page for the given edges."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the full ``PORT_BANDS`` map keyed by ``<scope>.<category>``."
@@ -46553,17 +46619,21 @@ msgstr "Description ``cli/<parts>/``, rozdeliť na runnable príkazy (``__main__
 msgid "Return the inventory's entries for one ``cache:`` section."
 msgstr "Description ``cache:`` sekcia."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the languages the server translates English into."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the list of usernames that do NOT have an identity-directory account (``identity`` not in ``accounts``). These names are blocked from being registered as Keycloak usernames. Usernames are regex-escaped so the result is safe to embed in a deny pattern."
 msgstr "Description (``identity`` nie je ``accounts``). Tieto názvy sú blokované od registrácie ako Keycloak užívateľské mená. Užívateľské mená sú regex-zvýšené, takže výsledok je bezpečné vložiť do popretia vzoru."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the logout target of an application's own logout control."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the longest dot-delimited DNS suffix shared by every domain. A single-domain input returns that domain unchanged, so single-domain apps keep their exact host while a multi-domain app (e.g. filer/master/api under one base) collapses to the shared parent that a session cookie can span across all of them."
@@ -46577,9 +46647,11 @@ msgstr "Description ``text`` s ich množnosťou."
 msgid "Return the mirror repository for *image*, or ``None`` when unresolvable."
 msgstr "Description *obrázok*alebo ``None`` keď sa nedá vyriešiť."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the mirror repository for an upstream image, without a tag."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the names ``module`` defines itself, honouring its ``__all__``."
@@ -46589,17 +46661,21 @@ msgstr "Vrátiť mená ``module`` definuje sám seba, ctiť si jeho ``__all__``.
 msgid "Return the names ``source`` carries that ``translation`` dropped."
 msgstr "Vrátiť mená ``source`` nesie, že ``translation`` spadol."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the nginx frontend configuration the declarations produce."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the non-overlapping offsets every protection rule claims."
 msgstr "Návrat neprekročenia kompenzuje všetky nároky na ochranu."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the npm configuration pointing at the cached registry."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the offsets of every name ``text`` carries."
@@ -46633,9 +46709,11 @@ msgstr "Návrat ľudí ``role_dir`` mená autorov."
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
 msgstr "Vrátiť blok na montáž v prevádzke (``volumes:`` + ``configs:`` + ``secrets:``) ako YAML reťazec začínajúci v stĺpci 0."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the pip configuration pointing at the cached PyPI hosts."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the plain translation, or what was rejected and the criterion it broke."
@@ -46657,41 +46735,53 @@ msgstr "Description ``text`` s ich množnosťou."
 msgid "Return the provider's declared secret and the owner it belongs to."
 msgstr "Vrátiť poskytovateľovi vyhlásené tajomstvo a majiteľovi, ktorému patrí."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the public profile the address names, empty for a foreign one."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the refusal annotations the entry carries."
 msgstr "Vrátiť odmietnutie anotácie, ktoré vstup nesie."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the repository root inside the deploy container."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the resolver list for the container runtime, most specific first."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the resolver to fall back on when the bridge may serve nothing."
 msgstr "Oddeľovač sa vráti späť, keď most nebude slúžiť ničomu."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the role a grant confers, resolving the pre-split name."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the role ids the documented deploy has to name alongside this one."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the role names in run_after order."
 msgstr "Description run_after Objednávka."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the role names this user holds on one application."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the role providing ``service_key``, or \"\" when unregistered."
@@ -46725,9 +46815,11 @@ msgstr "Description ``path``, prázdne, keď neexistuje."
 msgid "Return the run_after list declared by the role owning *meta_file*."
 msgstr "Návrat run_after zoznam deklarovaný vlastnou úlohou *meta_file*."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the same data as JSON, for a caller that wants to post-process."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the scheme a client addresses this host with."
@@ -46737,9 +46829,11 @@ msgstr "Vrátiť systém klienta adresu tohto hostiteľa."
 msgid "Return the selected and rejected MCP servers for one client role."
 msgstr "Vrátiť vybrané a zamietnuté MCP servery pre jednu úlohu klienta."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the service names from a registered stack-deploy result."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the set of 1-based line numbers carrying a marker for *rule*."
@@ -46757,9 +46851,11 @@ msgstr "Návrat ša256 všetkých služieb ``build`` sekcia."
 msgid "Return the sorted list of ``(start, end)`` relay ranges in use."
 msgstr "Description ``(start, end)`` rozsahy relé, ktoré sa používajú."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the sorted list of external asset hosts."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the sorted, de-duplicated list of host-bound ports in use for ``<scope>.<category>``."
@@ -46785,9 +46881,11 @@ msgstr "Vrátiť súčet min_storage z app_ids a ich tranzitívne závislosti."
 msgid "Return the tags of *image* from its registry's v2 API."
 msgstr "Vrátiť značky *obrázok* z registra v2 API."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return the target code the server knows this catalog code by."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the template of the ``docs`` domain, built from a copy of the working tree."
@@ -46825,9 +46923,11 @@ msgstr "Návrat do ``LIMIT`` odlišné URL nájdené u jedného člena ``archive
 msgid "Return what *app_id* declares for *domain*, or an empty list."
 msgstr "Vráťte čo *app_id* prehlasuje *doména*alebo prázdny zoznam."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return what a role-local updater prints for its pin."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return whether ``message_id`` holds a printf placeholder a translation must keep."
@@ -46849,13 +46949,17 @@ msgstr "Description ``translation`` príliš málo ``source`` byť jedným z nic
 msgid "Return whether ``translation`` repeats a word the source does not."
 msgstr "Description ``translation`` opakuje slovo, ktoré zdroj nie."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return whether a non-Latin language came back written in Latin letters."
-msgstr "Description."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return whether a previous run recorded this entry as unanswerable."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return whether a provider admits one client."
@@ -46881,9 +46985,11 @@ msgstr "Návrat, či sa úloha rozhodne pre zavedenie ``mode`` (``compose`` ``sw
 msgid "Return whether the title at ``start`` is a product name, not a noun."
 msgstr "Description ``start`` je názov výrobku, nie podstatné meno."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Return whether this block claims to act as the requesting end user."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return whether this block may carry a served surface and be discovered."
@@ -46929,9 +47035,11 @@ msgstr "Description Zvyšuje AnsibleFilterError na nepružnú hodnotu."
 msgid "Returns None if not found."
 msgstr "Description Žiadne, ak sa nenájde."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description.
 msgid "Returns None when the id belongs to no application role."
-msgstr "Description."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Returns True if applications[application_id].services[service_name].enabled is truthy, otherwise returns False (even if intermediate keys are missing)."
@@ -47013,9 +47121,11 @@ msgstr "Description (napr. ``svc-db-redis``), zodpovedajúce ``external: true`` 
 msgid "Returns a list of role names under the given roles_path that start with the specified prefix."
 msgstr "Description roles_path ktoré začínajú so špecifikovanou predponou."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description
 msgid "Returns a plain bool, so callers read as a predicate:"
-msgstr "Description"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Returns a spec mapping MODE_NAME -> info used by build_modes_from_args()."
@@ -47025,9 +47135,11 @@ msgstr "Description MODE_NAME -> informácie použité build_modes_from_args()."
 msgid "Returns a string safe to embed unchanged into a shell `container exec` command:"
 msgstr "Description `container exec` príkaz:"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Description
 msgid "Returns a string safe to embed unchanged into a shell command:"
-msgstr "Description"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Returns a tuple (immutable, hashable for ``lru_cache``). Pass ``root`` as a string so the cache key is plainly hashable; defaults to :data:`PROJECT_ROOT` when omitted."

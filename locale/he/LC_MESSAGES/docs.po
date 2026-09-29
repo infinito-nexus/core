@@ -73536,17 +73536,23 @@ msgstr "[ ] **תכונות** תוספת או מרחיבה פונקציונליו
 msgid "[ ] **Fix** - Repairs broken or incorrect CI/CD behavior"
 msgstr "[ ] **לתקן** תיקונים שבורים או לא נכונים"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: [ ] **לתקן** תיקונים שבורים או לא נכונים
 msgid "[ ] **Fix** - Repairs broken or incorrect server behavior"
-msgstr "[ ] **לתקן** תיקונים שבורים או לא נכונים"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: [ ] **לתקן** תיקונים שבורים או לא נכונים
 msgid "[ ] **Fix** - Repairs broken or incorrect shared system behavior"
-msgstr "[ ] **לתקן** תיקונים שבורים או לא נכונים"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: [ ] **לתקן** תיקונים שבורים או לא נכונים
 msgid "[ ] **Fix** - Repairs broken or incorrect workstation behavior"
-msgstr "[ ] **לתקן** תיקונים שבורים או לא נכונים"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] **Fix** - Repairs incorrect, outdated, or unclear documentation"

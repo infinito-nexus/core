@@ -10895,9 +10895,11 @@ msgstr "**përshkrimi**: Asistent në rrjet për iptables përcjellë dhe NAT co
 msgid "**description**: Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **përshkrimi**për
 msgid "**description**: Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr "**përshkrimi**për"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
@@ -18237,9 +18239,11 @@ msgstr "Rimbush dhe rinis automatikisht shërbimin SSH me anë të një kontroll
 msgid "Automatically remove broken or incomplete backups"
 msgstr "Hiq"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për
 msgid "Automatically selects the correct package name for the target Linux distribution"
-msgstr "Për"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Automatically sets ``target=\"_blank\"`` and ``rel=\"noopener\"`` on links pointing outside your primary domain to improve security and user experience."
@@ -37552,9 +37556,11 @@ msgstr "Përdorues j"
 msgid "Makefile Commands 🛠️"
 msgstr "Komandat Makefile 🛠️"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga.
 msgid "Makes the generated local certificates trusted by the host browser."
-msgstr "Nga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Makes the token available via ``lookup('users', '<user>').tokens['<app>']``"
@@ -42275,13 +42281,17 @@ msgstr "Per-përdorës Hermes dhe OpenClaw Agjentët filluan me kërkesën pas n
 msgid "Per-user Nextcloud quota"
 msgstr "Përdorues Nextcloud kuotë"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për
 msgid "Per-user OAuth for non-public data; no post, message, follow, moderation, or account mutation"
-msgstr "Për"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për
 msgid "Per-user OAuth for non-public timelines; no status, follow, favorite, direct-message, moderation, or account mutation"
-msgstr "Për"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-user OAuth/app password for non-public data; no post, like, follow, moderation, or account mutation"
@@ -42299,9 +42309,11 @@ msgstr ""
 msgid "Per-user or room-scoped service identity; no unrestricted archive, send, invite, kick, ban, role, or server administration action"
 msgstr "Per-përdorës apo identitet i shërbimit me dhomë; nuk ka arkivë të kontrolluar, nuk dërgoni, ftoni, shkelmoni, ndalimi, roli apo veprimi i administratës së server-it"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për
 msgid "Per-user token for timeline data; no posting, messaging, contact, moderation, or account mutation"
-msgstr "Për"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-user token is required for private feeds, rooms, messages, or mail; a shared service account never merges users' private data"
@@ -45661,9 +45673,11 @@ msgstr "Roli i Riemërtotur *web-app-desktop* për *web-app-dashboard* → Shpik
 msgid "Render ONE pass using plain Jinja2 with StrictUndefined. Missing vars fail hard."
 msgstr "Bëj një pasim duke përdorur Jinja të thjeshtë2 me diçka të padepërtueshme. Varët e humbur dështojnë shumë."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: J.
 msgid "Render Playwright JUnit XML reports as GitHub Actions step-summary markdown."
-msgstr "J."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Render a distro image reference from the ``meta/distros.yml`` SPOT."
@@ -45690,9 +45704,11 @@ msgstr "Nga CHANGELOG.md Hyrja si një stanza e ndryshimit të Debian."
 msgid "Render one CHANGELOG.md entry as an RPM ``%changelog`` stanza."
 msgstr "Nga CHANGELOG.md hyrje si një RPM ``%changelog`` Stanza."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: J.
 msgid "Render pytest junit-xml reports as a GitHub step-summary section."
-msgstr "J."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Render the ``## Older Releases`` block for the trimmed ``CHANGELOG.md``. Returns ``\"\"`` when no archives exist."
@@ -47299,9 +47315,11 @@ msgstr "Kthehu ``socks5h://`` URL për të gjetur Torin: ``tor`` Mbilajmë alias
 msgid "Return the address Docker assigns as the gateway of ``subnet``."
 msgstr "Kthen adresën Docker cakton si porta e ``subnet``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: J.
 msgid "Return the aliases file content, downloading once per repository."
-msgstr "J."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the app whose guide is replayed, ``application_id`` when it is alone."
@@ -47407,9 +47425,11 @@ msgstr "Kthen mënyrat e nisjes emrat e rolit nën ``modes``, në ``MODES`` Rreg
 msgid "Return the deterministic ``.po`` serialisation of ``catalog``."
 msgstr "Kthejeni drapërizmin ``.po`` serializimi ``catalog``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: J.
 msgid "Return the distro id from /etc/os-release, lowercased; empty string when unreadable."
-msgstr "J."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the docker bridge gateway containers can reach the host on."
@@ -58031,21 +58051,37 @@ msgstr "Diagramë në Infinito.Nexus kozmosi: komponentët që ai vendos (Aftës
 msgid "The diagram places n8n in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
 msgstr "Diagrami j8n në Infinito.Nexus kozmosi: komponentët që ai vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara)."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Diagramë në Infinito.Nexus kozmosi: komponentët që ai
+# vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin
+# ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara).
 msgid "The diagram places npm in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "Diagramë në Infinito.Nexus kozmosi: komponentët që ai vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara)."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Diagramë në Infinito.Nexus kozmosi: komponentët që ai
+# vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin
+# ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara).
 msgid "The diagram places pgAdmin in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "Diagramë në Infinito.Nexus kozmosi: komponentët që ai vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara)."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Diagramë në Infinito.Nexus kozmosi: komponentët që ai
+# vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin
+# ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara).
 msgid "The diagram places phpldapadmin in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "Diagramë në Infinito.Nexus kozmosi: komponentët që ai vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara)."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Diagramë në Infinito.Nexus kozmosi: komponentët që ai
+# vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin
+# ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara).
 msgid "The diagram places sshd in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "Diagramë në Infinito.Nexus kozmosi: komponentët që ai vendos (Aftësitë), shërbimet qendrore që konsumon (:)dhe të cilat bartin ngarkesat, (Federata dhe rrjetet e jashtme të bllokuara)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The diagram places sys-ca-selfsigned in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -61672,9 +61708,11 @@ msgstr "Vlera duhet të pasqyrojë se si grupi i mbështetur është i qepur. `a
 msgid "The value name, or None when no allowed value cleared *minimum*. None is a real answer: the measurement cannot carry a pin, and the caller leaves that axis to the rotation instead of guessing it."
 msgstr "Emri j *minimumi*. Asnjë nuk është një përgjigje e vërtetë: matjet nuk mund të mbajnë një gjilpërë, dhe telefonuesi e lë atë boshtin në rrotullim në vend që ta hamendësoj atë."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga.
 msgid "The values one axis may draw from this run."
-msgstr "Nga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The variant of *app* that carries the replay, and the mode it runs in."
@@ -66021,9 +66059,11 @@ msgstr "Ktheje një listë të zhveshur ose një hartë spekulimi në një :clas
 msgid "Turn a run's deploy jobs back into selection tokens."
 msgstr "Kthej një punë të vendosur përsëri në shenja përzgjedhje."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga.
 msgid "Turn ordered discovery rows into CI matrix entries."
-msgstr "Nga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Turn the model sources LiteLLM serves into one ordered route list."
@@ -83675,9 +83715,11 @@ msgstr "një mesazh katalogu, njëjës apo një tuple shumës."
 msgid "a connection lookup mirroring `database`: `lookup('<engine>', consumer_id, want)` returning host/port/user/password/url/db for the consumer."
 msgstr "a lidhje `database`: `lookup('<engine>', consumer_id, want)` Duke u kthyer host/port/user/password/url/db për konsumatorin."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: a
 msgid "a connector plugin such as AI Engine exposes a custom OpenAI-compatible endpoint"
-msgstr "a"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a consumer of a database is still running, a dump has     no credentials row, or its engine is unknown to the repository."
@@ -83755,9 +83797,11 @@ msgstr "një shteg në hapësirën e vetë emrit të telefonuesit që qëndron n
 msgid "a pinned, isolated upstream sidecar;"
 msgstr "të lidhur ngushtë në pjesën anësore të lumit;"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: a
 msgid "a pinned, source-audited upstream plugin;"
-msgstr "a"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a preference"
@@ -84194,9 +84238,11 @@ msgstr "Aplikativët janë zgjidhur nëpërmjet kontrollit('applications')"
 msgid "applications lookup"
 msgstr "programi"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nga.
 msgid "applications the deploy installs; dependencies are walked."
-msgstr "nga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "applications[app_id].domains.canonical applications[app_id].domains.aliases"
@@ -84242,9 +84288,11 @@ msgstr "si `enforced`, dhe rreshtat që nuk mund të marrin një qepë janë ulu
 msgid "as in :func:`ranking`."
 msgstr "si në :func:`ranking`."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: a
 msgid "assert the marker + reachability survived"
-msgstr "a"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "asset"
@@ -86863,9 +86911,11 @@ msgstr "inventory_args: j cli.administration.inventory.provision"
 msgid "invokable is defined by categories.yml via _get_invokable_paths()/_is_role_invokable()"
 msgstr "është përcaktuar nga categories.yml nga në()Sh ël rillo nëvolikues()"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nuk
 msgid "it does not parse, or names a mode or onion state that does not exist;"
-msgstr "nuk"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "it is a btrfs subvolume root or a zfs dataset mountpoint;"
@@ -87095,9 +87145,11 @@ msgstr "Loop: \"{{ lookup('group_roles', 'web-app') }}\""
 msgid "loop: \"{{ lookup('stage_groups', 'server') }}\""
 msgstr "Loop: \"{{ lookup('stage_groups', 'server') }}\""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nuk
 msgid "loopback and cloud-metadata addresses stay denied"
-msgstr "nuk"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "macOS"
@@ -89052,9 +89104,11 @@ msgstr "baza dhe ISO 639-1 Kodi i katalogut."
 msgid "repository root holding the ``requirements`` directory."
 msgstr "baza ``requirements`` directory."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nga.
 msgid "repository root the role resolver works from."
-msgstr "nga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "repository root to scan."
@@ -89072,9 +89126,11 @@ msgstr "nga ``roles_dir`` Dhe regjistrin."
 msgid "repository root."
 msgstr "baza."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nga.
 msgid "repository root; defaults to this checkout."
-msgstr "nga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "reproducible system deployments"
@@ -90243,9 +90299,11 @@ msgstr "është nuk modaliteti"
 msgid "the failure is not package-manager specific"
 msgstr "dështimet nuk janë specifike paketa-menager"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nuk
 msgid "the failure mentions onion addresses, circuits or the tor proxy"
-msgstr "nuk"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the file is missing, or a row is short of columns."
@@ -90390,9 +90448,11 @@ msgstr "në ``btrfs`` ose ``zfs`` është dhe është root;"
 msgid "the matching `btrfs` or `zfs` command is installed and the run is root;"
 msgstr "në `btrfs` ose `zfs` është dhe është root;"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nga.
 msgid "the materialised application payload; loaded from the repository when omitted."
-msgstr "nga."
+msgstr ""
 
 # translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
 # nocheck: url

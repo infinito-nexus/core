@@ -950,9 +950,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Візуальний конструктор низьких кодів для створення, тестування та публікації LLM та RAG в якості кінцевих точок HTTP"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "Двигуни машинного перекладу без веб-пристрою, для трубопроводів, які називають його безпосередньо"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
@@ -1140,10 +1141,12 @@ msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "Платформа управління проектами для Scrum, Kanban та гібридних командних процесів"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Статус на сервери
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
-msgstr "Статус на сервери"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fider:description"
@@ -1342,9 +1345,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API, що надає інформацію про роль, історію та переклади Infinito.Nexus для кожного рефлекса ядра та його локонів"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Громадський привид, який виводить System One рішення API з svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1621,10 +1625,12 @@ msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr "Статус на сервери SMTP/IMAP/POP3, webmail, фільтрація спаму, антивірус, запис DKIM та TLS"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Статус на сервери
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr "Статус на сервери"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
@@ -1819,10 +1825,12 @@ msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr "Статус на сервери (активи, HTML, правовий, файли)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Статус на сервери
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
-msgstr "Статус на сервери"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hugo:description"

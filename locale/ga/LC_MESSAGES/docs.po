@@ -43143,9 +43143,11 @@ msgstr "OIDC a chur chun cinn User a Riarachán 🧑💼"
 msgid "Promotion from `eol` back into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch. Examples of `eol` roles at the time of writing include `web-app-confluence`, `web-app-jira`, `web-app-minio`, `web-app-phpldapadmin`."
 msgstr "Cur Chun Cinn ó `eol` ar ais isteach sa chlúdach tástála a cheadaítear ach éilíonn cruinniú `alpha` critéir ó thús. Samplaí de `eol` I measc na róil ag an am scríbhneoireachta tá `web-app-confluence`, `web-app-jira`, `web-app-minio`, `web-app-phpldapadmin`."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Cóipeáil nasc leis an tweet Leabaigh an Tweet .
 msgid "Prompt the user for confirmation to overwrite an existing value."
-msgstr "Cóipeáil nasc leis an tweet Leabaigh an Tweet ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Proper handling of connection upgrades and protocol switching"
@@ -43409,9 +43411,11 @@ msgstr "Forálacha a per-tomhaltóir raon feidhme API eochair eochair (teoranta 
 msgid "Proxies requests to the backend service."
 msgstr "Iarrataí ar an tseirbhís chúl."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Cóipeáil nasc leis an tweet Leabaigh an Tweet .
 msgid "Proxies traffic to the backend WebSocket server."
-msgstr "Cóipeáil nasc leis an tweet Leabaigh an Tweet ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Proxy configuration template for NGINX with long timeouts and WebSocket upgrades."
@@ -51426,9 +51430,11 @@ msgstr "Bratach seirbhíse MCP roinnte"
 msgid "Shared Repository Workflow 🔄"
 msgstr "Sreabhadh Oibre Stór Comhroinnte 🔄"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Cóipeáil nasc leis an tweet Leabaigh an Tweet .
 msgid "Shared SPOT for the unified addon contract."
-msgstr "Cóipeáil nasc leis an tweet Leabaigh an Tweet ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shared Utilities (`utils/`)"
@@ -71057,9 +71063,11 @@ msgstr "Coinníonn tú SHOULD gach tástáil dírithe ar theorainn comhtháthú 
 msgid "You SHOULD keep external tests focused, advisory, and easy to run on demand."
 msgstr "SHOULD tú a choinneáil tástálacha seachtracha dírithe, comhairleach, agus éasca a reáchtáil ar éileamh."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Cóipeáil nasc leis an tweet Leabaigh an Tweet .
 msgid "You SHOULD keep messages concise and on-topic."
-msgstr "Cóipeáil nasc leis an tweet Leabaigh an Tweet ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "You SHOULD keep network traffic narrow and query each external dependency only as much as needed for a meaningful result."

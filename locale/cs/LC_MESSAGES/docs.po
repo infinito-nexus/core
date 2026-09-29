@@ -2329,9 +2329,11 @@ msgstr "**Propouští a umožňuje systémovou uživatelskou službu** pro `ssh-
 msgid "**Description:** ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
 msgstr "**Popis:** ACME klient pro automatizované Zašifrovat SSL / TLS certifikát vydání a obnovení přes webroot nebo DNS-01 výzvy"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **Popis:** Name
 msgid "**Description:** AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
@@ -2826,17 +2828,21 @@ msgstr "**Popis:** Role lepidla NGINX pro 301 přesměruje ze zdroje do cílový
 msgid "**Description:** NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "**Popis:** NGINX vrstva pro HTTPS s Zašifrovat ACME výzvu manipulaci, port 80 do 443 přesměrovat, a zatuchlý vHost úklid"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **Popis:** Name
 msgid "**Description:** NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "**Popis:** NGINX subfilter injector additing Matomo analytics script and noscript image tracker to service HTML pages"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **Popis:** Name
 msgid "**Description:** NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
@@ -3004,9 +3010,11 @@ msgstr "**Popis:** Role držáku desky pro budoucí nasazení XMPP serveru / kon
 msgid "**Description:** Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr "**Popis:** Záložní systém Plug- spuštěný pro deduplikované snímky místního záložního stromu na swapplifikovatelné USB zařízení"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **Popis:** Name
 msgid "**Description:** Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
@@ -3441,9 +3449,11 @@ msgstr "**Popis:** Webové rozhraní pro správu LDAP adresářů: správa uživ
 msgid "**Description:** Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr "**Popis:** Web- based LDAP administration interface pro správu uživatelských, skupinových a adresářových objektů"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **Popis:** Name
 msgid "**Description:** Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
@@ -14552,9 +14562,11 @@ msgstr "Asistent pro editaci AI"
 msgid "AI subsystem provider"
 msgstr "Poskytovatel subsystémů AI"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "AIEditingAssistant"
@@ -16729,9 +16741,11 @@ msgstr "Ansible rozhoduje, co by mělo existovat."
 msgid "Ansible default (22)"
 msgstr "Ansible default (22)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Ansible filter plugin for retrieving application IDs."
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin that safely joins URL components from a list."
@@ -20003,9 +20017,11 @@ msgstr "Centos Stream 9: ``libva-intel-hybrid-driver`` (pomocí EPEL)"
 msgid "CentOS Stream 9: `libva-intel-hybrid-driver` (via EPEL)"
 msgstr "Centos Stream 9: `libva-intel-hybrid-driver` (pomocí EPEL)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "CentOS Stream is rolling; classic CentOS EOL; smaller community than Debian/Ubuntu"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CentOS, RHEL, Rocky Linux, AlmaLinux"
@@ -28108,9 +28124,11 @@ msgstr "Zpátky k této roli. (`sys-svc-mail-smtp`) a poslat přes `localhost`."
 msgid "Fallback shape for a generation that cannot state its own."
 msgstr "Návratný tvar pro generaci, která nemůže určit vlastní."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Familiar multi-chat interface with quick model switching"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Family"
@@ -38072,9 +38090,11 @@ msgstr "Name"
 msgid "NGINX Domain Setup"
 msgstr "Nastavení domény NGINX"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "NGINX Global Matomo & Theming Modifier Role"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
@@ -38088,13 +38108,17 @@ msgstr "Šablony umístění NGINX"
 msgid "NGINX Matomo Tracking Role"
 msgstr "NGINX Matomo Sledovací role"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "NGINX domain and reverse-proxy configuration"
-msgstr "Name"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "NGINX domain setup with WebSocket and reverse-proxy configuration"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
@@ -38108,17 +38132,21 @@ msgstr "NGINX hot- reload, pokud je k dispozici, jinak restart"
 msgid "NGINX installed on the target server."
 msgstr "NGINX nainstalován na cílovém serveru."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
 msgstr "NGINX vHost šablony: Základní vs. WebSocket (ws_generic)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
@@ -50085,9 +50113,11 @@ msgstr "Self- hostovaný URL zkratka pro tvorbu, sledování a správu krátkýc
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Self- hostovaná platforma WebRTC pro end- to- end- šifrovatelné video konference s federativní autentizace"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
@@ -50141,13 +50171,17 @@ msgstr "Self- hostil mediální server pro streamování a organizování filmů
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr "Self- hostovaný modelový server pro spuštění open LLM lokálně za jednoduchým HTTP API"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "Name"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
@@ -85647,9 +85681,11 @@ msgstr "repozitář nezná ani objem, ani název databáze, takže motor musí b
 msgid "nfs-server"
 msgstr "nfs-server"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "nginx ``proxy_read_timeout`` where the default is too short, as for a multi-gigabyte model download."

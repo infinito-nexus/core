@@ -15626,9 +15626,11 @@ msgstr "Rollout, fork davranış, azadlıq, və ya iz-up iş üçün hər hansı
 msgid "Add any reviewer context for rollout, policy interpretation, or follow-up work."
 msgstr "Rollout, siyasəti konfransı və ya izləmə işi üçün hər hansı bir baxış konfransı daxil edin."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Add any reviewer context that is useful for deployment, rollback, or follow-up work."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Add command-line args dynamically based on MODE_* metadata."
@@ -20108,7 +20110,7 @@ msgstr "Daxil ol"
 
 # translated-by: libretranslate
 msgid "Bundles assemble roles into real deployments."
-msgstr "Daxil ol"
+msgstr "Daxil ol."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -21254,7 +21256,7 @@ msgstr "Yuxarı 0 sıralamanın baş tutur *offset* axtarış; sifariş *Daxili*
 
 # translated-by: libretranslate
 msgid "Chunk blocks a sweep fills, capped by the blocks the YAML declares."
-msgstr "Yadda saxla"
+msgstr "Yadda saxla."
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
@@ -21468,9 +21470,11 @@ msgstr "LibreTranslate HTTP API üçün müştəri."
 msgid "Client identifier, defaults to `SOFTWARE_DOMAIN`"
 msgstr "Yadda saxla `SOFTWARE_DOMAIN`"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Client limits the env generator and the translator must agree on."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Client roles such as `web-app-openwebui` and `web-app-flowise` MUST discover enabled shared MCP server roles through the merged applications data. They MUST NOT hard-code the candidate list in templates."
@@ -21496,9 +21500,11 @@ msgstr "Yadda saxla `credentials.mcp_bearer`, Xüsusi `mcp-web-app-baserow`. ada
 msgid "Client transport"
 msgstr "Yadda saxla"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
@@ -23155,9 +23161,11 @@ msgstr "Bir interfeysdən çox PostgreSQL fayllarını qəbul edin."
 msgid "Connect to the Mailu MariaDB container:"
 msgstr "Mailu MariaDB konteynerinə qoşun:"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Connection settings may be added later if needed."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -24247,9 +24255,11 @@ msgstr "Xüsusi birləşdirici filter Infinito.Nexus: merge_with_defaults"
 msgid "Custom theming/branding stylesheet"
 msgstr "Xüsusi onlar / markalaşma üslubu"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Customer Relationship Management - track leads, opportunities, and customer interactions"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Customizable domain names and ports via Ansible variables."
@@ -26111,9 +26121,11 @@ msgstr "Sığıcı debug giriş, uncaught məlumatları, birləşmiş məlumatla
 msgid "Do NOT leave implementation warnings unresolved just because they are inconvenient."
 msgstr "Yalnız qarşılaşdırılmış məlumatları qarşısını almaq, çünki onlar inconvenient."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Do NOT reimplement server-side logic, authentication protocols, or business rules in injected JavaScript."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter
@@ -26609,9 +26621,11 @@ msgstr ""
 msgid "Dropping the axes does not mean forgiving them. A row is proven only when *every* job it had was green: one red or aborted combination un-proves it, however many green siblings it has. Only a priority row can have several, since it deploys its whole cross-product at once while a regular row gets one combination per sweep -- and letting a green compose job carry a red swarm one would walk the regular line past a combination nobody fixed."
 msgstr "Axes tapmaq onları bağışlayır. Bir sıra yalnız hesab edilir *haqqında* iş ki, yaşıl idi: bir qırmızı və ya qarşı birləşdirilməsi, lakin bir çox yaşıl qadın var. Yalnız bir əvvəllik sıra bir neçə ola bilər, əvvvəl bütün cross-product bir sıra sübut başına bir birlik alır - və yaşıl bir forma iş qırmızı swarm axtarır ki, normal line əvvvəl birləşdirmədi."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Drops or truncates the backing database."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Drops the per-entity default Docker network when `compose.sh` left it behind with the wrong / empty `com.docker.compose.network` label (typical between matrix-deploy rounds). Skips removal when the network still has active container endpoints, so shared-service networks (svc-db-mariadb, svc-db-postgres, …) stay in place while their provider container is up. The global `docker network prune -f` sweep that catches orphans whose names do NOT match the entity is run once by the orchestrator [apps.sh](../apps.sh) after the entity loop. Idempotent."
@@ -27180,7 +27194,7 @@ msgstr "Bu rolu asanlaşdırmaq:"
 
 # translated-by: libretranslate
 msgid "Easily manage database configurations, user accounts, and monitor query activity with built‑in health checks."
-msgstr "Domen adı qeydiyyatdan keçirt »"
+msgstr "Domen adı qeydiyyatdan keçirt »."
 
 # translated-by: libretranslate
 msgid "Easy-to-explain code is usually sound."
@@ -31730,9 +31744,11 @@ msgstr "Yadda saxla \"normal\" web"
 msgid "Good to Know"
 msgstr "Yadda saxla"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Good: a test that verifies a bootstrap path creates the expected runtime artifact or unblocks a dependent service."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Google Cloud service account credentials."
@@ -32188,17 +32204,23 @@ msgstr "Yüksək sənayesi"
 msgid "Highest-risk files, roles, or flows:"
 msgstr "Yüksək riskli fayllar, rollar, və ya axtarış:"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Highest-risk instructions, assumptions, or policy changes:"
-msgstr "Yadda saxla"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Highest-risk statements, commands, or assumptions:"
-msgstr "Yadda saxla"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Highest-risk workflows, jobs, or scripts:"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Highlights ✨"
@@ -32272,17 +32294,21 @@ msgstr "Oxunub"
 msgid "Host address that all published ports bind to."
 msgstr "Bütün yayımlanmış portların qarşısını almaq."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Host address to bind to; omit to publish on every interface."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host cleanup"
 msgstr "Qeydiyyat"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Host directory for per-hostname leaf certs."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host directory for the frontend CA."
@@ -32900,9 +32926,11 @@ msgstr "Qeydiyyat təhlükəsizdir, heç bir zaman quraşdırma administratoru"
 msgid "Identity providers: separate scope"
 msgstr "E-poçt ünvanı"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If CI fails, follow a clean debugging workflow:"
@@ -33236,9 +33264,11 @@ msgstr "Daxil olmaq istədiyi halda, səviyyət və operatora sorulur. MUST isti
 msgid "If the query returns empty or `null`, stop and ask the operator: PR creation silently failed or the branch has no open PR, and Step 5 cannot proceed without `<pr-number>`."
 msgstr "Sorğu boş və ya `null`, stop və operator istəyir: PR yaradılmış və ya filial heç bir açıq PR, və Step 5 qazanmaq `<pr-number>`."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "If the reuse path keeps reproducing the same failure and you want to test whether app entity state is involved:"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the runner registered correctly, verify it appears in the GitHub repository's runner list."
@@ -33252,9 +33282,11 @@ msgstr "eyni çatışmazlığı dəyişdirilməsində yenilənir və app müşt�
 msgid "If the script exits `0` AND the inspection passed, go to [Exit](#exit)."
 msgstr "Yadda saxla `0` Və konfrans keçdi, getmək [Tarix](#exit)."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "If the script exits non-zero OR the inspection surfaced a schema violation:"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -33304,9 +33336,11 @@ msgstr "OpenLDAP-da yaranan istifadəçilər OpenTalk görünməz, bir Keycloak 
 msgid "If using Let's Encrypt (`TLS_FLAVOR=cert`), make sure the domain is included in `LETSENCRYPT_HOSTS`"
 msgstr "Yadda saxla (`TLS_FLAVOR=cert`), Domen adı daxil olun `LETSENCRYPT_HOSTS`"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "If value is a dict, return its first value."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If value is a list, return its first element."
@@ -35209,9 +35243,11 @@ msgstr "konteyner giriş, konfiqurasiya fakültələri və post-update təhlük�
 msgid "Instructions replay 📖"
 msgstr "📖"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Daxil ol.
 msgid "Integrate seamlessly with complementary Ansible roles and web server configurations."
-msgstr "Daxil ol"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Integrate seamlessly with complementary roles for Docker Compose and web server management."
@@ -37264,9 +37300,11 @@ msgstr "Yük qeyri-komment, non-blank, non-negated modelləri ``<root>/.gitignor
 msgid "Load runtime records from a URL, a CSV path, or an Ansible log path."
 msgstr "Bir URL, bir CSV yolu, və ya Ansible log yol yük runtime rekordlar."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Load the YAML file and wrap existing !vault entries."
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Load the application ID from the role's vars/main.yml file."
@@ -38231,7 +38269,7 @@ msgstr "Yadda saxla"
 
 # translated-by: libretranslate
 msgid "Manage email notifications and alerts with customizable SMTP configurations."
-msgstr "E-poçt ünvanı"
+msgstr "E-poçt ünvanı."
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter
@@ -38854,9 +38892,11 @@ msgstr "Migrated runtime qədər yaradılmış dictionaries və təchizatçılar
 msgid "Migrates Docker volumes with database workloads to rapid storage (SSD) for improved performance."
 msgstr "Migrates Docker, sürətli saxlamaq üçün baza iş yükləri ilə haqqında (Qalereya) inkişaf edilməsi."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Migration, rollback, or security-sensitive concerns:"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MinIO: [www.min.io](https://www.min.io)"
@@ -39324,9 +39364,11 @@ msgstr "Mövcud forma-flavor qaydaları + şablonları yeni `flavor/compose/` da
 msgid "Move their values to the roles/*/config/main.yml file of each role"
 msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Daxil ol
 msgid "Moved backend service-load decisions into a dedicated lookup plugin"
-msgstr "Daxil ol"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Moves an issue (with its history and attachments) into a different repository. The destination repo can be attacker-controlled, equivalent to data exfiltration of the issue's contents. Issue transfers must be a deliberate human action."
@@ -39642,9 +39684,11 @@ msgstr ""
 msgid "Naming 🏷️"
 msgstr "Oxunub 🏷️"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Domen adı qeydiyyatdan keçirt ».
 msgid "Narrow command-wrapper boundaries that convert any underlying failure into a domain-specific error."
-msgstr "Domen adı qeydiyyatdan keçirt »."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Narrow to one role type:"
@@ -41346,9 +41390,11 @@ msgstr "Moderation, bildirişlər və plugin dəstəyi ilə Open-source müzakir
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
 msgstr "Symfony və Vue.js onlayn mağazafronts bina və səhifə"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
@@ -43599,9 +43645,11 @@ msgstr "Wikipedia-da postfix: <https://en.wikipedia.org/wiki/Postfix_(software)>
 msgid "Postfix on Wikipedia: https://en.wikipedia.org/wiki/Postfix_(software)"
 msgstr "Wikipedia-da postfix: https://en.wikipedia.org/wiki/Postfix_(software)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: E-poçt ünvanı.
 msgid "Postfix will refuse to deliver or relay messages for unknown domains."
-msgstr "E-poçt ünvanı."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Postfix:"
@@ -45345,9 +45393,11 @@ msgstr "Xüsusi bir filiasiyanın yuxarı və ya mütəssisəsi."
 msgid "Reading or mutating branch/tag rulesets (branch protection successor)."
 msgstr "Oxunub: (Daxili qorunması)."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Reading or mutating repository webhooks."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -45881,9 +45931,11 @@ msgstr "Qeydiyyatdan keç get_role filter"
 msgid "Registered"
 msgstr "Qeydiyyat"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Domen adı qeydiyyatdan keçirt ».
 msgid "Registered redirect URIs for every deployed SSO consumer, one per domain."
-msgstr "Domen adı qeydiyyatdan keçirt »."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -46630,9 +46682,11 @@ msgstr "Qeydiyyat"
 msgid "Reporting 📋"
 msgstr "Proqram 📋"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Reporting-only service identity; no subscriber export, message send, campaign start, template, or list mutation"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Reporting-only token if the exact API can enforce it; no query-log detail by default, blocking toggle, list, DNS, DHCP, or configuration mutation"
@@ -48442,9 +48496,11 @@ msgstr "Sum min_storage Oxunub app_ids və onların tranzit ehtiyatları."
 msgid "Return the tags of *image* from its registry's v2 API."
 msgstr "Qeydiyyatdan keçin *image* Onun rəsminin v2 API."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Return the target code the server knows this catalog code by."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the template of the ``docs`` domain, built from a copy of the working tree."
@@ -49236,9 +49292,11 @@ msgstr "Konqrasiya"
 msgid "Role scaffold: Dockerfile, compose, torrc, key restore, volume + backup wiring."
 msgstr "Rol scaffold: Dockerfile, forma, torrc, əsas quraşdırma, sıxış + backup kabel."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Daxil ol
 msgid "Role templates and tasks that consume the lookup MUST follow these rules:"
-msgstr "Daxil ol"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Role templates read image refs via `lookup('config', '<role>', 'services.<service>.image')` / `.version`, which resolves against the merged `applications.*` map. The mirror override applied above is what consumers see."
@@ -50773,9 +50831,11 @@ msgstr "SERVER_CODES Kataloqun qeyri ISO 639-1 Hüquqlar faylları LibreTranslat
 msgid "SHOULD be removed within a small number of releases."
 msgstr "SHOULD az nömrəsində silinir."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "SHOULD link to the upstream project / vendor for support."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -51812,17 +51872,21 @@ msgstr "Elanlar System One qeydiyyat. Bu cavablar tipli suallar (``choice``, ``s
 msgid "Self-hosted System One decision service. It answers typed questions (`choice`, `score`, `noul`) over a non-autoregressive encoder instead of generating text, on the `POST /v1/systemone` contract."
 msgstr "Elanlar System One qeydiyyat. Bu cavablar tipli suallar (`choice`, `score`, `noul`) məhsulun yaradılmasının əlavə etdiyi nömrəsiz-autoregressive encoder üzrə, `POST /v1/systemone` contract."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Domen adı qeydiyyatdan keçirt »
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "Domen adı qeydiyyatdan keçirt »"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "End-to-end-encryptable video konferencing üçün WebRTC platforma"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
@@ -51860,9 +51924,11 @@ msgstr "Mikroblogging, real-time intervals, və ictimai rejimlər üçün öz ə
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
 msgstr "Bir imza-on, multi-faktor təhlükəsizlik və istifadə idarəetmə platforması"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
@@ -51880,13 +51946,17 @@ msgstr "Ətraflı LLMs yerli çalışan açıq model server API"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr "Self-poçt ünvanı veriləndirilməsi və məlumatların yaradılması və məlumatlaşdırılması üçün yayılmış məlumat bazası platformasını qeyd etdi"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
@@ -51928,9 +51998,11 @@ msgstr "Self-səfər edilmiş, təsdiq edilmiş Atlassian yolu Cloud-only; bir x
 msgid "Self-hosted stays blocked while the verified Atlassian path is Cloud-only; an external connector is explicit and is never represented as the self-hosted role's endpoint."
 msgstr "Təsdiqli Atlassian yolu Cloud-only olduqda Self- hosting qaldırılır; bir xarici bağlayıcı açıqdır və heç bir öz qurulmuş rol sonpoint kimi hesablanır."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: E-poçt ünvanı
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted via `svc-runner` (014)"
@@ -51986,9 +52058,11 @@ msgstr "Semantics:"
 msgid "Semver primitives shared by every version-bump backend."
 msgstr "Semver əsaslıqlar hər hansı bir versiya ilə paylaşılır."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Send / receive via the role's mail surface, OR verify rendered notification body via the test mailbox."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Send a private report that includes:"
@@ -52512,9 +52586,11 @@ msgstr "Açıq və önbelleklərin defaultları inşa edən aggregation yardım�
 msgid "Shared aggregation helper: [`utils/cache/applications.py`](../../../../utils/cache/applications.py)"
 msgstr "Domen adı qeydiyyatdan keçirt » [`utils/cache/applications.py`](../../../../utils/cache/applications.py)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: E-poçt ünvanı.
 msgid "Shared asset libraries and components, version history."
-msgstr "E-poçt ünvanı."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shared bootstrap, constants, and generic helpers (HTTP assertion, inventory inspection)"
@@ -52636,9 +52712,11 @@ msgstr ""
 msgid "Shell execution 📜"
 msgstr "Shell icra 📜"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Daxil ol.
 msgid "Shell helpers for scheduled repository-maintenance workflows that prune stale GitHub resources."
-msgstr "Daxil ol."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shell helpers that cancel GitHub Actions workflow runs whose original trigger is no longer relevant."
@@ -53259,9 +53337,11 @@ msgstr "Yadda saxla"
 msgid "Sovereign Local AI Platform"
 msgstr "Yadda saxla"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Space-separated display names rendered as space-separated role ids."
@@ -53404,9 +53484,11 @@ msgstr "Qadın adları"
 msgid "Stack names, `--wipe-data-only`"
 msgstr "Qadın adları, `--wipe-data-only`"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Stack shutdown and environment reversal, shared by both closing steps"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Stack state (containers, volumes) and the inventory directory stay on disk after every flow in this subtree."
@@ -53887,9 +53969,11 @@ msgstr "Yadda saxla"
 msgid "Store each shared value once."
 msgstr "Hər hansı bir qiymət tapın."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "Store file is only rewritten when content actually changes"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Store machine translations on ``messages``."
@@ -62417,9 +62501,11 @@ msgstr "Paylaşılan şema və ilk son-to-end dilim MAY birlikdə torpaq."
 msgid "The shared schema, loader, lint, and the first migrated role MAY land together."
 msgstr "Shared, yüker, lint, və ilk daşdırılmış rol MAY birlik."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: E-poçt ünvanı.
 msgid "The shell prefix, or an empty string when email is disabled."
-msgstr "E-poçt ünvanı."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -62913,9 +62999,11 @@ msgstr "Bir sıra dəyişdirilməsi *pool* Bu süpürmə: sıranın qalınlığ�
 msgid "The value as it now stands in the file, or \"\" when it was removed."
 msgstr "İndi faylda olduğu kimi qiymət, və ya \"\" çıxdıqda."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "The value can be adjusted or overridden via inventory, group vars, or host vars if needed."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The value is always double-quoted in the output. That makes the emit safe for YAML edge cases like `restart: no` (bare `no` would otherwise parse as a boolean) without burdening the caller with quoting rules."
@@ -66584,9 +66672,11 @@ msgstr "Giriş MariaDB səhifə bazar konteyner, aşağıdakı komanda run:"
 msgid "To access the database execute:"
 msgstr "Veritabanına baxmaq üçün:"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "To access the database via the root account execute the following on the server:"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "To access the database, execute:"
@@ -67256,17 +67346,21 @@ msgstr "Heç bir müştəri varsa `roles/<role_id>/meta/services.yml` Qeydiyyat 
 msgid "True if the domain is a Tor v3 ``.onion`` address."
 msgstr "Domen adı Tor v ise3 ``.onion`` address."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "True if this application is allowed to deploy, False otherwise."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "True iff image references should be rewritten to the GHCR mirror."
 msgstr "True iff image referanslar GHCR aynasına yazılmalıdır."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "True iff the docker daemon registers an NVIDIA runtime."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter
@@ -67275,9 +67369,11 @@ msgstr "Yadda saxla."
 msgid "True iff the docker data root may be wiped when the stack goes down."
 msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "True iff the file declares a top-of-file marker"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "True iff the pull-through cache stack should be loaded."
@@ -67445,9 +67541,11 @@ msgstr "Bir runun istifadəsi işlərini seçkilərinə geri yükləyin."
 msgid "Turn ordered discovery rows into CI matrix entries."
 msgstr "CI matrix girişlərinə sifariş edilməsi."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: E-poçt ünvanı.
 msgid "Turn the model sources LiteLLM serves into one ordered route list."
-msgstr "E-poçt ünvanı."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Turn the module results of one plan into a single task result."
@@ -68407,9 +68505,11 @@ msgstr "Pdsadmin istifadə edin"
 msgid "Use realistic inputs. Build hypotheses about cross-component behavior before writing assertions."
 msgstr "Real giriş istifadə edin. Qeyri-komponent davranış haqqında fikir yaradılması."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Use running software, not documents alone, as the main progress signal."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Use signed commits"
@@ -69150,9 +69250,11 @@ msgstr "Həmçinin hər hansı bir namizəmçinin hər bir dövrünə uyğunlaş
 msgid "Validate input early and return structured failure messages."
 msgstr "Daxil olmaq və tikinti çatışmazlığı mesajları."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Daxil ol.
 msgid "Validate requested application IDs using ValidDeployId."
-msgstr "Daxil ol."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Validate, build the mode map, and dispatch to the playbook runner."
@@ -71203,9 +71305,11 @@ msgstr "Ana səhifə maşınları nümayiş etdirir."
 msgid "Which package, package source, or integration was added or changed?"
 msgstr "Hansı paket, paketi məhdud və ya inteqrasiya əlavə edildi və ya dəyişdi?"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "Which parts of a message are protected, and how they are masked for a request."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Which project holds a dump is read from the containers themselves, before the host goes down: each running container's mounts are recorded, and a dump's volume names its owner. No image is matched, and the database's engine is resolved by the chain from the repository's service definitions."
@@ -72164,9 +72268,11 @@ msgstr "Siz birləşdirmək deyil, müzakirə, və ya təmiz tikinti churn təkl
 msgid "You MUST NOT introduce new override mechanisms (e.g. per-role variable mappings) that bypass the existing environment-variable interface."
 msgstr "Yeni override meyvələri tanıtmaq (e.g. per-role dəyişik xüsusiyyətləri) mövcud texnologiyası interfeys."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla.
 msgid "You MUST NOT invent commands, workflows, or files that do not exist."
-msgstr "Yadda saxla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "You MUST NOT key user overrides by `username`; use the canonical key."
@@ -85761,9 +85867,11 @@ msgstr "konteyner daxilində qarşılaşdırılmış repo kök qarşısını alm
 msgid "abstract `Recoverer` + one subclass per type, source parsing/validation"
 msgstr "Tarix `Recoverer` + növü bir subclass, mövzu parsing/validation"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Yadda saxla
 msgid "accepts either a service key or a provider role name"
-msgstr "Yadda saxla"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "access database"
@@ -85901,9 +86009,11 @@ msgstr "drenajdan əvvəl yükləndirilmiş bir image haqqında (NFS `images/` v
 msgid "an image uploaded before the drain is still served;"
 msgstr "drenajdan əvvəl yükləndirilmiş bir image həyata keçirilir;"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Müəlliflik hüququqları qorunur.
 msgid "an interpreter is still absent after the install attempt."
-msgstr "Müəlliflik hüququqları qorunur."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "an optional local SMTP relay (Postfix) for hosts **without** Mailu."
@@ -88278,9 +88388,11 @@ msgstr "qeyd, run hovuz default: `compose`, `clearnet`, `debian`, `btrfs`."
 msgid "fails the row"
 msgstr "qarışıq"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Domen adı qeydiyyatdan keçirt »
 msgid "falls back inside the pool, and says so in the step summary"
-msgstr "Domen adı qeydiyyatdan keçirt »"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "falls back inside what the run permits, and reports the substitution in the step summary"
@@ -91722,9 +91834,11 @@ msgstr "GitHub slug və lider olmadan versiya ``v``."
 msgid "the HTML the translator returned for ``masked``."
 msgstr "HTML səfiri üçün geri döndü ``masked``."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Daxil ol.
 msgid "the LookupModule instance, for its templar and loader."
-msgstr "Daxil ol."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the MCP long-lived token belongs to a dedicated account pinned to Home Assistant's `system-read-only` group; `ensure_service_account` re-asserts `group_ids` through `config/auth/update` on every run, so an account promoted by hand is demoted again"
@@ -92195,13 +92309,17 @@ msgstr "Ən uzun dəyər qiymət; müsabiqə tam."
 msgid "the lookup plugin's loader."
 msgstr "addım plugin's loader."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Daxil ol.
 msgid "the lookup plugin's templar, where it has one."
-msgstr "Daxil ol."
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Daxil ol.
 msgid "the lookup's templar, or None outside a play."
-msgstr "Daxil ol."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the manifest is unreadable, or states a schema this code     does not know. A newer schema must not be guessed at: the fields     this reader relies on may mean something else in it."
@@ -92362,9 +92480,11 @@ msgstr "qorunması, token id."
 msgid "the provider is not declared in the SPOT."
 msgstr "İstehsalçı SPOT-da elan deyil."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Müəlliflik hüququqları qorunur.
 msgid "the provider name that marks a mock, passed in rather than hardcoded so this and the Ansible side cannot drift apart."
-msgstr "Müəlliflik hüququqları qorunur."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the provider name, e.g. ``github``."

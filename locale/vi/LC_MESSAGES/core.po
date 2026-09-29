@@ -179,10 +179,12 @@ msgctxt "role:sys-service-loader:description"
 msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
 msgstr "Vai trò tải trung tâm cho việc sắp xếp dịch vụ nạp trước và xếp hàng sau khi đăng xuất"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
@@ -332,15 +334,19 @@ msgctxt "category:svc.registry:title"
 msgid "Container Registries"
 msgstr "Thư mục chứa"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
-msgstr "Name"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:description"
@@ -357,10 +363,12 @@ msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "Máy phục vụ biểu tượng bị khóa cho việc tổ chức Simple Icons Name"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
@@ -480,10 +488,12 @@ msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
 msgstr "Tài khoản hệ thống đã hiến tặng với các lệnh đã được mã hóa SSH và mật khẩu rsync sudo để truy cập sao lưu bảo mật"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:description"
@@ -515,10 +525,12 @@ msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr "& Ứng dụng môi trường làm việc (GNOME, trình duyệt, LibreOffice, etc.)"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
@@ -585,10 +597,12 @@ msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
 msgstr "Tài liệu khiêu dâm và ứng dụng Wiki"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:drv:title"
@@ -725,10 +739,12 @@ msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Lớp tiêm JavaScript toàn cục cho phản ứng HTML NGINX qua sub_filter, Với âm thanh của kênh CNP"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:sys-front-inj-css:description"
 msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -925,10 +941,12 @@ msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr "CA gốc tự ký địa phương cho việc phát hành sự tin tưởng để các thùng chứa chấp nhận điểm kết thúc nội bộ của USD"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
@@ -950,9 +968,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Những công trình xây dựng hình ảnh thấp để tạo ra, thử nghiệm, và xuất bản LM và RAG luồng như điểm cuối HTTP"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "Động cơ phiên dịch máy không có bề mặt web cho các đường ống gọi trực tiếp"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
@@ -989,10 +1008,12 @@ msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr "Theo dõi"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-opt-rdr-domains:description"
@@ -1294,10 +1315,12 @@ msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "Nền tảng xã hội riêng tư đầu tiên cho các hộ gia đình, Liên kết ngang hàng trên WebTC trên một cửa hàng QT"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
@@ -1339,9 +1362,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "CÔNG VIỆC API Đang phục vụ dữ liệu, lịch sử và các bản dịch của Infinito.Nexus Cho mỗi phần lõi và nĩa của nó"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Công chúng đấu với ma phơi bày System One quyết định API Kho svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1443,10 +1467,12 @@ msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
 msgstr "Đã lên lịch việc sao lưu các bí mật máy, CA, ACME, và tên nút để sao lưu vào thư mục cục bộ"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-csp:description"
@@ -1493,10 +1519,12 @@ msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
 msgstr "Dịch vụ bảo trì có hệ thống để tỉa phiên bản sao lưu đã lỗi thời khi sử dụng đĩa vượt quá ngưỡng"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
@@ -1518,10 +1546,12 @@ msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
 msgstr "Bức tường tự chủ cho việc hiển thị các bài viết công cộng gần đây bởi hashtag hoặc tài khoản trong một mạng lưới nề sống"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
@@ -1901,10 +1931,12 @@ msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
 msgstr "Bộ thông báo msmp hệ thống cho những người sử dụng thư điện tử khi một đơn vị dịch vụ giám sát thất bại"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr "Comment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"
@@ -1940,10 +1972,12 @@ msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
 msgstr "Cột vai đặt âm lượng Docker trên hệ thống SSD hoặc HD bằng kiểu tải công việc, với liên kết cộng giữ đường dẫn nhất định"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
@@ -2000,10 +2034,12 @@ msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "Kiểu...2 Trình siêu giám sát máy ảo trên trạm làm việc Pacman, với mô-đun hạt nhân và gói mở rộng"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:update:title"
@@ -2038,10 +2074,12 @@ msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "Trình khách điều khiển phiên bản cho trạm làm việc cá nhân, cấu hình sẵn với danh tính, ký và hợp nhất mặc định"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2093,10 +2131,12 @@ msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "Name Docker Compose với người dùng cục bộ trong nhóm docker cho việc sử dụng phát triển không gốc"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr-install:description"

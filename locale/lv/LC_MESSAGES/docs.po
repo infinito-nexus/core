@@ -16504,9 +16504,11 @@ msgstr "Programmas kanoniskais primārais domēns, kad tam ir ne vairāk kā max
 msgid "An axis the token leaves open matches anything, so ``web-app-x`` covers every row of that role and ``web-app-x#2@swarm`` only its swarm deploy of variant 2. Reads the strings a matrix entry carries, not a discovery row's native types."
 msgstr "Ass marķieris atstāj atvērtu atbilst kaut ko, tāpēc ``web-app-x`` aptver katru šīs lomas rindu un ``web-app-x#2@swarm`` tikai varianta izvietošanā 2. Lasa virknes matricas ierakstu nes, nevis atklājumu rindu dzimtās tipi."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "An embedding model, a deprecated model and a model that denies system messages are never routed to"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "An empty `ADAPTER_UPSTREAM_KEY` sends no header at all."
@@ -41541,9 +41543,11 @@ msgstr "Viena lietotāja piekļuve marķierierīcei un dalība telpā; nav starp
 msgid "Per-user or room-scoped service identity; no unrestricted archive, send, invite, kick, ban, role, or server administration action"
 msgstr "Katra lietotāja vai telpā ar darbības jomu pakalpojumu identitāte; nav neierobežots arhīvs, sūtīt, uzaicināt, kick, aizliegums, loma, vai servera administrācijas darbību"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Per-user token for timeline data; no posting, messaging, contact, moderation, or account mutation"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-user token is required for private feeds, rooms, messages, or mail; a shared service account never merges users' private data"
@@ -42055,9 +42059,11 @@ msgstr "Playwright-spec neveiksmes ir ALWAYS reproducējams dzīvot kaudze: jums
 msgid "Please do not open a public issue or pull request for a security problem."
 msgstr "Lūdzu, neatveriet publisku jautājumu vai nepieprasiet drošības problēmu."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pluggable model backends via OpenAI-compatible API or direct Ollama"

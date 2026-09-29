@@ -139,10 +139,12 @@ msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr "Naršymo pagrindu besisukančio rato programėlė sprendimų priėmimui, atsitiktiniam pasirinkimui ir žaidimui"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -293,10 +295,12 @@ msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
@@ -528,10 +532,12 @@ msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "Darbastalio biuro rinkinys dokumentams, skaičiuoklėms ir pristatymams su išsivadavimo fontais ir kalbų paketais"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-zoom:description"
@@ -736,10 +742,12 @@ msgctxt "role:sys-front-inj-css:description"
 msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
 msgstr "Pasaulinis stilių įpurškimas į NGINX aptarnaujamas programas, suvienijantis šviesą ir tamsius teminius dalykus iš dinaminio spalvinio modelio"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
@@ -956,9 +964,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Low- code vaizdo statybininkas sukurti, išbandyti, ir leidybos LLM ir RPG darbų srautus kaip HTTP tikslai"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "Mašinos vertimo variklis be interneto paviršiaus, vamzdynų, kurie jį vadina tiesiogiai"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
@@ -1070,10 +1079,12 @@ msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
 msgstr "Nginx pagrįstas privatumo proxy, kuris atspindi whiteelpoint trijų šalių turtą pagal pirmos partijos domeno"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-npm:description"
@@ -1285,10 +1296,12 @@ msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
 msgstr "Prašome laikyti šį puslapį atidaryti, kol tai bus padaryta."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
@@ -1350,9 +1363,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Viešas REST API tarnauja vaidmuo duomenų, istorija ir vertimai Infinito.Nexus kiekvienai šerdies ir jos šakutės nuomai"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Viešas vokas, kuris atskleidžia System One sprendimas API iš svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1564,10 +1578,12 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Savarankiškai patalpinta WebRTC platforma, skirta galiniam šifravimui vaizdo konferencijoms su federacijos autentiškumo patvirtinimu"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
@@ -1670,10 +1686,12 @@ msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr "Savarankiškai patalpinta atvirojo kodo mašininio vertimo API teksto vertimui ir aptikimui kalbomis"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
@@ -1695,10 +1713,12 @@ msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
 msgstr "Savarankiškai veikianti projektų valdymo, darbo paketų sekimo, Gantt planavimo ir komandinio bendradarbiavimo platforma"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
@@ -1950,10 +1970,12 @@ msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "GNOME darbastalio terminalų emuliatorius, suteikiantis prieigą prie Arch Linux darbo vietų"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:test-e2e-cli:description"

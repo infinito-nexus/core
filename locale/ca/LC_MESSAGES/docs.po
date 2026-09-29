@@ -20635,9 +20635,11 @@ msgstr "Servidor de sortida centralitzada que neteja les galetes i sessions a tr
 msgid "Centralized logout redirection for a unified user experience."
 msgstr "S' ha redireccionat per sortida per a una experiència d' usuari unificat."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Centralized more CI helper logic into reusable scripts and utility modules to reduce workflow duplication"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Centralizes container execution logic"
@@ -22670,9 +22672,11 @@ msgstr "Configura `inet_interfaces = loopback-only` per a restringir el dimoni S
 msgid "Configures a systemd service (and optionally a timer) to execute the restart script."
 msgstr "Configura un servei per sistemaName (i opcionalment un temporitzador) per executar l' script de reinici."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Configures a systemd service to run the balancing script."
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Configures a systemd service to run the cleanup script, with notifications via [sys-ctl-alm-compose](../sys-ctl-alm-compose/README.md)."
@@ -28657,9 +28661,11 @@ msgstr "Servidor d'escacs Federats per jugar i seguir jocs validats de regles so
 msgid "Federated social and messaging"
 msgstr "social i missatgeria Federed"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
@@ -83371,9 +83377,11 @@ msgstr "un identificador de missatge de catàleg, singular o en plural tuple."
 msgid "a connection lookup mirroring `database`: `lookup('<engine>', consumer_id, want)` returning host/port/user/password/url/db for the consumer."
 msgstr "una rèplica de la connexió `database`: `lookup('<engine>', consumer_id, want)` Tornar host/port/user/password/url/db pel consumidor."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "a connector plugin such as AI Engine exposes a custom OpenAI-compatible endpoint"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a consumer of a database is still running, a dump has     no credentials row, or its engine is unknown to the repository."

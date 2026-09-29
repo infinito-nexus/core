@@ -1046,9 +1046,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "بناة بصرية منخفضة الشفرة لخلق واختبار ونشر تدفقات عمل حركة تحرير تاميل إيلام والجيش الجمهوري الرواندي كنقطة نهاية لبرنامج HTTP"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "محرك ترجمة ماكين بدون سطح على شبكة الإنترنت لخطوط الأنابيب التي تسميها مباشرة"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
@@ -1468,9 +1469,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API serving role data, history and translations of Infinito.Nexus لكل رائحه من النواة وشوكه"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "الشبح العام الذي يفضح System One قرار API of of svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"

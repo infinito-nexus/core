@@ -983,9 +983,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "LLM 및 RAG 워크플로우를 HTTP 엔드포인트로 제작, 테스트 및 출판하는 저코드 시각 빌더"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "웹 표면없이 기계 번역 엔진, 직접 전화하는 파이프라인"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
@@ -1384,6 +1385,9 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API 서빙 역할 데이터, 역사 및 번역 Infinito.Nexus 핵심과 그것의 포크의 각 ref를 위해"
 
+# translation-refused: libretranslate protected-span lost=[] gained=['*']
+# nocheck: url
+# translation-rejected: 공개 vhost 그 노출 System One 관련 기사 API 이름 * svc-ai-s1
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""

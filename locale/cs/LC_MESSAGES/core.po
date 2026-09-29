@@ -34,10 +34,12 @@ msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr "AI nástroje a rámce pro běh, řízení a experimentování s modely."
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
@@ -474,10 +476,12 @@ msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
 msgstr "Dedikovaný administrátorský účet s přístupem ke klíči SSH a ověřeným heslem sudo pro zvýšení bezpečnosti práv"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
@@ -854,10 +858,12 @@ msgctxt "role:web-app-mig:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
 msgstr "Interaktivní vizualizace všech grafů Infinito.Nexus role a jejich závislost na transparentnosti architektury"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
@@ -949,9 +955,10 @@ msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Low- code vizuální stavitel pro tvorbu, testování a publikování LLM a RAG pracovních toků jako HTTP koncové body"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "Strojní překladač bez webového povrchu, pro potrubí, které jej nazývají přímo"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
@@ -1003,20 +1010,24 @@ msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "NGINX vrstva pro HTTPS s Zašifrovat ACME výzvu manipulaci, port 80 do 443 přesměrovat, a zatuchlý vHost úklid"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "NGINX subfilter injector additing Matomo analytics script and noscript image tracker to service HTML pages"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-prx-openresty:description"
@@ -1283,10 +1294,12 @@ msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr "Záložní systém Plug- spuštěný pro deduplikované snímky místního záložního stromu na swapplifikovatelné USB zařízení"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-lid-switch:description"
@@ -1343,9 +1356,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API sloužící rolí data, historie a překlady Infinito.Nexus pro každý ref jádra a jeho vidliček"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Veřejný hostitel, který odhaluje System One rozhodnutí API z svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1557,10 +1571,12 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Self- hostovaná platforma WebRTC pro end- to- end- šifrovatelné video konference s federativní autentizace"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
@@ -1632,15 +1648,19 @@ msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr "Self- hostovaný modelový server pro spuštění open LLM lokálně za jednoduchým HTTP API"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "Name"
+msgstr ""
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-erpnext:description"
@@ -2078,10 +2098,12 @@ msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr "Web- based LDAP administration interface pro správu uživatelských, skupinových a adresářových objektů"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
@@ -2123,10 +2145,12 @@ msgctxt "logout:st_failed"
 msgid "failed"
 msgstr "selhalo"
 
-# translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr "Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_unconfirmed"
