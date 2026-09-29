@@ -2,6 +2,7 @@
 x-ci-defaults: &ci_defaults
   dns:
     - ${INFINITO_DNS_IP}
+    - ${INFINITO_DOCKER_EMBEDDED_DNS_IP}
   dns_opt:
     - ndots:1
 

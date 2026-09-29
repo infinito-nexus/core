@@ -18,7 +18,6 @@ from . import (
 from .infinito import (
     container,
     distros,
-    docker_volume,
     domain,
     git_identity,
     gpu_count,
@@ -44,6 +43,8 @@ from .infinito.cache import upstreams as cache_upstreams
 from .infinito.dir import backups as dir_backups
 from .infinito.dir import secrets as dir_secrets
 from .infinito.dir import var_lib as dir_var_lib
+from .infinito.docker import embedded_dns as docker_embedded_dns
+from .infinito.docker import volume as docker_volume
 from .infinito.fork import account as fork_account
 from .infinito.fork import repository_url as fork_repository_url
 from .infinito.i18n import tuning as i18n_tuning
@@ -100,6 +101,7 @@ ORDERED_HANDLERS = [
     inventory,
     gha_passthrough,
     pull_policy,
+    docker_embedded_dns,
     docker_volume,
     github_repository_owner,
     image_repository,
