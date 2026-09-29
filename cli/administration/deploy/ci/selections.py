@@ -95,6 +95,34 @@ def collapse_to_roles(tokens: Iterable[str]) -> list[str]:
     return sorted({selection.parse(token).app for token in tokens})
 
 
+def collapse_failures(tokens: Iterable[str], hard: Iterable[str]) -> list[str]:
+    """Role ids for what really failed, exact selections for the rest.
+
+    A hard failure is evidence against the role, so the whole role comes back
+    and the rotation picks its axes. A cancelled or still-running job is
+    evidence against nothing: it never reached a verdict, and the only thing
+    known about it is the combination it had been given. Collapsing that to a
+    role name would spend the priority budget re-deploying combinations the
+    run already proved green, and would drop the one it never got to.
+
+    A role with a hard failure absorbs its own unfinished rows: the collapsed
+    name already covers every variant of it.
+
+    Args:
+        tokens: every selection to bring back, as :func:`failed_selections`
+            returns them without ``strict``.
+        hard: the subset that failed outright, the same call with ``strict``.
+
+    Returns:
+        sorted, deduplicated role ids and selection tokens.
+    """
+    roles = set(collapse_to_roles(hard))
+    pinned = {
+        token for token in tokens if selection.parse(token).app not in roles
+    }
+    return sorted(roles | pinned)
+
+
 def _variants(entry: Mapping[str, Any]) -> tuple[int, ...]:
     """The variant shards one matrix row covers."""
     return tuple(int(part) for part in str(entry.get("variant", "")).split(",") if part)

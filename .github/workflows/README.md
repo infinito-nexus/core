@@ -295,6 +295,12 @@ the other entry points take the defaults. A retrigger carries the source run's
 --chunk-gate false` overrides it; the `i8ciallon` alias is `i8ciall` with that
 override, for sweeps that should report every chunk before anyone looks.
 
+`i8civar` is `i8ciallon` without `--strict`. A role that failed outright still
+comes back by name, so the rotation re-picks its axes; a job that never reached
+a verdict comes back as the exact `role#variant@mode+tor` it was given, instead
+of waiting for the regular line to reach it. Use it to finish a run that was
+cancelled with most of its matrix still pending.
+
 ## Cancellation
 
 ```mermaid

@@ -165,13 +165,15 @@ def main(argv: list[str] | None = None) -> int:
         "--roles-only",
         action="store_true",
         help=(
-            "With --failed: put the failed roles on the priority line by name, "
-            "letting the rotation assign the axes, instead of replaying the "
-            "exact combination each job failed in. Useful when so much is red "
-            "that covering the role matters more than reproducing the row. "
-            "Priority entries the source run never deployed keep their pins "
-            "either way -- that run holds no evidence against the axes they "
-            "named."
+            "With --failed: put the roles that failed outright on the priority "
+            "line by name, letting the rotation assign the axes, instead of "
+            "replaying the exact combination each job failed in. Useful when "
+            "so much is red that covering the role matters more than "
+            "reproducing the row. Only a hard failure collapses: without "
+            "--strict a cancelled or still-running job comes back as the exact "
+            "combination it never finished, and a priority entry the source "
+            "run never deployed keeps its pins either way -- that run holds no "
+            "evidence against the axes they named."
         ),
     )
     p.add_argument(
@@ -270,7 +272,9 @@ def main(argv: list[str] | None = None) -> int:
         statuses = runs.parse_role_statuses(source["jobs"])
         failed = selections.failed_selections(source["jobs"], strict=args.strict)
         if args.roles_only:
-            failed = selections.collapse_to_roles(failed)
+            failed = selections.collapse_failures(
+                failed, selections.failed_selections(source["jobs"], strict=True)
+            )
         untriggered = runs.untriggered_priority(
             runs.dispatched_priority(source, repo), statuses
         )
