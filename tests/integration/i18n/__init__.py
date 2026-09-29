@@ -40,6 +40,8 @@ from pathlib import Path
 
 from tests.utils.services import progress as _progress
 from utils.i18n.catalog import MACHINE_TRANSLATION, catalog_path, read_catalog
+from utils.i18n.damage import COLLAPSE_FLOOR as MIN_SOURCE_CHARS
+from utils.i18n.damage import MAX_SHARING_SOURCES as MAX_SHARING_SOURCES
 from utils.i18n.languages import DOMAINS, load_languages, translatable
 from utils.i18n.spans import prose
 from utils.i18n.untranslatable import untranslatable
@@ -48,8 +50,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SUITE = "catalog-scan"
 CACHE_FILE = PROJECT_ROOT / "build" / "catalog-scan-cache.json"
 RULES_VERSION = 5
-MIN_SOURCE_CHARS = 40
-MAX_SHARING_SOURCES = 2
 EXAMPLES_PER_TRANSLATION = 3
 MEMINFO = Path("/proc/meminfo")
 BYTES_PER_WORKER = 512 * 1024**2

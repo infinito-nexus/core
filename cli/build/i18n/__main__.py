@@ -12,12 +12,14 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import os
 import sys
 import tempfile
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from contextlib import contextmanager
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
@@ -48,6 +50,7 @@ from utils.i18n.translate import (
     apply,
     damaged,
     discard,
+    over_shared,
     pending,
     retry,
     taken_translations,
@@ -110,13 +113,18 @@ def prune(domains: list[str], requested: list[str]) -> int:
             if not path.is_file():
                 continue
             catalog = read_catalog(path)
+            shared = over_shared(catalog)
+            discard(shared)
             broken = damaged(catalog)
-            if not broken:
-                continue
             discard(broken)
+            if not shared and not broken:
+                continue
             write_catalog(path, catalog)
-            cleared += len(broken)
-            print(f"{domain}/{code}: {len(broken)} damaged translations cleared")
+            cleared += len(shared) + len(broken)
+            print(
+                f"{domain}/{code}: {len(broken)} damaged and {len(shared)} "
+                "collapsed translations cleared"
+            )
         print(f"{domain}: {cleared} translations cleared")
     return 0
 
@@ -149,6 +157,31 @@ def usable_cpus() -> int:
         return os.cpu_count() or 1
 
 
+@contextmanager
+def exclusive(domain: str, code: str):
+    """Hold the one lock that admits a writer to a catalog.
+
+    ``one_catalog`` reads the catalog once, keeps the translations it has
+    already spent in memory, and writes the whole file back after every chunk.
+    Two runs over the same catalog therefore each hold a private view of what
+    is taken and overwrite each other's entries, which is how distinct sources
+    end up sharing one translation with every per-entry predicate passing.
+
+    Args:
+        domain: catalog domain.
+        code: ISO 639-1 code of the catalog.
+    """
+    lock = PROJECT_ROOT / "build" / "i18n" / f"{domain}-{code}.lock"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    with lock.open("w") as handle:
+        try:
+            fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            print(f"{domain}/{code}: another run holds it, waiting", flush=True)
+            fcntl.flock(handle, fcntl.LOCK_EX)
+        yield
+
+
 def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
     """Translate every pending entry of one catalog and write it back.
 
@@ -158,24 +191,25 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
         code: ISO 639-1 code of the catalog.
     """
     path = catalog_path(PROJECT_ROOT, code, domain)
-    catalog = read_catalog(path)
-    todo = pending(catalog)
-    taken = taken_translations(catalog)
-    discarded = refused = damaged = 0
-    criteria: Counter[str] = Counter()
-    refusal = ""
-    for start in range(0, len(todo), CHUNK_SIZE):
-        chunk = todo[start : start + CHUNK_SIZE]
-        outcome = client.translate([m.id for m in chunk], code)
-        criteria.update(
-            value.reason for value in outcome.values if isinstance(value, Rejected)
-        )
-        discarded += apply(chunk, outcome.values, taken, criteria)
-        refused += outcome.refused
-        damaged += outcome.damaged
-        refusal = outcome.refusal or refusal
-        write_catalog(path, catalog)
-        print(f"{domain}/{code}: {start + len(chunk)}/{len(todo)}", flush=True)
+    with exclusive(domain, code):
+        catalog = read_catalog(path)
+        todo = pending(catalog)
+        taken = taken_translations(catalog)
+        discarded = refused = damaged = 0
+        criteria: Counter[str] = Counter()
+        refusal = ""
+        for start in range(0, len(todo), CHUNK_SIZE):
+            chunk = todo[start : start + CHUNK_SIZE]
+            outcome = client.translate([m.id for m in chunk], code)
+            criteria.update(
+                value.reason for value in outcome.values if isinstance(value, Rejected)
+            )
+            discarded += apply(chunk, outcome.values, taken, criteria)
+            refused += outcome.refused
+            damaged += outcome.damaged
+            refusal = outcome.refusal or refusal
+            write_catalog(path, catalog)
+            print(f"{domain}/{code}: {start + len(chunk)}/{len(todo)}", flush=True)
     tail = f", last refusal {refusal}" if refused else ""
     broke = ", ".join(f"{count} {name}" for name, count in criteria.most_common())
     print(

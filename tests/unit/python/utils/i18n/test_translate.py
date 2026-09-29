@@ -24,6 +24,7 @@ from utils.i18n.translate import (
     URL_SUPPRESSION,
     apply,
     damaged,
+    over_shared,
     pending,
     retry,
     taken_translations,
@@ -368,6 +369,56 @@ class TestDuplicateTranslation(unittest.TestCase):
         catalog.add(self.SHORT_A, "Kurz")
 
         self.assertEqual(taken_translations(catalog), {"Schon vergeben"})
+
+
+class TestOverSharedTranslation(unittest.TestCase):
+    LONG_A = "Central identity provider issuing tokens for every service"
+    LONG_B = "Issue and project tracking platform for software teams today"
+    LONG_C = "Reverse proxy routing and balancing traffic to the backends"
+    SHORT_A = "Save the file"
+    SHORT_B = "Open the file"
+    SHORT_C = "Close the file"
+    SHARED = "Beschreibung eines Dienstes"
+
+    def _catalog(self, sources: list, translation: str, *, machine: bool = True):
+        catalog = Catalog(locale="de")
+        for source in sources:
+            catalog.add(source, translation)
+        for message in catalog:
+            if message.id and machine:
+                message.user_comments = [MACHINE_TRANSLATION]
+        return catalog
+
+    def _ids(self, catalog) -> list:
+        return sorted(str(message.id) for message in over_shared(catalog))
+
+    def test_every_sharer_beyond_the_limit_is_returned(self) -> None:
+        catalog = self._catalog(
+            [self.LONG_A, self.LONG_B, self.LONG_C], self.SHARED
+        )
+
+        self.assertEqual(
+            self._ids(catalog), sorted([self.LONG_A, self.LONG_B, self.LONG_C])
+        )
+
+    def test_two_sharers_stay(self) -> None:
+        catalog = self._catalog([self.LONG_A, self.LONG_B], self.SHARED)
+
+        self.assertEqual(over_shared(catalog), [])
+
+    def test_short_sources_may_share_one(self) -> None:
+        catalog = self._catalog(
+            [self.SHORT_A, self.SHORT_B, self.SHORT_C], "Datei"
+        )
+
+        self.assertEqual(over_shared(catalog), [])
+
+    def test_a_hand_translation_is_left_alone(self) -> None:
+        catalog = self._catalog(
+            [self.LONG_A, self.LONG_B, self.LONG_C], self.SHARED, machine=False
+        )
+
+        self.assertEqual(over_shared(catalog), [])
 
 
 if __name__ == "__main__":

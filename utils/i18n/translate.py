@@ -13,6 +13,7 @@ from utils.i18n.catalog import (
 )
 from utils.i18n.placeholders import (
     COLLAPSE_FLOOR,
+    MAX_SHARING_SOURCES,
     Rejected,
     harms,
     protected_spans,
@@ -122,6 +123,37 @@ def damaged(catalog: Catalog) -> list[Message]:
         and message.id
         and message.string
         and harms(message.id, str(message.string), language)
+    ]
+
+
+def over_shared(catalog: Catalog) -> list[Message]:
+    """Return the entries too many distinct sources translate the same way.
+
+    :func:`damaged` reads one entry at a time and cannot see this: each entry
+    is individually sound, and what is gone is the distinction between them.
+    :func:`apply` turns a repeat down through ``taken``, so a catalog reaches
+    this state only when two runs translated it at once, each holding its own
+    view of what was already spent. Every sharer is cleared rather than all
+    but one: the run that produced them gave no reason to believe any one of
+    them belongs to the source it landed on.
+
+    Args:
+        catalog: a language catalog.
+    """
+    sharers: dict[str, list[Message]] = {}
+    for message in catalog:
+        if not message.id or not message.string:
+            continue
+        if MACHINE_TRANSLATION not in (message.user_comments or []):
+            continue
+        if not _own_translation_due(str(message.id)):
+            continue
+        sharers.setdefault(str(message.string), []).append(message)
+    return [
+        message
+        for shared in sharers.values()
+        if len(shared) > MAX_SHARING_SOURCES
+        for message in shared
     ]
 
 

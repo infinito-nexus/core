@@ -17,6 +17,7 @@ from utils.i18n.damage import ECHO_FLOOR as ECHO_FLOOR
 from utils.i18n.damage import LATIN_FLOOR as LATIN_FLOOR
 from utils.i18n.damage import LATIN_SHARE as LATIN_SHARE
 from utils.i18n.damage import MARKUP as MARKUP
+from utils.i18n.damage import MAX_SHARING_SOURCES as MAX_SHARING_SOURCES
 from utils.i18n.damage import NON_LATIN_SCRIPTS as NON_LATIN_SCRIPTS
 from utils.i18n.damage import STRUCTURE as STRUCTURE
 from utils.i18n.damage import STUTTER as STUTTER
