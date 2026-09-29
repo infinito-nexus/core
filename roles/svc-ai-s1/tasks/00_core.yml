@@ -14,6 +14,12 @@
     fail_msg: "services.s1.flavor must be 'laya', 'torch' or 'onnx' (got '{{ S1_FLAVOR }}')"
     quiet: true
 
+- name: "📁 Create the node-local model directory of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ S1_MODELS_DIR }}"
+    state: directory
+    mode: "0755"
+
 - name: "🎮 Look for the GPU and the runtime that hands it to a container"
   ansible.builtin.stat:
     path: "{{ item }}"

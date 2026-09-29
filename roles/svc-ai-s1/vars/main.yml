@@ -16,6 +16,7 @@ S1_NVIDIA_RUNTIME: /usr/bin/nvidia-container-runtime
 S1_LAYA_DEVICE: "{{ 'cuda' if S1_GPU | bool else 'cpu' }}"
 
 S1_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+S1_MODELS_DIR: "{{ lookup('config', application_id, 'services.s1.models_dir') }}"
 S1_MODEL_ROOT: "{{ lookup('volume', application_id, 'models').target }}"
 S1_IMAGE_MODEL_ROOT: /opt/s1/image-models
 
