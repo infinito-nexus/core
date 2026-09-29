@@ -26,6 +26,9 @@ email:
   shared: "{{ 'web-app-mailu' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 bigbluebutton:
+  # TODO: make this role arm64-capable so the declaration below can go
+  architectures:
+    - amd64
   modes:
     compose:
       enabled: true
