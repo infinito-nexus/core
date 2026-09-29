@@ -11,13 +11,22 @@ from utils.i18n.catalog import (
     REJECTED_PREFIX,
     TRANSLATION_REFUSED,
 )
-from utils.i18n.placeholders import Rejected, harms, protected_spans
+from utils.i18n.placeholders import (
+    COLLAPSE_FLOOR,
+    Rejected,
+    harms,
+    protected_spans,
+)
+from utils.i18n.spans import prose
 
 if TYPE_CHECKING:
+    from collections import Counter
+
     from babel.messages.catalog import Catalog, Message
 
 REFUSAL_PREFIXES = (REFUSAL_PREFIX, REJECTED_PREFIX)
 URL_SUPPRESSION = "nocheck: url"
+DUPLICATE = "duplicate"
 
 
 def refusals(message: Message) -> list[str]:
@@ -193,13 +202,53 @@ def record(message: Message, rejected: Rejected | None) -> None:
     )
 
 
-def apply(messages: list[Message], results: list[str | Rejected | None]) -> int:
+def _own_translation_due(source: str) -> bool:
+    """Return whether ``source`` is long enough to deserve its own translation.
+
+    Short entries legitimately share one: several buttons are all ``Save``.
+    The floor is the one the collapse check reads, and inclusive as it is
+    there, so the writer turns down exactly what the release gate reports
+    rather than leaving it a source of exactly that length.
+
+    Args:
+        source: the source message.
+    """
+    return len(prose(source).strip()) >= COLLAPSE_FLOOR
+
+
+def taken_translations(catalog: Catalog) -> set[str]:
+    """Return the translations ``catalog`` already spends on a long source.
+
+    Args:
+        catalog: the catalog about to be translated into.
+    """
+    return {
+        str(message.string)
+        for message in catalog
+        if message.id and message.string and _own_translation_due(str(message.id))
+    }
+
+
+def apply(
+    messages: list[Message],
+    results: list[str | Rejected | None],
+    taken: set[str] | None = None,
+    criteria: Counter[str] | None = None,
+) -> int:
     """Store machine translations on ``messages``.
 
     Args:
         messages: entries returned by ``pending``.
         results: one entry per message: the translation, a ``Rejected``, or
             ``None`` where the server never answered.
+        criteria: tally the caller prints, which counts what the client
+            rejected. A duplicate is turned down here rather than there, so
+            without this the run reports the discard and no reason for it.
+        taken: translations this catalog already carries for a source long
+            enough to deserve its own. A repeat is turned down: what is wrong
+            with it is not its shape, which every predicate passes, but that
+            another entry already says it. Pass None to skip the check, which
+            is what a caller without the whole catalog must do.
 
     Returns:
         The number of discarded translations; their entries keep no ``msgstr``.
@@ -210,6 +259,14 @@ def apply(messages: list[Message], results: list[str | Rejected | None]) -> int:
             discarded += 1
             record(message, text)
             continue
+        if taken is not None and _own_translation_due(str(message.id)):
+            if text in taken:
+                discarded += 1
+                record(message, Rejected(text, DUPLICATE))
+                if criteria is not None:
+                    criteria[DUPLICATE] += 1
+                continue
+            taken.add(text)
         message.string = text
         message.flags.discard("fuzzy")
         clear(message)

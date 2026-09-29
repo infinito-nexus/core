@@ -20,7 +20,14 @@ from utils.i18n.catalog import (
 )
 from utils.i18n.libretranslate import LibreTranslate
 from utils.i18n.placeholders import Rejected
-from utils.i18n.translate import URL_SUPPRESSION, apply, damaged, pending, retry
+from utils.i18n.translate import (
+    URL_SUPPRESSION,
+    apply,
+    damaged,
+    pending,
+    retry,
+    taken_translations,
+)
 
 TOKEN = re.compile(r'<x id="\d+"></x>')
 
@@ -316,6 +323,51 @@ class TestDamagedMarkup(unittest.TestCase):
         )
 
         self.assertEqual(damaged(catalog), [])
+
+
+class TestDuplicateTranslation(unittest.TestCase):
+    LONG_A = "Central identity provider issuing tokens for every service"
+    LONG_B = "Issue and project tracking platform for software teams today"
+    SHORT_A = "Save the file"
+    SHORT_B = "Open the file"
+
+    def _messages(self, *sources: str) -> list:
+        catalog = Catalog(locale="de")
+        for source in sources:
+            catalog.add(source, "")
+        return [message for message in catalog if message.id]
+
+    def test_a_second_long_source_may_not_reuse_a_translation(self) -> None:
+        messages = self._messages(self.LONG_A, self.LONG_B)
+
+        discarded = apply(
+            messages,
+            ["Beschreibung eines Dienstes", "Beschreibung eines Dienstes"],
+            set(),
+        )
+
+        self.assertEqual(discarded, 1)
+        self.assertEqual(str(messages[1].string), "")
+
+    def test_short_sources_may_share_one(self) -> None:
+        messages = self._messages(self.SHORT_A, self.SHORT_B)
+
+        discarded = apply(messages, ["Speichern", "Speichern"], set())
+
+        self.assertEqual(discarded, 0)
+        self.assertEqual(str(messages[1].string), "Speichern")
+
+    def test_without_the_set_the_check_is_skipped(self) -> None:
+        messages = self._messages(self.LONG_A, self.LONG_B)
+
+        self.assertEqual(apply(messages, ["Gleich", "Gleich"], None), 0)
+
+    def test_what_the_catalog_already_spends_is_seeded(self) -> None:
+        catalog = Catalog(locale="de")
+        catalog.add(self.LONG_A, "Schon vergeben")
+        catalog.add(self.SHORT_A, "Kurz")
+
+        self.assertEqual(taken_translations(catalog), {"Schon vergeben"})
 
 
 if __name__ == "__main__":

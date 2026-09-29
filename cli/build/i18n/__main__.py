@@ -44,7 +44,14 @@ from utils.i18n.libretranslate import (
     server,
 )
 from utils.i18n.placeholders import Rejected
-from utils.i18n.translate import apply, damaged, discard, pending, retry
+from utils.i18n.translate import (
+    apply,
+    damaged,
+    discard,
+    pending,
+    retry,
+    taken_translations,
+)
 
 CHUNK_SIZE = 500
 SPHINX_JOBS_FLOOR = 2
@@ -153,6 +160,7 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
     path = catalog_path(PROJECT_ROOT, code, domain)
     catalog = read_catalog(path)
     todo = pending(catalog)
+    taken = taken_translations(catalog)
     discarded = refused = damaged = 0
     criteria: Counter[str] = Counter()
     refusal = ""
@@ -162,7 +170,7 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
         criteria.update(
             value.reason for value in outcome.values if isinstance(value, Rejected)
         )
-        discarded += apply(chunk, outcome.values)
+        discarded += apply(chunk, outcome.values, taken, criteria)
         refused += outcome.refused
         damaged += outcome.damaged
         refusal = outcome.refusal or refusal
