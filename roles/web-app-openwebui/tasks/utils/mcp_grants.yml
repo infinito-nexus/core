@@ -38,11 +38,12 @@
     tasks_from: write.yml
   vars:
     sys_token_store_user_key: "{{ OPENWEBUI_MCP_GROUP_OWNER }}"
-    sys_token_store_app: "{{ item.key }}"
-    sys_token_store_token: "{{ item.value }}"
+    sys_token_store_app: "{{ grant_group.key }}"
+    sys_token_store_token: "{{ grant_group.value }}"
   loop: "{{ (openwebui_mcp_grants.stdout_lines | last | from_json) | dict2items }}"
   loop_control:
-    label: "{{ item.key }}"
+    loop_var: grant_group
+    label: "{{ grant_group.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "♻️ Re-render the env now that the group ids are known"
