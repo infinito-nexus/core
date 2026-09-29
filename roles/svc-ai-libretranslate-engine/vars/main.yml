@@ -10,6 +10,8 @@ LIBRETRANSLATE_ENGINE_VERSION: "{{ lookup('config', application_id, 'services.li
   '') }}"
 LIBRETRANSLATE_ENGINE_LOAD_ONLY: "{{ lookup('config', application_id, 'services.libretranslate-engine.load_only') | join(',') }}"
 LIBRETRANSLATE_ENGINE_DIRECTIONS: "{{ lookup('config', application_id, 'services.libretranslate-engine.directions') }}"
+LIBRETRANSLATE_ENGINE_PREFETCH_TIMEOUT: "{{ lookup('config', application_id, 'services.libretranslate-engine.prefetch_timeout_seconds') }}"
+LIBRETRANSLATE_ENGINE_PREFETCH_RETRIES: "{{ lookup('config', application_id, 'services.libretranslate-engine.prefetch_retries') }}"
 LIBRETRANSLATE_ENGINE_APP_USER: "{{ 'root' if LIBRETRANSLATE_ENGINE_GPU | bool else 'libretranslate' }}"
 LIBRETRANSLATE_ENGINE_LOADING_MODEL: "{{ lookup('config', application_id, 'services.libretranslate-engine.loading_model') }}"
 LIBRETRANSLATE_ENGINE_CA_BUNDLE: "{{ CA_BUNDLE_CANDIDATES | first }}"

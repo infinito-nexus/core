@@ -8,7 +8,12 @@
       ./venv/bin/python scripts/prefetch_models.py
       --directions {{ LIBRETRANSLATE_ENGINE_DIRECTIONS }}
       {{ ("--load_only_lang_codes " ~ LIBRETRANSLATE_ENGINE_LOAD_ONLY) if LIBRETRANSLATE_ENGINE_LOAD_ONLY else "" }}'
+  environment:
+    CONTAINER_EXEC_TIMEOUT: "{{ LIBRETRANSLATE_ENGINE_PREFETCH_TIMEOUT }}"
   register: libretranslate_engine_install
+  retries: "{{ LIBRETRANSLATE_ENGINE_PREFETCH_RETRIES | int }}"
+  delay: 15
+  until: libretranslate_engine_install.rc == 0
   changed_when: "'Installed' in libretranslate_engine_install.stdout"
 
 - name: "🔄 Restart {{ application_id }} so it loads what was installed"
