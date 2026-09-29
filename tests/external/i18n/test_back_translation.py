@@ -9,6 +9,14 @@ without a human.
 Back-translation is lossy on its own, so the floor is deliberately low. The
 check is aimed at a translation sharing almost no content with its source,
 not at nuance a round trip would lose anyway.
+
+A sample whose back-translation comes back byte-identical to what was sent is
+dropped rather than scored. LibreTranslate answers 200 with the request body
+when it has no model for a pair, and the only filter this check can apply
+beforehand is ``targets()``, which proves the engine renders *into* a
+language, not that it reads *out of* it. Scoring that echo compares an English
+source against the untranslated target text, which shares no word with it and
+reports 0.00 for a translation nothing is wrong with.
 """
 
 from __future__ import annotations
@@ -70,6 +78,7 @@ class TestBackTranslation(unittest.TestCase):
         available = client.targets()
         languages = load_languages(PROJECT_ROOT)
         offenders: list[str] = []
+        echoed = 0
 
         for code in translatable(languages, DOMAIN):
             if client.server_code(code) not in available:
@@ -92,16 +101,22 @@ class TestBackTranslation(unittest.TestCase):
             sample = pairs[::stride][:SAMPLES_PER_LANGUAGE]
             _progress(SUITE, f"back-translating {len(sample)} samples of {code}")
             outcome = client.translate([t for _s, t in sample], PIVOT_LANGUAGE)
-            for (source, _translation), back in zip(
+            for (source, translation), back in zip(
                 sample, outcome.values, strict=False
             ):
                 if not isinstance(back, str) or not back:
+                    continue
+                if back == translation:
+                    echoed += 1
                     continue
                 score = overlap(source, back)
                 if score < MIN_OVERLAP:
                     offenders.append(
                         f"{code}: {score:.2f} {source[:50]!r} -> {back[:50]!r}"
                     )
+
+        if echoed:
+            _progress(SUITE, f"{echoed} sample(s) the engine could not carry back")
 
         if offenders:
             self.fail(
