@@ -36,12 +36,6 @@ def run_ansible_playbook(
     start_time = dt.datetime.now(tz=dt.UTC)
     print(f"\n▶️ Script started at: {start_time.isoformat()}\n", flush=True)
 
-    if modes.get("MODE_CLEANUP", False):
-        print("\n🧹 Cleaning up...\n", flush=True)
-        run_make(repo_root, "clean")
-    else:
-        print("\n🧹 Cleanup skipped (MODE_CLEANUP not set or False)\n", flush=True)
-
     if not skip_build:
         print("\n🛠️  Running project build (make setup)...\n", flush=True)
         run_make(repo_root, "setup")
