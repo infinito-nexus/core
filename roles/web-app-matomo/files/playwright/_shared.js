@@ -14,6 +14,7 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const matomoApiToken = decodeDotenvQuotedValue(process.env.MATOMO_API_TOKEN);
 const matomoTrackingScope = (process.env.MATOMO_TRACKING_SCOPE || "").trim().toLowerCase();
 
@@ -73,16 +74,8 @@ function hostOf(value) {
   }
 }
 
-// MUST mirror sys-front-inj-matomo matomo_site_domain in root scope: one shared site per registrable domain, not per subdomain
-function baseDomainOf(host) {
-  return String(host || "")
-    .toLowerCase()
-    .replace(/^(?:.*\.)?(.+\..+)$/, "$1");
-}
-
-// Tracking-site needle for a consumer host: full subdomain in 'sub' scope (one site per subdomain), registrable base in 'root' scope (one shared site)
 function siteNeedleFor(host) {
-  return matomoTrackingScope === "root" ? baseDomainOf(host) : hostOf(host);
+  return matomoTrackingScope === "root" ? domainPrimary : hostOf(host);
 }
 
 async function setupMatomoPage(page) {
@@ -133,7 +126,6 @@ module.exports = {
   matomoTargetRoles,
   attachDiagnostics,
   hostOf,
-  baseDomainOf,
   siteNeedleFor,
   setupMatomoPage,
   loginAsAdmin,
