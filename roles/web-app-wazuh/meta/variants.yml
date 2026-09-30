@@ -23,8 +23,6 @@
     css:
       enabled: true
       shared: true
-    tor:
-      enabled: true
 
 - services:
     container_backup:
@@ -51,5 +49,3 @@
     css:
       enabled: false
       shared: false
-    tor:
-      enabled: true
