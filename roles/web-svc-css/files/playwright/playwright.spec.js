@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvQuotedValue } = require("./personas");
+const { assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvJsonList, decodeDotenvQuotedValue } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -19,15 +19,10 @@ const cssAssetHosts = [cdnBaseUrl, cssBaseUrl]
   })
   .filter(Boolean);
 
-const cssTargetRoles = (() => {
-  const raw = process.env.CSS_TARGET_ROLES_JSON || "[]";
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
+const cssTargetRoles = decodeDotenvJsonList(
+  process.env.CSS_TARGET_ROLES_JSON,
+  "CSS_TARGET_ROLES_JSON"
+);
 
 test.beforeEach(() => {
   expect(

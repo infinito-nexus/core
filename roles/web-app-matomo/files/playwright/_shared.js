@@ -5,7 +5,7 @@
 
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, gotoOnion, installCspViolationObserver, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvJsonList, decodeDotenvQuotedValue, gotoOnion, installCspViolationObserver, normalizeBaseUrl } = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -28,15 +28,10 @@ const matomoCanonicalDomain = (() => {
 // Emitted at deploy time by templates/playwright.env.j2 via the
 // roles_with_service('matomo') Ansible filter: one entry per role declared as a
 // matomo consumer in its meta/services.yml.
-const matomoTargetRoles = (() => {
-  const raw = process.env.MATOMO_TARGET_ROLES_JSON || "[]";
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
+const matomoTargetRoles = decodeDotenvJsonList(
+  process.env.MATOMO_TARGET_ROLES_JSON,
+  "MATOMO_TARGET_ROLES_JSON"
+);
 
 function attachDiagnostics(page) {
   const consoleErrors = [];

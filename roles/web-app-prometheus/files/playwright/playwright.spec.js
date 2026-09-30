@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { apiGetOnion, decodeDotenvJsonList, decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -210,15 +210,10 @@ test("prometheus: biber is denied access after sso login", async ({ browser }) =
 // roles' personas no longer drive the prometheus surface.
 // -----------------------------------------------------------------------------
 
-const prometheusTargetRoles = (() => {
-  const raw = process.env.PROMETHEUS_TARGET_ROLES_JSON || "[]";
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
+const prometheusTargetRoles = decodeDotenvJsonList(
+  process.env.PROMETHEUS_TARGET_ROLES_JSON,
+  "PROMETHEUS_TARGET_ROLES_JSON"
+);
 
 test("prometheus scrape: every consumer role reports up=1", async ({ page }) => {
   test.skip(prometheusTargetRoles.length === 0, "no prometheus consumer roles in inventory");

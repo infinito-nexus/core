@@ -109,6 +109,20 @@ module.exports = [
       // a hand-migration pass; promote to "error" as those are reviewed.
       "playwright/prefer-web-first-assertions": "off",
       "playwright/no-wait-for-navigation": "error",
+      // A catch returning a fallback reads downstream as a legitimate value:
+      // `JSON.parse` on a dotenv-quoted list yields a string, the fallback
+      // made it `[]`, and every assertion over it passed vacuously. "warn"
+      // while the 26 pre-existing sites get their individual verdict, then
+      // "error" - the staging this file already uses above.
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector:
+            "CatchClause > BlockStatement:has(ReturnStatement):not(:has(ThrowStatement))",
+          message:
+            "This catch swallows the error and returns a fallback, which reads downstream as a legitimate value. Rethrow, assert, or add `// eslint-disable-next-line no-restricted-syntax` naming why swallowing is correct here.",
+        },
+      ],
     },
   },
 ];
