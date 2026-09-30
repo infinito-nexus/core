@@ -11,6 +11,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tarfile
 import threading
 
@@ -39,6 +40,7 @@ class Builder:
     def _failed(self, marker, state, exc):
         self._append_log(state, str(exc))
         self._save_state(marker, **{**state, "state": "failed"})
+        print(f"build {marker} failed: {exc}", file=sys.stderr, flush=True)
 
     def _run(self, version, state, command, env, cwd):
         with subprocess.Popen(

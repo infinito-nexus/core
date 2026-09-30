@@ -5,6 +5,9 @@ import sys
 import unittest
 from pathlib import Path
 
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+
 from . import PROJECT_ROOT
 
 _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
@@ -80,6 +83,45 @@ class TestProgress(unittest.TestCase):
                 "--roles-dir",
                 "/w/src/roles",
             ],
+        )
+
+
+class TestSnapshotCoversEveryGeneratorInput(unittest.TestCase):
+    """``/snapshot`` is a tar of ``DOCS_SNAPSHOT_PATHS``, so a generator
+    reaching for a path the list omits dies with FileNotFoundError.
+
+    That failure is invisible: ``_failed`` only writes a state file and
+    ``library.status`` omits the ``deployed`` version, so the suite polls a
+    dead build for its whole budget. Two missing entries cost three hours.
+    """
+
+    ROOT = Path("/w/src")
+    BUILT = "generated"
+
+    def snapshot_paths(self) -> set[str]:
+        role_vars = load_yaml(
+            str(PROJECT_ROOT / "roles" / "web-app-docs" / ROLE_FILE_VARS_MAIN)
+        )
+        return set(role_vars["DOCS_SNAPSHOT_PATHS"])
+
+    def test_every_generator_path_under_src_is_in_the_snapshot(self) -> None:
+        needed: set[str] = set()
+        for argv in builders.generate_commands(self.ROOT):
+            for argument in argv:
+                text = str(argument)
+                if not text.startswith(str(self.ROOT)):
+                    continue
+                parts = Path(text).relative_to(self.ROOT).parts
+                if parts and parts[0] != self.BUILT:
+                    needed.add(parts[0])
+
+        missing = sorted(needed - self.snapshot_paths())
+        self.assertEqual(
+            missing,
+            [],
+            "generate_commands() reaches for these repository paths but "
+            "DOCS_SNAPSHOT_PATHS does not ship them, so the deployed build "
+            f"dies before sphinx runs: {missing}",
         )
 
 

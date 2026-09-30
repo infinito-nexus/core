@@ -22,10 +22,12 @@ DOCS_SNAPSHOT_PATHS:
   - CODE_OF_CONDUCT.md
   - CONTRIBUTING.md
   - LICENSE.md
+  - Makefile
   - README.md
   - SECURITY.md
   - SUPPORT.md
   - TODO.md
+  - aliases
   - ansible.cfg
   - assets
   - cli
