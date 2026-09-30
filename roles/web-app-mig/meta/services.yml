@@ -26,6 +26,9 @@ redis:
   backup:
     disabled: true
 mig:
+  # TODO: publish infinito-mig for arm64 too, then drop this
+  architectures:
+    - amd64
   healthcheck:
     flavor: curl
   modes:
