@@ -152,6 +152,18 @@ class TestTruncated(unittest.TestCase):
 
         self.assertFalse(truncated(source, "B" * 180))
 
+    def test_a_logographic_target_may_render_it_in_a_third(self) -> None:
+        source = "A" * 200
+
+        for language in ("ja", "ko", "zh"):
+            with self.subTest(language=language):
+                self.assertFalse(truncated(source, "B" * 60, language))
+
+    def test_a_logographic_target_past_its_own_ratio_is_reported(self) -> None:
+        source = "A" * 200
+
+        self.assertTrue(truncated(source, "B" * 40, "zh"))
+
 
 class TestCollapsed(unittest.TestCase):
     SOURCE = "Central identity provider issuing tokens for every service"

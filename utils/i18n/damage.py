@@ -19,6 +19,8 @@ MARKUP = '[]`*{}()"'
 STRUCTURE = "[]{}`*()"
 TRUNCATION_FLOOR = 120
 TRUNCATION_RATIO = 0.5
+DENSE_TRUNCATION_RATIO = 0.25
+DENSE_SCRIPTS = frozenset({"ja", "ko", "zh"})
 COLLAPSE_FLOOR = 40
 COLLAPSE_RATIO = 0.15
 MAX_SHARING_SOURCES = 2
@@ -131,21 +133,26 @@ def stutters(source: str, translation: str) -> bool:
     )
 
 
-def truncated(source: str, translation: str) -> bool:
+def truncated(source: str, translation: str, language: str = "") -> bool:
     """Return whether ``translation`` kept too little of ``source`` to be one.
 
     The floor keeps a short entry out: ``Situation`` becomes ``Lage`` and loses
     half its characters while saying the same thing. A passage past it that
     comes back halved has dropped a clause.
 
+    A logographic target needs its own ratio: one character carries a whole
+    morpheme, so a complete rendering runs at a third of the source's length and
+    the flat ratio reads it as a dropped clause. Measured against the live
+    engine, 36 of 45 complete zh/ja/ko passages tripped it, 44 of those 45
+    ending in terminal punctuation; the shortest was 0.28.
+
     Args:
         source: the source message.
         translation: what came back for it.
+        language: ISO 639-1 code of the catalog, when the caller knows it.
     """
-    return (
-        len(source) > TRUNCATION_FLOOR
-        and len(translation) < len(source) * TRUNCATION_RATIO
-    )
+    ratio = DENSE_TRUNCATION_RATIO if language in DENSE_SCRIPTS else TRUNCATION_RATIO
+    return len(source) > TRUNCATION_FLOOR and len(translation) < len(source) * ratio
 
 
 def collapsed(source: str, translation: str) -> bool:
@@ -224,7 +231,7 @@ def reason(source: str, translation: str, language: str = "") -> str:
         return "stutter"
     if untranslated(translation, language):
         return "untranslated"
-    if truncated(source, translation):
+    if truncated(source, translation, language):
         return "truncated"
     if collapsed(source, translation):
         return "collapsed"
