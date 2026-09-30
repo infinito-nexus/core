@@ -75,7 +75,7 @@ def _scan_role(role_path: Path) -> tuple[bool, bool]:
 class TestMailuServiceDependency(unittest.TestCase):
     """Every role that references 'web-app-mailu' or calls lookup('email', ...)
     must declare services.email with enabled: true and shared: true
-    in its config/main.yml."""
+    in its meta/services.yml."""
 
     def setUp(self):
         self.roles_root = PROJECT_ROOT / "roles"
