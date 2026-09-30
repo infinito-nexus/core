@@ -9,3 +9,4 @@
     - ansible.builtin.include_tasks: 01_setup/orchestrate.yml
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
+  when: TEST_E2E_PLAYWRIGHT_APPS | length > 0
