@@ -91,8 +91,10 @@ class TestJsonEnvKeySuffix(unittest.TestCase):
             violations.extend(_scan_file(path))
         if violations:
             header = [
-                f"JSON-list env keys without the `{_REQUIRED_SUFFIX}` suffix "
-                f"({len(violations)}):",
+                (
+                    f"JSON-list env keys without the `{_REQUIRED_SUFFIX}` "
+                    f"suffix ({len(violations)}):"
+                ),
                 "",
                 "`scripts/lint/playwright.sh` stubs env values by name suffix and",
                 "gives `[]` only to `*_JSON|*JSON|*SLUGS|*OVERRIDE`. Any other key",
