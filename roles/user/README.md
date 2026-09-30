@@ -13,7 +13,7 @@ This role executes common tasks for user environment configuration.
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
 
-## Reserved usernames 🔒
+## Reserved usernames
 
 `meta/users.yml` lists the usernames that MUST NOT be registered in the identity
 directory. An entry is marked reserved by carrying `accounts: []`; consumers read
