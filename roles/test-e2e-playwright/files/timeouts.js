@@ -35,8 +35,14 @@ function onionTimeoutMultiplier() {
  * timeout reports which predicate it was waiting on. Without it the global
  * timeout fires first and Playwright counts the in-flight test, and every
  * test behind it, as "did not run" — naming nothing.
+ *
+ * The cap below is measured from the waiter's own start while the global
+ * timeout runs from the suite's, so this reserve must also absorb every test
+ * that ran before the waiter plus the post-failure trace and report write. At
+ * 60_000 a 86 s prefix already pushed the cap past the global timeout and the
+ * failure went unnamed.
  */
-const SUITE_RESERVE_MS = 60_000;
+const SUITE_RESERVE_MS = 180_000;
 
 function suiteBudgetMs() {
   const budget = Number(process.env.INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS);
@@ -57,6 +63,7 @@ function resolveTimeout(baseMs) {
 }
 
 module.exports = {
+  SUITE_RESERVE_MS,
   isOnionTarget,
   isSplitRealmOidc,
   timeoutFactor,

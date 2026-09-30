@@ -108,7 +108,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         the global timeout fired first and every remaining spec was reported
         "did not run" without naming the waiter."""
         out = self._run(
-            "t.resolveTimeout(2700000)",
+            "t.resolveTimeout(2700000) + ':' + t.SUITE_RESERVE_MS",
             {
                 "CANONICAL_DOMAIN": '"docs.abc123.onion"',
                 "PLAYWRIGHT_TIMEOUT_FACTOR": "1",
@@ -116,7 +116,8 @@ class TestTimeoutsHelper(unittest.TestCase):
                 "INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS": "5340000",  # nocheck: the playwright role passes this into the sidecar container, it is not a .env key
             },
         )
-        self.assertIn("RESULT:5280000", out)
+        capped, reserve = out.split("RESULT:")[1].strip().strip('"').split(":")
+        self.assertEqual(int(capped), 5340000 - int(reserve))
 
     def test_a_timeout_inside_the_budget_is_left_alone(self):
         out = self._run(

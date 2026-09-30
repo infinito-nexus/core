@@ -278,6 +278,13 @@
     _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
   when: (_playwright_run.rc | default(1)) != 0
 
+- name: 📝 Record a suite-budget timeout, which no retry can change
+  ansible.builtin.set_fact:
+    _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
+  when:
+    - (_playwright_run.rc | default(1)) != 0
+    - "'for the test suite to run' in (_playwright_run.stdout | default(''))"
+
 - name: 🗄️ Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-
     {{ role_path }}/files/archive_playwright_reports.sh
