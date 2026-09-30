@@ -13,6 +13,16 @@ This role executes common tasks for user environment configuration.
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
 
+## Reserved usernames 🔒
+
+`meta/users.yml` lists the usernames that MUST NOT be registered in the identity
+directory. An entry is marked reserved by carrying `accounts: []`; consumers read
+the set through the `reserved_usernames` filter.
+
+One further reservation per label of `DOMAIN_PRIMARY` is generated at runtime and
+keyed `domain_label_<n>`. A deployment on `label-a.tld.test` therefore reserves
+`label-a`, `tld` and `test`, at any domain depth.
+
 ## User data resolution
 
 User data is resolved via `lookup('users', user_key)` and referenced via `user_key`.
