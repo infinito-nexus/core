@@ -75,7 +75,7 @@ view:
   pids_limit: 256
 pds:
   image: ghcr.io/bluesky-social/pds
-  version: 0.4.0
+  version: 0.4.21
   min_storage: 290MB
   cpus: "1.0"
   mem_reservation: 1g
