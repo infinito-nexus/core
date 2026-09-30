@@ -1,11 +1,14 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const {
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const translatedRole = decodeDotenvQuotedValue(process.env.TRANSLATED_ROLE || "");
+const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const translatedRole = requireDotenvValue(process.env.TRANSLATED_ROLE, "TRANSLATED_ROLE");
 const SEMVER_TAG = /^v\d+\.\d+\.\d+$/;
 
 function apiUrl(path, params = {}) {

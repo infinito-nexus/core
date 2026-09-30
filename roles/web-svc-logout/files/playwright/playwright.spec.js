@@ -1,12 +1,20 @@
 const { test, expect } = require("@playwright/test");
 
-const { assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvJsonList, decodeDotenvQuotedValue, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const {
+  assertInjectedAssetLoadsWithoutCspBlock,
+  decodeDotenvJsonList,
+  decodeDotenvQuotedValue,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
-const cdnBaseUrl = decodeDotenvQuotedValue(process.env.CDN_BASE_URL || "");
+const cdnBaseUrl = requireDotenvValue(process.env.CDN_BASE_URL, "CDN_BASE_URL");
 
 const cdnAssetHosts = [cdnBaseUrl]
   .filter(Boolean)
@@ -53,7 +61,7 @@ for (const target of logoutTargetRoles) {
     const referenceHtml = await referenceResp.text();
     const landedHost = new URL(referenceResp.url()).host;
     if (landedHost !== new URL(url).host && !referenceHtml.includes("logout.js")) {
-      const idpHost = new URL(decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL || "")).host;
+      const idpHost = new URL(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL")).host;
       expect(
         landedHost,
         `${target.id}: anonymous GET ${url} landed on ${landedHost}, which is neither its own host nor the IdP ${idpHost} — that is a routing fault, not an SSO handoff`

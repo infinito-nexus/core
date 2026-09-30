@@ -1,11 +1,18 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+  requireDotenvValue,
+  runGuestFlow,
+} = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled      = isServiceEnabled("sso");
-const oidcIssuerUrl    = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const oidcIssuerUrl    = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const n8nBaseUrl       = normalizeBaseUrl(process.env.N8N_BASE_URL || "");
 const adminEmail       = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
 const adminUsername    = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);

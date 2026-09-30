@@ -1,9 +1,12 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const {
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const RELEASE_TAG = /^v\d+\.\d+\.\d+$/;
 
 async function fetchVersions(request) {

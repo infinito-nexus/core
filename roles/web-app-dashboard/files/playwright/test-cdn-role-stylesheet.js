@@ -1,8 +1,12 @@
 const { test, expect } = require("./fixtures/onion-test");
 
-const { normalizeBaseUrl, gotoOnion } = require("./personas");
+const {
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
-const cdnBaseUrl = normalizeBaseUrl(process.env.CDN_BASE_URL || "");
+const cdnBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.CDN_BASE_URL, "CDN_BASE_URL"));
 const roleCssPrefix = `${cdnBaseUrl.replace(/\/$/, "")}/roles/web-app-dashboard/latest/css`;
 
 exports.register = function (shared) {

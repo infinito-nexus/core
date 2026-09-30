@@ -5,10 +5,17 @@
 
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvJsonList, decodeDotenvQuotedValue, gotoOnion, installCspViolationObserver, normalizeBaseUrl } = require("./personas");
+const {
+  decodeDotenvJsonList,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  installCspViolationObserver,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);

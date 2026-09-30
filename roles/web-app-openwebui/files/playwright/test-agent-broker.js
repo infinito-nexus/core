@@ -1,12 +1,15 @@
 const { test, expect, request } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  requireDotenvValue,
+} = require("./personas");
 
-const kcBaseUrl = decodeDotenvQuotedValue(process.env.KEYCLOAK_BASE_URL || "").replace(/\/$/, "");
-const kcRealm = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM || "");
-const kcAdminUser = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_USERNAME || "");
-const kcAdminPw = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_PASSWORD || "");
+const kcBaseUrl = requireDotenvValue(process.env.KEYCLOAK_BASE_URL, "KEYCLOAK_BASE_URL").replace(/\/$/, "");
+const kcRealm = requireDotenvValue(process.env.KEYCLOAK_REALM, "KEYCLOAK_REALM");
+const kcAdminUser = requireDotenvValue(process.env.KEYCLOAK_ADMIN_USERNAME, "KEYCLOAK_ADMIN_USERNAME");
+const kcAdminPw = requireDotenvValue(process.env.KEYCLOAK_ADMIN_PASSWORD, "KEYCLOAK_ADMIN_PASSWORD");
 function agentGroups() {
   const raw = decodeDotenvQuotedValue(process.env.AGENT_GROUP_PATHS || "");
   expect(raw, "AGENT_GROUP_PATHS must be rendered while the broker is enabled").toBeTruthy();

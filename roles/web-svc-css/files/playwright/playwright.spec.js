@@ -1,12 +1,16 @@
 const { test, expect } = require("@playwright/test");
 
-const { assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvJsonList, decodeDotenvQuotedValue } = require("./personas");
+const {
+  assertInjectedAssetLoadsWithoutCspBlock,
+  decodeDotenvJsonList,
+  requireDotenvValue,
+} = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
 
-const cssBaseUrl = decodeDotenvQuotedValue(process.env.CSS_BASE_URL || "");
-const cdnBaseUrl = decodeDotenvQuotedValue(process.env.CDN_BASE_URL || "");
+const cssBaseUrl = requireDotenvValue(process.env.CSS_BASE_URL, "CSS_BASE_URL");
+const cdnBaseUrl = requireDotenvValue(process.env.CDN_BASE_URL, "CDN_BASE_URL");
 
 const cssAssetHosts = [cdnBaseUrl, cssBaseUrl]
   .filter(Boolean)

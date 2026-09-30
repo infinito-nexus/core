@@ -4,14 +4,15 @@ const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const {
   decodeDotenvQuotedValue,
-  normalizeBaseUrl,
   gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
 } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const aiGatewayBaseUrl = normalizeBaseUrl(process.env.AI_GATEWAY_BASE_URL || "");
+const aiGatewayBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.AI_GATEWAY_BASE_URL, "AI_GATEWAY_BASE_URL"));
 const superadminUsername = decodeDotenvQuotedValue(process.env.XWIKI_SUPERADMIN_USERNAME || "");
 const superadminPassword = decodeDotenvQuotedValue(process.env.XWIKI_SUPERADMIN_PASSWORD || "");
 

@@ -10,7 +10,7 @@ const {
 } = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
-const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const loginUsername = decodeDotenvQuotedValue(process.env.LOGIN_USERNAME);
 const loginPassword = decodeDotenvQuotedValue(process.env.LOGIN_PASSWORD);
 const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;

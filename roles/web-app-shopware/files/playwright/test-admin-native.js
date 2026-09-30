@@ -1,11 +1,16 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl , gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { performKeycloakLogin } = require("./personas/utils/keycloak");
 const { confirmKeycloakLogoutIfPrompted } = require("./personas/utils/logout");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
