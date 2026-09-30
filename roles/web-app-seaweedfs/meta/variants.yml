@@ -6,17 +6,17 @@
     container_backup:
       enabled: true
     sso:
-      enabled: true
-      shared: true
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
     logout:
-      enabled: true
-      shared: true
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
     dashboard:
-      enabled: true
-      shared: true
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
     prometheus:
-      enabled: true
-      shared: true
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
 - services:
     container_backup:
       enabled: false
