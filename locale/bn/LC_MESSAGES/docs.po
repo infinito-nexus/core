@@ -16816,6 +16816,9 @@ msgid "ActivityPub 🌍"
 msgstr "কর্মের প্রগতি 🌍"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: সা. কা.
 msgid "Acts as the role entry point and includes the main task flow."
 msgstr ""
 
@@ -32428,6 +32431,9 @@ msgid "Follow the instructions from AGENTS.md, then run the sequence below. The 
 msgstr "নির্দেশনা মেনে চল AGENTS.md- তারপর নিচের অনুক্রমটা চালাও. শাখাগুলোকে একত্রিত করতে হবে এমন দক্ষতা যুক্তি; ডিফল্ট হতে `feature/swarm-nfs` যখন কেউ দেয়া হয় না"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: :
 msgid "Follow the live deploy log in a separate terminal:"
 msgstr ""
 
@@ -45020,6 +45026,9 @@ msgid "Out of scope for v1 of the ansible flavor: matrix-appservice-irc bouncer 
 msgstr "v বশবর্তী হয়েছে1 একটি অসাধারণ স্বাদ: স্ব-স্নেহিক বাউন্সার ফার্ম, আত্ম-সদৈর্ঘ্য পরীক্ষা-অন্তর্বাসনকারী, খাবার বিনিময়শীল প্রতিনিধি চেইন `.well-known/matrix/server` স্বনির্ধারিত পোর্টে চলছে (বর্তমান পরিচিত টেমপ্লেটটি ইতিমধ্যেই আদর্শ নিয়ম ব্যবস্থাপনা করে). যে কোন একটি অনুসরণযোগ্য চাহিদা অনুসরণ করতে পারে।"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: পরিধি:
 msgid "Out of scope: database/runtime engine extensions"
 msgstr ""
 
@@ -46907,6 +46916,9 @@ msgid "Prevents data loss or connection drops due to proxy buffering"
 msgstr "প্রক্সি বাফারের ক্ষেত্রে তথ্য অথবা সংযোগ বিচ্ছিন্ন হওয়ার অনুমতি নেই"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: ডিস্ক
 msgid "Prevents disk pressure and runaway image sizes"
 msgstr ""
 
@@ -74627,6 +74639,9 @@ msgid "Weights are a preference because the operator is the only one who knows w
 msgstr "আমরা একটি পছন্দ করি কারণ অপারেটর একমাত্র ব্যক্তি যিনি জানেন যে এই প্রকল্প কি। একটি গুচ্ছ যার স্থানীয় মডেল খেলনা। `speed` উচ্চ; প্রতিটি টোকেনের মধ্যে একটি গুচ্ছ বিল বিল করা `cost` উচ্চ, একটি স্তবক দ্বারা ক্লায়েন্ট তথ্য পরিচালনা করা হচ্ছে `locality` যেখানে এটা. নিয়ম অনুযায়ী এই প্রকল্পটি অনুমান করা হবে।."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: তাই না?
 msgid "Were variables, defaults, and shared logic kept DRY?"
 msgstr ""
 
@@ -98993,6 +99008,9 @@ msgid "the **`bridges:` field** names an in-repo cross-role service dependency (
 msgstr "এটা **`bridges:` ক্ষেত্র** ইন-পোটোটিভ সার্ভিস নির্ভরতার একটি নাম (যেমন, একটি যোগ করুন। `svc-db-openldap` ভূমিকার মাধ্যমে `ldap` সার্ভিস ব্লক). প্রত্যেক তালিকা MST একটি সেবা একই ভূমিকার জন্য একটি সেবা হিসাবে একটি ব্লক `meta/services.yml`; ভাষা অন্য কিছুতে ব্যর্থ।."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: সি. পি.
 msgid "the CPU architecture pool the run draws from; a role that declares its own narrows it further."
 msgstr ""
 

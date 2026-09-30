@@ -86039,6 +86039,9 @@ msgid "loop: \"{{ lookup('stage_groups', 'server') }}\""
 msgstr "цикъл: \"{{ lookup('stage_groups', 'server') }}\""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: a.
 msgid "loopback and cloud-metadata addresses stay denied"
 msgstr ""
 
@@ -91862,6 +91865,9 @@ msgid "⏱️ **Versioning logic** to bust browser cache"
 msgstr "- Да.️ **Логика за превод** да бюст браузър кеш"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: .
 msgid "⏳ Wait for asynchronous resources to become available"
 msgstr ""
 

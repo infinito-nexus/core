@@ -83730,6 +83730,9 @@ msgid "declare the 5 node containers, node image + lab network (compose SPOT)"
 msgstr "de 5 node containers, node image + lab netwerk (SPOT samenstellen)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: default.
 msgid "default   – add a managed section only when it is missing."
 msgstr ""
 
@@ -85610,6 +85613,9 @@ msgid "output stops changing, OR"
 msgstr "uitvoer stopt met veranderen, OF"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: override
 msgid "override  – regenerate every managed section, overwriting the current"
 msgstr ""
 

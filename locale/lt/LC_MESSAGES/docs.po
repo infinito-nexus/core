@@ -51079,6 +51079,9 @@ msgid "Self-hosted media server for streaming and organizing movies, TV, music, 
 msgstr "Savarankiškai aptarnaujamas media serveris, skirtas srautiniam filmavimui ir filmų, TV, muzikos ir nuotraukų organizavimui, su OIDC ir LDAP prisijungimu"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name API
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr ""
 
@@ -54688,6 +54691,9 @@ msgid "Test guidance 🧪"
 msgstr "Bandymų gairės 🧪"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgid "Test scenarios executed by the Playwright runner"
 msgstr ""
 

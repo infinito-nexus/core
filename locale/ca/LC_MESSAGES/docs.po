@@ -17134,6 +17134,9 @@ msgid "Ansible filter plugin for retrieving application IDs."
 msgstr "Connector de filtre Anable per a recuperar els ID de l' aplicació."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Ansible filter plugin that safely joins URL components from a list."
 msgstr ""
 
@@ -21142,6 +21145,9 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Configuració NFS del client per a muntar una exportació al servidor remot a cada node de eixam, amb una sonda d'abastiment ràpid"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Funció Comment
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
 msgstr ""
 
@@ -38923,6 +38929,9 @@ msgid "Network Tests 🕸️"
 msgstr "Proves de xarxa 🕸️"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgid "Network and dependency handling via shared system roles"
 msgstr ""
 

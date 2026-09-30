@@ -48221,6 +48221,9 @@ msgid "Read the band for `<scope>.<category>` from `PORT_BANDS`. If absent and n
 msgstr "Baca band untuk `<scope>.<category>` Dari `PORT_BANDS`. Jika tidak hadir dan tidak ada `--range` diberikan, keluar non-nol dengan kesalahan jelas daftar kategori yang tersedia."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: - Tidak.
 msgid "Read the contributor SPOT and treat every MUST there as a non-negotiable acceptance criterion for the generated spec."
 msgstr ""
 

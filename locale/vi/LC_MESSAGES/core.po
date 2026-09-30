@@ -1091,6 +1091,9 @@ msgid "Nginx-based server for hosting static assets copied from a source directo
 msgstr "Máy chủ dựa vào Nginx để tổ chức các tài sản tĩnh đã sao chép từ thư mục nguồn đến đường dẫn dữ liệu web"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Node.js Name
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""

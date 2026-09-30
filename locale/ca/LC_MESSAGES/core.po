@@ -245,6 +245,9 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Configuració NFS del client per a muntar una exportació al servidor remot a cada node de eixam, amb una sonda d'abastiment ràpid"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Funció Comment
 msgctxt "role:svc-net-wireguard-plain:description"
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
 msgstr ""
@@ -640,6 +643,9 @@ msgid "Federated chess server for playing and following rule-validated games ove
 msgstr "Servidor d'escacs Federats per jugar i seguir jocs validats de regles sobre l'activitatPub a través de la Federivers"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""

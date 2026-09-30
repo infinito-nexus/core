@@ -1292,6 +1292,9 @@ msgid "Please keep this page open until this is done."
 msgstr "Lūdzu, atstājiet šo lapu atvērtu līdz tas ir izdarīts."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""

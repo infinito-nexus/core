@@ -23455,8 +23455,9 @@ msgstr "DNS та зворотна конфігурація за допомого
 msgid "DNS resolutions to `172.30.0.4` for hosts like `pypi.org` are intentional: the package-cache frontend overrides those names in `/etc/hosts`, so traffic terminates at the local registry mirror with `0.00s` DNS/TCP/TLS times instead of hitting the public registry."
 msgstr "DNS дозволи до `172.30.0.4` для гостей, таких як `pypi.org` є навмисним: пакет-cache Frontend перенадає імена в `/etc/hosts`, так що трафік припиняється на локальному реєстрі дзеркала з `0.00s` DNS/TCP/TLS час замість того, щоб потрапити на публічний реєстр."
 
+# translated-by: libretranslate
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
-msgstr ""
+msgstr "Статус на сервери"
 
 # translated-by: libretranslate
 msgid "DOMAIN_PRIMARY (apex), defaults_networks.internet.ip4, optional defaults_networks.internet.ip6"
@@ -40164,6 +40165,9 @@ msgstr "CRM-платформа для продажу, обслуговуванн
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
 msgstr "Opensource ERP Suite для CRM, продажу, обліку, інвентаризації, HR та управління сайтом"
 
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Статус на сервери
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
 
@@ -40179,6 +40183,9 @@ msgstr "Платформа Opensource ITSM та помічників (OTRS фо�
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "Платформа управління проектами для Scrum, Kanban та гібридних командних процесів"
 
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Статус на сервери
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
 msgstr ""
 
@@ -42427,6 +42434,9 @@ msgstr "Каталоги даних PostgreSQL **не сумісні з осно
 msgid "PostgreSQL database (MySQL/MariaDB not supported since Mattermost v8+)"
 msgstr "Статус на сервери (ГоловнаMariaDB не підтримується Mattermost б8до +)"
 
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: Статус на сервери
 msgid "PostgreSQL database via the shared platform instance"
 msgstr ""
 

@@ -20648,6 +20648,9 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Klient- side NFS nastavení pro montáž vzdáleného serveru export na každý roj uzlu, s nasazením -time reachability sond"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
 msgstr ""
 
@@ -50120,6 +50123,9 @@ msgid "Self-hosted browser tool for generating QR codes from text or URLs with p
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name Ollama
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr ""
 
@@ -58632,6 +58638,9 @@ msgid "The project's environment is owned by a single generator, not scattered a
 msgstr "Prostředí projektu je ve vlastnictví jediného generátoru, který není roztroušen napříč moduly shell. Každá proměnná je dokumentována INLINE vedle definice s jednořádkem `# ...` komentář nad klíčem. Tato stránka je jen mapa, kde hledat."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source."
 msgstr ""
 
@@ -91529,6 +91538,9 @@ msgid "🔄 **Mailu Integration (when available)**"
 msgstr "🔄 **Mailu Integrace (pokud je k dispozici)**"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: 🔍 Name
 msgid "🔍 Resolve identifiers, references, and computed inputs"
 msgstr ""
 

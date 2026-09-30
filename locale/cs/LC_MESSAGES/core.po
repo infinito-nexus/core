@@ -247,6 +247,9 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Klient- side NFS nastavení pro montáž vzdáleného serveru export na každý roj uzlu, s nasazením -time reachability sond"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgctxt "role:svc-net-wireguard-plain:description"
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
 msgstr ""

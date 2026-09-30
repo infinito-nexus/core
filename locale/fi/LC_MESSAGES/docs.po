@@ -51937,6 +51937,9 @@ msgid "Step"
 msgstr "Vaihe"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Vaihe 1
 msgid "Step 1 — Provision runner instances on the target server"
 msgstr ""
 
@@ -86166,6 +86169,9 @@ msgid "output stops changing, OR"
 msgstr "lähtö pysähtyy muuttumaan, TAI"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: ohita
 msgid "override  – regenerate every managed section, overwriting the current"
 msgstr ""
 
@@ -87727,6 +87733,9 @@ msgid "roles/ directory"
 msgstr "roolit/ hakemisto"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: roles_dir
 msgid "roles_dir — roles directory for the postgres connection split"
 msgstr ""
 

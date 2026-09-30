@@ -16710,6 +16710,9 @@ msgid "Ansible filter plugin for retrieving application IDs."
 msgstr "Comment."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment.
 msgid "Ansible filter plugin that safely joins URL components from a list."
 msgstr ""
 
@@ -18498,6 +18501,9 @@ msgid "Blocked personas"
 msgstr "Persone blocate"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Blocat
 msgid "Blocked — possible only with a provider-side change"
 msgstr ""
 
@@ -26282,6 +26288,9 @@ msgid "Empty files surface as `{}` (matching `yaml.safe_load(...) or {}` semanti
 msgstr "Fişiere goale la suprafaţă `{}` (Potrivire `yaml.safe_load(...) or {}` Semantica pe care majoritatea site-urilor apel se bazează deja pe)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Empty key or out-of-deployment base URL fails the deploy"
 msgstr ""
 
@@ -37850,6 +37859,9 @@ msgid "Move their values to the roles/*/config/main.yml file of each role"
 msgstr "Muta valorile lor la roluri /*/config/main.yml fișier al fiecărui rol"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment
 msgid "Moved backend service-load decisions into a dedicated lookup plugin"
 msgstr ""
 
@@ -49995,6 +50007,9 @@ msgid "Self-hosted System One decision service. It answers typed questions (`cho
 msgstr "Auto-hosted System One Serviciul decizional. Răspunde la întrebări scrise. (`choice`, `score`, `noul`) peste un codor non-autoregresiv în loc de a genera text, pe `POST /v1/systemone` contract."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr ""
 
@@ -51830,6 +51845,9 @@ msgid "Step"
 msgstr "Pas"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Pas 1
 msgid "Step 1 — Provision runner instances on the target server"
 msgstr ""
 
@@ -85750,6 +85768,9 @@ msgid "onion state"
 msgstr "Ceapa"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: numai
 msgid "only      – restrict the run to a subset of the managed sections"
 msgstr ""
 
@@ -87657,6 +87678,9 @@ msgid "roles/ directory"
 msgstr "roluri/ dosare"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: roles_dir
 msgid "roles_dir — roles directory for the postgres connection split"
 msgstr ""
 
@@ -88032,6 +88056,9 @@ msgid "sphinx"
 msgstr "sfinx"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: b.
 msgid "split service database to postgres and mariadb"
 msgstr ""
 

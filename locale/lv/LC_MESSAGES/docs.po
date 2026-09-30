@@ -16739,6 +16739,9 @@ msgid "Ansible default (22)"
 msgstr "Noklusētais (22)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Ansible filter plugin for retrieving application IDs."
 msgstr ""
 
@@ -22083,6 +22086,9 @@ msgid "Compute scope from `git diff --name-only origin/main...<branch>`."
 msgstr "Skaitļot darbības jomu no `git diff --name-only origin/main...<branch>`."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Comment.
 msgid "Compute the canonical OIDC group path for an application role."
 msgstr ""
 
@@ -28291,6 +28297,9 @@ msgid "Fetch with `git fetch fork <branch>`, list what is incoming, then merge `
 msgstr "Ielādēt ar `git fetch fork <branch>`, saraksts, kas ir ienākošo, pēc tam apvienot `FETCH_HEAD`. Atrisināt katru konfliktu, palaist `make quality`, noteikt to, ko tā ziņo, un atkārtoti darboties, kamēr visi četri mērķi ir zaļa. Atstājiet apvienoto nodevumu operatoram, ja vien tas nav pieprasīts."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Fetch-once cache and parser for the operator's terminal aliases."
 msgstr ""
 
@@ -30215,6 +30224,9 @@ msgid "Generate mirrors.yml inside the container using cli.contributing.mirror.r
 msgstr "Vispārējs mirrors.yml iepakojumā cli.contributing.mirror.resolver."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Vispārējs.
 msgid "Generate the invokable-role overview table in the repository README."
 msgstr ""
 

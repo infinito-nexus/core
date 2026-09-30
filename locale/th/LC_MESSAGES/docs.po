@@ -10681,8 +10681,9 @@ msgstr "**คําอธิบาย**': การตั้งค่าโป�
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
-msgstr ""
+msgstr "**คําอธิบาย**สืบค้นเมื่อ:"
 
 # translation-refused: libretranslate protected-span lost=[] gained=['20']
 # nocheck: url
@@ -11279,6 +11280,9 @@ msgstr "**คําอธิบาย**OpenJDK 11 เวลาทํางาน
 msgid "**description**: OpenSSH client package for secure remote shell access and key-based authentication"
 msgstr "**คําอธิบาย**แพกเกจไคลเอนต์ OpenSH สําหรับความปลอดภัยในการเข้าถึงเชลล์ระยะไกลและการตรวจสอบสิทธิ์แบบกุญแจ"
 
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: **คําอธิบาย**สืบค้นเมื่อ:
 msgid "**description**: Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr ""
 
@@ -11404,6 +11408,9 @@ msgstr "**คําอธิบาย**ผู้จัดทําใบรั�
 msgid "**description**: Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
 msgstr "**คําอธิบาย**ต่อไปนี้: งานพิมพ์แบ็คอัพสําหรับดิฟเฟอเรนเชียล rsync จับภาพการส่งออกไปยังต้นไม้สํารองแบบ NFS"
 
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: **คําอธิบาย**สืบค้นเมื่อ:
 msgid "**description**: Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
 msgstr ""
 
@@ -11800,6 +11807,9 @@ msgstr "**คําอธิบาย**เว็บยูไอ และ API �
 msgid "**description**: Web interface for administering LDAP directories: managing users, groups, and other directory objects"
 msgstr "**คําอธิบาย**▪ ส่วนติดต่อเว็บสําหรับจัดการไดเรกทอรี LDAP: การจัดการผู้ใช้, กลุ่ม, และวัตถุไดเรกทอรีอื่น ๆ"
 
+# translation-refused: libretranslate duplicate
+# nocheck: url
+# translation-rejected: **คําอธิบาย**สืบค้นเมื่อ:
 msgid "**description**: Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr ""
 
@@ -19840,6 +19850,9 @@ msgid "Bridges (service → role)"
 msgstr "สะพาน (บทบาท ของ บริการ)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: สะพาน:
 msgid "Bridges: in-repo dependency vs network bridge"
 msgstr ""
 
@@ -30028,6 +30041,9 @@ msgid "Flatten the value returned by lookup('domains', app) into a flat list of 
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: แบน.
 msgid "Flattens nested category tree to all possible category paths."
 msgstr ""
 
@@ -31341,6 +31357,9 @@ msgid "Full role reference, CLI parameters, and the end-to-end guide: [`roles/sv
 msgstr "การอ้างอิงบทบาทเต็ม, พารามิเตอร์ CLI และคําแนะนําสิ้นสุดการสิ้นสุด: [`roles/svc-runner/README.md`](../../roles/svc-runner/README.md)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: ม.
 msgid "Full stack — everything that can be true, is true."
 msgstr ""
 
@@ -41772,6 +41791,9 @@ msgid "Optimized for idempotent cleanup operations, this role:"
 msgstr "โอปทิเมตสําหรับการดําเนินการทําความสะอาดที่เข้มงวดบทบาทนี้:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: บทนี้:
 msgid "Optimized for maintaining a clean and efficient Docker environment, this role:"
 msgstr ""
 

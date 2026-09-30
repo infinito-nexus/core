@@ -13872,6 +13872,9 @@ msgid "A declaration names exactly one probe and any number of prefixes, either 
 msgstr "Bir məlumat adları tam bir prob və ya bir string kimi və ya siyahısı kimi əvvəl addımlar haqqında. Bu modulun oxuyucuya malikdir: aliases, validation və əvvvəl bir əvvəl əvvəlki məlumat arithmetic."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: A , , , , ,
 msgid "A declaration wins over the catalog, and an uncatalogued route claims nothing"
 msgstr ""
 
@@ -41401,6 +41404,9 @@ msgid "Open-source learning management system for creating, managing, and delive
 msgstr "Open-source öyrənmə sistemi yaratmaq, idarə etmək və online kurslar və e-ömək"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: PromQL
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr ""
 
@@ -52735,6 +52741,9 @@ msgid "Shell helpers that gate version releases."
 msgstr "Şirkət versiyası istifadəçiləri."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Oxunub: . . .
 msgid "Shell helpers that prepare and inspect the GitHub-hosted runner host around image-build and deploy steps."
 msgstr ""
 
@@ -78836,6 +78845,9 @@ msgid "[x] CSP `connect-src` whitelist includes the canonical host and its `wss:
 msgstr "[x] C `connect-src` ağlist mayonical host və onun daxildir `wss://` variant (Yanvarlar [`web-app-odoo`](../../roles/web-app-odoo/meta/csp.yml) İngilis)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: [x] Yadda saxla.
 msgid "[x] Client roles render MCP connection configuration from role metadata and secrets, not from hard-coded role names."
 msgstr ""
 

@@ -10348,6 +10348,9 @@ msgid "**description**: ACME client for automated Let's Encrypt SSL/TLS certific
 msgstr "**përshkrimi**: ACME klient për çertifikatën automatizuar Let's Kripton SSL/TLS is usssuance dhe restaurim me anë të root ose DNS-01 Sfidat"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **përshkrimi**j
 msgid "**description**: AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr ""
 
@@ -15804,6 +15807,9 @@ msgid "Admission lives in `meta/services.yml`, not here. A client sets `services
 msgstr "Pranimi jeton brenda `meta/services.yml`- Jo këtu. Një set klienti `services.<own-entity>.mcp_consumer: true` në rolin e vet; një furnizues refuzon një duke vendosur `mcp_consumer: false` në hyrjen e atij klienti. [`test_mcp_consumer_services_entry.py`](../../../../../tests/lint/ansible/services/test_mcp_consumer_services_entry.py) Kërkon që çdo furnizues të mbajë një `\"{{ '<client>' in group_names }}\"`-një hyrje për çdo klient të deklaruar, kështu që një ofrues plani dhe klient së bashku."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për sipër dhe
 msgid "Adopted git-maintainer-tools for fork / upstream remote routing and signed-push workflow handling"
 msgstr ""
 
@@ -18236,6 +18242,9 @@ msgid "Automatically reloads and restarts the SSH service via a systemd handler"
 msgstr "Rimbush dhe rinis automatikisht shërbimin SSH me anë të një kontrolluesi të sistemit"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Hiq
 msgid "Automatically remove broken or incomplete backups"
 msgstr ""
 
@@ -20348,6 +20357,9 @@ msgid "Canonical hostname: `next.erp.{{ DOMAIN_PRIMARY }}`. No alias on first it
 msgstr "Emri i host kanonik: `next.erp.{{ DOMAIN_PRIMARY }}`. S'ka pseudonim në përsëritjen e parë."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Emri dhe.
 msgid "Canonical image name without registry and without tag/digest."
 msgstr ""
 
@@ -25832,6 +25844,9 @@ msgid "Document only variables and behaviour that are actually implemented in th
 msgstr "Dokumenti vetëm variabla dhe sjellje që aktualisht zbatohen në rol."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: File për j
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
@@ -25946,6 +25961,9 @@ msgid "Domain modules:"
 msgstr "Modulët Domain:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Domain.
 msgid "Domain-name cache: canonical-domains map derived from merged apps."
 msgstr ""
 
@@ -26340,6 +26358,9 @@ msgid "Each bundle directory must contain:"
 msgstr "Çdo"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Çdo
 msgid "Each bundle must define exactly one default host:"
 msgstr ""
 
@@ -27096,6 +27117,9 @@ msgid "Ensured reliable Mailu initialization by waiting for database schema read
 msgstr "Të besueshme Mailu Nisja nga pritja për gadishmërinë e skemës së bazës së të dhënave"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: A në a
 msgid "Ensures a repository exists at a given destination"
 msgstr ""
 
@@ -28576,6 +28600,9 @@ msgid "Failing tests confirm requirements first."
 msgstr "Provat e dështuara konfirmojnë së pari kërkesat."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nuk është
 msgid "Fails if output directory cannot be created or is not writable"
 msgstr ""
 
@@ -31078,6 +31105,9 @@ msgid "GitHub-hosted runner fixes: free disk before deploys and drop a dead 404 
 msgstr "Vrapues i pritur nga GitHub: disk i lirë para se të vendoset dhe të hedhë një të vdekur 404 URL nga jashtëm."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për (x).
 msgid "GitHub-release asset helpers (latest-tag resolver + downloader)."
 msgstr ""
 
@@ -31969,6 +31999,9 @@ msgid "How to use 🧭"
 msgstr "Si të përdoret? 🧭"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Në
 msgid "Hugging Face repository those flavors download at build time"
 msgstr ""
 
@@ -32747,6 +32780,9 @@ msgid "If value is a string, return it."
 msgstr "Nëse vlera është një stringë, ktheje."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Është.
 msgid "If vars file is unreadable or no match is found."
 msgstr ""
 
@@ -38853,6 +38889,9 @@ msgid "NGINX domain and reverse-proxy configuration"
 msgstr "NGINX domain dhe konfigurimin e kundërt të proxy"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: NGINX
 msgid "NGINX domain setup with WebSocket and reverse-proxy configuration"
 msgstr ""
 
@@ -39433,6 +39472,9 @@ msgid "No blanket device grant, no shared host"
 msgstr "Nuk ka grante pajisjesh, nuk ka host të përbashkët"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Jo për
 msgid "No buffering means less effective for caching/optimization"
 msgstr ""
 
@@ -41249,6 +41291,9 @@ msgid "Optionally pins the checkout to a specific tag (e.g. ``stable``)"
 msgstr "Kalon në një etiketë specifike (e.g.``stable``)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: N
 msgid "Optionally prints a preview of the first N lines"
 msgstr ""
 
@@ -43165,6 +43210,9 @@ msgid "Prevents CI failures when no workstation apps are discovered by safely sk
 msgstr "Parandalon dështimin e CI kur nuk zbulohen aplikacione punësimi duke lënë pas pa rrezikuar punën dhe pastron prodhimin e panevojshëm të pastrimit për t'i mbajtur trungjet të lexueshme dhe të fokusuara."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Prej
 msgid "Prevents data loss or connection drops due to proxy buffering"
 msgstr ""
 
@@ -43598,6 +43646,9 @@ msgid "Provides compact filters and defaults to define CDN paths, turn them into
 msgstr "Jep filtra kompakte dhe falimentime për të përcaktuar shtigjet e CDN, për t'i kthyer në URL publike, për të mbledhur directories e kërkuara dhe për të përgatitur sistemin e skedarëve (p.d `latest` lidhje)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për.
 msgid "Provides handler-based reload/reexec for systemd."
 msgstr ""
 
@@ -44584,6 +44635,9 @@ msgid "Read-only subcommands (`view`, `list`, `status`, `diff`, `checks`, `watch
 msgstr "Nënkomandantë në vetëm lexim (`view`. `list`. `status`. `diff`. `checks`. `watch`. `download`. `clone`) nuk përputhen dhe të mbeten auto-lëshuar nëpërmjet kuti ranor, duke pasqyruar ndarjen GET-v-mutation përdorur për `gh api`. `deny` Rregullat sipër kanë përparësi për foljet më të larta (e.g. `gh repo delete`. `gh secret *`. `gh ssh-key *`)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Jo
 msgid "Read-only token with field restrictions; no checkout/checkin, asset, license, accessory, user, or settings mutation"
 msgstr ""
 
@@ -45719,6 +45773,9 @@ msgid "Render the bond matrix as an HTML page, optionally editable."
 msgstr "A HTML faqe."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga dhe.
 msgid "Render the bond matrix: which roles couple to which, and how tightly."
 msgstr ""
 
@@ -46495,6 +46552,9 @@ msgid "Resolves to ``os.cpu_count()`` when ``INFINITO_WORKER_ENABLED`` is truthy
 msgstr "Nga ``os.cpu_count()`` kur ``INFINITO_WORKER_ENABLED`` është e vërtetë, përndryshe ``1`` (pikë)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Është a.
 msgid "Resolves whether the namespace is a GitHub org or personal account."
 msgstr ""
 
@@ -50404,6 +50464,9 @@ msgid "Scheduled deduplicating backup system for Docker container volumes to a l
 msgstr "Përpunimi i sistemit rezervistë për volumet e kontenierit Docker në një directory lokale, me depo të vazhdueshme SQL"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: STUN:
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
 msgstr ""
 
@@ -51269,6 +51332,9 @@ msgid "Serve the bond matrix on localhost and write every cell edit back to disk
 msgstr "Shërbyni matricën e bonove në vend dhe shkruani çdo qelizë që kthehet në disk."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: A.
 msgid "Serve the editable bond matrix, or export it as a static file."
 msgstr ""
 
@@ -51516,6 +51582,9 @@ msgid "Set the token in your Ansible inventory or secrets file:"
 msgstr "Vendos shenjën në inventarin apo dosjen tënde të fshehtë:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për:
 msgid "Set the variable for the contexts you need:"
 msgstr ""
 
@@ -51766,6 +51835,9 @@ msgid "Shared relational database (MariaDB/Postgres)"
 msgstr "Të dhëna të përbashkëta (MariaDB/Postgres)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Server për në
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr ""
 
@@ -52454,6 +52526,9 @@ msgid "Speaks HTTP over a bash socket, for images without curl or wget."
 msgstr "Flet HTTP mbi një socket, për imazhe pa kaçurrele apo wget."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga
 msgid "Specific feedback requested from reviewers:"
 msgstr ""
 
@@ -53144,10 +53219,16 @@ msgid "Strict failure on un-executable persona cases"
 msgstr "Dështim i rreptë në rastet e personave të padiskutueshëm"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: J
 msgid "Strict multi-pass Jinja rendering to prevent leaked templates"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për.
 msgid "Strict rendering helper for lookup/filter plugins."
 msgstr ""
 
@@ -54997,6 +55078,9 @@ msgid "Tests that enforce the `test_*.py` prefix convention and the rule that ev
 msgstr "Teste që zbatojnë `test_*.py` Prefiksoje kongresin dhe rregullin që çdo `test_*.py` File `tests/` dhe përmban të paktën një të padepërtueshëm `unittest.TestCase`."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nuk a emri.
 msgid "Tests that only assert that a file contains a string, task name, variable name, or template fragment are not allowed."
 msgstr ""
 
@@ -56827,6 +56911,9 @@ msgid "The config-bearing Nextcloud apps are declared in `meta/addons/` under th
 msgstr "Konfigurimi Nextcloud Apps janë deklaruar në `meta/addons/` sipas kontratës së shtuar të unifikuar (kërkesë 026). Çdo deklaratë është e plotë. `occ config:app:set` Pagimi poshtë `config:`. Aplikimet vetëm të aktivizuara qëndrojnë nën `nextcloud.plugins` në [`meta/services.yml`](./meta/services.yml)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga jo në.
 msgid "The configured entries, or an empty mapping where no inventory answers, as in the dev stack."
 msgstr ""
 
@@ -58814,6 +58901,9 @@ msgid "The injector runs when `services.javascript.enabled` is enabled."
 msgstr "Injektues funksionon kur `services.javascript.enabled` është aktivizuar."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: A.
 msgid "The inputs a retrigger reproduces: every dispatch input except the selection it computes itself."
 msgstr ""
 
@@ -59781,6 +59871,9 @@ msgid "The project's environment is owned by a single generator, not scattered a
 msgstr "Mjedisi i projektit zotërohet nga një gjenerator i vetëm, jo i shpërndarë nëpër modulet e guaskës. Çdo variacion është dokumentuar INLINE pranë përkufizimit të saj me një linjë `# ...` Komente mbi çelësin. Kjo faqe është vetëm një hartë ku duhet kërkuar."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Është në.
 msgid "The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source."
 msgstr ""
 
@@ -63032,6 +63125,9 @@ msgid "This file extends CONTRIBUTING.md with agent-specific instructions; on co
 msgstr "File CONTRIBUTING.md me udhëzime specifike; në konflikt midis CONTRIBUTING.md dhe kjo dosje, fiton."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Është nga në.
 msgid "This file is consumed by the inventory creator to substitute mirror URLs into host variables."
 msgstr ""
 
@@ -63570,6 +63666,9 @@ msgid "This repository uses a strict fork-first workflow. You MUST NOT commit di
 msgstr "Ky magazinë përdor një rrjedhje strikte. NUK do t'i përkushtohesh drejtpërdrejt `main`. Ju të gjithë punoni në pirunin tuaj dhe MUST hapni kërkesat nga piruni juaj për në depon kryesore."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga dhe:
 msgid "This repository uses several test and validation types:"
 msgstr ""
 
@@ -65279,6 +65378,9 @@ msgid "To ensure incoming mail for the old domain is still accepted:"
 msgstr "Për të siguruar postën në hyrje për domenin e vjetër pranohet akoma:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Për në
 msgid "To execute the commands in the container container execute:"
 msgstr ""
 
@@ -66371,6 +66473,9 @@ msgid "Unified Service Failure Notifier"
 msgstr "Notues i pavlefshëm i shërbimit"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Nga për
 msgid "Unified ShellCheck execution via container for reproducible linting"
 msgstr ""
 
@@ -66443,6 +66548,9 @@ msgid "Unit tests for the top-level certificate and TLS helper modules in `utils
 msgstr "Njësitë për modulin ndihmës të çertifikatës së nivelit të lartë dhe TLS në `utils/`: `cert_utils.py` (Logjika e përmbajtjes së tepërt, zgjedhja më e re) dhe `tls_common.py` (Trajtimi i shijes, SAN-i dështon, normalizimi i domeneve)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Njësitë (Zgjidh).
 msgid "Unit tests: known seed → known address test vector; idempotent reuse; file-format byte-exactness (headers + lengths)."
 msgstr ""
 
@@ -67746,6 +67854,9 @@ msgid "Validates DNS resolution across target distributions."
 msgstr "Sugjeron rezolutën e DNS-së në të gjithë shpërndarjen e objektivit."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Para.
 msgid "Validates all active unit files before reload/reexec."
 msgstr ""
 
@@ -67762,6 +67873,9 @@ msgid "Validates the `make install` entry points in every distribution base cont
 msgstr "Vlefshmëria `make install` Pika hyrjeje në çdo enë bazë shpërndarëse."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Çdo
 msgid "Validating every role across both modes, compose then swarm"
 msgstr ""
 
@@ -68748,6 +68862,9 @@ msgid "Webserver Health Check"
 msgstr "Kontrolli i shëndetit webserver"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Me dhe
 msgid "Website builder with drag-and-drop editor and SEO tools"
 msgstr ""
 
@@ -83820,6 +83937,9 @@ msgid "a remote ``[user@]host[:/path]`` (its backup tree is rsync-pulled first),
 msgstr "a ``[user@]host[:/path]`` (Pema e saj rezervë është e para e bllokuar)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: a8j
 msgid "a repository-owned allowlist adapter or a repository-owned n8n workflow;"
 msgstr ""
 
@@ -84447,6 +84567,9 @@ msgid "behaviour"
 msgstr "Sjellja"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: j
 msgid "best-effort NFS unmount before node removal"
 msgstr ""
 
@@ -85644,6 +85767,9 @@ msgid "compose exec -it pds pdsadmin"
 msgstr "për"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: për j
 msgid "compose exec -it pds pdsadmin account create-invite-code"
 msgstr ""
 
@@ -85856,6 +85982,9 @@ msgid "debian"
 msgstr "debian"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: emri në
 msgid "debian/changelog source-package name restored to infinito-nexus so dpkg-source builds succeed again"
 msgstr ""
 
@@ -85916,6 +86045,9 @@ msgid "deprecated ⚠️"
 msgstr "Nuk përdoret ⚠️"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nga emri
 msgid "derives deploy type and loader bucket from the role name"
 msgstr ""
 
@@ -86352,6 +86484,9 @@ msgid "every app id listed in `APPS_CSV` (typically the full host-discovered set
 msgstr "në `APPS_CSV` (tipikisht set i plotë i zbuluar)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: në (për)
 msgid "every app in the existing inventory (host wrapper recomputes the list for log clarity)"
 msgstr ""
 
@@ -86942,6 +87077,9 @@ msgid "jobs of one or more runs, as the GitHub API returns them."
 msgstr "Punët e një apo më shumë punës, si GitHub API Ktheji."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nga
 msgid "keep host setup separate from consumer setup"
 msgstr ""
 
@@ -87377,6 +87515,9 @@ msgid "name prefixes to keep; all roles when empty or None."
 msgstr "Emri prefiksohet të mbahet; të gjitha rolet kur janë bosh ose asnjë."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: emri (në)
 msgid "name:      the library/source name (used in the Dockerfile context)"
 msgstr ""
 
@@ -87498,6 +87639,9 @@ msgid "not a hidden \"just run this shell script\" system"
 msgstr "nuk është i fshehtë \"Vetëm shtype këtë skenar.\" sistemi"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nuk a
 msgid "not a one-size-fits-all production template"
 msgstr ""
 
@@ -87915,6 +88059,9 @@ msgid "php, composer or phpunit is still absent afterwards."
 msgstr "Pp, kompozitor apo plugit ende mungon më pas."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: nuk.
 msgid "php, composer, unzip or one of the extensions is still     absent."
 msgstr ""
 
@@ -88962,6 +89109,9 @@ msgid "read-only by default, mutating tools off"
 msgstr "nga prezgjedhur"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: për.
 msgid "reading structured project data for templates/tasks."
 msgstr ""
 
@@ -89069,6 +89219,9 @@ msgid "renders `.env` from `playwright.env.j2`"
 msgstr "Perkthen `.env` nga `playwright.env.j2`"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: a j.
 msgid "renders a Jinja expression string; None disables rendering."
 msgstr ""
 
@@ -89115,6 +89268,9 @@ msgid "repository root to scan."
 msgstr "nga."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: root.
 msgid "repository root, as a string so the cache key stays hashable."
 msgstr ""
 
@@ -89153,6 +89309,9 @@ msgid "required (always enabled)"
 msgstr "kërkohet (Gjithmonë aktivë)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: për
 msgid "required image tags for buildable services"
 msgstr ""
 
@@ -90365,6 +90524,9 @@ msgid "the input's name, for the messages."
 msgstr "emri për mesazh."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: për.
 msgid "the inventory's entries for the same section."
 msgstr ""
 
@@ -90955,6 +91117,9 @@ msgid "the source in force when the comparison ran."
 msgstr "burimi i forcës kur u zhvillua krahasimi."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: mesazh.
 msgid "the source message, which holds the boundary that went missing."
 msgstr ""
 
@@ -91041,6 +91206,9 @@ msgid "the upstream hands out URLs that already carry the repository prefix, as 
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: në URL.
 msgid "the upstream host, as it appears in the proxied URL."
 msgstr ""
 
@@ -93121,6 +93289,9 @@ msgid "🏷️ Resolve the highest version tag that still needs release backfill
 msgstr "🏷️ Zgjidh etiketën më të lartë të versionit që ka ende nevojë për lirim"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: 🐍 dhe
 msgid "🐍 Bootstrap virtual environments and editable project dependencies"
 msgstr ""
 
@@ -93289,6 +93460,9 @@ msgid "🔄 **Mailu Integration (when available)**"
 msgstr "🔄 **Mailu Integrimi (në dispozicion)**"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: 🔍 nga
 msgid "🔍 Resolve identifiers, references, and computed inputs"
 msgstr ""
 
@@ -93465,6 +93639,9 @@ msgid "🧩 Custom OAuth2 flows via ENV vars"
 msgstr "🧩 E personalizuar2 rrjedh nëpërmjet vareve të ENV"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: 🧩 Deive
 msgid "🧩 Derive runtime values from repository and workflow context"
 msgstr ""
 

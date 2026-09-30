@@ -2560,6 +2560,9 @@ msgid "**Description:** Docker Compose stack for containerized relational databa
 msgstr "**Popis:** Docker Compose stack pre kontajnerové relačné databázy so zálohovaním, správou užívateľov a povolení"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **Popis:** Name
 msgid "**Description:** Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
@@ -10310,6 +10313,9 @@ msgid "**description**: Docker Compose stack for containerized relational databa
 msgstr "**Opis**: Docker Kompozitný zásobník pre kontajnerové relačné databázy so zálohovaním, užívateľom, a správa povolení"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: **Opis**: Name
 msgid "**description**: Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
@@ -25295,6 +25301,9 @@ msgid "Document only variables and behaviour that are actually implemented in th
 msgstr "Dokumentovať len premenné a správanie, ktoré sa skutočne vykonávajú v úlohe."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
@@ -41433,6 +41442,9 @@ msgid "Per-user or room-scoped service identity; no unrestricted archive, send, 
 msgstr "Identita služby na užívateľa alebo na izbu; žiadny neobmedzený archív, odosielanie, pozvánky, kopanie, zákaz, rola, alebo činnosť správy servera"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Per-user token for timeline data; no posting, messaging, contact, moderation, or account mutation"
 msgstr ""
 
@@ -51988,6 +52000,9 @@ msgid "Step"
 msgstr "Krok"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Krok 1
 msgid "Step 1 — Provision runner instances on the target server"
 msgstr ""
 
@@ -85865,6 +85880,9 @@ msgid "onion state"
 msgstr "Cibuľa stav"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: iba
 msgid "only      – restrict the run to a subset of the managed sections"
 msgstr ""
 
@@ -87541,6 +87559,9 @@ msgid "roles/ directory"
 msgstr "role/ adresár"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: roles_dir
 msgid "roles_dir — roles directory for the postgres connection split"
 msgstr ""
 

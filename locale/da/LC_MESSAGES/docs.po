@@ -17011,6 +17011,9 @@ msgid "Ansible default (22)"
 msgstr "Angivelig standard (22)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name.
 msgid "Ansible filter plugin for retrieving application IDs."
 msgstr ""
 
@@ -69676,6 +69679,9 @@ msgid "Wikipedia: `Traversal Using Relays around NAT <https://en.wikipedia.org/w
 msgstr "Wikipedia: `Traversal Using Relays around NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgid "Wildcard Certificate Setup with Let's Encrypt"
 msgstr ""
 

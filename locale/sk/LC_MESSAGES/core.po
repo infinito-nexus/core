@@ -570,6 +570,9 @@ msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host s
 msgstr "Docker Swarm cluster bootstrap a uzol-členstvo role pre multi-hostiteľ služby nasadenia."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""

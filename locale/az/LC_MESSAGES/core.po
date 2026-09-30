@@ -1202,6 +1202,9 @@ msgid "Open-source learning management system for creating, managing, and delive
 msgstr "Open-source öyrənmə sistemi yaratmaq, idarə etmək və online kurslar və e-ömək"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: PromQL
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr ""
