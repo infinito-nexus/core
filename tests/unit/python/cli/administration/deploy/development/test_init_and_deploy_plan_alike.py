@@ -13,6 +13,8 @@ import ast
 import unittest
 from pathlib import Path
 
+from utils.cache.files import read_text
+
 from . import PROJECT_ROOT
 
 PLANNER = "plan_dev_inventory_matrix"
@@ -47,7 +49,7 @@ class TestInitAndDeployPlanAlike(unittest.TestCase):
         missing: list[str] = []
         for rel in CALLERS:
             path = Path(PROJECT_ROOT) / rel
-            calls = pins_at(path.read_text(encoding="utf-8"))
+            calls = pins_at(read_text(str(path)))
             self.assertTrue(calls, f"{rel}: no {PLANNER} call found")
             missing.extend(rel for passes in calls if not passes)
 
