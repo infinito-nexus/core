@@ -1,7 +1,11 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { expectHstsWhenTls, gotoOnion } = require("./personas");
+const {
+  expectHstsWhenTls,
+  gotoOnion,
+  requireDotenvValue,
+} = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -14,7 +18,7 @@ function decodeDotenvQuotedValue(value) {
 }
 
 const piholeBaseUrl = decodeDotenvQuotedValue(process.env.PIHOLE_BASE_URL);
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test.beforeEach(async ({ page }) => {
   expect(piholeBaseUrl, "PIHOLE_BASE_URL must be set").toBeTruthy();

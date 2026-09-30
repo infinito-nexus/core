@@ -61,8 +61,20 @@ function decodeDotenvJsonList(raw, name) {
   return parsed;
 }
 
+function requireDotenvValue(raw, name) {
+  const decoded = decodeDotenvQuotedValue(raw || "");
+  if (typeof decoded !== "string" || decoded === "") {
+    throw new Error(
+      `${name} is empty — a substring or suffix check against an empty string ` +
+        "matches everything, so the assertion would pass without testing anything."
+    );
+  }
+  return decoded;
+}
+
 module.exports = {
   decodeDotenvQuotedValue,
   decodeDotenvJsonList,
+  requireDotenvValue,
   normalizeBaseUrl,
 };

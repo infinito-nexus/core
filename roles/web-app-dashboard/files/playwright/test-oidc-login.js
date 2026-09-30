@@ -1,9 +1,15 @@
 const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isVisible, normalizeBaseUrl, gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  isVisible,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
 const loginUsername = decodeDotenvQuotedValue(process.env.LOGIN_USERNAME);
 const loginPassword = decodeDotenvQuotedValue(process.env.LOGIN_PASSWORD);

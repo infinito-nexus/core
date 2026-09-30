@@ -3,11 +3,20 @@ const { resolveTimeout } = require("./timeouts");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { assertCspResponseHeader, decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const {
+  assertCspResponseHeader,
+  expectHstsWhenTls,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const apiBaseUrl = normalizeBaseUrl(process.env.API_BASE_URL || "");
 
 test.beforeEach(async ({ page }) => {
