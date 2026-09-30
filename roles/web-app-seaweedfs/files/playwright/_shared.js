@@ -13,8 +13,8 @@ const env = {
   ssoEnabled: isServiceEnabled("sso"),
   frontendEnabled: isServiceEnabled("frontend"),
   consumerBuckets: decodeDotenvJsonList(
-    process.env.SEAWEEDFS_CONSUMER_BUCKETS,
-    "SEAWEEDFS_CONSUMER_BUCKETS"
+    process.env.SEAWEEDFS_CONSUMER_BUCKETS_JSON,
+    "SEAWEEDFS_CONSUMER_BUCKETS_JSON"
   ),
 };
 
