@@ -13,10 +13,9 @@ failure it guards against is a wrong set operation, not wrong wording.
 
 from __future__ import annotations
 
+import ast
 import unittest
 from typing import Any
-
-import ast
 
 import jinja2
 from ansible.plugins.filter.mathstuff import FilterModule

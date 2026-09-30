@@ -103,7 +103,9 @@ def scraped(role: str) -> bool:
     prometheus = block.get("prometheus")
     if not isinstance(prometheus, Mapping):
         return False
-    return prometheus.get("enabled") is not False and prometheus.get("scrape") is not False
+    return (
+        prometheus.get("enabled") is not False and prometheus.get("scrape") is not False
+    )
 
 
 APPLIES = {

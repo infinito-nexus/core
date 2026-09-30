@@ -33,7 +33,9 @@ class LookupModule(LookupBase):
 
         application_id = str(terms[0]).strip()
         if not application_id:
-            raise AnsibleError("native_metrics_target: application_id must be non-empty")
+            raise AnsibleError(
+                "native_metrics_target: application_id must be non-empty"
+            )
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         applications = lookup_loader.get(
@@ -64,5 +66,7 @@ class LookupModule(LookupBase):
             )
 
         return lookup_loader.get(
-            "scrape_target", loader=self._loader, templar=getattr(self, "_templar", None)
+            "scrape_target",
+            loader=self._loader,
+            templar=getattr(self, "_templar", None),
         ).run([application_id, service_key], variables=vars_, port=port)
