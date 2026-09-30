@@ -33,11 +33,17 @@ async function statusOf(request, url) {
   }
 }
 
+const POLL_REPORT_RESERVE_MS = 60_000;
+
 async function pollStatus(request, url, expected, message, timeout) {
   lastTransportError = null;
+  const budget = Math.max(
+    30_000,
+    resolveTimeout(timeout) - POLL_REPORT_RESERVE_MS,
+  );
   try {
     await expect
-      .poll(() => statusOf(request, url), { message, timeout: resolveTimeout(timeout), intervals: [30_000] })
+      .poll(() => statusOf(request, url), { message, timeout: budget, intervals: [30_000] })
       .toBe(expected);
   } catch (failure) {
     if (!lastTransportError) throw failure;
