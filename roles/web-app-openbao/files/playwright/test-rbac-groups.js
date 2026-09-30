@@ -14,6 +14,7 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 const ldapAdminPassword = decodeDotenvQuotedValue(process.env.LDAP_ADMIN_PASSWORD || "");
 const groupDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_RBAC_GROUP_DN_TEMPLATE || "");
 const userDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_USER_DN_TEMPLATE || "");
+const ldapDnBase = decodeDotenvQuotedValue(process.env.LDAP_DN_BASE || "");
 
 const RBAC_ROLES = ["administrator", "operator", "reader"];
 const PROBE_PATH = `${kvMount}/data/playwright/rbac-probe`;
@@ -22,7 +23,6 @@ const POLICY_PATH = "sys/policies/acl/operator";
 const groupDn = (role) => groupDnTemplate.replace("<role>", role);
 const biberDn = () => userDnTemplate.replace("<uid>", biberUsername);
 const groupCn = (role) => groupDn(role).replace(/^cn=/, "").split(",")[0];
-const rootSuffix = () => groupDn("administrator").split(",").slice(-2).join(",");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -66,7 +66,7 @@ async function setGroupMembership(page, role, operation) {
   await gotoOnion(page, `${lamBaseUrl}/lam/templates/tools/multiEdit.php`, { waitUntil: "load" });
   await page.waitForLoadState("networkidle");
 
-  await page.locator("select#suffix").selectOption(rootSuffix());
+  await page.locator("select#suffix").selectOption(ldapDnBase);
   await page.locator("input#filter").fill(`(cn=${groupCn(role)})`);
   await page.locator("select#op_0").selectOption(operation);
   await page.locator("input#attr_0").fill("member");
