@@ -503,6 +503,7 @@
       "Bash(git send-pack*)",
       "Bash(git-setup-remotes*)",
       "Bash(git-sign-push*)",
+      "Bash(rm -rf*)",
       "Bash(sudo *)",
       "Bash(until *)",
       "Bash(while *)"
@@ -578,24 +579,6 @@
       "/tmp"
     ]
   },
-  "enabledPlugins": {
-    "caveman@caveman": true,
-    "ponytail@ponytail": true
-  },
-  "extraKnownMarketplaces": {
-    "caveman": {
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      }
-    },
-    "ponytail": {
-      "source": {
-        "source": "github",
-        "repo": "DietrichGebert/ponytail"
-      }
-    }
-  },
   "sandbox": {
     "enabled": true,
     "failIfUnavailable": true,
@@ -650,8 +633,17 @@
       "denyRead": [
         "~/.aws",
         "~/.config/gcloud",
+        "~/.docker/config.json",
+        "~/.git-credentials",
         "~/.gnupg",
-        "~/.kube"
+        "~/.kube",
+        "~/.netrc",
+        "~/.ssh/id_dsa",
+        "~/.ssh/id_ecdsa",
+        "~/.ssh/id_ecdsa_sk",
+        "~/.ssh/id_ed25519",
+        "~/.ssh/id_ed25519_sk",
+        "~/.ssh/id_rsa"
       ]
     }
   }

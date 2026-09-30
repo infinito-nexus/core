@@ -42,7 +42,7 @@ The `Bash(*)` allow grants broad access to the `docker` CLI (alongside every oth
 
 Every rule in `permissions.ask` assumes the operator reads the prompt and confirms the action matches intent. Rules in `ask` are NOT a hard barrier. They are a speed-bump that converts automatic execution into a deliberate decision.
 
-**Protected by this:** `git commit*`, `git push*`, `docker run*`, `docker build*`, `docker push*`, `docker login*`, every mutating `gh` verb, and every non-GET `gh api` call. Each would be destructive or externally visible if executed without review.
+**Protected by this:** `git commit*`, `docker run*`, `docker build*`, `docker push*`, `docker login*`, every mutating `gh` verb, and every non-GET `gh api` call. Each would be destructive or externally visible if executed without review.
 
 **If violated:** Blind-approving `ask` prompts defeats the policy layer entirely. Operators MUST treat every `ask` prompt as a code-review checkpoint.
 
@@ -80,23 +80,17 @@ The `Bash(*)` allow lets the agent run any Makefile target without prompting. Th
 
 ## Assumption 9: `denyRead` lists every credential directory 🔐
 
-The sandbox's `denyRead` list (`~/.gnupg`, `~/.kube`, `~/.aws`, `~/.config/gcloud`) is the primary mechanism that prevents the agent from reading host credentials. Every credential store an operator uses on the host is assumed to be covered, **with the documented exception of `~/.ssh`** (see Assumption 10).
+The sandbox's `denyRead` list (`~/.aws`, `~/.config/gcloud`, `~/.docker/config.json`, `~/.git-credentials`, `~/.gnupg`, `~/.kube`, `~/.netrc`, and the default private keys under `~/.ssh`) is the primary mechanism that prevents the agent from reading host credentials. Every credential store an operator uses on the host is assumed to be covered, **with the documented exceptions of the rest of `~/.ssh`** (see Assumption 10) **and `~/.config/gh`**, which `gh` needs on every call.
 
 **If violated:** A credential directory not listed in `denyRead` (for example `~/.azure`, `~/.doctl`, `~/.config/op`) is readable by the agent, and its contents can leak into the transcript. Contributors adding a new credential store MUST extend `denyRead` in the same commit.
 
-## Assumption 10: `~/.ssh` is intentionally readable to allow `git push` on `ask` 🔑
+## Assumption 10: `~/.ssh` stays readable except for the default private keys 🔑
 
-`git push`, `git fetch`, and `git clone` over SSH all require `ssh(1)` to read `~/.ssh/` (private keys, `known_hosts`, `config`). With `~/.ssh` in `denyRead`, `ssh` fails with `Host key verification failed` / `Could not read from remote repository`, which makes the `ask`-gated `Bash(git push*)` rule unreachable in practice.
+`git fetch` and `git ls-remote` over SSH need `ssh(1)` to read `~/.ssh/known_hosts` and `~/.ssh/config`. With the whole directory in `denyRead`, `ssh` fails with `Host key verification failed`. `denyRead` therefore lists only the default private key files, and `ssh` authenticates through the agent socket named in `SSH_AUTH_SOCK`, which `allowAllUnixSockets: true` keeps reachable. `Bash(git push*)` is in `deny`, so pushes stay with the operator.
 
-The chosen trade-off is to keep `~/.ssh` **out** of `denyRead` so that SSH auth works and `Bash(git push*)` in `ask` becomes the effective control point: every push pauses for operator confirmation. `allowUnsandboxedCommands: false` remains in place, so there is no per-call sandbox bypass.
+**Cost:** The agent can authenticate with every key loaded into the SSH agent, although it cannot read the key itself. A private key stored under a non-default file name stays readable.
 
-**Cost:** The agent has read access to all files under `~/.ssh/`, including private keys. A compromised or prompt-injected agent could load those keys into the transcript via read tools (which are NOT gated by `ask`). Mitigations relied upon:
-
-- Private keys SHOULD be passphrase-protected, so exfiltration yields an encrypted blob rather than a usable key.
-- Operators MUST treat any unexplained read of `~/.ssh/id_*` in the transcript as a trust incident and rotate the affected keys.
-- Hosts that store credentials to high-blast-radius targets (production servers, infrastructure root) SHOULD NOT rely on this assumption; instead use an SSH-agent socket with `~/.ssh` left denied, or switch the git remote to HTTPS plus a narrowly-scoped token.
-
-**If violated (i.e. the cost turns out to be unacceptable on a given host):** Re-add `~/.ssh` to `denyRead` in `.claude/settings.local.json` and handle git pushes from an external terminal, or adopt the SSH-agent-socket variant. Both options preserve the deny without breaking the global policy.
+**If violated:** Without a running SSH agent, SSH fetches inside the sandbox fail with `Permission denied (publickey)`; load the key into an agent or fetch over HTTPS. A contributor whose key uses a non-default file name MUST add that path to `denyRead` in `.claude/settings.local.json`.
 
 ## Updating Assumptions 🧹
 

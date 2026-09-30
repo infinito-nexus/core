@@ -62,7 +62,7 @@ Adding entries here widens the agent's effective write scope. New paths SHOULD b
 
 ## Read Restrictions 🚫
 
-The following directories are never readable, even if a task explicitly requests access:
+The following paths are never readable, even if a task explicitly requests access:
 
 | Path | What it protects |
 |---|---|
@@ -70,8 +70,12 @@ The following directories are never readable, even if a task explicitly requests
 | `~/.kube` | Kubernetes cluster credentials. |
 | `~/.aws` | AWS access keys and configuration. |
 | `~/.config/gcloud` | Google Cloud service account credentials. |
+| `~/.docker/config.json` | Registry credentials that `docker login` stores inline. Docker CLI calls inside the sandbox pull anonymously and print `WARNING: Error loading config file` on stderr. |
+| `~/.git-credentials` | HTTPS credentials written by git's `store` credential helper. |
+| `~/.netrc` | Machine credentials read by `curl`, `git`, and `pip`. |
+| `~/.ssh/id_dsa`, `~/.ssh/id_ecdsa`, `~/.ssh/id_ecdsa_sk`, `~/.ssh/id_ed25519`, `~/.ssh/id_ed25519_sk`, `~/.ssh/id_rsa` | The default SSH private keys. |
 
-`~/.ssh` is intentionally **not** in this list. Denying it would make `git push` over SSH unreachable and defeat the `Bash(git push*)` ask-gate. The trade-off and its mitigations are documented in [security.md](security.md#assumption-10-ssh-is-intentionally-readable-to-allow-git-push-on-ask-) (Assumption 10).
+The rest of `~/.ssh` stays readable, because `ssh` needs `known_hosts` and `config` for `git fetch`; authentication goes through the SSH agent. See [security.md](security.md#assumption-10-ssh-stays-readable-except-for-the-default-private-keys-) (Assumption 10).
 
 ## Network 🌐
 
