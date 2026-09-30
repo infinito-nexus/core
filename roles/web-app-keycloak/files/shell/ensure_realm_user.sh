@@ -11,7 +11,7 @@ set -euo pipefail
 #   KEYCLOAK_KCADM
 #   KEYCLOAK_REALM
 #   KEYCLOAK_USERNAME
-#   KEYCLOAK_PASSWORD
+#   KEYCLOAK_CREDENTIAL_JSON  serialized Keycloak CredentialRepresentation
 #
 # OPTIONAL:
 #   KEYCLOAK_EMAIL
@@ -25,7 +25,7 @@ set -euo pipefail
 : "${KEYCLOAK_KCADM:?missing KEYCLOAK_KCADM}"
 : "${KEYCLOAK_REALM:?missing KEYCLOAK_REALM}"
 : "${KEYCLOAK_USERNAME:?missing KEYCLOAK_USERNAME}"
-: "${KEYCLOAK_PASSWORD:?missing KEYCLOAK_PASSWORD}"
+: "${KEYCLOAK_CREDENTIAL_JSON:?missing KEYCLOAK_CREDENTIAL_JSON}"
 
 KEYCLOAK_EMAIL="${KEYCLOAK_EMAIL:-}"
 KEYCLOAK_FIRSTNAME="${KEYCLOAK_FIRSTNAME:-}"
@@ -34,18 +34,18 @@ KEYCLOAK_USER_ENABLED="${KEYCLOAK_USER_ENABLED:-true}"
 KEYCLOAK_UIDNUMBER="${KEYCLOAK_UIDNUMBER:-}"
 
 # shellcheck disable=SC2016 # Inner $vars are intentionally expanded by the container shell, not the host.
-${KEYCLOAK_EXEC_CONTAINER} sh -lc '
+printf '%s' "${KEYCLOAK_CREDENTIAL_JSON}" | ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
   set -euo pipefail
 
   USERNAME="$1"
-  PASSWORD="$2"
-  REALM="$3"
-  EMAIL="$4"
-  FIRSTNAME="$5"
-  LASTNAME="$6"
-  ENABLED="$7"
-  KCADM="$8"
-  UIDNUMBER="$9"
+  REALM="$2"
+  EMAIL="$3"
+  FIRSTNAME="$4"
+  LASTNAME="$5"
+  ENABLED="$6"
+  KCADM="$7"
+  UIDNUMBER="$8"
+  CREDENTIAL="$(cat)"
 
   RAW="$($KCADM get users -r "$REALM" -q username="$USERNAME" --fields id --format csv --noquotes 2>&1 || true)"
   USER_ID="$(printf "%s\n" "$RAW" \
@@ -83,9 +83,8 @@ ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
     $KCADM update users/$USER_ID -r "$REALM" -s "attributes.uidNumber=$UIDNUMBER"
   fi
 
-  $KCADM set-password -r "$REALM" \
-    --username "$USERNAME" \
-    --new-password "$PASSWORD"
+  printf "%s" "$CREDENTIAL" \
+    | $KCADM update "users/$USER_ID/reset-password" -r "$REALM" -n -f -
 
   if [ "$CREATED" = true ]; then
     echo "[keycloak][user] created: $USERNAME ($USER_ID)"
@@ -94,7 +93,6 @@ ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
   fi
 ' sh \
   "${KEYCLOAK_USERNAME}" \
-  "${KEYCLOAK_PASSWORD}" \
   "${KEYCLOAK_REALM}" \
   "${KEYCLOAK_EMAIL}" \
   "${KEYCLOAK_FIRSTNAME}" \
