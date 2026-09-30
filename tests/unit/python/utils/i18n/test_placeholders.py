@@ -83,7 +83,7 @@ class TestMaskRejects(unittest.TestCase):
         rejected = self._rejection("Satz mit {extra}.", source)
 
         self.assertEqual(
-            (rejected.reason, rejected.text), ("protected-span", "Satz mit {extra}.")
+            (rejected.reason, rejected.text), ("added-span", "Satz mit {extra}.")
         )
 
 

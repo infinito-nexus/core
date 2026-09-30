@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from utils.i18n import names
 from utils.i18n.repairs import resegment, tighten
-from utils.i18n.spans import mask, matches, prose
+from utils.i18n.spans import PRINTF, mask, matches, prose
 
 MARKUP = '[]`*{}()"'
 STRUCTURE = "[]{}`*()"
@@ -83,6 +83,33 @@ def protected_spans(text: str) -> Counter:
         text: a source message or its translation.
     """
     return Counter(text[start:end] for start, end in matches(text, with_names=False))
+
+
+ADDED = re.compile(
+    rf"{PRINTF}"
+    r"|\{\{|\{%|\{[A-Za-z_]\w*\}"
+    r"|<[^<>\s]+>"
+    r"|[\U0001F300-\U0001FAFF☀-➿️]"
+)
+
+
+def added_spans(source: str, translation: str) -> Counter:
+    """Return the spans ``translation`` invented whose presence is itself damage.
+
+    ``PROTECTED`` claims every digit run and every bare markup character,
+    because over-claiming is right when masking. As a comparison basis it is
+    not: the translation is another language whose ordinary prose trips those
+    same rules, and a gained parenthesis breaks nothing the source carried.
+    What does break something is an invented placeholder - an injected ``%s``
+    fails ``msgfmt``, a decoder artefact like ``♪`` or a leaked ``<unk>`` is
+    garbage - so only those keep a surplus refused.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    surplus = protected_spans(translation) - protected_spans(source)
+    return Counter({span: n for span, n in surplus.items() if ADDED.search(span)})
 
 
 def missing_names(source: str, translation: str) -> set[str]:
@@ -223,8 +250,10 @@ def reason(source: str, translation: str, language: str = "") -> str:
     if translation == source:
         alphabetic = sum(character.isalpha() for character in prose(source))
         return "echo" if alphabetic >= ECHO_FLOOR else ""
-    if protected_spans(translation) != protected_spans(source):
+    if protected_spans(source) - protected_spans(translation):
         return "protected-span"
+    if added_spans(source, translation):
+        return "added-span"
     if missing_names(source, translation):
         return "missing-name"
     if stutters(source, translation):

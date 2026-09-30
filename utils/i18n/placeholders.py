@@ -25,6 +25,7 @@ from utils.i18n.damage import TRUNCATION_FLOOR as TRUNCATION_FLOOR
 from utils.i18n.damage import TRUNCATION_RATIO as TRUNCATION_RATIO
 from utils.i18n.damage import WORDS as WORDS
 from utils.i18n.damage import Rejected as Rejected
+from utils.i18n.damage import added_spans as added_spans
 from utils.i18n.damage import collapsed as collapsed
 from utils.i18n.damage import harms as harms
 from utils.i18n.damage import missing_names as missing_names

@@ -24,6 +24,7 @@ from utils.i18n.languages import domain_languages, load_languages
 from utils.i18n.placeholders import (
     MARKUP,
     TOKEN,
+    added_spans,
     mask,
     protected_spans,
     resegment,
@@ -90,7 +91,9 @@ def inspect(task: tuple[str, str, str]) -> Findings:
                 and _rejects(catalog, message, translation)
             ):
                 found.uncompilable += 1
-            if protected_spans(source) != protected_spans(translation):
+            if protected_spans(source) - protected_spans(translation) or added_spans(
+                source, translation
+            ):
                 found.spans.append(f"{where}: {message.context} {source!r}")
             if resegment(translation, mask(source).spans, source) != translation:
                 found.merged.append(f"{where}: {source!r}")

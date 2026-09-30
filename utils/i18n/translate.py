@@ -185,7 +185,7 @@ def retry(catalog: Catalog) -> int:
     return sum(1 for message in catalog if refused(message) and clear(message))
 
 
-SPAN_CRITERION = "protected-span"
+SPAN_CRITERIA = ("protected-span", "added-span")
 DETAIL_SPANS = 6
 
 
@@ -196,7 +196,7 @@ def _detail(message: Message, rejected: Rejected) -> str:
         message: the entry being annotated.
         rejected: what came back and why it was turned down.
     """
-    if rejected.reason != SPAN_CRITERION or not isinstance(message.id, str):
+    if rejected.reason not in SPAN_CRITERIA or not isinstance(message.id, str):
         return ""
     source = protected_spans(message.id)
     answer = protected_spans(rejected.text)
