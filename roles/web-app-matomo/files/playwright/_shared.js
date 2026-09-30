@@ -74,8 +74,15 @@ function hostOf(value) {
   }
 }
 
+function siteRootDomainOf(host) {
+  const name = hostOf(host);
+  return name.endsWith(domainPrimary)
+    ? domainPrimary
+    : name.toLowerCase().replace(/^(?:.*\.)?(.+\..+)$/, "$1");
+}
+
 function siteNeedleFor(host) {
-  return matomoTrackingScope === "root" ? domainPrimary : hostOf(host);
+  return matomoTrackingScope === "root" ? siteRootDomainOf(host) : hostOf(host);
 }
 
 async function setupMatomoPage(page) {
