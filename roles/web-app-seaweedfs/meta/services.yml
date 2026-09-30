@@ -29,16 +29,16 @@ ldap:
   shared: false
 logout:
   bond: 1
-  enabled: "{{ 'web-svc-logout' in group_names }}"
-  shared: "{{ 'web-svc-logout' in group_names }}"
+  enabled: "{{ ('web-svc-logout' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-svc-logout' in group_names) and ('svc-net-tor' not in group_names) }}"
 dashboard:
   bond: 1
-  enabled: "{{ 'web-app-dashboard' in group_names }}"
-  shared: "{{ 'web-app-dashboard' in group_names }}"
+  enabled: "{{ ('web-app-dashboard' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-dashboard' in group_names) and ('svc-net-tor' not in group_names) }}"
 prometheus:
   bond: 1
-  enabled: "{{ 'web-app-prometheus' in group_names }}"
-  shared: "{{ 'web-app-prometheus' in group_names }}"
+  enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
   healthcheck:
