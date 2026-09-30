@@ -79,6 +79,8 @@ discourse:
       http: 80
   proxy:
     service_key: discourse
+  run_after:
+    - web-app-matomo
   lifecycle: beta
   cpus: "1.0"
   mem_reservation: 1g
