@@ -125,9 +125,6 @@ api:
   mem_limit: 1g
   pids_limit: 512
 bluesky:
-  # TODO: make this role arm64-capable so the declaration below can go
-  architectures:
-    - amd64
   modes:
     compose:
       enabled: true
