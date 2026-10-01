@@ -8,6 +8,7 @@ const {
   safeIsEnabled,
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
+  requireDotenvValue,
 } = require("./personas");
 
 const PNG_1x1 = Buffer.from(
@@ -18,7 +19,9 @@ const PNG_1x1 = Buffer.from(
 const baseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const adminPassword = decodeDotenvQuotedValue(
+  requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD"),
+);
 const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
 
 test.use({ ignoreHTTPSErrors: true });
