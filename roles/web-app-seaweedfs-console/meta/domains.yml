@@ -1,0 +1,5 @@
+---
+canonical:
+  filer: filer.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
+  master: master.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
+aliases: []

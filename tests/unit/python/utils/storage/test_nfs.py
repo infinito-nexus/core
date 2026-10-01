@@ -56,7 +56,7 @@ class TestSwarmNfsBacked(unittest.TestCase):
     """The predicate mirrors the compose_volumes rewrite decision: swarm mode
     with an nfs backend backs every volume of a non-manager-pinned role unless
     the entry opts out with ``nfs: false``. web-app-nextcloud carries no
-    placement pin; web-app-seaweedfs is pinned to the manager on purpose."""
+    placement pin; web-svc-seaweedfs is pinned to the manager on purpose."""
 
     def test_backed_in_swarm_with_nfs(self):
         self.assertTrue(
@@ -92,7 +92,7 @@ class TestSwarmNfsBacked(unittest.TestCase):
         self.assertFalse(
             swarm_nfs_backed(
                 {"name": "seaweedfs_data"},
-                application_id="web-app-seaweedfs",
+                application_id="web-svc-seaweedfs",
                 deployment_mode="swarm",
                 storage_backend="nfs",
             )

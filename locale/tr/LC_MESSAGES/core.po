@@ -137,6 +137,10 @@ msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr "Sistemli yönetici yapılandırması için zemin rolü düşüşler, varsayılan ayarlar ve birim doğrulama"
 
+msgctxt "role:web-app-seaweedfs-console:description"
+msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
@@ -558,10 +562,9 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "Geliştirme ve CI /CD araçları"
 
-# translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs:description"
+msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Dağıtılmış S3- paylaşılan için uyumlu nesne mağazası, web-app rolleri arasında per-consumer kova düzenlemesi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1387,14 +1390,6 @@ msgstr "Public REST API, veri, tarih ve çevirilerine hizmet ediyor Infinito.Nex
 # nocheck: url
 # translation-rejected: Halk vhost, açığa çıkan System One karar kararı karar
 # kararı API Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of svc-ai-s1
 msgctxt "role:web-svc-s1:description"

@@ -1,0 +1,4 @@
+---
+- name: "🚀 Deploy web-app-seaweedfs-console (core, once per play)"
+  include_tasks: 00_core.yml
+  when: run_once_web_app_seaweedfs_console is not defined

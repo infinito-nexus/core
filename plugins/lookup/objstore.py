@@ -13,7 +13,7 @@ from utils.tls_common import resolve_enabled
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")
 OBJSTORE_PROVIDER_ROLE = {
-    "seaweedfs": "web-app-seaweedfs",
+    "seaweedfs": "web-svc-seaweedfs",
     "minio": "web-app-minio",
 }
 OBJSTORE_DEFAULT_PORT = {"seaweedfs": 8333, "minio": 9000}

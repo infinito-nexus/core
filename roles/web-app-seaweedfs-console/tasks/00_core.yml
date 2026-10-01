@@ -1,0 +1,36 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 For '{{ application_id }}': load docker and compose"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "✅ Ensure volumes directory exists"
+  ansible.builtin.file:
+    path: "{{ lookup('container', application_id, 'directories.volumes') }}"
+    state: directory
+    mode: "0755"
+
+- name: "📄 Render the console proxy nginx config"
+  stack_host_template:
+    src: nginx.conf.j2
+    dest: "{{ SEAWEEDFS_NGINX_CONF_PATH }}"
+  notify: compose-up
+
+- name: "▶️ Start the SeaweedFS console stack"
+  ansible.builtin.meta: flush_handlers
+
+- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ seaweedfs_console.domain }}"
+    http_port: "{{ SEAWEEDFS_SSO_PORT_PUBLIC }}"
+  loop:
+    - domain: "{{ SEAWEEDFS_FILER_DOMAIN }}"
+    - domain: "{{ SEAWEEDFS_MASTER_DOMAIN }}"
+  loop_control:
+    loop_var: seaweedfs_console
+    label: "{{ seaweedfs_console.domain }}"

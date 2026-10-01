@@ -1,0 +1,9 @@
+---
+client_max_body_size: 0
+status_codes:
+  filer:
+    - 302
+    - 403
+  master:
+    - 302
+    - 403

@@ -128,7 +128,7 @@ seaweedfs:
   bond: 1
   name: opentalk-seaweedfs
   enabled: true # nocheck: dynamic-flag
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 rabbit:
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "ping"]

@@ -142,8 +142,8 @@ minio:
 # nocheck: playwright-service-flag — object store; storage check needs a UI login, but Gitea's personas are blocked (PERSONA_ADMINISTRATOR_BLOCKED/PERSONA_BIBER_BLOCKED), so it has no automatable Playwright login surface
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

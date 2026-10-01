@@ -101,7 +101,7 @@ class TestSwarmNfsExclusion(unittest.TestCase):
             "web-app-nextcloud": {
                 "volumes": {"data": {"name": "nextcloud_data"}},
             },
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "volumes": {"data": {"name": "seaweedfs_data"}},
             },
         }

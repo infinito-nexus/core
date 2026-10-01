@@ -18,7 +18,7 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_extra_hosts', extra_hosts=(
-         [lookup('config', 'web-app-seaweedfs', 'domains.canonical.api') ~ ':host-gateway']
+         [lookup('config', 'web-svc-seaweedfs', 'domains.canonical.api') ~ ':host-gateway']
          if IS_COMPOSE_MODE else []
        )) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}

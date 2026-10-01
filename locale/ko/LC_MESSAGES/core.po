@@ -112,7 +112,6 @@ msgstr "자동 복구 서비스 종료 또는 건강 Docker Compose 스택 및 �
 # translation-refused: libretranslate protected-span lost=[] gained=['1']
 # nocheck: url
 # translation-rejected: 반전 DNS를 위한 자동화 역할 (사이트맵) Hetzner Cloud 서버, 1차 IP, 부동
-# IP 및 로드밸런서에 대한 기록
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
@@ -141,6 +140,10 @@ msgstr "Linux에서 소프트웨어 엔지니어를 위한 기본 개발 환경,
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr "drop-ins, default settings, Unit validation을 통해 systemd Manager 구성에 대한 기본 역할"
+
+msgctxt "role:web-app-seaweedfs-console:description"
+msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
@@ -271,7 +274,6 @@ msgstr "클라우드"
 # gained=['A/A/A/AAA']
 # nocheck: url
 # translation-rejected: Apex와 wildcard A/A/A/AAA 레코드를 위한 Cloudflare DNS 부트 스트랩
-# 역할 (옵션 CAA) 웹 스택의 기본 도메인
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
 msgstr ""
@@ -475,7 +477,6 @@ msgstr "분산, 피어 투 피어 비디오 호스팅, 스트리밍 및 라이�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: 탈중앙화, federated platform for photo sharing and image
-# feeds throughout the fediverse
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
 msgstr ""
@@ -560,10 +561,9 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "개발 및 CI/CD 도구"
 
-# translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs:description"
+msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "분산 S3- 웹앱 역할 전반에 걸쳐 공유, per-consumer Bucket 프로비저닝에 적합한 오브젝트 저장소"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -657,7 +657,6 @@ msgstr "Extensible Vim 기반 명령 줄 텍스트 편집기 터미널 구동 �
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Federated chess server for playing and following
-# rule-validated games over ActivityPub 건너편 Fediverse
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr ""
@@ -667,7 +666,6 @@ msgstr ""
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Federated, end-to-end-encrypted messaging platform
-# with web client and protocol bridges to External chat network
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""
@@ -1050,7 +1048,6 @@ msgstr "NGINX subfilter 인젝터 추가 Matomo 분석 스크립트 및 noscript
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: NGINX vhost for serving static HTML websites over
-# HTTPS with automatic Let's Encrypt 인증서
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1218,7 +1215,6 @@ msgstr "온라인 코스 및 e-learning 제공을 위한 오픈소스 학습 관
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Open-source Monitoring and alerting toolkit for
-# storage metrics as time-series data and querying them with PromQL
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr ""
@@ -1644,7 +1640,6 @@ msgstr "협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted federated reading platform for book review
-# and reading tracking throughout the Fediverse
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
@@ -1684,7 +1679,6 @@ msgstr "간단한 HTTP API 뒤에 로컬 LLM을 실행하기위한 자체 호스
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted no-code database platform with
-# spreadsheet-like interface for building and collaborating on data
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
@@ -1905,7 +1899,6 @@ msgstr "시스템 Frontend 헬퍼"
 # translation-refused: libretranslate protected-span lost=[] gained=['*']
 # nocheck: url
 # translation-rejected: 설정 및 localesvia 생성을위한 시스템 구성 역할 locale.gen 이름 *
-# locale.conf 파일 형식
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr ""
@@ -1970,7 +1963,6 @@ msgstr "모니터링된 서비스 단위가 실패할 때 시스템화된 msmtp 
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Systemd-triggered notifier for Deliver service-failure
-# alerts to the Telegram 채팅
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr ""

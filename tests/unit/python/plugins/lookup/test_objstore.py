@@ -117,7 +117,7 @@ class ObjstoreLookupTests(unittest.TestCase):
                 "services": {"seaweedfs": {"enabled": True, "shared": True}},
                 "secrets": {"credentials": {"objstore_secret_key": "sk"}},
             },
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "services": {
                     "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
                 },
@@ -127,7 +127,7 @@ class ObjstoreLookupTests(unittest.TestCase):
 
         out = self._run(["web-app-foo"], applications)[0]
 
-        self.assertEqual(out["id"], "web-app-seaweedfs")
+        self.assertEqual(out["id"], "web-svc-seaweedfs")
         self.assertEqual(out["engine"], "seaweedfs")
         self.assertTrue(out["enabled"])
         self.assertTrue(out["shared"])
@@ -176,7 +176,7 @@ class ObjstoreLookupTests(unittest.TestCase):
 
         out = self._run(["web-app-foo"], applications)[0]
 
-        self.assertEqual(out["id"], "web-app-seaweedfs")
+        self.assertEqual(out["id"], "web-svc-seaweedfs")
         self.assertEqual(out["engine"], "seaweedfs")
         self.assertTrue(out["enabled"])
         self.assertFalse(out["shared"])

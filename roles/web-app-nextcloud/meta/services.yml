@@ -263,8 +263,8 @@ minio:
   shared: false # nocheck: dynamic-flag
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag  internal recording server, reachable only from the Talk signaling backend
 # nocheck: dynamic-flag  the recording server is part of the Talk deployment, so it follows the talk entry rather than a role's presence
 talk_recording:
