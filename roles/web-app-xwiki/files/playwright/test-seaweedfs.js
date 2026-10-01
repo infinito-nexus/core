@@ -29,7 +29,9 @@ test("seaweedfs: an attachment added to an XWiki page is stored in the SeaweedFS
   skipUnlessServiceEnabled("seaweedfs");
   test.setTimeout(resolveTimeout(300_000));
 
-  const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+  const appBaseUrl = normalizeBaseUrl(
+    requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"),
+  );
   const superadminUsername = requireDotenvValue(
     process.env.XWIKI_SUPERADMIN_USERNAME,
     "XWIKI_SUPERADMIN_USERNAME",
