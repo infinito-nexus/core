@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { expect, request } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
@@ -22,6 +22,44 @@ async function zammadLogout(page) {
     await gotoOnion(page, `${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
   }
   await page.context().clearCookies();
+}
+
+/**
+ * Seed a ticket over the Basic-auth REST API.
+ *
+ * @param {string} subject ticket title and article subject.
+ * @param {string} body article body.
+ * @returns {Promise<object>} the ticket as Zammad returned it.
+ */
+async function seedTicketViaApi(subject, body) {
+  const api = await request.newContext({
+    ignoreHTTPSErrors: true,
+    extraHTTPHeaders: {
+      Authorization: `Basic ${Buffer.from(`${adminApiUsername}:${adminApiPassword}`).toString("base64")}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const resp = await api.post(`${zammadBaseUrl}/api/v1/tickets`, {
+    data: {
+      title: subject,
+      group: "Users",
+      customer: adminApiUsername,
+      article: {
+        subject,
+        body,
+        type: "note",
+        internal: false,
+      },
+    },
+  });
+
+  if (resp.status() >= 300) {
+    throw new Error(`Seed POST /api/v1/tickets failed: ${resp.status()} ${await resp.text()}`);
+  }
+  const ticket = await resp.json();
+  await api.dispose();
+  return ticket;
 }
 
 async function signInAsApiBot(page) {
@@ -110,6 +148,7 @@ module.exports = {
     biberPassword,
     canonicalDomain,
   },
+  seedTicketViaApi,
   signInViaZammadOidc,
   signInAsApiBot,
   zammadLogout,

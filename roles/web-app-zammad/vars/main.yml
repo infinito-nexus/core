@@ -57,6 +57,7 @@ ZAMMAD_OIDC_GROUP_ROLE_MAP:
 ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
 ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
+ZAMMAD_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
 ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"

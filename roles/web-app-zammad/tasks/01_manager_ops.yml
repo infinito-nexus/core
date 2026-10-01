@@ -41,6 +41,18 @@
   register: zammad_auto_wizard_setup
   changed_when: false
 
+- name: "🗄️ point Zammad's attachment store at the S3 bucket"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'ruby/apply/storage_provider.rb') }}"
+  register: zammad_storage_provider_apply
+  changed_when: false
+  when: ZAMMAD_OBJSTORE_ENABLED | bool
+
 - name: "✅ ensure API-bot user in Zammad (Basic-auth REST API; all variants, no-auth too)"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
