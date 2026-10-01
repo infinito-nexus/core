@@ -4,7 +4,6 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
-# nocheck: seaweedfs-required, object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -70,6 +69,11 @@ wordpress:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+  public: true
 # nocheck: playwright-service-flag, verified by web-svc-css provider spec
 css:
   bond: 1

@@ -62,6 +62,8 @@ the unified addon contract. The OIDC and WP-Discourse runtime config lives in ea
 | `activitypub` | `plugin` | enabled in variant 0 (Fediverse federation); off in later variants | none |
 | `infinito-oidc-rbac-mapper` | `mu_plugin` | `required` (always installed, vendored) | `sso` → `web-app-keycloak` |
 | `infinito-http-ca-trust` | `mu_plugin` | `required` (always installed, vendored) | none |
+| `s3-uploads` | `plugin` | enabled with the `seaweedfs` service | none |
+| `infinito-s3-uploads` | `mu_plugin` | enabled with the `seaweedfs` service | none |
 
 The OIDC login + RBAC paths are covered by `test-admin-oidc-login.js` /
 `test-rbac-roles.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
@@ -73,6 +75,7 @@ The Playwright suite in [files/playwright/playwright.spec.js](files/playwright/p
 - `oidc`: baseline admin OIDC round-trip plus the three RBAC scenarios (subscriber/editor/administrator).
 - `ldap`: the three RBAC scenarios additionally depend on LDAP group sync; disabling LDAP skips them alongside OIDC.
 - `discourse`: the WP->Discourse post round-trip scenario. Disabling Discourse skips it; front-page reachability and CSP baselines stay active.
+- `seaweedfs`: the media-library upload scenario in `test-seaweedfs.js`, which lists the role's bucket over the S3 API before and after the upload.
 
 The front-page CSP + canonical-domain baseline is ungated and always runs.
 
