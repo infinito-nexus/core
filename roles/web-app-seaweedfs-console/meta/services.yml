@@ -65,6 +65,10 @@ seaweedfs-console:
   ports:
     local:
       sso: 16507
+    internal:
+      http: 80
+  healthcheck:
+    flavor: http
   min_storage: 128MB
   cpus: "0.2"
   mem_reservation: 64m
