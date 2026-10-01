@@ -121,8 +121,7 @@ class TestDockerfilePipNoVersionPins(unittest.TestCase):
             "silently. Move the pin into a requirements.txt or pyproject.toml "
             "under the role's files/, stage that file into the build context "
             "and install it with `pip install -r`. A `--no-deps` group needs a "
-            "requirements file of its own:\n\n"
-            + "\n".join(f"  {f}" for f in failures),
+            "requirements file of its own:\n\n" + "\n".join(f"  {f}" for f in failures),
         )
 
 
