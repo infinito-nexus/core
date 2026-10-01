@@ -80,7 +80,7 @@ search:
       http: 9200
   enabled: true
   image: opensearchproject/opensearch
-  version: 3.8.0
+  version: 3.9.0
   name: magento-opensearch
   min_storage: 1332MB
   cpus: "1.0"

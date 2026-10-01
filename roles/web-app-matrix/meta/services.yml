@@ -43,7 +43,7 @@ postgres:
 synapse:
   healthcheck:
     flavor: curl
-  version: v1.161.0
+  version: v1.162.0
   image: matrixdotorg/synapse
   name: matrix-synapse
   backup:
@@ -66,7 +66,7 @@ synapse:
 element:
   healthcheck:
     flavor: wget
-  version: v1.12.29
+  version: v1.12.30
   image: vectorim/element-web
   name: matrix-element
   ports:
