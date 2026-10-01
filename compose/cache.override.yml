@@ -9,6 +9,7 @@ services:
     environment:
       ENABLE_MANIFEST_CACHE: "true"
       AUTH_REGISTRIES: ""
+      REGISTRIES: ${INFINITO_CACHE_REGISTRIES:?Run 'make dotenv' to generate the .env single source of truth}
       CACHE_MAX_SIZE: "${INFINITO_CACHE_REGISTRY_MAX_SIZE:?Run 'make dotenv' to generate the .env single source of truth}"
       DISABLE_IPV6: "true"
     volumes:

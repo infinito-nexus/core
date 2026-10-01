@@ -37,6 +37,7 @@ from .infinito.cache import conf as cache_conf
 from .infinito.cache import hosts as cache_hosts
 from .infinito.cache import http_hosts as cache_http_hosts
 from .infinito.cache import paths as cache_paths
+from .infinito.cache import registries as cache_registries
 from .infinito.cache import stack as cache_stack
 from .infinito.cache import tls as cache_tls
 from .infinito.cache import upstreams as cache_upstreams
@@ -91,6 +92,7 @@ ORDERED_HANDLERS = [
     cache_http_hosts,
     cache_tls,
     cache_upstreams,
+    cache_registries,
     cache_stack,
     cache_paths,
     tor_socks_port,
