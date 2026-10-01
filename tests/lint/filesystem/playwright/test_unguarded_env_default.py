@@ -127,8 +127,7 @@ class TestUnguardedEnvDefault(unittest.TestCase):
             violations.extend(_scan_file(path))
         if violations:
             header = [
-                f"Env values defaulted to \"\" that nothing handles "
-                f"({len(violations)}):",
+                f'Env values defaulted to "" that nothing handles ({len(violations)}):',
                 "",
                 "The spec consumes the value unconditionally, so a key the deploy",
                 "never wrote turns into an empty string that navigates to `/`, or",
