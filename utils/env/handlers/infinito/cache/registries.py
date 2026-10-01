@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_name
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
     from utils.env.builder import BuildContext, EnvBuilder
@@ -43,7 +44,7 @@ _IMAGE_LINE = re.compile(r"^\s*image:\s*(?P<value>\S+)")
 def _image_values() -> set[str]:
     """Return every literal ``image:`` value declared under ``roles/``."""
     values: set[str] = set()
-    for path in sorted((PROJECT_ROOT / "roles").glob("*/meta/services.yml")):
+    for path in sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")):
         try:
             text = read_text(str(path))
         except (OSError, UnicodeDecodeError):
