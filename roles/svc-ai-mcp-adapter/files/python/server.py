@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import threading
 import time
@@ -72,6 +73,10 @@ NoRedirect = sse.NoRedirect
 OPENER = urllib.request.build_opener(NoRedirect)
 
 
+_ARG_KEY_RE = re.compile(r"^[A-Za-z0-9_]+$")
+_MAX_ARG_VALUE_LEN = 512
+
+
 def log(event):
     """Emit one audit record as a single JSON line.
 
@@ -80,6 +85,16 @@ def log(event):
     """
     sys.stdout.write(json.dumps(event, separators=(",", ":")) + "\n")
     sys.stdout.flush()
+
+
+def _validate_upstream_argument(key, value):
+    """Validate untrusted input before using it in an upstream URL component."""
+    if not _ARG_KEY_RE.match(str(key)):
+        raise PermissionError("invalid_argument_key")
+    if not isinstance(value, (str, int, float, bool)):
+        raise PermissionError("invalid_argument_type")
+    if len(str(value)) > _MAX_ARG_VALUE_LEN:
+        raise PermissionError("argument_too_long")
 
 
 def call_upstream(method, path, arguments):
@@ -93,13 +108,15 @@ def call_upstream(method, path, arguments):
     resolved = path
     query = {}
     for key, value in (arguments or {}).items():
+        _validate_upstream_argument(key, value)
+        key = str(key)
         placeholder = "{" + key + "}"
         if placeholder in resolved:
             resolved = resolved.replace(
                 placeholder, urllib.parse.quote(str(value), safe="")
             )
         else:
-            query[key] = value
+            query[key] = str(value)
     if query:
         resolved = f"{resolved}?{urllib.parse.urlencode(query)}"
 
