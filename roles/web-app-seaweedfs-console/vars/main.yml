@@ -11,7 +11,7 @@ SEAWEEDFS_ENGINE_MASTER_PORT: "{{ lookup('config', SEAWEEDFS_ENGINE_ID, 'service
 SEAWEEDFS_CONSOLE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 SEAWEEDFS_SSO_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.local.sso') }}"
 
-SEAWEEDFS_FILER_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.filer') }}"
-SEAWEEDFS_MASTER_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.master') }}"
+SEAWEEDFS_FILER_DOMAIN: "{{ lookup('domains', application_id).filer }}"
+SEAWEEDFS_MASTER_DOMAIN: "{{ lookup('domains', application_id).master }}"
 
 SEAWEEDFS_NGINX_CONF_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
