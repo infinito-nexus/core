@@ -37,10 +37,21 @@ class Builder:
     def _ready(self, marker):
         self._save_state(marker, state="ready", phase="", progress=100, log=[])
 
-    def _failed(self, marker, state, exc):
+    def _failed(self, marker, state, exc, ref):
         self._append_log(state, str(exc))
-        self._save_state(marker, **{**state, "state": "failed"})
+        self._save_state(marker, **{**state, "state": "failed", "ref": ref})
         print(f"build {marker} failed: {exc}", file=sys.stderr, flush=True)
+
+    def _failed_at(self, marker):
+        """Return the ref whose build of ``marker`` last failed, else empty.
+
+        Args:
+            marker: queue file name, ``version`` or ``version:code``.
+        """
+        state = self._state(marker)
+        if state.get("state") != "failed":
+            return ""
+        return str(state.get("ref", ""))
 
     def _run(self, version, state, command, env, cwd):
         with subprocess.Popen(
@@ -60,6 +71,28 @@ class Builder:
         if process.returncode:
             raise subprocess.CalledProcessError(process.returncode, command)
 
+    def _generate(self, marker, state, src, work):
+        """Write the generated sources of a checkout before Sphinx reads it.
+
+        Args:
+            marker: queue marker the progress is saved under.
+            state: build state, advanced to the generate phase in place.
+            src: checkout the generators read and write.
+            work: directory the generators run in.
+        """
+        generators = generate_commands(src)
+        if not generators:
+            return
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join([str(src), str(self.package_dir.parent)]),
+        }
+        state["phase"] = "generate"
+        for step, command in enumerate(generators, start=1):
+            self._run(marker, state, command, env, work)
+            state["progress"] = 10 * step // len(generators)
+            self._save_state(marker, **state)
+
     def build(self, version):
         """Build ``version`` into its site, replacing an older site atomically.
 
@@ -77,22 +110,11 @@ class Builder:
         ref = self._wanted_ref(version, head)
         work = self.scratch / version
         src, conf, out = work / "src", work / "conf", work / "out"
-        tooling = str(self.package_dir.parent)
         state = {"state": "building", "phase": "checkout", "progress": 0, "log": []}
         try:
             self._save_state(version, **state)
             self._checkout(version, ref, work)
-
-            generators = generate_commands(src)
-            env = {
-                **os.environ,
-                "PYTHONPATH": os.pathsep.join([str(src), tooling]),
-            }
-            state["phase"] = "generate"
-            for step, command in enumerate(generators, start=1):
-                self._run(version, state, command, env, work)
-                state["progress"] = 10 * step // len(generators)
-                self._save_state(version, **state)
+            self._generate(version, state, src, work)
 
             state["phase"] = "sphinx"
             sphinx_env = self._sphinx_env(version, src)
@@ -124,7 +146,7 @@ class Builder:
             for code in translated:
                 self.request(version, code, background=True)
         except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
-            self._failed(version, state, exc)
+            self._failed(version, state, exc, ref)
         finally:
             self._dequeue(version)
             shutil.rmtree(work, ignore_errors=True)
@@ -171,9 +193,13 @@ class Builder:
         marker = f"{version}{QUEUE_SEPARATOR}{code}"
         self._forget_refs()
         head, _ = self.refs()
-        if not self._current(version, head) or not self.translates(version, code):
+        if not self.translates(version, code):
+            self._dequeue(marker)
+            return
+        if not self._current(version, head):
             self._dequeue(marker)
             self.request(version)
+            self.request(version, code, background=True)
             return
         ref = self._wanted_ref(version, head)
         work = self.scratch / f"{version}{QUEUE_SEPARATOR}{code}"
@@ -188,6 +214,8 @@ class Builder:
         try:
             self._save_state(marker, **state)
             self._checkout(version, ref, work)
+            self._generate(marker, state, src, work)
+            state["phase"] = f"translate {code}"
             self._run(
                 marker,
                 state,
@@ -212,7 +240,7 @@ class Builder:
             self._publish_site(self.translations / version, code, target / "html", ref)
             self._ready(marker)
         except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
-            self._failed(marker, state, exc)
+            self._failed(marker, state, exc, ref)
         finally:
             shutil.rmtree(work, ignore_errors=True)
             self._dequeue(marker)

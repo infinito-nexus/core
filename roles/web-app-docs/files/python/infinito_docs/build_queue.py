@@ -41,6 +41,9 @@ class Queue:
             return
         else:
             marker = f"{version}{QUEUE_SEPARATOR}{code}"
+        failed_ref = self._failed_at(marker)
+        if background and failed_ref and failed_ref == self._wanted_ref(version, head):
+            return
         lane = self.queue / BACKGROUND_LANE if background else self.queue
         lane.mkdir(parents=True, exist_ok=True)
         if background and (self.queue / marker).exists():
