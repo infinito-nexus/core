@@ -134,9 +134,10 @@ msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr "Funció base per a la configuració del gestor de sistemes mitjançant els valors desplegables, arranjament per omissió i validació de les unitats"
 
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs-console:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr ""
+msgstr "Interfície d' administració del navegador per a la SeaweedFS botiga d'objectes, servint a l'arxiu i consola mestre darrere de SSO"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
@@ -551,9 +552,10 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "Eines de desenvolupament i CI/CD"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr ""
+msgstr "S distribuït3Una botiga d'objectes incompatibles per a compartir-se, per pal·licador cubetejar a través dels rols web-app"
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"

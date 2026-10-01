@@ -134,9 +134,10 @@ msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr "Základná úloha pre konfiguráciu systémového manažéra prostredníctvom drop-in, predvolených nastavení a validácie jednotiek"
 
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs-console:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr ""
+msgstr "Prehliadač administračné rozhranie pre SeaweedFS obchod s objektami, obsluhujúci filer a hlavné konzoly za SSO"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
@@ -548,9 +549,10 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "Vývoj a nástroje CI/CD"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr ""
+msgstr "Distribuované S3-kompatibilný obchod s objektmi pre zdieľané, per-consumer vedro zabezpečenie cez webové app role"
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"

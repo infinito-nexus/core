@@ -136,9 +136,10 @@ msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr "সিস্টেমের কনফিগারেশন ব্যবস্থার মূল ভূমিকা, ডিফল্ট মান ও একক ব্যবহারের উদ্দেশ্যে চিহ্নিত"
 
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs-console:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr ""
+msgstr "প্রাপ্ত করার জন্য ব্রাউজারের প্রশাসন ইন্টারফেস SeaweedFS বস্তু সংরক্ষণ করো, ফাইল এবং মাস্টার কনসোল এস.এস.ও এর পিছনে রেখে দাও"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
@@ -560,9 +561,10 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "ডেভেলপমেন্ট এবং CI/CD টুল"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr ""
+msgstr "ডিস্ট্রিবিউটেড Scraper3- শেয়ার করা বস্তু সংরক্ষণ করা, প্রতিটি ওয়ার্কার বালতির বিনিময়ে ওয়েব-প্ল্যাটিং ভূমিকা পালন করা"
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
