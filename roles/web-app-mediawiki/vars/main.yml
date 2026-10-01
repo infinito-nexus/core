@@ -38,6 +38,14 @@ MEDIAWIKI_OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
 MEDIAWIKI_OIDC_AUTOLOGIN: true
 MEDIAWIKI_OIDC_LOCALLOGIN: false
 
+MEDIAWIKI_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+MEDIAWIKI_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"
+MEDIAWIKI_OBJSTORE_ACCESS_KEY: "{{ lookup('objstore', application_id, 'access_key') }}"
+MEDIAWIKI_OBJSTORE_SECRET_KEY: "{{ lookup('objstore', application_id, 'secret_key') }}"
+MEDIAWIKI_OBJSTORE_REGION: "{{ lookup('objstore', application_id, 'region') }}"
+MEDIAWIKI_OBJSTORE_URL: "{{ lookup('objstore', application_id, 'url') }}"
+MEDIAWIKI_OBJSTORE_PUBLIC_URL: "{{ lookup('objstore', application_id, 'public_url') }}"
+
 MEDIAWIKI_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 MEDIAWIKI_LITELLM_PROVIDER: "open-ai"
 MEDIAWIKI_LITELLM_CONNECTION:
@@ -50,13 +58,14 @@ MEDIAWIKI_LITELLM_HTTP_TIMEOUT: 120
 MEDIAWIKI_EXT_BRANCH: "REL{{ (MEDIAWIKI_VERSION | string).split('.')[:2] | join('_') }}"
 MEDIAWIKI_EXT_CFG_BASE: "{{ [ MEDIAWIKI_CONFIG_DIR, 'mwext', MEDIAWIKI_EXT_BRANCH ] | path_join }}"
 MEDIAWIKI_EXT_HELPER_DIR: "{{ [ MEDIAWIKI_EXT_CFG_BASE, 'helpers' ] | path_join }}"
-MEDIAWIKI_EXT_NAMES: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled') | map(attribute='key') | list }}"
+MEDIAWIKI_EXT_ENABLED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled') | list }}"
 # nocheck: url
 MEDIAWIKI_EXT_URL_PREFIX: "https://codeload.github.com/wikimedia/mediawiki-extensions-"
 MEDIAWIKI_EXT_URL_SUFFIX: "/tar.gz/refs/heads/{{ MEDIAWIKI_EXT_BRANCH }}"
 MEDIAWIKI_EXT_LIST: >-
   {% set _exts = [] %}
-  {%- for _name in MEDIAWIKI_EXT_NAMES -%}
-  {%- set _ = _exts.append({'name': _name, 'url': MEDIAWIKI_EXT_URL_PREFIX ~ _name ~ MEDIAWIKI_EXT_URL_SUFFIX}) -%}
+  {%- for _ext in MEDIAWIKI_EXT_ENABLED -%}
+  {%- set _archive = (_ext.value.config | default({}, true)).archive | default('', true) -%}
+  {%- set _ = _exts.append({'name': _ext.key, 'url': _archive or (MEDIAWIKI_EXT_URL_PREFIX ~ _ext.key ~ MEDIAWIKI_EXT_URL_SUFFIX)}) -%}
   {%- endfor -%}
   {{ _exts }}

@@ -25,7 +25,7 @@
     apply:
       delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
   when:
-    - (MEDIAWIKI_OIDC_ENABLED | bool) or (MEDIAWIKI_LITELLM_ENABLED | bool)
+    - (MEDIAWIKI_OIDC_ENABLED | bool) or (MEDIAWIKI_LITELLM_ENABLED | bool) or (MEDIAWIKI_OBJSTORE_ENABLED | bool)
     - IS_STACK_HOST | bool
 
 - name: "📂 Load update procedures for '{{ application_id }}'"
