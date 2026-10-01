@@ -117,7 +117,7 @@ class ObjstoreLookupTests(unittest.TestCase):
                 "services": {"seaweedfs": {"enabled": True, "shared": True}},
                 "secrets": {"credentials": {"objstore_secret_key": "sk"}},
             },
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "services": {
                     "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
                 },
@@ -127,7 +127,7 @@ class ObjstoreLookupTests(unittest.TestCase):
 
         out = self._run(["web-app-foo"], applications)[0]
 
-        self.assertEqual(out["id"], "web-app-seaweedfs")
+        self.assertEqual(out["id"], "web-svc-seaweedfs")
         self.assertEqual(out["engine"], "seaweedfs")
         self.assertTrue(out["enabled"])
         self.assertTrue(out["shared"])
@@ -146,6 +146,33 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(
             self._run(["web-app-foo", "url"], applications)[0],
             "http://seaweedfs-central:8334",
+        )
+
+    def test_credentialed_url_percent_encodes_both_halves(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"seaweedfs": {"enabled": True, "shared": True}},
+                "secrets": {"credentials": {"objstore_secret_key": "a/b+c=d"}},
+            },
+            "web-svc-seaweedfs": {
+                "services": {
+                    "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
+                },
+            },
+        }
+
+        out = self._run(["web-app-foo"], applications)[0]
+
+        self.assertEqual(
+            out["credentialed_url"],
+            "http://foo:a%2Fb%2Bc%3Dd@seaweedfs-central:8334",
+        )
+        self.assertEqual(out["url"], "http://seaweedfs-central:8334")
+
+    def test_credentialed_url_is_empty_without_an_engine(self):
+        applications = {"web-app-foo": {"services": {}}}
+        self.assertEqual(
+            self._run(["web-app-foo", "credentialed_url"], applications)[0], ""
         )
 
     def test_public_url_scheme_follows_provider_tls(self):
@@ -176,7 +203,7 @@ class ObjstoreLookupTests(unittest.TestCase):
 
         out = self._run(["web-app-foo"], applications)[0]
 
-        self.assertEqual(out["id"], "web-app-seaweedfs")
+        self.assertEqual(out["id"], "web-svc-seaweedfs")
         self.assertEqual(out["engine"], "seaweedfs")
         self.assertTrue(out["enabled"])
         self.assertFalse(out["shared"])

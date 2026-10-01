@@ -3,20 +3,21 @@ const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
-  runSeaweedfsStorageCheck,
-  performKeycloakLoginForm,
   decodeDotenvQuotedValue,
-  normalizeBaseUrl,
   gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+  requireDotenvValue,
+  runSeaweedfsStorageCheck,
 } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
-const peertubeBaseUrl = normalizeBaseUrl(process.env.PEERTUBE_BASE_URL || "");
-const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const peertubeBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.PEERTUBE_BASE_URL, "PEERTUBE_BASE_URL"));
+const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const oidcButtonText = decodeDotenvQuotedValue(process.env.OIDC_BUTTON_TEXT || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 
 async function loginAdminViaOidc(page) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;

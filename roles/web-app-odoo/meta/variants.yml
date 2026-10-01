@@ -35,6 +35,9 @@
     ldap:
       enabled: true
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
     tor:
       enabled: true
 - services:
@@ -69,6 +72,9 @@
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true
 - services:
@@ -99,5 +105,8 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true

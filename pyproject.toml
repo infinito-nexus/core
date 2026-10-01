@@ -14,6 +14,7 @@ dependencies = [
   # Pinned: utils/recovery reads the generation layout from baudolo's own
   # BackupPaths, so the version here and in svc-bkp-volume-2-local must match.
   "backup-docker-to-local==7.0.2",
+  "Babel",
   "bcrypt",
   "cryptography",
   "humanfriendly",
@@ -26,7 +27,7 @@ dependencies = [
 
 [project.optional-dependencies]
 deploy = [
-  "ansible",
+  "ansible==14.4.0",
   "colorscheme-generator @ https://github.com/kevinveenbirkenbach/colorscheme-generator/archive/refs/tags/v0.3.0.zip",
   "tld",
   "passlib",
@@ -39,6 +40,10 @@ dev = [
   "git-maintainer-tools",
   "pytest>=9.1",
   "pytest-xdist",
+  "myst-parser",
+  "pathspec",
+  "sphinx",
+  "sphinxawesome-theme",
 ]
 
 [project.scripts]

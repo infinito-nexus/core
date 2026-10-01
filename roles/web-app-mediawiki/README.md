@@ -8,54 +8,6 @@ Empower your knowledge base with MediaWiki, a versatile and collaborative platfo
 
 This role deploys MediaWiki using Docker, automating the setup of your wiki instance along with its underlying MariaDB database. It handles generating the essential configuration file (LocalSettings.php) from a seeded template and integrates with an NGINX reverse proxy for secure, efficient web access.
 
-## Cosmos
-
-The diagram places MediaWiki in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-mediawiki 🐳🐝]
-        svc_litellm["litellm"]
-        svc_sso["sso"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_mariadb["mariadb"]
-        svc_mediawiki["mediawiki"]
-        svc_css["css"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -. "0..1" .-> svc_email
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Collaborative Editing:** Enable multiple users to create and update content simultaneously through an intuitive interface.
@@ -64,48 +16,9 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Scalable Deployment:** Utilize Docker for a portable and scalable setup that adapts as your community grows.
 - **Secure and Reliable:** Benefit from secure access via an NGINX reverse proxy combined with a MariaDB backend for reliable data storage.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy MediaWiki onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-mediawiki full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy MediaWiki to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-mediawiki
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
-
 ## Addons
 
-This role ships its OIDC login stack and its AI editing stack as unified addons declared in [`meta/addons/`](meta/addons/). All four are MediaWiki extensions installed from upstream at the `REL<major>_<minor>` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration.
+This role ships its OIDC login stack, its AI editing stack and its object-store backend as unified addons declared in `meta/addons/`. Each is a MediaWiki extension installed from upstream and gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration.
 
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|
@@ -113,8 +26,13 @@ This role ships its OIDC login stack and its AI editing stack as unified addons 
 | OpenIDConnect | extension | enabled when `services.sso.enabled` | `sso` |
 | VisualEditorPlus | extension | enabled when `services.litellm.enabled` | `litellm` |
 | AIEditingAssistant | extension | enabled when `services.litellm.enabled` | `litellm` |
+| AWS | extension | enabled when `services.seaweedfs.enabled` | `seaweedfs` |
 
-`meta/addons/` is also the download list: `MEDIAWIKI_EXT_NAMES` keeps only the addons whose `enabled` resolves true, so a deployment without the matching service never pulls that tarball or runs composer for it.
+`meta/addons/` is also the download list: `MEDIAWIKI_EXT_ENABLED` keeps only the addons whose `enabled` resolves true, so a deployment without the matching service never pulls that tarball or runs composer for it.
+
+An addon resolves its tarball from `MEDIAWIKI_EXT_URL_PREFIX` plus its own id and the `REL<major>_<minor>` branch matching the pinned image. An addon that declares `config.archive` in `meta/addons/<id>.yml` uses that URL instead; `AWS` does, because Extension:AWS lives at `edwardspec/mediawiki-aws-s3` rather than under `wikimedia/mediawiki-extensions-*`, and the only `REL` branch it carries is `REL1_34`.
+
+`AWS` therefore carries the tag twice: in `version` (what the drift checker compares against the upstream catalog) and in `config.archive` (what the deploy downloads and what `tests/external/roles/test_pinned_addon_archives_available.py` probes). Move both in the same edit.
 
 ## AI editing assistant
 
@@ -154,14 +72,22 @@ provisions a 3-node DinD swarm, deploys this role as a stack, drains
 the worker running the application service, and asserts that wiki
 content survives the reschedule.
 
+## Object storage
+
+With `services.seaweedfs.enabled`, `templates/LocalSettings.php.j2` loads `AWS` and points it at the SeaweedFS S3 gateway:
+
+- `$wgAWSCredentials`, `$wgAWSRegion` and `$wgAWSBucketName` come from `lookup('objstore', application_id, …)`, so the wiki signs with its own per-consumer identity from the engine's `s3.json`.
+- `$wgFileBackends['s3']['endpoint']` is the in-cluster `http://…:8333` URL and `$wgFileBackends['s3']['use_path_style_endpoint']` is true. SeaweedFS serves buckets under a path, not a subdomain, so virtual-host addressing resolves nowhere. `$wgAWSUseHTTPS` is false for the same endpoint.
+- `$wgAWSBucketDomain` is the public `objstore.public_url` (scheme, the provider's canonical API domain and the bucket path). The extension appends the zone root directory to it and prefixes `https://` only when the value carries no scheme, so a path-style value renders `…/<bucket>/thumb` correctly. `services.seaweedfs.public: true` grants the anonymous `Read` on that bucket the browser needs to fetch those URLs.
+- `$wgEnableUploads` follows the same flag. Extension:AWS only replaces `$wgLocalFileRepo`; it opens no upload surface of its own, so without the object store the wiki keeps its uploads switched off rather than filling the local `images` volume.
+- `AWS_REQUEST_CHECKSUM_CALCULATION` and `AWS_RESPONSE_CHECKSUM_VALIDATION` are set to `WHEN_REQUIRED` through `putenv`, the workaround the extension's README prescribes for S3-compatible providers: `aws/aws-sdk-php` is resolved as `^3.67` at install time, and from v3.337.0 the SDK sends checksum trailers by default.
+
+The block sits behind a `file_exists` guard on `extensions/AWS/vendor/autoload.php`, because `LocalSettings.php` is rendered before the extensions are installed and the S3 backend `require`s that autoloader. `tasks/02_extensions.yml` asserts `Aws\S3\S3Client` resolves inside the container afterwards, so an unfinished composer step cannot reach a green deploy.
+
 ## Persona contract opt-outs
 
-This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The wiki's bureaucrat and sysop is a local account created by `maintenance/run.php createAndPromote` in `tasks/04_admin.yml` with `MEDIAWIKI_ADMINISTRATOR_PASSWORD` — the role-local `credentials.administrator_password`, not the Keycloak secret the persona helper carries in `ADMIN_PASSWORD`. `$wgPluggableAuth_EnableLocalLogin` is false, so no native form accepts that password anyway, and `$wgOpenIDConnect_UseEmailNameAsUserName` lands the Keycloak identity on a separate, e-mail-named wiki account that holds no sysop rights.
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The wiki's bureaucrat and sysop is a local account created by `maintenance/run.php createAndPromote` in `tasks/04_admin.yml` with `MEDIAWIKI_ADMINISTRATOR_PASSWORD` — the role-local `credentials.administrator_password`, not the Keycloak secret the persona helper carries in `ADMIN_PASSWORD`. `$wgPluggableAuth_EnableLocalLogin` is false, so no native form accepts that password anyway, and `$wgOpenIDConnect_UseEmailNameAsUserName` lands the Keycloak identity on a separate, e-mail-named wiki account that holds no sysop rights. The path back is a deploy step that promotes the OIDC-provisioned administrator account to sysop.
 
 Biber is blocked by `$wgPluggableAuth_EnableAutoLogin`, which this role sets to true in `vars/main.yml`: every anonymous request is bounced straight back into the identity provider, so the verified unauthenticated landing after in-app logout that the persona contract demands can never be observed here. The path back to the generic personas is either auto-login off, or a deploy step that promotes the OIDC-provisioned administrator account to sysop.
 
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+The SeaweedFS scenario (`files/playwright/test-seaweedfs.js`) is not the biber persona journey and does not read `PERSONA_BIBER_BLOCKED`: it only needs a session that may upload, so it follows the auto-login bounce with biber's Keycloak credentials and gates on `services.sso.enabled` and `services.seaweedfs.enabled`. PluggableAuth auto-creates the wiki account on that sign-in, and it lands in the `user` group, which carries MediaWiki's default `upload` right.

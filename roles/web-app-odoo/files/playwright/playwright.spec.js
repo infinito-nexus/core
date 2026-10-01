@@ -3,6 +3,9 @@ const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
+
+require("./test-seaweedfs");
+
 test.use({
   ignoreHTTPSErrors: true
 });

@@ -1,0 +1,8 @@
+---
+proxy_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-seaweedfs-console', 'directories.volumes'), 'nginx.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: seaweedfs-console
+      target: /etc/nginx/conf.d/default.conf

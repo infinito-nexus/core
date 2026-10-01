@@ -2,6 +2,10 @@
 # nocheck: dynamic-flag
 legal:
   modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
     host:
       enabled: false
   enabled: false

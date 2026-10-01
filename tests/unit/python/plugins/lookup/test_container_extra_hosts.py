@@ -38,6 +38,8 @@ class TestContainerExtraHostsLookup(unittest.TestCase):
             "_sso_enabled": True,
             "_provider_domain": ONION,
             "DEPLOYMENT_MODE": "compose",
+            "IS_COMPOSE_MODE": True,
+            "IS_SWARM_MODE": False,
         }
         variables.update(overrides)
         kwargs = {} if extra_hosts is None else {"extra_hosts": extra_hosts}
@@ -182,6 +184,8 @@ class TestContainerExtraHostsLookup(unittest.TestCase):
             "_sso_enabled": True,
             "_provider_domain": ONION,
             "DEPLOYMENT_MODE": "compose",
+            "IS_COMPOSE_MODE": True,
+            "IS_SWARM_MODE": False,
         }
         variables.update(overrides)
         return self.lookup.run(None, variables=variables, entries_only=True)

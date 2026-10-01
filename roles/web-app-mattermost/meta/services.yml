@@ -45,8 +45,11 @@ mattermost:
   enabled: true # nocheck: dynamic-flag
   shared: true
   user_access_token_enabled: "{{ 'web-app-nextcloud' in group_names }}"
-  image: mattermost/mattermost-team-edition
-  version: 11.11.0
+  image: debian
+  version: 13.7-slim
+  custom: true
+  repository: https://github.com/mattermost/mattermost.git
+  ref: v11.11.0
   min_storage: 659MB
   backup:
     no_stop_required: true
@@ -77,8 +80,8 @@ minio:
   shared: false # nocheck: dynamic-flag
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

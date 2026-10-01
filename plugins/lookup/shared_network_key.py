@@ -8,7 +8,7 @@ claim the rendered file does not make. The key is derived from
 ``utils.networks.render``, which renders the file itself, so the two cannot
 drift.
 
-Examples:
+Examples::
 
     - name: create the shared network
       ansible.builtin.command:

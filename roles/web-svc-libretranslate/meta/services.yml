@@ -1,6 +1,7 @@
 ---
 # nocheck: playwright-service-flag — self-provider
 libretranslate:
+  name: libretranslate
   healthcheck:
     test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
     # nocheck: healthcheck-timing-override  the probe starts a venv interpreter, which does not finish inside the 5s default
@@ -17,9 +18,8 @@ libretranslate:
   version: v1.9.6
   custom: true
   min_storage: 402MB
-  load_only:
-    - en
-    - de
+  load_only: []
+  directions: both
   ports:
     local:
       http: 8045
@@ -29,10 +29,11 @@ libretranslate:
   proxy:
     service_key: libretranslate
   lifecycle: beta
-  cpus: "0.2"
-  mem_reservation: 128m
-  mem_limit: 256m
-  pids_limit: 256
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  gpu: true
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

@@ -5,7 +5,8 @@ path that an application role maps to. It replaces the scattered
 `[RBAC.GROUP.NAME, ...] | path_join` idiom so the per-application
 OU hierarchy has one authoritative producer.
 
-Usage:
+Usage::
+
     "{{ lookup('rbac_group_path',
                application_id='web-app-yourls',
                role='administrator') }}"
@@ -23,6 +24,7 @@ Usage:
     -> "roles/web-app-wordpress/network-administrator"
 
 Contract:
+
 - `application_id` MUST refer to a role that declares an `rbac:` block
   in its `meta/services.yml`. The role may be tenant-aware
   (`rbac.tenancy.axis == "domain"`) or not (default).

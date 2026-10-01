@@ -33,7 +33,7 @@ _RULE = "model-backend-via-gateway"
 
 _GATEWAY_ROLE = "svc-ai-litellm"
 
-_PROVIDER_URL = re.compile(r"\{\{[^}]*\b(OLLAMA|LMSTUDIO)_BASE_LOCAL_URL\b")
+_PROVIDER_URL = re.compile(r"\{[{%][^}]*\b(OLLAMA|LMSTUDIO)_BASE_LOCAL_URL\b")
 
 
 class TestModelBackendViaGateway(unittest.TestCase):

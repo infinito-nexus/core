@@ -6,6 +6,10 @@
 # matrix exercises the in-group_names branch of web-svc-libretranslate.
 
 - services:
+    libretranslate:
+      load_only:
+        - en
+        - de
     matomo:
       enabled: true
       shared: true
@@ -32,6 +36,10 @@
       enabled: true
       shared: true
 - services:
+    libretranslate:
+      load_only:
+        - en
+        - de
     matomo:
       enabled: false
       shared: false

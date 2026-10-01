@@ -12,7 +12,7 @@ from cli.administration.deploy.ci.trigger import __main__ as trigger
 from cli.meta.ci import matrix
 from tests.utils.ci.job_names import deploy_job_name
 from tests.utils.ci.run_name import render
-from utils.github.variant.pools import DISTROS, FILESYSTEMS
+from utils.github.variant.pools import ARCHITECTURES, DISTROS, FILESYSTEMS
 
 
 def _job(mode: str, app: str, conclusion: str) -> dict:
@@ -39,9 +39,11 @@ _JOBS = [
     _job("swarm", "web-app-y", "success"),
 ]
 
-_AXES = f"%{DISTROS[0]}"
-"""The distro glyph _JOBS carry, spelled back out as ASCII. The filesystem is
-deliberately absent: a title states the assigned kind, not the effective one."""
+_AXES = f"%{DISTROS[0]}:{ARCHITECTURES[0]}"
+"""The distro and architecture glyphs _JOBS carry, spelled back out as ASCII.
+The filesystem is deliberately absent: a title states the assigned kind, not
+the effective one, while the architecture is the machine the job really ran
+on."""
 
 _FAILED_TOKENS = (
     f"web-app-x#0,1@swarm+clearnet{_AXES} web-app-y#0,1@compose+clearnet{_AXES}"
@@ -95,6 +97,38 @@ class TestTriggerMain(unittest.TestCase):
         self.assertEqual(
             calls, [("entry-manual-steer.yml", "feature/x", "__ALL__", "", {}, "o/r")]
         )
+
+    def test_priority_is_dispatched_with_the_axis_overrides(self) -> None:
+        rc, calls = self._run(
+            [
+                "--priority",
+                "web-app-b#1@compose  web-app-a#0@swarm",
+                "--workspace",
+                "false",
+                "--chunk-gate",
+                "false",
+                "--filesystem",
+                "btrfs",
+            ]
+        )
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0][3], "web-app-a#0@swarm web-app-b#1@compose")
+        self.assertEqual(
+            calls[0][4],
+            {"workspace": "false", "chunk_gate": "false", "filesystem": "btrfs"},
+        )
+
+    def test_an_unusable_token_is_refused_before_anything_is_dispatched(self) -> None:
+        with mock.patch.object(
+            trigger.validate, "problems", return_value=(["bad token"], [])
+        ):
+            rc, calls = self._run(["--priority", "web-app-a#9"])
+        self.assertEqual(rc, 1)
+        self.assertEqual(calls, [], "a refused line must not reach the workflow")
+
+    def test_priority_and_failed_cannot_both_build_the_line(self) -> None:
+        with self.assertRaises(SystemExit):
+            self._run(["--failed", "--priority", "web-app-a#0"])
 
     def test_apps_explicit_list(self) -> None:
         rc, calls = self._run(["--apps", "web-app-a  web-app-b"])

@@ -27,7 +27,7 @@ non-manager nodes (exit 64) and reports clear errors when the service
 has no running task (exit 65) or the task is not yet bound to a
 container (exit 66).
 
-Examples:
+Examples::
 
     # roles/web-app-X/vars/main.yml
     X_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'x') }}"

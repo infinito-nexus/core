@@ -56,7 +56,6 @@ users:
     firstname: "Harry"
     lastname: "Beaver"
     website: "https://www.infinito.nexus/"
-    email: "biber@infinito.test"
     gpg: "DUMMY-GPG-KEY-NOT-SET"
     password: "VeryUnsecurePassword!1"
 
@@ -68,3 +67,9 @@ users:
 SIZE_PERCENT_CLEANUP_DISC_SPACE: 99 # Exception: set this high because the DinD CI environment in the GitHub workflow can already sit at ~92% disk usage.
 
 WORKSTATION_USER: biber
+
+applications:
+  svc-cache-package:
+    secrets:
+      credentials:
+        admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"

@@ -29,9 +29,16 @@ if command -v apt-get >/dev/null 2>&1; then
 		echo "Warning: apt-get update failed; chrome's shared libs may stay unresolved." >&2
 fi
 
-if ! deps_output="$(npx --yes puppeteer browsers install chrome-headless-shell --install-deps 2>&1)"; then
-	printf 'Warning: chrome-headless-shell provisioning failed; mermaid rendering may fail:\n%s\n' \
-		"${deps_output}" >&2
+provision_browser() {
+	timeout 900 npx --yes puppeteer browsers install chrome-headless-shell --install-deps 2>&1
+}
+
+if ! deps_output="$(provision_browser)"; then
+	rm -rf "${PUPPETEER_CACHE_DIR:-${HOME}/.cache/puppeteer}/chrome-headless-shell"
+	if ! deps_output="$(provision_browser)"; then
+		printf 'Warning: chrome-headless-shell provisioning failed; mermaid rendering may fail:\n%s\n' \
+			"${deps_output}" >&2
+	fi
 fi
 
 workdir="$(mktemp -d)"

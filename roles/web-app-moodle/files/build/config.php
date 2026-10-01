@@ -54,4 +54,26 @@ $_moodle_debug     = moodle_env_bool('MOODLE_DEBUG');
 $CFG->debug        = $_moodle_debug ? 32767 : 0;
 $CFG->debugdisplay = $_moodle_debug;
 
+if (moodle_env_bool('MOODLE_OBJECTFS_ENABLED')
+        && is_file(moodle_env('MOODLE_OBJECTFS_READY_FILE'))) {
+    $CFG->alternative_file_system_class = '\\tool_objectfs\\s3_file_system';
+    $CFG->pathtophp = PHP_BINDIR . '/php';
+    $CFG->forced_plugin_settings = array(
+        'tool_objectfs' => array(
+            'enabletasks'   => 1,
+            'filesystem'    => '\\tool_objectfs\\s3_file_system',
+            'minimumage'    => 0,
+            'sizethreshold' => 0,
+            's3_base_url'   => moodle_env('MOODLE_OBJECTFS_S3_BASE_URL'),
+            's3_bucket'     => moodle_env('MOODLE_OBJECTFS_S3_BUCKET'),
+            's3_key'        => moodle_env('MOODLE_OBJECTFS_S3_KEY'),
+            's3_region'     => moodle_env('MOODLE_OBJECTFS_S3_REGION'),
+            's3_secret'     => moodle_env('MOODLE_OBJECTFS_S3_SECRET'),
+        ),
+        'tool_task' => array(
+            'enablerunnow' => 1,
+        ),
+    );
+}
+
 require_once(__DIR__ . '/lib/setup.php');

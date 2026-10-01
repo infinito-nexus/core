@@ -260,3 +260,38 @@ class TestCollapseToRoles(unittest.TestCase):
     def test_an_already_bare_role_survives_unchanged(self) -> None:
         """An untriggered priority entry may already carry no axes."""
         self.assertEqual(selections.collapse_to_roles(["web-app-a"]), ["web-app-a"])
+
+
+class TestCollapseFailures(unittest.TestCase):
+    """Only a verdict collapses a role; an unfinished row keeps its axes."""
+
+    HARD = "web-app-a#0@compose+clearnet" + _AXES
+    UNFINISHED = "web-app-b#1@swarm+tor" + _AXES
+
+    def test_a_hard_failure_collapses_and_an_unfinished_row_does_not(self) -> None:
+        self.assertEqual(
+            selections.collapse_failures([self.HARD, self.UNFINISHED], [self.HARD]),
+            ["web-app-a", self.UNFINISHED],
+        )
+
+    def test_a_failed_role_absorbs_its_own_unfinished_rows(self) -> None:
+        """The collapsed name already covers every variant of that role."""
+        self.assertEqual(
+            selections.collapse_failures(
+                [self.HARD, "web-app-a#3@swarm+tor" + _AXES], [self.HARD]
+            ),
+            ["web-app-a"],
+        )
+
+    def test_without_a_hard_failure_nothing_collapses(self) -> None:
+        self.assertEqual(
+            selections.collapse_failures([self.UNFINISHED], []), [self.UNFINISHED]
+        )
+
+    def test_strict_input_matches_the_plain_collapse(self) -> None:
+        """--strict passes the same list twice, which i8ciall relies on."""
+        hard = [self.HARD, "web-app-b#0@swarm+tor" + _AXES]
+        self.assertEqual(
+            selections.collapse_failures(hard, hard),
+            selections.collapse_to_roles(hard),
+        )

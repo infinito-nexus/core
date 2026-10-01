@@ -6,6 +6,11 @@ role whose merged applications config declares
 ``services.<service>.iframe`` (defaulting to ``enabled``) so consumers
 can tell embeddable cards from those that must open in a new tab.
 
+``canonical_domain`` is the host of ``canonical_url``, not the configured
+domain, so both follow the onion substitution a Tor deployment applies. A
+consumer that compares it against what a page actually renders would
+otherwise never match on an onion host.
+
 A role keeps declaring the service for inventory completeness but can
 opt out of this consumer-target list by setting
 ``services.<service>.scrape: false`` or ``services.<service>.track: false``.
@@ -23,6 +28,9 @@ Kwargs:
         ``deployment`` restricts to roles present anywhere in ``groups``,
         which is what a container-network consumer can actually reach;
         ``all`` returns every declaring role, deployed or not.
+    include_headless: ``True`` also returns declaring roles without a
+        canonical domain, with empty ``canonical_domain`` and
+        ``canonical_url``.
     direction: opt-in MCP filter. When set (``server``/``client``/``both``),
         only roles whose block declares that ``direction`` (or ``both``)
         are returned, and each entry additionally carries ``transport``,
@@ -39,6 +47,7 @@ Kwargs:
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlsplit
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
@@ -140,6 +149,7 @@ class LookupModule(LookupBase):
             str(direction_raw).strip().lower() if direction_raw is not None else None
         )
         deployed = _deployed_roles(scope, vars_)
+        include_headless = bool(kwargs.get("include_headless", False))
 
         tls_lookup = lookup_loader.get(
             "tls", loader=self._loader, templar=self._templar
@@ -172,7 +182,7 @@ class LookupModule(LookupBase):
             if get_entity_name(str(role_id)) == service_name:
                 continue
             canonical = _resolve_canonical_domain(str(role_id), app_config)
-            if not canonical and direction is None:
+            if not canonical and direction is None and not include_headless:
                 continue
             canonical_url = ""
             if canonical:
@@ -180,6 +190,7 @@ class LookupModule(LookupBase):
                     [str(role_id), "url.base"], variables=variables
                 )
                 canonical_url = str(resolved[0]).rstrip("/")
+                canonical = urlsplit(canonical_url).hostname or canonical
             iframe = (
                 bool(block["iframe"])
                 if "iframe" in block

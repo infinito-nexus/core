@@ -18,8 +18,8 @@ class TestParseAscii(unittest.TestCase):
 
     def test_every_axis_is_read(self) -> None:
         self.assertEqual(
-            selection.parse("web-app-a#0,2@swarm+tor%debian/zfs"),
-            selection.Pin("web-app-a", (0, 2), "swarm", True, "debian", "zfs"),
+            selection.parse("web-app-a#0,2@swarm+tor%debian/zfs:arm64"),
+            selection.Pin("web-app-a", (0, 2), "swarm", True, "debian", "zfs", "arm64"),
         )
 
     def test_the_distro_and_filesystem_are_optional_like_the_rest(self) -> None:
@@ -40,8 +40,17 @@ class TestParseAscii(unittest.TestCase):
         with self.assertRaises(SystemExit):
             selection.parse("web-app-a/xfs")
 
+    def test_an_architecture_alone_still_counts_as_a_narrowing(self) -> None:
+        pin = selection.parse("web-app-a:arm64")
+        self.assertEqual(pin.architecture, "arm64")
+        self.assertTrue(pin.pinned)
+
+    def test_an_unknown_architecture_aborts(self) -> None:
+        with self.assertRaises(SystemExit):
+            selection.parse("web-app-a:riscv64")
+
     def test_the_token_round_trips_through_describe(self) -> None:
-        token = "web-app-a#0,2@swarm+tor%debian/zfs"
+        token = "web-app-a#0,2@swarm+tor%debian/zfs:arm64"
         self.assertEqual(selection.describe(selection.parse(token)), token)
 
     def test_clearnet_is_the_other_onion_state(self) -> None:
@@ -94,6 +103,16 @@ class TestParseLabel(unittest.TestCase):
         self.assertEqual(
             selection.parse(pasted),
             selection.Pin("web-app-a", (2,), "swarm", True, "fedora", "btrfs"),
+        )
+
+    def test_the_architecture_glyph_is_read_too(self) -> None:
+        pasted = (
+            f"{to_emoji('swarm')}{to_emoji('tor')}{to_emoji('fedora')}"
+            f"{to_emoji('btrfs')}{to_emoji('arm64')}web-app-a#2"
+        )
+        self.assertEqual(
+            selection.parse(pasted),
+            selection.Pin("web-app-a", (2,), "swarm", True, "fedora", "btrfs", "arm64"),
         )
 
     def test_a_title_pasted_with_its_caller_path_aborts_rather_than_guessing(
@@ -149,6 +168,18 @@ class TestApply(unittest.TestCase):
         kept = selection.apply(_ROWS, selection.parse_list("web-app-a#0%debian/zfs"))
         self.assertEqual(kept[0]["pin_distro"], "debian")
         self.assertEqual(kept[0]["pin_filesystem"], "zfs")
+
+    def test_the_pinned_architecture_rides_along_too(self) -> None:
+        kept = selection.apply(_ROWS, selection.parse_list("web-app-a#0:arm64"))
+        self.assertEqual(kept[0]["pin_architecture"], "arm64")
+
+    def test_one_variant_that_failed_on_two_architectures_comes_back_twice(
+        self,
+    ) -> None:
+        kept = selection.apply(
+            _ROWS, selection.parse_list("web-app-a#0:amd64 web-app-a#0:arm64")
+        )
+        self.assertEqual([row["pin_architecture"] for row in kept], ["amd64", "arm64"])
 
     def test_one_variant_that_failed_on_two_distros_comes_back_twice(self) -> None:
         kept = selection.apply(

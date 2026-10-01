@@ -9,7 +9,7 @@
         (matomo_token_value | default('') | string | trim)
         if (matomo_token_value is defined and (matomo_token_value | string | trim) != '')
         else (
-          ((matomo_bootstrap_compose.stdout if DEPLOYMENT_MODE == 'compose' else matomo_bootstrap_swarm.stdout) | default('') | string)
+          ((matomo_bootstrap_compose.stdout if IS_COMPOSE_MODE else matomo_bootstrap_swarm.stdout) | default('') | string)
           | regex_search('(?m)^[a-f0-9]{32,64}$')
           | default('', true)
           | trim
@@ -24,7 +24,7 @@
       - matomo_token_value is match("^[a-f0-9]{32,64}$")
     fail_msg: >-
       Matomo bootstrap did not yield a valid token.
-      stdout={{ (matomo_bootstrap_compose.stdout if DEPLOYMENT_MODE == 'compose' else matomo_bootstrap_swarm.stdout) | default('') | trim }}
+      stdout={{ (matomo_bootstrap_compose.stdout if IS_COMPOSE_MODE else matomo_bootstrap_swarm.stdout) | default('') | trim }}
   when: MODE_ASSERT_LOCAL | bool
 
 - name: "💾 Matomo | Persist + inject token via sys-token-store (store + runtime users)"

@@ -94,13 +94,13 @@ class TestDotenvQuoteModeAware(unittest.TestCase):
     def test_swarm_non_string_is_stringified(self):
         self.assertEqual(self._render(42, mode="swarm"), "42")
 
-    def test_swarm_quotes_value_with_interior_whitespace(self):
+    def test_swarm_passes_a_value_with_spaces_through_unchanged(self):
         self.assertEqual(
-            self._render("My Org Helpdesk", mode="swarm"), '"My Org Helpdesk"'
+            self._render('{"hermes": {"group": "/x"}}', mode="swarm"),
+            '{"hermes": {"group": "/x"}}',
+            "swarm delivers the value verbatim, so quoting it makes the "
+            "container read the quotes as part of the JSON and parse a string",
         )
-
-    def test_swarm_whitespace_value_escapes_quotes_not_dollars(self):
-        self.assertEqual(self._render('a "b" $c', mode="swarm"), '"a \\"b\\" $c"')
 
     def test_compose_mode_quotes_like_default(self):
         self.assertEqual(self._render("abc", mode="compose"), '"abc"')

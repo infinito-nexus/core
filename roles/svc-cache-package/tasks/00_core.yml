@@ -1,0 +1,51 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🐳 Prepare the compose stack before anything can flush its handlers"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+  when: run_once_sys_svc_compose is not defined
+
+- name: "📄 Render the frontend map for '{{ application_id }}'"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "upstreams.conf.j2"
+        dest: "{{ CACHE_PACKAGE_FRONTEND_CONF_HOST }}"
+        mode: "0644"
+
+- name: "📁 Create the frontend's CA and certificate directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ CACHE_PACKAGE_CA_DIR_HOST }}"
+    - "{{ CACHE_PACKAGE_CERTS_DIR_HOST }}"
+
+- name: "🔐 Issue the frontend CA and one leaf per TLS host"
+  ansible.builtin.command:
+    cmd: "{{ [CACHE_PACKAGE_SHELL_DIR, 'certs.sh'] | path_join }}"
+  environment: "{{ lookup('template', 'env/certs.j2') | from_yaml }}"
+  register: cache_package_certs
+  changed_when: "'Generating' in cache_package_certs.stderr"
+
+- include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: true
+
+- name: "📦 Create the proxy repositories the frontend maps onto"
+  ansible.builtin.command:
+    cmd: "{{ [CACHE_PACKAGE_SHELL_DIR, 'bootstrap.sh'] | path_join }}"
+  environment: "{{ lookup('template', 'env/bootstrap.j2') | from_yaml }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: cache_package_bootstrap
+  changed_when: "'created' in cache_package_bootstrap.stderr"

@@ -21,7 +21,7 @@ Follow these steps to make your first contribution.
 
 ## Requirements 📐
 
-Functional requirements live under `docs/requirements/` and follow a fixed format with a User Story and checkable Acceptance Criteria.
+Functional requirements live under [`docs/requirements/`](docs/requirements/) and follow a fixed format with a User Story and checkable Acceptance Criteria.
 See [requirements.md](docs/contributing/requirements.md) for the authoring guide.
 
 ## Repository Files 📋

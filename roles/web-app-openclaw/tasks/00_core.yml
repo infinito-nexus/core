@@ -23,6 +23,6 @@
   vars:
     assert_isolated_container: "{{ OPENCLAW_CONTAINER }}"
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - "'svc-ai-robot' not in group_names"
     - lookup('config', application_id, 'services.kata.enabled') | bool

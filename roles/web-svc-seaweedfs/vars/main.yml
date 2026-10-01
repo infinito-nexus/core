@@ -1,0 +1,19 @@
+---
+application_id: "web-svc-seaweedfs"
+entity_name: "{{ application_id | get_entity_name }}"
+
+SEAWEEDFS_CONTAINER: "{{ lookup('config', application_id, 'services.seaweedfs.name') }}"
+SEAWEEDFS_CONSUMER_COUNT: "{{ lookup('objstore_consumers', 'seaweedfs') | length }}"
+SEAWEEDFS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'seaweedfs') }}"
+
+SEAWEEDFS_S3_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.seaweedfs.api_port') }}"
+SEAWEEDFS_FILER_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.seaweedfs.ports.internal.filer') }}"
+SEAWEEDFS_MASTER_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.seaweedfs.ports.internal.master') }}"
+SEAWEEDFS_S3_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.seaweedfs.ports.local.http') }}"
+
+SEAWEEDFS_S3_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.api') }}"
+
+SEAWEEDFS_ADMIN_ACCESS_KEY: "{{ lookup('users', 'administrator').username }}"
+SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'administrator').password }}"
+
+SEAWEEDFS_S3_CONFIG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3.json' ] | path_join }}"

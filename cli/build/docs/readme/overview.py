@@ -1,6 +1,7 @@
 """Generate the invokable-role overview table in the repository README.
 
-Usage:
+Usage::
+
   python -m cli.build.docs.readme.overview [--check] [--readme PATH] [--roles-dir DIR]
 
 The table lives in its own ``## Roles Overview 🧩`` section directly above
@@ -11,7 +12,8 @@ sorted ascending by the Entity column.
 Rows are the invokable roles inside the tested lifecycle envelope, sorted
 ascending by name.
 
-Columns:
+Columns::
+
   Name             Role README H1 title, linked to the role directory.
   Status           Role lifecycle stage.
   Description      ``galaxy_info.description`` from meta/main.yml.
@@ -208,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{readme_path.name}: overview up to date")
         return 0
     if args.check:
-        print(f"{readme_path.name}: overview outdated, run make readme-index")
+        print(f"{readme_path.name}: overview outdated")
         return 1
     readme_path.write_text(updated, encoding="utf-8")
     print(f"{readme_path.name}: overview updated")

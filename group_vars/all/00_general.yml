@@ -5,6 +5,7 @@ ansible_shell_executable: /bin/bash # Required so shell tasks with `set -euo pip
 SOFTWARE_NAME: "Infinito.Nexus" # Name of the software
 SOFTWARE_DOMAIN: "{{ SOFTWARE_NAME | lower }}" # Software domain
 SOFTWARE_URL: "https://{{ SOFTWARE_DOMAIN }}" # Url of the software provicer
+SOFTWARE_REPOSITORY: "https://github.com/infinito-nexus/core.git"
 
 ORGANIZATION: "{{ SOFTWARE_NAME }}"
 

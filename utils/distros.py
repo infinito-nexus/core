@@ -30,8 +30,8 @@ from utils.yaml_bootstrap import load_block
 
 FILE_META_DISTROS: str = "meta/distros.yml"
 
+IMAGE_BASE = "base"
 IMAGE_PKGMGR = "pkgmgr"
-IMAGE_PKGMGR_VIRGIN = "pkgmgr_virgin"
 IMAGE_ENVIRONMENT = "environment"
 
 
@@ -114,14 +114,14 @@ def _render(kind: str, distro: str, **fields: str) -> str:
     return image_template(kind).format(slug=_spec(distro)["slug"], **fields)
 
 
+def base_image(distro: str, owner: str, tag: str) -> str:
+    """Reference of the distribution base image a distro's container builds FROM."""
+    return _render(IMAGE_BASE, distro, owner=owner, tag=tag)
+
+
 def pkgmgr_image(distro: str, owner: str, tag: str) -> str:
-    """Reference of the pkgmgr base image a distro's container builds FROM."""
+    """Reference of the pkgmgr image the `pkgmgr install` test boots."""
     return _render(IMAGE_PKGMGR, distro, owner=owner, tag=tag)
-
-
-def pkgmgr_virgin_image(distro: str, owner: str, tag: str) -> str:
-    """Reference of the untouched pkgmgr image the install tests boot."""
-    return _render(IMAGE_PKGMGR_VIRGIN, distro, owner=owner, tag=tag)
 
 
 def environment_image(distro: str, owner: str, repository: str, tag: str) -> str:

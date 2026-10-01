@@ -1,0 +1,4 @@
+{% set env = agnt_claude_existing_settings.get('env', {}) | combine({'ANTHROPIC_BASE_URL': agnt_claude_gateway_url, 'ANTHROPIC_AUTH_TOKEN': agnt_claude_gateway_key}) %}
+{% if agnt_claude_model | length > 0 %}{% set env = env | combine({'ANTHROPIC_MODEL': agnt_claude_model}) %}{% endif %}
+{% if agnt_claude_background_model | length > 0 %}{% set env = env | combine({'ANTHROPIC_DEFAULT_HAIKU_MODEL': agnt_claude_background_model}) %}{% endif %}
+{{ agnt_claude_existing_settings | combine({'env': env}) | to_nice_json }}

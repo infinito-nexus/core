@@ -31,11 +31,11 @@
 - name: "♻️ Restart Odoo so the entrypoint runs `-u all` as the sole DB actor (compose)"
   ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
   changed_when: true
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "♻️ Restart Odoo so the entrypoint runs `-u all` as the sole DB actor (swarm)"
   ansible.builtin.include_tasks: 03_install_modules/swarm_drain_restart.yml
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔍 Re-resolve Odoo hosting node + container id after the update restart"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

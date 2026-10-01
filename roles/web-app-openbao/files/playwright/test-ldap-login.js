@@ -1,13 +1,16 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue } = require("./personas");
+const {
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const baseUrl = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME || "");
-const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || "");
+const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const biberUsername = requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_USERNAME");
+const biberPassword = requireDotenvValue(process.env.BIBER_PASSWORD, "BIBER_PASSWORD");
 
 test.use({ ignoreHTTPSErrors: true });
 

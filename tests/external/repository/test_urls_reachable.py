@@ -252,9 +252,10 @@ def _extract_urls(path: Path) -> list[UrlOccurrence]:
     except (OSError, UnicodeDecodeError):
         return []
 
+    placement = "block-above" if path.suffix == ".po" else "same-or-above"
     occurrences: list[UrlOccurrence] = []
     for line_no, line in enumerate(lines, start=1):
-        if is_suppressed_at(lines, line_no, "url"):
+        if is_suppressed_at(lines, line_no, "url", mode=placement):
             continue
         for match in _URL_RE.finditer(line):
             url = _normalize_url(match.group(0))

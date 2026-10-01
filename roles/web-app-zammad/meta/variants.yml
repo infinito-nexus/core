@@ -36,6 +36,9 @@
       shared: true
     redis:
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
     litellm:
       enabled: false
     tor:
@@ -83,6 +86,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     litellm:
       enabled: false
     tor:
@@ -133,6 +139,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     openwebui:

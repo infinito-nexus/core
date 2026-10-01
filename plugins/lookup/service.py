@@ -183,7 +183,8 @@ class LookupModule(LookupBase):
     """
     Resolve a service by key or role name and return its aggregated deployment flags.
 
-    Usage:
+    Usage::
+
       lookup('service', 'matomo')
       lookup('service', 'web-app-matomo')   # resolved via reverse mapping
       query('service', ['a', 'b', 'c'])     # single list term -> one applications load for many keys
@@ -195,7 +196,8 @@ class LookupModule(LookupBase):
     play (typically all false). Only a term unknown to BOTH registries
     raises.
 
-    Optional kwarg:
+    Optional kwarg::
+
       roles_dir — roles directory for the static fallback registry
                   (default: <cwd>/roles, matching the service_registry
                   lookup convention).
@@ -203,7 +205,8 @@ class LookupModule(LookupBase):
     Reads 'applications' and 'group_names' from Ansible variables and discovers
     service providers from the role-local services metadata.
 
-    Returns a dict per term:
+    Returns a dict per term::
+
       id      — canonical service key  (e.g. 'matomo')
       role    — provider role name     (e.g. 'web-app-matomo')
       enabled — True if any deployed app has services.<key>.enabled: true

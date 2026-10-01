@@ -5,6 +5,7 @@ BLUESKY_SOCIAL_APP_DIR: "{{ [ lookup('container', application_id, 'directories.s
 BLUESKY_SOCIAL_APP_REPOSITORY: "{{ lookup('config', application_id, 'services.view.repository') }}"
 BLUESKY_SOCIAL_APP_REF: "{{ lookup('config', application_id, 'services.view.ref') }}"
 BLUESKY_GEOLOCATION_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/geolocation/index.tsx' ] | path_join }}"
+BLUESKY_SOCIAL_APP_DOCKERFILE: "{{ [ BLUESKY_SOCIAL_APP_DIR,'Dockerfile' ] | path_join }}"
 
 BLUESKY_PDSADMIN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_FILE: "{{ [ BLUESKY_PDSADMIN_DIR, 'pdsadmin' ] | path_join }}"

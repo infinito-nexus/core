@@ -1,6 +1,10 @@
 /**
  * Keycloak OIDC login helpers.
  *
+ *   `isAuthChain(url)`
+ *     Whether a URL belongs to the oauth2-proxy / Keycloak redirect
+ *     chain rather than the application itself.
+ *
  *   `performKeycloakLoginForm(target, username, password)`
  *     Fills the Keycloak login form on `target` (a `Page` OR a
  *     `FrameLocator`) and clicks sign-in. Tolerates both the
@@ -178,8 +182,13 @@ async function performKeycloakLoginExpectingDenial(page, username, password, can
   return finalUrl;
 }
 
+function isAuthChain(url) {
+  return /\/oauth2\/|\/realms\/|\/protocol\/openid-connect\//.test(url || "");
+}
+
 module.exports = {
   OIDC_LOGIN_READY_FLAG,
+  isAuthChain,
   performKeycloakLoginForm,
   performKeycloakLogin,
   clickOidcLoginLink,

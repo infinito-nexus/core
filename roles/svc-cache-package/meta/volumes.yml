@@ -1,0 +1,32 @@
+# nocheck: backup-service-flag proxied package content is re-fetchable from its upstream; the volume is backup-disabled and the consumer permanently off
+---
+data:
+  type: volume
+  name: package_cache_data
+  backup: false
+  # nocheck: nfs-false-data-loss  Reason: every blob is a proxy copy of an upstream artefact, so a drain costs a re-fetch and loses nothing; the service is pinned to the manager and disabled in swarm
+  nfs: false
+  mounts:
+    - service: package
+      target: /nexus-data
+frontend_ca:
+  type: bind
+  source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'ca'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: frontend
+      target: /etc/nginx/ca
+frontend_certs:
+  type: bind
+  source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'certs'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: frontend
+      target: /etc/nginx/certs
+frontend_conf:
+  type: config
+  source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'upstreams.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: frontend
+      target: /etc/nginx/conf.d/upstreams.conf

@@ -2,7 +2,7 @@
 # Central SPOT for proprietary / external (non-self-hosted) API credentials.
 # Each entry is empty by default. Override per provider in the (vault-
 # encrypted) inventory; read ONLY via lookup('api', '<provider>.<key>') and
-# gate ONLY on lookup('api_enabled', '<provider>') (see utils/api.py).
+# gate ONLY on lookup('api_enabled', '<provider>') (see utils/cache/api.py).
 # nocheck: unused-var: consumed by the api lookup plugins (plugins/lookup/api.py, plugins/lookup/api_enabled.py) via lookup('api', ...), not referenced directly in YAML/Jinja.
 API:
   anthropic:

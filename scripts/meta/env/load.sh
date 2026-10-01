@@ -61,6 +61,15 @@ if [[ ! -f "${_infinito_env_dotenv}" ]]; then
 	) >&2
 fi
 
+_infinito_env_slot="$(sed -n 's/^INFINITO_INSTANCE=//p' "${_infinito_env_dotenv}" | head -1)"
+if [[ -n "${_infinito_env_slot}" && -n "${INFINITO_INSTANCE:-}" && "${INFINITO_INSTANCE}" != "${_infinito_env_slot}" ]]; then
+	while IFS='=' read -r _infinito_env_key _; do
+		unset "${_infinito_env_key}"
+	done < <(env | grep '^INFINITO_')
+	unset _infinito_env_key
+fi
+unset _infinito_env_slot
+
 declare -A _infinito_env_preserved=()
 while IFS= read -r _infinito_env_line; do
 	case "${_infinito_env_line}" in

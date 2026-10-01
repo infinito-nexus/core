@@ -1,5 +1,4 @@
 ---
-# nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -82,6 +81,10 @@ websocket:
   mem_reservation: 0.25g
   mem_limit: 0.5g
   pids_limit: 384
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"

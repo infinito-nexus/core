@@ -4,7 +4,6 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
-# nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -45,7 +44,13 @@ moodle:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: true
-  release: 4.5.11
+  app_version: 4.5.11
+  update:
+    key: app_version
+    type: git_tags
+    repository: https://github.com/moodle/moodle.git
+    match: "v"
+    strip: true
   image: php
   # nocheck: docker-version
   version: "8.3-fpm"
@@ -100,6 +105,10 @@ cron:
   pids_limit: 256
   # nocheck: single-replica moodle cron.php scheduler; concurrent replicas double-run scheduled tasks
   replicas: 1
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   bond: 1

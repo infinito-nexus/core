@@ -23,7 +23,7 @@
   register: result
   when:
     - DISCOURSE_DATABASE_IS_SHARED | bool
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
 
 - name: "🔨 {{ DISCOURSE_LAUNCHER_ACTION }} discourse"
   shell: >

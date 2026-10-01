@@ -27,6 +27,7 @@
   vars:
     xwiki_oidc_enabled_switch: false
     xwiki_ldap_enabled_switch: false
+    xwiki_blobstore_s3_enabled_switch: false
 
 - name: "👔 XWiki manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml

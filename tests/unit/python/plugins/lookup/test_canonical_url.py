@@ -142,8 +142,8 @@ class TestCanonicalUrlLookup(unittest.TestCase):
 
     def test_consumer_with_enabled_binding_resolves(self):
         out = self._run(
-            ["web-app-seaweedfs", "filer"],
-            {"web-app-seaweedfs": {"filer": "filer.example"}},
+            ["web-svc-seaweedfs", "filer"],
+            {"web-svc-seaweedfs": {"filer": "filer.example"}},
             applications={
                 "web-app-nextcloud": {"services": {"seaweedfs": {"enabled": True}}}
             },
@@ -153,8 +153,8 @@ class TestCanonicalUrlLookup(unittest.TestCase):
 
     def test_consumer_with_disabled_binding_is_empty(self):
         out = self._run(
-            ["web-app-seaweedfs", "filer"],
-            {"web-app-seaweedfs": {"filer": "filer.example"}},
+            ["web-svc-seaweedfs", "filer"],
+            {"web-svc-seaweedfs": {"filer": "filer.example"}},
             applications={
                 "web-app-nextcloud": {"services": {"seaweedfs": {"enabled": False}}}
             },
@@ -164,8 +164,8 @@ class TestCanonicalUrlLookup(unittest.TestCase):
 
     def test_consumer_without_binding_is_empty(self):
         out = self._run(
-            ["web-app-seaweedfs", "filer"],
-            {"web-app-seaweedfs": {"filer": "filer.example"}},
+            ["web-svc-seaweedfs", "filer"],
+            {"web-svc-seaweedfs": {"filer": "filer.example"}},
             applications={"web-app-nextcloud": {"services": {}}},
             consumer="web-app-nextcloud",
         )

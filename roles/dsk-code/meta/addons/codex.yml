@@ -1,0 +1,7 @@
+---
+required: false
+enabled: "{{ lookup('config', 'dsk-code', 'services.codex.enabled') | bool }}"
+mechanism: extension
+source: upstream
+config:
+  extension_id: openai.chatgpt

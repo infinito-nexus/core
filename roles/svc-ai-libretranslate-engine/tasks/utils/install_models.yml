@@ -1,0 +1,24 @@
+---
+- name: "📥 Install the Argos models into {{ application_id }}"
+  when: IS_STACK_HOST | bool
+  ansible.builtin.shell:
+    cmd: >- # nocheck: raw-docker, container-exec-resolver  the models belong to the served container's own interpreter and land in its mounted model directory, which no other host has
+      container exec {{ LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS }}
+      sh -c 'PYTHONPATH=. REQUESTS_CA_BUNDLE={{ LIBRETRANSLATE_ENGINE_CA_BUNDLE }}
+      ./venv/bin/python scripts/prefetch_models.py
+      --directions {{ LIBRETRANSLATE_ENGINE_DIRECTIONS }}
+      {{ ("--load_only_lang_codes " ~ LIBRETRANSLATE_ENGINE_LOAD_ONLY) if LIBRETRANSLATE_ENGINE_LOAD_ONLY else "" }}'
+  environment:
+    CONTAINER_EXEC_TIMEOUT: "{{ LIBRETRANSLATE_ENGINE_PREFETCH_TIMEOUT }}"
+  register: libretranslate_engine_install
+  retries: "{{ LIBRETRANSLATE_ENGINE_PREFETCH_RETRIES | int }}"
+  delay: 15
+  until: libretranslate_engine_install.rc == 0
+  changed_when: "'Installed' in libretranslate_engine_install.stdout"
+
+- name: "🔄 Restart {{ application_id }} so it loads what was installed"
+  when: libretranslate_engine_install.changed | default(false) | bool
+  ansible.builtin.command:
+    # nocheck: raw-docker, container-exec-resolver  the server reads its package list once at startup, so models installed into the running container stay invisible until it restarts
+    cmd: "container restart {{ LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS }}"
+  changed_when: true

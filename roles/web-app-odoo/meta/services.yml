@@ -1,5 +1,4 @@
 ---
-# nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -75,6 +74,10 @@ redis:
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   bond: 1

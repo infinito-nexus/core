@@ -116,15 +116,16 @@ class CertUtils:
     @classmethod
     def refresh_cert_mapping(cls, cert_base_path, debug=False):
         """
-        Build mapping: SAN -> list of entries
-        entry = {
-            'folder': str,
-            'cert_path': str,
-            'mtime': float,
-            'not_before': int|None,
-            'not_after': int|None,
-            'is_wildcard': bool
-        }
+        Build mapping: SAN -> list of entries::
+
+            entry = {
+                'folder': str,
+                'cert_path': str,
+                'mtime': float,
+                'not_before': int|None,
+                'not_after': int|None,
+                'is_wildcard': bool
+            }
         """
         cert_files = cls.list_cert_files(cert_base_path)
         mapping = {}

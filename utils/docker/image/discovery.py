@@ -188,9 +188,9 @@ def canonical_image_name(image: str) -> str:
 
 def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     """
-    Yield all ImageRef entries discovered across all roles in *repo_root*.
+    Yield all ImageRef entries discovered across all roles in ``repo_root``.
 
-    Source: roles/**/meta/services.yml → <entity>.{image,version}.
+    Source: ``roles/**/meta/services.yml`` -> ``<entity>.{image,version}``.
 
     See docs/contributing/artefact/image.md for the full format reference.
     """

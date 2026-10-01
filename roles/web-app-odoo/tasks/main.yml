@@ -7,6 +7,15 @@
     webserver_vhost_flavour: "ws_generic"
     webserver_websocket_location: "/websocket"
 
+- name: "📦 Stage the pip requirements into the build context of '{{ application_id }}'"
+  stack_host_copy:
+    src: "pip/"
+    dest: "{{ ODOO_PIP_DIR }}/"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
 - name: "👔 web-app-odoo manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool

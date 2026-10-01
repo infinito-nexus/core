@@ -1,0 +1,21 @@
+---
+- name: 📦 Install Chromium browser
+  package_install:
+    id: chromium
+
+- name: 📂 Include dependency 'dsk-keepassxc'
+  include_role:
+    name: dsk-keepassxc
+  when: run_once_dsk_keepassxc is not defined
+
+- name: ✅ Ensure Chromium policies directory exists
+  file:
+    path: /etc/chromium/policies/managed
+    state: directory
+    mode: "0755"
+
+- name: 📋 Copy the extensions policy file for Chromium
+  template: # nocheck: stack-host-template (per-host workstation chromium policy)
+    src: extensions_policy.json.j2
+    dest: /etc/chromium/policies/managed/extensions_policy.json
+    mode: "0644"

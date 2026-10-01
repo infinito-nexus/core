@@ -48,14 +48,14 @@ overlay at once.
 Caller-supplied entries are passed through untouched, so a call site that needs
 a different address per mode must still decide that itself.
 
-Usage in any service template:
+Usage in any service template::
 
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_extra_hosts',
               extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_extra_hosts', application_id='web-app-nextcloud') | indent(4) }}
 
-Usage from a non-compose call site:
+Usage from a non-compose call site::
 
     {% for entry in lookup('container_extra_hosts',
                            entries_only=True, wantlist=True) %}

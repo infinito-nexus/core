@@ -4,7 +4,6 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
-# nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -63,6 +62,11 @@ mediawiki:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+  public: true
 # nocheck: playwright-service-flag — CSS consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

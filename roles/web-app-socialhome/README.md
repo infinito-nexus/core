@@ -12,43 +12,6 @@ The role runs the upstream `ghcr.io/social-home-io/socialhome` image behind the 
 
 A rendered `socialhome.toml` is mounted alongside the environment file. It carries exactly one setting — `[standalone].external_url` — because that value has no `SH_*` environment equivalent upstream and federation pairing returns `422 NOT_CONFIGURED` without it.
 
-## Cosmos
-
-The diagram places Social Home in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_coturn["web-svc-coturn 🐳🐝"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-socialhome 🐳🐝]
-        svc_socialhome["socialhome"]
-        svc_coturn["coturn"]
-        svc_prometheus["prometheus"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_sso["sso ❌"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "0..0" --> svc_sso
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_coturn -. "0..1" .-> svc_coturn
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-    linkStyle 3 stroke:red;
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Single Container:** No database server, no cache, no worker, no object store. SQLite in one volume.
@@ -64,53 +27,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - No SSO. The application authenticates against its own user table and has no OIDC client, so the reverse proxy is not SSO-gated — federation endpoints must stay publicly reachable.
 - The application ships no logout control at `2026.6.16`, so the Playwright administrator persona is declared blocked.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Social Home onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-socialhome full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Social Home to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-socialhome
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
-
 ## Further Resources
 
 - [Social Home source](https://github.com/social-home-io/socialhome)
 - [Published container images](https://github.com/social-home-io/socialhome/pkgs/container/socialhome)
 - [TURN REST API credential scheme](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -50,8 +50,8 @@ minio:
   shared: false # nocheck: dynamic-flag
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
 # nocheck: playwright-service-flag
 baserow:
@@ -86,7 +86,7 @@ baserow:
     - web-app-matomo
     - web-app-keycloak
     - web-app-mailu
-    - web-app-seaweedfs
+    - web-svc-seaweedfs
   lifecycle: beta
 # nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP spec
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged into this role's instance directory

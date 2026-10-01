@@ -81,15 +81,14 @@ def main() -> int:
         if new_text is None:
             continue
         changed += 1
-        rel = role_dir.relative_to(PROJECT_ROOT)
         if args.check:
-            print(f"would update {rel}/README.md: {', '.join(actions)}")
+            print(f"would update roles/{role_dir.name}/README.md: {', '.join(actions)}")
             continue
         (role_dir / ROLE_FILE_README).write_text(new_text, encoding="utf-8")
-        print(f"updated {rel}/README.md: {', '.join(actions)}")
+        print(f"updated roles/{role_dir.name}/README.md: {', '.join(actions)}")
 
     if args.check and changed:
-        print(f"\n{changed} README.md file(s) would change. Run: make readme-generate")
+        print(f"\n{changed} README.md file(s) would change.")
         return 1
     if not args.check:
         print(f"\n{changed} README.md file(s) written.")

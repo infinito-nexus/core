@@ -1,0 +1,18 @@
+---
+services:
+  machine:
+    build:
+      context: .
+      args:
+        MACHINE_BASE_IMAGE: ${MACHINE_BASE_IMAGE}
+    init: false
+    privileged: true
+    cgroup: host
+    tmpfs:
+      - /run
+      - /run/lock
+    volumes:
+      - ${DOCS_TEST_SRC_DIR}:${DOCS_TEST_SRC_DIR}
+      - ${DOCS_TEST_WORK}:${DOCS_TEST_WORK}
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/run/docker.sock:/var/run/docker.sock

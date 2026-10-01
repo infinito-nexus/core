@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`utils.env.handlers.infinito.cache_stack`."""
+"""Unit tests for :mod:`utils.env.handlers.infinito.cache.stack`."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from utils.env.builder import BuildContext, EnvBuilder
-from utils.env.handlers.infinito import cache_stack as handler
+from utils.env.handlers.infinito.cache import stack as handler
 
 _BLANK = {"CI": "", handler.KEY: ""}
 

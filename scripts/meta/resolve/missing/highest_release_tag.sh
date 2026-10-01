@@ -10,9 +10,39 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OWNER="$("${script_dir}/../repository/owner.sh")"
 REPO_PREFIX="${REPO_PREFIX,,}"
 
+serves_pool() {
+	local img="$1"
+	local absent
+	echo "Check: ${img}" >&2
+	absent="$("${script_dir}/architectures.sh" "${img}")"
+	if [[ -z "${absent}" ]]; then
+		echo "  OK" >&2
+		return 0
+	fi
+	echo "  MISSING ${absent}" >&2
+	return 1
+}
+
 mapfile -t tags < <("${script_dir}/../version_tags.sh")
 
 if [[ ${#tags[@]} -eq 0 ]]; then
+	exit 0
+fi
+
+latest_incomplete="false"
+
+for distro in ${INFINITO_DISTROS}; do
+	if ! serves_pool "${REGISTRY}/${OWNER}/${REPO_PREFIX}/${distro}:latest"; then
+		latest_incomplete="true"
+	fi
+done
+
+if ! serves_pool "${REGISTRY}/${OWNER}/${REPO_PREFIX}:latest"; then
+	latest_incomplete="true"
+fi
+
+if [[ "${latest_incomplete}" == "true" ]]; then
+	printf '%s\n' "${tags[$((${#tags[@]} - 1))]}"
 	exit 0
 fi
 

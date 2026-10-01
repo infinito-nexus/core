@@ -13,7 +13,7 @@ Why
 ---
 
 The dashboard is the user-facing tile grid. Only web-facing surfaces
-belong in it. A system role (``sys-*``), desktop role (``desk-*``),
+belong in it. A system role (``sys-*``), desktop role (``dsk-*``),
 service role (``svc-*``), or driver role (``drv-*``) embedding the
 dashboard would spam the tile grid with non-clickable infrastructure
 entries.

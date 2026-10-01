@@ -1,3 +1,0 @@
----
-application_id: "desk-libreoffice"
-libreoffice_languages: "{{ lookup('config', application_id, 'services.libreoffice.languages') }}"

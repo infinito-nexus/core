@@ -30,7 +30,7 @@
   register: _role_templates_slurp
   when:
     - _tpl.condition | bool
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "[swarm] Ensure parent directory exists on peer for '{{ _tpl.dest }}'"
@@ -40,7 +40,7 @@
     mode: "0755"
   when:
     - _tpl.condition | bool
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - not (IS_STACK_HOST | bool)
 
 - name: "[swarm] Distribute '{{ _tpl.dest }}' to swarm peers"
@@ -52,6 +52,6 @@
     mode: "{{ _tpl.mode }}"
   when:
     - _tpl.condition | bool
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - not (IS_STACK_HOST | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

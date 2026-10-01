@@ -1,6 +1,9 @@
 ---
 DEPLOYMENT_MODE: "{{ 'swarm' if (groups['svc-swarm-node'] | default([]) | length) > 1 else 'compose' }}"
 
+IS_COMPOSE_MODE: "{{ DEPLOYMENT_MODE == 'compose' }}"
+IS_SWARM_MODE: "{{ DEPLOYMENT_MODE == 'swarm' }}"
+
 SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-swarm-node'] | default([]) | length) > 0 }}"
 
 # Exception: a role default would be invisible to the by-path include in
@@ -9,7 +12,7 @@ SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-swarm-node'] | default([]) | length) >
 swarm_stack_converge_retries: 600
 
 IS_STACK_HOST: >-
-  {{ DEPLOYMENT_MODE == 'compose'
+  {{ IS_COMPOSE_MODE
      or inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
 
 IS_BACKUP_HOST: >-
@@ -33,7 +36,7 @@ SWARM_REGISTRY_PREFIX: >-
   {{
     (swarm.registry.host ~ ':' ~ swarm.registry.port ~ '/')
     if (
-      DEPLOYMENT_MODE == 'swarm'
+      IS_SWARM_MODE
       and (swarm.registry.host | length > 0)
     )
     else ''

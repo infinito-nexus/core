@@ -11,7 +11,7 @@ PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enable
 PEERTUBE_LIVE_ENABLED: "{{ lookup('config', application_id, 'services.peertube.live.enabled') | bool }}"
 PEERTUBE_RTMP_PORT: "{{ lookup('config', application_id, 'services.peertube.ports.internal.rtmp') }}"
 
-PEERTUBE_CPUS: "{{ lookup('config', application_id, 'services.peertube.cpus') | float }}"
+PEERTUBE_CPUS: "{{ lookup('cpus', application_id, 'peertube') | float }}"
 PEERTUBE_MEM_LIMIT: "{{ lookup('config', application_id, 'services.peertube.mem_limit') }}"
 PEERTUBE_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"
 _peertube_concurrency_candidate: "{{ ((PEERTUBE_CPUS | float) * 0.5) | round(0, 'floor') | int }}"

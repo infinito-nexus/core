@@ -3,7 +3,9 @@
 
 - name: "🧩 load front-proxy + dev-git for {{ application_id }}"
   include_role:
-    name: "{{ item }}"
+    name: "{{ dependency_role }}"
   loop:
     - sys-stk-front-proxy
     - dev-git
+  loop_control:
+    loop_var: dependency_role

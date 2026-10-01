@@ -16,12 +16,15 @@ MOODLE_BUILD_FILES:
   install_source: "install/moodle-source.sh"
   install_oidc: "install/auth-oidc.sh"
   install_mcp: "install/webservice-mcp.sh"
+  install_objectfs: "install/tool-objectfs.sh"
+  patch_objectfs: "patch/tool-objectfs-path-style.patch"
   opcache_ini: "php-conf/opcache-recommended.ini"
   runtime_ini: "php-conf/moodle-runtime.ini"
   fpm_pool: "php-conf/zz-moodle-pool.conf"
 MOODLE_VERSION_FILE: "version.php" # bootstrap-detection sentinel
 MOODLE_AUTH_SUBDIR: "auth" # top-level auth/ tree
 MOODLE_WEBSERVICE_SUBDIR: "webservice"
+MOODLE_ADMIN_TOOL_SUBDIR: "admin/tool"
 MOODLE_CLI_RELPATH: "admin/cli" # admin CLI script dir
 
 MOODLE_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.auth_oidc.version') }}"
@@ -39,7 +42,7 @@ MOODLE_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
 MOODLE_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 MOODLE_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
 
-MOODLE_RELEASE: "{{ lookup('config', application_id, 'services.moodle.release') }}"
+MOODLE_RELEASE: "{{ lookup('config', application_id, 'services.moodle.app_version') }}"
 MOODLE_TARBALL_URL: "https://github.com/moodle/moodle/archive/refs/tags/v{{ MOODLE_RELEASE }}.tar.gz"
 
 MOODLE_MSMTP_SRC: "{{ lookup('path_absolute', 'roles/sys-svc-mail-msmtp/templates/msmtprc.conf.j2') }}"
@@ -88,6 +91,15 @@ MOODLE_EGRESS_SETTINGS:
   - name: curlsecurityallowedport
     value: "{{ (MOODLE_EGRESS_ALLOWED_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else [])) | join(MOODLE_EGRESS_NEWLINE)
       }}"
+
+MOODLE_OBJECTFS_ENABLED: "{{ lookup('config', application_id, 'services.seaweedfs.enabled') }}"
+MOODLE_OBJECTFS_PLUGIN_COMMIT: "{{ lookup('config', application_id, 'addons.tool_objectfs.version') }}"
+MOODLE_OBJECTFS_PLUGIN_UPSTREAM: "{{ lookup('config', application_id, 'addons.tool_objectfs.update.upstream_id') }}"
+MOODLE_OBJECTFS_PLUGIN_ARCHIVE_URL: "https://github.com/{{ MOODLE_OBJECTFS_PLUGIN_UPSTREAM }}/archive/{{ MOODLE_OBJECTFS_PLUGIN_COMMIT }}.zip"
+MOODLE_OBJECTFS_PLUGIN_RELPATH: "{{ [MOODLE_ADMIN_TOOL_SUBDIR, 'objectfs'] | path_join }}"
+MOODLE_OBJECTFS_PLUGIN_SOURCE_DIR: "{{ [MOODLE_SOURCE_DIR, MOODLE_OBJECTFS_PLUGIN_RELPATH] | path_join }}"
+MOODLE_OBJECTFS_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_OBJECTFS_PLUGIN_RELPATH] | path_join }}"
+MOODLE_OBJECTFS_READY_FILE: "{{ [MOODLE_CODE_DIR, '.objectfs.installed'] | path_join }}"
 
 MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
 MOODLE_MCP_PLUGIN_VERSION: "v0.6.0"

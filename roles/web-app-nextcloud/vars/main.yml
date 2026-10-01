@@ -69,7 +69,7 @@ NEXTCLOUD_PROXY_EXCLUDED_INTERNAL_HOSTS:
 
 NEXTCLOUD_PROXY_SERVICE: "proxy"
 NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.name') }}"
-NEXTCLOUD_PROXY_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_PROXY_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_PROXY_CONTAINER }}"
+NEXTCLOUD_PROXY_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_PROXY_SERVICE) if IS_SWARM_MODE else NEXTCLOUD_PROXY_CONTAINER }}"
 
 NEXTCLOUD_MCP_ENABLED: "{{ lookup('config', application_id, 'services.context_agent.enabled') | bool }}"
 NEXTCLOUD_MCP_PATH: "{{ lookup('config', application_id, 'mcp.adapter.upstream_path') }}"
@@ -102,7 +102,7 @@ NEXTCLOUD_CONTEXT_AGENT_CONTAINER: "{{ lookup('config', application_id, 'service
 NEXTCLOUD_CONTEXT_AGENT_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE ~ '.version') }}"
 NEXTCLOUD_CONTEXT_AGENT_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE ~ '.ports.internal.http') }}"
 NEXTCLOUD_CONTEXT_AGENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.context_agent_app_secret') }}"
-NEXTCLOUD_CONTEXT_AGENT_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_CONTEXT_AGENT_CONTAINER }}"
+NEXTCLOUD_CONTEXT_AGENT_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE) if IS_SWARM_MODE else NEXTCLOUD_CONTEXT_AGENT_CONTAINER }}"
 NEXTCLOUD_CONTEXT_AGENT_DAEMON: "manual_install"
 NEXTCLOUD_CONTEXT_AGENT_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_PROXY_DNS_NAME }}:{{ container_port }}"
 NEXTCLOUD_CONTEXT_AGENT_ROUTES:

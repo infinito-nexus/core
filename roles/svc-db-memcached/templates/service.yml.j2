@@ -26,7 +26,7 @@
   {%- endset -%}
 {{ _snippet | indent(indent, true) }}
 {%- endmacro %}
-{% if DEPLOYMENT_MODE == 'compose' %}
+{% if IS_COMPOSE_MODE %}
 {{ include_resource_for('memcached') }}
 {% endif %}
 {% set service_name = 'memcached' %}

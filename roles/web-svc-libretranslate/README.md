@@ -23,53 +23,6 @@ The role follows Infinito.Nexus conventions:
 - Suitable for internal services, public APIs, or desktop integration
 - Compatible with the Infinito.Nexus role and metadata system
 
-## Cosmos
-
-The diagram places LibreTranslate in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_db_redis["svc-db-redis 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-    end
-    subgraph role [web-svc-libretranslate 🐳🐝]
-        svc_libretranslate["libretranslate"]
-        svc_sso["sso"]
-        svc_logout["logout ❌"]
-        svc_matomo["matomo"]
-        svc_redis["redis"]
-        svc_css["css"]
-        svc_recaptcha["recaptcha"]
-        svc_javascript["javascript"]
-        svc_prometheus["prometheus"]
-        svc_libretranslatemcp["libretranslatemcp"]
-        svc_tor["tor"]
-        svc_openwebui["openwebui"]
-        svc_hermes["hermes"]
-        svc_openclaw["openclaw"]
-        svc_flowise["flowise ❌"]
-    end
-    dep_svc_db_redis -. "0..1" .-> svc_redis
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_hermes -. "0..1" .-> svc_hermes
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
-    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - LibreTranslate service deployment
@@ -82,45 +35,6 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - Desktop integration toggle
 - Health checks via HTTP
 - Network and dependency handling via shared system roles
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy LibreTranslate onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-svc-libretranslate full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy LibreTranslate to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-svc-libretranslate
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
 
 ## Single sign-on
 
@@ -148,9 +62,3 @@ Key sections include:
 
 The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (`/translate`, `/detect`, …); see [`meta/services.yml`](./meta/services.yml). Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under [Single sign-on](#single-sign-on) above.
 A non-admin visitor therefore has no UI session to drive, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run unconditionally.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

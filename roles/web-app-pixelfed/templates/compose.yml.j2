@@ -15,7 +15,7 @@
     {{ lookup('compose_only', 'container_name', PIXELFED_WORKER_CONTAINER) }}
     {{ lookup('container_image', application_id, 'pixelfed') }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file worker-only override; no service here sets docker_compose_env, so the role's single env.j2 is also the env_file of the primary pixelfed container, where these same four keys are already set to true
       AUTORUN_LARAVEL_EVENT_CACHE: "false"
       AUTORUN_LARAVEL_ROUTE_CACHE: "false"
       AUTORUN_LARAVEL_VIEW_CACHE: "false"

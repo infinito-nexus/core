@@ -11,6 +11,10 @@ services:
     networks:
       cache:
 
+  tools:
+    networks:
+      cache:
+
 networks:
   cache:
     external: true

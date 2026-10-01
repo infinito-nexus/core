@@ -8,18 +8,12 @@
 
 const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
-const { gotoOnion } = require("./personas");
+const { decodeDotenvJsonList, gotoOnion } = require("./personas");
 
-const dashboardTargetRoles = (() => {
-  const raw = process.env.DASHBOARD_TARGET_ROLES_JSON || "[]";
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
-
+const dashboardTargetRoles = decodeDotenvJsonList(
+  process.env.DASHBOARD_TARGET_ROLES_JSON,
+  "DASHBOARD_TARGET_ROLES_JSON"
+);
 async function findVisibleTile(page, canonicalDomain) {
   const tile = page.locator(`a[href*="${canonicalDomain}"]:visible`).first();
   const visible = await tile.isVisible().catch(() => false);

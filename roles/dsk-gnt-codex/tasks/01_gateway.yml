@@ -1,0 +1,28 @@
+---
+- name: 📁 Ensure the directories the agent reads from exist
+  ansible.builtin.file:
+    path: "{{ item | dirname }}"
+    state: directory
+    owner: "{{ agnt_codex_user }}"
+    group: "{{ agnt_codex_user }}"
+    mode: "0700"
+  loop:
+    - "{{ agnt_codex_config_path }}"
+    - "{{ agnt_codex_env_path }}"
+
+- name: 🔐 Write the gateway profile
+  ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
+    src: config.toml.j2
+    dest: "{{ agnt_codex_config_path }}"
+    owner: "{{ agnt_codex_user }}"
+    group: "{{ agnt_codex_user }}"
+    mode: "0600"
+
+- name: "🔑 Write the key the agent reads from {{ agnt_codex_key_env }}"
+  ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
+    src: gateway.conf.j2
+    dest: "{{ agnt_codex_env_path }}"
+    owner: "{{ agnt_codex_user }}"
+    group: "{{ agnt_codex_user }}"
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

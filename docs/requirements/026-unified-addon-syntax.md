@@ -15,7 +15,7 @@ The repository already deploys role-level extension units, but each role spells 
 - [web-app-mediawiki](../../roles/web-app-mediawiki/) calls them `extensions` and hard-codes the list in [vars/main.yml](../../roles/web-app-mediawiki/vars/main.yml).
 - [web-app-xwiki](../../roles/web-app-xwiki/) calls them `plugins` (with nested `items[].id` + `version`) under `xwiki.plugins` in [meta/services.yml](../../roles/web-app-xwiki/meta/services.yml).
 - [web-app-joomla](../../roles/web-app-joomla/) builds a single OIDC `plugin` in [tasks/08_oidc_plugin.yml](../../roles/web-app-joomla/tasks/08_oidc_plugin.yml).
-- [desk-gnome-extensions](../../roles/desk-gnome-extensions/) calls them `plugins`/`extensions` and loops over `services.gnome-extensions.plugins`.
+- [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) calls them `plugins`/`extensions` and loops over `services.gnome-extensions.plugins`.
 
 The [per-role meta layout](../contributing/design/role/services/layout.md) already lists `addons`, `plugins`, and `modules` among the keys *inlined* under the primary service entity. This requirement promotes that concept to a first-class, per-file `meta/addons/<addon_id>.yml` topic (one file per addon, file root IS the addon spec), the same move requirement 011 made for `meta/info.yml` and requirement 008/009 made for other meta topics.
 
@@ -61,10 +61,10 @@ Each row is a migration target. The "Bridges" column is the cross-role dependenc
 | [web-app-discourse](../../roles/web-app-discourse/) | `plugin` | `docker_manager, discourse-activity-pub, discourse-akismet, discourse-ldap-auth` | `discourse-ldap-auth` → `svc-db-openldap` | [meta/services.yml](../../roles/web-app-discourse/meta/services.yml) `discourse.plugins` |
 | [web-app-pretix](../../roles/web-app-pretix/) | `plugin` | `oidc` (v2.3.1) | `sso` → `web-app-keycloak` | [meta/services.yml](../../roles/web-app-pretix/meta/services.yml) `pretix.plugins` |
 | [web-app-mattermost](../../roles/web-app-mattermost/) | `plugin` | volume-managed plugins (`plugins`, `client-plugins`) | none declared today | [vars/main.yml](../../roles/web-app-mattermost/vars/main.yml), [meta/volumes.yml](../../roles/web-app-mattermost/meta/volumes.yml) |
-| [desk-chromium](../../roles/desk-chromium/) | `extension` | CRX ids, `force_installed` (e.g. uBlock Origin) | none (desktop role) | [meta/services.yml](../../roles/desk-chromium/meta/services.yml) `plugins` |
-| [desk-firefox](../../roles/desk-firefox/) | `extension` | XPI urls (uBlock Origin, KeePassXC) | none (desktop role) | [meta/services.yml](../../roles/desk-firefox/meta/services.yml) `plugins` |
-| [desk-gnome](../../roles/desk-gnome/) | `extension` | gnome-shell extensions (enable/disable tuples) | none (desktop role) | [meta/services.yml](../../roles/desk-gnome/meta/services.yml) `plugins` |
-| [desk-gnome-extensions](../../roles/desk-gnome-extensions/) | `extension` | configured list (`services.gnome-extensions.plugins`) | none (desktop role) | [meta/services.yml](../../roles/desk-gnome-extensions/meta/services.yml) |
+| [dsk-chromium](../../roles/dsk-chromium/) | `extension` | CRX ids, `force_installed` (e.g. uBlock Origin) | none (desktop role) | [meta/services.yml](../../roles/dsk-chromium/meta/services.yml) `plugins` |
+| [dsk-firefox](../../roles/dsk-firefox/) | `extension` | XPI urls (uBlock Origin, KeePassXC) | none (desktop role) | [meta/services.yml](../../roles/dsk-firefox/meta/services.yml) `plugins` |
+| [dsk-gnome](../../roles/dsk-gnome/) | `extension` | gnome-shell extensions (enable/disable tuples) | none (desktop role) | [meta/services.yml](../../roles/dsk-gnome/meta/services.yml) `plugins` |
+| [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) | `extension` | configured list (`services.gnome-extensions.plugins`) | none (desktop role) | [meta/services.yml](../../roles/dsk-gnome-extensions/meta/services.yml) |
 
 ### Out of scope: database/runtime engine extensions
 
@@ -271,9 +271,9 @@ Rules:
 - [ ] [web-app-discourse](../../roles/web-app-discourse/) declares its plugins in `meta/addons/` with `mechanism: plugin`; `discourse-ldap-auth` carries `bridges: [ldap]` resolving to the `ldap` service block, while `docker_manager`, `discourse-activity-pub`, and `discourse-akismet` carry no `bridges`.
 - [ ] [web-app-pretix](../../roles/web-app-pretix/) declares its `oidc` plugin in `meta/addons/` with `mechanism: plugin`, the `2.3.1` pin preserved as a string `version`, and `bridges: [sso]`.
 - [ ] [web-app-mattermost](../../roles/web-app-mattermost/) declares its plugins in `meta/addons/` with `mechanism: plugin`; the plugin volumes remain in `meta/volumes.yml`.
-- [x] [desk-chromium](../../roles/desk-chromium/) and [desk-firefox](../../roles/desk-firefox/) declare their browser extensions in `meta/addons/` with `mechanism: extension`, no `bridges`, and ship NO Playwright specs (desktop roles have no web surface; the lint forbids specs under `desk-*`).
-- [x] [desk-gnome](../../roles/desk-gnome/) declares its gnome-shell extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
-- [ ] [desk-gnome-extensions](../../roles/desk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
+- [x] [dsk-chromium](../../roles/dsk-chromium/) and [dsk-firefox](../../roles/dsk-firefox/) declare their browser extensions in `meta/addons/` with `mechanism: extension`, no `bridges`, and ship NO Playwright specs (desktop roles have no web surface; the lint forbids specs under `dsk-*`).
+- [x] [dsk-gnome](../../roles/dsk-gnome/) declares its gnome-shell extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
+- [ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
 - [x] [web-app-mobilizon](../../roles/web-app-mobilizon/) and [web-app-bookwyrm](../../roles/web-app-bookwyrm/) keep their `extensions:` (PostgreSQL/engine extensions) in `meta/services.yml`; they are classified `db-extension` and explicitly NOT migrated to `meta/addons/`.
 
 ### Cross-role integration (matrix backlog)

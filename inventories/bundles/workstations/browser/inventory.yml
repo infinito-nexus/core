@@ -13,9 +13,9 @@ all:
   hosts:
     workstation:
   children:
-    desk-chromium:
+    dsk-chromium:
       hosts:
         workstation:
-    desk-firefox:
+    dsk-firefox:
       hosts:
         workstation:

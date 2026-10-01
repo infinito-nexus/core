@@ -1,8 +1,12 @@
 """Turn a run's deploy jobs back into selection tokens.
 
 A deploy job title carries the whole row it deployed -- role, variant, mode,
-onion state, distro, filesystem -- and :mod:`utils.github.variant.selection`
-is the grammar that writes it back down.
+onion state, distro, filesystem, architecture -- and
+:mod:`utils.github.variant.selection` is the grammar that writes it back down.
+
+The architecture is replayed like the distro rather than left to the rotation:
+it is the machine the job ran on, not a preference the deploy may fall back
+from, so the title states what it actually was.
 
 The filesystem is the one axis a token built here leaves out. The title states
 the kind the matrix *assigned*, which a deploy is allowed to fall back from
@@ -63,6 +67,7 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
                     label.mode,
                     label.tor,
                     label.distro or None,
+                    architecture=label.architecture or None,
                 )
             )
         )
@@ -88,6 +93,32 @@ def collapse_to_roles(tokens: Iterable[str]) -> list[str]:
         sorted, deduplicated role ids.
     """
     return sorted({selection.parse(token).app for token in tokens})
+
+
+def collapse_failures(tokens: Iterable[str], hard: Iterable[str]) -> list[str]:
+    """Role ids for what really failed, exact selections for the rest.
+
+    A hard failure is evidence against the role, so the whole role comes back
+    and the rotation picks its axes. A cancelled or still-running job is
+    evidence against nothing: it never reached a verdict, and the only thing
+    known about it is the combination it had been given. Collapsing that to a
+    role name would spend the priority budget re-deploying combinations the
+    run already proved green, and would drop the one it never got to.
+
+    A role with a hard failure absorbs its own unfinished rows: the collapsed
+    name already covers every variant of it.
+
+    Args:
+        tokens: every selection to bring back, as :func:`failed_selections`
+            returns them without ``strict``.
+        hard: the subset that failed outright, the same call with ``strict``.
+
+    Returns:
+        sorted, deduplicated role ids and selection tokens.
+    """
+    roles = set(collapse_to_roles(hard))
+    pinned = {token for token in tokens if selection.parse(token).app not in roles}
+    return sorted(roles | pinned)
 
 
 def _variants(entry: Mapping[str, Any]) -> tuple[int, ...]:

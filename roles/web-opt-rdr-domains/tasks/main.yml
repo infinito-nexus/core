@@ -10,6 +10,8 @@
 - name: "📂 Include domains redirects"
   include_tasks: redirect-domain.yml
   vars:
-    domain: "{{ item.source }}"
-    target: "{{ item.target }}"
+    domain: "{{ redirect_domain.source }}"
+    target: "{{ redirect_domain.target }}"
   loop: "{{ redirect_domain_mappings }}"
+  loop_control:
+    loop_var: redirect_domain

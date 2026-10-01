@@ -14,9 +14,12 @@ inspect
 echo "Re-trusting the CA after the fresh deploy rebuilt the certificates."
 make network-trust-ca
 
+matomo_url="$(stack_url matomo)"
+dashboard_url="$(stack_url dashboard)"
+
 echo "Verifying matomo is now reachable after its dedicated deploy."
-assert_http_status 200 "${MATOMO_URL}"
+assert_http_status 200 "${matomo_url}"
 
 echo "Verifying the dashboard is no longer reachable after the matomo-only fresh deploy."
 # Exception: Expect 000 because curl aborts in TLS before HTTP when the removed hostname is missing from the certificate SANs.
-assert_http_status 000 "${DASHBOARD_URL}"
+assert_http_status 000 "${dashboard_url}"

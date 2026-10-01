@@ -75,6 +75,10 @@
 - name: "📂 Include ownership settings tasks for moodle"
   include_tasks: 03_ownership.yml
 
+- name: "🪣 Publish the object-store plugin and register it"
+  include_tasks: utils/objectfs.yml
+  when: MOODLE_OBJECTFS_ENABLED | bool
+
 - name: "🔧 Configure OIDC login for Moodle (variant 0 only)"
   include_tasks: 04_oidc.yml
   when: MOODLE_OIDC_ENABLED | bool

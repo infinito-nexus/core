@@ -220,7 +220,7 @@
         ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
         + (
             ['--network', 'host']
-            if DEPLOYMENT_MODE == 'swarm'
+            if IS_SWARM_MODE
             else (
               ['--add-host=host.docker.internal:host-gateway']
               + (
@@ -277,6 +277,13 @@
   ansible.builtin.set_fact:
     _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
   when: (_playwright_run.rc | default(1)) != 0
+
+- name: 📝 Record a suite-budget timeout, which no retry can change
+  ansible.builtin.set_fact:
+    _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
+  when:
+    - (_playwright_run.rc | default(1)) != 0
+    - "'for the test suite to run' in (_playwright_run.stdout | default(''))"
 
 - name: 🗄️ Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-

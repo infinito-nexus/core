@@ -66,3 +66,20 @@
       skip: true
   register: docker_compose_template
   notify: compose-up
+
+- name: "🔎 Read the rendered compose file of '{{ application_id }}'"
+  ansible.builtin.slurp:
+    src: "{{ lookup('container', application_id, 'files.compose') }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: docker_compose_rendered
+  when: docker_compose_template is changed
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔨 Record build inputs of '{{ application_id }}' to rebuild only on change"
+  stack_host_copy:
+    content: "{{ docker_compose_rendered.content | b64decode | docker_build_digest }}"
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), '.build-inputs'] | path_join }}"
+    mode: "0640"
+  when: docker_compose_template is changed
+  notify: compose-build

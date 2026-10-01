@@ -1,4 +1,8 @@
 ---
+- name: "🔧 Read how '{{ application_id }}' reaches the gateway"
+  ansible.builtin.set_fact:
+    _litellm_consumer_on_host: "{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.modes.host.enabled', false) | bool }}"
+
 - name: "✅ Assert '{{ application_id }}' carries a gateway virtual key"
   ansible.builtin.assert:
     that:
@@ -13,7 +17,7 @@
     that:
       - (LITELLM_BASE_LOCAL_URL | urlsplit('scheme')) == 'http'
       - "'.' not in (LITELLM_BASE_LOCAL_URL | urlsplit('hostname'))"
-      - (LITELLM_BASE_LOCAL_URL | urlsplit('hostname')) != lookup('domain', application_id)
+      - (application_id not in lookup('domains')) or ((LITELLM_BASE_LOCAL_URL | urlsplit('hostname')) != lookup('domain', application_id))
       - (LITELLM_BASE_LOCAL_URL | urlsplit('port') | int) == (lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') | int)
     fail_msg: >-
       {{ application_id }} would send inference traffic to
@@ -23,3 +27,20 @@
       ingress), a host that is not this role's own domain, and the gateway's
       internal port {{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}
       rather than its published one.
+  when: not (_litellm_consumer_on_host | bool)
+
+- name: "✅ Assert the AI base URL of '{{ application_id }}' stays on this machine"
+  ansible.builtin.assert:
+    that:
+      - (LITELLM_BASE_LOOPBACK_URL | urlsplit('scheme')) == 'http'
+      - (LITELLM_BASE_LOOPBACK_URL | urlsplit('hostname')) in LITELLM_LOOPBACK_HOSTS
+      - (LITELLM_BASE_LOOPBACK_URL | urlsplit('port') | int) == (lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') | int)
+    fail_msg: >-
+      {{ application_id }} runs on the host rather than in the deployment's
+      container network, so it would send inference traffic to
+      '{{ LITELLM_BASE_LOOPBACK_URL }}'. A workstation reaches the gateway only
+      over the loopback address the engine publishes it on: plain http, one of
+      {{ LITELLM_LOOPBACK_HOSTS | join(', ') }}, and the published port
+      {{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}.
+      Anything routable would carry the workstation's key off this machine.
+  when: _litellm_consumer_on_host | bool

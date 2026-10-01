@@ -1,0 +1,12 @@
+---
+enabled: "{{ lookup('config', 'web-app-moodle', 'services.seaweedfs.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+# nocheck: unwatched-version  Reason: catalyst/moodle-tool_objectfs publishes neither tags nor releases, so there is no version for a catalog to compare against; the pin is the MOODLE_404_STABLE head, whose version.php declares supported = [404, 405] and therefore covers the Moodle release this role builds
+version: "e2ac620651c5ecdec003f1133a3a38e87195d4c9"
+bridges:
+  - seaweedfs
+update:
+  monitored: false
+  upstream_id: catalyst/moodle-tool_objectfs

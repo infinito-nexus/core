@@ -57,12 +57,12 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
 
     def test_a_disabled_service_hides_its_canonical_domain(self):
         self.assertEqual(
-            self._run({"web-app-seaweedfs": _app(False)}),
+            self._run({"web-svc-seaweedfs": _app(False)}),
             ["filer.example.com"],
         )
 
     def test_an_enabled_service_keeps_its_domain_under_probe(self):
-        self.assertEqual(self._run({"web-app-seaweedfs": _app(True)}), [])
+        self.assertEqual(self._run({"web-svc-seaweedfs": _app(True)}), [])
 
     def test_a_service_without_domains_is_ignored(self):
         apps = {

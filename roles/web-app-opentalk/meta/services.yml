@@ -52,6 +52,9 @@ redis:
   mem_limit: 1g
   pids_limit: 512
 opentalk:
+  # TODO: make this role arm64-capable so the declaration below can go
+  architectures:
+    - amd64
   modes:
     compose:
       enabled: true
@@ -125,7 +128,7 @@ seaweedfs:
   bond: 1
   name: opentalk-seaweedfs
   enabled: true # nocheck: dynamic-flag
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 rabbit:
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "ping"]

@@ -52,6 +52,11 @@ on:
         required: false
         type: string
         default: ""
+      architectures:
+        description: "🏗️ Architecture pool of the run; narrows what a pinned architecture may be."
+        required: false
+        type: string
+        default: ""
       lifecycles:
         description: "♻️ Lifecycle envelope; a role outside it has no row to match."
         required: false
@@ -142,6 +147,7 @@ jobs:
           INPUT_TOR: ${{ inputs.tor }}
           INPUT_DISTROS: ${{ inputs.distros }}
           INPUT_FILESYSTEM: ${{ inputs.filesystem }}
+          INPUT_ARCHITECTURES: ${{ inputs.architectures }}
           INPUT_LIFECYCLES: ${{ inputs.lifecycles }}
         run: ./scripts/github/validate/selection.sh
 

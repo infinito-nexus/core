@@ -1,0 +1,59 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "📁 Create the node-local model directory of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ LIBRETRANSLATE_ENGINE_MODELS_DIR }}"
+    state: directory
+    owner: "{{ LIBRETRANSLATE_ENGINE_UID }}"
+    mode: "0755"
+  delegate_to: "{{ item }}"
+  run_once: true
+  loop: "{{ query('node_hosts') }}"
+
+- name: "🧩 load the container manager for {{ application_id }}"
+  include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+
+- name: "📦 Stage the model prefetch of {{ application_id }}"
+  stack_host_copy:
+    src: python/prefetch_models.py
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'prefetch_models.py'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔐 Stage the package-cache CA into the build context of {{ application_id }}"
+  stack_host_copy:
+    content: "{{ lookup('file', LIBRETRANSLATE_ENGINE_CACHE_CA_FILE) if LIBRETRANSLATE_ENGINE_CACHE_CA_FILE is file else '' }}"
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'package-frontend-ca.crt'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔐 Stage the package-cache CA installer of {{ application_id }}"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', LIBRETRANSLATE_ENGINE_CACHE_CA_INSTALLER) }}"
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'package-frontend-ca.sh'] | path_join }}"
+    mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "📥 Load the models of {{ application_id }} after the deploy"
+  ansible.builtin.include_tasks: utils/install_models.yml
+  when: LIBRETRANSLATE_ENGINE_LOADING_MODEL == 'task'
+
+- name: "🎮 Verify the GPU reached {{ application_id }}"
+  ansible.builtin.include_tasks: utils/assert_gpu.yml
+  when:
+    - LIBRETRANSLATE_ENGINE_GPU | bool
+    - sys_svc_container_nvidia_device is defined
+    - sys_svc_container_nvidia_device.stat.exists

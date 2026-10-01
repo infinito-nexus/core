@@ -5,7 +5,7 @@
 Use the following tools to monitor your domain and email deliverability:
 
 - [Google Postmaster](https://postmaster.google.com/) - Analyzes deliverability and spam issues for Gmail.
-- [Yahoo Postmaster](https://postmaster.yahooinc.com) - Provides insights and delivery reports for Yahoo.
+- [Yahoo Sender Hub](https://senders.yahooinc.com/) - Provides insights and delivery reports for Yahoo.
 - [MXToolbox](https://mxtoolbox.com)
 
 ## Blacklist Check 🚫

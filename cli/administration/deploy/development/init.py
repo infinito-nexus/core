@@ -21,7 +21,11 @@ from .inventory import (
     _build_services_overrides_for_round as build_services_overrides_for_round,
 )
 from .storage import detect_storage_constrained
-from .variant_select import add_variant_args, apply_variant_filter
+from .variant_select import (
+    add_variant_args,
+    apply_variant_filter,
+    env_guide_host_pin,
+)
 
 if TYPE_CHECKING:
     import argparse
@@ -112,10 +116,12 @@ def handler(args: argparse.Namespace) -> int:
         else args.force_storage_constrained == "true"
     )
 
+    roles_dir = str(compose.repo_root / "roles")
     plan = plan_dev_inventory_matrix(
-        roles_dir=str(compose.repo_root / "roles"),
+        roles_dir=roles_dir,
         primary_apps=primary_apps,
         base_inventory_dir=str(args.inventory_dir),
+        pinned_variants=env_guide_host_pin(roles_dir, primary_apps),
     )
     try:
         plan = apply_variant_filter(plan, args)

@@ -1,0 +1,60 @@
+---
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "🎬 Stage the Sphinx tooling into the build context of '{{ application_id }}'"
+  stack_host_copy:
+    src: "{{ item }}/"
+    dest: "{{ [DOCS_TOOLING_DIR, item] | path_join }}/"
+    directory_mode: "0755"
+  loop:
+    - python
+    - javascript
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📂 Reserve a controller file for the snapshot of '{{ application_id }}'"
+  ansible.builtin.tempfile:
+    suffix: .tar.gz
+  register: docs_snapshot_archive
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: "📸 Archive the deployed working tree for '{{ application_id }}'"
+  ansible.builtin.shell: >-
+    set -o pipefail &&
+    tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner
+    --exclude=__pycache__ --exclude=node_modules --exclude='*.pyc'
+    -cf - {{ DOCS_SNAPSHOT_PATHS | join(' ') }}
+    | gzip -n > {{ docs_snapshot_archive.path | quote }}
+  args:
+    chdir: "{{ lookup('path_absolute', '.') }}"
+    executable: /bin/bash
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: false
+
+- name: "📦 Stage the snapshot into the build context of '{{ application_id }}'"
+  stack_host_copy:
+    src: "{{ docs_snapshot_archive.path }}"
+    dest: "{{ [DOCS_TOOLING_DIR, 'snapshot.tar.gz'] | path_join }}"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🧹 Remove the controller snapshot of '{{ application_id }}'"
+  ansible.builtin.file:
+    path: "{{ docs_snapshot_archive.path }}"
+    state: absent
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: "🚿 Flush compose handlers for '{{ application_id }}'"
+  ansible.builtin.meta: flush_handlers

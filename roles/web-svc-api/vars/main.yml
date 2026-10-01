@@ -1,0 +1,23 @@
+---
+application_id: "web-svc-api"
+entity_name: "{{ application_id | get_entity_name }}"
+
+API_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+API_SERVICE: "{{ entity_name }}"
+
+API_IMAGE: "{{ lookup('config', application_id, 'services.api.image') }}"
+API_VERSION: "{{ lookup('config', application_id, 'services.api.version') }}"
+API_SOURCE_REPOSITORY: "{{ lookup('config', application_id, 'services.api.source_repository') }}"
+API_FORKS: "{{ lookup('config', application_id, 'services.api.forks') }}"
+API_FETCH_INTERVAL: "{{ lookup('config', application_id, 'services.api.fetch_interval') }}"
+API_PORT: "{{ lookup('config', application_id, 'services.api.ports.internal.http') }}"
+API_DATA_DIR: "/data"
+API_SNAPSHOT_DIR: "/snapshot"
+API_BUILD_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'api' ] | path_join }}"
+API_SNAPSHOT_PATHS:
+  - default.env
+  - inventories/bundles
+  - locale
+  - meta
+  - roles
+  - tests

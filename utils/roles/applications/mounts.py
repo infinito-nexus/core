@@ -1,7 +1,7 @@
 """Normalize and validate the role-level mount declaration in
 ``roles/<role>/meta/volumes.yml``.
 
-Canonical shape (dict-of-dicts; the YAML key is the semantic short name):
+Canonical shape (dict-of-dicts; the YAML key is the semantic short name)::
 
     data:                               # YAML key = semantic short name
       type: volume                      # bind | volume | config | secret | tmpfs

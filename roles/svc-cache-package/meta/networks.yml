@@ -1,0 +1,121 @@
+---
+local:
+  subnet: 192.168.227.0/24
+cache:
+  repos:
+    apt-debian:
+      flavor: apt
+      upstream: http://deb.debian.org/debian
+      distribution: bookworm
+      mirror: apt-debian-mirror
+    apt-debian-mirror:
+      flavor: apt
+      upstream: http://ftp.debian.org/debian
+      distribution: bookworm
+    apt-debian-security:
+      flavor: apt
+      upstream: http://deb.debian.org/debian-security # nocheck: url the bare GET on the redirector returns 404; the apt paths under dists/ resolve
+      distribution: bookworm-security
+      mirror: apt-debian-security-mirror
+    apt-debian-security-mirror:
+      flavor: apt
+      upstream: http://security.debian.org/debian-security
+      distribution: bookworm-security
+    apt-ubuntu:
+      flavor: apt
+      upstream: "${UBUNTU_PRIMARY}"
+      distribution: jammy
+      mirror: apt-ubuntu-mirror
+    apt-ubuntu-mirror:
+      flavor: apt
+      upstream: "${UBUNTU_FALLBACK}"
+      distribution: jammy
+    apt-ubuntu-security:
+      flavor: apt
+      upstream: "${UBUNTU_PRIMARY}"
+      distribution: jammy-security
+      mirror: apt-ubuntu-security-mirror
+    apt-ubuntu-security-mirror:
+      flavor: apt
+      upstream: "${UBUNTU_FALLBACK}"
+      distribution: jammy-security
+    gem-proxy:
+      flavor: rubygems
+      upstream: https://rubygems.org/
+    go-proxy:
+      flavor: go
+      upstream: https://proxy.golang.org/
+    helm-bitnami:
+      flavor: helm
+      upstream: https://charts.bitnami.com/bitnami
+    npm-proxy:
+      flavor: npm
+      upstream: https://registry.npmjs.org/
+    pypi-proxy:
+      flavor: pypi
+      upstream: https://pypi.org/
+    raw-alpine:
+      flavor: raw
+      upstream: https://dl-cdn.alpinelinux.org/alpine/ # nocheck: url answers 200 direct (measured); the 404 is the proxy serving this repository's own root
+      content_max_age: "0"
+    raw-codeload-github:
+      flavor: raw
+      upstream: https://codeload.github.com/
+    raw-githubusercontent:
+      flavor: raw
+      upstream: https://raw.githubusercontent.com/
+    raw-packagist:
+      flavor: raw
+      upstream: https://repo.packagist.org/ # nocheck: url the metadata paths under p2/ resolve; the bare root has no index
+      content_max_age: "0"
+    yum-fedora:
+      flavor: yum
+      upstream: https://download.fedoraproject.org/pub/fedora/linux/
+      repodata_depth: "5"
+    yum-rocky:
+      flavor: yum
+      upstream: https://download.rockylinux.org/pub/rocky/
+      repodata_depth: "5"
+  hosts:
+    archive.ubuntu.com:
+      ports:
+        - "80"
+      paths:
+        /ubuntu/: apt-ubuntu
+    codeload.github.com:
+      repo: raw-codeload-github
+    deb.debian.org:
+      ports:
+        - "80"
+      paths:
+        /debian/: apt-debian
+        /debian-security/: apt-debian-security
+    dl-cdn.alpinelinux.org:
+      repo: raw-alpine
+      ports:
+        - "80"
+        - "443"
+      paths:
+        /alpine/: raw-alpine
+    files.pythonhosted.org:
+      repo: pypi-proxy
+    index.rubygems.org:
+      repo: gem-proxy
+    proxy.golang.org:
+      repo: go-proxy
+    pypi.org:
+      repo: pypi-proxy
+    raw.githubusercontent.com:
+      repo: raw-githubusercontent
+    registry.npmjs.org:
+      repo: npm-proxy
+      passthrough: "true"
+    repo.packagist.org:
+      repo: raw-packagist
+    rubygems.org:
+      repo: gem-proxy
+    security.ubuntu.com:
+      ports:
+        - "80"
+      paths:
+        /ubuntu/: apt-ubuntu-security

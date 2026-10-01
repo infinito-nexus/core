@@ -1,0 +1,8 @@
+---
+- name: "🚀 Deploy web-svc-seaweedfs (core, once per play)"
+  include_tasks: 00_core.yml
+  when: run_once_web_svc_seaweedfs is not defined
+
+- name: "🔧 Provision a dedicated bucket for a consumer"
+  include_tasks: 01_init_consumer.yml
+  when: objstore_init | bool

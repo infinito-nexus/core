@@ -21,7 +21,7 @@
     --user {{ MATTERMOST_KEYCLOAK_ADMIN_USER | quote }}
     --password {{ MATTERMOST_KEYCLOAK_ADMIN_PASS | quote }}
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   changed_when: false
 
@@ -33,7 +33,7 @@
     -q clientId={{ OIDC.CLIENT.ID | quote }}
     --fields id --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_client_uuid
   changed_when: false
@@ -47,7 +47,7 @@
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_existing_mappers
   changed_when: false
@@ -59,7 +59,7 @@
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_all_scopes
   changed_when: false
@@ -72,7 +72,7 @@
     -s name=openid
     -s protocol=openid-connect
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | list | length == 0"
   register: mm_kc_create_openid_scope
@@ -84,7 +84,7 @@
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields id,name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_all_scopes
   changed_when: false
@@ -98,7 +98,7 @@
     -r {{ OIDC.CLIENT.REALM | quote }}
     --fields name --format csv --noquotes
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_default_scopes
   changed_when: false
@@ -111,7 +111,7 @@
     | first | trim }}
     -r {{ OIDC.CLIENT.REALM | quote }}
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "'openid' not in mm_kc_default_scopes.stdout"
 
@@ -131,7 +131,7 @@
     -s 'config."id.token.claim"=true'
     -s 'config."access.token.claim"=true'
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "'mattermost-id' not in mm_kc_existing_mappers.stdout"
 
@@ -151,6 +151,6 @@
     -s 'config."id.token.claim"=true'
     -s 'config."access.token.claim"=true'
   args:
-    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   when: "'mattermost-username' not in mm_kc_existing_mappers.stdout"

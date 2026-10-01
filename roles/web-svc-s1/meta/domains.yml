@@ -1,0 +1,4 @@
+---
+canonical:
+  s1: s1.ai.{{ DOMAIN_PRIMARY }}
+aliases: []

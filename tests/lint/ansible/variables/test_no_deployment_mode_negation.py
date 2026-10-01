@@ -58,7 +58,7 @@ class TestNoDeploymentModeNegation(unittest.TestCase):
             self.fail(
                 "Found negated `DEPLOYMENT_MODE != ...` gates. DEPLOYMENT_MODE is "
                 "binary (swarm / compose), so use the positive form for "
-                "readability: `DEPLOYMENT_MODE == 'compose'` instead of "
+                "readability: `IS_COMPOSE_MODE` instead of "
                 "`!= 'swarm'` (and `== 'swarm'` instead of `!= 'compose'`).\n\n"
                 "Mark with `# nocheck: deployment-mode-negation` only when the "
                 "negation is genuinely required.\n\n"

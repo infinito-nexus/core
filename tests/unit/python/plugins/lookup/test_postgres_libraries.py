@@ -53,13 +53,22 @@ class PostgresLibrariesLookupTests(unittest.TestCase):
         self.assertEqual(result[0]["apt_package"], "pgvector")
 
     def test_base_extensions_are_filtered_out(self):
-        result = self._run([["bloom", "postgis", "pg_trgm", "unaccent"]])[0]
+        result = self._run([["bloom", "pg_trgm", "unaccent"]])[0]
         self.assertEqual(result, [])
+
+    def test_postgis_is_built_only_for_a_role_that_declares_it(self):
+        result = self._run([["bloom", "postgis"]])[0]
+        self.assertEqual(
+            [(r["extension"], r["apt_package"]) for r in result],
+            [("postgis", "postgis-3")],
+        )
 
     def test_mixed_extensions_returns_only_non_base(self):
         result = self._run([["bloom", "vector", "postgis"]])[0]
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["extension"], "vector")
+        self.assertEqual(
+            [r["extension"] for r in result],
+            ["vector", "postgis"],
+        )
 
     def test_duplicates_are_deduplicated(self):
         result = self._run([["vector", "vector"]])[0]

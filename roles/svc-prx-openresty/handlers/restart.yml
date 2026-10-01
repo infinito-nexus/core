@@ -5,7 +5,7 @@
 # mounted and `openresty -s reload` reads stale config. Force a task
 # redeploy on the manager to remount the live inode.
 - name: 🐳 Compose-mode force-recreate (a file bind-mount pins the inode)
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
   block:
     - name: 🔄 Force-recreate OpenResty (remounts the config bind to the inode)
       ansible.builtin.shell: |
@@ -44,7 +44,7 @@
     ('update out of sequence' not in ((openresty_swarm_update.stderr | default('')) | lower))
   timeout: "{{ lookup('timeout', 600) | int }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - IS_STACK_HOST | bool
 
 - name: "🐛 MODE_DEBUG: wait + validate OpenResty"

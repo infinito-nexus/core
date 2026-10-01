@@ -7,8 +7,9 @@ data:
       target: /usr/local/xwiki
 
 properties:
-  type: config
-  name: "xwiki_properties_{{ 'oidc' if xwiki_oidc_enabled_switch | default(false) | bool else 'std' }}"
+  type: secret
+  name: "xwiki_properties_{{ 'oidc' if xwiki_oidc_enabled_switch | default(false) | bool else 'std' }}{{ '_s3' if xwiki_blobstore_s3_enabled_switch | default(false)
+    | bool else '' }}"
   source: "{{ [lookup('container', 'web-app-xwiki', 'directories.config'), 'xwiki.properties'] | path_join }}"
   mode: "0444"
   mounts:

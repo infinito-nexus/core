@@ -4,7 +4,6 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
-# nocheck: seaweedfs-required - object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -34,6 +33,10 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1
@@ -86,6 +89,7 @@ zammad:
   run_after:
     - web-app-keycloak
     - web-app-mailu
+    - web-svc-seaweedfs
   lifecycle: beta
   cpus: "1.0"
   mem_reservation: 1g
@@ -115,6 +119,9 @@ websocket:
 search:
   image: docker.elastic.co/elasticsearch/elasticsearch
   version: "8.13.4"
+  update:
+    type: registry_tags
+    image: docker.elastic.co/elasticsearch/elasticsearch
   min_storage: 839MB
   cpus: "1.0"
   mem_reservation: 1g

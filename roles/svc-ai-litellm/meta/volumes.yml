@@ -6,3 +6,11 @@ litellm_config:
   mounts:
     - service: litellm
       target: /etc/litellm/config.yaml
+
+litellm_router_hook:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'router_hook.py' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/router_hook.py

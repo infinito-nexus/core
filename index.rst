@@ -12,3 +12,9 @@ The following pages cover contribution guidelines, development workflows, agent 
    :glob:
 
    docs/**
+
+.. toctree::
+   :glob:
+   :hidden:
+
+   **

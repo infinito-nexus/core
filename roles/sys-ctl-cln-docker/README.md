@@ -18,19 +18,6 @@ Optimized for maintaining a clean and efficient Docker environment, this role:
   * `container system prune -a -f` to remove unused Docker resources.
 * Allows forced execution during maintenance runs (`MODE_CLEANUP`).
 
-## Cosmos
-
-The diagram places Cleanup Docker Resources in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-ctl-cln-docker 💻]
-        svc_docker["docker"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Purpose
 
 The primary purpose of this role is to prevent storage bloat caused by unused Docker images, volumes, and build artifacts.
@@ -58,9 +45,3 @@ The cleanup script:
 2. Starts the service if present.
 3. Runs `container system prune -a -f` if Docker is installed.
 4. Stops execution immediately on errors (`set -e` behavior).
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

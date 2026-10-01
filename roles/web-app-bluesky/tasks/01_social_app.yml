@@ -18,3 +18,11 @@
     path: "{{ BLUESKY_GEOLOCATION_PATH }}"
     regexp: "^\\s*const\\s+IPCC_URL\\s*=\\s*.*$"
     replace: "const IPCC_URL = '/ipcc'"
+
+- name: 💪 Force GOARCH to the architecture the bskyweb build targets
+  ansible.builtin.replace:
+    path: "{{ BLUESKY_SOCIAL_APP_DOCKERFILE }}"
+    regexp: '^ENV GOARCH="amd64"$'
+    replace: |-
+      ARG TARGETARCH
+      ENV GOARCH=${TARGETARCH}

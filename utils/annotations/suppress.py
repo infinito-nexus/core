@@ -54,6 +54,8 @@ _KEYWORD_RE = re.compile(
     re.IGNORECASE,
 )
 
+_COMMENT_LINE = re.compile(r"^\s*#")
+
 
 def _rules_on_line(line: str) -> set[str]:
     """Return the set of rule keys present in suppression markers on *line*."""
@@ -87,16 +89,29 @@ def is_suppressed_at(
       non-empty line. Blank lines between marker and construct break
       the association.
     * ``"same-or-above"`` (default): either of the above.
+    * ``"block-above"``: the construct's own line, or any comment line
+      above it within the same blank-line-delimited block. A gettext
+      entry stacks several comments and repeats a URL in both ``msgid``
+      and ``msgstr``, so a marker has to cover the whole entry and
+      survive whichever writer appends its comment last.
     """
     if line_no < 1 or line_no > len(lines):
         return False
 
     rule = rule.lower()
 
-    if mode in ("same-line", "same-or-above") and line_has_rule(
+    if mode in ("same-line", "same-or-above", "block-above") and line_has_rule(
         lines[line_no - 1], rule
     ):
         return True
+
+    if mode == "block-above":
+        prev = line_no - 2
+        while prev >= 0 and lines[prev].strip():
+            if _COMMENT_LINE.match(lines[prev]) and line_has_rule(lines[prev], rule):
+                return True
+            prev -= 1
+        return False
 
     if mode in ("line-above", "same-or-above"):
         prev = line_no - 2

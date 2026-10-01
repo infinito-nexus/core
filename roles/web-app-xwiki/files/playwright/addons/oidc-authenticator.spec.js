@@ -5,14 +5,16 @@ const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
   decodeDotenvQuotedValue,
-  normalizeBaseUrl,
   gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
 } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const domainPrimary = requireDotenvValue(process.env.DOMAIN_PRIMARY, "DOMAIN_PRIMARY");
 
 test("oidc-authenticator: XWiki login is coupled to the Keycloak OIDC provider", async ({ page }) => {
   skipUnlessAddonEnabled("oidc-authenticator");
@@ -53,21 +55,14 @@ test("oidc-authenticator: XWiki login is coupled to the Keycloak OIDC provider",
     `expected the XWiki login action to hand off to the Keycloak OIDC authorization endpoint (proves oidc.provider/endpoint.authorization/clientid are wired and authservice=oidc is active), got ${authUrl}`,
   ).toBe(true);
 
-  // The authorization endpoint must live on the external Keycloak/IdP host,
-  // not on the XWiki host itself — proving the redirect targets the
-  // configured provider rather than looping back to a local login form.
-  // Both hosts share the deployment's registrable parent domain (XWiki is
-  // served at x.wiki.<DOMAIN_PRIMARY>, Keycloak at auth.<DOMAIN_PRIMARY>),
-  // so the IdP host must differ from the XWiki host yet share that parent.
   const idpHost = new URL(authUrl).hostname;
-  const parentDomain = xwikiHost.split(".").slice(-2).join(".");
   expect(
     idpHost,
     `expected the OIDC authorization endpoint to live on the external Keycloak host, not the XWiki host (${xwikiHost}); got ${idpHost}`,
   ).not.toBe(xwikiHost);
   expect(
-    idpHost.endsWith(parentDomain),
-    `expected the OIDC authorization endpoint host (${idpHost}) to belong to the deployment domain (${parentDomain}, derived from ${xwikiHost})`,
+    idpHost.endsWith(domainPrimary),
+    `expected the OIDC authorization endpoint host (${idpHost}) to belong to the deployment domain (${domainPrimary})`,
   ).toBe(true);
 
   // The Keycloak login form (not an error page) must render for the

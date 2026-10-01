@@ -1,3 +1,0 @@
----
-application_id: desk-copyq
-copyq_server_enabled: "{{ lookup('config', application_id, 'services.copyq.server_enabled') }}"

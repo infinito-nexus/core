@@ -4,4 +4,4 @@ data:
   name: postgres_data
   mounts:
     - service: postgres
-      target: /var/lib/postgresql/data
+      target: /var/lib/postgresql

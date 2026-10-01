@@ -117,7 +117,7 @@
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   register: gitlab_hostkeys_slurp
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "[swarm] Distribute GitLab SSH host keys to swarm peers"
@@ -131,7 +131,7 @@
   loop_control:
     label: "{{ item.item }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - not (IS_STACK_HOST | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   notify: compose-up

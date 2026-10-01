@@ -65,10 +65,7 @@ EOF
 
 	echo ">>> Writing dnsmasq snippet for NetworkManager: ${DNS_NM_DNSMASQ_CONF}"
 	sudo mkdir -p "${DNS_NM_DNSMASQ_DIR}"
-	cat <<EOF | sudo tee "${DNS_NM_DNSMASQ_CONF}" >/dev/null
-address=/${DNS_DOMAIN}/127.0.0.1
-address=/${DNS_DOMAIN}/::1
-EOF
+	dns_dnsmasq_config | sudo tee "${DNS_NM_DNSMASQ_CONF}" >/dev/null
 
 	echo ">>> Restarting NetworkManager"
 	sudo systemctl restart NetworkManager
@@ -83,10 +80,7 @@ configure_via_system_dnsmasq() {
 
 	echo ">>> Writing system dnsmasq config: ${DNS_SYS_DNSMASQ_CONF}"
 	sudo mkdir -p /etc/dnsmasq.d
-	cat <<EOF | sudo tee "${DNS_SYS_DNSMASQ_CONF}" >/dev/null
-address=/${DNS_DOMAIN}/127.0.0.1
-address=/${DNS_DOMAIN}/::1
-EOF
+	dns_dnsmasq_config | sudo tee "${DNS_SYS_DNSMASQ_CONF}" >/dev/null
 
 	echo ">>> Enabling and restarting dnsmasq service"
 	sudo systemctl enable dnsmasq --now
@@ -112,5 +106,5 @@ dns_test_resolution
 
 echo
 echo ">>> Local DNS configured for:"
-echo "    ${DNS_DOMAIN}"
-echo "    *.${DNS_DOMAIN}"
+echo "    *.${DNS_DOMAIN} -> 127.0.0.1"
+dns_stacks | awk '{ printf "    *.%s -> %s\n", $1, $2 }'

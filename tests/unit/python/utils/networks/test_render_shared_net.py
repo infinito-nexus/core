@@ -19,7 +19,7 @@ from ._render_helpers import (
 
 _PROVIDER_REGISTRY = {
     "seaweedfs": {
-        "role": "web-app-seaweedfs",
+        "role": "web-svc-seaweedfs",
         "entity_name": "seaweedfs",
         "overlay": {"modes": ["compose", "swarm"], "topology": "shared_net"},
     },
@@ -52,11 +52,11 @@ class TestOwnSharedNetProvider(unittest.TestCase):
 
     def test_helper_true_only_for_own_shared_net_provider(self):
         own = [
-            {"role": "web-app-seaweedfs", "topology": "shared_net", "is_provider": True}
+            {"role": "web-svc-seaweedfs", "topology": "shared_net", "is_provider": True}
         ]
         consumer = [
             {
-                "role": "web-app-seaweedfs",
+                "role": "web-svc-seaweedfs",
                 "topology": "shared_net",
                 "is_provider": False,
             }
@@ -67,7 +67,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
 
     def test_compose_default_drops_name_and_subnet(self):
         rendered = render_compose_networks(
-            application_id="web-app-seaweedfs",
+            application_id="web-svc-seaweedfs",
             deployment_mode="compose",
             registry=_PROVIDER_REGISTRY,
             get_entity_name=_entity_name,
@@ -83,7 +83,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
 
     def test_swarm_default_is_nameless_overlay(self):
         rendered = render_compose_networks(
-            application_id="web-app-seaweedfs",
+            application_id="web-svc-seaweedfs",
             deployment_mode="swarm",
             registry=_PROVIDER_REGISTRY,
             get_entity_name=_entity_name,
@@ -96,7 +96,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
 
     def test_main_publishes_alias_sidecar_does_not(self):
         kwargs = {
-            "application_id": "web-app-seaweedfs",
+            "application_id": "web-svc-seaweedfs",
             "deployment_mode": "compose",
             "registry": _PROVIDER_REGISTRY,
             "get_entity_name": _entity_name,
@@ -131,7 +131,7 @@ class TestSharedNetworkComposeKey(unittest.TestCase):
         for mode in ("compose", "swarm"):
             with self.subTest(mode=mode):
                 self.assertEqual(
-                    self._key("web-app-seaweedfs", _PROVIDER_REGISTRY, mode),
+                    self._key("web-svc-seaweedfs", _PROVIDER_REGISTRY, mode),
                     "seaweedfs",
                 )
 
@@ -154,7 +154,7 @@ class TestSharedNetworkComposeKey(unittest.TestCase):
     def test_node_local_forces_the_compose_answer(self):
         self.assertEqual(
             shared_network_compose_key(
-                application_id="web-app-seaweedfs",
+                application_id="web-svc-seaweedfs",
                 deployment_mode="swarm",
                 registry=_PROVIDER_REGISTRY,
                 get_entity_name=_entity_name,
@@ -170,7 +170,7 @@ class TestSharedNetworkComposeKey(unittest.TestCase):
         function reports must be the key the rendered networks block actually
         uses for the entity network."""
         cases = (
-            ("web-app-seaweedfs", _PROVIDER_REGISTRY),
+            ("web-svc-seaweedfs", _PROVIDER_REGISTRY),
             ("web-app-baserow", {}),
         )
         for application_id, registry in cases:

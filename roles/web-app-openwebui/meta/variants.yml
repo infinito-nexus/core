@@ -27,6 +27,12 @@
       shared: true
     litellm:
       enabled: true
+    agent-broker:
+      enabled: true
+      shared: true
+    qdrant:
+      enabled: true
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -62,6 +68,12 @@
       shared: true
     litellm:
       enabled: false
+    agent-broker:
+      enabled: false
+      shared: false
+    qdrant:
+      enabled: false
+      shared: false
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -100,6 +112,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    agent-broker:
+      enabled: false
+      shared: false
+    qdrant:
+      enabled: false
+      shared: false
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

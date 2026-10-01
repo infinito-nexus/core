@@ -1,0 +1,21 @@
+---
+- name: "🎮 Ask CTranslate2 how many CUDA devices it sees"
+  when: IS_STACK_HOST | bool
+  ansible.builtin.shell:
+    cmd: >- # nocheck: raw-docker, container-exec-resolver  the probe has to run inside the served container, and only CTranslate2 can tell a working CUDA stack from a healthy CPU fallback
+      container exec {{ LIBRETRANSLATE_CONTAINER_ADDRESS }}
+      ./venv/bin/python -c "import ctranslate2; print(ctranslate2.get_cuda_device_count())"
+  register: libretranslate_cuda_devices
+  changed_when: false
+
+- name: "✅ Assert the GPU this host offers actually reached LibreTranslate"
+  when: IS_STACK_HOST | bool
+  ansible.builtin.assert:
+    that:
+      - libretranslate_cuda_devices.stdout | trim | int > 0
+    fail_msg: >-
+      {{ application_id }} runs with gpu enabled and this host carries
+      /dev/nvidia0, but CTranslate2 counts
+      {{ libretranslate_cuda_devices.stdout | trim }} CUDA devices. The image
+      is missing its CUDA libraries or the nvidia runtime did not reach the
+      container.

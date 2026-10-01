@@ -652,5 +652,58 @@ class TestDeriveMcpPresence(unittest.TestCase):
             self.assertIs(variants[1]["mcp"]["enabled"], False)
 
 
+class TestGetMergedApplicationsMemoisesTheGuardedPath(unittest.TestCase):
+    """A re-entrant call returns before the main cache is written, because its
+    payload carries no users and keeps its volumes. It is memoised on the
+    render guard instead, or one template render rebuilds the payload for
+    every ``lookup('applications')`` it makes.
+    """
+
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        cache_apps._RENDER_GUARD.applications = False
+        cache_apps._RENDER_GUARD.nested_payloads = {}
+        self.addCleanup(setattr, cache_apps._RENDER_GUARD, "applications", False)
+        self.addCleanup(setattr, cache_apps._RENDER_GUARD, "nested_payloads", {})
+
+    def _merged(self, roles):
+        return cache_apps.get_merged_applications(
+            variables={}, roles_dir=roles, templar=None
+        )
+
+    def test_a_re_entrant_call_serves_the_payload_it_already_built(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            cache_apps._RENDER_GUARD.applications = True
+
+            first = self._merged(roles)
+            second = self._merged(roles)
+
+            self.assertIs(first, second)
+
+    def test_the_memo_does_not_outlive_the_guard(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            cache_apps._RENDER_GUARD.applications = True
+            guarded = self._merged(roles)
+
+            cache_apps._RENDER_GUARD.applications = False
+            cache_apps._RENDER_GUARD.nested_payloads = {}
+            _reset_cache_for_tests()
+            after = self._merged(roles)
+
+            self.assertIsNot(guarded, after)
+
+    def test_the_guarded_payload_never_reaches_the_main_cache(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            cache_apps._RENDER_GUARD.applications = True
+            before = set(cache_apps._MERGED_APPLICATIONS_CACHE)
+
+            self._merged(roles)
+
+            self.assertEqual(set(cache_apps._MERGED_APPLICATIONS_CACHE), before)
+
+
 if __name__ == "__main__":
     unittest.main()

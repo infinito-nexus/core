@@ -113,6 +113,8 @@ class TestImageLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "swarm": {"registry": {"host": "", "port": 5000}},
             },
         )
@@ -124,6 +126,8 @@ class TestImageLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "swarm": {"registry": {"host": "registry.example.com", "port": ""}},
             },
         )
@@ -135,6 +139,8 @@ class TestImageLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "compose_mode_force": "compose",
                 "swarm": {
                     "registry": {"host": "registry.example.com", "port": 5000},
@@ -149,6 +155,8 @@ class TestImageLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "swarm": {
                     "registry": {"host": "registry.example.com", "port": 5000},
                 },
@@ -226,6 +234,8 @@ class TestImageLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "swarm": {
                     "registry": {"host": "registry.example.com", "port": 5000},
                 },
@@ -286,6 +296,8 @@ class TestImageLookup(unittest.TestCase):
                 "mattermost",
                 variables={
                     "DEPLOYMENT_MODE": "swarm",
+                    "IS_COMPOSE_MODE": False,
+                    "IS_SWARM_MODE": True,
                     "swarm": {
                         "registry": {
                             "host": "registry.example.com",
@@ -325,6 +337,8 @@ class TestImageLookup(unittest.TestCase):
                 "mattermost",
                 variables={
                     "DEPLOYMENT_MODE": "swarm",
+                    "IS_COMPOSE_MODE": False,
+                    "IS_SWARM_MODE": True,
                     "swarm": {
                         "registry": {
                             "host": "registry.example.com",
@@ -404,6 +418,8 @@ class TestImageLookup(unittest.TestCase):
             "wb",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "swarm": {"registry": {"host": "mgr", "port": 5000}},
             },
             applications=apps,

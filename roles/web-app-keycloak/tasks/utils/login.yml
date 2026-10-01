@@ -10,7 +10,7 @@
   until: >
     kc_running_compose.rc == 0 and (kc_running_compose.stdout | trim) == 'true'
   delegate_to: "{{ inventory_hostname }}"
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🔍 Keycloak login | Resolve hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

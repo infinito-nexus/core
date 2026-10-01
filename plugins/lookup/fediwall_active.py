@@ -5,14 +5,15 @@
 For every Mastodon-API-compatible Fediverse sibling listed under the
 SPOT ``meta/services.yml.fediwall.fediverse_siblings`` that is also
 active on the current host (i.e. its application_id is in
-``group_names``), return one entry per ``want_path``:
+``group_names``), return one entry per ``want_path``::
 
     siblings   -> the active sibling application_ids themselves
     domains    -> each sibling's primary domain (canonical[0])
     url_bases  -> each sibling's TLS ``url.base``
                   (= the same value ``lookup('tls', s, 'url.base')`` returns)
 
-Used by:
+Used by::
+
     meta/server.yml                  -> connect-src CSP whitelist (url_bases)
     templates/wall-config.json.j2    -> default ``servers`` list   (domains)
 

@@ -17,3 +17,7 @@
 - name: "🔌 Provision MCP tool-server access grants"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: OPENWEBUI_MCP_SERVERS | length > 0
+
+- name: "🤖 Provision per-group access to the agent models"
+  ansible.builtin.include_tasks: utils/agent_models.yml
+  when: OPENWEBUI_AGENT_BROKER_ENABLED | bool

@@ -241,7 +241,7 @@ def _service_stopped(entry: dict) -> bool:
 
 
 def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
-    """Return a mermaid ``flowchart`` source (no ``` fences) for the role."""
+    """Return a mermaid ``flowchart`` source (no code fences) for the role."""
     role_dir = Path(role_dir)
     meta = _roles_meta(str(role_dir.parent))
     services = meta.get(role_name)

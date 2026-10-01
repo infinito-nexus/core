@@ -266,7 +266,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
                 h.apply = (
                     h.apply.__wrapped__ if hasattr(h.apply, "__wrapped__") else h.apply
                 )  # type: ignore[attr-defined]
-        self.assertEqual(len(called), len(real_handlers))
+        self.assertEqual(set(called), {h.__name__ for h in real_handlers})
 
     def test_returns_envbuilder_instance(self) -> None:
         with (

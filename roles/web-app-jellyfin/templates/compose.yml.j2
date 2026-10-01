@@ -29,7 +29,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file jellyfinmcp overrides docker_compose_env with mcp/upstream.env, so the role's templates/env.j2 never reaches it and these keys would instead land in the primary jellyfin container, which must not receive ADAPTER_BEARER
       ADAPTER_CONTRACT: {{ JELLYFIN_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ JELLYFIN_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ JELLYFIN_MCP_PORT }}"

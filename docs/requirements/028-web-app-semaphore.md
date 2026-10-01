@@ -198,7 +198,7 @@ Before any implementation work, the agent MUST read [AGENTS.md](../../AGENTS.md)
 
 Execute autonomously; open a clarification only when a decision is genuinely ambiguous and blocking.
 
-1. Resolve the [Open Questions](#open-questions-pending-operator-decision) into [Confirmed Decisions](#confirmed-decisions).
+1. Work from the [Confirmed Decisions](#confirmed-decisions); raise anything still open with the operator before implementing it.
 2. Scaffold the role using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (Postgres consumer, LDAP vars, OIDC, three personas).
 3. Template `compose.yml.j2` + `env.j2` with the `SEMAPHORE_*` matrix (DB, admin bootstrap, secrets, `SEMAPHORE_WEB_ROOT`, conditional `SEMAPHORE_OIDC_PROVIDERS` and `SEMAPHORE_LDAP_*`).
 4. Add Keycloak client auto-provisioning for the Semaphore consumer.

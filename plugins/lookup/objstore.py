@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
@@ -13,7 +14,7 @@ from utils.tls_common import resolve_enabled
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")
 OBJSTORE_PROVIDER_ROLE = {
-    "seaweedfs": "web-app-seaweedfs",
+    "seaweedfs": "web-svc-seaweedfs",
     "minio": "web-app-minio",
 }
 OBJSTORE_DEFAULT_PORT = {"seaweedfs": 8333, "minio": 9000}
@@ -108,6 +109,7 @@ class LookupModule(LookupBase):
                 "volume": "",
                 "endpoint": "",
                 "url": "",
+                "credentialed_url": "",
                 "public_domain": "",
                 "public_bucket": "",
                 "public_url": "",
@@ -211,6 +213,8 @@ class LookupModule(LookupBase):
         )
         endpoint = f"{host}:{port}"
         url = f"http://{endpoint}"
+        userinfo = f"{quote(access_key, safe='')}:{quote(secret_key, safe='')}"
+        credentialed_url = f"http://{userinfo}@{endpoint}"
 
         public_domain = get(
             applications,
@@ -255,6 +259,7 @@ class LookupModule(LookupBase):
             "volume": volume,
             "endpoint": endpoint,
             "url": url,
+            "credentialed_url": credentialed_url,
             "public_domain": public_domain,
             "public_bucket": public_bucket,
             "public_url": public_url,

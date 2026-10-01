@@ -62,6 +62,13 @@ flowise:
   # nocheck: docker-version
   version: "24-slim"
   npm_version: 3.1.4
+  update:
+    - key: npm_version
+      type: npm
+      package: flowise
+    - key: sqlite_version
+      type: npm
+      package: better-sqlite3
   sqlite_version: 12.11.1
   custom: true
   name: flowise

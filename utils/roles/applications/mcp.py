@@ -21,6 +21,7 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
 * ``implementation``:  how the surface is provided, ordered by precedence.
 * ``credential``:      which principal the provider authenticates as, and
   where its secret is read from. Replaces the administrator token path.
+
 Admission is not declared here. A client marks itself once, in its own
 ``meta/services.yml`` self-entry, as ``mcp_consumer: true``; a provider
 deviates by carrying ``mcp_consumer: false`` on that client's entry in its

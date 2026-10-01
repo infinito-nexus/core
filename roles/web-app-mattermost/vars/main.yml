@@ -7,6 +7,10 @@ container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~
 MATTERMOST_DATABASE_DSN: "{{ lookup('database', application_id, 'url_full') }}?sslmode=disable&connect_timeout=10"
 
 MATTERMOST_CONTAINER: "{{ lookup('config', application_id, 'services.mattermost.name') }}"
+MATTERMOST_BASE_IMAGE: "{{ lookup('config', application_id, 'services.mattermost.image') }}"
+MATTERMOST_BASE_VERSION: "{{ lookup('config', application_id, 'services.mattermost.version') }}"
+MATTERMOST_VERSION: "{{ lookup('config', application_id, 'services.mattermost.ref') | regex_replace('^v', '') }}"
+MATTERMOST_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
 MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

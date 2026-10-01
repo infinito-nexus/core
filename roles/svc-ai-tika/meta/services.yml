@@ -1,0 +1,26 @@
+---
+# nocheck: playwright-service-flag - internal extraction engine without a browser surface
+tika:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: apache/tika
+  version: 4.0.0-full
+  name: tika
+  healthcheck:
+    flavor: http_status
+    path: tika
+  min_storage: 1GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 2g
+  pids_limit: 512
+  ports:
+    internal:
+      http: 9998
+  lifecycle: alpha

@@ -97,7 +97,7 @@
 
 - name: 🚀 Run CLI test script for {{ application_id }}
   ansible.builtin.shell:
-    cmd: "set -a && . {{ _cli_stage_dir }}/test.env && set +a && timeout {{ _cli_timeout }} bash {{ _cli_test_script }}"
+    cmd: "set -ea; . {{ _cli_stage_dir }}/test.env; set +ea; timeout {{ _cli_timeout }} bash {{ _cli_test_script }}"
     executable: /bin/bash
   vars:
     _cli_timeout_base: "{{ lookup('role_tests', application_id, 'cli.timeout', default='') }}"

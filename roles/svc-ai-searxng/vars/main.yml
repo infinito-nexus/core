@@ -1,0 +1,8 @@
+---
+application_id: "svc-ai-searxng"
+entity_name: "{{ application_id | get_entity_name }}"
+
+SEARXNG_CONTAINER: "{{ lookup('config', application_id, 'services.searxng.name') }}"
+SEARXNG_PORT: "{{ lookup('config', application_id, 'services.searxng.ports.internal.http') }}"
+SEARXNG_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
+SEARXNG_SETTINGS_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'settings.yml' ] | path_join }}"
