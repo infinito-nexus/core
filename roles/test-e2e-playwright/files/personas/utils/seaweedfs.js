@@ -70,7 +70,7 @@ async function runSeaweedfsStorageCheck(page, browser, { action, label = "the ap
   // to also accept a changed ETag on an existing key.
   const deadline = Date.now() + pollDeadlineMs;
   let after = before;
-  let newObjects = [];
+  let newObjects;
   for (;;) {
     after = await collectBucketObjects(page.request, env);
     newObjects = [...after.keys()].filter(

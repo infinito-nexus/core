@@ -70,8 +70,8 @@ test("seaweedfs: an Odoo chatter attachment is stored in the SeaweedFS bucket", 
 
       const env = seaweedfsEnv();
       const deadline = Date.now() + resolveTimeout(60_000);
-      let keys = [];
-      let matched = [];
+      let keys;
+      let matched;
       for (;;) {
         keys = [...(await collectBucketObjects(appPage.request, env)).keys()];
         matched = keys.filter((key) => key.includes(stem));
