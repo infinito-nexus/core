@@ -37,10 +37,12 @@ seaweedfs:
       http: 8333
       filer: 8888
       master: 9333
+# nocheck: variants-coverage — the tor conjunct is the tor-contract invariant above, so no variant may pin the true polarity on an onion node
+# nocheck: bond-baseline — same reason: variant 0 must not pin the scrape consumer on
 prometheus:
   bond: 1
-  enabled: "{{ 'web-app-prometheus' in group_names }}"
-  shared: "{{ 'web-app-prometheus' in group_names }}"
+  enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1
