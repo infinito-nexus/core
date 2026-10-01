@@ -17,6 +17,23 @@ This role deploys Moodle using Docker, automating the setup of both the Moodle a
 - **Secure Web Access:** Configured to work seamlessly behind an NGINX reverse proxy for enhanced security and performance.
 - **Single Sign-On (SSO) / OpenID Connect (OIDC):** Seamless integration with external identity providers for centralized authentication.
 
+## Object storage
+
+With the `seaweedfs` service enabled the role bakes the GPL plugin [`tool_objectfs`](https://github.com/catalyst/moodle-tool_objectfs) into the image at `admin/tool/objectfs` and makes it Moodle's file system.
+
+| Property | Value |
+| --- | --- |
+| Pin | commit `MOODLE_OBJECTFS_PLUGIN_COMMIT` on `MOODLE_404_STABLE` (upstream publishes no tags; that head declares `$plugin->supported = [404, 405]`) |
+| File system | `$CFG->alternative_file_system_class = '\tool_objectfs\s3_file_system'` |
+| Settings | `$CFG->forced_plugin_settings['tool_objectfs']` in `files/build/config.php`, fed from `lookup('objstore', application_id, …)` |
+| Transfer | `tool_objectfs\task\push_objects_to_storage`, run every minute by the `cron` service |
+
+`minimumage` and `sizethreshold` are forced to `0`, so an uploaded file is a push candidate on the next task run instead of after the upstream ten-minute / 10 KB thresholds.
+
+`files/build/patch/tool-objectfs-path-style.patch` forces `use_path_style_endpoint` on the AWS SDK client. The plugin exposes no setting for it and the SDK defaults a custom endpoint to virtual-host addressing, which SeaweedFS does not serve. `files/build/install/tool-objectfs.sh` applies it with `patch -F0` and fails the image build if the hunk no longer matches or if upstream starts setting the option itself.
+
+`tasks/utils/objectfs.yml` copies the plugin from the image into the persistent code volume, runs `admin/cli/upgrade.php`, then writes `MOODLE_OBJECTFS_READY_FILE` into the code volume and purges the caches. `files/build/config.php` names `alternative_file_system_class` only once that file exists, so `install_database.php` and the plugin's own upgrade run on Moodle's default file system. The plugin directory is not usable as that signal: `files/build/moodle-entrypoint.sh` copies the whole image tree into the code volume at container start, before any Ansible task runs.
+
 ## MCP server
 
 The role exposes a Model Context Protocol surface through the `webservice_mcp` protocol plugin, baked into the image at `webservice/mcp` and served by the NGINX sidecar.

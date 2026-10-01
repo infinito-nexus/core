@@ -15,3 +15,4 @@ require("./test-administrator-persona").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-mcp-guest").register(shared);
 require("./test-litellm-gateway").register(shared);
+require("./test-seaweedfs").register(shared);
