@@ -15,6 +15,8 @@ ODOO_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~
 ODOO_SERVICE: "{{ entity_name }}"
 ODOO_REPLICAS: "{{ groups[application_id] | length }}"
 
+ODOO_PIP_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'pip' ] | path_join }}"
+
 ODOO_CONF_FILE_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}odoo.conf"
 ODOO_ADDONS_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}addons/"
 ODOO_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-odoo.sh"
@@ -29,6 +31,21 @@ ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 ODOO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 ODOO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
+ODOO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
+
+ODOO_OBJSTORE_STORAGE_CODE: "{{ lookup('objstore', application_id, 'engine') }}"
+ODOO_OBJSTORE_STORAGE_NAME: "Infinito Object Store"
+ODOO_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"
+ODOO_OBJSTORE_OPTIONS:
+  key: "{{ lookup('objstore', application_id, 'access_key') }}"
+  secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
+  client_kwargs:
+    endpoint_url: "{{ lookup('objstore', application_id, 'url') }}"
+    region_name: "{{ lookup('objstore', application_id, 'region') }}"
+  config_kwargs:
+    s3:
+      addressing_style: path
+ODOO_OBJSTORE_FORCE_DB_RULES: '{"image/": 51200, "application/javascript": 0, "text/css": 0}'
 
 ODOO_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
 ODOO_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"

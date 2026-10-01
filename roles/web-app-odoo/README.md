@@ -44,6 +44,9 @@ The purpose of this role is to provide a hands-off, production-ready Odoo ERP de
 - **WebSocket Support:**
   Real-time notifications and live chat capabilities through WebSocket connections.
 
+- **S3 Attachment Storage:**
+  With `web-svc-seaweedfs` in the inventory, the OCA modules `fs_attachment` and `fs_attachment_s3` route every `ir.attachment` written after the storage row is seeded into the role's own SeaweedFS bucket over the internal S3 endpoint with path-style addressing. Images below 50KB and the JS/CSS asset bundles stay in Postgres so list and kanban views keep reading them locally. `tasks/07_objstore.yml` runs after the database init and the module install, and it migrates nothing: whatever those earlier steps wrote to the local filestore stays there.
+
 ## Modules
 
 Odoo's functionality is delivered through a modular architecture. The following core modules are installed by default:
