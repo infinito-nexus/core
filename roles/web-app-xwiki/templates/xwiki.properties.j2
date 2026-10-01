@@ -70,6 +70,16 @@ logging.logger.org.apache.http.wire=DEBUG   # very verbose, raw request/response
 logging.logger.org.pac4j=DEBUG
 {% endif %}
 
+{% if xwiki_blobstore_s3_enabled_switch | bool %}
+store.blobStoreType=s3
+store.s3.bucketName={{ XWIKI_OBJSTORE_BUCKET }}
+store.s3.region={{ XWIKI_OBJSTORE_REGION }}
+store.s3.accessKey={{ XWIKI_OBJSTORE_ACCESS_KEY }}
+store.s3.secretKey={{ XWIKI_OBJSTORE_SECRET_KEY }}
+store.s3.endpoint={{ XWIKI_OBJSTORE_URL }}
+store.s3.pathStyleAccess=true
+{% endif %}
+
 # Persist data in the Docker volume
 environment.permanentDirectory={{ XWIKI_DOCK_DATA_DIR }}
 

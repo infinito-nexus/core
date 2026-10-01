@@ -71,3 +71,4 @@
   vars:
     xwiki_oidc_enabled_switch: "{{ XWIKI_OIDC_ENABLED | bool }}"
     xwiki_ldap_enabled_switch: "{{ XWIKI_LDAP_ENABLED | bool }}"
+    xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"

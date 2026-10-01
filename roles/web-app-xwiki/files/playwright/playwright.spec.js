@@ -10,6 +10,9 @@ const {
   runBiberFlow,
   runGuestFlow,
 } = require("./personas");
+
+require("./test-seaweedfs");
+
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
