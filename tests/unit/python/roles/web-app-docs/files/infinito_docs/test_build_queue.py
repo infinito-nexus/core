@@ -57,8 +57,10 @@ class QueueFixture(LibraryFixture):
 
 
 class TestRequest(QueueFixture, unittest.TestCase):
-    def test_the_fetch_queues_latest(self) -> None:
-        self.assertIn("latest", self._queued())
+    def test_the_fetch_queues_latest_behind_what_a_visitor_waits_for(self) -> None:
+        self.assertEqual(self._queued(), [])
+        self.assertIn("latest", self._queued("background"))
+        self.assertEqual(self.library.next_queued(), "latest")
 
     def test_a_current_version_is_not_queued_again(self) -> None:
         self.library._dequeue("latest")

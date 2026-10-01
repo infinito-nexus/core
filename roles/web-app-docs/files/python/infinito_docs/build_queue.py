@@ -2,7 +2,8 @@
 
 ``Queue`` is a mixin of :class:`infinito_docs.library.Library`. A marker is a
 file named ``version`` or ``version:code``; the background lane holds the
-languages nobody is waiting on.
+builds nobody is waiting on - the daemon's own prefetch and every language no
+visitor has asked for.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ class Queue:
         Args:
             version: ``latest`` or a release tag.
             code: ISO 639-1 code to build instead of the version's own site.
-            background: queue behind every language a visitor asked for.
+            background: queue behind everything a visitor is waiting on.
         """
         head, _ = self.refs()
         if not head and version != DEPLOYED:
@@ -34,7 +35,7 @@ class Queue:
             if self._current(version, head):
                 return
             marker = version
-        elif not self.translates(version, code) or self._translation_current(
+        elif not self.translatable(version, code) or self._translation_current(
             version, code, head
         ):
             return
@@ -48,6 +49,16 @@ class Queue:
         if queued.exists():
             return
         queued.touch()
+
+    def is_queued(self, marker):
+        """Whether ``marker`` waits in either lane.
+
+        Args:
+            marker: queue file name, ``version`` or ``version:code``.
+        """
+        return (self.queue / marker).exists() or (
+            self.queue / BACKGROUND_LANE / marker
+        ).exists()
 
     def _dequeue(self, marker):
         """Drop ``marker`` from both lanes.

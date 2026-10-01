@@ -126,6 +126,8 @@ class DocsHandler(SimpleHTTPRequestHandler):
             self._redirect(f"/{version}/")
         elif not self.library.servable(version) or self.library.outdated(version):
             self.library.request(version)
+            if wanted := rest.partition("/")[0]:
+                self.library.request(version, wanted)
             body = BUILDING.format(version=html.escape(version))
             self._page(HTTPStatus.ACCEPTED, f"Building {version}", body, head)
         elif (code := rest.partition("/")[0]) in self.library.languages(version)[0]:

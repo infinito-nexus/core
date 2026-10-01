@@ -164,7 +164,7 @@ class Library(Sites, Queue, Builder):
         for name in [LATEST, *tags]:
             built = self.servable(name)
             state = self._state(name)
-            if (self.queue / name).exists():
+            if self.is_queued(name):
                 phase = "building" if state.get("state") == "building" else "queued"
             elif state.get("state") == "failed":
                 phase = "failed"
@@ -203,8 +203,27 @@ class Library(Sites, Queue, Builder):
                 capture_output=True,
             )
         self._forget_refs()
-        self.request(LATEST)
+        self.request(LATEST, background=True)
         self._refresh_stale_sites()
+
+    def translatable(self, version, code):
+        """Whether ``code`` may be queued for ``version`` before its site exists.
+
+        Args:
+            version: ``latest`` or a release tag.
+            code: ISO 639-1 code.
+
+        Returns:
+            ``True`` once the built language index lists the code, and for the
+            deployed snapshot already before its first build, from the catalog
+            on disk. Only a queue admission - ``build_language`` re-checks the
+            index and drops the marker when the catalog turns out to be empty.
+        """
+        if self.translates(version, code):
+            return True
+        if version != DEPLOYED:
+            return False
+        return (self.snapshot / "locale" / code / "LC_MESSAGES" / "docs.po").is_file()
 
     def _refresh_stale_sites(self):
         """Queue every already-served version whose site no longer matches its ref.
@@ -216,4 +235,4 @@ class Library(Sites, Queue, Builder):
         """
         for version in self.versions():
             if self.servable(version):
-                self.request(version)
+                self.request(version, background=True)

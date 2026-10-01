@@ -169,7 +169,7 @@ class TestLibrary(LibraryFixture):
         self.library.fetch()
 
         self.assertTrue(
-            (self.library.queue / "v1.0.0").exists(),
+            self.library.is_queued("v1.0.0"),
             "a tag is built on demand and then never revisited, so nothing else "
             "would ever notice its index predates the split",
         )
@@ -218,6 +218,7 @@ class TestLibrary(LibraryFixture):
         self.assertFalse((self.library.queue / "v9.9.9").exists())
 
     def test_queue_is_served_oldest_request_first(self) -> None:
+        self.library.request("latest")
         self.library.request("v1.0.0")
         self.library.request("v1.2.0")
         os.utime(self.library.queue / "latest", (3000, 3000))
