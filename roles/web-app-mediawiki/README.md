@@ -18,7 +18,7 @@ This role deploys MediaWiki using Docker, automating the setup of your wiki inst
 
 ## Addons
 
-This role ships its OIDC login stack, its AI editing stack and its object-store backend as unified addons declared in `meta/addons/`. Each is a MediaWiki extension installed from upstream and gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration.
+This role ships its OIDC login stack, its AI editing stack, its object-store backend and its cross-role integrations as unified addons declared in `meta/addons/`. Each is a MediaWiki extension installed from upstream and gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration.
 
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|
@@ -27,6 +27,11 @@ This role ships its OIDC login stack, its AI editing stack and its object-store 
 | VisualEditorPlus | extension | enabled when `services.litellm.enabled` | `litellm` |
 | AIEditingAssistant | extension | enabled when `services.litellm.enabled` | `litellm` |
 | AWS | extension | enabled when `services.seaweedfs.enabled` | `seaweedfs` |
+| DiscourseSsoConsumer | extension | enabled when `services.discourse.enabled` and `services.sso.enabled` | `discourse` |
+| MachineTranslation | extension | enabled when `services.libretranslate.enabled` | `libretranslate` |
+| PeerTubeEmbed | extension | off; no public archive resolves for this extension | `peertube` |
+
+The three partner-bridging addons are `required: false`: they install with their partner and stay out of a deployment that does not carry it. `templates/LocalSettings.php.j2` loads every staged addon that no dedicated block already loads, each behind a `file_exists` guard so a failed stage leaves the wiki up rather than fatal; `MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK` lists the names a dedicated block already loads, which the generic loop then skips. `files/playwright/addons/<id>.spec.js` asserts the loaded state and `files/playwright/test-partner-extensions.js` asserts the absent-partner branch.
 
 `meta/addons/` is also the download list: `MEDIAWIKI_EXT_ENABLED` keeps only the addons whose `enabled` resolves true, so a deployment without the matching service never pulls that tarball or runs composer for it.
 

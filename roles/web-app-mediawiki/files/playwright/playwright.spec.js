@@ -12,6 +12,7 @@ const {
 } = require("./personas");
 
 require("./test-seaweedfs");
+require("./test-partner-extensions");
 
 test.use({ ignoreHTTPSErrors: true });
 

@@ -134,6 +134,12 @@ wfLoadSkin( 'Vector' );
 require_once '{{ MEDIAWIKI_LOCAL_PATH }}/oidc.php';
 {% endif %}
 
+{% for _ext in MEDIAWIKI_EXT_GENERIC_LOAD %}
+if ( file_exists( "$IP/extensions/{{ _ext }}/extension.json" ) ) {
+	wfLoadExtension( '{{ _ext }}' );
+}
+{% endfor %}
+
 {% if MEDIAWIKI_LITELLM_ENABLED | bool %}
 if ( file_exists( "$IP/extensions/VisualEditorPlus/vendor/autoload.php" )
 	&& file_exists( "$IP/extensions/AIEditingAssistant/extension.json" ) ) {

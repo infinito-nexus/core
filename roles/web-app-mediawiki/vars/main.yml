@@ -59,6 +59,14 @@ MEDIAWIKI_EXT_BRANCH: "REL{{ (MEDIAWIKI_VERSION | string).split('.')[:2] | join(
 MEDIAWIKI_EXT_CFG_BASE: "{{ [ MEDIAWIKI_CONFIG_DIR, 'mwext', MEDIAWIKI_EXT_BRANCH ] | path_join }}"
 MEDIAWIKI_EXT_HELPER_DIR: "{{ [ MEDIAWIKI_EXT_CFG_BASE, 'helpers' ] | path_join }}"
 MEDIAWIKI_EXT_ENABLED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled') | list }}"
+MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK:
+  - AIEditingAssistant
+  - AWS
+  - OpenIDConnect
+  - PluggableAuth
+  - VisualEditor
+  - VisualEditorPlus
+MEDIAWIKI_EXT_GENERIC_LOAD: "{{ MEDIAWIKI_EXT_ENABLED | map(attribute='key') | reject('in', MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK) | list }}"
 # nocheck: url
 MEDIAWIKI_EXT_URL_PREFIX: "https://codeload.github.com/wikimedia/mediawiki-extensions-"
 MEDIAWIKI_EXT_URL_SUFFIX: "/tar.gz/refs/heads/{{ MEDIAWIKI_EXT_BRANCH }}"

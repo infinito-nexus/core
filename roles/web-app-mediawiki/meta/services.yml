@@ -21,6 +21,18 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+discourse:
+  bond: 0.5
+  enabled: "{{ 'web-app-discourse' in group_names }}"
+  shared: "{{ 'web-app-discourse' in group_names }}"
+libretranslate:
+  bond: 0.5
+  enabled: "{{ 'web-svc-libretranslate' in group_names }}"
+  shared: "{{ 'web-svc-libretranslate' in group_names }}"
+peertube:
+  bond: 0.5
+  enabled: "{{ 'web-app-peertube' in group_names }}"
+  shared: "{{ 'web-app-peertube' in group_names }}"
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
@@ -78,7 +90,6 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
