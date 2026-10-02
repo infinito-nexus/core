@@ -35,5 +35,4 @@ echo "Verifying the dashboard is reachable (matomo was disabled, not the dashboa
 assert_http_status 200 "${dashboard_url}"
 
 echo "Verifying matomo is not reachable because it was excluded from the inventory."
-# Exception: Expect 000 because curl aborts in TLS before HTTP when the excluded hostname is missing from the certificate SANs.
 assert_http_status 000 "${matomo_url}"

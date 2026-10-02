@@ -39,13 +39,11 @@ services:
   package-cache:
     image: sonatype/nexus3:3.91.1-ubi
     container_name: ${INFINITO_CACHE_PACKAGE_CONTAINER:?Run 'make dotenv' to generate the .env single source of truth}
-    # Exception: fresh bind-mount is root:root and Nexus aborts unless run as root.
     user: "0:0"
     environment:
       INSTALL4J_ADD_VM_PARAMS: "-Xms${INFINITO_CACHE_PACKAGE_HEAP:?Run 'make dotenv' to generate the .env single source of truth} -Xmx${INFINITO_CACHE_PACKAGE_HEAP:?Run
         'make dotenv' to generate the .env single source of truth} -XX:MaxDirectMemorySize=${INFINITO_CACHE_PACKAGE_DIRECT_MEM:?Run 'make dotenv' to generate the
         .env single source of truth}"
-      # Exception: random-password mode leaves no readable secret for the bootstrap.
       NEXUS_SECURITY_RANDOMPASSWORD: "false"
     volumes:
       - type: bind

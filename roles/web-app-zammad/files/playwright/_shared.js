@@ -68,7 +68,6 @@ async function signInAsApiBot(page) {
 
   const apiRequest = page.context().request;
 
-  // Exception: /api/v1/getting_started answers 403 since Zammad 7.0; signshow is the unauthenticated csrf seed.
   const seed = await apiRequest.get(`${zammadBaseUrl}/api/v1/signshow`, {
     headers: { Accept: "application/json" },
     failOnStatusCode: true,

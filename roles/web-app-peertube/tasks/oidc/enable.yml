@@ -22,7 +22,6 @@
 - name: "📦 Install auth-openid-connect plugin for Peertube (mem_limit bump + diagnostics)"
   when: peertube_oidc_plugin_check.rc != 0
   block:
-    # Exception: install runs via `container exec` and shares the cgroup; combined RSS plus native allocs trips mem_limit and SIGKILLs peertube, so raise the ceiling and allow unlimited swap for the install window.
     - name: "📦 PEERTUBE | Raise mem_limit for plugin install"
       ansible.builtin.shell: |
         container update \
@@ -33,7 +32,6 @@
       delegate_to: "{{ PEERTUBE_HOST_NODE }}"
 
     - name: "📦 Install auth-openid-connect plugin for Peertube"
-      # Exception: cgroup bump covers native memory; --max-old-space-size still caps the install's V8 old-generation.
       ansible.builtin.shell: >
         container exec
         -e NODE_OPTIONS=--max-old-space-size={{ PEERTUBE_OIDC_PLUGIN_INSTALL_MAX_OLD_SPACE_MB }}
@@ -46,7 +44,6 @@
       delegate_to: "{{ PEERTUBE_HOST_NODE }}"
       notify: container-recreate
 
-    # Exception: happy-path only; on failure the rescue leaves bumped limits so diagnostics reflect install-time state, and the next `compose up` restores compose.yml defaults.
     - name: "♻️ PEERTUBE | Restore compose-defined mem_limit"
       ansible.builtin.shell: |
         container update \

@@ -23,8 +23,6 @@ fi
 : "${INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE:?Source scripts/meta/env/load.sh first}"
 ALPINE_IMAGE="${INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE}"
 
-# Exception: deployed by the role, only files/ ships, so the repo-only retry
-# helper is absent and a plain pull is the whole of what can be attempted.
 if [[ -x "${RETRY}" ]]; then
 	MAX_ATTEMPTS=3 RETRY_DELAY_SECONDS=10 "${RETRY}" "${ALPINE_IMAGE}" ||
 		echo "[package-frontend-certs] could not pull ${ALPINE_IMAGE}; falling back to a cached copy" >&2

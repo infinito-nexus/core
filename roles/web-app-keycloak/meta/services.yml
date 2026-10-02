@@ -83,7 +83,6 @@ keycloak:
     - web-app-matomo
     - web-app-mailu
   lifecycle: beta
-# Exception: sso-proxy sidecar; upstream artefact names (oauth2-proxy image, oauth2-proxy-keycloak.cfg) stay literal, project identifiers use the sso_proxy namespace
 # nocheck: dynamic-flag — per-consumer fan-out
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag
 sso_proxy:

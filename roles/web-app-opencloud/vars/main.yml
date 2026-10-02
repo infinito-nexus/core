@@ -19,6 +19,5 @@ OPENCLOUD_STORAGE_SYSTEM_JWT_SECRET: "{{ lookup('config', application_id, 'secre
 OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_secret') }}"
 OPENCLOUD_TRANSFER_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.transfer_secret') }}"
 
-# Exception: the tls lookup raises when web-app-opentalk is not in scope
 OPENCLOUD_OPENTALK_ENABLED: "{{ ('web-app-opentalk' in group_names) | lower }}"
 OPENCLOUD_OPENTALK_URL: "{{ lookup('tls', 'web-app-opentalk', 'url.base') if OPENCLOUD_OPENTALK_ENABLED | bool else '' }}"

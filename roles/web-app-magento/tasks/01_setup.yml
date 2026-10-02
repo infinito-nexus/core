@@ -37,9 +37,6 @@
   delay: 5
   until: magento_composer_install is succeeded
 
-# Exception: magento2-base ships nginx.conf.sample, so it only exists after
-# composer install -- inside the bootstrap the file is not there yet and the
-# bootstrap's own creates: guard would make the miss permanent.
 - name: "📄 Publish Magento's nginx vhost into the volume"
   ansible.builtin.shell: >-
     container exec --user {{ MAGENTO_USER }} -w {{ MAGENTO_ROOT }}

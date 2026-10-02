@@ -42,6 +42,8 @@ redis:
     disabled: true
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
+# nocheck: variants-coverage — the tor conjunct is the clearnet-variant-tor invariant below, so no variant may pin the true polarity on an onion node
+# nocheck: bond-baseline — same reason: variant 0 must not pin the scrape consumer on
 prometheus:
   bond: 1
   enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"

@@ -7,7 +7,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../utils/common.sh"
 
 echo "Deploying matomo (full cycle: deploy + update pass) so it becomes reachable via its dedicated inventory entry."
-# Exception: the onion provider has to stay out. svc-net-tor is exclusive, so once it joins the groups matomo is served onion-only, loses its clearnet vhost, and the assertion below aborts in TLS before HTTP.
 make compose-deploy mode=reinstall apps="${MATOMO_APP}" full_cycle=true disable=tor
 inspect
 
@@ -21,5 +20,4 @@ echo "Verifying matomo is now reachable after its dedicated deploy."
 assert_http_status 200 "${matomo_url}"
 
 echo "Verifying the dashboard is no longer reachable after the matomo-only fresh deploy."
-# Exception: Expect 000 because curl aborts in TLS before HTTP when the removed hostname is missing from the certificate SANs.
 assert_http_status 000 "${dashboard_url}"

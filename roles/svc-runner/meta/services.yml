@@ -24,7 +24,6 @@ runner:
   install_dir: /opt/github-runner
   cpus: 2
 
-# Exception: mirror-only entries — CI pulls these images directly and never deploys them as services
 # nocheck: dynamic-flag
 buildkit:
   enabled: false

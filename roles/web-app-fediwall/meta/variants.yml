@@ -60,8 +60,6 @@
       enabled: true
       shared: true
     fediwall:
-      # Exception: variants replace lists wholesale rather than deep-merging, so
-      # every wall.config field is restated here - a template fallback never applies.
       walls:
         - slug: default
           config:

@@ -136,9 +136,6 @@ class LookupModule(LookupBase):
         host = central_name if shared else engine
         instance = central_name if shared else entity
 
-        # Exception: shared redis authenticates as the central `default` user, not
-        # a per-consumer ACL user — ACL users live only in memory and are lost when
-        # a deploy recreates the central redis after the consumer was provisioned.
         if engine == "redis" and shared:
             username = "default"
             password = str(

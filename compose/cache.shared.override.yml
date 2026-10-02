@@ -5,8 +5,6 @@
 
 services:
   infinito:
-    # Exception: required:false still makes compose CREATE the cache services,
-    # which would claim the primary instance's IPs outside this subnet.
     depends_on: !reset null
     networks:
       cache:

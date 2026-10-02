@@ -114,7 +114,7 @@ livekit:
       relay:
         start: 60000
         end: 60999
-# nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-app-minio)
+# nocheck: playwright-service-flag — object store, no Playwright surface; the live S3 backend is the seaweedfs block below, web-app-minio is end of life and stays off
 minio:
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag

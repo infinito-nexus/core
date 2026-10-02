@@ -65,7 +65,6 @@
   retries: 5
   delay: 5
   vars:
-    # Exception: retrying is destructive; the retry loop `rm -f`s the freshly written configuration.php then fails because the installer self-deleted its entry file.
     _joomla_install_soft_success: >-
       {{
         j_install.rc == 0

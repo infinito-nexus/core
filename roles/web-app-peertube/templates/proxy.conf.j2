@@ -46,7 +46,6 @@ server {
   }
 
   location /tracker/socket {
-    # Exception: peers ping the tracker every 15 minutes; nginx's 60s default read timeout would close the websocket between pings
     proxy_read_timeout 15m;
 
     try_files /dev/null {{ webserver_websocket_location }};

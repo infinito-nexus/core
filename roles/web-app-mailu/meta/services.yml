@@ -87,7 +87,6 @@ redis:
   backup:
     disabled: true
   enabled: true # nocheck: dynamic-flag
-  # Exception: central redis overlay adds VIP pressure on manager-pinned mailu; embedded redis avoids it.
   shared: "{{ ('svc-db-redis' in group_names) and (IS_COMPOSE_MODE) }}"
   cpus: "0.2"
   mem_reservation: 256m
