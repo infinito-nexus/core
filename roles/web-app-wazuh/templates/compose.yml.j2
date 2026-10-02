@@ -25,13 +25,13 @@
         hard: 655360
     environment:
       - "INDEXER_URL=https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
-      - "INDEXER_USERNAME=admin"
+      - "INDEXER_USERNAME={{ WAZUH_INDEXER_ADMIN_USERNAME }}"
       - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
       - "FILEBEAT_SSL_VERIFICATION_MODE=full"
       - "SSL_CERTIFICATE_AUTHORITIES={{ lookup('volume', application_id, 'root_ca_manager_pem').target }}"
       - "SSL_CERTIFICATE={{ lookup('volume', application_id, 'manager_filebeat_pem').target }}"
       - "SSL_KEY={{ lookup('volume', application_id, 'manager_filebeat_key_pem').target }}"
-      - "API_USERNAME=wazuh-wui"
+      - "API_USERNAME={{ WAZUH_WUI_USERNAME }}"
       - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
@@ -70,12 +70,12 @@
     hostname: "{{ WAZUH_DASHBOARD_CONTAINER }}"
     {{ lookup('container_ports', ['console', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     environment:
-      - "INDEXER_USERNAME=admin"
+      - "INDEXER_USERNAME={{ WAZUH_INDEXER_ADMIN_USERNAME }}"
       - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
       - "WAZUH_API_URL=https://{{ WAZUH_MANAGER_CONTAINER }}"
-      - "DASHBOARD_USERNAME=kibanaserver"
+      - "DASHBOARD_USERNAME={{ WAZUH_DASHBOARD_SERVICE_USERNAME }}"
       - "DASHBOARD_PASSWORD={{ WAZUH_DASHBOARD_SERVICE_PASSWORD }}"
-      - "API_USERNAME=wazuh-wui"
+      - "API_USERNAME={{ WAZUH_WUI_USERNAME }}"
       - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

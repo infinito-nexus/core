@@ -92,7 +92,7 @@
   uri_retry:
     url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
     method: GET
-    user: admin
+    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
     password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
     force_basic_auth: true
     validate_certs: false

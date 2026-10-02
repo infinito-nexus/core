@@ -28,12 +28,15 @@ WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXE
 WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 WAZUH_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 
+WAZUH_INDEXER_ADMIN_USERNAME: "{{ lookup('users', 'admin').username }}"
 WAZUH_INDEXER_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.indexer_admin_password') }}"
 WAZUH_INDEXER_ADMIN_HASH: "{{ WAZUH_INDEXER_ADMIN_PASSWORD | bcrypt_hash }}"
 
+WAZUH_DASHBOARD_SERVICE_USERNAME: "{{ lookup('users', 'web-app-wazuh-dashboard').username }}"
 WAZUH_DASHBOARD_SERVICE_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.dashboard_service_password') }}"
 WAZUH_DASHBOARD_SERVICE_HASH: "{{ WAZUH_DASHBOARD_SERVICE_PASSWORD | bcrypt_hash }}"
 
+WAZUH_WUI_USERNAME: "{{ lookup('users', 'web-app-wazuh-api').username }}"
 WAZUH_WUI_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.wazuh_wui_password') }}"
 
 WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.manager_cluster_key') }}"

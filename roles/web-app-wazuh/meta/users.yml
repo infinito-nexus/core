@@ -1,0 +1,10 @@
+---
+admin: {}
+web-app-wazuh-dashboard:
+  username: kibanaserver
+  accounts: []
+  description: Service account wazuh.dashboard uses for its backend calls to wazuh.indexer
+web-app-wazuh-api:
+  username: wazuh-wui
+  accounts: []
+  description: Wazuh API account the dashboard connects with; created by wazuh.manager
