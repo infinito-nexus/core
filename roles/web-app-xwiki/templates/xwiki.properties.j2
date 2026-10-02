@@ -10,6 +10,7 @@ xwiki.url.port={{ lookup('tls', application_id, 'ports.web')  }}
 # During bootstrap we keep it OFF to avoid ClassNotFoundException before the extension is installed.
 # @see https://extensions.xwiki.org/xwiki/bin/view/Extension/OpenID%20Connect/OpenID%20Connect%20Authenticator/
 {% if xwiki_oidc_enabled_switch | bool %}
+security.authentication.authService=oidc
 oidc.showLoginButton=true
 oidc.provider={{ XWIKI_OIDC_PROVIDER }}
 oidc.endpoint.authorization={{ XWIKI_OIDC_AUTHORIZATION }}
@@ -23,6 +24,10 @@ oidc.enableUser=true
 #oidc.userinfoclaims={{ XWIKI_OIDC_GROUPS_CLAIM }}
 #oidc.groups.claim={{ XWIKI_OIDC_GROUPS_CLAIM }}
 #oidc.groups.mapping=XWiki.{{ XWIKI_ADMIN_GROUP_PAGE }}={{ XWIKI_OIDC_ADMIN_PROVIDER_GROUP }}
+{% endif %}
+
+{% if xwiki_ldap_enabled_switch | bool and not (xwiki_oidc_enabled_switch | bool) %}
+security.authentication.authService=ldap
 {% endif %}
 
 # Start DW automatically and non-interactively
