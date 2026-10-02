@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image that pre-installs the `oic-auth`, `ldap`, `role-strategy`, and `configuration-as-code` plugins, then mounts a JCasC YAML file that wires the security realm against Keycloak (variant 0, OIDC) or `svc-db-openldap` (variant 1, LDAP). The setup wizard is skipped via `JAVA_OPTS=-Djenkins.install.runSetupWizard=false` so the JCasC config takes over from first boot.
+This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image that pre-installs the `ldap`, `role-strategy`, and `configuration-as-code` plugins plus every plugin its enabled addons declare, then mounts a JCasC YAML file that wires the security realm against Keycloak (variant 0, OIDC) or `svc-db-openldap` (variant 1, LDAP). The setup wizard is skipped via `JAVA_OPTS=-Djenkins.install.runSetupWizard=false` so the JCasC config takes over from first boot.
 
 ## Features
 
@@ -20,12 +20,12 @@ This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image th
 
 ## MCP Server
 
-The role exposes Jenkins as an MCP server through the [MCP Server plugin](https://plugins.jenkins.io/mcp-server/), baked into the image alongside the other plugins in `files/plugins.txt`. The surface is declared as the `mcp` service in `meta/services.yml`.
+The role exposes Jenkins as an MCP server through the [MCP Server plugin](https://plugins.jenkins.io/mcp-server/), baked into the image alongside the other plugins in `templates/plugins.txt.j2`. The surface is declared as the `mcp` service in `meta/services.yml`.
 
 | Property | Value |
 | --- | --- |
 | Transport | `streamable_http` |
-| Plugin | `mcp-server` pinned to `0.190.ve5a_6581ffc96` in [`files/plugins.txt`](./files/plugins.txt) |
+| Plugin | `mcp-server` pinned to `0.190.ve5a_6581ffc96` in [`templates/plugins.txt.j2`](./templates/plugins.txt.j2) |
 | Endpoint | `http://jenkins:8080/mcp-server/mcp` |
 | Health | `/mcp-health` |
 | Auth | `basic_auth` (`Authorization: Basic base64(<user>:<apiToken>)`) |
@@ -68,6 +68,20 @@ unauthenticated `tools/list` is refused and returns no tool inventory.
 
 Remove the MCP client roles, or pin `mcp.enabled: false` for this role.
 The MCP Server plugin is then not installed and the boot hook mints no API token.
+
+## Addons
+
+Plugins are declared in `meta/addons/` under the unified addon contract. `templates/plugins.txt.j2` renders one `config.plugin_id` line per enabled addon on top of the role's base plugin set, and `jenkins-plugin-cli` installs the result while the custom image builds:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `oic-auth` | `plugin` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `prometheus` | `plugin` | enabled whenever the `prometheus` service is present (`web-app-prometheus` co-deployed) | `prometheus` → `web-app-prometheus` |
+| `gitea` | `plugin` | enabled whenever the `gitea` service is present (`web-app-gitea` co-deployed) | `gitea` → `web-app-gitea` |
+| `gitlab-plugin` | `plugin` | enabled whenever the `gitlab` service is present (`web-app-gitlab` co-deployed) | `gitlab` → `web-app-gitlab` |
+| `mattermost` | `plugin` | enabled whenever the `mattermost` service is present (`web-app-mattermost` co-deployed) | `mattermost` → `web-app-mattermost` |
+
+`oic-auth` is configured by `templates/casc.yaml.j2`, which selects the `oic` security realm on the same `services.sso.enabled` flag the addon reads. `prometheus` serves `config.metrics_path` from first boot without further configuration. The `gitea`, `gitlab-plugin`, and `mattermost` SCM/notifier connections each need a partner-side API token or incoming webhook, so the role installs the plugin and publishes the partner URL under `config.server_url` while the connection itself is entered by the operator.
 
 ## Further Resources
 

@@ -52,6 +52,7 @@ test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1
 });
 
 require("./test-mcp-guest");
+require("./test-partner-plugins");
 
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js
