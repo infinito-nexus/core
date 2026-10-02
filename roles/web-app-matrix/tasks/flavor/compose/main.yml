@@ -7,6 +7,8 @@
          | selectattr('value.mechanism', 'equalto', 'bridge')
          | selectattr('value.enabled', 'equalto', true)
          | map(attribute='value.config')
+         | select('mapping')
+         | selectattr('bridge_name', 'defined')
          | list }}
   changed_when: false
 

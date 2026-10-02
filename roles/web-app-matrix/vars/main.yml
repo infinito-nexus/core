@@ -78,10 +78,27 @@ MATRIX_MDAD_DAEMON_JSON:
     max-size: "10m"
     max-file: "3"
 
-MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') }}"
+MATRIX_BRIDGE_ADDONS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'bridge') | selectattr('value.config.bridge_name',
+  'defined') | list }}"
+MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') | combine(dict(MATRIX_BRIDGE_ADDONS | map(attribute='value.config.bridge_name') | map('regex_replace',
+  '^', 'mautrix_') | zip(MATRIX_BRIDGE_ADDONS | map(attribute='value.enabled')))) }}"
 
-MATRIX_CONFERENCING_JITSI: "{{ lookup('config', application_id, 'services.matrix.conferencing.jitsi') | bool }}"
 MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services.matrix.conferencing.element_call') | bool }}"
+
+MATRIX_ADDON_BAIBOT_ENABLED: "{{ lookup('config', application_id, 'addons.baibot.enabled') | bool }}"
+MATRIX_ADDON_BAIBOT_LOCALPART: "{{ lookup('config', application_id, 'addons.baibot.config.user_localpart') }}"
+MATRIX_ADDON_BAIBOT_PASSWORD: "{{ lookup('config', application_id, 'addons.baibot.config.user_password') }}"
+MATRIX_ADDON_BAIBOT_AGENT_ID: "{{ lookup('config', application_id, 'addons.baibot.config.agent_id') }}"
+MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED: "{{ lookup('config', application_id, 'addons.synapse-usage-exporter.enabled') | bool }}"
+MATRIX_SYNAPSE_METRICS_PORT: "{{ lookup('config', application_id, 'services.prometheus.native_metrics.port') }}"
+
+MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-gitlab.enabled') | bool }}"
+MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-jira.enabled') | bool }}"
+MATRIX_ADDON_HOOKSHOT_WEBHOOKS_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-webhooks.enabled') | bool }}"
+MATRIX_ADDON_HOOKSHOT_FEEDS_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-feeds.enabled') | bool }}"
+MATRIX_JITSI_SELF_HOSTED: "{{ (lookup('config', application_id, 'services.jitsi.enabled') | bool) and not (lookup('config', application_id, 'services.jitsi.shared') | bool) }}"
+MATRIX_ADDON_JITSI_ENABLED: "{{ lookup('config', application_id, 'addons.jitsi.enabled') | bool }}"
+MATRIX_ADDON_JITSI_PREFERRED_DOMAIN: "{{ lookup('config', application_id, 'addons.jitsi.config.preferred_domain') }}"
 
 MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 

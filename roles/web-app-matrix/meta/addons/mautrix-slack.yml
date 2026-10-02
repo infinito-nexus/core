@@ -9,6 +9,8 @@ update:
   upstream_id: mautrix-slack
 config:
   bridge_name: "slack"
+  upstream_flags:
+    - matrix_bridge_mautrix_slack_enabled
   appservice_port: 29335
   database_username: "mautrix_slack_bridge"
   database_name: "mautrix_slack_bridge"

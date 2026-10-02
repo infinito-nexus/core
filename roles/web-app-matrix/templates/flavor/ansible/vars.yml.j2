@@ -146,12 +146,41 @@ matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | low
 matrix_bridge_hookshot_enabled: {{ MATRIX_BRIDGE.hookshot | string | lower }}
 matrix_bridge_appservice_discord_enabled: {{ MATRIX_BRIDGE.discord | string | lower }}
 matrix_bridge_mautrix_discord_enabled: {{ MATRIX_BRIDGE.mautrix_discord | string | lower }}
-matrix_bridge_mautrix_slack_enabled: {{ MATRIX_BRIDGE.mautrix_slack | string | lower }}
-matrix_bridge_mautrix_signal_enabled: {{ MATRIX_BRIDGE.mautrix_signal | string | lower }}
-matrix_bridge_mautrix_telegram_enabled: {{ MATRIX_BRIDGE.mautrix_telegram | string | lower }}
 matrix_bridge_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | string | lower }}
-matrix_bridge_mautrix_whatsapp_enabled: {{ MATRIX_BRIDGE.mautrix_whatsapp | string | lower }}
-matrix_bridge_mautrix_gitter_enabled: {{ MATRIX_BRIDGE.gitter | string | lower }}
+{% for bridge_addon in MATRIX_BRIDGE_ADDONS %}
+{% for upstream_flag in bridge_addon.value.config.upstream_flags %}
+{{ upstream_flag }}: {{ bridge_addon.value.enabled | string | lower }}
+{% endfor %}
+{% endfor %}
+{% if MATRIX_BRIDGE.hookshot %}
+matrix_bridge_hookshot_gitlab_enabled: {{ MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED | string | lower }}
+matrix_bridge_hookshot_jira_enabled: {{ MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED | string | lower }}
+matrix_bridge_hookshot_generic_enabled: {{ MATRIX_ADDON_HOOKSHOT_WEBHOOKS_ENABLED | string | lower }}
+matrix_bridge_hookshot_feeds_enabled: {{ MATRIX_ADDON_HOOKSHOT_FEEDS_ENABLED | string | lower }}
+{% endif %}
 
-jitsi_enabled: {{ MATRIX_CONFERENCING_JITSI | string | lower }}
+matrix_bot_baibot_enabled: {{ MATRIX_ADDON_BAIBOT_ENABLED | string | lower }}
+{% if MATRIX_ADDON_BAIBOT_ENABLED %}
+matrix_bot_baibot_config_user_mxid_localpart: "{{ MATRIX_ADDON_BAIBOT_LOCALPART }}"
+matrix_bot_baibot_config_user_password: "{{ MATRIX_ADDON_BAIBOT_PASSWORD }}"
+matrix_bot_baibot_config_agents_static_definitions_openai_enabled: true
+matrix_bot_baibot_config_agents_static_definitions_openai_id: "{{ MATRIX_ADDON_BAIBOT_AGENT_ID }}"
+matrix_bot_baibot_config_agents_static_definitions_openai_config_base_url: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+matrix_bot_baibot_config_agents_static_definitions_openai_config_api_key: "{{ MATRIX_CHATGPT_BRIDGE_API_KEY }}"
+matrix_bot_baibot_config_agents_static_definitions_openai_config_text_generation_model_id: "{{ LITELLM_CHAT_MODEL }}"
+matrix_bot_baibot_config_initial_global_config_handler_catch_all: "static/{{ MATRIX_ADDON_BAIBOT_AGENT_ID }}"
+{% endif %}
+
+matrix_synapse_usage_exporter_enabled: {{ MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED | string | lower }}
+{% if MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED %}
+matrix_synapse_metrics_enabled: true
+matrix_synapse_container_metrics_api_host_bind_port: "0.0.0.0:{{ MATRIX_SYNAPSE_METRICS_PORT }}"
+matrix_synapse_metrics_port: {{ MATRIX_SYNAPSE_METRICS_PORT }}
+{% endif %}
+
+jitsi_enabled: {{ MATRIX_JITSI_SELF_HOSTED | string | lower }}
+{% if MATRIX_ADDON_JITSI_ENABLED and not MATRIX_JITSI_SELF_HOSTED | bool %}
+matrix_client_element_jitsi_preferred_domain: "{{ MATRIX_ADDON_JITSI_PREFERRED_DOMAIN }}"
+matrix_static_files_file_matrix_client_property_io_element_jitsi_preferred_domain: "{{ MATRIX_ADDON_JITSI_PREFERRED_DOMAIN }}"
+{% endif %}
 matrix_rtc_enabled: {{ MATRIX_CONFERENCING_ELEMENT_CALL | string | lower }}

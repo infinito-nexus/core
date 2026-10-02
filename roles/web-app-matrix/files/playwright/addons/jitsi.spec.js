@@ -10,10 +10,6 @@ test.use({ ignoreHTTPSErrors: true });
 test("jitsi addon: Element advertises the co-deployed Jitsi deployment as its preferred domain", async ({ request }) => {
   skipUnlessAddonEnabled("jitsi");
   skipUnlessServiceEnabled("jitsi");
-  test.skip(
-    !(process.env.MATRIX_FLAVOR || "").toLowerCase().includes("compose"),
-    "the ansible flavor lets matrix-docker-ansible-deploy render Element's config.json",
-  );
 
   test.setTimeout(resolveTimeout(60_000));
 

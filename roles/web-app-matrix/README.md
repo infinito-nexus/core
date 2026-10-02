@@ -96,11 +96,65 @@ bridge's `config.yaml` and the matching Synapse `registration.yaml` from the sam
 | `mautrix-signal` | `bridge` | disabled | external network |
 | `mautrix-slack` | `bridge` | disabled | external network |
 | `mautrix-meta` | `bridge` | disabled | external network |
+| `hookshot-gitlab` | `bridge` | follows `services.gitlab.enabled` | `gitlab` |
+| `hookshot-jira` | `bridge` | never: `services.jira.enabled` is pinned off because `web-app-jira` is end of life (see [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md)) | `jira` |
+| `hookshot-webhooks` | `bridge` | follows `services.n8n.enabled` | `n8n` |
+| `hookshot-feeds` | `bridge` | disabled | RSS, no partner role |
+| `jitsi` | `module` | follows `services.jitsi.enabled` | `jitsi` |
+| `baibot` | `addon` | follows `services.matrix.plugins.chatgpt` | `litellm` |
+| `synapse-usage-exporter` | `addon` | follows `services.prometheus.enabled` | `prometheus` |
 
 The compose flavor derives `MATRIX_BRIDGES` from the enabled bridge addons'
-`config:` blocks; the enabled/disabled split is exercised by the compose
-variant in [`meta/variants.yml`](./meta/variants.yml). Coverage is via
-`test-bridge-roster.js`.
+`config:` blocks that declare a `bridge_name`; the enabled/disabled split is
+exercised by the compose variant in [`meta/variants.yml`](./meta/variants.yml).
+Coverage is via `test-bridge-roster.js`.
+
+The three cross-role addons follow their partner's service flag instead of a
+static default, except where the partner is end of life: `services.jira.enabled`
+is a literal `false` that no inventory can turn on, so `hookshot-jira` stays
+declared and dormant. `hookshot-gitlab` and `hookshot-jira` select which
+[matrix-hookshot](https://github.com/matrix-org/matrix-hookshot) connections the
+ansible flavor configures, on top of the `services.matrix.plugins.hookshot`
+knob that decides whether MDAD deploys the bridge at all. `jitsi` writes
+[Element's](https://github.com/element-hq/element-web/blob/develop/docs/jitsi.md)
+`jitsi.preferredDomain` so conference widgets open on the co-deployed
+`web-app-jitsi` instance: the compose flavor writes it into
+`element.config.json`, the ansible flavor overrides MDAD's
+`matrix_client_element_jitsi_preferred_domain` and the matching `.well-known`
+client property. Which of the two stacks serves is decided by
+`services.jitsi.shared`: shared means `web-app-jitsi` provides it and MDAD's own
+jitsi role stays off, unshared means MDAD raises web, prosody, jicofo and jvb
+inside the runner container and owns the client config itself. The unshared
+branch serves on `matrix_server_fqn_jitsi`, which needs a routed domain before
+it is reachable from outside the runner. Per-addon specs live under
+`files/playwright/addons/`.
+
+`services.matrix.plugins.hookshot` follows the deployment of the partners its
+connection addons bind, so the bridge comes up wherever `web-app-gitlab` or
+`web-app-n8n` is deployed. The four `hookshot-*` addons then select which
+connections MDAD configures through `matrix_bridge_hookshot_<kind>_enabled`;
+`generic` and `feeds` are upstream defaults the addons drive explicitly.
+`hookshot-feeds` has no partner service of its own, so enabling it alone does
+nothing: without `web-app-gitlab` or `web-app-n8n` the bridge it configures is
+never deployed. Pin it in a round that already carries one of them.
+
+A bridge addon names the upstream switches it drives under
+`config.upstream_flags`, next to its `bridge_name`. The ansible flavor renders
+that list; one addon may drive several switches, as `mautrix-meta` does for
+MDAD's separate Messenger and Instagram roles.
+
+`services.matrix.plugins.chatgpt` is the single switch for the AI surface in
+both flavors: the compose flavor renders `matrix-chatgpt-bot`, the ansible
+flavor enables `baibot`. Both reach the model through `svc-ai-litellm` with the
+role's `litellm_api_key`, and MDAD creates the `baibot` account itself from
+`matrix_user_creator_users_auto`, so no account provisioning step is needed.
+
+`synapse-usage-exporter` turns Synapse's metrics listener on and publishes it on
+the `matrix-mdad` container's own interface. The outer Prometheus joins this
+role's docker network and scrapes the DiD container by name, which is why
+`services.prometheus.native_metrics` resolves its `service_key` and `port` per
+flavor: `synapse:9000` for the in-repo compose stack, `matrix:9100` for the
+MDAD stack where the homeserver runs one docker layer deeper.
 
 ## Conferencing
 

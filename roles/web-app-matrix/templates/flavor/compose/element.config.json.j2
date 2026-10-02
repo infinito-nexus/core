@@ -52,6 +52,11 @@
         "feature_rust_crypto": true,
         "feature_new_room_decoration_ui": true
     },
+{% if MATRIX_ADDON_JITSI_ENABLED | bool %}
+    "jitsi": {
+        "preferredDomain": "{{ MATRIX_ADDON_JITSI_PREFERRED_DOMAIN }}"
+    },
+{% endif %}
     "element_call": {
         "url": "https://call.element.dev"
     },
