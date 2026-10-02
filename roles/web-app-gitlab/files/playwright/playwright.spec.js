@@ -44,6 +44,7 @@ test("GitLab returns HTML content under canonical domain", async ({ request }) =
 });
 
 require("./test-mcp-guest");
+require("./test-integrations").register();
 
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas

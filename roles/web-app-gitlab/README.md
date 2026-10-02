@@ -49,6 +49,21 @@ Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `w
 
 Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The token is then neither minted nor stored, and the overlay attachment is dropped.
 
+## Addons
+
+`meta/addons/` declares the integrations GitLab serves from the application itself. Every entry is `required: false` and follows the service flag of its bridged partner, so it is off unless that partner is part of the deployment — except where the partner is end of life, in which case the flag is a literal `false` that no inventory can turn on. Nothing is installed at deploy time; an administrator activates the integration per project or instance-wide, and `files/playwright/addons/<id>.spec.js` asserts the surface it is configured on.
+
+| Addon | Mechanism | Source | Bridges | Enabled when |
+| --- | --- | --- | --- | --- |
+| `confluence` | plugin | bundled | `confluence` | never: `services.confluence.enabled` is pinned off because `web-app-confluence` is end of life (see [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md)) |
+| `jenkins` | plugin | bundled | `jenkins` | `web-app-jenkins` is in the deployment |
+| `jira` | plugin | bundled | `jira` | never: `services.jira.enabled` is pinned off because `web-app-jira` is end of life (see [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md)) |
+| `matrix` | plugin | bundled | `matrix` | `web-app-matrix` is in the deployment |
+| `mattermost` | plugin | bundled | `mattermost` | `web-app-mattermost` is in the deployment |
+| `openid_connect` | plugin | bundled | `sso` | `web-app-keycloak` is in the deployment |
+
+`openid_connect` is the OmniAuth provider `templates/config/gitlab.yml.j2` renders under `GITLAB_OIDC_ENABLED`; the addon entry declares that wiring rather than adding a second one. The remaining five carry the partner URL in their `config:` block; the credentials their upstream forms also take (a Jira password, a Matrix token, a Mattermost incoming webhook) are entered by the operator on the partner side and are not provisioned here.
+
 ## Fresh installs only
 
 The role provisions new GitLab instances. Volumes, secrets and backups of a pre-CNG Omnibus deployment (`gitlab_config`, `gitlab_data`, `/etc/gitlab/gitlab-secrets.json`) are not migrated or restorable into the CNG layout; deploy against a fresh database and empty volumes.

@@ -46,6 +46,15 @@
     openclaw:
       enabled: false
       shared: false
+    jenkins:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -89,6 +98,15 @@
     openclaw:
       enabled: true
       shared: true
+    jenkins:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: true
+      shared: true
+    mattermost:
+      enabled: false
+      shared: false
 - services:
     container_backup:
       enabled: false
@@ -126,5 +144,14 @@
       enabled: false
       shared: false
     openclaw:
+      enabled: false
+      shared: false
+    jenkins:
+      enabled: true
+      shared: true
+    matrix:
+      enabled: false
+      shared: false
+    mattermost:
       enabled: false
       shared: false
