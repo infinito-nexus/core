@@ -1,6 +1,12 @@
 ---
 # Matrix-deploy variant overrides for web-app-discourse.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 1 is the bridge round: it pairs bigbluebutton
+# and jitsi, both clearnet-only, so it drops the onion. The five partners it turns on
+# (bigbluebutton, jitsi, mastodon, matrix, mattermost) are therefore only driven from
+# a clearnet forum origin; the forum's own onion surface is variant 0's job, which
+# pairs the onion with SSO.
 
 - services:
     container_backup:
@@ -37,7 +43,23 @@
       shared: true
     tor:
       enabled: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    mastodon:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: false
+      shared: false
 - services:
+    # nocheck: mem-limit-budget this round reaches web-app-matrix, whose variant 1 pins gitlab true, so the footprint transitively bills gitlab's webservice, migrations and gitaly, about 10 GB of mem_limit discourse never asks for. No placement of those pins, of web-app-mattermost's jitsi pin or of the bridge pins below keeps every variant under the cap; the best alternative only moves the overage to web-app-nextcloud v12 at 65.76 GB. mem_limit is a per-container ceiling, and this round's guaranteed mem_reservation stays at 30.28 of 32 GB.
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -72,4 +94,19 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
+      enabled: false
+    bigbluebutton:
       enabled: true
+      shared: true
+    jitsi:
+      enabled: true
+      shared: true
+    mastodon:
+      enabled: true
+      shared: true
+    matrix:
+      enabled: true
+      shared: true
+    mattermost:
+      enabled: true
+      shared: true
