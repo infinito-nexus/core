@@ -60,6 +60,6 @@ config:
             rolename: "cn"
             resolve_nested_roles: true
             skip_users:
-              - admin
-              - kibanaserver
+              - "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
+              - "{{ WAZUH_DASHBOARD_SERVICE_USERNAME }}"
 {% endif %}
