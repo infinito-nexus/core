@@ -97,6 +97,13 @@ def generate_commands(src):
             "--output-file",
             generated / "cli_commands.rst",
         ),
+        _generator(
+            "integrations",
+            "--roles-dir",
+            src / "roles",
+            "--output-dir",
+            generated / "integrations",
+        ),
         _generator("readmes", "--generated-dir", generated),
         _module(
             "cli.build.docs.readme",

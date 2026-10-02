@@ -451,11 +451,6 @@ install-system-python:
 install-venv: install-system-python
 	@bash scripts/install/venv.sh
 
-.PHONY: integration-matrix
-# Regenerate the role-by-role integration matrix from the roles and the curated edge map.
-integration-matrix:
-	@"$${PYTHON}" -m cli.build.docs.integration_matrix
-
 .PHONY: kernel-loop-load
 # Load the kernel loop driver the swarm backup DR drill needs.
 # Note: run this on the host; container environments have no modprobe.

@@ -61,6 +61,7 @@ class TestProgress(unittest.TestCase):
                 "infinito_docs.generators.make_targets",
                 "infinito_docs.generators.aliases",
                 "infinito_docs.generators.cli_commands",
+                "infinito_docs.generators.integrations",
                 "infinito_docs.generators.readmes",
                 "cli.build.docs.readme",
                 "cli.build.docs.readme.overview",
