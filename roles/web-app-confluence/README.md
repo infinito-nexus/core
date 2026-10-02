@@ -1,5 +1,7 @@
 # Confluence
 
+> **End of life.** Infinito.Nexus neither maintains nor tests this role, and the default `INFINITO_LIFECYCLES` envelope keeps it out of every CI round. Deploy it at your own risk and take support from [Atlassian Confluence](https://www.atlassian.com/software/confluence).
+
 ## Description
 
 Confluence is Atlassian’s enterprise wiki and collaboration platform. This role deploys Confluence via Docker Compose, wires it to PostgreSQL, and integrates proxy awareness, optional OIDC SSO, health checks, and production-friendly defaults for Infinito.Nexus.

@@ -1,5 +1,7 @@
 # phpldapadmin
 
+> **End of life.** Infinito.Nexus neither maintains nor tests this role, and the default `INFINITO_LIFECYCLES` envelope keeps it out of every CI round. Deploy it at your own risk and take support from [phpLDAPadmin](https://github.com/leenooks/phpLDAPadmin).
+
 ## Description
 
 phpLDAPadmin is a web‑based LDAP client that provides an intuitive interface for managing LDAP directories. This containerized deployment leverages Docker Compose and Ansible automation to offer a secure, configurable environment for administering and exploring your LDAP configurations.

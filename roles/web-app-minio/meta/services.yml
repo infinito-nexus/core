@@ -30,8 +30,7 @@ minio:
       enabled: true
   # nocheck: single-replica
   replicas: 1
-  bond: 1
-  enabled: true
+  enabled: false
   shared: true
   backup:
     no_stop_required: false

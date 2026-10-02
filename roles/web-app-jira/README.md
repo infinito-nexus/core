@@ -1,5 +1,7 @@
 # Jira
 
+> **End of life.** Infinito.Nexus neither maintains nor tests this role, and the default `INFINITO_LIFECYCLES` envelope keeps it out of every CI round. Deploy it at your own risk and take support from [Atlassian](https://www.atlassian.com/).
+
 ## Description
 
 [Jira](https://www.atlassian.com/) is Atlassian’s issue and project-tracking platform. This role deploys Jira via Docker Compose, connects it to PostgreSQL, and adds proxy awareness, optional OIDC SSO, health checks, and production-oriented defaults for Infinito.Nexus.

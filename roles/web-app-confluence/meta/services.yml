@@ -27,7 +27,10 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 confluence:
+  enabled: false
+  shared: true
   healthcheck:
     flavor: curl
     hostname: localhost

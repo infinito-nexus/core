@@ -1,5 +1,7 @@
 # MinIO
 
+> **End of life.** Infinito.Nexus neither maintains nor tests this role, and the default `INFINITO_LIFECYCLES` envelope keeps it out of every CI round. Deploy it at your own risk and take support from [www.min.io](https://www.min.io).
+
 ## Description
 
 **MinIO** is an S3-compatible object storage service for files, media, backups, and AI artifacts, self-hosted for performance and control.

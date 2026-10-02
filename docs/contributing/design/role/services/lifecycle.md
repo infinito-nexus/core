@@ -109,10 +109,17 @@ The role has reached end of life: it still ships in `roles/` for now but the pro
 
 A role tagged `eol`:
 
-- MUST clearly state in its `README.md` that the project does not maintain or test it and that operators use it at their own risk.
-- SHOULD link to the upstream project / vendor for support.
+- MUST clearly state in its `README.md` that the project does not maintain or test it and that operators use it at their own risk. The banner is a single blockquote line, the first non-blank line under the H1, opening with `> **End of life.**` and carrying both the `neither maintains nor tests` and the `at your own risk` wording. `test_eol_readme_banner.py` enforces exactly those three things: the position, the opening, and both clauses.
+- SHOULD link to the upstream project / vendor for support. The link is not mechanical and `test_eol_readme_banner.py` does not check it.
+- MUST store `enabled: false` as a literal on its own primary entity in `meta/services.yml`. A `"{{ '<role>' in group_names }}"` flag turns true the moment the role joins an inventory. `shared` stays at the value the role needs, normally `true`: it is what registers the entity in the service registry, and that registration is what makes `disable=<role-id>` resolve to the service key at all and what keeps the role in the `sys-service-loader` preload order. The literal forces two collateral suppressions, and a demotion that skips them hits two unrelated red lints: the own primary's key needs `# nocheck: playwright-service-flag` on the line above it, because a service stored off carries no `<NAME>_SERVICE_ENABLED=` line in `templates/playwright.env.j2`, and every consumer's literal flag needs `# nocheck: dynamic-flag` on its own line (or one marker in the comment block above the key, which covers both flags at once), because a literal where the dynamic form is the house shape is precisely what `dynamic-flag` reports.
+- MUST NOT be pinned truthy by any variant in any `meta/variants.yml`, its own included, neither under `services:` nor under `addons:`. A variant pin re-enables the role for that round alone, which is the one place where neither the banner nor the stored flag is in view.
+- MUST NOT be enabled as a dependency of a role that is not itself EOL: no `meta/services.yml` block, no variant pin, and no `meta/addons/*.yml` whose `bridges:` list names it. One EOL role MAY name another, because both leave together. The `eol-dependency` rule enforces all three, and `INFINITO_LIFECYCLES` is why: the envelope drops an EOL role from every CI round under the default envelope, so the dependency binds a partner no test deploys and first surfaces on a production host as an unreachable integration. An explicit `lifecycles: eol` workflow dispatch deploys the role standalone, and the literal flags keep every partner unbound even in that round.
 - MUST NOT block any release. CI MAY skip its deploy matrix entry entirely.
 - MAY be removed without a deprecation cycle.
+
+An addon that stays in the tree while its partner is EOL gates on exactly `{{ lookup('config', '<own-role>', 'services.<eol-key>.enabled') | bool }}`, which the stored literal holds at `false`; the rule matches that expression anchored over the whole value, accepting either quote character and whitespace after `lookup(` and around its commas, because a gate that merely mentions the lookup can still render true. An addon reaching an external SaaS provider through `lookup('api_enabled', …)` declares no `bridges:` and is not a dependency on the in-repo role at all.
+
+The generated integration matrix (`roles/web-app-docs/files/python/infinito_docs/generators/integrations.py`) reads this `lifecycle` value and marks every edge whose target is `eol` with `(end of life)` on all three of its pages, so a declared integration with a dead partner does not read as a live one.
 
 ## The tested envelope 🧪
 
@@ -124,6 +131,11 @@ Stages outside the envelope (`planned`, `pre-alpha`, `deprecated`, `eol`) MAY sk
 CI MAY still exercise them on a best-effort basis but failures MUST NOT block unrelated work.
 
 Promotion from `eol` back into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch.
+Promoting also reverses the storage steps, in this order: change `lifecycle`, set the primary entity's `enabled` and `shared` to the values the role needs, restore the `bond` the primary carried before (`test_disabled_service_bond` is what required dropping it, because the resource model never reads a key on an entry stored off, so the number described a cost nobody paid), restore the consumer flags from their literal `false` to the dynamic form and drop the `# nocheck: dynamic-flag` markers that literal needed, re-add the variant pins the EOL ban removed, then re-run the matrix-deploy.
+The consumer blocks themselves were never removed, only pinned off, so there is nothing to re-create; the step is the flag value and its marker.
+Taking the `lifecycle` value off `eol` without the flags leaves the role in the envelope and off on every host, and the deploy matrix picks up a role no inventory enables.
+Demoting to `eol` runs the same list the other way round: set the primary's `enabled` to a literal `false` and add `# nocheck: playwright-service-flag` above its key, drop the primary's `bond` in the same edit because `test_disabled_service_bond` rejects a weight on an entry stored off, pin every consumer flag to a literal `false` with `# nocheck: dynamic-flag`, remove the variant pins, and add the README banner.
+The storage delta on a demoted primary is therefore not the flag alone, and it differs per role: `web-app-minio` went from `enabled: true` to `enabled: false` and lost its `bond: 1` (`test_disabled_service_bond`), `web-app-jira` and `web-app-confluence` gained both a stored `enabled: false` and `shared: true` where their primary declared neither before, and `web-app-phpldapadmin` gained the stored `enabled: false` on its own.
 Examples of `eol` roles at the time of writing include `web-app-confluence`, `web-app-jira`, `web-app-minio`, `web-app-phpldapadmin`.
 
 ## Setting the value ✏️
