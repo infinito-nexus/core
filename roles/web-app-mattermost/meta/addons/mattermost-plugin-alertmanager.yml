@@ -1,0 +1,16 @@
+---
+enabled: false
+required: false
+mechanism: plugin
+source: upstream
+version: "v0.3.0"
+bridges:
+  - prometheus
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: cpanato/mattermost-plugin-alertmanager
+config:
+  plugin_id: alertmanager
+  partner_host: "{{ lookup('container_address', 'web-app-prometheus', 'alertmanager') }}"
+  partner_port: "{{ lookup('config', 'web-app-prometheus', 'services.alertmanager.ports.internal.http') }}"

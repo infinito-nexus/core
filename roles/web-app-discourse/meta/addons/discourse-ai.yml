@@ -2,7 +2,7 @@
 enabled: "{{ lookup('config', 'web-app-discourse', 'services.litellm.enabled') | bool }}"
 required: true
 mechanism: plugin
-source: bundled # Exception: cloning it over the copy already in $home/plugins aborts the after_code hook
+source: bundled
 bridges:
   - litellm
 config:

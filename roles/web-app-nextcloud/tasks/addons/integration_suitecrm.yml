@@ -1,10 +1,4 @@
 ---
-# Exception logic: genuine bidirectional OAuth 2.0 coupling the generic config SPOT cannot do.
-# integration_suitecrm drives the SuiteCRM OAuth2 password grant and only works once a
-# "password" client is registered on SuiteCRM; its client_id/client_secret plus the partner
-# instance URL must then be linked into the connector's admin settings (oauth_instance_url,
-# client_id, client_secret), none of which the generic config block sets. The client secret is
-# derived deterministically so provisioning stays idempotent across re-runs on both ends.
 - name: 🔍 Resolve SuiteCRM partner coupling facts
   set_fact:
     nextcloud_crm_container: "{{ lookup('config', 'web-app-suitecrm', 'services.suitecrm.name') }}"

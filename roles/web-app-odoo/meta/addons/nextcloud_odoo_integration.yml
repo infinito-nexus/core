@@ -1,0 +1,10 @@
+---
+enabled: false
+required: false
+mechanism: module
+source: upstream
+bridges:
+  - nextcloud
+config:
+  tier: paid
+  store_url: https://apps.odoo.com/apps/modules/20.0/nextcloud_odoo_integration

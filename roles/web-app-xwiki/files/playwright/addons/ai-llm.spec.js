@@ -16,7 +16,7 @@ const aiGatewayBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.AI_GATE
 const superadminUsername = decodeDotenvQuotedValue(process.env.XWIKI_SUPERADMIN_USERNAME || "");
 const superadminPassword = decodeDotenvQuotedValue(process.env.XWIKI_SUPERADMIN_PASSWORD || "");
 
-const EXTENSION_ID = "org.xwiki.contrib.llm:application-ai-llm-ui";
+const EXTENSION_ID = "org.xwiki.contrib.llm:application-ai-llm-models-ui";
 
 test("ai-llm: the AI LLM Application extension is installed on the wiki", async ({ page }) => {
   skipUnlessAddonEnabled("ai-llm");

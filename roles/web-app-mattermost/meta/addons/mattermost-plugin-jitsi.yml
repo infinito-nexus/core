@@ -1,0 +1,15 @@
+---
+enabled: "{{ lookup('config', 'web-app-mattermost', 'services.jitsi.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: "v2.0.3"
+bridges:
+  - jitsi
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: mattermost-community/mattermost-plugin-jitsi
+config:
+  plugin_id: jitsi
+  partner_url: "{{ lookup('tls', 'web-app-jitsi', 'url.base') }}"

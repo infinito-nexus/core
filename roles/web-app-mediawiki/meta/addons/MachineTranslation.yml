@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-mediawiki', 'services.libretranslate.enabled') | bool }}"
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - libretranslate
+update:
+  monitored: true
+  catalog: mediawiki-extension
+  upstream_id: MachineTranslation

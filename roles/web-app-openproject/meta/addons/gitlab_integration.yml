@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-openproject', 'services.gitlab.enabled') | bool }}"
+required: false
+mechanism: module
+source: bundled
+bridges:
+  - gitlab
+config:
+  webhook_path: /webhooks/gitlab

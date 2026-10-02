@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-jenkins', 'services.prometheus.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: upstream
+version: "latest"
+bridges:
+  - prometheus
+config:
+  plugin_id: prometheus
+  metrics_path: "/prometheus"

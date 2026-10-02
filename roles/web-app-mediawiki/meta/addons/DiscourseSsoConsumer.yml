@@ -1,0 +1,14 @@
+---
+enabled: "{{ (lookup('config', 'web-app-mediawiki', 'services.discourse.enabled') | bool) and (lookup('config', 'web-app-mediawiki', 'services.sso.enabled') | bool)
+  }}"
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - discourse
+update:
+  monitored: true
+  catalog: mediawiki-extension
+  upstream_id: DiscourseSsoConsumer
+config:
+  archive: "https://codeload.github.com/centertap/DiscourseSsoConsumer/tar.gz/refs/heads/main"

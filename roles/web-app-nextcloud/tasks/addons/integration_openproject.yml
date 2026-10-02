@@ -1,8 +1,4 @@
 ---
-# Exception logic: genuine bidirectional OAuth 2.0 coupling the generic config SPOT cannot do.
-# An OAuth application is registered on the OpenProject side and a Nextcloud OAuth2 client is
-# registered back on the OpenProject storage; the partner-derived client ids/secret are linked
-# into integration_openproject. Re-runs only while Nextcloud is not yet coupled.
 - name: 🔍 Resolve expected OpenProject base URL for the integration
   set_fact:
     nextcloud_op_expected_url: "{{ lookup('tls', 'web-app-openproject', 'url.base') | trim }}"
