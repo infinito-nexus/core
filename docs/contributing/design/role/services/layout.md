@@ -439,6 +439,10 @@ Any credential an addon needs is declared in `meta/secrets.yml` `credentials:`
 and read via `lookup('config', application_id, 'secrets.credentials.<name>')`. There
 is no new secret store.
 
+Every `services.<key>` an addon resolves, in `meta/addons/<id>.yml` or in
+`tasks/addons/<id>.yml` and with or without a default term, MUST be declared in
+the `meta/services.yml` of the role named in the lookup; lint fails otherwise.
+
 ### Bridges: in-repo dependency vs network bridge
 
 Two distinct meanings of "bridge" MUST NOT be conflated:
