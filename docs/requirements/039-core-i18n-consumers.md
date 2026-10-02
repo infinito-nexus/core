@@ -16,7 +16,7 @@ The consumer repositories change afterwards and are not part of this requirement
 - The documentation is built from the git mirror of `DOCS_SOURCE_REPO`. Catalogs that exist only in a local working tree never reach it.
 - [logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) inlines [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) as a `{language: {key: text, dir}}` object, and [logout-panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) picks the language from `<html lang>` and `navigator.language`. Its 29 non-English blocks are the only human translations core owns.
 - port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in.
-- [csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) renders no environment and no API origin.
+- [csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-meta](../../roles/web-app-meta/templates/compose.yml.j2) renders no environment and no API origin.
 
 ## Acceptance Criteria
 
@@ -32,6 +32,6 @@ The consumer repositories change afterwards and are not part of this requirement
 - [x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time.
 - [x] The dashboard at `/de/` shows the German translation of at least one card description and one menu category.
 - [x] A role that enables the `api` service gets the web-svc-api origin in its `connect-src`, and a role without it does not.
-- [x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment.
+- [x] web-app-meta enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment.
 - [ ] The Playwright specs of web-app-docs, web-app-keycloak and web-app-dashboard cover the German page, the German logout panel and the German dashboard.
-- [ ] `make compose-deploy` is green for web-app-docs, web-app-keycloak, web-app-dashboard and web-app-mig.
+- [ ] `make compose-deploy` is green for web-app-docs, web-app-keycloak, web-app-dashboard and web-app-meta.
