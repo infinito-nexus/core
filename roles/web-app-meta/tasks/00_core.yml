@@ -3,6 +3,6 @@
   include_role:
     name: sys-stk-full
   vars:
-    application_id: "web-app-mig"
+    application_id: "web-app-meta"
 
 - include_tasks: utils/once/flag.yml

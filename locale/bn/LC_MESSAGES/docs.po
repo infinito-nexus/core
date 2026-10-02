@@ -14014,7 +14014,7 @@ msgstr "007 -কি? WordPress চিহ্নিত স্থানে চল�
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - ভূমিকা মেটা বহির্বিন্যাস সংস্কার"
+msgstr "008 - ভূমিকা Meta বিন্যাসের বর্ণনা"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -14022,7 +14022,7 @@ msgstr "009 - পেরোলে নেটওয়ার্ক এবং পো
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - ভূমিকা মেটা `run_after` / `lifecycle` মাইগ্রেশন"
+msgstr "010 - ভূমিকা Meta `run_after` / `lifecycle` মাইগ্রেশন"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -20197,7 +20197,7 @@ msgstr "স্বয়ংক্রিয় ভাবে নির্মিত 
 
 # translated-by: libretranslate
 msgid "Automatic deployment of the Meta Infinite Graph web application"
-msgstr "মেটাডেমো গ্রাফ ওয়েব অ্যাপ্লিকেশন স্বয়ংক্রিয় ভাবে বিতরণ"
+msgstr "স্বয়ংক্রিয় স্থাপনা Meta Lultiti গ্রাফ ওয়েব অ্যাপ্লিকেশন"
 
 # translated-by: libretranslate
 msgid "Automatic detection of various logout mechanisms (links, buttons, forms)."
@@ -45736,7 +45736,7 @@ msgstr "প- আমিও পোর্ট: `meta/services.yml.<entity>.ports` �
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "Pe-Reoe মেটা- বহির্বিন্যাস 🗂️"
+msgstr "পে-রোল Meta বিন্যাস 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -52377,7 +52377,7 @@ msgstr "ভূমিকা বিশ্লেষণ করুন 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "ভূমিকা প্রদানকারী মেটা 🧩"
+msgstr "ভূমিকা Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -59940,7 +59940,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "The Meta Infinite Graph is an essential tool for analyzing, auditing, and maintaining the modular structure of the Infinito.Nexus ecosystem. It provides a clear overview of all roles and how they are interconnected."
-msgstr "মেটাস্ট্রিকাল গ্রাফ একটি অপরিহার্য টুল, বিশ্লেষণ, এবং কাঠামো বজায় রাখার জন্য। Infinito.Nexus পরিবেশ। এটি সকল ভূমিকা এবং কিভাবে তারা পরস্পরের সাথে যুক্ত।."
+msgstr "এটা Meta বিশ্লেষণ, নিরীক্ষণ এবং কাঠামো বজায় রাখার জন্য usuple গ্রাফ একটি অপরিহার্য টুল Infinito.Nexus পরিবেশ। এটি সকল ভূমিকা এবং কিভাবে তারা পরস্পরের সাথে যুক্ত।."
 
 # translated-by: libretranslate
 msgid "The NGINX Certbot Automation role ensures that Let's Encrypt SSL/TLS certificates stay valid without manual intervention. It enhances the security and reliability of web services by automating certificate lifecycle management."
@@ -68467,7 +68467,7 @@ msgstr "এই ফোল্ডারের মধ্যে সার্বজন
 
 # translated-by: libretranslate
 msgid "This folder contains the Ansible role to deploy the Meta Infinite Graph for Infinito.Nexus."
-msgstr "এই ফোল্ডারের মধ্যে মেটাস্ট্রি গ্রাফটি পাঠানোর জন্য যথেষ্ট পরিমাণ ভূমিকা রয়েছে Infinito.Nexus. ."
+msgstr "এই ফোল্ডারের মধ্যে স্থানান্তর করার জন্য প্রয়োজনীয় ভূমিকা রয়েছে Meta গ্রাফের জন্য গ্রাফ Infinito.Nexus. ."
 
 # translated-by: libretranslate
 msgid "This folder contains the Nextcloud Variables"
@@ -70686,7 +70686,7 @@ msgstr "এই ভূমিকা MSI ল্যাপটপের চলমা�
 
 # translated-by: libretranslate
 msgid "This role sets up the [Ansible Meta Infinite Graph](https://github.com/kevinveenbirkenbach/meta-infinite-graph) for Infinito.Nexus. The Meta Infinite Graph visualizes all dependencies and relationships between Infinito.Nexus roles, making the overall infrastructure structure transparent and easy to understand."
-msgstr "এই ভূমিকাটি নির্ধারণ করে [Anthy মেটাস্ট্রেশন গ্রাফ](https://github.com/kevinveenbirkenbach/meta-infinite-graph) উল্লিখিত সময় অবধি Infinito.Nexus. মেটাডেম গ্রাফ সকল নির্ভরতা এবং সম্পর্ক সম্পর্ক সম্পর্কে Infinito.Nexus ভূমিকা, সামগ্রিক কাঠামো নির্মাণ, স্বচ্ছ এবং সহজে বোঝা যায়।."
+msgstr "এই ভূমিকাটি নির্ধারণ করে [সুনিশ্চিত Meta গ্রাফ](https://github.com/kevinveenbirkenbach/meta-infinite-graph) উল্লিখিত সময় অবধি Infinito.Nexus. ডি. Meta গ্রাফ চিন্তা করে সব নির্ভরতা এবং সম্পর্ক সম্পর্ক Infinito.Nexus ভূমিকা, সামগ্রিক কাঠামো নির্মাণ, স্বচ্ছ এবং সহজে বোঝা যায়।."
 
 # translated-by: libretranslate
 msgid "This role sets up the `Ansible Meta Infinite Graph <https://github.com/kevinveenbirkenbach/meta-infinite-graph>`__ for Infinito.Nexus. The Meta Infinite Graph visualizes all dependencies and relationships between Infinito.Nexus roles, making the overall infrastructure structure transparent and easy to understand."
@@ -81119,7 +81119,7 @@ msgstr "[ব্রেসটি গিহাব](https://github.com/discourse/dis
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[ডুকার মেটা ফোরাম](https://meta.discourse.org/)"
+msgstr "[হলম্যান Meta ফোরাম](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
@@ -82215,7 +82215,7 @@ msgstr "[পেনপট](https://penpot.app/) একটি ওপেন সো�
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[Pe-Reoe মেটা- বহির্বিন্যাস](../contributing/design/role/services/layout.md)"
+msgstr "[পে-রোল Meta বিন্যাস](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

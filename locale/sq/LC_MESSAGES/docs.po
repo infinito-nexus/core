@@ -18191,7 +18191,7 @@ msgstr "Krijimi automatik i një rrjeti të dedikuar Docker për ONLICE."
 
 # translated-by: libretranslate
 msgid "Automatic deployment of the Meta Infinite Graph web application"
-msgstr "Nga programi"
+msgstr "Nga Meta programi"
 
 # translated-by: libretranslate
 msgid "Automatic detection of various logout mechanisms (links, buttons, forms)."
@@ -55499,7 +55499,7 @@ msgstr "The Matrix Roli fiton një shije të këndshme (kërkesë 025) Ndërtuar
 
 # translated-by: libretranslate
 msgid "The Meta Infinite Graph is an essential tool for analyzing, auditing, and maintaining the modular structure of the Infinito.Nexus ecosystem. It provides a clear overview of all roles and how they are interconnected."
-msgstr "Grafiku i papërshkueshëm i Metës është një mjet thelbësor për të analizuar, kontrolluar dhe për të ruajtur strukturën modulare Infinito.Nexus ekosistemi. Ai jep një pamje të qartë të të gjitha roleve dhe si ato janë të ndërlidhura."
+msgstr "The Meta Grafiku i pafund është një mjet thelbësor për analizën, auditimin dhe mbajtjen e strukturës modulare Infinito.Nexus ekosistemi. Ai jep një pamje të qartë të të gjitha roleve dhe si ato janë të ndërlidhura."
 
 # translated-by: libretranslate
 msgid "The NGINX Certbot Automation role ensures that Let's Encrypt SSL/TLS certificates stay valid without manual intervention. It enhances the security and reliability of web services by automating certificate lifecycle management."
@@ -74217,7 +74217,7 @@ msgstr "[Repository Discores GitHub](https://github.com/discourse/discourse_dock
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[Forumi i Metës së Kursit](https://meta.discourse.org/)"
+msgstr "[Kursi Meta Forumi](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"

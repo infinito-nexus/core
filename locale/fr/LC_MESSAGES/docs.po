@@ -12420,7 +12420,7 @@ msgstr "007 - WordPress to Discourse post aller-retour"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Remaniement de la présentation des métadonnées du rôle"
+msgstr "008 - Rôle Meta Mise en page"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -12428,7 +12428,7 @@ msgstr "009 - Réseaux per-role et migration des ports"
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - Rôle Méta `run_after` / `lifecycle` Migrations"
+msgstr "010 - Rôle Meta `run_after` / `lifecycle` Migrations"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -41400,7 +41400,7 @@ msgstr "Ports par entité : `meta/services.yml.<entity>.ports` 🚪"
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "Mise en page de la méta-role 🗂️"
+msgstr "Par roule Meta Mise en page 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -47613,7 +47613,7 @@ msgstr "Rôle 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "Méta des services de rôle 🧩"
+msgstr "Services de rôle Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -73643,7 +73643,7 @@ msgstr "[Penpote](https://penpot.app/) est une plateforme de conception et de pr
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[Mise en page de la méta-role](../contributing/design/role/services/layout.md)"
+msgstr "[Par roule Meta Mise en page](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

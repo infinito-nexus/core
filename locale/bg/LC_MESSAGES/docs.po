@@ -54700,7 +54700,7 @@ msgstr "На Matrix ролева придобивка на вкус (изиск�
 
 # translated-by: libretranslate
 msgid "The Meta Infinite Graph is an essential tool for analyzing, auditing, and maintaining the modular structure of the Infinito.Nexus ecosystem. It provides a clear overview of all roles and how they are interconnected."
-msgstr "Мета Безкрайната графика е основен инструмент за анализ, одит и поддържане на модулната структура на Infinito.Nexus екосистема. Тя осигурява ясен преглед на всички роли и как те са свързани."
+msgstr "На Meta Безкрайната графика е основен инструмент за анализ, одит и поддържане на модулната структура на Infinito.Nexus екосистема. Тя осигурява ясен преглед на всички роли и как те са свързани."
 
 # translated-by: libretranslate
 msgid "The NGINX Certbot Automation role ensures that Let's Encrypt SSL/TLS certificates stay valid without manual intervention. It enhances the security and reliability of web services by automating certificate lifecycle management."
@@ -73022,7 +73022,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[Дискурс Мета форум](https://meta.discourse.org/)"
+msgstr "[Дискурс Meta Форум](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"

@@ -13993,7 +13993,7 @@ msgstr "009 - پیر-رولے نیٹ ورکس اور پورٹس ہجرت -"
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - کردار میتا - `run_after` / `lifecycle` ہجرت"
+msgstr "010 - کردار Meta `run_after` / `lifecycle` ہجرت"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -45063,7 +45063,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "پیر راولا لائیوت 🗂️"
+msgstr "پیر-رولے Meta آؤٹ 🗂️"
 
 # translation-refused: libretranslate protected-span lost=[] gained=['(']
 # nocheck: url
@@ -51626,7 +51626,7 @@ msgstr "کردار کو سمجھنا 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "کردار کی خدمات 🧩"
+msgstr "کردار Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -80029,7 +80029,7 @@ msgstr "[سچ‌مچ تبدیلی](https://github.com/discourse/discourse_docker
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[میلا فورم](https://meta.discourse.org/)"
+msgstr "[جواب Meta فورم](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
@@ -81088,7 +81088,7 @@ msgstr "[پنجاب](https://penpot.app/) اوپن سرسید ڈیزائن او�
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[پیر راولا لائیوت](../contributing/design/role/services/layout.md)"
+msgstr "[پیر-رولے Meta آؤٹ](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

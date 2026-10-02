@@ -1,5 +1,0 @@
----
-application_id: "web-app-mig"
-entity_name: "{{ application_id | get_entity_name }}"
-
-MIG_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"

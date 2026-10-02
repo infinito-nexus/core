@@ -47325,7 +47325,7 @@ msgstr "PAGBABASA NG Papel 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "Mga Serbisyo na May Bahagi 🧩"
+msgstr "Mga Paglilingkod na May Bahagi Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -63052,7 +63052,6 @@ msgstr "Ang papel na ito ay mahalaga **hindi** pumirma sa mga sertipiko ng dahon
 # o grupo ng LDAP. Pagpipla Bridgy Fed sa likuran ``web-app-keycloak``\ ’ ’ ’
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
 # ’ ’ ’ ’ and and and and and and and and and and and ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
-# ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
 # ’ . ’ ’ ’ ’ . ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ Ang eksepsiyong ito ng SSO at RBAC
 # ay pinatutunayan sa bawat isa `lifecycle.md
 # <../../docs/contributing/design/role/services/lifecycle.md>`__.

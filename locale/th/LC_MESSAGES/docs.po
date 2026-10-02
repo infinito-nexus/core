@@ -12923,7 +12923,7 @@ msgstr "007 - WordPress ถึง Discourse หลังการกลับ"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 ผังกํากับตัวอักษร"
+msgstr "008 - บทบาท Meta ผังแป้นพิมพ์"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -12931,7 +12931,7 @@ msgstr "009 - เครือข่าย Per-Role และพอร์ตก�
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - บทบาท `run_after` / `lifecycle` การย้ายภาพ"
+msgstr "010 - บทบาท Meta `run_after` / `lifecycle` การย้ายภาพ"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -18617,7 +18617,7 @@ msgstr "การสร้างเครือข่ายของ Docer ท�
 
 # translated-by: libretranslate
 msgid "Automatic deployment of the Meta Infinite Graph web application"
-msgstr "ปรับใช้โปรแกรมเมต้าอินฟินต์ Graphy โดยอัตโนมัติ"
+msgstr "การใช้อัตโนมัติของ Meta โปรแกรมเว็บ Graphinite"
 
 # translated-by: libretranslate
 msgid "Automatic detection of various logout mechanisms (links, buttons, forms)."
@@ -42802,7 +42802,7 @@ msgstr "พอร์ตต่อเครื่อง: `meta/services.yml.<entit
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "จัดวางแนวกํากับต่อ Role 🗂️"
+msgstr "ต่อ Role Meta การจัดวาง 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -49202,7 +49202,7 @@ msgstr "โปรแกรมรับบท 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "ต้นแบบ 🧩"
+msgstr "บริการบทบาท Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -64023,7 +64023,7 @@ msgstr "โฟลเดอร์นี้มีแม่แบบทั่วไ
 
 # translated-by: libretranslate
 msgid "This folder contains the Ansible role to deploy the Meta Infinite Graph for Infinito.Nexus."
-msgstr "โฟลเดอร์นี้จะบรรจุบทบาท อันที่อ่านได้ เพื่อปรับใช้กราฟเมต้าอินฟินต์สําหรับ Infinito.Nexus."
+msgstr "โฟลเดอร์นี้บรรจุบทบาทที่สามารถใช้งานได้ Meta กราฟอินฟินต์สําหรับ Infinito.Nexus."
 
 # translated-by: libretranslate
 msgid "This folder contains the Nextcloud Variables"
@@ -64865,7 +64865,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same reason. `meta/services.yml` pins `sso.enabled: false` and `sso.shared: false`: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` or `BIBER_PASSWORD` for the shared helpers to read."
-msgstr "บทบาทนี้ประกาศ `PERSONA_ADMINISTRATOR_BLOCKED` ถึง `PERSONA_BIBER_BLOCKED` ใน `templates/playwright.env.j2` ด้วยเหตุผลเดียวกัน `meta/services.yml` เข็มหมุด `sso.enabled: false` ถึง `sso.shared: false`: มิวสิกบริการ เมต้า อินฟิไนต์ ล่วงหน้าเหนือกองเพลงของตนเอง และไม่มีพื้นผิวการล็อกอิน ไม่มีบัญชีธนาคาร และไม่มีสถานะยืนยันทั้งหมด ไม่พบแฟ้ม env `ADMIN_USERNAME`. `ADMIN_PASSWORD`. `BIBER_USERNAME` หรือ `BIBER_PASSWORD` เพื่อให้ปวงบ่าวได้อ่านมัน."
+msgstr "บทบาทนี้ประกาศ `PERSONA_ADMINISTRATOR_BLOCKED` ถึง `PERSONA_BIBER_BLOCKED` ใน `templates/playwright.env.j2` ด้วยเหตุผลเดียวกัน `meta/services.yml` เข็มหมุด `sso.enabled: false` ถึง `sso.shared: false`: มิวสิกให้บริการก่อนเกษียณ Meta กราฟอินฟินิตี้เหนือกอง ประพันธ์ของตัวเอง และไม่มีพื้นผิวการล็อกอิน ไม่มีบัญชี และไม่มีสถานะที่ยืนยันได้ทั้งหมด ไม่พบแฟ้ม env `ADMIN_USERNAME`. `ADMIN_PASSWORD`. `BIBER_USERNAME` หรือ `BIBER_PASSWORD` เพื่อให้ปวงบ่าวได้อ่านมัน."
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The MinIO Console version pinned here never renders an SSO button — `/api/v1/login` answers `redirectRules: null` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (`MINIO_OIDC_POLICY_NAME` in `vars/main.yml`, attached in `tasks/02_ldap.yml`) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -64935,7 +64935,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same reason. ``meta/services.yml`` pins ``sso.enabled: false`` and ``sso.shared: false``: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` or ``BIBER_PASSWORD`` for the shared helpers to read."
-msgstr "บทบาทนี้ประกาศ ``PERSONA_ADMINISTRATOR_BLOCKED`` ถึง ``PERSONA_BIBER_BLOCKED`` ใน ``templates/playwright.env.j2`` ด้วยเหตุผลเดียวกัน ``meta/services.yml`` เข็มหมุด ``sso.enabled: false`` ถึง ``sso.shared: false``: มิวสิกบริการ เมต้า อินฟิไนต์ ล่วงหน้าเหนือกองเพลงของตนเอง และไม่มีพื้นผิวการล็อกอิน ไม่มีบัญชีธนาคาร และไม่มีสถานะยืนยันทั้งหมด ไม่พบแฟ้ม env ``ADMIN_USERNAME``. ``ADMIN_PASSWORD``. ``BIBER_USERNAME`` หรือ ``BIBER_PASSWORD`` เพื่อให้ปวงบ่าวได้อ่านมัน."
+msgstr "บทบาทนี้ประกาศ ``PERSONA_ADMINISTRATOR_BLOCKED`` ถึง ``PERSONA_BIBER_BLOCKED`` ใน ``templates/playwright.env.j2`` ด้วยเหตุผลเดียวกัน ``meta/services.yml`` เข็มหมุด ``sso.enabled: false`` ถึง ``sso.shared: false``: มิวสิกให้บริการก่อนเกษียณ Meta กราฟอินฟินิตี้เหนือกอง ประพันธ์ของตัวเอง และไม่มีพื้นผิวการล็อกอิน ไม่มีบัญชี และไม่มีสถานะที่ยืนยันได้ทั้งหมด ไม่พบแฟ้ม env ``ADMIN_USERNAME``. ``ADMIN_PASSWORD``. ``BIBER_USERNAME`` หรือ ``BIBER_PASSWORD`` เพื่อให้ปวงบ่าวได้อ่านมัน."
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for two different reasons. The MinIO Console version pinned here never renders an SSO button — ``/api/v1/login`` answers ``redirectRules: null`` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (``MINIO_OIDC_POLICY_NAME`` in ``vars/main.yml``, attached in ``tasks/02_ldap.yml``) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -66038,7 +66038,7 @@ msgstr "บทบาทนี้กําหนดให้ตั้งค่า
 
 # translated-by: libretranslate
 msgid "This role sets up the [Ansible Meta Infinite Graph](https://github.com/kevinveenbirkenbach/meta-infinite-graph) for Infinito.Nexus. The Meta Infinite Graph visualizes all dependencies and relationships between Infinito.Nexus roles, making the overall infrastructure structure transparent and easy to understand."
-msgstr "บทบาทนี้ทําให้ [กราฟข้อมูลกํากับที่สามารถใช้ได้](https://github.com/kevinveenbirkenbach/meta-infinite-graph) สําหรับ Infinito.Nexus. กราฟเมต้าอินฟินไทน์ เห็นภาพความขึ้นต่อกันและความสัมพันธ์ระหว่าง Infinito.Nexus บทบาท ทําให้โครงสร้างพื้นฐานโดยรวม โปร่งใสและเข้าใจง่าย."
+msgstr "บทบาทนี้ทําให้ [ความสามารถในการอ่าน Meta กราฟหาว](https://github.com/kevinveenbirkenbach/meta-infinite-graph) สําหรับ Infinito.Nexus. เดอะ Meta กราฟหาว Infinito.Nexus บทบาท ทําให้โครงสร้างพื้นฐานโดยรวม โปร่งใสและเข้าใจง่าย."
 
 # translated-by: libretranslate
 msgid "This role sets up the `Ansible Meta Infinite Graph <https://github.com/kevinveenbirkenbach/meta-infinite-graph>`__ for Infinito.Nexus. The Meta Infinite Graph visualizes all dependencies and relationships between Infinito.Nexus roles, making the overall infrastructure structure transparent and easy to understand."
@@ -75276,7 +75276,7 @@ msgstr "[การ ประชุม ภาค](https://github.com/discourse/di
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[ลบรายการ](https://meta.discourse.org/)"
+msgstr "[ย่อหาย Meta Forum](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
@@ -76310,7 +76310,7 @@ msgstr "[ปากกา](https://penpot.app/) เป็นรูปแบบโ
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[จัดวางแนวกํากับต่อ Role](../contributing/design/role/services/layout.md)"
+msgstr "[ต่อ Role Meta การจัดวาง](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

@@ -12218,7 +12218,7 @@ msgstr "009 Пер-ролевые сети и миграция портов"
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 Роль Мета `run_after` / `lifecycle` миграция"
+msgstr "010 - Роль Meta `run_after` / `lifecycle` миграция"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -72269,7 +72269,7 @@ msgstr "[Репозиторий GitHub](https://github.com/discourse/discourse_d
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[Метафорум дискурса](https://meta.discourse.org/)"
+msgstr "[дискурс Meta Форум](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"

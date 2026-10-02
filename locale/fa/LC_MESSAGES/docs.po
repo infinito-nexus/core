@@ -66611,7 +66611,7 @@ msgstr "این نقش اعلام می کند `PERSONA_ADMINISTRATOR_BLOCKED` و 
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same reason. `meta/services.yml` pins `sso.enabled: false` and `sso.shared: false`: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` or `BIBER_PASSWORD` for the shared helpers to read."
-msgstr "این نقش اعلام می کند `PERSONA_ADMINISTRATOR_BLOCKED` و `PERSONA_BIBER_BLOCKED` در `templates/playwright.env.j2` به همین دلیل. `meta/services.yml` پین ها `sso.enabled: false` و `sso.shared: false`: MIG در حال حاضر متا Infinite Graph را بر روی پشته خود ارائه می دهد و هیچ سطح ورود، هیچ حساب و هیچ حالت معتبری ندارد. در نتیجه فایل env هیچ `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` یا `BIBER_PASSWORD` برای کمک کنندگان مشترک برای خواندن."
+msgstr "این نقش اعلام می کند `PERSONA_ADMINISTRATOR_BLOCKED` و `PERSONA_BIBER_BLOCKED` در `templates/playwright.env.j2` به همین دلیل. `meta/services.yml` پین ها `sso.enabled: false` و `sso.shared: false`: MIG در خدمت قبل از ورود Meta نمودار بی نهایت بر روی پشته خود و هیچ سطح ورود، هیچ حساب و هیچ حالت معتبری ندارد. در نتیجه فایل env هیچ `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` یا `BIBER_PASSWORD` برای کمک کنندگان مشترک برای خواندن."
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter
@@ -66683,7 +66683,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same reason. ``meta/services.yml`` pins ``sso.enabled: false`` and ``sso.shared: false``: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` or ``BIBER_PASSWORD`` for the shared helpers to read."
-msgstr "این نقش اعلام می کند ``PERSONA_ADMINISTRATOR_BLOCKED`` و ``PERSONA_BIBER_BLOCKED`` در ``templates/playwright.env.j2`` به همین دلیل. ``meta/services.yml`` پین ها ``sso.enabled: false`` و ``sso.shared: false``: MIG در حال حاضر متا Infinite Graph را بر روی پشته خود ارائه می دهد و هیچ سطح ورود، هیچ حساب و هیچ حالت معتبری ندارد. در نتیجه فایل env هیچ ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` یا ``BIBER_PASSWORD`` برای کمک کنندگان مشترک برای خواندن."
+msgstr "این نقش اعلام می کند ``PERSONA_ADMINISTRATOR_BLOCKED`` و ``PERSONA_BIBER_BLOCKED`` در ``templates/playwright.env.j2`` به همین دلیل. ``meta/services.yml`` پین ها ``sso.enabled: false`` و ``sso.shared: false``: MIG در خدمت قبل از ورود Meta نمودار بی نهایت بر روی پشته خود و هیچ سطح ورود، هیچ حساب و هیچ حالت معتبری ندارد. در نتیجه فایل env هیچ ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` یا ``BIBER_PASSWORD`` برای کمک کنندگان مشترک برای خواندن."
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter

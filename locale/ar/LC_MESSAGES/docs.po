@@ -15078,7 +15078,7 @@ msgstr "009 - شبكات ما قبل الثورة والهجرة من الموا
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - دور ميتا `run_after` / `lifecycle` الهجرة"
+msgstr "010 -الدور Meta `run_after` / `lifecycle` الهجرة"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -42271,15 +42271,6 @@ msgstr "انظر ``cache_records``:المستودعات، كما يقرأها ا
 # translation-rejected: انظر
 # ``cache_repos``{\pos(190,210)}{\pos(190,210)}{\pos(190,210)}{\pos(190,210)}{\pos(190,210)}{\fnAdobe
 # Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
-# Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe
 # Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}{\fnAdobe Arabic}.
 msgid "Lookup ``cache_repos``: the repositories the package cache proxies."
 msgstr ""
@@ -55031,7 +55022,7 @@ msgstr "الإطار المرجعي 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "خدمات الدور 🧩"
+msgstr "خدمات الأدوار Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -84704,7 +84695,7 @@ msgstr "[المستودع GtHub](https://github.com/discourse/discourse_docker.g
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[منتدى الخطابات](https://meta.discourse.org/)"
+msgstr "[الخطاب Meta المنتدى](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"

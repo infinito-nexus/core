@@ -25,26 +25,21 @@ test.beforeEach(async ({ page }) => {
   await page.context().clearCookies();
 });
 
-test("mig front page is served under canonical domain with TLS", async ({ page }) => {
+test("meta front page is served under canonical domain with TLS", async ({ page }) => {
   const response = await gotoOnion(page, `${appBaseUrl}/`);
-  expect(response, "Expected mig response").toBeTruthy();
-  expect(response.status(), "Expected mig front page status < 400").toBeLessThan(400);
+  expect(response, "Expected meta response").toBeTruthy();
+  expect(response.status(), "Expected meta front page status < 400").toBeLessThan(400);
   expect(
     response.url().includes(canonicalDomain),
-    `Expected canonical domain "${canonicalDomain}" to back the mig URL`
+    `Expected canonical domain "${canonicalDomain}" to back the meta URL`
   ).toBe(true);
   const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "mig");
+  expectHstsWhenTls(headers, appBaseUrl, "meta");
 });
 
-test("mig returns HTML content under canonical domain", async ({ request }) => {
-  // The deploy stage only guarantees the container is up and the proxy
-  // routes to it; the mig role is a content host and does not ship a
-  // canonical landing page yet, so a body-text assertion would be
-  // brittle. Validate the deploy contract: HTML content-type under the
-  // canonical domain.
+test("meta returns HTML content under canonical domain", async ({ request }) => {
   const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
-  expect(response.status(), "Expected mig front page status < 400").toBeLessThan(400);
+  expect(response.status(), "Expected meta front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
   expect(
     contentType.includes("text/html"),
@@ -52,11 +47,11 @@ test("mig returns HTML content under canonical domain", async ({ request }) => {
   ).toBe(true);
 });
 
-test("mig may read the API: its CSP connects to the API origin", async ({ request }) => {
+test("meta may read the API: its CSP connects to the API origin", async ({ request }) => {
   skipUnlessServiceEnabled("api");
   expect(apiBaseUrl, "API_BASE_URL must be set").toBeTruthy();
   const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
-  const directives = assertCspResponseHeader(response, "mig");
+  const directives = assertCspResponseHeader(response, "meta");
   expect(directives["connect-src"], "Expected connect-src to admit the API origin").toContain(new URL(apiBaseUrl).origin);
 });
 
@@ -75,7 +70,6 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-mig admin-only interaction: open a management surface.
       const link = interactivePage
         .getByRole("link", { name: /^(admin|content|configuration|menu)$/i })
         .first();

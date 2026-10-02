@@ -12306,7 +12306,7 @@ msgstr "007 -Kaj? WordPress do Discourse po krožni poti"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Refaktoriranje meta razporeda vlog"
+msgstr "008 -Vlogo. Meta Refaktoriranje razporeda"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -41122,7 +41122,7 @@ msgstr "Vrata na Entity: `meta/services.yml.<entity>.ports` 🚪"
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "Razpored meta na role 🗂️"
+msgstr "Na rolo Meta Razpored 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -73321,7 +73321,7 @@ msgstr "[Penpot](https://penpot.app/) je odprtokodna platforma za oblikovanje in
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[Razpored meta na role](../contributing/design/role/services/layout.md)"
+msgstr "[Na rolo Meta Razpored](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

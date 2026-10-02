@@ -12586,7 +12586,7 @@ msgstr "007 - WordPress a Discourse post- trip"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Refactor de la metacomposició del rol"
+msgstr "008 - Rol Meta Refactor de la disposició"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -18220,7 +18220,7 @@ msgstr "Creació automàtica d' una xarxa de punts dedicats a l'ÚFICE única."
 
 # translated-by: libretranslate
 msgid "Automatic deployment of the Meta Infinite Graph web application"
-msgstr "desplegament automàtica de l' aplicació web de la metainfinibles"
+msgstr "Posició automàtica del desplegament Meta Aplicació web limitada"
 
 # translated-by: libretranslate
 msgid "Automatic detection of various logout mechanisms (links, buttons, forms)."

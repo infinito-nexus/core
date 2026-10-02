@@ -13,7 +13,7 @@ galaxy_info:
     - dependencies
     - graph
     - mig
-  issue_tracker_url: https://github.com/kevinveenbirkenbach/meta-infinite-graph/issues
+  issue_tracker_url: https://github.com/infinito-nexus/meta/issues
   min_ansible_version: "2.9"
   platforms:
     - name: ArchLinux

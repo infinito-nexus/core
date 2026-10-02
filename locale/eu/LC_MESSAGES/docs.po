@@ -12249,7 +12249,7 @@ msgstr "007 - WordPress - Discourse Post roundtrip"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Rolaren meta-diseinuaren fabrikatzea"
+msgstr "008 - Funtzioa Meta Diseinuaren fabrikatzea"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -41205,7 +41205,7 @@ msgstr "Per-Entity Ports: `meta/services.yml.<entity>.ports` 🚪"
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "Lerro bakarreko meta-diseinua 🗂️"
+msgstr "Per-Role Meta Diseinua 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -73559,7 +73559,7 @@ msgstr "[Penpot](https://penpot.app/) kode irekiko diseinu eta prototipoen plata
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[Lerro bakarreko meta-diseinua](../contributing/design/role/services/layout.md)"
+msgstr "[Per-Role Meta Diseinua](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

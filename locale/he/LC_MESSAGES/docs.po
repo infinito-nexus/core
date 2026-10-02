@@ -49045,7 +49045,7 @@ msgstr "תגית: 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "שירותים במטה 🧩"
+msgstr "שירותים Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -65576,7 +65576,7 @@ msgstr "התפקיד הזה מצהיר `PERSONA_ADMINISTRATOR_BLOCKED` ו `PERSO
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same reason. `meta/services.yml` pins `sso.enabled: false` and `sso.shared: false`: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` or `BIBER_PASSWORD` for the shared helpers to read."
-msgstr "התפקיד הזה מצהיר `PERSONA_ADMINISTRATOR_BLOCKED` ו `PERSONA_BIBER_BLOCKED` פנימה `templates/playwright.env.j2` מאותה סיבה. `meta/services.yml` pins `sso.enabled: false` ו `sso.shared: false`: MIG משרת את הגרף האינסופי מראש על ערימה של מרכיבים משלו ואין לו משטח כניסה, אין חשבונות, ואין מצב אותנטי בכלל. כתוצאה מכך, קובץ env אינו הופך `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` או או `BIBER_PASSWORD` על העזרה המשותפת לקרוא."
+msgstr "התפקיד הזה מצהיר `PERSONA_ADMINISTRATOR_BLOCKED` ו `PERSONA_BIBER_BLOCKED` פנימה `templates/playwright.env.j2` מאותה סיבה. `meta/services.yml` pins `sso.enabled: false` ו `sso.shared: false`: MIG משרת את ה-Pre-rendered Meta גרף אינסופי מעל ערימה של מרכיבים משלו ואין לו משטח כניסה, אין חשבונות, ואין מצב אותנטי בכלל. כתוצאה מכך, קובץ env אינו הופך `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` או או `BIBER_PASSWORD` על העזרה המשותפת לקרוא."
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter
@@ -65656,7 +65656,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same reason. ``meta/services.yml`` pins ``sso.enabled: false`` and ``sso.shared: false``: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` or ``BIBER_PASSWORD`` for the shared helpers to read."
-msgstr "התפקיד הזה מצהיר ``PERSONA_ADMINISTRATOR_BLOCKED`` ו ``PERSONA_BIBER_BLOCKED`` פנימה ``templates/playwright.env.j2`` מאותה סיבה. ``meta/services.yml`` pins ``sso.enabled: false`` ו ``sso.shared: false``: MIG משרת את הגרף האינסופי מראש על ערימה של מרכיבים משלו ואין לו משטח כניסה, אין חשבונות, ואין מצב אותנטי בכלל. כתוצאה מכך, קובץ env אינו הופך ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` או או ``BIBER_PASSWORD`` על העזרה המשותפת לקרוא."
+msgstr "התפקיד הזה מצהיר ``PERSONA_ADMINISTRATOR_BLOCKED`` ו ``PERSONA_BIBER_BLOCKED`` פנימה ``templates/playwright.env.j2`` מאותה סיבה. ``meta/services.yml`` pins ``sso.enabled: false`` ו ``sso.shared: false``: MIG משרת את ה-Pre-rendered Meta גרף אינסופי מעל ערימה של מרכיבים משלו ואין לו משטח כניסה, אין חשבונות, ואין מצב אותנטי בכלל. כתוצאה מכך, קובץ env אינו הופך ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` או או ``BIBER_PASSWORD`` על העזרה המשותפת לקרוא."
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter

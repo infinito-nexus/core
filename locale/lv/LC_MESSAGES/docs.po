@@ -12340,7 +12340,7 @@ msgstr "009 - Par roļu tīkliem un ostu migrāciju"
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - Lomu meta `run_after` / `lifecycle` Migrācija"
+msgstr "010 - Loma Meta `run_after` / `lifecycle` Migrācija"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -41320,7 +41320,7 @@ msgstr "Ostas: `meta/services.yml.<entity>.ports` 🚪"
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "Roļu meta izkārtojums 🗂️"
+msgstr "Rols Meta Izkārtojums 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -47539,7 +47539,7 @@ msgstr "LOMA LOMA 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "Lomu pakalpojumu meta 🧩"
+msgstr "Lomu pakalpojumi Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -73568,7 +73568,7 @@ msgstr "[Penpot](https://penpot.app/) ir atvērtā pirmkoda dizaina un prototipu
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[Roļu meta izkārtojums](../contributing/design/role/services/layout.md)"
+msgstr "[Rols Meta Izkārtojums](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

@@ -12247,7 +12247,7 @@ msgstr "007 - WordPress kuni Discourse edasi-tagasi reisi"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Rolli metapaigutuse refaktor"
+msgstr "008 - Roll Meta Paigutuse refaktor"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -41187,7 +41187,7 @@ msgstr "Üksusepõhised sadamad: `meta/services.yml.<entity>.ports` 🚪"
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "Rollipõhine metapaigutus 🗂️"
+msgstr "Rolli järgi Meta Layout 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -47398,7 +47398,7 @@ msgstr "README 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "Rolliteenuste meta 🧩"
+msgstr "Rolliteenused Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -72459,7 +72459,7 @@ msgstr "[GitHubi hoidla arutelu](https://github.com/discourse/discourse_docker.g
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[Diskursuse metafoorum](https://meta.discourse.org/)"
+msgstr "[Diskursus Meta Forum](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
@@ -73487,7 +73487,7 @@ msgstr "[Penpot](https://penpot.app/) on avatud lähtekoodiga disaini- ja protot
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[Rollipõhine metapaigutus](../contributing/design/role/services/layout.md)"
+msgstr "[Rolli järgi Meta Layout](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

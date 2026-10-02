@@ -12277,7 +12277,7 @@ msgstr "007 - WordPress to Discourse पोस्ट राउंड ट्र�
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - रोल मेटा लेआउट रिफैक्टरिंग"
+msgstr "008 - भूमिका Meta लेआउट रिफैक्टरिंग"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -12285,7 +12285,7 @@ msgstr "009 - प्रति-रोल नेटवर्क और पोर�
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - रोल मेटा `run_after` / `lifecycle` प्रवासन"
+msgstr "010 - भूमिका Meta `run_after` / `lifecycle` प्रवासन"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -17737,7 +17737,7 @@ msgstr "केवल एकमात्र नेटवर्क के लि�
 
 # translated-by: libretranslate
 msgid "Automatic deployment of the Meta Infinite Graph web application"
-msgstr "मेटा अनंत ग्राफ वेब अनुप्रयोग की स्वचालित तैनाती"
+msgstr "स्वचालित तैनाती Meta अनंत ग्राफ वेब अनुप्रयोग"
 
 # translated-by: libretranslate
 msgid "Automatic detection of various logout mechanisms (links, buttons, forms)."
@@ -47430,7 +47430,7 @@ msgstr "भूमिका 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "रोल सर्विसेज मेटा 🧩"
+msgstr "भूमिका सेवाएं Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -54340,7 +54340,7 @@ msgstr "The The most of the most important Matrix भूमिका एक ansi
 
 # translated-by: libretranslate
 msgid "The Meta Infinite Graph is an essential tool for analyzing, auditing, and maintaining the modular structure of the Infinito.Nexus ecosystem. It provides a clear overview of all roles and how they are interconnected."
-msgstr "मेटा अनंत ग्राफ विश्लेषण, लेखा परीक्षा और मॉड्यूलर संरचना को बनाए रखने के लिए एक आवश्यक उपकरण है Infinito.Nexus पारिस्थितिकी तंत्र यह सभी भूमिकाओं का स्पष्ट अवलोकन प्रदान करता है और वे कैसे जुड़े हुए हैं।."
+msgstr "The The most of the most important Meta अनंत ग्राफ विश्लेषण, लेखा परीक्षा और मॉड्यूलर संरचना को बनाए रखने के लिए एक आवश्यक उपकरण है Infinito.Nexus पारिस्थितिकी तंत्र यह सभी भूमिकाओं का स्पष्ट अवलोकन प्रदान करता है और वे कैसे जुड़े हुए हैं।."
 
 # translated-by: libretranslate
 msgid "The NGINX Certbot Automation role ensures that Let's Encrypt SSL/TLS certificates stay valid without manual intervention. It enhances the security and reliability of web services by automating certificate lifecycle management."
@@ -61734,7 +61734,7 @@ msgstr "इस फ़ोल्डर में वैश्विक टेम�
 
 # translated-by: libretranslate
 msgid "This folder contains the Ansible role to deploy the Meta Infinite Graph for Infinito.Nexus."
-msgstr "इस फ़ोल्डर में मेटा अनंत ग्राफ को तैनात करने के लिए Ansible भूमिका है Infinito.Nexus।."
+msgstr "इस फ़ोल्डर में परिनियोजित करने के लिए Ansible भूमिका होती है Meta के लिए अनंत ग्राफ Infinito.Nexus।."
 
 # translated-by: libretranslate
 msgid "This folder contains the Nextcloud Variables"
@@ -62541,7 +62541,7 @@ msgstr "यह भूमिका घोषित `PERSONA_ADMINISTRATOR_BLOCKED
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same reason. `meta/services.yml` pins `sso.enabled: false` and `sso.shared: false`: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` or `BIBER_PASSWORD` for the shared helpers to read."
-msgstr "यह भूमिका घोषित `PERSONA_ADMINISTRATOR_BLOCKED` और `PERSONA_BIBER_BLOCKED` में `templates/playwright.env.j2` इसी कारण से। `meta/services.yml` पिन `sso.enabled: false` और `sso.shared: false`: एमआईजी अपने स्वयं के रचना स्टैक पर प्री-रेंडर्ड मेटा अनंत ग्राफ की सेवा करता है और इसमें कोई लॉगिन सतह नहीं है, कोई खाता नहीं है, और सभी पर कोई प्रमाणित राज्य नहीं है। नतीजतन, env फ़ाइल रेंडर नहीं `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` या `BIBER_PASSWORD` साझा सहायकों के लिए पढ़ने के लिए।."
+msgstr "यह भूमिका घोषित `PERSONA_ADMINISTRATOR_BLOCKED` और `PERSONA_BIBER_BLOCKED` में `templates/playwright.env.j2` इसी कारण से। `meta/services.yml` पिन `sso.enabled: false` और `sso.shared: false`: एमआईजी पूर्व-रेंडर की सेवा करता है Meta अपने स्वयं के रचना स्टैक पर अनंत ग्राफ और इसमें कोई लॉगिन सतह नहीं है, कोई खाता नहीं है और सभी पर कोई प्रमाणित राज्य नहीं है। नतीजतन, env फ़ाइल रेंडर नहीं `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` या `BIBER_PASSWORD` साझा सहायकों के लिए पढ़ने के लिए।."
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The MinIO Console version pinned here never renders an SSO button — `/api/v1/login` answers `redirectRules: null` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (`MINIO_OIDC_POLICY_NAME` in `vars/main.yml`, attached in `tasks/02_ldap.yml`) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -62590,7 +62590,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same reason. ``meta/services.yml`` pins ``sso.enabled: false`` and ``sso.shared: false``: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` or ``BIBER_PASSWORD`` for the shared helpers to read."
-msgstr "यह भूमिका घोषित ``PERSONA_ADMINISTRATOR_BLOCKED`` और ``PERSONA_BIBER_BLOCKED`` में ``templates/playwright.env.j2`` इसी कारण से। ``meta/services.yml`` पिन ``sso.enabled: false`` और ``sso.shared: false``: एमआईजी अपने स्वयं के रचना स्टैक पर प्री-रेंडर्ड मेटा अनंत ग्राफ की सेवा करता है और इसमें कोई लॉगिन सतह नहीं है, कोई खाता नहीं है, और सभी पर कोई प्रमाणित राज्य नहीं है। नतीजतन, env फ़ाइल रेंडर नहीं ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` या ``BIBER_PASSWORD`` साझा सहायकों के लिए पढ़ने के लिए।."
+msgstr "यह भूमिका घोषित ``PERSONA_ADMINISTRATOR_BLOCKED`` और ``PERSONA_BIBER_BLOCKED`` में ``templates/playwright.env.j2`` इसी कारण से। ``meta/services.yml`` पिन ``sso.enabled: false`` और ``sso.shared: false``: एमआईजी पूर्व-रेंडर की सेवा करता है Meta अपने स्वयं के रचना स्टैक पर अनंत ग्राफ और इसमें कोई लॉगिन सतह नहीं है, कोई खाता नहीं है और सभी पर कोई प्रमाणित राज्य नहीं है। नतीजतन, env फ़ाइल रेंडर नहीं ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` या ``BIBER_PASSWORD`` साझा सहायकों के लिए पढ़ने के लिए।."
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for two different reasons. The MinIO Console version pinned here never renders an SSO button — ``/api/v1/login`` answers ``redirectRules: null`` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (``MINIO_OIDC_POLICY_NAME`` in ``vars/main.yml``, attached in ``tasks/02_ldap.yml``) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -72473,7 +72473,7 @@ msgstr "[GitHub Repository](https://github.com/discourse/discourse_docker.git)"
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[मेटा फोरम](https://meta.discourse.org/)"
+msgstr "[उपदेश Meta फोरम](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"

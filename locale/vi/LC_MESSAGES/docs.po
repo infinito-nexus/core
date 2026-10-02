@@ -12592,7 +12592,7 @@ msgstr "007 - WordPress phải Discourse Post round-trip"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Đáp ứng vai trò siêu bố trí"
+msgstr "008 - Vai trò Meta Đáp ứng bố trí"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -41802,7 +41802,7 @@ msgstr "Cổng phụ: `meta/services.yml.<entity>.ports` 🚪"
 
 # translated-by: libretranslate
 msgid "Per-Role Meta Layout 🗂️"
-msgstr "Siêu bố trí mô tả 🗂️"
+msgstr "Per-Role Meta Bố trí 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
@@ -48115,7 +48115,7 @@ msgstr "Nhiệm vụ đọc sách 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "Siêu dịch vụ vai trò 🧩"
+msgstr "Dịch vụ vai trò Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -64847,7 +64847,7 @@ msgstr "Vai trò này tuyên bố `PERSONA_ADMINISTRATOR_BLOCKED` và `PERSONA_B
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same reason. `meta/services.yml` pins `sso.enabled: false` and `sso.shared: false`: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` or `BIBER_PASSWORD` for the shared helpers to read."
-msgstr "Vai trò này tuyên bố `PERSONA_ADMINISTRATOR_BLOCKED` và `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` vì cùng một lý do. `meta/services.yml` ghim `sso.enabled: false` và `sso.shared: false`: MIG phục vụ đồ thị siêu vô hạn đã sẵn sàng trên chồng riêng của nó và không có bề mặt đăng nhập, không tài khoản, và không có trạng thái xác thực ở tất cả. Kết quả là tập tin env không được vẽ `ADMIN_USERNAME`. `ADMIN_PASSWORD`. `BIBER_USERNAME` hay `BIBER_PASSWORD` để giúp đỡ đọc chung."
+msgstr "Vai trò này tuyên bố `PERSONA_ADMINISTRATOR_BLOCKED` và `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` vì cùng một lý do. `meta/services.yml` ghim `sso.enabled: false` và `sso.shared: false`: MIG phục vụ tiền bảo hiểm Meta Đồ thị vô hạn trên chồng riêng của nó và không có bề mặt đăng nhập, không tài khoản, và không có trạng thái xác thực. Kết quả là tập tin env không được vẽ `ADMIN_USERNAME`. `ADMIN_PASSWORD`. `BIBER_USERNAME` hay `BIBER_PASSWORD` để giúp đỡ đọc chung."
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The MinIO Console version pinned here never renders an SSO button — `/api/v1/login` answers `redirectRules: null` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (`MINIO_OIDC_POLICY_NAME` in `vars/main.yml`, attached in `tasks/02_ldap.yml`) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -65849,7 +65849,7 @@ msgstr "Vai trò này thiết lập thay đổi màu bàn phím năng động tr
 
 # translated-by: libretranslate
 msgid "This role sets up the [Ansible Meta Infinite Graph](https://github.com/kevinveenbirkenbach/meta-infinite-graph) for Infinito.Nexus. The Meta Infinite Graph visualizes all dependencies and relationships between Infinito.Nexus roles, making the overall infrastructure structure transparent and easy to understand."
-msgstr "Vai diễn này thiết lập [Đồ thị siêu vô hạn khả năng](https://github.com/kevinveenbirkenbach/meta-infinite-graph) Vì Infinito.Nexus.. Đồ thị siêu vô hạn hình dung tất cả các quan hệ phụ thuộc và quan hệ giữa Infinito.Nexus Các vai trò, làm cho cấu trúc cơ sở hạ tầng được minh bạch và dễ hiểu."
+msgstr "Vai diễn này thiết lập [Khả thi Meta Đồ thị vô hạn](https://github.com/kevinveenbirkenbach/meta-infinite-graph) Vì Infinito.Nexus. Cái Meta Đồ thị vô hạn hình dung tất cả các quan hệ phụ thuộc và quan hệ giữa Infinito.Nexus Các vai trò, làm cho cấu trúc cơ sở hạ tầng được minh bạch và dễ hiểu."
 
 # translated-by: libretranslate
 msgid "This role sets up the `Ansible Meta Infinite Graph <https://github.com/kevinveenbirkenbach/meta-infinite-graph>`__ for Infinito.Nexus. The Meta Infinite Graph visualizes all dependencies and relationships between Infinito.Nexus roles, making the overall infrastructure structure transparent and easy to understand."
@@ -74941,7 +74941,7 @@ msgstr "[Giải mã chương trình GtHub](https://github.com/discourse/discours
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[Giải mã siêu quảng cáo](https://meta.discourse.org/)"
+msgstr "[Giải tán Meta Bình](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
@@ -75965,7 +75965,7 @@ msgstr "[Điểm bút](https://penpot.app/) là một thiết kế mã nguồn m
 
 # translated-by: libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
-msgstr "[Siêu bố trí mô tả](../contributing/design/role/services/layout.md)"
+msgstr "[Per-Role Meta Bố trí](../contributing/design/role/services/layout.md)"
 
 # translated-by: libretranslate
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"

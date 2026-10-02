@@ -12227,7 +12227,7 @@ msgstr "007 - WordPress to Discourse μετά το γύρο-trip"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Αναπαράσταση διάταξης μετά Roleόλων"
+msgstr "008 - Ρόλος Meta Αναπαράσταση διάταξης"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"

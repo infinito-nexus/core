@@ -48080,7 +48080,7 @@ msgstr "Ról an LÉAS 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "Plean Gníomhaíochta don Oideachas 🧩"
+msgstr "Seirbhísí ar líne Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"

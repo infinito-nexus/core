@@ -12328,7 +12328,7 @@ msgstr "007 - WordPress до Discourse після круглої смуги"
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
-msgstr "008 - Рефакторинг рольова гра"
+msgstr "008 - роль Meta Рефакторинг макета"
 
 # translated-by: libretranslate
 msgid "009 - Per-Role Networks and Ports Migration"
@@ -12336,7 +12336,7 @@ msgstr "009 - Біржові мережі та порти міграції"
 
 # translated-by: libretranslate
 msgid "010 - Role Meta `run_after` / `lifecycle` Migration"
-msgstr "010 - Рольова мета `run_after` Українська `lifecycle` Міграція"
+msgstr "010 - роль Meta `run_after` Українська `lifecycle` Міграція"
 
 # translated-by: libretranslate
 msgid "011 - Role `meta/info.yml` Migration"
@@ -47838,7 +47838,7 @@ msgstr "Рольова гра 📄"
 
 # translated-by: libretranslate
 msgid "Role Services Meta 🧩"
-msgstr "Рольові послуги Мета 🧩"
+msgstr "Рольові послуги Meta 🧩"
 
 # translated-by: libretranslate
 msgid "Role Structure Tests 📚"
@@ -54809,7 +54809,7 @@ msgstr "Про нас Matrix роль отримує чуйний аромат (
 
 # translated-by: libretranslate
 msgid "The Meta Infinite Graph is an essential tool for analyzing, auditing, and maintaining the modular structure of the Infinito.Nexus ecosystem. It provides a clear overview of all roles and how they are interconnected."
-msgstr "Мета Infinite Graph є важливим інструментом для аналізу, аудиту та підтримки модульної структури Infinito.Nexus екосистема. Ми можемо самі зателефонувати одержувачу і узгодити зручний час."
+msgstr "Про нас Meta Infinite Graph є важливим інструментом для аналізу, аудиту та підтримки модульної структури Infinito.Nexus екосистема. Ми можемо самі зателефонувати одержувачу і узгодити зручний час."
 
 # translated-by: libretranslate
 msgid "The NGINX Certbot Automation role ensures that Let's Encrypt SSL/TLS certificates stay valid without manual intervention. It enhances the security and reliability of web services by automating certificate lifecycle management."
@@ -63150,7 +63150,7 @@ msgstr "Ця роль заявляє `PERSONA_ADMINISTRATOR_BLOCKED` і `PERSONA
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same reason. `meta/services.yml` pins `sso.enabled: false` and `sso.shared: false`: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` or `BIBER_PASSWORD` for the shared helpers to read."
-msgstr "Ця роль заявляє `PERSONA_ADMINISTRATOR_BLOCKED` і `PERSONA_BIBER_BLOCKED` в `templates/playwright.env.j2` з тієї ж причини. `meta/services.yml` шпильки `sso.enabled: false` і `sso.shared: false`: Ми можемо самі зателефонувати одержувачу і узгодити зручний час і місце вручення квітів. Отже, файл env не дає `ADMIN_USERNAME`, й `ADMIN_PASSWORD`, й `BIBER_USERNAME` або `BIBER_PASSWORD` для читання спільних помічників."
+msgstr "Ця роль заявляє `PERSONA_ADMINISTRATOR_BLOCKED` і `PERSONA_BIBER_BLOCKED` в `templates/playwright.env.j2` з тієї ж причини. `meta/services.yml` шпильки `sso.enabled: false` і `sso.shared: false`: МІГ виконує попередню роботу Meta Нескінченний граф над власним композуванням стека і не має початкової поверхні, ніяких облікових записів, а не автентифікованого стану. Отже, файл env не дає `ADMIN_USERNAME`, й `ADMIN_PASSWORD`, й `BIBER_USERNAME` або `BIBER_PASSWORD` для читання спільних помічників."
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The MinIO Console version pinned here never renders an SSO button — `/api/v1/login` answers `redirectRules: null` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (`MINIO_OIDC_POLICY_NAME` in `vars/main.yml`, attached in `tasks/02_ldap.yml`) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -63186,7 +63186,7 @@ msgstr "Ця роль заявляє ``PERSONA_ADMINISTRATOR_BLOCKED`` і ``PERS
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same reason. ``meta/services.yml`` pins ``sso.enabled: false`` and ``sso.shared: false``: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` or ``BIBER_PASSWORD`` for the shared helpers to read."
-msgstr "Ця роль заявляє ``PERSONA_ADMINISTRATOR_BLOCKED`` і ``PERSONA_BIBER_BLOCKED`` в ``templates/playwright.env.j2`` з тієї ж причини. ``meta/services.yml`` шпильки ``sso.enabled: false`` і ``sso.shared: false``: Ми можемо самі зателефонувати одержувачу і узгодити зручний час і місце вручення квітів. Отже, файл env не дає ``ADMIN_USERNAME``, й ``ADMIN_PASSWORD``, й ``BIBER_USERNAME`` або ``BIBER_PASSWORD`` для читання спільних помічників."
+msgstr "Ця роль заявляє ``PERSONA_ADMINISTRATOR_BLOCKED`` і ``PERSONA_BIBER_BLOCKED`` в ``templates/playwright.env.j2`` з тієї ж причини. ``meta/services.yml`` шпильки ``sso.enabled: false`` і ``sso.shared: false``: МІГ виконує попередню роботу Meta Нескінченний граф над власним композуванням стека і не має початкової поверхні, ніяких облікових записів, а не автентифікованого стану. Отже, файл env не дає ``ADMIN_USERNAME``, й ``ADMIN_PASSWORD``, й ``BIBER_USERNAME`` або ``BIBER_PASSWORD`` для читання спільних помічників."
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for two different reasons. The MinIO Console version pinned here never renders an SSO button — ``/api/v1/login`` answers ``redirectRules: null`` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (``MINIO_OIDC_POLICY_NAME`` in ``vars/main.yml``, attached in ``tasks/02_ldap.yml``) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -73161,7 +73161,7 @@ msgstr "[Репозиторій GitHub](https://github.com/discourse/discourse_d
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
-msgstr "[Дискурс Мета Форум](https://meta.discourse.org/)"
+msgstr "[Розсилка Meta Новини](https://meta.discourse.org/)"
 
 # translated-by: libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"

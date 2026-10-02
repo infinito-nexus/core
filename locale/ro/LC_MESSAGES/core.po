@@ -855,7 +855,7 @@ msgid "Intel VA-API media driver for hardware-accelerated video decode and encod
 msgstr "Intel VA-API driver media pentru hardware-accelerate video decodează și codifică distribuțiile Linux"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-mig:description"
+msgctxt "role:web-app-meta:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
 msgstr "Vizualizarea interactivă a graficului tuturor Infinito.Nexus roluri și dependențele lor pentru transparența arhitecturii"
 
