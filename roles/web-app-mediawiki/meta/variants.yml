@@ -2,10 +2,10 @@
 # Matrix-deploy variant overrides for web-app-mediawiki.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 #
-# nocheck: sso-variant-tor — variant 1 is the only round enabling peertube, which is
-# clearnet-only, so it drops the onion. The MachineTranslation extension it
-# exercises is consequently proven against a clearnet wiki origin only;
-# variants 0 and 2 keep the onion, and variant 0 pairs it with SSO.
+# nocheck: sso-variant-tor — variant 1 exists so peertube, which is clearnet-only,
+# has a round of its own. It carries nothing else; libretranslate moved to
+# variant 2, which keeps the onion, so the MachineTranslation extension is now
+# proven over it. Variant 0 pairs the onion with SSO.
 
 - services:
     container_backup:
@@ -66,8 +66,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     libretranslate:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     peertube:
       enabled: true
       shared: true
@@ -110,8 +110,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     libretranslate:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     peertube:
       enabled: false
       shared: false
@@ -124,7 +124,7 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
-      enabled: true
+      enabled: false
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

@@ -7,6 +7,11 @@
 # between rounds whenever the variant changes, so Single-Site state
 # cannot bleed into the Multisite run.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 2 exists so bigbluebutton and peertube,
+# which pin tor.enabled to a literal false, have a round of their own. It
+# carries nothing else, so dropping the onion there costs no coverage; every
+# other round keeps it on.
 
 # variant 0: canonical Single-Site deploy.
 
@@ -19,6 +24,15 @@
     discourse:
       enabled: true
       shared: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    listmonk:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
     dashboard:
       enabled: true
       shared: true
@@ -65,6 +79,15 @@
     discourse:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    listmonk:
+      enabled: true
+      shared: true
+    peertube:
+      enabled: false
+      shared: false
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -98,7 +121,7 @@
     openclaw:
       enabled: false
       shared: false
-  addons:
+  addons: &wordpress_addons_off
     activitypub:
       enabled: false
   server:
@@ -107,3 +130,57 @@
         - blog.{{ DOMAIN_PRIMARY }}
         - biberblog.{{ DOMAIN_PRIMARY }}
         - biber.blog.{{ DOMAIN_PRIMARY }}
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override base shared is a static literal and this round joins no backup host
+    css:
+      enabled: false
+      shared: false
+    discourse:
+      enabled: false
+      shared: false
+    bigbluebutton:
+      enabled: true
+      shared: true
+    listmonk:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    mariadb:
+      shared: true
+    matomo:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    sso:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
+      enabled: false
+      shared: false
+    tor:
+      enabled: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+  addons: *wordpress_addons_off

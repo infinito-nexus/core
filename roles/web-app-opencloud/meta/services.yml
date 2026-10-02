@@ -67,6 +67,7 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
 # nocheck: playwright-service-flag
+# nocheck: variants-coverage this role pairs with no service that refuses the onion, so variant-tor-off-needs-a-reason keeps the onion on in every variant and the false polarity has nowhere to live
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"

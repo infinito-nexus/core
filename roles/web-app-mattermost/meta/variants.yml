@@ -1,6 +1,16 @@
 ---
 # Matrix-deploy variant overrides for web-app-mattermost.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 3 exists so jitsi, which is clearnet-only, has
+# a round of its own. Every other round keeps the onion on.
+#
+# nocheck: variant-limit — folding the jitsi round into an existing variant was
+# measured and does not work: variant 2 is the only round pinning sso false, which
+# is the polarity variants-coverage needs, and every addon spec gates on
+# skipUnlessServiceEnabled("sso"), so a jitsi round without sso would deploy jitsi
+# and prove nothing. A fourth round is the only way hermes, jenkins, openclaw and
+# openwebui reach the onion.
 
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-mattermost.
@@ -48,6 +58,15 @@
     openclaw:
       enabled: false
       shared: false
+    gitlab:
+      enabled: true
+      shared: true
+    jenkins:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
 - services:
     container_backup:
       enabled: false
@@ -93,6 +112,15 @@
     openclaw:
       enabled: true
       shared: true
+    gitlab:
+      enabled: false
+      shared: false
+    jenkins:
+      enabled: true
+      shared: true
+    jitsi:
+      enabled: false
+      shared: false
 
 - services:
     container_backup:
@@ -139,3 +167,67 @@
     openclaw:
       enabled: false
       shared: false
+    gitlab:
+      enabled: false
+      shared: false
+    jenkins:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    redis:
+      shared: true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    css:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+    tor: # nocheck: variant-tor-collateral jitsi refuses the onion and this round exists only for it; javascript is pinned statically true in meta/services.yml so no variant can drop it, and sso has to stay on because every addon spec gates on it - both run over the onion in variants 0 and 1
+      enabled: false
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    gitlab:
+      enabled: false
+      shared: false
+    jenkins:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: true
+      shared: true
