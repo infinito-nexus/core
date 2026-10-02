@@ -76,8 +76,13 @@ Odoo modules are declared as addons in `meta/addons/` per the unified addon cont
 | website | module | enabled (required) | none |
 | project | module | enabled (required) | none |
 | stock | module | enabled (required) | none |
+| auth_oauth | module | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| mail | module | enabled whenever the `email` service is present (`web-app-mailu` co-deployed) | `email` → `web-app-mailu` |
+| nextcloud_odoo_integration | module | disabled | `nextcloud` → `web-app-nextcloud` |
 
 All core modules carry `required: true` and `group: core`, so they are always installed. The `optional` group is empty today.
+
+The bridging addons carry no `group`, so the generic `odoo -i <modules>` list leaves them alone: `auth_oauth` is installed by [`tasks/03_install_modules/module_ops.yml`](./tasks/03_install_modules/module_ops.yml) and provisioned by [`tasks/05_oidc.yml`](./tasks/05_oidc.yml), and `mail` arrives as a dependency of the core set while [`templates/odoo.conf.j2`](./templates/odoo.conf.j2) carries the partner SMTP endpoint. `nextcloud_odoo_integration` is distributed through the paid Odoo Apps store and therefore stays disabled until an operator stages a licensed copy into `files/addons/`.
 
 ## Deployment
 

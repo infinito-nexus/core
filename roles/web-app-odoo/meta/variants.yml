@@ -22,6 +22,9 @@
     matomo:
       enabled: true
       shared: true
+    nextcloud:
+      enabled: false
+      shared: false
     sso:
       enabled: true
       shared: true
@@ -59,6 +62,9 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    nextcloud:
+      enabled: true
+      shared: true
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -84,6 +90,9 @@
     ldap:
       enabled: true
       shared: true
+    nextcloud:
+      enabled: false
+      shared: false
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

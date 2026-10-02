@@ -7,4 +7,4 @@ bridges:
   - nextcloud
 config:
   tier: paid
-  store_url: https://apps.odoo.com/apps/modules/20.0/nextcloud_odoo_integration
+  store_url: https://apps.odoo.com/apps/modules/19.0/nextcloud_odoo_integration
