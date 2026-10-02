@@ -40,6 +40,7 @@ from humanfriendly import format_size, parse_size
 
 from utils.annotations.suppress import suppressed_line_numbers
 from utils.cache.applications import get_variants
+from utils.cache.files import read_text
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
@@ -48,6 +49,7 @@ from utils.roles.applications.services.resources import (
     aggregate,
     collect_role_resources,
 )
+from utils.roles.mapping import ROLE_FILE_META_VARIANTS
 
 from . import PROJECT_ROOT
 
@@ -98,8 +100,8 @@ def _variant_spans(lines: list[str]) -> list[range]:
 def _marked_variants() -> set[tuple[str, int]]:
     """Every ``(role, variant index)`` whose variants file carries the marker."""
     marked: set[tuple[str, int]] = set()
-    for path in sorted(ROLES_DIR.glob("*/meta/variants.yml")):
-        lines = path.read_text(encoding="utf-8").splitlines()
+    for path in sorted(ROLES_DIR.glob(f"*/{ROLE_FILE_META_VARIANTS}")):
+        lines = read_text(str(path)).splitlines()
         numbers = suppressed_line_numbers(lines, MEM_LIMIT_RULE)
         if not numbers:
             continue
@@ -121,10 +123,10 @@ def _mem_limit_reason(role: str, variant: int) -> str:
         The stripped text following the marker, or ``""`` when the variant
         carries none. A marker without text grants no exemption.
     """
-    path = ROLES_DIR / role / "meta" / "variants.yml"
+    path = ROLES_DIR / role / ROLE_FILE_META_VARIANTS
     if not path.is_file():
         return ""
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_text(str(path)).splitlines()
     spans = _variant_spans(lines)
     if variant >= len(spans):
         return ""
