@@ -111,7 +111,7 @@ indexer:
     internal:
       http: 9200
     local:
-      http: 8095
+      http: 8097
 console:
   image: wazuh/wazuh-dashboard
   version: "4.14.6"
@@ -126,7 +126,7 @@ console:
     internal:
       http: 5601
     local:
-      http: 8094
+      http: 8096
 
 # nocheck: sso-variant-tor — maintainer decision: the SIEM console is served on clearnet only, never as an onion service
 # nocheck: dynamic-flag
