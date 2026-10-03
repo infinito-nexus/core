@@ -124,7 +124,6 @@ alias i8puma='__i8puma(){ local gates=() ok=1; case "${3:-}" in "") ;; true|fals
 alias i8puwl='__i8puwl(){ [ -z "${1:-}" ] && { echo "usage: i8puwl <whitelist app ids> [distros]" >&2; return 2; }; i8source && gh workflow run entry-manual.yml --repo "$(git remote get-url "$(git config --get remote.pushDefault)")" --ref "$(git rev-parse --abbrev-ref HEAD)" -f whitelist="$(python3 -m utils.roles.display --encode "$1")" -f distros="${2:-${INFINITO_DISTROS}}" -f workspace=false -f instructions=false; }; __i8puwl' # dispatch a manual CI run on the push remote (remote.pushDefault) limited to whitelist $1, distros $2 (default INFINITO_DISTROS), with the workspace and instructions tests off; pushes nothing, so the run uses whatever the remote already holds for the current branch
 alias i8qu='m quality'
 alias i8quhi='m quality-high'
-alias i8re='m requirements-archive'
 alias i8ro='m roundtrip'
 alias i8ru='m runner-ci-deploy'
 alias i8ruci='m runner-ci-disable'

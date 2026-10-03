@@ -27,7 +27,6 @@ from utils.cache.yaml import load_yaml_any
 from utils.distros import (
     FILE_META_DISTROS,
     IMAGE_BASE,
-    IMAGE_PKGMGR,
     dev_runtime_images,
     distro_names,
     image_template,
@@ -197,7 +196,7 @@ class TestDistrosSpot(unittest.TestCase):
                 slug=_SHELL_LOOP_SLUG,
                 tag=static["INFINITO_PARENT_IMAGE_TAG"],
             )
-            for kind in (IMAGE_BASE, IMAGE_PKGMGR)
+            for kind in (IMAGE_BASE,)
         }
 
         offenders = [

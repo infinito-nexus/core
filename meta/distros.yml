@@ -31,7 +31,6 @@
 
 images:
   base: "ghcr.io/{owner}/base-{slug}:{tag}"
-  pkgmgr: "ghcr.io/{owner}/pkgmgr-{slug}:{tag}"
   environment: "ghcr.io/{owner}/{repository}/{slug}:{tag}"
 
 galaxy_platform_versions:

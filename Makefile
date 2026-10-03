@@ -633,12 +633,6 @@ quality:
 # Full gate: quality (autoformat + test) followed by every lint check.
 quality-high: quality lint
 
-.PHONY: requirements-archive
-# Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).
-requirements-archive:
-	@"$${PYTHON}" -m pip install --quiet --upgrade kpmx
-	@"$${PYTHON}" -m pkgmgr archive docs/requirements
-
 .PHONY: roundtrip
 # Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
 # Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
