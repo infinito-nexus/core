@@ -9,6 +9,11 @@ OPENPROJECT_REF: "{{ lookup('config', 'web-app-openproject', 'services.openproje
 OPENPROJECT_WEB_SERVICE: "web"
 OPENPROJECT_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_WEB_SERVICE ~ '.name') }}"
 OPENPROJECT_WEB_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, OPENPROJECT_WEB_SERVICE) }}"
+
+OPENPROJECT_ADDONS_ENABLED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled', 'true') | list }}"
+OPENPROJECT_GITLAB_BOT: "{{ lookup('users', 'gitlab-web-app-openproject') }}"
+OPENPROJECT_GITLAB_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.gitlab_webhook_secret') }}"
+OPENPROJECT_GITLAB_TOKEN_HELD: "{{ lookup('users', 'gitlab-web-app-openproject').tokens['web-app-openproject'] | default('') | string | trim }}"
 OPENPROJECT_MIGRATION_WAIT_SECONDS: 600
 OPENPROJECT_MIGRATION_POLL_SECONDS: 10
 OPENPROJECT_AWAIT_MIGRATIONS_ABS: "{{ [ lookup('container', application_id, 'directories.config'), 'await_migrations.sh'] | path_join }}"

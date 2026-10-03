@@ -1,9 +1,11 @@
 ---
 enabled: "{{ lookup('config', 'web-app-openproject', 'services.gitlab.enabled') | bool }}"
-required: false
+required: true
 mechanism: module
 source: bundled
 bridges:
   - gitlab
 config:
   webhook_path: /webhooks/gitlab
+  admin_path: /gitlab_integration/admin/settings
+  token_name: infinito-gitlab-webhook # nocheck: addon-secret names the API token OpenProject issues, not a secret value

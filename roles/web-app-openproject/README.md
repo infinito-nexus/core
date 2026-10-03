@@ -38,6 +38,26 @@ The purpose of this role is to reduce the complexity of setting up OpenProject w
 - **Role-Based Access Control & Security:**
   Manage user permissions precisely to ensure that sensitive information and critical functions remain secure.
 
+## Addons
+
+OpenProject's cross-role integrations are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `gitlab_integration` | `module` | enabled whenever the `gitlab` service is present (`web-app-gitlab` co-deployed) | `gitlab` → `web-app-gitlab` |
+| `storages` | `module` | enabled whenever the `nextcloud` service is present (`web-app-nextcloud` co-deployed) | `nextcloud` → `web-app-nextcloud` |
+| `openid_connect` | `module` | disabled | `sso` → `web-app-keycloak` |
+
+All three modules ship with the OpenProject image, and `tasks/05_addons.yml` runs the hook of every addon whose gate resolves true.
+
+`gitlab_integration` is provisioned here: [files/ruby/addons/gitlab/ensure_gitlab_webhook.rb](./files/ruby/addons/gitlab/ensure_gitlab_webhook.rb) creates the bot account declared in [meta/users.yml](./meta/users.yml), issues its API token, and writes `gitlab_user_id` plus the webhook secret into the plugin setting. The token is published to the token store; the webhook on the partner GitLab is not created by this role and the hook prints the URL to register it against.
+
+`storages` is provisioned entirely from the other side: [web-app-nextcloud](../web-app-nextcloud/) container-execs into this role's web container and creates the `Storages::NextcloudStorage`, its OAuth application and the matching Nextcloud client. The deploy order places this role before `web-app-nextcloud`, so nothing of that exists while this role runs and its hook stays empty.
+
+`openid_connect` is gated behind OpenProject's Enterprise tier, so this deployment reaches Keycloak through the oauth2-proxy front door declared by the `sso` service instead, and the addon stays off.
+
+Each addon's spec lives under `files/playwright/addons/`.
+
 ## Developer Notes
 
 To inspect and modify live settings inside the container, open a shell and use the Rails console for full LDAP and SMTP configuration.

@@ -94,7 +94,7 @@ def _variant_spans(lines: list[str]) -> list[range]:
     """
     starts = [n for n, line in enumerate(lines, 1) if line.startswith("- ")]
     bounds = [*starts[1:], len(lines) + 1]
-    return [range(start, end) for start, end in zip(starts, bounds)]
+    return [range(start, end) for start, end in zip(starts, bounds, strict=True)]
 
 
 def _marked_variants() -> set[tuple[str, int]]:
