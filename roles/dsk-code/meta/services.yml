@@ -4,7 +4,11 @@ desktop-base:
   bond: 1
   enabled: true
   shared: true
+# nocheck: playwright-service-flag  self-provider
 code:
+  bond: 1
+  enabled: true
+  shared: true
   modes:
     host:
       enabled: true

@@ -1,4 +1,6 @@
 ---
+- include_tasks: utils/once/flag.yml
+
 - name: "🛑 Refuse a flavor the role does not carry"
   ansible.builtin.assert:
     that:
@@ -30,5 +32,3 @@
   when:
     - code_install is not skipped
     - item.value.enabled | bool
-
-- include_tasks: utils/once/flag.yml
