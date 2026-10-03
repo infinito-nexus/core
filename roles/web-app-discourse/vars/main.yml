@@ -43,6 +43,10 @@ DISCOURSE_TRANSLATE_PROVIDER: "{{ lookup('config', application_id, 'addons.disco
 DISCOURSE_TRANSLATE_ENDPOINT: "{{ lookup('tls', 'web-svc-translate', 'url.base') | regex_replace('/+$', '') }}"
 DISCOURSE_TRANSLATE_HOST: "{{ DISCOURSE_TRANSLATE_ENDPOINT | urlsplit('hostname') }}"
 
+DISCOURSE_MERMAID_ENABLED: "{{ lookup('config', application_id, 'addons.discourse-mermaid.enabled') | bool }}"
+DISCOURSE_MERMAID_REPOSITORY: "{{ lookup('config', application_id, 'addons.discourse-mermaid.config.repository') }}"
+DISCOURSE_MERMAID_REF: "{{ lookup('config', application_id, 'addons.discourse-mermaid.config.ref') }}"
+
 DISCOURSE_AI_LLM_DISPLAY_NAME: "{{ lookup('config', application_id, 'addons.discourse-ai.config.display_name') }}"
 DISCOURSE_AI_MAX_PROMPT_TOKENS: "{{ lookup('config', application_id, 'addons.discourse-ai.config.max_prompt_tokens') | int }}"
 

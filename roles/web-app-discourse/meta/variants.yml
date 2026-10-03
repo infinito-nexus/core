@@ -114,6 +114,9 @@
     mattermost:
       enabled: true
       shared: true
+  addons: &addons_static_off
+    discourse-mermaid:
+      enabled: false
 
 - services:
     container_backup:
@@ -169,3 +172,4 @@
     mattermost:
       enabled: false
       shared: false
+  addons: *addons_static_off

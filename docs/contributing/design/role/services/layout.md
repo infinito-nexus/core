@@ -397,7 +397,7 @@ The dashboard's `web-app-dashboard/lookup_plugins/docker_cards.py` reads `logo.c
 
 ## Unified Addons: `meta/addons/` 🧩
 
-Role-level extensions, whatever a given app calls them natively (`addon`, `plugin`, `mu_plugin`, `extension`, `module`, or a network/appservice `bridge`), are declared through one unified contract under `meta/addons/` (requirement 026).
+Role-level extensions, whatever a given app calls them natively (`addon`, `plugin`, `mu_plugin`, `extension`, `module`, `theme`, or a network/appservice `bridge`), are declared through one unified contract under `meta/addons/` (requirement 026).
 The per-app spelling under the primary service entity (`addons` / `plugins` / `modules` / `mu_plugins`) maps onto this single contract.
 
 Each addon lives in its own file `meta/addons/<addon_id>.yml`: **the file root IS the addon spec, there is NO wrapping `<addon_id>:` key, and the filename stem supplies the addon id.**
@@ -408,7 +408,7 @@ The materialised path is `applications.<role_id>.addons.<addon_id>`, read via `l
 # roles/web-app-friendica/meta/addons/ldapauth.yml  (file root IS the addon spec)
 enabled: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 required: false             # true for core components that must always install
-mechanism: addon            # addon | plugin | mu_plugin | extension | module | bridge
+mechanism: addon            # addon | plugin | mu_plugin | extension | module | theme | bridge
 source: upstream            # upstream | bundled | vendored | built
 bridges:                    # optional; in-repo service keys declared in meta/services.yml
   - ldap
@@ -425,7 +425,7 @@ config: {}                  # optional, opaque, role-interpreted runtime payload
 
 | Field | Required | Type | Default | Notes |
 |-------|----------|------|---------|-------|
-| `mechanism` | yes | enum | — | `addon` / `plugin` / `mu_plugin` / `extension` / `module` / `bridge`. Selects the install path. `bridge` denotes a network/appservice bridge addon (distinct from the `bridges:` field). |
+| `mechanism` | yes | enum | — | `addon` / `plugin` / `mu_plugin` / `extension` / `module` / `theme` / `bridge`. Selects the install path. `theme` denotes a front-end theme or theme component the application installs separately from its plugins. `bridge` denotes a network/appservice bridge addon (distinct from the `bridges:` field). |
 | `source` | yes | enum | — | `upstream` / `bundled` / `vendored` / `built`. |
 | `enabled` | no | bool \| Jinja | `false` (or `true` when `required: true`) | Normalised by the loader. When the addon bridges exactly one service, reference that service's `enabled` flag instead of re-deriving group membership. |
 | `required` | no | bool | `false` | `true` = baseline install contract: always installed, MAY omit `enabled`, MUST NOT set `enabled: false`. Also gates install-failure: a failed `required: true` addon hard-fails the play; a failed `required: false` addon warns, is skipped, and the play continues. |

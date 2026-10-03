@@ -136,7 +136,7 @@ hooks:
         cd: $home/plugins
         cmd:
 {% for plugin_name, plugin_config in DISCOURSE_PLUGINS.items() %}
-{% if plugin_config.enabled and plugin_config.source != 'bundled' %}
+{% if plugin_config.enabled and plugin_config.source != 'bundled' and plugin_config.mechanism == 'plugin' %}
           - git clone --depth=1 --branch {{ plugin_config.config.ref }} {{ plugin_config.config.repository }}
 {% endif %}
 {% endfor %}
