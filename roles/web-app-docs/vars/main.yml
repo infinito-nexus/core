@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-docs"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 DOCS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 DOCS_SERVICE: "{{ entity_name }}"

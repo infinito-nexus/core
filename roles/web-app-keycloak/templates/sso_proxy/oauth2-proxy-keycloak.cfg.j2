@@ -2,7 +2,7 @@ http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-keycloak', 'se
 cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'secrets.credentials.sso_proxy_cookie_secret') }}"
 cookie_secure           =   "{{ lookup('tls', sso_proxy_application_id, 'enabled') | string | lower }}"
 {% set _sso_upstream_mode = (compose_mode_force | default('')) or DEPLOYMENT_MODE %}
-upstreams               =   "http://{{ ((sso_proxy_application_id | get_entity_name) ~ '_') if _sso_upstream_mode == 'swarm' else '' }}{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
+upstreams               =   "http://{{ ((sso_proxy_application_id | entity_name) ~ '_') if _sso_upstream_mode == 'swarm' else '' }}{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
 {% set _cookie_domains = lookup('sso_cookie_domains', sso_proxy_application_id) %}
 {% if _cookie_domains %}
 cookie_domains          =   {{ _cookie_domains | to_json }}

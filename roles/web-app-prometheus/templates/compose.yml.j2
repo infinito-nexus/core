@@ -17,7 +17,7 @@
 
     {{ lookup('container_networks') | indent(4) }}
       {% for metrics_app_id in lookup('native_metrics_apps') %}
-      {{ metrics_app_id | get_entity_name }}:
+      {{ metrics_app_id | entity_name }}:
       {% endfor %}
   {% set service_name = 'blackbox-exporter' %}
   {{ service_name }}:
@@ -101,7 +101,7 @@
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}
   {% for metrics_app_id in lookup('native_metrics_apps') %}
-  {% set service_name = metrics_app_id | get_entity_name %}
+  {% set service_name = metrics_app_id | entity_name %}
   {{ service_name }}:
     external: true
   {% endfor %}

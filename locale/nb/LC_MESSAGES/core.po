@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Baserolle for systemstyrekonfigurasjon via drop-ins, standardinnstillinger og validering av enhet"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Nettleseradministrasjonsgrensesnitt for SeaweedFS objektlagring, betjene filr og masterkonsoller bak SSO"
 
@@ -895,6 +895,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel-nivå NFS server for å eksportere et delt katalogtre med IP-begrenset tilgang for verm-node verter"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-støttet oversettelsesmotor som snakker LibreTranslate APIfor rørledninger som kaller det direkte"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Læringsplattformer, klasseromssamarbeidsverktøy og digitale utdanningsmiljøer."
@@ -1098,6 +1103,11 @@ msgstr "Objekt-lagring lag for SeaweedFS/MinIO backend oppløsning og per-forbru
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Automatisering på målet for å skape og aktivere swap-plass via et klonet swapfile-skript"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "En oversettelse endepunkt som plukker motoren selv og foretrekker en anmeldt menneskelig streng"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2009,6 +2019,11 @@ msgstr "Tor-nissen publiserer noden som v3 løk service"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor nettverk klient og nettleser lanser for anonym, personvern-fokusert nettleser"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Oversettelsesminne, ordbøker og den menneskelige gjennomgangsarbeidsflyten bak oversettelsesporten"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

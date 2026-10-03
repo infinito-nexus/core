@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-listmonk"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 container_port: "{{ lookup('config', application_id, 'services.listmonk.ports.internal.http') }}"
 
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"

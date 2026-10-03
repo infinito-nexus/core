@@ -1,6 +1,6 @@
 ---
 application_id: "svc-ai-s1"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 S1_CONTAINER: "{{ lookup('config', application_id, 'services.s1.name') }}"
 S1_PORT: "{{ lookup('config', application_id, 'services.s1.ports.internal.http') }}"

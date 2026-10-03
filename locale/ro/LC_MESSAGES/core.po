@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Rolul de bază pentru configurarea managerului sistemat prin drop-in-uri, setările implicite și validarea unității"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Interfață de administrare browser pentru SeaweedFS magazin obiect, servind filer și console master în spatele SSO"
 
@@ -895,6 +895,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Server NFS de nivel Kernel pentru exportul unui director comun cu acces limitat la IP pentru gazdele roi-nod"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed motor de traducere vorbind LibreTranslate API, pentru conducte care-l numesc direct"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Platforme de învățare, instrumente de colaborare în clasă și medii de educație digitală."
@@ -1101,6 +1106,11 @@ msgstr "Stratul de stocare obiect pentru rezoluția SeaweedFS/MinIO și găleata
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Automatizarea la țintă pentru crearea și activarea spațiului de swap printr-un script de swap file clonat"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Un obiectiv de traducere care alege motorul în sine și preferă un șir de caractere umane revizuite"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2029,6 +2039,11 @@ msgstr "Tor daemon publishing the node as a v3 Servicii de ceapă"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Client de rețea Tor și lansator browser pentru navigare web anonimă, axată pe confidențialitate"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Memorie de traducere, glosari și fluxul de lucru de revizuire uman din spatele portalului de traducere"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

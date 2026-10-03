@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Системаланган менеджер конфигурациясынын негизги ролу, киргизүү, демейки орнотуулар жана бирдикти текшерүү"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Браузерди колдонуу интерфейси SeaweedFS Объект дүкөнү, файл жана башкы консолдорду тейлөө"
 
@@ -905,6 +905,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel деңгээлиндеги NFS сервери жалпы каталог дарагын экспорттоо үчүн IP-чектелген кирүү мүмкүнчүлүгү бар үйүр түйүнү хосттору үчүн"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM менен колдоого алынган котормо кыймылдаткычы LibreTranslate APIАны түздөн-түз чакырган түтүктөр үчүн"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Окуу платформалары, класстагы кызматташтык куралдары жана санариптик билим берүү чөйрөсү."
@@ -1115,6 +1120,11 @@ msgstr "SeaweedFS жана MinIO резервдик чечилиши үчүн о
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Клондоштурулган алмашуу файлынын скрипти аркылуу алмашуу мейкиндигин түзүү жана активдештирүү үчүн максаттуу автоматташтыруу"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Бир котормо чекити кыймылдаткычтын өзүн тандап, кайра каралган адам жипти жактырат"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2037,6 +2047,11 @@ msgstr "Tor daemon түйүндү v катары жарыялоо3 пияз ме
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor Network клиент жана браузердин ишке киргизүүчүсү анонимдүү, купуялуулукка багытталган веб-браузер үчүн"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Котормонун эс тутуму, сөздүктөр жана котормонун дарбазасынын артындагы адамдык сын-пикирлер"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

@@ -10,8 +10,8 @@
         webserver_proxy_service_key
         | default(
             lookup('config', application_id,
-              'services.' ~ (application_id | get_entity_name) ~ '.proxy.service_key',
-              application_id | get_entity_name
+              'services.' ~ (application_id | entity_name) ~ '.proxy.service_key',
+              application_id | entity_name
             )
           )
       }}
@@ -20,7 +20,7 @@
         http_port
         | default(
             lookup('config', application_id,
-              'services.' ~ (application_id | get_entity_name) ~ '.ports.local.http',
+              'services.' ~ (application_id | entity_name) ~ '.ports.local.http',
               ''
             )
           )
@@ -30,7 +30,7 @@
         proxy_internal_port
         | default(
             lookup('config', application_id,
-              'services.' ~ (application_id | get_entity_name) ~ '.proxy.internal_port',
+              'services.' ~ (application_id | entity_name) ~ '.proxy.internal_port',
               ''
             )
           )

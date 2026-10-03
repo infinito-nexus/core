@@ -12,7 +12,7 @@ DASHBOARD_JS_CDN_URL: "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
 DASHBOARD_JS_FILES: >-
   {{ ['iframe.js']
      + (['oidc.js'] if (DASHBOARD_OIDC_ENABLED | bool) else []) }}
-DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | get_entity_name }}/js"
+DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | entity_name }}/js"
 DASHBOARD_JS_SERVER_DIR: "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
 DASHBOARD_JS_BASE_URL: "{{ (DASHBOARD_JS_CDN_URL | trim('/')) ~ '/' ~ (DASHBOARD_JS_BASE_PATH | trim('/')) }}"
 

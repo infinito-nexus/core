@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-openproject"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 OPENPROJECT_VERSION: "{{ lookup('config', application_id, 'services.web.version') }}"
 OPENPROJECT_IMAGE: "{{ lookup('config', application_id, 'services.web.image') }}"

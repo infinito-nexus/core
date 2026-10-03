@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-taiga"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 TAIGA_EMAIL_BACKEND: "{{ 'smtp' if lookup('email', application_id).smtp else 'console' }}"
 

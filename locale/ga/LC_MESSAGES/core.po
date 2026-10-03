@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Ról bonn le haghaidh cumraíocht bainisteoir córasach trí titim-orlach, socruithe réamhshocraithe, agus bailíochtú aonad"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Comhéadan riaracháin bhrabhsálaí le haghaidh SeaweedFS siopa réad, ag freastal ar an comhadóir agus máistir Consóil taobh thiar SSO"
 
@@ -903,6 +903,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "freastalaí NFS leibhéal Kernel le haghaidh onnmhairiú crann eolaire roinnte le rochtain IP-restricted do hóstach swarm-node"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed inneall aistriúcháin ag labhairt ar an LibreTranslate API, le haghaidh píblínte a ghlaoch go díreach"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "ardáin foghlama, uirlisí comhoibrithe seomra ranga, agus timpeallachtaí oideachais digiteacha."
@@ -1106,6 +1111,11 @@ msgstr "Ciseal raidhse le haghaidh rún siar SeaweedFS/MinIO agus buicéad in ag
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Ar-target uathoibriú a chruthú agus a ghníomhachtú spás swap trí script swapfile cloned"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "One endpoint aistriúcháin go picks an t-inneall féin agus is fearr teaghrán daonna athbhreithniú"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2017,6 +2027,11 @@ msgstr "Tor daemon fhoilsiú an nód mar v3 seirbhís onion"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Cliant líonra Tor agus seoltóir bhrabhsálaí le haghaidh brabhsálaí gréasáin gan ainm, atá dírithe ar phríobháideacht"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Cuimhne aistriúcháin, snasta agus an sreabhadh oibre athbhreithnithe daonna taobh thiar den gheata aistriúcháin"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

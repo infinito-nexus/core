@@ -137,7 +137,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "সিস্টেমের কনফিগারেশন ব্যবস্থার মূল ভূমিকা, ডিফল্ট মান ও একক ব্যবহারের উদ্দেশ্যে চিহ্নিত"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "প্রাপ্ত করার জন্য ব্রাউজারের প্রশাসন ইন্টারফেস SeaweedFS বস্তু সংরক্ষণ করো, ফাইল এবং মাস্টার কনসোল এস.এস.ও এর পিছনে রেখে দাও"
 
@@ -906,6 +906,14 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "দূরবর্তী হোস্ট- নেম সার্ভারের সাথে শেয়ার করার জন্য ডি. এন. এস. সার্ভার"
 
+# translation-refused: libretranslate added-span lost=[] gained=['♪']
+# nocheck: url
+# translation-rejected: লিয়েট-থেকে- অনুমোদনকৃত অনুবাদ ইঞ্জিন LibreTranslate
+# API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
@@ -1117,6 +1125,11 @@ msgstr "বস্তুর স্তর SeaweedFS/MinIO ব্যাক- এন�
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Cod swapfile স্ক্রিপ্টের দ্বারা তৈরি ও প্রতিস্থাপনের জন্য ব্যবহার করতে ব্যর্থ।"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "একটা অনুবাদ শেষ করে, যেটা ইঞ্জিনকে নিজেই বেছে নেয় এবং একটা পর্যালোচনা মানবিক পংক্তি বেছে নেয়"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2022,6 +2035,11 @@ msgstr "টর ডেমন নোড voice'এ প্রকাশ করুন3
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "নাম বিনা অনুমোদনে ব্যবহারযোগ্য টর নেটওয়ার্ক ক্লায়েন্ট ও ব্রাউজার লঞ্চার, ব্যক্তিগত ব্রাউজিং ওয়েব ব্রাউজিং ব্রাউজিং"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "অনুবাদ মেমরি, পরিভাষা এবং অনুবাদ গেটওয়ের পিছনে মানব পর্যালোচনার কাজ"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

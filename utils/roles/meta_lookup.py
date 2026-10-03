@@ -10,7 +10,7 @@ Both fields used to live nested inside `meta/main.yml.galaxy_info`:
 They live at
 ``meta/services.yml.<primary_entity>.{run_after,lifecycle}`` where
 ``<primary_entity>`` is the value returned by
-:func:`utils.roles.entity.name.get_entity_name` for the role's directory
+:func:`utils.roles.entity.name.entity_name` for the role's directory
 name.
 
 Both helpers degrade gracefully:
@@ -29,7 +29,7 @@ import yaml
 
 from utils.cache.yaml import load_yaml_any
 from utils.github.variant.pools import ARCHITECTURES
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_TESTS
 
 from . import PROJECT_ROOT
@@ -80,7 +80,7 @@ def _read_meta_tests(role_dir: Path) -> dict | None:
 def _primary_entry(role_name: str, services: dict | None) -> dict | None:
     if not services:
         return None
-    primary_entity = get_entity_name(role_name) or role_name
+    primary_entity = entity_name(role_name) or role_name
     entry = services.get(primary_entity)
     if entry is None:
         return None

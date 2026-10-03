@@ -1,6 +1,6 @@
 """Lint guard for service keys two roles would both claim.
 
-A role's service key defaults to ``get_entity_name(role_name)``, which
+A role's service key defaults to ``entity_name(role_name)``, which
 strips the longest matching category prefix. Two roles under different
 categories therefore collapse onto the same key whenever the remainder is
 equal (``svc-ai-libretranslate`` and ``web-svc-libretranslate`` both reduce
@@ -14,11 +14,20 @@ container name, so two roles that ship a compose template and reduce to the
 same entity overwrite each other's rendered stack no matter what they
 advertise. That is unfixable with ``provides:`` and needs a role rename.
 
+A role escapes that rename by declaring a literal ``entity_name`` in
+``vars/main.yml``, which :func:`declared_entity_name` honours over the
+derivation. The declaration and the primary key in ``meta/services.yml``
+are then two spellings of one fact: when they drift apart the registry
+finds no primary entry and drops the role from the provider set without a
+word, so they are checked against each other here.
+
 Failure modes covered:
   * Two roles resolve to the same service key and neither disambiguates
     with ``meta/services.yml.<entity>.provides``.
   * Two roles that both render a compose stack share an entity name, so the
     later one overwrites the earlier one's instance directory.
+  * A role declares a literal ``entity_name`` that keys no entry in its own
+    ``meta/services.yml``.
 """
 
 from __future__ import annotations
@@ -30,7 +39,7 @@ from utils.roles.applications.services.registry import (
     discover_role_services,
     load_applications_from_roles_dir,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import declared_entity_name, entity_name
 
 from . import PROJECT_ROOT
 
@@ -59,11 +68,34 @@ class TestServiceKeyCollision(unittest.TestCase):
                 "`meta/services.yml.<entity>`."
             )
 
+    def test_a_declared_entity_name_keys_its_own_primary_service_entry(self):
+        findings = []
+        for role_name, config in load_applications_from_roles_dir(ROLES_DIR).items():
+            declared = declared_entity_name(role_name)
+            services = config.get("services") or {}
+            if not declared or not services or declared in services:
+                continue
+            findings.append(
+                f"  - {role_name}: vars/main.yml declares entity_name "
+                f"'{declared}', meta/services.yml keys "
+                f"{', '.join(sorted(services))}"
+            )
+
+        if findings:
+            self.fail(
+                "Declared entity name keys no service entry:\n"
+                + "\n".join(findings)
+                + "\n\nFix: the declaration replaces the derived entity name "
+                "everywhere, including the key the registry reads the role's "
+                "primary entry under. Rename that key to the declared name, or "
+                "drop the declaration."
+            )
+
     def test_roles_rendering_a_compose_stack_have_distinct_entity_names(self):
         owners: dict[str, set[str]] = defaultdict(set)
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
             if role_dir.joinpath(*COMPOSE_TEMPLATE).is_file():
-                owners[get_entity_name(role_dir.name)].add(role_dir.name)
+                owners[entity_name(role_dir.name)].add(role_dir.name)
 
         self.assertTrue(owners, f"no role under {ROLES_DIR} renders a compose stack")
 

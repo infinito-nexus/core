@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Funció base per a la configuració del gestor de sistemes mitjançant els valors desplegables, arranjament per omissió i validació de les unitats"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Interfície d' administració del navegador per a la SeaweedFS botiga d'objectes, servint a l'arxiu i consola mestre darrere de SSO"
 
@@ -901,6 +901,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Servidor NFS del nucli per exportar un arbre de directoris compartit amb accés IP- restrictat per a màquines gming-node"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "Motor de traducció LLLLLLM-back LibreTranslate API, per canonades que l'anomenen directament"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Aprendre plataformes, eines de col·laboració de classes i entorns d'educació digitals."
@@ -1104,6 +1109,11 @@ msgstr "Capa d' objectes per a l'aplicació de dorsals SeaweedFS/MinIO i per-con
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Automatització a l' objectiu per crear i activar l' espai d' intercanvi mitjançant un script de fitxer d' intercanvi clonat"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Un punt de traducció que escull el motor mateix i prefereix una cadena revisada humana"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2015,6 +2025,11 @@ msgstr "Dimoni Tor que publiqueu el node com a v3 servei d' ceba"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Client de xarxa Tor i carregador de navegador per a una navegació web anònima i privadesa"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Memòria de traducció, Gloss i el flux de treball humà darrere del portal de traducció"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

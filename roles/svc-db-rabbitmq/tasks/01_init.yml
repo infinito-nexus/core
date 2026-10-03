@@ -7,7 +7,7 @@
 
 - name: "🔍 Resolve consumer vhost + credentials"
   ansible.builtin.set_fact:
-    rabbitmq_consumer_vhost: "{{ database_consumer_id | get_entity_name }}"
+    rabbitmq_consumer_vhost: "{{ database_consumer_id | entity_name }}"
     rabbitmq_consumer_username: "{{ lookup('engine', 'rabbitmq', database_consumer_id, 'username') }}"
     rabbitmq_consumer_password: "{{ database_password | default(lookup('engine', 'rabbitmq', database_consumer_id, 'password')) | string }}"
   changed_when: false

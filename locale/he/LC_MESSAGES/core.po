@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "תפקיד בסיסי עבור תצורת מנהל מערכת באמצעות טיפות, הגדרות ברירת מחדל, ואימות יחידה"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "ממשק ניהול הדפדפן עבור SeaweedFS חנות אובייקטים, לשרת את הקובץ וקונסולות המאסטר מאחורי SSO"
 
@@ -902,6 +902,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "שרת NFS ברמת Kernel לייצא עץ במאי משותף עם גישה מוגבלת IP למארחים נחילים"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "מנוע התרגום של LLM מדבר LibreTranslate APIעבור צינורות שמכנים אותו ישירות"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "פלטפורמות למידה, כלי שיתוף פעולה בכיתה וסביבות חינוך דיגיטליות."
@@ -1111,6 +1116,11 @@ msgstr "שכבת טעינה עבור SeaweedFS / MinIO מחזירה את ההח�
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "On-target אוטומציה ליצירת והפעלה של מרחב החלפת באמצעות תסריט משוחזר"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "קצה תרגום אחד שבוחר את המנוע עצמו ומעדיף מחרוזת אנושית ממוקדת"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2024,6 +2034,11 @@ msgstr "Tor daemon מפרסם את הצומת כ v3 שירות Onion"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "לקוח רשת Tor ומפעיל הדפדפן עבור גלישה באינטרנט אנונימית, ממוקדת פרטיות"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "זיכרון תרגום, מבריקים וזרימת ביקורת אנושית מאחורי שער התרגום"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

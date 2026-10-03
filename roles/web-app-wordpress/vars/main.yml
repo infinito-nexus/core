@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-wordpress"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 WORDPRESS_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 WORDPRESS_TITLE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.title') }}"
@@ -40,9 +40,27 @@ WORDPRESS_CONFIG_UPLD_ABS: "{{ [lookup('container', application_id, 'directories
 
 WORDPRESS_MU_PLUGINS_DIR: "{{ [WORDPRESS_DOCKER_HTML_PATH, 'wp-content/mu-plugins'] | path_join }}"
 WORDPRESS_PLUGINS_DIR: "{{ [WORDPRESS_DOCKER_HTML_PATH, 'wp-content/plugins'] | path_join }}"
+WORDPRESS_BBB_API_URL: >-
+  {{ lookup('config', application_id, 'addons.video-conferencing-with-bbb.config.bbb_settings.api_url')
+  if (lookup('config', application_id, 'addons.video-conferencing-with-bbb.enabled') | bool) else '' }}
+WORDPRESS_BBB_API_SECRET: >-
+  {{ lookup('config', application_id, 'addons.video-conferencing-with-bbb.config.bbb_settings.api_secret')
+  if (lookup('config', application_id, 'addons.video-conferencing-with-bbb.enabled') | bool) else '' }}
+WORDPRESS_LISTMONK_API_URL: >-
+  {{ lookup('config', application_id, 'addons.integration-for-listmonk-mailing-list-and-newsletter-manager.config.listmonk_settings.api_url')
+  if (lookup('config', application_id, 'addons.integration-for-listmonk-mailing-list-and-newsletter-manager.enabled') | bool) else '' }}
+WORDPRESS_PEERTUBE_INSTANCE_URL: >-
+  {{ lookup('config', application_id, 'addons.video-manager-for-peertube.config.peertube_settings.instance_url')
+  if (lookup('config', application_id, 'addons.video-manager-for-peertube.enabled') | bool) else '' }}
 WORDPRESS_S3_UPLOADS_ARCHIVE: >-
   {{ lookup('config', application_id, 'addons.s3-uploads.config.archive')
   if (lookup('config', application_id, 'addons.s3-uploads.enabled') | bool) else '' }}
+WORDPRESS_TRANSLATE_OPTIONS: >-
+  {{ lookup('config', application_id, 'addons.freedomtranslate-wp.config.options')
+  if (lookup('config', application_id, 'addons.freedomtranslate-wp.enabled') | bool) else [] }}
+WORDPRESS_TRANSLATE_ENDPOINT: >-
+  {{ (WORDPRESS_TRANSLATE_OPTIONS | selectattr('name', 'equalto', 'freedomtranslate_api_url')
+  | map(attribute='value') | first) | default('', true) }}
 WORDPRESS_S3_UPLOADS_SRC: "/usr/src/s3-uploads"
 WORDPRESS_S3_UPLOADS_DIR: "{{ [WORDPRESS_PLUGINS_DIR, 's3-uploads'] | path_join }}"
 WORDPRESS_PERMALINK_STRUCTURE: "/%postname%/"

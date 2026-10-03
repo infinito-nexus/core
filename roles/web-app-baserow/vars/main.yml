@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-baserow"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 BASEROW_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"

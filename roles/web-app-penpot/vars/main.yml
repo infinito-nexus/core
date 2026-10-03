@@ -1,7 +1,7 @@
 ---
 # General
 application_id: "web-app-penpot"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 PENPOT_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 PENPOT_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.backend.name') }}"

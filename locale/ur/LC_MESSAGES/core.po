@@ -138,7 +138,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr ""
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "صارف کا انتظامیہ SeaweedFS فائل اور مالک کی خدمت کرنا"
 
@@ -928,6 +928,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel-level NFS سرور کے لیے ایک مشترکہ خانہ بدوش درخت کی برآمد کے لیے جس میں پی آئی-وی-ویپ-ویڈی میزبانوں کے لئے رسائی ہوتی ہے۔"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM پیچھے ہٹ جانے والے مترجم انجن بولتی ہے۔ LibreTranslate API، پائپ لائنوں کے لئے جو اسے براہ راست کہتے ہیں۔"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "پلیٹ فارم سیکھنا، کلاس روم کے امدادی آلات اور ڈیجیٹل تعلیمی ماحول سیکھنا۔"
@@ -1139,6 +1144,11 @@ msgstr "object-storage see for SeaweedFS/MinIO backnd حل اور per Consumer c
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "ایک ترجمہ اختتام پزیر ہوتا ہے جو انجن کو خود منتخب کرتا ہے اور انسانی تار کو ترجیح دیتا ہے۔"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2080,6 +2090,11 @@ msgstr "تور داعمن کو وی کے طور پر شائع کرتا ہے۔3 �
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "تر نیٹ ورک کلائنٹ اور براؤزر لانچر کے لیے، نجی-focted web infacting کے لیے"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "ترجمہ‌نگاروں اور انسانی جائزہ لینے والے ترجمے کے پیچھے"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

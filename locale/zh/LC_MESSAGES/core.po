@@ -137,7 +137,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "通过滴入、默认设置和单位验证系统化管理器配置的基础角色"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "浏览器管理界面 SeaweedFS 对象存储器, 服务 SSO 后面的文件和主控制台"
 
@@ -914,6 +914,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel 级别 NFS 服务器,用于导出一个共享目录树,其中对swarm-node 主机的 IP 限制访问"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM 支持的翻译引擎 LibreTranslate API直接呼唤它的管道"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "学习平台,课堂协作工具,数字化教育环境."
@@ -1119,6 +1124,11 @@ msgstr "SeaweedFS/MinIO后端分辨率和每个消费者的桶和证书供给的
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "通过克隆的交换文件脚本创建和激活交换空间的在线自动化"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "一个翻译端点,可以选择引擎本身,更喜欢经过审查的人类弦"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2026,6 +2036,11 @@ msgstr "Tor 守护进程将节点发布为 v3 洋葱服务"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor 网络客户端和浏览器启动器,用于匿名、注重隐私的网页浏览"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "翻译网关背后的翻译内存、词汇和人文审查工作流程"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

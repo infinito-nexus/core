@@ -32,7 +32,7 @@ class TestCpusLookup(unittest.TestCase):
         _, call = _run(["web-app-hermes", "hermes"], "50%")
         self.assertEqual(call.args[0], ["web-app-hermes", "services.hermes.cpus"])
 
-    @patch("plugins.lookup.cpus.get_entity_name", return_value="docs")
+    @patch("plugins.lookup.cpus.entity_name", return_value="docs")
     def test_the_entity_name_is_the_default_service(self, _entity):
         _, call = _run(["web-app-docs"], "50%")
         self.assertEqual(call.args[0], ["web-app-docs", "services.docs.cpus"])

@@ -14,7 +14,7 @@
  *      stored in SeaweedFS for that app.
  *
  * The listing goes to the storage engine directly (roles/web-svc-seaweedfs),
- * not to the Filer UI: the Filer moved to roles/web-app-seaweedfs-console,
+ * not to the Filer UI: the Filer moved to roles/web-app-seaweedfs,
  * which a node may legitimately not deploy. Signing with the consumer's own
  * access key rather than the administrator's additionally proves that the
  * per-consumer identity in the engine's s3.json reaches its own bucket.

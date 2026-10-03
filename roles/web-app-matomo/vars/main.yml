@@ -2,7 +2,7 @@
 application_id: "web-app-matomo"
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.matomo.ports.local.http') }}"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 MATOMO_SERVICE: "{{ entity_name }}"
 MATOMO_NAME: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"

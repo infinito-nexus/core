@@ -29,7 +29,7 @@ from utils.roles.applications.services.engines import (
     is_engine_enabled,
     is_engine_shared,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 _FIELDS = (
     "engine",
@@ -102,7 +102,7 @@ class LookupModule(LookupBase):
         descriptor = ENGINES[engine]
         svc_id = descriptor["svc"]
         port = int(descriptor["port"])
-        entity = get_entity_name(consumer_id)
+        entity = entity_name(consumer_id)
 
         enabled = is_engine_enabled(applications, consumer_id, engine)
         shared = is_engine_shared(applications, consumer_id, engine)

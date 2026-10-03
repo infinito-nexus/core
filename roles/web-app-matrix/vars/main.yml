@@ -36,7 +36,7 @@ MATRIX_SYNAPSE_VOLUME: "{{ lookup('volume', application_id, 'synapse_data').name
 MATRIX_SYNAPSE_UID: 991
 MATRIX_SYNAPSE_GID: 991
 MATRIX_MDAD_SERVICE_KEY: "matrix"
-MATRIX_MDAD_CONTAINER: "{{ application_id | get_entity_name }}"
+MATRIX_MDAD_CONTAINER: "{{ application_id | entity_name }}"
 MATRIX_MDAD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, MATRIX_MDAD_SERVICE_KEY) }}"
 MATRIX_SYNAPSE_DOMAIN: "{{ lookup('domains', application_id).synapse }}"
 MATRIX_SYNAPSE_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
@@ -96,7 +96,8 @@ MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED: "{{ lookup('config', application_id, 'addo
 MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-jira.enabled') | bool }}"
 MATRIX_ADDON_HOOKSHOT_WEBHOOKS_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-webhooks.enabled') | bool }}"
 MATRIX_ADDON_HOOKSHOT_FEEDS_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-feeds.enabled') | bool }}"
-MATRIX_JITSI_SELF_HOSTED: "{{ (lookup('config', application_id, 'services.jitsi.enabled') | bool) and not (lookup('config', application_id, 'services.jitsi.shared') | bool) }}"
+MATRIX_JITSI_SELF_HOSTED: "{{ (lookup('config', application_id, 'services.jitsi.enabled') | bool) and not (lookup('config', application_id, 'services.jitsi.shared')
+  | bool) }}"
 MATRIX_ADDON_JITSI_ENABLED: "{{ lookup('config', application_id, 'addons.jitsi.enabled') | bool }}"
 MATRIX_ADDON_JITSI_PREFERRED_DOMAIN: "{{ lookup('config', application_id, 'addons.jitsi.config.preferred_domain') }}"
 

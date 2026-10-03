@@ -7,7 +7,7 @@ class TestGetDockerPaths(unittest.TestCase):
         import plugins.filter.get.docker_paths as m
 
         with patch(
-            "utils.docker.paths_utils.get_entity_name", lambda app_id: "myentity"
+            "utils.docker.paths_utils.entity_name", lambda app_id: "myentity"
         ):
             out = m.get_docker_paths("web-app-anything", "/opt/compose/")
 

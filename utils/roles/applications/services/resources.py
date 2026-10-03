@@ -16,7 +16,7 @@ from typing import Any
 from humanfriendly import parse_size
 
 from utils.roles.applications.topics import apply_topic
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 _RESOURCE_KEYS = ("mem_reservation", "mem_limit", "pids_limit", "cpus")
 _CONTAINER_KEYS = ("image", "name", "version", "container")
@@ -169,7 +169,7 @@ def collect_role_resources(
 
     config = _as_mapping(applications[role_name])
     services = _as_mapping(config.get("services"))
-    entity_name = get_entity_name(role_name)
+    entity = entity_name(role_name)
 
     def add(service_key: str, service_conf: dict[str, Any]) -> None:
         if dedup and service_key in loaded:
@@ -177,17 +177,17 @@ def collect_role_resources(
         loaded.add(service_key)
         rows.append(_row_for_service(role_name, service_key, service_conf, depth))
 
-    if entity_name and entity_name in services:
-        add(entity_name, _as_mapping(services.get(entity_name)))
+    if entity and entity in services:
+        add(entity, _as_mapping(services.get(entity)))
     else:
         warnings.append(
-            f"role '{role_name}' has no services.{entity_name or '<entity>'} entry"
+            f"role '{role_name}' has no services.{entity or '<entity>'} entry"
         )
 
     shared_dependencies: list[str] = []
     nested_maps: dict[str, dict[str, Any]] = {}
     for service_key, raw_service_conf in services.items():
-        if service_key == entity_name:
+        if service_key == entity:
             continue
         service_conf = _as_mapping(raw_service_conf)
         if not service_conf:

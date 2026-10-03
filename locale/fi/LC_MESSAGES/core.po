@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Perusrooli järjestelmän hallinta kokoonpanon kautta pudotus-ins, oletusasetukset, ja yksikön validointi"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Selaimen hallinnon käyttöliittymä SeaweedFS objekti tallentaa, palvelee tiedostokone ja pääkonsolit takana SSO"
 
@@ -895,6 +895,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Ytimen tason NFS-palvelin jaetun hakemistopuun viemiseksi IP-rajoitteinen pääsy parvisolmujen isännöille"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-tuki käännös moottori puhuu LibreTranslate API, putkistojen, jotka kutsuvat sitä suoraan"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Oppimisalustat, luokkahuoneyhteistyövälineet ja digitaaliset koulutusympäristöt."
@@ -1098,6 +1103,11 @@ msgstr "SeaweedFS:n/MinIO:n taustaresoluutiota ja käyttäjäkohtaista kauha- ja
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Kohdeautomaatio, jolla luodaan ja aktivoidaan vaihtotilaa kloonatun swapfile-skriptin avulla"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Yksi käännös päätepiste, joka poimii moottorin itse ja mieluummin tarkistetaan ihmisen merkkijono"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2029,6 +2039,11 @@ msgstr "Tor daemon julkaisemalla solmu kuten v3 sipulipalvelu"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor-verkkoasiakas ja selaimen lanseeraus anonyymille, yksityisyyteen keskittyvälle selailulle"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Käännösmuisti, sanastot ja ihmiskatsaus työnkulku käännösportaalin taakse"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

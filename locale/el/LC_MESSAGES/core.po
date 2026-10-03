@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Βασικός ρόλος για τις ρυθμίσεις του διαχειριστή μέσω drop-in, προεπιλεγμένες ρυθμίσεις και επικύρωση μονάδας"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Διεπαφή διαχείρισης περιηγητή για το SeaweedFS Αντικειμενικό κατάστημα, που εξυπηρετεί το Filer και master κονσόλες πίσω από SSO"
 
@@ -900,6 +900,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Εξυπηρετητής επιπέδου πυρήνα NFS για την εξαγωγή ενός κοινού δέντρου καταλόγου με IP-περιορισμένη πρόσβαση για κόμβους σμήνους"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed μεταφραστική μηχανή μιλώντας το LibreTranslate API, για αγωγούς που το αποκαλούν άμεσα"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Εκπαιδευτικές πλατφόρμες, εργαλεία συνεργασίας στην τάξη και ψηφιακά εκπαιδευτικά περιβάλλοντα."
@@ -1106,6 +1111,11 @@ msgstr "Στρώμα αποθήκευσης αντικειμένων για τη
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Αυτοματοποίηση on-target για τη δημιουργία και ενεργοποίηση swap χώρου μέσω ενός κλωνοποιημένου σεναρίου swapfile"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Ένα τελικό σημείο μετάφρασης που επιλέγει την ίδια τη μηχανή και προτιμά μια αναθεωρημένη ανθρώπινη συμβολοσειρά"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2017,6 +2027,11 @@ msgstr "Tor daemon δημοσίευση του κόμβου ως v3 υπηρεσ
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor πελάτης δικτύου και εκκινητής περιηγητών για ανώνυμη, επικεντρωμένη στην ιδιωτικότητα περιήγηση στο διαδίκτυο"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Η μεταφραστική μνήμη, τα γλωσσάρια και η ροή εργασίας της ανθρώπινης κριτικής πίσω από τη μεταφραστική πύλη"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

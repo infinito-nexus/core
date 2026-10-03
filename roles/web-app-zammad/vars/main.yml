@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-zammad"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 ZAMMAD_INIT_SERVICE: "init"
 ZAMMAD_RAILS_SERVICE: "railsserver"

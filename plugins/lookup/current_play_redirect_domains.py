@@ -10,7 +10,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.merge.mapping import merge_mapping
 from utils.domains.list import render_domain_value
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 def _per_app_redirect_mappings(
@@ -52,7 +52,7 @@ def _per_app_redirect_mappings(
         return values
 
     def _default_domain(app_id: str) -> str:
-        return f"{get_entity_name(app_id)}.{primary_domain}"
+        return f"{entity_name(app_id)}.{primary_domain}"
 
     canonical_map: dict[str, list[str]] = {}
     for app_id, cfg in apps.items():

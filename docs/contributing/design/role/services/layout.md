@@ -50,7 +50,7 @@ same file-root rule as every other `meta/<topic>.yml`.
 
 ## Services Inlining Rule 📥
 
-All non-compose top-level keys (everything except `compose:`, `server:`, `rbac:`, and `credentials:`) MUST be inlined into `meta/services.yml` under `<primary_entity>.<key>`, where `<primary_entity>` is the value returned by `get_entity_name(role_name)`.
+All non-compose top-level keys (everything except `compose:`, `server:`, `rbac:`, and `credentials:`) MUST be inlined into `meta/services.yml` under `<primary_entity>.<key>`, where `<primary_entity>` is the value returned by `entity_name(role_name)`.
 
 Inlined keys observed today (non-exhaustive): `plugins`, `plugins_enabled`, `email`, `ldap`, `accounts`, `scopes`, `alerting`, `languages`, `company`, `default_quota`, `legacy_login_mask`, `site_name`, `token`, `modules`, `network`, `performance`, `preload_models`, `provision`, `features`.
 
@@ -62,7 +62,7 @@ It lives in its own `meta/volumes.yml` (volumes are role-wide, not per-service).
 
 ### Worked Example: `web-app-matomo`
 
-`get_entity_name('web-app-matomo') == 'matomo'`, so every non-compose top-level key (`site_name`, `performance`, …) is inlined under `matomo.<key>`:
+`entity_name('web-app-matomo') == 'matomo'`, so every non-compose top-level key (`site_name`, `performance`, …) is inlined under `matomo.<key>`:
 
 ```yaml
 # roles/web-app-matomo/meta/services.yml  (file root IS the services map)
@@ -312,7 +312,7 @@ See `cli contributing network ports suggest` in [port.md](../../../tools/network
 For the semantic meaning of each `lifecycle` value (and the criteria a role MUST satisfy to claim a given value) see [lifecycle.md](lifecycle.md).
 This section only covers the on-disk shape of the two fields.
 
-Both fields live on the role's **primary entity** in `meta/services.yml`, where `<primary_entity> = get_entity_name(role_name)`:
+Both fields live on the role's **primary entity** in `meta/services.yml`, where `<primary_entity> = entity_name(role_name)`:
 
 ```yaml
 # roles/web-app-gitea/meta/services.yml

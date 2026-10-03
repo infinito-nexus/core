@@ -20,7 +20,7 @@ import re
 from pathlib import Path
 
 from utils.cache.yaml import load_yaml
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import get_role_lifecycle
 from utils.roles.order import find_roles
@@ -115,7 +115,7 @@ def service_targets(roles_dir: Path, roles: list[str]) -> dict[str, str]:
         roles_dir: directory holding the role folders.
         roles: the role names on the axis.
     """
-    targets = {get_entity_name(role): role for role in roles}
+    targets = {entity_name(role): role for role in roles}
     on_axis = set(roles)
     for role in roles:
         for key, entry in _services(Path(roles_dir) / role).items():

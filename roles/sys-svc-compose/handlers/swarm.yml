@@ -149,7 +149,7 @@
       --resolve-image never \
       --prune \
       --with-registry-auth \
-      "{{ application_id | get_entity_name }}"
+      "{{ application_id | entity_name }}"
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
@@ -164,7 +164,7 @@
 - name: "⏳ swarm: wait until stack tasks converge"
   ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:
-    STACK: "{{ application_id | get_entity_name }}"
+    STACK: "{{ application_id | entity_name }}"
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
     DEPLOY_SINCE: "{{ swarm_deploy_result.stdout_lines | default([]) | first | default('') }}"
     DEPLOYED_SERVICES: "{{ swarm_deploy_result | swarm_deployed_services | join(' ') }}"
@@ -183,7 +183,7 @@
 - name: "🔄 swarm: force task recreation so in-container state is reloaded"
   ansible.builtin.shell: |
     set -euo pipefail
-    docker stack services --format '{{ "{{.Name}}" }}' {{ application_id | get_entity_name | quote }} \
+    docker stack services --format '{{ "{{.Name}}" }}' {{ application_id | entity_name | quote }} \
       | xargs -r -n1 timeout {{ lookup('timeout', 900) | int }} docker service update --detach=false --force
   args:
     executable: /bin/bash

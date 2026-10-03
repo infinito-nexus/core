@@ -52,7 +52,7 @@ javascript:
 
 Rules:
 
-- The primary service entry is the role entity name returned by `get_entity_name`.
+- The primary service entry is the role entity name returned by `entity_name`.
 - `provides:` is only used when the public service name differs from the entity name.
 - `canonical:` is only used on alias entries that resolve back to the primary service key.
 - `frontend` vs. `backend` is derived from the role name prefix, not stored in config.

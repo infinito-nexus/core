@@ -17,7 +17,7 @@ sso:
       host: seaweedfs-console
       port: "80"
     allowed_groups:
-      - "{{ lookup('rbac_group_path', application_id='web-app-seaweedfs-console', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-seaweedfs', role='administrator') }}"
 # nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
   enabled: false

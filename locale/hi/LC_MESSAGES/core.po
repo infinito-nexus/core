@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "ड्रॉप-इन, डिफ़ॉल्ट सेटिंग्स और इकाई सत्यापन के माध्यम से सिस्टम प्रबंधक विन्यास के लिए बेस भूमिका"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "ब्राउज़र प्रशासन इंटरफ़ेस SeaweedFS ऑब्जेक्ट स्टोर, SSO के पीछे फ़ाइलर और मास्टर कंसोल की सेवा"
 
@@ -892,6 +892,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "कर्नेल स्तर NFS सर्वर एक साझा निर्देशिका पेड़ के निर्यात के लिए IP-restricted पहुँच के साथ swarm-node होस्ट के लिए"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM समर्थित अनुवाद इंजन LibreTranslate API, पाइपलाइनों के लिए जो इसे सीधे बुलाते हैं"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "लर्निंग प्लेटफॉर्म, कक्षा सहयोग उपकरण और डिजिटल शिक्षा वातावरण।"
@@ -1098,6 +1103,11 @@ msgstr "SeaweedFS/MinIO backend संकल्प और प्रति उप
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "एक क्लोन्ड स्वैपफ़ाइल स्क्रिप्ट के माध्यम से स्वैप स्पेस बनाने और सक्रिय करने के लिए ऑन-टैरगेट ऑटोमेशन"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "एक अनुवाद समापन बिंदु जो इंजन को स्वयं चुनता है और एक समीक्षा की गई मानव स्ट्रिंग को पसंद करता है"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2000,6 +2010,11 @@ msgstr "Tor daemon एक v के रूप में नोड प्रका
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "गुमनाम, गोपनीयता-केंद्रित वेब ब्राउज़िंग के लिए टोर नेटवर्क क्लाइंट और ब्राउज़र लॉन्चर"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "अनुवाद स्मृति, शब्दावली और अनुवाद गेटवे के पीछे मानव समीक्षा कार्यप्रवाह"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

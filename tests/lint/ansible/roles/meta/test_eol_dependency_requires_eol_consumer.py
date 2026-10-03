@@ -167,7 +167,7 @@ import yaml
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import (
     ROLE_DIR_META_ADDONS,
     ROLE_FILE_META_SERVICES,
@@ -404,7 +404,7 @@ def own_eol_block_keys(role_dir: Path) -> set[str]:
         the key consumers bind, it never names a block in the provider's file.
     """
     services = _load_mapping(role_dir / ROLE_FILE_META_SERVICES)
-    entity = get_entity_name(role_dir.name)
+    entity = entity_name(role_dir.name)
     if not entity:
         return set()
     return {entity, *_alias_keys(services, entity)}
@@ -425,7 +425,7 @@ def eol_service_keys() -> dict[str, str]:
         if role_dir.name in exempt:
             continue
         services = _load_mapping(role_dir / ROLE_FILE_META_SERVICES)
-        entity = get_entity_name(role_dir.name)
+        entity = entity_name(role_dir.name)
         if not entity:
             continue
         keys = {

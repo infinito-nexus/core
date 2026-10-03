@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "ドロップイン、デフォルト設定、ユニット検証によるシステム管理者構成のベースロール"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "ブラウザ管理インターフェイス SeaweedFS オブジェクトストア、 SSO の背後にある filer と master コンソールを提供する"
 
@@ -898,6 +898,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "カーネルレベルの NFS サーバーで、共有ディレクトリツリーを IP 制限付きでエクスポートできます。"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed トランスレーションエンジン LibreTranslate API、それを直接呼ぶパイプラインのために"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "学習プラットフォーム、教室のコラボレーションツール、デジタル教育環境。"
@@ -1101,6 +1106,11 @@ msgstr "SeaweedFS/MinIOのバックエンドの解像度とパーコンシュー
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "クローンされたスワップファイルスクリプトを介してスワップスペースを作成および活性化するためのオンターゲット自動化"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "エンジン自体をピックアップし、レビューされた人間の文字列を好む1つの翻訳エンドポイント"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2022,6 +2032,11 @@ msgstr "Tor daemon ノードを v として公開3 玉ねぎサービス"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "匿名でプライバシー重視のWeb閲覧のために、Torネットワーククライアントとブラウザランチャー"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "翻訳メモリ、用語集、翻訳ゲートウェイの背後にあるヒューマンレビューワークフロー"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

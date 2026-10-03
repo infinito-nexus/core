@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Pagrindinis vaidmuo sisteminis tvarkyklės konfigūracijos per drop- ins, numatytieji nustatymai, ir vieneto patvirtinimas"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Naršyklės administravimo sąsaja, skirta SeaweedFS daiktų saugykla, aptarnaujanti filtrą ir pagrindinius pultus už SSO"
 
@@ -910,6 +910,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel- level NFS serveris, skirtas bendro aplanko medžiui eksportuoti su IP- ribota prieiga sūkurinių mazgų mazgams"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM paremta vertimo sistema kalba LibreTranslate API, vamzdynai, kurie jį vadina tiesiogiai"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Mokymosi platformos, bendradarbiavimo klasėse priemonės ir skaitmeninio švietimo aplinka."
@@ -1115,6 +1120,11 @@ msgstr "Objektų laikymo sluoksnis SeaweedFS/MinIO Grįžtamosios sistemos skiri
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "On-target automatizavimas, skirtas sukurti ir aktyvuoti apsikeitimo erdvę per klonuoto wapfile scenarijų"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Vienas vertimas baigtis, kuri pasirenka patį variklį ir teikia pirmenybę peržiūrėtą žmogaus eilutę"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2054,6 +2064,11 @@ msgstr "Tor tarnyba leidybos mazgas kaip prieš3 Valgomasis svogūnas"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor tinklo klientas ir naršyklės paleidimo anoniminis, orientuotas žiniatinklio naršymas"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Vertimo atmintis, glosarijos ir žmogaus peržiūros darbų srautas už vertimo vartai"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

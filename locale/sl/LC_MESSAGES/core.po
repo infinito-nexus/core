@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Osnovna vloga za nastavitve sistemskega upravitelja preko spustov, privzetih nastavitev in potrjevanja enote"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Vmesnik za upravljanje brskalnika SeaweedFS shramba objektov, servisiranje datotečnih in glavnih konzol za SSO"
 
@@ -895,6 +895,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel-nivo NFS strežnik za izvoz deljeni imenik drevo z IP omejenega dostopa za gostitelje roy-node"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed prevod motorja govori LibreTranslate API, za cevovode, ki ga imenujejo neposredno"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Učne platforme, orodja za sodelovanje v učilnicah in okolje digitalnega izobraževanja."
@@ -1098,6 +1103,11 @@ msgstr "Plast shranjevanja predmetov za SeaweedFS/MinIO Ločljivost zaledja in z
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "O-ciljna avtomatizacija za ustvarjanje in aktiviranje swap prostora preko kloniranega skripta swapfile"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Prevodna končna točka, ki izbere motor sam in ima raje pregledan človeški niz"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2012,6 +2022,11 @@ msgstr "Tor demon objavlja vozlišče kot v3 Storitve čebule"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor odjemalec omrežja in zaganjalnik brskalnika za anonimno brskanje po spletu, osredotočeno na zasebnost"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Translation memory, glosarji in človeški pregled potek dela za prevajalskim portalom"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

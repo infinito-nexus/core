@@ -70,7 +70,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
             application_id="web-svc-seaweedfs",
             deployment_mode="compose",
             registry=_PROVIDER_REGISTRY,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(
                 **{"networks.local.subnet": "192.168.206.0/24"}
             ),
@@ -86,7 +86,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
             application_id="web-svc-seaweedfs",
             deployment_mode="swarm",
             registry=_PROVIDER_REGISTRY,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -99,7 +99,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
             "application_id": "web-svc-seaweedfs",
             "deployment_mode": "compose",
             "registry": _PROVIDER_REGISTRY,
-            "get_entity_name": _entity_name,
+            "entity_name": _entity_name,
             "lookup_config": _const_lookup_config(),
             "lookup_database": _const_lookup_database(),
         }
@@ -122,7 +122,7 @@ class TestSharedNetworkComposeKey(unittest.TestCase):
             application_id=application_id,
             deployment_mode=deployment_mode,
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -157,7 +157,7 @@ class TestSharedNetworkComposeKey(unittest.TestCase):
                 application_id="web-svc-seaweedfs",
                 deployment_mode="swarm",
                 registry=_PROVIDER_REGISTRY,
-                get_entity_name=_entity_name,
+                entity_name=_entity_name,
                 lookup_config=_const_lookup_config(),
                 lookup_database=_const_lookup_database(),
                 node_local=True,
@@ -181,7 +181,7 @@ class TestSharedNetworkComposeKey(unittest.TestCase):
                         application_id=application_id,
                         deployment_mode=mode,
                         registry=registry,
-                        get_entity_name=_entity_name,
+                        entity_name=_entity_name,
                         lookup_config=_const_lookup_config(
                             **{"networks.local.subnet": "192.168.206.0/24"}
                         ),

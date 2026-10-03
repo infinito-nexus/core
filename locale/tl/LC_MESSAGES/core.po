@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Base papel para sa systemd manager configuration sa pamamagitan ng drop-ins, default settings, at unit factuation"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Pagitan ng administrasyong Browser SeaweedFS tindahan ng bagay, naglilingkod sa filer at master consoles sa likuran ng SSO"
 
@@ -895,6 +895,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel-level NFS server para sa pagluluwas ng isang kabahaging puno ng directory na may IP-fix access para sa mga host ng bluster-node"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed translation engine na nagsasalita ng LibreTranslate API, para sa mga tubo na tuwirang tumatawag dito"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Ang pag - aaral ng mga plataporma, mga kagamitan sa pakikipagtulungan ng silid - aralan, at mga kapaligiran sa edukasyong digital."
@@ -1098,6 +1103,11 @@ msgstr "Object-strage layer para sa SeaweedFS/MinIO backend resolution at per-co
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "On-target automation para sa paglikha at pagsasaayos ng lugar ng palitan sa pamamagitan ng isang clone na transaksyon ng Profile"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Isang endpoint ng pagsasalin na pumipili sa makina mismo at mas gusto nito ang repleksiyong pantao"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2013,6 +2023,11 @@ msgstr "Tor daemon na naglalathala ng node bilang v3 serbisyo ng sibuyas"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor network client at browser launcher para sa hindi kilala, privacy-focused web browse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Ang memorya sa pagsasalin, mga glossaryo at ang gawaing pagrerepaso ng tao ay nasa likod ng pintuan ng pagsasalin"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

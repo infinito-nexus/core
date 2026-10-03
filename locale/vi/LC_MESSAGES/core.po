@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Vai trò cơ bản cho cấu hình trình quản lý có hệ thống thông qua thả, cài đặt mặc định và hợp lệ hoá đơn vị"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Giao diện quản lý duyệt cho SeaweedFS Cửa hàng đối tượng, phục vụ bộ phân loại và bàn giao tiếp chủ phía sau SSO"
 
@@ -912,6 +912,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Máy chủ NFS cấp hạt nhân để xuất khẩu một cây thư mục chia sẻ với các máy chủ sở hữu thông tin IP-recited"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "Máy dịch LM-backed nói LibreTranslate APICho các đường ống gọi trực tiếp"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Học tập, công cụ hợp tác trong lớp học, và môi trường giáo dục số."
@@ -1122,6 +1127,11 @@ msgstr "Lớp trang trí đối tượng cho độ phân giải hậu phương S
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Tự động hoạt động để tạo và kích hoạt không gian trao đổi thông qua một tập lệnh trao đổi nhân bản"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Một điểm kết thúc dịch để tự chọn động cơ và thích một chuỗi người xem xét lại"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2036,6 +2046,11 @@ msgstr "Tor trình nền xuất bản nút là một v3 hành tây"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Trình khách mạng Tor và phóng tên lửa trình duyệt vô danh, tập trung duyệt mạng cá nhân"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Bộ nhớ dịch thuật, bản chú giải và công việc duyệt lại của con người nằm sau cánh cổng dịch thuật"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

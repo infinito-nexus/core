@@ -246,7 +246,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_custom_true_uses_entity_name_custom(self):
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
             out = _run(
@@ -259,7 +259,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_custom_true_with_version_override(self):
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
             out = _run(
@@ -273,7 +273,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_custom_true_with_image_override_image_wins(self):
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ) as get_name:
             out = _run(
@@ -288,7 +288,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_custom_true_swarm_prefix_applied(self):
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
             out = _run(
@@ -315,7 +315,7 @@ class TestImageLookup(unittest.TestCase):
     def test_custom_true_ignores_services_image(self):
         apps = _apps(image="mattermost/mattermost-team-edition", version="11.8.0")
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
             out = _run(
@@ -329,7 +329,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_custom_true_tag_only_returns_bare(self):
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
             out = _run(
@@ -355,7 +355,7 @@ class TestImageLookup(unittest.TestCase):
         apps = _apps()
         apps["web-app-mattermost"]["services"]["mattermost"]["custom"] = True
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
             out = _run(
@@ -395,7 +395,7 @@ class TestImageLookup(unittest.TestCase):
             "services"
         ].pop("mattermost")
         with patch(
-            "plugins.lookup.image.get_entity_name",
+            "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ) as get_name:
             out = _run(
@@ -430,7 +430,7 @@ class TestImageLookup(unittest.TestCase):
     def test_custom_true_empty_entity_name_raises(self):
         with (
             patch(
-                "plugins.lookup.image.get_entity_name",
+                "plugins.lookup.image.entity_name",
                 return_value="",
             ),
             self.assertRaises(AnsibleError),

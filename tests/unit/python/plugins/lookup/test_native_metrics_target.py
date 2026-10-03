@@ -61,11 +61,11 @@ def _run(terms, *, mode, apps):
         ) as native_loader_mock,
         patch("plugins.lookup.scrape_target.lookup_loader") as scrape_loader_mock,
         patch(
-            "plugins.lookup.native_metrics_target.get_entity_name",
+            "plugins.lookup.native_metrics_target.entity_name",
             side_effect=lambda app_id: ENTITIES.get(app_id, ""),
         ),
         patch(
-            "plugins.lookup.scrape_target.get_entity_name",
+            "plugins.lookup.scrape_target.entity_name",
             side_effect=lambda app_id: ENTITIES.get(app_id, ""),
         ),
     ):

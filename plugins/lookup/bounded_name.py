@@ -7,7 +7,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_domain
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -67,4 +67,4 @@ class LookupModule(LookupBase):
         name = str(domain or "")
         if 0 < len(name) <= limit:
             return [name]
-        return [get_entity_name(application_id)]
+        return [entity_name(application_id)]

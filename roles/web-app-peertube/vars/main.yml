@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-peertube"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 PEERTUBE_CONTAINER: "{{ lookup('config', application_id, 'services.peertube.name') }}"
 PEERTUBE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"

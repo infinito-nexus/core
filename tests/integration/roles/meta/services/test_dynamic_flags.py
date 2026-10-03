@@ -74,7 +74,7 @@ from utils.roles.applications.services.registry import (
     build_role_to_primary_service_key,
     build_service_registry_from_roles_dir,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -170,7 +170,7 @@ class TestServicesDynamicFlags(unittest.TestCase):
 
             block_exempt = _suppressed_top_level_keys(services_file)
             inline_exempt = _suppressed_inline_flags(services_file)
-            own_entity = get_entity_name(role_name)
+            own_entity = entity_name(role_name)
 
             for service_key, entry in data.items():
                 if not isinstance(entry, dict):

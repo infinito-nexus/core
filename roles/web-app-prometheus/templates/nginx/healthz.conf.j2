@@ -48,7 +48,7 @@
     }
   }
 
-{% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
+{% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
   location = /_live_probe {
     internal;
     {{ prometheus_backend }}

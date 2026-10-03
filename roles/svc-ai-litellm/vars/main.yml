@@ -1,6 +1,6 @@
 ---
 application_id: "svc-ai-litellm"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 LITELLM_CONTAINER: "{{ lookup('config', application_id, 'services.litellm.name') }}"
 LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.internal.http') }}"
@@ -26,6 +26,14 @@ LITELLM_ROUTER_SAMPLE_TRIGGER: "{{ lookup('config', application_id, 'services.li
 LITELLM_ROUTER_SAMPLE_INTERVAL: "{{ lookup('config', application_id, 'services.litellm.router.sample.interval') }}"
 LITELLM_ROUTER_SAMPLE_WIDTH: "{{ lookup('config', application_id, 'services.litellm.router.sample.width') }}"
 LITELLM_ROUTER_HOOK_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'router_hook.py' ] | path_join }}"
+
+LITELLM_DECIDER_SOURCE_DIR: "{{ lookup('path_absolute', 'roles/svc-ai-s1/files/python/infinito_decider') }}"
+LITELLM_DECIDER_DIR_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'infinito_decider' ] | path_join }}"
+LITELLM_DECIDER_MODULES:
+  - __init__.py
+  - history.py
+  - judge.py
+  - sampling.py
 LITELLM_SPEED_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'measured_speed.json' ] | path_join }}"
 LITELLM_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config.yaml' ] | path_join }}"
 LITELLM_CONFIG_PATH_DOCKER: "{{ lookup('volume', application_id, 'litellm_config').target }}"
@@ -39,6 +47,11 @@ LITELLM_SERVED_PROVIDERS: "{{ LITELLM_KEYED_PROVIDERS + [AI_MOCK_PROVIDER] }}"
 LITELLM_UNRANKED_ALIASES: "{{ ([LITELLM_ROUTER_ALIAS] + (LITELLM_REMOTE_MODELS | selectattr('provider', 'equalto', AI_MOCK_PROVIDER) | map(attribute='alias') | list))
   | join(',') }}"
 LITELLM_REMOTE_MODELS: "{{ lookup('config', application_id, 'services.litellm.remote_models') }}"
+LITELLM_TEST_CONTRACT:
+  ollama: "{{ LITELLM_OLLAMA_BACKEND | bool }}"
+  lmstudio: "{{ LITELLM_LMSTUDIO_BACKEND | bool }}"
+  served: "{{ LITELLM_CHAT_MODEL_SERVED | bool }}"
+
 LITELLM_UI_ROLE: "web-app-litellm"
 LITELLM_UI_SSO: "{{ (LITELLM_UI_ROLE in group_names) and (lookup('sso', LITELLM_UI_ROLE, 'is_oidc_native') | bool) }}"
 LITELLM_UI_BASE_URL: "{{ lookup('tls', LITELLM_UI_ROLE, 'url.base') }}"

@@ -1,6 +1,6 @@
 ---
 application_id: "web-svc-seaweedfs"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 SEAWEEDFS_CONTAINER: "{{ lookup('config', application_id, 'services.seaweedfs.name') }}"
 SEAWEEDFS_CONSUMER_COUNT: "{{ lookup('objstore_consumers', 'seaweedfs') | length }}"

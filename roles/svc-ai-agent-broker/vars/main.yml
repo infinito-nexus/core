@@ -1,6 +1,6 @@
 ---
 application_id: "svc-ai-agent-broker"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 AGENT_BROKER_CONTAINER: "{{ lookup('config', application_id, 'services.agent-broker.name') }}"
 AGENT_BROKER_PORT: "{{ lookup('config', application_id, 'services.agent-broker.ports.internal.http') }}"

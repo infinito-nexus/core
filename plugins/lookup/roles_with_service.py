@@ -58,7 +58,7 @@ from utils.roles.applications.mcp import (
     DEFAULT_MCP_TRANSPORT,
     derive_allowed_consumers,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -179,7 +179,7 @@ class LookupModule(LookupBase):
                     continue
             if deployed is not None and str(role_id) not in deployed:
                 continue
-            if get_entity_name(str(role_id)) == service_name:
+            if entity_name(str(role_id)) == service_name:
                 continue
             canonical = _resolve_canonical_domain(str(role_id), app_config)
             if not canonical and direction is None and not include_headless:

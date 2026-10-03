@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Bazrolo por sistemigita manaĝero konfiguracio per gut-in, defaŭltaj valoroj, kaj unuo validumado"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Browser Administration interfaco por la SeaweedFS Objektobutiko, servante la dosieron kaj majstrajn konzolojn malantaŭ SSO"
 
@@ -895,6 +895,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel-nivela NFS-servilo por eksportado de komuna direktora arbo kun IP-limigita aliro por svingo-node gastigantoj"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-apogita traduko motoro parolanta la LibreTranslate APIPor duktoj kiuj nomas ĝin rekte"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Lernado platformoj, klasĉambrokunlaboriloj, kaj ciferecaj edukmedioj."
@@ -1101,6 +1106,11 @@ msgstr "Objekto-stopa tavolo por SeaweedFS/MinIO-malantaŭa rezolucio kaj per-ko
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "On-celo aŭtomatigo por kreado kaj aktivigado de interŝanĝspaco per klonita interŝanĝfilmanuskripto"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Unu traduko finpunkto kiu elektas la motoron mem kaj preferas reviziitan homan kordon"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2012,6 +2022,11 @@ msgstr "Tor daemon publikiganta la nodon kiel v3 cepo servo"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor reto kliento kaj retumilo lanĉilo por anonima, privateco-fokusita retejo folianta"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Traduko, glosaroj kaj la homa revizio laborfluo malantaŭ la traduko enirejo"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

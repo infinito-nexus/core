@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-jitsi"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 JITSI_WEB_SERVICE: "web"
 JITSI_PROSODY_SERVICE: "prosody"

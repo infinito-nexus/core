@@ -7,7 +7,7 @@ from utils.roles.applications.config import (
     ConfigEntryNotSetError,
     get,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 _UNSET = object()
 
@@ -73,11 +73,11 @@ def resource_filter(
 ):
     """
     Lookup order:
-      1) services.<service_name or get_entity_name(application_id)>.<key>
-      2) services.<get_entity_name(application_id)>.<key>
+      1) services.<service_name or entity_name(application_id)>.<key>
+      2) services.<entity_name(application_id)>.<key>
       3) hard_default (mandatory)
 
-    - service_name may be "" → will resolve to get_entity_name(application_id).
+    - service_name may be "" → will resolve to entity_name(application_id).
     - hard_default is mandatory (no implicit None).
     - required=False always.
     - host_cpus, when given, resolves a percentage through
@@ -85,7 +85,7 @@ def resource_filter(
       so that ``cpus: 50%`` in services.yml means half of the host.
     """
     try:
-        entity = get_entity_name(application_id)
+        entity = entity_name(application_id)
         primary_service = service_name if service_name != "" else entity
         value = _UNSET
         for candidate in dict.fromkeys([primary_service, entity]):

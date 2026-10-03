@@ -138,7 +138,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Sistemli yönetici yapılandırması için zemin rolü düşüşler, varsayılan ayarlar ve birim doğrulama"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Tarayıcı yönetimi arayüzü için SeaweedFS object store, filer ve master konsolları SSO arkasındaki servis"
 
@@ -921,6 +921,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "B-restricted access for swarm-node host"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM destekli çeviri motoru konuşması LibreTranslate API, doğrudan çağıran boru hatları için"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Öğrenme platformları, sınıf işbirliği araçları ve dijital eğitim ortamları."
@@ -1138,6 +1143,11 @@ msgstr "SeaweedFS/MinIO için Object-storage katmanı ve per-consumer kova ve cr
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Bir klonlanmış takas senaryosu aracılığıyla takas alanı oluşturmak ve aktive etmek için hedef otomasyon"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Motorun kendisini seçen bir çeviri uç noktası ve incelenen bir insan dizesini tercih eder"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2064,6 +2074,11 @@ msgstr "Tor daemon, node as a v3 Onion servisi"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor network müşteri ve tarayıcı anonim, gizlilik odaklı web taraması için başlatıcı"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Çeviri hafıza, sözlükler ve çeviri ağ geçidinin arkasındaki insan inceleme akışı"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

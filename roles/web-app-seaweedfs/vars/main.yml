@@ -1,6 +1,6 @@
 ---
-application_id: "web-app-seaweedfs-console"
-entity_name: "{{ application_id | get_entity_name }}"
+application_id: "web-app-seaweedfs"
+entity_name: seaweedfs-console
 
 SEAWEEDFS_ENGINE_ID: "web-svc-seaweedfs"
 SEAWEEDFS_ENGINE_HOST: "{{ lookup('config', SEAWEEDFS_ENGINE_ID, 'services.seaweedfs.name') }}"

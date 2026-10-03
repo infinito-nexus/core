@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Sistemləşdirilmiş meneceri konfiqurasiyası üçün əsas rolu drop-ins, default parametrlər, və əməliyyat"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Browser admini interfeys üçün SeaweedFS object , , the"
 
@@ -912,6 +912,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Qızıl səviyyəli NFS server IP-restricted access for swarm-node host"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed çeviri motoru danışdı LibreTranslate API, birbaşa çağıran borular üçün"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "İnformasiya platformaları, sinteqrasiya texnologiyaları və digital təhsil avadanlıqları."
@@ -1118,6 +1123,11 @@ msgstr "SeaweedFS / MinIO geri qarşılaşdırma və per-konsumer kova və qarı
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Klod qazanmaqla qazanmaq və aktivləşdirilməsi üçün proqram"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Bir çeviri sonpoint ki, motor özünü seçir və gözəl insan stringini tercih edir"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2057,6 +2067,11 @@ msgstr "Tor daemon hede bir v3 xidmət"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor şəhəri və browser anonim, gizlilik-based web tarama üçün starter"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Translation , , , , ,"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

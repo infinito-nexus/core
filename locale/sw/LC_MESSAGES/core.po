@@ -143,7 +143,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Jukumu la msingi la usanidi wa meneja wa mfumo kupitia drop-ins, mipangilio ya default, na uthibitisho wa kitengo"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Interface ya browser kwa ajili ya SeaweedFS Hifadhi ya kitu, kutumikia faili na vifungo vya bwana nyuma ya SSO"
 
@@ -919,6 +919,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Seva ya NFS ya kiwango cha Kernel kwa kuuza nje mti wa saraka ulioshirikiwa na ufikiaji wa IP uliozuiliwa kwa majeshi ya nzige"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "Mhandisi wa tafsiri wa LLM akizungumza LibreTranslate APIKwa wale wanaoomba mkopo wa moja kwa moja"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "majukwaa ya kujifunza, zana za ushirikiano wa darasani, na mazingira ya elimu ya digital."
@@ -1126,6 +1131,11 @@ msgstr "Safu ya kuhifadhi vitu kwa azimio la backend la SeaweedFS / MinIO na ndo
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "On-target automatisering kwa ajili ya kujenga na kuanzisha kubadilishana nafasi kupitia cloned swapfile script"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Tafsiri moja ya mwisho ambayo inachukua injini yenyewe na inapendelea kamba ya binadamu iliyorekebishwa"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2035,6 +2045,11 @@ msgstr "Tor daemon kuchapisha node kama v3 Huduma ya Onion"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor mtandao mteja na browser launcher kwa anonymous, faragha-umakini mtandao kuvinjari"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Kumbukumbu ya tafsiri, glossaries na kazi ya mapitio ya binadamu nyuma ya lango la tafsiri"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

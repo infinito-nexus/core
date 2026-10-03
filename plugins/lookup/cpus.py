@@ -20,7 +20,7 @@ from ansible.plugins.lookup import LookupBase
 from plugins.filter.resource_filter import resolve_cpus
 from plugins.lookup.config import LookupModule as ConfigLookup
 from plugins.lookup.resource import LookupModule as ResourceLookup
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -38,7 +38,7 @@ class LookupModule(LookupBase):
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         application_id = str(terms[0])
         service_name = (
-            str(terms[1]) if len(terms) == 2 else get_entity_name(application_id)
+            str(terms[1]) if len(terms) == 2 else entity_name(application_id)
         )
 
         configured = ConfigLookup().run(

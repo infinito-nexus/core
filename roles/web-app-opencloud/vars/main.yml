@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-opencloud"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 proxy_x_forwarded_proto: "https"
 

@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Базова роль для налаштування системного управління через краплі, налаштування за замовчуванням та перевірку одиниці"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Інтерфейс адміністрування браузера для SeaweedFS магазин об'єктів, що подають файловий і майстер консолі за SSO"
 
@@ -896,6 +896,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Кернел-рівневий сервер NFS для експорту спільного каталогу з IP-обмеженим доступом для гончарно-необхідних господарів"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backed переклад двигуна, що говорить LibreTranslate API, для трубопроводів, які його називають безпосередньо"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Навчальні платформи, інструменти для співпраці з класами та цифровими навчальними закладами."
@@ -1102,6 +1107,11 @@ msgstr "Об'єктно-секторний шар для SeaweedFSУкраїнс
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Автоматизована автоматизація для створення та активації клаптового простору за допомогою клонованого сценарію swapfile"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Один кінцевий пункт перекладу, який забирає сам двигун і віддає перевагу рецензованим людським рядком"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2010,6 +2020,11 @@ msgstr "Tor daemon публікувати вузол як v3 послуги ци
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "English, Українська, Français..."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Переклад пам'яті, глянцевих та рецензійних робіт за перекладом"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

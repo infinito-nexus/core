@@ -15,12 +15,12 @@ class TestMemoryFilters(unittest.TestCase):
     # -----------------------------
     def _with_conf(self, mem_limit: str, mem_res: str):
         """
-        Patch get/get_entity_name so that mem_limit and mem_reservation
+        Patch get/entity_name so that mem_limit and mem_reservation
         can be controlled in tests.
         """
         patches = [
             patch(
-                "plugins.filter.memory_filters.get_entity_name",
+                "plugins.filter.memory_filters.entity_name",
                 return_value="confluence",
             ),
             patch(
@@ -78,7 +78,7 @@ class TestMemoryFilters(unittest.TestCase):
     def test_invalid_unit_raises(self):
         with (
             patch(
-                "plugins.filter.memory_filters.get_entity_name",
+                "plugins.filter.memory_filters.entity_name",
                 return_value="confluence",
             ),
             patch(
@@ -94,7 +94,7 @@ class TestMemoryFilters(unittest.TestCase):
     def test_zero_limit_raises(self):
         with (
             patch(
-                "plugins.filter.memory_filters.get_entity_name",
+                "plugins.filter.memory_filters.entity_name",
                 return_value="confluence",
             ),
             patch(
@@ -110,7 +110,7 @@ class TestMemoryFilters(unittest.TestCase):
     def test_zero_reservation_raises(self):
         with (
             patch(
-                "plugins.filter.memory_filters.get_entity_name",
+                "plugins.filter.memory_filters.entity_name",
                 return_value="confluence",
             ),
             patch(
@@ -125,12 +125,12 @@ class TestMemoryFilters(unittest.TestCase):
 
     def test_entity_name_is_derived_not_passed(self):
         """
-        Ensure get_entity_name() is called internally and the app_id is not
+        Ensure entity_name() is called internally and the app_id is not
         passed around manually from the template.
         """
         with (
             patch(
-                "plugins.filter.memory_filters.get_entity_name",
+                "plugins.filter.memory_filters.entity_name",
                 return_value="confluence",
             ) as mock_entity,
             patch(
@@ -181,13 +181,13 @@ class TestMemoryFilters(unittest.TestCase):
         with self.assertRaises(memory_filters.AnsibleFilterError):
             memory_filters.redis_maxmemory_mb(self.apps, self.app_id)
 
-    def test_redis_maxmemory_does_not_call_get_entity_name(self):
+    def test_redis_maxmemory_does_not_call_entity_name(self):
         """
         Ensure redis_maxmemory_mb does NOT rely on entity name resolution
         (it should always use the hard-coded 'redis' service name).
         """
         patches = [
-            patch("plugins.filter.memory_filters.get_entity_name"),
+            patch("plugins.filter.memory_filters.entity_name"),
             patch(
                 "plugins.filter.memory_filters.get",
                 side_effect=lambda apps, app_id, key, required=True, **kwargs: (
@@ -221,7 +221,7 @@ class TestMemoryFilters(unittest.TestCase):
                 side_effect=fake_get,
             ),
             patch(
-                "plugins.filter.memory_filters.get_entity_name",
+                "plugins.filter.memory_filters.entity_name",
                 return_value="confluence",
             ),
         ):

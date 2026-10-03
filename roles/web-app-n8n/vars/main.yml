@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-n8n"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 N8N_CONTAINER: "{{ lookup('config', application_id, 'services.n8n.name') }}"
 N8N_HTTP_PORT: "{{ lookup('config', application_id, 'services.n8n.ports.local.http') }}"

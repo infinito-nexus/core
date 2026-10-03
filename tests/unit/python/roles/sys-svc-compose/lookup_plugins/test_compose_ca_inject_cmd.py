@@ -122,7 +122,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                     side_effect=lambda **kw: kw["raw"],
                 ),
                 patch.object(
-                    self.mod, "get_entity_name", side_effect=lambda _x: "myproj"
+                    self.mod, "entity_name", side_effect=lambda _x: "myproj"
                 ),
             ):
                 lk = self._mk_lookup_module()
@@ -196,7 +196,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
                     side_effect=lambda **kw: kw["raw"],
                 ),
                 patch.object(
-                    self.mod, "get_entity_name", side_effect=lambda _x: "myproj"
+                    self.mod, "entity_name", side_effect=lambda _x: "myproj"
                 ),
             ):
                 lk = self._mk_lookup_module()
@@ -230,7 +230,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
             patch.object(
                 self.mod, "render_ansible_strict", side_effect=lambda **kw: kw["raw"]
             ),
-            patch.object(self.mod, "get_entity_name", side_effect=lambda _x: "myproj"),
+            patch.object(self.mod, "entity_name", side_effect=lambda _x: "myproj"),
             self.assertRaises(AnsibleError) as ctx,
         ):
             lk.run(["web-app-test"], variables=variables)
@@ -268,7 +268,7 @@ class ComposeCaInjectCmdLookupTests(unittest.TestCase):
             patch.object(
                 self.mod, "render_ansible_strict", side_effect=lambda **kw: kw["raw"]
             ),
-            patch.object(self.mod, "get_entity_name", side_effect=lambda _x: "myproj"),
+            patch.object(self.mod, "entity_name", side_effect=lambda _x: "myproj"),
         ):
             lk = self._mk_lookup_module()
             return lk.run(["web-app-test"], variables=variables, **run_kwargs)[0]

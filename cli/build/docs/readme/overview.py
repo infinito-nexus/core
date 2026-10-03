@@ -34,7 +34,7 @@ from pathlib import Path
 from cli.meta.roles.applications.complexity.model import compute_complexity_rows
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
@@ -78,7 +78,7 @@ def _role_title(roles_dir: Path, role: str) -> str:
         for line in read_text(str(readme)).splitlines():
             if line.startswith("# "):
                 return line[2:].strip()
-    entity = get_entity_name(role) or role
+    entity = entity_name(role) or role
     return entity.replace("-", " ").title()
 
 

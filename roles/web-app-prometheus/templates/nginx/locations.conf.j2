@@ -15,7 +15,7 @@
     $container_name  — Docker container name for /healthz/live polling.
                        Callers may set {% set container_name = "..." %} before
                        this include to override the default (derived from the
-                       canonical service key via get_entity_name).
+                       canonical service key via `| entity_name`).
 
     healthz.conf.j2     — /healthz/live + /healthz/ready + /_live_probe
     location.conf.j2    — log_by_lua_block per-request metrics collection
@@ -26,7 +26,7 @@
   {% if container_name is defined %}
   set $container_name "{{ container_name }}";
   {% else %}
-  {% set prometheus_service_key = application_id | get_entity_name %}
+  {% set prometheus_service_key = application_id | entity_name %}
   set $container_name "{{ lookup('config', application_id, 'services.' + prometheus_service_key + '.name', '') }}";
   {% endif %}
   {% include 'roles/web-app-prometheus/templates/nginx/healthz.conf.j2' %}

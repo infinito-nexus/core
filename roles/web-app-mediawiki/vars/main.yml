@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-mediawiki"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 MEDIAWIKI_SITENAME: "{{ lookup('config', application_id, 'services.mediawiki.sitename') }}"
 MEDIAWIKI_URL: "{{ lookup('tls', application_id, 'url.base') }}"

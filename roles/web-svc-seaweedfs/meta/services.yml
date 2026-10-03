@@ -1,7 +1,7 @@
 ---
 # nocheck: tor-contract — object-storage backend; consumed server-side over the
 # internal network (matrix S3 media etc.), never a Tor-browser surface, so it
-# rides no node onion. The browser consoles live in web-app-seaweedfs-console.
+# rides no node onion. The browser consoles live in web-app-seaweedfs.
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
   healthcheck:

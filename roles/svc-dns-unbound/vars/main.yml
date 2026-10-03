@@ -1,6 +1,6 @@
 ---
 application_id: svc-dns-unbound
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 UNBOUND_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 UNBOUND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, UNBOUND_CONTAINER) }}"

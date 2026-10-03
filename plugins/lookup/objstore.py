@@ -9,7 +9,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.tls_common import resolve_enabled
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")
@@ -75,7 +75,7 @@ class LookupModule(LookupBase):
             templar=getattr(self, "_templar", None),
         ).run([], variables=vars_)[0]
         path_instances = self._require_var(vars_, "DIR_COMPOSITIONS")
-        consumer_entity = get_entity_name(consumer_id)
+        consumer_entity = entity_name(consumer_id)
 
         active = [
             e for e in OBJSTORE_ENGINES if _is_enabled(applications, consumer_id, e)
@@ -142,7 +142,7 @@ class LookupModule(LookupBase):
         ).strip() or engine
 
         host = central_name if central_enabled else engine
-        network = get_entity_name(provider_role) if central_enabled else consumer_entity
+        network = entity_name(provider_role) if central_enabled else consumer_entity
         container = central_name if central_enabled else f"{consumer_entity}-{engine}"
         port = get(
             applications,

@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Sistēmas pārvaldnieka bāzes loma konfigurācijā, izmantojot nolaižamos iestatījumus, noklusējuma iestatījumus un vienības apstiprināšanu"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Pārlūka administrēšanas saskarne SeaweedFS objektu veikals, apkalpo failu un meistara konsoles aiz SSO"
 
@@ -907,6 +907,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Kernel līmeņa NFS serveris koplietošanas direktorija koka ar IP ierobežotu piekļuvi sharm-node resursdatoriem eksportēšanai"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM nodrošināta tulkošanas dzinējs runājot LibreTranslate API, cauruļvadiem, kas to sauc tieši"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Mācību platformas, klašu sadarbības instrumenti un digitālā izglītības vide."
@@ -1110,6 +1115,11 @@ msgstr "Objekta glabāšanas slānis SeaweedFS/MinIO aizmugures izšķirtspējai
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Uz mērķa automatizācija, lai radītu un aktivizētu mijmaiņas telpu, izmantojot klonētu swapfile skriptu"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Viens tulkojuma galapunkts, kas izvēlas pašu dzinēju un dod priekšroku pārskatītai cilvēku virknei"
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -2034,6 +2044,11 @@ msgstr "Tor dēmons publicē mezglu kā v3 Sīpolu pakalpojumi"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor tīkla klienta un pārlūka palaidējs anonīmai, uz privātumu vērstai tīmekļa pārlūkošanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Tulkošanas atmiņas, glosāriju un cilvēka pārskata darbplūsma aiz tulkošanas vārtejas"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

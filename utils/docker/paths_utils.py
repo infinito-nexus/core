@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 def get_docker_paths(application_id: str, path_docker_compose_instances: str) -> dict:
     """
     Build the compose dict based on path_docker_compose_instances and application_id.
-    Uses get_entity_name to extract the entity name from application_id.
+    Uses entity_name to extract the entity name from application_id.
     """
-    entity = get_entity_name(application_id)
+    entity = entity_name(application_id)
     base = f"{path_docker_compose_instances}{entity}/"
 
     return {

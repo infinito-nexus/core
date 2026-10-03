@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Peranan dasar untuk konfigurasi manajer sistemd melalui drop-ins, pengaturan default, dan validasi unit"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Antarmuka administrasi Pelayaran untuk SeaweedFS Toko objek, melayani filer dan konsol master di belakang SSO"
 
@@ -902,6 +902,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Server NFS level kernel untuk mengekspor pohon direktori terbagi dengan akses terbatas IP untuk host brund-node"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM LLM-backed mesin terjemahan berbicara LibreTranslate APIUntuk saluran pipa yang menyebutnya secara langsung"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Platform pembelajaran, alat kolaborasi kelas, dan lingkungan pendidikan digital."
@@ -1108,6 +1113,11 @@ msgstr "Lapisan penyimpanan objek untuk resolusi backend SeaweedFS/MinIO dan per
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Otomasi on-target untuk membuat dan mengaktifkan ruang swap melalui skrip swapfile kloning"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Satu titik akhir terjemahan terjemahan yang mengambil mesin itu sendiri dan lebih memilih string manusia yang ditinjau"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -2020,6 +2030,11 @@ msgstr "daemon deamon deamon penerbitan node sebagai v3 Layanan bawang"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Klien jaringan dan peluncur peramban untuk penjelajah web tanpa nama, fokus privasi"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Ingatan terjemahan, glossary dan review manusia mengalir di balik gerbang terjemahan"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

@@ -1,6 +1,6 @@
 ---
 application_id: svc-cache-package
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 CACHE_PACKAGE_CONTAINER: "{{ lookup('config', application_id, 'services.package.name') }}"
 CACHE_PACKAGE_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"

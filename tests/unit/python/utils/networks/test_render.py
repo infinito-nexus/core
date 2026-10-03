@@ -30,7 +30,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-prx-openresty",
             deployment_mode="swarm",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -51,7 +51,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-prx-openresty",
             deployment_mode="compose",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(
                 **{"networks.local.subnet": "10.0.0.0/24"}
             ),
@@ -72,7 +72,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-db-mariadb",
             deployment_mode="swarm",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -85,7 +85,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-runner",
             deployment_mode="swarm",
             registry={},
-            get_entity_name=lambda _role: "",
+            entity_name=lambda _role: "",
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -97,7 +97,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-runner",
             deployment_mode="swarm",
             registry={},
-            get_entity_name=lambda _role: "",
+            entity_name=lambda _role: "",
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
             node_local=True,
@@ -106,7 +106,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-runner",
             deployment_mode="compose",
             registry={},
-            get_entity_name=lambda _role: "",
+            entity_name=lambda _role: "",
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -123,7 +123,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
                             application_id=role,
                             deployment_mode="compose",
                             registry={},
-                            get_entity_name=_entity_name,
+                            entity_name=_entity_name,
                             lookup_config=_const_lookup_config(),
                             lookup_database=_const_lookup_database(),
                         ),
@@ -139,7 +139,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
                         application_id="web-app-anything",
                         deployment_mode="compose",
                         registry={},
-                        get_entity_name=_entity_name,
+                        entity_name=_entity_name,
                         lookup_config=_const_lookup_config(),
                         lookup_database=_const_lookup_database(),
                     ),
@@ -165,7 +165,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-db-qdrant",
             deployment_mode="compose",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=lookup_config,
             lookup_database=_const_lookup_database(),
         )
@@ -173,7 +173,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-db-qdrant",
             deployment_mode="compose",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=lookup_config,
             lookup_database=_const_lookup_database(),
             own_network_only=True,
@@ -189,7 +189,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="web-app-prometheus",
             deployment_mode="compose",
             registry={},
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
             own_network_only=True,
@@ -205,7 +205,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-runner",
             deployment_mode="swarm",
             registry={},
-            get_entity_name=lambda _role: "",
+            entity_name=lambda _role: "",
             lookup_config=_const_lookup_config(
                 **{"networks.local.subnet": "10.0.0.0/24"}
             ),
@@ -220,7 +220,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
             application_id="svc-runner",
             deployment_mode="compose",
             registry={},
-            get_entity_name=lambda _role: "",
+            entity_name=lambda _role: "",
             lookup_config=_const_lookup_config(
                 **{"networks.local.subnet": "10.0.0.0/24"}
             ),

@@ -21,7 +21,7 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -44,7 +44,7 @@ def _mode_problems(role_dir) -> list[str]:
     if not services_path.is_file():
         return ["missing meta/services.yml (needed to declare deploy modes)"]
     services = load_yaml_any(str(services_path), default_if_missing={})
-    entity = get_entity_name(role_dir.name) or role_dir.name
+    entity = entity_name(role_dir.name) or role_dir.name
     primary = services.get(entity) if isinstance(services, dict) else None
     if not isinstance(primary, dict):
         return [f"no primary entity '{entity}' block in meta/services.yml"]

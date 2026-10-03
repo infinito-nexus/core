@@ -14,10 +14,10 @@ class TestResourceFilter(unittest.TestCase):
         self.key = "cpus"
 
         self.patcher_conf = patch.object(plugin_module, "get")
-        self.patcher_entity = patch.object(plugin_module, "get_entity_name")
+        self.patcher_entity = patch.object(plugin_module, "entity_name")
         self.mock_get = self.patcher_conf.start()
-        self.mock_get_entity_name = self.patcher_entity.start()
-        self.mock_get_entity_name.return_value = "foo"
+        self.mock_entity_name = self.patcher_entity.start()
+        self.mock_entity_name.return_value = "foo"
 
     def tearDown(self):
         self.patcher_conf.stop()
@@ -44,8 +44,8 @@ class TestResourceFilter(unittest.TestCase):
             plugin_module._UNSET,
         )
 
-    def test_service_name_empty_uses_get_entity_name(self):
-        """When service_name is empty, it resolves via get_entity_name(application_id)."""
+    def test_service_name_empty_uses_entity_name(self):
+        """When service_name is empty, it resolves via entity_name(application_id)."""
         self.mock_get.return_value = "1.0"
 
         result = plugin_module.resource_filter(
@@ -57,7 +57,7 @@ class TestResourceFilter(unittest.TestCase):
         )
 
         self.assertEqual(result, "1.0")
-        self.mock_get_entity_name.assert_called_once_with(self.application_id)
+        self.mock_entity_name.assert_called_once_with(self.application_id)
         self.mock_get.assert_called_once_with(
             self.applications,
             self.application_id,

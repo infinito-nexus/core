@@ -63,7 +63,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -285,7 +285,7 @@ def declares_mcp_consumer(role_id: str, services: object) -> bool:
     """
     if not isinstance(services, dict):
         return False
-    entry = services.get(get_entity_name(role_id))
+    entry = services.get(entity_name(role_id))
     return isinstance(entry, dict) and entry.get(MCP_CONSUMER_FLAG) is True
 
 
@@ -302,7 +302,7 @@ def admits_mcp_consumer(provider_services: object, consumer_id: str) -> bool:
     """
     if not isinstance(provider_services, dict):
         return True
-    entry = provider_services.get(get_entity_name(consumer_id))
+    entry = provider_services.get(entity_name(consumer_id))
     if isinstance(entry, dict) and MCP_CONSUMER_FLAG in entry:
         return entry[MCP_CONSUMER_FLAG] is True
     return True

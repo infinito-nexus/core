@@ -41,7 +41,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         return lm
 
     @staticmethod
-    def _fake_get_entity_name(role_name: str) -> str:
+    def _fake_entity_name(role_name: str) -> str:
         """
         Make entity resolution deterministic for unit tests (no filesystem access).
         Mirrors the typical behavior for your role naming.
@@ -59,7 +59,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         with (
             mock.patch.object(self.mod, "lookup_loader") as loader_mock,
             patch.object(
-                self.mod, "get_entity_name", side_effect=self._fake_get_entity_name
+                self.mod, "entity_name", side_effect=self._fake_entity_name
             ),
         ):
             loader_mock.get.return_value = mock.MagicMock(

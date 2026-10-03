@@ -5,7 +5,7 @@ import re
 from ansible.errors import AnsibleFilterError
 
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 _UNIT_RE = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*([kKmMgGtT]?[bB]?)?\s*$")
 _FACTORS = {
@@ -62,7 +62,7 @@ def _to_mb(v: str) -> int:
 
 def _svc(app_id: str) -> str:
     """Resolve the internal service name for JVM-based applications."""
-    return get_entity_name(app_id)
+    return entity_name(app_id)
 
 
 def _mem_limit_mb(apps: dict, app_id: str) -> int:

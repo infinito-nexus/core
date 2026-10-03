@@ -135,7 +135,7 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Rôle de base pour la configuration du gestionnaire système via les drop-ins, les paramètres par défaut et la validation de l'unité"
 
 # translated-by: libretranslate
-msgctxt "role:web-app-seaweedfs-console:description"
+msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Interface d'administration du navigateur SeaweedFS objet store, servant le filer et les consoles master derrière SSO"
 
@@ -892,6 +892,11 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "Serveur NFS de niveau noyau pour l'exportation d'un arborescence de répertoires partagés avec accès limité IP pour les hôtes swarm-node"
 
 # translated-by: libretranslate
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "Moteur de traduction soutenu par LLM parlant le LibreTranslate API, pour les pipelines qui appellent ça directement"
+
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Plates-formes d'apprentissage, outils de collaboration en classe et environnements d'éducation numérique."
@@ -1095,6 +1100,11 @@ msgstr "Couche de stockage d'objets pour la résolution du moteur SeaweedFS/MinI
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Automatisation sur cible pour créer et activer l'espace de swap via un script de swap cloné"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Un paramètre de traduction qui choisit le moteur lui-même et préfère une chaîne humaine revue"
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -1997,6 +2007,11 @@ msgstr "Tor démon publier le noeud comme un v3 service de l'oignon"
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Client réseau Tor et lanceur de navigateur pour la navigation anonyme et axée sur la vie privée"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Mémoire de traduction, glossaires et flux de travail de la revue humaine derrière la passerelle de traduction"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"

@@ -30,7 +30,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
 from utils.meta.identity import by_name, profile_url
 from utils.roles.deploy import role_has_stack
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
 from utils.roles.meta_lookup import get_role_guide_companions
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
@@ -68,7 +68,7 @@ def _app_name(preamble: str, role_name: str) -> str:
     for line in preamble.splitlines():
         if line.startswith("# "):
             return line[2:].strip()
-    entity = get_entity_name(role_name) or role_name
+    entity = entity_name(role_name) or role_name
     return entity.replace("-", " ").title()
 
 

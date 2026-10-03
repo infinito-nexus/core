@@ -31,7 +31,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.tls_common import (
     align_domain_to_consumer,
     as_str,
@@ -69,7 +69,7 @@ class LookupModule(LookupBase):
             consumer_app = applications.get(consumer, {})
             if not isinstance(consumer_app, dict):
                 consumer_app = {}
-            binding = consumer_app.get("services", {}).get(get_entity_name(app_id), {})
+            binding = consumer_app.get("services", {}).get(entity_name(app_id), {})
             if not (isinstance(binding, dict) and binding.get("enabled")):
                 return [""]
 
