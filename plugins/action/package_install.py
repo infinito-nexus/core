@@ -36,6 +36,7 @@ from ansible.plugins.action import ActionBase
 
 from utils.packages.calls import (
     GENERIC_PACKAGE,
+    MANAGER_ARGS,
     STATE_PRESENT,
     STATES,
     ModuleCall,
@@ -129,6 +130,8 @@ class ActionModule(ActionBase):
     ) -> dict[str, Any]:
         args = {k: v for k, v in call.args.items() if v is not None}
         module = self._module_name(call, facts)
+        if call.module == GENERIC_PACKAGE:
+            args.update(MANAGER_ARGS.get(module, {}))
         if not call.become_user:
             return self._execute_module(
                 module_name=module, module_args=args, task_vars=task_vars

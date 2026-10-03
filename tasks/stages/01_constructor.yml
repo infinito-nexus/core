@@ -111,6 +111,27 @@
   ansible.builtin.include_role:
     name: user-root
 
+- name: 🎬 init administrator on every host the mesh has to reach
+  ansible.builtin.include_role:
+    name: user-administrator
+  when:
+    - "'svc-net-wireguard' | application_allowed(group_names, lookup('deployment').whitelist)"
+    - "'svc-swarm-node' in group_names"
+
+- name: "🥾 Bootstrap svc-net-wireguard"
+  when: "'svc-net-wireguard' | application_allowed(group_names, lookup('deployment').whitelist)"
+  block:
+    - name: 🧊 Carry the applications SPOT through the mesh bootstrap
+      applications_carrier: {}
+
+    - name: "🔌 Load svc-net-wireguard"
+      ansible.builtin.include_role:
+        name: svc-net-wireguard
+
+    - name: 🧊 Drop the mesh-bootstrap carrier so later stages re-render
+      applications_carrier:
+        clear: true
+
 - name: 🔄 update device
   ansible.builtin.include_role:
     name: update

@@ -47,12 +47,14 @@
   ansible.builtin.set_fact:
     svc_storage_nfs_server_allowed_ips: >-
       {{
-        (groups['svc-swarm-node']
-         | default([])
-         | map('extract', hostvars, ['ansible_facts', 'default_ipv4', 'address'])
-         | select('defined')
-         | list)
-        or [ansible_facts.default_ipv4.address | default('127.0.0.1')]
+        ((groups['svc-swarm-node']
+          | default([])
+          | map('extract', hostvars, ['ansible_facts', 'default_ipv4', 'address'])
+          | select('defined')
+          | list)
+         or [ansible_facts.default_ipv4.address | default('127.0.0.1')])
+        + ((WIREGUARD_SUBNET_POOLS | list)
+           if ('svc-net-wireguard' in group_names) else [])
       }}
 
 - name: "✅ Assert at least one allowed IP was resolved"

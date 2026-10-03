@@ -38,11 +38,10 @@ DEBIAN_SUITE = "stable"
 UBUNTU_SUITE = "noble"
 FEDORA_RELEASE = "f44"
 CENTOS_STREAM = "10-stream"
+EPEL_BRANCH = f"epel{CENTOS_STREAM.split('-', maxsplit=1)[0]}"
+EPEL_BOOTSTRAP = "epel-release"
 
 BOOTSTRAP_BASEURL: dict[str, str] = {
-    "epel-release": (
-        "https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/"
-    ),
     "centos-release-nfs-ganesha11": (
         "https://mirror.stream.centos.org/SIGs/$releasever-stream"
         "/storage/$basearch/nfsganesha-11/"
@@ -253,16 +252,28 @@ def _probe_apt(distro: str, name: str) -> tuple[bool | None, str]:
     return name in names, detail
 
 
-def _probe_fedora(name: str) -> tuple[bool | None, str]:
+def _probe_mdapi(branch: str, name: str) -> tuple[bool | None, str]:
+    """Ask Fedora's metadata API whether ``branch`` carries ``name``.
+
+    Args:
+        branch: an mdapi branch, such as ``f44`` or ``epel10``.
+        name: the binary package name as the declaration spells it.
+
+    Returns:
+        Availability, or None with the reason the index stayed unknown.
+    """
     status, _ = _get(
-        f"https://mdapi.fedoraproject.org/{FEDORA_RELEASE}/pkg/"
-        f"{urllib.parse.quote(name)}"
+        f"https://mdapi.fedoraproject.org/{branch}/pkg/{urllib.parse.quote(name)}"
     )
     if status == 200:
-        return True, f"mdapi {FEDORA_RELEASE}"
+        return True, f"mdapi {branch}"
     if status in (400, 404):
-        return False, f"mdapi {FEDORA_RELEASE}"
+        return False, f"mdapi {branch}"
     return None, f"mdapi returned HTTP {status}"
+
+
+def _probe_fedora(name: str) -> tuple[bool | None, str]:
+    return _probe_mdapi(FEDORA_RELEASE, name)
 
 
 def _centos_repo_baseurl(repo: dict | None) -> str | None:
@@ -294,6 +305,16 @@ def _centos_listings(name: str, repo: dict | None) -> list[str] | None:
 
 
 def _probe_centos(name: str, repo: dict | None) -> tuple[bool | None, str]:
+    # Exception: dl.fedoraproject.org redirects to whichever mirror is near the
+    # caller, and one that does not carry the directory answers 404, so a
+    # listing read from a GitHub runner reports EPEL packages as uncheckable.
+    if (
+        isinstance(repo, dict)
+        and not repo.get("baseurl")
+        and repo.get("bootstrap_package") == EPEL_BOOTSTRAP
+    ):
+        return _probe_mdapi(EPEL_BRANCH, name)
+
     listings = _centos_listings(name, repo)
     if listings is None:
         return None, "the inline repository definition declares no baseurl"

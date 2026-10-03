@@ -1,0 +1,22 @@
+---
+# The shape cli.administration.inventory.mesh writes per host. Declared so the
+# inventory validator accepts the generated block: every key a host_vars file
+# carries under applications.<role> must exist in the role contract, and the
+# mesh is generated rather than authored. Values stay empty here because the
+# writer supplies them; peers is a list, which the validator treats as opaque.
+swarm:
+  host: ""
+  address: ""
+  subnet: ""
+  listen_port: 0
+  is_hub: false
+  public_key: ""
+  peers: []
+data:
+  host: ""
+  address: ""
+  subnet: ""
+  listen_port: 0
+  is_hub: false
+  public_key: ""
+  peers: []

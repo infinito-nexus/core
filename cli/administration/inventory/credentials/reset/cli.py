@@ -14,13 +14,22 @@ import json
 import shutil
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+from ruamel.yaml.comments import CommentedMap
 
 from cli.administration.inventory.provision.project import (
     build_env_with_project_root,
     detect_project_root,
 )
 from cli.administration.inventory.provision.reset import reset_credentials
-from cli.administration.inventory.provision.ruamel_io import load_document
+from cli.administration.inventory.provision.ruamel_io import (
+    dump_document,
+    load_document,
+)
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def _parse_app_variants(raw: str | None) -> dict[str, int]:
@@ -63,25 +72,63 @@ def _backup(host_vars_file: Path) -> Path:
     return copy
 
 
-def _mirror_host_vars(host_vars_dir: Path, source: Path) -> list[str]:
+def _subtree(document: Any, path: str) -> Any:
+    node = document
+    for key in path.split("."):
+        if not isinstance(node, dict) or key not in node:
+            return None
+        node = node[key]
+    return node
+
+
+def _restore(document: Any, path: str, value: Any) -> None:
+    keys = path.split(".")
+    node = document
+    for key in keys[:-1]:
+        branch = node.get(key)
+        if not isinstance(branch, dict):
+            branch = CommentedMap()
+            node[key] = branch
+        node = branch
+    node[keys[-1]] = value
+
+
+def _mirror_host_vars(
+    host_vars_dir: Path, source: Path, keep: Iterable[str] = ()
+) -> list[str]:
     """Copy ``source`` over every other host_vars file in its directory.
 
     Args:
         host_vars_dir: the inventory's ``host_vars`` directory.
         source: the file the other hosts are aligned to.
+        keep: dotted paths restored from the destination after the copy.
 
     Returns:
         The host names that were overwritten.
 
     A multi-host test inventory holds one file per node, all copies of the
     manager's. Rotating only the manager's would hand every other node the
-    previous secrets.
+    previous secrets. Whatever a generator writes per host is the exception:
+    the copy gives every node the source's identity, so ``keep`` names the
+    subtrees that belong to the destination and outlive the mirror.
     """
+    keep = list(keep)
     mirrored: list[str] = []
     for candidate in sorted(host_vars_dir.glob("*.yml")):
         if candidate == source:
             continue
+        preserved = (
+            {path: _subtree(load_document(candidate), path) for path in keep}
+            if keep and candidate.exists()
+            else {}
+        )
         shutil.copyfile(source, candidate)
+        preserved = {path: node for path, node in preserved.items() if node is not None}
+        if preserved:
+            document = load_document(candidate)
+            for path, node in preserved.items():
+                _restore(document, path, node)
+            dump_document(candidate, document)
         mirrored.append(candidate.stem)
     return mirrored
 
@@ -140,6 +187,17 @@ def main(argv: list[str] | None = None) -> int:
         "--mirror",
         action="store_true",
         help="Copy the rotated host_vars file over every other host in the inventory.",
+    )
+    parser.add_argument(
+        "--mirror-keep",
+        action="append",
+        default=[],
+        metavar="DOTTED.PATH",
+        help=(
+            "Subtree the mirror restores from the destination afterwards, for "
+            "material a generator writes per host rather than shared. "
+            "Repeatable; ignored without --mirror."
+        ),
     )
     parser.add_argument(
         "--backup",
@@ -206,7 +264,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[INFO] Rotated {rotated} value(s)")
 
     if args.mirror:
-        mirrored = _mirror_host_vars(host_vars_file.parent, host_vars_file)
+        mirrored = _mirror_host_vars(
+            host_vars_file.parent, host_vars_file, keep=args.mirror_keep
+        )
         print(f"[INFO] Mirrored to {', '.join(mirrored) or 'no other host'}")
 
     return 0

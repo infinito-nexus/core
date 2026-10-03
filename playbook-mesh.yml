@@ -1,0 +1,26 @@
+---
+- name: "🔒 Bring every host of this inventory onto the mesh"
+  hosts: all
+  become: true
+  vars:
+    WIREGUARD_ENABLED: true
+    MESH_BOOTSTRAP: false
+  pre_tasks:
+    - name: "🧊 Render the applications SPOT once and carry it into every task's worker"
+      applications_carrier: {}
+
+    - name: "🔓 Get apt ready before the first apt task"
+      ansible.builtin.include_tasks: "./tasks/utils/apt/ready.yml"
+      when: ansible_facts['os_family'] == 'Debian'
+  roles:
+    # Exception: user-root pulls in sys-svc-ssh, which refreshes the package
+    # index before the first install of the run. The deploy relies on that
+    # same ordering, so a bootstrap that skipped it would make this play the
+    # first to install on an index nothing has fetched.
+    - role: user-root
+      when: MESH_BOOTSTRAP | bool
+
+    - role: user-administrator
+      when: MESH_BOOTSTRAP | bool
+
+    - role: svc-net-wireguard

@@ -113,6 +113,22 @@ gnuchess:
   fedora:
     - gnuchess
 
+iproute:
+  Archlinux:
+    - iproute2
+  Debian:
+    - iproute2
+  RedHat:
+    - iproute
+
+iputils-ping:
+  Archlinux:
+    - iputils
+  Debian:
+    - iputils-ping
+  RedHat:
+    - iputils
+
 java-jdk:
   Archlinux:
     - jdk11-openjdk
@@ -301,3 +317,4 @@ wireshark-gui:
     - wireshark
   RedHat:
     - wireshark
+

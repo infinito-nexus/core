@@ -33,7 +33,7 @@ import sys
 
 from cli.meta.ci import matrix, query, slots
 from cli.meta.roles.applications.complexity.render import _dwidth
-from utils.github.variant import axes, instructions, pools, tor
+from utils.github.variant import axes, instructions, pools, tor, vpn
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
@@ -51,6 +51,7 @@ _COLUMNS = (
     "distro",
     "filesystem",
     "tor",
+    "vpn",
     "triggered",
     "covered_by",
     "instructions",
@@ -77,6 +78,7 @@ def _key(entry: dict[str, str]) -> tuple[str, ...]:
         entry["variant"],
         entry["mode"],
         entry["tor"],
+        entry["vpn"],
         entry["distro"],
         entry["filesystem"],
     )
@@ -120,6 +122,7 @@ def cells(
                 to_emoji(entry["distro"]),
                 to_emoji(entry["filesystem"]),
                 to_emoji("tor" if entry["tor"] == "true" else "clearnet"),
+                to_emoji("vpn" if entry["vpn"] == "true" else "direct"),
                 status,
                 positions.get(covered, covered) if covered not in ("", "0") else "",
                 to_emoji(entry["instructions"]) if entry["instructions"] else "",
@@ -177,6 +180,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--lifecycles", default="")
     parser.add_argument("--sweep", type=int, default=None)
     parser.add_argument("--tor", default=None)
+    parser.add_argument("--vpn", default=None)
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--offset", default=None)
     parser.add_argument("--cli", action="store_true")
@@ -194,6 +198,7 @@ def main(argv: list[str] | None = None) -> int:
         lifecycles=args.lifecycles,
         sweep=sweep,
         tor_mode=tor.resolve_tor_mode(args.tor),
+        vpn_mode=vpn.resolve_vpn_mode(args.vpn),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
     )

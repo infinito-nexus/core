@@ -1,0 +1,42 @@
+---
+application_id: "svc-net-wireguard"
+
+WIREGUARD_CONFIG_DIR: "/etc/wireguard"
+
+WIREGUARD_HOST_MESHES: "{{ lookup('config', application_id, 'meshes', {}) }}"
+
+WIREGUARD_ACTIVE_MESHES: >-
+  {{ WIREGUARD_HOST_MESHES | dict2items
+     | selectattr('value.address') | items2dict }}
+
+WIREGUARD_MESH_NAMES: "{{ WIREGUARD_ACTIVE_MESHES.keys() | list | sort }}"
+
+WIREGUARD_SPOKE_MESH_NAMES: >-
+  {{ WIREGUARD_ACTIVE_MESHES | dict2items
+     | rejectattr('value.is_hub')
+     | map(attribute='key') | list | sort }}
+
+WIREGUARD_PING_BINARY: "/bin/ping"
+
+WIREGUARD_PRIVATE_KEY: "{{ lookup('config', application_id, 'secrets.credentials.mesh_private_key', '') }}"
+
+WIREGUARD_IS_HUB: >-
+  {{ WIREGUARD_ACTIVE_MESHES.values() | map(attribute='is_hub') | select | list | length > 0 }}
+
+WIREGUARD_EXPECTED_PEERS: >-
+  {{ WIREGUARD_ACTIVE_MESHES.values()
+     | map(attribute='peers')
+     | flatten
+     | selectattr('is_hub')
+     | map(attribute='address')
+     | list }}
+
+WIREGUARD_HEADER_BYTES: 60
+WIREGUARD_VXLAN_HEADER_BYTES: 50
+
+WIREGUARD_PMTU_TARGETS: >-
+  {{ (WIREGUARD_ACTIVE_MESHES.values()
+      | map(attribute='peers') | flatten
+      | selectattr('is_hub')
+      | map(attribute='endpoint') | list)
+     | default(NETWORK_PUBLIC_DNS_RESOLVERS, true) }}

@@ -40,3 +40,37 @@ class TestWriteExtrasDomainPrimary(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             extras = self._run(td, {"INFINITO_DOMAIN": "override.example"})
         self.assertEqual(extras["DOMAIN_PRIMARY"], "override.example")
+
+
+class TestWriteExtrasBecomePassword(unittest.TestCase):
+    def _run(self, td: str) -> tuple[dict, dict]:
+        out_path = Path(td) / "extras.yml"
+        env = {
+            "NFS_IP": "192.168.244.2",
+            "MGR_IP": "192.168.244.3",
+            "MGR": "swarm-mgr-01",
+            "OUT_PATH": str(out_path),
+            "KEY_PATH": str(Path(td) / "admin.key"),
+            "INFINITO_SWARM_BACKUP_KEY": str(Path(td) / "backup.key"),
+        }
+        with mock.patch.dict("os.environ", env, clear=False):
+            self.assertEqual(write_extras.main(), 0)
+        return (
+            load_yaml_any(str(out_path)),
+            load_yaml_any(str(out_path.with_suffix(".deploy.yml"))),
+        )
+
+    def test_become_matches_the_administrator_account(self):
+        with tempfile.TemporaryDirectory() as td:
+            extras, deploy = self._run(td)
+
+        declared = extras["users"]["administrator"]["password"]
+        self.assertEqual(declared, extras["ansible_become_password"])
+        self.assertEqual(declared, deploy["ansible_become_password"])
+
+    def test_the_deploy_twin_carries_it_although_users_are_stripped(self):
+        with tempfile.TemporaryDirectory() as td:
+            _, deploy = self._run(td)
+
+        self.assertNotIn("users", deploy)
+        self.assertIn("ansible_become_password", deploy)
