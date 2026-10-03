@@ -9,7 +9,7 @@ variants than the round.
 A pin states the dependency instead of inheriting it. Written as a comment on
 the line above the service entry that creates the dependency, it keeps the
 runtime services map clean: the marker never reaches ``host_vars``, unlike a
-YAML key under the service would.
+YAML key under the service would::
 
     # variant-pin: web-app-nextcloud#3
     nextcloud:
