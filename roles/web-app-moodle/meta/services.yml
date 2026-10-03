@@ -118,9 +118,28 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag: bridged bigbluebutton partner, covered by the mod_bigbluebuttonbn addon spec
+bigbluebutton:
+  bond: 0.5
+  enabled: "{{ 'web-app-bigbluebutton' in group_names }}"
+  shared: "{{ 'web-app-bigbluebutton' in group_names }}"
+# nocheck: playwright-service-flag: bridged jitsi partner, covered by the mod_jitsi addon spec
+jitsi:
+  bond: 0.5
+  enabled: "{{ 'web-app-jitsi' in group_names }}"
+  shared: "{{ 'web-app-jitsi' in group_names }}"
+# nocheck: playwright-service-flag: bridged matrix partner, covered by the communication_matrix addon spec
+matrix:
+  bond: 0.5
+  enabled: "{{ 'web-app-matrix' in group_names }}"
+  shared: "{{ 'web-app-matrix' in group_names }}"
+# nocheck: playwright-service-flag: bridged nextcloud partner, covered by the repository_owncloud addon spec
+nextcloud:
+  bond: 0.5
+  enabled: "{{ 'web-app-nextcloud' in group_names }}"
+  shared: "{{ 'web-app-nextcloud' in group_names }}"
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"

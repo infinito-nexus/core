@@ -155,6 +155,16 @@ openproject:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+# nocheck: playwright-service-flag: bridged gitlab partner, covered by partner role spec
+gitlab:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitlab' in group_names }}"
+  shared: "{{ 'web-app-gitlab' in group_names }}"
+# nocheck: playwright-service-flag: bridged nextcloud partner, covered by partner role spec
+nextcloud:
+  bond: 0.5
+  enabled: "{{ 'web-app-nextcloud' in group_names }}"
+  shared: "{{ 'web-app-nextcloud' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

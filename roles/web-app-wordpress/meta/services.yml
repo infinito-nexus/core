@@ -34,6 +34,21 @@ discourse:
   bond: 1
   enabled: "{{ 'web-app-discourse' in group_names }}"
   shared: "{{ 'web-app-discourse' in group_names }}"
+# nocheck: playwright-service-flag: bridged bigbluebutton partner, covered by partner role spec
+bigbluebutton:
+  bond: 0.5
+  enabled: "{{ 'web-app-bigbluebutton' in group_names }}"
+  shared: "{{ 'web-app-bigbluebutton' in group_names }}"
+# nocheck: playwright-service-flag: bridged listmonk partner, covered by partner role spec
+listmonk:
+  bond: 0.5
+  enabled: "{{ 'web-app-listmonk' in group_names }}"
+  shared: "{{ 'web-app-listmonk' in group_names }}"
+# nocheck: playwright-service-flag: bridged peertube partner, covered by partner role spec
+peertube:
+  bond: 0.5
+  enabled: "{{ 'web-app-peertube' in group_names }}"
+  shared: "{{ 'web-app-peertube' in group_names }}"
 # nocheck: playwright-service-flag  self-provider
 wordpress:
   enabled: true
@@ -85,7 +100,6 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"

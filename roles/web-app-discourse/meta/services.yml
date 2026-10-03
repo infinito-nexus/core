@@ -97,9 +97,33 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag: bridged bigbluebutton partner, covered by the discourse-bbb addon spec
+bigbluebutton:
+  bond: 0.5
+  enabled: "{{ 'web-app-bigbluebutton' in group_names }}"
+  shared: "{{ 'web-app-bigbluebutton' in group_names }}"
+# nocheck: playwright-service-flag: bridged jitsi partner, covered by the discourse-jitsi addon spec
+jitsi:
+  bond: 0.5
+  enabled: "{{ 'web-app-jitsi' in group_names }}"
+  shared: "{{ 'web-app-jitsi' in group_names }}"
+# nocheck: playwright-service-flag: bridged mastodon partner, covered by the discourse-activity-pub addon spec
+mastodon:
+  bond: 0.5
+  enabled: "{{ 'web-app-mastodon' in group_names }}"
+  shared: "{{ 'web-app-mastodon' in group_names }}"
+# nocheck: playwright-service-flag: bridged matrix partner, covered by the discourse-chat-integration addon spec
+matrix:
+  bond: 0.5
+  enabled: "{{ 'web-app-matrix' in group_names }}"
+  shared: "{{ 'web-app-matrix' in group_names }}"
+# nocheck: playwright-service-flag: bridged mattermost partner, covered by the discourse-chat-integration addon spec
+mattermost:
+  bond: 0.5
+  enabled: "{{ 'web-app-mattermost' in group_names }}"
+  shared: "{{ 'web-app-mattermost' in group_names }}"
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
