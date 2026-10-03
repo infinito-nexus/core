@@ -11,32 +11,38 @@ function normalized(text) {
 const { pollStatus } = require("./_shared");
 
 exports.register = function (shared) {
-  test("the deployed working tree is published in German with a language switcher", async ({ page, request }) => {
-    test.setTimeout(resolveTimeout(5_400_000)); // the English and then the German Sphinx build of the deployed working tree
-    expect(Object.keys(sample).length, "Expected German translations of README messages in docs.po").toBeGreaterThan(0);
-    await pollStatus(
-      request,
-      `${shared.appBaseUrl}/deployed/de/`,
-      200,
-      "Expected the German site of the deployed working tree to be built",
-      5_300_000,
-    );
+  test.use({ trace: "off", video: "off" });
 
-    await gotoOnion(page, `${shared.appBaseUrl}/deployed/de/`);
-    expect(await page.locator("html").getAttribute("lang")).toBe("de");
-    const text = normalized(await page.locator("body").textContent());
-    expect(
-      Object.values(sample).some((target) => text.includes(normalized(target))),
-      "Expected a German README message on /deployed/de/",
-    ).toBe(true);
+  test.describe(() => {
+    test.describe.configure({ retries: 0 });
 
-    const switcher = page.locator("#docs-language-switcher");
-    await expect(switcher.locator("option", { hasText: "Deutsch" })).toHaveCount(1, { timeout: resolveTimeout(30_000) });
-    await expect(switcher.locator("option", { hasText: "English" })).toHaveCount(1);
-    await Promise.all([
-      page.waitForURL(`${shared.appBaseUrl}/deployed/index.html`, { timeout: resolveTimeout(30_000) }),
-      switcher.selectOption({ label: "English" }),
-    ]);
+    test("the deployed working tree is published in German with a language switcher", async ({ page, request }) => {
+      test.setTimeout(resolveTimeout(5_400_000)); // the English and then the German Sphinx build of the deployed working tree
+      expect(Object.keys(sample).length, "Expected German translations of README messages in docs.po").toBeGreaterThan(0);
+      await pollStatus(
+        request,
+        `${shared.appBaseUrl}/deployed/de/`,
+        200,
+        "Expected the German site of the deployed working tree to be built",
+        5_300_000,
+      );
+
+      await gotoOnion(page, `${shared.appBaseUrl}/deployed/de/`);
+      expect(await page.locator("html").getAttribute("lang")).toBe("de");
+      const text = normalized(await page.locator("body").textContent());
+      expect(
+        Object.values(sample).some((target) => text.includes(normalized(target))),
+        "Expected a German README message on /deployed/de/",
+      ).toBe(true);
+
+      const switcher = page.locator("#docs-language-switcher");
+      await expect(switcher.locator("option", { hasText: "Deutsch" })).toHaveCount(1, { timeout: resolveTimeout(30_000) });
+      await expect(switcher.locator("option", { hasText: "English" })).toHaveCount(1);
+      await Promise.all([
+        page.waitForURL(`${shared.appBaseUrl}/deployed/index.html`, { timeout: resolveTimeout(30_000) }),
+        switcher.selectOption({ label: "English" }),
+      ]);
+    });
   });
 
   test("a language without a translated site answers 404", async ({ request }) => {

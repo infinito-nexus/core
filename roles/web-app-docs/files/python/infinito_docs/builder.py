@@ -202,7 +202,7 @@ class Builder:
             self.request(version, code, background=True)
             return
         ref = self._wanted_ref(version, head)
-        work = self.scratch / f"{version}{QUEUE_SEPARATOR}{code}"
+        work = self.scratch / f"{version}-{code}"
         src, conf = work / "src", work / "conf"
         target = work / "out"
         state = {
