@@ -33,6 +33,21 @@ into native Baserow JWT refresh/access tokens for the frontend.
 Directory-backed identities are handled before they reach this role: Keycloak
 can federate external user stores and then expose the result to Baserow via OIDC.
 
+## Addons
+
+Role-level extensions are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `openid_connect` | `plugin` | off, commercial tier | `sso` → `web-app-keycloak` |
+
+Baserow's native `openid_connect` auth provider belongs to the bundled enterprise
+plugin and refuses to register without a paid Baserow Enterprise licence, so the
+addon ships declared and off and the oauth2-proxy front door above stays the
+supported SSO path. An operator holding that licence switches the addon on;
+[files/playwright/addons/openid_connect.spec.js](./files/playwright/addons/openid_connect.spec.js)
+then asserts the provider is registered and offered on the login page.
+
 ## Bootstrap Admin (Django Superuser)
 
 This role can optionally bootstrap a Django superuser inside the Baserow container (useful for initial setup and automation).

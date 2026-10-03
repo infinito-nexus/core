@@ -30,6 +30,16 @@ By default, BigBlueButton is deployed with best-practice hardening, modular secr
   - ✅ LDAP (with custom DN and filters)
   - 🧩 Custom OAuth2 flows via ENV vars
 
+## Addons
+
+Role-level extensions are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `openid_connect` | `module` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+
+Greenlight ships its OpenID Connect strategy with the image and activates it from the `OPENID_CONNECT_*` block in [templates/env.j2](./templates/env.j2), so the addon's enablement derives directly from the `sso` service flag. Coupling is asserted by [files/playwright/addons/openid_connect.spec.js](./files/playwright/addons/openid_connect.spec.js).
+
 ## System Requirements
 
 - Arch Linux with Docker, Compose, and NGINX roles pre-installed

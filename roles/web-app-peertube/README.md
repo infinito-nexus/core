@@ -25,6 +25,16 @@ This Docker Compose deployment sets up PeerTube with integrated support for esse
 - **Federated Communication:**
   Designed to operate within a federated network, enabling seamless sharing and interconnection with other PeerTube instances.
 
+## Addons
+
+Role-level extensions are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `peertube-plugin-auth-openid-connect` | `plugin` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+
+The plugin is installed through PeerTube's own `plugin:install` and its settings row is upserted by [tasks/oidc/enable.yml](./tasks/oidc/enable.yml), so its enablement derives directly from the `sso` service flag. Coupling is asserted by [files/playwright/addons/peertube-plugin-auth-openid-connect.spec.js](./files/playwright/addons/peertube-plugin-auth-openid-connect.spec.js).
+
 ## Developer Notes
 
 See [Upgrade.md](./Upgrade.md) for guidance on upgrading your PeerTube deployment.

@@ -16,6 +16,17 @@ This Ansible role deploys EspoCRM using Docker. It handles:
 
 With this role, you'll have a production-ready CRM environment that's secure, scalable, and real-time.
 
+## Addons
+
+Role-level extensions are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `oidc` | `extension` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `outbound-emails` | `extension` | enabled whenever the `email` service is present (`web-app-mailu` co-deployed) | `email` → `web-app-mailu` |
+
+Both name surfaces EspoCRM ships itself, so their payload stays with [`templates/env.j2`](./templates/env.j2), which renders `ESPOCRM_CONFIG_OIDC_*` and `ESPOCRM_CONFIG_SMTP_*` from the same service flags the addons' `enabled` expressions read; [`files/php/seed_config.php`](./files/php/seed_config.php) writes them into EspoCRM's own config.
+
 ## Features
 
 - **Workflow Automation:** Create and manage automated CRM processes with ease 🛠️  

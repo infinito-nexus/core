@@ -18,6 +18,17 @@ This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.i
 - **Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists.
 - **Wizard bypass:** First deploy seeds `auto_wizard.json` so no manual setup UI step is required.
 
+## Addons
+
+Zammad's cross-role integrations are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `openid_connect` | `module` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `email_channel` | `bridge` | enabled whenever the `email` service is present (`web-app-mailu` co-deployed) | `email` → `web-app-mailu` |
+
+Both units ship with the Zammad image. [`tasks/01_manager_ops.yml`](./tasks/01_manager_ops.yml) applies [`files/ruby/apply/oidc_settings.rb`](./files/ruby/apply/oidc_settings.rb) and [`files/ruby/apply/email_channel.rb`](./files/ruby/apply/email_channel.rb) under the same service flags the addons declare, so each addon's `enabled` is a declaration of what that provisioning already gates on. Coupling is asserted by [files/playwright/addons/openid_connect.spec.js](./files/playwright/addons/openid_connect.spec.js) and [files/playwright/addons/email_channel.spec.js](./files/playwright/addons/email_channel.spec.js).
+
 ## Developer Notes
 
 Variant matrix lives in [variants.yml](./meta/variants.yml). Service flags and image pins in [services.yml](./meta/services.yml). Credentials declared in [secrets.yml](./meta/secrets.yml).

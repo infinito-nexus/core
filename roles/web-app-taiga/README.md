@@ -46,6 +46,16 @@ By using this role, teams can set up Taiga in minutes on Arch Linux systems, whe
 - 🌐 **Reverse Proxy Ready:** Integrates with NGINX using the `sys-stk-front-proxy` role.
 - 🧩 **Composable Design:** Integrates cleanly with other Infinito.Nexus infrastructure roles.
 
+## Addons
+
+Role-level extensions are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `taiga-contrib-oidc-auth` | `plugin` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+
+The plugin is built into the custom `taiga-front` image and pip-installed into the backend from the git ref pinned in [`meta/services.yml`](./meta/services.yml) under `sso.oidc`, so its enablement derives directly from the `sso` service flag. Coupling is asserted by [files/playwright/addons/taiga-contrib-oidc-auth.spec.js](./files/playwright/addons/taiga-contrib-oidc-auth.spec.js).
+
 ---
 
 ## Persona contract opt-outs

@@ -27,7 +27,7 @@ Each one is installed through the XWiki Extension Manager and pins its upstream 
 |-------|-----------|---------------|---------|
 | `oidc-authenticator` | `extension` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
 | `ldap-authenticator` | `extension` | enabled whenever the `ldap` service is present (`svc-db-openldap` co-deployed) | `ldap` → `svc-db-openldap` |
-| `matomo` | `extension` | enabled whenever the `matomo` service is present (`web-app-matomo` co-deployed) | `matomo` → `web-app-matomo` |
+| `ai-llm` | `extension` | enabled whenever the `litellm` service is usable (`web-app-litellm` co-deployed) | `litellm` → `web-app-litellm` |
 
 `oidc-authenticator` and `ldap-authenticator` are mutually exclusive auth backends (only one may be enabled; see [`tasks/01_validation.yml`](./tasks/01_validation.yml)), each deriving its enablement from its bridged service flag.
 The OIDC/LDAP runtime configuration (provider URLs, bind DN, secrets) lives in the XWiki property templates and is read via `lookup('config', application_id, 'secrets.credentials.<name>')`; the addon `config:` carries only the installer coordinate.

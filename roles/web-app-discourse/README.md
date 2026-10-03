@@ -23,9 +23,19 @@ Addons are declared in `meta/addons/` and read at deploy time via `lookup('confi
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|
 | `docker_manager` | plugin | enabled | none |
-| `discourse-activity-pub` | plugin | enabled | none |
-| `discourse-akismet` | plugin | enabled | none |
+| `discourse-activity-pub` | plugin | enabled | `mastodon` |
+| `discourse-akismet` | plugin | enabled | none (API key is operator-supplied) |
+| `discourse-ai` | plugin | follows `services.litellm.enabled` | `litellm` |
+| `discourse-bbb` | plugin | follows `services.bigbluebutton.enabled` | `bigbluebutton` |
+| `discourse-jitsi` | plugin | follows `services.jitsi.enabled` | `jitsi` |
+| `discourse-chat-integration` | plugin | follows `services.matrix.enabled` or `services.mattermost.enabled` | `matrix`, `mattermost` |
+| `discourse-openid-connect` | plugin | follows `services.sso.enabled` | `sso` |
+| `discourse-prometheus` | plugin | follows `services.prometheus.enabled` | `prometheus` |
 | `discourse-ldap-auth` | plugin | follows `services.ldap.enabled` (currently off) | `ldap` |
+
+The bridged partners are co-deployed by variant 1 of [`meta/variants.yml`](./meta/variants.yml); variant 0 is the baseline round and keeps them off to stay within its host budget.
+
+`discourse-akismet` ships the plugin but configures nothing: the role writes no akismet site setting, and `akismet_api_key` is a SaaS credential an operator enters in the admin UI. Its spec asserts only that the plugin's settings exist.
 
 The `ldap` service block in [`meta/services.yml`](./meta/services.yml) is intentionally pinned to literal `false` (see [TODO.md](./TODO.md)): the `jonmbake/discourse-ldap-auth` plugin breaks Discourse bootstrap on recent versions. `discourse-ldap-auth` therefore resolves to disabled until that block is flipped back to the dynamic group-membership form.
 
