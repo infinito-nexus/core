@@ -1,0 +1,111 @@
+---
+- name: "🔍 Read the Wazuh certs completion marker"
+  ansible.builtin.slurp:
+    src: "{{ WAZUH_CERTS_MARKER_HOST }}"
+  register: wazuh_certs_marker
+  failed_when: false
+
+- name: "🔍 Checksum the rendered Wazuh certs.yml"
+  ansible.builtin.stat:
+    path: "{{ WAZUH_CERTS_CONFIG_HOST }}"
+    checksum_algorithm: sha256
+  register: wazuh_certs_config
+
+- name: "🔍 Stat every Wazuh cert file the stack bind-mounts"
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ WAZUH_CERTS_REQUIRED_FILES }}"
+  register: wazuh_certs_files
+
+- name: "🔍 List the services of a running Wazuh stack"
+  ansible.builtin.command:
+    argv:
+      - container
+      - service
+      - ls
+      - --quiet
+      - --filter
+      - "label=com.docker.stack.namespace={{ application_id | get_entity_name }}"
+  register: wazuh_certs_stack
+  changed_when: false
+
+- name: "🧮 Decide whether the Wazuh certs are current"
+  vars:
+    expected: "{{ wazuh_certs_config.stat.checksum }} {{ WAZUH_CERTS_TOOL_VERSION }}"
+    recorded: "{{ wazuh_certs_marker.content | default('') | b64decode | trim }}"
+    present: >-
+      {{ wazuh_certs_files.results | selectattr('stat.size', 'defined') | selectattr('stat.size', 'gt', 0) | list | length }}
+  ansible.builtin.set_fact:
+    wazuh_certs_expected: "{{ expected }}"
+    wazuh_certs_recorded: "{{ recorded }}"
+    wazuh_certs_present: "{{ present | int }}"
+    wazuh_certs_current: "{{ present | int == WAZUH_CERTS_REQUIRED_FILES | length and recorded == expected }}"
+
+- name: "⛔ Refuse to rotate the Wazuh CA under a running stack"
+  ansible.builtin.fail:
+    msg: >-
+      Wazuh TLS certs on {{ inventory_hostname }} are not current, and the stack
+      '{{ application_id | get_entity_name }}' is running, so they were NOT regenerated: that would
+      swap the CA under the live services.
+      Marker {{ WAZUH_CERTS_MARKER_HOST }} reads '{{ wazuh_certs_recorded or 'missing' }}',
+      expected '{{ wazuh_certs_expected }}' (sha256 of certs.yml, then tool version);
+      {{ wazuh_certs_present }}/{{ WAZUH_CERTS_REQUIRED_FILES | length }} cert files in
+      {{ WAZUH_CERTS_DIR_HOST }} exist and are non-empty.
+      To regenerate: run 'docker stack rm {{ application_id | get_entity_name }}', then redeploy.
+      To keep certs you know are good (a host deployed before this marker existed): write
+      '{{ wazuh_certs_expected }}' to {{ WAZUH_CERTS_MARKER_HOST }}, then redeploy.
+  when:
+    - not (wazuh_certs_current | bool)
+    - wazuh_certs_stack.stdout | trim | length > 0
+
+- name: "⬇️ Pull the Wazuh certs generator image on the stack host"
+  ansible.builtin.command:
+    argv:
+      - container
+      - pull
+      - "{{ WAZUH_CERTS_GENERATOR_IMAGE }}"
+  register: wazuh_certs_pull
+  retries: 10
+  delay: 6
+  until: wazuh_certs_pull.rc == 0
+  changed_when: false
+  when: not (wazuh_certs_current | bool)
+
+- name: "🔐 Run the Wazuh certs generator once on the stack host"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    timeout -k 30 {{ lookup('timeout', 600) | int }} container run --rm \
+      --name {{ WAZUH_CERTS_GENERATOR_CONTAINER | quote }} \
+      --env CERT_TOOL_VERSION={{ WAZUH_CERTS_TOOL_VERSION | quote }} \
+      {% for mount in WAZUH_CERTS_GENERATOR_MOUNTS %}--mount {{ mount | quote }} {% endfor %}\
+      {{ WAZUH_CERTS_GENERATOR_IMAGE | quote }}
+  args:
+    executable: /bin/bash
+  register: wazuh_certs_generate
+  retries: 3
+  delay: 10
+  until: wazuh_certs_generate.rc == 0
+  when: not (wazuh_certs_current | bool)
+
+- name: "✅ Verify the generated Wazuh certs and record the marker"
+  when: wazuh_certs_generate is not skipped
+  block:
+    - name: "🔍 Stat the Wazuh cert files the generator wrote"
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: "{{ WAZUH_CERTS_REQUIRED_FILES }}"
+      register: wazuh_certs_written
+
+    - name: "✅ Assert every Wazuh cert file exists and is non-empty"
+      ansible.builtin.assert:
+        that:
+          - >-
+            wazuh_certs_written.results | selectattr('stat.size', 'defined') | selectattr('stat.size', 'gt', 0)
+            | list | length == WAZUH_CERTS_REQUIRED_FILES | length
+        fail_msg: "The Wazuh certs generator exited 0 but left a required cert file missing or empty."
+
+    - name: "📝 Record the Wazuh certs completion marker"
+      ansible.builtin.copy:
+        content: "{{ wazuh_certs_expected }}\n"
+        dest: "{{ WAZUH_CERTS_MARKER_HOST }}"
+        mode: "0644"

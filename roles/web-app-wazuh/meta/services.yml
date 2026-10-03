@@ -1,0 +1,136 @@
+---
+# nocheck: email, dynamic-flag, playwright-service-flag
+email:
+  enabled: false
+  shared: false
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+# nocheck: playwright-service-flag  authorization backend of the indexer's OpenSearch security plugin, no LDAP UI surface to probe.
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: playwright-service-flag  dashboard-tile reachability is owned by web-app-dashboard/files/playwright/playwright.spec.js, not consumer roles.
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag  Wazuh exposes no native /metrics endpoint; nothing for a consumer-role spec to assert here.
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag  css consumer, no Playwright surface (provider: web-svc-css)
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+wazuh:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  certs_generator writes the TLS material into a host bind directory that manager, indexer and dashboard mount, so all of them have to run on that node.
+  placement: manager
+  min_storage: 1GB
+  cpus: "0.2"
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 256
+  run_after:
+    - web-app-keycloak
+    - svc-db-openldap
+  lifecycle: beta
+certs_generator:
+  image: wazuh/wazuh-certs-generator
+  version: "0.0.4"
+  name: wazuh-certs-generator
+  cpus: "0.2"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 128
+manager:
+  image: wazuh/wazuh-manager
+  version: "4.14.6"
+  name: wazuh.manager
+  # nocheck: min-storage-headroom  Reason: budgets room for wazuh-manager's own operational data (var-ossec logs, alerts, agent queue/state) to grow well beyond the base image over the service's lifetime, not just the image itself.
+  min_storage: 10GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 2g
+  pids_limit: 1024
+  backup:
+    no_stop_required: false
+  ports:
+    internal:
+      agent_events: 1514
+      agent_registration: 1515
+      api: 55000
+indexer:
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      - "curl -s -o /dev/null -w '%{http_code}' -k https://localhost:{{ lookup('config', 'web-app-wazuh', 'services.indexer.ports.internal.http') }}/_cluster/health
+        | grep -Eq '^(200|401)$$'"
+    # nocheck: healthcheck-timing-override  manager and dashboard depend_on indexer with condition: service_healthy (see compose.yml.j2); the curl flavor's 2m cadence would leave both blocked for minutes past the point the indexer is actually ready.
+    interval: 30s
+    # nocheck: healthcheck-timing-override  the -k https probe against the security plugin can take longer than the 5s default while the TLS handshake completes during startup.
+    timeout: 10s
+    retries: 10
+    # nocheck: healthcheck-timing-override  covers the indexer's real boot without waiting out the curl flavor's 10m default, which would otherwise stall manager/dashboard's startup order far longer than the indexer actually needs.
+    start_period: 90s
+  image: wazuh/wazuh-indexer
+  version: "4.14.6"
+  name: wazuh.indexer
+  # nocheck: min-storage-headroom  Reason: budgets room for the OpenSearch index data (security events/alerts Wazuh continuously ingests) to grow well beyond the base image over the service's lifetime, not just the image itself.
+  min_storage: 20GB
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 2048
+  backup:
+    no_stop_required: false
+  ports:
+    internal:
+      http: 9200
+    local:
+      http: 8097
+console:
+  image: wazuh/wazuh-dashboard
+  version: "4.14.6"
+  name: wazuh.dashboard
+  # nocheck: min-storage-headroom  Reason: budgets room for the dashboard's own runtime state (OpenSearch Dashboards bundle/build cache rebuilt on first boot, plus exported reports and saved-object data) to grow beyond the base image, not just the image itself.
+  min_storage: 2GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    internal:
+      http: 5601
+    local:
+      http: 8096
+
+# nocheck: sso-variant-tor — maintainer decision: the SIEM console is served on clearnet only, never as an onion service
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — the role never joins the onion topology, so no persona surface can assert it
+tor:
+  enabled: false
+  shared: false # nocheck: dynamic-flag

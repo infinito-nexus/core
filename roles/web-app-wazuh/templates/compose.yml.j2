@@ -1,0 +1,89 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+{# Exception: swarm ignores depends_on, so in swarm tasks/certs/swarm.yml generates the certs before the stack deploys. #}
+{% set certs_generator_dependency = {'certs_generator': {'condition': 'service_completed_successfully'}} if DEPLOYMENT_MODE == 'compose' else {} %}
+  {% if DEPLOYMENT_MODE == 'compose' %}
+  {% set service_name = 'certs_generator' %}
+  {% set docker_restart_policy = 'no' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'certs_generator') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_CERTS_GENERATOR_CONTAINER) }}
+    environment:
+      - CERT_TOOL_VERSION={{ WAZUH_CERTS_TOOL_VERSION }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+
+  {% endif %}
+  {% set service_name = 'manager' %}
+  {% set docker_restart_policy = DOCKER_RESTART_POLICY %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'manager') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_MANAGER_CONTAINER) }}
+    hostname: "{{ WAZUH_MANAGER_CONTAINER }}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 655360
+        hard: 655360
+    environment:
+      - "INDEXER_URL=https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
+      - "INDEXER_USERNAME={{ WAZUH_INDEXER_ADMIN_USERNAME }}"
+      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+      - "FILEBEAT_SSL_VERIFICATION_MODE=full"
+      - "SSL_CERTIFICATE_AUTHORITIES={{ lookup('volume', application_id, 'root_ca_manager_pem').target }}"
+      - "SSL_CERTIFICATE={{ lookup('volume', application_id, 'manager_filebeat_pem').target }}"
+      - "SSL_KEY={{ lookup('volume', application_id, 'manager_filebeat_key_pem').target }}"
+      - "API_USERNAME={{ WAZUH_WUI_USERNAME }}"
+      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra=certs_generator_dependency) | indent(4) }}
+
+  {% set service_name = 'indexer' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'indexer') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_INDEXER_CONTAINER) }}
+    hostname: "{{ WAZUH_INDEXER_CONTAINER }}"
+    {{ lookup('container_ports', ['indexer', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra=certs_generator_dependency) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+
+  {% set service_name = 'dashboard' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'console') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_DASHBOARD_CONTAINER) }}
+    hostname: "{{ WAZUH_DASHBOARD_CONTAINER }}"
+    {{ lookup('container_ports', ['console', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    environment:
+      - "INDEXER_USERNAME={{ WAZUH_INDEXER_ADMIN_USERNAME }}"
+      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+      - "WAZUH_API_URL=https://{{ WAZUH_MANAGER_CONTAINER }}"
+      - "DASHBOARD_USERNAME={{ WAZUH_DASHBOARD_SERVICE_USERNAME }}"
+      - "DASHBOARD_PASSWORD={{ WAZUH_DASHBOARD_SERVICE_PASSWORD }}"
+      - "API_USERNAME={{ WAZUH_WUI_USERNAME }}"
+      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'indexer': {'condition': 'service_healthy'},
+  'manager': {'condition': 'service_started'},
+}) | indent(4) }}
+
+{{ lookup('compose_volumes') }}
+
+{{ lookup('compose_networks') }}

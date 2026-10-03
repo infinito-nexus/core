@@ -1,0 +1,70 @@
+---
+application_id: "web-app-wazuh"
+
+WAZUH_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.manager.name') }}"
+
+WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
+WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
+WAZUH_INDEXER_HTTP_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.local.http') }}"
+WAZUH_INDEXER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.internal.http') }}"
+
+WAZUH_DASHBOARD_CONTAINER: "{{ lookup('config', application_id, 'services.console.name') }}"
+WAZUH_DASHBOARD_HTTP_PORT: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
+WAZUH_DASHBOARD_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.console.ports.internal.http') }}"
+
+WAZUH_CERTS_GENERATOR_CONTAINER: "{{ lookup('config', application_id, 'services.certs_generator.name') }}"
+WAZUH_CERTS_GENERATOR_IMAGE: "{{ lookup('image', application_id, 'certs_generator', tag_only=True) }}"
+WAZUH_CERTS_GENERATOR_MOUNTS:
+  - "type=bind,source={{ WAZUH_CERTS_CONFIG_HOST }},target={{ lookup('volume', application_id, 'certs_generator_config').target }},readonly"
+  - "type=bind,source={{ WAZUH_CERTS_ENTRYPOINT_HOST }},target={{ lookup('volume', application_id, 'certs_generator_entrypoint').target }},readonly"
+  - "type=bind,source={{ WAZUH_CERTS_DIR_HOST }},target={{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
+WAZUH_CERTS_TOOL_VERSION: "4.14"
+
+WAZUH_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+WAZUH_CERTS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs' ] | path_join }}"
+WAZUH_CERTS_CONFIG_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.yml' ] | path_join }}"
+WAZUH_CERTS_ENTRYPOINT_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs-entrypoint.sh' ] | path_join }}"
+WAZUH_CERTS_MARKER_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.complete' ] | path_join }}"
+WAZUH_CERTS_REQUIRED_FILES:
+  - "{{ [ WAZUH_CERTS_DIR_HOST, 'root-ca.pem' ] | path_join }}"
+  - "{{ [ WAZUH_CERTS_DIR_HOST, 'root-ca-manager.pem' ] | path_join }}"
+  - "{{ [ WAZUH_CERTS_DIR_HOST, 'admin.pem' ] | path_join }}"
+  - "{{ [ WAZUH_CERTS_DIR_HOST, 'admin-key.pem' ] | path_join }}"
+  - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_MANAGER_CONTAINER ~ '.pem' ] | path_join }}"
+  - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_MANAGER_CONTAINER ~ '-key.pem' ] | path_join }}"
+  - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_INDEXER_CONTAINER ~ '.pem' ] | path_join }}"
+  - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_INDEXER_CONTAINER ~ '-key.pem' ] | path_join }}"
+
+WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security" # nocheck: container-var-name-lookup  in-container path, not a container name
+
+WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
+
+WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
+
+WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+WAZUH_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
+
+WAZUH_INDEXER_ADMIN_USERNAME: "{{ lookup('users', 'admin').username }}"
+WAZUH_INDEXER_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.indexer_admin_password') }}"
+WAZUH_INDEXER_ADMIN_HASH: "{{ WAZUH_INDEXER_ADMIN_PASSWORD | bcrypt_hash }}"
+
+WAZUH_DASHBOARD_SERVICE_USERNAME: "{{ lookup('users', 'web-app-wazuh-dashboard').username }}"
+WAZUH_DASHBOARD_SERVICE_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.dashboard_service_password') }}"
+WAZUH_DASHBOARD_SERVICE_HASH: "{{ WAZUH_DASHBOARD_SERVICE_PASSWORD | bcrypt_hash }}"
+
+WAZUH_WUI_USERNAME: "{{ lookup('users', 'web-app-wazuh-api').username }}"
+WAZUH_WUI_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.wazuh_wui_password') }}"
+
+WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.manager_cluster_key') }}"
+
+WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"
+WAZUH_RBAC_READONLY_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='readonly-auditor') }}"
+
+WAZUH_RBAC_ADMIN_LDAP_CN: "{{ application_id }}-administrator"
+WAZUH_RBAC_ANALYST_LDAP_CN: "{{ application_id }}-security-analyst"
+WAZUH_RBAC_READONLY_LDAP_CN: "{{ application_id }}-readonly-auditor"
+
+test_e2e_playwright_wait_retries: 120
+test_e2e_playwright_wait_delay: 5
