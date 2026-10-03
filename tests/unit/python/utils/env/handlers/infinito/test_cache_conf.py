@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import os
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from utils.env.builder import BuildContext, EnvBuilder
 from utils.env.handlers.infinito.cache import conf as handler
@@ -26,6 +28,7 @@ class TestApply(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         self.root = Path(self._tmp.name).resolve()
 
+    @patch.dict(os.environ, {handler.KEY: ""}, clear=False)
     def test_the_map_is_rendered_in_the_checkout_that_builds_it(self) -> None:
         eb = EnvBuilder()
 
