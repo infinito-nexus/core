@@ -38,9 +38,12 @@ class EnsureGitlabWebhookTest < Minitest::Test
         def save!; $state[:saved] = true; end
       end
 
+      USER_EXISTS = #{user_exists}
+      TOKEN_OWNER = #{token_owner.inspect}
+
       module User
         def self.find_by(login:)
-          #{user_exists} ? FakeUser.new(login: login) : nil
+          USER_EXISTS ? FakeUser.new(login: login) : nil
         end
         def self.new(**attrs) = FakeUser.new(**attrs)
       end
@@ -50,7 +53,7 @@ class EnsureGitlabWebhookTest < Minitest::Test
       module Token
         module API
           def self.find_by_plaintext_value(_value)
-            #{token_owner.inspect}.nil? ? nil : FakeToken.new(#{token_owner.inspect}, nil)
+            TOKEN_OWNER.nil? ? nil : FakeToken.new(TOKEN_OWNER, nil)
           end
           def self.where(user_id:) = Relation.new
           def self.create!(user:, token_name:)
