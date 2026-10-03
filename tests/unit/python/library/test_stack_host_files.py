@@ -116,7 +116,10 @@ class TestApply(unittest.TestCase):
             wanted = {"de.yaml": "Home: Startseite\n"}
             _MOD.apply(directory, {}, wanted, ["de.yaml"], [], "0640", "0750")
             target = directory / "de.yaml"
-            self.assertEqual(target.read_text(encoding="utf-8"), wanted["de.yaml"])
+            produced = target.read_text(
+                encoding="utf-8"
+            )  # nocheck: cache-read apply() wrote this file a line above; a cached read would serve the pre-write state
+            self.assertEqual(produced, wanted["de.yaml"])
             self.assertEqual(target.stat().st_mode & 0o777, 0o640)
             self.assertEqual(directory.stat().st_mode & 0o777, 0o750)
 
