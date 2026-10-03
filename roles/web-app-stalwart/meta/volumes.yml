@@ -1,0 +1,61 @@
+---
+data:
+  type: volume
+  name: stalwart_data
+  mounts:
+    - service: stalwart
+      target: /var/lib/stalwart
+config:
+  type: volume
+  name: stalwart_config
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart
+webmail_data:
+  type: volume
+  name: stalwart_webmail_data
+  mounts:
+    - service: webmail
+      target: /var/www/html
+clamav_data:
+  type: volume
+  name: stalwart_clamav_data
+  mounts:
+    - service: clamav
+      target: /var/lib/clamav
+config_file:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'etc/config.json' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart/config.json
+# nocheck: meta-volume-file-bind-should-be-config — multi-MB zip exceeds the docker config size limit; the role is manager-pinned so the bind source is always node-local
+webui_bundle:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'etc/webui.zip' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart/webui.zip
+certs:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'certs' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: stalwart
+      target: /etc/stalwart/certs
+clamav_milter_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'etc/clamav-milter.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: clamav
+      target: /etc/clamav/clamav-milter.conf
+webmail_oauth:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'webmail/oauth.inc.php' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webmail
+      target: /var/roundcube/config/oauth.inc.php

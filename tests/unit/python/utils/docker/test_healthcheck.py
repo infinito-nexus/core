@@ -142,10 +142,32 @@ class TestOtherFlavors(unittest.TestCase):
             blackhole="void@example",
         )
         self.assertIn("if [ ! -f /tmp/email_sent ]", argv[1])
-        self.assertIn("msmtp -t void@example", argv[1])
+        self.assertIn("msmtp --domain=app.example -t void@example", argv[1])
         self.assertTrue(
             argv[1].endswith("curl -f --noproxy '*' http://127.0.0.1:80/ || exit 1")
         )
+
+    def test_the_ehlo_identity_is_named_so_a_strict_relay_accepts_it(self):
+        """msmtp defaults EHLO to "localhost", which Stalwart answers with 550."""
+        argv = probe(
+            "msmtp_curl",
+            port=80,
+            email_enabled=True,
+            domain="app.example",
+            blackhole="void@example",
+        )
+        self.assertIn("--domain=app.example", argv[1])
+
+    def test_without_a_domain_no_empty_ehlo_flag_is_emitted(self):
+        argv = probe(
+            "msmtp_curl",
+            port=80,
+            email_enabled=True,
+            domain="",
+            blackhole="void@example",
+        )
+        self.assertNotIn("--domain=", argv[1])
+        self.assertIn("msmtp -t void@example", argv[1])
 
     def test_msmtp_curl_probe_behaviour(self):
         argv = probe(

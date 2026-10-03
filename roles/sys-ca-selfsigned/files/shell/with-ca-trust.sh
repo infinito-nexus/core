@@ -6,6 +6,8 @@ set -eu
 
 VERBOSE="${VERBOSE:-1}"
 
+SYS_CA_BUNDLE_CANDIDATES="/etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem"
+
 log() {
   if [ "$VERBOSE" = "1" ]; then
     echo "[with-ca-trust] $*" >&2
@@ -40,6 +42,18 @@ if [ -n "${CA_TRUST_BUNDLE:-}" ] && [ -r "${CA_TRUST_BUNDLE}" ]; then
   _ca_trust_verify_file="$CA_TRUST_BUNDLE"
 else
   _ca_trust_verify_file="$CA_TRUST_CERT"
+  # shellcheck disable=SC2086 # intentional word-splitting; paths contain no spaces
+  for sys_bundle in $SYS_CA_BUNDLE_CANDIDATES; do
+    if [ -r "$sys_bundle" ] &&
+      _ca_trust_sys_combined="$(mktemp -t with-ca-trust-combined.XXXXXX 2>/dev/null)" &&
+      cat "$sys_bundle" "$CA_TRUST_CERT" > "$_ca_trust_sys_combined" 2>/dev/null &&
+      chmod 0644 "$_ca_trust_sys_combined" 2>/dev/null
+    then
+      _ca_trust_verify_file="$_ca_trust_sys_combined"
+      log "Combined system CA bundle ($sys_bundle) with ${name} -> $_ca_trust_sys_combined"
+      break
+    fi
+  done
 fi
 
 export SSL_CERT_FILE="$_ca_trust_verify_file"
@@ -49,7 +63,8 @@ export NODE_EXTRA_CA_CERTS="$CA_TRUST_CERT"
 
 if [ -n "${CA_TRUST_CERT_EXTRA:-}" ] && [ -r "${CA_TRUST_CERT_EXTRA}" ]; then
   if combined="$(mktemp -t ca-trust-combined.XXXXXX 2>/dev/null)" &&
-    cat "$_ca_trust_verify_file" "$CA_TRUST_CERT_EXTRA" > "$combined" 2>/dev/null
+    cat "$_ca_trust_verify_file" "$CA_TRUST_CERT_EXTRA" > "$combined" 2>/dev/null &&
+    chmod 0644 "$combined" 2>/dev/null
   then
     export SSL_CERT_FILE="$combined"
     export REQUESTS_CA_BUNDLE="$combined"

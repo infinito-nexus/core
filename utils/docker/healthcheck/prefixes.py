@@ -17,7 +17,9 @@ def mail_branch(context: dict[str, Any]) -> str:
 
     Args:
         context: the probe context; needs ``email_enabled`` to do anything, plus
-            ``domain`` and ``blackhole`` for the message.
+            ``domain`` -- the EHLO identity msmtp otherwise defaults to
+            ``localhost``, which a strict relay refuses -- and ``blackhole``
+            for the recipient.
 
     Returns:
         The shell prefix, or an empty string when email is disabled.
@@ -33,10 +35,11 @@ def mail_branch(context: dict[str, Any]) -> str:
         return ""
     domain = context.get("domain", "")
     blackhole = context.get("blackhole", "")
+    ehlo = f"--domain={domain} " if domain else ""
     return (
         f"if [ ! -f {MAIL_MARKER} ]; then "
         f"echo 'Subject: testmessage from {domain}\\n\\nSUCCESSFULL' "
-        f"| msmtp -t {blackhole} && touch {MAIL_MARKER}; fi; "
+        f"| msmtp {ehlo}-t {blackhole} && touch {MAIL_MARKER}; fi; "
     )
 
 

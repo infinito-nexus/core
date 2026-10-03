@@ -25,8 +25,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 php:
   image: markoshust/magento-php
   version: 8.4-fpm # nocheck: docker-version — magento/product-community-edition 2.4.8 requires php ~8.2.0||~8.3.0||~8.4.0; dc08bc621 already pinned this down from 8.5 and the image bot reverted it in 1e4f82128, so composer install fails again

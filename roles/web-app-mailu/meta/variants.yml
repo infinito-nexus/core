@@ -14,6 +14,9 @@
     dashboard:
       enabled: true
       shared: true
+    email:
+      enabled: true
+      shared: true
     logout:
       enabled: true
       shared: true
@@ -40,6 +43,9 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:

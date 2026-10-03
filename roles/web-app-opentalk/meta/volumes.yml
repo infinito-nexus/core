@@ -41,6 +41,14 @@ livekit_yaml:
     - service: livekit
       target: /etc/livekit/livekit.yaml
 
+rabbitmq_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-opentalk', 'directories.volumes'), 'rabbitmq.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: rabbit
+      target: /etc/rabbitmq/conf.d/10-deprecated-features.conf
+
 recorder_toml:
   type: config
   source: "{{ [lookup('container', 'web-app-opentalk', 'directories.volumes'), 'recorder.toml'] | path_join }}"

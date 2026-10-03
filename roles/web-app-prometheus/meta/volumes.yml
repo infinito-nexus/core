@@ -97,3 +97,11 @@ host_proc:
   mounts:
     - service: node-exporter
       target: /host/proc
+
+metrics_textfile:
+  type: bind
+  source: "{{ DIR_METRICS_TEXTFILE }}"
+  read_only: true
+  mounts:
+    - service: node-exporter
+      target: /host/textfile

@@ -1,0 +1,119 @@
+{#
+  Keycloak clients this application ships for itself. web-app-keycloak discovers
+  and includes this fragment (comma-joined client objects, no leading comma) for
+  every deployed app that declares `services.sso.oidc.clients`; it is rendered in
+  Keycloak's realm-import context, so realm-owned values (OIDC.CLIENT.*,
+  KEYCLOAK_RBAC_GROUP_CLAIM) are in scope.
+
+  webui: public SPA client for the WebAdmin (username-first). Its
+  `pkce.code.challenge.method` is deliberately not pinned — the SPA is compiled
+  into the Stalwart image and picks its own method; pinning one makes Keycloak
+  reject the authorize request outright.
+
+  webmail: confidential Roundcube client with minimal scopes (no roles/groups)
+  so the OIDC access token stays under Stalwart's 4096-byte XOAUTH2 SASL line
+  limit. Reuses the shared client secret. Keep `description` under Keycloak's
+  255-char column.
+#}
+{% set stalwart_kc_webmail_base = lookup('canonical_url', 'web-app-stalwart', 'webmail') %}
+{% set stalwart_kc_webui_base = lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '') %}
+{
+  "clientId": "{{ lookup('config', 'web-app-stalwart', 'services.sso.oidc.clients.webui') }}",
+  "name": "Stalwart WebAdmin",
+  "description": "Public SPA client for Stalwart WebAdmin (username-first).",
+  "enabled": true,
+  "surrogateAuthRequired": false,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "redirectUris": ["{{ stalwart_kc_webui_base }}/*"],
+  "webOrigins": ["{{ stalwart_kc_webui_base }}"],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": true,
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
+  "attributes": {
+    "post.logout.redirect.uris": "{{ stalwart_kc_webui_base }}/*",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "backchannel.logout.session.required": "true",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "stalwart-required-audience",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-audience-mapper",
+      "consentRequired": false,
+      "config": {
+        "included.client.audience": "{{ OIDC.CLIENT.ID }}",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "introspection.token.claim": "true"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "roles",
+    "profile",
+    "basic",
+    "email",
+    "{{ KEYCLOAK_RBAC_GROUP_CLAIM }}"
+  ],
+  "optionalClientScopes": [
+    "offline_access",
+    "microprofile-jwt"
+  ]
+},
+{
+  "clientId": "{{ lookup('config', 'web-app-stalwart', 'services.sso.oidc.clients.webmail') }}",
+  "name": "Stalwart Webmail (Roundcube)",
+  "description": "Roundcube webmail client. Minimal scopes (no roles/groups) keep the OIDC access token small enough for Stalwart's XOAUTH2 SMTP SASL line (4096-byte limit). Reuses the shared client secret.",
+  "enabled": true,
+  "surrogateAuthRequired": false,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "{{ OIDC.CLIENT.SECRET }}",
+  "redirectUris": ["{{ stalwart_kc_webmail_base }}/*"],
+  "webOrigins": ["{{ stalwart_kc_webmail_base }}"],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
+  "attributes": {
+    "post.logout.redirect.uris": "{{ stalwart_kc_webmail_base }}/*",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "backchannel.logout.session.required": "true",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": false,
+  "nodeReRegistrationTimeout": -1,
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "profile",
+    "basic",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "offline_access"
+  ]
+}

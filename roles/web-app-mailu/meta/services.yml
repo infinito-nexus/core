@@ -20,6 +20,11 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
+email:
+  bond: 1
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 mailu:
   modes:
@@ -32,7 +37,8 @@ mailu:
   placement: manager
   enabled: true # nocheck: dynamic-flag
   shared: true
-  provides: email
+  covers:
+    - email
   # nocheck: unwatched-version  Reason: Mailu ships its images under the release-series tag while its git tags are patch level (2024.06.58), so the series is the pin and moves only on a deliberate migration
   version: "2024.06"
   name: mailu
@@ -73,7 +79,8 @@ mailu:
     service_key: front
   run_after:
     - web-app-matomo
-  lifecycle: beta
+    - web-app-stalwart
+  lifecycle: deprecated
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g

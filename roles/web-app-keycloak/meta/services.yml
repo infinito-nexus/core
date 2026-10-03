@@ -26,8 +26,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 javascript:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -51,7 +51,7 @@ keycloak:
   shared: true
   provides: sso
   image: quay.io/keycloak/keycloak
-  version: "26.7.4"
+  version: "26.8.0"
   name: keycloak
   min_storage: 468MB
   cpus: "2.0"
@@ -81,13 +81,14 @@ keycloak:
     service_key: keycloak
   run_after:
     - web-app-matomo
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: dynamic-flag — per-consumer fan-out
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag
 sso_proxy:
   image: quay.io/oauth2-proxy/oauth2-proxy
-  version: "v7.15.4"
+  version: "v7.15.5"
   min_storage: 220MB
   configuration_file: oauth2-proxy-keycloak.cfg
   ports:

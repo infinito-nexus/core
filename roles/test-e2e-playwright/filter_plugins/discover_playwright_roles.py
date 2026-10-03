@@ -6,6 +6,11 @@ from typing import TYPE_CHECKING
 
 from ansible.errors import AnsibleFilterError
 
+from utils.roles.meta_lookup import get_role_provides
+from utils.roles.order import build_dependency_graph, topological_sort
+
+SSO_SERVICE = "sso"
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
@@ -33,6 +38,40 @@ def _to_role_set(raw: Iterable[str] | str | None, var_name: str) -> set[str]:
         ) from exc
 
 
+def _in_test_order(roles_dir: Path, roles: list[str]) -> list[str]:
+    """Order *roles* for the Playwright stage.
+
+    Every role is deployed before any spec runs, so the order only matters for
+    state one spec creates for another. The identity provider's specs provision
+    users that consumers log in with, so the role that ``provides: sso`` runs
+    first even when it deploys late (Keycloak runs after its mail provider);
+    the rest follow the deploy order resolved by ``utils.roles.order``.
+
+    Args:
+        roles_dir: directory holding the role folders.
+        roles: role names to order, alphabetically sorted.
+
+    Returns:
+        The same roles: the sso provider first, then providers before their
+        consumers; roles outside the resolved graph keep their alphabetical
+        order at the end.
+    """
+    graph, in_degree, meta = build_dependency_graph(roles_dir)
+    position = {
+        role: index
+        for index, role in enumerate(topological_sort(graph, in_degree, meta))
+    }
+    return sorted(
+        roles,
+        key=lambda role: (
+            get_role_provides((roles_dir / role).resolve(), role_name=role)
+            != SSO_SERVICE,
+            position.get(role, len(position)),
+            role,
+        ),
+    )
+
+
 def discover_playwright_roles(
     playbook_dir: str,
     only_roles: Iterable[str] | str | None = None,
@@ -52,7 +91,7 @@ def discover_playwright_roles(
         role_name = env_file.parents[1].name
         found.append(role_name)
 
-    uniq = sorted(set(found))
+    uniq = _in_test_order(base, sorted(set(found)))
 
     if only:
         uniq = [role for role in uniq if role in only]

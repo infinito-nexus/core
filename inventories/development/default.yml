@@ -23,6 +23,8 @@ INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') | default('latest', 
 INFINITO_GHCR_MIRROR_PREFIX: "{{ lookup('env', 'INFINITO_GHCR_MIRROR_PREFIX') | default('', true) }}"
 CA_CONTAINER_ENABLED: "{{ lookup('env', 'INFINITO_CONTAINER_CA_ENABLED') | bool }}"
 test_e2e_playwright_keep: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }}"
+MAIL_PRODUCTION_HOST: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_HOST') | default('', true) }}"
+MAIL_PRODUCTION_RESOLVER: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_RESOLVER') | default('', true) }}"
 SYS_TIMEOUT_CONTAINER_EXEC: "60min"
 networks:
   internet:
@@ -46,6 +48,7 @@ API:
 OIDC_OVERRIDE:
   CLIENT:
     SECRET: VERYUNSAFESAMPLEPASSWORD1234
+PLAYWRIGHT_MAPACHE_PASSWORD: "VeryUnsecureMapache!1"
 users:
   administrator:
     authorized_keys:
@@ -61,6 +64,7 @@ users:
 
     uid: 10001
     gid: 10001
+    accounts: ["mailbox", "identity"]
     roles: []
     tokens: {}
     authorized_keys: []

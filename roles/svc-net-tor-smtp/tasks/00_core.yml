@@ -1,0 +1,25 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "📂 Include sys-svc-compose (build deferred to stage the daemon first)"
+  include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+    compose_repository_pull: false
+    application_id: "svc-net-tor-smtp"
+
+- name: "📁 Create container network"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: "{{ application_id }}"
+
+- name: "🎬 Stage the gateway daemon into the build context"
+  stack_host_copy:
+    src: "python/tor_smtp_gateway.py"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'tor_smtp_gateway.py' ] | path_join }}"
+    mode: "0644"
+  when: IS_STACK_HOST | bool
+
+- name: "🚿 Flush compose handlers (build + up with the daemon present)"
+  meta: flush_handlers

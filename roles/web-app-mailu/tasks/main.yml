@@ -3,3 +3,11 @@
   when: run_once_web_app_mailu is not defined
   vars:
     application_id: "web-app-mailu"
+
+- include_tasks: 10_oidc_refresh.yml
+  when:
+    - run_once_web_app_mailu is defined
+    - mailu_oidc_restart_pending | default(false) | bool
+    - not (service_loader_preloading | default(false) | bool)
+  vars:
+    application_id: "web-app-mailu"

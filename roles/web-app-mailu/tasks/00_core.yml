@@ -49,7 +49,7 @@
     compose_handlers_flush: true
     webserver_vhost_flavour: "basic"
     webserver_extra_configuration: "client_max_body_size 31M;"
-    domain: "{{ MAILU_HOSTNAME }}"
+    domain: "{{ MAILU_CANONICAL_HOST }}"
 
 - name: "👔 Mailu manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml

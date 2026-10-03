@@ -5,6 +5,7 @@
 global:
   smtp_smarthost: "{{ email.host }}:{{ email.port }}"
   smtp_from: "{{ email['from'] }}"
+  smtp_hello: "{{ email.domain }}"
   smtp_require_tls: {{ email.tls | bool | lower }}
 {% if email.auth | bool %}
   smtp_auth_username: "{{ email.username }}"

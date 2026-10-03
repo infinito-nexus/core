@@ -6,7 +6,7 @@ set -euo pipefail
 # Routing environment variables (set them via `make compose-deploy<short>=<value>`;
 # `make compose-deploy` maps the short Make variables to the INFINITO_* env vars):
 #   mode        initialize (default) | reinstall | update
-#                               Short Make alias: mode
+#                               Short Make alias: mode.
 #   bundles            optional. Comma-separated bundle names. When
 #                               set, routes to bundles/fresh.sh (initialize
 #                               or reinstall) or bundles/update.sh (update).

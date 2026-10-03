@@ -2,7 +2,8 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { provisionKeycloakUser } = require("./admin-console");
 test.use({ ignoreHTTPSErrors: true });
 
 // -----------------------------------------------------------------------------
@@ -82,6 +83,8 @@ const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
+const mapachePassword = decodeDotenvQuotedValue(process.env.MAPACHE_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 test.beforeEach(async ({ page }) => {
@@ -196,6 +199,48 @@ test("normal-realm administrator logs in through account interface and logs out"
     .toBe(true);
 
   await expectNoCspViolations(page, diagnostics, "keycloak normal-realm account (administrator)");
+});
+
+test("super administrator onboards mapache in the admin console and mapache signs in", async ({ page, browser }) => {
+  const diagnostics = attachDiagnostics(page);
+
+  expect(domainPrimary, "DOMAIN_PRIMARY must be set in the Playwright env file").toBeTruthy();
+  expect(mapachePassword, "MAPACHE_PASSWORD must be set in the Playwright env file").toBeTruthy();
+
+  const mapacheUsername = MAPACHE.username;
+  await provisionKeycloakUser(browser, {
+    baseUrl: appBaseUrl,
+    realm: realmName,
+    adminUsername: superAdminUsername,
+    adminPassword: superAdminPassword,
+    user: { ...MAPACHE, email: `${MAPACHE.username}@${domainPrimary}` },
+    password: mapachePassword,
+  });
+
+  const accountUrl = `${appBaseUrl}/realms/${realmName}/account/`;
+  const response = await gotoOnion(page, accountUrl);
+  expect(response, "Expected normal-realm account page response").toBeTruthy();
+  expect(response.status(), "Expected normal-realm account page response to be successful").toBeLessThan(400);
+
+  const signInButton = page.locator("a, button").filter({ hasText: /sign\s*in|log\s*in|anmelden/i }).first();
+  if ((await signInButton.count().catch(() => 0)) > 0) {
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
+  }
+
+  await fillKeycloakLoginForm(page, mapacheUsername, mapachePassword);
+
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(60_000),
+      message: "Expected mapache login to reach the account interface"
+    })
+    .toContain("/account");
+
+  await expect(page.locator("body")).toContainText(/personal\s*info|account|profile|signing\s*in/i, { timeout: resolveTimeout(60_000) });
+
+  await keycloakSignOutFromAccountConsole(page);
+
+  await expectNoCspViolations(page, diagnostics, "keycloak normal-realm account (mapache)");
 });
 
 test("normal-realm biber logs in through account interface and logs out", async ({ page }) => {

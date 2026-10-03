@@ -137,7 +137,7 @@ _LIFECYCLE_DOC: dict[str, str] = {
     "rc": "burn-in on production, intends stable",
     "stable": "shipped in a release without a hotfix",
     "maintenance": "stable coverage, feature-frozen",
-    "deprecated": "kept for compatibility, do not adopt",
+    "deprecated": "kept for compatibility, untested, do not adopt",
     "eol": "end of life: shipped but not tested or maintained",
 }
 

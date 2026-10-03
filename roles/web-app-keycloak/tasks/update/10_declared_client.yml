@@ -1,0 +1,29 @@
+---
+# Realm import only runs for a MISSING realm; this kcadm create-or-update brings
+# application-declared clients to existing realms too. Desired state is the
+# import's own client object, so the realm template stays the one SPOT.
+- name: "✅ Ensure the '{{ kc_declared_client_id }}' client"
+  vars:
+    kc_desired: >-
+      {{
+        KEYCLOAK_DICTIONARY_REALM.clients
+          | selectattr('clientId', 'equalto', kc_declared_client_id)
+          | list | first
+      }}
+  keycloak_kcadm_update:
+    object_kind: "client"
+    lookup_value: "{{ kc_declared_client_id }}"
+    desired: "{{ kc_desired }}"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+    assert_mode: "{{ MODE_ASSERT }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: kc_declared_client
+  # rationale: async; nothing reads the client back in this chain, reaped at the end of update_routines.yml
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+
+# rationale: looped include — each iteration overwrites the register, so the job handle is banked here for the reap.
+- name: "🧾 Queue the '{{ kc_declared_client_id }}' client job for the reap"
+  ansible.builtin.set_fact:
+    kc_declared_client_jobs: "{{ (kc_declared_client_jobs | default([])) + [kc_declared_client] }}"

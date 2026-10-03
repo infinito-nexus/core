@@ -8,7 +8,6 @@ Takes a list of extension names and returns the subset that needs a
 custom library install on top of the official postgres base image
 (the contrib extensions bloom, pg_trgm and unaccent are already in the
 base — those are filtered out). Each returned entry is a dict with:
-
   - extension: the extension name (matches the SQL identifier)
   - name:      the library/source name (used in the Dockerfile context)
   - apt_package: the PGDG package suffix, installed as

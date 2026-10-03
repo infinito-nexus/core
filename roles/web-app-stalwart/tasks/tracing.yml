@@ -1,0 +1,24 @@
+---
+- name: "📖 List Stalwart tracers"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Tracer/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Resolve the file tracer"
+  ansible.builtin.set_fact:
+    stalwart_log_tracers: >-
+      {{ stalwart_jmap.methodResponses[0][1].list
+         | selectattr('@type', 'equalto', 'Log')
+         | list }}
+
+- name: "🔧 Point the file tracer at a directory that exists"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Tracer/set',
+            {'update': {stalwart_log_tracers[0].id: {'path': STALWART_LOG_DIR}}},
+            'c0']]} | to_json }}
+  when: stalwart_log_tracers | length > 0

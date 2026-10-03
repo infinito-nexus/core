@@ -16,6 +16,7 @@ const env = require("./env");
 const onion = require("./onion");
 const tls = require("./tls");
 const keycloak = require("./keycloak");
+const mapache = require("./mapache");
 const logout = require("./logout");
 const landing = require("./landing");
 const csp = require("./csp");
@@ -23,12 +24,14 @@ const interaction = require("./interaction");
 const dotenv = require("./dotenv");
 const dom = require("./dom");
 const seaweedfs = require("./seaweedfs");
+const mailbox = require("./mailbox");
 
 module.exports = {
   ...env,
   ...onion,
   ...tls,
   ...keycloak,
+  ...mapache,
   ...logout,
   ...landing,
   ...csp,
@@ -36,4 +39,5 @@ module.exports = {
   ...dotenv,
   ...dom,
   ...seaweedfs,
+  ...mailbox,
 };

@@ -20,6 +20,7 @@
               ['odoo', 'http', DOCKER_BIND_HOST],
               ['odoo', 'websocket', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import unittest
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
@@ -90,12 +91,14 @@ def fake_lookup(name, *_args, **_kwargs):
     """
     if name == "email":
         return {"enabled": False}
+    if name == "config":
+        return str(_args[-1]).rsplit(".", 1)[-1]
     return APP_URL
 
 
-def render(saml_apps: list[str]) -> str:
+def render(saml_apps: list[str], client_apps: list[str] | None = None) -> str:
     env = Environment(
-        loader=FileSystemLoader(str(IMPORT_DIR)),
+        loader=FileSystemLoader([str(IMPORT_DIR), str(PROJECT_ROOT)]),
         trim_blocks=True,
         keep_trailing_newline=True,
         undefined=StrictUndefined,
@@ -104,9 +107,13 @@ def render(saml_apps: list[str]) -> str:
     env.filters["path_join"] = path_join
     env.filters["to_json"] = json.dumps
     env.filters["bool"] = bool
+    env.filters["regex_replace"] = lambda value, pattern, repl="": re.sub(
+        pattern, repl, str(value)
+    )
     env.filters.update(role_filters())
     return env.get_template("realm.json.j2").render(
         KEYCLOAK_SAML_APPS=saml_apps,
+        KEYCLOAK_DECLARED_CLIENT_APPS=client_apps or [],
         lookup=fake_lookup,
         application_id="web-app-keycloak",
         DOMAIN_PRIMARY="example.com",
@@ -115,6 +122,18 @@ def render(saml_apps: list[str]) -> str:
 
 
 class TestRealmImportJson(unittest.TestCase):
+    def test_app_declared_clients_join_the_realm(self) -> None:
+        """An app in KEYCLOAK_DECLARED_CLIENT_APPS ships its own client fragment."""
+        realm = json.loads(render([], client_apps=["web-app-stalwart"]))
+        client_ids = [c["clientId"] for c in realm["clients"]]
+        self.assertIn("webui", client_ids)
+        self.assertIn("webmail", client_ids)
+
+    def test_no_declaring_apps_means_no_extra_clients(self) -> None:
+        with_apps = json.loads(render([], client_apps=["web-app-stalwart"]))
+        without = json.loads(render([]))
+        self.assertEqual(len(with_apps["clients"]) - len(without["clients"]), 2)
+
     def test_realm_is_valid_json_without_saml_apps(self) -> None:
         realm = json.loads(render([]))
         client_ids = [c["clientId"] for c in realm["clients"]]
