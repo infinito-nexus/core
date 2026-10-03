@@ -54,6 +54,12 @@
   when: IS_STACK_HOST | bool
   notify: compose-up
 
+- name: "🔐 Pre-generate the Wazuh certs before the swarm stack deploys"
+  include_tasks: certs/swarm.yml
+  when:
+    - IS_STACK_HOST | bool
+    - DEPLOYMENT_MODE == 'swarm'
+
 - name: "🔄 Flush compose-up before front-proxy can shadow application_id"
   ansible.builtin.meta: flush_handlers
 
