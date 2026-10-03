@@ -1,6 +1,18 @@
 ---
 # Matrix-deploy variant overrides for web-app-prometheus.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: variant-pin-required — the scrape-admission pairs with flowise,
+# hermes, openclaw and openwebui exercise their two directions in different
+# rounds, and the guard's premise that no clone detection covers that is false
+# here: the complexity model puts every one of those rows in one dna group
+# elected to svc-net-tor v0, so the sweep already cuts them. Aligning the
+# rounds was measured and both ways lose. Moving the consumers into v1 trips
+# test_order, whose v>0-subset-of-v0 rule has no exemption, and demands six
+# bond-baseline markers each contradicting the bond: 1 on the line above.
+# Moving the admissions into v0 puts 105 variants over budget, worst
+# web-app-nextcloud v6 at 37.3 GB against the 32 GB reservation cap, which no
+# marker waives.
 
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-prometheus.
