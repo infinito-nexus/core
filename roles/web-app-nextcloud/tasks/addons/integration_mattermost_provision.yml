@@ -36,7 +36,8 @@
 - name: ⚙️ Generate a short-lived admin personal access token for OAuth provisioning
   shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
-    {{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }} --local token generate {{ lookup('users', 'administrator').username }} infinito-nc-oauth-provision --json
+    {{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }} --local token generate {{ lookup('users', 'administrator').username }} infinito-nc-oauth-provision
+    --json
   args:
     chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
   delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
