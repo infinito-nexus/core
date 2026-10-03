@@ -37,9 +37,7 @@ class LookupModule(LookupBase):
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         application_id = str(terms[0])
-        service_name = (
-            str(terms[1]) if len(terms) == 2 else entity_name(application_id)
-        )
+        service_name = str(terms[1]) if len(terms) == 2 else entity_name(application_id)
 
         configured = ConfigLookup().run(
             [application_id, f"services.{service_name}.cpus"],

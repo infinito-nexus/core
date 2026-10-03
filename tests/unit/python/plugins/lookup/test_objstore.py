@@ -58,9 +58,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         lookup = self._make_lookup(vars_)
         with (
             mock.patch.object(self.mod, "lookup_loader") as loader_mock,
-            patch.object(
-                self.mod, "entity_name", side_effect=self._fake_entity_name
-            ),
+            patch.object(self.mod, "entity_name", side_effect=self._fake_entity_name),
         ):
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [applications]

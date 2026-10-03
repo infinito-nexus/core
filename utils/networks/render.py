@@ -98,9 +98,7 @@ def shared_network_compose_key(
     attachments, _ = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
-    return _shared_network_key(
-        attachments, entity_name(application_id), entity_name
-    )
+    return _shared_network_key(attachments, entity_name(application_id), entity_name)
 
 
 def compute_external_network_roles(

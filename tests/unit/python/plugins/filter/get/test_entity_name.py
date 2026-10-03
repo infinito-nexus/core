@@ -39,9 +39,7 @@ class TestGetEntityNameFilter(unittest.TestCase):
         root.start()
         self.addCleanup(root.stop)
 
-        entity_root = patch(
-            "utils.roles.entity.name.PROJECT_ROOT", Path(self.temp_dir)
-        )
+        entity_root = patch("utils.roles.entity.name.PROJECT_ROOT", Path(self.temp_dir))
         entity_root.start()
         self.addCleanup(entity_root.stop)
 

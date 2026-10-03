@@ -146,8 +146,7 @@ def offenders() -> list[str]:
         if is_suppressed_in_head(read_text(str(meta)).splitlines(), _RULE):
             continue
         consumer_ids = {
-            entity_name(c): c
-            for c in derive_allowed_consumers(role, services_by_role)
+            entity_name(c): c for c in derive_allowed_consumers(role, services_by_role)
         }
         consumers = set(consumer_ids)
         if not consumers:
