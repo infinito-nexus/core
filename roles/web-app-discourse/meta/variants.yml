@@ -40,6 +40,9 @@
     css:
       enabled: true
       shared: true
+    translate:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     bigbluebutton:
@@ -91,6 +94,9 @@
     css:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    translate:
+      enabled: true
+      shared: true
     tor:
       enabled: true
     bigbluebutton:
@@ -143,6 +149,9 @@
     css:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    translate:
+      enabled: false
+      shared: false
     tor:
       enabled: false
     bigbluebutton:
