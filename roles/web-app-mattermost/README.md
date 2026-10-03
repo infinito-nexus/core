@@ -92,7 +92,23 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 
 ## Addons
 
-This role declares no addons (it ships no `meta/addons/` directory). Mattermost **Team Edition** manages plugin install and enablement at runtime; there is no declarative per-plugin install path in this role. Plugins are operator-managed. The named volumes `plugins` and `client-plugins` declared in `meta/volumes.yml` are node-local derived copies that every replica extracts for itself from the image's prepackaged bundles; an uploaded bundle persists in the file store, not in them. No addon bridges any in-repo service.
+`meta/addons/` declares the curated upstream plugins. `tasks/04_addons.yml` loops the entries whose `enabled` resolves true, installs each `config.plugin_id` through `mmctl plugin marketplace install`, enables it and then runs the per-addon hook in `tasks/addons/`. Every entry is `required: false`, so a refused install emits a warning and the deploy continues.
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `mattermost-plugin-gitlab` | `plugin` | on while `services.gitlab.enabled` | `gitlab` |
+| `mattermost-plugin-jenkins` | `plugin` | on while `services.jenkins.enabled` | `jenkins` |
+| `mattermost-plugin-jira` | `plugin` | never: `services.jira.enabled` is pinned off because `web-app-jira` is end of life (see [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md)) | `jira` |
+| `mattermost-plugin-jitsi` | `plugin` | on while `services.jitsi.enabled` | `jitsi` |
+| `mattermost-plugin-alertmanager` | `plugin` | off; the official marketplace carries no Alertmanager plugin | `prometheus` |
+| `mattermost-plugin-agents` | `plugin` | on while `services.openwebui.enabled` | `openwebui` |
+| `saml` | `addon` | off | `sso` |
+
+The partner-side credential stays operator-supplied: each hook prints the `config.partner_url` to register the OAuth application (GitLab), the API token (Jenkins), the instance (Jira) or the server URL (Jitsi, Alertmanager, Agents) against.
+
+`saml` is a licence-gated Mattermost Enterprise feature, not a marketplace plugin. It is declared so the integration is discoverable and stays off; `tasks/addons/saml.yml` fails the play if it is switched on. The free tier reaches Keycloak over the OIDC path described above.
+
+The named volumes `plugins` and `client-plugins` declared in `meta/volumes.yml` are node-local derived copies that every replica extracts for itself from the image's prepackaged bundles; an uploaded bundle persists in the file store, not in them.
 
 ## References
 

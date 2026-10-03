@@ -12,8 +12,11 @@ MATTERMOST_BASE_VERSION: "{{ lookup('config', application_id, 'services.mattermo
 MATTERMOST_VERSION: "{{ lookup('config', application_id, 'services.mattermost.ref') | regex_replace('^v', '') }}"
 MATTERMOST_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+MATTERMOST_MMCTL: "{{ lookup('config', application_id, 'services.mattermost.mmctl') }}"
 
 MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+
+MATTERMOST_ADDONS_ENABLED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled', 'true') | list }}"
 
 MATTERMOST_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 MATTERMOST_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"

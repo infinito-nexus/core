@@ -11,7 +11,7 @@
 - name: "⏳ Mattermost | Wait until mmctl local mode is ready"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
-      /mattermost/bin/mmctl --local system status
+      {{ MATTERMOST_MMCTL }} --local system status
   register: mm_ready_wait
   retries: 60
   delay: 5
@@ -24,7 +24,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
-      /mattermost/bin/mmctl --local user create \
+      {{ MATTERMOST_MMCTL }} --local user create \
         --email    "{{ lookup('users', 'administrator').email }}" \
         --username "{{ lookup('users', 'administrator').username }}" \
         --password {{ lookup('users', 'administrator').password | quote }} \
@@ -37,7 +37,7 @@
 - name: "📁 Mattermost | Create default team"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
-      /mattermost/bin/mmctl --local team create \
+      {{ MATTERMOST_MMCTL }} --local team create \
         --name         "main" \
         --display-name "{{ ORGANIZATION }}"
   register: mm_create_team
@@ -56,7 +56,7 @@
 - name: "🔎 Mattermost | Check which users are already in default team"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
-      /mattermost/bin/mmctl --local user list --team main
+      {{ MATTERMOST_MMCTL }} --local user list --team main
   register: mm_team_members
   changed_when: false
   delegate_to: "{{ MATTERMOST_HOST_NODE }}"
@@ -64,7 +64,7 @@
 - name: "➕ Mattermost | Add administrator to default team"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
-      /mattermost/bin/mmctl --local team users add \
+      {{ MATTERMOST_MMCTL }} --local team users add \
         main \
         "{{ lookup('users', 'administrator').email }}"
   when: lookup('users', 'administrator').email not in mm_team_members.stdout

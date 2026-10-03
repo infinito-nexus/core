@@ -24,7 +24,7 @@
           - exec
           - -i
           - "{{ MATTERMOST_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
-          - /mattermost/bin/mmctl
+          - "{{ MATTERMOST_MMCTL }}"
           - --local
           - --json
           - --suppress-warnings

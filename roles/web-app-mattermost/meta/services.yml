@@ -30,8 +30,9 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 mattermost:
+  mmctl: /mattermost/bin/mmctl
   healthcheck:
-    test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
+    test: ["CMD", "{{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }}", "--local", "system", "status"]
     # nocheck: healthcheck-timing-override  mmctl spawns a binary and talks to the local socket, so it does not belong on a 30s steady-state loop
     interval: 1m
     # nocheck: healthcheck-timing-override  spawning that binary does not finish inside the 5s default
