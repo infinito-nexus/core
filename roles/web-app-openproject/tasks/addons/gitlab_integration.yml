@@ -25,12 +25,12 @@
   delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   register: openproject_gitlab_provision
   changed_when: "'CHANGED' in openproject_gitlab_provision.stdout"
-  no_log: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔎 Take the webhook key out of the runner output"
   ansible.builtin.set_fact:
     openproject_gitlab_key: "{{ (openproject_gitlab_provision.stdout | regex_search('\\{.*\\}') | from_json).api_token }}"
-  no_log: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🛑 Refuse a run that produced no usable webhook key"
   ansible.builtin.assert:
@@ -48,7 +48,7 @@
     sys_token_store_user_key: gitlab-web-app-openproject
     sys_token_store_app: "{{ application_id }}"
     sys_token_store_token: "{{ openproject_gitlab_key }}"
-  no_log: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📣 Name the half this role does not own"
   ansible.builtin.debug:
