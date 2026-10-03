@@ -71,7 +71,7 @@ checkmk:
   pids_limit: 2048
   min_storage: 1053MB
   image: checkmk/check-mk-raw
-  version: "2.4.0p32"
+  version: "2.4.0p37"
   backup:
     no_stop_required: true
   name: checkmk
