@@ -26,8 +26,6 @@ redis:
   backup:
     disabled: true
 meta:
-  architectures:
-    - amd64
   healthcheck:
     flavor: curl
   modes:
@@ -36,9 +34,9 @@ meta:
     swarm:
       enabled: true
   image: ghcr.io/infinito-nexus/infinito-mig
-  version: v1.0.0
+  version: v1.0.2
   name: meta
-  min_storage: 1224MB
+  min_storage: 1040MB
   ports:
     internal:
       http: 80
