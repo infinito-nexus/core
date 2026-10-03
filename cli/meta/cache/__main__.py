@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from utils.cache.render import render_artifacts
-from utils.env.handlers.infinito.cache.conf import KEY, RELATIVE, primary_checkout
+from utils.env.handlers.infinito.cache.conf import KEY, RELATIVE
 
 from . import PROJECT_ROOT as REPO_ROOT
 
@@ -21,7 +21,7 @@ def _conf_path() -> Path:
     configured = os.environ.get(KEY, "").strip()
     if configured:
         return Path(configured)
-    return primary_checkout(REPO_ROOT) / RELATIVE
+    return REPO_ROOT / RELATIVE
 
 
 def main() -> int:

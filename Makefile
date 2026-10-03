@@ -100,6 +100,13 @@ build-no-cache-all:
 		INFINITO_DISTRO="$$d" "$(MAKE)" build-no-cache; \
 	done
 
+.PHONY: cache-apply
+# Install this checkout's cache declarations into the running cache stack.
+# Note: creates the Nexus proxy repos, issues the frontend certs, installs the upstream map the frontend mounts and reloads it.
+# Note: `make compose-up` runs it for a checkout that shares another one's cache stack; call it directly after changing a `cache:` declaration.
+cache-apply:
+	@bash scripts/system/cache/apply.sh
+
 .PHONY: cheat
 # Print the operator prompt cheatsheet from docs/contributing/tools/agents/cheatsheet.md.
 cheat:
@@ -293,10 +300,8 @@ dotenv:
 # Note: avoids stale BASH_ENV INFINITO_* values pinning via setdefault.
 dotenv-force:
 	@rm -f .env
-	@env -i HOME="$${HOME}" PATH="$${PATH}" \
-		INFINITO_CACHE_CONF_SOURCE="$${INFINITO_CACHE_CONF_SOURCE:-}" \
-		python3 -m cli.meta.env
-	@python3 -m cli.meta.cache
+	@env -i HOME="$${HOME}" PATH="$${PATH}" python3 -m cli.meta.env
+	@set -a; . ./.env; set +a; python3 -m cli.meta.cache
 
 .PHONY: environment-bootstrap
 # Bootstrap the local development environment.
@@ -931,7 +936,7 @@ worktree-prune:
 .PHONY: worktree-up
 # Check a branch out into an isolated worktree with its own subnet, ports and container names.
 # Usage: make worktree-up branch=<name> [base=<dir>]
-# Note: the worktree shares the primary checkout's cache stack instead of starting its own.
+# Note: the worktree shares the primary checkout's cache stack instead of starting its own; `make cache-apply` serves its own cache declarations from it.
 # Param branch: branch to check out (required).
 # Param base: parent directory for the worktree (default ~/.local/share/worktrees/<domain>/<account>/<repo>).
 worktree-up:

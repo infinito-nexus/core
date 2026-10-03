@@ -141,6 +141,31 @@ class Compose:
             text=True,
         )
 
+    def _apply_shared_cache(self, env: dict[str, str]) -> None:
+        """Serve this checkout's cache declarations from the shared stack.
+
+        The owner creates the proxy repositories and the certificates while
+        it brings its own containers up. An instance that only joins the
+        network starts none of them, so without this its `cache:` entries
+        exist on disk and nowhere else: the hijacked hostname resolves to a
+        frontend that has no server block for it.
+        """
+        helper = self.repo_root / "scripts" / "system" / "cache" / "apply.sh"
+        print(">>> Applying this checkout's cache declarations to the shared stack")
+        r = subprocess.run(
+            ["bash", str(helper)],
+            cwd=self.repo_root,
+            env=env,
+            check=False,
+            text=True,
+        )
+        if r.returncode != 0:
+            print(
+                f">>> WARNING: cache apply exited rc={r.returncode}; the shared "
+                "frontend keeps serving the map it already had. Start the owning "
+                f"stack and re-run `make cache-apply` ({helper})."
+            )
+
     def _install_package_frontend_ca_in_runner(self) -> None:
         """Install the frontend CA in the runner trust store. Idempotent."""
         print(">>> Installing package-cache-frontend CA into runner trust store")
@@ -213,6 +238,8 @@ class Compose:
 
         if self.profile.owns_cache_stack():
             self._bootstrap_package_cache(env)
+        elif self.profile.cache_stack_enabled():
+            self._apply_shared_cache(env)
         if self.profile.cache_stack_enabled():
             self._install_package_frontend_ca_in_runner()
 
