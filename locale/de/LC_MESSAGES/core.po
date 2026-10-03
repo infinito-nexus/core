@@ -135,6 +135,11 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Basisrolle für Systemd Manager Konfiguration über Drop-Ins, Standardeinstellungen und Unit Validation"
 
 # translated-by: libretranslate
+msgctxt "role:dsk-blender:description"
+msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
+msgstr "Blender-Workstation-Installation, die über das Model Context Protocol mit den Agenten auf dem Host verdrahtet ist"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Browser Administration Interface für die SeaweedFS Objektspeicher, der den Filer und die Masterkonsolen hinter SSO bedient"

@@ -135,6 +135,11 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "نقش پایه برای پیکربندی مدیر سیستم از طریق تنظیمات کشویی، تنظیمات پیش فرض و اعتبار واحد"
 
 # translated-by: libretranslate
+msgctxt "role:dsk-blender:description"
+msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
+msgstr "نصب ایستگاه کاری Blender به نمایندگان میزبان از طریق پروتکل مدل"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "رابط مدیریت مرورگر برای SeaweedFS فروشگاه شی، خدمت به فایل و کنسول های کارشناسی ارشد پشت SSO"

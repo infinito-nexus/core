@@ -135,6 +135,11 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Vai trò cơ bản cho cấu hình trình quản lý có hệ thống thông qua thả, cài đặt mặc định và hợp lệ hoá đơn vị"
 
 # translated-by: libretranslate
+msgctxt "role:dsk-blender:description"
+msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
+msgstr "Cài đặt trạm làm việc tổng hợp kết nối đến các đại lý trên máy thông qua giao thức văn bản mô hình"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Giao diện quản lý duyệt cho SeaweedFS Cửa hàng đối tượng, phục vụ bộ phân loại và bàn giao tiếp chủ phía sau SSO"

@@ -1,0 +1,56 @@
+---
+- name: ✅ Ensure pipx is installed
+  package_install:
+    id: pipx
+  become: true
+
+- name: "📦 install the Blender MCP server {{ blender_mcp_version }}"
+  ansible.builtin.command:
+    cmd: "pipx install --force {{ blender_mcp_distribution }}=={{ blender_mcp_version }}"
+  register: blender_mcp_install
+  changed_when: "'installed package' in (blender_mcp_install.stdout | lower)"
+
+- name: 🧩 Install the Blender side of the MCP bridge
+  ansible.builtin.command:
+    argv:
+      - "{{ blender_mcp_command }}"
+      - install-addon
+  register: blender_mcp_addon
+  changed_when: "'installed' in (blender_mcp_addon.stdout | lower)"
+
+- name: 🔎 Read the MCP servers Claude already carries
+  ansible.builtin.command:
+    argv:
+      - claude
+      - mcp
+      - list
+  register: blender_mcp_claude_list
+  changed_when: false
+  failed_when: false
+  when: blender_mcp_claude_enabled | bool
+
+- name: 🤖 Register the Blender MCP server with Claude
+  ansible.builtin.command:
+    argv:
+      - claude
+      - mcp
+      - add
+      - --scope
+      - user
+      - "{{ blender_mcp_server_name }}"
+      - "{{ blender_mcp_command }}"
+  register: blender_mcp_claude_add
+  changed_when: blender_mcp_claude_add.rc == 0
+  when:
+    - blender_mcp_claude_enabled | bool
+    - blender_mcp_server_name not in (blender_mcp_claude_list.stdout | default(''))
+
+- name: 🧰 Register the Blender MCP server with the editor
+  ansible.builtin.command:
+    argv:
+      - "{{ blender_mcp_code_binary }}"
+      - --add-mcp
+      - '{"name": "{{ blender_mcp_server_name }}", "command": "{{ blender_mcp_command }}"}'
+  register: blender_mcp_code_add
+  changed_when: blender_mcp_code_add.rc == 0
+  when: blender_mcp_code_enabled | bool

@@ -137,6 +137,11 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "সিস্টেমের কনফিগারেশন ব্যবস্থার মূল ভূমিকা, ডিফল্ট মান ও একক ব্যবহারের উদ্দেশ্যে চিহ্নিত"
 
 # translated-by: libretranslate
+msgctxt "role:dsk-blender:description"
+msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
+msgstr "ব্লেন্ডার ওয়ার্কস্টেশন ইনস্টলেশনের মাধ্যমে হোস্টের সাথে সংযোগ স্থাপন করুন"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "প্রাপ্ত করার জন্য ব্রাউজারের প্রশাসন ইন্টারফেস SeaweedFS বস্তু সংরক্ষণ করো, ফাইল এবং মাস্টার কনসোল এস.এস.ও এর পিছনে রেখে দাও"

@@ -135,6 +135,11 @@ msgid "Base role for systemd manager configuration via drop-ins, default setting
 msgstr "Βασικός ρόλος για τις ρυθμίσεις του διαχειριστή μέσω drop-in, προεπιλεγμένες ρυθμίσεις και επικύρωση μονάδας"
 
 # translated-by: libretranslate
+msgctxt "role:dsk-blender:description"
+msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
+msgstr "Εγκατάσταση σταθμού εργασίας Blender ενσύρματο στους παράγοντες του υπολογιστή μέσω του πρωτοκόλλου πλαισίου του μοντέλου"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Διεπαφή διαχείρισης περιηγητή για το SeaweedFS Αντικειμενικό κατάστημα, που εξυπηρετεί το Filer και master κονσόλες πίσω από SSO"
