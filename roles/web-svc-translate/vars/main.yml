@@ -1,0 +1,62 @@
+---
+application_id: "web-svc-translate"
+entity_name: "{{ application_id | entity_name }}"
+
+TRANSLATE_SERVICE: "{{ entity_name }}"
+TRANSLATE_CONTAINER: "{{ entity_name }}"
+TRANSLATE_PORT: "{{ lookup('config', application_id, 'services.translate.ports.internal.http') }}"
+TRANSLATE_BASE_IMAGE: "{{ lookup('config', application_id, 'services.translate.image') }}"
+TRANSLATE_BASE_VERSION: "{{ lookup('config', application_id, 'services.translate.version') }}"
+TRANSLATE_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+
+TRANSLATE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
+TRANSLATE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh
+
+TRANSLATE_DECIDER_SOURCE_DIR: "{{ lookup('path_absolute', 'roles/svc-ai-s1/files/python/infinito_decider') }}"
+TRANSLATE_DECIDER_DIR: "{{ [TRANSLATE_BUILD_DIR, 'python', 'infinito_decider'] | path_join }}"
+TRANSLATE_DECIDER_MODULES:
+  - __init__.py
+  - history.py
+  - judge.py
+  - sampling.py
+
+TRANSLATE_ROUTER: "{{ lookup('config', application_id, 'services.translate.router') }}"
+TRANSLATE_ENGINE_TIMEOUT: "{{ lookup('config', application_id, 'services.translate.engine_timeout') }}"
+TRANSLATE_HISTORY_TABLE: "{{ lookup('config', application_id, 'services.translate.history_table') }}"
+TRANSLATE_CACHE_TABLE: "{{ lookup('config', application_id, 'services.translate.cache_table') }}"
+TRANSLATE_FAILURE_TABLE: "{{ lookup('config', application_id, 'services.translate.failure_table') }}"
+TRANSLATE_WEBLATE_PROJECT: "{{ lookup('config', application_id, 'services.translate.weblate_project') }}"
+
+TRANSLATE_LIBRETRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.libretranslate-engine.enabled') | bool }}"
+TRANSLATE_LTENGINE_ENABLED: "{{ lookup('config', application_id, 'services.ltengine.enabled') | bool }}"
+TRANSLATE_OLLAMA_ENABLED: "{{ lookup('config', application_id, 'services.ollama.enabled') | bool }}"
+TRANSLATE_S1_ENABLED: "{{ lookup('config', application_id, 'services.s1.enabled') | bool }}"
+TRANSLATE_WEBLATE_ENABLED: "{{ lookup('config', application_id, 'services.weblate.enabled') | bool }}"
+
+# nocheck: literal-protocol-lookup  the engine is reached on the container network, which speaks plaintext
+TRANSLATE_LIBRETRANSLATE_URL: "http://{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.name') }}:{{ lookup('config', 'svc-ai-libretranslate-engine',
+  'services.libretranslate-engine.ports.internal.http') }}"
+# nocheck: literal-protocol-lookup  same
+TRANSLATE_LTENGINE_URL: "http://{{ lookup('config', 'svc-ai-ltengine', 'services.ltengine.name') }}:{{ lookup('config', 'svc-ai-ltengine', 'services.ltengine.ports.internal.http')
+  }}"
+TRANSLATE_OLLAMA_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+TRANSLATE_OLLAMA_MODEL: "{{ lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models', []) | map(attribute='alias') | reject('search', 'embed') | list |
+  first | default('', true) }}"
+TRANSLATE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+TRANSLATE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+# nocheck: literal-protocol-lookup  the memory is read on the container network, which speaks plaintext
+TRANSLATE_WEBLATE_URL: "http://{{ lookup('config', 'web-app-weblate', 'services.weblate.name') }}:{{ lookup('config', 'web-app-weblate', 'services.weblate.ports.internal.http')
+  }}"
+TRANSLATE_WEBLATE_TOKEN: "{{ lookup('users', 'administrator', {}).get('tokens', {}).get('web-app-weblate', '') }}"
+
+TRANSLATE_ENGINES: >-
+  {{ [{'name': 'libretranslate', 'kind': 'libretranslate', 'url': TRANSLATE_LIBRETRANSLATE_URL}] * (TRANSLATE_LIBRETRANSLATE_ENABLED | bool | ternary(1, 0))
+   + [{'name': 'ltengine', 'kind': 'libretranslate', 'url': TRANSLATE_LTENGINE_URL}] * (TRANSLATE_LTENGINE_ENABLED | bool | ternary(1, 0))
+   + [{'name': 'ollama', 'kind': 'chat', 'url': TRANSLATE_OLLAMA_URL, 'model': TRANSLATE_OLLAMA_MODEL, 'api_key': TRANSLATE_LITELLM_API_KEY}]
+     * ((TRANSLATE_OLLAMA_ENABLED | bool and TRANSLATE_LITELLM_ENABLED | bool and TRANSLATE_OLLAMA_MODEL | length > 0) | ternary(1, 0)) }}
+
+TRANSLATE_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"
+TRANSLATE_DATABASE_USER: "{{ lookup('database', application_id, 'username') }}"
+TRANSLATE_DATABASE_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
+TRANSLATE_DATABASE_HOST: "{{ lookup('database', application_id, 'host') }}"
+TRANSLATE_DATABASE_PORT: "{{ lookup('database', application_id, 'port') }}"

@@ -1,0 +1,97 @@
+---
+# Matrix-deploy variant overrides for web-svc-translate.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 1 is LTEngine's round, and svc-ai-ltengine
+# pins tor.enabled false because an engine consumed over the internal network
+# publishes no onion surface; a round binding it may not advertise one either.
+
+- services:
+    ltengine:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    s1:
+      enabled: false
+      shared: false
+    weblate:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    sso:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    tor:
+      enabled: true
+      shared: true
+
+- services:
+    ltengine:
+      enabled: true
+      shared: true
+    ollama:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    s1:
+      enabled: false
+      shared: false
+    weblate:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    sso:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    tor:
+      enabled: false
+      shared: false
+
+- services:
+    ltengine:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: true
+    s1:
+      enabled: true
+      shared: true
+    weblate:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: true
+      shared: true
+    sso:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    postgres:
+      shared: true
+    tor:
+      enabled: true
+      shared: true

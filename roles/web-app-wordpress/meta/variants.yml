@@ -58,6 +58,9 @@
     seaweedfs:
       enabled: true
       shared: true
+    translate:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     hermes:
@@ -113,6 +116,9 @@
     seaweedfs:
       enabled: false
       shared: false
+    translate:
+      enabled: true
+      shared: true
     tor:
       enabled: true
     hermes:
@@ -173,6 +179,9 @@
       enabled: false
       shared: false
     seaweedfs:
+      enabled: false
+      shared: false
+    translate:
       enabled: false
       shared: false
     tor:

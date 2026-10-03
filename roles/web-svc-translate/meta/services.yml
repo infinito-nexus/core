@@ -1,0 +1,103 @@
+---
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: playwright-service-flag — scrape target, covered by web-app-prometheus' own spec
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag: shared provider entity; the gateway itself is covered by this role's own Playwright spec
+translate:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  healthcheck:
+    flavor: http_status
+    path: languages
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+    host:
+      enabled: false
+  image: python
+  # nocheck: docker-version  base of the self-built gateway, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  min_storage: 256MB
+  ports:
+    internal:
+      http: 8000
+  lifecycle: beta
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 512
+  router:
+    strategy: "{{ 'system_one' if (lookup('config', 'web-svc-translate', 'services.s1.enabled') | bool) else 'preference' }}"
+    question: translation-verdict
+    order:
+      - libretranslate
+      - ltengine
+      - ollama
+    saturation_minimum: 10
+    saturation_share: 0.8
+    sample_trigger: requests
+    sample_interval: 20
+    failure_threshold: 3
+  engine_timeout: 30
+  history_table: infinito_translate_history
+  cache_table: infinito_translate_cache
+  failure_table: infinito_translate_failures
+  weblate_project: infinito-nexus
+  run_after:
+    - svc-ai-s1
+# nocheck: playwright-service-flag: bridged libretranslate backend, covered by the engine role's own spec
+libretranslate-engine:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag  the default backend ships with the gateway; without it the gateway has nothing to route to
+  shared: true # nocheck: dynamic-flag  the engine always runs in its own role, never inside this one
+# nocheck: playwright-service-flag: bridged ltengine backend, covered by the engine role's own spec
+ltengine:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-ltengine' in group_names }}"
+  shared: "{{ 'svc-ai-ltengine' in group_names }}"
+# nocheck: playwright-service-flag: bridged ollama backend, covered by the engine role's own spec
+ollama:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-ollama' in group_names }}"
+  shared: "{{ 'svc-ai-ollama' in group_names }}"
+# nocheck: playwright-service-flag: the model gateway the ollama backend is reached through, covered by svc-ai-litellm's own tests
+# nocheck: dynamic-flag  LITELLM_USABLE already carries the group-membership test plus the served-model check
+litellm:
+  bond: 0.5
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true
+# nocheck: playwright-service-flag: the decider answers typed choices, covered by svc-ai-s1's own tests
+s1:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-s1' in group_names }}"
+  shared: "{{ 'svc-ai-s1' in group_names }}"
+# nocheck: playwright-service-flag: the translation memory, covered by web-app-weblate's own spec
+weblate:
+  bond: 0.5
+  enabled: "{{ 'web-app-weblate' in group_names }}"
+  shared: "{{ 'web-app-weblate' in group_names }}"
+# nocheck: playwright-service-flag
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: "{{ 'svc-net-tor' in group_names }}"

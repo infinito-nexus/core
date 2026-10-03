@@ -49,6 +49,11 @@ peertube:
   bond: 0.5
   enabled: "{{ 'web-app-peertube' in group_names }}"
   shared: "{{ 'web-app-peertube' in group_names }}"
+# nocheck: playwright-service-flag: bridged translation gateway, covered by the addon's own spec
+translate:
+  bond: 0.5
+  enabled: "{{ 'web-svc-translate' in group_names }}"
+  shared: "{{ 'web-svc-translate' in group_names }}"
 # nocheck: playwright-service-flag  self-provider
 wordpress:
   enabled: true

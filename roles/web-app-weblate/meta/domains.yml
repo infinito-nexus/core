@@ -1,0 +1,4 @@
+---
+canonical:
+  - web.translate.{{ DOMAIN_PRIMARY }}
+aliases: []

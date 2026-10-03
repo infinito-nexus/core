@@ -1,0 +1,48 @@
+---
+# nocheck: playwright-service-flag — translation engine without a browser surface of its own
+ltengine:
+  name: ltengine
+  healthcheck:
+    flavor: http_status
+    path: languages
+    # nocheck: healthcheck-timing-override  the server downloads its GGUF weights before it binds, and a cold node pays that once
+    start_period: 30m
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+    host:
+      enabled: false
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  image: debian
+  # nocheck: docker-version  runtime base of the self-built binary, not the served application
+  version: 13.7-slim
+  builder_image: rust
+  builder_version: 1.99.0-slim
+  update:
+    - key: builder_version
+      type: registry_tags
+      image: rust
+      match: slim
+  custom: true
+  repository: https://github.com/LibreTranslate/LTEngine
+  # nocheck: repository-version  upstream's only tag predates the served server, so the pin is a commit
+  ref: 9b748ddd84c02da9569bd96db3cf33c53e4665fa
+  min_storage: 1GB
+  model: gemma3-1b
+  char_limit: 5000
+  ports:
+    internal:
+      http: 5050
+  lifecycle: alpha
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 512
+# nocheck: playwright-service-flag
+tor:
+  enabled: false # nocheck: dynamic-flag  an engine consumed over the internal network publishes no onion surface
+  shared: false # nocheck: dynamic-flag  same

@@ -1,0 +1,20 @@
+---
+local:
+  subnet: 192.168.233.0/24
+overlay:
+  modes: [compose, swarm]
+  topology: shared_net
+cache:
+  repos:
+    raw-crates-index:
+      flavor: raw
+      upstream: https://index.crates.io/
+      content_max_age: "0"
+    raw-crates-static:
+      flavor: raw
+      upstream: https://static.crates.io/ # nocheck: url the crate tarball paths under /crates/ resolve; the bare root answers 403
+  hosts:
+    index.crates.io:
+      repo: raw-crates-index
+    static.crates.io:
+      repo: raw-crates-static

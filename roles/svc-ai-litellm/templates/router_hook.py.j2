@@ -35,6 +35,7 @@ from datetime import date
 
 import litellm
 from litellm.integrations.custom_logger import CustomLogger
+from infinito_decider import Decider, History, Sampler, record_of
 
 ROUTER_ALIAS = {{ LITELLM_ROUTER_ALIAS | to_json }}
 REMOTE_FALLBACK = {{ 'True' if LITELLM_ROUTER_REMOTE_FALLBACK | bool else 'False' }}
@@ -402,105 +403,6 @@ def signature(need):
     return f"{bucket(need['input_tokens'] + need['max_output'])}:{demands or 'plain'}"
 
 
-class Sampler:
-    """Whether this request is answered by several routes instead of one.
-
-    Args:
-        trigger: ``seconds`` spaces comparisons in time, ``requests`` counts
-            them out, ``probability`` draws one in *interval*.
-        interval: seconds, requests or odds, read according to *trigger*.
-        clock: monotonic source, injected so a test does not wait.
-        draw: uniform source in [0, 1), injected for the same reason.
-    """
-
-    def __init__(self, trigger, interval, clock=time.monotonic, draw=random.random):
-        self._trigger = trigger
-        self._interval = max(int(interval), 1)
-        self._clock = clock
-        self._draw = draw
-        self._last = None
-        self._seen = 0
-
-    def due(self):
-        """True when this request should be compared across routes."""
-        if self._trigger == "requests":
-            self._seen += 1
-            if self._seen < self._interval:
-                return False
-            self._seen = 0
-            return True
-        if self._trigger == "probability":
-            return self._draw() < 1.0 / self._interval
-        now = self._clock()
-        if self._last is not None and now - self._last < self._interval:
-            return False
-        self._last = now
-        return True
-
-
-class History:
-    """What earlier comparisons said about each route, per request class.
-
-    The store is the proxy's own database, so a verdict outlives a restart. A
-    proxy without one keeps nothing at all: a process-local tally read as
-    history would let a fresh container claim experience it never gathered.
-    """
-
-    DDL = (
-        f"CREATE TABLE IF NOT EXISTS {HISTORY_TABLE} ("
-        "id BIGSERIAL PRIMARY KEY,"
-        "decided_at TIMESTAMPTZ NOT NULL DEFAULT now(),"
-        "signature TEXT NOT NULL,"
-        "alias TEXT NOT NULL,"
-        "won BOOLEAN NOT NULL)"
-    )
-    INDEX = (
-        f"CREATE INDEX IF NOT EXISTS {HISTORY_TABLE}_signature_idx "
-        f"ON {HISTORY_TABLE} (signature)"
-    )
-
-    def __init__(self, client):
-        self._client = client
-        self._ready = False
-
-    async def _ensure(self):
-        if not self._ready:
-            await self._client.execute_raw(self.DDL)
-            await self._client.execute_raw(self.INDEX)
-            self._ready = True
-
-    async def record(self, request_class, winner, offered):
-        """Write one row per offered route, marking which one won."""
-        await self._ensure()
-        for alias in offered:
-            await self._client.execute_raw(
-                f"INSERT INTO {HISTORY_TABLE} (signature, alias, won) "
-                f"VALUES ($1, $2, $3)",
-                request_class,
-                alias,
-                alias == winner,
-            )
-
-    async def wins(self, request_class):
-        """``{alias: (won, seen)}`` for *request_class*, empty when untried."""
-        await self._ensure()
-        rows = await self._client.query_raw(
-            f"SELECT alias, SUM(CASE WHEN won THEN 1 ELSE 0 END) AS won, "
-            f"COUNT(*) AS seen FROM {HISTORY_TABLE} "
-            f"WHERE signature = $1 GROUP BY alias",
-            request_class,
-        )
-        return {row["alias"]: (int(row["won"]), int(row["seen"])) for row in rows or []}
-
-
-def record_of(alias, tally):
-    """How *alias* fared before, as a clause, or empty when it has no record."""
-    won, seen = tally.get(alias, (0, 0))
-    if not seen:
-        return ""
-    return f"won {won} of {seen} comparisons like this"
-
-
 def headroom(entry, need):
     """How much context this route would leave unused on this request.
 
@@ -572,6 +474,9 @@ def ask_s1(text, candidates, need, tally=None):
     return alias, float(answer.get("confidence") or 0.0)
 
 
+DECIDER = Decider(S1_URL, S1_KEY, S1_MODEL, S1_TIMEOUT, S1_MAX_STATE_CHARS)
+
+
 def _systemone(state, question, instructions, criteria):
     """Put one typed choice to the decider and return the answer block it sent.
 
@@ -579,54 +484,12 @@ def _systemone(state, question, instructions, criteria):
         OSError: when the decider cannot be reached.
         ValueError: when it answers a different question than the one asked.
     """
-    payload = {
-        "state": state[:S1_MAX_STATE_CHARS],
-        "model": S1_MODEL,
-        "questions": {
-            question: {
-                "type": "choice",
-                "instructions": instructions,
-                "criteria": criteria,
-            }
-        },
-    }
-    request = urllib.request.Request(
-        f"{S1_URL}/v1/systemone",
-        data=json.dumps(payload).encode(),
-        headers={
-            "Authorization": f"Bearer {S1_KEY}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(request, timeout=S1_TIMEOUT) as response:  # noqa: S310 configured internal origin
-        body = json.loads(response.read())
-    answer = (body.get("answers") or {}).get(question)
-    if not answer:
-        raise ValueError(f"the decider returned no answer to {question!r}")
-    return answer
+    return DECIDER.ask(state, question, instructions, criteria)
 
 
 def judge_answers(text, replies):
-    """The alias whose reply the decider calls the best answer to *text*.
-
-    The options are the replies themselves, not the routes that produced them,
-    so the verdict rests on what came back rather than on what the catalog
-    promised. Aliases are never shown to the decider for the same reason.
-    """
-    labels = {f"option-{index}": alias for index, alias in enumerate(sorted(replies))}
-    answer = _systemone(
-        text,
-        S1_VERDICT_QUESTION,
-        "Which of these answers serves the request best?",
-        {label: replies[alias][:S1_MAX_STATE_CHARS] for label, alias in labels.items()},
-    )
-    label = answer.get("choice")
-    if label not in labels:
-        raise ValueError(
-            f"the decider chose {label!r}, which was not among {sorted(labels)}"
-        )
-    return labels[label]
+    """The alias whose reply the decider calls the best answer to *text*."""
+    return DECIDER.judge_answers(text, replies, S1_VERDICT_QUESTION)
 
 
 def decide_system_one(candidates, need, text, tally=None):
@@ -777,7 +640,7 @@ class SystemOneRouter(CustomLogger):
         if prisma_client is None:
             return None
         if self._store is None:
-            self._store = History(prisma_client.db)
+            self._store = History(prisma_client.db, HISTORY_TABLE)
         return self._store
 
     async def _compare(self, router, data, candidates, text, request_class):

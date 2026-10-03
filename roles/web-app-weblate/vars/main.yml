@@ -1,0 +1,21 @@
+---
+application_id: "web-app-weblate"
+entity_name: "{{ application_id | entity_name }}"
+
+WEBLATE_CONTAINER: "{{ lookup('config', application_id, 'services.weblate.name') }}"
+WEBLATE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+WEBLATE_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
+WEBLATE_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.weblate.registration_open') | bool }}"
+WEBLATE_SITE_TITLE: "{{ lookup('config', application_id, 'services.weblate.site_title') }}"
+
+WEBLATE_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+
+WEBLATE_ADMIN_USERNAME: admin
+WEBLATE_TOKEN_MIN_LENGTH: 40
+WEBLATE_TOKEN_QUERY: "from weblate.auth.models import User; print(User.objects.get(username='{{ WEBLATE_ADMIN_USERNAME }}').auth_token.key)"
+
+WEBLATE_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"
+WEBLATE_DATABASE_USER: "{{ lookup('database', application_id, 'username') }}"
+WEBLATE_DATABASE_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
+WEBLATE_DATABASE_HOST: "{{ lookup('database', application_id, 'host') }}"
+WEBLATE_DATABASE_PORT: "{{ lookup('database', application_id, 'port') }}"

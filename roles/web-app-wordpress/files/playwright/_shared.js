@@ -27,6 +27,10 @@ const env = {
   multisiteEnabled:
     (process.env.WORDPRESS_MULTISITE_ENABLED || "").toLowerCase() === "true",
   discourseBaseUrl: normalizeBaseUrl(process.env.DISCOURSE_BASE_URL || ""),
+  bigbluebuttonBaseUrl: normalizeBaseUrl(process.env.BIGBLUEBUTTON_BASE_URL || ""),
+  listmonkBaseUrl: normalizeBaseUrl(process.env.LISTMONK_BASE_URL || ""),
+  peertubeBaseUrl: normalizeBaseUrl(process.env.PEERTUBE_BASE_URL || ""),
+  translateBaseUrl: normalizeBaseUrl(process.env.TRANSLATE_BASE_URL || ""),
   discourseApiKey: decodeDotenvQuotedValue(process.env.DISCOURSE_API_KEY),
   discourseApiUsername: decodeDotenvQuotedValue(process.env.DISCOURSE_API_USERNAME),
 };

@@ -12,6 +12,7 @@ cases state which facts they rely on instead of inheriting 1595 of them.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import sys
 import types
@@ -141,8 +142,25 @@ def load(
     )
     module = types.ModuleType("router_hook_under_test")
     module.__file__ = str(Path(TEMPLATE).with_suffix(""))
-    exec(compile(source, str(TEMPLATE), "exec"), module.__dict__)
+    with _decider_importable():
+        exec(compile(source, str(TEMPLATE), "exec"), module.__dict__)
     return module
+
+
+@contextlib.contextmanager
+def _decider_importable():
+    """Put the decider package on the path the way the role stages it.
+
+    svc-ai-s1 owns ``infinito_decider`` and the role copies it beside
+    ``router_hook.py``, which is the directory LiteLLM's ``get_instance_fn``
+    already resolves imports against. Here that directory is the source tree.
+    """
+    staged = str(PROJECT_ROOT / "roles/svc-ai-s1/files/python")
+    sys.path.insert(0, staged)
+    try:
+        yield
+    finally:
+        sys.path.remove(staged)
 
 
 def local(alias, *, model=None, context=None, traits=None):

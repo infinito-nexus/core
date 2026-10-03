@@ -1,7 +1,7 @@
 ---
 - name: "🔧 Read how '{{ application_id }}' reaches the gateway"
   ansible.builtin.set_fact:
-    _litellm_consumer_on_host: "{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.modes.host.enabled', false) | bool }}"
+    _litellm_consumer_on_host: "{{ lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.modes.host.enabled', false) | bool }}"
 
 - name: "✅ Assert '{{ application_id }}' carries a gateway virtual key"
   ansible.builtin.assert:

@@ -1,0 +1,13 @@
+---
+data:
+  type: volume
+  name: weblate_data
+  mounts:
+    - service: weblate
+      target: /app/data
+cache:
+  type: volume
+  name: weblate_cache
+  mounts:
+    - service: weblate
+      target: /app/cache
