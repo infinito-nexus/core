@@ -64,7 +64,7 @@ users:
     roles: []
     tokens: {}
     authorized_keys: []
-SIZE_PERCENT_CLEANUP_DISC_SPACE: 99 # Exception: set this high because the DinD CI environment in the GitHub workflow can already sit at ~92% disk usage.
+SIZE_PERCENT_CLEANUP_DISC_SPACE: 99
 
 WORKSTATION_USER: biber
 
