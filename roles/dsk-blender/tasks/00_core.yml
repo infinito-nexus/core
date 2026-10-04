@@ -9,7 +9,7 @@
   ansible.builtin.include_tasks:
     file: addons/mcp-for-blender.yml
     apply:
-      become: false
+      become: true
       become_user: "{{ blender_user }}"
   when: blender_mcp_enabled | bool
 
@@ -17,6 +17,6 @@
   ansible.builtin.include_tasks:
     file: addons/bonsai.yml
     apply:
-      become: false
+      become: true
       become_user: "{{ blender_user }}"
   when: blender_bonsai_enabled | bool

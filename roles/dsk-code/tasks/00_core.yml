@@ -22,7 +22,7 @@
 - name: "🧩 Install the extension of an agent this host deploys"
   ansible.builtin.command:
     cmd: "{{ code_binary }} --install-extension {{ item.value.config.extension_id }} --force"
-  become: false
+  become: true
   become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
   register: code_extension
   changed_when: "'successfully installed' in (code_extension.stdout | lower)"

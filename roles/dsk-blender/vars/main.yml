@@ -1,10 +1,14 @@
 ---
 application_id: dsk-blender
 blender_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+blender_home: "/home/{{ blender_user }}"
+blender_pipx_bin_dir: "{{ [blender_home, '.local', 'bin'] | path_join }}"
+blender_claude_registry: "{{ [blender_home, '.claude.json'] | path_join }}"
 blender_mcp_enabled: "{{ lookup('config', application_id, 'addons.mcp-for-blender.enabled') | bool }}"
 blender_mcp_distribution: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.distribution') }}"
 blender_mcp_version: "{{ lookup('config', application_id, 'addons.mcp-for-blender.version') }}"
 blender_mcp_command: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.command') }}"
+blender_mcp_bin: "{{ [blender_pipx_bin_dir, blender_mcp_command] | path_join }}"
 blender_mcp_server_name: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.server_name') }}"
 blender_mcp_claude_enabled: "{{ lookup('config', application_id, 'services.claude.enabled') | bool }}"
 blender_mcp_code_enabled: "{{ lookup('config', application_id, 'services.code.enabled') | bool }}"
