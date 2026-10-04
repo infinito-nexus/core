@@ -20,16 +20,21 @@
   register: weblate_api_token
   retries: 30
   delay: 10
-  until: weblate_api_token.rc == 0 and (weblate_api_token.stdout | trim | length) >= WEBLATE_TOKEN_MIN_LENGTH
+  until: weblate_api_token.rc == 0 and ((weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('')) | length) >= WEBLATE_TOKEN_MIN_LENGTH
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ WEBLATE_HOST_NODE }}"
   run_once: true
 
+- name: "🔑 Keep the token the shell printed last, not the banner above it"
+  ansible.builtin.set_fact:
+    WEBLATE_ISSUED_TOKEN: "{{ weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('') }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🛑 Refuse a Weblate that issued no usable token"
   ansible.builtin.assert:
     that:
-      - (weblate_api_token.stdout | trim | length) >= WEBLATE_TOKEN_MIN_LENGTH
+      - (WEBLATE_ISSUED_TOKEN | length) >= WEBLATE_TOKEN_MIN_LENGTH
     fail_msg: >-
       Weblate printed no API token for '{{ WEBLATE_ADMIN_USERNAME }}', so the
       translation gateway would read the translation memory with an empty
@@ -42,5 +47,5 @@
   vars:
     sys_token_store_user_key: administrator
     sys_token_store_app: "{{ application_id }}"
-    sys_token_store_token: "{{ weblate_api_token.stdout | trim }}"
+    sys_token_store_token: "{{ WEBLATE_ISSUED_TOKEN }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
