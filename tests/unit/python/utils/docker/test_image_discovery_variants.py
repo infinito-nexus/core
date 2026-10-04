@@ -46,7 +46,10 @@ class TestImageDiscoveryVersionVariants(unittest.TestCase):
         self.assertIn("docker.io/libretranslate/libretranslate:v1.9.6-cuda", sources)
 
     def test_blank_and_non_list_variants_are_ignored(self) -> None:
-        for declaration in ('  version_variants: "-cuda"\n', "  version_variants:\n    - '   '\n"):
+        for declaration in (
+            '  version_variants: "-cuda"\n',
+            "  version_variants:\n    - '   '\n",
+        ):
             with self.subTest(declaration=declaration):
                 self.assertEqual({"v1.9.6"}, self._versions(BASE + declaration))
 
