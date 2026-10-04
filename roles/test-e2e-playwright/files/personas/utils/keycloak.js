@@ -41,7 +41,7 @@ const { hostnameOf } = require("./dom");
 // without racing the adapter.
 const OIDC_LOGIN_READY_FLAG = "__oidcLoginReady";
 
-const OIDC_TRIGGER_NAME = /sso|openid|single[\s-]?sign/i;
+const OIDC_TRIGGER_NAME = /sso|oidc|openid|single[\s-]?sign/i;
 
 // Keycloak's end-session URL also contains `openid-connect`; a page that
 // renders a hidden Logout item before its Login link would otherwise pin
@@ -50,6 +50,8 @@ const OIDC_ENTRY_SELECTOR = [
   "a[href*='openid_connect' i]:not([href*='logout' i])",
   "a[href*='openid-connect' i]:not([href*='logout' i])",
   "a[href*='/auth/auth/' i]:not([href*='logout' i])",
+  "a[data-href*='oidc' i]:not([data-href*='logout' i])",
+  "a[data-href*='openid' i]:not([data-href*='logout' i])",
   "form[action*='openid' i] button",
   "a[data-testid*='oidc' i]",
   "button[data-testid*='oidc' i]",
