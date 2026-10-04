@@ -9,6 +9,9 @@ const weblateEnabled = requireDotenvValue(process.env.TRANSLATE_WEBLATE_ENABLED,
 const weblateBaseUrl = weblateEnabled ? normalizeBaseUrl(requireDotenvValue(process.env.WEBLATE_BASE_URL, "WEBLATE_BASE_URL")) : "";
 const weblateToken = weblateEnabled ? requireDotenvValue(process.env.WEBLATE_API_TOKEN, "WEBLATE_API_TOKEN") : "";
 const weblateProject = weblateEnabled ? requireDotenvValue(process.env.WEBLATE_PROJECT, "WEBLATE_PROJECT") : "";
+const weblateProjectHomepage = weblateEnabled
+  ? requireDotenvValue(process.env.WEBLATE_PROJECT_HOMEPAGE, "WEBLATE_PROJECT_HOMEPAGE")
+  : "";
 
 function url(path) {
   return `${appBaseUrl}${path}`;
@@ -48,6 +51,7 @@ module.exports = {
   weblateEnabled,
   weblateBaseUrl,
   weblateProject,
+  weblateProjectHomepage,
   url,
   post,
   translate,

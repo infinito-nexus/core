@@ -16,7 +16,7 @@ async function ensureProject(shared, request) {
     data: {
       name: shared.weblateProject,
       slug: shared.weblateProject,
-      web: shared.weblateBaseUrl,
+      web: shared.weblateProjectHomepage,
       translation_review: true,
     },
   });
