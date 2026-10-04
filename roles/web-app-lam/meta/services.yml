@@ -27,7 +27,7 @@ lam:
   shared: true # nocheck: dynamic-flag — LDAP IS the storage backend, never local
   provides: lam
   image: ghcr.io/ldapaccountmanager/lam
-  version: "9.6"
+  version: "9.7"
   min_storage: 345MB
   ports:
     local:
