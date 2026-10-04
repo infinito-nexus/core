@@ -20,6 +20,14 @@
     - compose-build
     - compose-up
 
+- name: "📁 Create the decider package directory"
+  ansible.builtin.file:
+    path: "{{ TRANSLATE_DECIDER_DIR }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
 - name: "🧩 Stage the decider package beside the gateway"
   stack_host_copy:
     src: "{{ [ TRANSLATE_DECIDER_SOURCE_DIR, item ] | path_join }}"
