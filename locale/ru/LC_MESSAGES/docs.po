@@ -1857,7 +1857,9 @@ msgstr "**Контейнерное развертывание:** Беги чер
 msgid "**Containerized deployment:** Run the upstream Flask app under gunicorn through Docker Compose."
 msgstr "**Контейнерное развертывание:** Запустите приложение вверх по течению Flask под Gunicorn Docker Compose."
 
-# translation-refused: libretranslate protected-span
+# Assistant Изображение на обоих Docker Compose За спиной (за спиной) —
+# обратная сторона.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: **Контейнеризованный хаб:** Управляет чиновником Home
 # Assistant Изображение на обоих Docker Compose За спиной (за спиной) —
@@ -2957,7 +2959,9 @@ msgstr "**Описание:** Постоянный системный агент
 msgid "**Description:** Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "**Описание:** Роль заглушки для будущего XMPP развертывание сервера/контейнера, реализация в ожидании"
 
-# translation-refused: libretranslate protected-span
+# hard-link deduplicated snapshots of the local backup tree to a swappable USB
+# device (англ.) (недоступная ссылка).
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: **Описание:** Plug-triggered systemd backup for
 # hard-link deduplicated snapshots of the local backup tree to a swappable USB
@@ -3537,35 +3541,27 @@ msgstr "**Независимые от распределения:** AppImage р�
 msgid "**Distro-agnostic:** the package list is empty on families that ship the module with systemd"
 msgstr "**Дистро-агностический:** Список пакетов пуст для семей, которые отправляют модуль с системой"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **Distro-aware установка:** Установки
 # ``nfs-kernel-server`` на Debian/Ubuntu, ``nfs-utils`` на
 # Arch/RHEL/Fedora/Alpine.
+# translated-by: libretranslate
 msgid "**Distro-aware install:** Installs ``nfs-kernel-server`` on Debian / Ubuntu, ``nfs-utils`` on Arch / RHEL / Fedora / Alpine."
-msgstr ""
+msgstr "**Distro-aware установка:** Установки ``nfs-kernel-server`` на Debian/Ubuntu, ``nfs-utils`` на Arch/RHEL/Fedora/Alpine."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **Distro-aware установка:** Установки
 # `nfs-kernel-server` на Debian/Ubuntu, `nfs-utils` на
 # Arch/RHEL/Fedora/Alpine.
+# translated-by: libretranslate
 msgid "**Distro-aware install:** Installs `nfs-kernel-server` on Debian / Ubuntu, `nfs-utils` on Arch / RHEL / Fedora / Alpine."
-msgstr ""
+msgstr "**Distro-aware установка:** Установки `nfs-kernel-server` на Debian/Ubuntu, `nfs-utils` на Arch/RHEL/Fedora/Alpine."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **Distro-aware пакеты:** Установки ``nfs-common`` В
 # Debian/Ubuntu ``nfs-utils`` на Arch/RHEL/Fedora/Alpine.
+# translated-by: libretranslate
 msgid "**Distro-aware packages:** Installs ``nfs-common`` on Debian/Ubuntu, ``nfs-utils`` on Arch / RHEL / Fedora / Alpine."
-msgstr ""
+msgstr "**Distro-aware пакеты:** Установки ``nfs-common`` В Debian/Ubuntu ``nfs-utils`` на Arch/RHEL/Fedora/Alpine."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **Distro-aware пакеты:** Установки `nfs-common` В
 # Debian/Ubuntu `nfs-utils` на Arch/RHEL/Fedora/Alpine.
+# translated-by: libretranslate
 msgid "**Distro-aware packages:** Installs `nfs-common` on Debian/Ubuntu, `nfs-utils` on Arch / RHEL / Fedora / Alpine."
-msgstr ""
+msgstr "**Distro-aware пакеты:** Установки `nfs-common` В Debian/Ubuntu `nfs-utils` на Arch/RHEL/Fedora/Alpine."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -5586,7 +5582,11 @@ msgstr "**Федерация LDAP:** Когда ``svc-db-openldap`` присут
 msgid "**LDAP federation:** When `svc-db-openldap` is present, Zammad authenticates and provisions accounts against the central LDAP."
 msgstr "**Федерация LDAP:** Когда `svc-db-openldap` присутствует, Zammad аутентифицирует и предоставляет счета против центрального LDAP."
 
-# translation-refused: libretranslate protected-span
+# LAM.** Политика безопасности контента заблокировала встроенный скрипт,
+# который проверяет LAMфоновые работы, так что эти инструменты остались
+# "прогресс" навсегда. Этот сценарий снова разрешен.
+# translation-refused: libretranslate protected-span lost=['"']
+# gained=['"прогресс"']
 # nocheck: url
 # translation-rejected: **LDAP импорт, экспорт и многократное редактирование
 # LAM.** Политика безопасности контента заблокировала встроенный скрипт,
@@ -6013,13 +6013,11 @@ msgstr "**Записи встреч:** Выделенный диктофон п�
 msgid "**Metrics via `unauthenticated_metrics_access = true`** on the internal listener, scraped on the internal container port over the role-local docker network only — never through the proxy, never public."
 msgstr "**Метрики через `unauthenticated_metrics_access = true`** на внутреннем слушателе, нацарапанном на внутреннем контейнерном порту над ролевой локальной сетью докеров — никогда через прокси, никогда публично."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **Migrated Compose файлы** из *докерcompose.yml* то
 # *compose.yml*, включая варианты override и CA override, а также
 # унифицированные ключи конфигурации, связанные с композицией
+# translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr ""
+msgstr "**Migrated Compose файлы** из *docker-compose.yml* то *compose.yml*, включая варианты override и CA override, а также унифицированные ключи конфигурации, связанные с композицией"
 
 # translated-by: libretranslate
 msgid "**Migration outline (~4-6h):**"
@@ -6053,7 +6051,9 @@ msgstr "**Минимальная настройка:** Нет ненужных �
 msgid "**Minimal footprint:** Does not enable services or autostart entries beyond what the package itself provides."
 msgstr "**Минимальный след:** Не включает услуги или автозапуск записей сверх того, что предоставляет сам пакет."
 
-# translation-refused: libretranslate protected-span
+# Node.jsЭкспресс-сервис, который аккуратно вписывается в более крупные стека.
+# translation-refused: libretranslate protected-span lost=['Node.js']
+# gained=['Node.jsЭкспресс']
 # nocheck: url
 # translation-rejected: **Минимальный след:** маленький
 # Node.jsЭкспресс-сервис, который аккуратно вписывается в более крупные стека.
@@ -6388,13 +6388,11 @@ msgstr "**Родной OIDC SSO:** Аутентификация пользова
 msgid "**Native OIDC SSO:** Semaphore renders its own \"Sign in with Keycloak\" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`."
 msgstr "**Родной OIDC SSO:** Семафор делает свой собственный \"Входите с Keycloak\" Кнопка через `SEMAPHORE_OIDC_PROVIDERS`; Keycloak Клиент автоматически предоставляется `web-app-keycloak`."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **Родной OIDC SSO:** Семафор передает свое собственное
 # "Подписаться Keycloak"кнопка через ``SEMAPHORE_OIDC_PROVIDERS``; Keycloak
 # Клиент автоматически предоставляется ``web-app-keycloak``.
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Semaphore renders its own “Sign in with Keycloak” button via ``SEMAPHORE_OIDC_PROVIDERS``; the Keycloak client is auto-provisioned by ``web-app-keycloak``."
-msgstr ""
+msgstr "**Родной OIDC SSO:** Семафор передает свое собственное \"Подписаться Keycloak\"кнопка через ``SEMAPHORE_OIDC_PROVIDERS``; Keycloak Клиент автоматически предоставляется ``web-app-keycloak``."
 
 # translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
@@ -6996,7 +6994,8 @@ msgstr "**Дополнительный внутренний PKI:** Флаг сл
 msgid "**Optional public domains:** extra clearnet domains added to an app keep their own TLS flavor and deploy alongside the onion."
 msgstr "**Факультативные публичные домены:** Дополнительные домены Clearnet, добавленные в приложение, сохраняют свой собственный вкус TLS и развертываются вместе с луком."
 
-# translation-refused: libretranslate protected-span
+# wildcard (экспериментальный) ★️
+# translation-refused: libretranslate added-span lost=[] gained=['★']
 # nocheck: url
 # translation-rejected: **необязательно** Включите шаблон переадресации
 # wildcard (экспериментальный) ★️
@@ -8739,6 +8738,9 @@ msgstr "**Symlink-Aware:** Безопасные ручки Symlinked `_data` К�
 msgid "**Symlink-Aware:** Safely handles symlinked ``_data`` directories and their targets."
 msgstr "**Symlink-Aware:** Безопасные ручки Symlinked ``_data`` Каталоги и их цели."
 
+# gained=['IPv4/IPv/6']
+# конфигурации sysctl для управления IPv4/IPv/6 Пересылка и связанные с ней
+# параметры сети.
 # translation-refused: libretranslate protected-span lost=['4', '6']
 # gained=['IPv4/IPv/6']
 # nocheck: url
@@ -9343,6 +9345,10 @@ msgstr "**Используйте менеджер паролей** Вы долж
 msgid "**Use this template for applications requiring WebSocket support.**   Designed for services (e.g., chat servers, real-time dashboards) needing fast, persistent connections using the WebSocket protocol."
 msgstr "**Используйте этот шаблон для приложений, требующих поддержки WebSocket.** Предназначен для услуг (Например, чат-серверы, панели мониторинга в реальном времени) Необходимо быстрое и постоянное соединение с использованием протокола WebSocket."
 
+# gained=['Node.jsДжанго']
+# HTTP/S.** Оптимизирован для типичных веб-приложений (Например, статические
+# сайты, PHP, Node.jsДжанго и т.д.) что делать **не** Требуется постоянное
+# двунаправленное соединение WebSocket.
 # translation-refused: libretranslate protected-span lost=['Node.js']
 # gained=['Node.jsДжанго']
 # nocheck: url
@@ -10290,7 +10296,9 @@ msgstr "**описание**Распределенный S3-совместимо
 msgid "**description**: Distributed version control system for tracking source code changes and coordinating development work"
 msgstr "**описание**Распределенная система контроля версий для отслеживания изменений исходного кода и координации работы по разработке"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# (недоступная ссылка) (компиляторы, линкеры, сделать) Для компиляции
+# программного обеспечения из источника
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: **описание**Distro-specific base build toolchain
 # (недоступная ссылка) (компиляторы, линкеры, сделать) Для компиляции
@@ -11238,12 +11246,10 @@ msgstr "**galaxy_tags**: ['friendica', 'docker'«Социальная сеть»
 msgid "**galaxy_tags**: ['gitea', 'docker', 'git', 'self-hosted', 'version control']"
 msgstr "**galaxy_tags**: ['gitea', 'docker', 'git', 'self-hosted'«Контроль версий»]"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['gitlab', 'docker'"ci/cd",
 # 'self-hosted'«Контроль версий»]
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'version control']"
-msgstr ""
+msgstr "**galaxy_tags**: ['gitlab', 'docker'\"ci/cd\", 'self-hosted'«Контроль версий»]"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['jira', 'project management']"
@@ -11277,12 +11283,10 @@ msgstr "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'm
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
 msgstr "**galaxy_tags**: ['nginx', 'docker'«Обратный прокси», 'web', 'automation', 'archlinux']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'javascript', 'csp'"sub
 # filter", 'injection', 'global']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp'\"sub filter\", 'injection', 'global']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
@@ -12139,6 +12143,7 @@ msgstr "*web-svc-xmpp*: 26.04 то 26.07"
 msgid "- ``(payload_bytes, total_bytes)`` on success - ``(\"SKIPPED\", reason)`` when ping is unavailable or lacks CAP_NET_RAW - ``(None, None)`` when every probe size is dropped"
 msgstr "- ``(payload_bytes, total_bytes)`` На успех - ``(\"SKIPPED\", reason)`` когда пинг недоступен или отсутствует CAP_NET_RAW - ``(None, None)`` Когда каждый размер зонда уменьшается"
 
+# infinito-nexus --tag ci-abc
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: --distro debian --owner acme --repository
@@ -12150,7 +12155,7 @@ msgstr ""
 msgid "--retry count; --retry-all-errors makes it cover transport-layer resets (exit 35/52/56), the class that hard-fails deploys on flaky CI egress. Pass 0 to opt a call out of retrying."
 msgstr "-retry count; -retry-all-errors позволяет покрывать сбросы транспортного уровня (выход 35/52/56), класс, который с трудом развертывается на скользком выходе CI. Пассажир 0 Выбрать вызов из повторного использования."
 
-# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: -> Носки5h):host.docker.internal:<port> (составлять)
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
@@ -13882,7 +13887,10 @@ msgstr "Название каталога ролей никогда не явл�
 msgid "A role id is the machine handle (``web-app-nextcloud``); the display name is what a human reads off a GitHub Actions job or run title (``网络应用·Nextcloud``). The category path renders as the ``hanzi`` labels ``meta/categories.yml`` declares, run together into one block, then a ``·``, then the role's own ``README.md`` heading or the part of the id the categories do not already carry."
 msgstr "Ролевой идентификатор - это ручка машины (``web-app-nextcloud``); Имя дисплея - это то, что человек читает с работы или названия запуска GitHub Actions. (``网络应用·Nextcloud``)Путь категории выступает как ``hanzi`` этикетки ``meta/categories.yml`` Заявляет, слиться в один блок, затем ``·``, Тогда роль принадлежит ``README.md`` Заголовок или часть идентификатора категории уже не несут."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# ``templates/compose.yml.j2``, любой ``templates/*.compose.yml.j2`` брат или
+# сестра, или ``templates/compose.*.yml.j2`` вариант, такой как
+# ``compose.override.yml.j2``.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: A role is a stack role iff it ships (альбом)
 # ``templates/compose.yml.j2``, любой ``templates/*.compose.yml.j2`` брат или
@@ -14997,8 +15005,10 @@ msgstr "Добавлена полная интеграция установщи�
 msgid "Added generic OIDC group-to-RBAC auto-provisioning for WordPress through OpenLDAP-backed role mapping"
 msgstr "Добавлено общее автопредложение OIDC group-to-RBAC WordPress через OpenLDAP- подкрепленное картирование ролей"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['5', '[',
 # ']']
+# дорожки, сервисные спецификации Playwright и WordPress [5] Discourse
+# круговой поток
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Добавлены иерархические /роли /<app>/<role> RBAC
 # дорожки, сервисные спецификации Playwright и WordPress [5] Discourse
@@ -15026,6 +15036,16 @@ msgstr "Добавлено Lookup(электронная почта) как об
 msgid "Added major new application roles including web-app-odoo, web-app-decidim, web-app-fider, and web-app-prometheus"
 msgstr "Добавлены новые роли приложения, в том числе web-app-odoo, web-app-decidim, web-app-fiderи web-app-prometheus"
 
+# gained=['V0/v/1']
+# web-app-bluesky когда оут2 является инвалидом, родной + LDAP + OIDC персоны
+# тесты для web-app-openwebuiМногопрофильный диспетчер для web-app-matrix
+# (OIDC + нативный/LDAP пароль), web-app-lam Зарегистрированный в качестве
+# поставщика услуг с Moodle V0/v/1 опцион, web-app-prometheus Navbar logout
+# injection, SMTP проводка для web-app-pgadminДинамическое покрытие LDAP и
+# Playwright LDAP web-app-opencloudВерсия-несовместимая толерантность к
+# плагинам web-app-nextcloudЗакрытый enable_local_logins для
+# web-app-discourseи biber+admin persona блоки для web-app-akaunting,
+# web-app-bookwyrm, web-app-blueskyи web-app-postmarks
 # translation-refused: libretranslate protected-span lost=['0', '1']
 # gained=['V0/v/1']
 # nocheck: url
@@ -17021,6 +17041,11 @@ msgstr "Приложения могут отменять любое подмно
 msgid "Applications express database choice directly via the file root of `meta/services.yml`:"
 msgstr "Приложения выражают выбор базы данных непосредственно через корень файла `meta/services.yml`:"
 
+# gained=['"S3"']
+# Nextcloud, Flowiseи т.д.) хранить и извлекать предметы из MinIO Ведра с
+# использованием знакомых SDK и CLI. Администраторы управляют ведрами,
+# пользователями и политиками доступа через консоль браузера, сохраняя все на
+# месте.
 # translation-refused: libretranslate protected-span lost=['3']
 # gained=['"S3"']
 # nocheck: url
@@ -21492,14 +21517,12 @@ msgstr "Codex считывает свой ключ из переменной с�
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr "Совместная вики-платформа для пользовательской документации с расширяемой экосистемой расширения и управлением контентом"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Сверните любую многострочную строку в одну строку,
 # обрежьте дополнительное белое пространство и удалите комментарии JavaScript.
 # Поддерживает удаление комментариев строки "//" и "/"*...*/' блокирует
 # комментарии, но сохраняет '//' внутри строковых букв и шаблонных выражений.
+# translated-by: libretranslate
 msgid "Collapse any multi-line string into a single line, trim extra whitespace, and remove JavaScript comments. Supports removal of both '//' line comments and '/*...*/' block comments, but preserves '//' inside string literals and templating expressions."
-msgstr ""
+msgstr "Сверните любую многострочную строку в одну строку, обрежьте дополнительное белое пространство и удалите комментарии JavaScript. Поддерживает удаление комментариев строки \"//\" и \"/\"*...*/' блокирует комментарии, но сохраняет '//' внутри строковых букв и шаблонных выражений."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -24296,7 +24319,9 @@ msgstr "Выберите схему раздела «роль-README» из ша
 msgid "Derived from"
 msgstr "Полученный из"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: A mode is
+# skipped off its (альбом) ``enabled`` Флаг есть ``false``.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Полученный из
 # ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: A mode is
@@ -24712,7 +24737,11 @@ msgstr "Непосредственные проверки должны пров�
 msgid "Direction"
 msgstr "Направление"
 
-# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# разоблачает `/mcp`, А. `client` роль потребляет, а `both` И роль тоже.
+# Преимуществом реализации является `native > plugin > sidecar > external`; a)
+# `sidecar`/`external` Сервер получает собственный вход в службу и порт, а не
+# повторное использование основного HTTP-порта приложения.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Направление ворот проводки: a `server` Роль только
 # разоблачает `/mcp`, А. `client` роль потребляет, а `both` И роль тоже.
@@ -26926,18 +26955,16 @@ msgstr "Каждая неудача фиксируется в корне. Уда
 msgid "Every failure raises AnsibleError with an actionable message."
 msgstr "Каждая неудача поднимает AnsibleError с действенным сообщением."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['plugins.yml']
-# nocheck: url
-# translation-rejected: Каждый файл здесь объявлен в качестве дополнения под
 # `meta/addons/` с `mechanism: mu_plugin` и `source: vendored`, и аддон id
 # является стеблем файла. [04mu plugins.yml](../../tasks/04_mu_plugins.yml)
 # петли над этими заявлениями и копиями `<addon_id>.php` в контейнер при
 # каждом развертывании; поэтому новый файл нуждается в его
 # `meta/addons/<addon_id>.yml` Вход и спецификация Playwright перед
 # установкой.
+# translated-by: libretranslate
 msgid "Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed."
-msgstr ""
+msgstr "Каждый файл здесь объявлен в качестве дополнения под `meta/addons/` с `mechanism: mu_plugin` и `source: vendored`, и аддон id является стеблем файла. [04mu plugins.yml](../../tasks/04_mu_plugins.yml) петли над этими заявлениями и копиями `<addon_id>.php` в контейнер при каждом развертывании; поэтому новый файл нуждается в его `meta/addons/<addon_id>.yml` Вход и спецификация Playwright перед установкой."
 
 # translated-by: libretranslate
 msgid "Every handler module MUST expose the same surface so the registry can call it uniformly:"
@@ -29883,6 +29910,9 @@ msgstr "GITHUB_ACTIONS=true and ACT=true -> act (местный акт нект�
 msgid "GITHUB_ACTIONS=true AND not ACT   -> real github actions"
 msgstr "GITHUB_ACTIONS=true AND not ACT -> реальные действия"
 
+# lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYСмертельный']
+# полученный из GITHUB_REPOSITORY_OWNER / Владелец /
+# GITHUB_REPOSITORYСмертельный, если неразрешимый на ГСГ.
 # translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYСмертельный']
 # nocheck: url
@@ -31156,20 +31186,19 @@ msgstr "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: Стабильный пароль
 msgid "INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX: Nexus blobstore quota (half of free disk at INFINITO_CACHE_PACKAGE_HOST_PATH, floor 2g)."
 msgstr "INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX: Квота Nexus blobstore (Половина свободного диска INFINITO_CACHE_PACKAGE_HOST_PATH, этаж 2г)."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# Budget (недоступная ссылка) INFINITO_CACHE_PACKAGE_HEAP.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: INFINITO_CACHE_PACKAGE_DIRECT_MEM: Nexus Direct Memory
 # Budget (недоступная ссылка) INFINITO_CACHE_PACKAGE_HEAP.
 msgid "INFINITO_CACHE_PACKAGE_DIRECT_MEM: Nexus direct-memory budget; tied to INFINITO_CACHE_PACKAGE_HEAP."
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: INFINITO_CACHE_PACKAGE_FRONTEND_CONF: nginx upstream
 # отображает общие установки интерфейса пакетного кэша, взятые из первичной
 # проверки, если только INFINITO_CACHE_CONF_SOURCE Говорит "Рабочее дерево".
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_FRONTEND_CONF: nginx upstream map the shared package-cache frontend mounts, taken from the primary checkout unless INFINITO_CACHE_CONF_SOURCE says worktree."
-msgstr ""
+msgstr "INFINITO_CACHE_PACKAGE_FRONTEND_CONF: nginx upstream отображает общие установки интерфейса пакетного кэша, взятые из первичной проверки, если только INFINITO_CACHE_CONF_SOURCE Говорит \"Рабочее дерево\"."
 
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_HEAP: Nexus JVM heap size (half of MemAvailable, cap 2g, floor 1g)."
@@ -31327,6 +31356,7 @@ msgstr "INFINITO_WORKER_CPU * 20, с основанием для 1 развал�
 msgid "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
 msgstr "INFINITO_WORKER_CPU: CPU-счетная база для SPOT-цепочки рабочего."
 
+# count.
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: INFINITO_WORKER_FETCH: I/O-bound network-fetch worker
@@ -33931,8 +33961,13 @@ msgstr "Интеграционные тесты, которые обеспечи
 msgid "Integration tests that exercise custom Ansible action plugins end-to-end through real playbook runs (e.g. retry behavior of `uri` / `get_url` wrappers)."
 msgstr "Интеграционные тесты, которые выполняют пользовательские плагины Ansible Action сквозняк через реальные запуски плейбука (Например, поведение повторных попыток `uri` / `get_url` обертки)."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['5', '[',
 # ']']
+# `meta/services.yml` [5] `templates/playwright.env.j2` [5]
+# `files/playwright/playwright.spec.js` Договор паритета: все включенные
+# сервисные поверхности `<NAME>_SERVICE_ENABLED=`, Всякое слово в словесном
+# есть слово в словесном. `# nocheck: playwright-service-flag` / `# nocheck:
+# playwright-service-gate` Это единственное подавление.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Интеграционные тесты, которые закрепляют
 # `meta/services.yml` [5] `templates/playwright.env.j2` [5]
@@ -35007,15 +35042,13 @@ msgstr "Keycloak перенаправляет URI/веб-происхожден�
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
 msgstr "Киклаук `LDAP user federation` Отражает пользователей в сфере только в режиме чтения."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Используя имя репозитория, шаблон, разрешающий маршрут
 # хоста, достигает своего вкуса, верхнего потока и зеркала без второй
 # декларации. `utils.cache.hosts` Истина есть истина, и в ней есть доля
 # истины. ``cache: repos:`` в ролях" ``meta/networks.yml``, и развернутый,
 # инвентарь может исправить или расширить их; см. `utils.cache.inventory`.
+# translated-by: libretranslate
 msgid "Keyed by repository name, so a template resolving a host's route reaches its flavor, upstream and mirror without a second declaration. `utils.cache.hosts` is the single point of truth; the entries come from ``cache: repos:`` in the roles' ``meta/networks.yml``, and deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
-msgstr ""
+msgstr "Используя имя репозитория, шаблон, разрешающий маршрут хоста, достигает своего вкуса, верхнего потока и зеркала без второй декларации. `utils.cache.hosts` Истина есть истина, и в ней есть доля истины. ``cache: repos:`` в ролях\" ``meta/networks.yml``, и развернутый, инвентарь может исправить или расширить их; см. `utils.cache.inventory`."
 
 # translated-by: libretranslate
 msgid "Keys without a provider role are omitted — ``disable=`` cannot act on them."
@@ -35423,7 +35456,9 @@ msgstr "Лицензия"
 msgid "License ⚖️"
 msgstr "Лицензия ⚖️"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# PROJECT_ROOT)ersetzt rekursiv alle "{% include 'path' %}"-Zeilen durch den
+# Inhalt der jeweiligen Datei (Мит Глейхер Эйнрюкунг).
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Liest Die Datei (альбом) rel_path (относительный zum
 # PROJECT_ROOT)ersetzt rekursiv alle "{% include 'path' %}"-Zeilen durch den
@@ -36546,6 +36581,8 @@ msgstr "Техническое обслуживание 🛠️"
 msgid "Maintenance, dependency, and tooling updates (incl. branches created by [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 msgstr "Техническое обслуживание, зависимость и обновления инструментов (Ветви, созданные [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
+# lost=['proxy_hide_header'] gained=[]
+# необязательно использовать more_header вариант.
 # translation-refused: libretranslate protected-span
 # lost=['proxy_hide_header'] gained=[]
 # nocheck: url
@@ -36968,6 +37005,9 @@ msgstr "Конечные точки Матомо (если services.matomo.enabl
 msgid "Matomo healthcheck behavior Healthchecks were reworked. HTTP readiness validation is stricter. Bootstrap now retries before failing. Container health timing differs from previous versions."
 msgstr "Matomo Healthcheck Поведение Healthchecks было переработано. Проверка готовности HTTP является более строгой. Bootstrap теперь возвращается, прежде чем потерпеть неудачу. Сроки хранения контейнеров отличаются от предыдущих версий."
 
+# gained=['PHP.index.php']
+# HTTP, перед загрузкой, заменив проверку TCP на проверку на основе
+# PHP.index.php Проверка здоровья для предотвращения условий запуска гонки.
 # translation-refused: libretranslate protected-span lost=['index.php']
 # gained=['PHP.index.php']
 # nocheck: url
@@ -37605,7 +37645,16 @@ msgstr "Moodle сравнивает каждый запрос `$CFG->wwwroot`. �
 msgid "Moodle compares every request against ``$CFG->wwwroot``. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical ``Host`` header and ``X-Forwarded-Proto: https``."
 msgstr "Moodle сравнивает каждый запрос ``$CFG->wwwroot``. Зонд, который достигает конечной точки по внутреннему источнику HTTP, отвечает перенаправлением на канонический URL HTTPS, а не на JSON, поэтому абоненты должны отправить канонический URL-адрес. ``Host`` заголовок и ``X-Forwarded-Proto: https``."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# каждый запрос `10.0.0.0/8`, `172.16.0.0/12` и `192.168.0.0/16`, разрешает
+# только порты 80 и 443. Обе установки шлюза
+# `\core\files\curl_security_helper`, который `auth_oidc` Консультации для
+# Keycloak обмен токенами и `\core\http_client` Консультации по запросу
+# поставщика ИИ. Шлюз отвечает на `192.168.80.0/24`, и на луковом узле
+# `container_extra_hosts` щипцы Keycloak Докерский мост (Docker Bridge
+# Gateway), который `NETWORK_DOCKER_ADDRESS_POOLS` черпать из `10.208.0.0/12`.
+# При по умолчанию верхнего потока логин OIDC не получает токен, и поставщик
+# AI не может достичь шлюза.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Moodle отправляет блок-лист CURL, который отклоняет
 # каждый запрос `10.0.0.0/8`, `172.16.0.0/12` и `192.168.0.0/16`, разрешает
@@ -37620,7 +37669,16 @@ msgstr "Moodle сравнивает каждый запрос ``$CFG->wwwroot``.
 msgid "Moodle ships a cURL blocklist that rejects every request to `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, and only permits ports 80 and 443. Both settings gate `\\core\\files\\curl_security_helper`, which `auth_oidc` consults for the Keycloak token exchange and `\\core\\http_client` consults for the AI provider request. The gateway answers on `192.168.80.0/24`, and on an onion node `container_extra_hosts` pins the Keycloak authority to the Docker bridge gateway, which `NETWORK_DOCKER_ADDRESS_POOLS` draws from `10.208.0.0/12`. With the upstream defaults the OIDC login obtains no token and the AI provider cannot reach the gateway."
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# каждый запрос ``10.0.0.0/8``, ``172.16.0.0/12`` и ``192.168.0.0/16``,
+# разрешает только порты 80 и 443. Обе установки шлюза
+# ``\core\files\curl_security_helper``, который ``auth_oidc`` Консультации для
+# Keycloak обмен токенами и ``\core\http_client`` Консультации по запросу
+# поставщика ИИ. Шлюз отвечает на ``192.168.80.0/24``, и на луковом узле
+# ``container_extra_hosts`` щипцы Keycloak Докерский мост (Docker Bridge
+# Gateway), который ``NETWORK_DOCKER_ADDRESS_POOLS`` черпать из
+# ``10.208.0.0/12``. При по умолчанию верхнего потока логин OIDC не получает
+# токен, и поставщик AI не может достичь шлюза.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Moodle отправляет блок-лист CURL, который отклоняет
 # каждый запрос ``10.0.0.0/8``, ``172.16.0.0/12`` и ``192.168.0.0/16``,
@@ -38011,6 +38069,8 @@ msgstr "Назван список, поиск и получение инстру
 msgid "Named volume (or host path) backing the nested Docker directory. Generator overrides to `/mnt/docker` on GHA."
 msgstr "Назван объем (Путь хозяина) Поддерживает вложенный каталог Docker. Генератор переходит на `/mnt/docker` на ГСГ."
 
+# gained=['dockerdaemon.json']
+# /etc/dockerdaemon.json.
 # translation-refused: libretranslate protected-span lost=['daemon.json']
 # gained=['dockerdaemon.json']
 # nocheck: url
@@ -40784,13 +40844,11 @@ msgstr "Парс *текст* как блок-картирование и вер
 msgid "Parse GHA annotation lines from a log file and write a Markdown summary to $GITHUB_STEP_SUMMARY."
 msgstr "Парсирование строк аннотации GHA из файла журнала и написание резюме Markdown до $GITHUB_STEP_SUMMARY."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Парс JSON с выходного сигнала, который может содержать
 # ведущий не-JSON шум, включая линии, которые начинаются с '["
 # (Предупреждения, подобные JVM "[0.001s][предупреждение]...").
+# translated-by: libretranslate
 msgid "Parse JSON from output that may contain leading non-JSON noise, including lines that start with '[' (e.g. JVM warnings like \"[0.001s][warning]...\")."
-msgstr ""
+msgstr "Парс JSON с выходного сигнала, который может содержать ведущий не-JSON шум, включая линии, которые начинаются с '[\" (Предупреждения, подобные JVM \"[0.001s][предупреждение]...\")."
 
 # translated-by: libretranslate
 msgid "Parse ``--set <key>=<value>`` pairs into a dict."
@@ -41777,7 +41835,9 @@ msgstr "Неудачи, характерные для драматурга, вс
 msgid "Please do not open a public issue or pull request for a security problem."
 msgstr "Пожалуйста, не открывайте публичную проблему или не тяните запрос на проблему безопасности."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# deduplicated snapshots of the local backup tree to a swappable USB device
+# (англ.) (недоступная ссылка).
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Plug-triggered systemd backup for hard-link
 # deduplicated snapshots of the local backup tree to a swappable USB device
@@ -42213,6 +42273,10 @@ msgstr "Печать файлов и URL-адресов в архиве след
 msgid "Print the group-conditional service keys, comma-separated for ``disable=``."
 msgstr "Печать групповых условных служебных ключей, разделенных запятой для ``disable=``."
 
+# gained=['APP_IDТранзитивные']
+# положение CLI должно ``--include`` Таким образом, итоговая инвентаризация
+# имеет каждую группу. APP_IDТранзитивные депсы потребуются во время
+# развертывания.
 # translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDТранзитивные']
 # nocheck: url
@@ -42935,17 +42999,15 @@ msgstr "Проталкивание ветви через ручной проек
 msgid "Pushing 🚢"
 msgstr "Толкать 🚢"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['plugin.yml']
-# nocheck: url
-# translation-rejected: Поместите файл в этот каталог только тогда, когда
 # поведение, которое он реализует, является частью договора безопасности или
 # интеграции этой роли и ДОЛЖНО оставаться в силе для каждого запроса.
 # Ежедневные плагины должны оставаться в норме `wp-content/plugins/` и
 # управляется через [05enable plugin.yml](../../tasks/05_enable_plugin.yml)
 # Операторы могут отключить их на сайте, если это необходимо.
+# translated-by: libretranslate
 msgid "Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed."
-msgstr ""
+msgstr "Поместите файл в этот каталог только тогда, когда поведение, которое он реализует, является частью договора безопасности или интеграции этой роли и ДОЛЖНО оставаться в силе для каждого запроса. Ежедневные плагины должны оставаться в норме `wp-content/plugins/` и управляется через [05enable plugin.yml](../../tasks/05_enable_plugin.yml) Операторы могут отключить их на сайте, если это необходимо."
 
 # translated-by: libretranslate
 msgid "Put back the sentence boundary a translator dropped behind a protected span."
@@ -43702,6 +43764,12 @@ msgstr "Причина: pytest выполняет все тесты в одно�
 msgid "Rebuilds the local inventory and keeps the runtime `.password` file."
 msgstr "Восстанавливает местный инвентарь и сохраняет время выполнения `.password` Файл."
 
+# gained=['default.envи']
+# default.env на корне репозитория, выключил env/ subtree и env.development
+# маркер, сложенный ci.env в default.envи положите каждую ручку времени
+# выполнения под `INFINITO_` пространство (BUILDKIT_ENABLED, OUTER_NETWORK_MTU
+# автообнаружение с маршрута хоста, CONTAINER_CA_ENABLED, и путь / изображение
+# перекрывает)
 # translation-refused: libretranslate protected-span lost=['default.env']
 # gained=['default.envи']
 # nocheck: url
@@ -43830,6 +43898,8 @@ msgstr "Рекурсивно обрабатывать 'credentials' Секция
 msgid "Recursively resolve schema includes by following configs transitively."
 msgstr "Схема рекурсивного разрешения включает в себя переходное следование конфигурациям."
 
+# gained=['ANSIBLE_VAULTВ']
+# с '$ANSIBLE_VAULTВ VaultScalar он сбрасывается как буквальный блок.
 # translation-refused: libretranslate protected-span lost=['ANSIBLE_VAULT']
 # gained=['ANSIBLE_VAULTВ']
 # nocheck: url
@@ -44168,6 +44238,9 @@ msgstr "Реинсталлировать 🔄"
 msgid "Rejects the call unconditionally, even if `allow` would otherwise match."
 msgstr "Отклоняет призыв безоговорочно, даже если `allow` В противном случае они совпали бы."
 
+# gained=['"', 'main.ymlзависимости']
+# meta/main.ymlзависимости verfolgt. 'run_after' "Wird hier absichtlich
+# ignoriert".
 # translation-refused: libretranslate protected-span lost=['meta/main.yml']
 # gained=['"', 'main.ymlзависимости']
 # nocheck: url
@@ -44353,13 +44426,11 @@ msgstr "Удаленная настройка и подписанные толч
 msgid "Remotes 🌐"
 msgstr "Удаленный 🌐"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['Ports.yml', 'networks.yml']
-# nocheck: url
-# translation-rejected: Удалить *Ports.yml и*networks.yml с помощью функции
 # поиска
+# translated-by: libretranslate
 msgid "Remove *_ports.yml and*_networks.yml by a lookup function"
-msgstr ""
+msgstr "Удалить *Ports.yml и*networks.yml с помощью функции поиска"
 
 # translated-by: libretranslate
 msgid "Remove Docker Hub registry prefix if present (backward compat)."
@@ -44654,7 +44725,8 @@ msgstr "Отдавайте заявленные репозитории, поск
 msgid "Render the plan of one CI sweep: every candidate row, and where it lands."
 msgstr "Осуществите план одного КИ-развертки: каждый ряд кандидатов и где он приземляется."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# command (недоступная ссылка — история). (SPOT).
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Render timeout-hardened, retry-hardened curl base
 # command (недоступная ссылка — история). (SPOT).
@@ -45219,6 +45291,8 @@ msgstr "Резолюция ✅"
 msgid "Resolution 🔗"
 msgstr "Резолюция 🔗"
 
+# gained=['APP_IDТранзитивные']
+# варианты.
 # translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDТранзитивные']
 # nocheck: url
@@ -45580,6 +45654,8 @@ msgstr "Возвращение (Хорошо, info_string, first_address_or_None
 msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "Возвращение (Владелец, репо, run_id) Ссылка на Run id или Run/Job URL."
 
+# gained=['job_idникто']
+# Скриншоты из Run/Job URL.
 # translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_idникто']
 # nocheck: url
@@ -46056,6 +46132,8 @@ msgstr "Вернуть все полезные переводы ``catalog``."
 msgid "Return free space in GB at `path` (or the closest existing ancestor). 0 when `df` fails or the output is unparseable."
 msgstr "Возврат свободного места в GB `path` (Ближайший из существующих предков). 0 когда `df` Неисправность или результат неразборчив."
 
+# gained=[]
+# согласен с существующими кадастрамиhost_vars штат.
 # translation-refused: libretranslate protected-span lost=['host_vars']
 # gained=[]
 # nocheck: url
@@ -47705,16 +47783,14 @@ msgstr "Круглополосный доступ YAML для файлов ин�
 msgid "Roundtrip Loop"
 msgstr "Круглая петля"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['утилиту/кэш/пакет']
-# nocheck: url
-# translation-rejected: Маршрутизированы все точки соприкосновения YAML и
 # каждое проектное дерево utils.cache.{Ямл, файлы} и консолидировали
 # кэш-модули в единую утилиту/кэш/пакет; интеграционные тесты теперь разделяют
 # один разбор и одну прогулку за вызов теста
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Routed every YAML touchpoint and every project-tree walk through utils.cache.{yaml,files} and consolidated the cache modules into a single utils/cache/ package; integration tests now share one parse and one walk per make test invocation"
-msgstr ""
+msgstr "Маршрутизированы все точки соприкосновения YAML и каждое проектное дерево utils.cache.{Ямл, файлы} и консолидировали кэш-модули в единую утилиту/кэш/пакет; интеграционные тесты теперь разделяют один разбор и одну прогулку за вызов теста"
 
 # translated-by: libretranslate
 msgid "Routed every fixture write through utils.cache.yaml.dump_yaml and every fixture read through utils.cache.files.read_text"
@@ -48641,10 +48717,7 @@ msgstr "Запускает Playwright в Docker со стабильными на
 msgid "Runs Playwright in Docker with stable browser settings (``--ipc=host``, ``--shm-size=1g``)"
 msgstr "Запускает Playwright в Docker со стабильными настройками браузера (``--ipc=host``, ``--shm-size=1g``)"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['DNS/TCP/TLS/PMTU']
-# nocheck: url
-# translation-rejected: Бежит [ main
 # .py](../../../../cli/contributing/network/diagnose/__main__.py) внутри
 # бегущего `infinito` контейнер и производит структурированный отчет
 # DNS/TCP/TLS/PMTU по стандартной инфраструктуре хостов (`github.com`,
@@ -48654,8 +48727,9 @@ msgstr "Запускает Playwright в Docker со стабильными на
 # IPv4 и IPv6 Когда доступно. Дополнительные хосты могут быть добавлены через
 # `INFINITO_NET_DEBUG_HOSTS="example.com api.example.org" make
 # diagnose-network`.
+# translated-by: libretranslate
 msgid "Runs [__main__.py](../../../../cli/contributing/network/diagnose/__main__.py) inside the running `infinito` container and produces a structured DNS / TCP / TLS / PMTU report against the standard infrastructure hosts (`github.com`, `ghcr.io`, `registry-1.docker.io`, `auth.docker.io`, `pypi.org`, `files.pythonhosted.org`, `registry.npmjs.org`, `objects.githubusercontent.com`, `raw.githubusercontent.com`), separately for IPv4 and IPv6 when available. Extra hosts can be appended via `INFINITO_NET_DEBUG_HOSTS=\"example.com api.example.org\" make diagnose-network`."
-msgstr ""
+msgstr "Бежит [ main .py](../../../../cli/contributing/network/diagnose/__main__.py) внутри бегущего `infinito` контейнер и производит структурированный отчет DNS/TCP/TLS/PMTU по стандартной инфраструктуре хостов (`github.com`, `ghcr.io`, `registry-1.docker.io`, `auth.docker.io`, `pypi.org`, `files.pythonhosted.org`, `registry.npmjs.org`, `objects.githubusercontent.com`, `raw.githubusercontent.com`)отдельно для IPv4 и IPv6 Когда доступно. Дополнительные хосты могут быть добавлены через `INFINITO_NET_DEBUG_HOSTS=\"example.com api.example.org\" make diagnose-network`."
 
 # translated-by: libretranslate
 msgid "Runs ``btrfs device stats`` and alerts if any error counters are non-zero."
@@ -49258,6 +49332,8 @@ msgstr "Сканирование `journalctl` в течение последне
 msgid "Scenarios that create persistent state (WordPress posts, Discourse topics, Keycloak group memberships, file uploads, …) MUST clean up in a `try { ... } finally { ... }` block. The teardown MUST:"
 msgstr "Сценарии, создающие устойчивое состояние (WordPress посты, Discourse темы, Keycloak Членство в группе, загрузка файлов, ...) Необходимо убирать в `try { ... } finally { ... }` Блок. Разрыв должен быть:"
 
+# gained=['s.infinito.nexusвстреча']
+# [s.infinito.nexusвстреча](https://s.infinito.nexus/meet)
 # translation-refused: libretranslate protected-span lost=['s.infinito.nexus']
 # gained=['s.infinito.nexusвстреча']
 # nocheck: url
@@ -49390,11 +49466,8 @@ msgstr "Скрипты, которые следует использовать `
 msgid "Scripts for installing the Infinito self-signed Root CA into the trust stores of the developer's machine."
 msgstr "Скрипты для установки самоподписанного Root CA Infinito в трастовые магазины машины разработчика."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['content.sh', 'converge.sh', 'inventory.sh', 'reachable.sh',
 # 'state.sh', 'worker.sh']
-# nocheck: url
-# translation-rejected: Скрипты на шаг: поднятие
 # [01bootstrap.sh](01_bootstrap.sh) - положение [02provision
 # inventory.sh](02_provision_inventory.sh) - сходятся [03wait
 # converge.sh](03_wait_converge.sh) - достижимость [04verify
@@ -49404,8 +49477,9 @@ msgstr "Скрипты для установки самоподписанног�
 # worker.sh](06_drain_worker.sh) утверждать [07assert
 # state.sh](07_assert_state.sh) - Чистка
 # [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh).
+# translated-by: libretranslate
 msgid "Scripts per step: bring-up [01_bootstrap.sh](01_bootstrap.sh) - provision [02_provision_inventory.sh](02_provision_inventory.sh) - converge [03_wait_converge.sh](03_wait_converge.sh) - reachability [04_verify_reachable.sh](04_verify_reachable.sh) - drill [backup/base.sh](backup/base.sh) - marker [05_seed_content.sh](05_seed_content.sh) - drain [06_drain_worker.sh](06_drain_worker.sh) - assert [07_assert_state.sh](07_assert_state.sh) - purge [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
-msgstr ""
+msgstr "Скрипты на шаг: поднятие [01bootstrap.sh](01_bootstrap.sh) - положение [02provision inventory.sh](02_provision_inventory.sh) - сходятся [03wait converge.sh](03_wait_converge.sh) - достижимость [04verify reachable.sh](04_verify_reachable.sh) - дрель [backup/base.sh](backup/base.sh) - маркер [05seed content.sh](05_seed_content.sh) дренаж [06drain worker.sh](06_drain_worker.sh) утверждать [07assert state.sh](07_assert_state.sh) - Чистка [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
 
 # translated-by: libretranslate
 msgid "Scripts used for local testing and setup (under `scripts/tests/` and `scripts/install/`) MUST support all five deployed distributions above and additionally MUST support:"
@@ -49471,7 +49545,8 @@ msgstr "Искать все ``roles/*/vars/main.yml`` для application_id и �
 msgid "SeaweedFS is the shared S3 object store. A role becomes a consumer by declaring a `seaweedfs` service in `meta/services.yml`, wiring its app config from `lookup('objstore', application_id, ...)` (bucket / access_key / secret_key / url / region), and shipping a gated `files/playwright/test-seaweedfs.js`. See `web-app-mastodon`, `web-app-pixelfed`, and `web-app-nextcloud` for the reference pattern. SeaweedFS S3 requires **path-style addressing** and the internal `http://` endpoint."
 msgstr "SeaweedFS является общим S3 Магазин предметов. Роль становится потребителем путем объявления `seaweedfs` служение `meta/services.yml`, проводя его конфигурацию приложения от `lookup('objstore', application_id, ...)` (ведро access_key / secret_key / url / регион)Отправляя затвор `files/playwright/test-seaweedfs.js`. Смотри. `web-app-mastodon`, `web-app-pixelfed`, и `web-app-nextcloud` для эталонной модели. Морские водоросли3 требует **адресация в стиле Path** и внутренних `http://` Конечная точка."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# (альбом)
+# translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Seconds between two fetches of new commits and tags
 # (альбом)
@@ -49702,14 +49777,12 @@ msgstr "Видишь? [readme_md.md](artefact/files/role/readme_md.md) для т
 msgid "See [regression.md](../../docs/contributing/actions/testing/regression.md) for the SPOT: rules on what regression guards are permitted and the preferred alternative approach."
 msgstr "Видишь? [regression.md](../../docs/contributing/actions/testing/regression.md) Правила о том, какие регрессионные предохранители разрешены, и предпочтительный альтернативный подход."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['templates.py']
-# nocheck: url
-# translation-rejected: Видишь? [Тест
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # для осуществления.
+# translated-by: libretranslate
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
-msgstr ""
+msgstr "Видишь? [Тест templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) для осуществления."
 
 # translated-by: libretranslate
 msgid "See [unit.md](../../docs/contributing/actions/testing/unit.md) for the SPOT: framework, requirements, directory structure, and `make test-unit` usage."
@@ -50886,16 +50959,14 @@ msgstr "Единая точка истины для диагностики ко�
 msgid "Single point of truth for proprietary / external API credentials. Resolves a dotted path against the effective ``API`` mapping: the declaration in group_vars/all/18_api.yml with the calling scope's override merged over it. Routing every access through this plugin keeps one place to change how proprietary API credentials are sourced (vault, env, secret manager, a different provider abstraction) without touching the call sites."
 msgstr "Единая точка истины для проприетарного / внешнего API Удостоверения. Решает пунктирный путь против эффективного ``API`` Картографирование: декларация в group_vars/all/18_api.yml с переопределением области вызова, слившейся над ней. Маршрутизация каждого доступа через этот плагин сохраняет одно место, чтобы изменить то, как проприетарно API Удостоверения получены (хранилище, энв, секретный менеджер, абстракция другого провайдера) Не касаясь сайтов звонков."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Единая точка истины для репо-корневого якоря,
 # заменяющая повторяющиеся ``[playbook_dir, '<rel>'] | path_join`` Бойлерплейт
 # в кросс-роле include/template/script/src Сайты звонков. Присоединяйтесь к
 # каждому термину, так что путь может быть пройден целиком. ("roles/x/y.yml")
 # или разделены на термины, когда сегмент является переменной
 # (``lookup('path_absolute', 'roles', system_service_role_name)``).
+# translated-by: libretranslate
 msgid "Single point of truth for the repo-root anchor, replacing the repeated ``[playbook_dir, '<rel>'] | path_join`` boilerplate at cross-role include/template/script/src call sites. Joins every term, so a path may be passed whole ('roles/x/y.yml') or split across terms when a segment is a variable (``lookup('path_absolute', 'roles', system_service_role_name)``)."
-msgstr ""
+msgstr "Единая точка истины для репо-корневого якоря, заменяющая повторяющиеся ``[playbook_dir, '<rel>'] | path_join`` Бойлерплейт в кросс-роле include/template/script/src Сайты звонков. Присоединяйтесь к каждому термину, так что путь может быть пройден целиком. (\"roles/x/y.yml\") или разделены на термины, когда сегмент является переменной (``lookup('path_absolute', 'roles', system_service_role_name)``)."
 
 # translated-by: libretranslate
 msgid "Single responsibility per module:"
@@ -51681,7 +51752,11 @@ msgstr "Статус после запуска матрицы развертыв
 msgid "Status page with live feedback on logout progress for each domain."
 msgstr "Страница состояния с живой обратной связью о прогрессе выхода для каждого домена."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['★']
+# этим размахом, ❌ За пределами бюджета уборки (повышать ``--offset`` чтобы
+# достичь его), ✂️ вырезанный как избыточное покрытие — клон или ряд, который
+# уже встроен ранее, который не развертывается. ``--cli`` отображает таблицы
+# терминалов фиксированной ширины вместо Markdown.
+# translation-refused: libretranslate added-span lost=[] gained=['★']
 # nocheck: url
 # translation-rejected: Статус на строку: ★ строка приоритета, ✅ развёрнутый
 # этим размахом, ❌ За пределами бюджета уборки (повышать ``--offset`` чтобы
@@ -57617,19 +57692,19 @@ msgstr "Атрибут входа в систему сопряжен с прет
 msgid "The login button in the UI will read \"SSO with Infinito.Nexus\" (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
 msgstr "Кнопка входа в UI будет читать \"ССО с Infinito.Nexus\" (Переименовано через инъекционный JavaScript). Основополагающим потоком аута является стандартный OAuth.2/OIDC против Keycloak."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Кнопка входа в интерфейс будет читаться "SSO с
 # Infinito.Nexus" (Переименовано через инъекционный JavaScript).
 # Основополагающим потоком аута является стандартный OAuth.2/OIDC против
 # Keycloak.
+# translated-by: libretranslate
 msgid "The login button in the UI will read “SSO with Infinito.Nexus” (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
-msgstr ""
+msgstr "Кнопка входа в интерфейс будет читаться \"SSO с Infinito.Nexus\" (Переименовано через инъекционный JavaScript). Основополагающим потоком аута является стандартный OAuth.2/OIDC против Keycloak."
 
 # translated-by: libretranslate
 msgid "The logo must use a valid Font Awesome class string, e.g.:"
 msgstr "Логотип должен использовать действительную строку класса Font Awesome, например:"
 
+# gained=['data/data/nextcloud.log']
+# **/var/lib/docker/volumes/nextcloud_data/ data/data/nextcloud.log**
 # translation-refused: libretranslate protected-span lost=['nextcloud.log']
 # gained=['data/data/nextcloud.log']
 # nocheck: url
@@ -57738,8 +57813,26 @@ msgstr "Материализованная полезная нагрузка п�
 msgid "The matrix hands every row exactly one filesystem, so the value a deploy job sees is always narrow. Reading that narrowness as a demand would turn every condition the applying step is built to tolerate into a red row: a loop device it could not claim, a pool another job still holds, a kernel without the module."
 msgstr "Матрица передает каждой строке ровно одну файловую систему, поэтому значение, которое видит работа развертывания, всегда узко. Читая, что узость как требование превратит каждое условие, применяющий шаг построен, чтобы терпеть в красный ряд: петлевое устройство, на которое он не мог претендовать, пул другой работы все еще держит, ядро без модуля."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['5', '[',
 # ']']
+# размещается плагин / флаг); двунаправленные пары, такие как
+# `nextcloud`[5]`openproject` Они несут символ в обеих клетках. генерируется
+# путем
+# [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py):
+# ☑️ Ребра сканируются с каждой роли `meta/services.yml` (тот
+# `sso`/`matomo`/`prometheus`/`email`/`dashboard`/`css`/`logout`/`cdn`/`coturn`/`collabora`/`onlyoffice`/`libretranslate`
+# ключи)и ✅/🪙 Края исходят из кураторской, веб-проверенной `EDGES` Карта. Он
+# должен быть восстановлен, а не отредактирован вручную. На момент создания он
+# охватывает 82 роли с **523 коренной (☑️) проводные края плюс 96 в верхнем
+# течении (✅/🪙) края**Это ☑️ слой является исчерпывающим (Отсканировано из
+# репо); ✅/🪙 слой **еще не исчерпывающий** и растет по мере того, как
+# экосистема плагинов для каждой роли исследуется глубоко (например, а
+# MediaWiki Глубокий дайв добавлен `DiscourseSsoConsumer`, `PeerTubeEmbed`,
+# `MachineTranslation`libretranslate, `Extension:AWS`→minio и редактор LLM
+# →openwebui)Это ✅/🪙 Набор - это **отставание**Каждый ✅ Пара является
+# дополнением, это требование обязывает декларировать и провод (См. критерии
+# принятия), а завершение пер-ролевого восходящего обследования само по себе
+# является критерием принятия.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Матрица является **направленный** (В строке
 # размещается плагин / флаг); двунаправленные пары, такие как
@@ -57763,8 +57856,10 @@ msgstr "Матрица передает каждой строке ровно о�
 msgid "The matrix is **directional** (the row hosts the plugin/flag); bidirectional pairs such as `nextcloud`↔`openproject` carry a symbol in both cells. It is generated by [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py): ☑️ edges are scanned from every role's `meta/services.yml` (the `sso`/`matomo`/`prometheus`/`email`/`dashboard`/`css`/`logout`/`cdn`/`coturn`/`collabora`/`onlyoffice`/`libretranslate` keys), and ✅/🪙 edges come from a curated, web-verified `EDGES` map. It MUST be regenerated rather than hand-edited. At creation time it covers 82 roles with **523 infinito-native (☑️) wired edges plus 96 curated upstream (✅/🪙) edges**. The ☑️ layer is exhaustive (it is scanned from the repo); the ✅/🪙 layer is **not yet exhaustive** and grows as each role's upstream plugin ecosystem is researched in depth (e.g. a MediaWiki deep-dive added `DiscourseSsoConsumer`, `PeerTubeEmbed`, `MachineTranslation`→libretranslate, `Extension:AWS`→minio, and an LLM editor→openwebui). The ✅/🪙 set is the **backlog**: every ✅ pair is an addon this requirement commits to declare and wire (see Acceptance Criteria), and completing the per-role upstream survey is itself an acceptance criterion."
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=[] gained=['5', '[',
 # ']']
+# плагин / флаг. Двунаправленные пары (Например. `nextcloud`[5]`openproject`)
+# Они несут символ в обеих ячейках, каждая из которых связана с этой стороной.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Матрица является **направленный**: строка содержит
 # плагин / флаг. Двунаправленные пары (Например. `nextcloud`[5]`openproject`)
@@ -58079,9 +58174,6 @@ msgstr "Порт для каждой категории, из которого �
 msgid "The per-role complexity score, its ``dna`` cluster key and ``siblings``."
 msgstr "Показатель сложности каждой роли, его ``dna`` Кластерный ключ и ``siblings``."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Флаги объявлены в
 # [templates/playwright.env.j2](./templates/playwright.env.j2).
 # `administrator` блокируется только в `sso: false` варианты: как описано
 # выше, Postmarks"Единственное родное удостоверение - это единый общий"
@@ -58092,8 +58184,9 @@ msgstr "Показатель сложности каждой роли, его ``
 # моста `X-Forwarded-Groups`, Так `biber` Отрицается до Postmarks Достигается,
 # и с SSO единственный оставшийся учетный файл не принадлежит учетной записи
 # пользователя.
+# translated-by: libretranslate
 msgid "The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. `biber` is blocked in every variant — the oauth2-proxy admits only the application's administrator RBAC group and the bridge re-checks `X-Forwarded-Groups`, so `biber` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr ""
+msgstr "Флаги объявлены в [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` блокируется только в `sso: false` варианты: как описано выше, Postmarks\"Единственное родное удостоверение - это единый общий\" `ADMIN_KEY` Форма пароля, которая не является Keycloak Администратор скрывает типы персон, поэтому без моста с надежным заголовком нет входа администратора для управления. `biber` блокируется в каждом варианте — оут2Прокси допускает только администратора приложения RBAC и перепроверку моста `X-Forwarded-Groups`, Так `biber` Отрицается до Postmarks Достигается, и с SSO единственный оставшийся учетный файл не принадлежит учетной записи пользователя."
 
 # translated-by: libretranslate
 msgid "The persona flags are declared in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` is blocked only in the ``sso: false`` variants: as described above, Postmarks’ sole native credential is the single shared ``ADMIN_KEY`` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. ``biber`` is blocked in every variant — the oauth2-proxy admits only the application’s administrator RBAC group and the bridge re-checks ``X-Forwarded-Groups``, so ``biber`` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
@@ -58135,17 +58228,15 @@ msgstr "Пины читаются ``utils/install/lint/pinned.py``, которы
 msgid "The pins are read by `utils/install/lint/pinned.py`, which every lint installer calls:"
 msgstr "Пины читаются `utils/install/lint/pinned.py`, который каждый установщик lint называет:"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['ops.yml']
-# nocheck: url
-# translation-rejected: Трубопровод строится из
 # [06plugin.yml](../06_plugin.yml), который, в свою очередь, проходит один раз
 # за итерацию `NEXTCLOUD_PLUGIN_ITEMS` петля [02manager
 # ops.yml](../../02_manager_ops.yml). Переменная петли `plugin_item`
 # распаковывается в `plugin_key` (Название приложения OCC) и `plugin_value`
 # (Мета-вход).
+# translated-by: libretranslate
 msgid "The pipeline is invoked from [06_plugin.yml](../06_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml). The loop variable `plugin_item` is unpacked into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry)."
-msgstr ""
+msgstr "Трубопровод строится из [06plugin.yml](../06_plugin.yml), который, в свою очередь, проходит один раз за итерацию `NEXTCLOUD_PLUGIN_ITEMS` петля [02manager ops.yml](../../02_manager_ops.yml). Переменная петли `plugin_item` распаковывается в `plugin_key` (Название приложения OCC) и `plugin_value` (Мета-вход)."
 
 # translated-by: libretranslate
 msgid "The pipeline owns three responsibilities for one Nextcloud plugin (app):"
@@ -58471,6 +58562,11 @@ msgstr "Целью данной роли является автоматизац
 msgid "The purpose of this role is to automate the installation and configuration of LibreOffice along with its language support on personal computers. This ensures that users have a consistent and fully functional office suite environment across their systems."
 msgstr "Целью данной роли является автоматизация установки и настройки LibreOffice наряду с языковой поддержкой на персональных компьютерах. Это гарантирует, что пользователи имеют последовательную и полностью функциональную среду офисного пакета в своих системах."
 
+# gained=['Infinito.Nexusсвязанные']
+# установки и обновления. Infinito.Nexusсвязанные приложения или другие
+# управляемые пакеты, использующие ``pkgmgr``. Он упрощает обработку пакетов и
+# применяет лучшие практики для развертывания пакетов в автоматизированных
+# средах.
 # translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexusсвязанные']
 # nocheck: url
@@ -58482,6 +58578,11 @@ msgstr "Целью данной роли является автоматизац
 msgid "The purpose of this role is to automate the installation and update process for Infinito.Nexus-related applications or other managed packages using ``pkgmgr``. It simplifies package handling and enforces best practices for package deployment in automated environments."
 msgstr ""
 
+# gained=['Infinito.Nexusсвязанные']
+# установки и обновления. Infinito.Nexusсвязанные приложения или другие
+# управляемые пакеты, использующие `pkgmgr`. Он упрощает обработку пакетов и
+# применяет лучшие практики для развертывания пакетов в автоматизированных
+# средах.
 # translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexusсвязанные']
 # nocheck: url
@@ -59605,6 +59706,10 @@ msgstr "Форма, которую должен иметь каждый ключ
 msgid "The shape every consumer renders from: the ansible lookups, which then apply the inventory, and the dev stack, which does not."
 msgstr "Форма, которую каждый потребитель отображает: пригодные для поиска, которые затем применяют инвентарь, и стек разработчиков, который этого не делает."
 
+# gained=['apply_schemaСозданные']
+# вложенными. Буквальная строка сохраняется дословно, без рендеринга и
+# проверки. Без листьев ``default:`` умышленно отсутствуют, поэтому
+# инвентаризация apply_schemaСозданные ценности выигрывают слияние.
 # translation-refused: libretranslate protected-span lost=['apply_schema']
 # gained=['apply_schemaСозданные']
 # nocheck: url
@@ -59700,6 +59805,16 @@ msgstr "Разделяемый `biber` и `administrator` Помощники о�
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. As soon as an IAM source is wired, the role sets `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, driven by `GITEA_IAM_ENABLED` in `vars/main.yml`), and `tasks/setup/oidc.yml` registers only the auth source — never a Gitea user — so a Keycloak identity without a pre-linked Gitea account is bounced back to `/user/login`. The opt-out lapses once the deploy provisions (or auto-links) Gitea accounts for the persona identities."
 msgstr "Разделяемый `biber` и `administrator` Персонные путешествия отменяются через `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` в `templates/playwright.env.j2`. Как только источник IAM подключен, роль устанавливается `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, движимый `GITEA_IAM_ENABLED` в `vars/main.yml`), и `tasks/setup/oidc.yml` регистрирует только источник auth — никогда Gitea Пользователь — это Keycloak Идентификация без предварительной ссылки Gitea Аккаунт возвращается на `/user/login`. Отказ истекает, как только положения о развертывании (или автоматические ссылки) Gitea учет идентичности личности."
 
+# gained=['"Войти"']
+# путешествия отменяются через `PERSONA_BIBER_BLOCKED` /
+# `PERSONA_ADMINISTRATOR_BLOCKED` в `templates/playwright.env.j2`. Вход Fider
+# в SSO - это двухэтапный модаль: заголовок "Войти" Кнопка только открывает
+# диалог провайдера, и второй клик на "Продолжить... SSO" выполняет Keycloak
+# Перенаправить, в то время как общий помощник щелкает ровно один раз и
+# никогда не достигает IdP. Оба путешествия покрыты сквозной этой ролью.
+# `fider: admin sso login` и `fider: biber sso login as regular user` сценарии
+# в `files/playwright/playwright.spec.js`; отказ пропадает, как только общий
+# помощник узнает FiderМодальный.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Войти"']
 # nocheck: url
@@ -59729,6 +59844,16 @@ msgstr "Разделяемый `biber` и `administrator` Персонные п�
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Outside the OIDC variant, `templates/casc.yaml.j2` selects the `ldap` or `local` security realm and Jenkins' only login surface is its own Java-realm form, whose fields are named `j_username` / `j_password` (pinned by the LDAP scenario in `files/playwright/playwright.spec.js`) — names the shared native-login probe does not match, so the persona never authenticates. The flag is currently unconditional; narrowing it to `{% if not JENKINS_OIDC_ENABLED %}` once the OIDC persona journey has been verified end-to-end is the path back."
 msgstr "Разделяемый `biber` и `administrator` Персонные путешествия отменяются через `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` в `templates/playwright.env.j2`. Вне варианта OIDC, `templates/casc.yaml.j2` выбирает `ldap` или `local` Сфера безопасности и JenkinsТолько поверхность входа в систему является его собственной JavaФорма царства, чьи поля называются `j_username` / `j_password` (По сценарию LDAP в `files/playwright/playwright.spec.js`) — имена разделяемого зонда нативного входа не совпадают, поэтому персона никогда не аутентифицируется. Флаг в настоящее время безусловен; сужение его до `{% if not JENKINS_OIDC_ENABLED %}` После того, как путешествие персоны OIDC было проверено сквозным, путь возвращается."
 
+# gained=['"Войти"']
+# путешествия отменяются через `PERSONA_BIBER_BLOCKED` /
+# `PERSONA_ADMINISTRATOR_BLOCKED` в `templates/playwright.env.j2`. Оут2-proxy
+# sidecar only gates the vhost - Прокси коляска FusionDirectory сохраняет свой
+# собственный LDAP-связанный логин позади него, который является сценарием
+# OIDC роли в `files/playwright/playwright.spec.js` Утверждения, ожидающие
+# "Войти" Кнопка, которая будет видна после Keycloak в оба конца.
+# `tasks/main.yml` Положения не FusionDirectory счет, так что Keycloak
+# Идентификационные карты без сеанса каталога, который общие помощники могли
+# бы перенести в выход из приложения.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Войти"']
 # nocheck: url
@@ -60070,6 +60195,51 @@ msgstr "Узел верхнего уровня должен быть списк�
 msgid "The trade-off is that `deny` now carries the full weight of \"what the agent must never do from the shell\". New destructive patterns MUST be added to `deny`. They can no longer be caught implicitly by an absent `allow` entry."
 msgstr "Компромисс заключается в том, что `deny` В настоящее время весь вес \"Что агент никогда не должен делать из раковины\"Новые разрушительные модели должны быть добавлены к `deny`Они больше не могут быть пойманы неявно отсутствующим `allow` Вход."
 
+# gained=['alpha/beta/pre/...']
+# счет) Закрытие BFS ограничено ``max_level``; ``*_direct`` Поля всегда
+# являются соседями одного хопа. ``weight`` Это сумма четырех числовых
+# столбцов. ``dna`` является хэшом собственного имени роли, объединенного с
+# его встроенными службами. (сортировать)Таким образом, две роли, охватывающие
+# один и тот же набор услуг, разделяют дна. ``siblings`` другие роли,
+# разделяющие эту дну; ``clone`` Это верно для каждого ряда группы дна, кроме
+# самого тяжелого. (Связи, разбитые по имени)Таким образом, сортировка клонов
+# в последний раз держит одного представителя за услугу, установленную перед
+# сокращением бюджета. ``random`` Это пер-роу 6-digit nonce, rolled fresh per
+# invocation, поэтому порядок галстуков намеренно варьируется между пробегами.
+# ``variant`` Это ``meta/variants.yml`` индекс этой строки был вычислен против
+# или ``None`` для целого ряда ролей. ``id`` и ``covered_by`` устанавливаются
+# CLI после сортировки: ``id`` числовое положение строки в порядке сортировки
+# (1основанный)и ``covered_by`` Это ``id`` из первых ранее (зеленый) ряд
+# различной роли, который встраивает этот ряд, или часовой ``0`` Когда этот
+# ряд сам по себе зеленый (нереально ``id`` это 0)Два варианта одной и той же
+# роли никогда не охватывают друг друга. ``row`` Это 1- основанный номер
+# строки в окончательном отданном выходе (Последний раз после фильтрации)Он
+# остается последовательным даже при сортировке по ``covered_by``
+# скремблировать ``id``. ``variants`` является числом ``meta/variants.yml``
+# варианты роли в полнофункциональном режиме; под ``--variant`` Каждая строка
+# уже является одним вариантом, поэтому ``1``. ``lifecycle`` является роль
+# ``meta/services.yml`` этап жизненного цикла (alpha/beta/pre/...).
+# ``compose`` / ``swarm`` Верны, когда матрица тестового развертывания CI
+# выполняет роль в этом режиме, соблюдая логику пропуска открытия:
+# инвокабельный + жизненный цикл в тестируемом конверте + роль ``skip``
+# список. Под ``--variant`` ``swarm`` является переменным (Каждый вариант
+# развертывается, поэтому он отслеживает уровень ролей. ``swarm`` и
+# ``stack``). ``stack`` Это верно, когда роль создает свой собственный
+# контейнерный стек. (корабли, ``templates/*compose*.yml.j2``); только роли
+# хозяина (резервная копия, охранник, свопфиль) Чистые инжекторы обслуживания
+# являются ложными. ``swarm`` подразумевать ``stack``Роль без собственного
+# шаблона никогда не является мишенью для развертывания роевого стека, поэтому
+# ``swarm`` Принудительная ложь, когда ``stack`` Это ложь. ``host`` Отражает
+# первичную сущность ``modes.host.enabled`` флаг (По умолчанию True) для
+# ролей, не связанных со стеком, и вынужденно ложно для роли со стеком: он
+# отмечает инвокабельные роли, которые настраивают хост вместо доставки стека.
+# ``test_compose`` / ``test_swarm`` / ``test_host`` дублировать столбцы режима
+# минус роль ``meta/tests.yml`` ``skip`` список: ``modes`` государства, где
+# роль РУНС, ``skip`` деактивирует режим TESTING, и фильтры обнаружения CI на
+# них ``test_*`` колонны. ``integrated`` является ложным, когда прямая карта
+# обслуживания строки не позволяет иностранному поставщику (Роль
+# развертывается изолированно): в варианте на строках вариантов, от основания
+# ``meta/services.yml`` на целых ролевых рядах.
 # translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['alpha/beta/pre/...']
 # nocheck: url
@@ -61006,6 +61176,8 @@ msgstr "Это позволяет избежать несоответствий 
 msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path bugs."
 msgstr "Это позволяет избежать хрупких родителей[N] Предположения и исправления \"cli/cli/...\" путевые жуки."
 
+# gained=['исправитьcli/cli/...Проблемы.']
+# пути и исправитьcli/cli/...Проблемы.
 # translation-refused: libretranslate protected-span lost=['cli/cli/...']
 # gained=['исправитьcli/cli/...Проблемы.']
 # nocheck: url
@@ -61680,17 +61852,15 @@ msgstr "Это сохраняет основную временную шкалу
 msgid "This lookup is the single sanctioned way to derive the Keycloak group path that an application role maps to. It replaces the scattered `[RBAC.GROUP.NAME, ...] | path_join` idiom so the per-application OU hierarchy has one authoritative producer."
 msgstr "Этот поиск является единственным санкционированным способом получения Keycloak групповой путь, на который отображается роль приложения. Он заменяет рассеянный `[RBAC.GROUP.NAME, ...] | path_join` Таким образом, иерархия OU для каждого приложения имеет одного авторитетного производителя."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['YAML/файл/регистр']
-# nocheck: url
-# translation-rejected: Этот крупный релиз мигрирует каждую роль в новую
 # мета-версию с явными пер-ролевыми сетями, портами. run_after, и info.yml
 # метаданные, вводит программист-планировщик матричного развертывания,
 # отправляет стек кэширования YAML/файл/регистр, продвигает 13+ приложения от
 # альфа до бета-версии и добавляет линтовый корпус, который закрепляет новые
 # конвенции в CI.
+# translated-by: libretranslate
 msgid "This major release migrates every role to the new meta/ layout with explicit per-role networks, ports, run_after, and info.yml metadata, introduces a variant-aware matrix-deploy planner, ships a process-wide YAML / file / registry caching stack, promotes 13+ apps from alpha to beta, and adds a lint corpus that pins the new conventions in CI."
-msgstr ""
+msgstr "Этот крупный релиз мигрирует каждую роль в новую мета-версию с явными пер-ролевыми сетями, портами. run_after, и info.yml метаданные, вводит программист-планировщик матричного развертывания, отправляет стек кэширования YAML/файл/регистр, продвигает 13+ приложения от альфа до бета-версии и добавляет линтовый корпус, который закрепляет новые конвенции в CI."
 
 # translated-by: libretranslate
 msgid "This makes Home Assistant a natural [025](025-mcp-role-integration.md) **MCP server role** and the concrete backend for the isolated-home-assistant scenario in [032](032-agent-employees-firecracker.md): the agent stays kernel-isolated and reaches the home only through this MCP surface, never through host access. Home Assistant runs natively on `arm64`/Raspberry Pi, so it co-locates with the Pi agent story."
@@ -62212,6 +62382,11 @@ msgstr "Эта роль захватывает и управляет Docker Swar
 msgid "This role bootstraps and manages a Docker Swarm cluster across the hosts in the Ansible group `svc-swarm-node`. The manager is the single host in `svc-swarm-manager`; every other group member joins as a worker. Membership is expressed via group membership only, never via duplicated lists in `group_vars`. Inventory node labels are pushed to the cluster after the join phase."
 msgstr "Эта роль захватывает и управляет Docker Swarm Скопление хостов в группе Ansible `svc-swarm-node`. Менеджер является единственным хостом в `svc-swarm-manager`; Каждый член группы присоединяется как работник. Членство выражается только через членство в группе, а не через дублированные списки. `group_vars`. Ярлыки узлов инвентаризации выталкиваются в кластер после фазы соединения."
 
+# gained=['"владелец"']
+# пользовательскому изображению, подключает его к стандартному обратному
+# прокси и сохраняет свои данные SQLite. Postmarks is single-user: аккаунтов
+# нет, только "владелец"Логин upstream - это одна общая секретная форма
+# пароля, которая переворачивает одну сессию. (`req.session.loggedIn`).
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"владелец"']
 # nocheck: url
@@ -62387,9 +62562,6 @@ msgstr "Эта роль провозглашает `PERSONA_ADMINISTRATOR_BLOCKE
 msgid "This role declares `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. KIX sits behind an oauth2-proxy whose `sso.oauth2.allowed_groups` in `meta/services.yml` admits only `roles/web-app-kix/administrator` and `roles/web-app-kix/user`; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at `/auth` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip."
 msgstr "Эта роль провозглашает `PERSONA_BIBER_BLOCKED` в `templates/playwright.env.j2`. KIX сидит за оутом2Прокси, чья `sso.oauth2.allowed_groups` в `meta/services.yml` допускает только `roles/web-app-kix/administrator` и `roles/web-app-kix/user`; Ни тот, ни другой не отрицают этого. KIX Делает что угодно. Пройти мимо прокси KIX Это двухэтапный логин: SPA по-прежнему представляет свою собственную форму агента. `/auth` который связывается с LDAP, и у общего помощника персоны нет второй стадии после LDAP. Keycloak в оба конца."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Эта роль провозглашает
 # ``PERSONA_ADMINISTRATOR_BLOCKED`` и ``PERSONA_BIBER_BLOCKED`` в
 # ``templates/playwright.env.j2`` Для того же механизма. Mattermost Team
 # Edition не имеет собственного провайдера OIDC, поэтому роль копилки Keycloak
@@ -62401,8 +62573,9 @@ msgstr "Эта роль провозглашает `PERSONA_BIBER_BLOCKED` в `t
 # ``/landing`` неаутентифицированные посетители, которые очищаются только один
 # раз ``localStorage.__landingPageSeen__`` Он засеян перед навигацией, и у
 # общего помощника нет крючка для этого.
+# translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr ""
+msgstr "Эта роль провозглашает ``PERSONA_ADMINISTRATOR_BLOCKED`` и ``PERSONA_BIBER_BLOCKED`` в ``templates/playwright.env.j2`` Для того же механизма. Mattermost Team Edition не имеет собственного провайдера OIDC, поэтому роль копилки Keycloak в сторону GitLab Слот OAuth (``MM_GITLABSETTINGS_*`` в ``templates/env.j2``); конечная точка входа ``a[href='/oauth/gitlab/login']``, переименовывается в \"SSO с Infinito.Nexus\"по ``templates/javascript.js.j2``, который общий помощник на основе имени пользователя не распознает. Материалы v11Кроме того, служит ``/landing`` неаутентифицированные посетители, которые очищаются только один раз ``localStorage.__landingPageSeen__`` Он засеян перед навигацией, и у общего помощника нет крючка для этого."
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same reason. ``meta/services.yml`` pins ``sso.enabled: false`` and ``sso.shared: false``: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` or ``BIBER_PASSWORD`` for the shared helpers to read."
@@ -63196,6 +63369,11 @@ msgstr "Эта роль управляет GNOME. Shell расширения, о
 msgid "This role manages WireGuard on a client system. It sets up essential services and scripts to configure and optimize WireGuard connectivity."
 msgstr "Эта роль управляет WireGuard в клиентской системе. Он настраивает основные службы и скрипты для настройки и оптимизации подключения WireGuard."
 
+# gained=['IPv4/IPv/6']
+# [Wireguard](https://www.wireguard.com/) на хозяина. Он устанавливает
+# необходимые Wireguard пакеты, конфигурирует настройки sysctl для IPv4/IPv/6
+# перенаправлять и развертывать Wireguard Конфигурационный файл, позволяющий
+# использовать VPN-сервис [быстро](https://www.wireguard.com/quickstart/).
 # translation-refused: libretranslate protected-span lost=['4', '6']
 # gained=['IPv4/IPv/6']
 # nocheck: url
@@ -63207,6 +63385,12 @@ msgstr "Эта роль управляет WireGuard в клиентской с�
 msgid "This role manages [Wireguard](https://www.wireguard.com/) on the host. It installs the necessary Wireguard packages, configures sysctl settings for IPv4/IPv6 forwarding, and deploys the Wireguard configuration file to enable the VPN service using [wg-quick](https://www.wireguard.com/quickstart/)."
 msgstr ""
 
+# gained=['IPv4/IPv/6']
+# <https://www.wireguard.com/>`__ на хозяина. Он устанавливает необходимые
+# Wireguard пакеты, конфигурирует настройки sysctl для IPv4/IPv/6
+# перенаправлять и развертывать Wireguard Конфигурационный файл, позволяющий
+# использовать VPN-сервис `wg-quick
+# <https://www.wireguard.com/quickstart/>`__.
 # translation-refused: libretranslate protected-span lost=['4', '6']
 # gained=['IPv4/IPv/6']
 # nocheck: url
@@ -63563,10 +63747,7 @@ msgstr "Три примитива:"
 msgid "Three properties follow from how Open WebUI works and none of them is closed by this role."
 msgstr "Три свойства следуют из того, как Open WebUI Работает и ни одна из них не закрыта этой ролью."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"Живой"']
-# nocheck: url
-# translation-rejected: Три клавиши настройки в `vars/main.yml` Безмолвный
 # no-ops на v6.2.0: `security.enable_captcha`, `security.captcha_key` и
 # `security.captcha_secret`"Живой" `settings` Стол несет один
 # `security.captcha` объект (`{"altcha": {…}, "hcaptcha": {"key", "secret",
@@ -63576,9 +63757,10 @@ msgstr "Три свойства следуют из того, как Open WebUI 
 # рациональность в `templates/playwright.env.j2` Опишите защиту, которой там
 # нет. Перепишите три ключа как один объект, а затем решите, нужна ли вообще
 # капча в публичной форме подписки.
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Three settings keys in `vars/main.yml` are silent no-ops on v6.2.0: `security.enable_captcha`, `security.captcha_key` and `security.captcha_secret`. The live `settings` table carries a single `security.captcha` object (`{\"altcha\": {…}, \"hcaptcha\": {\"key\", \"secret\", \"enabled\"}}`), so all three `UPDATE`s match zero rows and neither `ON_ERROR_STOP` nor the reaper notices. hCaptcha has therefore never been active, which also makes the `HCAPTCHA_SERVICE_ENABLED` rationale in `templates/playwright.env.j2` describe protection that is not there. Rewrite the three keys as one object, then decide whether a captcha on the public subscription form is wanted at all."
-msgstr ""
+msgstr "Три клавиши настройки в `vars/main.yml` Безмолвный no-ops на v6.2.0: `security.enable_captcha`, `security.captcha_key` и `security.captcha_secret`\"Живой\" `settings` Стол несет один `security.captcha` объект (`{\"altcha\": {…}, \"hcaptcha\": {\"key\", \"secret\", \"enabled\"}}`), Итак, все три `UPDATE`s соответствуют нулевым рядам и ни `ON_ERROR_STOP` И ни о чем не жалуются. Поэтому hCaptcha никогда не был активным, что также делает его активным. `HCAPTCHA_SERVICE_ENABLED` рациональность в `templates/playwright.env.j2` Опишите защиту, которой там нет. Перепишите три ключа как один объект, а затем решите, нужна ли вообще капча в публичной форме подписки."
 
 # translated-by: libretranslate
 msgid "Three variables keep the fallback inside the group's bounds:"
@@ -65829,6 +66011,10 @@ msgstr "Конечная точка Userinfo"
 msgid "Username claim: `preferred_username`, mapped to OpenCloud `username`"
 msgstr "Имя пользователя: `preferred_username`, Нанесенный на карту OpenCloud `username`"
 
+# gained=["'en_US'"]
+# ``{{hunspell_languages}}`` переменных в зависимости от их языковых
+# требований. Эта переменная принимает список языковых кодов. (например,
+# 'en_US''de_DE?).
 # translation-refused: libretranslate protected-span lost=['en_US']
 # gained=["'en_US'"]
 # nocheck: url
@@ -67416,7 +67602,8 @@ msgstr "Когда `timings.fastest` возвращение `None`, Измере
 msgid "When a Playwright scenario exercises the OIDC/LDAP path as `biber` (or any non-administrator persona) against a freshly provisioned Nextcloud stack, the very first login can fail or stall because the Nextcloud internal account has not yet been materialized from LDAP; this matches the situation described above. On subsequent logins the account exists and the flow behaves normally."
 msgstr "Когда сценарий драматурга использует путь OIDC / LDAP как `biber` (или любой неадминистративной персоной) Свежеприобретенный Nextcloud Стек, самый первый логин может выйти из строя или остановиться, потому что Nextcloud Внутренняя учетная запись еще не была материализована из LDAP; это соответствует ситуации, описанной выше. При последующих входах учетная запись существует, и поток ведет себя нормально."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# возможности в `README.md` Удалить (удалить) из `TODO.md`.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Когда ТОДО завершено, вы ДОЛЖНЫ продвигать готовые
 # возможности в `README.md` Удалить (удалить) из `TODO.md`.
@@ -67632,8 +67819,11 @@ msgstr "Когда приложение предоставляет услугу"
 msgid "When the app uses environment files"
 msgstr "Когда приложение использует файлы окружения"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['5', '[',
 # ']']
+# спецификация должна охватывать двунаправленный `biber` [5] `administrator`
+# обмен (каждая доставка, заявленная в почтовом ящике получателя из
+# изолированного контекста браузера).
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Когда приложение поддерживает одноранговые сообщения,
 # спецификация должна охватывать двунаправленный `biber` [5] `administrator`
@@ -68883,6 +69073,10 @@ msgstr "Вы не должны удалять основную ветвь"
 msgid "You MUST NOT enter the inner loop unless all of the following hold:"
 msgstr "Вы НЕ ДОЛЖНЫ входить во внутреннюю петлю, если все нижеперечисленное не удерживается:"
 
+# gained=['"SPOT"']
+# "SPOT", "Единая точка истины"или любой эквивалентной самомарки. Статус SPOT
+# присваивается читателями, сшивающими страницы из других мест, а не
+# страницами, утверждающими о себе. Вместо этого опишите тему напрямую.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"SPOT"']
 # nocheck: url
@@ -70752,8 +70946,10 @@ msgstr "[ ] Когда `web-app-keycloak` находится в `group_names`, K
 msgid "[ ] When both OIDC and LDAP are enabled (V1), OIDC is the primary button and LDAP login still works; the deploy is clean."
 msgstr "[ ] Когда включены OIDC и LDAP (V1), OIDC является основной кнопкой, а логин LDAP все еще работает; развертывание является чистым."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['5', '[',
 # ']']
+# плагину (Например, NextcloudCollabora/BBB, WordPress[5]Discourse), Миграция
+# примиряет существующую проводку с вводом матрицы вместо ее дублирования.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: [ ] Где ячейка подключается к уже подключенному
 # плагину (Например, NextcloudCollabora/BBB, WordPress[5]Discourse), Миграция
@@ -74355,7 +74551,7 @@ msgstr "[гадолин](https://github.com/hadolint/hadolint)"
 msgid "[hugomods/hugo Docker images](https://hub.docker.com/r/hugomods/hugo)"
 msgstr "[изображения hugomods/hugo Docker](https://hub.docker.com/r/hugomods/hugo)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=[')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: [я18n)](i18n/)
 msgid "[i18n/](i18n/)"
@@ -74795,15 +74991,13 @@ msgstr "[type.py](../../../../utils/roles/type.py) Употребляет ту �
 msgid "[update/](update/)"
 msgstr "[обновление](update/)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: [upstreams.conf.j2](./templates/upstreams.conf.j2) Он
 # передается хосту и вставляется в интерфейс как `conf.d/upstreams.conf`. Его
 # содержание исходит из `cache:` разделы ролей" `meta/networks.yml`, Таким
 # образом, ни имя хоста, ни репозиторий, ни верхний URL не написаны в этой
 # роли.
+# translated-by: libretranslate
 msgid "[upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role."
-msgstr ""
+msgstr "[upstreams.conf.j2](./templates/upstreams.conf.j2) Он передается хосту и вставляется в интерфейс как `conf.d/upstreams.conf`. Его содержание исходит из `cache:` разделы ролей\" `meta/networks.yml`, Таким образом, ни имя хоста, ни репозиторий, ни верхний URL не написаны в этой роли."
 
 # translated-by: libretranslate
 msgid "[variants.md](../../contributing/design/variants.md) for what a `role#variant` row is."
@@ -75539,6 +75733,10 @@ msgstr "[х] Конфигурация OIDC и LDAP полностью автом
 msgid "[x] OIDC login is available via `web-app-keycloak`, enabled through `PENPOT_FLAGS` (e.g. `enable-login-with-oidc`). _(verified live against a Penpot + Keycloak deploy.)_"
 msgstr "[х] Логин OIDC доступен через `web-app-keycloak`, Включенный через `PENPOT_FLAGS` (Например. `enable-login-with-oidc`)..(Проверенная жизнь против Penpot + Keycloak развернуть.)"
 
+# gained=['V2/V/3.']
+# соответствии со стандартом `service-gating.js` помощник (через
+# `shared.skipUnlessServiceEnabled("sso")`), поэтому они пропускают правильно
+# под V2/V/3.
 # translation-refused: libretranslate protected-span lost=['2', '3']
 # gained=['V2/V/3.']
 # nocheck: url
@@ -76081,6 +76279,12 @@ msgstr "[х] Обновление WebSocket до контейнера SocketIO (
 msgid "[x] When `services.mariadb.enabled` (always true for ERPNext) is unsatisfiable, `sys-stk-full` fails the deploy at the database-readiness gate before bench-bootstrap runs."
 msgstr "[х] Когда `services.mariadb.enabled` (всегда верно для ERPNext) является неудовлетворительным, `sys-stk-full` Отказывается от развертывания в воротах готовности к базе данных до запуска скамейки-загрузки."
 
+# gained=['V2/V/3']
+# соответствие `group_names`), Frappe соединяется с центральным
+# `svc-db-mariadb` через In-Stack `mariadb` сетевой псевдоним, использующий
+# svc-db-mariadb? `secrets.credentials.root_password` для `bench new-site`;
+# когда `shared=false` (V2/V/3) `sys-svc-rdbms` Шаблоны a per-role MariaDB
+# Контейнер и скамейка используют пароль пользователя db в качестве корня.
 # translation-refused: libretranslate protected-span lost=['2', '3']
 # gained=['V2/V/3']
 # nocheck: url
@@ -76624,6 +76828,8 @@ msgstr "Резервный прирост: если внутренний раз�
 msgid "__Increment fallback:__ if the band has no internal gaps, propose `max(used) + 1` (clamped to the band's upper bound)."
 msgstr "Increment Fallback: если у группы нет внутренних пробелов, предложите `max(used) + 1` (прижатый к верхней границе полосы)."
 
+# gained=[]
+# CA-пакет отсутствует, проблема на стороне сервера
 # translation-refused: libretranslate protected-span lost=['handshake__']
 # gained=[]
 # nocheck: url
@@ -80748,7 +80954,8 @@ msgstr "`sandbox.filesystem`: `allowWrite` пределов написать о�
 msgid "`sandbox.network`: outbound calls MUST go to hosts matching `allowedDomains`. Unix-socket connections are permitted only if `allowAllUnixSockets: true`; listening on local ports is permitted only if `allowLocalBinding: true`."
 msgstr "`sandbox.network`: исходящие звонки ДОЛЖНЫ идти к хостам `allowedDomains`. Unix-сокеты разрешены только в том случае, если `allowAllUnixSockets: true`; Прослушивание в местных портах разрешается только в том случае, если `allowLocalBinding: true`."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# циклы) (UTC).
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: `schedule`: cron-based periodic runs (периодические
 # циклы) (UTC).
@@ -81345,15 +81552,13 @@ msgstr "`update` (необязательный) Контроль в режиме
 msgid "`update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include."
 msgstr "`update` повторно использовать существующий инвентарь; `disable` достигает Ansible в качестве экстра-вара, который делает услуги отключенными, но не касается включения."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: `upstreams.conf.j2 <./templates/upstreams.conf.j2>`__
 # Он передается хосту и вставляется в интерфейс как ``conf.d/upstreams.conf``.
 # Его содержание исходит из ``cache:`` разделы ролей" ``meta/networks.yml``,
 # Таким образом, ни имя хоста, ни репозиторий, ни верхний URL не написаны в
 # этой роли.
+# translated-by: libretranslate
 msgid "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ is rendered to the host and mounted into the frontend as ``conf.d/upstreams.conf``. Its content comes from the ``cache:`` sections of the roles’ ``meta/networks.yml``, so no hostname, repository or upstream URL is written in this role."
-msgstr ""
+msgstr "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ Он передается хосту и вставляется в интерфейс как ``conf.d/upstreams.conf``. Его содержание исходит из ``cache:`` разделы ролей\" ``meta/networks.yml``, Таким образом, ни имя хоста, ни репозиторий, ни верхний URL не написаны в этой роли."
 
 # translated-by: libretranslate
 msgid "`upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
@@ -82814,6 +83019,9 @@ msgstr "cli.administration.inventory.provision пакет"
 msgid "cli.administration.inventory.provision.cli module"
 msgstr "cli.administration.inventory.provision.cli модуль"
 
+# lost=['cli.administration.inventory.provision.credentials']
+# gained=['cli.administration.inventory.provision.credentialsМодуль']
+# cli.administration.inventory.provision.credentialsМодуль генератора
 # translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.credentials']
 # gained=['cli.administration.inventory.provision.credentialsМодуль']
@@ -82831,6 +83039,9 @@ msgstr "cli.administration.inventory.provision.filters модуль"
 msgid "cli.administration.inventory.provision.host\\_vars module"
 msgstr "cli.administration.inventory.provision.host\\ vars модуль"
 
+# lost=['cli.administration.inventory.provision.inventory']
+# gained=['cli.administration.inventory.provision.inventoryМодуль']
+# генератора
 # translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.inventory']
 # gained=['cli.administration.inventory.provision.inventoryМодуль']
@@ -82840,6 +83051,9 @@ msgstr "cli.administration.inventory.provision.host\\ vars модуль"
 msgid "cli.administration.inventory.provision.inventory\\_generator module"
 msgstr ""
 
+# lost=['cli.administration.inventory.provision.mirror']
+# gained=['cli.administration.inventory.provision.mirrorМодуль']
+# Overrides
 # translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.mirror']
 # gained=['cli.administration.inventory.provision.mirrorМодуль']
@@ -82869,6 +83083,9 @@ msgstr "cli.administration.inventory.provision.role\\ resolver модуль"
 msgid "cli.administration.inventory.provision.ruamel\\_io module"
 msgstr "cli.administration.inventory.provision.ruamel\\ io модуль"
 
+# lost=['cli.administration.inventory.provision.services']
+# gained=['cli.administration.inventory.provision.servicesмодуль']
+# Disabler
 # translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.services']
 # gained=['cli.administration.inventory.provision.servicesмодуль']
@@ -82882,6 +83099,9 @@ msgstr ""
 msgid "cli.administration.inventory.provision.subprocess\\_runner module"
 msgstr "cli.administration.inventory.provision.subprocess\\ runner модуль"
 
+# lost=['cli.administration.inventory.provision.tor']
+# gained=['cli.administration.inventory.provision.torмодуль']
+# node
 # translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.tor']
 # gained=['cli.administration.inventory.provision.torмодуль']
@@ -82891,6 +83111,9 @@ msgstr "cli.administration.inventory.provision.subprocess\\ runner модуль"
 msgid "cli.administration.inventory.provision.tor\\_node module"
 msgstr ""
 
+# lost=['cli.administration.inventory.provision.users']
+# gained=['cli.administration.inventory.provision.usersМодуль']
+# генератора
 # translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.users']
 # gained=['cli.administration.inventory.provision.usersМодуль']
@@ -82968,6 +83191,8 @@ msgstr "cli.build пакет"
 msgid "cli.build.docs package"
 msgstr "cli.build.docs пакет"
 
+# lost=['cli.build.docs.integration']
+# gained=['cli.build.docs.integrationПакет']
 # translation-refused: libretranslate protected-span
 # lost=['cli.build.docs.integration']
 # gained=['cli.build.docs.integrationПакет']
@@ -82976,12 +83201,10 @@ msgstr "cli.build.docs пакет"
 msgid "cli.build.docs.integration\\_matrix package"
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['matrix.data']
-# nocheck: url
-# translation-rejected: cli.build.docs.integration\ matrix.data модуль
+# translated-by: libretranslate
 msgid "cli.build.docs.integration\\_matrix.data module"
-msgstr ""
+msgstr "cli.build.docs.integration\\ matrix.data модуль"
 
 # translated-by: libretranslate
 msgid "cli.build.docs.readme package"
@@ -83071,6 +83294,8 @@ msgstr "cli.contributing.changelog.archive пакет"
 msgid "cli.contributing.changelog.archive.archive\\_dir module"
 msgstr "cli.contributing.changelog.archive.archive\\ dir модуль"
 
+# lost=['cli.contributing.changelog.archive.changelog']
+# gained=['cli.contributing.changelog.archive.changelogmd']
 # translation-refused: libretranslate protected-span
 # lost=['cli.contributing.changelog.archive.changelog']
 # gained=['cli.contributing.changelog.archive.changelogmd']
@@ -83079,6 +83304,9 @@ msgstr "cli.contributing.changelog.archive.archive\\ dir модуль"
 msgid "cli.contributing.changelog.archive.changelog\\_md module"
 msgstr ""
 
+# lost=['cli.contributing.changelog.archive.package']
+# gained=['cli.contributing.changelog.archive.packageМодуль']
+# зеркал
 # translation-refused: libretranslate protected-span
 # lost=['cli.contributing.changelog.archive.package']
 # gained=['cli.contributing.changelog.archive.packageМодуль']
@@ -83292,6 +83520,7 @@ msgstr "cli.meta.ci.plan модуль"
 msgid "cli.meta.ci.query module"
 msgstr "cli.meta.ci.query модуль"
 
+# lost=['cli.meta.ci.report'] gained=['cli.meta.ci.reportМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['cli.meta.ci.report'] gained=['cli.meta.ci.reportМодуль']
 # nocheck: url
@@ -83419,6 +83648,8 @@ msgstr "cli.meta.roles.applications.complexity.model модуль"
 msgid "cli.meta.roles.applications.complexity.render module"
 msgstr "cli.meta.roles.applications.complexity.render модуль"
 
+# lost=['cli.meta.roles.applications.dynamic']
+# gained=['cli.meta.roles.applications.dynamicМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['cli.meta.roles.applications.dynamic']
 # gained=['cli.meta.roles.applications.dynamicМодуль']
@@ -83455,6 +83686,8 @@ msgstr "cli.meta.roles.applications.ressources.render модуль"
 msgid "cli.meta.roles.applications.role\\_name package"
 msgstr "cli.meta.roles.applications.role\\ имя пакета"
 
+# lost=['cli.meta.roles.applications.sufficient']
+# gained=['cli.meta.roles.applications.sufficientПакет']
 # translation-refused: libretranslate protected-span
 # lost=['cli.meta.roles.applications.sufficient']
 # gained=['cli.meta.roles.applications.sufficientПакет']
@@ -83519,7 +83752,8 @@ msgstr "co-deploy superset, no prune"
 msgid "column to wrap long scalars at, None for the PyYAML default."
 msgstr "Колонка для обертывания длинных скаляров, по умолчанию PyYAML."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(']
+# передаваемых на `--include`
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Comma-separated app id list (список идентификаторов,
 # передаваемых на `--include`
@@ -84244,6 +84478,7 @@ msgstr "равный `from`"
 msgid "eslint preserve-caught-error and no-useless-assignment violations in five Playwright helpers"
 msgstr "Пойманная ошибка и не бесполезные нарушения назначения в пяти помощниках драматурга"
 
+# action/setup-python, action/create-github-app-token
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: eslint, eslint-plugin-playwright, eslint/js,
@@ -84575,6 +84810,7 @@ msgstr "групповые отобранные роли"
 msgid "group_vars/ directory"
 msgstr "group_vars/ директория"
 
+# gained=['group_varsвсе']
 # translation-refused: libretranslate protected-span lost=['group_vars']
 # gained=['group_varsвсе']
 # nocheck: url
@@ -84786,12 +85022,10 @@ msgstr "внутренний CDN для стиля/сценария elem и conn
 msgid "internal:"
 msgstr "внутренние:"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['инвентаризации/сервер/рабочая']
-# nocheck: url
-# translation-rejected: инвентаризации/сервер/рабочая станция/
+# translated-by: libretranslate
 msgid "inventories/   server/   workstation/"
-msgstr ""
+msgstr "инвентаризации/сервер/рабочая станция/"
 
 # translated-by: libretranslate
 msgid "inventories/server → server bundle"
@@ -85017,13 +85251,11 @@ msgstr "искать('container', application_id[, Путь])"
 msgid "lookup('node_max_old_space_size', application_id, service_name[, pct=, min_mb=, hardcap_mb=, safety_cap_pct=])"
 msgstr "искать('node_max_old_space_size', application_id, service_name[, pct=, min_mb= hardcap_mb= safety_cap_pct=])"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected:
 # искать('path_absolute''roles/sys-svc-compose/tasks/utils/swarm/x.yml")
 # Абсолютный путь под корнем репозитория (``playbook_dir``).
+# translated-by: libretranslate
 msgid "lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/x.yml') -> absolute path under the repository root (``playbook_dir``)."
-msgstr ""
+msgstr "искать('path_absolute''roles/sys-svc-compose/tasks/utils/swarm/x.yml\") Абсолютный путь под корнем репозитория (``playbook_dir``)."
 
 # translated-by: libretranslate
 msgid "lookup('playwright_workers')"
@@ -85145,6 +85377,13 @@ msgstr "max_passes достигается"
 msgid "maxmemory = max(min_mb, floor(factor * mem_limit))"
 msgstr "maxmemory = max(min_mb, этаж(фактор * mem_limit))"
 
+# gained=['10.0.40']
+# `AI`/`Intelligence`/`OpenAI`/`LLM`/`GPT`/`prompt` пока 116 матч `Mail` на
+# той же полезной нагрузке, поэтому поиск был в прямом эфире. Функции ИИ живут
+# только в расширении разведки с закрытым исходным кодом, которое нуждается в
+# приобретенной лицензии и не публикуется. `espocrm` хранилище. Удар по версии
+# не помогает: восходящий документирует расширение как требующее 10.0.3 или
+# больше, так что новые ядра содержат его, а не поглощают его
 # translation-refused: libretranslate protected-span lost=['10.0.4']
 # gained=['10.0.40']
 # nocheck: url
@@ -85895,6 +86134,8 @@ msgstr "plugins.filter пакет"
 msgid "plugins.filter.active\\_docker module"
 msgstr "plugins.filter.active\\ docker модуль"
 
+# lost=['plugins.filter.application']
+# gained=['plugins.filter.applicationРазрешенный']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.application']
 # gained=['plugins.filter.applicationРазрешенный']
@@ -85903,6 +86144,7 @@ msgstr "plugins.filter.active\\ docker модуль"
 msgid "plugins.filter.application\\_allowed module"
 msgstr ""
 
+# lost=['plugins.filter.async'] gained=['plugins.filter.asyncМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.async'] gained=['plugins.filter.asyncМодуль']
 # nocheck: url
@@ -85946,6 +86188,7 @@ msgstr "plugins.filter.docker.network\\ noop модуль"
 msgid "plugins.filter.docker.service\\_enabled module"
 msgstr "plugins.filter.docker.service\\ enabled модуль"
 
+# lost=['plugins.filter.domain'] gained=['plugins.filter.domainмодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domainмодуль']
 # nocheck: url
@@ -85961,6 +86204,8 @@ msgstr "plugins.filter.dotenv модуль"
 msgid "plugins.filter.generate package"
 msgstr "plugins.filter.generate пакет"
 
+# lost=['plugins.filter.generate.all']
+# gained=['plugins.filter.generate.allМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.generate.all']
 # gained=['plugins.filter.generate.allМодуль']
@@ -85997,6 +86242,8 @@ msgstr "plugins.filter.get.category\\ entries модуль"
 msgid "plugins.filter.get.deployment\\_types\\_from\\_groups module"
 msgstr "plugins.filter.get.deployment\\ types\\ from\\ groups модуль"
 
+# lost=['plugins.filter.get.docker']
+# gained=['plugins.filter.get.dockerМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.docker']
 # gained=['plugins.filter.get.dockerМодуль']
@@ -86041,6 +86288,7 @@ msgstr "plugins.filter.has.domain модуль"
 msgid "plugins.filter.has.env module"
 msgstr "plugins.filter.has.env модуль"
 
+# lost=['plugins.filter.invokable'] gained=['plugins.filter.invokableМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.invokable'] gained=['plugins.filter.invokableМодуль']
 # nocheck: url
@@ -86056,6 +86304,8 @@ msgstr "plugins.filter.ldap\\ modify\\ noop модуль"
 msgid "plugins.filter.litellm package"
 msgstr "plugins.filter.litellm пакет"
 
+# lost=['plugins.filter.litellm.model']
+# gained=['plugins.filter.litellm.modelМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.litellm.model']
 # gained=['plugins.filter.litellm.modelМодуль']
@@ -86096,6 +86346,7 @@ msgstr "plugins.filter.on\\ off модуль"
 msgid "plugins.filter.redirect\\_sources module"
 msgstr "plugins.filter.redirect\\ sources модуль"
 
+# lost=['plugins.filter.reserved'] gained=['plugins.filter.reservedМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.reserved'] gained=['plugins.filter.reservedМодуль']
 # nocheck: url
@@ -86135,6 +86386,8 @@ msgstr "plugins.filter.status\\ кодовый модуль"
 msgid "plugins.filter.swarm package"
 msgstr "plugins.filter.swarm пакет"
 
+# lost=['plugins.filter.swarm.deployed']
+# gained=['plugins.filter.swarm.deployedМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.swarm.deployed']
 # gained=['plugins.filter.swarm.deployedМодуль']
@@ -86143,6 +86396,8 @@ msgstr "plugins.filter.swarm пакет"
 msgid "plugins.filter.swarm.deployed\\_services module"
 msgstr ""
 
+# lost=['plugins.filter.swarm.restart']
+# gained=['plugins.filter.swarm.restartМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.swarm.restart']
 # gained=['plugins.filter.swarm.restartМодуль']
@@ -86175,6 +86430,7 @@ msgstr "plugins.filter.url.join модуль"
 msgid "plugins.filter.url.to\\_onion module"
 msgstr "plugins.filter.url.to\\ onion модуль"
 
+# lost=['plugins.filter.value'] gained=['plugins.filter.valueМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.value'] gained=['plugins.filter.valueМодуль']
 # nocheck: url
@@ -86234,6 +86490,7 @@ msgstr "plugins.lookup.asset\\ host модуль"
 msgid "plugins.lookup.bounded\\_name module"
 msgstr "plugins.lookup.bounded\\ имя модуля"
 
+# lost=['plugins.lookup.ca'] gained=['plugins.lookup.caВведенный']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.ca'] gained=['plugins.lookup.caВведенный']
 # nocheck: url
@@ -86249,6 +86506,7 @@ msgstr "plugins.lookup.cache\\ records модуль"
 msgid "plugins.lookup.cache\\_repos module"
 msgstr "plugins.lookup.cache\\ repos модуль"
 
+# lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheМодуль']
 # nocheck: url
@@ -86288,6 +86546,7 @@ msgstr "plugins.lookup.compose\\ file\\ args модуль"
 msgid "plugins.lookup.compose\\_networks module"
 msgstr "plugins.lookup.compose\\ сетевой модуль"
 
+# lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeТолько']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeТолько']
 # nocheck: url
@@ -86295,6 +86554,7 @@ msgstr "plugins.lookup.compose\\ сетевой модуль"
 msgid "plugins.lookup.compose\\_only module"
 msgstr ""
 
+# lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодуль']
 # nocheck: url
@@ -86306,6 +86566,7 @@ msgstr ""
 msgid "plugins.lookup.compose\\_restart module"
 msgstr "plugins.lookup.compose\\ Resart модуль"
 
+# lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодуль']
 # nocheck: url
@@ -86321,6 +86582,7 @@ msgstr "plugins.lookup.config модуль"
 msgid "plugins.lookup.container module"
 msgstr "plugins.lookup.container модуль"
 
+# lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # nocheck: url
@@ -86332,6 +86594,7 @@ msgstr ""
 msgid "plugins.lookup.container\\_depends\\_on module"
 msgstr "plugins.lookup.container\\ depends\\ on модуль"
 
+# lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # nocheck: url
@@ -86347,6 +86610,7 @@ msgstr "plugins.lookup.container\\ dns модуль"
 msgid "plugins.lookup.container\\_extra\\_hosts module"
 msgstr "plugins.lookup.container\\ extra\\ hosts модуль"
 
+# lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # nocheck: url
@@ -86358,6 +86622,7 @@ msgstr ""
 msgid "plugins.lookup.container\\_hostname module"
 msgstr "plugins.lookup.container\\ hostname модуль"
 
+# lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # nocheck: url
@@ -86381,6 +86646,7 @@ msgstr "plugins.lookup.container\\ портовый модуль"
 msgid "plugins.lookup.container\\_service module"
 msgstr "plugins.lookup.container\\ сервисный модуль"
 
+# lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодуль']
 # nocheck: url
@@ -86424,6 +86690,7 @@ msgstr "plugins.lookup.email модуль"
 msgid "plugins.lookup.engine module"
 msgstr "plugins.lookup.engine модуль"
 
+# lost=['plugins.lookup.fediwall'] gained=['plugins.lookup.fediwallАктивный']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.fediwall'] gained=['plugins.lookup.fediwallАктивный']
 # nocheck: url
@@ -86467,6 +86734,7 @@ msgstr "plugins.lookup.mcp\\ client\\ bearer модуль"
 msgid "plugins.lookup.mcp\\_credential module"
 msgstr "plugins.lookup.mcp\\ credential модуль"
 
+# lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpМодуль']
 # nocheck: url
@@ -86518,6 +86786,7 @@ msgstr "plugins.lookup.node\\ max\\ old\\ space\\ size модуль"
 msgid "plugins.lookup.objstore module"
 msgstr "plugins.lookup.objstore модуль"
 
+# lost=['plugins.lookup.objstore'] gained=['plugins.lookup.objstoreмодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.objstore'] gained=['plugins.lookup.objstoreмодуль']
 # nocheck: url
@@ -86525,6 +86794,7 @@ msgstr "plugins.lookup.objstore модуль"
 msgid "plugins.lookup.objstore\\_consumers module"
 msgstr ""
 
+# lost=['plugins.lookup.path'] gained=['plugins.lookup.pathАбсолютный']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.path'] gained=['plugins.lookup.pathАбсолютный']
 # nocheck: url
@@ -86536,6 +86806,7 @@ msgstr ""
 msgid "plugins.lookup.playwright\\_workers module"
 msgstr "plugins.lookup.playwright\\ Рабочий модуль"
 
+# lost=['plugins.lookup.postgres'] gained=['plugins.lookup.postgresмодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.postgres'] gained=['plugins.lookup.postgresмодуль']
 # nocheck: url
@@ -86595,6 +86866,7 @@ msgstr "plugins.lookup.scrape\\ target модуль"
 msgid "plugins.lookup.service module"
 msgstr "plugins.lookup.service модуль"
 
+# lost=['plugins.lookup.service'] gained=['plugins.lookup.serviceМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.service'] gained=['plugins.lookup.serviceМодуль']
 # nocheck: url
@@ -86626,6 +86898,7 @@ msgstr "plugins.lookup.sso\\oidc\\ plugin модуль"
 msgid "plugins.lookup.sso\\_proxy\\_consumers module"
 msgstr "plugins.lookup.sso\\ proxy\\ consumers модуль"
 
+# lost=['plugins.lookup.stage'] gained=['plugins.lookup.stageМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.stage'] gained=['plugins.lookup.stageМодуль']
 # nocheck: url
@@ -86653,6 +86926,7 @@ msgstr "plugins.lookup.tls модуль"
 msgid "plugins.lookup.tor\\_ports module"
 msgstr "plugins.lookup.tor\\ портовый модуль"
 
+# lost=['plugins.lookup.tor'] gained=['plugins.lookup.torДостижимый']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torДостижимый']
 # nocheck: url
@@ -87392,12 +87666,10 @@ msgstr "Пробежать все дистрибутивы для каждого
 msgid "run the role's backup unit first (default); disable only when the target holds nothing worth saving."
 msgstr "Сначала запустите резервное подразделение роли (по умолчанию); Отключать только тогда, когда цель не имеет ничего, что стоит сохранить."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: бегать(["https://toshio.fedorapeople.org/one.txt"],
 # переменные =available_variables, validate_certs=Правда)
+# translated-by: libretranslate
 msgid "run(['https://toshio.fedorapeople.org/one.txt'], variables=available_variables, validate_certs=True)"
-msgstr ""
+msgstr "бегать([\"https://toshio.fedorapeople.org/one.txt\"], переменные =available_variables, validate_certs=Правда)"
 
 # translated-by: libretranslate
 msgid "run_after edges order across any category; ``tiebreak_of`` only decides among nodes that are simultaneously ready (no pending prerequisite), so a coarse phase can stay the default for edge-less roles without constraining run_after itself."
@@ -87463,11 +87735,9 @@ msgstr "Тот же или выше; голова (первый 30 линии)"
 msgid "samples recorded so far, oldest first."
 msgstr "Образцы, записанные до сих пор, самые старые."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"и"']
-# nocheck: url
-# translation-rejected: Сканирование всех случаев '["и"{'в выходе
+# translated-by: libretranslate
 msgid "scan for all occurrences of '[' and '{' in the output"
-msgstr ""
+msgstr "Сканирование всех случаев '[\"и\"{'в выходе"
 
 # translated-by: libretranslate
 msgid "scans role configs from [roles/](../../../../../roles/)"
@@ -87921,8 +88191,10 @@ msgstr "Название репозитория Nexus."
 msgid "the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above"
 msgstr "Агент OpenAI не использует базовый URL и `ollama` Интеграция говорит Ollamaродной API; см. измерение выше"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['*',
 # '**']
+# пункт (65 байты, 0х04** * * * * * * * * * * * * * *), в формате, ожидаемом
+# экосистемой Web Push / mastodon.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: П-256 частный скаляр (32 байты) Несжатый публичный
 # пункт (65 байты, 0х04** * * * * * * * * * * * * * *), в формате, ожидаемом
@@ -88353,11 +88625,9 @@ msgstr "Погрузчик плагина поиска."
 msgid "the lookup plugin's templar, where it has one."
 msgstr "Тамплиер плагина поиска, где он есть."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Тамплиер для поиска, или "Никто вне игры".
+# translated-by: libretranslate
 msgid "the lookup's templar, or None outside a play."
-msgstr ""
+msgstr "Тамплиер для поиска, или \"Никто вне игры\"."
 
 # translated-by: libretranslate
 msgid "the manifest is unreadable, or states a schema this code     does not know. A newer schema must not be guessed at: the fields     this reader relies on may mean something else in it."
@@ -89412,6 +89682,7 @@ msgstr "utils.domains пакет"
 msgid "utils.domains.application\\_domain\\_index module"
 msgstr "utils.domains.application\\ domain\\ index модуль"
 
+# lost=['utils.domains.default'] gained=['utils.domains.defaultОсновной']
 # translation-refused: libretranslate protected-span
 # lost=['utils.domains.default'] gained=['utils.domains.defaultОсновной']
 # nocheck: url
@@ -89423,6 +89694,7 @@ msgstr ""
 msgid "utils.domains.list module"
 msgstr "utils.domains.list модуль"
 
+# lost=['utils.domains.primary'] gained=['utils.domains.primaryМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['utils.domains.primary'] gained=['utils.domains.primaryМодуль']
 # nocheck: url
@@ -89466,6 +89738,8 @@ msgstr "utils.env.handlers.infinito пакет"
 msgid "utils.env.handlers.infinito.ca package"
 msgstr "utils.env.handlers.infinito.ca пакет"
 
+# lost=['utils.env.handlers.infinito.ca.bundle']
+# gained=['utils.env.handlers.infinito.ca.bundleМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.ca.bundle']
 # gained=['utils.env.handlers.infinito.ca.bundleМодуль']
@@ -89594,37 +89868,31 @@ msgstr "utils.env.handlers.infinito.outer\\ network\\ mtu модуль"
 msgid "utils.env.handlers.infinito.package\\_cache package"
 msgstr "utils.env.handlers.infinito.package\\ cache пакет"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.admin']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
 # password модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.admin\\ password модуль"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.blobstore']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
 # max модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.blobstore\\ max модуль"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.direct']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.direct\ mem
 # модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.direct\\ mem модуль"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.heap']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.heap модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.heap модуль"
 
+# lost=['utils.env.handlers.infinito.parent']
+# gained=['utils.env.handlers.infinito.parentМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.parent']
 # gained=['utils.env.handlers.infinito.parentМодуль']
@@ -89645,6 +89913,8 @@ msgstr "utils.env.handlers.infinito.playwright.reports\\ base\\ dir модуль
 msgid "utils.env.handlers.infinito.playwright.stage\\_base\\_dir module"
 msgstr "utils.env.handlers.infinito.playwright.stage\\ base\\ dir модуль"
 
+# lost=['utils.env.handlers.infinito.pull']
+# gained=['utils.env.handlers.infinito.pullмодуль']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.pull']
 # gained=['utils.env.handlers.infinito.pullмодуль']
@@ -89677,19 +89947,17 @@ msgstr "utils.env.handlers.infinito.rescue.local\\ dumps\\ dir модуль"
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr "utils.env.handlers.infinito.running\\ на упаковке"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['on.act']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running\ on.act модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on.act module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on.act модуль"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['on.github']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running\ on.github модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on.github module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on.github модуль"
 
+# lost=['utils.env.handlers.infinito.swarm']
+# gained=['utils.env.handlers.infinito.swarmПакет']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.swarm']
 # gained=['utils.env.handlers.infinito.swarmПакет']
@@ -89698,21 +89966,17 @@ msgstr ""
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['nfs.export']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarm\nfs.export\ base
 # модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\nfs.export\\ base модуль"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['nfs.state']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarm\nfs.state\ path
 # модуль
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\nfs.state\\ path модуль"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.tor\\_socks\\_port module"
@@ -90022,6 +90286,8 @@ msgstr "utils.kcadm\\ json модуль"
 msgid "utils.manager package"
 msgstr "utils.manager пакет"
 
+# lost=['utils.manager.credential']
+# gained=['utils.manager.credentialКлючевой']
 # translation-refused: libretranslate protected-span
 # lost=['utils.manager.credential']
 # gained=['utils.manager.credentialКлючевой']
@@ -90034,6 +90300,7 @@ msgstr ""
 msgid "utils.manager.inventory module"
 msgstr "utils.manager.inventory модуль"
 
+# lost=['utils.manager.value'] gained=['utils.manager.valueМодуль']
 # translation-refused: libretranslate protected-span
 # lost=['utils.manager.value'] gained=['utils.manager.valueМодуль']
 # nocheck: url
@@ -90389,6 +90656,8 @@ msgstr "utils.tests.swarm пакет"
 msgid "utils.tests.swarm.backup\\_repos module"
 msgstr "utils.tests.swarm.backup\\ repos модуль"
 
+# lost=['utils.tests.swarm.derive']
+# gained=['utils.tests.swarm.deriveВключает']
 # translation-refused: libretranslate protected-span
 # lost=['utils.tests.swarm.derive']
 # gained=['utils.tests.swarm.deriveВключает']
@@ -90397,6 +90666,7 @@ msgstr "utils.tests.swarm.backup\\ repos модуль"
 msgid "utils.tests.swarm.derive\\_includes module"
 msgstr ""
 
+# lost=['utils.tests.swarm.extend'] gained=['utils.tests.swarm.extendмодуль']
 # translation-refused: libretranslate protected-span
 # lost=['utils.tests.swarm.extend'] gained=['utils.tests.swarm.extendмодуль']
 # nocheck: url
@@ -90424,6 +90694,7 @@ msgstr "utils.tests.swarm.write.extras модуль"
 msgid "utils.tests.swarm.write.hosts\\_entries module"
 msgstr "utils.tests.swarm.write.hosts\\ entries модуль"
 
+# gained=['utils.tlsОбщий']
 # translation-refused: libretranslate protected-span lost=['utils.tls']
 # gained=['utils.tlsОбщий']
 # nocheck: url
@@ -90801,13 +91072,11 @@ msgstr "{{ lookup('domains') }} Полная карта канонических
 msgid "{{ lookup('engine', 'redis', application_id) }}            # full dict {{ lookup('engine', 'redis', application_id, 'url') }}     # one field"
 msgstr "{{ lookup('engine', 'redis', application_id) }} #полный текст {{ lookup('engine', 'redis', application_id, 'url') }} # Одно поле"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: {{ lookup('role_subnets', 'web-app-bigbluebutton') }}
 # # ["10.7.7.0/24"] {{ lookup('role_subnets', SOME_ROLE_LIST) }} # один вход
 # на роль
+# translated-by: libretranslate
 msgid "{{ lookup('role_subnets', 'web-app-bigbluebutton') }}   # ['10.7.7.0/24'] {{ lookup('role_subnets', SOME_ROLE_LIST) }}            # one entry per role"
-msgstr ""
+msgstr "{{ lookup('role_subnets', 'web-app-bigbluebutton') }} # [\"10.7.7.0/24\"] {{ lookup('role_subnets', SOME_ROLE_LIST) }} # один вход на роль"
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id) }}              → full dict"

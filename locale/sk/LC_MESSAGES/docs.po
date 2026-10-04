@@ -95,6 +95,7 @@ msgstr "# include-gated: when: not IS_SWARM_MODE"
 msgid "# nocheck: pip-version package_name: \"automtu==1.1.1\""
 msgstr "# Nocheck: pip-version package_name: \"Automtu==1.1.1\""
 
+# docker-version
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: # nocheck: shared, email # nocheck: url,
@@ -360,17 +361,15 @@ msgstr "**Pridané**"
 msgid "**Added:** New workstation bundles (*admin*, *admin-network*, *browser*, *design*, *dev-arduino*, *dev-core*, *dev-java*, *dev-php*, *dev-python*, *dev-shell*, *game-compose*, *game-os*, *game-windows*, *office*). Inventory driven *sys-package* role with constructor auto load when *SYS_PACKAGES* is set. New roles *sys-openssl* and *sys-aur-install*. New lookup plugin *command_path*. New variable *SOFTWARE_URL* and updated login banner."
 msgstr "**Pridané:** Nové balíky pracovných staníc (*admin*, *admin-network*, *prehliadač*, *dizajn*, *dev-arduino*, *dev-core*, *dev-java*, *dev-php*, *dev-python*, *dev-shell*, *hra- skladba*, *game-os*, *herné okná*, *úrad*). Poháňaný inventárom *sys-balenie* rola s automatickým zaťažením konštruktéra pri *SYS_PACKAGES* je nastavená. Nové úlohy *sys-openssl* a *sys-aur-inštalovať*. Nový vyhľadávací modul *command_path*Nová premenná *SOFTWARE_URL* a aktualizovaný login banner."
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **Prídavný stav je variantná os.** Nepovinné doplnky
 # (`required: false`) MUSÍ vyjadriť ich povolené / zdravotne postihnuté
 # rozdelenie prostredníctvom role
 # [`meta/variants.yml`](../contributing/design/role/services/layout.md) Takže
 # CI matica beží cvičenie oba stavy, zrkadlenie požiadavky 025"MCP variantná
 # os." Požadované doplnky (`required: true`) nie sú variantnou osou, pretože
 # sú vždy nainštalované.
+# translated-by: libretranslate
 msgid "**Addon state is a variant axis.** Optional addons (`required: false`) MUST express their enabled/disabled split through the role's [`meta/variants.yml`](../contributing/design/role/services/layout.md) so CI matrix runs exercise both states, mirroring requirement 025's MCP variant axis. Required addons (`required: true`) are not a variant axis because they are always installed."
-msgstr ""
+msgstr "**Prídavný stav je variantná os.** Nepovinné doplnky (`required: false`) MUSÍ vyjadriť ich povolené / zdravotne postihnuté rozdelenie prostredníctvom role [`meta/variants.yml`](../contributing/design/role/services/layout.md) Takže CI matica beží cvičenie oba stavy, zrkadlenie požiadavky 025\"MCP variantná os.\" Požadované doplnky (`required: true`) nie sú variantnou osou, pretože sú vždy nainštalované."
 
 # translated-by: libretranslate
 msgid "**Admin / role model = both** (operator: \"admin anlegen wenn nicht oidc sonst claim mapping\"), implemented within Semaphore's constraints: (a) a **break-glass local admin** is always seeded via `SEMAPHORE_ADMIN*` with a dedicated `breakglass` login + dedicated email — reachable via the form only when LDAP is off; (b) when SSO is enabled the role creates the Keycloak administrator as an **external admin** at deploy time (`semaphore user add --admin --external`), so the OIDC callback (matches by email, accepts only external users) elevates that operator to admin. Upstream has no claim→role mapping, so this deploy-time external-admin seed is the \"smallest reconciliation step\"."
@@ -568,6 +567,9 @@ msgstr "**Moduly vždy zapnuté** sú zložené `all.sh` a BY SA MAL získavať 
 msgid "**An agent can be provisioned with its own platform user account.** Creating an agent employee optionally provisions a dedicated identity through the platform's existing user mechanism (the `users` lookup, LDAP via [`svc-db-openldap`](../../roles/svc-db-openldap/), SSO via [`web-app-keycloak`](../../roles/web-app-keycloak/)); no new account system is built. The account is a **non-privileged standard user** by default (never administrator/service-account-with-mutating-tools). When enabled, the agent authenticates as its own user: OIDC login to its dashboard, a distinct mailbox/identity, and MCP calls made with `auth_subject: user` ([025](025-mcp-role-integration.md)) scoped to that account rather than a shared service account. The account is opt-in per agent; its password/token lives in the role's `meta/secrets.yml` `credentials:` block, never in README or env. An agent MUST also be deployable against an existing account (no forced account creation)."
 msgstr "**Agent môže byť poskytnutý s vlastným užívateľským účtom platformy.** Vytvorenie agenta zamestnanca voliteľne ustanovenia špecializované identity prostredníctvom existujúceho užívateľského mechanizmu platformy (EÚ `users` Hľadanie, LDAP cez [`svc-db-openldap`](../../roles/svc-db-openldap/), SSO [`web-app-keycloak`](../../roles/web-app-keycloak/)); žiadny nový systém účtov nie je postavený. Účet je **neprivilegovaný štandardný používateľ** štandardne (nikdy správca/účet služieb s mutačnými nástrojmi). Ak je to možné, agent autentifikuje ako svoj vlastný užívateľ: OIDC prihlásenie k svojej palubnej doske, zreteľná poštová schránka/identita, a MCP hovory vykonané s `auth_subject: user` ([025](025-mcp-role-integration.md)) miesto zdieľaného účtu služieb. Účet je opt-in na agenta; jeho heslo / token žije v úlohe `meta/secrets.yml` `credentials:` blok, nikdy v README alebo závisti. Agent musí byť tiež možné nasadiť na existujúci účet (žiadne vytvorenie núteného účtu)."
 
+# je názov objemu skládky podľa názvu projektu: rovnaký pre centrálne motory
+# (`postgres` v projekte `postgres`), iné pre per-app jeden (`matrix_database`
+# v projekte `matrix`).
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: **Motor v rámci projektu spotrebiteľa** Diskriminátor
@@ -4265,12 +4267,10 @@ msgstr "**Vlastnosti:**"
 msgid "**Federated Chess Matches:** Challenge and play with others across the Fediverse."
 msgstr "**Federované Chess Zápalky:** Výzva a hrať s ostatnými cez Fediverse."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['750']
-# nocheck: url
-# translation-rejected: **Federované oznámenie:** S výkonom presahujúcim 750
 # kVA, ale nepresahujúcim 750 kVA PeerTube prípady.
+# translated-by: libretranslate
 msgid "**Federated Communication:** Designed to operate within a federated network, enabling seamless sharing and interconnection with other PeerTube instances."
-msgstr ""
+msgstr "**Federované oznámenie:** S výkonom presahujúcim 750 kVA, ale nepresahujúcim 750 kVA PeerTube prípady."
 
 # translated-by: libretranslate
 msgid "**Federated Social Network:** Connects with other BookWyrm instances and ActivityPub platforms."
@@ -5588,6 +5588,10 @@ msgstr "**LDAP federácia:** Kedy ``svc-db-openldap`` je prítomný, Zammad Aute
 msgid "**LDAP federation:** When `svc-db-openldap` is present, Zammad authenticates and provisions accounts against the central LDAP."
 msgstr "**LDAP federácia:** Kedy `svc-db-openldap` je prítomný, Zammad Autentifikácie a rezervy voči centrálnej LDAP."
 
+# gained=['"prebieha"']
+# LAM.** Politika bezpečnosti obsahu zablokovala skript, ktorý kontroluje
+# LAM's pozadie práce, tak tieto nástroje zostali "prebieha" navždy. Ten
+# scenár je opäť povolený.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"prebieha"']
 # nocheck: url
@@ -5614,15 +5618,13 @@ msgstr "**LDAP rodák** (užívateľský záznam + roly/kontaktné skupiny), `sv
 msgid "**LDAP plugin** works on **every client** (web + native Android/iOS/TV/desktop apps)."
 msgstr "**Name** práce na **každý klient** (web + rodák Android/iOS/TV/desktop aplikácie)."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **LDAP užívateľský adresár:** KIX" `Auth::LDAP` a
 # `Auth::Sync::LDAP` moduly sú drôtové proti `svc-db-openldap`, s jedným
 # backend na role skupiny. Pri prvom prihlásení KIX vytiahne užívateľský
 # profil (Zobraziť meno, e-mail, členstvo v skupine) z LDAP, takže žiadny
 # manuál KIX- je potrebná príprava užívateľa.
+# translated-by: libretranslate
 msgid "**LDAP user directory:** KIX' `Auth::LDAP` and `Auth::Sync::LDAP` modules are wired against `svc-db-openldap`, with one backend per role group. On first login KIX pulls the user's profile (display name, email, group membership) from LDAP, so no manual KIX-side user pre-creation is required."
-msgstr ""
+msgstr "**LDAP užívateľský adresár:** KIX\" `Auth::LDAP` a `Auth::Sync::LDAP` moduly sú drôtové proti `svc-db-openldap`, s jedným backend na role skupiny. Pri prvom prihlásení KIX vytiahne užívateľský profil (Zobraziť meno, e-mail, členstvo v skupine) z LDAP, takže žiadny manuál KIX- je potrebná príprava užívateľa."
 
 # translated-by: libretranslate
 msgid "**LDAP user directory:** KIX’ ``Auth::LDAP`` and ``Auth::Sync::LDAP`` modules are wired against ``svc-db-openldap``, with one backend per role group. On first login KIX pulls the user’s profile (display name, email, group membership) from LDAP, so no manual KIX-side user pre-creation is required."
@@ -7598,9 +7600,6 @@ msgstr "**Redis** Skladovanie outh2-proxy"
 msgid "**Refused early:** an unknown flavor aborts the deploy with the list of carried flavors."
 msgstr "**Odmietnuté skoro:** neznáma chuť ruší rozmiestnenie so zoznamom nosených príchutí."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['15']
-# nocheck: url
-# translation-rejected: **Register a zmeny variantov.** Variant môže diktovať
 # konfiguráciu poskytovateľov, ktorých pritiahne, a MCP kolo sa rozhodne pre
 # seba, čo nesie, čo je zmena zlomu v tomto vydaní. 15 pohyblivých kolíkov
 # získaných mená register môže objednať, každý poskytovateľ MCP je
@@ -7608,8 +7607,9 @@ msgstr "**Odmietnuté skoro:** neznáma chuť ruší rozmiestnenie so zoznamom n
 # premenovanie na *meta/secrets.yml*, rolové skripty sú rozdelené do
 # jednotlivých jazykových priečinkov, a *meta/addony* je teraz prijatý miesto
 # vyhlásenia pre kolíky a pluginy.
+# translated-by: libretranslate
 msgid "**Registry and variant changes.** A variant can dictate the configuration of the providers it pulls in, and an MCP round decides for itself what it carries, which is the breaking change in this release. Fifteen moving pins gained names the registry can order, every MCP provider is registered as a shared service, *meta/schema.yml* finished its rename to *meta/secrets.yml*, role scripts are sorted into per-language folders, and *meta/addons* is now an accepted declaration site for pins and plugins."
-msgstr ""
+msgstr "**Register a zmeny variantov.** Variant môže diktovať konfiguráciu poskytovateľov, ktorých pritiahne, a MCP kolo sa rozhodne pre seba, čo nesie, čo je zmena zlomu v tomto vydaní. 15 pohyblivých kolíkov získaných mená register môže objednať, každý poskytovateľ MCP je registrovaný ako spoločná služba, *meta/schema.yml* dokončil svoje premenovanie na *meta/secrets.yml*, rolové skripty sú rozdelené do jednotlivých jazykových priečinkov, a *meta/addony* je teraz prijatý miesto vyhlásenia pre kolíky a pluginy."
 
 # translated-by: libretranslate
 msgid "**Reload** NGINX automatically when any template changes."
@@ -9036,9 +9036,6 @@ msgstr "**Táto práca dokazuje, že stroj predtým, ako sa rozmiestni.** [asser
 msgid "**The matrix carries the runner label, and `runs-on` reads it.** The entry gains `architecture` and `runner`; [pools.py](../../../utils/github/variant/pools.py) owns the mapping (`amd64` → `ubuntu-latest`, `arm64` → `ubuntu-24.04-arm`). An architecture without a label is a build error rather than a row that lands on the wrong hardware with an empty `runs-on`."
 msgstr "**Matica nesie označenie bežca, a `runs-on` číta to.** Zisky z vstupu `architecture` a `runner`; [pools.py](../../../utils/github/variant/pools.py) vlastní mapovanie (`amd64` → `ubuntu-latest`, `arm64` → `ubuntu-24.04-arm`). Architektúra bez označenia je stavba chyba skôr než rad, ktorý pristane na nesprávnom hardvéri s prázdnym `runs-on`."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['14']
-# nocheck: url
-# translation-rejected: **Migrácia je blokovaná dopravnými priepasťami a jej
 # vierohodná polovica je už vybudovaná.** Adaptér predstavil svoju autoritu
 # proti prúdu len ako hlavičku (`ADAPTER_UPSTREAM_KEY` → `Authorization:
 # Bearer …`) kým Baserow klávesy jeho koncový bod podľa segmentu URL, takže
@@ -9046,8 +9043,9 @@ msgstr "**Matica nesie označenie bežca, a `runs-on` číta to.** Zisky z vstup
 # `ADAPTER_UPSTREAM_PATH_SUFFIX` do protiprúdovej URL, dodávanej cez rovnakú
 # `upstream.env` súbor. Pri žiadnej nastavenej premennej vráti základné URL
 # nezmenené, preto je 14 existujúcich poskytovateľov nedotknutých.
+# translated-by: libretranslate
 msgid "**The migration is blocked on a transport gap, and the credential half of it is already built.** The adapter presented its upstream credential only as a header (`ADAPTER_UPSTREAM_KEY` → `Authorization: Bearer …`) while Baserow keys its endpoint by URL segment, so `policy.upstream_url` now splices an optional `ADAPTER_UPSTREAM_PATH_KEY` and `ADAPTER_UPSTREAM_PATH_SUFFIX` into the upstream URL, delivered through the same `upstream.env` file. With neither variable set it returns the base URL unchanged, which is why the fourteen existing providers are untouched."
-msgstr ""
+msgstr "**Migrácia je blokovaná dopravnými priepasťami a jej vierohodná polovica je už vybudovaná.** Adaptér predstavil svoju autoritu proti prúdu len ako hlavičku (`ADAPTER_UPSTREAM_KEY` → `Authorization: Bearer …`) kým Baserow klávesy jeho koncový bod podľa segmentu URL, takže `policy.upstream_url` Teraz splices voliteľné `ADAPTER_UPSTREAM_PATH_KEY` a `ADAPTER_UPSTREAM_PATH_SUFFIX` do protiprúdovej URL, dodávanej cez rovnakú `upstream.env` súbor. Pri žiadnej nastavenej premennej vráti základné URL nezmenené, preto je 14 existujúcich poskytovateľov nedotknutých."
 
 # translated-by: libretranslate
 msgid "**The platform does not deploy one all-powerful OpenAPI-to-MCP process.** It provides one reusable, immutable adapter implementation and instantiates it once per provider application or per equally isolated trust domain. Each instance attaches only to the provider's own network, receives only that provider's least-privileged credential, exposes a distinct endpoint, and stays addressable by the provider's `application_id`. Every exposed provider remains a separate logical MCP server even when a common implementation serves it, which preserves the mapping between `roles/<provider-application-id>/mcp`, the client connection, the upstream credential, the tool allowlist and the audit record."
@@ -9265,26 +9263,22 @@ msgstr "**Most dôveryhodných hlavíc SSO:** When the oauth2-proxy SSO chuť je
 msgid "**Trusted-header SSO bridge:** Establishes the owner session from the oauth2-proxy identity (see below)."
 msgstr "**Most dôveryhodnej hlavy SSO:** Zakladá zasadnutie majiteľa z oauth2-proxy identita (pozri nižšie)."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['24']
-# nocheck: url
-# translation-rejected: **Príspevky na audit 24 úloh odporovali ich vlastným
 # metaúdajom** prvý krát, čo klasifikácia Lint bežala, deviati z nich poslali
 # adaptér, zatiaľ čo ich zoznam nazval neskúšanými kandidátmi.
+# translated-by: libretranslate
 msgid "**Twenty-four roles' audit entries contradicted their own metadata** the first time the classification lint ran, nine of them shipping an adapter while the list called them untried candidates."
-msgstr ""
+msgstr "**Príspevky na audit 24 úloh odporovali ich vlastným metaúdajom** prvý krát, čo klasifikácia Lint bežala, deviati z nich poslali adaptér, zatiaľ čo ich zoznam nazval neskúšanými kandidátmi."
 
 # translated-by: libretranslate
 msgid "**Two proofs were vacuous.** Flowise tool-name verification compared against a hardcoded empty list, and every role-local MCP spec gated itself on the service flag, so a surface that kept serving after being switched off was indistinguishable from one never deployed. Both now fail when they should."
 msgstr "**Dva dôkazy boli prázdne.** Flowise overenie názvu nástroja v porovnaní s hardcoded prázdny zoznam, a každý role-local MCP Spec sa dal sám na servisnej vlajky, takže povrch, ktorý slúžil po vypnutí bol nerozoznateľný od jedného nikdy nasadený. Obe teraz zlyhávajú, keď by mali."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **Dve stratégie rozhodujú medzi preživšími a
 # `services.litellm.router_strategy` Vyberie jeden.** Obaja bežia za rovnakým
 # filtrom a za rozhodnutím 7"Lokálne obmedzenie; líšia sa len v tom, čo radí
 # cesty, ktoré zostávajú.
+# translated-by: libretranslate
 msgid "**Two strategies decide among the survivors, and `services.litellm.router_strategy` picks one.** Both run behind the same filter and behind decision 7's locality restriction; they differ only in what ranks the routes that are left."
-msgstr ""
+msgstr "**Dve stratégie rozhodujú medzi preživšími a `services.litellm.router_strategy` Vyberie jeden.** Obaja bežia za rovnakým filtrom a za rozhodnutím 7\"Lokálne obmedzenie; líšia sa len v tom, čo radí cesty, ktoré zostávajú."
 
 # translated-by: libretranslate
 msgid "**Two-layer tool policy:** Home Assistant offers no per-tool filter of its own; enabling the Assist API always publishes its actuating intents (`HassTurnOn`, `HassTurnOff`, the todo-list writers). The role names those in `tools.mutating`, and `mutating_tools_enabled: false` withholds them from every client's include list, so an agent is offered the read tools only. Entity exposure bounds the rest: the role exposes no entity to Assist, and making the hub actuate anything is an explicit operator step per entity."
@@ -9933,6 +9927,7 @@ msgstr "**`type:` (nepovinné)** je jedným z `string`, `integer`, `boolean`. Pr
 msgid "**`version`** (string):"
 msgstr "**`version`** (reťazec):"
 
+# [`web-app-bluesky`](../../roles/web-app-bluesky/) ako zdroj PDS/OAuth.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: **`web-app-atmo`**
@@ -11235,89 +11230,67 @@ msgstr "**gVisor runtime:** Pripnuté ``runsc`` vydanie je stiahnuté do ``/usr/
 msgid "**gVisor runtime:** The pinned `runsc` release is fetched to `/usr/local/bin/runsc` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
 msgstr "**gVisor runtime:** Pripnuté `runsc` vydanie je stiahnuté do `/usr/local/bin/runsc` a overil na základe uverejnených SHA512 Šaty. Kata Shim je prevzatá z hostiteľa, ako to je; úloha nie je inštalovať."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['baserow', 'docker', "riadenie
 # údajov," 'databases']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['baserow', 'docker', 'data management', 'databases']"
-msgstr ""
+msgstr "**galaxy_tags**: ['baserow', 'docker', \"riadenie údajov,\" 'databases']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['bluesky', 'docker', "sociálna
 # sieť," 'decentralized']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['bluesky', 'docker', 'social network', 'decentralized']"
-msgstr ""
+msgstr "**galaxy_tags**: ['bluesky', 'docker', \"sociálna sieť,\" 'decentralized']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['friendica', 'docker', "sociálna
 # sieť," 'decentralized']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['friendica', 'docker', 'social network', 'decentralized']"
-msgstr ""
+msgstr "**galaxy_tags**: ['friendica', 'docker', \"sociálna sieť,\" 'decentralized']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitea', 'docker', 'git', 'self-hosted', 'version control']"
 msgstr "**galaxy_tags**: ['gitea', 'docker', 'git', 'self-hosted', 'kontrola version']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['gitlab', 'docker', "ci/cd,"
 # 'self-hosted', 'kontrola version']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'version control']"
-msgstr ""
+msgstr "**galaxy_tags**: ['gitlab', 'docker', \"ci/cd,\" 'self-hosted', 'kontrola version']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['jira', "riadenie projektu"]
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['jira', 'project management']"
-msgstr ""
+msgstr "**galaxy_tags**: ['jira', \"riadenie projektu\"]"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['joomla', 'docker', 'cms', "riadenie
 # obsahu," 'self-hosted']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['joomla', 'docker', 'cms', 'content management', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['joomla', 'docker', 'cms', \"riadenie obsahu,\" 'self-hosted']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['keycloak', 'docker', "riadenie
 # identity," 'sso', 'self-hosted']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['keycloak', 'docker', 'identity management', 'sso', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['keycloak', 'docker', \"riadenie identity,\" 'sso', 'self-hosted']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['ldap', 'openldap', 'docker',
 # 'directory', 'tls', "riadenie identity"]
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['ldap', 'openldap', 'docker', 'directory', 'tls', 'identity management']"
-msgstr ""
+msgstr "**galaxy_tags**: ['ldap', 'openldap', 'docker', 'directory', 'tls', \"riadenie identity\"]"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['listmonk', 'docker', 'newsletter',
 # "email marketing," 'self-hosted']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['listmonk', 'docker', 'newsletter', 'email marketing', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['listmonk', 'docker', 'newsletter', \"email marketing,\" 'self-hosted']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['mailu', 'docker', 'email', 'mail server', 'self-hosted']"
 msgstr "**galaxy_tags**: ['mailu', 'docker', 'email', 'mail server', 'self-hosted']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['mastodon', 'docker', 'federated',
 # 'decentralized', 'microblog', "sociálna sieť"]
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'microblog', 'social network']"
-msgstr ""
+msgstr "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'microblog', \"sociálna sieť\"]"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'docker'"reverse\ proxy,"
 # 'web', 'automation', 'archlinux']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'docker'\"reverse\\ proxy,\" 'web', 'automation', 'archlinux']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
@@ -11327,12 +11300,10 @@ msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\ filter', 'injecti
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
 msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\ filter']"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl'"reverse\
 # proxy," 'letsencrypt', 'self\ signed']
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl'\"reverse\\ proxy,\" 'letsencrypt', 'self\\ signed']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
@@ -11398,6 +11369,13 @@ msgstr "**miestna červená, CI zelená**: zvyčajne miestny stav bežec začín
 msgid "**logout**"
 msgstr "**odhlásiť**"
 
+# gained=['13']
+# dávka)** 4re rozmiestnenie hry zlyhalo `Wait for Matomo container to be
+# healthy` s `container inspect: map has no entry for key "State"` pre celé
+# okienko na opakovanie (kontajner začal, potom zmizol)Hrá. 13 v SAME job
+# nasadený somatomo zdravé, tak klasifikované prechodné (zdroj/prune tlak po
+# ~3h)Nie je možné určiť kód. Ak sa opäť objaví, preskúmajte to ako skutočnú
+# haváriu paramom/OOM (denníky kontajnerov, mem_limit).
 # translation-refused: libretranslate protected-span lost=['1', '3']
 # gained=['13']
 # nocheck: url
@@ -11465,9 +11443,6 @@ msgstr "**role_name**: farba klávesnice"
 msgid "**roulette-wheel**"
 msgstr "**ruletové koleso**"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['24']
-# nocheck: url
-# translation-rejected: **serverových kandidátov na prístupnosť OIDC**
 # `http://auth.<onion>` bez `extra_hosts` mapovanie. Úlohy s rovnakým
 # mechanikom a nie `container_extra_hosts` Hľadať ešte (fix je rovnaké
 # jednoriadkové vyhľadávanie, aplikovať na dôkaz CI): wordpress (Name) a
@@ -11482,8 +11457,9 @@ msgstr "**ruletové koleso**"
 # Gitlab NIKDY nebol členom - beh 31756560361 ukazuje, že rieši a spája
 # (peeraddr=172.30.0.10:443); jeho zlyhanie bolo openid_connect Obnovenie URL
 # objavu cez https bez ohľadu na schému emitenta, stanovené v 2389b6e38.
+# translated-by: libretranslate
 msgid "**server-side OIDC reachability candidates** — joomla failed because its app container performs server-side OIDC discovery against `http://auth.<onion>` without an `extra_hosts` mapping. Roles with the same mechanic and no `container_extra_hosts` lookup yet (fix is the same one-line lookup, apply on CI evidence): wordpress (daggerhart plugin) and mediawiki (PluggableAuth) are structurally identical PHP in-app plugins (high likelihood); discourse is now confirmed and pinned (run 33445831564, job Nextcloud#7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the issuer server-side too (unverified network path). oauth2-proxy-based apps are NOT affected (proven green: prometheus admin SSO). Two names have left this list on evidence: mobilizon got the lookup in 0e39f3fad after its code-to-token call raised OAuth2.Error Connection refused twenty-four times, and gitlab was NEVER a member - run 31756560361 shows it resolving and connecting (peeraddr=172.30.0.10:443); its failure was the openid_connect gem rebuilding the discovery URL over https regardless of the issuer scheme, fixed in 2389b6e38."
-msgstr ""
+msgstr "**serverových kandidátov na prístupnosť OIDC** `http://auth.<onion>` bez `extra_hosts` mapovanie. Úlohy s rovnakým mechanikom a nie `container_extra_hosts` Hľadať ešte (fix je rovnaké jednoriadkové vyhľadávanie, aplikovať na dôkaz CI): wordpress (Name) a mediawiki (PluggableAuth) sú štrukturálne identické PHP moduly in-app (vysoká pravdepodobnosť); Discourse je teraz potvrdená a prilepené (spustiť 33445831564, práca Nextcloud#7); Jenkins, jira, confluence, odoo, openwebui, pretix, zammmad, semaphore, želéfin, listmonk, xwiki, mastodon konzumovať emitent server-strana (neoverená sieťová cesta). oauth2- aplikácie založené na proxy nie sú ovplyvnené (zelená: Prometheus admin SSO)Dva mená zanechali tento zoznam na dôkazoch: Mobilizon našiel 0e39f3vyblednutie po zdvihnutí svojho hovoru kód - token OAuth2.Error Spojenie bolo 24-krát odmietnuté a Gitlab NIKDY nebol členom - beh 31756560361 ukazuje, že rieši a spája (peeraddr=172.30.0.10:443); jeho zlyhanie bolo openid_connect Obnovenie URL objavu cez https bez ohľadu na schému emitenta, stanovené v 2389b6e38."
 
 # translated-by: libretranslate
 msgid "**simpleicons**"
@@ -12766,13 +12742,11 @@ msgstr ":func:`image_healthcheck` a ktorá adresa bola zodpovedaná."
 msgid ":func:`is_path_gitignored` — pure matcher: does a repo-relative POSIX-style path match any of the supplied patterns?"
 msgstr ":func:`is_path_gitignored`?"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"Run-once"']
-# nocheck: url
-# translation-rejected: :func:`is_suppressed_anywhere`: kdekoľvek v súbore
 # (použitý kontrolou schémy "Run-once").
+# translated-by: libretranslate
 msgid ":func:`is_suppressed_anywhere`: anywhere in the file (used by the run-once schema check)."
-msgstr ""
+msgstr ":func:`is_suppressed_anywhere`: kdekoľvek v súbore (použitý kontrolou schémy \"Run-once\")."
 
 # translated-by: libretranslate
 msgid ":func:`is_suppressed_at`: same line, line above, or either."
@@ -13524,6 +13498,13 @@ msgstr "Jeff, ktorý nemôže byť prijatý, zamietne žiadosť. Nie je routed o
 msgid "A job URL narrows the download to that job's app; a bare run URL pulls every `role-runtimes-*` artifact in the run."
 msgstr "URL úlohy zužuje sťahovanie aplikácie tejto úlohy; holé spustenie URL ťahá každý `role-runtimes-*` artefakt na úteku."
 
+# gained=['"aktuálne"']
+# dokončená, keď modul nahlásil ``failed``, alebo keď príkaz vrátil non-nula
+# ``rc``. Čo odlišuje skutočné zlyhanie od bezvýznamného no-op sa líši podľa
+# API a žije v rôznych kľúčoch: moduly dať do ``msg`` (odpovede na cloudflare
+# "Rovnaký záznam už existuje"), príkazy dať do ``stdout`` (``ollama pull``
+# odtlačky "aktuálne" a východy nenulové). Oba sú prehľadané, takže volajúci
+# prechádza tolerované frázovanie a nemusí vedieť, ktorý kľúč ho nesie.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"aktuálne"']
 # nocheck: url
@@ -13689,15 +13670,13 @@ msgstr "Nová spoločná služba MUSÍ:"
 msgid "A no-variant `mode=reinstall` as the reaction to a failed variant or a code change. Only rows 1 and 4 omit `variant=`. To retry one failing variant, pin it with row 2; never restart the whole matrix to retry a single variant."
 msgstr "Bezvariant `mode=reinstall` ako reakcia na neúspešný variant alebo zmenu kódu. Iba riadky 1 a 4 vynechanie `variant=`. Ak chcete znovu skúsiť jeden zlyhávajúci variant, pin to s radom 2; nikdy reštartovať celú matricu vyskúšať jeden variant."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Číslo je, že mnoho riadkov; čokoľvek iné je výber
 # token (:mod:`utils.github.variant.selection`) a začiatok je prvý pravidelný
 # riadok. Pokračujúci v úlohe bije počítanie riadkov ručne: poradie posunov
 # vždy, keď sa pridá variant, takže index, ktorý znamenal "pokračovať za
 # nextcloud" včera znamená niečo iné dnes, zatiaľ čo token stále hovorí.
+# translated-by: libretranslate
 msgid "A number is that many rows; anything else is a selection token (:mod:`utils.github.variant.selection`) and the start is the first regular row it names. Resuming at a role beats counting rows by hand: the ranking shifts whenever a variant is added, so the index that meant 'carry on behind nextcloud' yesterday means something else today, while the token still says it."
-msgstr ""
+msgstr "Číslo je, že mnoho riadkov; čokoľvek iné je výber token (:mod:`utils.github.variant.selection`) a začiatok je prvý pravidelný riadok. Pokračujúci v úlohe bije počítanie riadkov ručne: poradie posunov vždy, keď sa pridá variant, takže index, ktorý znamenal \"pokračovať za nextcloud\" včera znamená niečo iné dnes, zatiaľ čo token stále hovorí."
 
 # translated-by: libretranslate
 msgid "A parsed README: everything before the first H2, then its H2 blocks."
@@ -13763,14 +13742,12 @@ msgstr "Bazén alebo znak presne jedného druhu je chápaný ako ľudské pomeno
 msgid "A practical long-term target is:"
 msgstr "Praktickým dlhodobým cieľom je:"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['15']
-# nocheck: url
-# translation-rejected: Predpona nemôže súdiť kontajner, takže sonda drží
 # verdikt a predpona len niekedy RAISESES načasovanie -- zložené obdobie
 # začiatku je najdlhšie z dvoch, nikdy predpona je sama. Znížiť to raz by bolo
 # 15 minútové štartové okno na dve.
+# translated-by: libretranslate
 msgid "A prefix cannot judge the container, so the probe keeps the verdict and the prefix only ever RAISES a timing -- the composed start period is the longest of the two, never the prefix's alone. Lowering it once would have cut a fifteen minute start window down to two."
-msgstr ""
+msgstr "Predpona nemôže súdiť kontajner, takže sonda drží verdikt a predpona len niekedy RAISESES načasovanie -- zložené obdobie začiatku je najdlhšie z dvoch, nikdy predpona je sama. Znížiť to raz by bolo 15 minútové štartové okno na dve."
 
 # translated-by: libretranslate
 msgid "A prefix does something on the way past -- sending a smoke mail is the only one so far -- and deliberately cannot decide liveness. That separation is what lets a probe stay the single verdict."
@@ -14826,10 +14803,7 @@ msgstr "Pridať Keycloak automatické poskytovanie klienta v `web-app-keycloak` 
 msgid "Add LDAP Users Manually for Immediate Sharing"
 msgstr "Pridať užívateľov LDAP manuálne pre okamžité zdieľanie"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: Pridať OIDC auto-poskytovanie tak čerstvé Keycloak
 # užívateľ, ktorý pristane na akaunting dlaždice pristane na pracovnom
 # akaunting užívateľského účtu namiesto "žiadne povolenie" povrch. Kým to nie
 # je káblové, OTH Playwright bibleer a administrátor personas sú blokované cez
@@ -14837,8 +14811,9 @@ msgstr "Pridať užívateľov LDAP manuálne pre okamžité zdieľanie"
 # `templates/playwright.env.j2` (req 019 Článok 11 explicitná výnimka typu
 # "opt-out"). Akonáhle auto-poskytovanie funguje, pokles oboch opt-out vlajky,
 # takže osoba riadiť skutočnú cestu.
+# translated-by: libretranslate
 msgid "Add OIDC auto-provisioning so a fresh Keycloak user that lands on the akaunting tile lands on a working akaunting user account instead of a \"no permission\" surface. Until that is wired, BOTH the playwright biber and administrator personas are blocked via `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in `templates/playwright.env.j2` (req 019 Rule 11 explicit opt-out). Once auto-provisioning works, drop both opt-out flags so the personas drive the real journey."
-msgstr ""
+msgstr "Pridať OIDC auto-poskytovanie tak čerstvé Keycloak užívateľ, ktorý pristane na akaunting dlaždice pristane na pracovnom akaunting užívateľského účtu namiesto \"žiadne povolenie\" povrch. Kým to nie je káblové, OTH Playwright bibleer a administrátor personas sú blokované cez `PERSONA_BIBER_BLOCKED=true` a `PERSONA_ADMINISTRATOR_BLOCKED=true` on `templates/playwright.env.j2` (req 019 Článok 11 explicitná výnimka typu \"opt-out\"). Akonáhle auto-poskytovanie funguje, pokles oboch opt-out vlajky, takže osoba riadiť skutočnú cestu."
 
 # translated-by: libretranslate
 msgid "Add Qdrant with collection isolation and the high-value read adapters for Checkmk, Prometheus, LibreTranslate, Jellyfin, Pretix, Snipe-IT, Zammad, Listmonk, and Fider."
@@ -16474,6 +16449,9 @@ msgstr "Prázdny výsledok je cacheed pod jeho id príliš, alebo rola bez súbo
 msgid "An empty string is a valid answer: a provider that has not minted its credential yet is the normal state early in a play, and the callers distinguish it from a wrong one by probing."
 msgstr "Prázdny reťazec je platná odpoveď: poskytovateľ, ktorý ešte nevyrazil svoju dôveryhodnosť, je na začiatku hry normálnym stavom a volajúci ho odlišujú od nesprávneho sondovaním."
 
+# gained=['"nenakonfigurované"']
+# každou kontrolou, čo je to, čo robí voliteľný kľúč poskytovateľa výraznou:
+# deklarujte tvar, nechajte hodnotu prázdnu a spotrebiteľ sa stavia naprázdno.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"nenakonfigurované"']
 # nocheck: url
@@ -17360,6 +17338,13 @@ msgstr "Ako správca platformy Infinito.Nexus, Chcem [Jellyfin](https://jellyfin
 msgid "As a platform administrator of Infinito.Nexus, I want [Semaphore UI](https://github.com/semaphoreui/semaphore) integrated as a `web-app-semaphore` role with OpenID Connect (Keycloak) SSO and optional LDAP login so that operators can run Ansible / Terraform / OpenTofu / Bash automation from a web UI behind the platform's central Single Sign-On, reusing the central database, and validated end-to-end with Playwright personas."
 msgstr "Ako správca platformy Infinito.Nexus, Chcem [Semaphore UI](https://github.com/semaphoreui/semaphore) integrované ako `web-app-semaphore` rola s OpenID Connect (Keycloak) SSO a voliteľné LDAP login tak, že operátori môžu spustiť Ansible / Terraform / OpenTofu / Bash automatizácie z webového UI za centrálne Single Sign-On platformy, opätovné použitie centrálnej databázy, a validované end-to-end s Playwright personas."
 
+# gained=['"ožiť"']
+# `svc-ai-robot` rola, ktorá mení jeden špecializovaný stroj na stelesnenú
+# platformu pre Hermes, dáva agentovi sférovaný prístup k plnému hostiteľovi,
+# aby mohol preskúmať svoj vlastný hardvér a pôsobiť vo fyzickom svete, takže
+# Hermes môže "ožiť" na robota, zatiaľ čo táto sila zostáva obmedzená na
+# vyhradené, segmentované zariadenie a nikdy neunikne na spoločnú
+# infraštruktúru.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"ožiť"']
 # nocheck: url
@@ -18314,10 +18299,7 @@ msgstr "Správanie 🧮"
 msgid "Behaviour-equal alternatives take the side that routes through the SPOT variable instead of inlining the expression again."
 msgstr "Behaviorálne-rovnaké alternatívy sa na strane, že trasy cez SPOT premennej namiesto zasvätenie výrazu znova."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"',
 # '"opt-out"']
-# nocheck: url
-# translation-rejected: Za tým stojí druhý, menší nesúlad. LAM autentifikuje
 # prostredníctvom väzby LDAP DN od jeho `Admins` zoznam, ktorý
 # [`templates/env.j2`](./templates/env.j2) plná `LDAP.DN.ADMINISTRATOR.DATA` a
 # `LDAP.BIND_CREDENTIAL` `svc-db-openldap`
@@ -18327,13 +18309,11 @@ msgstr "Behaviorálne-rovnaké alternatívy sa na strane, že trasy cez SPOT pre
 # číta `ADMIN_NATIVE_PASSWORD` pre presne tento prípad, a rola by to mohla
 # urobiť. Zaznamenáva sa tu, takže možnosť "opt-out" sa môže prehodnotiť spolu
 # s problémom "vstupného bodu," ktorým je blokovanie.
+# translated-by: libretranslate
 msgid "Behind that sits a second, smaller mismatch. LAM authenticates by binding an LDAP DN from its `Admins` list, which [`templates/env.j2`](./templates/env.j2) fills with `LDAP.DN.ADMINISTRATOR.DATA` and `LDAP.BIND_CREDENTIAL` — the `svc-db-openldap` `credentials.administrator_database_password` — while the shared helper types `lookup('users', 'administrator').password`, the secret of `uid=administrator,ou=users,…`, a different directory entry. That one is configurable rather than structural: the helper reads `ADMIN_NATIVE_PASSWORD` for exactly this case, and the role could render it. It is recorded here so the opt-out can be revisited together with the entry-point problem, which is the blocking one."
-msgstr ""
+msgstr "Za tým stojí druhý, menší nesúlad. LAM autentifikuje prostredníctvom väzby LDAP DN od jeho `Admins` zoznam, ktorý [`templates/env.j2`](./templates/env.j2) plná `LDAP.DN.ADMINISTRATOR.DATA` a `LDAP.BIND_CREDENTIAL` `svc-db-openldap` `credentials.administrator_database_password` `lookup('users', 'administrator').password`, tajomstvo `uid=administrator,ou=users,…`, iný záznam adresára. Tento je konfigurovateľný skôr ako štrukturálny: pomocník číta `ADMIN_NATIVE_PASSWORD` pre presne tento prípad, a rola by to mohla urobiť. Zaznamenáva sa tu, takže možnosť \"opt-out\" sa môže prehodnotiť spolu s problémom \"vstupného bodu,\" ktorým je blokovanie."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"',
 # '"opt-out"']
-# nocheck: url
-# translation-rejected: Za tým stojí druhý, menší nesúlad. LAM autentifikuje
 # prostredníctvom väzby LDAP DN od jeho ``Admins`` zoznam, ktorý
 # ```templates/env.j2`` <./templates/env.j2>`__ fills with
 # ``LDAP.DN.ADMINISTRATOR.DATA`` and ``LDAP.BIND_CREDENTIAL`` — the
@@ -18344,8 +18324,9 @@ msgstr ""
 # ``ADMIN_NATIVE_PASSWORD`` pre presne tento prípad, a rola by to mohla
 # urobiť. Zaznamenáva sa tu, takže možnosť "opt-out" sa môže prehodnotiť spolu
 # s problémom "vstupného bodu," ktorým je blokovanie.
+# translated-by: libretranslate
 msgid "Behind that sits a second, smaller mismatch. LAM authenticates by binding an LDAP DN from its ``Admins`` list, which ```templates/env.j2`` <./templates/env.j2>`__ fills with ``LDAP.DN.ADMINISTRATOR.DATA`` and ``LDAP.BIND_CREDENTIAL`` — the ``svc-db-openldap`` ``credentials.administrator_database_password`` — while the shared helper types ``lookup('users', 'administrator').password``, the secret of ``uid=administrator,ou=users,…``, a different directory entry. That one is configurable rather than structural: the helper reads ``ADMIN_NATIVE_PASSWORD`` for exactly this case, and the role could render it. It is recorded here so the opt-out can be revisited together with the entry-point problem, which is the blocking one."
-msgstr ""
+msgstr "Za tým stojí druhý, menší nesúlad. LAM autentifikuje prostredníctvom väzby LDAP DN od jeho ``Admins`` zoznam, ktorý ```templates/env.j2`` <./templates/env.j2>`__ fills with ``LDAP.DN.ADMINISTRATOR.DATA`` and ``LDAP.BIND_CREDENTIAL`` — the ``svc-db-openldap`` ``credentials.administrator_database_password`` — while the shared helper types ``lookup('users', 'administrator').password``, the secret of ``uid=administrator,ou=users,…``, a different directory entry. That one is configurable rather than structural: the helper reads ``ADMIN_NATIVE_PASSWORD`` pre presne tento prípad, a rola by to mohla urobiť. Zaznamenáva sa tu, takže možnosť \"opt-out\" sa môže prehodnotiť spolu s problémom \"vstupného bodu,\" ktorým je blokovanie."
 
 # translated-by: libretranslate
 msgid "Benefit from a streamlined, containerized deployment process that simplifies updates and environment configuration."
@@ -19421,6 +19402,15 @@ msgstr "Filtrovanie CI zmenené *ONLY_APP* bola nahradená priestorom oddeleným
 msgid "CI fixes: resolved four CI failures across the *web-app-n8n*, *web-app-pihole* and *web-app-mastodon* roles."
 msgstr "Opravy CI: vyriešili štyri zlyhania CI počas celého *web-app-n8n*, *web-app-pihole* a *web-app-mastodon* role."
 
+# lost=['stale-branches@v9.0.1'] gained=['listsstale-branches@v9.0.1']
+# *prvý()* k Odoo *sale_management* Spec ukončiť prísne-režim porušenie;
+# Nextcloud GitLab- OAuth organizácie a Jenkins/Moodle systémové kroky
+# defenzívne s *Description*; obnovená *tajomstvo: dediť* na vidlicovom obraze
+# zrkadlo tak vidlice PRs autentický do Docker Hub; a upravené stale-branches
+# pre *unit description in listsstale-branches@v9.0.1* (zastavené 350 /
+# odstrániť 360 dní)Pozri [potrubie na
+# vidlicový-PR](docs/contributing/artefact/git/pipeline.md) a [katalóg
+# pracovných postupov](docs/contributing/tools/github/actions/workflows.md).
 # translation-refused: libretranslate protected-span
 # lost=['stale-branches@v9.0.1'] gained=['listsstale-branches@v9.0.1']
 # nocheck: url
@@ -25367,10 +25357,7 @@ msgstr "Dokumentácia: https://docs.infinito.nexus"
 msgid "Documented local *make check* targets **Fixed**"
 msgstr "Zdokumentované lokálne *kontrola* Ciele **Pevné**"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: Dokumenty a `services.matomo.track: false` výnimka
 # typu "opt-out" `roles/<role>/meta/services.yml`. Úloha drží
 # `services.matomo.{enabled,shared}: true` (takže zmluva o rolách zostáva
 # splnená) ale `roles_with_service('matomo')` padne z
@@ -25378,14 +25365,12 @@ msgstr "Zdokumentované lokálne *kontrola* Ciele **Pevné**"
 # statický súbor (autoindex) a 301-redirect vhosts, ktoré nesú žiadne
 # užívateľsky orientované HTML stránky stojí `_paq` Tracker. Značka sprevádza
 # `track:` Data flag vyhľadanie pocty.
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Documents a `services.matomo.track: false` opt-out in `roles/<role>/meta/services.yml`. The role keeps `services.matomo.{enabled,shared}: true` (so the role-wiring contract stays satisfied) but `roles_with_service('matomo')` drops it from `MATOMO_TARGET_ROLES_JSON` and the matomo tracker e2e contract. Reserved for static-file (autoindex) and 301-redirect vhosts that carry no user-facing HTML page worth a `_paq` tracker. The marker accompanies the `track:` data flag the lookup honors."
-msgstr ""
+msgstr "Dokumenty a `services.matomo.track: false` výnimka typu \"opt-out\" `roles/<role>/meta/services.yml`. Úloha drží `services.matomo.{enabled,shared}: true` (takže zmluva o rolách zostáva splnená) ale `roles_with_service('matomo')` padne z `MATOMO_TARGET_ROLES_JSON` a somatomo tracker e2zmluva. Vyhradené pre statický súbor (autoindex) a 301-redirect vhosts, ktoré nesú žiadne užívateľsky orientované HTML stránky stojí `_paq` Tracker. Značka sprevádza `track:` Data flag vyhľadanie pocty."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: Dokumenty a `services.prometheus.scrape: false`
 # výnimka typu "opt-out" `roles/<role>/meta/services.yml`. Úloha drží
 # `services.prometheus.{enabled,shared}: true` (takže zmluva o rolách zostáva
 # splnená) ale `roles_with_service('prometheus')` padne z
@@ -25393,9 +25378,10 @@ msgstr ""
 # ktoré nikdy slúžiť žiadosť prostredníctvom lua-resty-prometheus, takže
 # emitujú žiadne `app="<role>"` Štítok a žiadny cieľ. Značka sprevádza
 # `scrape:` Data flag vyhľadanie pocty.
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Documents a `services.prometheus.scrape: false` opt-out in `roles/<role>/meta/services.yml`. The role keeps `services.prometheus.{enabled,shared}: true` (so the role-wiring contract stays satisfied) but `roles_with_service('prometheus')` drops it from `PROMETHEUS_TARGET_ROLES_JSON`. Reserved for 301-redirect-only vhosts that never serve a request through lua-resty-prometheus, so they emit no `app=\"<role>\"` label and have no scrape target. The marker accompanies the `scrape:` data flag the lookup honors."
-msgstr ""
+msgstr "Dokumenty a `services.prometheus.scrape: false` výnimka typu \"opt-out\" `roles/<role>/meta/services.yml`. Úloha drží `services.prometheus.{enabled,shared}: true` (takže zmluva o rolách zostáva splnená) ale `roles_with_service('prometheus')` padne z `PROMETHEUS_TARGET_ROLES_JSON`. Vyhradené pre 301- redirect-only vhosts, ktoré nikdy slúžiť žiadosť prostredníctvom lua-resty-prometheus, takže emitujú žiadne `app=\"<role>\"` Štítok a žiadny cieľ. Značka sprevádza `scrape:` Data flag vyhľadanie pocty."
 
 # translated-by: libretranslate
 msgid "Documents an `unsafe-*: true` flag in `roles/*/meta/csp.yml`. MUST be paired with a `Reason:` on the same line naming what breaks without the relaxation. `unsafe-inline` re-admits the inline execution an XSS needs and `unsafe-eval` re-admits string-to-code, so the flag has to be verified against the running app, not copied from another role."
@@ -26151,6 +26137,7 @@ msgstr "Ktorýkoľvek z vyššie uvedených návrhov je prijatý."
 msgid "Either the current application IS web-app-prometheus, OR it declares prometheus as an enabled compose service dependency (services.prometheus.enabled: true)."
 msgstr "Buď aktuálna aplikácia IS web-app-prometheus, OR to deklaruje Prometheus ako povolená komponovať služby závislosť (services.prometheus.enabled: pravda)."
 
+# [str,str]) alebo zoznam domén alebo jediný reťazec domén.
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Buď mapovanie domény dict (hodnoty môžu byť str [str]
@@ -27058,17 +27045,15 @@ msgstr "Každé zlyhanie je opravené na koreň. Lint hit je vyriešený odstrá
 msgid "Every failure raises AnsibleError with an actionable message."
 msgstr "Každé zlyhanie vyvoláva AnsibleError s akčným posolstvom."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['plugins.yml']
-# nocheck: url
-# translation-rejected: Každý súbor tu je deklarovaný ako doplnok pod
 # `meta/addons/` s `mechanism: mu_plugin` a `source: vendored`, a addon ID je
 # kmeň súboru. [04mu plugins.yml](../../tasks/04_mu_plugins.yml) Prepojenie
 # týchto vyhlásení a kópií `<addon_id>.php` do kontajnera pri každom nasadení;
 # nový súbor preto potrebuje jeho `meta/addons/<addon_id>.yml` vstup a
 # špecifikácia Playwright pred inštaláciou.
+# translated-by: libretranslate
 msgid "Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed."
-msgstr ""
+msgstr "Každý súbor tu je deklarovaný ako doplnok pod `meta/addons/` s `mechanism: mu_plugin` a `source: vendored`, a addon ID je kmeň súboru. [04mu plugins.yml](../../tasks/04_mu_plugins.yml) Prepojenie týchto vyhlásení a kópií `<addon_id>.php` do kontajnera pri každom nasadení; nový súbor preto potrebuje jeho `meta/addons/<addon_id>.yml` vstup a špecifikácia Playwright pred inštaláciou."
 
 # translated-by: libretranslate
 msgid "Every handler module MUST expose the same surface so the registry can call it uniformly:"
@@ -27279,17 +27264,15 @@ msgstr "Každá schránka agenta robí: `make` ciele, `git`/`gh`/`docker` volá,
 msgid "Every spec MUST include the three persona scenarios below as its baseline. Additional scenarios (RBAC loops, peer-to-peer messaging, federation round-trips, CSP-deep-checks, …) MAY be added on top. Three personas exist in the deploy fixture: `guest` (no Keycloak account), `biber` (regular end-user), and `administrator` (operator/admin). The flow shape is identical across roles. Only the role-specific selectors and the post-login assertion change. Service-dependent steps MUST be guarded with [`skipUnlessServiceEnabled('<svc>')`](../../../../../roles/test-e2e-playwright/files/service-gating.js) so a deploy with `disable=<svc>` reports the affected step as `skipped: <NAME>_SERVICE_ENABLED=false`, never `failed`."
 msgstr "Každá špecifikácia MUSÍ obsahovať tri scenáre osoby nižšie ako jeho základ. Ďalšie scenáre (RBAC slučky, peer-to-peer messaging, federation round-trips, CSP-deep-kontroly, ...) Možno pridať navrch. Tri osoby existujú v rozmiestňovacom zariadení: `guest` (no Keycloak účet), `biber` (pravidelný koncový používateľ)a `administrator` (Prevádzkovateľ/admin). Tvar toku je identický medzi rolami. Zmena sa týka len jednotlivých voliteľných úloh a po prihlásení. Kroky závislé od služby musia byť chránené [`skipUnlessServiceEnabled('<svc>')`](../../../../../roles/test-e2e-playwright/files/service-gating.js) Takže rozmiestniť s `disable=<svc>` hlási postihnutý krok ako `skipped: <NAME>_SERVICE_ENABLED=false`, Nikdy. `failed`."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-in"']
-# nocheck: url
-# translation-rejected: Každá špecifikácia musí byť nastavená `test.use({
 # ignoreHTTPSErrors: true })` v hornej časti súboru, pretože testovacie
 # prostredie používa vlastnoručne podpísané certifikáty. Ústredná
 # `playwright.config.js` NEstanovuje to globálne. Podľa možnosti "opt-in" je
 # zmluva.
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Every spec MUST set `test.use({ ignoreHTTPSErrors: true })` at the top of the file because the test environment uses self-signed certificates. The central `playwright.config.js` does NOT set this globally. Per-spec opt-in is the contract."
-msgstr ""
+msgstr "Každá špecifikácia musí byť nastavená `test.use({ ignoreHTTPSErrors: true })` v hornej časti súboru, pretože testovacie prostredie používa vlastnoručne podpísané certifikáty. Ústredná `playwright.config.js` NEstanovuje to globálne. Podľa možnosti \"opt-in\" je zmluva."
 
 # translated-by: libretranslate
 msgid "Every stack has its own domain below it (`INFINITO_DOMAIN`): the primary checkout is `main.infinito.test`, a worktree from `make worktree-up` is its branch lowercased with every character outside `a-z0-9_-` replaced by `-` (`feature/store-i18n` → `feature-store-i18n.infinito.test`). `linux.sh` routes each stack's domain to that checkout's `INFINITO_BIND_IP`, read from the `.env` of every `git worktree list` entry. Re-run `make network-dns-setup` after creating or removing a worktree."
@@ -28591,6 +28574,7 @@ msgstr "Pevné *strong_password* filter *module_utils* rozlíšenie"
 msgid "Fixed *sys-aur-install* name/upgrade clash"
 msgstr "Pevné *sys-aur-inštalovať* Name/upgrade Clash"
 
+# kolízie kolízie kolísania slučiek **CI a testy**
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Pevné Ansable fakty deprekácie a kolízie kolízie
@@ -28703,13 +28687,11 @@ msgstr "Fixed systemd-in-container boots by disabling systemd-firstboot a inicia
 msgid "Fixed the Joomla install / re-deploy flow across the open regression classes: raw-git-tree refusal handling, re-deploy idempotency, dash pipefail incompatibility, cleanup-phase crashes, and fresh-install password-reset races"
 msgstr "Opravené Joomla inštalovať/reinštalovať tok cez otvorené regresné triedy: raw-git-tree odopretie manipulácie, re-deploy nepostrádateľnosť, pomlčka rúrka zlyhanie nezlučiteľnosť, vyčistenie-fáza pády, a čerstvo inštalovať heslo-reset preteky"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Opravené sys-svc-container výber balíka na Ubuntu;
 # cieľ "čistý Makefile" je odolný voči kontajneru vo vlastníctve **pykache**
 # súbory
+# translated-by: libretranslate
 msgid "Fixed the sys-svc-container package selection on Ubuntu; the Makefile clean target is resilient to container-owned **pycache** files"
-msgstr ""
+msgstr "Opravené sys-svc-container výber balíka na Ubuntu; cieľ \"čistý Makefile\" je odolný voči kontajneru vo vlastníctve **pykache** súbory"
 
 # translated-by: libretranslate
 msgid "Fixed undefined *run_once* lookup in backend service loader"
@@ -29314,15 +29296,13 @@ msgstr "Pre všeobecné pravidlá dokumentácie, ako sú odkazy, štýl písania
 msgid "For general help and non-security requests, see [SUPPORT.md](SUPPORT.md)."
 msgstr "Všeobecné požiadavky na pomoc a iné ako bezpečnostné požiadavky nájdete na: [SUPPORT.md](SUPPORT.md)."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Pre infraštruktúry-ťažké nastavenia, kde Playwright by
 # nemal žiť v hlavnom úložisku, použitie
 # [prehrávač](https://github.com/kevinveenbirkenbach/playwright-recorder).
 # Zabalí Playwright Codegen do Docker s X11"XWayland forwarding a ephemeral
 # workspace," takže medzi nahrávkami netečie žiadny štát.
+# translated-by: libretranslate
 msgid "For infrastructure-heavy setups where Playwright should not live in the main repository, use [playwright-recorder](https://github.com/kevinveenbirkenbach/playwright-recorder). It wraps Playwright codegen in Docker with X11/XWayland forwarding and an ephemeral workspace so no state leaks between recordings."
-msgstr ""
+msgstr "Pre infraštruktúry-ťažké nastavenia, kde Playwright by nemal žiť v hlavnom úložisku, použitie [prehrávač](https://github.com/kevinveenbirkenbach/playwright-recorder). Zabalí Playwright Codegen do Docker s X11\"XWayland forwarding a ephemeral workspace,\" takže medzi nahrávkami netečie žiadny štát."
 
 # translated-by: libretranslate
 msgid "For installation and deployment walkthroughs, see the [Installation Guide](docs/administration/installation.md) and the [Deploy Guide](docs/administration/deploy.md)."
@@ -30034,6 +30014,9 @@ msgstr "GITHUB_ACTIONS=true A ACT=true -> act (akt miestneho nektosa)"
 msgid "GITHUB_ACTIONS=true AND not ACT   -> real github actions"
 msgstr "GITHUB_ACTIONS= pravda A nie ACT -> skutočné gitub akcie"
 
+# lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYSmrteľné']
+# odvodený od GITHUB_REPOSITORY_OWNER / VLASTNÍK / GITHUB_REPOSITORYSmrteľné,
+# ak sa nedá na GHA vyriešiť.
 # translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYSmrteľné']
 # nocheck: url
@@ -31753,6 +31736,9 @@ msgstr "Ak je miesto na disku pevné, mali by ste presunúť Docker dáta, cache
 msgid "If inventory_file is provided, also removes the provider role for each service from the inventory (devices.yml)."
 msgstr "Ak inventory_file poskytuje, tiež odstraňuje úlohu poskytovateľa pre každú službu z inventára (devices.yml)."
 
+# gained=['"nespárované"']
+# galaxy_info.lifecycle je v súprave sú zahrnuté. Chýbajúci životný cyklus sa
+# považuje za "nespárované".
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"nespárované"']
 # nocheck: url
@@ -32628,15 +32614,13 @@ msgstr "Vo všetkých komunikáciách a pri manipulácii s údajmi, musíte reš
 msgid "In compose mode the lookup returns the empty string because docker-compose ignores `deploy.replicas`. Wrapping the emit in the `deploy:` block remains the caller's responsibility - typically `roles/sys-svc-container/templates/deploy.yml.j2`."
 msgstr "V režime kompozície vyhľadávanie vracia prázdny reťazec, pretože docker-kompose ignoruje `deploy.replicas`. Zabalenie emitujúce v `deploy:` blok zostáva povinnosťou volajúceho - typicky `roles/sys-svc-container/templates/deploy.yml.j2`."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['3', '4']
-# nocheck: url
-# translation-rejected: V integrovanom režime (``shared: false``)
 # spotrebite3⁄4ská kompozícia dostane iba úèel SeaweedFS kontajner bez UI
 # alebo uverejnených prístavov. Vložené S3 poslucháč nevykonáva žiadnu
 # autentifikáciu, takže musí zostať obmedzený na spotrebiteľa izolovanej
 # kompozície siete.
+# translated-by: libretranslate
 msgid "In embedded mode (``shared: false``) a consumer’s compose stack receives a storage-only SeaweedFS container without UI or published ports. The embedded S3 listener performs no authentication, so it MUST stay confined to the consumer’s isolated compose network."
-msgstr ""
+msgstr "V integrovanom režime (``shared: false``) spotrebite3⁄4ská kompozícia dostane iba úèel SeaweedFS kontajner bez UI alebo uverejnených prístavov. Vložené S3 poslucháč nevykonáva žiadnu autentifikáciu, takže musí zostať obmedzený na spotrebiteľa izolovanej kompozície siete."
 
 # translated-by: libretranslate
 msgid "In embedded mode (`shared: false`) a consumer's compose stack receives a storage-only SeaweedFS container without UI or published ports. The embedded S3 listener performs no authentication, so it MUST stay confined to the consumer's isolated compose network."
@@ -33041,6 +33025,22 @@ msgstr "Vstupy (env): ``APP_ID``, ``INV_PATH`` (štandardná ``/tmp/inv/devices.
 msgid "Inputs (env): ``INV_DIR`` — inventory dir holding ``host_vars/*.yml`` (default ``/tmp/inv``)."
 msgstr "Vstupy (env): ``INV_DIR`` ``host_vars/*.yml`` (štandardná ``/tmp/inv``)."
 
+# gained=['2.25519']
+# ``OUT_PATH`` (štandardná ``/tmp/swarm-nfs-extras.yml``), ``KEY_PATH``
+# (štandardná ``/tmp/swarm-nfs-admin.key``)2.25519 keypair je generovaný pri
+# ``INFINITO_SWARM_BACKUP_KEY`` (SPOT: default.env) a jeho verejné pol územia
+# v ``users.backup.authorized_keys`` Takže vŕtačka DR môže zastaviť
+# ``user-backup`` Ssh-Wrapper. EÚ ``applications`` blok napísaný do súboru
+# extras nesie ``local-2-device`` mount/target/source zariadenia cesty, čo je
+# všetko DR vrták odčíta z neho. Prekročia sa požiadavky na nasadenie vrátane
+# ``remote-2-local.backup_providers`` (odvodený podľa kruhu
+# ``utils.tests.swarm.backup_repos``), sú pečené matricou orchestrátora do
+# zásobárne host_vars zlúčenie (INFINITO_VARS_PAYLOAD), NIE do súboru extras:
+# extra-vary nahradiť celý inventár ``applications`` Objednávka a vyzlieka
+# všetky vytvorené záruky. ``users`` nesie rovnaké nebezpečenstvo z rovnakého
+# dôvodu a authorized_keys cestovať rovnakým spojením kanál. Dvojica smerujúca
+# k rozmiestneniu ``<OUT_PATH stem>.deploy.yml`` Preto nesie všetko okrem
+# ``applications`` a ``users``.
 # translation-refused: libretranslate protected-span lost=['25519']
 # gained=['2.25519']
 # nocheck: url
@@ -33559,6 +33559,7 @@ msgstr "Inštalovať Node.js beží čas cez správcu systémových balíkov."
 msgid "Install the PHP CLI via system package manager (parser for lint-php)."
 msgstr "Inštalovať PHP CLI prostredníctvom správcu systémových balíkov (parser pre lint-php)."
 
+# extensions PHPUnit needs.
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Install the PHP interpreter, Composer and the
@@ -34428,6 +34429,7 @@ msgstr "Otázky o jedno poverenie podproces na aplikáciu, výdavky `--variant <
 msgid "It MUST NOT be named `meta/inventory.yml`. The Ansible language server auto-applies the inventory schema to that filename, and the variant list does not satisfy it."
 msgstr "NESMIE BYŤ pomenované `meta/inventory.yml`. Ansible language server auto-applikuje inventár schémy na tento názov súboru, a zoznam variantov nespĺňa."
 
+# `run-name:` že predpony
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: NESMIE niesť vo svojom `name:`, a MUSÍ niesť
@@ -35175,15 +35177,13 @@ msgstr "Name `lookup('domains')` pri nasadení"
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
 msgstr "Name `LDAP user federation` zrkadlí užívateľov do ríše v režime iba na čítanie."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Na kľúč podľa názvu úložiska, takže šablóna rieši
 # cestu hostiteľa dosiahne svoju chuť, proti prúdu a zrkadlo bez druhého
 # vyhlásenia. `utils.cache.hosts` je jediný bod pravdy; záznamy pochádzajú z
 # ``cache: repos:`` v rolách" ``meta/networks.yml``, a nasadené, inventár môže
 # opraviť alebo rozšíriť ich; pozri `utils.cache.inventory`.
+# translated-by: libretranslate
 msgid "Keyed by repository name, so a template resolving a host's route reaches its flavor, upstream and mirror without a second declaration. `utils.cache.hosts` is the single point of truth; the entries come from ``cache: repos:`` in the roles' ``meta/networks.yml``, and deployed, the inventory may correct or extend them; see `utils.cache.inventory`."
-msgstr ""
+msgstr "Na kľúč podľa názvu úložiska, takže šablóna rieši cestu hostiteľa dosiahne svoju chuť, proti prúdu a zrkadlo bez druhého vyhlásenia. `utils.cache.hosts` je jediný bod pravdy; záznamy pochádzajú z ``cache: repos:`` v rolách\" ``meta/networks.yml``, a nasadené, inventár môže opraviť alebo rozšíriť ich; pozri `utils.cache.inventory`."
 
 # translated-by: libretranslate
 msgid "Keys without a provider role are omitted — ``disable=`` cannot act on them."
@@ -36712,12 +36712,10 @@ msgstr "Údržba 🛠️"
 msgid "Maintenance, dependency, and tooling updates (incl. branches created by [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 msgstr "Údržba, závislosť a aktualizácie nástrojov (vrátane pobočiek vytvorených [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Make'proxy_hide_header Obsah-Bezpečnosť-Politika"
 # nepovinné pomocou more_header možnosť.
+# translated-by: libretranslate
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
-msgstr ""
+msgstr "Make'proxy_hide_header Obsah-Bezpečnosť-Politika\" nepovinné pomocou more_header možnosť."
 
 # translated-by: libretranslate
 msgid "Make Installation"
@@ -37182,7 +37180,9 @@ msgstr "Matrix: `#public:infinito.nexus` - rýchly rozhovor s komunitou."
 msgid "Matrix: `@kevinveenbirkenbach:infinito.nexus`"
 msgstr "Matrix: `@kevinveenbirkenbach:infinito.nexus`"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation) **Team Edition** nepodporuje natívne OIDC
+# (`MM_OPENIDSETTINGS_*`) alebo LDAP, pretože obe sú len funkcie Enterprise.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: MatttersCity name (optional, probably does not need a
 # translation) **Team Edition** nepodporuje natívne OIDC
@@ -37190,7 +37190,9 @@ msgstr "Matrix: `@kevinveenbirkenbach:infinito.nexus`"
 msgid "Mattermost **Team Edition** does not support native OIDC (`MM_OPENIDSETTINGS_*`) or LDAP, since both are Enterprise-only features."
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation) **Team Edition** nepodporuje natívne OIDC
+# (``MM_OPENIDSETTINGS_*``) alebo LDAP, pretože obe sú len funkcie Enterprise.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: MatttersCity name (optional, probably does not need a
 # translation) **Team Edition** nepodporuje natívne OIDC
@@ -38103,11 +38105,9 @@ msgstr "NGINX-served static page rendering a legal imprint (Impresum) z Jinja2 v
 msgid "NIX_CONFIG: pass-through of the caller's access-tokens line, when present."
 msgstr "NIX_CONFIG: prechod na prístupovú linku volajúceho, ak je prítomný."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: NEUšlo to zámerne: - $ - € - ! - "
+# translated-by: libretranslate
 msgid "NOT escaped on purpose: - $ - € - ! - '"
-msgstr ""
+msgstr "NEUšlo to zámerne: - $ - € - ! - \""
 
 # translated-by: libretranslate
 msgid "NOT mask the original test failure: log cleanup errors via `console.warn` rather than throwing, and let the body's assertion failure surface."
@@ -38414,6 +38414,11 @@ msgstr "Nový *web-app-n8n* rola: n8n automatizácia pracovných postupov (Vydan
 msgid "New Apps"
 msgstr "Nové aplikácie"
 
+# Frame frame v15 stack ako web-app-erpnext role Keycloak prostredníctvom
+# zabudovanej Keycloak Prihlásenie sociálneho kľúča do centra OpenLDAP pomocou
+# LDAP Nastavenia doctype. Trojvariačná matrica (SSO plus LDAP, no auth, len
+# LDAP) sa vykonáva end-to-end a repo-wide Lint caps Ansible názvy úloh na 120
+# znaky.
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Nový ERPNext úloha, že lode proti prúdu Frappe Frame
@@ -38805,6 +38810,7 @@ msgstr "Uzol základné názvy sú SPOT v default.env (zdieľané s scripts/test
 msgid "Node names come from `default.env` (`INFINITO_SWARM_*_NAME`) with the `SWARM_NAME` prefix. `INFINITO_APP_VARIANTS` feeds `derive_includes` to select the active variant; in-process callers pass the map as `derive_includes(app_id, variants=...)`."
 msgstr "Meno uzla pochádza z `default.env` (`INFINITO_SWARM_*_NAME`) s `SWARM_NAME` Predpona. `INFINITO_APP_VARIANTS` krmivá `derive_includes` vybrať aktívny variant; volajúci počas procesu prejdú mapu ako `derive_includes(app_id, variants=...)`."
 
+# suite.
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Node.js runtime provisioning for the JavaScript unit
@@ -39565,12 +39571,10 @@ msgstr "Jedna rola je meraná čas v rámci rozmiestňovacieho segmentu."
 msgid "One row is decided once and then read by three consumers that MUST agree on it:"
 msgstr "O jednom riadku sa rozhodne raz a potom ho prečítajú traja spotrebitelia, ktorí sa na ňom musia dohodnúť:"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: 1 riadok za ``meta/variants.yml`` variant každej úlohy
 # aplikácie.
+# translated-by: libretranslate
 msgid "One row per ``meta/variants.yml`` variant of every application role."
-msgstr ""
+msgstr "1 riadok za ``meta/variants.yml`` variant každej úlohy aplikácie."
 
 # translated-by: libretranslate
 msgid "One search-only key and explicit collection list per application; no collection/schema/key administration"
@@ -39744,13 +39748,11 @@ msgstr "Čítajú sa len tie dve polia. Zosúladenie s každým URL v role zamet
 msgid "Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally."
 msgstr "Nepriehľadné, rolovo interpretované prevádzkové zaťaženie. Linta neobmedzuje svoj vnútorný tvar nad rámec potreby mapovania. Tajomstvá vnútri `config` MUSÍ vyriešiť `lookup('config', application_id, 'secrets.credentials.<name>')` A NESMIE byť doslova zarovnaný."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Otvoriť (alebo pripomienky k) zlyhanie IS: <role>"
 # problém za úlohu, ktorého nasadenie zlyhalo, spája bežiace artefakty a
 # podnecuje rozhodujúci záchranný úryvok.
+# translated-by: libretranslate
 msgid "Open (or comment on) a 'CI failure: <role>' issue per role whose deploy failed, linking the run artifacts and inlining the decisive rescue excerpt."
-msgstr ""
+msgstr "Otvoriť (alebo pripomienky k) zlyhanie IS: <role>\" problém za úlohu, ktorého nasadenie zlyhalo, spája bežiace artefakty a podnecuje rozhodujúci záchranný úryvok."
 
 # translated-by: libretranslate
 msgid "Open **Users**, search for the user, and select them."
@@ -40037,16 +40039,14 @@ msgstr "Operátori vidlíc (INFINITO_FORK_*)."
 msgid "Operator messages MAY use the portable conversation shortcuts from the `shortcuts` skill (set up via `make install-skills`); agents MUST expand any matching shortcut before acting. The repository's own agent workflows live in the `i8-` skills catalogued in [cheatsheet.md](docs/contributing/tools/agents/cheatsheet.md)."
 msgstr "Správy operátora MÔŽU používať prenosné konverzačné skratky z `shortcuts` zručnosti (nastavenie prostredníctvom `make install-skills`); Agenti MUSÍ pred konaním rozšíriť všetky zodpovedajúce skratky. Vlastné agent pracovných tokov úložiska žiť v `i8-` zručnosti v katalógu [cheatsheet.md](docs/contributing/tools/agents/cheatsheet.md)."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-in"']
-# nocheck: url
-# translation-rejected: Fráza operátora: "alle möglichen mosty a služby Sollen
 # povolené, aktiviert und wenn möglich integriert sein incl.
 # videokonferencia"; konzervatívny predvolený udržuje prvé použitie čisté.
 # Mosty, ktoré potrebujú znak vydaný operátorom, sú zdokumentované ako
 # "opt-in" v úlohe README.
+# translated-by: libretranslate
 msgid "Operator phrasing: \"alle möglichen bridges und services sollen enabled, aktiviert und wenn möglich integriert sein incl. video conference\"; conservative default keeps first-deploy clean. Bridges that need an operator-issued token are documented as opt-in in the role README."
-msgstr ""
+msgstr "Fráza operátora: \"alle möglichen mosty a služby Sollen povolené, aktiviert und wenn möglich integriert sein incl. videokonferencia\"; konzervatívny predvolený udržuje prvé použitie čisté. Mosty, ktoré potrebujú znak vydaný operátorom, sú zdokumentované ako \"opt-in\" v úlohe README."
 
 # translated-by: libretranslate
 msgid "Operator phrasing: \"deprecated flavor soll der alte compose bleiben\"."
@@ -40592,15 +40592,13 @@ msgstr "Odchádzajúci mail z `@<node>.onion` odosielateľov nie je možné doru
 msgid "Outbound mail from ``@<node>.onion`` senders is not deliverable to the public Internet; onion does not replace public Internet email."
 msgstr "Odchádzajúci mail z ``@<node>.onion`` odosielateľov nie je možné doručiť na verejný internet; cibuľa nenahrádza verejný internetový e-mail."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Kontrola zdravotného stavu poštových zásielok sa už
 # neruší potichu na minimálnych obrazoch kontajnera: skript "srdce
 # beath-email" sa vyrovnáva s obrázkami, ktoré sa prenášajú bez binárneho mena
 # hostiteľa, a cesta k súboru SSL trust sa automaticky detekuje cez Red Hat,
 # Debian, Ubuntu, Alpine a NixOS.
+# translated-by: libretranslate
 msgid "Outbound mail health checks no longer fail silently on minimal container images: the heartbeat-email script copes with images that ship without the hostname binary, and the SSL trust file path is detected automatically across Red Hat, Debian, Ubuntu, Alpine and NixOS layouts."
-msgstr ""
+msgstr "Kontrola zdravotného stavu poštových zásielok sa už neruší potichu na minimálnych obrazoch kontajnera: skript \"srdce beath-email\" sa vyrovnáva s obrázkami, ktoré sa prenášajú bez binárneho mena hostiteľa, a cesta k súboru SSL trust sa automaticky detekuje cez Red Hat, Debian, Ubuntu, Alpine a NixOS."
 
 # translated-by: libretranslate
 msgid "Outbound mail to `.onion` recipient domains is routed through Tor's SOCKS proxy (`127.0.0.1:9050`) instead of clearnet DNS/MX — enabling onion-to-onion / federated mail without public MX/rDNS."
@@ -40962,13 +40960,11 @@ msgstr "Obsah *text* ako blok mapovanie a vrátiť ho."
 msgid "Parse GHA annotation lines from a log file and write a Markdown summary to $GITHUB_STEP_SUMMARY."
 msgstr "Spracujte anotačné riadky GHA z logového súboru a napíšte súhrn Markdown do $GITHUB_STEP_SUMMARY."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Spracovať JSON z výstupu, ktorý môže obsahovať vedúci
 # non-JSON hluk, vrátane čiar, ktoré začínajú s "[' (napr. varovania JVM ako
 # "[0.001r][Varovanie]...").
+# translated-by: libretranslate
 msgid "Parse JSON from output that may contain leading non-JSON noise, including lines that start with '[' (e.g. JVM warnings like \"[0.001s][warning]...\")."
-msgstr ""
+msgstr "Spracovať JSON z výstupu, ktorý môže obsahovať vedúci non-JSON hluk, vrátane čiar, ktoré začínajú s \"[' (napr. varovania JVM ako \"[0.001r][Varovanie]...\")."
 
 # translated-by: libretranslate
 msgid "Parse ``--set <key>=<value>`` pairs into a dict."
@@ -42366,15 +42362,13 @@ msgstr "Zásady 📋"
 msgid "Print ``<ip> <domain>`` lines for every canonical domain (plus ``www.`` redirects and the primary itself) owned by ``APP_ID`` or its transitive deps."
 msgstr "Tlač ``<ip> <domain>`` riadky pre každú kanonickú doménu (plus ``www.`` presmerovanie a samotný primárny) vo vlastníctve ``APP_ID`` alebo jeho tranzitívnymi depsami."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Vytlačiť prehľad priečinkov kategórií. H1 titulok z
 # priečinku README.md sa používa ako položka (s invokačnou dráhou zobrazenou
 # pod titulkom); keď README chýba, použije sa úpadok holej cesty vyvolania.
 # Nasleduje popisný bod README, potom index "jednoúrovňovej hĺbky" okamžitých
 # podpriečinkov a príkazov.
+# translated-by: libretranslate
 msgid "Print a category-folder overview. The H1 title from the folder's README.md is used as the heading (with the invocation path shown underneath as a dim subtitle); a fallback to the bare invocation path is used when the README is absent. The README description paragraph follows, then the one-level-deep index of immediate sub-folders and commands."
-msgstr ""
+msgstr "Vytlačiť prehľad priečinkov kategórií. H1 titulok z priečinku README.md sa používa ako položka (s invokačnou dráhou zobrazenou pod titulkom); keď README chýba, použije sa úpadok holej cesty vyvolania. Nasleduje popisný bod README, potom index \"jednoúrovňovej hĺbky\" okamžitých podpriečinkov a príkazov."
 
 # translated-by: libretranslate
 msgid "Print application roles new on this branch (absent under roles/ at a ref, default origin/main); empty when the ref is unresolvable."
@@ -42396,6 +42390,9 @@ msgstr "Vytlačte súbory a URL sledovacieho archívu Playwright drží."
 msgid "Print the group-conditional service keys, comma-separated for ``disable=``."
 msgstr "Tlačte skupinové podmienené servisné kľúče, čiarovo oddelené pre ``disable=``."
 
+# gained=['APP_IDV']
+# ``--include`` Takže výsledný inventár má každú skupinu APP_IDV čase
+# nasadenia budú potrebné tranzitívne depy.
 # translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDV']
 # nocheck: url
@@ -42481,14 +42478,12 @@ msgstr "Stránka o výrobku: `Atlassian Confluence <https://www.atlassian.com/so
 msgid "Production"
 msgstr "Výroba"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Produkcia. Úloha sa stretáva s každým `rc` Kritérium A
 # odoslalo sa aspoň v jednom vyhlásení s označením "tagged release" bez
 # pripevnenia za tepla do vlastného `tasks/`, `templates/`, alebo `files/`
 # strom.
+# translated-by: libretranslate
 msgid "Production-grade. The role meets every `rc` criterion AND has shipped in at least one tagged release without a hot-fix to its own `tasks/`, `templates/`, or `files/` tree."
-msgstr ""
+msgstr "Produkcia. Úloha sa stretáva s každým `rc` Kritérium A odoslalo sa aspoň v jednom vyhlásení s označením \"tagged release\" bez pripevnenia za tepla do vlastného `tasks/`, `templates/`, alebo `files/` strom."
 
 # translated-by: libretranslate
 msgid "Professional Setup 🔧"
@@ -42918,6 +42913,7 @@ msgstr "Verejný vstupný bod pre obnovenie hesla"
 msgid "Public reads first; no proposal, vote, moderation, identity, or assembly mutation"
 msgstr "Verejnosť číta ako prvá; žiadny návrh, hlasovanie, umiernenie, identita, alebo montáž mutácia"
 
+# comment, follow, federation, moderation, or administration mutation
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Public reads or restricted account; no upload,
@@ -43125,17 +43121,15 @@ msgstr "Pretláčanie vetvy cez manuálny návrh CI → cyklus pripravený na pr
 msgid "Pushing 🚢"
 msgstr "Tlačenie 🚢"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['plugin.yml']
-# nocheck: url
-# translation-rejected: Vložte súbor do tohto adresára iba vtedy, keď
 # správanie, ktoré vykonáva, je súčasťou bezpečnostnej alebo integračnej
 # zmluvy tejto úlohy a MUSÍ zostať v platnosti pre každú požiadavku. Každý deň
 # pluginy by mali zostať v normále `wp-content/plugins/` a riadiť
 # prostredníctvom [05 enable plugin.yml](../../tasks/05_enable_plugin.yml) aby
 # ich operátori mohli v prípade potreby vyradiť z prevádzky.
+# translated-by: libretranslate
 msgid "Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed."
-msgstr ""
+msgstr "Vložte súbor do tohto adresára iba vtedy, keď správanie, ktoré vykonáva, je súčasťou bezpečnostnej alebo integračnej zmluvy tejto úlohy a MUSÍ zostať v platnosti pre každú požiadavku. Každý deň pluginy by mali zostať v normále `wp-content/plugins/` a riadiť prostredníctvom [05 enable plugin.yml](../../tasks/05_enable_plugin.yml) aby ich operátori mohli v prípade potreby vyradiť z prevádzky."
 
 # translated-by: libretranslate
 msgid "Put back the sentence boundary a translator dropped behind a protected span."
@@ -43185,15 +43179,13 @@ msgstr "Python, YAML, shell, conf, INI, ..."
 msgid "Python-Pip"
 msgstr "Python- Pipphilippines. kgm"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"nedoplnené"']
-# nocheck: url
-# translation-rejected: Kód špecifický pre Python: jednotkatestovať dovozný
 # tvar, `PROJECT_ROOT` používanie, zákaz surového
 # `os.walk`/`Path.rglob`"nedoplnené" `read_text`, `noqa` Označovacia hygiena,
 # nadbytočné booleanské vzory a samovzájomné vyhýbanie sa.
+# translated-by: libretranslate
 msgid "Python-specific code conventions: unittest import shape, `PROJECT_ROOT` usage, ban on raw `os.walk`/`Path.rglob`/uncached `read_text`, `noqa` marker hygiene, redundant boolean patterns, and self-path-reference avoidance."
-msgstr ""
+msgstr "Kód špecifický pre Python: jednotkatestovať dovozný tvar, `PROJECT_ROOT` používanie, zákaz surového `os.walk`/`Path.rglob`\"nedoplnené\" `read_text`, `noqa` Označovacia hygiena, nadbytočné booleanské vzory a samovzájomné vyhýbanie sa."
 
 # translated-by: libretranslate
 msgid "Qdrant Docker Upgrade"
@@ -44532,13 +44524,11 @@ msgstr "Diaľkové nastavenie a podpísané tlače sú riešené [git-maintainer
 msgid "Remotes 🌐"
 msgstr "Vzdialenosti 🌐"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['networks.yml', 'ports.yml']
-# nocheck: url
-# translation-rejected: Odstrániť *ports.yml a*networks.yml podľa funkcie
 # vyhľadávania
+# translated-by: libretranslate
 msgid "Remove *_ports.yml and*_networks.yml by a lookup function"
-msgstr ""
+msgstr "Odstrániť *ports.yml a*networks.yml podľa funkcie vyhľadávania"
 
 # translated-by: libretranslate
 msgid "Remove Docker Hub registry prefix if present (backward compat)."
@@ -44616,6 +44606,7 @@ msgstr "Odstrániť úlohy MCP klienta, alebo pin ``mcp.enabled: false`` za tút
 msgid "Remove the MCP client roles, or pin ``mcp.enabled: false`` for this role. The web-service token is then not issued and the protocol plugin stays unconfigured."
 msgstr "Odstrániť úlohy MCP klienta, alebo pin ``mcp.enabled: false`` za túto úlohu. Comment."
 
+# false` za túto úlohu. Comment.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: Odstrániť úlohy MCP klienta, alebo pin `mcp.enabled:
@@ -44799,20 +44790,16 @@ msgstr "Render komplexné riadky ako počíta tabuľky, JSON, alebo holé mená 
 msgid "Render compose/coredns/Corefile from compose/coredns/Corefile.tmpl."
 msgstr "Render compose/coredns/Corefile od compose/coredns/Corefile.tmpl."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: Render 1 CHANGELOG.md položka ako Debian changelog
 # stanza.
+# translated-by: libretranslate
 msgid "Render one CHANGELOG.md entry as a Debian changelog stanza."
-msgstr ""
+msgstr "Render 1 CHANGELOG.md položka ako Debian changelog stanza."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: Render 1 CHANGELOG.md položka ako RPM ``%changelog``
 # Stanza.
+# translated-by: libretranslate
 #, no-python-format
 msgid "Render one CHANGELOG.md entry as an RPM ``%changelog`` stanza."
-msgstr ""
+msgstr "Render 1 CHANGELOG.md položka ako RPM ``%changelog`` Stanza."
 
 # translated-by: libretranslate
 msgid "Render pytest junit-xml reports as a GitHub step-summary section."
@@ -45324,12 +45311,10 @@ msgstr "Požiadavky `${INFINITO_INVENTORY_DIR}/devices.yml` a `.password`."
 msgid "Requires `INFINITO_CONTAINER` to be set to the name of the running container."
 msgstr "Požiadavky `INFINITO_CONTAINER` sa nastaví na názov jazdného kontajnera."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Požaduje platný "<scheme>://" v prvom prvku (akýkoľvek
 # RFC-3986-ish scheme)
+# translated-by: libretranslate
 msgid "Requires a valid '<scheme>://' in the first element (any RFC-3986-ish scheme)"
-msgstr ""
+msgstr "Požaduje platný \"<scheme>://\" v prvom prvku (akýkoľvek RFC-3986-ish scheme)"
 
 # translated-by: libretranslate
 msgid "Requires systemd configuration; networking differences from native Linux"
@@ -49660,11 +49645,8 @@ msgstr "Skripty by sa mali používať `command -v` alebo rovnocennému odhaľov
 msgid "Scripts for installing the Infinito self-signed Root CA into the trust stores of the developer's machine."
 msgstr "Skripty pre inštaláciu Infinito self-podpísaný Root CA do dôveryhodných obchodov vývojárovho stroja."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['content.sh', 'dostupný.sh', 'inventaria.sh', 'state.sh',
 # 'worker.sh']
-# nocheck: url
-# translation-rejected: Skripty na jeden krok: sťahovanie
 # [01bootstrap.sh](01_bootstrap.sh) - ustanovenie [02poskytnutie
 # inventaria.sh](02_provision_inventory.sh) - konvergovať
 # [03Počkaj.](03_wait_converge.sh) - dosiahnuteľnosť [04overiť
@@ -49674,8 +49656,9 @@ msgstr "Skripty pre inštaláciu Infinito self-podpísaný Root CA do dôveryhod
 # worker.sh](06_drain_worker.sh) - tvrdenie [07assert
 # state.sh](07_assert_state.sh) - čistka
 # [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh).
+# translated-by: libretranslate
 msgid "Scripts per step: bring-up [01_bootstrap.sh](01_bootstrap.sh) - provision [02_provision_inventory.sh](02_provision_inventory.sh) - converge [03_wait_converge.sh](03_wait_converge.sh) - reachability [04_verify_reachable.sh](04_verify_reachable.sh) - drill [backup/base.sh](backup/base.sh) - marker [05_seed_content.sh](05_seed_content.sh) - drain [06_drain_worker.sh](06_drain_worker.sh) - assert [07_assert_state.sh](07_assert_state.sh) - purge [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
-msgstr ""
+msgstr "Skripty na jeden krok: sťahovanie [01bootstrap.sh](01_bootstrap.sh) - ustanovenie [02poskytnutie inventaria.sh](02_provision_inventory.sh) - konvergovať [03Počkaj.](03_wait_converge.sh) - dosiahnuteľnosť [04overiť dostupný.sh](04_verify_reachable.sh) - vrták [backup/base.sh](backup/base.sh) - marker [05seed content.sh](05_seed_content.sh) - odtok [06drain worker.sh](06_drain_worker.sh) - tvrdenie [07assert state.sh](07_assert_state.sh) - čistka [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
 
 # translated-by: libretranslate
 msgid "Scripts used for local testing and setup (under `scripts/tests/` and `scripts/install/`) MUST support all five deployed distributions above and additionally MUST support:"
@@ -49969,14 +49952,12 @@ msgstr "Pozri [readme_md.md](artefact/files/role/readme_md.md) pre požiadavku, 
 msgid "See [regression.md](../../docs/contributing/actions/testing/regression.md) for the SPOT: rules on what regression guards are permitted and the preferred alternative approach."
 msgstr "Pozri [regression.md](../../docs/contributing/actions/testing/regression.md) pre SPOT: pravidlá týkajúce sa povolených regresných strážcov a uprednostňovaného alternatívneho prístupu."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['templates.py']
-# nocheck: url
-# translation-rejected: Pozri [test\
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # na implementáciu.
+# translated-by: libretranslate
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
-msgstr ""
+msgstr "Pozri [test\\ templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) na implementáciu."
 
 # translated-by: libretranslate
 msgid "See [unit.md](../../docs/contributing/actions/testing/unit.md) for the SPOT: framework, requirements, directory structure, and `make test-unit` usage."
@@ -50989,21 +50970,17 @@ msgstr "Odoslať prvý cenný prírastok čoskoro."
 msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-push` outside the sandbox. Open the pull request against `origin/main` per [pull-request.md](pull-request.md)."
 msgstr "Prepravovať pobočku: záväzok na [commit.md](commit.md), potom spustiť `git-sign-push` mimo pieskoviska. Otvorte žiadosť o vytiahnutie proti `origin/main` per [pull-request.md](pull-request.md)."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out."']
-# nocheck: url
-# translation-rejected: Lode vstavaná bočnica (``templates/service.yml.j2``)
 # pre ``shared: false`` cesta "opt-out.".
+# translated-by: libretranslate
 msgid "Ships an embedded sidecar snippet (``templates/service.yml.j2``) for the ``shared: false`` opt-out path."
-msgstr ""
+msgstr "Lode vstavaná bočnica (``templates/service.yml.j2``) pre ``shared: false`` cesta \"opt-out.\"."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out."']
-# nocheck: url
-# translation-rejected: Lode vstavaná bočnica (`templates/service.yml.j2`) pre
 # `shared: false` cesta "opt-out.".
+# translated-by: libretranslate
 msgid "Ships an embedded sidecar snippet (`templates/service.yml.j2`) for the `shared: false` opt-out path."
-msgstr ""
+msgstr "Lode vstavaná bočnica (`templates/service.yml.j2`) pre `shared: false` cesta \"opt-out.\"."
 
 # translated-by: libretranslate
 msgid "Short single-command invocations MAY stay inline when they do not contain meaningful control flow."
@@ -51885,15 +51862,13 @@ msgstr "Statická analýza a lírovanie"
 msgid "Static assets (`simpleicons`, `cdn`, `css`, `javascript`, `asset`)"
 msgstr "Statické aktíva (`simpleicons`, `cdn`, `css`, `javascript`, `asset`)"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out."']
-# nocheck: url
-# translation-rejected: Statické klasifikátory používané `required_by` lint a
 # overovateľ: úloha invokability (per categories.yml), `required_by`
 # prítomnosť v `meta/services.yml`, a `# nocheck: <id>` výnimky typu
 # "opt-out.".
+# translated-by: libretranslate
 msgid "Static classifiers used by the `required_by` lint and verifier: role invokability (per categories.yml), `required_by` presence in `meta/services.yml`, and `# nocheck: <id>` opt-outs."
-msgstr ""
+msgstr "Statické klasifikátory používané `required_by` lint a overovateľ: úloha invokability (per categories.yml), `required_by` prítomnosť v `meta/services.yml`, a `# nocheck: <id>` výnimky typu \"opt-out.\"."
 
 # translated-by: libretranslate
 msgid "Static configuration consumed by the `registry-cache` compose service and bind-mounted into the `infinito` runner."
@@ -53367,11 +53342,9 @@ msgstr "Uchádzači systému II, nezmenení touto požiadavkou"
 msgid "System Maintenance Lock"
 msgstr "Zámok údržby systému"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: Systém 1
+# translated-by: libretranslate
 msgid "System One"
-msgstr ""
+msgstr "Systém 1"
 
 # translated-by: libretranslate
 msgid "System Pull Request"
@@ -54130,14 +54103,12 @@ msgstr "To uľahčuje zistiť, či je skutočným problémom Docker, publikovan�
 msgid "That means the bundle is not where logic lives. It is where the architecture becomes a real deployment."
 msgstr "To znamená, že zväzok nie je tam, kde logika žije. Práve tam sa architektúra stáva skutočným nasadením."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Tá rúra. **ničí stav výstupu**: `make test | tee`
 # správy `tee`"úspech, aj keď koniec s `Error 2`. Musíte súdiť taký beh jeho
 # `📊 per-target wall-clock` tabuľka a jej `FAILED TARGETS:` riadok, nikdy
 # podľa východného kódu.
+# translated-by: libretranslate
 msgid "That pipe **destroys the exit status**: `make test | tee` reports `tee`'s success even when make ends with `Error 2`. You MUST judge such a run by its `📊 per-target wall-clock` table and its `FAILED TARGETS:` line, never by the exit code."
-msgstr ""
+msgstr "Tá rúra. **ničí stav výstupu**: `make test | tee` správy `tee`\"úspech, aj keď koniec s `Error 2`. Musíte súdiť taký beh jeho `📊 per-target wall-clock` tabuľka a jej `FAILED TARGETS:` riadok, nikdy podľa východného kódu."
 
 # translated-by: libretranslate
 msgid "That second step exists because a group grant addresses an Open WebUI group id and ``insert_new_group`` assigns it as a fresh UUID, so the id cannot be known while the env is rendered. The task signs in as the native administrator, resolves or creates the group whose name matches the OIDC claim value, and writes the grant through ``POST /api/v1/configs/tool_servers``. It refuses to act when two groups share a name rather than guessing between them."
@@ -55729,14 +55700,12 @@ msgstr "Celý model je strojovo čitateľný [`schema.yml`](schema.yml)."
 msgid "The complexity ``--filter`` expression for one run."
 msgstr "Zložitosť ``--filter`` výraz pre jeden beh."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Skladba chuť odvodzuje `MATRIX_BRIDGES` z povolených
 # prípon mosta" `config:` bloky; povolené/vypnuté delenie sa vykonáva
 # kombináciou variantu [`meta/variants.yml`](./meta/variants.yml). Pokrytie je
 # cez `test-bridge-roster.js`.
+# translated-by: libretranslate
 msgid "The compose flavor derives `MATRIX_BRIDGES` from the enabled bridge addons' `config:` blocks; the enabled/disabled split is exercised by the compose variant in [`meta/variants.yml`](./meta/variants.yml). Coverage is via `test-bridge-roster.js`."
-msgstr ""
+msgstr "Skladba chuť odvodzuje `MATRIX_BRIDGES` z povolených prípon mosta\" `config:` bloky; povolené/vypnuté delenie sa vykonáva kombináciou variantu [`meta/variants.yml`](./meta/variants.yml). Pokrytie je cez `test-bridge-roster.js`."
 
 # translated-by: libretranslate
 msgid "The compose flavor derives ``MATRIX_BRIDGES`` from the enabled bridge addons’ ``config:`` blocks; the enabled/disabled split is exercised by the compose variant in ```meta/variants.yml`` <./meta/variants.yml>`__. Coverage is via ``test-bridge-roster.js``."
@@ -57193,6 +57162,11 @@ msgstr "Mapa hrany je postavená raz pri spustení a udržiavaná v kroku so zá
 msgid "The effective ``API`` mapping for a render scope."
 msgstr "Účinná ``API`` Mapovanie pre vytvorenie rozsahu."
 
+# gained=['12']
+# ako navrhuje tabuľka, pretože samotný bežec plus vnorený `infinito` nádoba
+# (systemed, hniezdený Docker, Ansible) si vyhradzuje netriviálnu východiskovú
+# hodnotu. Plán zhruba **12 GB režijných nákladov** predtým, ako akákoľvek
+# úloha nasadí službu.
 # translation-refused: libretranslate protected-span lost=['1', '2']
 # gained=['12']
 # nocheck: url
@@ -57535,10 +57509,7 @@ msgstr "Rozloženie generácie patrí baudolo, čo to píše, takže názvy súb
 msgid "The generator owns only the sections it can derive from metadata:"
 msgstr "Generátor vlastní iba časti, ktoré môže odvodiť z metaúdajov:"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: Všeobecné playwright bibleer a administrátor personas
 # sú blokované cez `PERSONA_BIBER_BLOCKED=true` a
 # `PERSONA_ADMINISTRATOR_BLOCKED=true` on `templates/playwright.env.j2` (req
 # 019 Článok 11 explicitná výnimka typu "opt-out"). Bluesky's social-app je
@@ -57551,8 +57522,9 @@ msgstr "Generátor vlastní iba časti, ktoré môže odvodiť z metaúdajov:"
 # stabilný volič pre sociálne-app profil menu pristane proti prúdu, pokles
 # opt-out a nechať osoby pomocníci riadiť palubnú dosku → app → odhlásiť cestu
 # do konca.
+# translated-by: libretranslate
 msgid "The generic playwright biber and administrator personas are blocked via `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in `templates/playwright.env.j2` (req 019 Rule 11 explicit opt-out). Bluesky's social-app is a mobile-first SPA whose logout / account control sits behind a profile menu the auth-surface check cannot reach. The bespoke \"OIDC: oauth2-proxy + login-broker drop a Bluesky session into social-app via Keycloak (variant A+)\" test and its LDAP-variant counterpart in `files/playwright/playwright.spec.js` already verify both personas authenticate correctly (BSKY_STORAGE.accessJwt is present after the broker handoff). Once a stable selector for the social-app profile menu lands upstream, drop the opt-outs and let the persona helpers drive the dashboard → app → logout journey end-to-end."
-msgstr ""
+msgstr "Všeobecné playwright bibleer a administrátor personas sú blokované cez `PERSONA_BIBER_BLOCKED=true` a `PERSONA_ADMINISTRATOR_BLOCKED=true` on `templates/playwright.env.j2` (req 019 Článok 11 explicitná výnimka typu \"opt-out\"). Bluesky's social-app je mobilný-first SPA, ktorého odhlásenie / kontrolu účtu sedí za ponuky profilu auth-surface kontrola nemôže dosiahnuť. Prostredie \"OIDC: oauth2-proxy + login-broker pokles a Bluesky Zasadnutie do sociálnej aplikácie prostredníctvom Keycloak (variant A+)\" test a jeho LDAP-variantný náprotivok `files/playwright/playwright.spec.js` už overiť obe osoby ako overenie správne (BSKY_STORAGE.accessJwt je prítomný po odstúpení makléra). Akonáhle stabilný volič pre sociálne-app profil menu pristane proti prúdu, pokles opt-out a nechať osoby pomocníci riadiť palubnú dosku → app → odhlásiť cestu do konca."
 
 # translated-by: libretranslate
 msgid "The goal of this deployment is to provide a production-ready, scalable WordPress instance with multisite capabilities and enhanced performance. By automating the custom image build and configuration processes via Docker Compose and Ansible, it minimizes manual intervention, reduces errors, and allows you to concentrate on building great content."
@@ -57932,6 +57904,8 @@ msgstr "Prihlasovacie tlačidlo v UI bude čítať Infinito.Nexus (premenovaná 
 msgid "The logo must use a valid Font Awesome class string, e.g.:"
 msgstr "Logo musí používať platný reťazec triedy Font Awesome, napr.:"
 
+# gained=['data/data/nextcloud.log']
+# **/var/lib/docker/objem/nextcloud_data/ data/data/nextcloud.log**
 # translation-refused: libretranslate protected-span lost=['nextcloud.log']
 # gained=['data/data/nextcloud.log']
 # nocheck: url
@@ -58040,7 +58014,23 @@ msgstr "Zhmotnené využitie užitočného zaťaženia odhaľuje služby pod hol
 msgid "The matrix hands every row exactly one filesystem, so the value a deploy job sees is always narrow. Reading that narrowness as a demand would turn every condition the applying step is built to tolerate into a red row: a loop device it could not claim, a pool another job still holds, a kernel without the module."
 msgstr "Matica radí každý riadok presne jeden súborový systém, takže hodnota nasadenie práce vidí vždy úzky. Čítanie, že zúženie ako dopyt by premenila každú podmienku aplikačný krok je postavený tak, aby toleroval do červeného radu: slučka zariadenie, ktoré nemohol nárokovať, bazén ďalšiu prácu stále drží, jadro bez modulu."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# páry, ako sú `nextcloud`↔`openproject` nesú symbol v oboch bunkách. Vytvára
+# ho
+# [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py):
+# ☑️ okraje sú skenované z každej úlohy `meta/services.yml` (EÚ
+# `sso`/`matomo`/`prometheus`/`email`/`dashboard`/`css`/`logout`/`cdn`/`coturn`/`collabora`/`onlyoffice`/`libretranslate`
+# kľúče)a ✅/🪙 okraje pochádzajú z vytvrdeného, overeného webu `EDGES` mapa.
+# Musí sa skôr regenerovať ako ručne upravovať. V čase vzniku pokrýva 82 úlohy
+# s **523 infinitatívny (☑️) drôtové hrany plus 96 amount in units (real)
+# (✅/🪙) okraje**. ☑️ vrstva je vyčerpávajúca (je skenovaný z repo obchodu);
+# ✅/🪙 je **ešte nie je vyčerpávajúci** a rastie, pretože každá úloha je proti
+# prúdu plugin ekosystém je preskúmaná do hĺbky (napr. MediaWiki pridaný
+# hlboko ponorený `DiscourseSsoConsumer`, `PeerTubeEmbed`,
+# `MachineTranslation`→libretranslát, `Extension:AWS`→minio, a LLM
+# editor→openwebui). ✅/🪙 Set je **backlog**: každý ✅ dvojica je doplnok tejto
+# požiadavky sa zaväzuje deklarovať a drôt (pozri kritériá prijateľnosti), a
+# dokončenie per-role inground prieskumu je samo o sebe akceptačným kritériom.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Matica je **smerové** (@ info: tooltip); obojsmerné
 # páry, ako sú `nextcloud`↔`openproject` nesú symbol v oboch bunkách. Vytvára
@@ -58171,14 +58161,12 @@ msgstr "Ďalšia etapa v ropovode NESMIETE vykonať, keď predchádzajúca etapa
 msgid "The nfs-server uses the userspace `nfs-ganesha` (`ganesha`) flavor in every runtime; `services.nfs-server.flavor` in `roles/svc-storage-nfs-server/meta/services.yml` is the SPOT, and `kernel` is a per-inventory override. Ganesha is packaged for the `Debian` and `RedHat` os families only. Kernel `nfsd` in a privileged DinD node is wedge-prone: the export can be present yet the controller mount returns ENOENT, and `exportfs` can stick in D-state. If a swarm step hangs at `Reload NFS exports` from a stuck kernel-NFS mount, you MUST recover with `make swarm-clean` on the host; see the NFS gotcha in [Roundtrip Loop](roundtrip.md). You MUST NOT fall back to a compose-only sweep while swarm is blocked."
 msgstr "Nfs-server používa užívateľský priestor `nfs-ganesha` (`ganesha`) chuť v každom čase; `services.nfs-server.flavor` on `roles/svc-storage-nfs-server/meta/services.yml` je SPOT a `kernel` je na účet podniku. Ganesha je balený pre `Debian` a `RedHat` Len rodiny. Kernel `nfsd` v privilegovanom uzle DinD je klin-prone: export môže byť prítomný ešte regulátor pripojiť vráti ENOENT, a `exportfs` môže zostať v D-štáte. Ak roj krok visí na `Reload NFS exports` z pripevneného jadra-NFS, musíte obnoviť s `make swarm-clean` na hostiteľa; pozri NFS dostal vás [Roundtrip Loop](roundtrip.md). Nesmieš sa vrátiť ku kompozitívnemu zametaniu, kým je roj zablokovaný."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Nginx upground mapa, spotrebiteľ skladať prepísať a
 # klientske konfigurácie manažérov balíkov všetko vyplýva z ``cache:``
 # vyhlásenia v úlohe" `meta/networks.yml`. Žiaden z nich nie je vystopovaný;
 # tento balík ich regeneruje. Životy vykonávania `utils.cache.render`.
+# translated-by: libretranslate
 msgid "The nginx upstream map, the consumer compose override and the package managers' client configuration all follow from the ``cache:`` declarations in the roles' `meta/networks.yml`. None of them is tracked; this package regenerates them. Implementation lives in `utils.cache.render`."
-msgstr ""
+msgstr "Nginx upground mapa, spotrebiteľ skladať prepísať a klientske konfigurácie manažérov balíkov všetko vyplýva z ``cache:`` vyhlásenia v úlohe\" `meta/networks.yml`. Žiaden z nich nie je vystopovaný; tento balík ich regeneruje. Životy vykonávania `utils.cache.render`."
 
 # translated-by: libretranslate
 msgid "The nightly timers (volume 01:00, nfs 01:30, secrets 01:45, device 02:00, remote pull 00:30) run independently of every step above and never fire during a lab run."
@@ -58378,9 +58366,6 @@ msgstr "Porty pre jednotlivé kategórie sa pohybujú v rozsahu, ktorý navrhova
 msgid "The per-role complexity score, its ``dna`` cluster key and ``siblings``."
 msgstr "Per-role komplexné skóre, jeho ``dna`` kľúč klastra a ``siblings``."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Vlajky osoby sú deklarované v
 # [templates/playwright.env.j2](./templates/playwright.env.j2).
 # `administrator` je zablokovaná iba v `sso: false` varianty: ako je opísané
 # vyššie, Postmarks" jediný domorodý kredit je jediný zdieľaný `ADMIN_KEY`
@@ -58390,8 +58375,9 @@ msgstr "Per-role komplexné skóre, jeho ``dna`` kľúč klastra a ``siblings``.
 # a premostenie kontroly `X-Forwarded-Groups`, takže `biber` je odmietnutý
 # pred Postmarks sa dosiahne, a s SSO off jediný vierohodný vľavo nepatrí do
 # užívateľského účtu.
+# translated-by: libretranslate
 msgid "The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. `biber` is blocked in every variant — the oauth2-proxy admits only the application's administrator RBAC group and the bridge re-checks `X-Forwarded-Groups`, so `biber` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr ""
+msgstr "Vlajky osoby sú deklarované v [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` je zablokovaná iba v `sso: false` varianty: ako je opísané vyššie, Postmarks\" jediný domorodý kredit je jediný zdieľaný `ADMIN_KEY` formulár hesla, ktorý nie je Keycloak Správca tajne persona typy, takže bez dôveryhodné-header most nie je admin prihlásenie riadiť. `biber` je zablokovaný v každej variante2-proxy priznáva iba administrátor RBAC skupiny a premostenie kontroly `X-Forwarded-Groups`, takže `biber` je odmietnutý pred Postmarks sa dosiahne, a s SSO off jediný vierohodný vľavo nepatrí do užívateľského účtu."
 
 # translated-by: libretranslate
 msgid "The persona flags are declared in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` is blocked only in the ``sso: false`` variants: as described above, Postmarks’ sole native credential is the single shared ``ADMIN_KEY`` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. ``biber`` is blocked in every variant — the oauth2-proxy admits only the application’s administrator RBAC group and the bridge re-checks ``X-Forwarded-Groups``, so ``biber`` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
@@ -58433,16 +58419,14 @@ msgstr "Špendlíky sú čítané ``utils/install/lint/pinned.py``, ktorý každ
 msgid "The pins are read by `utils/install/lint/pinned.py`, which every lint installer calls:"
 msgstr "Špendlíky sú čítané `utils/install/lint/pinned.py`, ktorý každý inštalátor Lint volá:"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['ops.yml']
-# nocheck: url
-# translation-rejected: Plynovod sa používa [06plugin.yml](../06_plugin.yml),
 # ktorý zase beží raz za iteráciu `NEXTCLOUD_PLUGIN_ITEMS` slučka [02manager
 # ops.yml](../../02_manager_ops.yml). Premenná slučka `plugin_item` je
 # rozbalený do `plugin_key` (názov aplikácie OCC) a `plugin_value` (jeho meta
 # zápis).
+# translated-by: libretranslate
 msgid "The pipeline is invoked from [06_plugin.yml](../06_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml). The loop variable `plugin_item` is unpacked into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry)."
-msgstr ""
+msgstr "Plynovod sa používa [06plugin.yml](../06_plugin.yml), ktorý zase beží raz za iteráciu `NEXTCLOUD_PLUGIN_ITEMS` slučka [02manager ops.yml](../../02_manager_ops.yml). Premenná slučka `plugin_item` je rozbalený do `plugin_key` (názov aplikácie OCC) a `plugin_value` (jeho meta zápis)."
 
 # translated-by: libretranslate
 msgid "The pipeline owns three responsibilities for one Nextcloud plugin (app):"
@@ -58460,15 +58444,13 @@ msgstr "Plain image tag sa stáva zoznamom manifestov. Čokoľvek, čo kontroluj
 msgid "The plain-scalar rule is deliberately narrower than YAML's: a plain scalar must start with a letter, an underscore or a slash, and may then carry only ``[A-Za-z0-9_./+@:-]`` and spaces. That excludes every leading character PyYAML's implicit resolvers key off, so no accepted plain scalar can come back as an int, float, bool, timestamp or null."
 msgstr "Pravidlo plain-scalar je zámerne užšie ako YAML je: obyčajný skalár musí začať s písmenom, podčiarknutie alebo lomka, a potom môže niesť len ``[A-Za-z0-9_./+@:-]`` a priestormi. To vylučuje každú hlavnú postavu PyYAML implicitné riešiče kľúč off, takže žiadny akceptovaný obyčajný skalár môže vrátiť ako int, plávať, bool, časová pečiatka alebo null."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: Plán vedie ten istý plynovod, cez ktorý sa objavujú
 # pracovné miesta (``cli.meta.ci.matrix``), takže to, čo tabuľka ukazuje a čo
 # CI nasadzuje sa nemôže líšiť. 1 riadok za ``role#variant`` kandidát v
 # globálnom dotazovom poradí, s blokom, do ktorého spadne a sekery, do ktorých
 # bol pridelený.
+# translated-by: libretranslate
 msgid "The plan runs the same pipeline the deploy jobs discover through (``cli.meta.ci.matrix``), so what the table shows and what CI deploys cannot diverge. One row per ``role#variant`` candidate in global query order, with the chunk it falls into and the axes it was assigned."
-msgstr ""
+msgstr "Plán vedie ten istý plynovod, cez ktorý sa objavujú pracovné miesta (``cli.meta.ci.matrix``), takže to, čo tabuľka ukazuje a čo CI nasadzuje sa nemôže líšiť. 1 riadok za ``role#variant`` kandidát v globálnom dotazovom poradí, s blokom, do ktorého spadne a sekery, do ktorých bol pridelený."
 
 # translated-by: libretranslate
 msgid "The platform already reserves a user key per role, so `hermes` and `openclaw` existed as accounts, non-privileged and each with its own mailbox, before either role claimed one. Claiming the key is what turns a reservation into an identity the agent may authenticate as, and gives the account its description."
@@ -59922,10 +59904,7 @@ msgstr "Spoločné ``biber`` a ``administrator`` persona pomocníci sú vyhláse
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. The role provisions no pretix account at all — `tasks/main.yml <./tasks/main.yml>`__ only deploys the stack — while pretix’s native auth backend authenticates a pretix ``User`` row that is created by the interactive first-run setup. The ``pretix-oidc`` backend added on top lives on pretix’s ``/control`` login page, whereas the role’s base URL serves the public ticket shop that the baseline scenarios in `files/playwright/playwright.spec.js <./files/playwright/playwright.spec.js>`__ assert. Seeding a backend user is the path back to a runnable persona journey."
 msgstr "Spoločné ``biber`` a ``administrator`` persona pomocníci sú vyhlásené za blokované `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Ustanovenia o úlohe bez predchádzajúceho účtu `tasks/main.yml <./tasks/main.yml>`__ iba nasadzuje stack ``User`` riadok, ktorý je vytvorený interaktívnym first-run nastavenie. EÚ ``pretix-oidc`` backend pridaný na vrchole životov na pretix ``/control`` Prihlasovacia stránka, zatiaľ čo role a základné URL slúži verejnej predajni vstupeniek, že základné scenáre v `files/playwright/playwright.spec.js <./files/playwright/playwright.spec.js>`__ presadiť. Seeding a backend user is the way back to a runnable persona way."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: Spoločné ``biber`` a ``administrator`` osobnostná
 # cesta je vybraná cez ``PERSONA_BIBER_BLOCKED`` /
 # ``PERSONA_ADMINISTRATOR_BLOCKED`` on ``templates/playwright.env.j2``.
 # Akonáhle je zdroj IAM pripojený, role sady
@@ -59935,8 +59914,9 @@ msgstr "Spoločné ``biber`` a ``administrator`` persona pomocníci sú vyhláse
 # väzby Gitea účet je odrazený späť do ``/user/login``. Platnosť výnimky typu
 # "opt-out" sa skončí po zavedení ustanovení (alebo automatické odkazy) Gitea
 # zodpovedá za totožnosť osoby.
+# translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. As soon as an IAM source is wired, the role sets ``GITEA__service__DISABLE_REGISTRATION`` (``templates/env.j2``, driven by ``GITEA_IAM_ENABLED`` in ``vars/main.yml``), and ``tasks/setup/oidc.yml`` registers only the auth source — never a Gitea user — so a Keycloak identity without a pre-linked Gitea account is bounced back to ``/user/login``. The opt-out lapses once the deploy provisions (or auto-links) Gitea accounts for the persona identities."
-msgstr ""
+msgstr "Spoločné ``biber`` a ``administrator`` osobnostná cesta je vybraná cez ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` on ``templates/playwright.env.j2``. Akonáhle je zdroj IAM pripojený, role sady ``GITEA__service__DISABLE_REGISTRATION`` (``templates/env.j2``, poháňané ``GITEA_IAM_ENABLED`` on ``vars/main.yml``), a ``tasks/setup/oidc.yml`` Zaregistruje len auth zdroj Gitea Užívateľ Keycloak totožnosť bez predbežnej väzby Gitea účet je odrazený späť do ``/user/login``. Platnosť výnimky typu \"opt-out\" sa skončí po zavedení ustanovení (alebo automatické odkazy) Gitea zodpovedá za totožnosť osoby."
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Fider’s SSO entry is a two-step modal: the header “Sign in” button only opens the provider dialog, and a second click on “Continue with … SSO” performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role’s own ``fider: admin sso login`` and ``fider: biber sso login as regular user`` scenarios in ``files/playwright/playwright.spec.js``; the opt-out lapses once the shared helper learns Fider’s modal."
@@ -59975,9 +59955,6 @@ msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené 
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo renders its SSO provider link only on `/web/login` inside the `.o_login_auth` container, not on the site root the persona helper starts from, and it exposes no in-app logout control — signing out means navigating to `/web/session/logout`. The full Keycloak round trip for both users is covered by the role's own `odoo: admin sso login, verify ui, logout` and `odoo: biber sso login, verify ui, logout` scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js)."
 msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené za blokované [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo robí svojho poskytovateľa SSO odkaz len na `/web/login` vo vnútri `.o_login_auth` kontajner, nie je na mieste koreň persona pomocník začína od, a to odhalí žiadne in-apple odhlásenie `/web/session/logout`. Úplne. Keycloak okružná cesta pre oboch užívateľov je pokrytá vlastnou úlohou `odoo: admin sso login, verify ui, logout` a `odoo: biber sso login, verify ui, logout` scenáre [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js)."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Spoločné `biber` a `administrator` persona pomocníci
 # sú vyhlásené za blokované
 # [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web
 # odpovede Playwright je bezhlavý Chromium užívateľský agent s "prehliadač
@@ -59989,16 +59966,14 @@ msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené 
 # [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js),
 # čo robí, že priming v
 # [files/playwright/_shared.js](./files/playwright/_shared.js).
+# translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web answers Playwright's headless Chromium user agent with a \"browser not supported\" splash unless `forceAllowOldBrowser` is seeded into `localStorage` before the first navigation, and its OIDC callback runs through OpenCloud's own `/oidc-callback` → `/web-oidc-callback` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas' Keycloak round trip is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), which does that priming in [files/playwright/_shared.js](./files/playwright/_shared.js)."
-msgstr ""
+msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené za blokované [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web odpovede Playwright je bezhlavý Chromium užívateľský agent s \"prehliadač nepodporovaný\" splash, pokiaľ `forceAllowOldBrowser` je zasadený do `localStorage` pred prvou navigáciou, a jeho OIDC callback beží cez OpenCloud's vlastnou `/oidc-callback` → `/web-oidc-callback` cesty namiesto oautu2-Proxy vzor zdieľaný pomocník detekuje. Obe osoby\" Keycloak spiatočná cesta je pokrytá [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), čo robí, že priming v [files/playwright/_shared.js](./files/playwright/_shared.js)."
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Pixelfed's login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed's first-time OIDC registration cannot mint it either. `biber` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed's `dns,spoof` validator rejects `.example` addresses. Both setups live in [files/playwright/_shared.js](./files/playwright/_shared.js) and drive the dedicated login specs in `files/playwright/`."
 msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené za blokované [templates/playwright.env.j2](./templates/playwright.env.j2). Pixelfed login ID je účet e-mail, skôr než Keycloak Užívateľské meno a meno administrátora je rezervované, takže registrácia OIDC pri prvom predaji pixelfedu si to nemôže dovoliť. `biber` navyše potrebuje jeho Keycloak e-mailom prepísaným na doménu riešiteľná prostredníctvom Keycloak admin API pred prvým OIDC login, pretože pixelfed je `dns,spoof` Validačné odmietnutie `.example` adresy. Obe nastavenia žijú [files/playwright/_shared.js](./files/playwright/_shared.js) a riadiť špecializované prihlasovacie špecifikácie v `files/playwright/`."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Spoločné `biber` a `administrator` persona pomocníci
 # sú vyhlásené za blokované
 # [templates/playwright.env.j2](./templates/playwright.env.j2). OpenTalk
 # frontend je verejno-klient OIDC jednostránková aplikácia `LOGIN_*` /
@@ -60006,17 +59981,15 @@ msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené 
 # prehliadač-strana relácie opustí zmluvu in-app odhlásiť nohu bez cieľa. Obe
 # osoby" Keycloak → palubná reťaz je pokrytá
 # [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js).
+# translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). The OpenTalk frontend is a public-client OIDC single-page app — the container env carries nothing but the issuer and the client id, there is no server-side session and no HTML login form — so the role drives it with its own redirect-racing helper keyed on `LOGIN_*` / `BIBER_*` instead of the `ADMIN_*` pair the shared helper expects, and the browser-side session leaves the contract's in-app logout leg without a target. Both personas' Keycloak → dashboard chain is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js)."
-msgstr ""
+msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené za blokované [templates/playwright.env.j2](./templates/playwright.env.j2). OpenTalk frontend je verejno-klient OIDC jednostránková aplikácia `LOGIN_*` / `BIBER_*` namiesto `ADMIN_*` spárovať zdieľaný pomocník očakáva, a prehliadač-strana relácie opustí zmluvu in-app odhlásiť nohu bez cieľa. Obe osoby\" Keycloak → palubná reťaz je pokrytá [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js)."
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). The role provisions no pretix account at all — [tasks/main.yml](./tasks/main.yml) only deploys the stack — while pretix's native auth backend authenticates a pretix `User` row that is created by the interactive first-run setup. The `pretix-oidc` backend added on top lives on pretix's `/control` login page, whereas the role's base URL serves the public ticket shop that the baseline scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js) assert. Seeding a backend user is the path back to a runnable persona journey."
 msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené za blokované [templates/playwright.env.j2](./templates/playwright.env.j2). Ustanovenia o úlohe bez predchádzajúceho účtu [tasks/main.yml](./tasks/main.yml) iba rozmiestňuje stack `User` riadok, ktorý je vytvorený interaktívnym first-run nastavenie. EÚ `pretix-oidc` backend pridaný na vrchole životov na Pretix's `/control` Prihlasovacia stránka, zatiaľ čo základná URL role slúži verejnej predajni vstupeniek, že základné scenáre v [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js) presadiť. Seeding a backend user is the way back to a runnable persona way."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: Spoločné `biber` a `administrator` osobnostná cesta je
 # vybraná cez `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` on
 # `templates/playwright.env.j2`. Akonáhle je zdroj IAM pripojený, role sady
 # `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, poháňané
@@ -60025,8 +59998,9 @@ msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené 
 # väzby Gitea účet je odrazený späť do `/user/login`. Platnosť výnimky typu
 # "opt-out" sa skončí po zavedení ustanovení (alebo automatické odkazy) Gitea
 # zodpovedá za totožnosť osoby.
+# translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. As soon as an IAM source is wired, the role sets `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, driven by `GITEA_IAM_ENABLED` in `vars/main.yml`), and `tasks/setup/oidc.yml` registers only the auth source — never a Gitea user — so a Keycloak identity without a pre-linked Gitea account is bounced back to `/user/login`. The opt-out lapses once the deploy provisions (or auto-links) Gitea accounts for the persona identities."
-msgstr ""
+msgstr "Spoločné `biber` a `administrator` osobnostná cesta je vybraná cez `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` on `templates/playwright.env.j2`. Akonáhle je zdroj IAM pripojený, role sady `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, poháňané `GITEA_IAM_ENABLED` on `vars/main.yml`), a `tasks/setup/oidc.yml` Zaregistruje len auth zdroj Gitea Užívateľ Keycloak totožnosť bez predbežnej väzby Gitea účet je odrazený späť do `/user/login`. Platnosť výnimky typu \"opt-out\" sa skončí po zavedení ustanovení (alebo automatické odkazy) Gitea zodpovedá za totožnosť osoby."
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Fider's SSO entry is a two-step modal: the header \"Sign in\" button only opens the provider dialog, and a second click on \"Continue with … SSO\" performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role's own `fider: admin sso login` and `fider: biber sso login as regular user` scenarios in `files/playwright/playwright.spec.js`; the opt-out lapses once the shared helper learns Fider's modal."
@@ -60374,6 +60348,48 @@ msgstr "Uzol najvyššej úrovne musí byť zoznam YAML. Root non-list je tvrdá
 msgid "The trade-off is that `deny` now carries the full weight of \"what the agent must never do from the shell\". New destructive patterns MUST be added to `deny`. They can no longer be caught implicitly by an absent `allow` entry."
 msgstr "Vymeniť je, že `deny` teraz nesie plnú váhu \"čo agent nesmie nikdy urobiť z ulity\". Nové deštruktívne vzory musia byť pridané do `deny`. Už ich nemôže implicitne chytiť neprítomná `allow` vstup."
 
+# gained=['alpha/beta/pre/...']
+# počet) sú zatvorenie BFS obmedzené ``max_level``; ``*_direct`` polia sú vždy
+# susedia na jednom mieste. ``weight`` je súčet štyroch číselných stĺpcov.
+# ``dna`` je hašišom vlastného mena úlohy, ktorý je spojený s jej vstavanými
+# službami (triedené), takže dve úlohy vzťahujúce sa na rovnakú sadu služieb
+# zdieľajú DNA. ``siblings`` sú ďalšie úlohy, ktoré zdieľajú DNA; ``clone`` je
+# pravda pre každý rad DNA skupiny okrem najťažšie jeden (kravaty zlomené
+# podľa názvu), takže triedenie klonov posledný drží jedného zástupcu na
+# službu nastavenej pred znížením rozpočtu. ``random`` je jeden riadok
+# 6-ciferné nonce, valcované čerstvé pre invokáciu, takže poradie viazania
+# zámerne líši medzi behmi. ``variant`` je ``meta/variants.yml`` index tento
+# riadok bol vypočítaný proti, alebo ``None`` za celý rad. ``id`` a
+# ``covered_by`` sú nastavené CLI po triedení: ``id`` je numerická pozícia
+# riadku v triede (1- na báze)a ``covered_by`` je ``id`` prvého (zelená)
+# riadok odlišnej úlohy, ktorá vloží tento riadok, alebo sentinel ``0`` keď je
+# tento riadok sám o sebe zelený (žiadny skutočný ``id`` ci 0)Dva varianty
+# rovnakej úlohy sa nikdy nepokryjú. ``row`` je 1- na základe číslo linky v
+# konečnom vydanom výstupe (priradené ako posledné po filtrovaní), takže
+# zostáva sekvenčné aj pri triedení ``covered_by`` scramble ``id``.
+# ``variants`` je počet ``meta/variants.yml`` varianty úlohy v režime plnej
+# prevádzky; ``--variant`` každý riadok už je jedným variantom, takže je
+# ``1``. ``lifecycle`` je úloha ``meta/services.yml`` fáza životného cyklu
+# (alpha/beta/pre/...). ``compose`` / ``swarm`` sú pravdivé, keď CI
+# test-deploy matrix cvičí úlohu v tomto režime, ctiť objav preskočiť logiku:
+# invokable + životný cyklus v skúšanej obálke + rola je ``skip`` zoznam. Pod
+# ``--variant`` ``swarm`` je pervariantná (Každý variant nasadzuje, takže
+# sleduje úroveň úlohy. ``swarm`` a ``stack``). ``stack`` je pravda, keď rola
+# robí svoje vlastné zásobníky (lode a ``templates/*compose*.yml.j2``); úlohy
+# iba pre hostiteľov (záloha, wireguard, swapfile) a čisto servisné injektory
+# sú falošné. ``swarm`` znamená ``stack``: rola bez kompozície vlastnej
+# šablóny nikdy roj stack-deploy cieľ, takže ``swarm`` je nútený nesprávne,
+# keď ``stack`` To nie je pravda. ``host`` odráža primárny subjekt
+# ``modes.host.enabled`` vlajka (štandardná pravda) pre non-stack role, a je
+# nútený False pre stack role: to znamená invokable role, ktoré konfigurujú
+# hostiteľa namiesto odosielania zásobníka. ``test_compose`` / ``test_swarm``
+# / ``test_host`` duplikovať stĺpce módu mínus rola ``meta/tests.yml``
+# ``skip`` zoznam: ``modes`` uvádza úlohu RUNS, ``skip`` deaktivuje testovanie
+# režimu a CI vyhľadávacie filtre na týchto ``test_*`` stĺpce. ``integrated``
+# je nesprávne, ak mapa priamej služby riadku neumožňuje zahraničnému
+# poskytovateľovi (úloha rozmiestňuje izolované): podľa variantu na
+# variantných radoch, zo základne ``meta/services.yml`` v radoch plných
+# kolies.
 # translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['alpha/beta/pre/...']
 # nocheck: url
@@ -60662,14 +60678,12 @@ msgstr "Tam sú známe obavy o bezpečnosť s Fetchmail, ako je uvedené v [Neme
 msgid "There are no implicit security defaults: every field below is required for an enabled adapter surface, and a missing value fails lint or deployment."
 msgstr "Neexistujú žiadne implicitné bezpečnostné defaulty: každé pole nižšie je potrebné pre zapnutý povrch adaptéra a chýbajúca hodnota zlyhá."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: Neexistuje teda žiadna auth reťaz pre osoby pomocníkov
 # riadiť a žiadny admin povrch, ktorý by nárokovať proti. Výnimka typu
 # "opt-out" je trvalá, nie rozvinutá medzera.
+# translated-by: libretranslate
 msgid "There is consequently no auth chain for the persona helpers to drive and no admin surface to assert against. The opt-out is permanent, not a rollout gap."
-msgstr ""
+msgstr "Neexistuje teda žiadna auth reťaz pre osoby pomocníkov riadiť a žiadny admin povrch, ktorý by nárokovať proti. Výnimka typu \"opt-out\" je trvalá, nie rozvinutá medzera."
 
 # translated-by: libretranslate
 msgid "There is no standalone `make` target for Playwright. Tests run as part of local deploy flows (e.g. `make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true`). For spec-only iteration after the first successful deploy, see [Playwright Spec Loop](../../../agents/action/iteration/playwright.md)."
@@ -60767,6 +60781,13 @@ msgstr "Tieto pravidlá zachovávajú spoločné hodnoty úloh explicitné, opak
 msgid "These scripts are the SPOT for repository identity resolution."
 msgstr "Tieto skripty sú SPOT pre rozlíšenie identity úložiska."
 
+# gained=['"Štítok"']
+# rozsahu PR, validáciu vetvy-predfixu a rozlíšenie vidlicového spojenia-ref.
+# EÚ `🧩 Subset` PR-body parser značky žije v `cli.meta.ci.subset_roles` modul;
+# odosielateľ
+# [pr_affected_roles.sh](../../../github/resolve/pr_affected_roles.sh) vyberá
+# medzi ním a rozdeľovačom diff. Pozri "Štítok" v
+# [pipeline.md](../../../../docs/contributing/artefact/git/pipeline.md).
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Štítok"']
 # nocheck: url
@@ -61321,12 +61342,10 @@ msgstr "Tým sa zabráni nesúladu ABI a SONAME pri valení alebo menej často r
 msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path bugs."
 msgstr "To zabráni krehkým rodičom[N] predpoklady a úpravy \"cli/cli/...\" Chrobáky."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: To zabraňuje krehkej štruktúre cesty súboru a opravy
 # "cli/cli/..." problémy.
+# translated-by: libretranslate
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
-msgstr ""
+msgstr "To zabraňuje krehkej štruktúre cesty súboru a opravy \"cli/cli/...\" problémy."
 
 # translated-by: libretranslate
 msgid "This behavior is controlled via:"
@@ -62002,6 +62021,7 @@ msgstr "Toto hlavné vydanie migruje každú úlohu do novej meta/ usporiadanie 
 msgid "This makes Home Assistant a natural [025](025-mcp-role-integration.md) **MCP server role** and the concrete backend for the isolated-home-assistant scenario in [032](032-agent-employees-firecracker.md): the agent stays kernel-isolated and reaches the home only through this MCP surface, never through host access. Home Assistant runs natively on `arm64`/Raspberry Pi, so it co-locates with the Pi agent story."
 msgstr "To robí Home Assistant prírodná [025](025-mcp-role-integration.md) **Úloha servera MCP** a betónový backend pre izolovaný-domáci-asistent scenár v [032](032-agent-employees-firecracker.md): agent zostane jadra-izolovaný a dostane domov len cez tento MCP povrch, nikdy cez prístup k hostiteľovi. Home Asistent beží natívne na `arm64`/Raspberry Pi, takže to spolu s Pi agentom príbeh."
 
+# Mailu alebo miestny prenos.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: To robí ``sys-svc-mail`` Kanonický vstupný bod pre
@@ -62009,6 +62029,7 @@ msgstr "To robí Home Assistant prírodná [025](025-mcp-role-integration.md) **
 msgid "This makes ``sys-svc-mail`` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
 msgstr ""
 
+# alebo miestny prenos.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: To robí `sys-svc-mail` Kanonický vstupný bod pre Mailu
@@ -62524,6 +62545,11 @@ msgstr "Táto rola topánkytraps a riadi Docker Swarm klaster cez hostiteľov v 
 msgid "This role bootstraps and manages a Docker Swarm cluster across the hosts in the Ansible group `svc-swarm-node`. The manager is the single host in `svc-swarm-manager`; every other group member joins as a worker. Membership is expressed via group membership only, never via duplicated lists in `group_vars`. Inventory node labels are pushed to the cluster after the join phase."
 msgstr "Táto rola topánkytraps a riadi Docker Swarm klaster cez hostiteľov v Ansible skupine `svc-swarm-node`. Manažér je jediný hostiteľ v `svc-swarm-manager`; každý iný člen skupiny sa pripája ako pracovník. Členstvo je vyjadrené len prostredníctvom členstva v skupine, nikdy prostredníctvom duplicitných zoznamov v `group_vars`. Nálepky inventárov sa po spojeniu tlačia do klastra."
 
+# gained=['"vlastník"']
+# obrazu, prepojí ho na štandardné reverzné proxy, a pretrváva jeho SQLite
+# dáta. Poštové známky sú single-user: neexistujú žiadne účty, iba "vlastník".
+# Prihlásenie proti prúdu je jediný zdieľaný tajný formulár, ktorý prevráti
+# jednu reláciu boolean (`req.session.loggedIn`).
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"vlastník"']
 # nocheck: url
@@ -62855,27 +62881,23 @@ msgstr "Táto úloha nasadzuje Jenkins o Docker Compose. To stavia zvyk Jenkins 
 msgid "This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image that pre-installs the `oic-auth`, `ldap`, `role-strategy`, and `configuration-as-code` plugins, then mounts a JCasC YAML file that wires the security realm against Keycloak (variant 0, OIDC) or `svc-db-openldap` (variant 1, LDAP). The setup wizard is skipped via `JAVA_OPTS=-Djenkins.install.runSetupWizard=false` so the JCasC config takes over from first boot."
 msgstr "Táto úloha nasadzuje Jenkins o Docker Compose. To stavia zvyk Jenkins obraz, ktorý predinštaluje `oic-auth`, `ldap`, `role-strategy`, a `configuration-as-code` pluginy, potom pripojí JCasC YAML súbor, ktorý prepojí bezpečnostné ríše proti Keycloak (variant 0, OIDC) alebo `svc-db-openldap` (variant 1, LDAP). Sprievodca nastavením je preskočený cez `JAVA_OPTS=-Djenkins.install.runSetupWizard=false` Takže sa JCasC zmocní prvej čižmy."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['3', '4']
-# nocheck: url
-# translation-rejected: Táto úloha nasadzuje Joomla o Docker Compose. To
 # stavia zvyk Joomla obraz, ktorý pečie v skladate3⁄4ovi pre príponu runtime
 # buduje, spustí Joomla Inštalátor CLI s databázou rolí a inštaluje in-role
 # `plg_system_keycloak` plugin tak stránky hovorí OIDC proti Keycloak s
 # mapovaním skupiny RBAC. Matice-deploy variant prevráti úlohu LDAP cez
 # Joomla's jadrom LDAP autentifikačný modul miesto.
+# translated-by: libretranslate
 msgid "This role deploys Joomla on Docker Compose. It builds a custom Joomla image that bakes in Composer for runtime extension builds, runs the Joomla CLI installer with the role's database, and installs the in-role `plg_system_keycloak` plugin so the site speaks OIDC against Keycloak with RBAC group mapping. A matrix-deploy variant flips the role to LDAP via Joomla's core LDAP authentication plugin instead."
-msgstr ""
+msgstr "Táto úloha nasadzuje Joomla o Docker Compose. To stavia zvyk Joomla obraz, ktorý pečie v skladate3⁄4ovi pre príponu runtime buduje, spustí Joomla Inštalátor CLI s databázou rolí a inštaluje in-role `plg_system_keycloak` plugin tak stránky hovorí OIDC proti Keycloak s mapovaním skupiny RBAC. Matice-deploy variant prevráti úlohu LDAP cez Joomla's jadrom LDAP autentifikačný modul miesto."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['3', '4']
-# nocheck: url
-# translation-rejected: Táto úloha nasadzuje Joomla o Docker Compose. To
 # stavia zvyk Joomla obraz, ktorý pečie v skladate3⁄4ovi pre príponu runtime
 # buduje, spustí Joomla Inštalátor CLI s databázou role a inštaluje in-role
 # ``plg_system_keycloak`` plugin tak stránky hovorí OIDC proti Keycloak s
 # mapovaním skupiny RBAC. Matice-deploy variant prevráti úlohu LDAP cez
 # JoomlaJadro LDAP autentifikácie plugin miesto.
+# translated-by: libretranslate
 msgid "This role deploys Joomla on Docker Compose. It builds a custom Joomla image that bakes in Composer for runtime extension builds, runs the Joomla CLI installer with the role’s database, and installs the in-role ``plg_system_keycloak`` plugin so the site speaks OIDC against Keycloak with RBAC group mapping. A matrix-deploy variant flips the role to LDAP via Joomla’s core LDAP authentication plugin instead."
-msgstr ""
+msgstr "Táto úloha nasadzuje Joomla o Docker Compose. To stavia zvyk Joomla obraz, ktorý pečie v skladate3⁄4ovi pre príponu runtime buduje, spustí Joomla Inštalátor CLI s databázou role a inštaluje in-role ``plg_system_keycloak`` plugin tak stránky hovorí OIDC proti Keycloak s mapovaním skupiny RBAC. Matice-deploy variant prevráti úlohu LDAP cez JoomlaJadro LDAP autentifikácie plugin miesto."
 
 # translated-by: libretranslate
 msgid "This role deploys KIX as an Infinito.Nexus web app behind the project's standard `sys-stk-front-proxy` and `web-app-keycloak`'s SSO-proxy sidecar chain. The upstream `kix-on-premise` proxy, backend, and frontend containers ship from `docker-registry.kixdesk.com/public/`. The backend initialises its schema (`scripts/database/kix-schema.xml`) against the central `svc-db-postgres` cluster, or against the embedded postgres sidecar when no central provider is in the inventory, with `pg_trgm` pre-activated via `services.postgres.extensions`; the cache is the role-local passwordless redis sidecar (the frontend ignores `REDIS_CACHE_PASSWORD`). Initial admin credentials are seeded via `INITIAL_ADMIN_PW` on first start (see `meta/secrets.yml`)."
@@ -63025,9 +63047,6 @@ msgstr "Táto úloha rozmiestňuje samohostiteľa Bluesky unit description in li
 msgid "This role deploys a self-hosted Bluesky stack on Docker Compose. It runs the official PDS container as the user-data layer, builds the upstream ``@bluesky-social/social-app`` web client as the user-facing UI, and adds an in-role login-broker sidecar that gates the web client through Keycloak via ``web-app-keycloak``\\ ’s SSO-proxy sidecar. The broker auto-provisions PDS accounts for incoming OIDC users, holds the synthesised app-password AES-256-GCM-encrypted in a process-local cache, and drops a usable PDS session into the social-app’s local storage so end users never see the synthesised credential."
 msgstr "Táto úloha rozmiestňuje samohostiteľa Bluesky unit description in lists Docker Compose. Vedie oficiálny PDS kontajner ako vrstva dát užívateľa, stavia proti prúdu ``@bluesky-social/social-app`` web klient ako užívateľsky orientované UI, a pridáva in-role login-broker sidecar, ktorý brány webového klienta cez Keycloak via ``web-app-keycloak``SSO-proxy sidecar. Sprostredkovateľ auto-poskytuje PDS účty pre prichádzajúcich užívateľov OIDC, drží syntézu AES App-heslo-256-GCM-šifrované v proces-lokálnej vyrovnávacej pamäte, a kvapky použiteľné PDS sedenie do sociálneho-apps a lokálne úložisko, takže koncoví užívatelia nikdy vidieť syntézu vierohodné."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Táto úloha rozmiestňuje Nginx vhost za štandardné
 # reverzné proxy projektu a odhaľuje kanonické `mirror` služby tak, aby
 # ostatné úlohy môžu využívať prostredníctvom `services.mirror`. Vhost
 # proxiuje vopred stanovené požiadavky na trasu (`/<origin-host>/<path>`)
@@ -63036,8 +63055,9 @@ msgstr "Táto úloha rozmiestňuje samohostiteľa Bluesky unit description in li
 # Keď aplikácia umožňuje `mirror` služba, zdieľaný telový filter prepíše
 # externé URL aktív vo svojich odpovediach HTML na zrkadlovú doménu a CSP
 # staviteľ umožňuje zrkadlový pôvod v smerniciach o aktívach.
+# translated-by: libretranslate
 msgid "This role deploys an Nginx vhost behind the project's standard reverse proxy and exposes the canonical `mirror` service so that other roles can consume it through `services.mirror`. The vhost proxies path-prefixed requests (`/<origin-host>/<path>`) to exactly the external origins aggregated from all deployed applications' `server.csp.whitelist` declarations; every other upstream is refused. When an application enables the `mirror` service, the shared body filter rewrites the external asset URLs in its HTML responses to the mirror domain, and the CSP builder allows the mirror origin in the asset directives."
-msgstr ""
+msgstr "Táto úloha rozmiestňuje Nginx vhost za štandardné reverzné proxy projektu a odhaľuje kanonické `mirror` služby tak, aby ostatné úlohy môžu využívať prostredníctvom `services.mirror`. Vhost proxiuje vopred stanovené požiadavky na trasu (`/<origin-host>/<path>`) presne externý pôvod agregovaný zo všetkých nasadených aplikácií\" `server.csp.whitelist` vyhlásenia; všetky ostatné proti prúdu sú odmietnuté. Keď aplikácia umožňuje `mirror` služba, zdieľaný telový filter prepíše externé URL aktív vo svojich odpovediach HTML na zrkadlovú doménu a CSP staviteľ umožňuje zrkadlový pôvod v smerniciach o aktívach."
 
 # translated-by: libretranslate
 msgid "This role deploys an Nginx vhost behind the project’s standard reverse proxy and exposes the canonical ``mirror`` service so that other roles can consume it through ``services.mirror``. The vhost proxies path-prefixed requests (``/<origin-host>/<path>``) to exactly the external origins aggregated from all deployed applications’ ``server.csp.whitelist`` declarations; every other upstream is refused. When an application enables the ``mirror`` service, the shared body filter rewrites the external asset URLs in its HTML responses to the mirror domain, and the CSP builder allows the mirror origin in the asset directives."
@@ -64224,6 +64244,17 @@ msgstr "Úlohy"
 msgid "Today every Infinito.Nexus deploy runs `docker compose` against a single host with volumes on the local filesystem. If a service is rescheduled to another host (maintenance, scaling, node failure) the data is unreachable. This requirement introduces two cooperating capabilities:"
 msgstr "Dnes každý Infinito.Nexus rozmiestniť chody `docker compose` proti jednému hostiteľovi s objemami na lokálnom súborovom systéme. Ak je služba presunutá na iného hostiteľa (údržba, škálovanie, zlyhanie uzla) dáta sú nedosiahnuteľné. Táto požiadavka zavádza dve spolupracujúce schopnosti:"
 
+# lost=['web-app-opencloud/meta/variants.yml']
+# gained=['web-app-opencloud/meta/varianty.yml']
+# `oidc` len, aj keď rola je `meta/services.yml` tiež deklaruje `ldap.enabled`
+# a dedikovaný LDAP auth plugin / ovládač je pripojený. Dôsledky:
+# rozmiestnenie s `disable=oidc` (Režim iba LDAP) robí každý overený scenár
+# `skip`, takže LDAP cesta neotestovaná. Variant matice-deploy uvádza
+# `meta/variants.yml` typicky zahŕňajú LDAP-len variant presne vykonávať túto
+# pobočku (pozri napr.
+# [web-app-opencloud/meta/varianty.yml](../../roles/web-app-opencloud/meta/variants.yml)
+# kde variant 1 sady `ldap.enabled: true` s `oidc.enabled: false`), ale
+# zodpovedajúci scénický scenár ešte neexistuje.
 # translation-refused: libretranslate protected-span
 # lost=['web-app-opencloud/meta/variants.yml']
 # gained=['web-app-opencloud/meta/varianty.yml']
@@ -64457,8 +64488,10 @@ msgstr "Transformovať riadenie projektu pomocou `OpenProject <https://www.openp
 msgid "Transitively follows provider roles by reading THEIR configs and applying the same resolve_direct_service_roles_from_config() logic."
 msgstr "Tranzitne sleduje úlohy poskytovateľa čítaním ICH konfigov a uplatňovaním rovnakého resolve_direct_service_roles_from_config() logika."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1', '[',
 # ']']
+# vozidiel [1] ``docker_restart_policy``) na roj
+# ``deploy.restart_policy.condition`` ekvivalent.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Preložiť *hodnota* (na použitie pri výrobe motorových
 # vozidiel [1] ``docker_restart_policy``) na roj
@@ -64998,13 +65031,11 @@ msgstr "URL `redis://redis:6379/1`"
 msgid "URL `redis://redis:6379/2`"
 msgstr "URL `redis://redis:6379/2`"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: URL segmenty. Prvý prvok MUSÍ obsahovať "<scheme>://."
 # Prvky cesty sú jednoduché reťazce. Dopytové prvky musia začať s '?' alebo
 # '&' a musia obsahovať presne jednu "kľúčovú=hodnotu'.
+# translated-by: libretranslate
 msgid "URL segments. First element MUST include '<scheme>://'. Path elements are plain strings. Query elements must start with '?' or '&' and contain exactly one 'key=value'."
-msgstr ""
+msgstr "URL segmenty. Prvý prvok MUSÍ obsahovať \"<scheme>://.\" Prvky cesty sú jednoduché reťazce. Dopytové prvky musia začať s '?' alebo '&' a musia obsahovať presne jednu \"kľúčovú=hodnotu'."
 
 # translated-by: libretranslate
 msgid "URLs, domains, and credentials MUST come from the rendered `.env`. No hardcoded values in the spec."
@@ -65983,6 +66014,11 @@ msgstr "Používané ``ressources`` CLI a variantom zdrojovo-rozpočtový lint, 
 msgid "Used by the deployment cleanup helpers."
 msgstr "Používajú ho pomocníci na čistenie."
 
+# lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
+# gained=['web-app-prometheus/templates/konfiguration/prometheus.yml.j2']
+# web-app-prometheus/templates/konfiguration/prometheus.yml.j2 to auto-objaviť
+# aplikácie, ktoré vystavujú natívne /metrys koncový ukazovateľ bez pevného
+# kódovania každého názvu aplikácie.
 # translation-refused: libretranslate protected-span
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['web-app-prometheus/templates/konfiguration/prometheus.yml.j2']
@@ -66154,6 +66190,10 @@ msgstr "Userinfo koncový ukazovateľ"
 msgid "Username claim: `preferred_username`, mapped to OpenCloud `username`"
 msgstr "Tvrdenie užívateľa: `preferred_username`, mapované na OpenCloud `username`"
 
+# gained=['napr.en_USde_DE']
+# ``{{hunspell_languages}}`` premenná založená na ich špecifických jazykových
+# požiadavkách. Táto premenná akceptuje zoznam jazykových kódov
+# (napr.en_USde_DE).
 # translation-refused: libretranslate protected-span lost=['de_DE', 'en_US']
 # gained=['napr.en_USde_DE']
 # nocheck: url
@@ -67005,12 +67045,10 @@ msgstr "Úloha webového aplikácie"
 msgid "Web-app-fider Role"
 msgstr "Úloha webového aplikácie"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"flowise"']
-# nocheck: url
-# translation-rejected: Úloha "flowise" webového aplikácie
+# translated-by: libretranslate
 msgid "Web-app-flowise Role"
-msgstr ""
+msgstr "Úloha \"flowise\" webového aplikácie"
 
 # translated-by: libretranslate
 msgid "Web-app-friendica Role"
@@ -69202,6 +69240,10 @@ msgstr "Nesmiete odstrániť hlavnú vetvu"
 msgid "You MUST NOT enter the inner loop unless all of the following hold:"
 msgstr "Nesmiete vstúpiť do vnútornej slučky, ak nie sú všetky tieto vlastnosti:"
 
+# gained=['"SPOT"']
+# "SPOT", "Jediný bod pravdy"alebo akákoľvek rovnocenná samoznačka. Stav SPOT
+# je priznaný čitateľmi prepájajúcimi stránku z iných strán, nie stránkou,
+# ktorá ju presadzuje. Namiesto toho opíšte predmet priamo.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"SPOT"']
 # nocheck: url
@@ -70276,19 +70318,14 @@ msgstr "[ ] \"Prihláste sa Bluesky\" dopĺňa kruhový výstup AT protokolu OAu
 msgid "[ ] (Phase 2) A Flowise supervisor flow runs a cross-agent pipeline that hands a result from one agent to the other and returns a combined output; single-agent use still works without Flowise. **Blocked:** depends on the criterion above."
 msgstr "[ ] (Fáza 2) A Flowise Tok supervízora prevádzkuje cross-agent potrubia, ktorý dáva výsledok od jedného agenta k druhému a vracia kombinovaný výstup; použitie jedného agenta stále funguje bez Flowise. **Blokované:** závisí od uvedeného kritéria."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: [ ] (Fáza 2) Hermes" a OpenClaw's MCP-server režim je
 # povolený; Flowise sa pripája ako MCP klientov a deleguje úlohu ku každému.
 # **Blokované:** `stdio_only`, pozri [Zablokované na hardvéri a vo fáze
 # 2](#blocked-on-hardware-and-on-phase-2).
+# translated-by: libretranslate
 msgid "[ ] (Phase 2) Hermes' and OpenClaw's MCP-server mode is enabled; Flowise connects to both as MCP clients and delegates a task to each. **Blocked:** `stdio_only`, see [Blocked on hardware and on Phase 2](#blocked-on-hardware-and-on-phase-2)."
-msgstr ""
+msgstr "[ ] (Fáza 2) Hermes\" a OpenClaw's MCP-server režim je povolený; Flowise sa pripája ako MCP klientov a deleguje úlohu ku každému. **Blokované:** `stdio_only`, pozri [Zablokované na hardvéri a vo fáze 2](#blocked-on-hardware-and-on-phase-2)."
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"opt-out"']
-# nocheck: url
-# translation-rejected: [ ] **Vyjasnenie otázok len na začiatku.** Akákoľvek
 # otvorená otázka, nejednoznačnosť alebo chýbajúce rozhodnutie (napr. ako sa
 # pracovník pripája k žetónom sú pretrvávajúce, presné NFS export možnosti na
 # distro, ako per-role `DEPLOYMENT_MODE: compose` "opt-out" je prepadnutý,
@@ -70300,8 +70337,9 @@ msgstr ""
 # vyriešiť agent s použitím svojho najlepšieho úsudku zaznamenaného v
 # postihnutej úlohe `README.md` alebo poznámka ku kódu a prevrátená len pri
 # preskúmaní PR.
+# translated-by: libretranslate
 msgid "[ ] **Clarifying questions only at the start.** Any open question, ambiguity, or missing decision (e.g. how the worker join tokens are persisted, exact NFS export options per distro, how the per-role `DEPLOYMENT_MODE: compose` opt-out is plumbed, exact placement-constraint shape for the swarm-without-nfs warning path, exact openresty `upstream` resolution syntax for swarm-internal DNS) MUST be raised once at the very beginning of the run, in a single batched question round, BEFORE any file is changed. Once those questions are answered, the agent MUST NOT pause for further clarification. Additional ambiguities discovered mid-run MUST be resolved by the agent using its best judgement, recorded in the affected role's `README.md` or a code comment, and revisited only at PR review."
-msgstr ""
+msgstr "[ ] **Vyjasnenie otázok len na začiatku.** Akákoľvek otvorená otázka, nejednoznačnosť alebo chýbajúce rozhodnutie (napr. ako sa pracovník pripája k žetónom sú pretrvávajúce, presné NFS export možnosti na distro, ako per-role `DEPLOYMENT_MODE: compose` \"opt-out\" je prepadnutý, presne umiestnený-obmedzený tvar pre roj-bez-nfs varovný chodník, presná openresty `upstream` syntax riešenia pre roj-interné DNS) MUSÍ byť zdvihnutá raz na samom začiatku behu, v jednom dávkovom kole otázok, PRED ako sa zmení akýkoľvek súbor. Akonáhle sú tieto otázky zodpovedané, agent nesmie zastaviť ďalšie objasnenie. Ďalšie nejasnosti zistené v polovici prevádzky MUSÍ vyriešiť agent s použitím svojho najlepšieho úsudku zaznamenaného v postihnutej úlohe `README.md` alebo poznámka ku kódu a prevrátená len pri preskúmaní PR."
 
 # translated-by: libretranslate
 msgid "[ ] **Every ✅ cell is wired**: for each ✅ pair (row → column), the row role declares an addon in its `meta/addons/` that integrates the column role, with `mechanism` set appropriately and (when the column role is an in-repo role) a `bridges:` entry resolving to the row role's `meta/services.yml` service for that target."
@@ -70813,14 +70851,12 @@ msgstr "[ ] Na čerstvé nasadenie schéma je auto-migroval a stack dosahuje sta
 msgid "[ ] On an onion node, mail addressed to a `*.onion` domain is delivered via the Tor SOCKS proxy; delivery to non-onion domains is unaffected."
 msgstr "[ ] Na uzol cibule, pošta adresovaná `*.onion` doména je dodávaná prostredníctvom proxy Tor SOCKS; dodanie do domén neiónov je neovplyvnené."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: [ ] Žiadosti o cibuľu sa dostanú do protiprúdu
 # `X-Forwarded-Proto: https`; nie `.onion` žiadosť 301"d to https; alias/www
 # kanonikalizácia zostáva cibuľa-interná; pôvod CSP (CDN, Matomo, Keycloak,
 # odhlásenie) Cibuľa sa nerozpustí.
+# translated-by: libretranslate
 msgid "[ ] Onion requests reach upstreams with `X-Forwarded-Proto: https`; no `.onion` request is 301'd to https; alias/www canonicalization stays onion-internal; CSP origins (CDN, Matomo, Keycloak, logout) resolve onion — no clearnet leak."
-msgstr ""
+msgstr "[ ] Žiadosti o cibuľu sa dostanú do protiprúdu `X-Forwarded-Proto: https`; nie `.onion` žiadosť 301\"d to https; alias/www kanonikalizácia zostáva cibuľa-interná; pôvod CSP (CDN, Matomo, Keycloak, odhlásenie) Cibuľa sa nerozpustí."
 
 # translated-by: libretranslate
 msgid "[ ] Open Question 1 (worker runtime) is resolved and the chosen approach is recorded in the role README."
@@ -70927,6 +70963,7 @@ msgstr "[ ] Agent môže prečítať udelený senzor a aktivovať poskytnutý v�
 msgid "[ ] The agent receiver (container port `8000`) is mapped to a host port (Decision #4) and reachable for TLS agent registration."
 msgstr "[ ] Prijímač agentov (Prístav kontajnera `8000`) je mapovaný do hostiteľského prístavu (Rozhodnutie #4) a dosiahnuteľný pre registráciu agenta TLS."
 
+# kontajnera.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: [ ] Comment `meta/volumes.yml` a prežije reštart
@@ -71802,23 +71839,19 @@ msgstr "[01structor.yml](../../../../../tasks/stages/01_constructor.yml)"
 msgid "[01_install.yml](./01_install.yml)"
 msgstr "[01install.yml](./01_install.yml)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"oidc"']
-# nocheck: url
-# translation-rejected: [021](README.md#archive) je zlúčený. Nové role MUSIA
 # pristáť na jednotnej schéme priamo, nie na odkaz oauth2"oidc" tvar služby.
+# translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
-msgstr ""
+msgstr "[021](README.md#archive) je zlúčený. Nové role MUSIA pristáť na jednotnej schéme priamo, nie na odkaz oauth2\"oidc\" tvar služby."
 
 # translated-by: libretranslate
 msgid "[025 - MCP Role Integration](025-mcp-role-integration.md)"
 msgstr "[025 - MCP Role Integration](025-mcp-role-integration.md)"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['enable.yml']
-# nocheck: url
-# translation-rejected: [02 enable.yml](./02_enable.yml)
+# translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr ""
+msgstr "[02 enable.yml](./02_enable.yml)"
 
 # translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
@@ -72268,7 +72301,8 @@ msgstr "[Záložný vzdialený server](roles/svc-bkp-remote-2-local/)"
 msgid "[Backup to External Device](roles/svc-bkp-local-2-device/)"
 msgstr "[Zálohovanie externého zariadenia](roles/svc-bkp-local-2-device/)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# a translation)](https://www.barracudacentral.org/lookups)
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: [BarracudaCity name (optional, probably does not need
 # a translation)](https://www.barracudacentral.org/lookups)
@@ -72311,6 +72345,7 @@ msgstr "[Bluesky oficiálna webová stránka](https://bsky.social/)"
 msgid "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 msgstr "[Bluesky PDS GitHub repository](https://github.com/bluesky-social/pds)"
 
+# Repository](https://github.com/bluesky-social/social-app)
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: [Bluesky Social App GitHub
@@ -73328,7 +73363,10 @@ msgstr "[Oficiálna stránka Mastodonu](https://joinmastodon.org/)"
 msgid "[Matomo Official Website](https://matomo.org/)"
 msgstr "[Matomo oficiálna webová stránka](https://matomo.org/)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation)](roles/web-app-matomo/),
+# [Prometheus](roles/web-app-prometheus/), [Tor Onion
+# Service](roles/svc-net-tor/)
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: [MatomoCity name (optional, probably does not need a
 # translation)](roles/web-app-matomo/),
@@ -74001,11 +74039,9 @@ msgstr "[Swap súbor](roles/svc-opt-swapfile/)"
 msgid "[SysPass issue #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
 msgstr "[SysPass vydanie #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: [Systém 1](roles/svc-ai-s1/)
+# translated-by: libretranslate
 msgid "[System One](roles/svc-ai-s1/)"
-msgstr ""
+msgstr "[Systém 1](roles/svc-ai-s1/)"
 
 # translated-by: libretranslate
 msgid "[System](PULL_REQUEST_TEMPLATE/system.md) - `sys-*`, `svc-*`, `dev-*`, `drv-*`"
@@ -74023,7 +74059,8 @@ msgstr "[Systémové časovače Documentation](https://www.freedesktop.org/softw
 msgid "[TDD](https://en.wikipedia.org/wiki/Test-driven_development)"
 msgstr "[TDD](https://en.wikipedia.org/wiki/Test-driven_development)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# dôveryhodnosti](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00)
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: [Constellation name (optional) API Systém
 # dôveryhodnosti](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00)
@@ -75156,14 +75193,12 @@ msgstr "[type.py](../../../../utils/roles/type.py) konzumuje rovnakú schému. I
 msgid "[update/](update/)"
 msgstr "[aktualizácia/](update/)"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: [upstreams.conf.j2](./templates/upstreams.conf.j2) je
 # prevedená k hostiteľovi a vložená do frontendu ako `conf.d/upstreams.conf`.
 # Jej obsah pochádza z `cache:` časti úloh" `meta/networks.yml`, takže v tejto
 # úlohe nie je napísané žiadne meno hostiteľa, úložisko ani URL.
+# translated-by: libretranslate
 msgid "[upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role."
-msgstr ""
+msgstr "[upstreams.conf.j2](./templates/upstreams.conf.j2) je prevedená k hostiteľovi a vložená do frontendu ako `conf.d/upstreams.conf`. Jej obsah pochádza z `cache:` časti úloh\" `meta/networks.yml`, takže v tejto úlohe nie je napísané žiadne meno hostiteľa, úložisko ani URL."
 
 # translated-by: libretranslate
 msgid "[variants.md](../../contributing/design/variants.md) for what a `role#variant` row is."
@@ -75293,6 +75328,7 @@ msgstr "[x] Špec Playwrighta (alebo ekvivalentná skúška) overí dokončenie 
 msgid "[x] A Playwright spec exercises the Home Assistant surface and is green."
 msgstr "[x] Playwright cvičí Home Assistant povrch a je zelená."
 
+# `roles/web-app-nextcloud/files/playwright/addons/integration_openai.spec.js`.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: [x] Name
@@ -75954,6 +75990,22 @@ msgstr "[x] Open WebUI s `ENABLE_PERSISTENT_CONFIG=false` obnovuje presne požad
 msgid "[x] OpenBao logs reach the standard Infinito.Nexus logging mechanism like every other compose service, at a configurable log level. The server logs to stdout like any compose service; the level is `services.openbao.log_level` (default `info`), rendered into the config as `log_level`. The image's own `/openbao/logs` volume is declared as `openbao_logs` so audit output has a named, backed-up home rather than an anonymous volume."
 msgstr "[x] OpenBao logy dosahujú štandard Infinito.Nexus protokolovací mechanizmus ako každá iná kompozícia, na konfigurovateľnej úrovni logu. Serverové protokoly, aby staut ako každá komponovať službu; úroveň je `services.openbao.log_level` (štandardná `info`), prevedený do konfig ako `log_level`. Vlastný obrázok `/openbao/logs` objem je deklarovaný ako `openbao_logs` Takže audit výstup má pomenovaný, zálohovaný domov skôr ako anonymný objem."
 
+# gained=['"sám"']
+# alebo iný HTTP uzol na dosiahnutie spätného spojenia, koncových ukazovateľov
+# metaúdajov, kontrolnej roviny kontajnera alebo nesúvisiacich interných
+# služieb; globálne vypnutie kontroly SSRF samotné nespĺňa toto kritérium.
+# `checkDenyList` rieši meno hostiteľa a testuje každú vyriešenú adresu a
+# vstavaný zoznam popiera všetky RFC1918, takže dosiahnutie akéhokoľvek
+# poskytovateľa v kontajnerovej sieti nie je možné, zatiaľ čo vstavaný zoznam
+# platí. Vypínač prúdu nie je vypínač: s `HTTP_SECURITY_CHECK=false` Popretie
+# zoznamu sa stane presne `HTTP_DENY_LIST` namiesto vstavaného sa s ním
+# spojil. Úloha preto stanovuje prepínač a dodáva zoznam, ktorý stále popiera
+# spätnú väzbu, link-lokálne, cloud metaúdaje, multicast a vyhradené priestor,
+# ktorý je "sám" toto kritérium si vyžaduje. Interné služby nesúvisiace s
+# pripojením k sieti nie sú uvedené v zozname, ale v tej istej hranici tvrdí
+# izolačná sonda adaptéra. Konfigurácia sama o sebe nič nedokazuje, takže
+# nasadenie bodov hádzanie registra záznam pri sloopback a na adrese
+# metaúdajov a zlyhá, ak Flowise odmieta oboje.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"sám"']
 # nocheck: url
@@ -76271,12 +76323,10 @@ msgstr "[x] Úloha generuje správny Nginx / CSP vhost pomocou [csp_filters.py](
 msgid "[x] The role hard-fails (placement/preflight guard) when targeted at a node carrying a shared-workload label or hosting other tenants."
 msgstr "[x] Úloha ťažko zlyhala (Umiestnenie/predletová stráž) ak sa zameriava na uzol so značkou zdieľaného pracovného zaťaženia alebo hosting iných nájomcov."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: [x] Úloha sa pridáva k 025"MCP audit ako `server`
 # rolu.
+# translated-by: libretranslate
 msgid "[x] The role is added to 025's MCP audit as a `server` role."
-msgstr ""
+msgstr "[x] Úloha sa pridáva k 025\"MCP audit ako `server` rolu."
 
 # translated-by: libretranslate
 msgid "[x] The role is compatible with — and exercised by — the CLI script described under **CLI: `cli/administration/deploy/runner/`** below; deploying through that script against a fresh host MUST yield a working runner without manual post-steps."
@@ -76656,6 +76706,7 @@ msgstr "[x] `README.md` dokumentuje staticko-tesný model a jeho domnienku dôve
 msgid "[x] `apply/api_bot.py` sets `setup_complete=1` on the `System Settings` doctype + writes the global default; verified in matrix r3."
 msgstr "[x] `apply/api_bot.py` sady `setup_complete=1` na tému `System Settings` Doctype + píše globálne predvolené; overené v matici r3."
 
+# hodnoty iba.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: [x] `auth/oidc/config` je napísané z `OIDC.CLIENT.*`
@@ -76780,6 +76831,10 @@ msgstr "[x] `meta/variants.yml` zahŕňa `sso`, `ldap` a `pki` sekery, a každý
 msgid "[x] `meta/variants.yml` declares the matrix-deploy variants (see **Variants** below)."
 msgstr "[x] `meta/variants.yml` deklaruje varianty matice-deploy (Pozri **Varianty** nižšie)."
 
+# lost=['web-app-openproject/meta/variants.yml']
+# gained=['web-app-openproject/meta/varianty.yml']
+# (`ldap` na, `sso`/OIDC off) podľa dohovoru
+# [web-app-openproject/meta/varianty.yml](../../roles/web-app-openproject/meta/variants.yml).
 # translation-refused: libretranslate protected-span
 # lost=['web-app-openproject/meta/variants.yml']
 # gained=['web-app-openproject/meta/varianty.yml']
@@ -76902,12 +76957,10 @@ msgstr "[x] `svc-ai-litellm` je bezhlavý (žiadna admin UI, žiadna verejná do
 msgid "[x] `svc-ai-litellm` publishes an additional `auto` alias, and every alias that resolved before this change still resolves after it."
 msgstr "[x] `svc-ai-litellm` uverejňuje dodatočné `auto` prezývka a každá prezývka, ktorá sa vyriešila predtým, ako sa táto zmena vyrieši po nej."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: [x] `svc-ai-lmstudio` je obmedzená na x86 uzol a nie
 # je nikdy naplánovaný na rameno64"Pi uzol.".
+# translated-by: libretranslate
 msgid "[x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node."
-msgstr ""
+msgstr "[x] `svc-ai-lmstudio` je obmedzená na x86 uzol a nie je nikdy naplánovaný na rameno64\"Pi uzol.\"."
 
 # translated-by: libretranslate
 msgid "[x] `sys-svc-proxy` proxies the canonical hostname to the MDAD-bound localhost port for Synapse, Element, and the federation listener (port 8448 still public)."
@@ -78115,6 +78168,7 @@ msgstr "``GITLAB_ROOT_PASSWORD`` (```templates/env.j2`` <./templates/env.j2>`__,
 msgid "``HOST``, ``DISTRO``, ``COUNT`` (optional), ``PORT``, ``OWNER``, ``REPO``"
 msgstr "``HOST``, ``DISTRO``, ``COUNT`` (nepovinné), ``PORT``, ``OWNER``, ``REPO``"
 
+# 0 Description.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: ``INFINITO_CI_CHUNK_SIZE`` má prednosť pri nastavení;
@@ -78968,6 +79022,9 @@ msgstr "``path`` odkaz ``path:`` pole, ``''`` ak chýba"
 msgid "``phpunit/phpunit`` declares ``_PHPUNIT_EXTENSIONS`` as platform requirements and Composer refuses to resolve the vendor tree without them, so they are part of the toolchain rather than of the suite consuming it. A distro ships them as packages separate from the interpreter, which is why a present ``php`` binary does not imply they are there."
 msgstr "``phpunit/phpunit`` vyhlásenie ``_PHPUNIT_EXTENSIONS`` ako požiadavky platformy a Skladateľ odmieta vyriešiť predajcu strom bez nich, takže sú súčasťou nástrojového reťazca, a nie apartmánu spotrebuje. Distro ich posiela ako balíky oddelené od tlmočníka, a preto je prítomný ``php`` binárne neznamená, že sú tam."
 
+# ``guest``/``biber``/``administrator`` osobnosti. EÚ ``biber`` /
+# ``administrator`` osoby sú vyhlásené za blokované cez ``PERSONA_*_BLOCKED``
+# (zrkadlenie ``web-app-taiga``): Penpot.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: ``playwright.spec.js``
@@ -79384,6 +79441,10 @@ msgstr "``utils.cache.gitignore`` ``.gitignore`` vzor nakladač + path matcher p
 msgid "``utils.cache.yaml``         — process-wide ``load_yaml`` / ``load_yaml_any`` parser cache shared by everything that reads YAML off-disk."
 msgstr "``utils.cache.yaml`` ``load_yaml`` / ``load_yaml_any`` Parser cache zdieľa všetko, čo číta YAML off-disk."
 
+# gained=['"nespájané"']
+# ``mode``/``tor``/``distro``/``filesystem``/ ``architecture`` ``None`` každý
+# priemer "nespájané": že os drží bez ohľadu na líniu, v ktorej stojí, by
+# priradiť.
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"nespájané"']
 # nocheck: url
@@ -80096,6 +80157,8 @@ msgstr "`ensure()` MUSÍ zvýšiť `RuntimeError` s opisnou správou o zlyhaní.
 msgid "`ensure_mcp_entry` binds the MCP config entry to `llm_hass_api: [\"assist\"]` in [provision_mcp.py](../../roles/web-app-homeassistant/files/python/provision_mcp.py)"
 msgstr "`ensure_mcp_entry` viaže položku MCP na `llm_hass_api: [\"assist\"]` on [provision_mcp.py](../../roles/web-app-homeassistant/files/python/provision_mcp.py)"
 
+# `cancel-in-progress: true` priamo vo vlastnej skupine, a orchester číta
+# `github.event_name`.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: `entry-manual-steer.yml` vyhlásenie
@@ -80810,6 +80873,7 @@ msgstr "`openssl_conf_host` (reťazec): host trasa pre generované openssl.cnf"
 msgid "`ordered`: ordered primary service entries for the service loader"
 msgstr "`ordered`: objednané základné servisné položky pre servisný nakladač"
 
+# štandardnou hodnotou) `/tmp/`.
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: `output stream file` (**nepovinné**s dokumentovanou
@@ -83334,12 +83398,10 @@ msgstr "cli.build.docs balenie"
 msgid "cli.build.docs.integration\\_matrix package"
 msgstr "cli.build.docs.integration\\ matricový balík"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['matric.data']
-# nocheck: url
-# translation-rejected: cli.build.docs.integration\ matric.data modul
+# translated-by: libretranslate
 msgid "cli.build.docs.integration\\_matrix.data module"
-msgstr ""
+msgstr "cli.build.docs.integration\\ matric.data modul"
 
 # translated-by: libretranslate
 msgid "cli.build.docs.readme package"
@@ -85343,13 +85405,11 @@ msgstr "Hľadanie('container', application_id[, cesta])"
 msgid "lookup('node_max_old_space_size', application_id, service_name[, pct=, min_mb=, hardcap_mb=, safety_cap_pct=])"
 msgstr "Hľadanie('node_max_old_space_size', application_id, service_name[, pct=, min_mb=, hardcap_mb=, safety_cap_pct=])"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Hľadanie('path_absolute',
 # "roles/sys-svc-compose/tasks/utils/swarm/x.yml') -> absolútna cesta pod
 # koreňom úložiska (``playbook_dir``).
+# translated-by: libretranslate
 msgid "lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/x.yml') -> absolute path under the repository root (``playbook_dir``)."
-msgstr ""
+msgstr "Hľadanie('path_absolute', \"roles/sys-svc-compose/tasks/utils/swarm/x.yml') -> absolútna cesta pod koreňom úložiska (``playbook_dir``)."
 
 # translated-by: libretranslate
 msgid "lookup('playwright_workers')"
@@ -85371,6 +85431,8 @@ msgstr "Hľadanie('roles_with_placement', 'manager')"
 msgid "lookup('sso_oidc_plugin')"
 msgstr "Hľadanie('sso_oidc_plugin')"
 
+# gained=['faktorTIMEOUT_FACTOR']
+# faktorTIMEOUT_FACTOR])
 # translation-refused: libretranslate protected-span lost=['TIMEOUT_FACTOR']
 # gained=['faktorTIMEOUT_FACTOR']
 # nocheck: url
@@ -86299,6 +86361,8 @@ msgstr "plugins.filter.get.all.application\\ ids modul"
 msgid "plugins.filter.get.all.invokable\\_apps module"
 msgstr "plugins.filter.get.all.invokable\\ Apps modul"
 
+# lost=['plugins.filter.get.category']
+# gained=['plugins.filter.get.categoryName']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.category']
 # gained=['plugins.filter.get.categoryName']
@@ -86715,6 +86779,7 @@ msgstr "plugins.lookup.image modul"
 msgid "plugins.lookup.local\\_mtime\\_qs module"
 msgstr "plugins.lookup.local\\ mtime\\ qs modul"
 
+# lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpName']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpName']
 # nocheck: url
@@ -87701,11 +87766,9 @@ msgstr "rovnaké alebo vyššie; hlava (prvý 30 riadky)"
 msgid "samples recorded so far, oldest first."
 msgstr "vzorky doteraz zaznamenané, najstarší prvý."
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: skenovanie všetkých výskytov "[' a '{' vo výstupe
+# translated-by: libretranslate
 msgid "scan for all occurrences of '[' and '{' in the output"
-msgstr ""
+msgstr "skenovanie všetkých výskytov \"[' a '{' vo výstupe"
 
 # translated-by: libretranslate
 msgid "scans role configs from [roles/](../../../../../roles/)"
@@ -89221,6 +89284,8 @@ msgstr "hodnota nie je jednoduchý reťazec (napr. šablóna Jinja)."
 msgid "the value the candidate's own failing row carried, read off the source run's job title. It reproduces the failure, which is the point of the line."
 msgstr "hodnota, ktorú má uchádzač pri zlyhaní v riadku, prečítal názov pracovnej pozície zdroja. Reprodukuje poruchu, ktorá je bodom priamky."
 
+# gained=['"nenakonfigurované"']
+# "nenakonfigurované".
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"nenakonfigurované"']
 # nocheck: url
@@ -89681,6 +89746,7 @@ msgstr "utils.env.handlers.act\\ platform\\ image modul"
 msgid "utils.env.handlers.docker\\_platform module"
 msgstr "utils.env.handlers.docker\\ Platform modul"
 
+# lost=['utils.env.handlers.gha'] gained=['utils.env.handlers.ghaName']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.gha'] gained=['utils.env.handlers.ghaName']
 # nocheck: url
@@ -89824,36 +89890,28 @@ msgstr "utils.env.handlers.infinito.outer\\ network\\ mtu modul"
 msgid "utils.env.handlers.infinito.package\\_cache package"
 msgstr "utils.env.handlers.infinito.package\\ Cache balíček"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.admin']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
 # heslo modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.admin\\ heslo modul"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.blobstore']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
 # max modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.blobstore\\ max modul"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.direct']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.direct\ mem
 # modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.direct\\ mem modul"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.heap']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.heap modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.heap modul"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.parent\\_image module"
@@ -89899,38 +89957,30 @@ msgstr "utils.env.handlers.infinito.rescue.local\\ dumps\\ dir modul"
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr "utils.env.handlers.infinito.running\\ na balíku"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['on.act']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running\ on.act modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on.act module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on.act modul"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['on.github']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running\ on.github modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on.github module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on.github modul"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
 msgstr "utils.env.handlers.infinito.swarm\\ nfs balíček"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['nfs.export']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.export\ base
 # modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\ nfs.export\\ base modul"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['nfs.state']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.state\ path
 # modul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\ nfs.state\\ path modul"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.tor\\_socks\\_port module"
@@ -90624,6 +90674,8 @@ msgstr "utils.tests.swarm.write balenie"
 msgid "utils.tests.swarm.write.extras module"
 msgstr "utils.tests.swarm.write.extras modul"
 
+# lost=['utils.tests.swarm.write.hosts']
+# gained=['utils.tests.swarm.write.hostsName']
 # translation-refused: libretranslate protected-span
 # lost=['utils.tests.swarm.write.hosts']
 # gained=['utils.tests.swarm.write.hostsName']

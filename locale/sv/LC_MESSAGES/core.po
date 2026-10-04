@@ -1089,13 +1089,11 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Nginx-baserad server för värd statiska tillgångar kopierade från en källkatalog till webbdatabanan"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Node.js pakethanterare installation av npm och
 # eventuellt kör "npm ci" i en projektkatalog
+# translated-by: libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "Node.js pakethanterare installation av npm och eventuellt kör \"npm ci\" i en projektkatalog"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"

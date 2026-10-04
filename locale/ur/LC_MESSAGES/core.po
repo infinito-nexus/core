@@ -134,7 +134,8 @@ msgctxt "role:dev-core:description"
 msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
 msgstr "لینکس پر سافٹ وئیر انجینئرز کے لیے بیس ترقیاتی ماحول، جس میں مرکزی ایڈیٹر اور زبان-اگنیسٹک ٹولنگ ہے۔"
 
-# translation-refused: libretranslate protected-span
+# for sex-ins, settlements, and unit statesation -
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: نظام انتظامیہ (systems Profile Profile) کے لیے Base
 # for sex-ins, settlements, and unit statesation -
@@ -371,7 +372,7 @@ msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "میزبانی کے لئے منظم تصاویر سرور Simple Icons ویب اور دستاویزات کے استعمال کے لیے برانڈ ایس وی جی اور پی این اے کے مجموعے"
 
-# translation-refused: libretranslate protected-span
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: [ تصویر کا حوالہ ]
 msgctxt "role:svc-db-postgres:description"
@@ -426,12 +427,10 @@ msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
 msgstr "Cross-cros-confooder for Nix پیکج مینیجر کے لیے Chepum-verfed, reproducible کثیر الصوف کے ساتھ"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: CI، سانچہ:تقویم 2/یکم تاریخ
+# translated-by: libretranslate
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
-msgstr ""
+msgstr "CI، سانچہ:تقویم 2/یکم تاریخ"
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -493,7 +492,8 @@ msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
 msgstr "سیکورٹی اعزازات کے لیے RSH کلیدی رسائی اور پاس ورڈ-سکلیشن کے ساتھ منظم کیا گیا منتظم اکاؤنٹ"
 
-# translation-refused: libretranslate protected-span
+# کمانڈز اور پاس ورڈی رمز (انگریزی:
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: محفوظ پیشہ ورانہ رسائی کے لیے ایس ایس ایچ درج کردہ
 # کمانڈز اور پاس ورڈی رمز (انگریزی:
@@ -521,7 +521,8 @@ msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
 msgstr "موسیقی ، ڈراما‌نگاروں اور حساب‌کتاب کے لئے کلائنٹ"
 
-# translation-refused: libretranslate protected-span
+# بند کریں
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: رمزِ ڈاک (پوسٹل کوڈ) ایک سیاہ کار کی تنصیب کے لیے خانہ
 # بند کریں
@@ -554,7 +555,10 @@ msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr "سکرین کو ٹھنڈا کرنے اور سونے کو روکنے کے لیے، گنوم ڈیسک ٹاپ پر آٹو ڈاؤن لوڈ کرنے کے لیے"
 
-# translation-refused: libretranslate protected-span
+# (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) پر
+# انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) اور اسکرین شیئر
+# (انگریزی:
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی ڈیٹابیس
 # (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) پر
@@ -639,7 +643,8 @@ msgctxt "role:sys-svc-mcp-reconcile:description"
 msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
 msgstr "مکمل فراہم کُنندہ کے مقابلے میں ہر یو آر ایل ایم سی کلائنٹ کا فائنل"
 
-# translation-refused: libretranslate protected-span
+# لیے سطح مرتفع (Engner-agnostic fecture) جس میں فی کسشن فراہم کیا جاتا ہے۔
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انجن-اگنیسمک کیپ، کوکیو، تلاش، اور Victor engines کے
 # لیے سطح مرتفع (Engner-agnostic fecture) جس میں فی کسشن فراہم کیا جاتا ہے۔
@@ -717,7 +722,9 @@ msgctxt "role:sys-front-inj-dashboard:description"
 msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
 msgstr "فرنٹ-ڈر جے ایس ٹرانسفارمنس والدین کی کھڑکیوں کو غیر فعال جگہ تبدیل کرنے اور بیرونی تعلقات کو نئے تباز میں تبدیل کرنے پر مجبور نہیں کرتی"
 
-# translation-refused: libretranslate protected-span
+# Foundation): HTPS Foundation, Constitution Cloudflare settlep, and
+# reut-Proxic settlementing -
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: فرنٹ-لائر بیس (انگریزی: Fort-layer base for web
 # Foundation): HTPS Foundation, Constitution Cloudflare settlep, and
@@ -821,7 +828,8 @@ msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "میزبانی کی سطح کی دیکھ بھال سسٹمڈ-جوورنلڈ انفنٹری ڈیمon کے ساتھ غیر واضح حدود اور زندہ لاگ سیریز کے لئے"
 
-# translation-refused: libretranslate protected-span
+# Bash and Zshology shells) کو مشترکہ طور پر مشترکہ طور پر ملاتی ہے
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: میزبانی سطح مرتفع (انگریزی: Thom-level settlement of
 # Bash and Zshology shells) کو مشترکہ طور پر مشترکہ طور پر ملاتی ہے
@@ -864,12 +872,10 @@ msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
 msgstr "نیٹ ورکنگ آلات"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: سانچہ:ابتدائی ترتیب:190ء کی دہائی
+# translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
-msgstr ""
+msgstr "سانچہ:ابتدائی ترتیب:190ء کی دہائی"
 
 # translated-by: libretranslate
 msgctxt "role:sys-service:description"
@@ -886,7 +892,8 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "غیر متصل"
 
-# translation-refused: libretranslate protected-span
+# ڈرائیور - ایکسیل ویڈیو ڈی کوڈ اور لینکس کی تقسیموں میں
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انٹیلی وی اے-API [حوالہ درکار] ہارڈ ویئر کے لیے میڈیا
 # ڈرائیور - ایکسیل ویڈیو ڈی کوڈ اور لینکس کی تقسیموں میں
@@ -904,7 +911,8 @@ msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr "شمارے اور پروجیکٹ سافٹ وئیر ٹیموں کے لیے پلیٹ فارم ، ڈی‌وی‌ایس بورڈز ، ورک‌ڈی‌سی‌سی‌سی‌ایس‌اے اور ایم‌ایس‌اے"
 
-# translation-refused: libretranslate protected-span
+# سروے اور ترقی یافتہ ٹولنگ کے لیے
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: جاوا ایسکریپٹ (JavaScrip) کی تعمیر اور چلنے پھرنے والے
 # سروے اور ترقی یافتہ ٹولنگ کے لیے
@@ -1107,7 +1115,8 @@ msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr "گنس sub_filter JavaScrip production تمام افعال کو مرکزی طور پر OIDC واحد علامت کے اختتامی پوائنٹ پر منتقل کرتا ہے۔"
 
-# translation-refused: libretranslate protected-span
+# ورک کو اندرونی ویب اطلاقیے تک شیئر کرنے کے لیے استعمال کیا جاتا ہے۔
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انٹرنیٹ مووی ڈیٹابیس (IMDb) پر مبنی مواد ادائیگی نیٹ
 # ورک کو اندرونی ویب اطلاقیے تک شیئر کرنے کے لیے استعمال کیا جاتا ہے۔
@@ -1146,6 +1155,8 @@ msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consu
 msgstr "object-storage see for SeaweedFS/MinIO backnd حل اور per Consumer colection and Construmental province –"
 
 # translated-by: libretranslate
+# space a construct space a space a space a space space a space a spapfile
+# taff -
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: On-target Automation for struction a space a space a
@@ -1353,7 +1364,9 @@ msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr "Policy-manage web Browns for Arch لینکس ڈیسک ٹاپز کے ساتھ Auto-Inst Indministration Commissions."
 
-# translation-refused: libretranslate protected-span
+# for settleplople Led-world-constitution province for abored community for
+# community community for community of community, AC, and Dected states
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: پاور ماہرِ نظام (system-Administed protected protected
 # for settleplople Led-world-constitution province for abored community for
@@ -1583,6 +1596,7 @@ msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates v
 msgstr "Scheduled systemd-timer working Lu's invest SSL/TLS سندوں کو Certbott کے ذریعے اورنگ آباد GINX کے بعد دوبارہ تعمیر کیا جاتا ہے۔"
 
 # translated-by: libretranslate
+# ایس کرک ڈاؤن لوڈ کرنے کے لئے
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: خود کار طور پر کام کرنے والے سی آئی ایس ایم ایس ایس
@@ -1626,7 +1640,8 @@ msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
 msgstr "خود کار محفوظ System One ایسی کلاس‌ئر جو ایسے سوالات کا جواب دیتی ہے تاکہ وہ کسی بھی طریقے سے گاڑی چلا سکے ۔"
 
-# translation-refused: libretranslate protected-span
+# کرنے اور بنانے کے لیے مختصر تعلقات بنانے کے لیے
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: خود مختاری (self-hosted specter) تخلیق کرنے، جاسوسی
 # کرنے اور بنانے کے لیے مختصر تعلقات بنانے کے لیے
@@ -1674,7 +1689,8 @@ msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
 msgstr "خود مختار ای کامرس پلیٹ فارم فار کیٹل کامبیٹ انتظامیہ، چیک آؤٹ، ترقیاتی اور کثیر القومی آن لائن مہرے کے لیے"
 
-# translation-refused: libretranslate protected-span
+# پلیٹ فارم جس میں انفنٹری اور ایپ پر مبنی کشش ثقل (Extension) پائی جاتی ہے۔
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: خود غرضی (Self-hosted tomation wiki) اور علم النجوم
 # پلیٹ فارم جس میں انفنٹری اور ایپ پر مبنی کشش ثقل (Extension) پائی جاتی ہے۔
@@ -1722,7 +1738,9 @@ msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr "خودبخود نو کوڈ ڈیٹابیس پلیٹ فارم جس میں ڈیٹا کی تعمیر کے لیے ایک پھیلے ہوئے-ایک جیسا روبوٹ ہے"
 
-# translation-refused: libretranslate protected-span
+# ڈیٹابیس (IMDb) پر خود مختار آن لائن آفس بیک وقت دستاویزوں کی ترمیم کے لیے،
+# پروڈیوس اور پیشوں کے لیے
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: خود انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی
 # ڈیٹابیس (IMDb) پر خود مختار آن لائن آفس بیک وقت دستاویزوں کی ترمیم کے لیے،
@@ -1830,6 +1848,7 @@ msgid "Shared Storage"
 msgstr "شیئرڈ سٹوڈیو"
 
 # translated-by: libretranslate
+# تنصیب کے لیے ایک بار نصب کیا جاتا ہے
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: شیئرڈ میزبان نیٹ ایس ایس ایس ایس ایس ایل ایس پی ایل کی
@@ -1853,7 +1872,8 @@ msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
 msgstr "ہر ڈیسک ٹاپ کردار کی شیئر شیئر کریں، لاگ ان کے فائلیں اس سے منسلک ہوں"
 
-# translation-refused: libretranslate protected-span
+# این ایل ذخیرہ (انگریزی: Central Encial database) جو Decker میں واقع ہے۔
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: شیئرڈ وابستگی ڈیٹا بیس سرور برائے اطلاقیات مرکزی ڈی
 # این ایل ذخیرہ (انگریزی: Central Encial database) جو Decker میں واقع ہے۔
@@ -1919,13 +1939,11 @@ msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr "شماریاتی مواد سرور (دولت، ایچ ٹی ایم ایل، قانونی، فائل وغیرہ ہیں۔)"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Static Firess over HTPS Orchive Listration,
 # www.well-known handling, and خودکار ٹی ایل ایس سندوں کے ساتھ
+# translated-by: libretranslate
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
-msgstr ""
+msgstr "Static Firess over HTPS Orchive Listration, www.well-known handling, and خودکار ٹی ایل ایس سندوں کے ساتھ"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hugo:description"
@@ -1963,6 +1981,8 @@ msgid "System near components. Will be automaticly called if necessary from othe
 msgstr "اجزاء کے قریب نظام. اگر دوسرے کرداروں سے ضروری ہو تو خودکار طور پر فون کیا جائے گا۔"
 
 # translated-by: libretranslate
+# نصب کردہ پیکج پیکج پیکج پیکج پیکج پیکجوں کو تازہ کرنے کے لئے نظام- قیمتی
+# کردار
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: پیکج انڈیکس کو تازگی بخشنے اور OS پیکج مینیجر کے ذریعے

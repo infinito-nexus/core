@@ -325,7 +325,9 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Ghi chú"
 
-# translation-refused: libretranslate protected-span
+# chặn, phân tích, bảng điều khiển tôi khung) Nginx/OpenResty qua
+# sub_filter(Tiếng Tây Ban Nha).
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Chức năng tiêm HTML hiệu chỉnh được (CSS, JS, bộ ngăn
 # chặn, phân tích, bảng điều khiển tôi khung) Nginx/OpenResty qua

@@ -113,6 +113,8 @@ msgid "Automated recovery service restarting exited or unhealthy Docker Compose 
 msgstr "Huduma ya kupona ya moja kwa moja inayoanza tena au isiyo na afya Docker Compose stacks na kutatua migogoro ya bandari"
 
 # translated-by: libretranslate
+# Rekodi kwenye seva za Hetzner Cloud, IPs za msingi, IP zinazozunguka, na
+# mizani ya mzigo
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Jukumu la Automation kwa reverse DNS (wa wa wa wa)
@@ -331,7 +333,10 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Jumuiya ya Jumuiya"
 
-# translation-refused: libretranslate protected-span
+# logout, analytics, iframe ya dashibodi) kwa hisani ya RaiaMwema/OpenResty
+# Kwa kupitia sub_filterTumia rasilimali zinazoungwa mkono na CDN.
+# translation-refused: libretranslate protected-span lost=['sub_filter']
+# gained=['sub_filterTumia']
 # nocheck: url
 # translation-rejected: Majukumu ya sindano ya HTML (CSS, JS, uingizaji wa
 # logout, analytics, iframe ya dashibodi) kwa hisani ya RaiaMwema/OpenResty
@@ -391,6 +396,7 @@ msgid "Content Management"
 msgstr "Usimamizi wa Maudhui"
 
 # translated-by: libretranslate
+# ya kuchapisha mtandao
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa
@@ -448,6 +454,8 @@ msgid "Customer Relationship"
 msgstr "Uhusiano wa Wateja"
 
 # translated-by: libretranslate
+# kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
+# msaada.
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya
@@ -685,6 +693,7 @@ msgid "Federated, self-hosted platform for organizing events and building commun
 msgstr "Jukwaa la kujitegemea la kuandaa matukio na kujenga jamii na vikundi"
 
 # translated-by: libretranslate
+# Itifaki ya AT (Bluesky)Mtandao wa IndieWeb
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Daraja la kuunganisha ActivityPub (wa wa wa wa wa),
@@ -1094,6 +1103,7 @@ msgid "Networking helper for iptables forwarding and NAT masquerading of a WireG
 msgstr "Msaidizi wa Mtandao kwa iptables forwarding na NAT masquerading ya mteja WireGuard mbio nyuma ya NAT au firewall"
 
 # translated-by: libretranslate
+# zote logout kwa centralized OIDC moja ishara-nje mwisho
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Ya ya ya sub_filter JavaScript sindano kuelekeza hatua
@@ -1503,6 +1513,7 @@ msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and
 msgstr "Backup iliyopangwa iliyopangwa ya siri za mwenyeji, CA, sifa za ACME, na utambulisho wa node kwa saraka ya Backup ya ndani"
 
 # translated-by: libretranslate
+# kiasi cha chombo cha Docker kwenye saraka ya ndani, na dumps za SQL thabiti
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Imeandaliwa mfumo wa Backup Backup Backup Backup kwa

@@ -64,6 +64,7 @@ msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
 msgstr "সতর্কবার্তা"
 
+# Syv, CalDAV, কার্ডADV, এবং স্প্যাম ফিল্টার পরিচালনা করুন
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: IMAP, IMAP সার্ভার %s-র মধ্যে মেইল প্রেরণ করা হচ্ছে3;
@@ -117,7 +118,7 @@ msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "বিপরীত DNS-র জন্য স্বয়ংক্রিয়ভাবে তথ্য প্রদান করা হবে (বিট) হেজনার ক্লাউড সার্ভার, প্রাথমিক IPs, ভাসমান IP এবং লোড করা"
 
-# translation-refused: libretranslate protected-span
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: ব্যাক- আপ পুনরুদ্ধার করা হবে (F)
 msgctxt "category:sys.ctl.bkp:title"
@@ -159,13 +160,11 @@ msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr "সিদ্ধান্ত সিদ্ধান্ত, এলোমেলো নির্বাচন এবং rmolumn এর জন্য ব্রাউজার, ব্যবস্থাপনার জন্য ব্রাউজার"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: শেয়ার করা L8 গেটওয়ের জন্য ব্রাউজার-fafing ইন্টারফেস,
 # সামনের প্রক্সি- এর পিছনে নিজস্ব ডোমেনে প্রকাশ করা হয়
+# translated-by: libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr ""
+msgstr "শেয়ার করা L8 গেটওয়ের জন্য ব্রাউজার-fafing ইন্টারফেস, সামনের প্রক্সি- এর পিছনে নিজস্ব ডোমেনে প্রকাশ করা হয়"
 
 # translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -301,7 +300,7 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "শেয়ারকৃত ডকারের হাব-ছবি টান টান টান টান টান-ছবি, অনুরূপ স্থানান্তর এবং সীমা অতিক্রমকারী"
 
-# translation-refused: libretranslate protected-span
+# translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: কোড লেখা হয়েছে: (Claude Code'%s' Cursor; পাই)
 msgctxt "category:dsk.gnt:description"
@@ -334,7 +333,8 @@ msgid "Community"
 msgstr "সম্প্রদায়"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate protected-span
+# এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
+# translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: ভূমিকা: (CSS, JS, লগার, Alickits, ড্যাশবোর্ড SSI)
 # এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
@@ -511,7 +511,8 @@ msgid "Deferred-start orchestrator for enabling and starting collected systemd s
 msgstr "পুনরুদ্ধারের জন্য কনফিগার করুন এবং একবার একটি খেলা সম্পূর্ণ করার পর সংগ্রহ করুন"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate protected-span
+# Mastodon; ইত্যাদি.)
+# translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: ZIP ওয়েব অ্যাপ্লিকেশন (GitLab'%s' Nextcloud'%s'
 # Mastodon; ইত্যাদি.)
@@ -919,6 +920,7 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "দূরবর্তী হোস্ট- নেম সার্ভারের সাথে শেয়ার করার জন্য ডি. এন. এস. সার্ভার"
 
+# API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: লিয়েট-থেকে- অনুমোদনকৃত অনুবাদ ইঞ্জিন LibreTranslate
@@ -1003,7 +1005,8 @@ msgid "Maintenance roles for certificates, system upkeep, and recurring operatio
 msgstr "সার্টিফিকেটের জন্য দায়ী ভূমিকা, সিস্টেমের জন্য রাখা এবং ধারাবাহিক কাজ করা।"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate protected-span
+# নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
+# translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: হোস্টের মতো ভূমিকা ধার্যকারী Docker Swarm ব্যবস্থাপক
 # নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
@@ -1111,13 +1114,11 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "উৎস ডিরেক্টরি থেকে ওয়েব ডাটা পাথের জন্য একটি উৎস ডিরেক্টরিতে কপি করতে এনজিক্স সার্ভার"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Node.js একটি প্রকল্প ডিরেক্টরীতে 'pi' টাইপ করুন এবং
 # 'npi' টাইপ করুন
+# translated-by: libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "Node.js একটি প্রকল্প ডিরেক্টরীতে 'pi' টাইপ করুন এবং 'npi' টাইপ করুন"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1344,13 +1345,11 @@ msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "পারিবারিক জন্য গোপনীয়তা প্রাথমিক সামাজিক প্লাটফর্ম, যেটি একটি সন্নিবেশিত SQLite স্টোরের উপর অবস্থিত ওয়েবআরটিসি-এর মাধ্যমে সঙ্গীসাথিদের দ্বারা চালিত।"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: অনুমোদন সংক্রান্ত প্যাকেজ ও কঠিন কনফিগারেশনের সাথে কাজ
 # করা হয়েছে। /etc/sus/su.com-র সাথে কাজ করা হয়েছে।
+# translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
-msgstr ""
+msgstr "অনুমোদন সংক্রান্ত প্যাকেজ ও কঠিন কনফিগারেশনের সাথে কাজ করা হয়েছে। /etc/sus/su.com-র সাথে কাজ করা হয়েছে।"
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"

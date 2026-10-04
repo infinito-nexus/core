@@ -293,7 +293,8 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "cache pull-through Cluster-local per l'imaging di base Docker Hub condiviso, il taglio di trasferimenti duplicati e limiti di velocità"
 
-# translation-refused: libretranslate protected-span
+# (Claude Code♪ Cursor♪)
+# translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: Agenti di codifica installati sulla stazione di lavoro
 # (Claude Code♪ Cursor♪)

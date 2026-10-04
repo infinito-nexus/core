@@ -348,7 +348,7 @@ msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr "Linux ホスト上のアプリケーションコンテナの構築と実行のための Compose によるコンテナエンジンのランタイム"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: スケジューリングサービス用のコンテナオーケストレーションクラスター(プール付きマネージャーとワーカーノード)
 msgctxt "role:svc-swarm-node:description"
@@ -790,9 +790,10 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Amazon Sと互換性のあるオブジェクトストレージを含む、管理、スケーリング、および非構造化されたデータへのアクセスのための高性能、セルフホストストレージソリューション3 API の"
 
 # config、パッケージインストール、および安全なトンネル用のIP-forwarding sysctl)
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: ホストレベルのWireGuard VPNサービス(wg-quick
+# config、パッケージインストール、および安全なトンネル用のIP-forwarding sysctl)
 msgctxt "role:svc-net-wireguard-core:description"
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr ""
@@ -1221,12 +1222,10 @@ msgid "Open-source, self-hosted team messaging platform for real-time collaborat
 msgstr "チャネル、スレッド、および統合によるリアルタイムコラボレーションのためのオープンソース、セルフホスト型チームメッセージングプラットフォーム"
 
 # ローカルおよびホストされたモデルにパーコンシューマーキーが付いているエンドポイント
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: OpenAI 互換 LLM ゲートウェイが 1 つ/v をルーティング1
+# translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr ""
+msgstr "OpenAI 互換 LLM ゲートウェイが 1 つ/v をルーティング1 ローカルおよびホストされたモデルにパーコンシューマーキーが付いているエンドポイント"
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1327,13 +1326,11 @@ msgid "Privacy-first social platform for households, federating peer-to-peer ove
 msgstr "世帯のためのプライバシーファーストのソーシャルプラットフォーム, 埋め込まれたSQLiteストアでWebRTC上のピアツーピアをフェデレーション"
 
 # サポートとの堅くされたsudoers構成
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['パッケージおよび/etc/sudoers.d']
-# nocheck: url
-# translation-rejected: Privilege-escalation パッケージおよび/etc/sudoers.d ドロップイン
+# translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
-msgstr ""
+msgstr "Privilege-escalation パッケージおよび/etc/sudoers.d ドロップイン サポートとの堅くされたsudoers構成"
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
@@ -1693,9 +1690,10 @@ msgid "Self-hosted open-source machine translation API for translating and detec
 msgstr "テキストを言語間で翻訳し、検出するためのセルフホスト型のオープンソース機械翻訳API"
 
 # セルフホスト型パーソナルAIエージェントゲートウェイ(ブラウザコントロールUI)、片マイクロVMまたはgVisorランタイムでサンドボックス
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected:
+# セルフホスト型パーソナルAIエージェントゲートウェイ(ブラウザコントロールUI)、片マイクロVMまたはgVisorランタイムでサンドボックス
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr ""
@@ -1706,9 +1704,10 @@ msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycl
 msgstr "Keycloak SSO とセントラル LDAP ディレクトリとファイル同期、共有、コラボレーションのためのセルフホストプラットフォーム"
 
 # ニュースレターおよびメーリングリストのためのセルフホスト型プラットフォーム(購読者セグメンテーションとキャンペーン分析)
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected:
+# ニュースレターおよびメーリングリストのためのセルフホスト型プラットフォーム(購読者セグメンテーションとキャンペーン分析)
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr ""
@@ -1759,9 +1758,10 @@ msgid "Service Optimation"
 msgstr "サービス最適化"
 
 # サービスレベルのバックアップとリカバリコンポーネント(自動データスナップショット、リモートバックアップ、同期サービス、データベース、ファイル、コンテナ間でのバックアップオーケストレーション)。.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected:
+# サービスレベルのバックアップとリカバリコンポーネント(自動データスナップショット、リモートバックアップ、同期サービス、データベース、ファイル、コンテナ間でのバックアップオーケストレーション)。.
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""

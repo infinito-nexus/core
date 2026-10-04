@@ -382,6 +382,7 @@ msgid "Content Management"
 msgstr "مدیریت محتوا"
 
 # translated-by: libretranslate
+# انتشار وب
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: سیستم های مدیریت محتوا (CMS CMS CMS CMS) پلتفرم های
@@ -439,6 +440,7 @@ msgid "Customer Relationship"
 msgstr "ارتباط مشتری"
 
 # translated-by: libretranslate
+# روابط مشتری، خطوط لوله فروش، بازاریابی و فعالیت های پشتیبانی.
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: مدیریت روابط مشتری (CRM CRM CRM) نرم افزار برای مدیریت
@@ -658,6 +660,7 @@ msgctxt "menu:Events:title"
 msgid "Events"
 msgstr "حوادث"
 
+# code and Configuration
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Extensible Vim-line text Editor for Terminal-based
@@ -1106,13 +1109,11 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "سرور مبتنی بر Nginx برای میزبانی دارایی های استاتیک کپی شده از یک دایرکتوری منبع به مسیر داده های وب"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Node.js نصب npm و اجرای اختیاری "npm ci" در داخل یک
 # دایرکتوری پروژه
+# translated-by: libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "Node.js نصب npm و اجرای اختیاری \"npm ci\" در داخل یک دایرکتوری پروژه"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -2133,6 +2134,7 @@ msgid "Web-based LDAP client for browsing, searching, and administering director
 msgstr "وب مبتنی بر LDAP مشتری برای مرور، جستجو و مدیریت ورودی دایرکتوری در سرورهای LDAP"
 
 # translated-by: libretranslate
+# PostgreSQL سرورهای اختیاری OAuth2 ورود ورود ورود
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: مدیریت مبتنی بر وب و پلت فرم توسعه برای مدیریت چندین

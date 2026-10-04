@@ -569,13 +569,11 @@ msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
 msgstr "Izplatīta versiju kontroles sistēma, lai izsekotu pirmkoda izmaiņas un koordinētu izstrādes darbu"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Distro specifiska bāzes veidošanas rīku ķēde
 # (kompilatori, linkeri, make) izmantošanai 87. nodaļas preču ražošanā
+# translated-by: libretranslate
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
-msgstr ""
+msgstr "Distro specifiska bāzes veidošanas rīku ķēde (kompilatori, linkeri, make) izmantošanai 87. nodaļas preču ražošanā"
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-backend:description"
@@ -788,6 +786,12 @@ msgid "Helpful Tools"
 msgstr "Palīglīdzekļi"
 
 # translated-by: libretranslate
+# LuxOpCo un LuxSCS LuxOpCo LuxSCS LuxOpCo LuxOpCo LuxSCS LuxOpCo un LuxOpCo
+# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo
+# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo līgumu un LuxOpCo
+# LuxSCS maksu un maksu par LuxOpCo pakalpojumiem, kas saistīti ar LuxOpCo
+# pakalpojumiem, LuxOpCo un LuxOpCo, LuxOpCo darbībām un LuxOpCo darbībām.3
+# API.
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: LuxSCS un LuxOpCo LuxSCS LuxOpCo LuxSCS LuxOpCo LuxSCS
@@ -1384,7 +1388,8 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API apkalpo lomu datus, vēsturi un tulkojumi Infinito.Nexus katrai serdes daļai un dakšām"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['*']
+# skaits * svc-ai-s1
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Publisks vhost, kas atklāj System One lēmums API
 # skaits * svc-ai-s1
@@ -1432,14 +1437,12 @@ msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr "Reversā starpniekservera priekšpuse Docker mitinātajiem servisiem ar automātisko TLS, WebSocket atbalstu un per-app vHost templating"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Apgrieztā starpniekservera TLS orķestrācijas slānis,
 # kas izvēlas 'Let' Encrypt, 'pašparakstīt' vai 'atslēgti' Nginx sertifikātu
 # nodrošinātājus
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr ""
+msgstr "Apgrieztā starpniekservera TLS orķestrācijas slānis, kas izvēlas 'Let' Encrypt, 'pašparakstīt' vai 'atslēgti' Nginx sertifikātu nodrošinātājus"
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:description"
@@ -1821,7 +1824,8 @@ msgctxt "logout:all_done"
 msgid "Signed out everywhere."
 msgstr "Parakstīts visur."
 
-# translation-refused: libretranslate protected-span
+# pakalpojumi.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Paraksts, izņemot {failed} skaits * {total}
 # pakalpojumi.
@@ -2210,7 +2214,7 @@ msgctxt "logout:st_pending"
 msgid "signing out"
 msgstr "parakstīšanās"
 
-# translation-refused: libretranslate protected-span
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: {done} skaits * {total} Parakstītie pakalpojumi
 #, python-brace-format

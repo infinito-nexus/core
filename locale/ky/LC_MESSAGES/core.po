@@ -284,7 +284,8 @@ msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Docker Swarm жумушчу түйүндөрүнө атайын курулган сүрөттөрдү жеткирүү үчүн кластердик жергиликтүү контейнердик сүрөт реестри"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# прокси кэш) - бул ар бир ролду жарыялайт.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Класстердик-локалдык прокси кэш (кластердик-локалдык
 # прокси кэш) - бул ар бир ролду жарыялайт.
@@ -327,7 +328,10 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Коомчулук"
 
-# translation-refused: libretranslate protected-span
+# аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
+# камсыздалган активдери бар Луа.
+# translation-refused: libretranslate protected-span lost=['sub_filter']
+# gained=['sub_filterМЧН']
 # nocheck: url
 # translation-rejected: HTML инжекциялык ролдору (CSS, JS, Logout Interceptor,
 # аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
@@ -811,7 +815,8 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Bash жана Zsh login кабыктарын айлана-чөйрөнү ырааттуу жүктөө үчүн жалпы.profile менен байланыштырган хост деңгээлиндеги конфигурация"
 
-# translation-refused: libretranslate protected-span
+# чаралар pyproject.toml Системалык версия (ETC)
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Долбоорду ачыкка чыгаруу үчүн хост деңгээлиндеги
 # чаралар pyproject.toml Системалык версия (ETC)
@@ -1055,6 +1060,7 @@ msgid "NGINX-based web platform and reverse proxy with validated config reloads 
 msgstr "NGINX негизделген веб-платформа жана бекитилген конфигурациялык кайра жүктөр жана Келгиле шифрлөө интеграциясы менен тескери прокси"
 
 # translated-by: libretranslate
+# берет (Импрессия) Жинжадан2 үлгүсү үлгүсү үлгүсү
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: NGINX кызмат кылган статикалык баракча юридикалык изин
@@ -1103,13 +1109,11 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Nginx негизделген сервер булак каталогунан веб-маалымат жолуна көчүрүлгөн статикалык активдерди хостинг кылуу үчүн"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Node.js Npm орнотуу жана долбоордун каталогунун ичинде
 # "npm ci" иштетүү үчүн пакетти башкаруучу орнотуу
+# translated-by: libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "Node.js Npm орнотуу жана долбоордун каталогунун ичинде \"npm ci\" иштетүү үчүн пакетти башкаруучу орнотуу"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1161,7 +1165,8 @@ msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
 msgstr "Ачык булактуу ERP топтому CRM, сатуу, бухгалтердик эсеп, инвентаризация, кадрлар жана веб-сайтты башкаруу үчүн"
 
-# translation-refused: libretranslate protected-span
+# (SSO)
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Ачык булактуу IT жана тиркемелерди көзөмөлдөө сервери
 # (SSO)
@@ -1209,14 +1214,12 @@ msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
 msgstr "Ачык булактуу талкуу жана коомдук форум платформасы модерация, билдирүүлөр жана плагин колдоосу менен"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: "Ачык булактуу электрондук соода платформасы
 # ""Симфония"" жана ""Симфония"" программаларына негизделген." Vue.js
 # Интернеттеги дүкөндөрдү куруу жана масштабдаштыруу
+# translated-by: libretranslate
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
-msgstr ""
+msgstr "\"Ачык булактуу электрондук соода платформасы \"\"Симфония\"\" жана \"\"Симфония\"\" программаларына негизделген.\" Vue.js Интернеттеги дүкөндөрдү куруу жана масштабдаштыруу"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-zammad:description"
@@ -1803,7 +1806,9 @@ msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "Керектөөчүлөргө виртуалдык хост жана колдонуучуну изоляциялоо менен асинк билдирүү үчүн жалпы билдирүү брокери"
 
-# translation-refused: libretranslate protected-span
+# жалпы туруктуу сактоочу арткы бөлүктөр <unk> NFSv4 Сервердик жана клиенттик
+# ролдор.
+# translation-refused: libretranslate added-span lost=[] gained=['<unk>']
 # nocheck: url
 # translation-rejected: Көп түйүндүү жайгаштыруулар тарабынан колдонулган
 # жалпы туруктуу сактоочу арткы бөлүктөр <unk> NFSv4 Сервердик жана клиенттик

@@ -323,7 +323,10 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "ชุมชน"
 
-# translation-refused: libretranslate protected-span
+# เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
+# Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
+# translation-refused: libretranslate protected-span lost=['sub_filter']
+# gained=['sub_filterส']
 # nocheck: url
 # translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
 # เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
@@ -407,7 +410,8 @@ msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
 msgstr "Core AI บล็อก -- Model Pervision, OpenAI ประตูที่เข้ากันได้, ฐานข้อมูลเวกเตอร์, วงออเคสตร้า, และแชต UIs."
 
-# translation-refused: libretranslate protected-span
+# stream และค่าปริยายของการแสดง
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Kore EntertainX เว็บเซอร์ (inX) ด้วย HTTP และ TCP/UDP
 # stream และค่าปริยายของการแสดง
@@ -894,6 +898,7 @@ msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to
 msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระตุ้นให้ให้บริการแบบ OpenAI APIเส้นทางที่จะจําลองผ่านประตู LLM ร่วมกัน"
 
 # translated-by: libretranslate
+# Kata loader microVMs และ sports overnames.
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Keptember- usinaling times appnation on the paint:
@@ -952,7 +957,8 @@ msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr "ลายเซ็นตัวเองท้องถิ่นรูท CA สําหรับสร้างความไว้วางใจ เพื่อให้คอนเทนเนอร์ยอมรับจุดปลายของ TLS ภายใน"
 
-# translation-refused: libretranslate protected-span
+# (cross-platiform) อันดับ 1 ในฐานข้อมูล Ke Pass-formats ที่ถูกเข้ารหัสไว้
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: ระบบจัดการรหัสผ่านสําหรับพื้นที่ทํางานแบบไขว้
 # (cross-platiform) อันดับ 1 ในฐานข้อมูล Ke Pass-formats ที่ถูกเข้ารหัสไว้
@@ -960,13 +966,11 @@ msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: ศูนย์ควบคุมการแจ้งเตือนที่ 1 ในเครื่อง ซึ่งคอมไพล์
 # slack, จดหมายและเครื่องติดตามเข้าใช้การ์ดการกระทําที่ใช้ได้
+# translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr ""
+msgstr "ศูนย์ควบคุมการแจ้งเตือนที่ 1 ในเครื่อง ซึ่งคอมไพล์ slack, จดหมายและเครื่องติดตามเข้าใช้การ์ดการกระทําที่ใช้ได้"
 
 # translated-by: libretranslate
 msgctxt "role:sys-lock:description"
@@ -1023,7 +1027,7 @@ msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr "เฝ้าดู"
 
-# translation-refused: libretranslate protected-span
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Checknown regory (c.bg transparent c.ศ.
 msgctxt "role:gen-hunspell:description"
@@ -1040,13 +1044,11 @@ msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "GNNX ชั้นสําหรับ HTTPs ด้วย Let's การเข้ารหัสความท้าทาย ACME, พอร์ต 80 ถึง 443 เปลี่ยนทิศทาง, และล้างรอยหยัก"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: แม่ข่ายบริการ NGINX บล็อคที่การแปลงพาธอย่างถาวรของ
 # www.shorts ไปยังโดเมนที่ไม่ใช่วินโดว์สของพวกเขา
+# translated-by: libretranslate
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr ""
+msgstr "แม่ข่ายบริการ NGINX บล็อคที่การแปลงพาธอย่างถาวรของ www.shorts ไปยังโดเมนที่ไม่ใช่วินโดว์สของพวกเขา"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
@@ -1408,7 +1410,9 @@ msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
 msgstr "ซ่อมแซม"
 
-# translation-refused: libretranslate protected-span
+# การซ่อมแซมระบบยาก/การซ่อมแซมของดอกเกอร์, ระบบสมดุล (Btrfs)
+# และการแก้ไขระบบระดับต่ําอื่นๆ.
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: การซ่อมแซมและฟื้นฟูบทบาท --
 # การซ่อมแซมระบบยาก/การซ่อมแซมของดอกเกอร์, ระบบสมดุล (Btrfs)

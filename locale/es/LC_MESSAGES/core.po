@@ -344,6 +344,7 @@ msgid "Container Registries"
 msgstr "Container Registries"
 
 # translated-by: libretranslate
+# running application containers on Linux hosts
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Container engine runtime with Compose for building and
@@ -576,6 +577,7 @@ msgid "Distro-specific base build toolchain (compilers, linkers, make) for compi
 msgstr "herramienta de construcción de base específica (compiladores, ligadores, hacer) para compilar software de fuente"
 
 # translated-by: libretranslate
+# databases with backup, user, and permission management
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Docker Compose stack for containerized relational
@@ -585,6 +587,7 @@ msgid "Docker Compose stack for containerized relational databases with backup, 
 msgstr ""
 
 # translated-by: libretranslate
+# roles for multi-host service deployment.
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Docker Swarm cluster bootstrap and node-membership
@@ -1344,6 +1347,7 @@ msgid "Project Management Tools"
 msgstr "Herramientas de gestión de proyectos"
 
 # translated-by: libretranslate
+# systems via mhwd nonfree hardware detection
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Proprietary GPU driver installer for Arch-based
@@ -2054,12 +2058,10 @@ msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr "Servicio de notificación sistematizado unificado que envía alertas de falta de servicio a través de canales de Telegram y correo electrónico"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Actualizaciones " Gestión de paquetes
+# translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr ""
+msgstr "Actualizaciones \" Gestión de paquetes"
 
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
@@ -2074,12 +2076,10 @@ msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr "Gestión de usuarios"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Cuentas de usuario " control de acceso
+# translated-by: libretranslate
 msgctxt "category:user:description"
 msgid "User accounts & access control"
-msgstr ""
+msgstr "Cuentas de usuario \" control de acceso"
 
 # translated-by: libretranslate
 msgctxt "category:user:title"

@@ -329,11 +329,8 @@ msgstr "**एसीएमई चैलेंज चयन:** स्वचाल�
 # संकेत के माध्यम से Keycloakदेखें
 # [svc-ai-litellm](roles/svc-ai-litellm/README.md) और
 # [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md)।.
-# translation-refused: libretranslate protected-span lost=[] gained=["'ए'"]
-# nocheck: url
-# translation-rejected: **आप पहले से ही चल रहे अनुप्रयोगों के अंदर एआई
 msgid "**AI assistance inside the applications you already run.** A gateway role, *svc-ai-litellm*, fronts OpenAI, Anthropic and OpenRouter from declared keys, with *svc-ai-ollama* and the new *svc-ai-lmstudio* serving local models from one shared catalogue, so inference can stay inside the deployment. Sixteen applications use it for their own built-in AI features instead of calling a vendor directly: WordPress AI Engine, MediaWiki AIEditingAssistant, Moodle's AI subsystem, Zammad Smart Assist, the xWiki LLM extension, Discourse AI, the Matrix ChatGPT bridge, Nextcloud, Mattermost Agents, n8n, Open WebUI and Flowise. The gateway's admin UI signs in through Keycloak. See [svc-ai-litellm](roles/svc-ai-litellm/README.md) and [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md)."
-msgstr ""
+msgstr "**आप पहले से ही चल रहे अनुप्रयोगों के अंदर एआई सहायता।** प्रवेश द्वार *svc-ai-litellm*, फ्रंट्स ओपनएआई, एन्थ्रोपिक और ओपनरोटर घोषित कुंजी से, साथ में *svc-ai-ollama* नया *svc-ai-lmstudio* एक साझा सूची से स्थानीय मॉडलों की सेवा करना, इसलिए प्रवर्तन तैनाती के अंदर रह सकता है। सोलह अनुप्रयोग सीधे विक्रेता को कॉल करने के बजाय अपने स्वयं के अंतर्निहित एआई सुविधाओं के लिए इसका उपयोग करते हैं: वर्डप्रेस एआई इंजन, MediaWiki AIEditingAssistant, Moodle'ए' सबसिस्टम Zammad स्मार्ट असिस्ट, xWiki LLM एक्सटेंशन, Discourse एआई, Matrix ChatGPT पुल, Nextcloud, Mattermost एजेंट, n8n, Open WebUI और Flowiseप्रवेश द्वार के व्यवस्थापक यूआई संकेत के माध्यम से Keycloakदेखें [svc-ai-litellm](roles/svc-ai-litellm/README.md) और [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md)।."
 
 # translated-by: libretranslate
 msgid "**API Token File Setup:** Manages API token files securely for DNS challenge authentication."
@@ -1508,11 +1505,9 @@ msgid "**Certbot Integration:** Revokes and deletes certificates without manual 
 msgstr "**प्रमाणन:** मैनुअल हस्तक्षेप के बिना प्रमाणपत्र को रद्द और हटा देता है।"
 
 # प्लगइन्स की आवश्यकता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['9001']
-# nocheck: url
-# translation-rejected: **प्रमाणपत्र:ISO9001, CE** NGINX के लिए Certbot
+# translated-by: libretranslate
 msgid "**Certbot-NGINX Package Installation:** Installs required certbot plugins for NGINX."
-msgstr ""
+msgstr "**प्रमाणपत्र:ISO9001, CE** NGINX के लिए Certbot प्लगइन्स की आवश्यकता है।."
 
 # translated-by: libretranslate
 msgid "**Certificate Cleanup Tool Installation**"
@@ -2291,6 +2286,7 @@ msgstr "**एक एन्क्रिप्टेड सर्वर पर त
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: **तैनाती** Let's Encrypt चुनौती-and-redirect snippet
+# from ``sys-svc-letsencrypt``।.
 msgid "**Deploy** the Let’s Encrypt challenge-and-redirect snippet from ``sys-svc-letsencrypt``."
 msgstr ""
 
@@ -2299,6 +2295,7 @@ msgstr ""
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: **तैनाती** Let's Encrypt चुनौती-and-redirect snippet
+# from `sys-svc-letsencrypt`।.
 msgid "**Deploy** the Let’s Encrypt challenge-and-redirect snippet from `sys-svc-letsencrypt`."
 msgstr ""
 
@@ -2851,11 +2848,9 @@ msgid "**Description:** Nginx-based server for hosting static assets copied from
 msgstr "**विवरण:** एक स्रोत निर्देशिका से वेब डेटा पथ में कॉपी की गई स्थैतिक संपत्ति की मेजबानी के लिए Nginx आधारित सर्वर"
 
 # करना और वैकल्पिक रूप से प्रोजेक्ट डायरेक्टरी के अंदर 'npm' चल रहा है
-# translation-refused: libretranslate protected-span lost=[] gained=["'npm'"]
-# nocheck: url
-# translation-rejected: **विवरण:** Node.js पैकेज-प्रबंधक सेटअप एनपीएम स्थापित
+# translated-by: libretranslate
 msgid "**Description:** Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "**विवरण:** Node.js पैकेज-प्रबंधक सेटअप एनपीएम स्थापित करना और वैकल्पिक रूप से प्रोजेक्ट डायरेक्टरी के अंदर 'npm' चल रहा है"
 
 # translated-by: libretranslate
 msgid "**Description:** Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
@@ -4302,12 +4297,10 @@ msgstr "**Fediwall** एक स्व-होस्टेड है *मीडि
 
 # कार्य-निर्देशिका, और आभासी मुद्दों जो पहले यादृच्छिक सीआई या स्थानीय
 # विफलताओं का कारण बनता है, निर्धारित किया जाता है।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"mysterious"']
-# nocheck: url
-# translation-rejected: **Fewer "mysterious" त्रुटियों:** पथ,
+# translated-by: libretranslate
 msgid "**Fewer “mysterious” errors:** Path, working-directory, and virtualenv issues that previously caused random CI or local failures are fixed."
-msgstr ""
+msgstr "**Fewer \"mysterious\" त्रुटियों:** पथ, कार्य-निर्देशिका, और आभासी मुद्दों जो पहले यादृच्छिक सीआई या स्थानीय विफलताओं का कारण बनता है, निर्धारित किया जाता है।."
 
 # translated-by: libretranslate
 msgid "**File creation via shell heredoc is FORBIDDEN. ⛔** You MUST NOT use `cat > file <<EOF … EOF` or any variant (`tee > file <<EOF`, `printf \"…\" > file`, `echo \"…\" > file` for multi-line content) to create or overwrite files. Use the **Write tool**. For editing an existing file, use **Edit**, not `sed -i`/`awk -i`. Reason: Write/Edit land structured in the transcript and diff; heredoc + redirect shapes also fall out of the auto-allow heuristic and drop into ask."
@@ -6392,11 +6385,9 @@ msgstr "**Native OIDC SSO:** Semaphore अपनी खुद की प्र�
 # with" प्रस्तुत करता है Keycloak"के माध्यम से बटन
 # ``SEMAPHORE_OIDC_PROVIDERS``; Keycloak ग्राहक द्वारा स्वतः निरीक्षण किया
 # जाता है ``web-app-keycloak``।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **Native OIDC SSO:** Semaphore अपनी खुद की "Sign in
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Semaphore renders its own “Sign in with Keycloak” button via ``SEMAPHORE_OIDC_PROVIDERS``; the Keycloak client is auto-provisioned by ``web-app-keycloak``."
-msgstr ""
+msgstr "**Native OIDC SSO:** Semaphore अपनी खुद की \"Sign in with\" प्रस्तुत करता है Keycloak\"के माध्यम से बटन ``SEMAPHORE_OIDC_PROVIDERS``; Keycloak ग्राहक द्वारा स्वतः निरीक्षण किया जाता है ``web-app-keycloak``।."
 
 # translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
@@ -7563,12 +7554,10 @@ msgid "**Readiness gating:** Bootstrap blocks until the engine accepts connectio
 msgstr "**तैयारी:** जब तक इंजन कनेक्शन स्वीकार नहीं करता तब तक बूटस्ट्रैप ब्लॉक।"
 
 # "formed" के रूप में चिह्नित पुस्तकें और समीक्षा या उद्धरण प्रकाशित करें।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"',
 # '"formed"', '"reading"']
-# nocheck: url
-# translation-rejected: **पढ़ना स्थिति & समीक्षा:** "to read", "reading" या
+# translated-by: libretranslate
 msgid "**Reading Status & Reviews:** Mark books as “to read,” “reading,” or “finished,” and publish reviews or quotes."
-msgstr ""
+msgstr "**पढ़ना स्थिति & समीक्षा:** \"to read\", \"reading\" या \"formed\" के रूप में चिह्नित पुस्तकें और समीक्षा या उद्धरण प्रकाशित करें।."
 
 # translated-by: libretranslate
 msgid "**Real-Time Analytics:** Monitor visitor activity and generate detailed insights instantly."
@@ -7955,9 +7944,10 @@ msgid "**SSO Login:** \"Login with SSO\" button (when OIDC is enabled)"
 msgstr "**SSO लॉगिन:** \"SSO के साथ लॉगिन\" बटन (जब ओआईडीसी सक्षम हो जाता है)"
 
 # सक्षम हो जाता है)
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
+# translation-refused: libretranslate duplicate
 # nocheck: url
 # translation-rejected: **SSO लॉगिन:** "SSO के साथ लॉगिन" बटन (जब ओआईडीसी
+# सक्षम हो जाता है)
 msgid "**SSO Login:** “Login with SSO” button (when OIDC is enabled)"
 msgstr ""
 
@@ -8956,11 +8946,9 @@ msgstr "**यूआई प्रकाशित है, एमसीपी स�
 # मॉडल है, यह वायरिंग नहीं है, और प्लेराइट कवरेज इसे दर्शाता है: यह साबित होता
 # है कि "सभी समूह सभी सर्वरों को देखता है" और "कोई समूह नहीं देखता", चयनात्मक
 # मामला नहीं।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **The The most of the most important ``mcp`` भूमिका
+# translated-by: libretranslate
 msgid "**The ``mcp`` role is granted per platform, not per application.** A user’s ``roles:`` list carries role names only, and ```build_realm_rbac_groups`` <../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py>`__ matches them without an application context, so ``roles: [mcp]`` makes that user a member of *every* deployed ``/roles/<app>/mcp`` group. Entitling somebody to drive Baserow but not GitLab is therefore not expressible declaratively today; it needs the Keycloak membership to be set directly on the single group. The tool-server side honours whatever membership arrives, so the limit is the platform’s user model, not this wiring, and the Playwright coverage reflects it: it proves “all groups sees all servers” and “no group sees none”, not the selective case."
-msgstr ""
+msgstr "**The The most of the most important ``mcp`` भूमिका प्रति मंच प्रदान की जाती है, आवेदन के अनुसार नहीं।** उपयोगकर्ता ``roles:`` सूची केवल भूमिका नाम रखती है, और ```build_realm_rbac_groups`` <../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py>`__ matches them without an application context, so ``roles: [mcp]`` makes that user a member of *every* deployed ``/roles/<app>/mcp`` समूह किसी को ड्राइव करने के लिए प्रवेश करना Baserow लेकिन नहीं GitLab इसलिए आज स्पष्ट रूप से स्पष्ट नहीं है; इसकी आवश्यकता है Keycloak सदस्यता सीधे एकल समूह पर निर्धारित की जाएगी। टूल-सर्वर साइड सम्मान जो भी सदस्यता आती है, इसलिए सीमा मंच का उपयोगकर्ता मॉडल है, यह वायरिंग नहीं है, और प्लेराइट कवरेज इसे दर्शाता है: यह साबित होता है कि \"सभी समूह सभी सर्वरों को देखता है\" और \"कोई समूह नहीं देखता\", चयनात्मक मामला नहीं।."
 
 # translated-by: libretranslate
 msgid "**The `mcp` role is granted per platform, not per application.** A user's `roles:` list carries role names only, and [`build_realm_rbac_groups`](../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py) matches them without an application context, so `roles: [mcp]` makes that user a member of *every* deployed `/roles/<app>/mcp` group. Entitling somebody to drive Baserow but not GitLab is therefore not expressible declaratively today; it needs the Keycloak membership to be set directly on the single group. The tool-server side honours whatever membership arrives, so the limit is the platform's user model, not this wiring, and the Playwright coverage reflects it: it proves \"all groups sees all servers\" and \"no group sees none\", not the selective case."
@@ -10021,10 +10009,17 @@ msgstr "**बैकअप रूट** (निर्देशिका) → ख�
 # एस्पोक्रोम ने इस सूची को छोड़ दिया है: इसके प्याज संस्करण साझा व्यवस्थापक
 # व्यक्तित्व में विफल रहा है (बी में तय97सीएफ8888) इसके स्पष्ट संस्करण HTTP
 # रिटर्न देता है 500 GET/api/v पर1/App/user, कारण अभी भी खुला है।.
+# gained=['GET/api/v', 'पर1/App/user']
 # translation-refused: libretranslate protected-span lost=['1']
 # gained=['GET/api/v', 'पर1/App/user']
 # nocheck: url
 # translation-rejected: **आधार रेखा बहिष्कार** — `web-app-fider` और
+# `web-app-bookwyrm` (भी keycloak-job, n8n) टोर शाखा से पहले लाल थे और इसके
+# लिए गुंजाइश से बाहर रहे थे; बुकवर्म अपनी शपथ विफल हो गया2 विश्वसनीय-हेडर
+# सत्र स्पेक, इसके आधार को दर्ज करें। प्याज के काम से अलग से ठीक करें।
+# एस्पोक्रोम ने इस सूची को छोड़ दिया है: इसके प्याज संस्करण साझा व्यवस्थापक
+# व्यक्तित्व में विफल रहा है (बी में तय97सीएफ8888) इसके स्पष्ट संस्करण HTTP
+# रिटर्न देता है 500 GET/api/v पर1/App/user, कारण अभी भी खुला है।.
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr ""
 
@@ -10613,11 +10608,9 @@ msgid "**description**: Nginx-based server for hosting static assets copied from
 msgstr "**विवरण**: Nginx आधारित सर्वर स्थैतिक परिसंपत्तियों की मेजबानी के लिए एक स्रोत निर्देशिका से वेब डेटा पथ तक कॉपी किया गया।"
 
 # करना और वैकल्पिक रूप से प्रोजेक्ट डायरेक्टरी के अंदर 'npm' चल रहा है
-# translation-refused: libretranslate protected-span lost=[] gained=["'npm'"]
-# nocheck: url
-# translation-rejected: **विवरण**: Node.js पैकेज-प्रबंधक सेटअप एनपीएम स्थापित
+# translated-by: libretranslate
 msgid "**description**: Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "**विवरण**: Node.js पैकेज-प्रबंधक सेटअप एनपीएम स्थापित करना और वैकल्पिक रूप से प्रोजेक्ट डायरेक्टरी के अंदर 'npm' चल रहा है"
 
 # translated-by: libretranslate
 msgid "**description**: Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
@@ -11300,43 +11293,35 @@ msgid "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'mi
 msgstr "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'microblog''सामाजिक नेटवर्क']"
 
 # 'web', 'automation', 'archlinux']
-# translation-refused: libretranslate protected-span lost=[]
 # gained=["'reverse'"]
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'docker', 'reverse' proxy',
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'docker', 'reverse' proxy', 'web', 'automation', 'archlinux']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
 msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\ filter', 'injection', 'global']"
 
 # 'javascript', 'csp', 'sub' filter']
-# translation-refused: libretranslate protected-span lost=[] gained=["'sub'"]
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'logout', 'oidc',
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub' filter']"
 
 # proxy', 'letsencrypt''स्वयं \ signed']
-# translation-refused: libretranslate protected-span lost=[]
 # gained=["'reverse'"]
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse'
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse' proxy', 'letsencrypt''स्वयं \\ signed']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
 msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\ signed', 'certificates', 'openssl']"
 
 # 'reverse' proxy']
-# translation-refused: libretranslate protected-span lost=[]
 # gained=["'reverse'"]
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['openresty', 'nginx', 'docker',
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
-msgstr ""
+msgstr "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse' proxy']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'decentralized', 'open-source', 'video platform']"
@@ -11370,12 +11355,10 @@ msgstr "**एचटीएमएल**"
 # सीए की जरूरत है कि वी के लिए मुद्दों3 `.onion` (HARICA, CA/B फोरम ballot
 # 144) - खरीद, कोड नहीं। तब तक प्रति-उपभोक्ता फिक्स खड़े हो जाओ: libcurl
 # ग्राहकों के लिए प्रॉक्सी उनमें से कुछ नहीं है - यह एक स्पष्ट भूमिका है।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['https://onion']
-# nocheck: url
-# translation-rejected: **https://onion IdP. — की जांच और REJECTED.** OIDC
+# translated-by: libretranslate
 msgid "**https on the onion IdP — investigated and REJECTED, do not re-derive.** OIDC Discovery / RFC 8414 want an https issuer, and an onion-exclusive Keycloak has none, so strict client libraries refuse it. Serving TLS on the onion is blocked on four independent things, in this order: (1) `roles/svc-net-tor/templates/torrc.j2` publishes only `HiddenServicePort 80`, and no role declares 443 in `ports.public`/`ports.local`, so `lookup('tor_ports')` can never emit it — flipping TLS on first makes Keycloak unreachable over Tor entirely, because `nginx_ssl_header.j2` is one if/else and port 80 disappears; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` writes an unguarded CN, which overflows X.509's 64-byte cap on a 62-char v3 onion — `group_vars/all/02_tls.yml` already guards exactly this for the root CA and nowhere else; (3) `nginx_ssl_header.j2` emits HSTS in the same branch, and browsers offer no click-through on an HSTS host with an untrusted chain, so a self-signed interim locks real users out while staying invisible to Playwright's `ignoreHTTPSErrors`; (4) it fixes zero libcurl consumers, because RFC 7686 refusal happens at name resolution and is scheme-independent. Unblocking needs a CA that issues for v3 `.onion` (HARICA, CA/B Forum ballot 144) — procurement, not code. Until then the per-consumer fixes stand: SOCKS proxy for libcurl clients. peertube is no longer among them - it is a clearnet-only role."
-msgstr ""
+msgstr "**https://onion IdP. — की जांच और REJECTED.** OIDC डिस्कवरी / RFC 8414 एक https जारीकर्ता और एक प्याज-अनन्य Keycloak कोई नहीं, इसलिए सख्त ग्राहक पुस्तकालय इसे मना कर दिया है। इस क्रम में, प्याज पर टीएलएस की सेवा चार स्वतंत्र चीजों पर अवरुद्ध है: (1) `roles/svc-net-tor/templates/torrc.j2` केवल प्रकाशित `HiddenServicePort 80`, और कोई भूमिका घोषणा नहीं 443 में `ports.public`/`ports.local`, इसलिए `lookup('tor_ports')` इसे कभी नहीं उत्सर्जित कर सकते हैं - पहले टीएलएस को फ्लिप करना Keycloak पूरी तरह से टोर पर पहुंचने योग्य, क्योंकि `nginx_ssl_header.j2` यदि /else और बंदरगाह एक है 80 गायब हो जाता है; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` एक unguarded CN लिखता है, जो X को ओवरफ्लो करता है।509' 64एक पर बाइट कैप 62-char v3 प्याज — `group_vars/all/02_tls.yml` पहले से ही मूल CA और कहीं और के लिए यह गार्ड; (3) `nginx_ssl_header.j2` उसी शाखा में एचएसटीएस का उत्सर्जन करता है, और ब्राउज़र एक अविश्वासित श्रृंखला के साथ एक एचएसटीएस होस्ट पर कोई क्लिक-थ्रू प्रदान नहीं करते हैं, इसलिए प्लेराइट के लिए अदृश्य रहने के दौरान एक सेल्फ-सिग्न अंतरिम वास्तविक उपयोगकर्ताओं को लॉक करता है। `ignoreHTTPSErrors`; (4) यह शून्य libcurl उपभोक्ताओं को ठीक करता है, क्योंकि RFC 7686 इनकार नाम संकल्प पर होता है और यह योजना स्वतंत्र है। Unblocking एक सीए की जरूरत है कि वी के लिए मुद्दों3 `.onion` (HARICA, CA/B फोरम ballot 144) - खरीद, कोड नहीं। तब तक प्रति-उपभोक्ता फिक्स खड़े हो जाओ: libcurl ग्राहकों के लिए प्रॉक्सी उनमें से कुछ नहीं है - यह एक स्पष्ट भूमिका है।."
 
 # translated-by: libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
@@ -12009,6 +11992,7 @@ msgstr "*web-app-nextcloud* व्हाइटबोर्ड: unpinned *नव�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: *web-app-nextcloud*PHP 33-Fpm-alpine to 34-Fpm-alpine,
+# nginx 1.31.2 to 1.31.3
 msgid "*web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3"
 msgstr ""
 
@@ -12209,6 +12193,7 @@ msgstr "- ``(payload_bytes, total_bytes)`` सफलता पर - ``(\"SKIPPED
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: --distro debian - मालिक acme --repository
+# infinito-nexus --tag ci-abc
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
 msgstr ""
 
@@ -12216,6 +12201,7 @@ msgstr ""
 msgid "--retry count; --retry-all-errors makes it cover transport-layer resets (exit 35/52/56), the class that hard-fails deploys on flaky CI egress. Pass 0 to opt a call out of retrying."
 msgstr "--Retry count; --retry-all-errors यह परिवहन परत रीसेट को कवर करता है (निकास 35/52/56), जिस वर्ग में हार्ड फैल्स ने flaky CI egress पर तैनात किया है। पास 0 पुनः प्राप्त करने के लिए कॉल करना।"
 
+# lost=['host.docker.internal'] gained=['docker.internal']
 # translation-refused: libretranslate protected-span
 # lost=['host.docker.internal'] gained=['docker.internal']
 # nocheck: url
@@ -13692,11 +13678,9 @@ msgstr "कोई परिवर्तनशील `mode=reinstall` एक अ�
 # संस्करण जोड़ा जाता है तो रैंकिंग शिफ्ट हो जाती है, इसलिए सूचकांक का मतलब है
 # कि "आगे के पीछे की ओर बढ़ना" कल का मतलब आज कुछ और है, जबकि टोकन अभी भी इसे
 # कहते हैं।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: एक संख्या यह है कि कई पंक्तियां; कुछ और एक चयन टोकन है
+# translated-by: libretranslate
 msgid "A number is that many rows; anything else is a selection token (:mod:`utils.github.variant.selection`) and the start is the first regular row it names. Resuming at a role beats counting rows by hand: the ranking shifts whenever a variant is added, so the index that meant 'carry on behind nextcloud' yesterday means something else today, while the token still says it."
-msgstr ""
+msgstr "एक संख्या यह है कि कई पंक्तियां; कुछ और एक चयन टोकन है (:mod:`utils.github.variant.selection`) और शुरुआत यह पहली नियमित पंक्ति है। एक भूमिका पर भरोसा करते हुए हाथ से पंक्तियों की गिनती को हराया: जब भी एक संस्करण जोड़ा जाता है तो रैंकिंग शिफ्ट हो जाती है, इसलिए सूचकांक का मतलब है कि \"आगे के पीछे की ओर बढ़ना\" कल का मतलब आज कुछ और है, जबकि टोकन अभी भी इसे कहते हैं।."
 
 # translated-by: libretranslate
 msgid "A parsed README: everything before the first H2, then its H2 blocks."
@@ -16022,19 +16006,15 @@ msgstr "सभी सेटिंग्स उपलब्ध हैं `SEMAPHO
 
 # जाता है और `MODE_CLEANUP` unintended पुनः रन या कहानी फ़ाइलों से बचने के लिए
 # झंडे।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: सभी कार्यों को "एक बार रन" तथ्यों द्वारा संरक्षित किया
+# translated-by: libretranslate
 msgid "All tasks are guarded by “run once” facts and `MODE_CLEANUP` flags to avoid unintended re-runs or stale files."
-msgstr ""
+msgstr "सभी कार्यों को \"एक बार रन\" तथ्यों द्वारा संरक्षित किया जाता है और `MODE_CLEANUP` unintended पुनः रन या कहानी फ़ाइलों से बचने के लिए झंडे।."
 
 # जाता है और ``MODE_CLEANUP`` unintended पुनः रन या कहानी फ़ाइलों से बचने के
 # लिए झंडे।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: सभी कार्यों को "एक बार रन" तथ्यों द्वारा संरक्षित किया
+# translated-by: libretranslate
 msgid "All tasks are guarded by “run once” facts and ``MODE_CLEANUP`` flags to avoid unintended re-runs or stale files."
-msgstr ""
+msgstr "सभी कार्यों को \"एक बार रन\" तथ्यों द्वारा संरक्षित किया जाता है और ``MODE_CLEANUP`` unintended पुनः रन या कहानी फ़ाइलों से बचने के लिए झंडे।."
 
 # translated-by: libretranslate
 msgid "All tasks are idempotent. Once your certificates are in place and your configuration is set, Ansible will skip unchanged steps on subsequent runs."
@@ -17101,11 +17081,9 @@ msgstr "अनुप्रयोग सीधे फाइल रूट के �
 # SDKs और CLIs का उपयोग करके बाल्टी। व्यवस्थापक एक ब्राउज़र कंसोल के माध्यम से
 # बाल्टी, उपयोगकर्ता और एक्सेस नीतियों का प्रबंधन करते हैं जबकि सब कुछ
 # ऑन-प्रेम रखता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"एस"']
-# nocheck: url
-# translation-rejected: अनुप्रयोग जो "एस" बोलते हैं3” (Pixelfed, Mastodon,
+# translated-by: libretranslate
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
-msgstr ""
+msgstr "अनुप्रयोग जो \"एस\" बोलते हैं3” (Pixelfed, Mastodon, Nextcloud, Flowiseआदि) वस्तुओं को स्टोर और पुनर्प्राप्त करें MinIO परिचित SDKs और CLIs का उपयोग करके बाल्टी। व्यवस्थापक एक ब्राउज़र कंसोल के माध्यम से बाल्टी, उपयोगकर्ता और एक्सेस नीतियों का प्रबंधन करते हैं जबकि सब कुछ ऑन-प्रेम रखता है।."
 
 # translated-by: libretranslate
 msgid "Applications 📦"
@@ -19439,10 +19417,16 @@ msgstr "CI पाइपलाइन"
 # 20बोट शाखाओं के लिए रेस रिट्री)🖥️प्रशन [p]: 1 पेज - 365airsoft.com 3.12 सभी
 # 16 वर्कफ़्लो, प्लस एनपीएम और ansible-galaxy कैश जहां लापता है। अद्यतन बॉट अब
 # अपनी शाखाओं को हटा देता है जब सुपरसेड पीआर बंद हो जाता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['1',
 # '365', '[', ']', '️', '🖥']
+# translation-refused: libretranslate added-span lost=[] gained=['1', '365',
+# '[', ']', '️', '🖥']
 # nocheck: url
 # translation-rejected: सीआई पाइपलाइन पास: पीआर प्रवाह अब एक नया पता लगाने के
+# आरोपित-रोल्स हल करने वाले के माध्यम से एनवी-मैट्रिक्स को गेट करता है
+# (भूमिकाओं पर छोड़ दिया); जब एक खुला पीआर मौजूद है तो सीआई ने छोड़ दिया (साथ
+# 20बोट शाखाओं के लिए रेस रिट्री)🖥️प्रशन [p]: 1 पेज - 365airsoft.com 3.12 सभी
+# 16 वर्कफ़्लो, प्लस एनपीएम और ansible-galaxy कैश जहां लापता है। अद्यतन बॉट अब
+# अपनी शाखाओं को हटा देता है जब सुपरसेड पीआर बंद हो जाता है।.
 msgid "CI pipeline pass: PR flow now gates the env-matrix via a new detect-affected-roles resolver (skipped on role-only diffs); push CI skipped when an open PR exists (with 20s race retry for bot branches); pip cache + python 3.12 across all 16 workflows, plus npm and ansible-galaxy caches where missing. Update bot now deletes its own branches when closing superseded PRs."
 msgstr ""
 
@@ -21595,9 +21579,13 @@ msgstr "किसी भी मल्टी-लाइन स्ट्रिं�
 # भेदभावी (*oidc* (c) *ओउथ2* (c) *हिन्दी*डिफ़ॉल्ट *oidc*)फ्लेवर-विशिष्ट कुंजी
 # नीचे रहते हैं *Sso.<flavor>* (*sso.oauth2।{मूल, acl,allowed_groups}*,
 # *sso.oidc.plugin*)।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: समानांतर पतन **ओउथ2** और **oidc** हर भूमिका में शीर्ष
+# स्तर के ब्लॉक *meta/services.yml* एकल में *services.sso* ब्लॉक **स्वाद**
+# भेदभावी (*oidc* (c) *ओउथ2* (c) *हिन्दी*डिफ़ॉल्ट *oidc*)फ्लेवर-विशिष्ट कुंजी
+# नीचे रहते हैं *Sso.<flavor>* (*sso.oauth2।{मूल, acl,allowed_groups}*,
+# *sso.oidc.plugin*)।.
 #, python-brace-format
 msgid "Collapses the parallel **oauth2** and **oidc** top-level blocks in every role *meta/services.yml* into a single *services.sso* block with a **flavor** discriminator (*oidc* | *oauth2* | *saml*, default *oidc*). Flavor-specific keys live under *sso.<flavor>* (*sso.oauth2.{origin,acl,allowed_groups}*, *sso.oidc.plugin*)."
 msgstr ""
@@ -22775,12 +22763,10 @@ msgid "Correct migration procedure ✅"
 msgstr "सही माइग्रेशन प्रक्रिया ✅"
 
 # परीक्षा / लिंट स्थिति तंत्र को जोड़ते हैं।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=["'stale'"]
-# nocheck: url
-# translation-rejected: सही आवश्यकता 025'stale' का दावा है और थकावट लेखा
+# translated-by: libretranslate
 msgid "Correct requirement 025's stale claims and add the exhaustive audit/lint status mechanism."
-msgstr ""
+msgstr "सही आवश्यकता 025'stale' का दावा है और थकावट लेखा परीक्षा / लिंट स्थिति तंत्र को जोड़ते हैं।."
 
 # translated-by: libretranslate
 msgid "Cosmetic repairs a restored translation goes through."
@@ -23193,11 +23179,9 @@ msgstr "कर्सर के सीएलआई को कस्टम ओप�
 # "Override OpenAI" ले जाता है Base यूआरएल "क्षेत्र, लेकिन यह में रहता है
 # Cursorएक फ़ाइल के बजाय खुद का स्टेट डेटाबेस इस भूमिका को प्रस्तुत कर सकता
 # है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: कर्सर के सीएलआई को कस्टम ओपनएआई-संगत समापन बिंदु पर
+# translated-by: libretranslate
 msgid "Cursor’s CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an “Override OpenAI Base URL” field, but it lives in Cursor’s own state database rather than in a file this role could render."
-msgstr ""
+msgstr "कर्सर के सीएलआई को कस्टम ओपनएआई-संगत समापन बिंदु पर इंगित नहीं किया जा सकता है: यह के लिए कुंजी का आदान-प्रदान करता है Cursor सत्र टोकन और उसके बाद अपने स्वयं के प्रोटोकॉल की बात करता है। संपादक \"Override OpenAI\" ले जाता है Base यूआरएल \"क्षेत्र, लेकिन यह में रहता है Cursorएक फ़ाइल के बजाय खुद का स्टेट डेटाबेस इस भूमिका को प्रस्तुत कर सकता है।."
 
 # translated-by: libretranslate
 msgid "Custom Docker image built on ``ghcr.io/decidim/decidim`` with OpenID Connect support"
@@ -24127,9 +24111,17 @@ msgstr "प्रवेश बिंदु"
 # भूमिका id एक रन से जो प्रदर्शन नामों को ठीक करने की भविष्यवाणी करता है।
 # ऑर्केस्ट्रेटर एक prepends "कॉलर / " उपसर्ग और शार्ड प्रत्यय (उदाहरण " 0,1")
 # प्रदर्शन नाम में सवारी; दोनों को सहन किया जाता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: डिप्लॉय जॉब्स से मेल खाते हैं compose/swarm/host Glyph
+# (प्रतीक शब्दावली से, सच्चाई का एकल स्रोत) उनका परीक्षण-{रचना,
+# swarm,होस्ट}.yml मैट्रिक्स उनके साथ शीर्षक -- नहीं शब्द
+# "Compose"/"Swarm"/"Host", कोई वास्तविक नौकरी नहीं (जिन लोगों ने बनाया
+# ``--failed swarm`` चुपचाप कुछ नहीं ढूंढना)Glyph (Glyph) क्या है?
+# (``utils.roles.display``), वापस भूमिका id करने के लिए decoded; एक नंगे
+# भूमिका id एक रन से जो प्रदर्शन नामों को ठीक करने की भविष्यवाणी करता है।
+# ऑर्केस्ट्रेटर एक prepends "कॉलर / " उपसर्ग और शार्ड प्रत्यय (उदाहरण " 0,1")
+# प्रदर्शन नाम में सवारी; दोनों को सहन किया जाता है।.
 #, python-brace-format
 msgid "Deploy jobs are matched by the compose/swarm/host glyph (from the symbol glossary, the single source of truth) their test-deploy-{compose,swarm,host}.yml matrix titles them with -- NOT the words \"Compose\"/\"Swarm\"/\"Host\", which no real job carries (matching those made ``--failed swarm`` silently find nothing). What follows the glyph is the role's display name (``utils.roles.display``), decoded back to the role id; a bare role id from a run that predates the display names decodes just as well. The orchestrator prepends a \"caller / \" prefix and the shard suffix (e.g. \" 0,1\") rides along in the display name; both are tolerated."
 msgstr ""
@@ -26716,11 +26708,9 @@ msgstr "प्रवेश ``\"name:address\"`` तार और पहली �
 # नंगे कंटेनर पुनरारंभ के बाद सभी प्रशासकों तक पहुंच होगी। एक विकलांग
 # प्रविष्टि बिल्कुल नहीं है, इसलिए गिरावट बहुत ज्यादा की बजाय कोई पहुंच नहीं
 # है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: प्रविष्टियाँ **विकलांग**प्रत्येक व्यक्ति को एक ही
+# translated-by: libretranslate
 msgid "Entries render **disabled**, and the task enables each one in the same write that carries its grant. An empty ``access_grants`` is not “nobody”: Open WebUI reads it as every administrator, which is wider than the ``mcp`` group. Since ``ENABLE_PERSISTENT_CONFIG=false`` makes the env authoritative again on every start, an enabled-but-ungranted entry would hand access to all administrators before the first provisioning run and after any bare container restart. A disabled entry is not served at all, so the fallback is no access rather than too much."
-msgstr ""
+msgstr "प्रविष्टियाँ **विकलांग**प्रत्येक व्यक्ति को एक ही लिखने में सक्षम बनाता है जो इसके अनुदान को वहन करता है। खाली ``access_grants`` \"कोई नहीं\" नहीं है: ओपन वेबयूआई ने इसे हर प्रशासक के रूप में पढ़ा, जो कि अधिक व्यापक है। ``mcp`` समूह चूंकि ``ENABLE_PERSISTENT_CONFIG=false`` हर शुरुआत में एनवी आधिकारिक फिर से बनाता है, एक सक्षम लेकिन अप्रवासी प्रविष्टि पहले प्रावधान चलाने से पहले और किसी भी नंगे कंटेनर पुनरारंभ के बाद सभी प्रशासकों तक पहुंच होगी। एक विकलांग प्रविष्टि बिल्कुल नहीं है, इसलिए गिरावट बहुत ज्यादा की बजाय कोई पहुंच नहीं है।."
 
 # translated-by: libretranslate
 msgid "Entries render **disabled**, and the task enables each one in the same write that carries its grant. An empty `access_grants` is not \"nobody\": Open WebUI reads it as every administrator, which is wider than the `mcp` group. Since `ENABLE_PERSISTENT_CONFIG=false` makes the env authoritative again on every start, an enabled-but-ungranted entry would hand access to all administrators before the first provisioning run and after any bare container restart. A disabled entry is not served at all, so the fallback is no access rather than too much."
@@ -27076,12 +27066,10 @@ msgstr "हर असफलता एक कार्रवाई योग्�
 # घोषणाओं और प्रतियों पर लूप `<addon_id>.php` प्रत्येक तैनाती पर कंटेनर में;
 # एक नई फ़ाइल इसलिए इसकी आवश्यकता है `meta/addons/<addon_id>.yml` इससे पहले कि
 # यह स्थापित किया गया है, प्रवेश और एक Playwright कल्पना।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['plugins.yml']
-# nocheck: url
-# translation-rejected: यहां प्रत्येक फ़ाइल को ऐडऑन के रूप में घोषित किया जाता
+# translated-by: libretranslate
 msgid "Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed."
-msgstr ""
+msgstr "यहां प्रत्येक फ़ाइल को ऐडऑन के रूप में घोषित किया जाता है `meta/addons/` साथ `mechanism: mu_plugin` और `source: vendored`, और addon id फ़ाइल स्टेम है। [04mu plugins.yml](../../tasks/04_mu_plugins.yml) उन घोषणाओं और प्रतियों पर लूप `<addon_id>.php` प्रत्येक तैनाती पर कंटेनर में; एक नई फ़ाइल इसलिए इसकी आवश्यकता है `meta/addons/<addon_id>.yml` इससे पहले कि यह स्थापित किया गया है, प्रवेश और एक Playwright कल्पना।."
 
 # translated-by: libretranslate
 msgid "Every handler module MUST expose the same surface so the registry can call it uniformly:"
@@ -27958,12 +27946,10 @@ msgid "Extract literal ``default:`` credential values from a ``meta/secrets.yml`
 msgstr "साहित्यिक निकालें ``default:`` एक से क्रेडेंशियल मान ``meta/secrets.yml`` ``credentials:`` पेड़।"
 
 # (https://sssh.)।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['https://sssh.']
-# nocheck: url
-# translation-rejected: निकालें ``owner/repo`` एक से slug github.com यूआरएल
+# translated-by: libretranslate
 msgid "Extract the ``owner/repo`` slug from a github.com URL (https or ssh)."
-msgstr ""
+msgstr "निकालें ``owner/repo`` एक से slug github.com यूआरएल (https://sssh.)।."
 
 # translated-by: libretranslate
 msgid "Extracted Code 📤"
@@ -29761,10 +29747,15 @@ msgstr "फॉर्म"
 # रास्पबेरी पाई पर एक घरेलू सहायक के रूप में चलाते हैं, कर्नेल-आइलेटेड, आवाज /
 # चैट पर पहुंच योग्य, कभी मेजबान पहुंच प्राप्त किए बिना MCP के माध्यम से घरेलू
 # उपकरणों को नियंत्रित करते हैं।.
+# lost=['web-app-homeassistant.md'] gained=[]
 # translation-refused: libretranslate protected-span
 # lost=['web-app-homeassistant.md'] gained=[]
 # nocheck: url
 # translation-rejected: अपनी भूमिका के रूप में तैयार
+# [033-web-app-homeassistantmd](033-web-app-homeassistant.md). हर्म्स एक एकल
+# रास्पबेरी पाई पर एक घरेलू सहायक के रूप में चलाते हैं, कर्नेल-आइलेटेड, आवाज /
+# चैट पर पहुंच योग्य, कभी मेजबान पहुंच प्राप्त किए बिना MCP के माध्यम से घरेलू
+# उपकरणों को नियंत्रित करते हैं।.
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
 msgstr ""
 
@@ -30042,10 +30033,13 @@ msgstr "GITHUB_ACTIONS=true and not ACT -> असली github कार्र�
 
 # मालिक, से व्युत्पन्न GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORYअगर
 # GHA पर असुरक्षित है तो घातक।.
+# lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYअगर']
 # translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYअगर']
 # nocheck: url
 # translation-rejected: GITHUB_REPOSITORY_OWNER: लोअरकेस्ड GHA रिपोजिटरी
+# मालिक, से व्युत्पन्न GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORYअगर
+# GHA पर असुरक्षित है तो घातक।.
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -31307,10 +31301,13 @@ msgstr "INFINITO_CACHE_HTTP_HOSTS: मेजबान नाम फ्रंट�
 
 # प्रति-होस्ट नेक्सस व्यवस्थापक पासवर्ड: शा256(host_pathनाम), करने के लिए
 # truncated 32 हेक्स चार.
+# gained=['host_pathन']
 # translation-refused: libretranslate protected-span lost=['host_path']
 # gained=['host_pathन']
 # nocheck: url
 # translation-rejected: INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: स्थिर
+# प्रति-होस्ट नेक्सस व्यवस्थापक पासवर्ड: शा256(host_pathनाम), करने के लिए
+# truncated 32 हेक्स चार.
 msgid "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path:hostname), truncated to 32 hex chars."
 msgstr ""
 
@@ -31431,6 +31428,7 @@ msgstr "INFINITO_IS_WSL2: जब /proc/version मेजबान को WSL क
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: INFINITO_OUTER_NETWORK_MTU: MTU of compose stack's
+# bridge network.
 msgid "INFINITO_OUTER_NETWORK_MTU: MTU of the compose stack's bridge network."
 msgstr ""
 
@@ -32919,10 +32917,12 @@ msgid "Infinito.Nexus works best when the pieces stay small, the boundaries stay
 msgstr "Infinito.Nexus जब टुकड़े छोटे रहते हैं तो सबसे अच्छा काम करता है, सीमाएं स्पष्ट रहती हैं, और डॉक्स ईमानदार रहते हैं।"
 
 # फ़ाइल.
+# gained=['Infinito.Nexusर']
 # translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexusर']
 # nocheck: url
 # translation-rejected: Infinito.Nexusरेपो के विशिष्ट उपनाम नाम ``aliases``
+# फ़ाइल.
 msgid "Infinito.Nexus-specific alias names from the repo's ``aliases`` file."
 msgstr ""
 
@@ -33848,21 +33848,17 @@ msgstr "इसके बजाय एक पाठ-presence regression परी
 
 # आर्बिटर अभिनेता का उपयोग करता है ("द किंग") चाल और मध्यस्थता मैचों को मान्य
 # करने के लिए।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: बंद प्लेटफार्मों पर भरोसा करने के बजाय, castling.club
+# translated-by: libretranslate
 msgid "Instead of relying on closed platforms, castling.club uses an arbiter actor (“the King”) to validate moves and mediate matches."
-msgstr ""
+msgstr "बंद प्लेटफार्मों पर भरोसा करने के बजाय, castling.club आर्बिटर अभिनेता का उपयोग करता है (\"द किंग\") चाल और मध्यस्थता मैचों को मान्य करने के लिए।."
 
 # आर्बिटर अभिनेता का उपयोग करता है ("द किंग") चाल और मध्यस्थता मैचों को मान्य
 # करने के लिए। यह निष्पक्ष खेल सुनिश्चित करता है, जैसे प्लेटफार्मों के साथ
 # फेडरेशन Mastodon या Friendicaचल रहे खेलों की सामुदायिक दृश्यता सेवा हल्के
 # वजन के रूप में चलती है Node.js द्वारा समर्थित ऐप PostgreSQL।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: बंद प्लेटफार्मों पर भरोसा करने के बजाय, castling.club
+# translated-by: libretranslate
 msgid "Instead of relying on closed platforms, castling.club uses an arbiter actor (“the King”) to validate moves and mediate matches.   This ensures fair play, federation with platforms like Mastodon or Friendica, and community visibility of ongoing games.   The service runs as a lightweight Node.js app backed by PostgreSQL."
-msgstr ""
+msgstr "बंद प्लेटफार्मों पर भरोसा करने के बजाय, castling.club आर्बिटर अभिनेता का उपयोग करता है (\"द किंग\") चाल और मध्यस्थता मैचों को मान्य करने के लिए। यह निष्पक्ष खेल सुनिश्चित करता है, जैसे प्लेटफार्मों के साथ फेडरेशन Mastodon या Friendicaचल रहे खेलों की सामुदायिक दृश्यता सेवा हल्के वजन के रूप में चलती है Node.js द्वारा समर्थित ऐप PostgreSQL।."
 
 # translated-by: libretranslate
 msgid "Instead of renaming, copy the entire Maildir from the old domain to the new one:"
@@ -35171,6 +35167,7 @@ msgstr "Keycloak realm issuer URL."
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Keycloak redirect URIs/web-origins से computed हैं
+# `lookup('domains')` तैनात
 msgid "Keycloak redirect URIs/web-origins are computed from `lookup('domains')` at deploy"
 msgstr ""
 
@@ -37128,10 +37125,13 @@ msgstr "मातोमो हेल्थचेक व्यवहार हे
 
 # राज्य के लिए इंतजार कर रहा है, एक PHP आधारित / के साथ TCP चेक की
 # जगहindex.php स्टार्टअप रेस की स्थिति को रोकने के लिए हेल्थचेक।.
+# gained=[]
 # translation-refused: libretranslate protected-span lost=['index.php']
 # gained=[]
 # nocheck: url
 # translation-rejected: Matomo अब बूटस्ट्रैपिंग से पहले एक वास्तविक HTTP-ready
+# राज्य के लिए इंतजार कर रहा है, एक PHP आधारित / के साथ TCP चेक की
+# जगहindex.php स्टार्टअप रेस की स्थिति को रोकने के लिए हेल्थचेक।.
 msgid "Matomo now waits for a real HTTP-ready state before bootstrapping, replacing the TCP check with a PHP-based /index.php healthcheck to prevent startup race conditions."
 msgstr ""
 
@@ -37869,10 +37869,12 @@ msgid "Move the existing compose-flavor tasks + templates into the new `flavor/c
 msgstr "मौजूदा रचना-flavor कार्यों + टेम्पलेट्स को नए में ले जाएँ `flavor/compose/` व्यवहार परिवर्तन के बिना उपनिर्देश; व्यवहार में एक स्वाद प्रेषण जोड़ें `tasks/main.yml`।"
 
 # विन्यासmain.yml प्रत्येक भूमिका की फ़ाइल
+# gained=[]
 # translation-refused: libretranslate protected-span lost=['main.yml']
 # gained=[]
 # nocheck: url
 # translation-rejected: उनके मूल्यों को भूमिकाओं में ले जाएँ/*/
+# विन्यासmain.yml प्रत्येक भूमिका की फ़ाइल
 msgid "Move their values to the roles/*/config/main.yml file of each role"
 msgstr ""
 
@@ -38607,6 +38609,16 @@ msgstr "कोई अतिरिक्त भूमिका चर की आ�
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: कोई एजेंट को एजेंट कार्य करने के लिए होस्ट एक्सेस की
+# आवश्यकता नहीं है: ओपनक्लॉ के ब्राउज़र नियंत्रण और फ़ाइलसिस्टम एक्सेस अतिथि
+# के अंदर चला जाता है, और हेर्म्स के सबएजेंट निष्पादन अतिथि के अंदर चलता है,
+# इसलिए एजेंट रनटाइम पूरी तरह से अलग है। एकमात्र मेजबान स्तर की मांग हर्म्स
+# वेब डैशबोर्ड है, जो चाहता है `network_mode: host` केवल एक साझा होस्ट PID
+# नेमस्पेस प्रदर्शित करने के लिए **मेजबान** एक पृथक अतिथि को उजागर नहीं किया
+# जा सकता है। यह होस्ट-मॉनिटरिंग व्यू severable है और MUST अपने पृथक रनटाइम से
+# एजेंट टियर को बाहर नहीं खींचता है: एजेंट रनटाइम अलग रहता है, और
+# होस्ट-मीट्रिक्स डैशबोर्ड या तो हर्म्स के एम्बेडेड / इन-प्रोसेस मोड में चल
+# रहा है। (कम मेजबान आँकड़ों के साथ) या एक अलग गैर अलग अलग अलग करने के लिए
+# विभाजित `runc` साइडकार.
 msgid "No agent needs host access to do agent work: OpenClaw's browser control and filesystem access run inside the guest, and Hermes' subagent execution runs inside the guest, so the agent runtime is fully isolatable. The only host-level demand is Hermes' web dashboard, which wants `network_mode: host` and a shared host PID namespace solely to display **host** metrics that an isolated guest cannot expose. That host-monitoring view is severable and MUST NOT pull the agent tier out of its isolated runtime: the agent runtime stays isolated, and the host-metrics dashboard is either run in Hermes' embedded/in-process mode (with reduced host stats) or split out to a separate non-isolated `runc` sidecar."
 msgstr ""
 
@@ -40986,6 +40998,7 @@ msgstr "दस्तावेजों की सूची में एक ब�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Parse a space- या comma-separated list of service
+# name.
 msgid "Parse a space- or comma-separated list of service names."
 msgstr ""
 
@@ -43109,12 +43122,10 @@ msgstr "धक्का देना 🚢"
 # `wp-content/plugins/` और प्रबंधित [05enable
 # plugin.yml](../../tasks/05_enable_plugin.yml) यदि आवश्यक हो तो ऑपरेटर उन्हें
 # प्रति साइट निष्क्रिय कर सकते हैं।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['plugin.yml']
-# nocheck: url
-# translation-rejected: इस निर्देशिका में केवल एक फ़ाइल रखो जब यह व्यवहार करता
+# translated-by: libretranslate
 msgid "Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed."
-msgstr ""
+msgstr "इस निर्देशिका में केवल एक फ़ाइल रखो जब यह व्यवहार करता है तो इस भूमिका के सुरक्षा या एकीकरण अनुबंध का हिस्सा है और MUST हर अनुरोध के लिए प्रभावी रहा है। हर रोज फीचर प्लगइन्स SHOULD सामान्य में रहते हैं `wp-content/plugins/` और प्रबंधित [05enable plugin.yml](../../tasks/05_enable_plugin.yml) यदि आवश्यक हो तो ऑपरेटर उन्हें प्रति साइट निष्क्रिय कर सकते हैं।."
 
 # translated-by: libretranslate
 msgid "Put back the sentence boundary a translator dropped behind a protected span."
@@ -43273,11 +43284,9 @@ msgstr "RBAC समूह गेट से परे व्यवहार्य
 # ``X-Forwarded-Email``/``X-Forwarded-Preferred-Username`` ऐप के अंदर कुछ भी
 # नहीं है। यह RBAC अपवाद प्रति दस्तावेज है `lifecycle.md
 # <../../docs/contributing/design/role/services/lifecycle.md>`__।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: RBAC समूह गेट से परे व्यवहार्य नहीं है: पोस्टमार्क्स
+# translated-by: libretranslate
 msgid "RBAC is not feasible beyond the group gate: Postmarks has no in-app authorisation tier beyond “owner or not” and no per-user identity, so ``X-Forwarded-Email``/``X-Forwarded-Preferred-Username`` cannot scope anything inside the app. This RBAC exception is documented per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__."
-msgstr ""
+msgstr "RBAC समूह गेट से परे व्यवहार्य नहीं है: पोस्टमार्क्स में \"स्वामी या नहीं\" और प्रति उपयोगकर्ता पहचान नहीं से परे कोई इन-ऐप प्राधिकरण नहीं है, इसलिए ``X-Forwarded-Email``/``X-Forwarded-Preferred-Username`` ऐप के अंदर कुछ भी नहीं है। यह RBAC अपवाद प्रति दस्तावेज है `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__।."
 
 # translated-by: libretranslate
 msgid "RBAC stays gating-only because the PDS has no in-app role concept beyond \"account exists / does not exist\". Membership in the `/roles/web-app-bluesky` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md) covers the in-app authorisation tier."
@@ -43288,11 +43297,9 @@ msgstr "RBAC केवल गैटिंग रहता है क्यों
 # है2-प्रोक्सी गेट। प्रति दस्तावेज SSO/RBAC अपवाद `lifecycle.md
 # <../../docs/contributing/design/role/services/lifecycle.md>`__ इन-ऐप
 # प्राधिकरण टियर को कवर करता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: RBAC केवल गैटिंग रहता है क्योंकि PDS में "खाता मौजूद
+# translated-by: libretranslate
 msgid "RBAC stays gating-only because the PDS has no in-app role concept beyond “account exists / does not exist”. Membership in the ``/roles/web-app-bluesky`` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__ covers the in-app authorisation tier."
-msgstr ""
+msgstr "RBAC केवल गैटिंग रहता है क्योंकि PDS में \"खाता मौजूद है / मौजूद नहीं है\" से परे कोई इन-ऐप भूमिका अवधारणा नहीं है। सदस्यता ``/roles/web-app-bluesky`` Keycloak समूह उपयोगकर्ता को ओउथ के पास जाने देता है2-प्रोक्सी गेट। प्रति दस्तावेज SSO/RBAC अपवाद `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__ इन-ऐप प्राधिकरण टियर को कवर करता है।."
 
 # translated-by: libretranslate
 msgid "RBAC under Multisite uses the hierarchical Keycloak group path:"
@@ -44520,12 +44527,10 @@ msgid "Remotes 🌐"
 msgstr "रिमोट 🌐"
 
 # द्वारा
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['networks.yml', 'ports.yml']
-# nocheck: url
-# translation-rejected: निकालें *ports.yml और*networks.yml एक lookup समारोह
+# translated-by: libretranslate
 msgid "Remove *_ports.yml and*_networks.yml by a lookup function"
-msgstr ""
+msgstr "निकालें *ports.yml और*networks.yml एक lookup समारोह द्वारा"
 
 # translated-by: libretranslate
 msgid "Remove Docker Hub registry prefix if present (backward compat)."
@@ -44692,6 +44697,7 @@ msgstr "स्थानीय होस्ट विशेष-casing हटा �
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Removed misleading/deprecated image/version flags
+# (E.g. Nextcloud)
 msgid "Removed misleading/deprecated image/version flags (e.g. Nextcloud)"
 msgstr ""
 
@@ -44733,12 +44739,10 @@ msgstr "चल कंटेनर में सूची निर्देश�
 
 # (https://t.co/) इकाई के तहत प्रत्येक ऐप से संबंधित है। चारों ओर पतला रैपर
 # [nginx_vhosts.py](../../../../utils/cleanup/nginx_vhosts.py)।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['https://t.co/']
-# nocheck: url
-# translation-rejected: प्रति डोमेन nginx भूत फ़ाइलों को हटा देता है
+# translated-by: libretranslate
 msgid "Removes the per-domain nginx vhost files (http + https) belonging to every app under the entity. Thin wrapper around [nginx_vhosts.py](../../../../utils/cleanup/nginx_vhosts.py)."
-msgstr ""
+msgstr "प्रति डोमेन nginx भूत फ़ाइलों को हटा देता है (https://t.co/) इकाई के तहत प्रत्येक ऐप से संबंधित है। चारों ओर पतला रैपर [nginx_vhosts.py](../../../../utils/cleanup/nginx_vhosts.py)।."
 
 # translated-by: libretranslate
 msgid "Removes the stack directory and its volumes."
@@ -45749,10 +45753,12 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "वापसी (मालिक, रेपो, run_id) एक रन आईडी या एक रन / जॉब यूआरएल से।."
 
 # रन / जॉब यूआरएल से।.
+# gained=['job_idTo']
 # translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_idTo']
 # nocheck: url
 # translation-rejected: वापसी (मालिक, रेपो, run_id, job_idTo make a new.) एक
+# रन / जॉब यूआरएल से।.
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -46225,10 +46231,12 @@ msgid "Return free space in GB at `path` (or the closest existing ancestor). 0 w
 msgstr "जीबी में मुफ्त स्पेस लौटाएं `path` (या निकटतम मौजूदा पूर्वज)। 0 जब `df` विफल रहता है या आउटपुट अparseable है।."
 
 # सूची से असहमतhost_vars राज्य।.
+# gained=[]
 # translation-refused: libretranslate protected-span lost=['host_vars']
 # gained=[]
 # nocheck: url
 # translation-rejected: जब मानव पठनीय संघर्षों को वापस लौटें `disable` मौजूदा
+# सूची से असहमतhost_vars राज्य।.
 msgid "Return human-readable conflicts when `disable` disagrees with the existing inventory/host_vars state."
 msgstr ""
 
@@ -46878,9 +46886,10 @@ msgid "Return whether an application has a backend a vhost can probe."
 msgstr "रिटर्न कि क्या एक आवेदन में एक वापसी है एक भूत जांच कर सकते हैं।."
 
 # (``compose`` (c) ``swarm`` (c) ``host``)।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: वापस लौटें कि क्या भूमिका निभाती है? ``mode``
+# (``compose`` (c) ``swarm`` (c) ``host``)।.
 msgid "Return whether the role opts into deploy ``mode`` (``compose`` | ``swarm`` | ``host``)."
 msgstr ""
 
@@ -49401,20 +49410,16 @@ msgid "Scan"
 msgstr "स्कैन"
 
 # लिए पिछले दिन अगर कोई पाया जाता है।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"error"']
-# nocheck: url
-# translation-rejected: स्कैन ``journalctl`` "error" प्रविष्टियों और अलर्ट के
+# translated-by: libretranslate
 msgid "Scans ``journalctl`` over the last day for “error” entries and alerts if any are found."
-msgstr ""
+msgstr "स्कैन ``journalctl`` \"error\" प्रविष्टियों और अलर्ट के लिए पिछले दिन अगर कोई पाया जाता है।."
 
 # लिए पिछले दिन अगर कोई पाया जाता है।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"error"']
-# nocheck: url
-# translation-rejected: स्कैन `journalctl` "error" प्रविष्टियों और अलर्ट के
+# translated-by: libretranslate
 msgid "Scans `journalctl` over the last day for “error” entries and alerts if any are found."
-msgstr ""
+msgstr "स्कैन `journalctl` \"error\" प्रविष्टियों और अलर्ट के लिए पिछले दिन अगर कोई पाया जाता है।."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -49557,13 +49562,11 @@ msgstr "इनफिनिटो सेल्फ-सिग्न रूट स�
 # worker.sh](06_drain_worker.sh) - दावा [07assert
 # state.sh](07_assert_state.sh) - शुद्ध
 # [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['content.sh', 'converge.sh', 'reachable.sh', 'state.sh',
 # 'worker.sh']
-# nocheck: url
-# translation-rejected: प्रति कदम स्क्रिप्ट: लाओ-अप
+# translated-by: libretranslate
 msgid "Scripts per step: bring-up [01_bootstrap.sh](01_bootstrap.sh) - provision [02_provision_inventory.sh](02_provision_inventory.sh) - converge [03_wait_converge.sh](03_wait_converge.sh) - reachability [04_verify_reachable.sh](04_verify_reachable.sh) - drill [backup/base.sh](backup/base.sh) - marker [05_seed_content.sh](05_seed_content.sh) - drain [06_drain_worker.sh](06_drain_worker.sh) - assert [07_assert_state.sh](07_assert_state.sh) - purge [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
-msgstr ""
+msgstr "प्रति कदम स्क्रिप्ट: लाओ-अप [01bootstrap.sh](01_bootstrap.sh) - प्रावधान [02Inventory.sh](02_provision_inventory.sh) - अभिसरण [03wait converge.sh](03_wait_converge.sh) - पहुंच [04verify reachable.sh](04_verify_reachable.sh) ड्रिल [backup/base.sh](backup/base.sh) - मार्कर [05seed content.sh](05_seed_content.sh) - नाली [06drain worker.sh](06_drain_worker.sh) - दावा [07assert state.sh](07_assert_state.sh) - शुद्ध [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)।."
 
 # translated-by: libretranslate
 msgid "Scripts used for local testing and setup (under `scripts/tests/` and `scripts/install/`) MUST support all five deployed distributions above and additionally MUST support:"
@@ -49859,12 +49862,10 @@ msgstr "देखें [regression.md](../../docs/contributing/actions/testing/
 
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # कार्यान्वयन के लिए।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['templates.py']
-# nocheck: url
-# translation-rejected: देखें [test \
+# translated-by: libretranslate
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
-msgstr ""
+msgstr "देखें [test \\ templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) कार्यान्वयन के लिए।."
 
 # translated-by: libretranslate
 msgid "See [unit.md](../../docs/contributing/actions/testing/unit.md) for the SPOT: framework, requirements, directory structure, and `make test-unit` usage."
@@ -51745,11 +51746,9 @@ msgstr "इसे माउंट टेबल से पढ़ने के ब
 
 # और जब मेजबान इसे वितरित नहीं कर सकता तो रन को छोड़ दें। अभी भी नीचे की जाँच
 # करें - केवल "जो फाइल सिस्टम यह है" लुकअप छोड़ दिया है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: इसे माउंट टेबल से पढ़ने के बजाय इस तरह का राज्य करें,
+# translated-by: libretranslate
 msgid "State the kind instead of reading it from the mount table, and abort the run when the host cannot deliver it. Every check below still runs — only the “which filesystem is this” lookup is skipped."
-msgstr ""
+msgstr "इसे माउंट टेबल से पढ़ने के बजाय इस तरह का राज्य करें, और जब मेजबान इसे वितरित नहीं कर सकता तो रन को छोड़ दें। अभी भी नीचे की जाँच करें - केवल \"जो फाइल सिस्टम यह है\" लुकअप छोड़ दिया है।."
 
 # translated-by: libretranslate
 msgid "Stateless by default, with optional stateful backends"
@@ -53308,10 +53307,12 @@ msgid "TCP port to listen on (default `8080`)."
 msgstr "टीसीपी पोर्ट को सुनने के लिए (डिफ़ॉल्ट `8080`)।."
 
 # वारंटी के बिना।.
+# gained=['"आईएस"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"आईएस"']
 # nocheck: url
 # translation-rejected: सोफ्टवेयर का प्रस्ताव है "आईएस", किसी भी KIND की
+# वारंटी के बिना।.
 msgid "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND."
 msgstr ""
 
@@ -54679,6 +54680,7 @@ msgstr "The The most of the most important ``dsk-qbittorrent`` भूमिक�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: The The most of the most important ``dsk-torbrowser``
+# भूमिका ``community.general.pacman`` मॉड्यूल:
 msgid "The ``dsk-torbrowser`` role uses the ``community.general.pacman`` module to:"
 msgstr ""
 
@@ -54864,6 +54866,7 @@ msgstr "The The most of the most important `dsk-qbittorrent` भूमिका 
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: The The most of the most important `dsk-torbrowser`
+# भूमिका `community.general.pacman` मॉड्यूल:
 msgid "The `dsk-torbrowser` role uses the `community.general.pacman` module to:"
 msgstr ""
 
@@ -55792,10 +55795,15 @@ msgstr "सजावट एक पृष्ठ में नाम लपेट�
 # प्रति-उपभोक्ता कार्य को मोड़ने में सक्षम बनाता है **web-app-keycloak**
 # (*टेम्पलेट्सsso_proxy/*, *tasks/sso_proxy.yml*)। **web-app-keycloak** अब
 # घोषणा **प्रदान करता है: Sso**।.
+# gained=[]
 # translation-refused: libretranslate protected-span lost=['sso_proxy']
 # gained=[]
 # nocheck: url
 # translation-rejected: समर्पित oauth2-प्रोक्सी प्रदाता भूमिका (इसके अंतर्गत
+# निर्देशिका *भूमिका*) हटा दिया जाता है; 5 साइडकार टेम्पलेट्स और
+# प्रति-उपभोक्ता कार्य को मोड़ने में सक्षम बनाता है **web-app-keycloak**
+# (*टेम्पलेट्सsso_proxy/*, *tasks/sso_proxy.yml*)। **web-app-keycloak** अब
+# घोषणा **प्रदान करता है: Sso**।.
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
 msgstr ""
 
@@ -57646,10 +57654,16 @@ msgstr "सूची स्वयं बंडल है।."
 # समर्पित मशीन** इसलिए यह अपने स्वयं के हार्डवेयर का मानचित्रण कर सकता है और
 # भौतिक दुनिया में कार्य कर सकता है: रोबोट प्लेटफॉर्म विचार। यह केवल निर्णय #
 # के तहत सुसंगत है12।.
+# gained=[]
 # translation-refused: libretranslate protected-span lost=['svc-ai-robot.md']
 # gained=[]
 # nocheck: url
 # translation-rejected: प्रत्येक अन्य परिदृश्य के विपरीत, और जानबूझकर ऐसा।
+# अपनी भूमिका के रूप में तैयार [034-svc-ai-robotmd](034-svc-ai-robot.md). यहां
+# हर्म्स को पता लगाने और ड्राइव करने के लिए पूर्ण अधिकार दिए गए हैं। **एक
+# समर्पित मशीन** इसलिए यह अपने स्वयं के हार्डवेयर का मानचित्रण कर सकता है और
+# भौतिक दुनिया में कार्य कर सकता है: रोबोट प्लेटफॉर्म विचार। यह केवल निर्णय #
+# के तहत सुसंगत है12।.
 msgid "The inverse of every other scenario, and deliberately so. Formalised as its own role in [034-svc-ai-robot.md](034-svc-ai-robot.md). Here Hermes is given full rights to explore and drive **one dedicated machine** so it can map its own hardware and act in the physical world: the robot platform idea. This is only coherent under Decision #12."
 msgstr ""
 
@@ -57756,9 +57770,16 @@ msgstr "जब कोई आवश्यकता फ़ाइल पूरी �
 # बंद किया जाता है, यह तय करता है कि क्या भूमिका दायरे में है, और फिर या तो
 # बिबर परिदृश्य को जोड़ने (और env कुंजी) या प्रतिबद्ध संदेश में दस्तावेजीकरण
 # क्यों भूमिका को छूट दी जाती है और इसे इस सूची से हटा दिया जाता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: नीचे दी गई सूची का उत्पादन प्रत्येक में grepping करके
+# किया गया था। `roles/<role>/files/playwright/playwright.spec.js` के लिए
+# `biber|BIBER`(a) भूमिका के तहत प्रकट होती है "missing" यह एक Playwright
+# कल्पना, कोई biber संदर्भ, और इसकी नीति वर्गीकरण है (अगले स्तंभ) कहते हैं कि
+# एक उम्मीद है। प्रत्येक चेकबॉक्स MUST को स्पेक एंड टू एंड को पढ़ने के द्वारा
+# बंद किया जाता है, यह तय करता है कि क्या भूमिका दायरे में है, और फिर या तो
+# बिबर परिदृश्य को जोड़ने (और env कुंजी) या प्रतिबद्ध संदेश में दस्तावेजीकरण
+# क्यों भूमिका को छूट दी जाती है और इसे इस सूची से हटा दिया जाता है।.
 msgid "The list below was produced by grepping each `roles/<role>/files/playwright/playwright.spec.js` for `biber|BIBER`. A role appears under \"missing\" iff it has a Playwright spec, no biber references, AND its policy classification (next column) says one is expected. Each checkbox MUST be closed by reading the spec end to end, deciding whether the role is in scope, and then either adding the biber scenario (and the env keys) OR documenting in the commit message why the role is exempt and removing it from this list."
 msgstr ""
 
@@ -57821,21 +57842,21 @@ msgstr "यूआई में लॉगिन बटन पढ़ा जाए�
 
 # (इंजेक्टेड जावास्क्रिप्ट के माध्यम से नाम दिया गया). अंतर्निहित auth प्रवाह
 # मानक OAuth है2/OIDC के खिलाफ Keycloak।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: यूआई में लॉगिन बटन "SSO साथ" पढ़ेगा Infinito.Nexus”
+# translated-by: libretranslate
 msgid "The login button in the UI will read “SSO with Infinito.Nexus” (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
-msgstr ""
+msgstr "यूआई में लॉगिन बटन \"SSO साथ\" पढ़ेगा Infinito.Nexus” (इंजेक्टेड जावास्क्रिप्ट के माध्यम से नाम दिया गया). अंतर्निहित auth प्रवाह मानक OAuth है2/OIDC के खिलाफ Keycloak।."
 
 # translated-by: libretranslate
 msgid "The logo must use a valid Font Awesome class string, e.g.:"
 msgstr "लोगो को एक वैध फ़ॉन्ट बहुत बढ़िया वर्ग स्ट्रिंग का उपयोग करना चाहिए, उदाहरण के लिए:"
 
 # **/var/lib/docker/volumes/nextcloud_data/ data/data/nextcloud.log**
+# gained=['data/data/nextcloud.log']
 # translation-refused: libretranslate protected-span lost=['nextcloud.log']
 # gained=['data/data/nextcloud.log']
 # nocheck: url
 # translation-rejected: आप यहाँ मेजबान पर पाएंगे:
+# **/var/lib/docker/volumes/nextcloud_data/ data/data/nextcloud.log**
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -57974,18 +57995,24 @@ msgstr "माप का फैसला **जो** प्रत्येक अ
 # host_vars, इसलिए एक ही dict को खिलाना
 # `CombinedResolver(services_overrides=...)` topology-vs- समाप्तhost_vars कि
 # संस्करण अंधा संकल्प का उत्पादन.
+# gained=[]
 # translation-refused: libretranslate protected-span lost=['host_vars']
 # gained=[]
 # nocheck: url
 # translation-rejected: विलय का नक्शा वही है जो सूची ALSO में बेक करता है
+# host_vars, इसलिए एक ही dict को खिलाना
+# `CombinedResolver(services_overrides=...)` topology-vs- समाप्तhost_vars कि
+# संस्करण अंधा संकल्प का उत्पादन.
 msgid "The merged map is what the inventory ALSO bakes into host_vars, so feeding the same dict into `CombinedResolver(services_overrides=...)` eliminates the topology-vs-host_vars drift that variant-blind resolution produced."
 msgstr ""
 
 # होती है जो इन्वेंट्री से स्थैतिक स्क्रैप को कॉन्फ़िगर नहीं किया जा सकता है।
 # समान पैटर्न `web-app-gitea`(a) `openbao_core_unsealed` गेज।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: मेट्रिक्स एंडपॉइंट को एक सर्वर-जनित टोकन की आवश्यकता
+# होती है जो इन्वेंट्री से स्थैतिक स्क्रैप को कॉन्फ़िगर नहीं किया जा सकता है।
+# समान पैटर्न `web-app-gitea`(a) `openbao_core_unsealed` गेज।.
 msgid "The metrics endpoint needs a server-generated token that cannot be pre-seeded into a static scrape config from the inventory. Same pattern as `web-app-gitea`. Gives the `openbao_core_unsealed` gauge."
 msgstr ""
 
@@ -58314,12 +58341,10 @@ msgstr "पिन द्वारा पढ़ा जाता है `utils/ins
 # है `NEXTCLOUD_PLUGIN_ITEMS` लूप में [02manager
 # ops.yml](../../02_manager_ops.yml)। पाश चर `plugin_item` में unpacked है
 # `plugin_key` (ओसीसी ऐप का नाम) और `plugin_value` (इसके मेटा प्रविष्टि)।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['ops.yml']
-# nocheck: url
-# translation-rejected: पाइपलाइन से रद्द कर दी गई है
+# translated-by: libretranslate
 msgid "The pipeline is invoked from [06_plugin.yml](../06_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml). The loop variable `plugin_item` is unpacked into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry)."
-msgstr ""
+msgstr "पाइपलाइन से रद्द कर दी गई है [06plugin.yml](../06_plugin.yml), जो बदले में प्रति पुनरावृत्ति एक बार चलाता है `NEXTCLOUD_PLUGIN_ITEMS` लूप में [02manager ops.yml](../../02_manager_ops.yml)। पाश चर `plugin_item` में unpacked है `plugin_key` (ओसीसी ऐप का नाम) और `plugin_value` (इसके मेटा प्रविष्टि)।."
 
 # translated-by: libretranslate
 msgid "The pipeline owns three responsibilities for one Nextcloud plugin (app):"
@@ -58789,9 +58814,17 @@ msgstr "इस भूमिका का उद्देश्य व्यक�
 # **शक्ति-ओवरराइट** स्थानीय `main`इसलिए, एक सिंकेड रिपॉज़िटरी पर आप सीधे काम
 # नहीं कर सकते `main`(a) `feature/**`, `fix/**`, या `hotfix/**` शाखा और उपचार
 # `main` केवल एक दर्पण के रूप में।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: पुश प्रविष्टि वर्तमान भंडार को सिंक्रनाइज़ करती है
+# `main` सीआई नीति से पहले कॉन्फ़िगर किए गए स्रोत भंडार से शाखा और खोज रन
+# तैनात करें। डिफ़ॉल्ट स्रोत है `infinito-nexus/core`, और
+# `CI_SYNC_MAIN_SOURCE_REPOSITORY` MAY ने सिंक को ओवरराइड या अक्षम कर दिया
+# क्योंकि इसमें दस्तावेज किया गया है
+# [configuration.md](../../tools/github/actions/configuration.md). यह सिंक
+# **शक्ति-ओवरराइट** स्थानीय `main`इसलिए, एक सिंकेड रिपॉज़िटरी पर आप सीधे काम
+# नहीं कर सकते `main`(a) `feature/**`, `fix/**`, या `hotfix/**` शाखा और उपचार
+# `main` केवल एक दर्पण के रूप में।.
 msgid "The push entry synchronizes the current repository's `main` branch from the configured source repository before CI policy and deploy discovery run. The default source is `infinito-nexus/core`, and `CI_SYNC_MAIN_SOURCE_REPOSITORY` MAY override or disable the sync as documented in [configuration.md](../../tools/github/actions/configuration.md). This sync **force-overwrites** the local `main`, so on a synced repository you MUST NOT work directly in `main`; use a `feature/**`, `fix/**`, or `hotfix/**` branch and treat `main` as a read-only mirror."
 msgstr ""
 
@@ -59797,11 +59830,9 @@ msgstr "साझा ``biber`` और ``administrator`` व्यक्ति �
 # `files/playwright/test-sso-login.js
 # <./files/playwright/test-sso-login.js>`__, जो उस में प्राइमिंग करता है
 # `files/playwright/\_shared.js <./files/playwright/_shared.js>`__।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: साझा ``biber`` और ``administrator`` व्यक्ति हेल्पर को
+# translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web answers Playwright’s headless Chromium user agent with a “browser not supported” splash unless ``forceAllowOldBrowser`` is seeded into ``localStorage`` before the first navigation, and its OIDC callback runs through OpenCloud’s own ``/oidc-callback`` → ``/web-oidc-callback`` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas’ Keycloak round trip is covered by `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, which does that priming in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
-msgstr ""
+msgstr "साझा ``biber`` और ``administrator`` व्यक्ति हेल्पर को अवरुद्ध घोषित किया जाता है `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web उत्तर Playwright का हेडलेस Chromium उपयोगकर्ता एजेंट के साथ एक \"browser समर्थित नहीं\" स्प्लैश जब तक ``forceAllowOldBrowser`` में बीज ``localStorage`` पहले नेविगेशन से पहले, और इसके ओआईडीसी कॉलबैक के माध्यम से चल रहा है OpenCloudखुद ``/oidc-callback`` → ``/web-oidc-callback`` ओथ के बजाय मार्ग2-प्रोक्सी पैटर्न साझा सहायक पता लगाता है। दोनों व्यक्ति Keycloak राउंड ट्रिप को कवर किया जाता है `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, जो उस में प्राइमिंग करता है `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__।."
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Pixelfed’s login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed’s first-time OIDC registration cannot mint it either. ``biber`` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed’s ``dns,spoof`` validator rejects ``.example`` addresses. Both setups live in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__ and drive the dedicated login specs in ``files/playwright/``."
@@ -59828,11 +59859,9 @@ msgstr "साझा ``biber`` और ``administrator`` व्यक्ति �
 # कवर किया जाता है ``fider: admin sso login`` और ``fider: biber sso login as
 # regular user`` परिदृश्य ``files/playwright/playwright.spec.js``; एक बार साझा
 # सहायक सीखने के बाद ऑप्ट-आउट चूक Fider’s modal.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: साझा ``biber`` और ``administrator`` व्यक्ति यात्राओं
+# translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Fider’s SSO entry is a two-step modal: the header “Sign in” button only opens the provider dialog, and a second click on “Continue with … SSO” performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role’s own ``fider: admin sso login`` and ``fider: biber sso login as regular user`` scenarios in ``files/playwright/playwright.spec.js``; the opt-out lapses once the shared helper learns Fider’s modal."
-msgstr ""
+msgstr "साझा ``biber`` और ``administrator`` व्यक्ति यात्राओं के माध्यम से बाहर निकलना ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` में ``templates/playwright.env.j2``. फिडर की SSO प्रविष्टि एक दो-चरण मोडल है: हेडर \"Sign in\" बटन केवल प्रदाता संवाद को खोलता है, और \"Continue with ... SSO\" पर दूसरा क्लिक करता है Keycloak फिर से निर्देशित, जबकि साझा सहायक एक बार बिल्कुल क्लिक करता है और आईडीपी तक कभी नहीं पहुंचता है। दोनों यात्राओं को इस भूमिका के अपने द्वारा अंत से अंत तक कवर किया जाता है ``fider: admin sso login`` और ``fider: biber sso login as regular user`` परिदृश्य ``files/playwright/playwright.spec.js``; एक बार साझा सहायक सीखने के बाद ऑप्ट-आउट चूक Fider’s modal."
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Flowise has no in-app OIDC adapter: SSO is an oauth2-proxy sidecar (``services.sso.flavor: oauth2``), and behind that gate Flowise still presents its own sign-in form for the single instance account seeded from ``FLOWISE_USERNAME`` / ``FLOWISE_PASSWORD`` in ``templates/env.j2``. ``biber`` has no Flowise identity at all, and the shared helpers only drive Keycloak forms while ``services.sso`` is enabled, so neither persona can reach an authenticated Flowise surface; the OIDC gate itself is covered by ``files/playwright/test-oidc-login.js``."
@@ -59855,11 +59884,9 @@ msgstr "साझा ``biber`` और ``administrator`` व्यक्ति �
 # देता है, फिर भी दिखाई देने के बाद Keycloak राउंड ट्रिप। ``tasks/main.yml``
 # प्रावधान नहीं FusionDirectory खाता, इसलिए Keycloak किसी डायरेक्टरी सत्र के
 # लिए पहचान के नक्शे साझा सहायक एक इन-ऐप लोगोट के माध्यम से ले जा सकते हैं।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: साझा ``biber`` और ``administrator`` व्यक्ति यात्राओं
+# translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr ""
+msgstr "साझा ``biber`` और ``administrator`` व्यक्ति यात्राओं के माध्यम से बाहर निकलना ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` में ``templates/playwright.env.j2``. The oauth.2-प्रोक्सी साइडकार केवल भूत गेट्स - FusionDirectory इसके पीछे अपना LDAP-bind लॉगिन रखता है, जिसमें भूमिका का OIDC परिदृश्य है ``files/playwright/playwright.spec.js`` \"Sign in\" बटन की उम्मीद करके जोर देता है, फिर भी दिखाई देने के बाद Keycloak राउंड ट्रिप। ``tasks/main.yml`` प्रावधान नहीं FusionDirectory खाता, इसलिए Keycloak किसी डायरेक्टरी सत्र के लिए पहचान के नक्शे साझा सहायक एक इन-ऐप लोगोट के माध्यम से ले जा सकते हैं।."
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. web-app-hugo serves a statically built site: ``services.sso`` is hard-disabled in ``meta/services.yml``, the container is a Hugo build baked into nginx (``templates/compose.yml.j2``), and the Playwright env file renders no ``ADMIN_*`` / ``BIBER_*`` credentials. There is no session, no admin surface and no logout control to drive, so the ``guest`` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -60282,10 +60309,50 @@ msgstr "व्यापार बंद है कि `deny` अब का प�
 # है ``test_*`` स्तंभ। ``integrated`` जब पंक्ति का प्रत्यक्ष सेवा मानचित्र
 # किसी विदेशी प्रदाता को सक्षम नहीं रखता है तो झूठ है (भूमिका पृथक): भिन्न
 # पंक्तियों पर प्रति संस्करण, आधार से ``meta/services.yml`` पूरी पंक्ति पर।.
+# gained=['alpha/beta/pre/...']
 # translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['alpha/beta/pre/...']
 # nocheck: url
 # translation-rejected: पृथक क्षेत्र (``services`` / ``consumed_by`` और उनकी
+# गिनती) बीएफएस बंद करने पर बंद कर दिया गया है ``max_level``; ``*_direct``
+# क्षेत्र हमेशा एक-हॉप पड़ोसी होते हैं। ``weight`` चार संख्यात्मक स्तंभों का
+# योग है। ``dna`` अपनी एम्बेडेड सेवाओं के साथ मिलकर भूमिका का अपना नाम हैश है
+# (छंटनी)एक ही सेवा सेट को कवर करने वाली दो भूमिकाएं एक देना साझा करती हैं।
+# ``siblings`` अन्य भूमिकाओं का आदान-प्रदान करना है; ``clone`` हर पंक्ति के
+# लिए एक दाना समूह को छोड़कर सबसे भारी एक (नाम से टूटी हुई टाई)इसलिए, छँटा हुआ
+# क्लोन पिछले एक प्रतिनिधि प्रति सेवा बजट कटौती से पहले सेट रखता है।
+# ``random`` प्रति पंक्ति है 6-अंक, प्रति चालान ताजा लुढ़का, इसलिए टाई ऑर्डर
+# जानबूझकर रनों के बीच बदलता रहता है। ``variant`` है ``meta/variants.yml``
+# सूचकांक इस पंक्ति के खिलाफ समझौता किया गया था, या ``None`` एक पूरी पंक्ति के
+# लिए। ``id`` और ``covered_by`` सॉर्ट करने के बाद CLI द्वारा निर्धारित किया
+# गया है: ``id`` क्रम में पंक्ति की संख्यात्मक स्थिति है (1आधारित), और
+# ``covered_by`` है ``id`` पहले (हरा) एक अलग भूमिका की पंक्ति जो इस पंक्ति को
+# एम्बेड करती है, या भेजे गए ``0`` जब यह पंक्ति स्वयं ही ग्रीन है (असली ``id``
+# है 0)एक ही भूमिका के दो प्रकार कभी एक दूसरे को कवर नहीं करते हैं। ``row`` है
+# 1अंतिम प्रस्तुत उत्पादन में आधारित लाइन नंबर (फ़िल्टर करने के बाद)इसलिए यह
+# अनुक्रमिक भी रहता है जब द्वारा क्रमबद्ध ``covered_by`` स्क्रैम्बल ``id``।
+# ``variants`` की संख्या है ``meta/variants.yml`` पूरे रोल मोड में भूमिका के
+# प्रकार; नीचे ``--variant`` प्रत्येक पंक्ति पहले से ही एक संस्करण है, इसलिए
+# यह है ``1``। ``lifecycle`` भूमिका है ``meta/services.yml`` जीवनचक्र चरण
+# (alpha/beta/pre/...)। ``compose`` / ``swarm`` जब CI टेस्ट-डिप्लॉय मैट्रिक्स
+# उस मोड में भूमिका का अभ्यास करता है, तो खोजी स्किप लॉजिक का सम्मान करता है:
+# परीक्षण किए गए लिफाफे में निर्दोष + lifecycle + भूमिका की भूमिका ``skip``
+# सूची नीचे ``--variant`` ``swarm`` प्रति भिन्न (हर प्रकार की तैनाती, इसलिए यह
+# भूमिका स्तर को ट्रैक करता है ``swarm`` और ``stack``)। ``stack`` यह सच है जब
+# भूमिका अपने खुद के कंटेनर स्टैक को प्रस्तुत करती है (एक जहाज
+# ``templates/*compose*.yml.j2``)केवल भूमिकाएं (बैकअप, वायरगार्ड, swapfile) और
+# शुद्ध सेवा इंजेक्टर False हैं। ``swarm`` अर्थ ``stack``: अपने स्वयं के किसी
+# भी रचना टेम्पलेट के साथ एक भूमिका कभी एक तलवार स्टैक-डिप्लॉय लक्ष्य नहीं है,
+# इसलिए ``swarm`` जब False मजबूर ``stack`` झूठ है। ``host`` प्राथमिक इकाई के
+# दर्पण ``modes.host.enabled`` झंडा (डिफ़ॉल्ट सच) गैर-स्टैक भूमिकाओं के लिए,
+# और एक स्टैक भूमिका के लिए फाल्स को मजबूर किया जाता है: यह निर्दोष भूमिकाओं
+# को चिह्नित करता है जो एक स्टैक शिपिंग के बजाय मेजबान को कॉन्फ़िगर करता है।
+# ``test_compose`` / ``test_swarm`` / ``test_host`` मोड कॉलम को डुप्लिकेट करें
+# भूमिका को कम करें ``meta/tests.yml`` ``skip`` सूची: ``modes`` जहां एक भूमिका
+# RUNS, ``skip`` इन पर टेस्टिंग को निष्क्रिय करता है, और सीआई खोज फ़िल्टर करता
+# है ``test_*`` स्तंभ। ``integrated`` जब पंक्ति का प्रत्यक्ष सेवा मानचित्र
+# किसी विदेशी प्रदाता को सक्षम नहीं रखता है तो झूठ है (भूमिका पृथक): भिन्न
+# पंक्तियों पर प्रति संस्करण, आधार से ``meta/services.yml`` पूरी पंक्ति पर।.
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -60981,6 +61048,7 @@ msgstr "यह Ansible भूमिका स्थापित करता ह
 # translation-refused: libretranslate missing-name
 # nocheck: url
 # translation-rejected: यह संभव भूमिका स्थापित करता है और बनाता है
+# Infinito.Nexus आपके सिस्टम पर उपलब्ध सीएलआई।.
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
 msgstr ""
 
@@ -61875,19 +61943,15 @@ msgstr "यह बनाता है Home Assistant प्राकृतिक
 
 # के लिए कैनोनिकल एंट्रीपॉइंट, यह बताता है कि वास्तविक वितरण के माध्यम से होता
 # है या नहीं Mailu या स्थानीय रिले।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: यह बनाता है ``sys-svc-mail`` एक नोड पर "मेल क्षमताओं"
+# translated-by: libretranslate
 msgid "This makes ``sys-svc-mail`` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
-msgstr ""
+msgstr "यह बनाता है ``sys-svc-mail`` एक नोड पर \"मेल क्षमताओं\" के लिए कैनोनिकल एंट्रीपॉइंट, यह बताता है कि वास्तविक वितरण के माध्यम से होता है या नहीं Mailu या स्थानीय रिले।."
 
 # लिए कैनोनिकल एंट्रीपॉइंट, यह बताता है कि वास्तविक वितरण के माध्यम से होता है
 # या नहीं Mailu या स्थानीय रिले।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: यह बनाता है `sys-svc-mail` एक नोड पर "मेल क्षमताओं" के
+# translated-by: libretranslate
 msgid "This makes `sys-svc-mail` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
-msgstr ""
+msgstr "यह बनाता है `sys-svc-mail` एक नोड पर \"मेल क्षमताओं\" के लिए कैनोनिकल एंट्रीपॉइंट, यह बताता है कि वास्तविक वितरण के माध्यम से होता है या नहीं Mailu या स्थानीय रिले।."
 
 # translated-by: libretranslate
 msgid "This maps all `@cymais.cloud` addresses to their equivalents under `@infinito.nexus`."
@@ -62405,11 +62469,9 @@ msgstr "यह भूमिका निर्माण Postmarks एक कस�
 # है। पोस्टमार्क एकल उपयोगकर्ता है: कोई खाता नहीं है, केवल "मालिक"। अपस्ट्रीम
 # लॉगिन एक साझा-सचिव पासवर्ड फॉर्म है जो एक सत्र बोलान को फ्लिप करता है
 # (``req.session.loggedIn``)।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: यह भूमिका निर्माण Postmarks एक कस्टम छवि में स्रोत से,
+# translated-by: libretranslate
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only “the owner”. The upstream login is a single shared-secret password form that flips one session boolean (``req.session.loggedIn``)."
-msgstr ""
+msgstr "यह भूमिका निर्माण Postmarks एक कस्टम छवि में स्रोत से, इसे मानक रिवर्स प्रॉक्सी में तार करता है, और इसके SQLite डेटा को बनाए रखता है। पोस्टमार्क एकल उपयोगकर्ता है: कोई खाता नहीं है, केवल \"मालिक\"। अपस्ट्रीम लॉगिन एक साझा-सचिव पासवर्ड फॉर्म है जो एक सत्र बोलान को फ्लिप करता है (``req.session.loggedIn``)।."
 
 # translated-by: libretranslate
 msgid "This role builds and runs Bridgy Fed as a Docker container behind the project's front-proxy. An optional Firestore-emulator sidecar in Datastore mode provides the storage backend for non-production deployments."
@@ -62581,10 +62643,21 @@ msgstr "यह भूमिका घोषित `PERSONA_BIBER_BLOCKED` मे
 # आगंतुकों के लिए अंतर है कि केवल एक बार साफ़ हो जाता है
 # ``localStorage.__landingPageSeen__`` नेविगेशन से पहले बीजिंग है, और साझा
 # सहायक के पास ऐसा करने के लिए कोई इनिट-स्क्रिप्ट हुक नहीं है।.
+# gained=['"', 'Infinito.Nexusद']
 # translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['"', 'Infinito.Nexusद']
 # nocheck: url
 # translation-rejected: यह भूमिका घोषित ``PERSONA_ADMINISTRATOR_BLOCKED`` और
+# ``PERSONA_BIBER_BLOCKED`` में ``templates/playwright.env.j2`` उसी तंत्र के
+# लिए। अधिकांश टीम संस्करण में कोई मूल ओआईडीसी प्रदाता नहीं है, इसलिए भूमिका
+# piggybacks Keycloak पर GitLab OAuth स्लॉट (``MM_GITLABSETTINGS_*`` में
+# ``templates/env.j2``); परिणामस्वरूप प्रवेश बिंदु है
+# ``a[href='/oauth/gitlab/login']``, Relabelled, "SSO साथ Infinito.Nexusद्वारा
+# ``templates/javascript.js.j2``, जो साझा सहायक के नाम-आधारित लॉगिन मैचर को
+# मान्यता नहीं है। Matermost v11+ यह भी काम करता है ``/landing`` अनधिकृत
+# आगंतुकों के लिए अंतर है कि केवल एक बार साफ़ हो जाता है
+# ``localStorage.__landingPageSeen__`` नेविगेशन से पहले बीजिंग है, और साझा
+# सहायक के पास ऐसा करने के लिए कोई इनिट-स्क्रिप्ट हुक नहीं है।.
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
 msgstr ""
 
@@ -63475,10 +63548,14 @@ msgstr "यह भूमिका एक समर्पित मशीन क�
 # (स्वयं हस्ताक्षरित, CA: TRUE) आंतरिक टीएलएस समापन बिंदुओं पर भरोसा करने के
 # लिए। उत्पादन / आदिinfinito.nexus/ca/root-ca.crt के लिए sys-svc-compose-ca
 # इंजेक्शन।.
+# 'root-ca.crt'] gained=['infinito.nexus/ca/root-ca.crt']
 # translation-refused: libretranslate protected-span lost=['infinito.nexus',
 # 'root-ca.crt'] gained=['infinito.nexus/ca/root-ca.crt']
 # nocheck: url
 # translation-rejected: यह भूमिका एक स्थानीय रूट सीए का प्रावधान करती है
+# (स्वयं हस्ताक्षरित, CA: TRUE) आंतरिक टीएलएस समापन बिंदुओं पर भरोसा करने के
+# लिए। उत्पादन / आदिinfinito.nexus/ca/root-ca.crt के लिए sys-svc-compose-ca
+# इंजेक्शन।.
 msgid "This role provisions a local Root CA (self-signed, CA:TRUE) for trusting internal TLS endpoints. Produces /etc/infinito.nexus/ca/root-ca.crt for sys-svc-compose-ca injection."
 msgstr ""
 
@@ -64101,10 +64178,21 @@ msgstr "आज Infinito.Nexus रन `docker compose` स्थानीय फ�
 # साइटमैप](../../roles/web-app-opencloud/meta/variants.yml) जहां संस्करण 1 सेट
 # `ldap.enabled: true` साथ `oidc.enabled: false`)हालांकि, हालांकि, यह अभी तक
 # मौजूद नहीं है।.
+# lost=['web-app-opencloud/meta/variants.yml'] gained=[]
 # translation-refused: libretranslate protected-span
 # lost=['web-app-opencloud/meta/variants.yml'] gained=[]
 # nocheck: url
 # translation-rejected: आज सबसे अधिक भूमिका ऐनक अपने प्रामाणिक परिदृश्य को गेट
+# करते हैं `oidc` केवल तभी जब भूमिका होती है `meta/services.yml` यह भी घोषणा
+# की `ldap.enabled` और एक समर्पित LDAP auth प्लगइन / ड्राइवर में वायर्ड है।
+# निष्कर्ष: एक तैनाती के साथ `disable=oidc` (LDAP केवल मोड) प्रत्येक
+# प्रमाणीकरण परिदृश्य बनाता है `skip`, LDAP पथ को छोड़ देना। मैट्रिक्स-डिप्लॉय
+# संस्करण में सूचीबद्ध करता है `meta/variants.yml` आम तौर पर उस शाखा का प्रयोग
+# करने के लिए एक LDAP-केवल संस्करण शामिल है (उदाहरण के लिए देखें
+# [web-app-opencloudE-Mail
+# साइटमैप](../../roles/web-app-opencloud/meta/variants.yml) जहां संस्करण 1 सेट
+# `ldap.enabled: true` साथ `oidc.enabled: false`)हालांकि, हालांकि, यह अभी तक
+# मौजूद नहीं है।.
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -64862,9 +64950,11 @@ msgstr "यूआरएल `redis://redis:6379/2`"
 
 # '<scheme>* पथ तत्व सादे तार हैं। क्वेरी तत्वों को '?' या '&' के साथ शुरू
 # करना चाहिए और वास्तव में एक 'की = वैल्यू' होना चाहिए।.
-# translation-refused: libretranslate protected-span lost=[] gained=['*']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: यूआरएल सेगमेंट। पहला तत्व MUST में शामिल हैं
+# '<scheme>* पथ तत्व सादे तार हैं। क्वेरी तत्वों को '?' या '&' के साथ शुरू
+# करना चाहिए और वास्तव में एक 'की = वैल्यू' होना चाहिए।.
 msgid "URL segments. First element MUST include '<scheme>://'. Path elements are plain strings. Query elements must start with '?' or '&' and contain exactly one 'key=value'."
 msgstr ""
 
@@ -66012,10 +66102,14 @@ msgstr "उपयोगकर्ता नाम दावा: `preferred_userna
 # जाता है ``{{hunspell_languages}}`` उनकी विशिष्ट भाषा आवश्यकताओं के आधार पर
 # चर। यह परिवर्तनीय भाषा कोड की एक सूची स्वीकार करता है (उदाहरण के लिए,
 # 'en_US','de_DE')।.
+# gained=["'de_DE'", "'en_US'"]
 # translation-refused: libretranslate protected-span lost=['de_DE', 'en_US']
 # gained=["'de_DE'", "'en_US'"]
 # nocheck: url
 # translation-rejected: उपयोगकर्ता को अनुकूलित करने के लिए प्रोत्साहित किया
+# जाता है ``{{hunspell_languages}}`` उनकी विशिष्ट भाषा आवश्यकताओं के आधार पर
+# चर। यह परिवर्तनीय भाषा कोड की एक सूची स्वीकार करता है (उदाहरण के लिए,
+# 'en_US','de_DE')।.
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -67227,10 +67321,12 @@ msgid "Website builder with drag-and-drop editor and SEO tools"
 msgstr "ड्रैग-एंड-ड्रॉप संपादक और एसईओ उपकरण के साथ वेबसाइट बिल्डर"
 
 # [piehost.comWebsocket-tester](https://piehost.com/websocket-tester)
+# gained=['piehost.comWebsocket']
 # translation-refused: libretranslate protected-span lost=['piehost.com']
 # gained=['piehost.comWebsocket']
 # nocheck: url
 # translation-rejected: Websocket:
+# [piehost.comWebsocket-tester](https://piehost.com/websocket-tester)
 msgid "Websocket: [piehost.com/websocket-tester](https://piehost.com/websocket-tester)"
 msgstr ""
 
@@ -68944,12 +69040,10 @@ msgstr "एप्लिकेशन कॉन्फ़िगरेशन से 
 # कुंजी फ़ाइल) - दोहरी स्टैक ``<sub>.<node-onion>.conf`` वेरिएंट, इसलिए एक
 # गिरा हुआ ऐप या तो कोई कहानी प्याज की लहर नहीं छोड़ता है। केवल उन फ़ाइलों को
 # उत्पन्न करता है जो मौजूद हैं।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['https://t.co/']
-# nocheck: url
-# translation-rejected: मौजूदा भूत फ़ाइलों को पैदा करना (https://t.co/)
+# translated-by: libretranslate
 msgid "Yield existing vhost files (http + https) for every app belonging to *entity*, plus the ``www.<domain>.conf`` redirect variant and — when a node onion is provisioned (``services.tor.node`` / the key file) — the dual-stack ``<sub>.<node-onion>.conf`` variant, so a dropped app leaves no stale onion vhost either. Only yields files that exist."
-msgstr ""
+msgstr "मौजूदा भूत फ़ाइलों को पैदा करना (https://t.co/) प्रत्येक एप्लिकेशन के लिए *इकाई*, प्लस ``www.<domain>.conf`` पुनर्निर्देशित वेरिएंट और - जब एक नोड प्याज का प्रावधान किया जाता है (``services.tor.node`` कुंजी फ़ाइल) - दोहरी स्टैक ``<sub>.<node-onion>.conf`` वेरिएंट, इसलिए एक गिरा हुआ ऐप या तो कोई कहानी प्याज की लहर नहीं छोड़ता है। केवल उन फ़ाइलों को उत्पन्न करता है जो मौजूद हैं।."
 
 # translated-by: libretranslate
 msgid "Yield mount dicts in ``volume['mounts']`` that target ``service``."
@@ -69079,10 +69173,15 @@ msgstr "जब तक कि निम्नलिखित में से स
 # पाठकों द्वारा कहीं से पृष्ठ पर क्रॉस-लिंकिंग द्वारा प्रदान की जाती है, न कि
 # पृष्ठ द्वारा इसे अपने बारे में सूचित किया जाता है। इसके बजाय सीधे विषय का
 # वर्णन करें।.
+# gained=['"SPOT"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"SPOT"']
 # nocheck: url
 # translation-rejected: आप स्पष्ट रूप से दस्तावेज़ीकरण पृष्ठ घोषित नहीं करते
+# हैं "SPOT", "सत्य का एक बिंदु", या किसी भी समकक्ष आत्म-label। SPOT की स्थिति
+# पाठकों द्वारा कहीं से पृष्ठ पर क्रॉस-लिंकिंग द्वारा प्रदान की जाती है, न कि
+# पृष्ठ द्वारा इसे अपने बारे में सूचित किया जाता है। इसके बजाय सीधे विषय का
+# वर्णन करें।.
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -69651,6 +69750,7 @@ msgstr "आप MUST उस टेम्पलेट को चुनते ह�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: You MUST place role-local Dockerfiles at the place of
+# the time. `files/Dockerfile`।.
 msgid "You MUST place role-local Dockerfiles at `files/Dockerfile`."
 msgstr ""
 
@@ -70952,12 +71052,10 @@ msgstr "[ ] जब दोनों OIDC और LDAP सक्षम हो ज�
 # है (E.g. NextcloudCollabora/BBB, WordPressTo make a gram.Discourse),
 # माइग्रेशन इसे डुप्लिकेट करने के बजाय मैट्रिक्स प्रविष्टि के साथ मौजूदा तारों
 # को फिर से रद्द कर देता है।.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['gram.Discourse']
-# nocheck: url
-# translation-rejected: [ ] जहां सेल पहले से ही वायर्ड प्लगइन के लिए लिंक करता
+# translated-by: libretranslate
 msgid "[ ] Where the cell links to an already-wired plugin (e.g. Nextcloud↔Collabora/BBB, WordPress↔Discourse), the migration reconciles the existing wiring with the matrix entry instead of duplicating it."
-msgstr ""
+msgstr "[ ] जहां सेल पहले से ही वायर्ड प्लगइन के लिए लिंक करता है (E.g. NextcloudCollabora/BBB, WordPressTo make a gram.Discourse), माइग्रेशन इसे डुप्लिकेट करने के बजाय मैट्रिक्स प्रविष्टि के साथ मौजूदा तारों को फिर से रद्द कर देता है।."
 
 # translated-by: libretranslate
 msgid "[ ] Where the role's RBAC contract maps biber to a specific application role (e.g. `editor`, `member`), the assertion SHOULD pin that role: either by checking a role-scoped UI element or by asserting the absence of an admin-scoped element. A bare \"post-login page rendered\" check is acceptable as a starting point but MUST be flagged in the role README so a follow-up can tighten it."
@@ -73464,6 +73562,7 @@ msgstr "[OpenTalk](https://opentalk.eu/) हेनलीन ग्रुप द�
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: [OpenWrt Forum Discussion on
+# WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr ""
 
@@ -74177,9 +74276,15 @@ msgstr "[`meta/services.yml`](./meta/services.yml) पिन `sso.enabled` औ�
 # [`templates/playwright.env.j2`](./templates/playwright.env.j2) घोषणा
 # `PERSONA_BIBER_BLOCKED=true` और `PERSONA_ADMINISTRATOR_BLOCKED=true`. A.
 # A.A. `guest` व्यक्तित्व और बेसलाइन पहुंच दावे बिना शर्त चलाते हैं।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: [`meta/services.yml`](./meta/services.yml) पिन
+# `sso.enabled` और `logout.enabled` to `false`; Nvigator (Nvigator) एक
+# read-only front-end over the role graph with no account. इसके लिए कुछ भी
+# नहीं है `biber` या `administrator` लॉग इन करने के लिए, तो
+# [`templates/playwright.env.j2`](./templates/playwright.env.j2) घोषणा
+# `PERSONA_BIBER_BLOCKED=true` और `PERSONA_ADMINISTRATOR_BLOCKED=true`. A.
+# A.A. `guest` व्यक्तित्व और बेसलाइन पहुंच दावे बिना शर्त चलाते हैं।.
 msgid "[`meta/services.yml`](./meta/services.yml) pins `sso.enabled` and `logout.enabled` to `false`; the navigator is a read-only front-end over the role graph with no accounts and no auth layer. There is nothing for the `biber` or `administrator` persona to log in to, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally."
 msgstr ""
 
@@ -76375,10 +76480,13 @@ msgstr "[x] जब सेवा के साथ चलती है `DEPLOYMENT
 
 # Infinito.Nexusउस होस्ट पर सक्षम CI धावक (धावक वह निष्पादन वातावरण है जिसमें
 # बाद में Infinito.Nexus तैनाती और परीक्षण रन)।.
+# gained=['Infinito.Nexusउस']
 # translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexusउस']
 # nocheck: url
 # translation-rejected: [x] जब एक मेजबान पर लागू होता है, `svc-runner` लाता है
+# Infinito.Nexusउस होस्ट पर सक्षम CI धावक (धावक वह निष्पादन वातावरण है जिसमें
+# बाद में Infinito.Nexus तैनाती और परीक्षण रन)।.
 msgid "[x] When applied to a host, `svc-runner` brings up an Infinito.Nexus-capable CI runner on that host (the runner is the execution environment in which subsequent Infinito.Nexus deploys and tests run)."
 msgstr ""
 
@@ -76638,10 +76746,13 @@ msgstr "[x] `meta/variants.yml` मैट्रिक्स डिप्लॉ�
 
 # संस्करण (`ldap` पर, `sso`बंद) सम्मेलन के अनुसार [web-app-openprojectE-Mail
 # साइटमैप](../../roles/web-app-openproject/meta/variants.yml)।.
+# lost=['web-app-openproject/meta/variants.yml'] gained=[]
 # translation-refused: libretranslate protected-span
 # lost=['web-app-openproject/meta/variants.yml'] gained=[]
 # nocheck: url
 # translation-rejected: [x] `meta/variants.yml` एक परिभाषित करना **केवल LDAP**
+# संस्करण (`ldap` पर, `sso`बंद) सम्मेलन के अनुसार [web-app-openprojectE-Mail
+# साइटमैप](../../roles/web-app-openproject/meta/variants.yml)।.
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -78596,9 +78707,17 @@ msgstr "``key``: सेवाएं<key>।* लुकअप आधार। ड
 # नेटवर्क ग्राहकों को तैनाती में हर ग्राहक के बजाय स्वीकार करता है। एक ग्राहक
 # होने के नाते एक प्रवेश नहीं है: दूसरी शर्त के बिना एक प्रवेश कहीं भी
 # प्रत्येक प्रदाता तक पहुंच जाता है जो अपनी ओवरले खोलता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: ``kind``: ``services_flags`` (डिफ़ॉल्ट) (c)
+# ``database`` (c) ``mcp_client`` (c) ``web_facing`` (c) ``onion_sso``।
+# ``mcp_client`` केवल तब ही एक भूमिका स्वीकार करता है जब इसकी
+# ``mcp.direction`` है ``client`` या ``both`` यह घोषणा करता है
+# ``services.<own-entity>.mcp_consumer: true`` बिना किसी प्रदाता ने इसे रद्द
+# कर दिया ``mcp_consumer: false`` उसी प्रविष्टि पर, इसलिए एक प्रदाता का
+# नेटवर्क ग्राहकों को तैनाती में हर ग्राहक के बजाय स्वीकार करता है। एक ग्राहक
+# होने के नाते एक प्रवेश नहीं है: दूसरी शर्त के बिना एक प्रवेश कहीं भी
+# प्रत्येक प्रदाता तक पहुंच जाता है जो अपनी ओवरले खोलता है।.
 msgid "``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client`` | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when its ``mcp.direction`` is ``client`` or ``both`` AND it declares ``services.<own-entity>.mcp_consumer: true`` without the provider refusing it through ``mcp_consumer: false`` on that same entry, so a provider's network carries the clients it admitted rather than every client in the deployment. Being a client is not an admission: without the second condition one admission anywhere reaches every provider that opens its overlay."
 msgstr ""
 
@@ -78834,11 +78953,9 @@ msgstr "``phpunit/phpunit`` घोषणा ``_PHPUNIT_EXTENSIONS`` चूंक
 # "ओपनआईडी" प्रविष्टि और एसपीए उपयोगकर्ता-मेनू लॉगूट को जेनेरिक व्यक्ति हेल्पर
 # द्वारा ड्राइव नहीं किया जा सकता है, इसलिए दोनों उपयोगकर्ता के वास्तविक auth
 # को ऊपर समर्पित लॉगिन साथी द्वारा प्रयोग किया जाता है।.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: ``playwright.spec.js`` - ऑर्केस्ट्रेटर: टीएलएस
+# translated-by: libretranslate
 msgid "``playwright.spec.js`` — orchestrator: TLS baseline, project creation, image asset upload, and the ``guest``/``biber``/``administrator`` personas. The ``biber`` / ``administrator`` personas are declared blocked via ``PERSONA_*_BLOCKED`` (mirroring ``web-app-taiga``): Penpot’s in-app “OpenID” entry and SPA user-menu logout aren’t driveable by the generic persona helper, so both users’ real auth is exercised by the dedicated login companions above."
-msgstr ""
+msgstr "``playwright.spec.js`` - ऑर्केस्ट्रेटर: टीएलएस बेसलाइन, परियोजना निर्माण, छवि परिसंपत्ति अपलोड, और ``guest``/``biber``/``administrator`` व्यक्तित्व The The most of the most important ``biber`` / ``administrator`` व्यक्ति को अवरुद्ध करके घोषित किया जाता है ``PERSONA_*_BLOCKED`` (दर्पण ``web-app-taiga``): पेनपोट के इन-ऐप \"ओपनआईडी\" प्रविष्टि और एसपीए उपयोगकर्ता-मेनू लॉगूट को जेनेरिक व्यक्ति हेल्पर द्वारा ड्राइव नहीं किया जा सकता है, इसलिए दोनों उपयोगकर्ता के वास्तविक auth को ऊपर समर्पित लॉगिन साथी द्वारा प्रयोग किया जाता है।."
 
 # translated-by: libretranslate
 msgid "``playwright.version`` in ``meta/services.yml`` is the single source of truth for the default Playwright version; the central ``templates/package.json.j2`` pins it via the ``image_version`` filter."
@@ -79200,9 +79317,10 @@ msgid "``tools``:           ``allowlist`` is what a reader may reach and ``write
 msgstr "``tools``: ``allowlist`` क्या एक पाठक पहुंच सकता है और क्या हो सकता है? ``writer_allowlist`` क्या एक लेखक पहुंच सकता है; तैनाती प्रति भूमिका एक अनुबंध प्रदान करती है, प्रत्येक अपने स्वयं के वाहक के साथ, क्योंकि प्रवेश द्वार क्रेडेंशियल के अलावा कॉलर्स को बताता है और कुछ और नहीं। ``allowlist`` क्या मंच एक उपभोक्ता पहुंच की अनुमति देता है और केवल एक बाधा है जहां एक प्रवेश द्वार इसे लागू करता है। ``upstream_serves`` अवलोकन: प्रत्येक उपकरण अपस्ट्रीम तैनात संस्करण पर प्रदान करता है। यह केवल वही है जहां यह स्वीकार्य से अलग है; अनुपस्थिति का मतलब है कि दोनों समान हैं, जो एक प्रदाता के लिए सामान्य मामला है जो वास्तव में क्या अनुमति है। उनके बीच का अंतर अप्रवर्तित जोखिम को मापता है, और एक प्रदाता जिसका अंतर सामने में प्रवेश द्वार की आवश्यकता नहीं है। प्लस स्कीमा हैश और उत्परिवर्तन नीति।."
 
 # Absent = beacon-only (कोई लगाव नहीं)
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: ``topology``: ``shared_net`` (c) ``default_net``.
+# Absent = beacon-only (कोई लगाव नहीं)
 msgid "``topology``: ``shared_net`` | ``default_net``. Absent = beacon-only (no attachment)"
 msgstr ""
 
@@ -79211,9 +79329,10 @@ msgid "``transport``:       wire protocol of the endpoint."
 msgstr "``transport``: समापन बिंदु के तार प्रोटोकॉल।."
 
 # ``config`` (c) ``secret``
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: ``type`` में से एक ``volume`` (c) ``bind`` (c)
+# ``config`` (c) ``secret``
 msgid "``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``"
 msgstr ""
 
@@ -80002,6 +80121,7 @@ msgstr "`external` अगर `external` या `TLS_ENABLED`, अन्य `loca
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: `extra_hosts` प्रविष्टियां DNS-hijacking the HTTPS
+# upstream hostnames to the frontend's स्थैतिक IP
 msgid "`extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP"
 msgstr ""
 
@@ -80698,6 +80818,7 @@ msgstr "`package_name` (स्ट्रिंग) स्थापित कर�
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: `page.context().clearCookies()` केवल एक अंतिम सफाई के
+# रूप में अनुमति दी जाती है।.
 msgid "`page.context().clearCookies()` is permitted only as a final cleanup AFTER a click attempt and only when the click chain itself could not produce a verifiable logged-out state."
 msgstr ""
 
@@ -83202,6 +83323,8 @@ msgstr "cli.build.docs पैकेज"
 msgid "cli.build.docs.integration\\_matrix package"
 msgstr "cli.build.docs.integration\\ matrix पैकेज"
 
+# lost=['cli.build.docs.integration']
+# gained=['cli.build.docs.integrationmatrix.data']
 # translation-refused: libretranslate protected-span
 # lost=['cli.build.docs.integration']
 # gained=['cli.build.docs.integrationmatrix.data']
@@ -84772,6 +84895,7 @@ msgstr "ग्रुप का नाम ट्रेलिंग डैश क�
 msgid "group-selected roles"
 msgstr "समूह चयनित भूमिकाएं"
 
+# gained=['group_varsन']
 # translation-refused: libretranslate protected-span lost=['group_vars']
 # gained=['group_varsन']
 # nocheck: url
@@ -86124,6 +86248,7 @@ msgstr "plugins.filter.docker.network\\ noop मॉड्यूल"
 msgid "plugins.filter.docker.service\\_enabled module"
 msgstr "plugins.filter.docker.service\\ enabled मॉड्यूल"
 
+# lost=['plugins.filter.domain'] gained=['plugins.filter.domainउपकरण']
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domainउपकरण']
 # nocheck: url
@@ -86957,6 +87082,8 @@ msgstr "Qdrant में प्रति उपभोक्ता प्रि�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: quay.io/keycloak/keycloak -> keycloak/keycloak
+# ghcr.io/mastodon/mastodon -> mastodon/mastodon docker.io/postgres ->
+# postgres postgres -> postgres
 msgid "quay.io/keycloak/keycloak -> keycloak/keycloak ghcr.io/mastodon/mastodon -> mastodon/mastodon docker.io/postgres        -> postgres postgres                  -> postgres"
 msgstr ""
 
@@ -87141,6 +87268,7 @@ msgstr "रेपो-वाइड ग्रेप"
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Repo/name:tag -> (रेपो / नाम: टैग) रेपोname@sha.. ->
+# (Repo/name, @sha.) रेपो / नाम -> (रेपो / नाम, "")
 msgid "repo/name:tag   -> (repo/name, :tag) repo/name@sha.. -> (repo/name, @sha..) repo/name       -> (repo/name, \"\")"
 msgstr ""
 
@@ -87261,23 +87389,26 @@ msgid "restrict the choice to these values; empty allows all of them."
 msgstr "इन मूल्यों के लिए विकल्प को प्रतिबंधित करें; खाली उन सभी को अनुमति देता है।."
 
 # docker_network_noop('connect'))
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: result.rc == 0 नहीं (result.stderr (c)
+# docker_network_noop('connect'))
 msgid "result.rc != 0 and not (result.stderr | docker_network_noop('connect'))"
 msgstr ""
 
 # gitea_auth_noop)
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: result.rc == 0 नहीं (result.stderr (c)
+# gitea_auth_noop)
 msgid "result.rc != 0 and not (result.stderr | gitea_auth_noop)"
 msgstr ""
 
 # ldap_modify_noop)
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: result.rc == 0 नहीं (result.stderr (c)
+# ldap_modify_noop)
 msgid "result.rc != 0 and not (result.stderr | ldap_modify_noop)"
 msgstr ""
 
@@ -87573,11 +87704,9 @@ msgstr "समान या ऊपर; सिर (पहला 30 रेखा)"
 msgid "samples recorded so far, oldest first."
 msgstr "अब तक दर्ज नमूने, सबसे पुराना पहला।."
 
-# translation-refused: libretranslate protected-span lost=[] gained=["'और'"]
-# nocheck: url
-# translation-rejected: 'सभी घटनाओं के लिए स्कैन['और'{उत्पादन में
+# translated-by: libretranslate
 msgid "scan for all occurrences of '[' and '{' in the output"
-msgstr ""
+msgstr "'सभी घटनाओं के लिए स्कैन['और'{उत्पादन में"
 
 # translated-by: libretranslate
 msgid "scans role configs from [roles/](../../../../../roles/)"
@@ -89683,6 +89812,8 @@ msgstr "utils.env.handlers.infinito.is\\ wsl2 मॉड्यूल"
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
 msgstr "utils.env.handlers.infinito.outer\\ network \\ mtu मॉड्यूल"
 
+# lost=['utils.env.handlers.infinito.package']
+# gained=['utils.env.handlers.infinito.packageक']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.package']
 # gained=['utils.env.handlers.infinito.packageक']
@@ -89692,36 +89823,28 @@ msgid "utils.env.handlers.infinito.package\\_cache package"
 msgstr ""
 
 # password मॉड्यूल
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.admin']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin \
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.admin \\ password मॉड्यूल"
 
 # max मॉड्यूल
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.blobstore']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore \
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.blobstore \\ max मॉड्यूल"
 
 # mem मॉड्यूल
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.direct']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.direct \
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.direct \\ mem मॉड्यूल"
 
 # मॉड्यूल
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.heap']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.heap
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.heap मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.parent\\_image module"
@@ -89763,6 +89886,8 @@ msgstr "utils.env.handlers.infinito.rescue.dns53\\ sampler \\ log मॉड्�
 msgid "utils.env.handlers.infinito.rescue.local\\_dumps\\_dir module"
 msgstr "utils.env.handlers.infinito.rescue.local\\ dumps \\ dir मॉड्यूल"
 
+# lost=['utils.env.handlers.infinito.running']
+# gained=['utils.env.handlers.infinito.runningप']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.running']
 # gained=['utils.env.handlers.infinito.runningप']
@@ -89771,12 +89896,12 @@ msgstr "utils.env.handlers.infinito.rescue.local\\ dumps \\ dir मॉड्य�
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=[] gained=['on.act']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running\ on.act मॉड्यूल
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on.act module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on.act मॉड्यूल"
 
+# lost=['utils.env.handlers.infinito.running']
+# gained=['utils.env.handlers.infinito.runningGithub']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.running']
 # gained=['utils.env.handlers.infinito.runningGithub']
@@ -89785,6 +89910,8 @@ msgstr ""
 msgid "utils.env.handlers.infinito.running\\_on.github module"
 msgstr ""
 
+# lost=['utils.env.handlers.infinito.swarm']
+# gained=['utils.env.handlers.infinito.swarmnfs']
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.swarm']
 # gained=['utils.env.handlers.infinito.swarmnfs']
@@ -89794,20 +89921,16 @@ msgid "utils.env.handlers.infinito.swarm\\_nfs package"
 msgstr ""
 
 # मॉड्यूल
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['nfs.export']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.export \ base
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\ nfs.export \\ base मॉड्यूल"
 
 # मॉड्यूल
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['nfs.state']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.state \ path
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\ nfs.state \\ path मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.tor\\_socks\\_port module"
@@ -90017,6 +90140,8 @@ msgstr "utils.install.lint.eslint मॉड्यूल"
 msgid "utils.install.lint.hadolint module"
 msgstr "utils.install.lint.hadolint मॉड्यूल"
 
+# lost=['utils.install.lint.markdownlint']
+# gained=['utils.install.lint.markdownlintह']
 # translation-refused: libretranslate protected-span
 # lost=['utils.install.lint.markdownlint']
 # gained=['utils.install.lint.markdownlintह']
@@ -90859,10 +90984,15 @@ msgstr "{% if lookup('prometheus_integration_active', application_id) %} ...prom
 # कर्ल -s - कनेक्ट टाइमआउट 5 अधिकतम समय 300 - रिफाइनरी 3 --retry-allerrors
 # --retry-delay 2 {{ lookup('timeout', 30) | curl }} -> TIMEOUT_FACTORपैमाने
 # पर संस्करण
+# gained=['TIMEOUT_FACTORप']
 # translation-refused: libretranslate protected-span lost=['TIMEOUT_FACTOR']
 # gained=['TIMEOUT_FACTORप']
 # nocheck: url
 # translation-rejected: {{ 30 | curl }} -> कर्ल -s - कनेक्ट टाइमआउट 5 अधिकतम
+# समय 30 - रिफाइनरी 3 --retry-allerrors --retry-delay 2 {{ 300 | curl }} ->
+# कर्ल -s - कनेक्ट टाइमआउट 5 अधिकतम समय 300 - रिफाइनरी 3 --retry-allerrors
+# --retry-delay 2 {{ lookup('timeout', 30) | curl }} -> TIMEOUT_FACTORपैमाने
+# पर संस्करण
 msgid "{{ 30 | curl }}                      -> curl -s --connect-timeout 5 --max-time 30 --retry 3 --retry-all-errors --retry-delay 2 {{ 300 | curl }}                     -> curl -s --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 {{ lookup('timeout', 30) | curl }}   -> TIMEOUT_FACTOR-scaled variant"
 msgstr ""
 
@@ -90938,11 +91068,9 @@ msgstr "{{ lookup('tor_socks_proxy') }} -> मोज़े5H://tor:<port> (झ�
 msgid "‍ Author Information"
 msgstr "सूचना"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: "स्मार्ट डिफॉल्ट":
+# translated-by: libretranslate
 msgid "“Smart defaults”:"
-msgstr ""
+msgstr "\"स्मार्ट डिफॉल्ट\":"
 
 # translated-by: libretranslate
 msgid "↓ row wires → col"

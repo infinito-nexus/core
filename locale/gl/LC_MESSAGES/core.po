@@ -820,6 +820,8 @@ msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group
 msgstr "Segredos baseados na identidade, PKI e xestor de cifrado con inicio de sesión de OIDC, políticas co grupo e autos non selo estático."
 
 # translated-by: libretranslate
+# memoria memoria caché e almacenamento, compartido centralmente co illamento
+# de ACL por consumidor ou incorporado como sidecar.
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: En memoria memoria memoria memoria memoria memoria

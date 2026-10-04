@@ -273,7 +273,7 @@ msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr "Awan"
 
-# translation-refused: libretranslate protected-span
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: A/AAAAAA record (CAA opsional dan opsional) (Inggris)
 msgctxt "role:sys-svc-dns:description"
@@ -434,7 +434,9 @@ msgid "Customer Relationship"
 msgstr "Hubungan Pelanggan"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate protected-span
+# untuk mengelola hubungan pelanggan, pipa penjualan, pemasaran, dan kegiatan
+# pendukung.
+# translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: Manajemen Hubungan Pelanggan (♪ CRM ♪) Perangkat lunak
 # untuk mengelola hubungan pelanggan, pipa penjualan, pemasaran, dan kegiatan
@@ -1041,7 +1043,8 @@ msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "Penambahan injektor subfilter NGINX Matomo Naskah analitik dan pelacak gambar noskrip untuk melayani halaman HTML"
 
-# translation-refused: libretranslate protected-span
+# melalui HTTPS dengan sertifikat otomatis Mari Enkripsi
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: {0}NGINX vhost untuk melayani situs web HTML statis
 # melalui HTTPS dengan sertifikat otomatis Mari Enkripsi
@@ -1276,6 +1279,7 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Manajer paket untuk memasang dan mengelola paket Python pada host target"
 
+# menuntut di balik titik akhir OpenAI-kompatibel
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: O-user Hermes dan OpenClaw Agen agen agen agen mulai
@@ -1468,7 +1472,7 @@ msgid "Sales"
 msgstr "Penjualan"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate protected-span
+# translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: ♪ Sandboxed Runtimes ♪
 msgctxt "category:svc.virt:title"
@@ -1859,6 +1863,7 @@ msgid "Stack levels to setup the server"
 msgstr "Aras stack untuk mengatur server"
 
 # translated-by: libretranslate
+# file)
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Pelayan konten Stachetik (aset aset aset, HTML, legal,

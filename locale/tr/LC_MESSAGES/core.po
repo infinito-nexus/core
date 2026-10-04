@@ -388,6 +388,7 @@ msgid "Content Management"
 msgstr "Content Management"
 
 # translated-by: libretranslate
+# platformları
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: İçerik Yönetimi Sistemleri (CMS CMS CMS) ve web yayın
@@ -417,6 +418,7 @@ msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vect
 msgstr "Core AI bina blokları - hizmet etmek, OpenAI- uyumlu ağ geçidi, vektör veritabanı, orkestration ve chat UIs."
 
 # translated-by: libretranslate
+# support and performance-tuned defaults
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
@@ -697,6 +699,7 @@ msgid "Financial and accounting software"
 msgstr "Finansal ve Muhasebe yazılımları"
 
 # translated-by: libretranslate
+# için ücretsiz ve açık kaynak TURN /STUN r r r r röportatörü
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: WebRTC'de NAT traversal ve gerçek zamanlı iletişim
@@ -786,9 +789,13 @@ msgid "Health check for orphaned anonymous Docker volumes unbound to containers,
 msgstr "Evlatsız anonim Docker hacimleri için sağlık kontrolü, beyaz liste ile ve uyarı ile"
 
 # translated-by: libretranslate
+# Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
+# Yardım Yardım
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Yardım Yardım Yardım Yardım Yardım Yardım Yardım
+# Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
+# Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
 # Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
 # Yardım Yardım
 msgctxt "menu:Help:title"
@@ -986,6 +993,8 @@ msgid "Locking mechanism for gating maintenance tasks until critical services st
 msgstr "Bakım görevlerini kritik hizmetler durdurana kadar karıştırma mekanizması, yapılandırılabilir retry ve zamanout"
 
 # translated-by: libretranslate
+# çalışmıyorken yerelhost aracılığıyla hafif posta teslimat için ek röle röle
+# röle röle röle röle röprü
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Halka geri dönüş- sadece merkezi posta yığını
@@ -1183,6 +1192,7 @@ msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and webs
 msgstr "CRM, satış, muhasebe, envanter, HR ve web sitesi yönetimi için açık kaynak ERP paketi"
 
 # translated-by: libretranslate
+# behind SSO with native LDAP user management
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Open-source IT and application monitoring server
@@ -1408,10 +1418,21 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API, veri, tarih ve çevirilerine hizmet ediyor Infinito.Nexus Her bir temel ve onun çatalları için"
 
+# kararı API Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of svc-ai-s1
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Halk vhost, açığa çıkan System One karar kararı karar
 # kararı API Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of svc-ai-s1
 msgctxt "role:web-svc-s1:description"
@@ -1632,6 +1653,7 @@ msgid "Self-hosted URL shortener for creating, tracking, and managing short link
 msgstr "Kendi kendine evlenmiş URL, izlemek ve inşa edilen kısa bağlantıları yönetmek için kısa bağlantılar"
 
 # translated-by: libretranslate
+# uç uç uç-son şifreli video konferencing with beerated doğrulama
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Kendi kendine ev sahipliği WebRTC platformu son uç uç
@@ -1686,6 +1708,8 @@ msgid "Self-hosted federated reading platform for book reviews and reading track
 msgstr "Kendi kendine evlenmiş kitap incelemeleri ve Fediverse'in karşısındaki izleme platformu"
 
 # translated-by: libretranslate
+# zaman zaman zaman zaman çizelgesi ve topluluk moderasyonları için beslenmiş
+# sosyal ağ
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Kendi kendini mikroblogging, gerçek zamanlı zaman

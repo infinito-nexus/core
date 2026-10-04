@@ -91,6 +91,7 @@ msgstr "# Kohalikult ehitatud pilt (registrit ülespoole). {{ lookup('container_
 msgid "# include-gated: when: not IS_SWARM_MODE"
 msgstr "# include-gate: when: not IS_SWARM_MODE"
 
+# gained=['"automtu1.1.1"']
 # translation-refused: libretranslate protected-span lost=['"', '1.1.1']
 # gained=['"automtu1.1.1"']
 # nocheck: url
@@ -300,12 +301,10 @@ msgstr "**Roll võib basseini kitsendada.** `meta/services.yml.<primary_entity> 
 # tuleb mõõta määratud aadressiga: tundmatu nimi langeb metamärgi lahendajale,
 # kes vastab ühe ligipääsetava aadressiga, nii et nimepõhine sondi teatab
 # igast eakaaslasest kui ligipääsetavast ja ei tõesta midagi.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['Flowise.Reach']
-# nocheck: url
-# translation-rejected: **Jagatud infrastruktuurivõrk kannab külgsuunalist
+# translated-by: libretranslate
 msgid "**A shared infrastructure network carries lateral reach the application layer does not control.** On the compose stack, Flowise and Baserow both join `postgres` because both use the central database, and Flowise opens `baserow:80` at `192.168.200.5` although Baserow does not admit Flowise. Reach has to be measured by resolved address: an unknown name falls through to a wildcard resolver that answers with one reachable address, so a name-based probe reports every peer as reachable and proves nothing."
-msgstr ""
+msgstr "**Jagatud infrastruktuurivõrk kannab külgsuunalist ulatumist rakenduskiht ei kontrolli.** Komponendi virnal, Flowise ja Baserow ühineme `postgres` kuna mõlemad kasutavad keskandmebaasi ja Flowise avaneb `baserow:80` kell `192.168.200.5` kuigi Baserow ei tunnista Flowise.Reach tuleb mõõta määratud aadressiga: tundmatu nimi langeb metamärgi lahendajale, kes vastab ühe ligipääsetava aadressiga, nii et nimepõhine sondi teatab igast eakaaslasest kui ligipääsetavast ja ei tõesta midagi."
 
 # translated-by: libretranslate
 msgid "**AACS & BD+ Support**"
@@ -2139,10 +2138,15 @@ msgstr "**Andmebaasiteadlik:** tarbijarakendused külvavad oma ühenduse metaand
 # B→A.1 (ühesuunaline) külgneb sellega, kuid rekord↔event id kaardistamise
 # tabel tutvustati v1 Peab olema konstrueeritud nii, et tulevane vastupidine
 # tee saaks tuvastada. "peegeldunud".
+# gained=['"peegeldunud"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"peegeldunud"']
 # nocheck: url
 # translation-rejected: **De-dup / loop ennetamine.** Mis tahes tulevase
+# kahesuunalise sillaga ei tohi A→B peegeldatud sündmus tagasi peegeldada
+# B→A.1 (ühesuunaline) külgneb sellega, kuid rekord↔event id kaardistamise
+# tabel tutvustati v1 Peab olema konstrueeritud nii, et tulevane vastupidine
+# tee saaks tuvastada. "peegeldunud".
 msgid "**De-dup / loop prevention.** With any future bidirectional bridge, an event mirrored A→B must not echo back B→A. v1 (one-way) sidesteps this, but the record↔event id mapping table introduced in v1 MUST be designed so a future reverse path can detect \"already mirrored\"."
 msgstr ""
 
@@ -5592,10 +5596,14 @@ msgstr "**LDAP föderatsioon:** Millal `svc-db-openldap` on kohal, Zammad autent
 # LAM.** Sisuturbepoliitika blokeeris inline skripti, mis kontrollib
 # LAMtaustatööd, nii et need tööriistad jäid "pooleliolevas" igavesti. See
 # käsikiri on jälle lubatud.
+# gained=['"pooleliolevas"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"pooleliolevas"']
 # nocheck: url
 # translation-rejected: **LDAP import, eksport ja Multi Edit lõpetavad taas
+# LAM.** Sisuturbepoliitika blokeeris inline skripti, mis kontrollib
+# LAMtaustatööd, nii et need tööriistad jäid "pooleliolevas" igavesti. See
+# käsikiri on jälle lubatud.
 msgid "**LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy blocked the inline script that checks on LAM's background jobs, so these tools stayed \"in progress\" forever. That script is allowed again."
 msgstr ""
 
@@ -6387,11 +6395,9 @@ msgstr "**Native OIDC SSO:** Semafor renderdab oma \"Logi sisse Keycloakiga\" nu
 
 # with" Keycloaknupp ``SEMAPHORE_OIDC_PROVIDERS``; Keycloak klienti varustab
 # automaatselt ``web-app-keycloak``.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **Native OIDC SSO:** Semaphore muudab oma "Sign in
+# translated-by: libretranslate
 msgid "**Native OIDC SSO:** Semaphore renders its own “Sign in with Keycloak” button via ``SEMAPHORE_OIDC_PROVIDERS``; the Keycloak client is auto-provisioned by ``web-app-keycloak``."
-msgstr ""
+msgstr "**Native OIDC SSO:** Semaphore muudab oma \"Sign in with\" Keycloaknupp ``SEMAPHORE_OIDC_PROVIDERS``; Keycloak klienti varustab automaatselt ``web-app-keycloak``."
 
 # translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
@@ -8944,11 +8950,9 @@ msgstr "**UI on avaldatud, MCP pind mitte.** *(Vaadati läbi rakendamise ajal; e
 # piirang on platvormi kasutajamudel, mitte see juhtmestik, ja Playwrighti
 # katvus peegeldab seda: see tõestab, et "kõik rühmad näevad kõiki servereid"
 # ja "ükski rühm ei näe ühtegi", mitte valikuline juhtum.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **Theo ``mcp`` roll on antud platvormi, mitte taotluse
+# translated-by: libretranslate
 msgid "**The ``mcp`` role is granted per platform, not per application.** A user’s ``roles:`` list carries role names only, and ```build_realm_rbac_groups`` <../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py>`__ matches them without an application context, so ``roles: [mcp]`` makes that user a member of *every* deployed ``/roles/<app>/mcp`` group. Entitling somebody to drive Baserow but not GitLab is therefore not expressible declaratively today; it needs the Keycloak membership to be set directly on the single group. The tool-server side honours whatever membership arrives, so the limit is the platform’s user model, not this wiring, and the Playwright coverage reflects it: it proves “all groups sees all servers” and “no group sees none”, not the selective case."
-msgstr ""
+msgstr "**Theo ``mcp`` roll on antud platvormi, mitte taotluse kohta.** Kasutajate ``roles:`` nimekiri kannab ainult rollinimesid ja ```build_realm_rbac_groups`` <../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py>`__ matches them without an application context, so ``roles: [mcp]`` makes that user a member of *every* deployed ``/roles/<app>/mcp`` grupi. Kellegi juhtimisõiguse andmine Baserow aga mitte GitLab Seetõttu ei ole see täna deklaratiivselt väljendatud; see vajab Keycloak Liikmeskond määratakse otse ühele rühmale. Tööriista-serveri pool austab mis tahes liikmelisust, nii et piirang on platvormi kasutajamudel, mitte see juhtmestik, ja Playwrighti katvus peegeldab seda: see tõestab, et \"kõik rühmad näevad kõiki servereid\" ja \"ükski rühm ei näe ühtegi\", mitte valikuline juhtum."
 
 # translated-by: libretranslate
 msgid "**The `mcp` role is granted per platform, not per application.** A user's `roles:` list carries role names only, and [`build_realm_rbac_groups`](../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py) matches them without an application context, so `roles: [mcp]` makes that user a member of *every* deployed `/roles/<app>/mcp` group. Entitling somebody to drive Baserow but not GitLab is therefore not expressible declaratively today; it needs the Keycloak membership to be set directly on the single group. The tool-server side honours whatever membership arrives, so the limit is the platform's user model, not this wiring, and the Playwright coverage reflects it: it proves \"all groups sees all servers\" and \"no group sees none\", not the selective case."
@@ -9996,10 +10000,17 @@ msgstr "**varujuurde** (kataloogi) → avastamine + taasta `nfs → volume → s
 # eraldi. espokrm on sellest nimekirjast lahkunud: selle sibulavariant nurjus
 # jagatud admin personas (kinnitatud97CF8888) ja selle Clearnet variant
 # tagastab HTTP 500 GET/api/v1/App/user, põhjus on veel lahtine.
+# gained=['GET/api/v1/App/user']
 # translation-refused: libretranslate protected-span lost=['1']
 # gained=['GET/api/v1/App/user']
 # nocheck: url
 # translation-rejected: **algsed erandid** — `web-app-fider` ja
+# `web-app-bookwyrm` (ka keycloakjob, n8n) olid enne tor okst punased ja
+# jäävad selle jaoks väljapoole; bookwyrm ei suuda oma suud2 usaldusväärse
+# päise sessiooni spekter, fider selle baasjoon. Parandada sibulatöödest
+# eraldi. espokrm on sellest nimekirjast lahkunud: selle sibulavariant nurjus
+# jagatud admin personas (kinnitatud97CF8888) ja selle Clearnet variant
+# tagastab HTTP 500 GET/api/v1/App/user, põhjus on veel lahtine.
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr ""
 
@@ -11224,41 +11235,31 @@ msgid "**gVisor runtime:** The pinned `runsc` release is fetched to `/usr/local/
 msgstr "**gVisori tööaeg:** Pinned `runsc` vabastamist `/usr/local/bin/runsc` ja kontrollitud tema avaldatud SHA-ga.512 tšeki. Kata shim võetakse võõrustajalt sellisena, nagu ta on; roll ei paigalda seda."
 
 # haldamine", 'databases']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['baserow', 'docker', "andmete
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['baserow', 'docker', 'data management', 'databases']"
-msgstr ""
+msgstr "**galaxy_tags**: ['baserow', 'docker', \"andmete haldamine\", 'databases']"
 
 # võrgustik", 'decentralized']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['bluesky', 'docker', "sotsiaalne
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['bluesky', 'docker', 'social network', 'decentralized']"
-msgstr ""
+msgstr "**galaxy_tags**: ['bluesky', 'docker', \"sotsiaalne võrgustik\", 'decentralized']"
 
 # võrgustik", 'decentralized']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['friendica', 'docker', "sotsiaalne
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['friendica', 'docker', 'social network', 'decentralized']"
-msgstr ""
+msgstr "**galaxy_tags**: ['friendica', 'docker', \"sotsiaalne võrgustik\", 'decentralized']"
 
 # 'self-hosted', 'versioonikontroll']
-# translation-refused: libretranslate protected-span lost=[]
 # gained=["'versioonikontroll'"]
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['gitea', 'docker', 'git',
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitea', 'docker', 'git', 'self-hosted', 'version control']"
-msgstr ""
+msgstr "**galaxy_tags**: ['gitea', 'docker', 'git', 'self-hosted', 'versioonikontroll']"
 
 # 'self-hosted', 'versioonikontroll']
-# translation-refused: libretranslate protected-span lost=[] gained=['"',
 # "'versioonikontroll'"]
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['gitlab', 'docker', "ci/cd",
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'version control']"
-msgstr ""
+msgstr "**galaxy_tags**: ['gitlab', 'docker', \"ci/cd\", 'self-hosted', 'versioonikontroll']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['jira', 'project management']"
@@ -11269,69 +11270,53 @@ msgid "**galaxy_tags**: ['joomla', 'docker', 'cms', 'content management', 'self-
 msgstr "**galaxy_tags**: ['joomla', 'docker', 'cms', sisuhaldus, 'self-hosted']"
 
 # haldamine", 'sso', 'self-hosted']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['keycloak', 'docker', "identsuse
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['keycloak', 'docker', 'identity management', 'sso', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['keycloak', 'docker', \"identsuse haldamine\", 'sso', 'self-hosted']"
 
 # 'directory', 'tls', "identsuse haldamine"]
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['ldap', 'openldap', 'docker',
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['ldap', 'openldap', 'docker', 'directory', 'tls', 'identity management']"
-msgstr ""
+msgstr "**galaxy_tags**: ['ldap', 'openldap', 'docker', 'directory', 'tls', \"identsuse haldamine\"]"
 
 # "e-posti turundus", 'self-hosted']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['listmonk', 'docker', 'newsletter',
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['listmonk', 'docker', 'newsletter', 'email marketing', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['listmonk', 'docker', 'newsletter', \"e-posti turundus\", 'self-hosted']"
 
 # "postiserver", 'self-hosted']
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"postiserver"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['mailu', 'docker', 'email',
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['mailu', 'docker', 'email', 'mail server', 'self-hosted']"
-msgstr ""
+msgstr "**galaxy_tags**: ['mailu', 'docker', 'email', \"postiserver\", 'self-hosted']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'microblog', 'social network']"
 msgstr "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'microblog', sotsiaalvõrgustik]"
 
 # 'web', 'automation', 'archlinux']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'docker', "reverse\ proxy",
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'docker', \"reverse\\ proxy\", 'web', 'automation', 'archlinux']"
 
 # filter", 'injection', 'global']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'javascript', 'csp', "sub\
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp', \"sub\\ filter\", 'injection', 'global']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
 msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\ filter']"
 
 # proxy", 'letsencrypt', "self\ signed"]
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "reverse\
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', \"reverse\\ proxy\", 'letsencrypt', \"self\\ signed\"]"
 
 # signed", 'certificates', 'openssl']
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "self\
+# translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
-msgstr ""
+msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', \"self\\ signed\", 'certificates', 'openssl']"
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
@@ -12206,12 +12191,9 @@ msgstr "0001: Distro ja failisüsteem on deployment-maatriksteljed 🧭"
 
 # translated-by: libretranslate
 # 🏗️
-# translation-refused: libretranslate protected-span lost=[]
 # gained=["'sissepritse-maatriks'"]
-# nocheck: url
-# translation-rejected: 0002: CPU arhitektuur on 'sissepritse-maatriks' telg
 msgid "0002: The CPU architecture is a deploy-matrix axis 🏗️"
-msgstr ""
+msgstr "0002: CPU arhitektuur on 'sissepritse-maatriks' telg 🏗️"
 
 # translated-by: libretranslate
 msgid "0003: One MCP surface per provider, and a disposition for every role 🔌"
@@ -13502,10 +13484,18 @@ msgstr "Töö URL kitsendab allalaadimist selle töö rakendusele; paljalt käiv
 # pull`` sõrmejälgi "ajakohane" ja väljub nullist)Mõlemad otsitakse läbi, nii
 # et helistaja läbib talutava fraasi ja ei pea teadma, milline võti seda
 # kannab.
+# gained=['"ajakohane"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"ajakohane"']
 # nocheck: url
 # translation-rejected: Töö loetakse nurjunuks, kui see pole kunagi lõppenud,
+# kui moodul teatas ``failed``, või kui käsk tagastab nullist erineva ``rc``.
+# Mis eristab tõelist ebaõnnestumist idempotentsest no-op'ist, erineb API ja
+# elab erinevates võtmetes: moodulid panevad selle sisse ``msg`` (pilvehelbe
+# vastused "Identne kirje on juba olemas"), käskudega ``stdout`` (``ollama
+# pull`` sõrmejälgi "ajakohane" ja väljub nullist)Mõlemad otsitakse läbi, nii
+# et helistaja läbib talutava fraasi ja ei pea teadma, milline võti seda
+# kannab.
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -13564,10 +13554,14 @@ msgstr "Juhi poolt toetatud roll hoiab oma mahud sõlm-kohalikud (``swarm_nfs_ba
 # võtmemuutuse nimetamine on võti ja ei midagi muud. ``null`` Tühjendab
 # teemat, mis on ainus viis öelda "tuua": ühendatud, tühi kaardistamine on
 # no-op ja jätaks täpselt teenused, mida voor üritas heita.
+# gained=['"tuua"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"tuua"']
 # nocheck: url
 # translation-rejected: Kaardistatakse sügavad ühinemised, nii et ühe
+# võtmemuutuse nimetamine on võti ja ei midagi muud. ``null`` Tühjendab
+# teemat, mis on ainus viis öelda "tuua": ühendatud, tühi kaardistamine on
+# no-op ja jätaks täpselt teenused, mida voor üritas heita.
 msgid "A mapping deep-merges, so naming one key changes that key and nothing else. ``null`` empties the topic, which is the only way to say \"bring nothing\": merged, an empty mapping is a no-op and would leave exactly the services the round was trying to shed."
 msgstr ""
 
@@ -13672,11 +13666,9 @@ msgstr "Mittevariant `mode=reinstall` reaktsioon ebaõnnestunud variandile või 
 # nihkub iga kord, kui variant lisatakse, nii et indeks, mis tähendas eile
 # "jätka järgmise pilve taga" tähendab täna midagi muud, samas kui märk ütleb
 # seda endiselt.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Arv on see, et palju ridu; kõik muu on valikumärk
+# translated-by: libretranslate
 msgid "A number is that many rows; anything else is a selection token (:mod:`utils.github.variant.selection`) and the start is the first regular row it names. Resuming at a role beats counting rows by hand: the ranking shifts whenever a variant is added, so the index that meant 'carry on behind nextcloud' yesterday means something else today, while the token still says it."
-msgstr ""
+msgstr "Arv on see, et palju ridu; kõik muu on valikumärk (:mod:`utils.github.variant.selection`) Algus on esimene tavaline rida, mida ta nimetab. Rolli jätkamine võidab ridade loendamist käsitsi: järjestus nihkub iga kord, kui variant lisatakse, nii et indeks, mis tähendas eile \"jätka järgmise pilve taga\" tähendab täna midagi muud, samas kui märk ütleb seda endiselt."
 
 # translated-by: libretranslate
 msgid "A parsed README: everything before the first H2, then its H2 blocks."
@@ -13700,10 +13692,17 @@ msgstr "Ühe tööriista moodul EI TOHI importida teist tööriista moodulit. Ü
 # regressioonid (vigane OIDC kaardistamine , eemaldatud väljalogimisnupp ,
 # valesti seadistatud oauth2- Proxy, triivinud kasutajaliidese valijad)
 # rohelise tule taga.
+# gained=['"väljalogimisnuputa"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"väljalogimisnuputa"']
 # nocheck: url
 # translation-rejected: Persona-stsenaarium PEAB kõvasti läbi kukkuma, kui
+# tema lepinguline reis ei suuda lõpuni sooritada. Vaikne `test.skip(...)`
+# käitusaja tuvastamise kohta "väljalogimisnuputa", "autenditud pinnata"või
+# "admin UI marker" on keelatud. Vaikne vahelejätmine peidab reaalsed
+# regressioonid (vigane OIDC kaardistamine , eemaldatud väljalogimisnupp ,
+# valesti seadistatud oauth2- Proxy, triivinud kasutajaliidese valijad)
+# rohelise tule taga.
 msgid "A persona scenario MUST fail loudly when its contracted journey cannot execute end-to-end. A silent `test.skip(...)` on runtime detection of \"no logout button\", \"no authenticated surface\", or \"no admin UI marker\" is FORBIDDEN. Silent skips hide real regressions (broken OIDC mapping, removed logout button, misconfigured oauth2-proxy, drifted UI selectors) behind a green deploy."
 msgstr ""
 
@@ -13952,9 +13951,14 @@ msgstr "Rollikataloogi nimi ei ole kunagi ingliskeelne fraas, nii et see on kait
 # sildid ``meta/categories.yml`` [[Budismis]] aktsepteeritakse Brahmat, kuid
 # jumalana kuulub ta ka [[sansaarasse]]. ``·``, siis on roll omaette
 # ``README.md`` rubriik või id osa, mida kategooriad juba ei kanna.
-# translation-refused: libretranslate protected-span lost=[] gained=['[', ']']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Rolli ID on masina käepide (``web-app-nextcloud``);
+# Ekraani nimi on see, mida inimene loeb GitHubi toimingute töölt või käivitab
+# pealkirja (``网络应用·Nextcloud``). Kategooria asukoht renderdab ``hanzi``
+# sildid ``meta/categories.yml`` [[Budismis]] aktsepteeritakse Brahmat, kuid
+# jumalana kuulub ta ka [[sansaarasse]]. ``·``, siis on roll omaette
+# ``README.md`` rubriik või id osa, mida kategooriad juba ei kanna.
 msgid "A role id is the machine handle (``web-app-nextcloud``); the display name is what a human reads off a GitHub Actions job or run title (``网络应用·Nextcloud``). The category path renders as the ``hanzi`` labels ``meta/categories.yml`` declares, run together into one block, then a ``·``, then the role's own ``README.md`` heading or the part of the id the categories do not already carry."
 msgstr ""
 
@@ -14566,10 +14570,13 @@ msgstr "Umbes AGENTS.md"
 
 # öelda "ülesvoolu", mis ei suuda eristada läbivaadatud keeldumist rollist,
 # mida keegi ei uurinud.
+# gained=['"ülesvoolu"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"ülesvoolu"']
 # nocheck: url
 # translation-rejected: Puudumine `mcp:` Blokeerimine oli dokumenteeritud viis
+# öelda "ülesvoolu", mis ei suuda eristada läbivaadatud keeldumist rollist,
+# mida keegi ei uurinud.
 msgid "Absence of an `mcp:` block was the documented way to say \"no upstream path\", which cannot distinguish a reviewed refusal from a role nobody examined."
 msgstr ""
 
@@ -14835,10 +14842,18 @@ msgstr "LDAP-i kasutajate käsitsi lisamine koheseks jagamiseks"
 # (req 019 Reegel 11 selgesõnaline loobumine). Kui automaatne pakkumine
 # töötab, eemaldage mõlemad loobumise lipud, et isikud sõidaksid tegelikku
 # teekonda.
+# gained=['"loata"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"loata"']
 # nocheck: url
 # translation-rejected: Lisa OIDC automaatne varustamine värskena Keycloak
+# kasutaja, kes maandub akaunting plaat maandub töötavale kasutajakonto asemel
+# "loata" pinnale. Kuni see on juhtmega, blokeeritakse nii näitekirjaniku
+# biber kui ka administraatori isikud `PERSONA_BIBER_BLOCKED=true` ja
+# `PERSONA_ADMINISTRATOR_BLOCKED=true` sisse `templates/playwright.env.j2`
+# (req 019 Reegel 11 selgesõnaline loobumine). Kui automaatne pakkumine
+# töötab, eemaldage mõlemad loobumise lipud, et isikud sõidaksid tegelikku
+# teekonda.
 msgid "Add OIDC auto-provisioning so a fresh Keycloak user that lands on the akaunting tile lands on a working akaunting user account instead of a \"no permission\" surface. Until that is wired, BOTH the playwright biber and administrator personas are blocked via `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in `templates/playwright.env.j2` (req 019 Rule 11 explicit opt-out). Once auto-provisioning works, drop both opt-out flags so the personas drive the real journey."
 msgstr ""
 
@@ -16033,18 +16048,14 @@ msgid "All settings available as `SEMAPHORE_*` env vars; `_FILE` suffix reads a 
 msgstr "Kõik seadistused on saadaval `SEMAPHORE_*` env vars; `_FILE` sufiks loeb faili väärtust (salasõbralik)."
 
 # `MODE_CLEANUP` lipud, et vältida soovimatuid kordusi või aegunud faile.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Kõik ülesanded on kaitstud "üks kord" faktide ja
+# translated-by: libretranslate
 msgid "All tasks are guarded by “run once” facts and `MODE_CLEANUP` flags to avoid unintended re-runs or stale files."
-msgstr ""
+msgstr "Kõik ülesanded on kaitstud \"üks kord\" faktide ja `MODE_CLEANUP` lipud, et vältida soovimatuid kordusi või aegunud faile."
 
 # ``MODE_CLEANUP`` lipud, et vältida soovimatuid kordusi või aegunud faile.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Kõik ülesanded on kaitstud "üks kord" faktide ja
+# translated-by: libretranslate
 msgid "All tasks are guarded by “run once” facts and ``MODE_CLEANUP`` flags to avoid unintended re-runs or stale files."
-msgstr ""
+msgstr "Kõik ülesanded on kaitstud \"üks kord\" faktide ja ``MODE_CLEANUP`` lipud, et vältida soovimatuid kordusi või aegunud faile."
 
 # translated-by: libretranslate
 msgid "All tasks are idempotent. Once your certificates are in place and your configuration is set, Ansible will skip unchanged steps on subsequent runs."
@@ -16357,10 +16368,13 @@ msgstr "Võõrustajate seas `svc-swarm-node`, määratakse klastri juht täienda
 
 # `meta/<topic>.yml` markerfaili (teenused, server, rbac, mahud, skeem,
 # kasutajad).
+# gained=['"rakendusrolli"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"rakendusrolli"']
 # nocheck: url
 # translation-rejected: An "rakendusrolli" omab vähemalt ühte projekti
+# `meta/<topic>.yml` markerfaili (teenused, server, rbac, mahud, skeem,
+# kasutajad).
 msgid "An \"application role\" carries at least one project-owned `meta/<topic>.yml` marker file (services, server, rbac, volumes, schema, users)."
 msgstr ""
 
@@ -16490,10 +16504,13 @@ msgstr "Tühi string on kehtiv vastus: pakkuja, kes ei ole oma mandaati veel ver
 
 # kontrolli, mis muudab valikulise pakkuja võtme väljendatavaks: deklareerige
 # kuju, jätke väärtus tühjaks ja tarbija väravad tühjusele.
+# gained=['"konfigureerimata"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"konfigureerimata"']
 # nocheck: url
 # translation-rejected: Tühi string tähendab "konfigureerimata" ja läbib iga
+# kontrolli, mis muudab valikulise pakkuja võtme väljendatavaks: deklareerige
+# kuju, jätke väärtus tühjaks ja tarbija väravad tühjusele.
 msgid "An empty string means \"not configured\" and passes every check, which is what makes an optional provider key expressible: declare the shape, leave the value empty, and the consumer gates on emptiness."
 msgstr ""
 
@@ -17118,11 +17135,9 @@ msgstr "Rakendused väljendavad andmebaasi valikut otse failijuure kaudu `meta/s
 # kasutavad tuttavaid SDK-sid ja CLI-sid. Admins haldab ämbreid, kasutajaid ja
 # juurdepääsueeskirju brauserikonsooli kaudu, hoides samal ajal kõike
 # tipptasemel.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Rakendused, mis kõnelevad „S3" (Pixelfed, Mastodon,
+# translated-by: libretranslate
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
-msgstr ""
+msgstr "Rakendused, mis kõnelevad „S3\" (Pixelfed, Mastodon, Nextcloud, Flowisejne.) salvestada ja hankida objekte MinIO ämbrid, mis kasutavad tuttavaid SDK-sid ja CLI-sid. Admins haldab ämbreid, kasutajaid ja juurdepääsueeskirju brauserikonsooli kaudu, hoides samal ajal kõike tipptasemel."
 
 # translated-by: libretranslate
 msgid "Applications 📦"
@@ -17875,9 +17890,12 @@ msgstr "BFS säilinud esmastest rakendustest üle `dependencies` + `services` se
 # rekursioonisügavus: ``1`` tagasi saadetakse ainult otsenaabrid, ``2``
 # Lähedalt vaadates on nad kenad (vasakul). ``None`` kõnnib täieliku
 # sulgumisega. Algusrolli ennast ei kaasata kunagi tulemusesse.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: BFS abiainete kaardil. ``max_level`` korgi
+# rekursioonisügavus: ``1`` tagasi saadetakse ainult otsenaabrid, ``2``
+# Lähedalt vaadates on nad kenad (vasakul). ``None`` kõnnib täieliku
+# sulgumisega. Algusrolli ennast ei kaasata kunagi tulemusesse.
 msgid "BFS over an adjacency map. ``max_level`` caps recursion depth: ``1`` returns direct neighbours only, ``2`` adds their direct neighbours, etc. ``None`` walks the full closure. The start role itself is never included in the result."
 msgstr ""
 
@@ -21610,11 +21628,9 @@ msgstr "Kasutajakeskse dokumentatsiooni koostööplatvorm koos laiendatava laien
 # lisatühikut ja eemalda JavaScripti kommentaarid. Toetab nii "//" rea
 # kommentaaride kui ka "/" eemaldamist*...*/' blokeerib kommentaarid, kuid
 # säilitab '//' stringisõnastikes ja ahvatlevates väljendites.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Koopia kõik mitmerealised stringid ühte rida, trimmi
+# translated-by: libretranslate
 msgid "Collapse any multi-line string into a single line, trim extra whitespace, and remove JavaScript comments. Supports removal of both '//' line comments and '/*...*/' block comments, but preserves '//' inside string literals and templating expressions."
-msgstr ""
+msgstr "Koopia kõik mitmerealised stringid ühte rida, trimmi lisatühikut ja eemalda JavaScripti kommentaarid. Toetab nii \"//\" rea kommentaaride kui ka \"/\" eemaldamist*...*/' blokeerib kommentaarid, kuid säilitab '//' stringisõnastikes ja ahvatlevates väljendites."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -21668,10 +21684,13 @@ msgstr "Kombineeritud `sys-svc-mail-msmtp`, võimaldab saata kirju `localhost:25
 
 # :func:`is_path_gitignored` helistajad saavad "failid" Vaade ilma git
 # alamprotsessi kudemata. ``root`` vaikimisi :data:`PROJECT_ROOT`.
+# gained=['"failid"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"failid"']
 # nocheck: url
 # translation-rejected: Kombinaadid :func:`iter_project_files` koos
+# :func:`is_path_gitignored` helistajad saavad "failid" Vaade ilma git
+# alamprotsessi kudemata. ``root`` vaikimisi :data:`PROJECT_ROOT`.
 msgid "Combines :func:`iter_project_files` with :func:`is_path_gitignored` so callers get the \"files git would track\" view without spawning a git subprocess. ``root`` defaults to :data:`PROJECT_ROOT`."
 msgstr ""
 
@@ -23216,11 +23235,9 @@ msgstr "Kursori CLI-d ei saa suunata kohandatud OpenAI-ga ühilduvale lõpp-punk
 # räägivad hiljem oma protokollist. Redaktor kannab kaasas "Override OpenAI"
 # Base URL väli, kuid see elab CursorOma riigi andmebaasis, mitte failis, mida
 # see roll võiks anda.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Kursori CLI-d ei saa suunata kohandatud OpenAI-ga
+# translated-by: libretranslate
 msgid "Cursor’s CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an “Override OpenAI Base URL” field, but it lives in Cursor’s own state database rather than in a file this role could render."
-msgstr ""
+msgstr "Kursori CLI-d ei saa suunata kohandatud OpenAI-ga ühilduvale lõpp-punktile: see vahetab võtme Cursor Sessioonid märgivad ja räägivad hiljem oma protokollist. Redaktor kannab kaasas \"Override OpenAI\" Base URL väli, kuid see elab CursorOma riigi andmebaasis, mitte failis, mida see roll võiks anda."
 
 # translated-by: libretranslate
 msgid "Custom Docker image built on ``ghcr.io/decidim/decidim`` with OpenID Connect support"
@@ -26728,12 +26745,10 @@ msgstr "Sissekanded ``\"name:address\"`` Nöörid ja deduplitseeritakse esimest 
 # juurdepääsu kõigile administraatoritele enne esimest eraldiste käivitamist
 # ja pärast iga tühja konteineri taaskäivitamist. Puudega kannet ei teenindata
 # üldse, nii et varukoopia ei ole juurdepääs, vaid liiga palju.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"keegi"']
-# nocheck: url
-# translation-rejected: Kande renderdamine **puudega**, ja ülesanne võimaldab
+# translated-by: libretranslate
 msgid "Entries render **disabled**, and the task enables each one in the same write that carries its grant. An empty ``access_grants`` is not “nobody”: Open WebUI reads it as every administrator, which is wider than the ``mcp`` group. Since ``ENABLE_PERSISTENT_CONFIG=false`` makes the env authoritative again on every start, an enabled-but-ungranted entry would hand access to all administrators before the first provisioning run and after any bare container restart. A disabled entry is not served at all, so the fallback is no access rather than too much."
-msgstr ""
+msgstr "Kande renderdamine **puudega**, ja ülesanne võimaldab igaüks sama kirjutada, mis kannab oma toetust. Tühi ``access_grants`` Ei ole \"keegi\": Open WebUI loeb seda iga administraatorina, mis on laiem kui ``mcp`` grupi. Alates ``ENABLE_PERSISTENT_CONFIG=false`` muudab env autoritatiivseks igal stardil, lubatud, kuid keelatud sissekanne annaks juurdepääsu kõigile administraatoritele enne esimest eraldiste käivitamist ja pärast iga tühja konteineri taaskäivitamist. Puudega kannet ei teenindata üldse, nii et varukoopia ei ole juurdepääs, vaid liiga palju."
 
 # translated-by: libretranslate
 msgid "Entries render **disabled**, and the task enables each one in the same write that carries its grant. An empty `access_grants` is not \"nobody\": Open WebUI reads it as every administrator, which is wider than the `mcp` group. Since `ENABLE_PERSISTENT_CONFIG=false` makes the env authoritative again on every start, an enabled-but-ungranted entry would hand access to all administrators before the first provisioning run and after any bare container restart. A disabled entry is not served at all, so the fallback is no access rather than too much."
@@ -27089,12 +27104,10 @@ msgstr "Iga ebaõnnestumine tõstab AnsibleError'i käivitatava sõnumiga."
 # deklaratsioonide ja koopiate `<addon_id>.php` Konteinerisse iga lähetuse
 # puhul; seetõttu vajab uus fail `meta/addons/<addon_id>.yml` sissekanne ja
 # Playwrighti spekter enne selle installimist.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['pluginad.yml']
-# nocheck: url
-# translation-rejected: Iga fail siin deklareeritakse lisandina allpool
+# translated-by: libretranslate
 msgid "Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed."
-msgstr ""
+msgstr "Iga fail siin deklareeritakse lisandina allpool `meta/addons/` koos `mechanism: mu_plugin` ja `source: vendored`, ja lisandi ID on faili tüvi. [04mu pluginad.yml](../../tasks/04_mu_plugins.yml) nende deklaratsioonide ja koopiate `<addon_id>.php` Konteinerisse iga lähetuse puhul; seetõttu vajab uus fail `meta/addons/<addon_id>.yml` sissekanne ja Playwrighti spekter enne selle installimist."
 
 # translated-by: libretranslate
 msgid "Every handler module MUST expose the same surface so the registry can call it uniformly:"
@@ -27252,10 +27265,14 @@ msgstr "Iga rollitüüp koos failidega võib või peab saatma."
 # täpselt üks kord allpool. Nendest nimekirjadest puuduv roll oleks loetav kui
 # "pole veel vaadanud" ja "otsustanud" Samal ajal, ilma et midagi öelda kahele
 # eraldi.
+# gained=['"otsustanud"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"otsustanud"']
 # nocheck: url
 # translation-rejected: Iga roll sõnasõnaliselt `application_id` on esitatud
+# täpselt üks kord allpool. Nendest nimekirjadest puuduv roll oleks loetav kui
+# "pole veel vaadanud" ja "otsustanud" Samal ajal, ilma et midagi öelda kahele
+# eraldi.
 msgid "Every role with a literal `application_id` is filed exactly once below. A role missing from these lists would read as \"not yet looked at\" and as \"decided against\" at the same time, with nothing to tell the two apart."
 msgstr ""
 
@@ -29626,10 +29643,15 @@ msgstr "Mittepurustava ekvivalendi kohta vaata artiklit [initsialiseerida/](../i
 # [workflow.md](../../../docs/contributing/artefact/files/github/workflow.md).
 # Neid kõnesid käivitava töövoo kataloogi kohta vaata artiklit
 # [workflows.md](../../../docs/contributing/tools/github/actions/workflows.md).
+# gained=['"Kettaruum"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Kettaruum"']
 # nocheck: url
 # translation-rejected: Ketta taasväärtustamise ja vahetustehingute laienemise
+# kohta töövoogude kasutuselevõtul vt "Kettaruum" ja "Swap" sektsioonides
+# [workflow.md](../../../docs/contributing/artefact/files/github/workflow.md).
+# Neid kõnesid käivitava töövoo kataloogi kohta vaata artiklit
+# [workflows.md](../../../docs/contributing/tools/github/actions/workflows.md).
 msgid "For the rationale behind disk reclamation and swap enlargement in deploy workflows see the \"Disk space\" and \"Swap\" sections in [workflow.md](../../../docs/contributing/artefact/files/github/workflow.md). For the workflow catalog that drives these calls see [workflows.md](../../../docs/contributing/tools/github/actions/workflows.md)."
 msgstr ""
 
@@ -30059,10 +30081,13 @@ msgstr "GITHUB_ACTIONS=true JA not ACT -> real github action"
 
 # tuletatud GITHUB_REPOSITORY_OWNER / OMANIK / GITHUB_REPOSITORYSurmav, kui
 # see pole GHA-ga lahendatav.
+# lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYSurmav']
 # translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYSurmav']
 # nocheck: url
 # translation-rejected: GITHUB_REPOSITORY_OWNER: väikeaju GHA hoidla omanik,
+# tuletatud GITHUB_REPOSITORY_OWNER / OMANIK / GITHUB_REPOSITORYSurmav, kui
+# see pole GHA-ga lahendatav.
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -30224,10 +30249,13 @@ msgstr "Üldine TLS orkestraator, mida saab ühendada mis tahes veebirakenduse p
 
 # "muudatused", "commit", või mis tahes samaväärses keeles) Ei tohi
 # kvalifitseeruda. Kahtluse korral ei tohi te kasutada `--no-verify`.
+# gained=['"muudatused"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"muudatused"']
 # nocheck: url
 # translation-rejected: Üldised kohustuse võtmise taotlused (selliste
+# "muudatused", "commit", või mis tahes samaväärses keeles) Ei tohi
+# kvalifitseeruda. Kahtluse korral ei tohi te kasutada `--no-verify`.
 msgid "Generic commit requests (such as \"commit the changes\", \"commit\", or any equivalent in any language) MUST NOT qualify. When in doubt, you MUST NOT use `--no-verify`."
 msgstr ""
 
@@ -33858,24 +33886,20 @@ msgstr "Teksti esinemise regressioonitesti lisamise asemel:"
 
 # castling.club kasutab vahekohtunikku ("Kuningas") valideerida käike ja
 # vahendada vasteid.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"Kuningas"']
-# nocheck: url
-# translation-rejected: Selle asemel, et toetuda suletud platvormidele,
+# translated-by: libretranslate
 msgid "Instead of relying on closed platforms, castling.club uses an arbiter actor (“the King”) to validate moves and mediate matches."
-msgstr ""
+msgstr "Selle asemel, et toetuda suletud platvormidele, castling.club kasutab vahekohtunikku (\"Kuningas\") valideerida käike ja vahendada vasteid."
 
 # castling.club kasutab vahekohtunikku ("Kuningas") valideerida käike ja
 # vahendada vasteid. See tagab ausa mängu, föderatsiooni selliste
 # platvormidega nagu Mastodon või Friendicaja kogukonna nähtavus
 # käimasolevatest mängudest. Teenus töötab kergekaalulisena Node.js rakendust
 # PostgreSQL.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"Kuningas"']
-# nocheck: url
-# translation-rejected: Selle asemel, et toetuda suletud platvormidele,
+# translated-by: libretranslate
 msgid "Instead of relying on closed platforms, castling.club uses an arbiter actor (“the King”) to validate moves and mediate matches.   This ensures fair play, federation with platforms like Mastodon or Friendica, and community visibility of ongoing games.   The service runs as a lightweight Node.js app backed by PostgreSQL."
-msgstr ""
+msgstr "Selle asemel, et toetuda suletud platvormidele, castling.club kasutab vahekohtunikku (\"Kuningas\") valideerida käike ja vahendada vasteid. See tagab ausa mängu, föderatsiooni selliste platvormidega nagu Mastodon või Friendicaja kogukonna nähtavus käimasolevatest mängudest. Teenus töötab kergekaalulisena Node.js rakendust PostgreSQL."
 
 # translated-by: libretranslate
 msgid "Instead of renaming, copy the entire Maildir from the old domain to the new one:"
@@ -36719,10 +36743,12 @@ msgid "Maintenance, dependency, and tooling updates (incl. branches created by [
 msgstr "Hooldus-, sõltuvus- ja tööriistauuendused (sh filiaalid, mille on loonud [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
 # vabatahtlik, kasutades more_header võimalus.
+# lost=['proxy_hide_header'] gained=['Teeproxy_hide_header']
 # translation-refused: libretranslate protected-span
 # lost=['proxy_hide_header'] gained=['Teeproxy_hide_header']
 # nocheck: url
 # translation-rejected: Teeproxy_hide_header Sisu-turvalisuspoliitika
+# vabatahtlik, kasutades more_header võimalus.
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
 msgstr ""
 
@@ -38156,6 +38182,7 @@ msgstr "Nimede nimekiri, otsing ja tööriistad rakenduse esmaste kirjete jaoks"
 msgid "Named volume (or host path) backing the nested Docker directory. Generator overrides to `/mnt/docker` on GHA."
 msgstr "Nimeline köide (või hosti asukohta) Toetan pesastatud Dockeri kataloogi. Generaator tühistab `/mnt/docker` GHA-l."
 
+# gained=['võtidaemon.json']
 # translation-refused: libretranslate protected-span lost=['daemon.json']
 # gained=['võtidaemon.json']
 # nocheck: url
@@ -39731,11 +39758,9 @@ msgstr "Läbipaistmatu, rollitõlgendatud tööaeg. Lint ei piira selle sisemist
 
 # rollide kaupa, mille kasutuselevõtt ebaõnnestus, sidudes jooksnud esemed ja
 # lisades otsustava päästeväljavõtte.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Avage (kommenteerin) a 'CI rike': <role>"küsimus
+# translated-by: libretranslate
 msgid "Open (or comment on) a 'CI failure: <role>' issue per role whose deploy failed, linking the run artifacts and inlining the decisive rescue excerpt."
-msgstr ""
+msgstr "Avage (kommenteerin) a 'CI rike': <role>\"küsimus rollide kaupa, mille kasutuselevõtt ebaõnnestus, sidudes jooksnud esemed ja lisades otsustava päästeväljavõtte."
 
 # translated-by: libretranslate
 msgid "Open **Users**, search for the user, and select them."
@@ -40931,10 +40956,12 @@ msgid "Parse *text* as a block mapping and return it."
 msgstr "Parse *tekst* Plokikaardina ja tagasta."
 
 # Markdowni kokkuvõte $-leGITHUB_STEP_SUMMARY.
+# lost=['GITHUB_STEP_SUMMARY'] gained=['leGITHUB_STEP_SUMMARY']
 # translation-refused: libretranslate protected-span
 # lost=['GITHUB_STEP_SUMMARY'] gained=['leGITHUB_STEP_SUMMARY']
 # nocheck: url
 # translation-rejected: Parsige GHA annotatsiooniread logifailist ja kirjutage
+# Markdowni kokkuvõte $-leGITHUB_STEP_SUMMARY.
 msgid "Parse GHA annotation lines from a log file and write a Markdown summary to $GITHUB_STEP_SUMMARY."
 msgstr ""
 
@@ -42370,10 +42397,13 @@ msgstr "Trükitakse komadega eraldatud grupi tingimuslikud teenusevõtmed ``disa
 
 # ``--include`` Nii et tulemuseks olev inventuur sisaldab kõiki gruppe
 # APP_IDTransiitsed deps vajavad käivitamise ajal.
+# gained=['APP_IDTransiitsed']
 # translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDTransiitsed']
 # nocheck: url
 # translation-rejected: Trüki, üks rea kohta, roll IDs, mida säte CLI peaks
+# ``--include`` Nii et tulemuseks olev inventuur sisaldab kõiki gruppe
+# APP_IDTransiitsed deps vajavad käivitamise ajal.
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -43095,12 +43125,10 @@ msgstr "Lükkamine 🚢"
 # `wp-content/plugins/` ja hallatakse [05enable
 # plugin.yml](../../tasks/05_enable_plugin.yml) et operaatorid saaksid need
 # vajaduse korral iga tegevuskoha kohta välja lülitada.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['plugin.yml']
-# nocheck: url
-# translation-rejected: Pane fail sellesse kataloogi ainult siis, kui
+# translated-by: libretranslate
 msgid "Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed."
-msgstr ""
+msgstr "Pane fail sellesse kataloogi ainult siis, kui käitumine, mida see rakendab, on osa selle rolli turva- või integratsioonilepingust ja PEAB kehtima iga taotluse korral. Igapäevafunktsioonide pluginad peaksid jääma normaalseks `wp-content/plugins/` ja hallatakse [05enable plugin.yml](../../tasks/05_enable_plugin.yml) et operaatorid saaksid need vajaduse korral iga tegevuskoha kohta välja lülitada."
 
 # translated-by: libretranslate
 msgid "Put back the sentence boundary a translator dropped behind a protected span."
@@ -43267,11 +43295,9 @@ msgstr "RBAC jääb ainult gating, sest PDS ei ole in-app rolli kontseptsiooni k
 # Litsentsvärav. dokumenteeritud SSO/RBACi erand `lifecycle.md
 # <../../docs/contributing/design/role/services/lifecycle.md>`__ hõlmab
 # rakendusesisest autoriseerimistasandit.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: RBAC jääb ainult gating-only, sest PDS ei ole in-app
+# translated-by: libretranslate
 msgid "RBAC stays gating-only because the PDS has no in-app role concept beyond “account exists / does not exist”. Membership in the ``/roles/web-app-bluesky`` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__ covers the in-app authorisation tier."
-msgstr ""
+msgstr "RBAC jääb ainult gating-only, sest PDS ei ole in-app rolli mõiste kaugemale \"konto on olemas / ei ole olemas\". Liikmelisus ``/roles/web-app-bluesky`` Keycloak grupp laseb kasutajal oauthist mööda2- Litsentsvärav. dokumenteeritud SSO/RBACi erand `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__ hõlmab rakendusesisest autoriseerimistasandit."
 
 # translated-by: libretranslate
 msgid "RBAC under Multisite uses the hierarchical Keycloak group path:"
@@ -43986,10 +44012,13 @@ msgstr "Rekursiivselt lahendatav skeem sisaldab seadistuste transitiivset järgi
 
 # '$'-gaANSIBLE_VAULTVaultScalaris, nii et see jääb sõna otseses mõttes
 # plokiks.
+# gained=['gaANSIBLE_VAULTVaultScalaris']
 # translation-refused: libretranslate protected-span lost=['ANSIBLE_VAULT']
 # gained=['gaANSIBLE_VAULTVaultScalaris']
 # nocheck: url
 # translation-rejected: Rekursiivselt mähkige kõik strid, mis algavad
+# '$'-gaANSIBLE_VAULTVaultScalaris, nii et see jääb sõna otseses mõttes
+# plokiks.
 msgid "Recursively wrap any str that begins with '$ANSIBLE_VAULT' in a VaultScalar so it dumps as a literal block."
 msgstr ""
 
@@ -44504,12 +44533,10 @@ msgid "Remotes 🌐"
 msgstr "Kaugjuhtimisega 🌐"
 
 # abil
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['networks.yml', 'ports.yml']
-# nocheck: url
-# translation-rejected: Eemalda *ports.yml ja*networks.yml otsingufunktsiooni
+# translated-by: libretranslate
 msgid "Remove *_ports.yml and*_networks.yml by a lookup function"
-msgstr ""
+msgstr "Eemalda *ports.yml ja*networks.yml otsingufunktsiooni abil"
 
 # translated-by: libretranslate
 msgid "Remove Docker Hub registry prefix if present (backward compat)."
@@ -45724,10 +45751,12 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "Tagasi (omanik, repo, run_id) käivitatud ID või käivitatud/töö URL."
 
 # käivitamis-/ tööaadressilt.
+# gained=['job_idPuudub']
 # translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_idPuudub']
 # nocheck: url
 # translation-rejected: Tagasi (omanik, repo, run_id, job_idPuudub)
+# käivitamis-/ tööaadressilt.
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -49518,13 +49547,11 @@ msgstr "Skriptid Infinito ise allkirjastatud Root CA installimiseks arendaja mas
 # worker.sh](06_drain_worker.sh) kinnitan [07assert
 # state.sh](07_assert_state.sh) - Puhastus
 # [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh).
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['content.sh', 'converge.sh', 'inventory.sh', 'reachable.sh',
 # 'state.sh', 'worker.sh']
-# nocheck: url
-# translation-rejected: Skriptid sammu kohta: tutvustus
+# translated-by: libretranslate
 msgid "Scripts per step: bring-up [01_bootstrap.sh](01_bootstrap.sh) - provision [02_provision_inventory.sh](02_provision_inventory.sh) - converge [03_wait_converge.sh](03_wait_converge.sh) - reachability [04_verify_reachable.sh](04_verify_reachable.sh) - drill [backup/base.sh](backup/base.sh) - marker [05_seed_content.sh](05_seed_content.sh) - drain [06_drain_worker.sh](06_drain_worker.sh) - assert [07_assert_state.sh](07_assert_state.sh) - purge [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
-msgstr ""
+msgstr "Skriptid sammu kohta: tutvustus [01bootstrap.sh](01_bootstrap.sh) - varustamine [02provision inventory.sh](02_provision_inventory.sh) - koonduda [03wait converge.sh](03_wait_converge.sh) - ligipääsetavus [04verify reachable.sh](04_verify_reachable.sh) puurida [backup/base.sh](backup/base.sh) marker [05seed content.sh](05_seed_content.sh) äravoolu [06drain worker.sh](06_drain_worker.sh) kinnitan [07assert state.sh](07_assert_state.sh) - Puhastus [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
 
 # translated-by: libretranslate
 msgid "Scripts used for local testing and setup (under `scripts/tests/` and `scripts/install/`) MUST support all five deployed distributions above and additionally MUST support:"
@@ -49820,12 +49847,10 @@ msgstr "Vaata [regression.md](../../docs/contributing/actions/testing/regression
 
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # rakendamiseks.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['templates.py']
-# nocheck: url
-# translation-rejected: Vaata [test\
+# translated-by: libretranslate
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
-msgstr ""
+msgstr "Vaata [test\\ templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) rakendamiseks."
 
 # translated-by: libretranslate
 msgid "See [unit.md](../../docs/contributing/actions/testing/unit.md) for the SPOT: framework, requirements, directory structure, and `make test-unit` usage."
@@ -50136,10 +50161,12 @@ msgid "Self-hosted, privacy-first web analytics platform for real-time visitor t
 msgstr "Ise hostitud, privaatsuse esimene veebianalüütika platvorm reaalajas külastajate jälgimiseks ja saidi mõõdikuteks"
 
 # playwright-service-flag` per "eneseväravata" reegel.
+# gained=['"eneseväravata"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"eneseväravata"']
 # nocheck: url
 # translation-rejected: Isepakkuvad kirjed. Peab olema `# nocheck:
+# playwright-service-flag` per "eneseväravata" reegel.
 msgid "Self-provider entries. MUST be `# nocheck: playwright-service-flag` per the \"no self-gate\" rule."
 msgstr ""
 
@@ -51703,11 +51730,9 @@ msgstr "Esitage selline, selle asemel, et lugeda seda kinnitustabelist, ja katke
 # kinnitustabelist, ja katkestage jooksmine, kui host seda ei suuda. Iga
 # allpool olev kontroll töötab endiselt - ainult "mis failisüsteem on see"
 # otsing jäetakse vahele.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Esitage selline, selle asemel, et lugeda seda
+# translated-by: libretranslate
 msgid "State the kind instead of reading it from the mount table, and abort the run when the host cannot deliver it. Every check below still runs — only the “which filesystem is this” lookup is skipped."
-msgstr ""
+msgstr "Esitage selline, selle asemel, et lugeda seda kinnitustabelist, ja katkestage jooksmine, kui host seda ei suuda. Iga allpool olev kontroll töötab endiselt - ainult \"mis failisüsteem on see\" otsing jäetakse vahele."
 
 # translated-by: libretranslate
 msgid "Stateless by default, with optional stateful backends"
@@ -53262,6 +53287,7 @@ msgstr "Süsteemne taimer"
 msgid "TCP port to listen on (default `8080`)."
 msgstr "TCP port kuulamiseks (vaikimisi `8080`)."
 
+# gained=['"Nagu"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Nagu"']
 # nocheck: url
@@ -54212,10 +54238,16 @@ msgstr "Rakenduse konteineri Docker/OCI masinanimi: ``bounded_name`` kell 63- ba
 # [ADR 0003](../architecture/decisions/0003-mcp-surface-per-provider.md).
 # Kummagi agendi serverirežiim ei räägi transpordist, milleni võib jõuda teine
 # konteiner.
+# gained=['"ehitamata"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"ehitamata"']
 # nocheck: url
 # translation-rejected: Theo Flowise Järelevalve kriteeriumid on etapp 2, ja
+# mõlema ülesvoolu ülespoole pööratud lugemine "ehitamata"
+# betoonblokaatorisse: `stdio_only`, samal põhjusel `web-app-discourse` kannab
+# [ADR 0003](../architecture/decisions/0003-mcp-surface-per-provider.md).
+# Kummagi agendi serverirežiim ei räägi transpordist, milleni võib jõuda teine
+# konteiner.
 msgid "The Flowise supervisor criteria are Phase 2, and reading both upstreams turned \"not built yet\" into a concrete blocker: `stdio_only`, the same reason `web-app-discourse` carries in [ADR 0003](../architecture/decisions/0003-mcp-surface-per-provider.md). Neither agent's server mode speaks a transport a second container can reach."
 msgstr ""
 
@@ -54772,10 +54804,17 @@ msgstr "Theo `biber` ja `administrator` personas lõpetab alati kontrollitud aut
 # biberInteraction })`. Üldist vaikeväärtust ei ole. Geneeriline "klõpsake"
 # Väide ei testi midagi rollispetsiifilist, nii et abimees on no-op, kuni
 # spetsifikatsioon annab tagasikutse.
+# gained=['"klõpsake"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"klõpsake"']
 # nocheck: url
 # translation-rejected: Theo `biber` persona PEAB läbima vähemalt ühe
+# rollispetsiifilise suhtluse, mida regulaarne lõppkasutaja teeks (postitage
+# sõnum, avage seadete vahekaart, sirvige sisuloendit, esitage vorm, ...).
+# Liigid edastavad selle `biberInteraction` tagasikutse `runBiberFlow(page, {
+# biberInteraction })`. Üldist vaikeväärtust ei ole. Geneeriline "klõpsake"
+# Väide ei testi midagi rollispetsiifilist, nii et abimees on no-op, kuni
+# spetsifikatsioon annab tagasikutse.
 #, python-brace-format
 msgid "The `biber` persona MUST drive at least one role-specific interaction that a regular end-user would perform (post a message, open a settings tab, browse a content list, submit a form, …). Specs supply this via the `biberInteraction` callback on `runBiberFlow(page, { biberInteraction })`. There is NO generic default. A generic \"click any link\" assertion tests nothing role-specific, so the helper is a no-op until the spec provides a callback."
 msgstr ""
@@ -55260,11 +55299,9 @@ msgstr "Audit on rollipuu ise: iga fakt rolli MCP pinna kohta elab omaette `meta
 # kogu varjatud teenuse liikluse. ``ansible_facts`` kannab seda, sest
 # komponeeritud fail renderdatakse üks kord halduriga inventuuri hostina ja
 # sülem rakendab sama ``extra_hosts`` igale ülesandele.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Automaatne tihvt järgib efektiivset käivitusrežiimi ja
+# translated-by: libretranslate
 msgid "The automatic pin follows the effective deploy mode, and in swarm it must NOT be ``host-gateway``: that alias resolves per node, while openresty publishes :80 with ``mode: host`` under ``node.role == manager``, so every replica on a worker dialled its own gateway and the token exchange died with 'Connection refused' (7b1839681, measured on penpot in run 31340965955). Swarm therefore gets the stack host's routable address -- the destination svc-net-tor already sends all hidden-service traffic to. ``ansible_facts`` carries it because the compose file is rendered once with the manager as inventory host and swarm applies the same ``extra_hosts`` to every task."
-msgstr ""
+msgstr "Automaatne tihvt järgib efektiivset käivitusrežiimi ja sülemis ei tohi olla ``host-gateway``: et alias lahendab sõlme kohta, samas kui Openresty avaldab:80 koos ``mode: host`` altpoolt ``node.role == manager``, nii et iga koopia töölisel valis oma värava ja sümboolne vahetus suri \"Ühendumine keeldus\" (7b1839681, mõõdetud penpotil 31340965955). Swarm saab seega stack hosti marsruudi aadressi – sihtkoha svc-net-tor Saadab juba kogu varjatud teenuse liikluse. ``ansible_facts`` kannab seda, sest komponeeritud fail renderdatakse üks kord halduriga inventuuri hostina ja sülem rakendab sama ``extra_hosts`` igale ülesandele."
 
 # translated-by: libretranslate
 msgid "The axis is still pinned; the condition decides **which kind**. Pick the kind that satisfies both:"
@@ -55763,10 +55800,14 @@ msgstr "Dekoratsioon leheküljel, kuhu nimi on mähitud, eemaldatakse esimesena;
 # *rollid*) jäetakse välja; 5 külgkorvi mallid ja tarbija kohta muudavad
 # ülesande voldituks **web-app-keycloak** (*mallidsso_proxy/*,
 # *tasks/sso_proxy.yml*). **web-app-keycloak** kuulutab **pakub: sso**.
+# gained=['mallidsso_proxy']
 # translation-refused: libretranslate protected-span lost=['sso_proxy']
 # gained=['mallidsso_proxy']
 # nocheck: url
 # translation-rejected: Pühendatud suu2- puhverserveri pakkuja roll (kataloogi
+# *rollid*) jäetakse välja; 5 külgkorvi mallid ja tarbija kohta muudavad
+# ülesande voldituks **web-app-keycloak** (*mallidsso_proxy/*,
+# *tasks/sso_proxy.yml*). **web-app-keycloak** kuulutab **pakub: sso**.
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
 msgstr ""
 
@@ -57575,10 +57616,22 @@ msgstr "Rakendatavad muudatused on siduvad ja määruse ettepanekus viidatakse n
 # failivormingu reegli puhul ja
 # [test_non_baseline_explicit_disables.py](../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py)
 # vahtkonnale).
+# gained=['"lippe"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"lippe"']
 # nocheck: url
 # translation-rejected: Mängusisene laadur
+# (`utils.cache.applications.get_merged_applications`) kasutab iga rolli
+# variandivaba baasseadistust (kokkutulnud `meta/<topic>.yml` kandevõime)
+# Vaikimisi ja laseb inventaril `applications.<app>` võidab sügava ühinemise
+# kaudu: inventuur ise on tõe allikas selle kohta, millise variandi vastu voor
+# jookseb. Variant 0 loetleb kõik dünaamilised teenusklahvid
+# `meta/services.yml` koos `enabled: true, shared: true` nii "lippe" nulljoon
+# on selge ja sügav ühinemine mitte-baasne tühistamine annab eeldatava
+# variandi-N kuju (näha [variants.md](../artefact/files/role/variants.md)
+# failivormingu reegli puhul ja
+# [test_non_baseline_explicit_disables.py](../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py)
+# vahtkonnale).
 msgid "The in-play loader (`utils.cache.applications.get_merged_applications`) uses each role's variant-free base config (the assembled `meta/<topic>.yml` payload) as the default and lets the inventory's `applications.<app>` overrides win via deep merge: the inventory itself is the source of truth for what variant a round runs against. Variant 0 enumerates every dynamic service-key from `meta/services.yml` with `enabled: true, shared: true` so the \"all flags on\" baseline is explicit and deep-merge with a non-baseline override yields the expected variant-N shape (see [variants.md](../artefact/files/role/variants.md) for the file-format rule and [test_non_baseline_explicit_disables.py](../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py) for the lint guard)."
 msgstr ""
 
@@ -57789,21 +57842,21 @@ msgstr "Kasutajaliidese sisselogimisnupp loeb \"SSO Infinito.Nexus\" (ümbernime
 
 # Infinito.Nexus" (ümbernimetatud süstitud JavaScripti kaudu). Aluseks olev
 # auth voog on standardne OAuth2/OIDC vastu Keycloak.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Kasutajaliidese sisselogimisnupp on järgmine:
+# translated-by: libretranslate
 msgid "The login button in the UI will read “SSO with Infinito.Nexus” (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
-msgstr ""
+msgstr "Kasutajaliidese sisselogimisnupp on järgmine: Infinito.Nexus\" (ümbernimetatud süstitud JavaScripti kaudu). Aluseks olev auth voog on standardne OAuth2/OIDC vastu Keycloak."
 
 # translated-by: libretranslate
 msgid "The logo must use a valid Font Awesome class string, e.g.:"
 msgstr "Logo peab kasutama kehtivat Font Awesome klassistringi, nt:"
 
 # **/var/lib/docker/mahud/nextcloud_data/ andmed/andmednextcloud.log**
+# gained=['andmed/andmednextcloud.log']
 # translation-refused: libretranslate protected-span lost=['nextcloud.log']
 # gained=['andmed/andmednextcloud.log']
 # nocheck: url
 # translation-rejected: Logid, mille leiad siit hostist:
+# **/var/lib/docker/mahud/nextcloud_data/ andmed/andmednextcloud.log**
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -57895,10 +57948,15 @@ msgstr "Tikkumisvoogu ehitatakse üks kord protsessi kohta `_scan.iter_matches` 
 # komponeerib selle sobitajaga vahemälus oleva projekti jalutuskäigu ja on
 # soovitatav abiline linttestide jaoks, mis soovivad "failid" vaade ilma
 # alamtöötluseta.
+# gained=['"failid"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"failid"']
 # nocheck: url
 # translation-rejected: Kokutaja ise elab :mod:`utils.cache.gitignore` (SPOT
+# ``.gitignore`` parsimine ja sobitamine). :func:`iter_non_ignored_files` siin
+# komponeerib selle sobitajaga vahemälus oleva projekti jalutuskäigu ja on
+# soovitatav abiline linttestide jaoks, mis soovivad "failid" vaade ilma
+# alamtöötluseta.
 msgid "The matcher itself lives in :mod:`utils.cache.gitignore` (single SPOT for ``.gitignore`` parsing and matching). :func:`iter_non_ignored_files` here composes the cached project walk with that matcher and is the recommended helper for lint tests that want the \"files git would track\" view without subprocessing."
 msgstr ""
 
@@ -58277,12 +58335,10 @@ msgstr "Nõelu loetakse `utils/install/lint/pinned.py`, millele iga paigaldaja h
 # iteratsiooni `NEXTCLOUD_PLUGIN_ITEMS` silmus [02manager
 # ops.yml](../../02_manager_ops.yml). silmusemuutuja `plugin_item` pakitakse
 # lahti `plugin_key` (OCC rakenduse nimi) ja `plugin_value` (metakirje).
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['ops.yml']
-# nocheck: url
-# translation-rejected: Torujuhet kasutatakse
+# translated-by: libretranslate
 msgid "The pipeline is invoked from [06_plugin.yml](../06_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml). The loop variable `plugin_item` is unpacked into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry)."
-msgstr ""
+msgstr "Torujuhet kasutatakse [06plugin.yml](../06_plugin.yml), mis omakorda kestab üks kord iga iteratsiooni `NEXTCLOUD_PLUGIN_ITEMS` silmus [02manager ops.yml](../../02_manager_ops.yml). silmusemuutuja `plugin_item` pakitakse lahti `plugin_key` (OCC rakenduse nimi) ja `plugin_value` (metakirje)."
 
 # translated-by: libretranslate
 msgid "The pipeline owns three responsibilities for one Nextcloud plugin (app):"
@@ -58612,10 +58668,15 @@ msgstr "Selle rolli eesmärk on automatiseerida installimine ja konfiguratsioon.
 # hallatavad paketid, kasutades ``pkgmgr``. Sellega lihtsustatakse pakettide
 # käsitlemist ja jõustatakse pakettide automatiseeritud keskkonnas
 # kasutuselevõtu parimad tavad.
+# gained=['Infinito.Nexusseotud']
 # translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexusseotud']
 # nocheck: url
 # translation-rejected: Selle rolli eesmärk on installimise ja uuendamise
+# protsessi automatiseerimine. Infinito.Nexusseotud rakendused või muud
+# hallatavad paketid, kasutades ``pkgmgr``. Sellega lihtsustatakse pakettide
+# käsitlemist ja jõustatakse pakettide automatiseeritud keskkonnas
+# kasutuselevõtu parimad tavad.
 msgid "The purpose of this role is to automate the installation and update process for Infinito.Nexus-related applications or other managed packages using ``pkgmgr``. It simplifies package handling and enforces best practices for package deployment in automated environments."
 msgstr ""
 
@@ -58623,10 +58684,15 @@ msgstr ""
 # hallatavad paketid, kasutades `pkgmgr`. Sellega lihtsustatakse pakettide
 # käsitlemist ja jõustatakse pakettide automatiseeritud keskkonnas
 # kasutuselevõtu parimad tavad.
+# gained=['Infinito.Nexusseotud']
 # translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexusseotud']
 # nocheck: url
 # translation-rejected: Selle rolli eesmärk on installimise ja uuendamise
+# protsessi automatiseerimine. Infinito.Nexusseotud rakendused või muud
+# hallatavad paketid, kasutades `pkgmgr`. Sellega lihtsustatakse pakettide
+# käsitlemist ja jõustatakse pakettide automatiseeritud keskkonnas
+# kasutuselevõtu parimad tavad.
 msgid "The purpose of this role is to automate the installation and update process for Infinito.Nexus-related applications or other managed packages using `pkgmgr`. It simplifies package handling and enforces best practices for package deployment in automated environments."
 msgstr ""
 
@@ -59074,6 +59140,7 @@ msgstr "Roll kasutab oma varude rühma hostis kahte konteinerit: hoidla haldaja 
 msgid "The role directory name is the `application_id`. For example `roles/web-app-mailu/meta/services.yml` is exposed as `applications['web-app-mailu'].services`, `roles/web-app-mailu/meta/server.yml` as `applications['web-app-mailu'].server`, and so on."
 msgstr "Rollikataloogi nimi on `application_id`. Näiteks. `roles/web-app-mailu/meta/services.yml` paljastatakse `applications['web-app-mailu'].services`, `roles/web-app-mailu/meta/server.yml` nagu `applications['web-app-mailu'].server`, ja nii edasi."
 
+# gained=['"tuntud"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"tuntud"']
 # nocheck: url
@@ -59786,11 +59853,9 @@ msgstr "Jagatud ``biber`` ja ``administrator`` persona-reisidest loobutakse ``PE
 # enda ``fider: admin sso login`` ja ``fider: biber sso login as regular
 # user`` stsenaariumid ``files/playwright/playwright.spec.js``; loobumine
 # aegub, kui ühine abistaja saab teada Fidermodaalne.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Jagatud ``biber`` ja ``administrator``
+# translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Fider’s SSO entry is a two-step modal: the header “Sign in” button only opens the provider dialog, and a second click on “Continue with … SSO” performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role’s own ``fider: admin sso login`` and ``fider: biber sso login as regular user`` scenarios in ``files/playwright/playwright.spec.js``; the opt-out lapses once the shared helper learns Fider’s modal."
-msgstr ""
+msgstr "Jagatud ``biber`` ja ``administrator`` persona-reisidest loobutakse ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` sisse ``templates/playwright.env.j2``. Fideri SSO kirje on kaheastmeline modaalsus: päise allkiri \"Sign in\" nupp avab ainult pakkuja dialoogi ja teine klõps nupul \"Jätka ... SSO\" sooritab Keycloak ümbersuunamine, samas kui jagatud abimees klõpsab täpselt üks kord ja ei jõua kunagi IdP-sse. Mõlemat teekonda katab otsast lõpuni selle rolli enda ``fider: admin sso login`` ja ``fider: biber sso login as regular user`` stsenaariumid ``files/playwright/playwright.spec.js``; loobumine aegub, kui ühine abistaja saab teada Fidermodaalne."
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Flowise has no in-app OIDC adapter: SSO is an oauth2-proxy sidecar (``services.sso.flavor: oauth2``), and behind that gate Flowise still presents its own sign-in form for the single instance account seeded from ``FLOWISE_USERNAME`` / ``FLOWISE_PASSWORD`` in ``templates/env.j2``. ``biber`` has no Flowise identity at all, and the shared helpers only drive Keycloak forms while ``services.sso`` is enabled, so neither persona can reach an authenticated Flowise surface; the OIDC gate itself is covered by ``files/playwright/test-oidc-login.js``."
@@ -59814,11 +59879,9 @@ msgstr "Jagatud ``biber`` ja ``administrator`` persona-reisidest loobutakse ``PE
 # FusionDirectory konto Keycloak identiteedikaardid kataloogiseansi
 # puudumisel, mida jagatud abilised said rakendusesisese väljalogimise kaudu
 # läbi viia.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: Jagatud ``biber`` ja ``administrator``
+# translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr ""
+msgstr "Jagatud ``biber`` ja ``administrator`` persona-reisidest loobutakse ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` sisse ``templates/playwright.env.j2``. Oauth2Proxy sidecar ainult väravad vhost - FusionDirectory hoiab selle taga oma LDAP-bendi sisselogimist, mida rolli OIDC stsenaarium ``files/playwright/playwright.spec.js`` Eeldades, et \"Sign in\" nupp on pärast seda veel nähtav Keycloak edasi-tagasi. ``tasks/main.yml`` sätteid FusionDirectory konto Keycloak identiteedikaardid kataloogiseansi puudumisel, mida jagatud abilised said rakendusesisese väljalogimise kaudu läbi viia."
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. web-app-hugo serves a statically built site: ``services.sso`` is hard-disabled in ``meta/services.yml``, the container is a Hugo build baked into nginx (``templates/compose.yml.j2``), and the Playwright env file renders no ``ADMIN_*`` / ``BIBER_*`` credentials. There is no session, no admin surface and no logout control to drive, so the ``guest`` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -60014,9 +60077,13 @@ msgstr "Allikas jookseb. ``priority`` sisend, terve."
 # SPOT konstant `ROLE_FILE_PLAYWRIGHT_SPEC` sisse
 # [mapping.py](../../../../../utils/roles/mapping.py); registreeritud
 # valikuliselt (kuupäev) `ROLE_TYPE_APPLICATION`, mujal keelatud.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Spekter peab olema
+# `roles/<role>/files/playwright/playwright.spec.js`. Rollisuhteline tee on
+# SPOT konstant `ROLE_FILE_PLAYWRIGHT_SPEC` sisse
+# [mapping.py](../../../../../utils/roles/mapping.py); registreeritud
+# valikuliselt (kuupäev) `ROLE_TYPE_APPLICATION`, mujal keelatud.
 msgid "The spec MUST be at `roles/<role>/files/playwright/playwright.spec.js`. The role-relative path is the SPOT constant `ROLE_FILE_PLAYWRIGHT_SPEC` in [mapping.py](../../../../../utils/roles/mapping.py); registered as optional on `ROLE_TYPE_APPLICATION`, disallowed elsewhere."
 msgstr ""
 
@@ -60249,10 +60316,52 @@ msgstr "Kompromiss on see, et `deny` kannab nüüd täismassi \"Mida agent ei to
 # ``integrated`` on väär, kui rea otseteenuse kaardil ei ole välismaist
 # teenusepakkujat lubatud (roll on eraldatud): variandi kohta variandiridadel,
 # alusest ``meta/services.yml`` rolliridadel.
+# gained=['alpha/beta/pre/...']
 # translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['alpha/beta/pre/...']
 # nocheck: url
 # translation-rejected: Transiitväljad (``services`` / ``consumed_by`` ja
+# nende loendused) on BFSi sulgemiskohaks ``max_level``; ``*_direct`` Põllud
+# on alati ühe hoobiga naabrid. ``weight`` on nelja numbrilise veeru summa.
+# ``dna`` on rolli enda nime räsi, mis on ühendatud selle varjatud teenustega
+# (sorteeritud), nii et kaks rolli, mis hõlmavad sama teenusekomplekti,
+# jagavad dna. ``siblings`` Kas teised rollid jagavad seda dna; ``clone`` on
+# tõene iga dna grupi rea kohta, välja arvatud kõige raskem rida (lipsudest),
+# nii et kloonide sorteerimine jätab viimaseks ühe esindaja teenuse kohta, mis
+# on määratud enne eelarve kärpimist. ``random`` rivis 6-kohaline nonce,
+# valtsitud värskelt iga invokatsiooni kohta, nii et lipsujärjestus on
+# jooksude vahel tahtlikult erinev. ``variant`` on ``meta/variants.yml`` selle
+# rea suhtes arvutati indeks või ``None`` rollireas. ``id`` ja ``covered_by``
+# on CLI poolt määratud pärast sorteerimist: ``id`` on rea numbriline
+# positsioon sortide järjekorras (1põhineb)ja ``covered_by`` on ``id``
+# esimesest varasemast (roheline) rida erinevat rolli, mis sisaldab seda rida
+# või sentinelit ``0`` kui see rida ise on roheline (päris ``id`` on 0)Kaks
+# sama rolli varianti ei kata kunagi üksteist. ``row`` on 1Põhiline reanumber
+# lõplikus renderdatud väljundis (määratud viimasena pärast filtreerimist),
+# nii et see jääb järjestikku isegi sorteerimisel ``covered_by`` rüseleb
+# ``id``. ``variants`` on number ``meta/variants.yml`` rolli variandid kogu
+# rolli režiimis; ``--variant`` Iga rida on juba üks variant, nii et see on
+# ``1``. ``lifecycle`` rollis ``meta/services.yml`` elutsükli etapp
+# (alpha/beta/pre/...). ``compose`` / ``swarm`` on tõesed, kui CI test-deploy
+# maatriks kasutab selles režiimis rolli, austades avastuse vahelejätmise
+# loogikat: invokable + elutsükkel testitud ümbrikus + rolli ``skip``
+# nimekiri. Under ``--variant`` ``swarm`` on variandi kohta (Iga variant
+# kasutab, nii et see jälgib rolli taset ``swarm`` ja ``stack``). ``stack`` on
+# tõene, kui roll muudab oma konteineri korstna (laevad
+# ``templates/*compose*.yml.j2``); ainult peremehe rollid (varukoopia,
+# juhtmekaitse, vahetusfail) ja puhtad teenindussüstid on valed. ``swarm``
+# vihjab ``stack``: roll, millel ei ole komponeeritud malli, ei ole kunagi
+# sülem pinu-deploy sihtmärk, nii et ``swarm`` on sunnitud valet tegema, kui
+# ``stack`` Vale. ``host`` peegeldab primaarset entiteeti
+# ``modes.host.enabled`` lipu (vaikimisi) mitte-stack rollid, ja on sunnitud
+# False jaoks stack rolli: see märgib tühistamatu rollid, mis konfigureerida
+# host asemel saatmine virna. ``test_compose`` / ``test_swarm`` /
+# ``test_host`` duplitseerib režiimi veerud miinus rolli ``meta/tests.yml``
+# ``skip`` nimekiri: ``modes`` märgib, kus roll jookseb, ``skip`` deaktiveerib
+# režiimi testimise ja CI avastamise filtrid nendel ``test_*`` veerge.
+# ``integrated`` on väär, kui rea otseteenuse kaardil ei ole välismaist
+# teenusepakkujat lubatud (roll on eraldatud): variandi kohta variandiridadel,
+# alusest ``meta/services.yml`` rolliridadel.
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -61142,10 +61251,12 @@ msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path
 msgstr "Sellega välditakse hapraid vanemaid[N] eeldused ja parandused \"cli/cli/...\" rajalutikad."
 
 # 'cli/cli/...probleeme.
+# gained=['cli/cli/...probleeme.']
 # translation-refused: libretranslate protected-span lost=['cli/cli/...']
 # gained=['cli/cli/...probleeme.']
 # nocheck: url
 # translation-rejected: See väldib habrast failiraja ehitust ja parandab
+# 'cli/cli/...probleeme.
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -61836,19 +61947,15 @@ msgstr "See teeb Home Assistant loomulikku [025](025-mcp-role-integration.md) **
 
 # "posti võimekuse" kohta sõlmel, võttes ära, kas tegelik kohaletoimetamine
 # toimub Mailu või kohalikku releed.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: See teeb ``sys-svc-mail`` kanooniline sisendpunkt
+# translated-by: libretranslate
 msgid "This makes ``sys-svc-mail`` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
-msgstr ""
+msgstr "See teeb ``sys-svc-mail`` kanooniline sisendpunkt \"posti võimekuse\" kohta sõlmel, võttes ära, kas tegelik kohaletoimetamine toimub Mailu või kohalikku releed."
 
 # võimekuse" kohta sõlmel, võttes ära, kas tegelik kohaletoimetamine toimub
 # Mailu või kohalikku releed.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: See teeb `sys-svc-mail` kanooniline sisendpunkt "posti
+# translated-by: libretranslate
 msgid "This makes `sys-svc-mail` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
-msgstr ""
+msgstr "See teeb `sys-svc-mail` kanooniline sisendpunkt \"posti võimekuse\" kohta sõlmel, võttes ära, kas tegelik kohaletoimetamine toimub Mailu või kohalikku releed."
 
 # translated-by: libretranslate
 msgid "This maps all `@cymais.cloud` addresses to their equivalents under `@infinito.nexus`."
@@ -62362,10 +62469,15 @@ msgstr "See roll käivitab ja haldab a Docker Swarm klaster üle Ansible grupi p
 # Postmark on üksikkasutaja: kontosid ei ole, ainult "omaniku"Ülesvoolu
 # sisselogimine on üks jagatud salajane paroolivorm, mis muudab ühe seansi
 # tõepäraseks. (`req.session.loggedIn`).
+# gained=['"omaniku"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"omaniku"']
 # nocheck: url
 # translation-rejected: See roll loob Postmarks lähtest kohandatud pildiks,
+# traadid selle standardsesse pöördproksi ja säilitab oma SQLite'i andmed.
+# Postmark on üksikkasutaja: kontosid ei ole, ainult "omaniku"Ülesvoolu
+# sisselogimine on üks jagatud salajane paroolivorm, mis muudab ühe seansi
+# tõepäraseks. (`req.session.loggedIn`).
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only \"the owner\". The upstream login is a single shared-secret password form that flips one session boolean (`req.session.loggedIn`)."
 msgstr ""
 
@@ -62373,12 +62485,10 @@ msgstr ""
 # Postmark on üksikkasutaja: kontosid ei ole, on ainult "omanik". Ülesvoolu
 # sisselogimine on ühe jagatud salajase parooli vorm, mis muudab ühe seansi
 # tõepäraseks. (``req.session.loggedIn``).
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"omanik"']
-# nocheck: url
-# translation-rejected: See roll loob Postmarks lähtest kohandatud pildiks,
+# translated-by: libretranslate
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only “the owner”. The upstream login is a single shared-secret password form that flips one session boolean (``req.session.loggedIn``)."
-msgstr ""
+msgstr "See roll loob Postmarks lähtest kohandatud pildiks, traadid selle standardsesse pöördproksi ja säilitab oma SQLite'i andmed. Postmark on üksikkasutaja: kontosid ei ole, on ainult \"omanik\". Ülesvoolu sisselogimine on ühe jagatud salajase parooli vorm, mis muudab ühe seansi tõepäraseks. (``req.session.loggedIn``)."
 
 # translated-by: libretranslate
 msgid "This role builds and runs Bridgy Fed as a Docker container behind the project's front-proxy. An optional Firestore-emulator sidecar in Datastore mode provides the storage backend for non-production deployments."
@@ -62550,11 +62660,9 @@ msgstr "See roll deklareerib `PERSONA_BIBER_BLOCKED` sisse `templates/playwright
 # autentimata külastajatele, kes puhastavad ainult üks kord
 # ``localStorage.__landingPageSeen__`` on külvatud enne navigeerimist ja
 # jagatud abistajal pole selleks init-skripti konksu.
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: See roll deklareerib ``PERSONA_ADMINISTRATOR_BLOCKED``
+# translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr ""
+msgstr "See roll deklareerib ``PERSONA_ADMINISTRATOR_BLOCKED`` ja ``PERSONA_BIBER_BLOCKED`` sisse ``templates/playwright.env.j2`` sama mehhanismi jaoks. Mattermost Team Edition laevad ei ole kohalikud OIDC pakkujad, nii et roll on piggybacks Keycloak peale GitLab OAuth (``MM_GITLABSETTINGS_*`` sisse ``templates/env.j2``); saadud sisenemispunkt on ``a[href='/oauth/gitlab/login']``, ümbermärgistatud „SSO Infinito.Nexus\" ``templates/javascript.js.j2``, mida ühise abistaja nimepõhine sisselogija ei tunne ära. Mattermost v11+ teenib ka ``/landing`` interstitsiaalne autentimata külastajatele, kes puhastavad ainult üks kord ``localStorage.__landingPageSeen__`` on külvatud enne navigeerimist ja jagatud abistajal pole selleks init-skripti konksu."
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same reason. ``meta/services.yml`` pins ``sso.enabled: false`` and ``sso.shared: false``: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no ``ADMIN_USERNAME``, ``ADMIN_PASSWORD``, ``BIBER_USERNAME`` or ``BIBER_PASSWORD`` for the shared helpers to read."
@@ -63442,10 +63550,13 @@ msgstr "See roll näeb ette spetsiaalse masina kui ühe või mitme GitHub Action
 
 # kirjutanud, CA:TRUE) TLS-i sisemiste tulemusnäitajate usaldamiseks. Toodad /
 # jne/infinito.nexus/ca/root-ca.crt jaoks sys-svc-compose-ca süsti.
+# 'root-ca.crt'] gained=['jne/infinito.nexus/ca/root-ca.crt']
 # translation-refused: libretranslate protected-span lost=['infinito.nexus',
 # 'root-ca.crt'] gained=['jne/infinito.nexus/ca/root-ca.crt']
 # nocheck: url
 # translation-rejected: See roll tagab kohaliku juurekeskuse (ise alla
+# kirjutanud, CA:TRUE) TLS-i sisemiste tulemusnäitajate usaldamiseks. Toodad /
+# jne/infinito.nexus/ca/root-ca.crt jaoks sys-svc-compose-ca süsti.
 msgid "This role provisions a local Root CA (self-signed, CA:TRUE) for trusting internal TLS endpoints. Produces /etc/infinito.nexus/ca/root-ca.crt for sys-svc-compose-ca injection."
 msgstr ""
 
@@ -64052,9 +64163,15 @@ msgstr "Selle rolli kasutamiseks:"
 # `/tmp/test-e2e-playwright/<role>/.env` ainult diagnoosimiseks, kuid peate
 # peegeldama iga parandust `roles/<role>/templates/playwright.env.j2` enne
 # järgmist lähetust.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Hüpoteesi kinnitamiseks ilma ümberpaigutamiseta (nt
+# Playwrighti pildi uuesti käivitamine lapitud env või grepiga) kasutage `make
+# compose-inner-run` (näha `make help target=compose-inner-run` jaoks `IMAGE`
+# / `cmd` / `INFINITO_RUN_FLAGS`)Võite käsitsi redigeerida
+# `/tmp/test-e2e-playwright/<role>/.env` ainult diagnoosimiseks, kuid peate
+# peegeldama iga parandust `roles/<role>/templates/playwright.env.j2` enne
+# järgmist lähetust.
 msgid "To validate a hypothesis without redeploying — e.g. rerun the Playwright image with a patched env or grep — use `make compose-inner-run` (see `make help target=compose-inner-run` for `IMAGE` / `cmd` / `INFINITO_RUN_FLAGS`). You MAY hand-edit `/tmp/test-e2e-playwright/<role>/.env` for the diagnosis run only, but you MUST mirror any fix back into `roles/<role>/templates/playwright.env.j2` before the next deploy."
 msgstr ""
 
@@ -64824,11 +64941,9 @@ msgstr "URL `redis://redis:6379/2`"
 
 # '<scheme>://'. Tee elemendid on lihtsad stringid. Päringuelemendid peavad
 # algama sõnadega "?" või "&" ja sisaldama täpselt ühte "võti=väärtust".
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: URL-segmendid. Esimene element PEAB sisaldama
+# translated-by: libretranslate
 msgid "URL segments. First element MUST include '<scheme>://'. Path elements are plain strings. Query elements must start with '?' or '&' and contain exactly one 'key=value'."
-msgstr ""
+msgstr "URL-segmendid. Esimene element PEAB sisaldama '<scheme>://'. Tee elemendid on lihtsad stringid. Päringuelemendid peavad algama sõnadega \"?\" või \"&\" ja sisaldama täpselt ühte \"võti=väärtust\"."
 
 # translated-by: libretranslate
 msgid "URLs, domains, and credentials MUST come from the rendered `.env`. No hardcoded values in the spec."
@@ -65974,10 +66089,14 @@ msgstr "Kasutajanime nõue: `preferred_username`, kaardistatud OpenCloud `userna
 # ``{{hunspell_languages}}`` varieerub vastavalt nende konkreetsetele
 # keelenõuetele. See tunnus aktsepteerib keelekoodide loendit (nten_US,
 # „de_DE?).
+# gained=['nten_US']
 # translation-refused: libretranslate protected-span lost=['en_US']
 # gained=['nten_US']
 # nocheck: url
 # translation-rejected: Kasutajaid julgustatakse kohandama
+# ``{{hunspell_languages}}`` varieerub vastavalt nende konkreetsetele
+# keelenõuetele. See tunnus aktsepteerib keelekoodide loendit (nten_US,
+# „de_DE?).
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -66343,10 +66462,17 @@ msgstr "Variant"
 # Maksimaalne jalajälg rakendab kuju, mida iga mittebaasvariant kas kinnitab
 # või selgesõnaliselt keelab (näha
 # [test_non_baseline_explicit_disables.py](../../../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py)).
+# gained=['"dünaamika"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"dünaamika"']
 # nocheck: url
 # translation-rejected: Variant 0 on kanooniline lähtejoon. Esimene sissekanne
+# PEAKS käsitsi loetlema kõik dünaamilised hooldusklahvid, mis on
+# deklareeritud `meta/services.yml` ja kinnitage igaüks `enabled: true,
+# shared: true`. Tõelised tihvtid dokumenteerivad rolli "dünaamika"
+# Maksimaalne jalajälg rakendab kuju, mida iga mittebaasvariant kas kinnitab
+# või selgesõnaliselt keelab (näha
+# [test_non_baseline_explicit_disables.py](../../../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py)).
 msgid "Variant 0 is the canonical baseline. The first entry SHOULD manually enumerate every dynamic service-key declared in `meta/services.yml` and pin each one to `enabled: true, shared: true`. The literal-true pins document the role's \"all dynamics on\" maximum-footprint deploy shape that every non-baseline variant either re-affirms or explicitly disables (see [test_non_baseline_explicit_disables.py](../../../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py))."
 msgstr ""
 
@@ -67215,10 +67341,14 @@ msgstr "Kas muutujaid, vaikeväärtusi ja jagatud loogikat hoiti kuivana?"
 # isikuvooludes. Mitteammendav; uued teenused pärivad sama kuju (tegelik
 # otsast lõpuni kontroll, mis ebaõnnestub integratsiooni katkemisel,
 # `skipUnlessServiceEnabled`).
+# gained=['"teenindama"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"teenindama"']
 # nocheck: url
 # translation-rejected: Mida? "teenindama" See tähendab iga värava juures
+# isikuvooludes. Mitteammendav; uued teenused pärivad sama kuju (tegelik
+# otsast lõpuni kontroll, mis ebaõnnestub integratsiooni katkemisel,
+# `skipUnlessServiceEnabled`).
 msgid "What \"exercise the service\" means at each gate inside the persona flows. Non-exhaustive; new services inherit the same shape (real end-to-end check that fails when the integration breaks, gated via `skipUnlessServiceEnabled`)."
 msgstr ""
 
@@ -69042,10 +69172,14 @@ msgstr "Sa ei tohi siseneda siseringi, kui kõik järgmised kinni:"
 # lehekülge kui "SPOT", "Üks tõepunkt"või muu samaväärse enesemärgise.
 # SPOT-staatuse annavad lugejad, kes ristuvad lehega mujalt, mitte leht, mis
 # kinnitab seda enda kohta. Selle asemel kirjeldage teemat otse.
+# gained=['"SPOT"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"SPOT"']
 # nocheck: url
 # translation-rejected: Te ei pea selgesõnaliselt deklareerima dokumendi
+# lehekülge kui "SPOT", "Üks tõepunkt"või muu samaväärse enesemärgise.
+# SPOT-staatuse annavad lugejad, kes ristuvad lehega mujalt, mitte leht, mis
+# kinnitab seda enda kohta. Selle asemel kirjeldage teemat otse.
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -69199,10 +69333,13 @@ msgstr "Sa ei tohi vahele jätta ümmargust puhastust."
 
 # kui kasutaja annab otsese ja ühemõttelise juhise konksust mööda minna. (nt.
 # "vahele", "eelkulukohustusest möödasõit").
+# gained=['"vahele"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"vahele"']
 # nocheck: url
 # translation-rejected: Sa ei tohi kasutada `--no-verify` välja arvatud juhul,
+# kui kasutaja annab otsese ja ühemõttelise juhise konksust mööda minna. (nt.
+# "vahele", "eelkulukohustusest möödasõit").
 msgid "You MUST NOT use `--no-verify` unless the user gives a direct, unambiguous instruction to bypass the hook (e.g. \"skip the hook\", \"bypass pre-commit\")."
 msgstr ""
 
@@ -69397,10 +69534,19 @@ msgstr "Sa pead määratlema. `APP_BASE_URL` kooskõlas sisendpunkti eeskirjadeg
 # päringute kirjeldustesse ja muutmislogidesse, kus see on ankurdatud ajahetke
 # ja vanuses graatsiliselt. Dokumentatsioon, mis kannab ajalugu, mädaneb kohe,
 # kui järgmine reaktor maandub.
+# gained=['"reaktori"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"reaktori"']
 # nocheck: url
 # translation-rejected: Peate kirjeldama ainult teema hetkeseisu. Te EI TOHI
+# dokumenteerida ajaloolist konteksti, rändemärkmeid ega võrdlusi varasemate
+# rakendustega. Väljendid nagu "asendab X", "varem X Y", "varem tuntud kui X",
+# "pärand X"või "reaktori" EI TOHI esineda dokumentatsioonis. Lugejad jõuavad
+# olevikusse ja peavad teadma, kuidas teema praegu töötab, mitte kuidas see
+# varem töötas. Ajalooline kontekst kuulub pühendumissõnumitesse, tõmmake
+# päringute kirjeldustesse ja muutmislogidesse, kus see on ankurdatud ajahetke
+# ja vanuses graatsiliselt. Dokumentatsioon, mis kannab ajalugu, mädaneb kohe,
+# kui järgmine reaktor maandub.
 msgid "You MUST describe only the current state of the subject. You MUST NOT carry historical context, migration notes, or comparisons to former implementations into documentation. Phrases such as \"this replaces X\", \"previously X did Y\", \"formerly known as X\", \"the legacy X\", or \"after the refactor\" MUST NOT appear in documentation. Readers arrive in the present and need to know how the subject works now, not how it used to work. Historical context belongs in commit messages, pull request descriptions, and changelogs, where it is anchored to a point in time and ages gracefully. Documentation that carries history rots as soon as the next refactor lands."
 msgstr ""
 
@@ -70214,10 +70360,16 @@ msgstr "[ ] **Ei `ask` kutsub keskjooksu.** Agent EI TOHI käivitada ühtegi tö
 # lahendada selle juure juures sama iteratsiooni sees ilma operaatorit
 # küsimata. tööruumid, ühekordsed vahelehed, enne proovimist kuni roheliste
 # silmusteni või "jälg" edasilükkamist EI TOHI kasutada.
+# gained=['"jälg"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"jälg"']
 # nocheck: url
 # translation-rejected: [ ] **Ei mingeid katkestusi.** Veaparandused, tõrked,
+# tõrked. `make test` tõrked, tervisekontrolli klapid, sülem-init helbed,
+# NFS-i paigaldussõidud, töövoo kordused kuni roheliseni - iga küsimus tuleb
+# lahendada selle juure juures sama iteratsiooni sees ilma operaatorit
+# küsimata. tööruumid, ühekordsed vahelehed, enne proovimist kuni roheliste
+# silmusteni või "jälg" edasilükkamist EI TOHI kasutada.
 msgid "[ ] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, healthcheck flaps, swarm-init flakes, NFS mount races, workflow reruns until green — every issue MUST be resolved at its root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or \"track in a follow-up\" deferrals MUST NOT be used."
 msgstr ""
 
@@ -70861,19 +71013,24 @@ msgid "[ ] The site-path redirect (`/` → `/<site>/check_mk/`) works behind the
 msgstr "[ ] Kohapealne ümbersuunamine (`/` → `/<site>/check_mk/`) töötab volikirja taga."
 
 # [docs/contributing/requirements.mdristsidumine](../contributing/requirements.md#cross-linking)).
+# lost=['docs/contributing/requirements.md']
+# gained=['docs/contributing/requirements.mdristsidumine']
 # translation-refused: libretranslate protected-span
 # lost=['docs/contributing/requirements.md']
 # gained=['docs/contributing/requirements.mdristsidumine']
 # nocheck: url
 # translation-rejected: [ ] See nõudefail on rakenduslikust määrusest (per per
+# [docs/contributing/requirements.mdristsidumine](../contributing/requirements.md#cross-linking)).
 msgid "[ ] This requirement file is cross-linked from the implementing PR (per [docs/contributing/requirements.md#cross-linking](../contributing/requirements.md#cross-linking))."
 msgstr ""
 
 # [requirements.mdristsidumine](../contributing/requirements.md#cross-linking)).
+# gained=['requirements.mdristsidumine']
 # translation-refused: libretranslate protected-span lost=['requirements.md']
 # gained=['requirements.mdristsidumine']
 # nocheck: url
 # translation-rejected: [ ] See nõudefail on rakenduslikust määrusest (per per
+# [requirements.mdristsidumine](../contributing/requirements.md#cross-linking)).
 msgid "[ ] This requirement file is cross-linked from the implementing PR (per [requirements.md#cross-linking](../contributing/requirements.md#cross-linking))."
 msgstr ""
 
@@ -71324,6 +71481,9 @@ msgstr "[ ] `svc-ai-s1` ehitab, teenib `/healthz`, ja vastab lüüsi valikuküsi
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: [ ] `tasks/flavor/ansible/03_run_playbook.yml` kutsub
+# `ansible-playbook -i inventory/hosts setup.yml --tags={{
+# services.matrix.playbook_tags }}` pärit `{{ instance_dir }}mdad/` ja väljub
+# puhtalt kõigil kolmel maitse-maitse variandil (V1 V2 V3) värskes maatriksis.
 msgid "[ ] `tasks/flavor/ansible/03_run_playbook.yml` invokes `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` from `{{ instance_dir }}mdad/` and exits cleanly on all three ansible-flavor variants (V1 / V2 / V3) in a fresh-host matrix deploy."
 msgstr ""
 
@@ -73290,6 +73450,7 @@ msgstr "[Nextcloudi ametlik koduleht](https://nextcloud.com/)"
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: [Nextcloud → ONLYOFFICE Integration
+# App](https://apps.nextcloud.com/apps/onlyoffice)
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr ""
 
@@ -74345,10 +74506,18 @@ msgstr "[apt](https://wiki.debian.org/Apt)"
 # isikuandmete serverisse (PDS) repo. Atmo app ise on "vaade"
 # (appview/agregaator) üle nende kirjete, nii et RSVP-d ja sündmused on
 # kaasaskantavad kõigis avatud sotsiaalse veebi rakendustes.
+# gained=['"vaade"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"vaade"']
 # nocheck: url
 # translation-rejected: [atmo.rsvp](https://atmo.rsvp) See on avatud
+# lähtekoodiga AT-Protocol-native ürituste platvorm. Selle määratlev omadus on
+# see, et **sündmused elavad kasutaja kontol, mitte rakenduses**: sündmus on
+# sündmus `community.lexicon.calendar.event` rekord ja RSVP on
+# `community.lexicon.calendar.rsvp` mõlemad on salvestatud kasutaja
+# isikuandmete serverisse (PDS) repo. Atmo app ise on "vaade"
+# (appview/agregaator) üle nende kirjete, nii et RSVP-d ja sündmused on
+# kaasaskantavad kõigis avatud sotsiaalse veebi rakendustes.
 msgid "[atmo.rsvp](https://atmo.rsvp) is an open-source, AT-Protocol-native event platform. Its defining property is that **events live on the user's account, not on the app**: an event is a `community.lexicon.calendar.event` record and an RSVP is a `community.lexicon.calendar.rsvp` record, both stored in the user's Personal Data Server (PDS) repo. The atmo app itself is \"just a view\" (an appview/aggregator) over those records, so RSVPs and events are portable across any app on the open social web."
 msgstr ""
 
@@ -74802,9 +74971,12 @@ msgstr "[prom / prometheus Docker pilt](https://hub.docker.com/r/prom/prometheus
 # [pull.py](../../../roles/sys-svc-compose/files/python/pull.py) Lähedalt
 # vaadates on nad kenad (vasakul). `pull` ja `build --pull` toimingud näevad
 # identseid `-f` seatud.
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected:
+# [pull.py](../../../roles/sys-svc-compose/files/python/pull.py) Lähedalt
+# vaadates on nad kenad (vasakul). `pull` ja `build --pull` toimingud näevad
+# identseid `-f` seatud.
 msgid "[pull.py](../../../roles/sys-svc-compose/files/python/pull.py) delegates to the same wrapper so `pull` and `build --pull` operations see the identical `-f` set."
 msgstr ""
 
@@ -75140,10 +75312,15 @@ msgstr "[x] **Ei `ask` kutsub keskjooksu.** Agent EI TOHI käivitada ühtegi tö
 # juurest sama iteratsiooni sees ilma operaatorit küsimata. tööruumid,
 # ühekordsed vahelehed, enne proovimist kuni roheliste silmusteni või "jälg"
 # edasilükkamist EI TOHI kasutada.
+# gained=['"jälg"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"jälg"']
 # nocheck: url
 # translation-rejected: [x] **Ei mingeid katkestusi.** Veaparandused, tõrked,
+# tõrked. `make test` tõrked ja tervisekontrolli klapid tuleb lahendada nende
+# juurest sama iteratsiooni sees ilma operaatorit küsimata. tööruumid,
+# ühekordsed vahelehed, enne proovimist kuni roheliste silmusteni või "jälg"
+# edasilükkamist EI TOHI kasutada.
 msgid "[x] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, and healthcheck flaps MUST be resolved at their root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or \"track in a follow-up\" deferrals MUST NOT be used."
 msgstr ""
 
@@ -75151,10 +75328,15 @@ msgstr ""
 # PEAVAD lahendama nende juurest sama iteratsiooni sees ilma operaatorit
 # küsimata. tööruumid, ühekordsed vahelehed, enne proovimist kuni roheliste
 # silmusteni või "jälg" edasilükkamist EI TOHI kasutada.
+# gained=['"jälg"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"jälg"']
 # nocheck: url
 # translation-rejected: [x] **Ei mingeid katkestusi.** Veaparandused, tõrked,
+# tõrked. `make test` tõrked, tervisekontrolli klapid ja sarnased probleemid
+# PEAVAD lahendama nende juurest sama iteratsiooni sees ilma operaatorit
+# küsimata. tööruumid, ühekordsed vahelehed, enne proovimist kuni roheliste
+# silmusteni või "jälg" edasilükkamist EI TOHI kasutada.
 msgid "[x] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, healthcheck flaps, and similar issues MUST be resolved at their root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or \"track in a follow-up\" deferrals MUST NOT be used."
 msgstr ""
 
@@ -75852,10 +76034,27 @@ msgstr "[x] OpenBao palgid jõuavad standardini Infinito.Nexus logimismehhanism 
 # midagi, nii et juurutamispunktid on loopbacki ja metaandmete aadressi juures
 # äraviskamisregistri kirje ja see ei õnnestu, välja arvatud juhul, kui
 # Flowise keeldub mõlemast.
+# gained=['"üksi"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"üksi"']
 # nocheck: url
 # translation-rejected: [x] Tavaline Flowise kasutajad ei saa kasutada MCP-d
+# või muud HTTP-sõlme, et jõuda tagasilülituse, metaandmete lõpp-punktide,
+# konteineri juhttasandi või mitteseotud siseteenusteni; ainuüksi
+# SSRF-kontrolli ülemaailmne keelamine ei vasta sellele kriteeriumile.
+# `checkDenyList` lahendab masinanime ja testib iga määratud aadressi ning
+# sisseehitatud nimekiri eitab kogu RFC-d1918, nii et sisseehitatud loendi
+# kehtimise ajal ei ole võimalik jõuda ühegi teenusepakkujani konteinervõrgus.
+# Ülesvoolu lüliti ei ole väljalülituslüliti: `HTTP_SECURITY_CHECK=false`
+# Keeldumiste nimekiri muutub täpselt `HTTP_DENY_LIST` Selle asemel, et see
+# sisse ehitatud oleks. Seega määrab roll lüliti ja pakub loendit, mis
+# endiselt eitab loopbacki, link-lokaali, pilve metaandmeid, multicasti ja
+# reserveeritud ruumi, mis on "üksi" see kriteerium nõuab. Mitteseotud
+# siseteenused hoitakse välja pigem võrgu liikmelisuse kui loendi järgi, sama
+# piiri kinnitab adapteri isolatsioonisond. Ainuüksi seadistamine ei tõesta
+# midagi, nii et juurutamispunktid on loopbacki ja metaandmete aadressi juures
+# äraviskamisregistri kirje ja see ei õnnestu, välja arvatud juhul, kui
+# Flowise keeldub mõlemast.
 msgid "[x] Ordinary Flowise users cannot use MCP or another HTTP node to reach loopback, metadata endpoints, the container control plane, or unrelated internal services; globally disabling the SSRF check alone fails this criterion. `checkDenyList` resolves a hostname and tests every resolved address, and the built-in list denies all of RFC1918, so reaching any provider on a container network is impossible while the built-in list applies. Upstream's switch is not an off switch: with `HTTP_SECURITY_CHECK=false` the deny list becomes exactly `HTTP_DENY_LIST` instead of the built-in one merged with it. The role therefore sets the switch and supplies a list that still denies loopback, link-local, cloud metadata, multicast and reserved space, which is the \"not alone\" this criterion demands. Unrelated internal services are held out by network membership rather than by the list, the same boundary the adapter isolation probe asserts. Configuration alone proves nothing, so the deploy points a throwaway registry entry at loopback and at the metadata address and fails unless Flowise refuses both."
 msgstr ""
 
@@ -77785,10 +77984,15 @@ msgstr "``$wgHTTPTimeout`` Tõstke sees sama plokk, sest südamik 25S on allpool
 # liikmesuse/mitteliikmesuse vastu. Stringivõrdlused (``==`` ``!=`` ``%%``) on
 # tõstutundlikud; ``< > <= >=`` on numbrilised. Avaldis ilma operaatorita (nt.
 # ``nextcloud``) lühend ``name %% nextcloud``.
+# gained=['"liige"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"liige"']
 # nocheck: url
 # translation-rejected: ``%%`` on "contains" skalaarstringi väärtuse ja
+# "liige" määratud väärtuse eest; ``==`` / ``!=`` kindlaksmääratud keskmise
+# liikmesuse/mitteliikmesuse vastu. Stringivõrdlused (``==`` ``!=`` ``%%``) on
+# tõstutundlikud; ``< > <= >=`` on numbrilised. Avaldis ilma operaatorita (nt.
+# ``nextcloud``) lühend ``name %% nextcloud``.
 #, no-python-format
 msgid "``%%`` is \"contains\" for a scalar string value and \"is a member of\" for a set value; ``==`` / ``!=`` against a set mean membership / non-membership. String comparisons (``==`` ``!=`` ``%%``) are case-insensitive; ``< > <= >=`` are numeric. A bare expression with no operator (e.g. ``nextcloud``) is shorthand for ``name %% nextcloud``."
 msgstr ""
@@ -78847,12 +79051,10 @@ msgstr "``phpunit/phpunit`` kuulutab ``_PHPUNIT_EXTENSIONS`` Kuna platvormi nõu
 # ja SPA kasutajamenüü väljalogimine ei ole tavalise persona abistaja poolt
 # juhitavad, nii et mõlema kasutaja tegelikku autentimist teostavad ülaltoodud
 # spetsiaalsed sisselogimiskaaslased.
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['"OpenID"']
-# nocheck: url
-# translation-rejected: ``playwright.spec.js`` — orkestraator: TLS-i baastase,
+# translated-by: libretranslate
 msgid "``playwright.spec.js`` — orchestrator: TLS baseline, project creation, image asset upload, and the ``guest``/``biber``/``administrator`` personas. The ``biber`` / ``administrator`` personas are declared blocked via ``PERSONA_*_BLOCKED`` (mirroring ``web-app-taiga``): Penpot’s in-app “OpenID” entry and SPA user-menu logout aren’t driveable by the generic persona helper, so both users’ real auth is exercised by the dedicated login companions above."
-msgstr ""
+msgstr "``playwright.spec.js`` — orkestraator: TLS-i baastase, projekti loomine, pildivara üleslaadimine ja ``guest``/``biber``/``administrator`` personad. Theo ``biber`` / ``administrator`` Isikud kuulutatakse blokeerituks ``PERSONA_*_BLOCKED`` (peegeldub ``web-app-taiga``): Penpot'i rakendusesisene sissekanne \"OpenID\" ja SPA kasutajamenüü väljalogimine ei ole tavalise persona abistaja poolt juhitavad, nii et mõlema kasutaja tegelikku autentimist teostavad ülaltoodud spetsiaalsed sisselogimiskaaslased."
 
 # translated-by: libretranslate
 msgid "``playwright.version`` in ``meta/services.yml`` is the single source of truth for the default Playwright version; the central ``templates/package.json.j2`` pins it via the ``image_version`` filter."
@@ -79255,10 +79457,13 @@ msgstr "``utils.cache.files`` — kogu protsessi hõlmav projektipuu kõndimine 
 
 # musterlaadur + tee sobitaja, mida kasutatakse lisamise/integreerimise
 # katsetes, mis vajavad "failid" vaade ilma kudemiseta.
+# gained=['"failid"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"failid"']
 # nocheck: url
 # translation-rejected: ``utils.cache.gitignore`` - vahemälus ``.gitignore``
+# musterlaadur + tee sobitaja, mida kasutatakse lisamise/integreerimise
+# katsetes, mis vajavad "failid" vaade ilma kudemiseta.
 msgid "``utils.cache.gitignore``    — cached ``.gitignore`` pattern loader + path matcher used by lint/integration tests that need a \"files git would track\" view without spawning git."
 msgstr ""
 
@@ -79268,10 +79473,13 @@ msgstr "``utils.cache.yaml`` — kogu protsessi ulatuses ``load_yaml`` / ``load_
 
 # ``mode``/``tor``/``distro``/``filesystem``/ ``architecture`` ``None`` iga
 # "nööpimata"See telg hoiab seda joont, milles ta seisab.
+# gained=['"nööpimata"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"nööpimata"']
 # nocheck: url
 # translation-rejected: ``variants`` tühjad
+# ``mode``/``tor``/``distro``/``filesystem``/ ``architecture`` ``None`` iga
+# "nööpimata"See telg hoiab seda joont, milles ta seisab.
 msgid "``variants`` empty and ``mode``/``tor``/``distro``/``filesystem``/ ``architecture`` ``None`` each mean \"not pinned\": that axis keeps whatever the line it stands in would assign."
 msgstr ""
 
@@ -84196,11 +84404,9 @@ msgid "e.g. ``'web-app-nextcloud#0,2@swarm+tor%debian/zfs'``."
 msgstr "nt. ``'web-app-nextcloud#0,2@swarm+tor%debian/zfs'``."
 
 # "võti=väärtus" paar
-# translation-refused: libretranslate protected-span lost=[] gained=['"']
-# nocheck: url
-# translation-rejected: iga päringuelement peab olema täpselt üks
+# translated-by: libretranslate
 msgid "each query element must be exactly one 'key=value' pair"
-msgstr ""
+msgstr "iga päringuelement peab olema täpselt üks \"võti=väärtus\" paar"
 
 # translated-by: libretranslate
 msgid "each returned entry also carries the endpoint metadata a client needs to connect, at least `service_key`, `path`, resolved port, `transport`, `auth`, and `auth_subject`, sourced from the role's `mcp.endpoint` block."
@@ -87644,10 +87850,12 @@ msgid "services.<get_entity_name(application_id)>.<key>"
 msgstr "teenused.<get_entity_name(application_id)>.<key>"
 
 # get_entity_name(application_id)>.<key>
+# gained=['teenused.service_name']
 # translation-refused: libretranslate protected-span lost=['service_name']
 # gained=['teenused.service_name']
 # nocheck: url
 # translation-rejected: teenused.service_name või
+# get_entity_name(application_id)>.<key>
 msgid "services.<service_name or get_entity_name(application_id)>.<key>"
 msgstr ""
 
@@ -87952,10 +88160,12 @@ msgid "that documents the entire file is meant to be `include_tasks:` from a par
 msgstr "See tähendab, et kogu fail on mõeldud `include_tasks:` vanemalt, kes juba kannab ainult komponeeritud `when:` valvur. Marker peab istuma esimeses 5 jooned."
 
 # rida läbib puutumata.
+# gained=['"valikuta"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"valikuta"']
 # nocheck: url
 # translation-rejected: selle rea valikumärgid; tühi tähendab "valikuta"Ja iga
+# rida läbib puutumata.
 msgid "that line's selection tokens; empty means \"no selection\", and every row passes through untouched."
 msgstr ""
 
@@ -89080,10 +89290,12 @@ msgid "the value the candidate's own failing row carried, read off the source ru
 msgstr "väärtus, mida kandidaadi enda ebaõnnestunud rida kandis, loetakse allika töö pealkiri. See taastab ebaõnnestumise, mis on joone punkt."
 
 # "konfigureerimata".
+# gained=['"konfigureerimata"']
 # translation-refused: libretranslate protected-span lost=['"']
 # gained=['"konfigureerimata"']
 # nocheck: url
 # translation-rejected: operaator tarnitud väärtus, tühi tähendus
+# "konfigureerimata".
 msgid "the value the operator supplied, empty meaning \"not configured\"."
 msgstr ""
 
@@ -89680,31 +89892,25 @@ msgid "utils.env.handlers.infinito.package\\_cache package"
 msgstr "utils.env.handlers.infinito.package\\ vahemälupakett"
 
 # paroolimoodul
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.admin']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.admin\\ paroolimoodul"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr "utils.env.handlers.infinito.package\\ cache. blobstore\\ max moodul"
 
 # moodul
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.direct']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.direct\ mem
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.direct\\ mem moodul"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['cache.heap']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.heap moodul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.package\\ cache.heap moodul"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.parent\\_image module"
@@ -89750,18 +89956,14 @@ msgstr "utils.env.handlers.infinito.rescue.local\\ dumps\\ diri moodul"
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr "utils.env.handlers.infinito.running\\ on pakett"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['on.act']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running\ on.act moodul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on.act module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on.act moodul"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['on.github']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running\ on.github moodul
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.running\\_on.github module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.running\\ on.github moodul"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
@@ -89772,12 +89974,10 @@ msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
 msgstr "utils.env.handlers.infinito.swarm\\ nfs. export\\ baasmoodul"
 
 # module
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['nfs.state']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.state\ path
+# translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
-msgstr ""
+msgstr "utils.env.handlers.infinito.swarm\\ nfs.state\\ path module"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.tor\\_socks\\_port module"
@@ -90825,10 +91025,15 @@ msgstr "{% if lookup('prometheus_integration_active', application_id) %} ...prom
 # curl }} -> curl - s -- connect timeout 5 --max- time 300 --retry 3 -- retry-
 # all- errors -- retry- delay 2 {{ lookup('timeout', 30) | curl }} ->
 # TIMEOUT_FACTORskaleeritud variant
+# gained=['TIMEOUT_FACTORskaleeritud']
 # translation-refused: libretranslate protected-span lost=['TIMEOUT_FACTOR']
 # gained=['TIMEOUT_FACTORskaleeritud']
 # nocheck: url
 # translation-rejected: {{ 30 | curl }} -> curl - s -- connect timeout 5
+# --max- time 30 --retry 3 -- retry- all- errors -- retry- delay 2 {{ 300 |
+# curl }} -> curl - s -- connect timeout 5 --max- time 300 --retry 3 -- retry-
+# all- errors -- retry- delay 2 {{ lookup('timeout', 30) | curl }} ->
+# TIMEOUT_FACTORskaleeritud variant
 msgid "{{ 30 | curl }}                      -> curl -s --connect-timeout 5 --max-time 30 --retry 3 --retry-all-errors --retry-delay 2 {{ 300 | curl }}                     -> curl -s --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 {{ lookup('timeout', 30) | curl }}   -> TIMEOUT_FACTOR-scaled variant"
 msgstr ""
 

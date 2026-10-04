@@ -328,6 +328,8 @@ msgid "Community"
 msgstr "Pobail agus Fiontair"
 
 # translated-by: libretranslate
+# interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
+# via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Róil insteallta HTML inmhúirínithe (CSS, JS, logout

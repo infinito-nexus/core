@@ -777,6 +777,7 @@ msgid "Help"
 msgstr "Yardım"
 
 # translated-by: libretranslate
+# Docker Compose stack and and and and
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: CA-trust enjeksiyon aktivlərinin qarşısını almaq
@@ -1849,9 +1850,12 @@ msgid "Signing you out of your services…"
 msgstr "Sizə xidmətlərinə baxın..."
 
 # translated-by: libretranslate
+# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
+# məlumatları öyrənmək Mastodon Fediverse
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Single-user ActivityPub bookmarking site ictimai kitab
+# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
 # ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
 # məlumatları öyrənmək Mastodon Fediverse
 msgctxt "role:web-app-postmarks:description"

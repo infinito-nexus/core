@@ -1086,13 +1086,11 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "एक स्रोत निर्देशिका से वेब डेटा पथ में कॉपी की गई स्थैतिक संपत्ति की मेजबानी के लिए Nginx आधारित सर्वर"
 
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Node.js पैकेज-प्रबंधक सेटअप एनपीएम स्थापित करना और
 # वैकल्पिक रूप से प्रोजेक्ट डायरेक्टरी के अंदर 'npm' चल रहा है
+# translated-by: libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr ""
+msgstr "Node.js पैकेज-प्रबंधक सेटअप एनपीएम स्थापित करना और वैकल्पिक रूप से प्रोजेक्ट डायरेक्टरी के अंदर 'npm' चल रहा है"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"

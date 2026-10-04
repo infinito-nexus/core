@@ -114,7 +114,7 @@ msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "反向 DNS 自动化角色 (PTR 读取器) 在Hetzner Cloud服务器、主要IP、浮动IP和负载平衡器上的记录"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 备份恢复( R)
 msgctxt "category:sys.ctl.bkp:title"
@@ -295,7 +295,7 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "分组局部拉动缓存,用于共享 Docker Hub 基像拉动,剪切重复转移和速率限制"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 在工作站安装编码器 (Claude Code, (中文). Cursor)
 msgctxt "category:dsk.gnt:description"
@@ -328,10 +328,12 @@ msgid "Community"
 msgstr "社区"
 
 # 1)OpenResty 通过 sub_filter卢亚拥有CDN支持的资产.
+# gained=['(', ')', '1', 'sub_filter卢亚拥有CDN支持的资产']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
 # gained=['(', ')', '1', 'sub_filter卢亚拥有CDN支持的资产']
 # nocheck: url
 # translation-rejected: 可编译的 HTML 注入角色 (CSS、JS、登机拦截器、分析仪、仪表板) 用于 Nginx / (%
+# 1)OpenResty 通过 sub_filter卢亚拥有CDN支持的资产.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -506,9 +508,10 @@ msgstr "推迟启动的管弦乐器,以便在游戏完成后启用和开始收�
 
 # translated-by: libretranslate
 # Mastodon,等编.)
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 可部署的网络应用程序 (GitLab, (中文). Nextcloud, (中文).
+# Mastodon,等编.)
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -533,7 +536,7 @@ msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "启动 GNOME 的桌面配置角色 Shell 扩展并安装管理它们的 CLI 工具"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 桌面环境角色( A) (GNOME,浏览器, LibreOffice,等编.)
 msgctxt "category:dsk:description"
@@ -785,7 +788,7 @@ msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr "帮助者角色安装 CA 信任注入资产 Docker Compose 堆栈和验证工程 CA 证书"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 帮助者角色安装器( I) (git, 地方, 计时器等)
 msgctxt "category:gen:description"
@@ -798,9 +801,10 @@ msgid "Helpful Tools"
 msgstr "辅助工具"
 
 # (英语).
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 管理、缩放和访问无结构数据的高性能、自我托管的存储解决方案——包括与亚马逊S兼容的对象存储3 APIs
+# (英语).
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -820,13 +824,11 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "主机级配置将 Bash 和 Zsh 登录弹壳连接到共享的 . profile , 用于一致的环境加载"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['全系统通过/etc/环境']
-# nocheck: url
-# translation-rejected: B. 为披露项目提供东道一级服务 pyproject.toml 全系统通过/etc/环境
+# translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
-msgstr ""
+msgstr "B. 为披露项目提供东道一级服务 pyproject.toml 全系统通过/etc/环境"
 
 # translated-by: libretranslate
 msgctxt "role:user-root:description"
@@ -1118,7 +1120,7 @@ msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
 msgstr "系统事件通知处理者"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: OS 软件包更新( P)
 msgctxt "category:update:description"
@@ -1340,13 +1342,11 @@ msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "家庭隐私第一社交平台,通过嵌入式SQLite商店的WebRTC建立对等关系"
 
-# translation-refused: libretranslate protected-span lost=[]
 # gained=['使用/etc/sunessers.d']
-# nocheck: url
-# translation-rejected: 使用/etc/sunessers.d 滴滴支持的特权升级套件和硬化的顺势配置
+# translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
-msgstr ""
+msgstr "使用/etc/sunessers.d 滴滴支持的特权升级套件和硬化的顺势配置"
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
@@ -1388,12 +1388,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "公共REST API 服务角色数据、历史和翻译 Infinito.Nexus 每一个核及其叉"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['1']
-# nocheck: url
-# translation-rejected: 公开的幽灵 揭露 System One 决定 API 页:1 svc-ai-s1
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "公开的幽灵 揭露 System One 决定 API 页:1 svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -2067,7 +2065,7 @@ msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr "通过Telegram和电子邮件渠道统一系统通知服务发送服务失败警报"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 更新软件包管理( P)
 msgctxt "category:update:title"
@@ -2092,7 +2090,7 @@ msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr "用户账户和访问控制"
 
-# translation-refused: libretranslate protected-span lost=[] gained=['(', ')']
+# translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 用户访问( A)
 msgctxt "category:user:title"
