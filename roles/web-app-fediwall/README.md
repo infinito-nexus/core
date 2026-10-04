@@ -23,10 +23,10 @@ flowchart LR
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_friendica["web-app-friendica 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_mastodon["web-app-mastodon 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
     end
     subgraph role [web-app-fediwall 🐳🐝]
@@ -46,12 +46,12 @@ flowchart LR
     dep_web_app_dashboard -- "1:1" --> svc_dashboard
     dep_web_app_friendica -. "0..1" .-> svc_friendica
     dep_web_app_keycloak -- "0..0" --> svc_sso
-    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_mastodon -. "0..1" .-> svc_mastodon
     dep_web_app_matomo -- "1:1" --> svc_matomo
     dep_web_app_prometheus -- "1:1" --> svc_prometheus
+    dep_web_app_stalwart -- "0..0" --> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
-    linkStyle 3,4 stroke:red;
+    linkStyle 3,7 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

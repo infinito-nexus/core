@@ -44,7 +44,6 @@ MAIL_PROVIDER: "web-app-stalwart" # Active mail provider role. Set to web-app-ma
 MAIL_PRODUCTION_HOST: "" # Public FQDN of a reachable mail server; when set, the provider asserts its live DNS/TLS/SMTP hard facts.
 MAIL_PRODUCTION_RESOLVER: "" # Resolver those assertions query; empty uses the host's /etc/resolv.conf.
 
-
 DOCKER_IN_CONTAINER: "{{ (ansible_facts['env']['container'] | default('')) != '' }}"
 DOCKER_RESTART_POLICY: "unless-stopped" # Default restart parameter for docker containers
 DOCKER_WHITELISTET_ANON_VOLUMES: [] # Volumes which should be ignored during docker anonymous health check

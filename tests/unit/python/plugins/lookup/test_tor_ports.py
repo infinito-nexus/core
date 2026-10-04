@@ -269,7 +269,9 @@ class TestTorPortsLookup(unittest.TestCase):
             self._mail_apps(), ["web-app-stalwart", "web-app-mailu"]
         )
 
-        self.assertEqual(both, collect_onion_ports(self._mail_apps(), ["web-app-stalwart"]))
+        self.assertEqual(
+            both, collect_onion_ports(self._mail_apps(), ["web-app-stalwart"])
+        )
 
     def test_collect_onion_ports_ignores_non_mappings(self) -> None:
         self.assertEqual(collect_onion_ports({}, ["a"]), [])

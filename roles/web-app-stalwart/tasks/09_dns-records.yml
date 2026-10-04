@@ -20,8 +20,17 @@
         name: "🔧 autoconfig.{{ STALWART_DOMAIN_DNS_ZONE }}"
         solo: true
         value: "{{ STALWART_HOSTNAME }}"
-      - { type: MX, zone: "{{ STALWART_DOMAIN_DNS_ZONE }}", name: "{{ STALWART_DOMAIN }}", solo: true, value: "{{ STALWART_HOSTNAME }}", priority: 10 }
-      - { type: TXT, zone: "{{ STALWART_DOMAIN_DNS_ZONE }}", name: "{{ STALWART_DOMAIN }}", solo: true, value: '"v=spf1 mx a:{{ STALWART_HOSTNAME }} ~all"' }
+      - type: MX
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        value: "{{ STALWART_HOSTNAME }}"
+        priority: 10
+      - type: TXT
+        zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "{{ STALWART_DOMAIN }}"
+        solo: true
+        value: '"v=spf1 mx a:{{ STALWART_HOSTNAME }} ~all"'
       - type: TXT
         zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
         name: "_dmarc.{{ STALWART_DOMAIN_DNS_ZONE }}"

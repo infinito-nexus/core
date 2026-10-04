@@ -42,9 +42,12 @@
 - name: "🔍 Resolve built-in Stalwart role ids by description"
   ansible.builtin.set_fact:
     stalwart_role_user: "{{ stalwart_jmap.methodResponses[0][1].list | selectattr('description', 'equalto', 'User') | map(attribute='id') | first | default('') }}"
-    stalwart_role_group: "{{ stalwart_jmap.methodResponses[0][1].list | selectattr('description', 'equalto', 'Group') | map(attribute='id') | first | default('') }}"
-    stalwart_role_tenant: "{{ stalwart_jmap.methodResponses[0][1].list | selectattr('description', 'equalto', 'Tenant Administrator') | map(attribute='id') | first | default('') }}"
-    stalwart_role_admin: "{{ stalwart_jmap.methodResponses[0][1].list | selectattr('description', 'equalto', 'System Administrator') | map(attribute='id') | first | default('') }}"
+    stalwart_role_group: "{{ stalwart_jmap.methodResponses[0][1].list | selectattr('description', 'equalto', 'Group') | map(attribute='id') | first | default('')
+      }}"
+    stalwart_role_tenant: "{{ stalwart_jmap.methodResponses[0][1].list | selectattr('description', 'equalto', 'Tenant Administrator') | map(attribute='id') | first
+      | default('') }}"
+    stalwart_role_admin: "{{ stalwart_jmap.methodResponses[0][1].list | selectattr('description', 'equalto', 'System Administrator') | map(attribute='id') | first
+      | default('') }}"
 
 - name: "✅ Ensure the built-in Stalwart 'User' role exists (grants mailbox permissions)"
   ansible.builtin.assert:
@@ -57,8 +60,10 @@
       directoryId: "{{ stalwart_oidc_dir_id }}"
       defaultUserRoleIds: "{{ {stalwart_role_user: true} }}"
       defaultGroupRoleIds: "{{ {stalwart_role_group: true} if stalwart_role_group | length > 0 else {stalwart_role_user: true} }}"
-      defaultTenantRoleIds: "{{ {stalwart_role_tenant: true} | combine({stalwart_role_user: true}) if stalwart_role_tenant | length > 0 else {stalwart_role_user: true} }}"
-      defaultAdminRoleIds: "{{ {stalwart_role_admin: true} | combine({stalwart_role_user: true}) if stalwart_role_admin | length > 0 else {stalwart_role_user: true} }}"
+      defaultTenantRoleIds: "{{ {stalwart_role_tenant: true} | combine({stalwart_role_user: true}) if stalwart_role_tenant | length > 0 else {stalwart_role_user:
+        true} }}"
+      defaultAdminRoleIds: "{{ {stalwart_role_admin: true} | combine({stalwart_role_user: true}) if stalwart_role_admin | length > 0 else {stalwart_role_user: true}
+        }}"
 
 - name: "📖 Read the Stalwart authentication singleton"
   include_tasks: jmap_call.yml

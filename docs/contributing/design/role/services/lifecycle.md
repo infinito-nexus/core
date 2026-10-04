@@ -19,7 +19,7 @@ pre-alpha     (early scaffolding, not yet stable enough to test)
 │  rc           │
 │  stable       │
 └─ maintenance ─┘
-deprecated    (kept for compatibility, do not adopt for new deploys)
+deprecated    (kept for compatibility, untested, do not adopt for new deploys)
 eol           (end of life: shipped but not tested or maintained)
 ```
 
@@ -95,12 +95,12 @@ Same test coverage as `stable`.
 
 ### deprecated ⚠️
 
-The role still ships and still passes its tests, but operators MUST migrate away from it.
+The role still ships, but operators MUST migrate away from it and the project no longer tests it.
 
 A `deprecated` role:
 
 - MUST be tagged with a "Deprecated" banner in its `README.md` pointing at the successor.
-- MUST keep working until removed (the test suite still covers it).
+- MUST NOT be exercised by the matrix-deploy, and a failure in it MUST NOT block any release.
 - SHOULD be removed within a small number of releases.
 
 ### eol 🪦
@@ -121,7 +121,8 @@ The matrix-deploy + Playwright pipeline (see [variants.md](../../variants.md) an
 A regression in any tested-envelope role blocks the merge that introduced it.
 
 Stages outside the envelope (`planned`, `pre-alpha`, `deprecated`, `eol`) MAY skip the matrix-deploy gate.
-CI MAY still exercise them on a best-effort basis but failures MUST NOT block unrelated work.
+CI MAY still exercise `planned`, `pre-alpha` and `eol` roles on a best-effort basis, but failures MUST NOT block unrelated work.
+`deprecated` roles are not exercised at all.
 
 Promotion from `eol` back into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch.
 Examples of `eol` roles at the time of writing include `web-app-confluence`, `web-app-jira`, `web-app-minio`, `web-app-phpldapadmin`.

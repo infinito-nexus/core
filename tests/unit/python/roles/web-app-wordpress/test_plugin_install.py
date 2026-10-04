@@ -24,9 +24,7 @@ from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
 
-TASK_FILE = (
-    PROJECT_ROOT / "roles/web-app-wordpress/tasks/utils/install/plugin.yml"
-)
+TASK_FILE = PROJECT_ROOT / "roles/web-app-wordpress/tasks/utils/install/plugin.yml"
 
 SKIPPED = {"skipped": True, "changed": False}
 FINISHED_BUT_255 = {
@@ -82,7 +80,9 @@ class TestInstallDecision(unittest.TestCase):
 
     def test_a_missing_plugin_is_installed(self):
         self.assertTrue(
-            self._installs(present_rc=1, pinned=False, installed_version=SKIPPED, pin="")
+            self._installs(
+                present_rc=1, pinned=False, installed_version=SKIPPED, pin=""
+            )
         )
 
     def test_a_pinned_plugin_at_its_pin_is_left_alone(self):
@@ -107,7 +107,9 @@ class TestInstallDecision(unittest.TestCase):
 
     def test_an_unpinned_plugin_that_is_present_is_left_alone(self):
         self.assertFalse(
-            self._installs(present_rc=0, pinned=False, installed_version=SKIPPED, pin="")
+            self._installs(
+                present_rc=0, pinned=False, installed_version=SKIPPED, pin=""
+            )
         )
 
     def test_the_pin_is_compared_without_its_tag_prefix(self):
@@ -159,15 +161,21 @@ class TestMissingPluginOutcome(unittest.TestCase):
         )
 
     def test_a_missing_required_plugin_fails_the_deploy(self):
-        self.assertTrue(self._runs("Fail because required", installed=False, required=True))
+        self.assertTrue(
+            self._runs("Fail because required", installed=False, required=True)
+        )
         self.assertFalse(self._runs("Skip optional", installed=False, required=True))
 
     def test_a_missing_optional_plugin_only_warns(self):
-        self.assertFalse(self._runs("Fail because required", installed=False, required=False))
+        self.assertFalse(
+            self._runs("Fail because required", installed=False, required=False)
+        )
         self.assertTrue(self._runs("Skip optional", installed=False, required=False))
 
     def test_an_installed_plugin_reaches_neither_branch(self):
-        self.assertFalse(self._runs("Fail because required", installed=True, required=True))
+        self.assertFalse(
+            self._runs("Fail because required", installed=True, required=True)
+        )
         self.assertFalse(self._runs("Skip optional", installed=True, required=False))
 
     def test_only_an_installed_plugin_is_activated(self):

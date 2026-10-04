@@ -45,9 +45,6 @@
     matomo:
       enabled: false
       shared: false
-    mailu:
-      enabled: true # nocheck: variants-static-override
-      shared: true # nocheck: variants-static-override
     sso:
       enabled: false
       shared: false

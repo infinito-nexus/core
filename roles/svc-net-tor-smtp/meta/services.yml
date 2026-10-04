@@ -15,7 +15,7 @@ tor-smtp: # nocheck: category-modes
   # nocheck: default-placement-manager  dials svc-net-tor's host-loopback SOCKS listener, which is manager-pinned; the gateway must share that node
   placement: manager
   image: python
-  version: 3.13-slim
+  version: 3.14-slim
   name: tor-smtp
   ports:
     internal:

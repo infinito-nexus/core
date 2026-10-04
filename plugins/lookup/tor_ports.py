@@ -78,8 +78,7 @@ def _is_inactive_coverer(
     if not isinstance(covers, (list, tuple)):
         return False
     return any(
-        isinstance(key, str) and (provided.get(key, set()) - {app_id})
-        for key in covers
+        isinstance(key, str) and (provided.get(key, set()) - {app_id}) for key in covers
     )
 
 

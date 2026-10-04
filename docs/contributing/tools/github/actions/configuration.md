@@ -42,13 +42,13 @@ resolve to empty inside the container without any error.
 
 ## Cancelling in-progress runs 🛑
 
-Not a variable: cancellation is derived from the trigger. Every automatic run on a branch other than `main` is cancelled by a newer run in the same concurrency group; automatic runs on `main` are not, because a half-finished pipeline on the default branch is worse than a queued one. A manual dispatch always supersedes, `main` included: someone typed it, so it is the intent that counts, not the ref.
+Not a variable: cancellation is derived from the trigger. Every automatic run on a branch other than `main` is cancelled by a newer run in the same concurrency group; automatic runs on `main` are not, because a half-finished pipeline on the default branch is worse than a queued one. The one exception on `main` is a release push: a head commit whose subject starts with `Release version `, the subject pkgmgr writes for every release commit, cancels the run in progress so the release starts at once. A manual dispatch always supersedes, `main` included: someone typed it, so it is the intent that counts, not the ref.
 
 ```yaml
-cancel-in-progress: ${{ github.ref_name != 'main' }}
+cancel-in-progress: ${{ github.ref_name != 'main' || (github.ref_name == 'main' && startsWith(github.event.head_commit.message, 'Release version ')) }}
 ```
 
-`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either.
+`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`. It does not listen on `main`, so a release push there relies on the group alone.
 
 > ⚠️ **Do not paste that expression into a workflow that listens on `pull_request_target`.** There `github.ref` is the *base* branch, so `github.ref_name` is literally `main` and the rule collapses to a constant `false` — every pull request would stop cancelling its predecessor. `entry-pr-change-orchestrate.yml` therefore declares `cancel-in-progress: true` outright.
 

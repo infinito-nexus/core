@@ -342,7 +342,7 @@ web:
 
 ### Allowed `lifecycle` Values
 
-`planned`, `pre-alpha`, `alpha`, `beta`, `stable`, `deprecated`. Unknown values fail the lint.
+The stages listed in [lifecycle.md](lifecycle.md#stages-). Unknown values fail the lint.
 
 ### `run_after` Rules
 

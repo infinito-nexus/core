@@ -27,7 +27,6 @@ flowchart LR
         dep_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_mastodon["web-app-mastodon 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_matrix["web-app-matrix 🐳🐝"]
@@ -38,6 +37,7 @@ flowchart LR
         dep_web_app_peertube["web-app-peertube 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_app_xwiki["web-app-xwiki 🐳🐝"]
         dep_web_app_zammad["web-app-zammad 🐳🐝"]
         dep_web_svc_collabora["web-svc-collabora 🐳🐝"]
@@ -103,7 +103,6 @@ flowchart LR
     dep_web_app_gitlab -. "0..1" .-> svc_gitlab
     dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_mastodon -. "0..1" .-> svc_mastodon
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_matrix -. "0..1" .-> svc_matrix
@@ -114,6 +113,7 @@ flowchart LR
     dep_web_app_peertube -. "0..1" .-> svc_peertube
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
+    dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_app_xwiki -. "0..1" .-> svc_xwiki
     dep_web_app_zammad -. "0..1" .-> svc_zammad
     dep_web_svc_collabora -. "0..1" .-> svc_collabora

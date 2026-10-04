@@ -103,7 +103,7 @@ class TestCancelSupersededWorkflow(unittest.TestCase):
         inner = gate.removeprefix("${{").removesuffix("}}").strip()
         self.assertEqual(
             self.workflow["jobs"]["cancel-branch-runs"]["if"],
-            "${{ github.event_name == 'push' && " + inner + " }}",
+            "${{ github.event_name == 'push' && (" + inner + ") }}",
             "the fallback mirrors the cancel rule of the group it backs up; a "
             "changed polarity or a dropped event guard must fail here",
         )
@@ -118,7 +118,8 @@ class TestCancelSupersededWorkflow(unittest.TestCase):
                 if branch != "main"
             ),
             "a branch that starts CI but no fallback keeps the deadlock; main is "
-            "excluded because runs on main are never cancelled",
+            "excluded because only a release push cancels there and its group "
+            "handles that alone",
         )
         pr_types = set()
         for event, block in load(PR_ENTRY)[True].items():

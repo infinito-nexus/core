@@ -21,10 +21,10 @@ flowchart LR
         dep_web_app_flowise["web-app-flowise 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
@@ -70,10 +70,10 @@ flowchart LR
     dep_web_app_flowise -. "0..1" .-> svc_flowise
     dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
+    dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_sso -- "1:1" --> dpt_more

@@ -70,6 +70,8 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
+        dep_svc_net_tor_smtp["svc-net-tor-smtp 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -77,7 +79,7 @@ flowchart LR
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
-    subgraph role [web-app-stalwart 🐳]
+    subgraph role [web-app-stalwart 🐳🐝]
         svc_sso["sso"]
         svc_logout["logout"]
         svc_dashboard["dashboard"]
@@ -89,6 +91,8 @@ flowchart LR
         svc_clamav["clamav"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
+        svc_tor_smtp["tor-smtp"]
     end
     subgraph dependents [Dependents]
         dpt_sys_ctl_alm_email["sys-ctl-alm-email 💻"]
@@ -107,6 +111,9 @@ flowchart LR
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_net_tor -. "0..1" .-> svc_tor
+    dep_svc_net_tor -. "0..1" .-> svc_tor_smtp
+    dep_svc_net_tor_smtp -. "0..1" .-> svc_tor_smtp
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -120,15 +127,16 @@ flowchart LR
     svc_stalwart -. "0..1" .-> dpt_web_app_bigbluebutton
     svc_stalwart -. "0..1" .-> dpt_web_app_bluesky
     svc_stalwart -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_stalwart -- "1:1" --> dpt_web_app_bridgy_fed
+    svc_stalwart -- "0..0" --> dpt_web_app_bridgy_fed
     svc_stalwart -. "0..1" .-> dpt_web_app_checkmk
-    svc_stalwart -- "1:1" --> dpt_web_app_confluence
+    svc_stalwart -- "0..0" --> dpt_web_app_confluence
     svc_stalwart -. "0..1" .-> dpt_web_app_decidim
     svc_stalwart -. "0..1" .-> dpt_web_app_discourse
     svc_stalwart -. "0..1" .-> dpt_web_app_erpnext
+    linkStyle 18,20 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## SSO (Keycloak / OpenID Connect)
 

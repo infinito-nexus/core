@@ -259,7 +259,8 @@ failed chunk:
 `skipped` counts as passed, so an empty chunk never blocks the chain. After
 fixing what broke a sweep, `resume_from_chunk` re-enters at that index instead
 of re-running the green chunks. Both are inputs on `entry-manual-steer.yml`;
-the other entry points take the defaults. A retrigger carries the source run's
+the other entry points take the defaults, except that a release push on `main`
+(a `vX.Y.Z` tag on the pushed commit) runs with `chunk_gate: false`. A retrigger carries the source run's
 `chunk_gate` over unless `infinito administration deploy ci trigger
 --chunk-gate false` overrides it; the `i8ciallon` alias is `i8ciall` with that
 override, for sweeps that should report every chunk before anyone looks.

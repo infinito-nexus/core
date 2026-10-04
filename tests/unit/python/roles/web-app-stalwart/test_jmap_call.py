@@ -64,9 +64,7 @@ class TestJmapRejectionIsAFailure(unittest.TestCase):
 
     def test_null_rejection_maps_pass(self):
         self.assertTrue(
-            _accepted(
-                ["x:Domain/set", {"notCreated": None, "notUpdated": None}, "c0"]
-            )
+            _accepted(["x:Domain/set", {"notCreated": None, "notUpdated": None}, "c0"])
         )
 
     def test_an_error_method_fails(self):

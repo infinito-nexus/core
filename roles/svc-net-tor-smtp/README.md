@@ -20,31 +20,20 @@ gateway only ever accepts `.onion` recipients; it is not an open relay.
 
 ## Cosmos
 
-The diagram places Tor SMTP Gateway in the Infinito.Nexus cosmos: the container
-it deploys (capabilities), the Tor daemon it consumes (dependencies), and its
-outward reach to `.onion` mail hosts (cosmos).
+The diagram places Tor SMTP Gateway (svc-net-tor-smtp) in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
 
 ```mermaid
 flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-    end
     subgraph role [svc-net-tor-smtp 🐳🐝]
         svc_tor_smtp["tor-smtp"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_stalwart["web-app-stalwart 🐳🐝"]
     end
-    subgraph cosmos [Cosmos]
-        onion["*.onion MX ✉️"]
-    end
-    dpt_web_app_stalwart -- "relay .onion" --> svc_tor_smtp
-    svc_tor_smtp -- "SOCKS5" --> dep_svc_net_tor
-    dep_svc_net_tor -. "Tor circuit" .-> onion
+    svc_tor_smtp -. "0..1" .-> dpt_web_app_stalwart
 ```
 
-Solid edges are fixed relationships; dashed edges are conditional. Node markers
-show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm).
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

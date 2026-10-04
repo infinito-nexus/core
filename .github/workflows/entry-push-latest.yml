@@ -2,7 +2,7 @@ name: "📤 Push"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
-  cancel-in-progress: ${{ github.ref_name != 'main' }}
+  cancel-in-progress: ${{ github.ref_name != 'main' || (github.ref_name == 'main' && startsWith(github.event.head_commit.message, 'Release version ')) }}
 
 on:
   push:
@@ -138,6 +138,7 @@ jobs:
     uses: ./.github/workflows/call-orchestrator.yml
     with:
       priority: ${{ needs.resolve-priority.outputs.priority }}
+      chunk_gate: ${{ !(github.ref_name == 'main' && needs.detect-release.outputs.is_version == 'true') }}
     secrets: inherit
 
   release-guard:
