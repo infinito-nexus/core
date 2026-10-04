@@ -22,7 +22,6 @@ CERTS_DIR = os.environ["CACHE_PACKAGE_TEST_CERTS_DIR"]
 REPOS = json.loads(os.environ["CACHE_PACKAGE_TEST_REPOS"])
 HOSTS = json.loads(os.environ["CACHE_PACKAGE_TEST_HOSTS"])
 
-MISSING = "404"
 UNREACHABLE = {"502", "503", "504", "000", ""}
 TIMEOUT = 60
 
@@ -72,16 +71,28 @@ def check_nexus_is_up() -> None:
 
 
 def check_every_declared_repository_exists() -> None:
-    """A repository Nexus does not hold answers 404 on its own root."""
-    for name in sorted(REPOS):
-        code = status(NEXUS, f"http://127.0.0.1:{PORT}/repository/{name}/")
-        if code == MISSING:
-            failures.append(
-                f"repository {name} is declared but Nexus answers 404 for it; "
-                "the bootstrap did not create it"
-            )
-        elif code in UNREACHABLE:
-            failures.append(f"repository {name} answered {code!r} on its root")
+    """Ask the registry which repositories Nexus holds."""
+    code, body = run(
+        NEXUS,
+        [
+            "curl",
+            "-sS",
+            "-k",
+            "--max-time",
+            "30",
+            f"http://127.0.0.1:{PORT}/service/rest/v1/repositories",
+        ],
+    )
+    if code != 0:
+        failures.append("Nexus did not answer the repository registry")
+        return
+
+    held = {entry.get("name") for entry in json.loads(body)}
+    for name in sorted(set(REPOS) - held):
+        failures.append(
+            f"repository {name} is declared but Nexus does not hold it; "
+            "the bootstrap did not create it"
+        )
 
 
 def check_frontend_serves_a_cert_per_tls_host() -> None:
