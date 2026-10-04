@@ -1,10 +1,13 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const SOURCE = "The reviewed sentence wins over every engine.";
 const REVIEWED = "Der geprüfte Satz gewinnt gegen jede Maschine.";
 const COMPONENT = "gateway-memory";
 const LANGUAGE = "de";
+const SOURCE_LANGUAGE = "en";
 const APPROVED = 30;
+const BASE_CATALOGUE = `msgid ""\nmsgstr ""\n\nmsgid "${COMPONENT}"\nmsgstr "${SOURCE}"\n`;
 
 async function ensureProject(shared, request) {
   const existing = await shared.weblate(request, `projects/${shared.weblateProject}/`);
@@ -30,16 +33,16 @@ async function ensureComponent(shared, request) {
   }
   const created = await shared.weblate(request, `projects/${shared.weblateProject}/components/`, {
     method: "POST",
-    data: {
+    multipart: {
       name: COMPONENT,
       slug: COMPONENT,
-      vcs: "local",
-      repo: "local:",
-      file_format: "po",
-      filemask: "*.po",
-      new_lang: "add",
-      manage_units: true,
-      source_language: { code: "en" },
+      file_format: "po-mono",
+      source_language: SOURCE_LANGUAGE,
+      docfile: {
+        name: `${SOURCE_LANGUAGE}.po`,
+        mimeType: "text/x-gettext-translation",
+        buffer: Buffer.from(BASE_CATALOGUE),
+      },
     },
   });
   expect(created.response.status(), `Weblate refused the component: ${await created.response.text()}`).toBe(201);
@@ -67,15 +70,14 @@ async function unitOf(shared, request) {
 }
 
 async function ensureReviewedUnit(shared, request) {
-  if (!(await unitOf(shared, request))) {
-    const added = await shared.weblate(request, `translations/${shared.weblateProject}/${COMPONENT}/${LANGUAGE}/units/`, {
-      method: "POST",
-      data: { context: "gateway-memory", source: SOURCE, target: REVIEWED },
-    });
-    expect(added.response.status(), `Weblate refused the unit: ${await added.response.text()}`).toBe(200);
-  }
-  const unit = await unitOf(shared, request);
-  expect(unit, "Expected the seeded unit to be searchable").toBeTruthy();
+  let unit;
+  await expect
+    .poll(async () => Boolean((unit = await unitOf(shared, request))), {
+      message: `Expected ${SOURCE_LANGUAGE} to reach ${LANGUAGE}; Weblate propagates a new base string asynchronously`,
+      timeout: resolveTimeout(180_000),
+      intervals: [2_000],
+    })
+    .toBe(true);
   const reviewed = await shared.weblate(request, `units/${unit.id}/`, {
     method: "PATCH",
     data: { target: [REVIEWED], state: APPROVED },

@@ -34,10 +34,15 @@ async function translate(request, payload) {
 }
 
 async function weblate(request, path, options = {}) {
+  const headers = { Authorization: `Token ${weblateToken}`, ...(options.headers || {}) };
+  if (!options.multipart) {
+    headers["Content-Type"] = "application/json";
+  }
+  const carried = options.multipart ? { multipart: options.multipart } : { data: options.data };
   const response = await request.fetch(`${weblateBaseUrl}/api/${path}`, {
-    headers: { Authorization: `Token ${weblateToken}`, "Content-Type": "application/json", ...(options.headers || {}) },
+    headers,
     method: options.method || "GET",
-    data: options.data,
+    ...carried,
     failOnStatusCode: false,
     timeout: resolveTimeout(120_000),
   });
