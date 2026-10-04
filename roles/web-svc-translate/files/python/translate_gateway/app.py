@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from translate_gateway.errors import GatewayError, NoBackendError
 
@@ -31,6 +31,10 @@ def create_app(gateway, engines, *, detector=None):
         if detector is not None:
             return detector
         return next((e for e in engines.values() if hasattr(e, "detect")), None)
+
+    @app.get("/", include_in_schema=False)
+    async def _root() -> RedirectResponse:
+        return RedirectResponse(url="/docs")
 
     @app.exception_handler(GatewayError)
     async def _refuse(_request: Request, exc: GatewayError) -> JSONResponse:
