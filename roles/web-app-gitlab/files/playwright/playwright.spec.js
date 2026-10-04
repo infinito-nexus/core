@@ -67,6 +67,7 @@ test("gitlab: a password-reset request is delivered to the recipient's mailbox",
   test.skip(!ssoEnabled, "the administrator account is created by the first SSO login");
   test.skip(!webmailBaseUrl, "the active mail provider serves no webmail vhost to read from");
   expect(adminEmail, "ADMIN_EMAIL must be set").toBeTruthy();
+  expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 
   await runAdminFlow(page);

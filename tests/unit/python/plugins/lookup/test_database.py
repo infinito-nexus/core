@@ -231,8 +231,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -409,8 +409,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 

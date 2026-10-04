@@ -52,7 +52,7 @@ api:
     internal:
       http: 8000
     local:
-      http: 8094
+      http: 8098
   healthcheck:
     flavor: http_status
   lifecycle: alpha

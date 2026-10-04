@@ -7,7 +7,7 @@
   ansible.builtin.command: "container restart {{ STALWART_CONTAINER }}_clamav"
   changed_when: true
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - STALWART_ANTIVIRUS_ENABLED | bool
     - stalwart_clamav_conf is defined
     - stalwart_clamav_conf is changed
@@ -16,7 +16,7 @@
   ansible.builtin.command: "container restart {{ STALWART_CONTAINER }}_webmail"
   changed_when: true
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - STALWART_SSO_ENABLED | bool
     - stalwart_webmail_conf is defined
     - stalwart_webmail_conf is changed
@@ -43,4 +43,4 @@
     - STALWART_IMPORT_MAILU | bool
     - "'web-app-mailu' in group_names"
     - STALWART_ACTIVE_PROVIDER | bool
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE

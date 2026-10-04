@@ -32,7 +32,7 @@ package:
   pids_limit: 512
   ports:
     local:
-      http: 8095
+      http: 8099
     internal:
       http: 8081
   blobstore_max: 40g

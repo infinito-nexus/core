@@ -13,7 +13,7 @@ from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
 from utils.domains.primary_domain import get_domain
 from utils.mail.provider import deployed_roles, resolve_active_provider
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
@@ -284,7 +284,7 @@ class LookupModule(LookupBase):
         either being named here.
         """
         services = self._provider_services(variables)
-        entity = get_entity_name(self._mail_provider(variables))
+        entity = entity_name(self._mail_provider(variables))
         entry = services.get(entity) or {}
         if not isinstance(entry, dict):
             return {}
