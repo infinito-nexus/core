@@ -26,7 +26,7 @@
  */
 
 const { performKeycloakLoginForm } = require("./keycloak");
-const { gotoOnion } = require("./env");
+const { gotoOnion } = require("./onion");
 const { resolveTimeout } = require("../../timeouts");
 
 const MAIL_UI = "#messagelist, .compose, a[href*='_action=compose'], .toolbar";
