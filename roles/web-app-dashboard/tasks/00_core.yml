@@ -18,16 +18,17 @@
     dashboard_i18n_content: "{{ lookup('i18n_content', 'role:', 'menu:') }}"
   run_once: true
 
-- name: "🌐 Write the port-ui content catalogs into the build context"
-  stack_host_files:
-    path: "{{ DASHBOARD_I18N_CONTENT_DIR }}"
-    documents: "{{ dashboard_i18n_content }}"
+- name: "🏠 Stack-host side of the dashboard deployment"
   when: IS_STACK_HOST | bool
-  notify:
-    - compose-build
-    - compose-up
-    - container-recreate
+  block:
+    - name: "🌐 Write the port-ui content catalogs into the build context"
+      stack_host_files:
+        path: "{{ DASHBOARD_I18N_CONTENT_DIR }}"
+        documents: "{{ dashboard_i18n_content }}"
+      notify:
+        - compose-build
+        - compose-up
+        - container-recreate
 
-- name: "👔 Dashboard manager-side operations (file deploys + container exec)"
-  include_tasks: 02_manager_ops.yml
-  when: IS_STACK_HOST | bool
+    - name: "👔 Dashboard manager-side operations (file deploys + container exec)"
+      include_tasks: 02_manager_ops.yml

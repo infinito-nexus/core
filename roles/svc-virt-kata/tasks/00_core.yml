@@ -35,57 +35,52 @@
 - name: "🔄 Restart the container daemon onto the sandbox runtime"
   meta: flush_handlers
 
-- name: "🔍 Read the runtime this node now defaults to"
-  ansible.builtin.command: >-
-    container info --format {{ '{{.DefaultRuntime}}' }}
-  register: svc_virt_kata_default_runtime
-  changed_when: false
-  when:
-    - IS_SWARM_MODE
-    - not (IS_STACK_HOST | bool)
-
-- name: "🛑 Refuse a sandbox node that still defaults to the shared kernel"
-  ansible.builtin.assert:
-    that:
-      - (svc_virt_kata_default_runtime.stdout | trim) != 'runc'
-    fail_msg: >-
-      This node is about to be labelled {{ SANDBOX_NODE_LABEL }}=true, which
-      routes every sandboxed service here, but its daemon still defaults to
-      '{{ svc_virt_kata_default_runtime.stdout | trim }}'. Swarm drops the
-      per-service runtime key, so the label would promise an isolation the node
-      cannot deliver and the agents would run on the host kernel.
-  when:
-    - IS_SWARM_MODE
-    - not (IS_STACK_HOST | bool)
-
-- name: "🏷️ Label this node as kata-capable"
-  ansible.builtin.command: >-
-    container node update --label-add {{ SANDBOX_NODE_LABEL }}=true
-    {{ ansible_facts['hostname'] }}
-  register: svc_virt_kata_label
-  changed_when: svc_virt_kata_label.rc == 0
-  delegate_to: "{{ STACK_HOST }}"
-  when:
-    - IS_SWARM_MODE
-    - not (IS_STACK_HOST | bool)
-
-- name: "🔍 Read back the nodes that carry the sandbox label"
-  ansible.builtin.command: >-
-    container node ls --filter node.label={{ SANDBOX_NODE_LABEL }}=true --quiet
-  register: svc_virt_kata_labelled_nodes
-  changed_when: false
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
+- name: "🐝 Bind the sandbox runtime to the swarm nodes"
   when: IS_SWARM_MODE
+  block:
+    - name: "🏷️ Verify and label this node as a sandbox node"
+      when: not (IS_STACK_HOST | bool)
+      block:
+        - name: "🔍 Read the runtime this node now defaults to"
+          ansible.builtin.command: >-
+            container info --format {{ '{{.DefaultRuntime}}' }}
+          register: svc_virt_kata_default_runtime
+          changed_when: false
 
-- name: "🛑 Refuse to promise isolation that no node can carry"
-  ansible.builtin.assert:
-    that:
-      - svc_virt_kata_labelled_nodes.stdout_lines | length > 0
-    fail_msg: >-
-      No node carries {{ SANDBOX_NODE_LABEL }}=true, so the placement constraint
-      of every sandboxed service matches nothing and the deploy would hang until
-      the convergence wait gives up. This role writes the label on every node it
-      runs on except the stack host, so put svc-virt-kata on at least one worker.
-  run_once: true
-  when: IS_SWARM_MODE
+        - name: "🛑 Refuse a sandbox node that still defaults to the shared kernel"
+          ansible.builtin.assert:
+            that:
+              - (svc_virt_kata_default_runtime.stdout | trim) != 'runc'
+            fail_msg: >-
+              This node is about to be labelled {{ SANDBOX_NODE_LABEL }}=true, which
+              routes every sandboxed service here, but its daemon still defaults to
+              '{{ svc_virt_kata_default_runtime.stdout | trim }}'. Swarm drops the
+              per-service runtime key, so the label would promise an isolation the node
+              cannot deliver and the agents would run on the host kernel.
+
+        - name: "🏷️ Label this node as kata-capable"
+          ansible.builtin.command: >-
+            container node update --label-add {{ SANDBOX_NODE_LABEL }}=true
+            {{ ansible_facts['hostname'] }}
+          register: svc_virt_kata_label
+          changed_when: svc_virt_kata_label.rc == 0
+          delegate_to: "{{ STACK_HOST }}"
+
+    - name: "🔍 Read back the nodes that carry the sandbox label"
+      ansible.builtin.command: >-
+        container node ls --filter node.label={{ SANDBOX_NODE_LABEL }}=true --quiet
+      register: svc_virt_kata_labelled_nodes
+      changed_when: false
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+
+    - name: "🛑 Refuse to promise isolation that no node can carry"
+      ansible.builtin.assert:
+        that:
+          - svc_virt_kata_labelled_nodes.stdout_lines | length > 0
+        fail_msg: >-
+          No node carries {{ SANDBOX_NODE_LABEL }}=true, so the placement constraint
+          of every sandboxed service matches nothing and the deploy would hang until
+          the convergence wait gives up. This role writes the label on every node it
+          runs on except the stack host, so put svc-virt-kata on at least one worker.
+      run_once: true

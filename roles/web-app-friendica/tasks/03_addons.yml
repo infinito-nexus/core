@@ -86,28 +86,29 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: ⏳ Wait until Friendica `hook` table is provisioned
-  ansible.builtin.shell: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
-    container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_LOCAL_CID | quote }} php --
-  args:
-    stdin: "{{ lookup('file', role_path + '/files/php/probe_hook_table.php') }}"
-  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
-  register: friendica_hook_table_ready
-  changed_when: false
-  failed_when: false
-  retries: 60
-  delay: 2
-  until: friendica_hook_table_ready.rc == 0
+- name: 🪝 Register the Friendica ldapauth hooks
   when: FRIENDICA_LDAP_ENABLED | bool
+  block:
+    - name: ⏳ Wait until Friendica `hook` table is provisioned
+      ansible.builtin.shell: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+        container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_LOCAL_CID | quote }} php --
+      args:
+        stdin: "{{ lookup('file', role_path + '/files/php/probe_hook_table.php') }}"
+      delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+      register: friendica_hook_table_ready
+      changed_when: false
+      failed_when: false
+      retries: 60
+      delay: 2
+      until: friendica_hook_table_ready.rc == 0
 
-- name: ✅ Verify ldapauth hooks are registered (re-cycle if missing)
-  ansible.builtin.shell: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
-    container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_LOCAL_CID | quote }} php -- ldapauth 2
-  args:
-    stdin: "{{ lookup('file', role_path + '/files/php/verify_addon_hooks.php') }}"
-  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
-  changed_when: false
-  when: FRIENDICA_LDAP_ENABLED | bool
+    - name: ✅ Verify ldapauth hooks are registered (re-cycle if missing)
+      ansible.builtin.shell: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+        container exec -i --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }} {{ FRIENDICA_LOCAL_CID | quote }} php -- ldapauth 2
+      args:
+        stdin: "{{ lookup('file', role_path + '/files/php/verify_addon_hooks.php') }}"
+      delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+      changed_when: false
 
 - name: "▶️ Run per-addon integration hooks for enabled addons"
   include_tasks: "addons/{{ addon.name }}.yml"

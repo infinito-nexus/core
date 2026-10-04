@@ -11,31 +11,32 @@
   changed_when: true
   delegate_to: "{{ OPENBAO_HOST_NODE }}"
 
-- name: "🔑 Register the SecretID this deploy was handed"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
-    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/custom-secret-id
-    secret_id=-
-  args:
-    stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
-    stdin_add_newline: false
-  changed_when: true
-  delegate_to: "{{ OPENBAO_HOST_NODE }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔑 Swap the AppRole SecretID for the one this deploy was handed"
   when: OPENBAO_SECRET_ID_ROTATING | bool
+  block:
+    - name: "🔑 Register the SecretID this deploy was handed"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/custom-secret-id
+        secret_id=-
+      args:
+        stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+        stdin_add_newline: false
+      changed_when: true
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🧹 Destroy the SecretID the previous deploy applied"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
-    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/secret-id/destroy
-    secret_id=-
-  args:
-    stdin: "{{ OPENBAO_SECRET_ID_REGISTERED }}"
-    stdin_add_newline: false
-  changed_when: true
-  delegate_to: "{{ OPENBAO_HOST_NODE }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: OPENBAO_SECRET_ID_ROTATING | bool
+    - name: "🧹 Destroy the SecretID the previous deploy applied"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/secret-id/destroy
+        secret_id=-
+      args:
+        stdin: "{{ OPENBAO_SECRET_ID_REGISTERED }}"
+        stdin_add_newline: false
+      changed_when: true
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "💾 Record the credentials this deploy applied"
   ansible.builtin.copy:

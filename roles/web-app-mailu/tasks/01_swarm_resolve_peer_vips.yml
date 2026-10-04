@@ -5,45 +5,46 @@
 # dials at startup (MAILU_SWARM_DB_HOST, MAILU_SWARM_REDIS_HOST). These facts
 # pin those names to the central services' overlay VIPs via admin `extra_hosts`,
 # resolved here at deploy time into literal IPs (extra_hosts rejects names).
-- name: "🔍 Resolve central mariadb/redis VIPs for admin extra_hosts (swarm)"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_CONTAINER }}"
-      - service
-      - inspect
-      - "{{ peer.service }}"
-      - "--format"
-      - "{% raw %}{{range .Endpoint.VirtualIPs}}{{.NetworkID}}={{.Addr}}#{{end}}{% endraw %}"
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  changed_when: false
-  register: mailu_swarm_vip_raw
+- name: "🔍 Inspect the central swarm peers behind admin extra_hosts"
   when: peer.name != 'redis' or not lookup('engine', 'redis', application_id, 'local')
-  loop:
-    - { name: db, service: "{{ MAILU_SWARM_DB_ENGINE }}_{{ MAILU_SWARM_DB_ENGINE }}", overlay: "{{ MAILU_SWARM_DB_ENGINE }}" }
-    - { name: redis, service: "redis_redis", overlay: "redis" }
-  loop_control:
-    loop_var: peer
+  block:
+    - name: "🔍 Resolve central mariadb/redis VIPs for admin extra_hosts (swarm)"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_CONTAINER }}"
+          - service
+          - inspect
+          - "{{ peer.service }}"
+          - "--format"
+          - "{% raw %}{{range .Endpoint.VirtualIPs}}{{.NetworkID}}={{.Addr}}#{{end}}{% endraw %}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      changed_when: false
+      register: mailu_swarm_vip_raw
+      loop:
+        - { name: db, service: "{{ MAILU_SWARM_DB_ENGINE }}_{{ MAILU_SWARM_DB_ENGINE }}", overlay: "{{ MAILU_SWARM_DB_ENGINE }}" }
+        - { name: redis, service: "redis_redis", overlay: "redis" }
+      loop_control:
+        loop_var: peer
 
-- name: "🔍 Resolve central overlay network ids (swarm)"
-  ansible.builtin.command:
-    argv:
-      - "{{ BIN_CONTAINER }}"
-      - network
-      - inspect
-      - "{{ peer.overlay }}"
-      - "--format"
-      - "{{ '{{.Id}}' }}"
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  changed_when: false
-  register: mailu_swarm_net_raw
-  when: peer.name != 'redis' or not lookup('engine', 'redis', application_id, 'local')
-  loop:
-    - { name: db, overlay: "{{ MAILU_SWARM_DB_ENGINE }}" }
-    - { name: redis, overlay: "redis" }
-  loop_control:
-    loop_var: peer
+    - name: "🔍 Resolve central overlay network ids (swarm)"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_CONTAINER }}"
+          - network
+          - inspect
+          - "{{ peer.overlay }}"
+          - "--format"
+          - "{{ '{{.Id}}' }}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      changed_when: false
+      register: mailu_swarm_net_raw
+      loop:
+        - { name: db, overlay: "{{ MAILU_SWARM_DB_ENGINE }}" }
+        - { name: redis, overlay: "redis" }
+      loop_control:
+        loop_var: peer
 
 - name: "🧰 Pin central mariadb VIP as an admin extra_hosts fact (swarm)"
   ansible.builtin.set_fact:

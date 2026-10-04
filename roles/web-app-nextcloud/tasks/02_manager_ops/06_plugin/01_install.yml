@@ -7,22 +7,23 @@
     plugin_archive: "{{ plugin_value.config.archive | default(plugin_value.archive | default('')) }}"
   changed_when: false
 
-- name: "⬇️ Stage the pinned {{ plugin_key }} release on the node"
-  get_url_retry:
-    url: "{{ plugin_archive }}"
-    dest: "/tmp/nextcloud-plugin-{{ plugin_key }}.tar.gz"
-    mode: "0644"
+- name: "⬇️ Stage the pinned {{ plugin_key }} archive release"
   when: plugin_archive | length > 0
+  block:
+    - name: "⬇️ Stage the pinned {{ plugin_key }} release on the node"
+      get_url_retry:
+        url: "{{ plugin_archive }}"
+        dest: "/tmp/nextcloud-plugin-{{ plugin_key }}.tar.gz"
+        mode: "0644"
 
-- name: "📦 Unpack the pinned {{ plugin_key }} release so occ finds it installed"
-  ansible.builtin.shell: >-
-    cat /tmp/nextcloud-plugin-{{ plugin_key }}.tar.gz
-    | {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }}
-    tar -xzf - -C {{ NEXTCLOUD_APPS_DIRECTORY | quote }}
-  args:
-    executable: /bin/bash
-  when: plugin_archive | length > 0
-  changed_when: false
+    - name: "📦 Unpack the pinned {{ plugin_key }} release so occ finds it installed"
+      ansible.builtin.shell: >-
+        cat /tmp/nextcloud-plugin-{{ plugin_key }}.tar.gz
+        | {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }}
+        tar -xzf - -C {{ NEXTCLOUD_APPS_DIRECTORY | quote }}
+      args:
+        executable: /bin/bash
+      changed_when: false
 
 - name: "🔴 Disable incompatible plugins for {{ plugin_key }} (batched shell, no async)"
   ansible.builtin.shell: |

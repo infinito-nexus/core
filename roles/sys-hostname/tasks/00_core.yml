@@ -1,11 +1,12 @@
 ---
-- name: ✅ Ensure hostname package is installed
-  become: true
-  package_install:
-    id: hostname-tool
+- name: 🔧 Set the host identity outside a container
   when: not DOCKER_IN_CONTAINER | bool
+  block:
+    - name: ✅ Ensure hostname package is installed
+      become: true
+      package_install:
+        id: hostname-tool
 
-- block:
     - name: 🔧 Set system hostname to inventory_hostname (FQDN recommended)
       ansible.builtin.hostname:
         name: "{{ inventory_hostname }}"
@@ -16,7 +17,6 @@
         regexp: "^127\\.0\\.1\\.1\\s+"
         line: "127.0.1.1 {{ inventory_hostname }}.localdomain {{ inventory_hostname }}"
         create: true
-  when: not DOCKER_IN_CONTAINER | bool
 
 - name: 📂 Include dependencies
   include_role:

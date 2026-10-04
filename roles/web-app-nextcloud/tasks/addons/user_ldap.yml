@@ -10,43 +10,41 @@
   register: nextcloud_ldap_config_probe
   changed_when: false
   failed_when: false
-- name: 🛑 Fail when LDAP config probe failed for unexpected reason
-  fail:
-    msg: >-
-      Could not verify Nextcloud LDAP config '{{ nextcloud_ldap_config_id }}'.
-      stdout='{{ nextcloud_ldap_config_probe.stdout }}'
-      stderr='{{ nextcloud_ldap_config_probe.stderr }}'
-  when:
-    - nextcloud_ldap_config_probe.rc != 0
-    - "'Invalid configID' not in ((nextcloud_ldap_config_probe.stdout) ~ (nextcloud_ldap_config_probe.stderr))"
-- name: 📁 Auto-create empty Nextcloud LDAP config when desired config ID is missing
-  shell: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:create-empty-config
-  register: nextcloud_ldap_config_create
-  changed_when: nextcloud_ldap_config_create.rc == 0
-  when:
-    - nextcloud_ldap_config_probe.rc != 0
-    - "'Invalid configID' in ((nextcloud_ldap_config_probe.stdout) ~ (nextcloud_ldap_config_probe.stderr))"
-- name: 🔎 Re-check desired Nextcloud LDAP config ID after auto-create
-  shell: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:show-config {{ nextcloud_ldap_config_id }}
-  register: nextcloud_ldap_config_reprobe
-  changed_when: false
-  failed_when: false
+- name: 🩺 Handle a failed Nextcloud LDAP config probe
+  when: nextcloud_ldap_config_probe.rc != 0
+  block:
+    - name: 🛑 Fail when LDAP config probe failed for unexpected reason
+      fail:
+        msg: >-
+          Could not verify Nextcloud LDAP config '{{ nextcloud_ldap_config_id }}'.
+          stdout='{{ nextcloud_ldap_config_probe.stdout }}'
+          stderr='{{ nextcloud_ldap_config_probe.stderr }}'
+      when: "'Invalid configID' not in ((nextcloud_ldap_config_probe.stdout) ~ (nextcloud_ldap_config_probe.stderr))"
+    - name: 📁 Auto-create empty Nextcloud LDAP config when desired config ID is missing
+      shell: >
+        {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:create-empty-config
+      register: nextcloud_ldap_config_create
+      changed_when: nextcloud_ldap_config_create.rc == 0
+      when: "'Invalid configID' in ((nextcloud_ldap_config_probe.stdout) ~ (nextcloud_ldap_config_probe.stderr))"
+- name: 🔎 Verify the Nextcloud LDAP config the auto-create produced
   when:
     - nextcloud_ldap_config_create is defined
     - nextcloud_ldap_config_create is changed
-- name: 🛑 Fail when desired LDAP config ID is still missing after auto-create
-  assert:
-    that:
-      - nextcloud_ldap_config_reprobe.rc == 0
-    fail_msg: >-
-      Nextcloud LDAP config '{{ nextcloud_ldap_config_id }}' is still missing after auto-create.
-      create_stdout='{{ nextcloud_ldap_config_create.stdout | default('') }}'
-      create_stderr='{{ nextcloud_ldap_config_create.stderr | default('') }}'
-  when:
-    - nextcloud_ldap_config_create is defined
-    - nextcloud_ldap_config_create is changed
+  block:
+    - name: 🔎 Re-check desired Nextcloud LDAP config ID after auto-create
+      shell: >
+        {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:show-config {{ nextcloud_ldap_config_id }}
+      register: nextcloud_ldap_config_reprobe
+      changed_when: false
+      failed_when: false
+    - name: 🛑 Fail when desired LDAP config ID is still missing after auto-create
+      assert:
+        that:
+          - nextcloud_ldap_config_reprobe.rc == 0
+        fail_msg: >-
+          Nextcloud LDAP config '{{ nextcloud_ldap_config_id }}' is still missing after auto-create.
+          create_stdout='{{ nextcloud_ldap_config_create.stdout | default('') }}'
+          create_stderr='{{ nextcloud_ldap_config_create.stderr | default('') }}'
 - name: 🔧 Set Nextcloud LDAP bind password
   shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:set-config {{ nextcloud_ldap_config_id }} ldapAgentPassword '{{ LDAP.BIND_CREDENTIAL }}'

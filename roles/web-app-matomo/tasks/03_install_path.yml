@@ -68,3 +68,4 @@
 
 - name: "📄 Matomo | Re-render consumer injections after the final compose flush"
   include_tasks: 08_reinject_consumers.yml
+  when: matomo_token_value is defined

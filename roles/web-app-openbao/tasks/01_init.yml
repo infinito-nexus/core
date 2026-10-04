@@ -91,45 +91,45 @@
   delegate_to: "{{ OPENBAO_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔐 Log in with the AppRole the previous deploy applied"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
-    bao write -field=token auth/approle/login
-    role_id={{ OPENBAO_APPLIED.approle_role_id | quote }} secret_id=-
-  args:
-    stdin: "{{ OPENBAO_APPLIED.approle_secret_id }}"
-    stdin_add_newline: false
-  register: openbao_approle_login_previous
-  changed_when: false
-  failed_when: false
-  delegate_to: "{{ OPENBAO_HOST_NODE }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when:
-    - openbao_approle_login.rc != 0
-    - OPENBAO_APPLIED.approle_role_id is defined
-
-- name: "🚑 Rebuild the AppRole from the recovery key when neither login is accepted"
-  when:
-    - openbao_approle_login.rc != 0
-    - (openbao_approle_login_previous.rc | default(1)) != 0
-    - (OPENBAO_RECOVERY_KEY | trim) | length > 0
+- name: "🚑 Recover the AppRole when the handed credentials are refused"
+  when: openbao_approle_login.rc != 0
   block:
-    - name: "🚑 Mint a root token and re-pin the AppRole"
-      ansible.builtin.include_tasks: utils/recover.yml
-
-    - name: "🔐 Log in with the rebuilt AppRole"
+    - name: "🔐 Log in with the AppRole the previous deploy applied"
       ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec -i {{ OPENBAO_LOCAL_CID | quote }}
         bao write -field=token auth/approle/login
-        role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }} secret_id=-
+        role_id={{ OPENBAO_APPLIED.approle_role_id | quote }} secret_id=-
       args:
-        stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+        stdin: "{{ OPENBAO_APPLIED.approle_secret_id }}"
         stdin_add_newline: false
-      register: openbao_approle_login_recovered
+      register: openbao_approle_login_previous
       changed_when: false
       failed_when: false
       delegate_to: "{{ OPENBAO_HOST_NODE }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      when: OPENBAO_APPLIED.approle_role_id is defined
+
+    - name: "🚑 Rebuild the AppRole from the recovery key when neither login is accepted"
+      when:
+        - (openbao_approle_login_previous.rc | default(1)) != 0
+        - (OPENBAO_RECOVERY_KEY | trim) | length > 0
+      block:
+        - name: "🚑 Mint a root token and re-pin the AppRole"
+          ansible.builtin.include_tasks: utils/recover.yml
+
+        - name: "🔐 Log in with the rebuilt AppRole"
+          ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+            container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+            bao write -field=token auth/approle/login
+            role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }} secret_id=-
+          args:
+            stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+            stdin_add_newline: false
+          register: openbao_approle_login_recovered
+          changed_when: false
+          failed_when: false
+          delegate_to: "{{ OPENBAO_HOST_NODE }}"
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔧 Keep whichever AppRole login succeeded"
   ansible.builtin.set_fact:

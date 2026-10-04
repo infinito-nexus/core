@@ -120,17 +120,16 @@
     - IS_STACK_HOST | bool
     - TOR_RESTART_REQUIRED | bool
 
-- name: "🧅 Wire the host-level transparent .onion egress router"
-  include_tasks:
-    file: router.yml
-    apply:
-      become: true
-  when:
-    - TOR_EGRESS_ROUTER_ENABLED | bool
-    - IS_COMPOSE_MODE or (IS_STACK_HOST | bool)
+- name: "🧅 Bring up the transparent .onion egress router"
+  when: TOR_EGRESS_ROUTER_ENABLED | bool
+  block:
+    - name: "🧅 Wire the host-level transparent .onion egress router"
+      include_tasks:
+        file: router.yml
+        apply:
+          become: true
+      when: IS_COMPOSE_MODE or (IS_STACK_HOST | bool)
 
-- name: "🧅 Verify the node onion is reachable"
-  ansible.builtin.include_tasks: onion_reach.yml
-  when:
-    - TOR_EGRESS_ROUTER_ENABLED | bool
-    - TOR_NODE_ONION | length > 0
+    - name: "🧅 Verify the node onion is reachable"
+      ansible.builtin.include_tasks: onion_reach.yml
+      when: TOR_NODE_ONION | length > 0

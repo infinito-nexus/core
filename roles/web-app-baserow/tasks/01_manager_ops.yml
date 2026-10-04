@@ -28,30 +28,28 @@
   delegate_to: "{{ BASEROW_HOST_NODE }}"
   run_once: true
 
-- name: "🔄 Restart Baserow application after applying migrations (compose mode)"
-  ansible.builtin.command: "container restart {{ BASEROW_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  runtime-resolved CID
-  register: baserow_restart_after_migrate
-  changed_when: baserow_restart_after_migrate.rc == 0
-  when:
-    - baserow_migrate_result.changed
-    - IS_COMPOSE_MODE
-
-- name: "🔄 Restart Baserow application after applying migrations (swarm mode)"
-  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
-  register: baserow_swarm_restart
-  changed_when: baserow_swarm_restart.rc == 0
-  timeout: "{{ lookup('timeout', 600) | int }}"
-  when:
-    - baserow_migrate_result.changed
-    - IS_SWARM_MODE
-
-- name: "🔍 Re-resolve the container the restart replaced"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
-    resolve_output_prefix: BASEROW
-    resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
+- name: "🔄 Restart Baserow once the migrations changed something"
   when: baserow_migrate_result.changed
+  block:
+    - name: "🔄 Restart Baserow application after applying migrations (compose mode)"
+      ansible.builtin.command: "container restart {{ BASEROW_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  runtime-resolved CID
+      register: baserow_restart_after_migrate
+      changed_when: baserow_restart_after_migrate.rc == 0
+      when: IS_COMPOSE_MODE
+
+    - name: "🔄 Restart Baserow application after applying migrations (swarm mode)"
+      ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
+      register: baserow_swarm_restart
+      changed_when: baserow_swarm_restart.rc == 0
+      timeout: "{{ lookup('timeout', 600) | int }}"
+      when: IS_SWARM_MODE
+
+    - name: "🔍 Re-resolve the container the restart replaced"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
+        resolve_output_prefix: BASEROW
+        resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
 
 - name: "🎬 Bootstrap Baserow superuser '{{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}'"
   ansible.builtin.shell:

@@ -39,31 +39,32 @@
       when: (site_check.json | length) > 0
       changed_when: false
 
-    - name: "➕ Add site to Matomo and get ID if not exists"
-      uri_retry:
-        url: "{{ matomo_index_php_url }}"
-        method: POST
-        body_format: form-urlencoded
-        body:
-          module: API
-          method: SitesManager.addSite
-          siteName: "{{ matomo_site_domain }}"
-          urls: "{{ matomo_site_url }}"
-          format: json
-          token_auth: "{{ matomo_effective_token }}"
-        status_code: 200
-        return_content: true
-        validate_certs: true
-      register: add_site
+    - name: "➕ Register the site at Matomo while its ID is unresolved"
       when: matomo_site_id == ""
-      failed_when: add_site.json is not defined or add_site.json.value is not defined
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      block:
+        - name: "➕ Add site to Matomo and get ID if not exists"
+          uri_retry:
+            url: "{{ matomo_index_php_url }}"
+            method: POST
+            body_format: form-urlencoded
+            body:
+              module: API
+              method: SitesManager.addSite
+              siteName: "{{ matomo_site_domain }}"
+              urls: "{{ matomo_site_url }}"
+              format: json
+              token_auth: "{{ matomo_effective_token }}"
+            status_code: 200
+            return_content: true
+            validate_certs: true
+          register: add_site
+          failed_when: add_site.json is not defined or add_site.json.value is not defined
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: "🔧 Set fact for site ID if site was added"
-      ansible.builtin.set_fact:
-        matomo_site_id: "{{ add_site.json.value }}"
-      when: matomo_site_id == ""
-      changed_when: false
+        - name: "🔧 Set fact for site ID if site was added"
+          ansible.builtin.set_fact:
+            matomo_site_id: "{{ add_site.json.value }}"
+          changed_when: false
   when: >-
     site_check.status is defined and site_check.status == 200
     and site_check.json is defined and site_check.json is not mapping

@@ -67,19 +67,20 @@
       - desired_group_mapper_raw_assert | length > 0
     fail_msg: "'ldap-roles' mapper missing in KEYCLOAK_DICTIONARY_REALM."
 
-- name: ✅ Assert | Extract desired groups.path
+- name: ✅ Assert | Resolve groups.path from the ldap-roles mapper
   when: desired_group_mapper_raw_assert | length > 0
-  set_fact:
-    desired_groups_path_assert: "{{ (desired_group_mapper_raw_assert.config['groups.path'] | default([])) | first | default('') | trim }}"
-    desired_groups_top_assert: "{{ desired_groups_path_assert.lstrip('/') | split('/') | first | default('') }}"
-  changed_when: false
+  block:
+    - name: ✅ Assert | Extract desired groups.path
+      set_fact:
+        desired_groups_path_assert: "{{ (desired_group_mapper_raw_assert.config['groups.path'] | default([])) | first | default('') | trim }}"
+        desired_groups_top_assert: "{{ desired_groups_path_assert.lstrip('/') | split('/') | first | default('') }}"
+      changed_when: false
 
-- name: ✅ Assert | groups.path defined when mapper exists
-  when: desired_group_mapper_raw_assert | length > 0
-  assert:
-    that:
-      - desired_groups_path_assert != ""
-    fail_msg: "ldap-roles mapper exists but config.groups.path is empty."
+    - name: ✅ Assert | groups.path defined when mapper exists
+      assert:
+        that:
+          - desired_groups_path_assert != ""
+        fail_msg: "ldap-roles mapper exists but config.groups.path is empty."
 
 - name: ✅ Assert | List ldap-roles mappers under LDAP component (client-side)
   set_fact:

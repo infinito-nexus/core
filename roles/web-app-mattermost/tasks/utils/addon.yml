@@ -1,32 +1,32 @@
 ---
-- name: "📦 Mattermost | Install {{ mattermost_addon.key }} from the plugin marketplace"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - "{{ MATTERMOST_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - "{{ MATTERMOST_MMCTL }}"
-      - --local
-      - plugin
-      - marketplace
-      - install
-      - "{{ mattermost_addon.value.config.plugin_id }}"
-  register: mattermost_addon_install
-  changed_when: mattermost_addon_install.rc == 0
-  failed_when: mattermost_addon_install.rc != 0 and (mattermost_addon.value.required | bool)
-  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
+- name: "📦 Mattermost | Provision the upstream {{ mattermost_addon.key }} plugin"
   when: mattermost_addon.value.source == 'upstream'
+  block:
+    - name: "📦 Mattermost | Install {{ mattermost_addon.key }} from the plugin marketplace"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - -i
+          - "{{ MATTERMOST_LOCAL_CID }}" # nocheck: container-exec-resolver
+          - "{{ MATTERMOST_MMCTL }}"
+          - --local
+          - plugin
+          - marketplace
+          - install
+          - "{{ mattermost_addon.value.config.plugin_id }}"
+      register: mattermost_addon_install
+      changed_when: mattermost_addon_install.rc == 0
+      failed_when: mattermost_addon_install.rc != 0 and (mattermost_addon.value.required | bool)
+      delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
-- name: "⚠️ Mattermost | Report the skipped {{ mattermost_addon.key }} install"
-  ansible.builtin.debug:
-    msg: >-
-      {{ application_id }}: optional addon '{{ mattermost_addon.key }}' stays absent -
-      'mmctl plugin marketplace install {{ mattermost_addon.value.config.plugin_id }}'
-      failed, so the plugin is neither installed nor enabled in this run.
-  when:
-    - mattermost_addon.value.source == 'upstream'
-    - (mattermost_addon_install.rc | default(0)) != 0
+    - name: "⚠️ Mattermost | Report the skipped {{ mattermost_addon.key }} install"
+      ansible.builtin.debug:
+        msg: >-
+          {{ application_id }}: optional addon '{{ mattermost_addon.key }}' stays absent -
+          'mmctl plugin marketplace install {{ mattermost_addon.value.config.plugin_id }}'
+          failed, so the plugin is neither installed nor enabled in this run.
+      when: (mattermost_addon_install.rc | default(0)) != 0
 
 - name: "🟢 Mattermost | Enable {{ mattermost_addon.key }}"
   ansible.builtin.command:

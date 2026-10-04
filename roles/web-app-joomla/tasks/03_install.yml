@@ -37,62 +37,61 @@
   failed_when: false
   delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
-- name: "📦 Joomla CLI install (rm stub + install in one retry loop for image-init race)"
-  ansible.builtin.command:
-    argv:
-      - bash
-      - -lc
-      - |
-        set -o pipefail
-        container exec {{ JOOMLA_LOCAL_CID | quote }} rm -f "{{ JOOMLA_CONFIG_FILE }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        exec container exec --user "{{ JOOMLA_WEB_USER }}" {{ JOOMLA_LOCAL_CID | quote }} \
-          php "{{ JOOMLA_INSTALLER_CLI_FILE }}" install \
-          "--db-type={{ JOOMLA_DB_CONNECTOR }}" \
-          "--db-host={{ lookup('database', application_id, 'host') }}" \
-          "--db-user={{ lookup('database', application_id, 'username') }}" \
-          "--db-pass=${J_DB_PASSWORD}" \
-          "--db-name={{ lookup('database', application_id, 'name') }}" \
-          "--admin-user={{ JOOMLA_USER }}" \
-          "--admin-username={{ JOOMLA_USER_NAME }}" \
-          "--admin-password=${J_ADMIN_PASSWORD}" \
-          "--admin-email={{ JOOMLA_USER_EMAIL }}" \
-          --no-interaction \
-          "--site-name={{ JOOMLA_SITE_NAME }}"
-  environment:
-    J_DB_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
-    J_ADMIN_PASSWORD: "{{ JOOMLA_USER_PASSWORD }}"
-  register: j_install
-  retries: 5
-  delay: 5
-  vars:
-    _joomla_install_soft_success: >-
-      {{
-        j_install.rc == 0
-        or (j_install.stdout | default('') is search('Unable to delete installation folder'))
-        or (j_install.stderr | default('') is search('deleteInstallationFolder'))
-      }}
-    _joomla_install_git_tree_refusal: >-
-      {{ j_install.stdout | default('') is search('trying to run Joomla! from our git repository') }}
-  until: _joomla_install_soft_success | bool
-  changed_when: _joomla_install_soft_success | bool
-  failed_when: >-
-    (
-      j_install.rc is defined
-      and j_install.rc != 0
-      and not (_joomla_install_soft_success | bool)
-    )
-    or (_joomla_install_git_tree_refusal | bool)
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "📦 Run the Joomla CLI installer and clear its stub"
   when:
     - joomla_installed.rc != 0
     - has_installer.rc == 0
-  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+  block:
+    - name: "📦 Joomla CLI install (rm stub + install in one retry loop for image-init race)"
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -lc
+          - |
+            set -o pipefail
+            container exec {{ JOOMLA_LOCAL_CID | quote }} rm -f "{{ JOOMLA_CONFIG_FILE }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+            exec container exec --user "{{ JOOMLA_WEB_USER }}" {{ JOOMLA_LOCAL_CID | quote }} \
+              php "{{ JOOMLA_INSTALLER_CLI_FILE }}" install \
+              "--db-type={{ JOOMLA_DB_CONNECTOR }}" \
+              "--db-host={{ lookup('database', application_id, 'host') }}" \
+              "--db-user={{ lookup('database', application_id, 'username') }}" \
+              "--db-pass=${J_DB_PASSWORD}" \
+              "--db-name={{ lookup('database', application_id, 'name') }}" \
+              "--admin-user={{ JOOMLA_USER }}" \
+              "--admin-username={{ JOOMLA_USER_NAME }}" \
+              "--admin-password=${J_ADMIN_PASSWORD}" \
+              "--admin-email={{ JOOMLA_USER_EMAIL }}" \
+              --no-interaction \
+              "--site-name={{ JOOMLA_SITE_NAME }}"
+      environment:
+        J_DB_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
+        J_ADMIN_PASSWORD: "{{ JOOMLA_USER_PASSWORD }}"
+      register: j_install
+      retries: 5
+      delay: 5
+      vars:
+        _joomla_install_soft_success: >-
+          {{
+            j_install.rc == 0
+            or (j_install.stdout | default('') is search('Unable to delete installation folder'))
+            or (j_install.stderr | default('') is search('deleteInstallationFolder'))
+          }}
+        _joomla_install_git_tree_refusal: >-
+          {{ j_install.stdout | default('') is search('trying to run Joomla! from our git repository') }}
+      until: _joomla_install_soft_success | bool
+      changed_when: _joomla_install_soft_success | bool
+      failed_when: >-
+        (
+          j_install.rc is defined
+          and j_install.rc != 0
+          and not (_joomla_install_soft_success | bool)
+        )
+        or (_joomla_install_git_tree_refusal | bool)
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
-- name: "💪 Force-remove installation folder (root)"
-  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ JOOMLA_LOCAL_CID | quote }} rm -rf /var/www/html/installation
-  changed_when: false
-  when:
-    - joomla_installed.rc != 0
-    - has_installer.rc == 0
-  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+    - name: "💪 Force-remove installation folder (root)"
+      shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ JOOMLA_LOCAL_CID | quote }} rm -rf /var/www/html/installation
+      changed_when: false
+      delegate_to: "{{ JOOMLA_HOST_NODE }}"

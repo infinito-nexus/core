@@ -1,19 +1,20 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "✅ Ensure unbound volumes directory exists"
-  ansible.builtin.file:
-    path: "{{ UNBOUND_VOLUMES_DIR }}"
-    state: directory
-    mode: "0755"
+- name: "📄 Lay down the unbound configuration on the stack host"
   when: IS_STACK_HOST | bool
+  block:
+    - name: "✅ Ensure unbound volumes directory exists"
+      ansible.builtin.file:
+        path: "{{ UNBOUND_VOLUMES_DIR }}"
+        state: directory
+        mode: "0755"
 
-- name: "📄 Render unbound.conf"
-  stack_host_template:
-    src: unbound.conf.j2
-    dest: "{{ UNBOUND_CONF_FILE }}"
-    mode: "0644"
-  when: IS_STACK_HOST | bool
+    - name: "📄 Render unbound.conf"
+      stack_host_template:
+        src: unbound.conf.j2
+        dest: "{{ UNBOUND_CONF_FILE }}"
+        mode: "0644"
 
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"

@@ -38,13 +38,14 @@
 - name: "📂 Load UserProfile (declarative) Update routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/07_userprofile.yml"
 
-- name: "📂 Load Realm User provisioning routines for '{{ application_id }}'"
-  include_tasks: "{{ role_path }}/tasks/update/08_users/realm.yml"
+- name: "📂 Load realm-local user and group provisioning routines"
   when: not KEYCLOAK_LDAP_ENABLED | bool
+  block:
+    - name: "📂 Load Realm User provisioning routines for '{{ application_id }}'"
+      include_tasks: "{{ role_path }}/tasks/update/08_users/realm.yml"
 
-- name: "📂 Load RBAC realm group provisioning routines for '{{ application_id }}'"
-  include_tasks: "{{ role_path }}/tasks/update/08_rbac_groups_realm.yml"
-  when: not KEYCLOAK_LDAP_ENABLED | bool
+    - name: "📂 Load RBAC realm group provisioning routines for '{{ application_id }}'"
+      include_tasks: "{{ role_path }}/tasks/update/08_rbac_groups_realm.yml"
 
 - name: "📂 Load Users Update routines for '{{ application_id }}' (emailVerified)"
   include_tasks: "{{ role_path }}/tasks/update/08_users/email_verified.yml"

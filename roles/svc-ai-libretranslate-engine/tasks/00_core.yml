@@ -54,6 +54,7 @@
 - name: "🎮 Verify the GPU reached {{ application_id }}"
   ansible.builtin.include_tasks: utils/assert_gpu.yml
   when:
+    - IS_STACK_HOST | bool
     - LIBRETRANSLATE_ENGINE_GPU | bool
     - sys_svc_container_nvidia_device is defined
     - sys_svc_container_nvidia_device.stat.exists

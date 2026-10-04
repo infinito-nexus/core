@@ -27,17 +27,18 @@
       (_playwright_ca_trust_name | length == 0)
     )
 
-- name: 🔎 Check CA certificate for Playwright injection
-  ansible.builtin.stat:
-    path: "{{ _playwright_ca_cert_host }}"
-  register: _playwright_ca_cert_stat
+- name: 🔎 Check the CA assets required for Playwright injection
   when: _playwright_ca_required | bool
+  block:
+    - name: 🔎 Check CA certificate for Playwright injection
+      ansible.builtin.stat:
+        path: "{{ _playwright_ca_cert_host }}"
+      register: _playwright_ca_cert_stat
 
-- name: 🔎 Check CA wrapper for Playwright injection
-  ansible.builtin.stat:
-    path: "{{ _playwright_ca_wrapper_host }}"
-  register: _playwright_ca_wrapper_stat
-  when: _playwright_ca_required | bool
+    - name: 🔎 Check CA wrapper for Playwright injection
+      ansible.builtin.stat:
+        path: "{{ _playwright_ca_wrapper_host }}"
+      register: _playwright_ca_wrapper_stat
 
 - name: 🛑 Fail if CA certificate is missing on host
   ansible.builtin.fail:
@@ -260,30 +261,29 @@
   changed_when: false
   failed_when: false
 
-- name: 💬 Print Playwright output (on failure)
-  ansible.builtin.debug:
-    msg: |
-      rc: {{ _playwright_run.rc | default('<absent: run was aborted>') }}
-
-      stdout:
-      {{ _playwright_run.stdout | default('') }}
-
-      stderr:
-      {{ _playwright_run.stderr | default(_playwright_run.msg | default('')) }}
+- name: 📝 Report and record the failed Playwright run
   when: (_playwright_run.rc | default(1)) != 0
-  changed_when: false
+  block:
+    - name: 💬 Print Playwright output (on failure)
+      ansible.builtin.debug:
+        msg: |
+          rc: {{ _playwright_run.rc | default('<absent: run was aborted>') }}
 
-- name: 📝 Record failure
-  ansible.builtin.set_fact:
-    _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
-  when: (_playwright_run.rc | default(1)) != 0
+          stdout:
+          {{ _playwright_run.stdout | default('') }}
 
-- name: 📝 Record a suite-budget timeout, which no retry can change
-  ansible.builtin.set_fact:
-    _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
-  when:
-    - (_playwright_run.rc | default(1)) != 0
-    - "'for the test suite to run' in (_playwright_run.stdout | default(''))"
+          stderr:
+          {{ _playwright_run.stderr | default(_playwright_run.msg | default('')) }}
+      changed_when: false
+
+    - name: 📝 Record failure
+      ansible.builtin.set_fact:
+        _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
+
+    - name: 📝 Record a suite-budget timeout, which no retry can change
+      ansible.builtin.set_fact:
+        _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
+      when: "'for the test suite to run' in (_playwright_run.stdout | default(''))"
 
 - name: 🗄️ Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-
