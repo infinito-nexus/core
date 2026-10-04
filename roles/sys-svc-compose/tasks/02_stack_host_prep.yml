@@ -16,3 +16,4 @@
 - name: "✅ Ensure CA trust assets are installed (only when needed)"
   ansible.builtin.include_role:
     name: sys-svc-compose-ca
+  when: run_once_sys_svc_compose_ca is not defined
