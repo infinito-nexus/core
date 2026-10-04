@@ -45,6 +45,15 @@ class TestImageDiscoveryVersionVariants(unittest.TestCase):
 
         self.assertIn("docker.io/libretranslate/libretranslate:v1.9.6-cuda", sources)
 
+    def test_only_the_variant_ref_is_marked_derived(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            services = Path(tmp) / "roles" / "svc-demo" / ROLE_FILE_META_SERVICES
+            services.parent.mkdir(parents=True)
+            services.write_text(WITH_VARIANTS, encoding="utf-8")
+            derived = {ref.version: ref.derived for ref in iter_role_images(Path(tmp))}
+
+        self.assertEqual({"v1.9.6": False, "v1.9.6-cuda": True}, derived)
+
     def test_blank_and_non_list_variants_are_ignored(self) -> None:
         for declaration in (
             '  version_variants: "-cuda"\n',

@@ -269,6 +269,8 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
     entries: list[DockerImageVersionEntry] = []
 
     for ref in iter_role_images(repo_root):
+        if ref.derived:
+            continue
         if ref.source_file != ROLE_FILE_META_SERVICES:
             continue
         if not is_semver(ref.version):

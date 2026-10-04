@@ -52,6 +52,9 @@ class ImageRef:
         source: full pull ref, e.g. ``docker.io/library/postgres:16``
         registry: source registry hostname, e.g. ``docker.io``, ``quay.io``
         source_file: role-relative file the ref was read from
+        derived: the ref carries a ``version_variants`` suffix rather than the
+            version the service declares, so it is a tag the mirror must carry
+            but never the version a role deploys
     """
 
     role: str
@@ -61,6 +64,7 @@ class ImageRef:
     source: str
     registry: str = "docker.io"
     source_file: str = ROLE_FILE_META_SERVICES
+    derived: bool = False
 
 
 def load_yaml(path: Path) -> dict:
@@ -238,4 +242,5 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
                     source=image_source(image, tag),
                     registry=_detect_registry(image),
                     source_file=ROLE_FILE_META_SERVICES,
+                    derived=bool(suffix),
                 )

@@ -27,6 +27,8 @@ def main() -> int:
     applications: dict = {}
 
     for img in iter_role_images(repo_root):
+        if img.derived:
+            continue
         app = applications.setdefault(img.role, {})
         services = app.setdefault("services", {})
         services[str(img.service)] = {
