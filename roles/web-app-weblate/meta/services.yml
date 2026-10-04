@@ -59,6 +59,8 @@ weblate:
   version: "2026.9"
   min_storage: 1GB
   ports:
+    local:
+      http: 8100
     internal:
       http: 8080
   lifecycle: beta

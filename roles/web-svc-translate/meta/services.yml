@@ -39,6 +39,8 @@ translate:
   custom: true
   min_storage: 256MB
   ports:
+    local:
+      http: 8101
     internal:
       http: 8000
   lifecycle: beta

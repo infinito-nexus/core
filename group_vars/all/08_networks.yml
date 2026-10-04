@@ -36,7 +36,7 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
   local:
     http:
       start: 8001
-      end: 8099
+      end: 8107
     agent:
       start: 8500
       end: 8599
