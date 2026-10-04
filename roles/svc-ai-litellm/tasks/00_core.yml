@@ -43,6 +43,14 @@
   ansible.builtin.set_fact:
     LITELLM_MEASURED_SPEED: "{{ (litellm_speed_stored.content | b64decode | from_json) if litellm_speed_file.stat.exists else {} }}"
 
+- name: "📁 Create the decider package directory"
+  ansible.builtin.file:
+    path: "{{ LITELLM_DECIDER_DIR_HOST }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
 - name: "🧩 Stage the decider package beside the router hook"
   stack_host_copy:
     src: "{{ [ LITELLM_DECIDER_SOURCE_DIR, item ] | path_join }}"
