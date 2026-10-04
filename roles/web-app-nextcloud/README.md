@@ -42,7 +42,7 @@ flowchart LR
         dep_web_app_zammad["web-app-zammad 🐳🐝"]
         dep_web_svc_collabora["web-svc-collabora 🐳🐝"]
         dep_web_svc_coturn["web-svc-coturn 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
         dep_web_svc_onlyoffice["web-svc-onlyoffice 🐳🐝"]
     end
@@ -70,7 +70,7 @@ flowchart LR
         svc_minio["minio ❌"]
         svc_seaweedfs["seaweedfs"]
         svc_talk_recording["talk_recording"]
-        svc_css["css"]
+        svc_design["design"]
         svc_hcaptcha["hcaptcha"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
@@ -119,7 +119,7 @@ flowchart LR
     dep_web_svc_collabora -. "0..1" .-> svc_collabora
     dep_web_svc_coturn -. "0..1" .-> svc_coturn
     dep_web_svc_coturn -. "0..1" .-> svc_talk
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
     dep_web_svc_onlyoffice -. "0..1" .-> svc_onlyoffice
 ```
@@ -272,6 +272,7 @@ A detailed documentation for the use and administration of Nextcloud on Infinito
 - [LDAP Integration Guide](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)
 - [OIDC Login Plugin (pulsejet)](https://github.com/pulsejet/nextcloud-oidc-login)
 - [Sociallogin Plugin (Official)](https://apps.nextcloud.com/apps/sociallogin)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/EgeKuEAytigC2ZCz3k5hDu)
 
 ## Persona contract opt-outs
 

@@ -5,3 +5,60 @@ data:
   mounts:
     - service: gitea
       target: /data
+
+design_logo_svg:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitea', 'directories.config'), 'design', 'logo.svg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: gitea
+      target: /data/gitea/public/assets/img/logo.svg
+      when: &gitea_design_logo_when >-
+        {{ (lookup('config', 'web-app-gitea', 'services.design.enabled') | bool)
+           and (lookup('config', 'web-app-gitea', 'services.design.logo', lookup('config', 'web-svc-design', 'services.design.logo')) | string | lower)
+           not in ['false', '0'] }}
+
+design_logo_png:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitea', 'directories.config'), 'design', 'logo.png'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: gitea
+      target: /data/gitea/public/assets/img/logo.png
+      when: *gitea_design_logo_when
+
+design_favicon_svg:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitea', 'directories.config'), 'design', 'favicon.svg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: gitea
+      target: /data/gitea/public/assets/img/favicon.svg
+      when: *gitea_design_logo_when
+
+design_favicon_png:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitea', 'directories.config'), 'design', 'favicon.png'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: gitea
+      target: /data/gitea/public/assets/img/favicon.png
+      when: *gitea_design_logo_when
+
+design_apple_touch_icon:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitea', 'directories.config'), 'design', 'apple-touch-icon.png'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: gitea
+      target: /data/gitea/public/assets/img/apple-touch-icon.png
+      when: *gitea_design_logo_when
+
+design_home:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitea', 'directories.config'), 'design', 'home.tmpl'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: gitea
+      target: /data/gitea/templates/home.tmpl
+      when: "{{ lookup('config', 'web-app-gitea', 'services.design.enabled') | bool }}"

@@ -7,7 +7,7 @@ exports.register = function (shared) {
   test("taiga themed routes stay aligned across stable routes", async ({ page }) => {
     const session = await shared.loginToTaiga(page);
 
-    const cssEnabled = isServiceEnabled("css");
+    const cssEnabled = isServiceEnabled("design");
 
     const routeChecks = [
       {

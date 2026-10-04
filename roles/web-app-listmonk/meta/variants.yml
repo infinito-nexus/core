@@ -31,7 +31,7 @@
     seaweedfs:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     tor:
@@ -72,7 +72,7 @@
     seaweedfs:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     tor:

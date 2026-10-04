@@ -17,7 +17,7 @@ DECIDIM_OIDC_AUTHORIZE_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 DECIDIM_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
 DECIDIM_OIDC_USER_INFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 
-DECIDIM_ORGANIZATION_NAME: "{{ defaults_service_provider.platform.titel }}"
+DECIDIM_ORGANIZATION_NAME: "{{ lookup('design', application_id).label }}"
 
 DECIDIM_PATCH_SCRIPT_FILE: "patch.py"
 DECIDIM_PATCH_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), DECIDIM_PATCH_SCRIPT_FILE ] | path_join }}"

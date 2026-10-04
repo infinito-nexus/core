@@ -34,10 +34,17 @@ DASHBOARD_OIDC_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services
 
 DASHBOARD_CONTAINER: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.name') }}"
 
-DASHBOARD_PLATFORM_LOGO_SOURCE: "{{ service_provider.platform.logo | string }}"
+DASHBOARD_DESIGN_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.design.enabled') | bool }}"
+DASHBOARD_DESIGN_LOGO_ENABLED: "{{ DASHBOARD_DESIGN_ENABLED | bool and lookup('design', DASHBOARD_APPLICATION_ID).logo is string }}"
+DASHBOARD_DESIGN_TITLE_ENABLED: "{{ DASHBOARD_DESIGN_ENABLED | bool and lookup('design', DASHBOARD_APPLICATION_ID).title is string }}"
+
+DASHBOARD_PLATFORM_TITLE: "{{ lookup('design', DASHBOARD_APPLICATION_ID).title if DASHBOARD_DESIGN_TITLE_ENABLED | bool else service_provider.platform.titel }}"
+DASHBOARD_PLATFORM_LOGO_SOURCE: "{{ lookup('design', DASHBOARD_APPLICATION_ID).urls.logo.png if DASHBOARD_DESIGN_LOGO_ENABLED | bool else service_provider.platform.logo
+  | string }}"
 DASHBOARD_PLATFORM_LOGO_URL: "{{ ('https:' ~ DASHBOARD_PLATFORM_LOGO_SOURCE) if DASHBOARD_PLATFORM_LOGO_SOURCE.startswith('//') else DASHBOARD_PLATFORM_LOGO_SOURCE
   }}"
-DASHBOARD_PLATFORM_FAVICON_SOURCE: "{{ service_provider.platform.favicon | string }}"
+DASHBOARD_PLATFORM_FAVICON_SOURCE: "{{ lookup('design', DASHBOARD_APPLICATION_ID).urls.favicon if DASHBOARD_DESIGN_LOGO_ENABLED | bool else service_provider.platform.favicon
+  | string }}"
 DASHBOARD_PLATFORM_FAVICON_URL: "{{ ('https:' ~ DASHBOARD_PLATFORM_FAVICON_SOURCE) if DASHBOARD_PLATFORM_FAVICON_SOURCE.startswith('//') else DASHBOARD_PLATFORM_FAVICON_SOURCE
   }}"
 DASHBOARD_COMPANY_LOGO_SOURCE: "{{ service_provider.company.logo | string }}"

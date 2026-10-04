@@ -24,7 +24,7 @@ flowchart LR
         svc_asset["asset"]
         svc_file["file"]
         svc_matomo["matomo"]
-        svc_css["css ❌"]
+        svc_design["design ❌"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
     end

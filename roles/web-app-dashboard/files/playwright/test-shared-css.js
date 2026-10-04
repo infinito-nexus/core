@@ -13,11 +13,20 @@ async function getComputedStyleProperty(locator, propertyName) {
 }
 
 async function expectDashboardCssEffects(page) {
-  const styledCardIcon = page.locator(".card-img-top i").first();
+  const card = page.locator(".card").first();
 
-  if ((await styledCardIcon.count().catch(() => 0)) > 0) {
-    const iconFilter = await getComputedStyleProperty(styledCardIcon, "filter");
-    expect(iconFilter, "Expected dashboard card icons to receive the role-local drop shadow style").not.toBe("none");
+  if ((await card.count().catch(() => 0)) > 0) {
+    const [actual, expected] = await card.evaluate((element) => {
+      const probe = document.createElement("span");
+      probe.style.backgroundColor = "var(--design-surface-2)";
+      document.body.appendChild(probe);
+      const token = window.getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return [window.getComputedStyle(element).backgroundColor, token];
+    });
+    expect(actual, "Expected dashboard cards to take the corporate surface token instead of the port-ui default").toBe(
+      expected
+    );
     return;
   }
 
@@ -37,7 +46,7 @@ async function expectDashboardCssEffects(page) {
 
 exports.register = function (shared) {
   test("dashboard injects shared CSS assets when css service is enabled", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("css");
+    shared.skipUnlessServiceEnabled("design");
 
     const diagnostics = shared.attachDiagnostics(page);
     const documentResponse = await gotoOnion(page, "/");

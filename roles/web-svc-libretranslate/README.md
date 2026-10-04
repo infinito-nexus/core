@@ -38,7 +38,7 @@ flowchart LR
         dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
     end
     subgraph role [web-svc-libretranslate 🐳🐝]
         svc_libretranslate["libretranslate"]
@@ -46,7 +46,7 @@ flowchart LR
         svc_logout["logout ❌"]
         svc_matomo["matomo"]
         svc_redis["redis"]
-        svc_css["css"]
+        svc_design["design"]
         svc_recaptcha["recaptcha"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
@@ -65,7 +65,7 @@ flowchart LR
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

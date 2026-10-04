@@ -25,7 +25,7 @@
     prometheus:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     seaweedfs:
@@ -57,7 +57,7 @@
     prometheus:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     seaweedfs:

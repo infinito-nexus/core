@@ -272,6 +272,30 @@ console:
 cosmos:
 	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
 
+.PHONY: design-gallery
+# Rerun the design spec of a deployed app and copy its before/after screenshots to /tmp/design-gallery/<app>/ (no redeploy).
+# Usage: make design-gallery app=<application_id>
+# Param app: deployed application id
+design-gallery:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' bash scripts/tests/design/gallery.sh
+
+.PHONY: design-queue
+# Print the roles that are due for a design pass in working order (new roles first, then by version gap).
+# Usage: make design-queue [args="--next|--all|--format json"]
+# Param args: extra flags for the queue CLI
+design-queue:
+	@"$${PYTHON}" -m cli.meta.roles.design $(args)
+
+.PHONY: design-sync
+# Re-render shared CSS, role style.css and the branding assets of a deployed app (no redeploy; injected scripts stay as deployed).
+# Usage: make design-sync app=<application_id> [variant=<idx>]
+# Param app: deployed application id
+# Param variant: matrix round index the app was deployed with
+design-sync:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' variant='$(variant)' bash scripts/tests/design/sync.sh
+
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
 diagnose-disk-usage:

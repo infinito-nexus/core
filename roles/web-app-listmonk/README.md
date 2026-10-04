@@ -30,7 +30,7 @@ flowchart LR
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_asset["web-svc-asset 💻"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-listmonk 🐳🐝]
@@ -44,7 +44,7 @@ flowchart LR
         svc_listmonk["listmonk"]
         svc_minio["minio ❌"]
         svc_seaweedfs["seaweedfs"]
-        svc_css["css"]
+        svc_design["design"]
         svc_hcaptcha["hcaptcha"]
         svc_prometheus["prometheus"]
         svc_listmonkmcp["listmonkmcp"]
@@ -66,7 +66,7 @@ flowchart LR
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_asset -. "0..1" .-> svc_asset
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 

@@ -28,10 +28,10 @@
     public: true
   when: inj_enabled.dashboard
 
-- name: "🟢 Activate Corporate CSS for '{{ domain }}'"
+- name: "🟢 Activate Corporate Design for '{{ domain }}'"
   include_role:
-    name: sys-front-inj-css
-  when: inj_enabled.css
+    name: sys-front-inj-design
+  when: inj_enabled.design
 
 - name: "🟢 Activate Matomo Tracking for '{{ domain }}'"
   include_role:

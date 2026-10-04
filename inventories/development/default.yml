@@ -32,10 +32,12 @@ networks:
     ip6: "{{ lookup('env', 'INFINITO_IP6') }}"
     dns: "{{ lookup('env', 'INFINITO_DNS_IP') }}"
 
-design:
-  css:
-    colors:
-      base: "#FFA500"
+applications:
+  web-svc-design:
+    services:
+      design:
+        colors:
+          base: "#FFA500"
 
 API:
   openai:

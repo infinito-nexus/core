@@ -1,7 +1,7 @@
 /* Global Base Styling */
 body {
-    background-color: var(--color-01-90);
-    color: var(--color-01-05);
+    background-color: var(--design-primary-200);
+    color: var(--design-text);
     min-height: 100vh;
     padding-bottom: 4rem;
 }
@@ -11,18 +11,18 @@ body {
     border-radius: 1rem;
     background: radial-gradient(
     circle at top left,
-    rgba(var(--color-rgb-01-10), 0.95),
-    rgba(var(--color-rgb-01-20), 0.90)
+    rgba(var(--design-primary-950-rgb), 0.95),
+    rgba(var(--design-primary-950-rgb), 0.90)
     );
-    border: 1px solid rgba(var(--color-rgb-01-40), 0.35);
-    box-shadow: 0 18px 45px rgba(var(--color-rgb-01-90), 0.65);
+    border: 1px solid rgba(var(--design-primary-800-rgb), 0.35);
+    box-shadow: 0 18px 45px rgba(var(--design-primary-200-rgb), 0.65);
     transition: transform .12s ease-out, box-shadow .12s ease-out, border-color .12s ease-out;
 }
 
 .app-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 22px 60px rgba(var(--color-rgb-01-90), 0.90);
-    border-color: rgba(var(--color-rgb-01-30), 0.70);
+    box-shadow: 0 22px 60px rgba(var(--design-primary-200-rgb), 0.90);
+    border-color: rgba(var(--design-primary-900-rgb), 0.70);
 }
 
 .app-icon {

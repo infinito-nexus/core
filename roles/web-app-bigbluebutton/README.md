@@ -28,7 +28,7 @@ flowchart LR
         dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_collabora["web-svc-collabora 🐳🐝"]
         dep_web_svc_coturn["web-svc-coturn 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-bigbluebutton 🐳🐝]
@@ -43,7 +43,7 @@ flowchart LR
         svc_greenlight["greenlight"]
         svc_coturn["coturn"]
         svc_collabora["collabora"]
-        svc_css["css"]
+        svc_design["design"]
         svc_prometheus["prometheus"]
         svc_bbb_web["bbb-web"]
         svc_freeswitch["freeswitch"]
@@ -76,7 +76,7 @@ flowchart LR
     dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_collabora -. "0..1" .-> svc_collabora
     dep_web_svc_coturn -. "0..1" .-> svc_coturn
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_sso -. "0..1" .-> dpt_web_app_nextcloud
 ```

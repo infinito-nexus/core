@@ -8,7 +8,7 @@
 - services:
     phpmyadmin:
       autologin: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -31,7 +31,7 @@
     tor:
       enabled: true
 - services:
-    css:
+    design:
       enabled: false
       shared: false
     dashboard:

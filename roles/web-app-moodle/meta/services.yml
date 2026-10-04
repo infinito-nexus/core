@@ -56,7 +56,6 @@ moodle:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
-  site_titel: Academy on {{ DOMAIN_PRIMARY }}
   performance:
     php:
       memory_limit: 512M
@@ -100,11 +99,12 @@ cron:
   pids_limit: 256
   # nocheck: single-replica moodle cron.php scheduler; concurrent replicas double-run scheduled tasks
   replicas: 1
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: Academy on {{ DOMAIN_PRIMARY }}
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

@@ -26,7 +26,7 @@ flowchart LR
         dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-checkmk 🐳🐝]
@@ -36,7 +36,7 @@ flowchart LR
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
         svc_email["email"]
-        svc_css["css"]
+        svc_design["design"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_checkmk["checkmk"]
@@ -59,7 +59,7 @@ flowchart LR
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 

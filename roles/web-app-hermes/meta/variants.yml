@@ -16,7 +16,7 @@
     matomo:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     prometheus:
@@ -39,7 +39,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     prometheus:
@@ -62,7 +62,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     prometheus:

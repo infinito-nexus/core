@@ -25,11 +25,13 @@ flowchart LR
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_coturn["web-svc-coturn 🐳🐝"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-socialhome 🐳🐝]
         svc_socialhome["socialhome"]
         svc_coturn["coturn"]
+        svc_design["design"]
         svc_prometheus["prometheus"]
         svc_logout["logout"]
         svc_dashboard["dashboard"]
@@ -43,6 +45,7 @@ flowchart LR
     dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_coturn -. "0..1" .-> svc_coturn
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
     linkStyle 3 stroke:red;
 ```

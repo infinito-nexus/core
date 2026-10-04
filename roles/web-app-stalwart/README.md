@@ -76,7 +76,7 @@ flowchart LR
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-stalwart 🐳🐝]
@@ -89,7 +89,7 @@ flowchart LR
         svc_postgres["postgres"]
         svc_webmail["webmail"]
         svc_clamav["clamav"]
-        svc_css["css"]
+        svc_design["design"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_tor_smtp["tor-smtp"]
@@ -118,7 +118,7 @@ flowchart LR
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_stalwart -- "1:1" --> dpt_more
     svc_stalwart -- "1:1" --> dpt_sys_ctl_alm_email

@@ -46,7 +46,6 @@ mediawiki:
   backup:
     no_stop_required: true
   name: mediawiki
-  sitename: Wiki on {{ DOMAIN_PRIMARY | upper }}
   ports:
     local:
       http: 8004
@@ -64,11 +63,12 @@ mediawiki:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
-# nocheck: playwright-service-flag — CSS consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: Wiki on {{ DOMAIN_PRIMARY | upper }}
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

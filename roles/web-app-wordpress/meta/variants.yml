@@ -13,7 +13,7 @@
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     discourse:
@@ -56,7 +56,7 @@
     wordpress:
       multisite:
         enabled: true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     discourse:

@@ -2,7 +2,7 @@
 application_id: "web-app-mediawiki"
 entity_name: "{{ application_id | get_entity_name }}"
 
-MEDIAWIKI_SITENAME: "{{ lookup('config', application_id, 'services.mediawiki.sitename') }}"
+MEDIAWIKI_SITENAME: "{{ lookup('design', application_id).label }}"
 MEDIAWIKI_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
 MEDIAWIKI_HTML_DIR: "/var/www/html"

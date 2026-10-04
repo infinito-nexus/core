@@ -25,7 +25,7 @@ flowchart LR
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-decidim 🐳🐝]
@@ -37,7 +37,7 @@ flowchart LR
         svc_postgres["postgres"]
         svc_decidim["decidim"]
         svc_redis["redis"]
-        svc_css["css"]
+        svc_design["design"]
         svc_prometheus["prometheus"]
         svc_seaweedfs["seaweedfs"]
         svc_tor["tor"]
@@ -53,7 +53,7 @@ flowchart LR
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 

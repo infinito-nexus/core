@@ -23,7 +23,7 @@ flowchart LR
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
     end
     subgraph role [web-app-hermes 🐳🐝]
         svc_hermes["hermes"]
@@ -33,7 +33,7 @@ flowchart LR
         svc_litellm["litellm"]
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
-        svc_css["css"]
+        svc_design["design"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
@@ -61,7 +61,7 @@ flowchart LR
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     svc_hermes -- "1:1" --> dpt_more
     svc_hermes -. "0..1" .-> dpt_svc_ai_robot
     svc_hermes -. "0..1" .-> dpt_svc_db_qdrant

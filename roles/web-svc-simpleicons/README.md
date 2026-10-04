@@ -25,7 +25,7 @@ flowchart LR
         svc_dashboard["dashboard ❌"]
         svc_matomo["matomo ❌"]
         svc_redis["redis"]
-        svc_css["css ❌"]
+        svc_design["design ❌"]
         svc_recaptcha["recaptcha"]
         svc_simpleicons["simpleicons"]
         svc_prometheus["prometheus"]

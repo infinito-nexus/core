@@ -8,7 +8,7 @@
 # local deploy, pin one: `make compose-deploy apps=web-app-stalwart variant=0`.
 
 - services:
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -31,7 +31,7 @@
     tor:
       enabled: true
 - services:
-    css:
+    design:
       enabled: false
       shared: false
     dashboard:

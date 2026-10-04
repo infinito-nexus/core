@@ -27,11 +27,11 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
   # nocheck: matomo-track - root serves Werkzeug's default 404 without </head>/<body>, head injection cannot anchor
   track: false
-# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag - design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
   # nocheck: matomo-track - same 404-without-anchors page, shared CSS <link> cannot inject
   track: false
 prometheus:

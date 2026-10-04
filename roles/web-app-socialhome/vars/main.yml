@@ -5,7 +5,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 SOCIALHOME_EXTERNAL_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 SOCIALHOME_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.local.http') }}"
 SOCIALHOME_LISTEN_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
-SOCIALHOME_INSTANCE_NAME: "{{ defaults_service_provider.platform.titel }}"
+SOCIALHOME_INSTANCE_NAME: "{{ lookup('design', application_id).label }}"
 
 SOCIALHOME_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
 SOCIALHOME_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"

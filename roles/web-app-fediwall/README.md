@@ -27,13 +27,13 @@ flowchart LR
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
     end
     subgraph role [web-app-fediwall 🐳🐝]
         svc_logout["logout ❌"]
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
-        svc_css["css"]
+        svc_design["design"]
         svc_email["email ❌"]
         svc_sso["sso ❌"]
         svc_prometheus["prometheus"]
@@ -50,7 +50,7 @@ flowchart LR
     dep_web_app_matomo -- "1:1" --> svc_matomo
     dep_web_app_prometheus -- "1:1" --> svc_prometheus
     dep_web_app_stalwart -- "0..0" --> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     linkStyle 3,7 stroke:red;
 ```
 

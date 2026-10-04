@@ -1,2 +1,0 @@
----
-# nocheck: info-media Self-written infrastructure/glue role that owns the `css` service flag and redirects to the CDN; no upstream third-party product.

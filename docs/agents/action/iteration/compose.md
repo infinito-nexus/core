@@ -15,12 +15,12 @@ For iterating on GitHub Actions workflows with Act, see [Workflow Loop](workflow
 - Before starting the loop, you MUST propose disabling all non-necessary services via the `disable=` make arg to reduce resource usage. In the typical case, this means keeping only the database and disabling everything else. Only proceed without this proposal if the user has already confirmed a full-stack setup.
 - Non-essential provider toggle:
   - WHEN: before first deploy of iteration.
-  - ACTION: ask user "disable matomo, dashboard, prometheus, email, css providers? [Y/n]".
+  - ACTION: ask user "disable matomo, dashboard, prometheus, email, design providers? [Y/n]".
   - DEFAULT: yes (disable all five).
   - SKIP ASK: only if user already answered explicitly in this iteration.
-  - ON YES: pass `disable="matomo,dashboard,prometheus,email,css"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
+  - ON YES: pass `disable="matomo,dashboard,prometheus,email,design"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
   - ON NO: omit the arg entirely.
-  - SIDE EFFECT (yes): inventory initializer auto-removes the provider roles `web-app-matomo`, `web-app-dashboard`, `web-app-prometheus`, `web-app-mailu`, and `web-svc-css`. Do NOT list them in `apps=`.
+  - SIDE EFFECT (yes): inventory initializer auto-removes the provider roles `web-app-matomo`, `web-app-dashboard`, `web-app-prometheus`, `web-app-mailu`, and `web-svc-design`. Do NOT list them in `apps=`.
   - PERSIST: record answer at top of iteration. Reuse for all subsequent deploys without re-asking.
 - You MUST run `make test` before every deploy. Only proceed with the deploy if all tests pass.
 - You MUST prepend `INFINITO_PLAYWRIGHT_KEEP=true` to every `make compose-deploy` command in the iteration (any mode), so trace, screenshot, and video of passing Playwright tests stay inspectable. Omit only when the user has explicitly opted out of per-test artefacts. For the full propagation chain see [Playwright Tests](../../../contributing/actions/testing/playwright.md#artefact-retention-).

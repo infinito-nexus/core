@@ -25,14 +25,14 @@ flowchart LR
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
     end
     subgraph role [web-svc-onlyoffice 🐳🐝]
         svc_matomo["matomo"]
         svc_redis["redis"]
         svc_postgres["postgres"]
         svc_onlyoffice["onlyoffice"]
-        svc_css["css"]
+        svc_design["design"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
@@ -46,7 +46,7 @@ flowchart LR
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     svc_matomo -. "0..1" .-> dpt_web_app_nextcloud
 ```
 

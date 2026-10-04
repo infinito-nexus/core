@@ -4,7 +4,7 @@ const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("taiga public discover keeps the themed surface", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("css");
+    shared.skipUnlessServiceEnabled("design");
 
     const taigaUrls = shared.getTaigaUrls();
 

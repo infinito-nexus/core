@@ -26,12 +26,12 @@ flowchart LR
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_design["web-svc-design 💻"]
     end
     subgraph role [web-svc-logout 🐳🐝]
         svc_logout["logout"]
         svc_matomo["matomo"]
-        svc_css["css"]
+        svc_design["design"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
@@ -54,7 +54,7 @@ flowchart LR
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_design -. "0..1" .-> svc_design
     svc_logout -- "1:1" --> dpt_more
     svc_logout -. "0..1" .-> dpt_web_app_akaunting
     svc_logout -. "0..1" .-> dpt_web_app_baserow
