@@ -19,49 +19,8 @@ permissions:
   contents: read
 
 jobs:
-  sync-main:
-    name: 🔄 Sync main
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: ⬇️ Checkout repository
-        uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: 🧭 Decide whether this repository mirrors main
-        id: decide
-        shell: bash
-        env:
-          CI_SYNC_MAIN_DECIDE_ONLY: "true"
-          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
-          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
-          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
-        run: ./scripts/github/sync/main_from_repository.sh
-
-      - name: ⚙️ Generate app token
-        if: steps.decide.outputs.sync == 'true'
-        id: app-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
-          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
-
-      - name: 🔄 Sync main from source repository
-        if: steps.decide.outputs.sync == 'true'
-        shell: bash
-        env:
-          CI_SYNC_MAIN_PUSH_TOKEN: ${{ steps.app-token.outputs.token }}
-          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
-          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
-          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
-        run: ./scripts/github/sync/main_from_repository.sh
-
   run-policy:
     name: 🧭 Decide CI policy
-    needs: sync-main
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -79,9 +38,13 @@ jobs:
       - name: ⬇️ Fetch main
         if: github.event.created == true
         shell: bash
+        env:
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
+          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
         run: |
           set -euo pipefail
-          git fetch origin main:refs/remotes/origin/main --force
+          git fetch "$(./scripts/meta/resolve/baseline_remote.sh)" main:refs/remotes/origin/main --force
 
       - name: 🤔 Decide whether CI should run for this push
         id: decide

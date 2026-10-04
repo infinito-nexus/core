@@ -10,7 +10,6 @@ This directory holds the shell helpers that GitHub Actions workflows under [`.gi
 | [cancel/](cancel/) | Cancellation of in-progress workflow runs on PR-close and branch-delete events. |
 | [cleanup/](cleanup/) | Scheduled repository maintenance that prunes stale GitHub resources. |
 | [resolve/](resolve/) | Derivation of structured workflow inputs and outputs from repository state. |
-| [sync/](sync/) | Ref synchronization before workflow jobs derive CI scope from git history. |
 | [update/](update/) | The scheduled `🔄 Update versions` pipeline (version bumps and PR open/refresh). |
 | [i18n/](i18n/) | Catalog extraction and machine translation for the per-language runners of `🌐 Translate catalogs`. |
 | [release/](release/) | Release-time gates that decide whether a tagged commit may be released. |
