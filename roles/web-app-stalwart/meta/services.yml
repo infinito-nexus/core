@@ -121,7 +121,7 @@ webmail:
 clamav:
   enabled: true
   shared: false
-  image: clamav/clamav
+  image: clamav/clamav-debian
   version: "1.5.4"
   ports:
     internal:
