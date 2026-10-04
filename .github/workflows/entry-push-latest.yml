@@ -19,28 +19,8 @@ permissions:
   contents: read
 
 jobs:
-  sync-main:
-    name: 🔄 Sync main
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: ⬇️ Checkout repository
-        uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-
-      - name: 🔄 Sync main from source repository
-        shell: bash
-        env:
-          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
-          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
-          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
-        run: ./scripts/github/sync/main_from_repository.sh
-
   run-policy:
     name: 🧭 Decide CI policy
-    needs: sync-main
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,9 +38,13 @@ jobs:
       - name: ⬇️ Fetch main
         if: github.event.created == true
         shell: bash
+        env:
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
+          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
         run: |
           set -euo pipefail
-          git fetch origin main:refs/remotes/origin/main --force
+          git fetch "$(./scripts/meta/resolve/baseline_remote.sh)" main:refs/remotes/origin/main --force
 
       - name: 🤔 Decide whether CI should run for this push
         id: decide

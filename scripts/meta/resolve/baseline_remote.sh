@@ -1,7 +1,20 @@
 #!/usr/bin/env bash
+#
+# Output: the git remote carrying the upstream main that CI diffs against —
+# either the literal `origin` or a fetch URL, usable as
+# `git fetch "$(baseline_remote.sh)" main:refs/remotes/origin/main`.
+#
+# Env:
+#   GITHUB_REPOSITORY                        - owner/repo of the running job; unset means a local clone
+#   CI_SYNC_MAIN_SOURCE_REPOSITORY           - upstream repository, a GitHub URL, or a disabled value
+#   CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET    - "true" when the variable above is declared
+#   CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT   - fallback upstream (default: infinito-nexus/core)
 set -euo pipefail
 
-: "${GITHUB_REPOSITORY:?Missing GITHUB_REPOSITORY}"
+if [[ -z "${GITHUB_REPOSITORY:-}" ]]; then
+	echo origin
+	exit 0
+fi
 
 default_source="${CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT:-infinito-nexus/core}"
 configured_source="${CI_SYNC_MAIN_SOURCE_REPOSITORY:-}"
@@ -18,7 +31,7 @@ source_lower="$(printf '%s' "${source_trimmed}" | tr '[:upper:]' '[:lower:]')"
 
 case "${source_lower}" in
 "" | "false" | "0" | "no" | "off" | "none")
-	echo "Main sync skipped because CI_SYNC_MAIN_SOURCE_REPOSITORY is disabled."
+	echo origin
 	exit 0
 	;;
 esac
@@ -37,7 +50,7 @@ target_repository="$(normalize_repository "${GITHUB_REPOSITORY}")"
 source_repository="$(normalize_repository "${source_trimmed}")"
 
 if [[ "${source_repository}" == "${target_repository}" ]]; then
-	echo "Main sync skipped because source repository matches current repository: ${GITHUB_REPOSITORY}."
+	echo origin
 	exit 0
 fi
 
@@ -46,6 +59,4 @@ if [[ "${source_repository}" != */* ]]; then
 	exit 1
 fi
 
-echo "Syncing ${GITHUB_REPOSITORY}:main from ${source_repository}:main."
-git fetch "https://github.com/${source_repository}.git" main:refs/remotes/main-sync-source/main --force
-git push origin refs/remotes/main-sync-source/main:refs/heads/main --force
+echo "https://github.com/${source_repository}.git"
