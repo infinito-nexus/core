@@ -25,22 +25,35 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: 🧭 Decide whether this repository mirrors main
+        id: decide
+        shell: bash
+        env:
+          CI_SYNC_MAIN_DECIDE_ONLY: "true"
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
+          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
+        run: ./scripts/github/sync/main_from_repository.sh
+
       - name: ⚙️ Generate app token
+        if: steps.decide.outputs.sync == 'true'
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
           client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
-      - name: ⬇️ Checkout repository
-        uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token }}
-
       - name: 🔄 Sync main from source repository
+        if: steps.decide.outputs.sync == 'true'
         shell: bash
         env:
+          CI_SYNC_MAIN_PUSH_TOKEN: ${{ steps.app-token.outputs.token }}
           CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
           CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
           CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
