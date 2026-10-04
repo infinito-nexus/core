@@ -88,11 +88,11 @@ def check_every_declared_repository_exists() -> None:
         return
 
     held = {entry.get("name") for entry in json.loads(body)}
-    for name in sorted(set(REPOS) - held):
-        failures.append(
-            f"repository {name} is declared but Nexus does not hold it; "
-            "the bootstrap did not create it"
-        )
+    failures.extend(
+        f"repository {name} is declared but Nexus does not hold it; "
+        "the bootstrap did not create it"
+        for name in sorted(set(REPOS) - held)
+    )
 
 
 def check_frontend_serves_a_cert_per_tls_host() -> None:
