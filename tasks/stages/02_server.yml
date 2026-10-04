@@ -14,17 +14,15 @@
   loop_control:
     loop_var: server_role
 
-- name: "🥾 Bootstrap the swarm node and NFS client before the web-app render"
-  when: "'svc-swarm-node' in group_names"
-  block:
-    - name: "🥾 Bootstrap the swarm node"
-      ansible.builtin.include_role:
-        name: svc-swarm-node
-
-    - name: "🥾 Bootstrap the NFS client"
-      ansible.builtin.include_role:
-        name: svc-storage-nfs-client
-      when: "'svc-storage-nfs-client' in group_names"
+- name: "🥾 Bootstrap swarm cluster + NFS clients (must precede web-app render)"
+  ansible.builtin.include_role:
+    name: "{{ item }}"
+  loop:
+    - svc-swarm-node
+    - svc-storage-nfs-client
+  when:
+    - "'svc-swarm-node' in group_names"
+    - item != 'svc-storage-nfs-client' or 'svc-storage-nfs-client' in group_names
 
 - name: "📂 Include server roles"
   include_tasks: ./tasks/utils/setup/group.yml
