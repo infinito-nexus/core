@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "警报"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "装有 SMTP、IMAP、JMAP、POP的全自动 Stalwart 邮件服务器3,管理Sieve, CalDAV, CardDAV 和内置垃圾邮件过滤"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "分析"
@@ -198,8 +203,8 @@ msgstr "所有 OIDC 连接的应用程序的单动作签出中央登录代理,�
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "通过 Mailu 、 msmtp 或可选的本地 SMTP 中继器的中央邮件管弦系统路由主机邮件"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "中央邮局 Infinito.Nexus,整合电子邮件 SaaS, msmtp,以及可选的本地 SMTP 中继器"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1464,6 +1469,11 @@ msgstr "系统监测和健康检查的作用——包括装瓶式自动检查和
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN-aware 证书提供者为前代 TLS 层生成和存储自签名的 TLS 证书"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP 网关,通过 Tor 的 SOCKS 收听器转发.ion 收件人"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

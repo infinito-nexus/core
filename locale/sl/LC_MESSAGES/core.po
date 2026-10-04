@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Opozorilo"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "Vse-v-enem Stalwart poštni strežnik s SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV in vgrajeno neželeno filtriranje"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Analitika"
@@ -196,8 +201,8 @@ msgstr "Centralni posrednik za odjavo za enkratni odpis v vseh aplikacijah, pove
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Centralna mail orkestracijska plast usmerja gostiteljsko pošto preko Mailu, msmtp, ali izbirna lokalna rele SMTP"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Vloga orkestracije centralne pošte za Infinito.Nexus, povezovanje Email SaaS, msmtp, in neobvezno lokalno SMTP rele"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1446,6 +1451,11 @@ msgstr "Vloge za spremljanje sistema in zdravstvene preglede – vključuje avto
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "Izvajalec potrdil SAN-aware, ki proizvaja in shranjuje samopodpisana potrdila TLS za prednji proxy TLS sloj"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP vrata, ki releji .onion prejemnike skozi Tor je SOCKS poslušalec"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

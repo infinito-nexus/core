@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Figyelmeztetés"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "All-in-one Stalwart mail szerver SMTP, IMAP, JMAP, POP3, Managesieve, CalDAV, CardDAV és építményi spam szűrés"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Analitikai módszerek"
@@ -196,8 +201,8 @@ msgstr "Központi kijelentkezési proxy minden OIDC-csatlakozású alkalmazásn�
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Központi mail hangszerelési réteg routing host mail keresztül Mailu, msmtp, vagy egy opcionális helyi SMTP relé"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Központi levelezési hangszerelési szerep Infinito.Nexus, integrálása Email SaaS, msmtp, és egy opcionális helyi SMTP relé"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1447,6 +1452,11 @@ msgstr "A rendszerellenőrzés és az egészségügyi ellenőrzések görbéi - 
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN- aware tanúsítvány szolgáltató, amely az elülső proxy TLS réteghez saját aláírással ellátott TLS tanúsítványokat állít elő és tárol"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP átjáró, hogy relays .hagyma recipiens keresztül Tor SOCKS hallgató"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

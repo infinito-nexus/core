@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Alertado"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "All-in-unu Stalwart-poŝtoservilo kun SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV kaj enkonstruita spamfiltrado"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Analytics"
@@ -196,8 +201,8 @@ msgstr "Centra logoutpro por unu-aga signo-eliro trans ĉiuj OIDC-rilataj progra
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Centra poŝta instrumentado tavolo vojiganta mastro-poŝton tra Mailu, msmtp, aŭ laŭvola loka SMTP relajso"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Centra poŝtreĝisorrolo por Infinito.Nexus, integri retpoŝto SaaS, msmtp, kaj laŭvola loka SMTP relajso"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1446,6 +1451,11 @@ msgstr "Roloj por sistemmonitorado kaj sankontroloj - inkluzive de bot-stilaj a�
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN-konscia atestadprovizanto generanta kaj stokante mem-subskribitajn TLS atestilojn por la front-proxy TLS-tavolo"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP-enirejo kiu relajas .onion ricevantoj tra la SOCKS aŭskultanto de Tor"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

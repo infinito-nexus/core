@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Помилки"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "Статус на сервери3, ManageSieve, CalDAV, CardDAV та вбудований спам-фільтр"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Аналітика"
@@ -196,8 +201,8 @@ msgstr "Центральний проксі-сервер для одноразо
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Центральний поштовий симфонічний шар маршрутної пошти через Mailu, msmtp або додаткові локальні реле SMTP"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Роль центральної пошти оркестру Infinito.Nexus, інтеграція електронної пошти SaaS, msmtp та додаткова локальна версія SMTP"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1444,6 +1449,11 @@ msgstr "Ролі для системного моніторингу та пер�
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "Сертифікат SAN-Aware, що генерує та зберігають самовивісні сертифікати TLS на шар передньої проксі TLS"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP шлюз, який реле .onion одержувачів через слухач Tor's SOCKS"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

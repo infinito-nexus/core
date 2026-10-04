@@ -55,6 +55,10 @@ msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
 msgstr ""
 
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr ""
+
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr ""
@@ -160,7 +164,7 @@ msgid "Central logout proxy for single-action sign-out across all OIDC-connected
 msgstr ""
 
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
 msgstr ""
 
 msgctxt "category:svc.dns:description"
@@ -1157,6 +1161,10 @@ msgstr ""
 
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
+msgstr ""
+
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr ""
 
 msgctxt "menu:Sales:title"

@@ -68,6 +68,14 @@ msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
 msgstr "الإنذار"
 
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Allin-one Stalwart mail server with SMTP, IMAP, JMAP,
+# POP3, ManageSieve, CalDAV, CardDAV and built-in spam filter
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
@@ -208,8 +216,8 @@ msgstr "الوكيل المركزي لقطع الغيار للتوقيع على 
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "الطبقة البريدية المركزية Mailuأو نقلة محلية اختيارية"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "دور تنسيق البريد المركزي Infinito.Nexus, إدماج البريد الإلكتروني SaaS, mstp, and an optional local SMTP relay"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1593,6 +1601,11 @@ msgstr ":: دور رصد النظام والفحص الصحي - بما في ذل
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "بوابة SMTP التي تنفق على المستفيدين من خلال مستمع SOCKS تور"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

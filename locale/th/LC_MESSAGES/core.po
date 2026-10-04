@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "แจ้งเตือน"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "เซิร์ฟเวอร์จดหมายแบบรวมทั้งหมดด้วย SMTP, IMAP, JMAP, POP3, จัดการ Sieeve, CalDAV, CardDAV และทําการกรองสแปมภายใน"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "วิเคราะห์"
@@ -196,8 +201,8 @@ msgstr "แม่ข่ายระบบกลางสําหรับบร
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Central Press Expression ชั้นเพลง routing mail ผ่าน Mailu, msmtp หรือส่วนอื่น ๆ ของ SMTP Taily"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Central Press Academy for Infinito.Nexus, International mail Saas, msmtp, และเลือก SMTP Taily ในท้องถิ่น"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1461,6 +1466,11 @@ msgstr "บทบาทสําหรับการตรวจสอบระ
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN - ตระหนักถึงผู้จัดทําใบรับรองและเก็บใบรับรอง TLS ที่มีการเซ็นด้วยตนเองสําหรับชั้น TLS หน้า"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "ประตู SMTP ที่ส่งผู้รับ TOion ผ่านผู้ฟังของทอร์"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

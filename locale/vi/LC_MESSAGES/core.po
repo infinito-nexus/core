@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Báo động"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "Tất cả các trong một máy chủ thư điện tử Stalwart với SP, IMAPP, JMAP, PP3, Bộ quản lý, CalDAV, CardAV và bộ lọc bộ nhớ có sẵn"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Phân tích"
@@ -198,8 +203,8 @@ msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Trình chuyển đổi màn hình nền trung tâm cho máy chủ hướng dẫn thư qua Mailu, msmtp, hoặc một trình tiếp SMTP cục bộ tùy chọn"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Vai trò phối hợp thư trung tâm Infinito.Nexus, Kết hợp thư điện tử SaaS, msmtp, và một bản sao lưu Sổ địa phương tùy chọn"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1464,6 +1469,11 @@ msgstr "Vai trò của việc giám sát hệ thống và kiểm tra sức khỏ
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "Nhà cung cấp chứng nhận SAN- ý thức được tạo ra và lưu trữ các chứng nhận hệ điều hành hệ thống máy phục vụ chính của mình cho lớp dựa trên thay đổi thời gian"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "Cửa ra SMP chuyển tiếp người nhận tín hiệu qua thính giả SOCKS của Tor"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

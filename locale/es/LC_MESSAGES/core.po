@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Alerta"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "Todo en uno servidor de correo Stalwart con SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV y filtro de spam incorporado"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Análisis"
@@ -196,8 +201,8 @@ msgstr "Proxy central para el registro de una sola acción a través de todas la
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Central mail orquestation layer routing host mail through Mailu, msmtp, or an Optional local SMTP relay"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Función central de orquestación por correo Infinito.Nexus, integrando el correo electrónico SaaS, msmtp y un relé SMTP local opcional"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1451,6 +1456,11 @@ msgstr "Funciones para la vigilancia del sistema y los controles de salud: la in
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "proveedor de certificados SAN-aware generando y almacenando certificados TLS auto-firmados para la capa TLS frontal-proxy"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "Pista SMTP que transmite a los receptores de .onion a través del oyente SOCKS de Tor"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

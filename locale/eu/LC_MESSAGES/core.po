@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Alerta"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "Posta-zerbitzari egonkor bat SMTP, IMAP, JMAP, POP-ekin3, KudeatuSieve, CalDAV, CardDAV eta spam iragazki integratua"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Analisia"
@@ -196,8 +201,8 @@ msgstr "Saio erdiko proxy-a ekintza bakarreko saioa hasteko OIDC-rekin konektatu
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Posta zentraleko orkestrazio-geruza ostalari-posta Mailu, msmtp edo aukerako SMTP errelebo lokalaren bidez bideratzeko"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Mezuak orkestratzeko paper nagusia Infinito.Nexus, Posta elektronikoa SaaS, msmtp eta aukerako SMTP errelebo lokala integratzea"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1443,6 +1448,11 @@ msgstr "Sistemaren monitorizaziorako eta osasun-kontroletarako funtzioak: bot-es
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN-aware ziurtagiri-hornitzaileak TLS ziurtagiri propioak sortzen eta gordetzen ditu aurreko proxy-aren geruzarako"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP atebidea, Torren SOCKS entzulearen bidez .onion hartzaileak errelebokatzen dituena"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

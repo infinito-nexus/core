@@ -64,6 +64,14 @@ msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
 msgstr "সতর্কবার্তা"
 
+# translation-refused: libretranslate added-span lost=[] gained=['%s']
+# nocheck: url
+# translation-rejected: IMAP, IMAP সার্ভার %s-র মধ্যে মেইল প্রেরণ করা হচ্ছে3;
+# Syv, CalDAV, কার্ডADV, এবং স্প্যাম ফিল্টার পরিচালনা করুন
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
@@ -201,8 +209,8 @@ msgstr "OIDC-র মাধ্যমে লগ-আউট করার জন্�
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "সেন্ট্রাল মেইল পাঠানো হচ্ছেName Mailu- msmtp, বা ঐচ্ছিক স্থানীয় SMTP রিলে"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "কেন্দ্রীয় মেইল পাঠানোর ভূমিকা Infinito.Nexus- ই-মেইল সাসা, msp, এবং একটি ঐচ্ছিক স্থানীয় SMTP রিলেটার"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1463,6 +1471,11 @@ msgstr "সিস্টেম মনিটরিং এবং স্বাস্
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "সম্মুখ-proxy TLSয়ের জন্য Synet সার্টিফিকেট প্রেরণ এবং সংরক্ষণ করুন"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "Seternet conles reternet'র মাধ্যমে SMTP গেটওয়ে"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

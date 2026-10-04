@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Qalereya"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "SMTP, IMAP, JMAP, POP3, Qeydiyyatdan keçirilmişdir."
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Analytics"
@@ -199,8 +204,8 @@ msgstr "Nginx komponentləri və canlı status UI"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Mərkəzi e-poçt routing host e-poçt Mailu, msmtp, və ya isteğe bağlı yerli SMTP rəsmi"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Mərkəzi e-poçt korporativ rolu Infinito.Nexus, E-poçt ünvanı"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1468,6 +1473,11 @@ msgstr "Sistem monitorinq və sağlamlıq çekləri üçün rollar - bot-style a
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN-aware sertifikatı təchizatçısı ön-proxy TLS kağızı üçün öz imzalanmış TLS sertifikatlarını quraşdırmaq və saxlamaq"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "Torun əlavəçiləri ilə .onion alıcıları SMTP Gateway"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

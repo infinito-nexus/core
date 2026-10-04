@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Tahadhari ya"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "Wote katika moja Stalwart mail server na SMTP, IMAP, JMAP, POP3, KusimamiaSieve, CalDAV, CardDAV na filtering ya ndani ya spam"
+
+# translated-by: libretranslate
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Analytics Analytics Analytics Analytics Analytics
@@ -204,8 +209,8 @@ msgstr "Wakala wa kati wa kuingia kwa hatua moja katika programu zote za OIDC, n
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Central mail orchestration safu routing mwenyeji barua kupitia Mailu, msmtp, au hiari ya ndani SMTP relay"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Orodha ya barua pepe kwa ajili ya Infinito.Nexus, Kuunganisha Barua pepe SaaS, msmtp, na relay ya ndani ya SMTP"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1466,6 +1471,11 @@ msgstr "Majukumu ya ufuatiliaji wa mfumo na ukaguzi wa afya-kuhusisha hundi za a
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "Mtoa cheti cha SAN-kutambua kuzalisha na kuhifadhi vyeti vya TLS vilivyosainiwa kwa safu ya mbele-proxy TLS"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "Mlango wa SMTP ambao unapeana wapokeaji wa .onion kupitia wasikilizaji wa SOCKS wa Tor"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Amharc ar gach eolas"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "Gach-i-amháin freastalaí phost Stalwart le SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV agus tógtha i spam scagadh"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Anailíseoir"
@@ -196,8 +201,8 @@ msgstr "seachfhreastalaí logála lárnach le haghaidh comharthaí aon-gníomh a
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Ríomhphost lárnach ciseal orchestration ródú phost óstach trí Mailu, msmtp, nó sealaíochta áitiúil roghnach SMTP"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Príomhról na ceolfhoirne poist Infinito.Nexus, chomhtháthú Ríomhphost SaaS, msmtp, agus sealaíocht áitiúil roghnach SMTP"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1451,6 +1456,11 @@ msgstr "Róil le haghaidh monatóireacht córas agus seiceálacha sláinte-seice
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "Soláthraí deimhniú SAN-aware ag giniúint agus ag stóráil deimhnithe TLS féin-sínithe don chiseal tosaigh-proxy TLS"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP geata a Relays .onion faighteoirí trí éisteacht SOCKS Tor"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

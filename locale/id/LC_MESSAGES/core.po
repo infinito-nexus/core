@@ -65,6 +65,11 @@ msgid "Alerting"
 msgstr "Alerting"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "All-in-one Stalwart mail server dengan SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV dan built-in filter spam"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Analitik"
@@ -196,8 +201,8 @@ msgstr "Proksi logout pusat untuk single-action sign-out seluruh aplikasi yang t
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Lapisan orchetation surat tengah routing host melalui Mailu, msmtp, atau sebuah relay lokal SMTP"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Peran orkestra surat utama untuk Infinito.Nexus, mengintegrasikan Email SaaS, msmtp, dan sebuah relay lokal SMTP"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1438,6 +1443,11 @@ msgstr "Peran untuk pemantauan sistem dan pemeriksaan kesehatan - meliputi pemer
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN-aware certificate provider generator and storage self-signed TLS certicates for the front- proxy TLS layer"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "Gateway SMTP yang meneruskan penerima .onion melalui pendengar SOCKS Tor"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"

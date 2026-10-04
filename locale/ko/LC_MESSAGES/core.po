@@ -67,6 +67,11 @@ msgid "Alerting"
 msgstr "회사 소개"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "SMTP, IMAP, JMAP, POP를 가진 All-in-one Stalwart 우편 서버3, ManageSieve, CalDAV, CardDAV 및 내장 스팸 필터링"
+
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "회사 소개"
@@ -203,8 +208,8 @@ msgstr "Nginx snippets 및 라이브 상태 UI와 함께 모든 OIDC 연결 응�
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
-msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "중앙 메일 오케스트라 레이어 routing host mail through Mailu, msmtp, 또는 선택적 로컬 SMTP 릴레이"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Central mail Orchestration 역할 Infinito.Nexus, 이메일 SaaS, msmtp 및 선택적인 국부적으로 SMTP 릴레이 통합"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -1476,6 +1481,11 @@ msgstr "시스템 모니터링 및 건강 검사에 대한 역할—봇 스타�
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "SAN-aware 인증서 제공 업체는 전면 프록시 TLS 레이어의 자체 서명 TLS 인증서를 생성하고 저장합니다."
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP 게이트웨이는 Tor의 SOCKS 청취를 통해 .onion 수신자에게"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"
