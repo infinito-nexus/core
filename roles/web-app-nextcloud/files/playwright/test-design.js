@@ -1,6 +1,6 @@
-const { test } = require("@playwright/test");
+const { test, expect } = require("@playwright/test");
 
-const { assertDesignTokens, captureDesignGallery, galleryEnabled } = require("./design");
+const { assertDesignTokens, assertReadable, captureDesignGallery, galleryEnabled } = require("./design");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
@@ -12,8 +12,51 @@ function baseUrl() {
 exports.register = function (shared) {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await gotoOnion(page, `${baseUrl()}/login`);
+    await shared.loginToStandaloneNextcloud(page);
     await assertDesignTokens(page, "nextcloud");
+  });
+
+  test("design: Nextcloud theming carries the palette, the logo and the name", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const base = baseUrl();
+    const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL);
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE);
+
+    await page.emulateMedia({ colorScheme: "light" });
+    await shared.loginToStandaloneNextcloud(page);
+    await gotoOnion(page, `${base}/apps/dashboard/`);
+    await shared.dismissBlockingNextcloudModals(page, page);
+    const colors = await page.evaluate(() => {
+      const resolve = (value) => {
+        const probe = document.createElement("span");
+        probe.style.color = value;
+        document.body.appendChild(probe);
+        const color = getComputedStyle(probe).color;
+        probe.remove();
+        return color;
+      };
+      return { theming: resolve("var(--color-primary)"), palette: resolve("var(--design-primary)") };
+    });
+    expect(colors.theming, "Nextcloud's theming primary must be the palette primary").toBe(colors.palette);
+    await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    await page.emulateMedia({ colorScheme: null });
+    await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important; }" });
+    const readable = ["h2", "a", "button"];
+    for (const selector of readable) {
+      await expect(page.locator(selector).first(), `nextcloud: '${selector}' must be on the dashboard`).toBeVisible();
+    }
+    await assertReadable(page, readable, "nextcloud");
+
+    if (logoUrl) {
+      const served = await page.request.get(`${base}/apps/theming/image/logo`);
+      const generated = await page.request.get(logoUrl);
+      expect(served.ok(), "Nextcloud serves a theming logo").toBe(true);
+      expect(generated.ok(), "the generated logo is published on the CDN").toBe(true);
+      expect(
+        Buffer.compare(await served.body(), await generated.body()),
+        "Nextcloud must serve the generated corporate logo",
+      ).toBe(0);
+    }
   });
 
   test("design: gallery of user and administration views", async ({ page }) => {
