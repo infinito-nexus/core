@@ -31,6 +31,7 @@ _REQUIRED_CTX: dict = {
     "application_author": "Kevin Veen-Birkenbach",
     "cosmos_mermaid": 'flowchart LR\n    a["a"] --> b["b"]',
     "software_repository": SOFTWARE_REPOSITORY,
+    "application_deploy_image": "ghcr.io/example/core/debian:latest",
 }
 
 _OPTIONAL_CTX: dict = {

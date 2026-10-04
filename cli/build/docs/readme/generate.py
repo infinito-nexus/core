@@ -34,7 +34,7 @@ from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
 from utils.roles.meta_lookup import get_role_guide_companions
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
-from utils.software import SOFTWARE_REPOSITORY
+from utils.software import SOFTWARE_REPOSITORY, deploy_image
 from utils.symbol_glossary import to_emoji
 
 MANAGED_SECTIONS = ("Cosmos", "Quick Setup", "Credits")
@@ -104,6 +104,7 @@ def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -
             [role_name, *get_role_guide_companions(role_dir, role_name=role_name)]
         ),
         "software_repository": SOFTWARE_REPOSITORY,
+        "application_deploy_image": deploy_image(),
         "cosmos_mermaid": derive_cosmos_mermaid(role_dir, role_name),
         "cosmos_legend": _cosmos_legend(),
     }
