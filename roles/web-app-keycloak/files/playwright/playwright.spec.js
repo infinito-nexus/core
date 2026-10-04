@@ -2,40 +2,9 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, attachDiagnostics, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 const { provisionKeycloakUser } = require("./admin-console");
 test.use({ ignoreHTTPSErrors: true });
-
-// -----------------------------------------------------------------------------
-// Shared helpers (inlined on purpose: the runner only stages this file).
-// -----------------------------------------------------------------------------
-
-function attachDiagnostics(page) {
-  const consoleErrors = [];
-  const pageErrors = [];
-  const cspRelated = [];
-
-  page.on("console", (message) => {
-    if (message.type() === "error") {
-      consoleErrors.push(message.text());
-    }
-
-    if (/content security policy|csp/i.test(message.text())) {
-      cspRelated.push({ source: "console", text: message.text() });
-    }
-  });
-
-  page.on("pageerror", (error) => {
-    const text = String(error);
-    pageErrors.push(text);
-
-    if (/content security policy|csp/i.test(text)) {
-      cspRelated.push({ source: "pageerror", text });
-    }
-  });
-
-  return { consoleErrors, pageErrors, cspRelated };
-}
 
 async function fillKeycloakLoginForm(page, username, password) {
   const usernameField = page.locator("input[name='username'], input#username").first();
