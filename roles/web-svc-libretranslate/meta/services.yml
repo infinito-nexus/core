@@ -16,6 +16,8 @@ libretranslate:
   shared: true
   image: libretranslate/libretranslate
   version: v1.9.6
+  version_variants:
+    - "-cuda"
   custom: true
   min_storage: 402MB
   load_only: []

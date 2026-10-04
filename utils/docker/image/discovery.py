@@ -192,6 +192,11 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
 
     Source: ``roles/**/meta/services.yml`` -> ``<entity>.{image,version}``.
 
+    A role whose vars derive a further tag from ``version`` lists the suffixes
+    under ``<entity>.version_variants``; each yields its own ref, because this
+    function is the only enumeration the mirror sees and a tag it never emits
+    can never be mirrored.
+
     See docs/contributing/artefact/image.md for the full format reference.
     """
     roles_dir = repo_root / "roles"
@@ -216,12 +221,21 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
             if not is_mirrorable_image(image):
                 continue
 
-            yield ImageRef(
-                role=role_name,
-                service=str(service_name),
-                name=canonical_image_name(image),
-                version=version,
-                source=image_source(image, version),
-                registry=_detect_registry(image),
-                source_file=ROLE_FILE_META_SERVICES,
-            )
+            variants = service.get("version_variants")
+            suffixes = [""] + [
+                str(suffix)
+                for suffix in (variants if isinstance(variants, list) else [])
+                if str(suffix).strip()
+            ]
+
+            for suffix in suffixes:
+                tag = version + suffix
+                yield ImageRef(
+                    role=role_name,
+                    service=str(service_name),
+                    name=canonical_image_name(image),
+                    version=tag,
+                    source=image_source(image, tag),
+                    registry=_detect_registry(image),
+                    source_file=ROLE_FILE_META_SERVICES,
+                )
