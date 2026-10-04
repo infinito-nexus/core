@@ -60,11 +60,10 @@ class WeblateMemory:
     def __init__(self, client):
         self._client = client
 
-    def reviewed(self, source, target, text):
+    def reviewed(self, target, text):
         """The approved translation of *text* into *target*, or None.
 
         Args:
-            source: source language code, or None for an undeclared one.
             target: target language code.
             text: the string to look up verbatim.
 
@@ -73,8 +72,6 @@ class WeblateMemory:
             ValueError: when it answers with something other than JSON.
         """
         query = f"source:={_quote(text)} AND language:{target} AND state:>=approved"
-        if source:
-            query = f"{query} AND source_language:{source}"
         body = self._client.get("units/", {"q": query, "format": "json"})
         for unit in (body or {}).get("results") or []:
             if int(unit.get("state") or 0) < APPROVED:

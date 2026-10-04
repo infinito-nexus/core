@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import unittest
 from typing import ClassVar
 
@@ -35,14 +36,14 @@ class ReviewedStringTestCase(unittest.TestCase):
             }
         )
 
-        self.assertEqual(WeblateMemory(client).reviewed("en", "de", "House"), "Haus")
+        self.assertEqual(WeblateMemory(client).reviewed("de", "House"), "Haus")
 
     def test_a_unit_below_approved_is_not_a_reviewed_string(self) -> None:
         client = FakeClient(
             {"units/": {"results": [{"state": 20, "target": ["Haus"]}]}}
         )
 
-        self.assertIsNone(WeblateMemory(client).reviewed("en", "de", "House"))
+        self.assertIsNone(WeblateMemory(client).reviewed("de", "House"))
 
     def test_an_approved_unit_without_a_target_is_skipped(self) -> None:
         client = FakeClient(
@@ -56,25 +57,25 @@ class ReviewedStringTestCase(unittest.TestCase):
             }
         )
 
-        self.assertEqual(WeblateMemory(client).reviewed("en", "de", "House"), "Haus")
+        self.assertEqual(WeblateMemory(client).reviewed("de", "House"), "Haus")
 
     def test_the_query_asks_for_the_exact_source_in_the_target_language(self) -> None:
         client = FakeClient({"units/": {"results": []}})
 
-        WeblateMemory(client).reviewed("en", "de", 'a "quoted" string')
+        WeblateMemory(client).reviewed("de", 'a "quoted" string')
 
         _path, params = client.asked[0]
         self.assertIn('source:="a \\"quoted\\" string"', params["q"])
         self.assertIn("language:de", params["q"])
         self.assertIn("state:>=approved", params["q"])
-        self.assertIn("source_language:en", params["q"])
 
-    def test_an_undeclared_source_language_is_left_out_of_the_query(self) -> None:
+    def test_the_query_names_only_fields_weblate_can_parse(self) -> None:
         client = FakeClient({"units/": {"results": []}})
 
-        WeblateMemory(client).reviewed(None, "de", "House")
+        WeblateMemory(client).reviewed("de", "House")
 
-        self.assertNotIn("source_language", client.asked[0][1]["q"])
+        fields = set(re.findall(r"(\w+):", client.asked[0][1]["q"]))
+        self.assertEqual(set(), fields - {"source", "language", "state"})
 
 
 class GlossaryTestCase(unittest.TestCase):

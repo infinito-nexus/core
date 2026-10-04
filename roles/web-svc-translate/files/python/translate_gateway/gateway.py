@@ -21,7 +21,7 @@ class Gateway:
         self._memory = memory
         self._glossary = glossary
 
-    async def _reviewed(self, source, target, text):
+    async def _reviewed(self, target, text):
         """The reviewed translation of *text*, or None.
 
         A memory that cannot answer is not an error: the request falls through
@@ -31,7 +31,7 @@ class Gateway:
         if self._memory is None:
             return None
         try:
-            return await asyncio.to_thread(self._memory.reviewed, source, target, text)
+            return await asyncio.to_thread(self._memory.reviewed, target, text)
         except Exception:
             return None
 
@@ -59,7 +59,7 @@ class Gateway:
         on the way back, because the router is what caches an answer: a check
         here would run after the cache already holds the mangled string.
         """
-        reviewed = await self._reviewed(source, target, text)
+        reviewed = await self._reviewed(target, text)
         if reviewed:
             return REVIEWED, reviewed
 

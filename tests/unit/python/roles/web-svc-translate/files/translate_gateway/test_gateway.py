@@ -32,7 +32,7 @@ class FakeMemory:
         self._reviewed = reviewed
         self.raises = raises
 
-    def reviewed(self, source, target, text):
+    def reviewed(self, target, text):
         if self.raises:
             raise self.raises
         return self._reviewed
