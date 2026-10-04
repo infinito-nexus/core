@@ -1,12 +1,12 @@
 ---
 - name: "🕸️ Create the overlay network for '{{ network_role_id }}'"
   ansible.builtin.include_tasks:
-    file: create_overlay.yml
+    file: create/overlay.yml
     apply:
       run_once: true
       delegate_to: "{{ STACK_HOST }}"
   when: (IS_SWARM_MODE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
 
 - name: "🕸️ Create the bridge network for '{{ network_role_id }}'"
-  ansible.builtin.include_tasks: create_bridge.yml
+  ansible.builtin.include_tasks: create/bridge.yml
   when: (not (IS_SWARM_MODE | bool)) or (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
