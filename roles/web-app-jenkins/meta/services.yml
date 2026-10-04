@@ -61,7 +61,7 @@ jenkins:
   # nocheck: single-replica
   replicas: 1
   image: jenkins/jenkins
-  version: 2.568.3-lts
+  version: 2.580.1-lts
   custom: true
   name: jenkins
   ports:

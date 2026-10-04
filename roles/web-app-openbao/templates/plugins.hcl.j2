@@ -1,0 +1,8 @@
+plugin_directory = "{{ OPENBAO_PLUGIN_DIR_DOCKER }}"
+
+plugin_auto_register = true
+
+plugin "auth" "ldap" {
+  command = "{{ OPENBAO_LDAP_PLUGIN_BINARY }}"
+  version = "{{ OPENBAO_LDAP_PLUGIN_VERSION }}"
+}

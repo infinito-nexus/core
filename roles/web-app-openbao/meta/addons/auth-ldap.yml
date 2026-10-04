@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-openbao', 'services.ldap.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: built
+bridges:
+  - ldap

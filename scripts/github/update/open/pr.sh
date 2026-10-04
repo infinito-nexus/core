@@ -79,6 +79,11 @@ for entry in "${OPEN_PRS[@]}"; do
 	[[ -z "${entry}" ]] && continue
 	pr_num="${entry%%$'\t'*}"
 	pr_branch="${entry##*$'\t'}"
+	if [[ "${pr_branch}" == *"-${LOCAL_FP:0:7}" ]]; then
+		echo "  open PR #${pr_num} (${pr_branch}): branch name carries this fingerprint"
+		DUPLICATE_PR="${pr_num}"
+		break
+	fi
 	pr_head="$(gh pr view "${pr_num}" --repo "${REPO}" --json headRefOid --jq .headRefOid 2>/dev/null || true)"
 	if [[ -z "${pr_head}" ]] || ! git fetch --quiet --depth 1 origin "${pr_head}" 2>/dev/null; then
 		echo "  open PR #${pr_num} (${pr_branch}): head unfetchable; treating as non-duplicate"

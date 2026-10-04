@@ -45,36 +45,11 @@
       delegate_to: "{{ OPENBAO_HOST_NODE }}"
 
 - name: "📇 Configure the LDAP auth method against svc-db-openldap"
+  ansible.builtin.include_tasks:
+    file: addons/auth-ldap.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
   when: OPENBAO_LDAP_ENABLED | bool
-  block:
-    - name: "🧩 Enable the LDAP auth method"
-      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        container exec {{ OPENBAO_LOCAL_CID | quote }}
-        sh -c 'bao auth list -format=json | grep -q "ldap/" ||
-        { bao auth enable ldap && echo OPENBAO_CHANGED; }'
-      register: openbao_ldap_enable
-      changed_when: "'OPENBAO_CHANGED' in openbao_ldap_enable.stdout"
-      delegate_to: "{{ OPENBAO_HOST_NODE }}"
-
-    - name: "📇 Point the LDAP method at the directory"
-      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
-        bao write auth/ldap/config
-        url={{ OPENBAO_LDAP_URL | quote }}
-        userdn={{ LDAP.DN.OU.USERS | quote }}
-        userattr={{ OPENBAO_LDAP_USER_ATTR | quote }}
-        groupdn={{ LDAP.DN.OU.ROLES | quote }}
-        groupattr=cn
-        binddn={{ LDAP.DN.ADMINISTRATOR.DATA | quote }}
-        bindpass=-
-        insecure_tls=false
-        starttls=false
-      args:
-        stdin: "{{ LDAP.BIND_CREDENTIAL }}"
-        stdin_add_newline: false
-      changed_when: false
-      delegate_to: "{{ OPENBAO_HOST_NODE }}"
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔍 Read the auth mount accessors"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
