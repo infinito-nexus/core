@@ -55,7 +55,7 @@ prometheus:
   provides:
     - prometheus
   image: prom/prometheus # nocheck: volumes-path-single-spot: the repository path of an image name, not a mount target
-  version: v3.14.0
+  version: v3.15.0
   name: prometheus
   cpus: "0.5"
   mem_reservation: 512m
