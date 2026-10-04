@@ -4,8 +4,6 @@ DEPLOYMENT_MODE: "{{ 'swarm' if (groups['svc-swarm-node'] | default([]) | length
 IS_COMPOSE_MODE: "{{ DEPLOYMENT_MODE == 'compose' }}"
 IS_SWARM_MODE: "{{ DEPLOYMENT_MODE == 'swarm' }}"
 
-SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-swarm-node'] | default([]) | length) > 0 }}"
-
 swarm_stack_converge_retries: 600
 
 IS_STACK_HOST: >-

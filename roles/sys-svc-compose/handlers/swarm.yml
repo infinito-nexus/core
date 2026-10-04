@@ -121,7 +121,7 @@
   listen:
     - compose-up
     - swarm-deploy
-  when: SWARM_CLUSTER_AVAILABLE | bool
+  when: IS_SWARM_MODE | bool
 
 - name: "✅ swarm: validate stack file via docker stack config"
   ansible.builtin.shell: |
