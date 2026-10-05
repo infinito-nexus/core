@@ -67,6 +67,3 @@ WAZUH_RBAC_READONLY_GROUP: "/{{ lookup('rbac_group_path', application_id=applica
 WAZUH_RBAC_ADMIN_LDAP_CN: "{{ application_id }}-administrator"
 WAZUH_RBAC_ANALYST_LDAP_CN: "{{ application_id }}-security-analyst"
 WAZUH_RBAC_READONLY_LDAP_CN: "{{ application_id }}-readonly-auditor"
-
-test_e2e_playwright_wait_retries: 120
-test_e2e_playwright_wait_delay: 5
