@@ -8,6 +8,9 @@
     dashboard:
       enabled: true
       shared: true
+    design:
+      enabled: true
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -33,6 +36,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

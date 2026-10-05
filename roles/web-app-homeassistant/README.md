@@ -24,12 +24,14 @@ flowchart LR
         dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_svc_design["web-svc-design 💻"]
     end
     subgraph role [web-app-homeassistant 🐳🐝]
         svc_homeassistant["homeassistant"]
         svc_sso["sso ❌"]
         svc_logout["logout ❌"]
         svc_dashboard["dashboard"]
+        svc_design["design"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
@@ -47,6 +49,7 @@ flowchart LR
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_design -. "0..1" .-> svc_design
     linkStyle 5 stroke:red;
 ```
 
@@ -57,6 +60,9 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Containerized hub:** Runs the official Home Assistant image on both the Docker Compose and Swarm stacks behind the reverse proxy.
 - **Reverse-proxy trust:** Renders a `configuration.yaml` with `default_config`, `use_x_forwarded_for`, and the project-wide trusted-proxy CIDRs listed in `trusted_proxies`. In swarm the hub joins the proxy's own overlay, so the forwarded request arrives from that network rather than from the hub's, and trusting only the hub's subnet makes Home Assistant answer every proxied request with HTTP 400.
 - **Persistent configuration:** Mounts `/config` as a named volume and hands it to the container backup service when volume backups are part of the deployment.
+- **Owner provisioned on every deploy:** Once the hub answers, the deploy runs `files/python/provision_mcp.py` inside the container with `HA_OWNER_ONLY=1`. On a fresh hub the script creates the owner from the platform administrator's username and `credentials.administrator_password`, names the hub after the corporate design title when the design service is on, and closes the remaining onboarding steps. On every later deploy it signs in with the same credentials and reports no change. When the hub refuses them, the deploy writes the password into the hub's auth store with Home Assistant's `auth` script, restarts the hub and signs in again. Both calls receive their values on standard input.
+- **Closed onboarding wizard:** A Playwright spec asserts that every onboarding step is done and that `/onboarding.html` hands a visitor over to the sign-in page.
+- **Corporate design:** With the design service on, `configuration.yaml` carries a theme whose variables point at the design tokens, and a start-up automation selects it as the default theme for light and dark mode. The sign-in page takes the same variables from the role stylesheet; logo, favicon and page title come from the design assets through the stylesheet and `templates/design.js.j2`. A theme or mode picked in the profile keeps its own palette, and the script mirrors the picked mode onto the design tokens.
 - **MCP server contract:** Declares the built-in MCP server at `/api/mcp` over streamable HTTP as an internal, bearer-token-authenticated endpoint, and generates the token that MCP clients present. Adding the MCP Server integration itself stays a Home Assistant onboarding step.
 - **Token verified against the hub:** Every deploy asks the hub whether the stored token still authenticates and re-mints it when the hub rejects it, then fails the deploy if the fresh token is rejected too. A hub whose `.storage/auth` was recreated leaves a stored token pointing at a deleted refresh token, and clients would receive a 401 on every call.
 - **Two-layer tool policy:** Home Assistant offers no per-tool filter of its own; enabling the Assist API always publishes its actuating intents (`HassTurnOn`, `HassTurnOff`, the todo-list writers). The role names those in `tools.mutating`, and `mutating_tools_enabled: false` withholds them from every client's include list, so an agent is offered the read tools only. Entity exposure bounds the rest: the role exposes no entity to Assist, and making the hub actuate anything is an explicit operator step per entity.
@@ -101,6 +107,10 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## Further Resources
+
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/HYCZWbfZH9S146MRfHEaUk)
 
 ## MCP Server
 

@@ -1,5 +1,31 @@
 default_config:
 
+{% if HOMEASSISTANT_DESIGN_ENABLED | bool %}
+frontend:
+  themes:
+    {{ HOMEASSISTANT_DESIGN_THEME | to_json }}:
+      primary-color: {{ HOMEASSISTANT_DESIGN_PRIMARY | to_json }}
+      modes:
+{% for mode in ['light', 'dark'] %}
+        {{ mode }}:
+{% for name, value in HOMEASSISTANT_DESIGN_VARIABLES | dictsort %}
+          {{ name }}: {{ value | to_json }}
+{% endfor %}
+{% endfor %}
+
+automation corporate_design:
+  - id: corporate_design_theme
+    alias: {{ (HOMEASSISTANT_DESIGN_THEME ~ ' theme') | to_json }}
+    triggers:
+      - trigger: homeassistant
+        event: start
+    actions:
+      - action: frontend.set_theme
+        data:
+          name: {{ HOMEASSISTANT_DESIGN_THEME | to_json }}
+          name_dark: {{ HOMEASSISTANT_DESIGN_THEME | to_json }}
+
+{% endif %}
 http:
   use_x_forwarded_for: true
   trusted_proxies:

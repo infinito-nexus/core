@@ -1,6 +1,20 @@
 # nocheck: mirrored-unit-test - resolves the hub's onboarding or login flow over a live
 # WebSocket command channel, reading every credential from the container environment at
 # import; nothing here runs without a started Home Assistant
+"""Onboard the hub or sign in as its owner, then provision its MCP surface.
+
+Environment:
+    HA_PORT: the hub's internal port.
+    HA_USERNAME, HA_PASSWORD: the owner account.
+    HA_OWNER_ONLY: "1" ends the run after the owner step, which prints
+        "CHANGED owner" when it created the owner or closed an onboarding step.
+    HA_LOCATION_NAME: name the onboarding gives the hub; unset or empty keeps
+        the name Home Assistant picks.
+    HA_SERVICE_USERNAME, HA_SERVICE_PASSWORD, HA_SERVICE_NAME, HA_SERVICE_GROUP,
+    HA_TOKEN_CLIENT_NAME: the MCP account and the client name of its token;
+        read unless HA_OWNER_ONLY is "1".
+"""
+
 import asyncio
 import contextlib
 import json
@@ -13,10 +27,13 @@ BASE = "http://localhost:" + os.environ["HA_PORT"]
 CLIENT_ID = BASE + "/"
 USERNAME = os.environ["HA_USERNAME"]
 PASSWORD = os.environ["HA_PASSWORD"]
-SERVICE_USERNAME = os.environ["HA_SERVICE_USERNAME"]
-SERVICE_PASSWORD = os.environ["HA_SERVICE_PASSWORD"]
-SERVICE_NAME = os.environ["HA_SERVICE_NAME"]
-SERVICE_GROUP = os.environ["HA_SERVICE_GROUP"]
+OWNER_ONLY = os.environ.get("HA_OWNER_ONLY") == "1"
+LOCATION_NAME = os.environ.get("HA_LOCATION_NAME")
+if not OWNER_ONLY:
+    SERVICE_USERNAME = os.environ["HA_SERVICE_USERNAME"]
+    SERVICE_PASSWORD = os.environ["HA_SERVICE_PASSWORD"]
+    SERVICE_NAME = os.environ["HA_SERVICE_NAME"]
+    SERVICE_GROUP = os.environ["HA_SERVICE_GROUP"]
 
 
 def request(path, payload=None, token=None, form=False):
@@ -41,14 +58,36 @@ def request(path, payload=None, token=None, form=False):
     return json.loads(body) if body else {}
 
 
-def onboarding_pending():
+def open_onboarding_steps():
+    """Return the names of the onboarding steps the hub still waits for."""
     try:
         steps = request("/api/onboarding")
     except urllib.error.HTTPError as err:
         if err.code == 404:
-            return False
+            return []
         raise
-    return any(step.get("step") == "user" and not step.get("done") for step in steps)
+    return [step["step"] for step in steps if not step["done"]]
+
+
+def onboarding_pending():
+    return "user" in open_onboarding_steps()
+
+
+def access_token(code):
+    """Exchange an authorization code for an access token.
+
+    Args:
+        code: the authorization code an onboarding or login step returned.
+    """
+    return request(
+        "/auth/token",
+        {
+            "grant_type": "authorization_code",
+            "code": code,
+            "client_id": CLIENT_ID,
+        },
+        form=True,
+    )["access_token"]
 
 
 def access_token_via_onboarding():
@@ -62,22 +101,44 @@ def access_token_via_onboarding():
             "language": "en",
         },
     )
-    token = request(
-        "/auth/token",
-        {
-            "grant_type": "authorization_code",
-            "code": result["auth_code"],
-            "client_id": CLIENT_ID,
-        },
-        form=True,
-    )["access_token"]
-    for step in ("core_config", "analytics", "integration"):
-        with contextlib.suppress(urllib.error.HTTPError):
-            request("/api/onboarding/" + step, {"client_id": CLIENT_ID}, token=token)
+    token = access_token(result["auth_code"])
+    if LOCATION_NAME:
+        asyncio.run(name_location(token))
     return token
 
 
-def access_token_via_login(username, password):
+def finish_onboarding(token):
+    """Close every onboarding step after the owner step that is still open.
+
+    The index page keeps redirecting to the onboarding wizard until all steps
+    are done, and the integration step refuses a request without redirect_uri.
+
+    Args:
+        token: an access token of the owner.
+
+    Returns:
+        Whether a step was closed.
+    """
+    steps = [step for step in open_onboarding_steps() if step != "user"]
+    for step in steps:
+        request(
+            "/api/onboarding/" + step,
+            {"client_id": CLIENT_ID, "redirect_uri": CLIENT_ID},
+            token=token,
+        )
+    return bool(steps)
+
+
+def authorization_code_via_login(username, password):
+    """Sign in through the login flow without minting a refresh token.
+
+    Args:
+        username: the account to sign in as.
+        password: its password.
+
+    Returns:
+        The authorization code of the accepted login.
+    """
     flow = request(
         "/auth/login_flow",
         {
@@ -98,15 +159,11 @@ def access_token_via_login(username, password):
         raise SystemExit(
             f"home assistant refused the login of {username}: {json.dumps(step)}"
         )
-    return request(
-        "/auth/token",
-        {
-            "grant_type": "authorization_code",
-            "code": step["result"],
-            "client_id": CLIENT_ID,
-        },
-        form=True,
-    )["access_token"]
+    return step["result"]
+
+
+def access_token_via_login(username, password):
+    return access_token(authorization_code_via_login(username, password))
 
 
 @contextlib.asynccontextmanager
@@ -135,6 +192,20 @@ async def command_channel(access_token):
             return await socket.receive_json()
 
         yield command
+
+
+async def name_location(access_token):
+    """Give the hub the configured location name.
+
+    Args:
+        access_token: an access token of the owner.
+    """
+    async with command_channel(access_token) as command:
+        named = await command(
+            {"type": "config/core/update", "location_name": LOCATION_NAME}
+        )
+    if not named.get("success"):
+        raise SystemExit("location name refused: " + json.dumps(named))
 
 
 async def ensure_service_account(admin_token):
@@ -247,11 +318,20 @@ def ensure_mcp_entry(token):
 
 
 def main():
+    created = onboarding_pending()
+    if OWNER_ONLY and not open_onboarding_steps():
+        authorization_code_via_login(USERNAME, PASSWORD)
+        return
     admin_token = (
         access_token_via_onboarding()
-        if onboarding_pending()
+        if created
         else access_token_via_login(USERNAME, PASSWORD)
     )
+    finished = finish_onboarding(admin_token)
+    if OWNER_ONLY:
+        if created or finished:
+            print("CHANGED owner")
+        return
     asyncio.run(ensure_service_account(admin_token))
     service_token = access_token_via_login(SERVICE_USERNAME, SERVICE_PASSWORD)
     token = asyncio.run(

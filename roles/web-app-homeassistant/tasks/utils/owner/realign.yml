@@ -1,0 +1,33 @@
+---
+- name: "🔑 Store the deployment's owner password in the auth store of the hub"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: |
+      import json
+
+      from homeassistant import scripts
+
+      raise SystemExit(scripts.run(json.loads({{ HOMEASSISTANT_OWNER_PASSWORD_ARGUMENTS | to_json | to_json }})))
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
+  run_once: true
+
+- name: "🔄 Restart the hub so it loads the rewritten auth store"
+  ansible.builtin.command:
+    argv:
+      - container
+      - restart
+      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
+  changed_when: true
+  delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
+  run_once: true
+
+- name: "👤 Check the realigned owner password against the restarted hub"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/owner/provision.yml"
