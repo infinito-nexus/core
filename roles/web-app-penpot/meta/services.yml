@@ -52,7 +52,7 @@ seaweedfs:
   shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 penpot:
   healthcheck:
-    flavor: curl
+    flavor: http_status
   modes:
     compose:
       enabled: true
