@@ -1,7 +1,13 @@
 const { test, expect } = require("@playwright/test");
 
-const { assertDesignTokens, assertReadable, captureDesignGallery, galleryEnabled } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const {
+  assertDesignTokens,
+  assertLightAndDark,
+  assertReadable,
+  captureDesignGallery,
+  galleryEnabled,
+} = require("./design");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -40,16 +46,11 @@ exports.register = function (shared) {
     expect(colors.theming, "Nextcloud's theming primary must be the palette primary").toBe(colors.palette);
     await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     await page.emulateMedia({ colorScheme: null });
-    await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important; }" });
-    const readable = ["h2", "a", "button"];
-    for (const selector of readable) {
-      await expect(page.locator(selector).first(), `nextcloud: '${selector}' must be on the dashboard`).toBeVisible();
-    }
-    await assertReadable(page, readable, "nextcloud");
+    await assertReadable(page, ["h2", "a", "button"], "nextcloud");
 
     if (logoUrl) {
-      const served = await page.request.get(`${base}/apps/theming/image/logo`);
-      const generated = await page.request.get(logoUrl);
+      const served = await apiGetOnion(page.request, `${base}/apps/theming/image/logo`);
+      const generated = await apiGetOnion(page.request, logoUrl);
       expect(served.ok(), "Nextcloud serves a theming logo").toBe(true);
       expect(generated.ok(), "the generated logo is published on the CDN").toBe(true);
       expect(
@@ -57,6 +58,10 @@ exports.register = function (shared) {
         "Nextcloud must serve the generated corporate logo",
       ).toBe(0);
     }
+
+    await gotoOnion(page, `${base}/apps/files/`);
+    await shared.dismissBlockingNextcloudModals(page, page);
+    await assertLightAndDark(page, "main", "nextcloud");
   });
 
   test("design: gallery of user and administration views", async ({ page }) => {
