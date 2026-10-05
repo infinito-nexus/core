@@ -6,6 +6,7 @@ through :class:`Library`, on the fixture its sibling module owns.
 
 from __future__ import annotations
 
+import os
 import unittest
 from unittest.mock import patch
 
@@ -251,9 +252,17 @@ class TestPrepared(LibraryFixture, unittest.TestCase):
     def test_the_cache_refuses_a_write_through_a_link(self) -> None:
         self.library.build("latest")
         cached = next(self.library.prepared.iterdir())
+        source = self._any_source(cached)
 
+        self.assertEqual(
+            0,
+            source.stat().st_mode & 0o222,
+            "a writable cached file lets one build rewrite every later reuse",
+        )
+        if os.geteuid() == 0:
+            self.skipTest("root writes through the mode bits the seal relies on")
         with self.assertRaises(PermissionError):
-            self._any_source(cached).write_text("rewritten", encoding="utf-8")
+            source.write_text("rewritten", encoding="utf-8")
 
     def test_a_filesystem_without_links_still_prepares(self) -> None:
         self.library.build("latest")
