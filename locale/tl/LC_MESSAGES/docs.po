@@ -6373,7 +6373,7 @@ msgstr "**Makipot:** Ito'y nagsasaayos ng resolusyon sa pangalan at wala nang ib
 # kliyente sa web.
 # translation-refused: libretranslate stutter
 # nocheck: url
-# translation-rejected: **Katutubo Keycloak SSO:** Maupo ``web-app-keycloak``\
+# translation-rejected: **Katutubo Keycloak SSO:** Maupo ``web-app-keycloak``
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ are are are are ’ ’ ’ ’ ’; ’ ’ ’ ’ ’ ’ ’ ’ ’
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
@@ -51095,11 +51095,9 @@ msgstr "Smart-home automation center na may mga kumbinasyon ng device, dashboard
 msgid "Smoke after deploy:"
 msgstr "Usok pagkatapos gamitin:"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Smoke-tests the interactive console REPL
+# translated-by: libretranslate
 msgid "Smoke-tests the interactive console REPL"
-msgstr ""
+msgstr "Pagsusuri ng apoy ang interactive na REPL"
 
 # translated-by: libretranslate
 msgid "Smoke: visit `https://media.{{ DOMAIN_PRIMARY }}/` → Jellyfin loads → sign in via the chosen integration → reach the home/library surface."
@@ -57688,13 +57686,9 @@ msgstr "Ang logo ay dapat gumamit ng isang mabisang Font Wonder class string, e.
 
 # gained=['data/data/nextcloud.log']
 # **/var/lib/docker/volumes/nextcloud_data/ data/data/nextcloud.log**
-# translation-refused: libretranslate protected-span lost=['nextcloud.log']
-# gained=['data/data/nextcloud.log']
-# nocheck: url
-# translation-rejected: Ang mga troso na makikita mo rito sa punong - abala:
-# **/var/lib/docker/volumes/nextcloud_data/ data/data/nextcloud.log**
+# translated-by: libretranslate
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
-msgstr ""
+msgstr "Ang mga log na makikita mo dito sa host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 
 # translated-by: libretranslate
 msgid "The lookup MUST remain backed by `utils.cache.applications.get_merged_applications` and MUST NOT introduce a generated repository-wide application dictionary."
@@ -62940,6 +62934,9 @@ msgstr "Ang papel na ito ay mahalaga **hindi** pumirma sa mga sertipiko ng dahon
 # ’ . ’ ’ ’ ’ . ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ Ang eksepsiyong ito ng SSO at RBAC
 # ay pinatutunayan sa bawat isa `lifecycle.md
 # <../../docs/contributing/design/role/services/lifecycle.md>`__.
+# o grupo ng LDAP. Pagpipla Bridgy Fed sa likuran ``web-app-keycloak`` ’ ’ ’ ’
+# ’ ’ ’ and and and and and and and and and and and ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
+# . ’ ’ ’ ’ . ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ Ang eksepsiyong ito ng SSO at RBAC
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Ang papel na ito ay hindi nagsasaayos ng OIDC laban sa
@@ -62949,11 +62946,11 @@ msgstr "Ang papel na ito ay mahalaga **hindi** pumirma sa mga sertipiko ng dahon
 # source platform, hindi sa pamamagitan ng lokal na mga account. Walang lokal
 # na mesa para sa gumagamit nito na magtatali ng isang panlabas na IdP, at
 # walang in-app experiment stand upang gawan ng mapa ang isang Keycloak papel
-# o grupo ng LDAP. Pagpipla Bridgy Fed sa likuran ``web-app-keycloak``\ ’ ’ ’
+# o grupo ng LDAP. Pagpipla Bridgy Fed sa likuran ``web-app-keycloak`` ’ ’ ’ ’
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
-# ’ ’ ’ ’ and and and and and and and and and and and ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
+# ’ ’ ’ and and and and and and and and and and and ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
-# ’ . ’ ’ ’ ’ . ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ Ang eksepsiyong ito ng SSO at RBAC
+# . ’ ’ ’ ’ . ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ Ang eksepsiyong ito ng SSO at RBAC
 # ay pinatutunayan sa bawat isa `lifecycle.md
 # <../../docs/contributing/design/role/services/lifecycle.md>`__.
 msgid "This role does NOT configure OIDC against ``web-app-keycloak``, LDAP against ``svc-db-openldap``, or any role-claim / LDAP-group RBAC mapping. Bridgy Fed authenticates users via their fediverse or atproto credentials at the source platform, not via local accounts. There is no local user table to bind an external IdP to, and no in-app authorisation tier to map a Keycloak role or LDAP group onto. Placing Bridgy Fed behind ``web-app-keycloak``\\ ’s SSO-proxy sidecar would break inbound federation traffic and MUST NOT be done. This SSO and RBAC exception is documented per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__."
@@ -87491,12 +87488,9 @@ msgid "self_signed  -> generate and store a self-signed certificate (SAN aware)"
 msgstr "self_signed -> lumikha at mag - imbak ng sertipiko na may sariling pangalan (Batid ni SAN)"
 
 # may sariling pangalan (Batid ni SAN)
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: self_signed -> lumikha at mag - imbak ng sertipiko na
-# may sariling pangalan (Batid ni SAN)
+# translated-by: libretranslate
 msgid "self_signed -> generate and store a self-signed certificate (SAN aware)"
-msgstr ""
+msgstr "self_signed -> generate atasan na certificate (SAN aware)"
 
 # translated-by: libretranslate
 msgid "sent as a Host header when the vhost matters."
