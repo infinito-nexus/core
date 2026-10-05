@@ -249,8 +249,15 @@ class TestRefusalIsRemembered(unittest.TestCase):
 
         self.assertEqual(
             message.user_comments[2],
-            f"{REJECTED_PREFIX} erste Zeile\\nzweite Zeile",
+            f"{REJECTED_PREFIX} erste Zeile zweite Zeile",
         )
+
+    def test_a_rejected_translation_carries_no_backslash(self):
+        _, message = self._entry()
+
+        apply([message], [Rejected("See [test\\_file.py](../x.py)", "structure")])
+
+        self.assertNotIn("\\", message.user_comments[2])
 
     def test_a_second_rejection_replaces_the_first(self):
         _, message = self._entry()
