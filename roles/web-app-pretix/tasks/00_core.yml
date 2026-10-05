@@ -7,6 +7,9 @@
     mcp_adapter_instance_dir: "{{ PRETIX_MCP_INSTANCE_DIR }}"
   when: PRETIX_MCP_ENABLED | bool
 
+- name: "⬇️ Stage the pretix sources for '{{ application_id }}'"
+  ansible.builtin.include_tasks: utils/source.yml
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

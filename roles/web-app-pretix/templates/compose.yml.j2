@@ -1,12 +1,15 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = 'pretix' %}
   {{ service_name }}:
-    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    build:
+      context: "{{ PRETIX_SOURCE_DIR }}"
+      dockerfile: "{{ PRETIX_SOURCE_DOCKERFILE_NAME }}"
       args:
-        PRETIX_IMAGE: "{{ PRETIX_IMAGE }}"
-        PRETIX_VERSION: "{{ PRETIX_VERSION }}"
+        PRETIX_BASE_IMAGE: "{{ PRETIX_BASE_IMAGE }}"
+        PRETIX_BASE_VERSION: "{{ PRETIX_BASE_VERSION }}"
         PRETIX_OIDC_PLUGIN_VERSION: "{{ PRETIX_OIDC_PLUGIN_VERSION }}"
-    {{ lookup('container_image', application_id, 'pretix') }}
+    {{ lookup('container_image', application_id, 'pretix', version=PRETIX_SOURCE_VERSION) }}
     {{ lookup('compose_only', 'container_name', PRETIX_CONTAINER) }}
     hostname: '{{ PRETIX_HOSTNAME}}'
     command: ["all"]
