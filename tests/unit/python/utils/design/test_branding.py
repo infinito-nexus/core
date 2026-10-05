@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils.design.branding import is_disabled, resolve_branding
+from utils.design.branding import asset_urls, is_disabled, resolve_branding
 
 GLOBAL_SLOTS = {"icon": {"width": 512, "height": 512}}
 
@@ -31,6 +31,7 @@ class TestResolveBranding(unittest.TestCase):
         design = {
             "logo": "assets/logo.png",
             "title": True,
+            "bootstrap": False,
             "slots": GLOBAL_SLOTS,
             **global_extra,
         }
@@ -51,6 +52,25 @@ class TestResolveBranding(unittest.TestCase):
             self._apps({"title": "Platform"}, {}), "web-app-a", self.root
         )
         self.assertEqual(result["title"], "Platform")
+
+    def test_bootstrap_mapping_is_off_unless_a_role_or_the_platform_opts_in(
+        self,
+    ) -> None:
+        self.assertFalse(
+            resolve_branding(self._apps({}, {}), "web-app-a", self.root)["bootstrap"]
+        )
+        self.assertTrue(
+            resolve_branding(
+                self._apps({}, {"bootstrap": True}), "web-app-a", self.root
+            )["bootstrap"]
+        )
+        self.assertFalse(
+            resolve_branding(
+                self._apps({"bootstrap": True}, {"bootstrap": False}),
+                "web-app-a",
+                self.root,
+            )["bootstrap"]
+        )
 
     def test_role_override_wins_over_global(self) -> None:
         apps = self._apps({"title": "Platform"}, {"title": "Own", "logo": "custom.png"})
@@ -111,6 +131,27 @@ class TestResolveBranding(unittest.TestCase):
         apps = self._apps({}, {"slots": {"bad": {"width": 0, "height": 10}}})
         with self.assertRaisesRegex(ValueError, "positive"):
             resolve_branding(apps, "web-app-a", self.root)
+
+    def test_slot_name_outside_kebab_case_fails_loudly(self) -> None:
+        for name in ("favicon_ico", "Logo", "wide.banner", ""):
+            with self.subTest(name=name):
+                apps = self._apps({}, {"slots": {name: {"width": 10, "height": 10}}})
+                with self.assertRaisesRegex(ValueError, "kebab-case"):
+                    resolve_branding(apps, "web-app-a", self.root)
+
+
+class TestAssetUrls(unittest.TestCase):
+    def test_a_slot_named_favicon_keeps_the_icon_url(self) -> None:
+        urls = asset_urls("https://cdn.test/design", {"favicon": {}, "logo": {}})
+        self.assertEqual(urls["favicon_ico"], "https://cdn.test/design/favicon.ico")
+        self.assertEqual(
+            urls["favicon"],
+            {
+                "png": "https://cdn.test/design/favicon.png",
+                "svg": "https://cdn.test/design/favicon.svg",
+            },
+        )
+        self.assertEqual(set(urls), {"favicon_ico", "favicon", "logo"})
 
 
 class TestIsDisabled(unittest.TestCase):

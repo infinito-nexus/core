@@ -8,6 +8,10 @@ from __future__ import annotations
 
 import math
 import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 SCALE_STEPS: tuple[int, ...] = (50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950)
 _SCALE_LIGHTNESS = (0.97, 0.94, 0.88, 0.80, 0.71, 0.62, 0.54, 0.46, 0.38, 0.30, 0.22)
@@ -37,7 +41,9 @@ _SURFACE_STATE_LIGHTNESS = {
     "light": {"hover": 0.905, "active": 0.875},
     "dark": {"hover": 0.30, "active": 0.34},
 }
+_FRAME_LIGHTNESS = {"light": 0.38, "dark": 0.30}
 _FILL_STATE_SHIFT = {"hover": 0.04, "active": 0.08}
+_STATUS_TINT_SHARE = {"subtle": 0.12, "border": 0.40}
 
 _HEX_RE = re.compile(r"^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 _LIGHTNESS_STEP = 0.005
@@ -171,6 +177,13 @@ def contrast(first: str, second: str) -> float:
     return (high + 0.05) / (low + 0.05)
 
 
+def _mix(color: str, surface: str, share: float) -> str:
+    channels = zip(parse_hex(color), parse_hex(surface), strict=True)
+    return "#" + "".join(
+        f"{round((share * c + (1 - share) * s) * 255):02x}" for c, s in channels
+    )
+
+
 def _ensure_contrast(
     lightness: float,
     chroma: float,
@@ -178,10 +191,12 @@ def _ensure_contrast(
     against: list[str],
     target: float,
     step: float,
+    tint: Callable[[str], str] | None = None,
 ) -> str:
     while 0.0 <= lightness <= 1.0:
         candidate = oklch_to_hex(lightness, chroma, hue)
-        if min(contrast(candidate, surface) for surface in against) >= target:
+        backgrounds = [*against, tint(candidate)] if tint else against
+        if min(contrast(candidate, surface) for surface in backgrounds) >= target:
             return candidate
         lightness += step
     raise ValueError(f"no lightness reaches contrast {target} for hue {hue:.1f}")
@@ -286,11 +301,21 @@ def _mode_tokens(
             away,
         ),
         **_fill_tokens("primary", primary),
+        **_fill_tokens(
+            "frame",
+            oklch_to_hex(
+                min(base_l, _FRAME_LIGHTNESS[mode])
+                if mode == "light"
+                else _FRAME_LIGHTNESS[mode],
+                base_c,
+                hue,
+            ),
+        ),
         "--design-link": _ensure_contrast(
             min(base_l, 0.55) if mode == "light" else max(base_l, 0.7),
             base_c,
             hue,
-            content_surfaces,
+            text_surfaces,
             CONTRAST_TEXT,
             away,
         ),
@@ -300,11 +325,14 @@ def _mode_tokens(
             _STATUS_LIGHTNESS[mode],
             status_c,
             status_hue,
-            content_surfaces,
+            text_surfaces,
             CONTRAST_TEXT,
             away,
+            tint=lambda fill: _mix(fill, surfaces[1], _STATUS_TINT_SHARE["subtle"]),
         )
         tokens.update(_fill_tokens(name, color))
+        for tint, share in _STATUS_TINT_SHARE.items():
+            tokens[f"--design-{name}-{tint}"] = _mix(color, surfaces[1], share)
     return tokens
 
 

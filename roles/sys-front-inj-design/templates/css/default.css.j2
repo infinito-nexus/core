@@ -35,10 +35,6 @@
   --design-shadow-3: 0 8px 24px rgba(var(--design-shadow-color));
   --design-focus-ring: 0 0 0 3px color-mix(in srgb, var(--design-link) 45%, transparent);
   --design-focus-ring-inset: inset 0 0 0 1px var(--design-link);
-{% for status in ['success', 'warning', 'danger', 'info'] %}
-  --design-{{ status }}-subtle: color-mix(in srgb, var(--design-{{ status }}) 12%, var(--design-surface-2));
-  --design-{{ status }}-border: color-mix(in srgb, var(--design-{{ status }}) 40%, var(--design-surface-2));
-{% endfor %}
 }
 :root {
   --bs-font-sans-serif: var(--design-font);
@@ -106,7 +102,6 @@
   --bs-table-striped-bg: var(--design-surface-3);
   --bs-table-hover-bg: rgba(var(--design-primary-rgb), 0.06);
 }
-/* A cascade layer loses to every unlayered rule, so an app's own design system always wins over these element defaults. */
 @layer infinito-design {
   :root {
     color-scheme: light;
@@ -139,7 +134,7 @@
     color: var(--bs-link-hover-color);
   }
   :focus-visible {
-    outline: 2px solid var(--design-link);
+    outline: 2px solid var(--design-focus, var(--design-link));
     outline-offset: 2px;
   }
   button {
@@ -174,7 +169,7 @@
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
-    border-color: var(--design-link);
+    border-color: var(--design-focus, var(--design-link));
     outline-offset: -2px;
   }
   input:user-invalid,

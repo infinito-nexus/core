@@ -50,7 +50,9 @@ class TestPaletteContrast(unittest.TestCase):
                     self._assert_min(
                         t["--design-text-muted"], surfaces, CONTRAST_TEXT, "muted"
                     )
-                    self._assert_min(t["--design-link"], content, CONTRAST_TEXT, "link")
+                    self._assert_min(
+                        t["--design-link"], surfaces, CONTRAST_TEXT, "link"
+                    )
                     self._assert_min(
                         t["--design-primary"], content, CONTRAST_UI, "primary"
                     )
@@ -65,7 +67,12 @@ class TestPaletteContrast(unittest.TestCase):
                     )
                     for status in STATUS_HUES:
                         color = t[f"--design-{status}"]
-                        self._assert_min(color, content, CONTRAST_TEXT, status)
+                        self._assert_min(
+                            color,
+                            [*surfaces, t[f"--design-{status}-subtle"]],
+                            CONTRAST_TEXT,
+                            status,
+                        )
                         self._assert_min(
                             t[f"--design-on-{status}"],
                             [color],
@@ -89,6 +96,10 @@ class TestPaletteContrast(unittest.TestCase):
                     self._assert_min(
                         t["--design-text-muted"], states, CONTRAST_TEXT, "muted"
                     )
+                    for name in ("link", *STATUS_HUES):
+                        self._assert_min(
+                            t[f"--design-{name}"], states, CONTRAST_TEXT, name
+                        )
                     for fill in ("primary", *STATUS_HUES):
                         self._assert_min(
                             t[f"--design-on-{fill}"],
@@ -96,6 +107,37 @@ class TestPaletteContrast(unittest.TestCase):
                             CONTRAST_TEXT,
                             f"on-{fill}",
                         )
+
+    def test_frame_is_a_deep_brand_surface_in_both_modes(self) -> None:
+        for base in self.BASES:
+            palette = build_palette(base)
+            for mode in self.MODES:
+                with self.subTest(base=base, mode=mode):
+                    t = palette[mode]
+                    frame = t["--design-frame"]
+                    self._assert_min(
+                        t["--design-on-frame"],
+                        [
+                            frame,
+                            t["--design-frame-hover"],
+                            t["--design-frame-active"],
+                        ],
+                        CONTRAST_BODY_TEXT,
+                        "on-frame",
+                    )
+                    self.assertLess(
+                        relative_luminance(frame),
+                        relative_luminance(palette["light"]["--design-surface-3"]),
+                        "the frame must stay darker than every light surface",
+                    )
+                    self.assertGreaterEqual(
+                        contrast(frame, t["--design-surface-1"]),
+                        1.2,
+                        "the frame must stand out against the page",
+                    )
+
+    def test_light_frame_keeps_a_deep_base_unchanged(self) -> None:
+        self.assertEqual(build_palette("#001f3f")["light"]["--design-frame"], "#001f3f")
 
     def test_light_primary_keeps_a_compliant_base_unchanged(self) -> None:
         self.assertEqual(

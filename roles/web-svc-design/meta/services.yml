@@ -20,6 +20,7 @@ design:
     type: 'system-ui, -apple-system, "Segoe UI", Roboto, "Liberation Sans", Arial, sans-serif'
   logo: assets/img/logo.png
   title: true
+  bootstrap: false
   slots:
     icon:
       width: 512

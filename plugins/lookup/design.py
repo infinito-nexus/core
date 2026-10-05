@@ -7,7 +7,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.design.branding import resolve_branding
+from utils.design.branding import asset_urls, resolve_branding
 
 ASSET_DIR = "design"
 
@@ -24,7 +24,7 @@ class LookupModule(LookupBase):
       slots  {name: {width, height, text_only}}
       domain canonical domain of the role
       dest   CDN directory the generated assets are written to
-      urls   {"favicon": url, "<slot>": {"png": url, "svg": url}}
+      urls   {"favicon_ico": url, "<slot>": {"png": url, "svg": url}}
     """
 
     def _sub(self, name: str, terms: list, variables: dict[str, Any]) -> Any:
@@ -52,18 +52,12 @@ class LookupModule(LookupBase):
 
         cdn = self._sub("cdn", [application_id], variables)
         base_url = f"{cdn['urls']['role']['release']['img'].rstrip('/')}/{ASSET_DIR}"
-        urls: dict[str, Any] = {"favicon": f"{base_url}/favicon.ico"}
-        for slot in branding["slots"]:
-            urls[slot] = {
-                "png": f"{base_url}/{slot}.png",
-                "svg": f"{base_url}/{slot}.svg",
-            }
 
         return [
             {
                 **branding,
                 "domain": self._sub("domain", [application_id], variables),
                 "dest": str(Path(cdn["role"]["release"]["img"]) / ASSET_DIR),
-                "urls": urls,
+                "urls": asset_urls(base_url, branding["slots"]),
             }
         ]

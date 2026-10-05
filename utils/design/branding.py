@@ -9,6 +9,7 @@ from utils.cache.files import read_text
 
 DESIGN_ROLE = "web-svc-design"
 _H1_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
+_SLOT_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 
 def is_disabled(value: object) -> bool:
@@ -43,9 +44,28 @@ def role_title(roles_dir: Path, application_id: str) -> str:
     return match.group(1)
 
 
+def asset_urls(base_url: str, slots: dict[str, dict]) -> dict[str, object]:
+    """Map the generated assets of one role onto their CDN URLs.
+
+    Args:
+        base_url: CDN URL of the directory the assets are written to.
+        slots: Resolved slots of the role.
+
+    Returns:
+        ``{"favicon_ico": url, "<slot>": {"png": url, "svg": url}}``. Slot
+        names are kebab-case, so none can take the ``favicon_ico`` key.
+    """
+    urls: dict[str, object] = {"favicon_ico": f"{base_url}/favicon.ico"}
+    for slot in slots:
+        urls[slot] = {"png": f"{base_url}/{slot}.png", "svg": f"{base_url}/{slot}.svg"}
+    return urls
+
+
 def _slots(raw: dict) -> dict[str, dict]:
     slots = {}
     for name, spec in raw.items():
+        if not _SLOT_NAME_RE.match(str(name)):
+            raise ValueError(f"design slot {name!r} must be named in kebab-case")
         width, height = int(spec["width"]), int(spec["height"])
         if width <= 0 or height <= 0:
             raise ValueError(f"design slot {name!r} needs a positive width and height")
@@ -74,9 +94,11 @@ def resolve_branding(
     Returns:
         ``{"logo": <absolute path> | False, "title": <str> | False,
         "name": <README H1>, "label": <title, else name>,
+        "bootstrap": <bool>,
         "slots": {name: {"width", "height", "text_only"}}}``. ``label`` serves
         installers that require a site name even when the title replacement
-        is disabled.
+        is disabled. ``bootstrap`` tells whether the role links the shared
+        Bootstrap component mapping.
 
     Raises:
         ValueError: When the logo file is missing, a slot is malformed or the
@@ -112,5 +134,6 @@ def resolve_branding(
         "title": title,
         "name": name,
         "label": title or name,
+        "bootstrap": str(pick("bootstrap")).strip().lower() == "true",
         "slots": _slots({**global_cfg["slots"], **(role_cfg.get("slots") or {})}),
     }
