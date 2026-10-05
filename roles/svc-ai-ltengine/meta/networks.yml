@@ -13,8 +13,13 @@ cache:
     raw-crates-static:
       flavor: raw
       upstream: https://static.crates.io/ # nocheck: url the crate tarball paths under /crates/ resolve; the bare root answers 403
+    raw-huggingface:
+      flavor: raw
+      upstream: https://huggingface.co/
   hosts:
     index.crates.io:
       repo: raw-crates-index
     static.crates.io:
       repo: raw-crates-static
+    huggingface.co:
+      repo: raw-huggingface

@@ -17,21 +17,27 @@ ltengine:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: true
-  image: debian
+  image: nvidia/cuda
   # nocheck: docker-version  runtime base of the self-built binary, not the served application
-  version: 13.7-slim
-  builder_image: rust
-  builder_version: 1.99.0-slim
+  version: 12.6.3-runtime-ubuntu24.04
+  builder_image: nvidia/cuda
+  builder_version: 12.6.3-devel-ubuntu24.04
+  rust_version: 1.99.0
   update:
     - key: builder_version
       type: registry_tags
-      image: rust
-      match: slim
+      image: nvidia/cuda
+      match: devel-ubuntu24.04
+    - key: rust_version
+      type: git_tags
+      repository: https://github.com/rust-lang/rust.git
   custom: true
+  gpu: true
   repository: https://github.com/LibreTranslate/LTEngine
   # nocheck: repository-version  upstream's only tag predates the served server, so the pin is a commit
   ref: 9b748ddd84c02da9569bd96db3cf33c53e4665fa
-  min_storage: 1GB
+  # nocheck: min-storage-headroom  Reason: the runtime base extracts to about 3.3 GB from its 1.4 GB transfer, the CUDA devel builder to about 8.7 GB from 3.8 GB, the cargo registry and the llama.cpp CUDA kernels in target/ add about 3 GB while the build stage lives, and the GGUF weights the server downloads on first start add about 1 GB
+  min_storage: 16GB
   model: gemma3-1b
   char_limit: 5000
   ports:

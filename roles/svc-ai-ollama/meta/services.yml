@@ -15,6 +15,7 @@ ollama:
   image: ollama/ollama
   version: 0.35.1
   name: ollama
+  gpu: true
   min_storage: 3473MB
   cpus: "4.0"
   mem_reservation: 6g

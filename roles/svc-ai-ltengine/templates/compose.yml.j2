@@ -4,7 +4,7 @@
   {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       cache_from:
-        - "{{ lookup('image', application_id, 'ltengine') }}"
+        - "{{ lookup('image', application_id, 'ltengine', version=LTENGINE_IMAGE_VERSION) }}"
       args:
         BUILDKIT_INLINE_CACHE: "1"
         LTENGINE_BUILDER_IMAGE: "{{ LTENGINE_BUILDER_IMAGE }}"
@@ -13,8 +13,10 @@
         LTENGINE_BASE_VERSION: "{{ LTENGINE_BASE_VERSION }}"
         LTENGINE_REPOSITORY: "{{ LTENGINE_REPOSITORY }}"
         LTENGINE_REF: "{{ LTENGINE_REF }}"
+        LTENGINE_RUST_VERSION: "{{ LTENGINE_RUST_VERSION }}"
+        LTENGINE_FEATURES: "{{ LTENGINE_FEATURES }}"
         LTENGINE_MODELS_DIR: "{{ LTENGINE_MODELS_TARGET }}"
-    {{ lookup('container_image', application_id, 'ltengine') }}
+    {{ lookup('container_image', application_id, 'ltengine', version=LTENGINE_IMAGE_VERSION) }}
     {{ lookup('compose_only', 'container_name', LTENGINE_CONTAINER) }}
     expose:
       - "{{ LTENGINE_PORT }}"

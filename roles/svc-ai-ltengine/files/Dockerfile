@@ -8,13 +8,17 @@ FROM ${LTENGINE_BUILDER_IMAGE}:${LTENGINE_BUILDER_VERSION} AS build
 ARG LTENGINE_REPOSITORY
 ARG LTENGINE_REF
 
-RUN rm -rf /var/lib/apt/lists/* \
+ARG LTENGINE_RUST_VERSION
+ARG LTENGINE_FEATURES
+
+RUN rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/cuda*.list \
   && apt-get -o Acquire::Retries=3 update \
   && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     clang \
     cmake \
+    curl \
     git \
     libssl-dev \
     pkg-config \
@@ -30,14 +34,19 @@ RUN git init -q . \
   && git fetch -q --depth=1 origin "${LTENGINE_REF}" \
   && git checkout -q --detach FETCH_HEAD
 
-RUN cargo build --locked --release -p ltengine \
+RUN curl -fsSL --connect-timeout 5 --max-time 300 https://sh.rustup.rs \
+  | sh -s -- -y --no-modify-path --profile minimal --default-toolchain "${LTENGINE_RUST_VERSION}"
+
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+RUN cargo build --locked --release -p ltengine ${LTENGINE_FEATURES:+--features "${LTENGINE_FEATURES}"} \
   && install -Dm755 -s target/release/ltengine /out/ltengine
 
 FROM ${LTENGINE_BASE_IMAGE}:${LTENGINE_BASE_VERSION}
 
 ARG LTENGINE_MODELS_DIR
 
-RUN rm -rf /var/lib/apt/lists/* \
+RUN rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/cuda*.list \
   && apt-get -o Acquire::Retries=3 update \
   && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
     ca-certificates \
