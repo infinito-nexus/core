@@ -27,13 +27,15 @@ class FakeEngine:
         self.keeps_terms = keeps_terms
         self.calls = 0
         self.protected = []
+        self.formats = []
 
     def serves(self, source, target):
         return self.pairs is None or (source, target) in self.pairs
 
-    def translate(self, source, target, text, protected=()):
+    def translate(self, source, target, text, protected=(), fmt="text"):
         self.calls += 1
         self.protected.append(tuple(protected))
+        self.formats.append(fmt)
         if self.raises:
             raise self.raises
         kept = " ".join(protected) if self.keeps_terms else ""
@@ -144,6 +146,58 @@ class VerdictIsBlindTestCase(unittest.TestCase):
 
         _text, replies, _question = decider.seen[0]
         self.assertEqual(sorted(replies), ["alpha", "beta"])
+
+    def test_a_decider_that_raises_still_answers_the_request(self) -> None:
+        """Its timeout used to reach the caller as a 500, replies and all."""
+
+        class Unreachable:
+            def judge_answers(self, *_args):
+                raise TimeoutError("timed out")
+
+        router = Router(
+            {"alpha": FakeEngine("alpha"), "beta": FakeEngine("beta")},
+            decider=Unreachable(),
+            history=FakeHistory(),
+            sampler=AlwaysSampler(),
+            order=("beta", "alpha"),
+        )
+
+        engine, answer = run(router.translate("de", "en", "Haus"))
+
+        self.assertEqual((engine, answer), ("beta", "beta:Haus"))
+
+    def test_a_round_the_decider_never_judged_is_not_recorded(self) -> None:
+        """A fallback winner is not evidence that it translates the pair better."""
+
+        class Unreachable:
+            def judge_answers(self, *_args):
+                raise TimeoutError("timed out")
+
+        history = FakeHistory()
+        router = Router(
+            {"alpha": FakeEngine("alpha"), "beta": FakeEngine("beta")},
+            decider=Unreachable(),
+            history=history,
+            sampler=AlwaysSampler(),
+            order=("beta", "alpha"),
+        )
+
+        run(router.translate("de", "en", "Haus"))
+
+        self.assertEqual(history.recorded, [])
+
+    def test_a_verdict_naming_an_engine_that_did_not_answer_is_discarded(self) -> None:
+        router = Router(
+            {"alpha": FakeEngine("alpha"), "beta": FakeEngine("beta")},
+            decider=FakeDecider(pick="gamma"),
+            history=FakeHistory(),
+            sampler=AlwaysSampler(),
+            order=("alpha", "beta"),
+        )
+
+        engine, _answer = run(router.translate("de", "en", "Haus"))
+
+        self.assertEqual(engine, "alpha")
 
     def test_the_decider_is_asked_under_the_configured_question(self) -> None:
         decider = FakeDecider(pick="alpha")
@@ -371,11 +425,11 @@ class FakeCache:
         self.stored = dict(stored or {})
         self.reads = 0
 
-    async def get(self, engine, source, target, text):
+    async def get(self, engine, source, target, text, fmt="text"):
         self.reads += 1
         return self.stored.get((engine, source, target, text))
 
-    async def set(self, engine, source, target, text, translation):
+    async def set(self, engine, source, target, text, translation, fmt="text"):
         self.stored[(engine, source, target, text)] = translation
 
 
@@ -389,6 +443,68 @@ class CacheTestCase(unittest.TestCase):
 
         self.assertEqual(run(router.translate("de", "en", "Haus")), ("alpha", "House"))
         self.assertEqual(alpha.calls, 0, "a cached answer must not call the engine")
+
+    def test_an_engine_that_moves_an_emphasis_marker_is_passed_over(self) -> None:
+        """The count is what moves; every character is still present."""
+
+        class Stray:
+            name = "stray"
+            pairs = frozenset()
+
+            def serves(self, *_args):
+                return True
+
+            def translate(self, _source, _target, text, _protected=(), _fmt="text"):
+                return text.replace("**Raw**", "**/ Raw** *")
+
+        router = Router(
+            {"stray": Stray(), "beta": FakeEngine("beta")},
+            order=("stray", "beta"),
+            sampler=NeverSampler(),
+        )
+
+        engine, _answer = run(router.translate("en", "de", "The **Raw** edition"))
+
+        self.assertEqual(engine, "beta")
+
+    def test_an_excluded_engine_is_not_asked(self) -> None:
+        """The caller judges the restored answer the gateway never sees."""
+        alpha = FakeEngine("alpha")
+        router = Router(
+            {"alpha": alpha, "beta": FakeEngine("beta")},
+            order=("alpha", "beta"),
+            sampler=NeverSampler(),
+        )
+
+        engine, _answer = run(router.translate("en", "de", "House", exclude=("alpha",)))
+
+        self.assertEqual(engine, "beta")
+        self.assertEqual(alpha.calls, 0)
+
+    def test_excluding_every_engine_fails_loudly(self) -> None:
+        router = Router(
+            {"alpha": FakeEngine("alpha")}, order=("alpha",), sampler=NeverSampler()
+        )
+
+        with self.assertRaises(NoBackendError):
+            run(router.translate("en", "de", "House", exclude=("alpha",)))
+
+    def test_a_translation_that_keeps_the_markup_is_served(self) -> None:
+        router = Router(
+            {"alpha": FakeEngine("alpha")}, order=("alpha",), sampler=NeverSampler()
+        )
+
+        engine, _answer = run(router.translate("en", "de", "plain prose"))
+
+        self.assertEqual(engine, "alpha")
+
+    def test_the_requested_format_reaches_the_engine(self) -> None:
+        alpha = FakeEngine("alpha")
+        router = Router({"alpha": alpha}, order=("alpha",), sampler=NeverSampler())
+
+        run(router.translate("en", "de", '<x id="0"></x>', fmt="html"))
+
+        self.assertEqual(alpha.formats, ["html"])
 
     def test_a_new_request_is_stored_under_its_engine(self) -> None:
         cache = FakeCache()

@@ -56,6 +56,27 @@ class LibreTranslateEngine:
             return True
         return (source or "auto", target) in self._languages
 
+    def catalogue(self):
+        """The pairs the backend itself reports, as ``{(source, target)}``.
+
+        Asked only when nothing was declared for this backend. The engine
+        knows its own models, so reading them back beats a second copy in
+        the role's configuration that would go stale when a model lands.
+
+        Raises:
+            OSError: when the backend cannot be reached.
+        """
+        request = urllib.request.Request(  # noqa: S310 configured internal origin
+            f"{self._base_url}/languages", method="GET"
+        )
+        with urllib.request.urlopen(request, timeout=self._timeout) as response:  # noqa: S310 configured internal origin
+            body = json.loads(response.read())
+        return {
+            (entry.get("code"), target)
+            for entry in body or []
+            for target in entry.get("targets") or ()
+        }
+
     def _post(self, path, payload):
         request = urllib.request.Request(  # noqa: S310 configured internal origin
             f"{self._base_url}{path}",
@@ -66,7 +87,7 @@ class LibreTranslateEngine:
         with urllib.request.urlopen(request, timeout=self._timeout) as response:  # noqa: S310 configured internal origin
             return json.loads(response.read())
 
-    def translate(self, source, target, text, protected=()):
+    def translate(self, source, target, text, protected=(), fmt="text"):
         """The translation of *text*, as this backend returns it.
 
         Args:
@@ -75,6 +96,10 @@ class LibreTranslateEngine:
             text: the string to translate.
             protected: glossary terms; the LibreTranslate API takes none, so
                 they are checked on the answer instead of sent.
+            fmt: the LibreTranslate payload format, ``text`` or ``html``. A
+                caller that masks its protected spans as tags MUST ask for
+                ``html``, because in text mode the engine translates the tag
+                itself and the mask never comes back.
 
         Raises:
             OSError: when the backend cannot be reached.
@@ -84,7 +109,7 @@ class LibreTranslateEngine:
             "q": text,
             "source": source or "auto",
             "target": target,
-            "format": "text",
+            "format": fmt,
         }
         if self._api_key:
             payload["api_key"] = self._api_key
@@ -151,7 +176,7 @@ class ChatModelEngine:
             return True
         return (source or "auto", target) in self._languages
 
-    def translate(self, source, target, text, protected=()):
+    def translate(self, source, target, text, protected=(), fmt="text"):
         """The translation the model generated.
 
         Args:
@@ -159,6 +184,8 @@ class ChatModelEngine:
             target: target language code.
             text: the string to translate.
             protected: glossary terms the prompt tells the model to keep.
+            fmt: accepted for signature parity with the LibreTranslate
+                backend; a prompt carries no payload format.
 
         Raises:
             OSError: when the model gateway cannot be reached.

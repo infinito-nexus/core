@@ -43,8 +43,24 @@ class Gateway:
         except Exception:
             return ()
 
-    async def translate(self, source, target, text):
+    async def translate(
+        self, source, target, text, *, fmt="text", protected=(), exclude=()
+    ):
         """Translate *text*, preferring a reviewed human string.
+
+        Args:
+            source: source language code, or None for auto-detection.
+            target: target language code.
+            text: the string to translate.
+            fmt: the payload format the engines are asked with, ``text`` or
+                ``html``.
+            protected: spans the caller needs back verbatim, on top of the
+                glossary. A caller that masks its placeholders knows which
+                tokens must survive and the glossary does not.
+            exclude: engines the caller already rejected for this string.
+                A reviewed string still wins over all of them, because the
+                precedence rule is about who wrote the translation, not about
+                which engine last disappointed the caller.
 
         Returns:
             ``(origin, translation)`` where origin is ``weblate`` or the
@@ -63,6 +79,7 @@ class Gateway:
         if reviewed:
             return REVIEWED, reviewed
 
+        terms = (*await self._protected(target, text), *protected)
         return await self._router.translate(
-            source, target, text, protected=await self._protected(target, text)
+            source, target, text, protected=terms, fmt=fmt, exclude=exclude
         )

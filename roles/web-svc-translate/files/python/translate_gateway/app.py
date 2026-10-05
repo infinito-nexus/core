@@ -4,13 +4,17 @@
 
 from __future__ import annotations
 
+import asyncio
+
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 
 from translate_gateway.errors import GatewayError, NoBackendError
 
+NAME = "Infinito.Nexus Translation Gateway"
 UNPROCESSABLE = 422
 UNAVAILABLE = 503
+BATCH_CONCURRENCY = 8
 
 
 def create_app(gateway, engines, *, detector=None):
@@ -25,16 +29,25 @@ def create_app(gateway, engines, *, detector=None):
     Returns:
         The FastAPI application.
     """
-    app = FastAPI(title="Infinito.Nexus Translation Gateway")
+    app = FastAPI(title=NAME)
 
     def _detector():
         if detector is not None:
             return detector
         return next((e for e in engines.values() if hasattr(e, "detect")), None)
 
-    @app.get("/", include_in_schema=False)
-    async def _root() -> RedirectResponse:
-        return RedirectResponse(url="/docs")
+    @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+    async def _root() -> JSONResponse:
+        """Name the service and where its schema lives.
+
+        It answers rather than redirecting to ``/docs``, and it serves HEAD
+        beside GET, because both health checks start here: the webserver one
+        HEAD-requests every vhost and accepts only 200, 301 or 302, and the
+        CSP one follows redirects and renders what it lands on. Swagger UI
+        loads its assets from an external CDN this deployment forbids, so a
+        redirect into it failed the deploy on a gateway that was healthy.
+        """
+        return JSONResponse(content={"service": NAME, "schema": "/docs"})
 
     @app.exception_handler(GatewayError)
     async def _refuse(_request: Request, exc: GatewayError) -> JSONResponse:
@@ -56,9 +69,38 @@ def create_app(gateway, engines, *, detector=None):
                 status_code=UNPROCESSABLE,
                 content={"error": "'q' and 'target' are required"},
             )
-        engine, answer = await gateway.translate(body.get("source"), target, text)
+        source = body.get("source")
+        fmt = body.get("format") or "text"
+        protected = tuple(body.get("protected") or ())
+        exclude = tuple(body.get("exclude") or ())
+        if not isinstance(text, list):
+            engine, answer = await gateway.translate(
+                source, target, text, fmt=fmt, protected=protected, exclude=exclude
+            )
+            return JSONResponse(content={"translatedText": answer, "engine": engine})
+
+        if len(protected) == len(text) and all(
+            isinstance(entry, list) for entry in protected
+        ):
+            per_item = [tuple(entry) for entry in protected]
+        else:
+            per_item = [protected] * len(text)
+        limit = asyncio.Semaphore(BATCH_CONCURRENCY)
+
+        async def _one(item, terms):
+            async with limit:
+                return await gateway.translate(
+                    source, target, item, fmt=fmt, protected=terms, exclude=exclude
+                )
+
+        answered = await asyncio.gather(
+            *(_one(item, terms) for item, terms in zip(text, per_item, strict=True))
+        )
         return JSONResponse(
-            content={"translatedText": answer, "engine": engine},
+            content={
+                "translatedText": [answer for _, answer in answered],
+                "engine": [engine for engine, _ in answered],
+            }
         )
 
     @app.post("/detect")
@@ -79,15 +121,30 @@ def create_app(gateway, engines, *, detector=None):
             content=[{"language": engine.detect(text), "confidence": 1}]
         )
 
+    async def _pairs_of(engine):
+        """What *engine* offers: its declaration, else what it reports itself.
+
+        A backend that declares nothing still serves every pair it is asked
+        for, so leaving it out of the catalogue made the gateway advertise
+        an empty language list while translating fine.
+        """
+        declared = getattr(engine, "pairs", None)
+        if declared:
+            return set(declared)
+        reader = getattr(engine, "catalogue", None)
+        if reader is None:
+            return set()
+        try:
+            return await asyncio.to_thread(reader)
+        except Exception:
+            return set()
+
     @app.get("/languages")
     async def languages() -> JSONResponse:
-        pairs = sorted(
-            {
-                (source, target)
-                for engine in engines.values()
-                for source, target in getattr(engine, "pairs", None) or ()
-            }
+        reported = await asyncio.gather(
+            *(_pairs_of(engine) for engine in engines.values())
         )
+        pairs = sorted(set().union(*reported) if reported else set())
         catalogue: dict[str, list[str]] = {}
         for source, target in pairs:
             catalogue.setdefault(source, []).append(target)

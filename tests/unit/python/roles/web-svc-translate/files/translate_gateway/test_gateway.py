@@ -18,10 +18,16 @@ class FakeRouter:
         self.raises = raises
         self.calls = 0
         self.protected = []
+        self.formats = []
+        self.excluded = []
 
-    async def translate(self, source, target, text, *, protected=()):
+    async def translate(
+        self, source, target, text, *, protected=(), fmt="text", exclude=()
+    ):
         self.calls += 1
         self.protected.append(tuple(protected))
+        self.formats.append(fmt)
+        self.excluded.append(tuple(exclude))
         if self.raises:
             raise self.raises
         return self.answer
@@ -98,6 +104,22 @@ class GlossaryTestCase(unittest.TestCase):
 
         self.assertEqual(engine, "alpha")
         self.assertEqual(router.protected, [("Infinito.Nexus",)])
+
+    def test_the_callers_own_spans_join_the_glossary_terms(self) -> None:
+        """A masked placeholder is protected without being a glossary entry."""
+        router = FakeRouter(("alpha", "Haus"))
+        gateway = Gateway(router, glossary=FakeGlossary(("Infinito.Nexus",)))
+
+        run(gateway.translate("en", "de", "House", protected=('<x id="0"></x>',)))
+
+        self.assertEqual(router.protected, [("Infinito.Nexus", '<x id="0"></x>')])
+
+    def test_the_requested_format_reaches_the_router(self) -> None:
+        router = FakeRouter(("alpha", "Haus"))
+
+        run(Gateway(router).translate("en", "de", "House", fmt="html"))
+
+        self.assertEqual(router.formats, ["html"])
 
     def test_a_mangled_answer_reaches_the_caller_as_a_refusal(self) -> None:
         gateway = Gateway(

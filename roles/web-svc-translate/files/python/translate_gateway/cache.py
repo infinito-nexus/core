@@ -48,22 +48,22 @@ class TranslationCache:
             await self._client.execute_raw(self.ddl)
             self._ready = True
 
-    async def get(self, engine, source, target, text):
+    async def get(self, engine, source, target, text, fmt="text"):
         """The stored translation, or None when this request is new."""
         await self._ensure()
         rows = await self._client.query_raw(
             f"SELECT translation FROM {self._table} WHERE key = $1",  # noqa: S608 table validated against IDENTIFIER in __init__
-            cache_key(engine, source, target, text),
+            cache_key(engine, source, target, text, fmt),
         )
         return (rows or [{}])[0].get("translation") if rows else None
 
-    async def set(self, engine, source, target, text, translation):
+    async def set(self, engine, source, target, text, translation, fmt="text"):
         """Store *translation*, replacing any earlier answer for this key."""
         await self._ensure()
         await self._client.execute_raw(
             f"INSERT INTO {self._table} (key, translation) VALUES ($1, $2) "  # noqa: S608 table validated against IDENTIFIER in __init__
             f"ON CONFLICT (key) DO UPDATE SET translation = EXCLUDED.translation, "
             f"answered_at = now()",
-            cache_key(engine, source, target, text),
+            cache_key(engine, source, target, text, fmt),
             translation,
         )

@@ -43,12 +43,15 @@ def signature(source, target, text):
     return f"{source or 'auto'}:{target}:{length_class(text)}:{shape}"
 
 
-def cache_key(engine, source, target, text):
+def cache_key(engine, source, target, text, fmt="text"):
     """What identifies a cached translation.
 
     The engine is part of the key: two engines answer the same request
     differently, and serving one's answer as the other's would make the
-    learning log describe something that never happened.
+    learning log describe something that never happened. The format is part
+    of it for the same reason: an engine asked in text mode translates a tag
+    that the same engine in html mode leaves alone, so the two answers are
+    not interchangeable.
     """
     digest = hashlib.sha256((text or "").encode()).hexdigest()
-    return f"{engine}:{source or 'auto'}:{target}:{digest}"
+    return f"{engine}:{source or 'auto'}:{target}:{fmt}:{digest}"

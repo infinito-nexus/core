@@ -85,6 +85,12 @@ class CacheKeyTestCase(unittest.TestCase):
     def test_the_text_itself_does_not_travel_in_the_key(self) -> None:
         self.assertNotIn("Haus", cache_key("alpha", "de", "en", "Haus"))
 
+    def test_another_format_is_another_entry(self) -> None:
+        self.assertNotEqual(
+            cache_key("alpha", "de", "en", '<x id="0"></x>', "text"),
+            cache_key("alpha", "de", "en", '<x id="0"></x>', "html"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections import Counter
 
 from .errors import EngineRefusedError, MangledTermError, NoBackendError
 from .signature import signature
@@ -11,6 +12,7 @@ from .signature import signature
 SYSTEM_ONE = "system_one"
 PREFERENCE = "preference"
 CHOICE_INSTRUCTIONS = "Which engine should answer this translation request?"
+MARKUP_CHARACTERS = "[]{}`*()"
 
 
 def saturated(tally, minimum, share):
@@ -92,12 +94,23 @@ class Router:
         self._pairs = dict(pairs or {})
         self._latency = {}
 
-    def candidates(self, source, target):
-        """The engines that serve this language pair, in preference order."""
+    def candidates(self, source, target, exclude=()):
+        """The engines that serve this language pair, in preference order.
+
+        Args:
+            source: source language code, or None.
+            target: target language code.
+            exclude: engines the caller has already found wanting for this
+                string. A caller that masks its placeholders judges the
+                restored answer, which the gateway never sees, so naming the
+                engine that failed that judgement is the only way its own
+                verdict can reach the candidate set.
+        """
+        barred = set(exclude)
         serving = [
             name
             for name, engine in self._engines.items()
-            if engine.serves(source, target)
+            if name not in barred and engine.serves(source, target)
         ]
         ranked = [name for name in self._order if name in serving]
         return ranked + sorted(set(serving) - set(ranked))
@@ -120,11 +133,11 @@ class Router:
         except Exception:
             return {}
 
-    async def _ask_one(self, engine, source, target, text, protected=()):
+    async def _ask_one(self, engine, source, target, text, protected=(), fmt="text"):
         started = time.monotonic()
         try:
             answer = await asyncio.to_thread(
-                self._engines[engine].translate, source, target, text, protected
+                self._engines[engine].translate, source, target, text, protected, fmt
             )
         except Exception as exc:
             await self._failed(engine)
@@ -191,7 +204,9 @@ class Router:
         choice = (answer or {}).get("choice")
         return choice if choice in offered else None
 
-    async def translate(self, source, target, text, *, protected=()):
+    async def translate(
+        self, source, target, text, *, protected=(), fmt="text", exclude=()
+    ):
         """Translate *text*, comparing engines when the sampler says so.
 
         Args:
@@ -201,6 +216,9 @@ class Router:
             protected: glossary terms the answer has to keep; they are handed
                 to every engine that takes them and checked before the answer
                 is cached.
+            fmt: the payload format every engine is asked with, ``text`` or
+                ``html``.
+            exclude: engines the caller already rejected for this string.
 
         Returns:
             ``(engine, translation)``.
@@ -216,7 +234,7 @@ class Router:
         request ever again, and nothing would clear a streak because nothing
         would be asked.
         """
-        serving = self.candidates(source, target)
+        serving = self.candidates(source, target, exclude)
         if not serving:
             raise NoBackendError(f"no engine serves {source or 'auto'} to {target}")
 
@@ -241,38 +259,55 @@ class Router:
         )
         if comparing:
             return await self._compare(
-                offered, request_class, source, target, text, protected
+                offered, request_class, source, target, text, protected, fmt
             )
 
         chosen = settled
         if chosen is None and self._strategy == SYSTEM_ONE:
             chosen = await self._choose(offered, tally, source, target, text)
         return await self._serve(
-            chosen or offered[0], offered, source, target, text, protected
+            chosen or offered[0], offered, source, target, text, protected, fmt
         )
 
     @staticmethod
-    def _mangled(answer, protected):
-        """The protected terms *answer* lost, in declaration order."""
-        return [term for term in protected if term not in answer]
+    def _mangled(answer, protected, text=""):
+        """What *answer* broke: protected terms it lost, then the markup.
 
-    async def _serve(self, engine, offered, source, target, text, protected=()):
+        The markup skeleton is checked as a multiset of ``MARKUP_CHARACTERS``
+        rather than term presence, because the damage that matters is a count
+        that moved: an engine that renders ``**Raw / Community**`` as
+        ``**/ Community** *`` keeps every character and still emits a stray
+        emphasis marker. Catching it here is what lets the caller's next
+        engine be tried, which is the whole reason the candidate set exists.
+        """
+        lost = [term for term in protected if term not in answer]
+        if text and Counter(
+            character for character in answer if character in MARKUP_CHARACTERS
+        ) != Counter(
+            character for character in text if character in MARKUP_CHARACTERS
+        ):
+            lost.append("the markup skeleton")
+        return lost
+
+    async def _serve(
+        self, engine, offered, source, target, text, protected=(), fmt="text"
+    ):
         refused = []
         mangled = []
         for name in [engine, *[o for o in offered if o != engine]]:
-            cached = await self._cached(name, source, target, text)
+            cached = await self._cached(name, source, target, text, fmt)
             if cached is not None:
                 return name, cached
             try:
-                answer = await self._ask_one(name, source, target, text, protected)
+                answer = await self._ask_one(name, source, target, text, protected, fmt)
             except EngineRefusedError as exc:
                 refused.append(str(exc))
                 continue
-            missing = self._mangled(answer, protected)
+            missing = self._mangled(answer, protected, text)
             if missing:
                 mangled.append(f"{name} dropped {', '.join(missing)}")
                 continue
-            await self._store(name, source, target, text, answer)
+            await self._store(name, source, target, text, answer, fmt)
             return name, answer
         if mangled and not refused:
             raise MangledTermError("; ".join(mangled))
@@ -281,16 +316,16 @@ class Router:
         )
 
     async def _compare(
-        self, offered, request_class, source, target, text, protected=()
+        self, offered, request_class, source, target, text, protected=(), fmt="text"
     ):
         replies = {}
         mangled = []
         for name in offered:
             try:
-                answer = await self._ask_one(name, source, target, text, protected)
+                answer = await self._ask_one(name, source, target, text, protected, fmt)
             except EngineRefusedError:
                 continue
-            missing = self._mangled(answer, protected)
+            missing = self._mangled(answer, protected, text)
             if missing:
                 mangled.append(f"{name} dropped {', '.join(missing)}")
                 continue
@@ -300,15 +335,37 @@ class Router:
         if not replies:
             raise NoBackendError("every engine refused the request")
         if len(replies) == 1:
-            winner = next(iter(replies))
+            winner, judged = next(iter(replies)), True
         else:
+            verdict = await self._judged(text, replies)
+            judged = verdict is not None
+            winner = verdict or next(
+                (name for name in self._order if name in replies), next(iter(replies))
+            )
+        for name, answer in replies.items():
+            await self._store(name, source, target, text, answer, fmt)
+        if judged:
+            await self._record(request_class, winner, sorted(replies))
+        return winner, replies[winner]
+
+    async def _judged(self, text, replies):
+        """The engine the decider preferred, or None when it did not say.
+
+        A decider that times out must not fail a request whose translations
+        are already in hand: ``_choose`` degrades the same way, and leaving
+        this call unguarded turned a slow decider into a 500 that threw the
+        replies away. None is the answer in that case rather than a stand-in,
+        because the caller records a row only for a verdict that was taken:
+        charging the fallback engine a win the decider never awarded would
+        let ``saturated`` freeze a signature on the configured order.
+        """
+        try:
             winner = await asyncio.to_thread(
                 self._decider.judge_answers, text, replies, self._question
             )
-        for name, answer in replies.items():
-            await self._store(name, source, target, text, answer)
-        await self._record(request_class, winner, sorted(replies))
-        return winner, replies[winner]
+        except Exception:
+            return None
+        return winner if winner in replies else None
 
     async def _record(self, request_class, winner, offered):
         if self._history is None:
@@ -318,18 +375,18 @@ class Router:
         except Exception:
             return
 
-    async def _cached(self, engine, source, target, text):
+    async def _cached(self, engine, source, target, text, fmt="text"):
         if self._cache is None:
             return None
         try:
-            return await self._cache.get(engine, source, target, text)
+            return await self._cache.get(engine, source, target, text, fmt)
         except Exception:
             return None
 
-    async def _store(self, engine, source, target, text, answer):
+    async def _store(self, engine, source, target, text, answer, fmt="text"):
         if self._cache is None:
             return
         try:
-            await self._cache.set(engine, source, target, text, answer)
+            await self._cache.set(engine, source, target, text, answer, fmt)
         except Exception:
             return
