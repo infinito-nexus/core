@@ -65,6 +65,17 @@ await_systemd() {
 	return 1
 }
 
+await_engine() {
+	local state=""
+	for _ in $(seq 1 "${SYSTEMD_TRIES}"); do
+		state="$(machine exec -T machine docker version --format '{{.Server.Version}}' 2>&1 || true)"
+		case "${state}" in [0-9]*) return 0 ;; esac
+		sleep "${SYSTEMD_DELAY}"
+	done
+	echo "no container engine answered in the ${DOCS_TEST_ROLE} machine (last: ${state:-unknown})" >&2
+	return 1
+}
+
 if grep -q '^git clone ' "${BLOCK}"; then
 	echo "=== Dropping the clone; ${DOCS_TEST_SRC_DIR} is the tree under test ==="
 	sed -i -E '/^git clone /d; /^cd core$/d' "${BLOCK}"
@@ -81,6 +92,7 @@ sweep_dead_machines
 trap cleanup EXIT
 machine up -d --build --pull always
 await_systemd
+await_engine
 
 echo "=== Preparing it for Infinito.Nexus (${PREPARE}) ==="
 in_machine bash "${PREPARE}"
