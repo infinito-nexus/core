@@ -3,8 +3,8 @@ const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvJsonList, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const preload = decodeDotenvJsonList(
-  process.env.DOCS_I18N_PRELOAD_LANGUAGES,
-  "DOCS_I18N_PRELOAD_LANGUAGES",
+  process.env.DOCS_I18N_PRELOAD_LANGUAGES_JSON,
+  "DOCS_I18N_PRELOAD_LANGUAGES_JSON",
 );
 const samples = JSON.parse(decodeDotenvQuotedValue(process.env.DOCS_I18N_SAMPLES_JSON || "") || "{}");
 const translated = preload.filter((code) => code in samples);

@@ -231,7 +231,8 @@ class TestPrepared(LibraryFixture, unittest.TestCase):
     """How the prepared tree is kept and handed to the next build."""
 
     def _any_source(self, tree):
-        return next(path for path in sorted(tree.rglob("*")) if path.is_file())
+        walked = sorted(tree.rglob("*"))  # nocheck: project-walk  the fixture tempdir
+        return next(path for path in walked if path.is_file())
 
     def test_the_reused_tree_shares_inodes_with_the_cache(self) -> None:
         self.library.build("latest")
