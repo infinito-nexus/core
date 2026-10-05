@@ -11,10 +11,14 @@
 # Param: S1_JEFF_MODEL_PATH   where that checkpoint lands in the image
 set -euo pipefail
 
-rm -rf /var/lib/apt/lists/*
-apt-get -o Acquire::Retries=3 update
-apt-get -o Acquire::Retries=3 install -y --no-install-recommends git
-rm -rf /var/lib/apt/lists/*
+APT_LISTS=/tmp/apt-lists
+APT_OPTS="-o Acquire::Retries=3 -o Dir::State::Lists=${APT_LISTS}"
+mkdir -p "${APT_LISTS}/partial"
+# shellcheck disable=SC2086
+apt-get $APT_OPTS update
+# shellcheck disable=SC2086
+apt-get $APT_OPTS install -y --no-install-recommends git
+rm -rf "${APT_LISTS}"
 
 if [ "${S1_GPU}" = "true" ]; then
 	pip install --no-cache-dir torch
