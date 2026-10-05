@@ -3,7 +3,7 @@ enabled: "{{ lookup('config', 'web-app-mattermost', 'services.jitsi.enabled') | 
 required: false
 mechanism: plugin
 source: upstream
-version: "v2.0.3"
+version: "v2.1.0"
 bridges:
   - jitsi
 update:

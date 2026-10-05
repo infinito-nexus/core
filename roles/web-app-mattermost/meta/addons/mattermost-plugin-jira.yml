@@ -3,7 +3,7 @@ enabled: "{{ lookup('config', 'web-app-mattermost', 'services.jira.enabled') | b
 required: false
 mechanism: plugin
 source: upstream
-version: "v4.2.0"
+version: "v5.0.0"
 bridges:
   - jira
 update:

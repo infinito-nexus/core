@@ -28,7 +28,7 @@ docs:
   version: 3.13-slim
   custom: true
   source_repository: "{{ SOFTWARE_REPOSITORY }}"
-  mermaid_version: 11.4.1
+  mermaid_version: 12.1.0
   mermaid_sha256: a43bc1afd446f9c4cc66ac5dd45d02e8d65e26fc5344ec0ef787f88d6ddb6f9e
   update:
     - key: mermaid_version
