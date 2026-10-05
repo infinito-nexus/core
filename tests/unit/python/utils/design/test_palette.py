@@ -27,6 +27,7 @@ class TestPaletteContrast(unittest.TestCase):
         "#FF00FF",
     )
     MODES: ClassVar[tuple[str, ...]] = ("light", "dark")
+    LINK_APART_FROM_TEXT: ClassVar[float] = 1.4
 
     def _assert_min(
         self, fg: str, backgrounds: list[str], target: float, label: str
@@ -143,6 +144,18 @@ class TestPaletteContrast(unittest.TestCase):
         self.assertEqual(
             build_palette("#001f3f")["light"]["--design-primary"], "#001f3f"
         )
+
+    def test_a_link_stays_apart_from_body_text(self) -> None:
+        for base in (*self.BASES, "#000000", "#ffffff"):
+            palette = build_palette(base)
+            for mode in self.MODES:
+                with self.subTest(base=base, mode=mode):
+                    t = palette[mode]
+                    self.assertGreaterEqual(
+                        contrast(t["--design-link"], t["--design-text"]),
+                        self.LINK_APART_FROM_TEXT,
+                        "a link as dark or as light as body text cannot be told from it",
+                    )
 
     def test_dark_mode_does_not_invert_the_light_palette(self) -> None:
         palette = build_palette("#001f3f")

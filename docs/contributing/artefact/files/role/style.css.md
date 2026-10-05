@@ -40,7 +40,7 @@ The [design_palette](../../../../../plugins/lookup/design_palette.py) lookup der
 | `--design-frame` / `--design-on-frame` | Large brand surfaces such as a sidebar, masthead or top bar: a deep brand tone in light and dark mode, and the text on it at AAA |
 | `--design-frame-hover`, `--design-frame-active` | Hovered and selected entries inside the frame; the on-color stays AAA |
 | `--design-focus` | Color of the default focus outline. Unset, the outline uses `--design-link`. A frame sets it to `--design-on-frame` on its own element; every focusable it hosts then draws its outline in that color |
-| `--design-link` | Links and focus, AA against every surface |
+| `--design-link` | Links and focus, AA against every surface and never as dark or as light as body text |
 | `--design-success`, `--design-warning`, `--design-danger`, `--design-info` | Status text and icons, AA against every surface and against their own `-subtle` background |
 | `--design-on-<status>` | Text on a filled status surface |
 | `--design-primary-hover`, `--design-primary-active`, `--design-<status>-hover`, `--design-<status>-active` | Hovered and pressed filled controls, shifted away from their on-color so its contrast only grows |

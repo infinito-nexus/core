@@ -42,6 +42,7 @@ _SURFACE_STATE_LIGHTNESS = {
     "dark": {"hover": 0.30, "active": 0.34},
 }
 _FRAME_LIGHTNESS = {"light": 0.38, "dark": 0.30}
+_LINK_LIGHTNESS = {"light": (0.45, 0.55), "dark": (0.70, 0.80)}
 _FILL_STATE_SHIFT = {"hover": 0.04, "active": 0.08}
 _STATUS_TINT_SHARE = {"subtle": 0.12, "border": 0.40}
 
@@ -312,7 +313,7 @@ def _mode_tokens(
             ),
         ),
         "--design-link": _ensure_contrast(
-            min(base_l, 0.55) if mode == "light" else max(base_l, 0.7),
+            min(max(base_l, _LINK_LIGHTNESS[mode][0]), _LINK_LIGHTNESS[mode][1]),
             base_c,
             hue,
             text_surfaces,
