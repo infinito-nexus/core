@@ -48,7 +48,7 @@ suitecrm:
   # nocheck: docker-version
   version: 8.2-apache
   custom: true
-  app_version: 8.9.1
+  app_version: 8.10.2
   update:
     key: app_version
     type: git_tags
