@@ -74,9 +74,4 @@ class LookupModule(LookupBase):
         ).run([], variables=variables)[0]
 
         wanted = resource_filter(applications, application_id, "gpu", service_name, False)
-        # Exception: boolean(), not bool(). The call sites this replaces read
-        # the flag through Jinja's `| bool`, which answers False for the
-        # strings "false", "False", "0" and "no" where bool() answers True. A
-        # templated declaration renders to such a string, and the difference
-        # would attach a GPU runtime nothing asked for.
         return [boolean(wanted, strict=False) and _device_present(variables)]

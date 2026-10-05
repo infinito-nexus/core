@@ -1,3 +1,10 @@
+"""The ``runtime: nvidia`` key of the shared resource template.
+
+The template asks the ``gpu`` lookup and decides nothing itself: combining
+the declared flag with the host's device is that lookup's job, and its own
+tests own the matrix.
+"""
+
 import unittest
 from pathlib import Path
 
@@ -23,14 +30,8 @@ BASE = {
 }
 
 
-def _ansible_bool(value):
-    if isinstance(value, str):
-        return value.strip().lower() in {"y", "yes", "true", "on", "1"}
-    return bool(value)
-
-
 class TestGpuRuntimeRegistration(unittest.TestCase):
-    def _render(self, *, wants_gpu, host_has_gpu):
+    def _render(self, *, gpu):
         env = Environment(
             loader=FileSystemLoader(str(TEMPLATES)),
             trim_blocks=True,
@@ -38,48 +39,31 @@ class TestGpuRuntimeRegistration(unittest.TestCase):
             undefined=StrictUndefined,
             autoescape=select_autoescape(),
         )
-        env.filters["bool"] = _ansible_bool
-        env.filters["resource_filter"] = lambda _apps, _id, key, _svc, default, **_k: (
-            wants_gpu if key == "gpu" else default
+        env.filters["resource_filter"] = (
+            lambda _apps, _id, _key, _svc, default, **_k: default
         )
-        env.globals["lookup"] = lambda name, *a, **k: {}
-        device = {"stat": {"exists": host_has_gpu}}
-        return env.get_template("resource.yml.j2").render(
-            {**BASE, "sys_svc_container_nvidia_device": device}
-        )
+        self.asked = []
 
-    def test_a_gpu_service_on_a_gpu_host_gets_the_nvidia_runtime(self):
+        def _lookup(name, *terms, **_kwargs):
+            self.asked.append((name, terms))
+            return gpu if name == "gpu" else {}
+
+        env.globals["lookup"] = _lookup
+        return env.get_template("resource.yml.j2").render(BASE)
+
+    def test_the_lookups_yes_reaches_the_runtime_key(self):
+        self.assertIn("runtime:            nvidia", self._render(gpu=True))
+
+    def test_the_lookups_no_leaves_the_runtime_key_out(self):
+        self.assertNotIn("runtime:", self._render(gpu=False))
+
+    def test_the_lookup_is_asked_for_this_service(self):
+        self._render(gpu=True)
+
         self.assertIn(
-            "runtime:            nvidia",
-            self._render(wants_gpu=True, host_has_gpu=True),
+            ("gpu", ("web-svc-libretranslate", "libretranslate")),
+            self.asked,
         )
-
-    def test_a_gpu_service_on_a_host_without_a_card_gets_no_runtime(self):
-        self.assertNotIn("runtime:", self._render(wants_gpu=True, host_has_gpu=False))
-
-    def test_a_plain_service_never_gets_the_nvidia_runtime(self):
-        for host_has_gpu in (True, False):
-            with self.subTest(host_has_gpu=host_has_gpu):
-                self.assertNotIn(
-                    "runtime:",
-                    self._render(wants_gpu=False, host_has_gpu=host_has_gpu),
-                )
-
-    def test_a_missing_device_fact_is_treated_as_no_gpu(self):
-        env = Environment(
-            loader=FileSystemLoader(str(TEMPLATES)),
-            trim_blocks=True,
-            lstrip_blocks=False,
-            undefined=StrictUndefined,
-            autoescape=select_autoescape(),
-        )
-        env.filters["bool"] = _ansible_bool
-        env.filters["resource_filter"] = lambda _apps, _id, key, _svc, default, **_k: (
-            True if key == "gpu" else default
-        )
-        env.globals["lookup"] = lambda name, *a, **k: {}
-
-        self.assertNotIn("runtime:", env.get_template("resource.yml.j2").render(BASE))
 
 
 if __name__ == "__main__":
