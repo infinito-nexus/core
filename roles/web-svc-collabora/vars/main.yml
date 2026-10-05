@@ -6,7 +6,6 @@ domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.collabora.ports.local.http') }}"
 
 COLLABORA_CONTAINER: "{{ lookup('config', application_id, 'services.collabora.name') }}"
-COLLABORA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 COLLABORA_ALLOWED_DOMAINS: "(.*\\.|){{ DOMAIN_PRIMARY | regex_replace('\\.', '\\\\.') }}"
 COLLABORA_ALLOWED_HOSTS: "{{ lookup('domain','web-app-nextcloud') }}"
 COLLABORA_DISCOVERY_PATH: "/hosting/discovery"

@@ -6,11 +6,12 @@ resolver (an ``update:`` block naming the upstream). A pin outside all three is
 frozen silently, and nothing tells the next reader whether that was a decision
 or an oversight.
 
-Scope: every ``roles/*/meta/services.yml`` value whose key names a version and
-whose content is a semver. Moving tags (``latest``, ``stable``, a branch name)
-are not pins and are ignored. A role whose primary service is ``lifecycle:
-eol`` is skipped entirely: ``iter_role_images`` drops it, so no updater can
-reach its pins and a watcher is not something it could declare.
+Scope: every value in ``roles/*/meta/services.yml`` and at the root of
+``roles/*/meta/addons/*.yml`` whose key names a version and whose content is a
+semver. Moving tags (``latest``, ``stable``, a branch name) are not pins and
+are ignored. A role whose primary service is ``lifecycle: eol`` is skipped
+entirely: ``iter_role_images`` drops it, so no updater can reach its pins and
+a watcher is not something it could declare.
 
 Per-line opt-out: ``# nocheck: unwatched-version`` above the pin, with a
 reason, for a version that must stay where it is. An existing
@@ -28,6 +29,7 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.docker.image.discovery import RETIRED, role_lifecycle
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.update.addons import iter_addon_files
 from utils.update.base import is_semver
 from utils.update.docker import collect_entries as docker_entries
 from utils.update.repository import collect_entries as repository_entries
@@ -36,7 +38,12 @@ from utils.update.source import collect_entries as source_entries
 from . import PROJECT_ROOT
 
 _RULE = "unwatched-version"
+_OPT_OUTS = (_RULE, "docker-version", "repository-version")
 _VERSION_KEY = re.compile(r"(^|_)(version|release|ref|tag)$")
+
+
+def _addon_label(addon_id: str) -> str:
+    return f"addons/{addon_id}"
 
 
 def _watched() -> set[tuple[str, str, str]]:
@@ -46,13 +53,46 @@ def _watched() -> set[tuple[str, str, str]]:
         (e.role, e.entity_path[-1] if e.entity_path else "", "ref")
         for e in repository_entries(PROJECT_ROOT)
     }
-    watched |= {(e.role, e.entity, e.key) for e in source_entries(PROJECT_ROOT)}
+    watched |= {
+        (e.role, _addon_label(e.entity) if e.addon else e.entity, e.key)
+        for e in source_entries(PROJECT_ROOT)
+    }
     return watched
+
+
+def _addon_findings(watched: set[tuple[str, str, str]]) -> list[str]:
+    findings: list[str] = []
+    for role, addon_path in iter_addon_files(PROJECT_ROOT / "roles"):
+        spec = load_yaml(str(addon_path))
+        if not isinstance(spec, dict):
+            continue
+        label = _addon_label(addon_path.stem)
+        lines = read_text(str(addon_path)).splitlines()
+        for key, value in spec.items():
+            text = str(value)
+            if not _VERSION_KEY.search(str(key)) or not is_semver(text):
+                continue
+            if (role, label, str(key)) in watched:
+                continue
+            number = next(
+                (
+                    index
+                    for index, line in enumerate(lines, start=1)
+                    if re.match(rf"^{re.escape(str(key))}\s*:", line)
+                ),
+                0,
+            )
+            if number and any(
+                is_suppressed_at(lines, number, rule) for rule in _OPT_OUTS
+            ):
+                continue
+            findings.append(f"- {role}/{label}.{key} = {text}")
+    return findings
 
 
 def _findings() -> list[str]:
     watched = _watched()
-    findings: list[str] = []
+    findings: list[str] = _addon_findings(watched)
     for config_path in sorted(
         (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
     ):
@@ -82,8 +122,7 @@ def _findings() -> list[str]:
                     0,
                 )
                 if number and any(
-                    is_suppressed_at(lines, number, rule)
-                    for rule in (_RULE, "docker-version", "repository-version")
+                    is_suppressed_at(lines, number, rule) for rule in _OPT_OUTS
                 ):
                     continue
                 findings.append(f"- {role}/{entity}.{key} = {text}")

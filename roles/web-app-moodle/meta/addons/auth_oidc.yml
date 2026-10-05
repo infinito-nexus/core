@@ -10,3 +10,4 @@ update:
   monitored: true
   catalog: github-releases
   upstream_id: microsoft/moodle-auth_oidc
+  match: "v4.5."

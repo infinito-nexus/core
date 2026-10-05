@@ -108,7 +108,7 @@ jobs:
           UPDATE_BRANCH_PREFIX: update/version-sources
           UPDATE_COMMIT_MESSAGE: "update(versions): update pins with a declared source"
           UPDATE_PR_TITLE: "update(versions): update pins with a declared source"
-          UPDATE_PR_BODY: "Automated update of version pins declaring their upstream in an `update:` block of `roles/*/meta/services.yml`."
+          UPDATE_PR_BODY: "Automated update of version pins declaring their upstream in an `update:` block of `roles/*/meta/services.yml` or `roles/*/meta/addons/*.yml`."
           UPDATE_BASE_BRANCH: main
         run: bash scripts/github/update/open/role_prs.sh roles
 

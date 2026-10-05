@@ -5,7 +5,7 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update import source as module
 
 SERVICES = """\
@@ -33,11 +33,71 @@ frozen:
 """
 
 
+ADDONS = {
+    "released": """\
+---
+enabled: true
+version: "v1.2.0"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: example/released
+config:
+  archive: "https://example.test/released/download/v1.2.0/app.tar.gz"
+""",
+    "declared": """\
+---
+enabled: true
+version: "3.4"
+update:
+  type: http_regex
+  url: https://example.test/metadata.xml
+  pattern: '<version>([0-9.]+)</version>'
+""",
+    "unmonitored": """\
+---
+enabled: true
+version: "1.0.0"
+update:
+  monitored: false
+  catalog: github-releases
+  upstream_id: example/unmonitored
+""",
+    "catalogued": """\
+---
+enabled: true
+version: "1.0.0"
+update:
+  monitored: true
+  catalog: wordpress-org
+""",
+    "frozen": """\
+---
+enabled: true
+# nocheck: unwatched-version  Reason: bound to a checksum
+version: "2.0.0"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: example/frozen
+""",
+}
+
+
 def _repo(services: str = SERVICES) -> Path:
     tmp = Path(tempfile.mkdtemp())
     config = tmp / "roles" / "web-app-example" / ROLE_FILE_META_SERVICES
     config.parent.mkdir(parents=True)
     config.write_text(services, encoding="utf-8")
+    return tmp
+
+
+def _addon_repo(addons: dict[str, str] | None = None) -> Path:
+    tmp = Path(tempfile.mkdtemp())
+    directory = tmp / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+    directory.mkdir(parents=True)
+    for addon_id, content in (ADDONS if addons is None else addons).items():
+        (directory / f"{addon_id}.yml").write_text(content, encoding="utf-8")
     return tmp
 
 
@@ -90,6 +150,110 @@ class TestOutdated(unittest.TestCase):
         root = _repo()
         with mock.patch.object(module, "candidates", return_value=["2.0.0", "1.9.9"]):
             self.assertEqual(module.outdated([self._entry(root)], root), [])
+
+
+class TestAddons(unittest.TestCase):
+    def test_only_a_declared_or_github_released_addon_pin_is_collected(self) -> None:
+        entries = module.collect_entries(_addon_repo())
+
+        self.assertEqual(
+            [
+                (e.entity, e.key, e.current, e.source["type"], e.line, e.addon)
+                for e in entries
+            ],
+            [
+                ("declared", "version", "3.4", "http_regex", 3, True),
+                ("released", "version", "v1.2.0", "git_tags", 3, True),
+            ],
+        )
+        self.assertEqual(
+            entries[1].source["repository"], "https://github.com/example/released.git"
+        )
+
+    def test_an_addon_pin_moves_together_with_the_archive_that_carries_it(self) -> None:
+        root = _addon_repo({"released": ADDONS["released"]})
+        with mock.patch.object(module, "candidates", return_value=["v1.3.0"]):
+            updates = module.find_outdated_updates(root)
+        module.apply_updates(updates)
+
+        addon = (
+            root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS / "released.yml"
+        )
+        written = addon.read_text()  # nocheck: cache-read  just rewritten here
+        self.assertIn('version: "v1.3.0"', written)
+        self.assertIn("released/download/v1.3.0/app.tar.gz", written)
+        self.assertIn("upstream_id: example/released", written)
+
+    def test_an_archive_that_does_not_carry_the_pin_is_reported(self) -> None:
+        drifted = ADDONS["released"].replace('version: "v1.2.0"', 'version: "v1.1.0"')
+        root = _addon_repo({"drifted": drifted})
+
+        self.assertEqual(
+            module.invalid_declarations(root),
+            [
+                (
+                    "web-app-example/addons/drifted.version: config.archive does "
+                    "not carry the pinned version, so a bump would move only one "
+                    "of the two"
+                ),
+            ],
+        )
+
+    def test_an_addon_block_that_cannot_resolve_is_reported(self) -> None:
+        root = _addon_repo(
+            {"broken": "---\nenabled: true\nupdate:\n  type: carrier_pigeon\n"}
+        )
+
+        self.assertEqual(
+            module.invalid_declarations(root),
+            [
+                (
+                    "web-app-example/addons/broken: update.key 'version' names no "
+                    "key of the addon"
+                ),
+                (
+                    "web-app-example/addons/broken.version: unknown update.type "
+                    "'carrier_pigeon', expected one of git_tags, registry_tags, npm, "
+                    "http_regex, script"
+                ),
+            ],
+        )
+
+
+class TestSemverPins(unittest.TestCase):
+    def test_an_update_block_on_a_moving_tag_is_reported(self) -> None:
+        root = _repo(SERVICES.replace("app_version: 2.0.0", "app_version: latest"))
+
+        self.assertEqual(
+            module.invalid_declarations(root),
+            [
+                (
+                    "web-app-example/app.app_version: 'latest' is not a semver, so "
+                    "no upstream version orders above it and the pin never moves"
+                ),
+            ],
+        )
+
+    def test_a_monitored_addon_on_a_moving_tag_is_reported(self) -> None:
+        root = _addon_repo(
+            {
+                "moving": ADDONS["catalogued"].replace('"1.0.0"', '"master"'),
+                "pinned": ADDONS["catalogued"],
+                "unpinned": ADDONS["catalogued"].replace('version: "1.0.0"\n', ""),
+                "unmonitored": ADDONS["unmonitored"].replace('"1.0.0"', '"master"'),
+            }
+        )
+
+        self.assertEqual(
+            module.invalid_declarations(root),
+            [
+                (
+                    "web-app-example/addons/moving.version: 'master' is not a "
+                    "semver, so no upstream version orders above it and the pin "
+                    "never moves"
+                ),
+            ],
+        )
 
 
 if __name__ == "__main__":

@@ -5,12 +5,13 @@ mechanism: plugin
 source: upstream
 bridges:
   - onlyoffice
+version: "v10.2.1"
 update:
   monitored: true
-  catalog: nextcloud-appstore
-  upstream_id: onlyoffice
+  catalog: github-releases
+  upstream_id: ONLYOFFICE/onlyoffice-nextcloud
 config:
-  archive: "https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v10.1.2/onlyoffice.tar.gz"
+  archive: "https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v10.2.1/onlyoffice.tar.gz"
   incompatible_plugins:
     - richdocuments
     - fileslibreofficeedit

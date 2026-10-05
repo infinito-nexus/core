@@ -7,7 +7,10 @@ the three updaters and to everyone reading the file, which is how pins go
 stale unnoticed.
 
 ``update:`` blocks are checked too: a block naming a key the entity does not
-carry, or a type the resolver does not know, resolves nothing and says nothing.
+carry, a type the resolver does not know, or a pin that is not a semver moves
+nothing and says nothing. The updaters order upstream versions by semver, so a
+moving tag behind an ``update:`` block, or as the ``version`` of a monitored
+addon, fails.
 
 Keys that hold a dotted number without naming a version are listed in
 ``_NOT_VERSIONS``: the container's ``cpus`` and ``bond`` shares and the
@@ -78,7 +81,7 @@ class TestVersionKeys(unittest.TestCase):
             "reason:\n" + "\n".join(findings),
         )
 
-    def test_every_declared_update_source_resolves_a_key_it_knows(self) -> None:
+    def test_every_declared_update_source_can_move_a_semver_pin(self) -> None:
         problems = invalid_declarations(PROJECT_ROOT)
         self.assertEqual(problems, [], "\n".join(problems))
 

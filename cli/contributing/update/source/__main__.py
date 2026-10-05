@@ -13,7 +13,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Update version pins that declare their upstream in an `update:` "
-            "block of roles/*/meta/services.yml."
+            "block of roles/*/meta/services.yml or roles/*/meta/addons/*.yml."
         )
     )
     parser.add_argument(
