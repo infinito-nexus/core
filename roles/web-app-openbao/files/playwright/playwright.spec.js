@@ -7,3 +7,5 @@ require("./test-ldap-login");
 require("./test-rbac-denial");
 require("./test-rbac-groups");
 require("./test-seal-status");
+require("./test-userpass-login");
+require("./test-design");

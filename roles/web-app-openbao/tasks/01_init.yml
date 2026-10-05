@@ -175,6 +175,12 @@
 - name: "📇 Configure the OIDC and LDAP auth methods"
   include_tasks: 04_auth_methods.yml
 
+- name: "👤 Reconcile the administrator sign-in without an identity provider"
+  ansible.builtin.include_tasks:
+    file: utils/userpass.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
 - name: "🏛 Configure the internal PKI"
   ansible.builtin.include_tasks:
     file: 05_pki.yml
