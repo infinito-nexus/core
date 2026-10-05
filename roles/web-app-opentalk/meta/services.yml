@@ -53,6 +53,7 @@ redis:
   pids_limit: 512
 opentalk:
   # TODO: make this role arm64-capable so the declaration below can go
+  # nocheck: architecture-pin  Reason: opentalk/web-frontend, opentalk/controller and opentalk/recorder each answer with a single linux/amd64 manifest on registry.opencode.de, and the images are pulled rather than built here
   architectures:
     - amd64
   modes:

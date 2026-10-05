@@ -27,6 +27,7 @@ email:
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 bigbluebutton:
   # TODO: make this role arm64-capable so the declaration below can go
+  # nocheck: architecture-pin  Reason: alangecker/bbb-docker-web answers with a single linux/amd64 manifest rather than a manifest list, and the stack is pulled rather than built here, so no arm64 node can run it
   architectures:
     - amd64
   modes:

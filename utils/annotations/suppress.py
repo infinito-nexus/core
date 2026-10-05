@@ -55,6 +55,7 @@ _KEYWORD_RE = re.compile(
 )
 
 _COMMENT_LINE = re.compile(r"^\s*#")
+_REASON = re.compile(r"#.*\breason\b\s*:\s*\S", re.IGNORECASE)
 
 
 def _rules_on_line(line: str) -> set[str]:
@@ -121,6 +122,36 @@ def is_suppressed_at(
             return True
 
     return False
+
+
+def has_rule_with_reason(lines: Sequence[str], line_no: int, rule: str) -> bool:
+    """Whether the construct at 1-based *line_no* carries *rule* and a reason.
+
+    Args:
+        lines: the file's lines.
+        line_no: 1-based line of the construct being exempted.
+        rule: the rule key the marker must name.
+
+    Both markers are looked for on the construct's own line and across every
+    contiguous comment line directly above it, in either order. This is the
+    placement for an exemption that has to say *why*: the reason rarely fits
+    beside the value, so it is written as a comment block above it, and
+    :func:`is_suppressed_at` would only see the last line of that block.
+
+    The reason is unchecked prose by design. The gate is that a human had to
+    write one, not that a parser agreed with it.
+    """
+    idx = line_no - 1
+    if idx < 0 or idx >= len(lines):
+        return False
+    has_rule = line_has_rule(lines[idx], rule)
+    has_reason = bool(_REASON.search(lines[idx]))
+    scan = idx - 1
+    while scan >= 0 and lines[scan].lstrip().startswith("#"):
+        has_rule = has_rule or line_has_rule(lines[scan], rule)
+        has_reason = has_reason or bool(_REASON.search(lines[scan]))
+        scan -= 1
+    return has_rule and has_reason
 
 
 def is_suppressed_in_head(

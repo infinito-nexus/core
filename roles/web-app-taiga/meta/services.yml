@@ -35,9 +35,6 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 taiga:
-  # TODO: make this role arm64-capable so the declaration below can go
-  architectures:
-    - amd64
   healthcheck:
     test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8000),5).close()"]
     retries: 5

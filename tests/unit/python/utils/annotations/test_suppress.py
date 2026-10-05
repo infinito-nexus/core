@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from utils.annotations.suppress import (
+    has_rule_with_reason,
     is_suppressed_anywhere,
     is_suppressed_at,
     is_suppressed_in_head,
@@ -150,6 +151,70 @@ class TestSuppressedLineNumbers(unittest.TestCase):
         ]
         self.assertEqual(suppressed_line_numbers(lines, "url"), {2, 3})
         self.assertEqual(suppressed_line_numbers(lines, "shared"), {4})
+
+
+class TestHasRuleWithReason(unittest.TestCase):
+    """An exemption that has to say why, written above the value it exempts."""
+
+    def test_both_markers_on_the_value_line(self) -> None:
+        lines = ["  min_storage: 20GB  # nocheck: rule-x  Reason: the volume"]
+
+        self.assertTrue(has_rule_with_reason(lines, 1, "rule-x"))
+
+    def test_both_markers_in_the_comment_block_above(self) -> None:
+        lines = [
+            "  # nocheck: rule-x",
+            "  # Reason: the data volume dominates",
+            "  min_storage: 20GB",
+        ]
+
+        self.assertTrue(has_rule_with_reason(lines, 3, "rule-x"))
+
+    def test_the_marker_order_does_not_matter(self) -> None:
+        lines = [
+            "  # Reason: the data volume dominates",
+            "  # nocheck: rule-x",
+            "  min_storage: 20GB",
+        ]
+
+        self.assertTrue(has_rule_with_reason(lines, 3, "rule-x"))
+
+    def test_a_marker_without_a_reason_is_refused(self) -> None:
+        lines = ["  # nocheck: rule-x", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_a_reason_without_the_marker_is_refused(self) -> None:
+        lines = ["  # Reason: the data volume dominates", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_an_empty_reason_is_refused(self) -> None:
+        lines = ["  # nocheck: rule-x  Reason:", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_another_rules_marker_does_not_count(self) -> None:
+        lines = ["  # nocheck: rule-y  Reason: something else", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_a_blank_line_ends_the_comment_block(self) -> None:
+        lines = [
+            "  # nocheck: rule-x  Reason: the data volume dominates",
+            "",
+            "  min_storage: 20GB",
+        ]
+
+        self.assertFalse(
+            has_rule_with_reason(lines, 3, "rule-x"),
+            "a marker separated by a blank line belongs to the construct above it",
+        )
+
+    def test_a_line_number_outside_the_file_is_refused(self) -> None:
+        for line_no in (0, 5):
+            with self.subTest(line_no=line_no):
+                self.assertFalse(has_rule_with_reason(["x"], line_no, "rule-x"))
 
 
 if __name__ == "__main__":
