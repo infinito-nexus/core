@@ -1,0 +1,82 @@
+{% set design = lookup('design', application_id) %}
+{% set corporate = ':root[data-design-corporate]' %}
+{% set brand_fills = [
+  '.btn.primary',
+  '.btn.cron-refresh-btn--loading',
+  '.config-mode-toggle__btn.active',
+  '.cfg-segmented__btn.active',
+  '.cqc-step--active .cqc-step__dot',
+  '.usage-pin-btn.active',
+  '.chart-toggle .toggle-btn.active',
+  '.sw-btn--primary',
+  '.sw-today__big--primary',
+] %}
+{% set brand_buttons = ':is(.btn.primary, .sw-btn--primary, .sw-today__big--primary)' %}
+{% set brand_texts = ':is(.login-gate__title, .sidebar-brand__title, .topbar-brand__title, .dashboard-header__breadcrumb-link)' %}
+{{ corporate }} {
+  --ok: var(--design-success);
+  --ok-muted: color-mix(in srgb, var(--design-success) 75%, transparent);
+  --ok-subtle: var(--design-success-subtle);
+  --warn: var(--design-warning);
+  --warn-subtle: var(--design-warning-subtle);
+  --info: var(--design-info);
+  --success: var(--design-success);
+  --warning: var(--design-warning);
+  --warning-subtle: var(--design-warning-border);
+  --danger-color: var(--design-danger);
+  --link: var(--design-link);
+  --selection-bg: var(--design-primary-200);
+  --selection-fg: var(--design-text);
+  --shadow-sm: var(--design-shadow-1);
+  --shadow-md: var(--design-shadow-2);
+  --shadow-lg: var(--design-shadow-3);
+  --shadow-xl: var(--design-shadow-3);
+}
+{{ corporate }} :is({{ brand_fills | join(', ') }}) {
+  border-color: var(--design-primary);
+  background: var(--design-primary);
+  color: var(--design-on-primary);
+}
+{{ corporate }} {{ brand_buttons }}:hover:not(:disabled) {
+  border-color: var(--design-primary-hover);
+  background: var(--design-primary-hover);
+}
+{{ corporate }} {{ brand_buttons }}:active:not(:disabled) {
+  border-color: var(--design-primary-active);
+  background: var(--design-primary-active);
+}
+{% for name, status in [('danger', 'danger'), ('warn', 'warning'), ('info', 'info'), ('success', 'success')] %}
+{{ corporate }} .callout.{{ name }} {
+  border-color: var(--design-{{ status }}-border);
+  background: var(--design-{{ status }}-subtle);
+  color: color-mix(in srgb, var(--design-{{ status }}) 82%, var(--design-text));
+}
+{% endfor %}
+{{ corporate }} .callout a {
+  color: inherit;
+  text-decoration: underline;
+}
+{{ corporate }} :is(.nav-item.active, .nav-item--active, .sidebar-recent-session--active) {
+  background: var(--design-surface-active);
+}
+{% if design.title is string %}
+:root {{ brand_texts }} {
+  font-size: 0;
+}
+:root {{ brand_texts }}::after {
+  content: {{ design.title | to_json(ensure_ascii=False) }};
+}
+:root .login-gate__title::after {
+  font-size: 22px;
+}
+:root :is(.sidebar-brand__title, .topbar-brand__title)::after {
+  font-size: 14px;
+}
+:root .dashboard-header__breadcrumb-link::after {
+  font-size: 13px;
+}
+:root .sidebar-brand__title {
+  white-space: normal;
+  line-height: 1.2;
+}
+{% endif %}

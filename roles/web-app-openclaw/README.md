@@ -87,6 +87,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Isolating runtime:** The compose service is pinned to Kata Containers where `/dev/kvm` and the Kata shim are available, and to gVisor otherwise.
 - **Single sign-on:** When Keycloak is deployed, an OAuth2 proxy sits in front of the gateway and admits only members of the administrator group of this application.
 - **Gateway token:** A generated gateway token guards the Control UI and the API, and the Control UI accepts the canonical domain as its only allowed origin.
+- **Corporate design:** With the design service deployed, the Control UI renders the corporate palette, logo and title in light and dark mode. See [Control UI](#control-ui).
 - **Model gateway key:** With the LiteLLM Gateway deployed, that gateway provisions a per-consumer virtual key aliased to this application.
 - **MCP client contract:** With Home Assistant deployed, the role declares the MCP client side of the platform contract as an internal streamable-HTTP client with a read-only tool policy. The MCP server list itself lives in `openclaw.json`, not in the container environment.
 - **Persistent state:** Memory and workspace live in a volume mounted at `/home/node/.openclaw`, with the rendered `openclaw.json` mounted into it, and are included in the container volume backup when that service is deployed.
@@ -130,6 +131,34 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## Further Resources
+
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/PadoNMo5oju7x3yqNjgCW9)
+
+## Control UI
+
+### Sign-in
+
+The Control UI asks for the gateway token and pairs every new browser once:
+
+1. Open the canonical domain and paste `applications.web-app-openclaw.secrets.credentials.gateway_token` into **Gateway Token**, then select **Connect**.
+2. List the pending request on the host of the container: `container exec openclaw node dist/index.js devices list`.
+3. Approve it: `container exec openclaw node dist/index.js devices approve <requestId>`.
+4. Select **Connect** again.
+
+### Corporate design
+
+| Carrier | Content |
+| --- | --- |
+| Theme slot of the Control UI | The design script stores the corporate theme in the slot for imported themes and selects it on the first visit. Its tokens read the `--design-*` palette for surfaces, text, borders, accent, focus and font. The theme appears under its own name in **Settings → Appearance** next to Claw, Knot and Dash. |
+| Mounted logo set | `favicon.svg`, `favicon-32.png`, `favicon.ico` and `apple-touch-icon.png` of the Control UI are replaced by the generated corporate logo. |
+| Design script | Sets the page title and mirrors a color mode chosen in the Control UI into `data-design-theme`. |
+| Role stylesheet | Applies only while the corporate theme is selected: status colors, shadows and selection outside the theme slot, the brand color of filled primary controls, flat callouts, and the configured title in place of the product name. |
+
+The corporate theme follows the light, dark or system mode of the Control UI. Claw, Knot, Dash or an imported theme chosen in **Appearance** renders its own palette.
+
+`make design-gallery app=web-app-openclaw` waits three minutes for the pairing approval of its browser before it captures the dashboard views. It keeps the paired browser identity in the Playwright stage directory and reuses it on later runs until a full deploy or a role sync with `pw=` recreates that directory.
 
 ## MCP Client
 

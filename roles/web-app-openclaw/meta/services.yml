@@ -72,6 +72,14 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Assistant"
+  slots:
+    favicon:
+      width: 512
+      height: 512
+    favicon-32:
+      width: 32
+      height: 32
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
