@@ -5,7 +5,7 @@ entity_name: "{{ application_id | entity_name }}"
 
 LIBRETRANSLATE_ENGINE_SERVICE: "{{ entity_name }}"
 LIBRETRANSLATE_ENGINE_IMAGE: "{{ lookup('config', application_id, 'services.libretranslate-engine.image') }}"
-LIBRETRANSLATE_ENGINE_GPU: "{{ lookup('applications') | resource_filter(application_id, 'gpu', 'libretranslate-engine', false) }}"
+LIBRETRANSLATE_ENGINE_GPU: "{{ lookup('gpu', application_id, 'libretranslate-engine') }}"
 LIBRETRANSLATE_ENGINE_VERSION: "{{ lookup('config', application_id, 'services.libretranslate-engine.version') ~ ('-cuda' if LIBRETRANSLATE_ENGINE_GPU | bool else
   '') }}"
 LIBRETRANSLATE_ENGINE_LOAD_ONLY: "{{ lookup('config', application_id, 'services.libretranslate-engine.load_only') | join(',') }}"

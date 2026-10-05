@@ -49,5 +49,3 @@
   when:
     - IS_STACK_HOST | bool
     - LIBRETRANSLATE_GPU | bool
-    - sys_svc_container_nvidia_device is defined
-    - sys_svc_container_nvidia_device.stat.exists
