@@ -78,8 +78,16 @@ MATRIX_MDAD_DAEMON_JSON:
     max-size: "10m"
     max-file: "3"
 
-MATRIX_BRIDGE_ADDONS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'bridge') | selectattr('value.config.bridge_name',
+MATRIX_TELEGRAM_USABLE: >-
+  {{ (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_id', '') | string | trim | length > 0)
+     and (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_pin', '') | string | trim | length > 0) }}
+
+MATRIX_BRIDGE_ADDONS_DECLARED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'bridge') | selectattr('value.config.bridge_name',
   'defined') | list }}"
+
+MATRIX_BRIDGE_ADDONS: >-
+  {{ MATRIX_BRIDGE_ADDONS_DECLARED if MATRIX_TELEGRAM_USABLE | bool
+     else (MATRIX_BRIDGE_ADDONS_DECLARED | rejectattr('value.config.bridge_name', 'equalto', 'telegram') | list) }}
 MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') | combine(dict(MATRIX_BRIDGE_ADDONS | map(attribute='value.config.bridge_name') | map('regex_replace',
   '^', 'mautrix_') | zip(MATRIX_BRIDGE_ADDONS | map(attribute='value.enabled')))) }}"
 

@@ -2,22 +2,11 @@
 - name: 🔨 Build enabled bridge list from meta/addons/
   set_fact:
     MATRIX_BRIDGES: >-
-      {{ lookup('config', application_id, 'addons')
-         | dict2items
-         | selectattr('value.mechanism', 'equalto', 'bridge')
+      {{ MATRIX_BRIDGE_ADDONS
          | selectattr('value.enabled', 'equalto', true)
          | map(attribute='value.config')
          | select('mapping')
-         | selectattr('bridge_name', 'defined')
          | list }}
-  changed_when: false
-
-- name: "🧹 Drop telegram bridge when Telegram API credentials absent (api_hash needed)"
-  set_fact:
-    MATRIX_BRIDGES: "{{ MATRIX_BRIDGES | rejectattr('bridge_name', 'equalto', 'telegram') | list }}"
-  when: >-
-    (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_id', '') | default('', true) | string | trim | length == 0)
-    or (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_pin', '') | default('', true) | string | trim | length == 0)
   changed_when: false
 
 - name: "🐳 compose-flavor: docker stack for '{{ application_id }}'"
