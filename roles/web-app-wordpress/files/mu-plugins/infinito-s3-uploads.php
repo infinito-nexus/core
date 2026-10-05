@@ -9,6 +9,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+$infinito_s3_autoload = WP_PLUGIN_DIR . '/s3-uploads/vendor/autoload.php';
+if (is_readable($infinito_s3_autoload)) {
+    require_once $infinito_s3_autoload;
+}
+
 $infinito_s3_settings = [
     'bucket' => getenv('WORDPRESS_S3_BUCKET') ?: '',
     'endpoint' => getenv('WORDPRESS_S3_ENDPOINT') ?: '',
