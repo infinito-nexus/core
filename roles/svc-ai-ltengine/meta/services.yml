@@ -36,8 +36,8 @@ ltengine:
   repository: https://github.com/LibreTranslate/LTEngine
   # nocheck: repository-version  upstream's only tag predates the served server, so the pin is a commit
   ref: 9b748ddd84c02da9569bd96db3cf33c53e4665fa
-  # nocheck: min-storage-headroom  Reason: the runtime base extracts to about 3.3 GB from its 1.4 GB transfer, the CUDA devel builder to about 8.7 GB from 3.8 GB, the cargo registry and the llama.cpp CUDA kernels in target/ add about 3 GB while the build stage lives, and the GGUF weights the server downloads on first start add about 1 GB
-  min_storage: 16GB
+  # nocheck: min-storage-headroom  Reason: the CUDA runtime base the binary is built on, plus the GGUF weights the server downloads into its models volume on first start
+  min_storage: 5GB
   model: gemma3-1b
   char_limit: 5000
   ports:
