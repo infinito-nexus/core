@@ -77,6 +77,7 @@ async function withBiberInGroup(browser, groupPath, fn) {
   const adminOpts = { adminRealm: env.keycloakAdminRealm, adminClientId: env.keycloakAdminCliClientId };
   const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
   let biberAdded = false;
+  let bodyFailed = false;
   try {
     biberAdded = await keycloakAdmin.keycloakAdminAddUserToGroup(
       adminCtx.request,
@@ -89,22 +90,31 @@ async function withBiberInGroup(browser, groupPath, fn) {
       adminOpts,
     );
     return await fn();
+  } catch (err) {
+    bodyFailed = true;
+    throw err;
   } finally {
-    if (biberAdded) {
-      await keycloakAdmin
-        .keycloakRemoveUserFromGroupViaRest(
-          adminCtx.request,
-          env.keycloakBaseUrl,
-          env.realmName,
-          env.superAdminUsername,
-          env.superAdminPassword,
-          groupPath,
-          env.biberUsername,
-          adminOpts,
-        )
-        .catch((err) => console.warn(`Cleanup removal of biber from ${groupPath} failed: ${err}`));
+    try {
+      if (biberAdded) {
+        await keycloakAdmin
+          .keycloakRemoveUserFromGroupViaRest(
+            adminCtx.request,
+            env.keycloakBaseUrl,
+            env.realmName,
+            env.superAdminUsername,
+            env.superAdminPassword,
+            groupPath,
+            env.biberUsername,
+            adminOpts,
+          )
+          .catch((err) => {
+            if (!bodyFailed) throw err;
+            console.warn(`Cleanup removal of biber from ${groupPath} failed: ${err}`);
+          });
+      }
+    } finally {
+      await adminCtx.close().catch(() => {});
     }
-    await adminCtx.close().catch(() => {});
   }
 }
 

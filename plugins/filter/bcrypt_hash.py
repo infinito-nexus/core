@@ -26,4 +26,12 @@ class FilterModule:
         if not isinstance(value, str) or not value:
             raise ValueError("bcrypt_hash: value must be a non-empty string")
 
-        return bcrypt.hashpw(value.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        secret = value.encode("utf-8")
+        if len(secret) > 72:
+            raise ValueError(
+                f"bcrypt_hash: secret is {len(secret)} bytes in UTF-8; bcrypt "
+                "accepts at most 72 bytes. Shorten the secret instead of "
+                "letting bcrypt truncate or reject it."
+            )
+
+        return bcrypt.hashpw(secret, bcrypt.gensalt()).decode("utf-8")

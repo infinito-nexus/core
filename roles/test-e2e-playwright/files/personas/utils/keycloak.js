@@ -359,28 +359,32 @@ async function keycloakRemoveUserFromGroupViaRest(
   opts = {},
 ) {
   const accessToken = await keycloakAdminToken(request, keycloakBaseUrl, adminUsername, adminPassword, opts);
-  const auth = { Authorization: `Bearer ${accessToken}` };
+  const headers = { Authorization: `Bearer ${accessToken}` };
 
-  const usersResp = await request.get(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
-    { headers: auth },
+  const userResp = await request.get(
+    `${keycloakBaseUrl}/admin/realms/${realmName}/users?username=${encodeURIComponent(username)}&exact=true`,
+    { headers },
   );
-  const users = await usersResp.json();
-  const userId = users?.[0]?.id;
-  if (!userId) return;
+  if (!userResp.ok()) {
+    throw new Error(`Keycloak user lookup failed: ${userResp.status()} ${await userResp.text()}`);
+  }
+  const users = await userResp.json();
+  const user = users.find((u) => u.username === username);
+  if (!user) {
+    throw new Error(`Keycloak user "${username}" not found`);
+  }
 
-  const groupResp = await request.get(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${groupPath.replace(/^\//, "")}`,
-    { headers: auth },
-  );
-  if (!groupResp.ok()) return;
-  const group = await groupResp.json();
-  if (!group?.id) return;
+  const groupId = await keycloakResolveGroupId(request, keycloakBaseUrl, realmName, accessToken, groupPath);
 
-  await request.delete(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users/${userId}/groups/${group.id}`,
-    { headers: auth },
+  const leaveResp = await request.delete(
+    `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups/${groupId}`,
+    { headers },
   );
+  if (!leaveResp.ok()) {
+    throw new Error(
+      `Keycloak leave-group failed (user=${username}, group=${groupPath}): ${leaveResp.status()} ${await leaveResp.text()}`,
+    );
+  }
 }
 
 module.exports = {

@@ -13,9 +13,7 @@
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   register: wazuh_securityadmin
   changed_when: "'Done with success' in wazuh_securityadmin.stdout"
-  failed_when:
-    - wazuh_securityadmin.rc != 0
-    - "'Done with success' not in wazuh_securityadmin.stdout"
+  failed_when: wazuh_securityadmin.rc != 0 or 'Done with success' not in wazuh_securityadmin.stdout
   retries: 10
   delay: 10
   until: wazuh_securityadmin.rc == 0

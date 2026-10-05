@@ -74,6 +74,7 @@
 - name: "🔐 Run the Wazuh certs generator once on the stack host"
   ansible.builtin.shell: |
     set -euo pipefail
+    container ps -aq --filter {{ ('name=^' ~ WAZUH_CERTS_GENERATOR_CONTAINER ~ '$') | quote }} | xargs -r container rm -f
     timeout -k 30 {{ lookup('timeout', 600) | int }} container run --rm \
       --name {{ WAZUH_CERTS_GENERATOR_CONTAINER | quote }} \
       --env CERT_TOOL_VERSION={{ WAZUH_CERTS_TOOL_VERSION | quote }} \

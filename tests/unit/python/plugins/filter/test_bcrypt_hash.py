@@ -35,6 +35,23 @@ class TestBcryptHash(unittest.TestCase):
             bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
         )
 
+    def test_72_byte_password_hashes_successfully(self):
+        password = "A" * 72
+        hashed = self.f(password)
+        self.assertTrue(
+            bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+        )
+
+    def test_73_byte_password_raises(self):
+        with self.assertRaisesRegex(ValueError, "73 bytes.*at most 72 bytes"):
+            self.f("A" * 73)
+
+    def test_multibyte_password_over_72_bytes_raises(self):
+        password = "ä" * 37
+        self.assertEqual(len(password), 37)
+        with self.assertRaisesRegex(ValueError, "74 bytes"):
+            self.f(password)
+
     def test_none_raises(self):
         with self.assertRaises(ValueError):
             self.f(None)

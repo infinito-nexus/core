@@ -28,7 +28,7 @@
         soft: 655360
         hard: 655360
     environment:
-      - "INDEXER_URL=https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
+      - "INDEXER_URL={{ WAZUH_INDEXER_URL }}"
       - "INDEXER_USERNAME={{ WAZUH_INDEXER_ADMIN_USERNAME }}"
       - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
       - "FILEBEAT_SSL_VERIFICATION_MODE=full"
@@ -49,7 +49,7 @@
     hostname: "{{ WAZUH_INDEXER_CONTAINER }}"
     {{ lookup('container_ports', ['indexer', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     environment:
-      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "OPENSEARCH_JAVA_OPTS=-Xms{{ WAZUH_INDEXER_HEAP }} -Xmx{{ WAZUH_INDEXER_HEAP }}"
     ulimits:
       memlock:
         soft: -1

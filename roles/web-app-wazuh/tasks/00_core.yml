@@ -60,9 +60,6 @@
     - IS_STACK_HOST | bool
     - DEPLOYMENT_MODE == 'swarm'
 
-- name: "🔄 Flush compose-up before front-proxy can shadow application_id"
-  ansible.builtin.meta: flush_handlers
-
 - name: "🔧 Set vm.max_map_count for the Wazuh indexer (OpenSearch requirement)"
   ansible.posix.sysctl:
     name: vm.max_map_count
@@ -71,6 +68,9 @@
     reload: true
     sysctl_file: "{{ WAZUH_SYSCTL_CONF }}"
   when: not (DOCKER_IN_CONTAINER | bool)
+
+- name: "🔄 Flush compose-up before front-proxy can shadow application_id"
+  ansible.builtin.meta: flush_handlers
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:
