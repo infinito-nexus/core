@@ -19,7 +19,7 @@ out="/tmp/design-gallery/${app}"
 cmd="rm -rf '${reports}'" bash scripts/tests/deploy/local/exec/container.sh
 
 spec_status=0
-cmd="INFINITO_PLAYWRIGHT_KEEP=true bash scripts/tests/e2e/rerun-spec.sh '${app}' --grep 'design:'" \
+cmd="INFINITO_PLAYWRIGHT_KEEP=true bash scripts/tests/e2e/rerun-spec.sh '${app}' --grep 'design:' --retries=0" \
 	bash scripts/tests/deploy/local/exec/container.sh || spec_status=$?
 
 rm -rf "${out}"
