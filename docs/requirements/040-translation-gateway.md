@@ -27,8 +27,9 @@ In scope: a gateway role, an LTEngine backend, a Weblate role, the engine decisi
 
 Out of scope, and deliberately left alone:
 
-- [037 - Gettext Catalogs LibreTranslate](037-gettext-catalogs-libretranslate.md) translates this project's own `.po` catalogs at build time by calling the engine directly from `make i18n-translate`. That path works and keeps calling the engine directly. A build-time catalog run is one batch of known strings against one engine, with no request to cache and no caller to serve; routing it through the gateway would add a hop and a database to a path that needs neither.
-- [039 - Core i18n Consumers](039-core-i18n-consumers.md) wires this project's own surfaces onto those catalogs. 040 translates the content users put into the applications, at request time. The boundary is build time versus request time, and it is stated in both directions so that neither requirement is used to fix a defect belonging to the other.
+- [039 - Core i18n Consumers](039-core-i18n-consumers.md) wires this project's own surfaces onto those catalogs. 040 also serves the content users put into the applications, at request time. Neither requirement is used to fix a defect belonging to the other.
+
+The build-time catalog run of [037 - Gettext Catalogs LibreTranslate](037-gettext-catalogs-libretranslate.md) was out of scope until the measurement under [Re-opened Decisions](#re-opened-decisions) overturned the reason for it. It now routes through the gateway too.
 
 ## Findings That Constrain the Design
 
@@ -78,6 +79,10 @@ Re-opening any of these MUST be recorded in the implementing PR.
 **Decision 3, the backend gate.** As first written it demanded `lookup('config', '<providing role>', …)` and forbade `group_names`. That gate cannot work: `lookup('config', …)` resolves through `get_merged_applications` ([plugins/lookup/config.py:45](../../plugins/lookup/config.py#L45)), which merges every role in the repository rather than the ones this deploy carries, so `services.ltengine.enabled` reads `true` whether or not LTEngine is deployed and every backend would always be offered. The play-scoped set lives behind a separate lookup ([plugins/lookup/applications_current_play.py:69](../../plugins/lookup/applications_current_play.py#L69)), and the applications cache keys its renders on `group_names` ([utils/cache/base.py:108](../../utils/cache/base.py#L108)) rather than on the whole inventory, so a deployment-wide presence test inside `meta/services.yml` would be cached across inventories that differ.
 
 The gate is therefore the house idiom every other consumer declaration uses, `'<providing role>' in group_names`, and the part of the decision that carries the design survives unchanged: no code inside the gateway tests a deployment, every reader asks its own `services.<backend>.enabled`, and adding a backend stays a declaration.
+
+**The 037 boundary.** The Scope section kept `make i18n-translate` on the engine, arguing that one batch of known strings against one engine needs neither a cache nor a router. The catalogs since measured say otherwise: across the 47 `docs` catalogs, each of 22577 entries, 34098 translations carry a refusal, from 35 in `tl` to 2832 in `ar`, and the largest family of them is a mangled protected span at 11150, just ahead of a stuttered repetition at 10717. The catalog client masks those spans as `<x id="N"></x>` tags and asks LibreTranslate in `html` mode; whether an engine leaves that tag alone is a property of the engine and the language pair, which is exactly the fact the gateway's learning log is keyed on. One engine cannot be compared against itself, so the direct path had no way to improve. The run therefore goes through the gateway.
+
+Two mechanical consequences follow and are implemented with it. `format` travels with a request instead of being pinned to `text` in the LibreTranslate backend, because a tag sent in text mode is translated rather than preserved, and it joins the cache key so a text-mode answer is never served to an html-mode request. A caller may name protected spans of its own alongside the Weblate glossary, because a masked placeholder is not a glossary term and a prompted backend has no html mode to protect it with.
 
 **Decision 15, the six consumers.** The decision names WordPress, Moodle, Discourse, OpenProject, Nextcloud and Matrix. An upstream survey of all six found a consumer of a self-hosted LibreTranslate endpoint in two of them:
 

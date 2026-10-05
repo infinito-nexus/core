@@ -18,6 +18,7 @@ The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) k
 - The Argos package index behind LibreTranslate offers 49 languages paired with English. 47 of them are ISO 639-1 codes; `pb` (Brazilian Portuguese) and `zt` (Traditional Chinese) are not and are out of scope. The remaining ISO languages have no model.
 - [web-svc-libretranslate](../../roles/web-svc-libretranslate/meta/services.yml) pins `libretranslate/libretranslate` `v1.9.6` with `load_only: [en, de]`, `cpus: 0.2` and `mem_limit: 256m`. Bulk translation MUST NOT depend on that deployment; `make` runs its own short-lived container of the same image and version.
 - The documentation sources hold about 300,000 words (role READMEs and `docs/`). Translating them into 47 languages takes days of CPU, so the documentation domain runs per language and in the background.
+- `make i18n-translate` reaches its engines through the gateway of [040 - Translation Gateway](040-translation-gateway.md) rather than one engine directly, and brings up that gateway's bundle the way it used to bring up the lone engine. The boundary the two requirements first drew between build time and request time is recorded as re-opened in 040, with the catalog measurement that overturned it.
 
 ## Design
 
