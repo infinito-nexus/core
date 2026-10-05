@@ -13,8 +13,7 @@ redis:
   shared: "{{ 'svc-db-redis' in group_names }}"
 collabora:
   healthcheck:
-    flavor: tcp
-    path: hosting/discovery
+    test: ["CMD", "/usr/bin/coolwsd", "--probe", "--use-env-vars"]
   modes:
     compose:
       enabled: true
@@ -26,11 +25,7 @@ collabora:
   enabled: true
   shared: true
   image: collabora/code
-  # TODO: 26.04.2.2.1 rebuilt the image as a Nix minimal image without
-  # coolconfig or a shell (CollaboraOnline/online#16021) — every `docker exec`
-  # fails. Unpin once the systemplate tasks are migrated to --use-env-vars
-  # configuration or upstream restores the tooling.
-  version: "26.04.2.1.1"
+  version: "26.04.4.2.1"
   name: collabora
   min_storage: 734MB
   cpus: 2

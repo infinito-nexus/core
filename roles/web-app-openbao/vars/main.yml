@@ -3,6 +3,14 @@ application_id: "web-app-openbao"
 container_port: "{{ lookup('config', application_id, 'services.openbao.ports.internal.http') }}"
 
 OPENBAO_NAME: "{{ lookup('config', application_id, 'services.openbao.name') }}"
+OPENBAO_IMAGE: "{{ lookup('config', application_id, 'services.openbao.image') }}"
+OPENBAO_VERSION: "{{ lookup('config', application_id, 'services.openbao.version') }}"
+
+OPENBAO_LDAP_PLUGIN_IMAGE: "{{ lookup('config', application_id, 'services.auth-ldap.image') }}"
+OPENBAO_LDAP_PLUGIN_VERSION: "{{ lookup('config', application_id, 'services.auth-ldap.version') }}"
+OPENBAO_LDAP_PLUGIN_BINARY: "openbao-plugin-auth-ldap"
+OPENBAO_PLUGIN_DIR_DOCKER: "/opt/openbao/plugins"
+OPENBAO_IMAGE_TAG: "{{ OPENBAO_VERSION }}-auth-ldap-{{ OPENBAO_LDAP_PLUGIN_VERSION }}"
 
 OPENBAO_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 OPENBAO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
@@ -12,6 +20,7 @@ OPENBAO_LOG_LEVEL: "{{ lookup('config', application_id, 'services.openbao.log_le
 OPENBAO_BASE_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 
 OPENBAO_CONFIG_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'openbao.hcl'] | path_join }}"
+OPENBAO_PLUGINS_CONFIG_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'plugins.hcl'] | path_join }}"
 OPENBAO_POLICY_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'policies'] | path_join }}"
 OPENBAO_POLICY_DIR_DOCKER: "/openbao/policies"
 OPENBAO_DATA_DOCKER: "{{ lookup('volume', application_id, 'data').target }}"

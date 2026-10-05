@@ -432,7 +432,7 @@ config: {}                  # optional, opaque, role-interpreted runtime payload
 | `bridges` | no | list | — | Non-empty list of in-repo service keys; each MUST resolve to a service block in the same role's `meta/services.yml`. Omit when there is no cross-role dependency. |
 | `version` | no | string | `""` | A pin MUST be a quoted string, never an unquoted number. `""` tracks the app default. |
 | `group` | no | string | — | Free grouping label (e.g. Odoo `core`/`optional`). MUST NOT affect enablement. |
-| `update` | no | map | — | `monitored` (bool, default `false`), `catalog` (a supported adapter), `upstream_id` (defaults to the addon id). |
+| `update` | no | map | — | `monitored` (bool, default `false`), `catalog` (a supported adapter), `upstream_id` (defaults to the addon id). A `version` pin MUST also name its version source here, or carry `# nocheck: unwatched-version` with a reason: either `type` with its fields, or `monitored: true` with `catalog: github-releases` and the `owner/repository` as `upstream_id`. See [Declared version sources](../../../../../cli/contributing/update/README.md#declared-version-sources). |
 | `config` | no | map | — | Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally. |
 
 Any credential an addon needs is declared in `meta/secrets.yml` `credentials:`

@@ -45,7 +45,26 @@ ADDON_KEYS: frozenset[str] = frozenset(
     }
 )
 
-UPDATE_KEYS: frozenset[str] = frozenset({"monitored", "catalog", "upstream_id"})
+VERSION_SOURCE_KEYS: frozenset[str] = frozenset(
+    {
+        "key",
+        "type",
+        "repository",
+        "image",
+        "package",
+        "url",
+        "pattern",
+        "path",
+        "match",
+        "strip",
+    }
+)
+
+UPDATE_KEYS: frozenset[str] = (
+    frozenset({"monitored", "catalog", "upstream_id"}) | VERSION_SOURCE_KEYS
+)
+
+GITHUB_RELEASES_CATALOG = "github-releases"
 
 SUPPORTED_CATALOGS: frozenset[str] = frozenset(
     {
@@ -60,7 +79,7 @@ SUPPORTED_CATALOGS: frozenset[str] = frozenset(
         "gnome-extensions",
         "chrome-webstore",
         "firefox-amo",
-        "github-releases",
+        GITHUB_RELEASES_CATALOG,
     }
 )
 

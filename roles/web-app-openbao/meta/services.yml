@@ -56,7 +56,8 @@ openbao:
   pids_limit: 512
   min_storage: 60MB
   image: openbao/openbao
-  version: "2.6.2"
+  version: "2.7.1"
+  custom: true
   backup:
     no_stop_required: false
   # nocheck: single-replica  single-node raft: a second replica would need a real raft join/bootstrap flow, and two tasks against one BoltDB directory corrupt the store
@@ -77,6 +78,12 @@ openbao:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
+# nocheck: playwright-service-flag  build-stage image of the LDAP auth plugin binary, never deployed as a container
+# nocheck: dynamic-flag  build-stage image, not group-gated
+auth-ldap:
+  image: ghcr.io/openbao/openbao-plugin-auth-ldap
+  version: "v0.1.0"
+  enabled: false
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

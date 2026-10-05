@@ -8,4 +8,4 @@ SIMPLEICONS_HOST_PACKAGE_FILE: "{{ [ lookup('container', application_id, 'direct
 SIMPLEICONS_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SIMPLEICONS_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 SIMPLEICONS_LOCAL_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.local_image') }}"
-SIMPLEICONS_LOCAL_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.local_version') }}"
+SIMPLEICONS_LOCAL_TAG: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.local_tag') }}"

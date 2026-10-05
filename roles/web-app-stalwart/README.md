@@ -182,8 +182,9 @@ account (or the Keycloak SSO token when SSO is enabled).
   it from GitHub on first boot, which fails behind restricted egress; the
   controller downloads it into a host-level cache (matrix rounds purge the
   instance dir, and per-round downloads hit GitHub rate limits) and bind-mounts
-  it read-only. `webui_version` in `meta/services.yml` MUST be bumped together
-  with the Stalwart `version`.
+  it read-only. The `update:` block next to `webui_version` in
+  `meta/services.yml` names the upstream tags, so the version-source updater
+  bumps the bundle on its own.
 - **The embedded PostgreSQL pins the plain `postgres` image** — the platform's
   postgis default defeats baudolo's substring database detection and would
   degrade backups to torn live-file snapshots. `backup.project_hard_restart`
