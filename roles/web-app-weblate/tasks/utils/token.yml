@@ -20,7 +20,8 @@
   register: weblate_api_token
   retries: 30
   delay: 10
-  until: weblate_api_token.rc == 0 and ((weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('')) | length) >= WEBLATE_TOKEN_MIN_LENGTH
+  until: weblate_api_token.rc == 0 and ((weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('')) | length) >=
+    WEBLATE_TOKEN_MIN_LENGTH
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ WEBLATE_HOST_NODE }}"
