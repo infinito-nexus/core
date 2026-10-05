@@ -52,6 +52,7 @@ UI_LESS_ROLES: frozenset[str] = frozenset(
         "web-svc-coturn",
         "web-svc-design",
         "web-svc-file",
+        "web-svc-mirror",
         "web-svc-simpleicons",
         "web-svc-xmpp",
     }
