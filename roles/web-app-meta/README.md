@@ -13,7 +13,7 @@ Everything else the role couples to is driven by group membership: a service tur
 ## Features
 
 - **Dependency graph:** renders every role and the edges between them, so the modular structure of a deployment is inspectable without reading `meta/` files by hand.
-- **Pinned release image:** `ghcr.io/infinito-nexus/infinito-mig:v1.0.0` from the project's own registry namespace, replacing the previous floating `latest` tag. `architectures` is pinned to `amd64`.
+- **Pinned release image:** `ghcr.io/infinito-nexus/meta` from the project's own registry namespace, pinned to a release tag rather than a floating `latest`. The role declares no `architectures`, so the deploy matrix may place it on either.
 - **Live role data:** when `web-svc-api` is in the deployment, `templates/env.j2` renders `MIG_API_URL` from its canonical URL so the graph reads role data from the running API instead of a build-time snapshot.
 - **Dashboard tile:** when `web-app-dashboard` is present, the graph is offered as a card pointing at this role's canonical domain.
 - **Shared styling:** when `web-svc-css` is present, the site consumes the central stylesheet.
