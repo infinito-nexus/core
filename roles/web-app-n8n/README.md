@@ -141,6 +141,7 @@ Variant matrix: [variants.yml](./meta/variants.yml). Service flags and image pin
 - [n8n Official Website](https://n8n.io/)
 - [n8n Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)
 - [n8n GitHub](https://github.com/n8n-io/n8n)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/1AL9uwstN6zyfFSu5FRHah)
 
 ## Credits
 
