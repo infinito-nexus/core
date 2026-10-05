@@ -288,6 +288,7 @@ The same variable points [`sys-ctl-mtn-cert-deploy`](../sys-ctl-mtn-cert-deploy/
 - [Stalwart documentation](https://stalw.art/docs)
 - [`sys-svc-mail`](../sys-svc-mail/) — how applications send mail
 - [`plugins/lookup/email.py`](../../plugins/lookup/email.py) — the email abstraction
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/4XeSBSBGjtCGgkgwVok3ct)
 
 > **Note:** Stalwart's JMAP object schema is version-sensitive. Pin
 > `services.stalwart.version`; the provisioning payloads in `tasks/` were

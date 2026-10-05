@@ -65,6 +65,13 @@
     mode: "0644"
   register: stalwart_webmail_conf
 
+- name: 🎨 Render Roundcube corporate design configuration
+  stack_host_template:
+    src: webmail-design.inc.php.j2
+    dest: "{{ STALWART_WEBMAIL_DESIGN_CONFIG }}"
+    mode: "0644"
+  register: stalwart_webmail_design_conf
+
 - name: 📄 Render clamav-milter configuration
   stack_host_template:
     src: clamav-milter.conf.j2

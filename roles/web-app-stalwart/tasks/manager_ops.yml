@@ -17,9 +17,9 @@
   changed_when: true
   when:
     - DEPLOYMENT_MODE == 'compose'
-    - STALWART_SSO_ENABLED | bool
     - stalwart_webmail_conf is defined
-    - stalwart_webmail_conf is changed
+    - stalwart_webmail_design_conf is defined
+    - stalwart_webmail_conf is changed or stalwart_webmail_design_conf is changed
 
 - name: ⏳ Wait for Stalwart database and management API
   include_tasks: 01_wait_for_api.yml

@@ -1,0 +1,49 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  function persisted() {
+    try {
+      var saved = JSON.parse(window.localStorage.getItem("stalwart-ui") || "null");
+      return (saved && saved.state && saved.state.theme) || null;
+    } catch (error) {
+      return null;
+    }
+  }
+  function stored() {
+    var cookie = /(?:^|;\s*)colorMode=(dark|light)/.exec(document.cookie);
+    var theme = cookie ? cookie[1] : persisted();
+    return theme === "dark" || theme === "light" ? theme : null;
+  }
+  function mirror() {
+    var theme = root.classList.contains("dark") || root.classList.contains("dark-mode") ? "dark" : stored();
+    if (theme) {
+      root.setAttribute("data-design-theme", theme);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["class"] });
+  mirror();
+{% if design.title is string %}
+  function brandTitle() {
+    if (document.title === "Portal") {
+      document.title = {{ design.title | to_json }};
+    }
+  }
+  new MutationObserver(brandTitle).observe(document.head, { childList: true, subtree: true, characterData: true });
+  brandTitle();
+  document.addEventListener("DOMContentLoaded", brandTitle);
+{% endif %}
+{% if design.logo is string %}
+  function brandIcon() {
+    var icons = document.querySelectorAll("link[rel~='icon'][href$='favicon.svg']");
+    for (var index = 0; index < icons.length; index += 1) {
+      icons[index].setAttribute("type", "image/x-icon");
+      icons[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+    }
+  }
+  new MutationObserver(brandIcon).observe(document.head, { childList: true, subtree: true });
+  brandIcon();
+  document.addEventListener("DOMContentLoaded", brandIcon);
+{% endif %}
+})();

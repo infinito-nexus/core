@@ -4,6 +4,15 @@
 // it stays out of this world-readable file. Login -> Keycloak, then XOAUTH2 to
 // Stalwart.
 // Rendered even without SSO (the bind source must exist); the body self-gates.
+
+// Stalwart's cert is self-signed and Roundcube connects by container name, which is not in its SAN: peer verification is off on this internal hop.
+$stalwart_tls_conn_options = ['ssl' => [
+    'verify_peer'      => false,
+    'verify_peer_name' => false,
+    'allow_self_signed' => true,
+]];
+$config['imap_conn_options'] = $stalwart_tls_conn_options;
+$config['smtp_conn_options'] = $stalwart_tls_conn_options;
 {% if STALWART_SSO_ENABLED | bool %}
 
 {% if STALWART_WEBMAIL_BASE_URL.startswith('https://') %}
@@ -27,16 +36,6 @@ $config['oauth_auth_parameters'] = [];
 $config['oauth_identity_fields'] = ['email', '{{ OIDC.ATTRIBUTES.USERNAME }}'];
 // Auto-redirect the login form straight to Keycloak (single sign-on).
 $config['oauth_login_redirect'] = true;
-
-// Accept Stalwart's self-signed cert on the internal IMAP(993)/SMTP(465) TLS hop
-// — Roundcube connects by container name, which won't match the cert SAN.
-$stalwart_tls_conn_options = ['ssl' => [
-    'verify_peer'      => false,
-    'verify_peer_name' => false,
-    'allow_self_signed' => true,
-]];
-$config['imap_conn_options'] = $stalwart_tls_conn_options;
-$config['smtp_conn_options'] = $stalwart_tls_conn_options;
 
 // Authenticated XOAUTH2 submission over implicit TLS on :465 (this include loads
 // last, so it wins). smtp_user must be non-empty or Stalwart rejects with
