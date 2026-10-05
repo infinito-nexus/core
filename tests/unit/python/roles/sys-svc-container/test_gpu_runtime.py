@@ -39,8 +39,8 @@ class TestGpuRuntimeRegistration(unittest.TestCase):
             undefined=StrictUndefined,
             autoescape=select_autoescape(),
         )
-        env.filters["resource_filter"] = (
-            lambda _apps, _id, _key, _svc, default, **_k: default
+        env.filters["resource_filter"] = lambda _apps, _id, _key, _svc, default, **_k: (
+            default
         )
         self.asked = []
 

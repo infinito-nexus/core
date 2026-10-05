@@ -23,8 +23,12 @@ APPLICATIONS: ClassVar[dict] = {
     "web-app-truthy": {"services": {"truthy": {"gpu": "yes"}}},
 }
 
-PRESENT: ClassVar[dict] = {"sys_svc_container_nvidia_device": {"stat": {"exists": True}}}
-ABSENT: ClassVar[dict] = {"sys_svc_container_nvidia_device": {"stat": {"exists": False}}}
+PRESENT: ClassVar[dict] = {
+    "sys_svc_container_nvidia_device": {"stat": {"exists": True}}
+}
+ABSENT: ClassVar[dict] = {
+    "sys_svc_container_nvidia_device": {"stat": {"exists": False}}
+}
 
 
 class _Templar:
@@ -58,7 +62,9 @@ class TestGpuLookup(unittest.TestCase):
     def test_declared_without_a_device_is_false(self):
         """The case that selected a -cuda tag with no manifest for the platform."""
         lm = _make_lookup(ABSENT)
-        self.assertEqual(_run(lm, ["web-svc-libretranslate", "libretranslate"]), [False])
+        self.assertEqual(
+            _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
+        )
 
     def test_undeclared_with_a_device_is_false(self):
         lm = _make_lookup(PRESENT)
@@ -67,11 +73,15 @@ class TestGpuLookup(unittest.TestCase):
     def test_missing_register_is_false(self):
         """Before sys-svc-container runs the register is absent, not falsy."""
         lm = _make_lookup({})
-        self.assertEqual(_run(lm, ["web-svc-libretranslate", "libretranslate"]), [False])
+        self.assertEqual(
+            _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
+        )
 
     def test_non_mapping_register_is_false(self):
         lm = _make_lookup({"sys_svc_container_nvidia_device": "skipped"})
-        self.assertEqual(_run(lm, ["web-svc-libretranslate", "libretranslate"]), [False])
+        self.assertEqual(
+            _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
+        )
 
     def test_a_false_string_declaration_is_false(self):
         """Jinja's `| bool` reads "false" as False where bool() reads it as True.

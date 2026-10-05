@@ -60,7 +60,8 @@ _JINJA = re.compile(r"\{\{[^}]+\}\}")
 _COMMAND_MODULES = frozenset({"command", "ansible.builtin.command"})
 _EXEC_VERB = re.compile(r"\b(?:container|docker)\s+exec\b")
 _ADDRESS_VAR = re.compile(
-    r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\"?\{\{\s*lookup\('container_address'", re.M
+    r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\"?\{\{\s*lookup\('container_address'",
+    re.MULTILINE,
 )
 
 

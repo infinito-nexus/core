@@ -48,6 +48,7 @@ from __future__ import annotations
 import collections
 import concurrent.futures
 import unittest
+from typing import ClassVar
 
 from utils.annotations.message import warning
 from utils.docker.image.architectures import role_capability
@@ -68,9 +69,9 @@ def _pull_image(ref) -> str:
 class ImageArchitectures(unittest.TestCase):
     """One registry sweep, shared by both rules."""
 
-    probed: dict = {}
-    sources: collections.Counter = collections.Counter()
-    by_role: dict = {}
+    probed: ClassVar[dict] = {}
+    sources: ClassVar[collections.Counter] = collections.Counter()
+    by_role: ClassVar[dict] = {}
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -140,12 +141,12 @@ class ImageArchitectures(unittest.TestCase):
             capability, blame, _unread = self._capability(role)
             if capability is None:
                 continue
-            for architecture in sorted(set(ARCHITECTURES) - capability):
-                offenders.append(
-                    f"{role}: declares no `architectures`, so the matrix may "
-                    f"place it on {architecture}, which "
-                    f"{self._named(blame, architecture)} cannot run"
-                )
+            offenders.extend(
+                f"{role}: declares no `architectures`, so the matrix may "
+                f"place it on {architecture}, which "
+                f"{self._named(blame, architecture)} cannot run"
+                for architecture in sorted(set(ARCHITECTURES) - capability)
+            )
         self.assertEqual(
             [],
             offenders,
@@ -163,11 +164,11 @@ class ImageArchitectures(unittest.TestCase):
             capability, blame, unread = self._capability(role)
             if capability is None:
                 continue
-            for architecture in sorted(declared - capability):
-                offenders.append(
-                    f"{role}: `architectures` claims {architecture}, which "
-                    f"{self._named(blame, architecture)} cannot run"
-                )
+            offenders.extend(
+                f"{role}: `architectures` claims {architecture}, which "
+                f"{self._named(blame, architecture)} cannot run"
+                for architecture in sorted(declared - capability)
+            )
             stale = sorted(capability - declared)
             if stale and unread:
                 warning(

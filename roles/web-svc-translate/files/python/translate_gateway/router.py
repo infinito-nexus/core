@@ -283,9 +283,7 @@ class Router:
         lost = [term for term in protected if term not in answer]
         if text and Counter(
             character for character in answer if character in MARKUP_CHARACTERS
-        ) != Counter(
-            character for character in text if character in MARKUP_CHARACTERS
-        ):
+        ) != Counter(character for character in text if character in MARKUP_CHARACTERS):
             lost.append("the markup skeleton")
         return lost
 

@@ -73,5 +73,7 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=templar
         ).run([], variables=variables)[0]
 
-        wanted = resource_filter(applications, application_id, "gpu", service_name, False)
+        wanted = resource_filter(
+            applications, application_id, "gpu", service_name, False
+        )
         return [boolean(wanted, strict=False) and _device_present(variables)]

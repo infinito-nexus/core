@@ -182,9 +182,7 @@ class Builder:
             version: ``latest``, ``deployed`` or a release tag.
             ref: the commit or digest the version resolves to.
         """
-        key = hashlib.sha256(
-            f"{ref}\0{self.tooling_ref()}".encode()
-        ).hexdigest()[:16]
+        key = hashlib.sha256(f"{ref}\0{self.tooling_ref()}".encode()).hexdigest()[:16]
         return self.prepared / f"{version}.{key}"
 
     @staticmethod

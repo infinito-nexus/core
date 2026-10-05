@@ -157,7 +157,7 @@ class Queue:
                 self.build_language(version, code)
             else:
                 self.build(version)
-        except Exception as exc:  # noqa: BLE001 - a slot must not die silently
+        except Exception as exc:
             print(f"build {marker} crashed: {exc!r}", file=sys.stderr, flush=True)
             self._dequeue(marker)
         finally:
