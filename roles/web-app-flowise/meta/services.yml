@@ -69,7 +69,7 @@ flowise:
     - key: sqlite_version
       type: npm
       package: better-sqlite3
-  sqlite_version: 12.11.1
+  sqlite_version: 13.0.3
   custom: true
   name: flowise
   # nocheck: min-storage-headroom  Reason: the deployed image is built here from node:24-slim and measures 4.8 GB, so the base image transfer is not its footprint
