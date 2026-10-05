@@ -40,6 +40,10 @@ applications:
       design:
         colors:
           base: "{{ DESIGN_BASE_COLOR }}"
+  svc-cache-package:
+    secrets:
+      credentials:
+        admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"
 
 API:
   openai:
@@ -75,9 +79,3 @@ users:
 SIZE_PERCENT_CLEANUP_DISC_SPACE: 99
 
 WORKSTATION_USER: biber
-
-applications:
-  svc-cache-package:
-    secrets:
-      credentials:
-        admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"

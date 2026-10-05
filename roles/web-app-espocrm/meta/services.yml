@@ -82,6 +82,10 @@ websocket:
   mem_reservation: 0.25g
   mem_limit: 0.5g
   pids_limit: 384
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
