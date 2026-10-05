@@ -123,6 +123,7 @@ Jellyfin has **no native OIDC/LDAP**; auth is plugin-based with an important cli
 - [Container installation](https://jellyfin.org/docs/general/installation/container/)
 - [LDAP plugin](https://github.com/jellyfin/jellyfin-plugin-ldapauth)
 - [SSO/OIDC plugin](https://github.com/9p4/jellyfin-plugin-sso)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Q1AHrVLgKVPErMC2BH4hU4)
 
 ## Persona contract opt-outs
 
