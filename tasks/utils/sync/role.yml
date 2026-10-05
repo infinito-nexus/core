@@ -1,0 +1,34 @@
+---
+- name: 📂 Include Token Store
+  ansible.builtin.include_role:
+    name: sys-token-store
+
+- name: 🔒 Skip the stack-wide service stop that only the destructor stage undoes
+  ansible.builtin.set_fact:
+    run_once_sys_service: true
+
+- name: 🔒 Treat every shared service of the running stack as converged
+  ansible.builtin.set_fact:
+    "{{ 'run_once_' ~ (service_item.role | replace('-', '_')) }}": true
+  loop: >-
+    {{
+      query('service_registry', 'ordered', roles_dir=(lookup('path_absolute', 'roles')))
+      | first
+      | rejectattr('role', 'equalto', sync_application_id)
+      | list
+    }}
+  loop_control:
+    loop_var: service_item
+    label: "{{ service_item.id }}"
+
+- name: "🔧 Run the role of '{{ sync_application_id }}'"
+  ansible.builtin.include_role:
+    name: "{{ sync_application_id }}"
+
+- name: 🚿 Flush the handlers of the role
+  ansible.builtin.meta: flush_handlers
+
+- name: "▶️ Run the Playwright spec of '{{ sync_application_id }}'"
+  ansible.builtin.include_role:
+    name: test-e2e-playwright
+  when: sync_playwright | bool

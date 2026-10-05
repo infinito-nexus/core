@@ -49,39 +49,8 @@
     - MODE_CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool
 
-- name: "🖥️ Auto-place single-host shared services on first manager (swarm mode)"
-  ansible.builtin.add_host:
-    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] }}"
-    groups: "{{ role_id }}"
-  loop: "{{ lookup('roles_with_placement', 'manager') }}"
-  loop_control:
-    loop_var: role_id
-    label: "{{ role_id }}"
-  when:
-    - (groups['svc-swarm-manager'] | default([]) | length) > 0
-    - role_id in groups
-    - (groups[role_id] | default([]) | length) == 0
-  run_once: true
-  changed_when: false
-
-- name: "🔧 auto-place svc-prx-openresty (swarm manager, first compose host) for vhosts"
-  ansible.builtin.add_host:
-    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] | default(ansible_play_hosts | first) }}"
-    groups: svc-prx-openresty
-  vars:
-    _web_groups: >-
-      {{
-        groups
-        | dict2items
-        | selectattr('key', 'match', '^web-')
-        | rejectattr('value', 'equalto', [])
-        | list
-      }}
-  when:
-    - (groups['svc-prx-openresty'] | default([]) | length) == 0
-    - (_web_groups | length) > 0
-  run_once: true
-  changed_when: false
+- name: "📍 Place the shared services and the proxy on their hosts"
+  ansible.builtin.include_tasks: ./tasks/utils/constructor/placement.yml
 
 - name: "🥾 Bootstrap svc-swarm-node"
   ansible.builtin.include_role:
