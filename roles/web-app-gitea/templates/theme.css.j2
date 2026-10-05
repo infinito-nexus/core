@@ -62,11 +62,8 @@
   --color-console-fg: var(--design-text);
   --color-console-fg-subtle: var(--design-text-muted);
   --color-console-link: var(--design-text-muted);
-  --color-console-border: var(--design-border);
   --color-console-hover-bg: var(--design-surface-3);
   --color-console-active-bg: var(--design-border);
-  --color-console-menu-bg: var(--design-surface-3);
-  --color-console-menu-border: var(--design-border);
 {% for status, name in [('danger', 'error'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
   --color-{{ name }}-text: var(--design-{{ status }});
   --color-{{ name }}-bg: var(--design-{{ status }}-subtle);
@@ -74,4 +71,13 @@
 {% endfor %}
   --color-error-bg-hover: color-mix(in oklab, var(--design-danger) 18%, var(--design-surface-2));
   --color-error-bg-active: color-mix(in oklab, var(--design-danger) 24%, var(--design-surface-2));
+}
+
+.page-content.home .hero .svg {
+  color: var(--design-primary);
+}
+
+gitea-theme-meta-info {
+  --theme-display-name: {{ (service_provider.platform.titel ~ ' ' ~ gitea_theme_scheme | capitalize) | to_json(ensure_ascii=False) }};
+  --theme-color-scheme: {{ gitea_theme_scheme | to_json }};
 }

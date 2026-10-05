@@ -1,0 +1,34 @@
+---
+- name: "🔄 compose | Restart the Gitea container"
+  ansible.builtin.command:
+    argv:
+      - container
+      - restart
+      - "{{ GITEA_LOCAL_CID }}"
+  changed_when: true
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🔄 swarm | Force an update of the Gitea service"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, entity_name) }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Resolve the container the restart left running"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: GITEA
+    resolve_compose_cid: "{{ GITEA_CONTAINER_ADDRESS }}"
+
+- name: "⏳ Wait until the restarted Gitea answers"
+  uri_retry:
+    url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}/api/v1/version"
+    method: GET
+    status_code: 200
+    return_content: false
+  register: gitea_restart_ready
+  until: gitea_restart_ready.status == 200
+  retries: 20
+  delay: 5
