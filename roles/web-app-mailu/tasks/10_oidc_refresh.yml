@@ -14,7 +14,7 @@
   until: mailu_oidc_issuer_probe.stdout == '200'
 
 - name: "🔄 Restart Mailu admin so the OIDC provider config is re-fetched (compose)"
-  ansible.builtin.command: "container restart {{ MAILU_ADMIN_CONTAINER_ADDRESS }}"
+  ansible.builtin.shell: "container restart {{ MAILU_ADMIN_CONTAINER_ADDRESS }}"
   changed_when: true
   when: IS_COMPOSE_MODE
 

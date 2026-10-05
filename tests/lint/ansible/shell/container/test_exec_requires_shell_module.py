@@ -16,8 +16,15 @@ The rule fires when ALL of:
 
 * a task uses ``command:`` or ``ansible.builtin.command:``;
 * the command body (string form or list form, but NOT the
-  ``argv: [bash, -lc, ...]`` escape hatch) contains
-  ``container exec`` or ``docker exec``;
+  ``argv: [bash, -lc, ...]`` escape hatch) names ``container`` or
+  ``docker`` with a subcommand that takes a container reference
+  (``exec``, ``restart``, ``stop``, ``start``, ``kill``, ``rm``,
+  ``pause``, ``unpause``, ``logs``, ``cp``, ``inspect``, ``wait``,
+  ``top``). The contract belongs to the lookup's ``$(...)`` output, not
+  to ``exec``: a ``container restart`` of the same target under
+  ``command:`` failed the same way in
+  ``svc-ai-libretranslate-engine/tasks/utils/install_models.yml``,
+  which an ``exec``-only pattern did not catch;
 * the target token is a Jinja reference ``{{ ... }}``.
 
 The ``argv: [bash, -lc, ...]`` form is safe because bash is invoked
@@ -39,15 +46,46 @@ from typing import Any
 import yaml
 
 from utils.annotations.suppress import is_suppressed_at
-from utils.cache.files import iter_project_files_with_content
+from utils.cache.files import iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
 _RULE = "container-exec-requires-shell"
-_EXEC = re.compile(r"\b(?:container|docker)\s+exec\b")
+_EXEC = re.compile(
+    r"\b(?:container|docker)\s+"
+    r"(?:exec|restart|stop|start|kill|rm|pause|unpause|logs|cp|inspect|wait|top)\b"
+)
 _JINJA = re.compile(r"\{\{[^}]+\}\}")
 _COMMAND_MODULES = frozenset({"command", "ansible.builtin.command"})
+_EXEC_VERB = re.compile(r"\b(?:container|docker)\s+exec\b")
+_ADDRESS_VAR = re.compile(
+    r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\"?\{\{\s*lookup\('container_address'", re.M
+)
+
+
+def _address_variables() -> frozenset[str]:
+    """Names of the vars whose value is the lookup's ``$(...)`` payload.
+
+    Only those targets carry shell syntax, so only they oblige the caller
+    to use ``shell``. A plain ``{{ FOO_CONTAINER }}`` holds a literal name
+    and is safe under ``command``.
+    """
+    names: set[str] = set()
+    for pattern in ("roles/*/vars/*.yml", "group_vars/**/*.yml"):
+        for path in PROJECT_ROOT.glob(pattern):
+            names.update(_ADDRESS_VAR.findall(read_text(str(path))))
+    return frozenset(names)
+
+
+_ADDRESS_NAMES = _address_variables()
+
+
+def _needs_shell(body: str) -> bool:
+    """Whether ``body`` under ``command:`` would pass unevaluated shell syntax."""
+    if any(name in body for name in _ADDRESS_NAMES):
+        return bool(_EXEC.search(body))
+    return bool(_EXEC_VERB.search(body) and _JINJA.search(body))
 
 
 def _is_scan_target(rel_path: str) -> bool:
@@ -114,7 +152,7 @@ def _walk_tasks(node: yaml.Node, findings: list[tuple[int, str]]) -> None:
     cmd_value = _task_command_node(node)
     if cmd_value is not None:
         body = _command_body_text(_node_body_value(cmd_value))
-        if body and _EXEC.search(body) and _JINJA.search(body):
+        if body and _needs_shell(body):
             findings.append((cmd_value.start_mark.line + 1, body.strip()))
     for k, v in node.value:
         if not isinstance(k, yaml.ScalarNode):
