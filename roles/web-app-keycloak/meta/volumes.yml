@@ -6,3 +6,114 @@ realm_import:
     - service: keycloak
       target: /opt/keycloak/data/import/
       when: "{{ DEPLOYMENT_MODE == 'compose' }}"
+
+theme_login_properties:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'login.properties'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/login/theme.properties"
+      when: &keycloak_design_when "{{ lookup('config', 'web-app-keycloak', 'services.design.enabled') | bool }}"
+
+theme_login_style:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'theme.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/login/resources/css/design.css"
+      when: *keycloak_design_when
+
+theme_login_brand:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'brand.svg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/login/resources/img/brand.svg"
+      when: &keycloak_design_logo_when >-
+        {{ (lookup('config', 'web-app-keycloak', 'services.design.enabled') | bool)
+           and (lookup('config', 'web-app-keycloak', 'services.design.logo', lookup('config', 'web-svc-design', 'services.design.logo')) | string | lower)
+           not in ['false', '0'] }}
+
+theme_login_favicon:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'favicon.ico'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/login/resources/img/favicon.ico"
+      when: *keycloak_design_logo_when
+
+theme_account_properties:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'account.properties'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/account/theme.properties"
+      when: *keycloak_design_when
+
+theme_account_style:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'theme.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/account/resources/design.css"
+      when: *keycloak_design_when
+
+theme_account_brand:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'brand.svg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/account/resources/brand.svg"
+      when: *keycloak_design_logo_when
+
+theme_account_favicon:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'favicon.ico'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/account/resources/favicon.ico"
+      when: *keycloak_design_logo_when
+
+theme_admin_properties:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'admin.properties'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/admin/theme.properties"
+      when: *keycloak_design_when
+
+theme_admin_style:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'theme.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/admin/resources/design.css"
+      when: *keycloak_design_when
+
+theme_admin_brand:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'brand.svg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/admin/resources/brand.svg"
+      when: *keycloak_design_logo_when
+
+theme_admin_favicon:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'favicon.ico'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/admin/resources/favicon.ico"
+      when: *keycloak_design_logo_when

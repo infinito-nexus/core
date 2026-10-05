@@ -140,6 +140,7 @@ For the OIDC variable tree, claim rules, and the policy that app-specific protoc
 - [Setting up Keycloak behind a Reverse Proxy](https://www.keycloak.org/server/reverseproxy)
 - [Wikipedia](https://en.wikipedia.org/wiki/Keycloak)
 - [Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/S3WH2nRVsYhYV5QP8VAp1A)
 
 ## Persona contract opt-outs
 

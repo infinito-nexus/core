@@ -8,9 +8,9 @@
     var box = document.createElement("div");
     box.id = "infinito-logout-status";
     box.setAttribute("role", "status");
-    box.style.cssText = "max-width:34rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid rgba(0,0,0,.15);border-left:5px solid #9b2226;border-radius:.5rem;background:rgba(255,255,255,.94);color:#222;font:14px/1.6 system-ui,sans-serif;text-align:start";
+    box.style.cssText = "max-width:34rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid var(--design-border, rgba(0,0,0,.15));border-left:5px solid var(--design-danger, #9b2226);border-radius:.5rem;background:var(--design-surface-2, rgba(255,255,255,.94));color:var(--design-text, #222);font:14px/1.6 system-ui,sans-serif;text-align:start";
     var line = box.appendChild(document.createElement("p"));
-    line.style.cssText = "margin:0;font-weight:700;color:#9b2226";
+    line.style.cssText = "margin:0;font-weight:700;color:var(--design-danger, #9b2226)";
     line.textContent = {{ catalogue.en.no_check | to_json }};
     var note = box.appendChild(document.createElement("p"));
     note.style.cssText = "margin:.1rem 0 0";
