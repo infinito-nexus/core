@@ -60,10 +60,10 @@
   ansible.builtin.meta: flush_handlers
 
 - name: "🔥 Queue the build of the deployed working tree for '{{ application_id }}'"
-  ansible.builtin.uri:
+  uri_retry:
     url: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.docs.ports.local.http') }}/deployed/"
     status_code: [200, 202]
-    timeout: 30
+    timeout: "{{ lookup('timeout', 30) | int }}"
   register: docs_deployed_warm
   until: docs_deployed_warm is not failed
   retries: 12
