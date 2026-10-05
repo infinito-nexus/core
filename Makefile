@@ -292,13 +292,6 @@ compose-up: install
 console:
 	@"$${PYTHON}" -m cli.console
 
-.PHONY: cosmos
-# Regenerate the '## Cosmos' mermaid diagram in every role README (or one role).
-# Usage: make cosmos [role=<id>]
-# Param role: single role id (default: all roles)
-cosmos:
-	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
-
 .PHONY: design-gallery
 # Rerun the design spec of a deployed app and copy its before/after screenshots to /tmp/design-gallery/<app>/ (no redeploy).
 # Usage: make design-gallery app=<application_id>

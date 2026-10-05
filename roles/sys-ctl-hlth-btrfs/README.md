@@ -8,31 +8,12 @@ Checks the health of all mounted Btrfs filesystems by inspecting device error co
 
 This role health-check for Btrfs filesystems, alerts on any device error counters.
 
-## Cosmos
-
-The diagram places sys-ctl-hlth-btrfs in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-ctl-hlth-btrfs 💻]
-        svc_btrfs["btrfs"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - Iterates over every Btrfs filesystem.
 - Runs `btrfs device stats` and alerts if any error counters are non-zero.
 - Hooks into systemd and a timer for regular checks.
 - On failure, calls `sys-ctl-alm-compose.infinito@…` for notification.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
 
 ## Usage
 
