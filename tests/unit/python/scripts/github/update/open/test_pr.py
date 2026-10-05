@@ -12,7 +12,7 @@ SCRIPT = PROJECT_ROOT / "scripts" / "github" / "update" / "open" / "pr.sh"
 PINNED_FILE = "pin.txt"
 GH_STUB = """#!/usr/bin/env bash
 if [[ "$1 $2" == "pr list" ]]; then
-	printf '7\\t%s\\n' "${GH_STUB_BRANCH}"
+	printf '7\\t%s\\t%s\\n' "${GH_STUB_CROSS_REPO}" "${GH_STUB_BRANCH}"
 fi
 """
 
@@ -76,11 +76,23 @@ class UpdatePrFixture:
         blob = self.git("hash-object", PINNED_FILE)
         return self.git("hash-object", "--stdin", stdin=f"{blob}\t{PINNED_FILE}\n")
 
-    def open_pr(self, open_branch: str) -> subprocess.CompletedProcess:
+    def open_pr(
+        self, open_branch: str, cross_repo: bool = False
+    ) -> subprocess.CompletedProcess:
+        """Run the script while ``gh`` lists one open PR.
+
+        Args:
+            open_branch: head branch name of that PR.
+            cross_repo: whether that PR comes from a fork.
+        """
         return subprocess.run(
             ["bash", str(SCRIPT)],
             cwd=self.repo,
-            env={**self.env, "GH_STUB_BRANCH": open_branch},
+            env={
+                **self.env,
+                "GH_STUB_BRANCH": open_branch,
+                "GH_STUB_CROSS_REPO": str(cross_repo).lower(),
+            },
             capture_output=True,
             text=True,
             check=False,
@@ -96,6 +108,17 @@ class TestUpdatePrDedupe(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("Open PR #7 already carries this exact change", result.stdout)
             self.assertNotIn("Pushing change to branch", result.stdout)
+
+    def test_fork_branch_with_the_same_suffix_is_not_a_duplicate(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = UpdatePrFixture(tmp)
+            suffix = fixture.fingerprint()[:7]
+            result = fixture.open_pr(f"update/pins-20251231-{suffix}", cross_repo=True)
+            self.assertNotIn("already carries this exact change", result.stdout)
+            self.assertIn(
+                f"Pushing change to branch update/pins-20260101-{suffix}",
+                result.stdout,
+            )
 
     def test_branch_of_another_proposal_is_not_a_duplicate(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

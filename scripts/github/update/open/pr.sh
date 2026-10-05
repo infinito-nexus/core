@@ -70,8 +70,8 @@ mapfile -t OPEN_PRS < <(
 		--state open \
 		--base "${UPDATE_BASE_BRANCH}" \
 		--limit 100 \
-		--json number,headRefName \
-		--jq ".[] | select(.headRefName | startswith(\"${UPDATE_DEDUPE_PREFIX}\")) | \"\(.number)\t\(.headRefName)\""
+		--json number,headRefName,isCrossRepository \
+		--jq ".[] | select(.headRefName | startswith(\"${UPDATE_DEDUPE_PREFIX}\")) | \"\(.number)\t\(.isCrossRepository)\t\(.headRefName)\""
 )
 
 DUPLICATE_PR=""
@@ -79,7 +79,9 @@ for entry in "${OPEN_PRS[@]}"; do
 	[[ -z "${entry}" ]] && continue
 	pr_num="${entry%%$'\t'*}"
 	pr_branch="${entry##*$'\t'}"
-	if [[ "${pr_branch}" == *"-${LOCAL_FP:0:7}" ]]; then
+	pr_cross_repo="${entry#*$'\t'}"
+	pr_cross_repo="${pr_cross_repo%%$'\t'*}"
+	if [[ "${pr_cross_repo}" == "false" && "${pr_branch}" == *"-${LOCAL_FP:0:7}" ]]; then
 		echo "  open PR #${pr_num} (${pr_branch}): branch name carries this fingerprint"
 		DUPLICATE_PR="${pr_num}"
 		break
