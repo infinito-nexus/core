@@ -64,6 +64,7 @@ from .infinito.swarm_nfs import export_base as swarm_nfs_export_base
 from .infinito.swarm_nfs import state_path as swarm_nfs_state_path
 from .infinito.tools import libretranslate as tools_libretranslate
 from .infinito.tools import models as tools_models
+from .infinito.tools import translate as tools_translate
 from .infinito.worker import cpu as worker_cpu
 from .infinito.worker import fetch as worker_fetch
 
@@ -118,6 +119,7 @@ ORDERED_HANDLERS = [
     gpu_count,
     tools_libretranslate,
     tools_models,
+    tools_translate,
     i18n_tuning,
     package_cache_heap,
     package_cache_direct_mem,

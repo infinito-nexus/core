@@ -66,13 +66,12 @@ def service_url(root: Path) -> str:
     return f"http://{host}:{service['ports']['local']['http']}"
 
 
-def deployed(root: Path) -> str:
-    """Return the URL of the deployed LibreTranslate, empty when it does not answer.
+def probe(url: str) -> str:
+    """Return *url* when it serves the LibreTranslate API, empty when it does not.
 
     Args:
-        root: repository root.
+        url: base URL of an engine or of the gateway in front of several.
     """
-    url = service_url(root)
     try:
         with urllib.request.urlopen(  # noqa: S310 - the URL is this repository's own service definition
             f"{url}/languages", timeout=DEPLOYED_TIMEOUT_SECONDS
@@ -80,6 +79,15 @@ def deployed(root: Path) -> str:
             return url
     except OSError:
         return ""
+
+
+def deployed(root: Path) -> str:
+    """Return the URL of the deployed LibreTranslate, empty when it does not answer.
+
+    Args:
+        root: repository root.
+    """
+    return probe(service_url(root))
 
 
 def unaccelerated(root: Path) -> bool:

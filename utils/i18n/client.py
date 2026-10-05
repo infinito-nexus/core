@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 
 from utils.i18n.languages import SOURCE_LANGUAGE
 from utils.i18n.limits import BATCH_SIZE
-from utils.i18n.placeholders import Rejected, mask, unmask
+from utils.i18n.placeholders import Rejected, mask, mask_tokens, unmask
 from utils.i18n.untranslatable import untranslatable
 
 if TYPE_CHECKING:
@@ -168,47 +168,92 @@ class LibreTranslate:
                 )
             time.sleep(POLL_SECONDS)
 
-    def _post(self, masked: list, target: str) -> list | None:
-        """Return the server's translations, or None once the retries run out.
+    def _post(self, masked: list, target: str, exclude: tuple = ()) -> list | None:
+        """Return the server's translations and who wrote them, or None.
 
         The server refuses a share of the requests while every lane hammers it
         at once, and those refusals used to discard their entries for good.
+
+        Args:
+            masked: the messages, already masked.
+            target: ISO 639-1 code.
+            exclude: engines a previous pass over these messages produced an
+                unusable answer with.
         """
         refusals = 0
         refusal = ""
         for attempt in range(RETRY_ATTEMPTS):
+            engines: list = []
             try:
-                result = self._call(
+                body = self._call(
                     "/translate",
                     {
                         "q": [item.text for item in masked],
                         "source": SOURCE_LANGUAGE,
                         "target": self.server_code(target),
                         "format": "html",
+                        "protected": [mask_tokens(item) for item in masked],
+                        "exclude": list(exclude),
                     },
-                )["translatedText"]
+                )
+                result = body["translatedText"]
+                answered = body.get("engine")
+                engines = answered if isinstance(answered, list) else []
             except (urllib.error.HTTPError, ValueError, KeyError, TypeError) as exc:
                 refusals += 1
                 refusal = f"{type(exc).__name__}: {exc}"
                 result = None
             if isinstance(result, list) and len(result) == len(masked):
-                return result, refusals, refusal
+                return result, engines, refusals, refusal
             time.sleep(RETRY_BACKOFF_SECONDS * 2**attempt)
-        return None, refusals, refusal
+        return None, [], refusals, refusal
 
-    def _batch(self, texts: list[str], target: str) -> Outcome:
+    def _batch(self, texts: list[str], target: str, exclude: tuple = ()) -> Outcome:
+        """Translate one batch, re-asking what came back unusable.
+
+        The protected spans are masked before the request, so the gateway
+        judges a string this client never shows it and cannot tell that the
+        restored markup moved. Naming the engine that answered and asking
+        again without it is how this side's verdict reaches the candidate
+        set; without it a saturated signature returns the same damage for
+        every retry. One extra pass per engine, bounded by the candidate set.
+        """
         masked = [mask(text) for text in texts]
-        result, refused, refusal = self._post(masked, target)
+        result, engines, refused, refusal = self._post(masked, target, exclude)
         if result is None:
             if len(texts) == 1:
                 return Outcome([None], refused, 0, refusal)
-            return merge(self._batch([text], target) for text in texts)
+            return merge(self._batch([text], target, exclude) for text in texts)
         values = [
             unmask(translated, item, text, target)
             for translated, item, text in zip(result, masked, texts, strict=True)
         ]
-        damaged = sum(1 for text in values if isinstance(text, Rejected))
-        return Outcome(values, refused, damaged, refusal)
+        retried = self._reask(texts, target, values, engines, exclude)
+        damaged = sum(1 for text in retried if isinstance(text, Rejected))
+        return Outcome(retried, refused, damaged, refusal)
+
+    def _reask(
+        self, texts: list[str], target: str, values: list, engines: list, exclude: tuple
+    ) -> list:
+        """Replace every rejected value with one from another engine.
+
+        Returns:
+            ``values`` with each rejection re-translated where another engine
+            was left to ask, and the original rejection where none was.
+        """
+        if not engines or len(engines) != len(values):
+            return values
+        answered = list(values)
+        for index, value in enumerate(values):
+            if not isinstance(value, Rejected):
+                continue
+            engine = engines[index]
+            if not engine or engine in exclude:
+                continue
+            retry = self._batch([texts[index]], target, (*exclude, engine))
+            if not isinstance(retry.values[0], Rejected) and retry.values[0]:
+                answered[index] = retry.values[0]
+        return answered
 
     def translate(self, texts: list[str], target: str) -> Outcome:
         """Translate ``texts`` from English into ``target``.

@@ -52,6 +52,7 @@ from utils.i18n.spans import Masked as Masked
 from utils.i18n.spans import carries_placeholder as carries_placeholder
 from utils.i18n.spans import has_words as has_words
 from utils.i18n.spans import mask as mask
+from utils.i18n.spans import mask_tokens as mask_tokens
 from utils.i18n.spans import matches as matches
 from utils.i18n.spans import prose as prose
 

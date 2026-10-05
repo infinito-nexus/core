@@ -354,11 +354,12 @@ i18n-retry:
 	@"$${PYTHON}" -m cli.build.i18n retry $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
 
 .PHONY: i18n-translate
-# Machine-translate the empty and fuzzy entries of the gettext catalogs, deploying the i18n LibreTranslate runner when it does not answer.
+# Machine-translate the empty and fuzzy entries of the gettext catalogs through the translation gateway, deploying its bundle when it does not answer.
 # Param domain: core | docs (empty: both)
-# Param languages: comma-separated ISO 639-1 codes (empty: every language LibreTranslate supports)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language the gateway serves)
+# Param redeploy: true — deploy the bundle even when a gateway already answers (after changing its code or its backends)
 i18n-translate:
-	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)") $(if $(filter true,$(redeploy)),--redeploy)
 
 .PHONY: i18n-tune
 # Measure the fastest LibreTranslate client settings on this host and record them for `make dotenv`.

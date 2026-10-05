@@ -48,6 +48,8 @@ services:
     ports:
       - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_TOOLS_LIBRETRANSLATE_PORT:?Run 'make dotenv' to generate the
         .env single source of truth}:${INFINITO_TOOLS_LIBRETRANSLATE_PORT:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_TOOLS_TRANSLATE_PORT:?Run 'make dotenv' to generate the
+        .env single source of truth}:${INFINITO_TOOLS_TRANSLATE_PORT:?Run 'make dotenv' to generate the .env single source of truth}"
 
     networks:
       default:

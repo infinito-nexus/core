@@ -93,6 +93,15 @@ class TestTranslate(unittest.TestCase):
             {"source": "en", "target": "de", "format": "html"},
         )
 
+    def test_the_protected_tokens_travel_aligned_with_their_messages(self):
+        """The gateway applies them per entry, so a flat list would mislabel."""
+        self.client.translate(["Run ``make setup`` now", "Plain prose"], "de")
+
+        payload = FakeLibreTranslate.requests[0]
+
+        self.assertEqual(len(payload["protected"]), len(payload["q"]))
+        self.assertEqual(payload["protected"], [['<x id="0"></x>'], []])
+
     def test_rules_for_human_fuzzy_empty_and_damaged_entries(self):
         catalog = merge(
             build_template(
@@ -422,6 +431,74 @@ class TestOverSharedTranslation(unittest.TestCase):
         )
 
         self.assertEqual(over_shared(catalog), [])
+
+
+class EngineAwareGateway(BaseHTTPRequestHandler):
+    """Loses a token until the engine that loses it is excluded."""
+
+    requests: ClassVar[list[dict]] = []
+
+    def log_message(self, *args):
+        return
+
+    def _reply(self, payload):
+        body = json.dumps(payload).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_GET(self):
+        self._reply([{"code": "en", "targets": ["de"]}])
+
+    def do_POST(self):
+        payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        EngineAwareGateway.requests.append(payload)
+        spent = "alpha" in (payload.get("exclude") or [])
+        engine = "beta" if spent else "alpha"
+        texts = payload["q"]
+        self._reply(
+            {
+                "translatedText": [
+                    f"DE {text}" if spent else TOKEN.sub("", f"DE {text}")
+                    for text in texts
+                ],
+                "engine": [engine] * len(texts),
+            }
+        )
+
+
+class TestAnotherEngineIsAskedAfterARejection(unittest.TestCase):
+    SOURCE: ClassVar[str] = "Run ``make setup`` now"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), EngineAwareGateway)
+        threading.Thread(target=cls.server.serve_forever, daemon=True).start()
+        cls.client = LibreTranslate(f"http://127.0.0.1:{cls.server.server_port}", 1)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+
+    def setUp(self):
+        EngineAwareGateway.requests.clear()
+
+    def test_the_rejected_answer_is_replaced_by_the_next_engines(self) -> None:
+        outcome = self.client.translate([self.SOURCE], "de")
+
+        self.assertEqual(outcome.values, ["DE Run ``make setup`` now"])
+        self.assertEqual(outcome.damaged, 0)
+
+    def test_the_engine_that_failed_is_named_in_the_second_request(self) -> None:
+        self.client.translate([self.SOURCE], "de")
+
+        self.assertEqual(
+            [request["exclude"] for request in EngineAwareGateway.requests],
+            [[], ["alpha"]],
+        )
 
 
 if __name__ == "__main__":

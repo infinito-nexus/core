@@ -5,10 +5,25 @@ from utils.i18n.placeholders import (
     TOKEN,
     Rejected,
     mask,
+    mask_tokens,
     resegment,
     tighten,
     unmask,
 )
+
+
+class TestMaskTokens(unittest.TestCase):
+    def test_every_token_it_names_is_in_the_masked_text(self):
+        masked = mask("Run ``make setup`` for {role}.")
+
+        tokens = mask_tokens(masked)
+
+        self.assertEqual(len(tokens), len(masked.spans))
+        for token in tokens:
+            self.assertIn(token, masked.text)
+
+    def test_a_message_without_spans_names_no_token(self):
+        self.assertEqual(mask_tokens(mask("Plain prose.")), [])
 
 
 class TestMaskRoundTrip(unittest.TestCase):

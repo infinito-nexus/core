@@ -39,7 +39,7 @@ from utils.i18n.languages import (
     load_languages,
     translatable,
 )
-from utils.i18n.libretranslate import (
+from utils.i18n.gateway import (
     READY_TIMEOUT_SECONDS,
     LibreTranslate,
     download_status,
@@ -219,14 +219,14 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
     )
 
 
-def translate(domains: list[str], requested: list[str]) -> int:
+def translate(domains: list[str], requested: list[str], redeploy: bool = False) -> int:
     loaded = load_languages(PROJECT_ROOT)
     work: list[tuple[str, str]] = []
     for domain in domains:
         supported = translatable(loaded, domain)
         unsupported = sorted(set(requested) - set(supported))
         if unsupported:
-            print(f"LibreTranslate does not support {unsupported}", file=sys.stderr)
+            print(f"the translation gateway does not serve {unsupported}", file=sys.stderr)
             return 2
         work += [
             (domain, code)
@@ -242,7 +242,7 @@ def translate(domains: list[str], requested: list[str]) -> int:
     tuned = int(os.environ.get("INFINITO_I18N_LANES") or 0)
     lanes = min(len(work), tuned or cpus)
     batch = int(os.environ.get("INFINITO_I18N_BATCH_SIZE") or BATCH_SIZE)
-    with server(PROJECT_ROOT) as url:
+    with server(PROJECT_ROOT, redeploy=redeploy) as url:
         client = LibreTranslate(url, max(cpus // lanes, 1), batch_size=batch)
         client.wait(
             codes,
@@ -268,6 +268,11 @@ def main() -> int:
         "--languages",
         default="",
         help="Comma-separated ISO 639-1 codes; empty for every supported language.",
+    )
+    translate_parser.add_argument(
+        "--redeploy",
+        action="store_true",
+        help="Deploy the gateway bundle even when one already answers.",
     )
     languages_parser = commands.add_parser(
         "languages", help="Print the machine-translatable codes as a JSON array."
@@ -321,6 +326,7 @@ def main() -> int:
     return translate(
         [args.domain] if args.domain else list(DOMAINS),
         [c for c in args.languages.split(",") if c],
+        args.redeploy,
     )
 
 

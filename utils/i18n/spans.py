@@ -145,3 +145,17 @@ def mask(text: str) -> Masked:
         position = end
     parts.append(html.escape(text[position:], quote=False))
     return Masked("".join(parts), tuple(spans))
+
+
+def mask_tokens(masked: Masked) -> list[str]:
+    """The tokens *masked* put in place of its protected spans.
+
+    Args:
+        masked: a masked message.
+
+    Returns:
+        One token per span, in the order ``mask`` assigned them. A backend
+        that is prompted rather than asked, such as a chat model, needs them
+        spelled out: it has no html mode that would leave a tag alone.
+    """
+    return [f'<x id="{index}"></x>' for index in range(len(masked.spans))]
