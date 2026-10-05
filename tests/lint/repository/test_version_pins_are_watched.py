@@ -8,7 +8,9 @@ or an oversight.
 
 Scope: every ``roles/*/meta/services.yml`` value whose key names a version and
 whose content is a semver. Moving tags (``latest``, ``stable``, a branch name)
-are not pins and are ignored.
+are not pins and are ignored. A role whose primary service is ``lifecycle:
+eol`` is skipped entirely: ``iter_role_images`` drops it, so no updater can
+reach its pins and a watcher is not something it could declare.
 
 Per-line opt-out: ``# nocheck: unwatched-version`` above the pin, with a
 reason, for a version that must stay where it is. An existing
@@ -24,6 +26,7 @@ import unittest
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
+from utils.docker.image.discovery import RETIRED, role_lifecycle
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import is_semver
 from utils.update.docker import collect_entries as docker_entries
@@ -55,7 +58,10 @@ def _findings() -> list[str]:
     ):
         role = config_path.parts[-3]
         lines = read_text(str(config_path)).splitlines()
-        for entity, config in (load_yaml(str(config_path)) or {}).items():
+        services = load_yaml(str(config_path)) or {}
+        if role_lifecycle(services) == RETIRED:
+            continue
+        for entity, config in services.items():
             if not isinstance(config, dict):
                 continue
             for key, value in config.items():

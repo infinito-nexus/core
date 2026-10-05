@@ -38,6 +38,7 @@ _MIRRORABLE_REGISTRIES = frozenset(
         "registry.gitlab.com",
     }
 )
+RETIRED = "eol"
 
 
 @dataclass(frozen=True)
@@ -190,6 +191,22 @@ def canonical_image_name(image: str) -> str:
     return base
 
 
+def role_lifecycle(services: dict) -> str:
+    """The role's lifecycle stage, empty when no service names one.
+
+    Args:
+        services: the parsed ``meta/services.yml`` of one role.
+
+    Returns:
+        The stage of the one entry that carries a ``lifecycle`` field, which
+        is the role's primary service.
+    """
+    for entry in services.values():
+        if isinstance(entry, dict) and entry.get("lifecycle"):
+            return str(entry["lifecycle"])
+    return ""
+
+
 def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     """
     Yield all ImageRef entries discovered across all roles in ``repo_root``.
@@ -201,6 +218,12 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     function is the only enumeration the mirror sees and a tag it never emits
     can never be mirrored.
 
+    An ``eol`` role is left out entirely. It is outside the lifecycle envelope
+    ``default.env`` tests, so no deploy can reach its images, and a retired
+    role's upstream is free to withdraw them: MinIO's quay tags answer 401 to
+    anonymous pulls and exist nowhere else, which failed the mirror job on
+    every run while nothing could have consumed the result.
+
     See docs/contributing/artefact/image.md for the full format reference.
     """
     roles_dir = repo_root / "roles"
@@ -210,6 +233,9 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
         services = load_yaml(services_file)
 
         if not isinstance(services, dict):
+            continue
+
+        if role_lifecycle(services) == RETIRED:
             continue
 
         for service_name, service in services.items():
