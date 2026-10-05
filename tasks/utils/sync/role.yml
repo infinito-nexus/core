@@ -21,6 +21,11 @@
     loop_var: service_item
     label: "{{ service_item.id }}"
 
+- name: 🎛️ Load the proxy handlers an app role may notify before its stack
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/handlers.yml') }}"
+  vars:
+    handler_role_name: svc-prx-openresty
+
 - name: "🔧 Run the role of '{{ sync_application_id }}'"
   ansible.builtin.include_role:
     name: "{{ sync_application_id }}"
