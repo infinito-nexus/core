@@ -7,6 +7,7 @@ constants live here so the import runs one way, from ``library`` to ``builder``.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -113,8 +114,7 @@ class Builder:
         state = {"state": "building", "phase": "checkout", "progress": 0, "log": []}
         try:
             self._save_state(version, **state)
-            self._checkout(version, ref, work)
-            self._generate(version, state, src, work)
+            self._prepare(version, state, version, ref, work)
 
             state["phase"] = "sphinx"
             sphinx_env = self._sphinx_env(version, src)
@@ -175,6 +175,94 @@ class Builder:
                 src / "assets" / "img", conf / "assets" / "img", dirs_exist_ok=True
             )
 
+    def _prepared_dir(self, version, ref):
+        """Return where the prepared tree of ``version`` at ``ref`` is kept.
+
+        Args:
+            version: ``latest``, ``deployed`` or a release tag.
+            ref: the commit or digest the version resolves to.
+        """
+        key = hashlib.sha256(
+            f"{ref}\0{self.tooling_ref()}".encode()
+        ).hexdigest()[:16]
+        return self.prepared / f"{version}.{key}"
+
+    @staticmethod
+    def _clone_tree(source, target):
+        """Copy ``source`` to ``target``, hardlinking the files where it can.
+
+        A prepared tree is the size of a checkout plus its generated output,
+        so copying it twice per build would spend more disk writes than the
+        reuse saves.
+
+        Args:
+            source: tree to clone.
+            target: destination, must not exist.
+        """
+        try:
+            shutil.copytree(source, target, copy_function=os.link)
+        except OSError:
+            shutil.rmtree(target, ignore_errors=True)
+            shutil.copytree(source, target)
+
+    def _seal(self, tree):
+        """Drop write permission from every file under ``tree``.
+
+        The reused copies share inodes with it, so a build that writes a
+        source file in place would rewrite the cache for every later build.
+        Read-only turns that into a loud failure on the first attempt.
+
+        Args:
+            tree: the prepared tree to seal.
+        """
+        for path in tree.rglob("*"):
+            if path.is_file():
+                path.chmod(path.stat().st_mode & ~0o222)
+
+    def _publish_prepared(self, work, target):
+        """Hardlink ``work`` to ``target``, dropping the version's older trees.
+
+        Args:
+            work: the scratch tree to clone.
+            target: destination from :meth:`_prepared_dir`.
+        """
+        self.prepared.mkdir(parents=True, exist_ok=True)
+        staging = target.with_name(f".{target.name}.{os.getpid()}")
+        shutil.rmtree(staging, ignore_errors=True)
+        self._clone_tree(work, staging)
+        self._seal(staging)
+        shutil.rmtree(target, ignore_errors=True)
+        staging.replace(target)
+        for stale in self.prepared.glob(f"{target.name.split('.')[0]}.*"):
+            if stale != target:
+                shutil.rmtree(stale, ignore_errors=True)
+
+    def _prepare(self, marker, state, version, ref, work):
+        """Lay out a generated ``work`` tree for ``ref``, reusing a prepared one.
+
+        The generators read and write the checkout and take no language, so
+        the same ref yields the same tree for the version's own site and for
+        every translated one. Without the reuse each language repeats the
+        whole checkout and generation.
+
+        Args:
+            marker: queue marker the progress is saved under.
+            state: build state, advanced in place.
+            version: ``latest``, ``deployed`` or a release tag.
+            ref: the commit or digest the version resolves to.
+            work: scratch directory to fill.
+        """
+        cached = self._prepared_dir(version, ref)
+        if cached.is_dir():
+            state["phase"] = "reuse"
+            self._save_state(marker, **state)
+            shutil.rmtree(work, ignore_errors=True)
+            self._clone_tree(cached, work)
+            return
+        self._checkout(version, ref, work)
+        self._generate(marker, state, work / "src", work)
+        self._publish_prepared(work, cached)
+
     def _sphinx_env(self, version, src):
         return {
             **os.environ,
@@ -213,8 +301,7 @@ class Builder:
         }
         try:
             self._save_state(marker, **state)
-            self._checkout(version, ref, work)
-            self._generate(marker, state, src, work)
+            self._prepare(marker, state, version, ref, work)
             state["phase"] = f"translate {code}"
             self._run(
                 marker,

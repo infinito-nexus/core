@@ -41,15 +41,18 @@ class Library(Sites, Queue, Builder):
         self.queue = data / "queue"
         self.states = data / "states"
         self.scratch = data / "work"
+        self.prepared = data / "prepared"
         self.lock_file = data / "builder.lock"
         self.jobs = jobs
         self.package_dir = Path(package_dir)
         self.snapshot = Path(snapshot_dir)
         self._snapshot_ref = ""
+        self._tooling_ref = ""
         self._refs = ("", [])
         self._refs_read = 0.0
         self._lock = threading.Lock()
         self._lock_handle = None
+        self._in_flight: set[str] = set()
 
     def _git(self, *args):
         return subprocess.run(
@@ -105,6 +108,26 @@ class Library(Sites, Queue, Builder):
                 digest.update(path.read_bytes())
             self._snapshot_ref = digest.hexdigest()
         return self._snapshot_ref
+
+    def tooling_ref(self):
+        """Return the content digest of the generators and the sphinx config.
+
+        A prepared tree is only reusable while the code that produced it is
+        unchanged. The generators ship in the image, not in the documented
+        ref, so a new image with the same sources must not reuse the previous
+        generated output.
+        """
+        if not self._tooling_ref:
+            digest = hashlib.sha256()
+            for path in sorted(p for p in self.package_dir.rglob("*") if p.is_file()):
+                if path.suffix == ".pyc":
+                    continue
+                digest.update(
+                    str(path.relative_to(self.package_dir)).encode("utf-8") + b"\0"
+                )
+                digest.update(path.read_bytes())
+            self._tooling_ref = digest.hexdigest()
+        return self._tooling_ref
 
     def _wanted_ref(self, version, head):
         """Return the ref ``version`` should have been built from.

@@ -4,6 +4,7 @@ Environment:
     DOCS_SOURCE_REPO: git URL of the documented repository.
     DOCS_DATA_DIR: volume holding the mirror and the site of every version.
     DOCS_BUILD_JOBS: parallel Sphinx processes per build.
+    DOCS_BUILD_PARALLEL: builds running at once.
     DOCS_FETCH_INTERVAL: seconds between two fetches of new commits and tags.
     DOCS_PORT: port to listen on.
     DOCS_SNAPSHOT_DIR: the deployed working tree, served as version ``deployed``.
@@ -168,7 +169,10 @@ def main():
     )
     threading.Thread(
         target=library.run_builder,
-        args=(int(os.environ["DOCS_FETCH_INTERVAL"]),),
+        args=(
+            int(os.environ["DOCS_FETCH_INTERVAL"]),
+            int(os.environ["DOCS_BUILD_PARALLEL"]),
+        ),
         daemon=True,
     ).start()
     handler = partial(DocsHandler, library=library)

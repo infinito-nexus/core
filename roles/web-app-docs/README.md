@@ -11,7 +11,7 @@ One `python:<version>-slim` container runs the service in `files/python/infinito
 1. It keeps a git mirror of `services.docs.source_repository` in the `docs_sites` volume and fetches it every `services.docs.fetch_interval` seconds, or later when a build is still running.
 2. `latest` is the last commit of the default branch. It is built at start and rebuilt whenever a fetch finds a new commit; the previous build stays online until the new one replaces it.
 3. A release tag (`vX.Y.Z`) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once.
-4. Builds run one at a time, each with `services.docs.build_jobs` parallel Sphinx processes.
+4. Up to `services.docs.build.parallel` builds run at once, each with `services.docs.build.jobs` parallel Sphinx processes. `jobs` defaults to half the host's CPUs, `parallel` to the same number capped at 2. A free slot claims a translated site only once its version is current, so a version and its first language run in sequence.
 5. Every replica serves from the shared `docs_sites` volume. The replica holding `builder.lock` in that volume fetches and builds; the queue (`queue/`) and the build states (`states/`) are files beside the sites, so a new lock holder resumes the queue when the builder dies. Cross-node locking relies on NFSv4, the default of `svc-storage-nfs-client`.
 
 | Path | Content |
@@ -37,7 +37,8 @@ Override these keys of `services.docs` in the inventory:
 |---|---|
 | `source_repository` | Repository to document, e.g. a fork |
 | `fetch_interval` | Seconds between two fetches of new commits and tags |
-| `build_jobs` | Parallel Sphinx processes per build; raise `cpus` and `mem_limit` with it |
+| `build.jobs` | Parallel Sphinx processes per build; defaults to half the host's CPUs, raise `cpus` and `mem_limit` with it |
+| `build.parallel` | Builds running at once; defaults to half the host's CPUs capped at 2, and each one costs another scratch tree on disk |
 | `cpus` | Container CPU cap; also takes a percentage of the host, e.g. `50%`, see [sys-svc-container](../sys-svc-container/README.md#resource-limits) |
 
 ```yaml
@@ -46,7 +47,9 @@ applications:
     services:
       docs:
         source_repository: https://git.example.com/your-org/core.git
-        build_jobs: 4
+        build:
+          jobs: 4
+          parallel: 2
         cpus: "4"
         mem_limit: 8g
 ```

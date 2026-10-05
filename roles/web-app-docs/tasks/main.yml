@@ -61,9 +61,14 @@
 
 - name: "🔥 Queue the build of the deployed working tree for '{{ application_id }}'"
   uri_retry:
-    url: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.docs.ports.local.http') }}/deployed/"
+    url: "{{ DOCS_LOCAL_BASE_URL }}/deployed/{{ item }}"
     status_code: [200, 202]
     timeout: "{{ lookup('timeout', 30) | int }}"
+  loop: >-
+    {{ DOCS_I18N_PRELOAD_LANGUAGES
+       | map('regex_replace', '^' ~ HOST_LL ~ '$', '')
+       | map('regex_replace', '^(.+)$', '\\1/')
+       | unique | list }}
   register: docs_deployed_warm
   until: docs_deployed_warm is not failed
   retries: 12

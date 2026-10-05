@@ -227,5 +227,71 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
         self.assertEqual(self._state(self.library, "latest")["state"], "queued")
 
 
+class TestPrepared(LibraryFixture, unittest.TestCase):
+    """How the prepared tree is kept and handed to the next build."""
+
+    def _any_source(self, tree):
+        return next(path for path in sorted(tree.rglob("*")) if path.is_file())
+
+    def test_the_reused_tree_shares_inodes_with_the_cache(self) -> None:
+        self.library.build("latest")
+        cached = next(self.library.prepared.iterdir())
+        work = self.library.scratch / "clone"
+
+        self.library._clone_tree(cached, work)
+
+        source = self._any_source(cached)
+        self.assertEqual(
+            (work / source.relative_to(cached)).stat().st_ino,
+            source.stat().st_ino,
+            "the reuse copied instead of linking",
+        )
+
+    def test_the_cache_refuses_a_write_through_a_link(self) -> None:
+        self.library.build("latest")
+        cached = next(self.library.prepared.iterdir())
+
+        with self.assertRaises(PermissionError):
+            self._any_source(cached).write_text("rewritten", encoding="utf-8")
+
+    def test_a_filesystem_without_links_still_prepares(self) -> None:
+        self.library.build("latest")
+        cached = next(self.library.prepared.iterdir())
+        work = self.library.scratch / "copied"
+
+        with patch.object(builder.os, "link", side_effect=OSError("cross-device")):
+            self.library._clone_tree(cached, work)
+
+        source = self._any_source(cached)
+        copied = work / source.relative_to(cached)
+        self.assertTrue(copied.is_file())
+        self.assertNotEqual(copied.stat().st_ino, source.stat().st_ino)
+
+
+class TestDispatch(LibraryFixture, unittest.TestCase):
+    """What a free slot is allowed to claim."""
+
+    def test_a_language_is_not_claimed_while_its_version_is_stale(self) -> None:
+        head, _ = self.library.refs()
+        self.assertTrue(self.library._buildable("latest", head))
+        self.assertFalse(
+            self.library._buildable("latest:de", head),
+            "a slot would claim the language, bounce it and claim it again "
+            "for as long as the version takes to build",
+        )
+
+    def test_a_language_is_claimed_once_its_version_is_current(self) -> None:
+        self.library.build("latest")
+        head, _ = self.library.refs()
+
+        self.assertTrue(self.library._buildable("latest:de", head))
+
+    def test_a_claimed_marker_is_not_handed_out_twice(self) -> None:
+        self.library.request("latest")
+
+        self.assertEqual(self.library.next_free(), "latest")
+        self.assertIsNone(self.library.next_free())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -19,6 +19,15 @@
       shared: true
     tor:
       enabled: true
+    container_backup: # nocheck: variants-services-match
+      enabled: "{{ IS_SWARM_MODE }}"
+      shared: "{{ IS_SWARM_MODE }}"
+    docs:
+      i18n:
+        preload_languages: [en, de]
+  volumes:
+    docs_sites:
+      backup: "{{ IS_SWARM_MODE }}"
 - services:
     dashboard:
       enabled: false
@@ -34,3 +43,12 @@
       shared: false
     tor:
       enabled: true
+    container_backup: # nocheck: variants-services-match
+      enabled: "{{ IS_SWARM_MODE }}"
+      shared: "{{ IS_SWARM_MODE }}"
+    docs:
+      i18n:
+        preload_languages: [en, de]
+  volumes:
+    docs_sites:
+      backup: "{{ IS_SWARM_MODE }}"
