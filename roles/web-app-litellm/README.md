@@ -20,6 +20,7 @@ flowchart LR
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_svc_design["web-svc-design 💻"]
     end
     subgraph role [web-app-litellm 💻]
         svc_litellm["litellm"]
@@ -27,6 +28,7 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_sso["sso"]
+        svc_design["design"]
         svc_logout["logout ❌"]
     end
     dep_svc_ai_litellm -- "1:1" --> svc_litellm
@@ -34,6 +36,7 @@ flowchart LR
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_design -. "0..1" .-> svc_design
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -87,6 +90,10 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
   --password-file "$INVENTORY/.password" \
   --diff -vv
 ```
+
+## Further Resources
+
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/PqsSt2x3UCHzRrCXhkgdgw)
 
 ## Credits
 

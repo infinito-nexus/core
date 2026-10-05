@@ -1,0 +1,555 @@
+{% set design = lookup('design', application_id) %}
+{% set sign_in = 'form[action$="/login"]' %}
+{% set neutral = ['gray', 'slate'] %}
+{% set brand = ['blue', 'indigo'] %}
+{% set status = [('red', 'danger'), ('green', 'success'), ('emerald', 'success'), ('yellow', 'warning'), ('amber', 'warning'), ('orange', 'warning'), ('teal', 'info')] %}
+{% set code_block = 'pre:has(> code[class*="language-"])' %}
+{% set code_tokens = [
+  ('112, 128, 144', 'text-muted'),
+  ('153, 153, 153', 'text-muted'),
+  ('153, 0, 85', 'danger'),
+  ('102, 153, 0', 'success'),
+  ('154, 110, 58', 'warning'),
+  ('0, 119, 170', 'info'),
+  ('221, 74, 104', 'danger'),
+  ('238, 153, 0', 'warning'),
+] %}
+{% set opacity = {
+  'bg': ('background-color', '--tw-bg-opacity'),
+  'text': ('color', '--tw-text-opacity'),
+  'border': ('border-color', '--tw-border-opacity'),
+  'ring': ('--tw-ring-color', '--tw-ring-opacity'),
+} %}
+{% macro selector(cls) -%}
+{%- set escaped = '.' ~ (cls | replace(':', '\\:') | replace('/', '\\/')) -%}
+{%- set variant = cls.split(':') | first if ':' in cls else '' -%}
+{%- if variant in ['hover', 'focus', 'disabled'] -%}{{ escaped }}:{{ variant }}
+{%- elif variant == 'placeholder' -%}{{ escaped }}::placeholder
+{%- elif variant == 'group-hover' -%}.group:hover {{ escaped }}
+{%- elif variant == 'aria-selected' -%}{{ escaped }}[aria-selected="true"]
+{%- elif variant in ['ui-selected', 'ui-active'] -%}
+{%- set state = variant | replace('ui-', '') -%}
+{{ escaped }}[data-headlessui-state~="{{ state }}"], :where([data-headlessui-state~="{{ state }}"]) {{ escaped }}
+{%- else -%}{{ escaped }}
+{%- endif -%}
+{%- endmacro %}
+{% macro paint(token, classes) %}
+{% set kind = ((classes | first).split(':') | last).split('-') | first %}
+{% for cls in classes %}
+{{ selector(cls) }}{{ ',' if not loop.last else ' {' }}
+{% endfor %}
+{% if kind in opacity %}
+  {{ opacity[kind][0] }}: rgba(var(--design-{{ token }}-rgb), var({{ opacity[kind][1] }}, 1));
+{% else %}
+  {{ kind }}: var(--design-{{ token }});
+{% endif %}
+}
+{% endmacro %}
+{% macro shades(token, kind, families, steps) %}
+{% set classes = [] %}
+{% for family in families %}
+{% for step in steps %}
+{% set _ = classes.append(kind ~ '-' ~ family ~ '-' ~ step) %}
+{% endfor %}
+{% endfor %}
+{{ paint(token, classes) }}
+{% endmacro %}
+:root {
+  --foreground-rgb: var(--design-text-rgb);
+  --background-start-rgb: var(--design-surface-1-rgb);
+  --background-end-rgb: var(--design-surface-1-rgb);
+  --neutral-border: var(--design-border);
+}
+*,
+::before,
+::after {
+  border-color: var(--design-border);
+  --tw-ring-color: rgba(var(--design-link-rgb), 0.5);
+  --tw-ring-offset-color: var(--design-surface-2);
+}
+[type="text"],
+[type="email"],
+[type="password"],
+[type="number"],
+[type="search"],
+[type="url"],
+[type="date"],
+input:where(:not([type])),
+select,
+textarea {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+[type="text"]:focus,
+[type="email"]:focus,
+[type="password"]:focus,
+[type="number"]:focus,
+[type="search"]:focus,
+[type="url"]:focus,
+[type="date"]:focus,
+input:where(:not([type])):focus,
+select:focus,
+textarea:focus {
+  --tw-ring-color: var(--design-link);
+  border-color: var(--design-link);
+}
+[type="checkbox"],
+[type="radio"] {
+  color: var(--design-primary);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--design-text-muted);
+}
+.ant-layout {
+  background: var(--design-surface-1);
+}
+.ant-layout .ant-layout-sider-light,
+.ant-menu-light,
+.ant-menu-light > .ant-menu,
+.ant-dropdown .ant-dropdown-menu,
+.ant-modal .ant-modal-content,
+.ant-modal .ant-modal-header,
+.ant-btn-default,
+.ant-radio-wrapper .ant-radio-inner,
+.ant-checkbox .ant-checkbox-inner,
+.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select-dropdown,
+.ant-input-outlined,
+.ant-input-outlined:hover,
+.ant-input-outlined:focus,
+.ant-input-outlined:focus-within,
+.ant-input-number-outlined,
+.ant-input-number-outlined:hover,
+.ant-input-number-outlined:focus,
+.ant-input-number-outlined:focus-within,
+.ant-input-number-outlined .ant-input-number-handler-wrap,
+.ant-table-wrapper .ant-table,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-placeholder,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-placeholder:hover > td,
+.ant-card,
+.ant-collapse .ant-collapse-content,
+.ant-spin-nested-loading .ant-spin-container::after,
+.ant-switch .ant-switch-handle::before {
+  background-color: var(--design-surface-2);
+}
+.ant-menu,
+.ant-menu-light,
+.ant-menu-light > .ant-menu,
+.ant-menu-light .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected):hover,
+.ant-dropdown,
+.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item,
+.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-submenu-title,
+.ant-modal,
+.ant-modal .ant-modal-title,
+.ant-modal .ant-modal-header,
+.ant-modal .ant-modal-close:hover,
+.ant-typography,
+:is(h1, h2, h3, h4, h5).ant-typography,
+.ant-btn,
+.ant-btn-default,
+.ant-btn-text:not(:disabled):not(.ant-btn-disabled):hover,
+.ant-btn-text:not(:disabled):not(.ant-btn-disabled):active,
+.ant-radio-group,
+.ant-radio-wrapper,
+.ant-checkbox-wrapper,
+.ant-select,
+.ant-select-single .ant-select-selector,
+.ant-select-dropdown,
+.ant-select-dropdown .ant-select-item,
+.ant-input,
+.ant-input-number,
+.ant-input-number .ant-input-number-input,
+.ant-form,
+.ant-form-item,
+.ant-form-item .ant-form-item-label > label,
+.ant-table-wrapper .ant-table,
+.ant-table-wrapper .ant-table-thead > tr > th,
+.ant-table-wrapper .ant-table-thead > tr > td,
+.ant-card,
+.ant-card .ant-card-head,
+.ant-collapse,
+.ant-collapse > .ant-collapse-item > .ant-collapse-header,
+.ant-collapse .ant-collapse-content,
+.ant-divider,
+.ant-upload-wrapper,
+.ant-upload-wrapper .ant-upload-drag p.ant-upload-text,
+.ant-switch {
+  color: var(--design-text);
+}
+.ant-menu-light .ant-menu-item-group-title,
+.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-group-title,
+.ant-modal .ant-modal-close,
+.ant-typography.ant-typography-secondary,
+.ant-select .ant-select-selection-placeholder,
+.ant-select .ant-select-arrow,
+.ant-select .ant-select-clear,
+.ant-select-single.ant-select-open .ant-select-selection-item,
+.ant-select-multiple .ant-select-selection-item-remove,
+.ant-select-dropdown .ant-select-item-group,
+.ant-form-item .ant-form-item-label > label .ant-form-item-optional,
+.ant-form-item .ant-form-item-label > label .ant-form-item-tooltip,
+.ant-form-item .ant-form-item-explain,
+.ant-form-item .ant-form-item-extra,
+.ant-empty-normal,
+.ant-empty-normal .ant-empty-description,
+.ant-empty-small,
+.ant-input::placeholder,
+.ant-input-number .ant-input-number-input::placeholder,
+.ant-input-number .ant-input-number-handler-up-inner,
+.ant-input-number .ant-input-number-handler-down-inner,
+.ant-upload-wrapper .ant-upload-drag p.ant-upload-hint,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-placeholder,
+.ant-btn-default:disabled,
+.ant-btn-default.ant-btn-disabled,
+.ant-btn-primary:disabled,
+.ant-btn-primary.ant-btn-disabled,
+.ant-btn-link:disabled,
+.ant-input-outlined.ant-input-disabled,
+.ant-input-outlined[disabled],
+.ant-select-outlined.ant-select-disabled:not(.ant-select-customize-input) .ant-select-selector,
+.ant-collapse .ant-collapse-item-disabled > .ant-collapse-header {
+  color: var(--design-text-muted);
+}
+.ant-btn-default:disabled,
+.ant-btn-default.ant-btn-disabled,
+.ant-btn-primary:disabled,
+.ant-btn-primary.ant-btn-disabled,
+.ant-select-outlined.ant-select-disabled:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select-disabled.ant-select-multiple .ant-select-selector,
+.ant-select-outlined.ant-select-multiple .ant-select-selection-item,
+.ant-input-outlined.ant-input-disabled,
+.ant-input-outlined[disabled],
+.ant-input-number-outlined.ant-input-number-disabled,
+.ant-input-number-outlined[disabled],
+.ant-radio-wrapper .ant-radio-disabled .ant-radio-inner,
+.ant-checkbox-disabled .ant-checkbox-inner,
+.ant-menu-light.ant-menu-inline .ant-menu-sub.ant-menu-inline,
+.ant-table-wrapper .ant-table-thead > tr > th,
+.ant-table-wrapper .ant-table-thead > tr > td,
+.ant-collapse,
+.ant-upload-wrapper .ant-upload-drag {
+  background-color: var(--design-surface-3);
+}
+.ant-btn-default,
+.ant-radio-wrapper .ant-radio-inner,
+.ant-checkbox .ant-checkbox-inner,
+.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
+.ant-input-outlined,
+.ant-input-number-outlined,
+.ant-upload-wrapper .ant-upload-drag {
+  border-color: var(--design-border-strong);
+}
+.ant-card-bordered,
+.ant-card .ant-card-head,
+.ant-collapse,
+.ant-collapse > .ant-collapse-item,
+.ant-collapse .ant-collapse-content,
+.ant-table-wrapper .ant-table-thead > tr > th,
+.ant-table-wrapper .ant-table-thead > tr > td,
+.ant-table-wrapper .ant-table-tbody > tr > th,
+.ant-table-wrapper .ant-table-tbody > tr > td,
+.ant-divider,
+.ant-input-number .ant-input-number-handler,
+.ant-input-number-outlined .ant-input-number-handler-wrap .ant-input-number-handler-down,
+.ant-btn-default:disabled,
+.ant-btn-default.ant-btn-disabled,
+.ant-btn-primary:disabled,
+.ant-btn-primary.ant-btn-disabled {
+  border-color: var(--design-border);
+}
+.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-divider,
+.ant-table-wrapper .ant-table-thead > tr > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+  background-color: var(--design-border);
+}
+.ant-menu-light:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):hover,
+.ant-menu-light:not(.ant-menu-horizontal) .ant-menu-submenu-title:hover,
+.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover,
+.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-submenu-title:hover,
+.ant-modal .ant-modal-close:hover,
+.ant-btn-text:not(:disabled):not(.ant-btn-disabled):hover,
+.ant-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+.ant-table-wrapper .ant-table-tbody .ant-table-row > .ant-table-cell-row-hover {
+  background-color: var(--design-surface-hover);
+}
+.ant-menu-light:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):active,
+.ant-menu-light:not(.ant-menu-horizontal) .ant-menu-submenu-title:active,
+.ant-menu-light .ant-menu-item-selected,
+.ant-modal .ant-modal-close:active,
+.ant-btn-text:not(:disabled):not(.ant-btn-disabled):active,
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: var(--design-surface-active);
+}
+.ant-menu-light .ant-menu-item-selected,
+.ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title,
+a.ant-typography,
+.ant-typography a,
+.ant-btn-link,
+.ant-btn-link:not(:disabled):not(.ant-btn-disabled):hover,
+.ant-btn-link:not(:disabled):not(.ant-btn-disabled):active,
+.ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover,
+.ant-btn-default:not(:disabled):not(.ant-btn-disabled):active,
+.ant-spin,
+.ant-upload-wrapper .ant-upload-drag p.ant-upload-drag-icon .anticon,
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
+  color: var(--design-link);
+}
+.ant-switch {
+  background: var(--design-border-strong);
+}
+.ant-switch:hover:not(.ant-switch-disabled) {
+  background: var(--design-neutral-600);
+}
+.ant-btn-primary,
+.ant-radio-wrapper .ant-radio-checked .ant-radio-inner,
+.ant-checkbox-checked .ant-checkbox-inner,
+.ant-switch.ant-switch-checked,
+.ant-spin .ant-spin-dot-item {
+  background-color: var(--design-primary);
+}
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
+.ant-switch.ant-switch-checked:hover:not(.ant-switch-disabled),
+.ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover .ant-checkbox-checked:not(.ant-checkbox-disabled) .ant-checkbox-inner,
+.ant-checkbox-checked:not(.ant-checkbox-disabled):hover .ant-checkbox-inner {
+  background-color: var(--design-primary-hover);
+}
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active {
+  background-color: var(--design-primary-active);
+}
+.ant-btn-primary,
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active {
+  color: var(--design-on-primary);
+}
+.ant-radio-wrapper .ant-radio-inner::after {
+  background-color: var(--design-on-primary);
+}
+.ant-checkbox .ant-checkbox-inner:after {
+  border-color: var(--design-on-primary);
+}
+.ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover,
+.ant-btn-default:not(:disabled):not(.ant-btn-disabled):active,
+.ant-radio-wrapper:hover .ant-radio-inner,
+.ant-radio-wrapper .ant-radio-checked .ant-radio-inner,
+.ant-radio-wrapper .ant-radio-checked::after,
+.ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover .ant-checkbox-inner,
+.ant-checkbox:not(.ant-checkbox-disabled):hover .ant-checkbox-inner,
+.ant-checkbox-checked .ant-checkbox-inner,
+.ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector,
+.ant-input-outlined:hover,
+.ant-input-number-outlined:hover,
+.ant-upload-wrapper .ant-upload-drag:not(.ant-upload-disabled):hover {
+  border-color: var(--design-primary);
+}
+.ant-select-focused.ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector,
+.ant-input-outlined:focus,
+.ant-input-outlined:focus-within,
+.ant-input-number-outlined:focus,
+.ant-input-number-outlined:focus-within {
+  border-color: var(--design-link);
+}
+.ant-btn:not(:disabled):focus-visible {
+  outline-color: var(--design-link);
+}
+.ant-form-item .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before,
+.ant-form-item .ant-form-item-explain-error {
+  color: var(--design-danger);
+}
+{{ paint('surface-2', ['bg-white', 'bg-tremor-background', 'ui-selected:bg-tremor-background']) }}
+{{ paint('surface-3', ['bg-tremor-background-muted']) }}
+{{ shades('surface-3', 'bg', neutral, [50]) }}
+{{ paint('surface-hover', ['bg-tremor-background-subtle', 'hover:bg-gray-50', 'hover:bg-gray-100', 'hover:bg-slate-100', 'hover:bg-tremor-background-muted', 'ui-active:bg-tremor-background-muted']) }}
+{{ shades('surface-hover', 'bg', neutral, [100]) }}
+{{ paint('surface-active', ['hover:bg-gray-200', 'hover:bg-gray-300', 'hover:bg-tremor-background-subtle', 'ui-selected:bg-tremor-background-muted']) }}
+{{ shades('surface-active', 'bg', neutral, [200, 300]) }}
+.bg-gray-50\/50 {
+  background-color: rgba(var(--design-surface-3-rgb), 0.5);
+}
+{{ paint('border', ['bg-tremor-border']) }}
+{{ paint('text', ['text-black', 'text-tremor-content-strong', 'text-tremor-content-emphasis', 'hover:text-gray-600', 'hover:text-gray-700', 'hover:text-gray-800', 'hover:text-gray-900', 'hover:text-tremor-content', 'hover:text-tremor-content-emphasis', 'group-hover:text-tremor-content-emphasis', 'ui-selected:text-tremor-content-emphasis', 'ui-selected:text-tremor-content-strong', 'ui-active:text-tremor-content-strong']) }}
+{{ shades('text', 'text', neutral, [700, 800, 900]) }}
+{{ paint('text-muted', ['text-tremor-content', 'text-tremor-content-subtle', 'hover:text-gray-500', 'group-hover:text-slate-600', 'placeholder:text-tremor-content', 'placeholder:text-tremor-content-subtle']) }}
+{{ shades('text-muted', 'text', neutral, [400, 500, 600]) }}
+{{ paint('border', ['border-tremor-border', 'border-r-gray-200', 'ui-selected:border-tremor-border']) }}
+{{ paint('border', ['ring-tremor-ring']) }}
+{{ shades('border', 'border', neutral, [100, 200]) }}
+.divide-tremor-border > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--design-border);
+}
+{{ paint('border-strong', ['hover:border-gray-300', 'hover:border-gray-400', 'hover:border-tremor-content']) }}
+{{ shades('border-strong', 'border', neutral, [300, 400, 500]) }}
+.tremor-TextInput-root,
+.tremor-NumberInput-root,
+button[id^="headlessui-listbox-button"] {
+  border-color: var(--design-border-strong);
+}
+{{ paint('surface-2', ['border-tremor-background']) }}
+{{ paint('primary-50', ['hover:bg-blue-50', 'hover:bg-indigo-50']) }}
+{{ shades('primary-50', 'bg', brand, [50]) }}
+{{ paint('primary-100', ['hover:bg-blue-100']) }}
+{{ shades('primary-100', 'bg', brand, [100]) }}
+{{ paint('primary-200', ['hover:bg-blue-200', 'bg-tremor-brand-muted']) }}
+{{ paint('primary-200', ['ring-tremor-brand-muted', 'focus:ring-tremor-brand-muted']) }}
+{{ shades('primary-200', 'bg', brand, [200]) }}
+{{ shades('primary-200', 'border', brand, [100, 200]) }}
+{{ shades('primary-200', 'ring', brand, [200]) }}
+{{ paint('primary-400', ['bg-tremor-brand-subtle', 'disabled:bg-indigo-400']) }}
+{{ paint('primary-400', ['border-tremor-brand-subtle', 'hover:border-blue-300', 'hover:border-blue-400']) }}
+{{ shades('primary-400', 'border', brand, [300, 400]) }}
+{{ paint('primary', ['bg-tremor-brand']) }}
+{{ shades('primary', 'bg', brand, [500, 600, 700]) }}
+{{ paint('primary', ['border-tremor-brand', 'ui-selected:border-tremor-brand', 'hover:border-blue-500']) }}
+{{ shades('primary', 'border', brand, [500, 600]) }}
+{{ paint('primary-hover', ['hover:bg-blue-700', 'hover:bg-indigo-700', 'hover:bg-tremor-brand-emphasis']) }}
+{{ paint('primary-hover', ['border-tremor-brand-emphasis', 'hover:border-tremor-brand-emphasis']) }}
+{{ paint('on-primary', ['text-tremor-brand-inverted']) }}
+{{ paint('on-primary', ['border-tremor-brand-inverted']) }}
+{% for family in brand %}
+{% for step in [500, 600, 700] %}
+.bg-{{ family }}-{{ step }}:not([class*="bg-opacity-"]),
+{% endfor %}
+{% endfor %}
+.bg-tremor-brand:not([class*="bg-opacity-"]) {
+  color: var(--design-on-primary);
+}
+{{ paint('link', ['text-tremor-brand', 'text-tremor-brand-emphasis', 'hover:text-tremor-brand-emphasis', 'ui-selected:text-tremor-brand', 'hover:text-blue-300', 'hover:text-blue-500', 'hover:text-blue-600', 'hover:text-blue-700', 'hover:text-blue-800', 'hover:text-indigo-700']) }}
+{{ shades('link', 'text', brand, [400, 500, 600, 700, 800, 900]) }}
+{{ paint('link', ['focus:border-blue-500', 'focus:border-tremor-brand-subtle']) }}
+{{ paint('link', ['focus:ring-blue-500']) }}
+{{ shades('link', 'ring', brand, [500]) }}
+{{ shades('link', 'fill', brand, [500]) }}
+{{ shades('link', 'stroke', brand, [500]) }}
+.accent-tremor-brand {
+  accent-color: var(--design-primary);
+}
+.outline-tremor-brand {
+  outline-color: var(--design-link);
+}
+{{ paint('text-muted', ['fill-tremor-content']) }}
+{{ paint('text', ['fill-tremor-content-emphasis']) }}
+{{ paint('border', ['stroke-tremor-border']) }}
+{{ paint('surface-2', ['stroke-tremor-background']) }}
+{% for family, token in status %}
+{{ shades(token ~ '-subtle', 'bg', [family], [50, 100]) }}
+{{ shades(token ~ '-border', 'bg', [family], [200]) }}
+{{ shades(token, 'bg', [family], [300, 400, 500, 600, 700]) }}
+{{ shades(token, 'text', [family], [400, 500, 600, 700, 800, 900]) }}
+{{ shades(token ~ '-border', 'border', [family], [100, 200, 300, 400]) }}
+{{ shades(token, 'border', [family], [500, 600]) }}
+{{ shades(token ~ '-border', 'ring', [family], [200]) }}
+{{ shades(token, 'ring', [family], [500, 600]) }}
+{{ shades(token, 'fill', [family], [500]) }}
+{{ shades(token, 'stroke', [family], [500]) }}
+{% for step in [300, 400, 500, 600, 700] %}
+.bg-{{ family }}-{{ step }}:not([class*="bg-opacity-"]){{ ',' if not loop.last else ' {' }}
+{% endfor %}
+  color: var(--design-on-{{ token }});
+}
+{% endfor %}
+{{ paint('danger-subtle', ['hover:bg-red-50', 'hover:bg-red-100']) }}
+{{ paint('danger-hover', ['hover:bg-red-700']) }}
+{{ paint('danger', ['hover:text-red-500', 'hover:text-red-600', 'hover:text-red-700', 'hover:text-red-800']) }}
+{{ paint('danger', ['hover:border-red-300', 'focus:border-red-500']) }}
+{{ paint('danger', ['focus:ring-red-200', 'focus:ring-red-500']) }}
+{{ paint('success-subtle', ['hover:bg-green-50', 'hover:bg-green-100']) }}
+{{ paint('success-hover', ['hover:bg-green-700']) }}
+{{ paint('success', ['hover:text-green-800']) }}
+{{ paint('info-subtle', ['bg-purple-50', 'bg-purple-100']) }}
+{{ paint('info-border', ['border-purple-100']) }}
+{{ paint('info', ['text-purple-600', 'text-purple-700', 'text-purple-900', 'text-cyan-500']) }}
+{% for name, token in [('blue-50', 'primary-50'), ('green-50', 'success-subtle'), ('emerald-50', 'success-subtle'), ('orange-50', 'warning-subtle'), ('purple-50', 'info-subtle'), ('amber-500', 'warning')] %}
+.from-{{ name }} {
+  --tw-gradient-from: var(--design-{{ token }}) var(--tw-gradient-from-position);
+  --tw-gradient-to: var(--design-{{ token }}) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+{% endfor %}
+.from-amber-500 {
+  color: var(--design-on-warning);
+}
+.from-tremor-background {
+  --tw-gradient-from: var(--design-surface-2) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgba(var(--design-surface-2-rgb), 0) var(--tw-gradient-to-position);
+}
+.to-tremor-background {
+  --tw-gradient-to: var(--design-surface-2) var(--tw-gradient-to-position);
+}
+{{ code_block }} {
+  background: var(--design-surface-3) !important;
+}
+{{ code_block }},
+{{ code_block }} > code {
+  color: var(--design-text) !important;
+  text-shadow: none !important;
+}
+{{ code_block }} .token {
+  background: none !important;
+  color: inherit !important;
+}
+{% for rgb, token in code_tokens %}
+{{ code_block }} .token[style*="rgb({{ rgb }})"] {
+  color: var(--design-{{ token }}) !important;
+}
+{% endfor %}
+:root:has({{ sign_in }}) body {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+{{ sign_in }} {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-3);
+}
+{{ sign_in }} :is(.logo, h2, label, .info-box p) {
+  color: var(--design-text);
+}
+{{ sign_in }} :is(.subtitle, .help-text) {
+  color: var(--design-text-muted);
+}
+{{ sign_in }} .info-box {
+  background-color: var(--design-info-subtle);
+  border-left-color: var(--design-info);
+}
+{{ sign_in }} .info-header {
+  color: var(--design-info);
+}
+{{ sign_in }} .required {
+  color: var(--design-danger);
+}
+{{ sign_in }} :is(input[type="text"], input[type="password"]) {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+{{ sign_in }} :is(input[type="text"], input[type="password"]):focus {
+  border-color: var(--design-link);
+  box-shadow: var(--design-focus-ring);
+}
+{{ sign_in }} input[type="submit"] {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+{{ sign_in }} input[type="submit"]:hover {
+  background-color: var(--design-primary-hover);
+}
+{{ sign_in }} input[type="submit"]:active {
+  background-color: var(--design-primary-active);
+}
+{{ sign_in }} a {
+  color: var(--design-link);
+}
+{{ sign_in }} code {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+{% if design.logo is string %}
+img[alt="LiteLLM Brand"] {
+  content: url("{{ design.urls.logo.svg }}");
+}
+{{ sign_in }} .logo {
+  height: 3rem;
+  font-size: 0;
+  background: url("{{ design.urls.logo.svg }}") center / contain no-repeat;
+}
+{% endif %}
