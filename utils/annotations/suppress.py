@@ -124,13 +124,19 @@ def is_suppressed_at(
     return False
 
 
-def has_rule_with_reason(lines: Sequence[str], line_no: int, rule: str) -> bool:
-    """Whether the construct at 1-based *line_no* carries *rule* and a reason.
+def rule_and_reason(
+    lines: Sequence[str], line_no: int, rule: str
+) -> tuple[bool, bool]:
+    """Whether the construct at 1-based *line_no* carries *rule*, and a reason.
 
     Args:
         lines: the file's lines.
         line_no: 1-based line of the construct being exempted.
         rule: the rule key the marker must name.
+
+    Returns:
+        ``(has_rule, has_reason)``, so a caller can report which half is
+        missing rather than only that the exemption is incomplete.
 
     Both markers are looked for on the construct's own line and across every
     contiguous comment line directly above it, in either order. This is the
@@ -143,7 +149,7 @@ def has_rule_with_reason(lines: Sequence[str], line_no: int, rule: str) -> bool:
     """
     idx = line_no - 1
     if idx < 0 or idx >= len(lines):
-        return False
+        return False, False
     has_rule = line_has_rule(lines[idx], rule)
     has_reason = bool(_REASON.search(lines[idx]))
     scan = idx - 1
@@ -151,7 +157,12 @@ def has_rule_with_reason(lines: Sequence[str], line_no: int, rule: str) -> bool:
         has_rule = has_rule or line_has_rule(lines[scan], rule)
         has_reason = has_reason or bool(_REASON.search(lines[scan]))
         scan -= 1
-    return has_rule and has_reason
+    return has_rule, has_reason
+
+
+def has_rule_with_reason(lines: Sequence[str], line_no: int, rule: str) -> bool:
+    """:func:`rule_and_reason` for a caller that needs only the verdict."""
+    return all(rule_and_reason(lines, line_no, rule))
 
 
 def is_suppressed_in_head(
