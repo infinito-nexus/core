@@ -1,6 +1,12 @@
-const { test } = require("./fixtures/onion-test");
+const { test, expect } = require("./fixtures/onion-test");
 
-const { assertDesignTokens, captureDesignGallery, galleryEnabled } = require("./design");
+const {
+  assertDesignTokens,
+  assertLightAndDark,
+  assertReadable,
+  captureDesignGallery,
+  galleryEnabled,
+} = require("./design");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
@@ -29,11 +35,77 @@ function openMenu(menu, pick) {
   };
 }
 
-exports.register = function () {
+exports.register = function (shared) {
+  async function openPortal(page) {
+    await gotoOnion(page, `${baseUrl()}/`);
+    await shared.waitForDashboardReady(page);
+  }
+
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await gotoOnion(page, `${baseUrl()}/`);
+    await openPortal(page);
     await assertDesignTokens(page, "dashboard");
+  });
+
+  test("design: portal text stays readable in light and dark mode", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    await assertLightAndDark(page, "body", "dashboard");
+    await assertReadable(
+      page,
+      [
+        "header.header h1",
+        ".navbar .nav-link",
+        ".card .card-title",
+        ".card .card-text",
+        ".card .btn",
+        ".footer a",
+      ].map((selector) => ({ selector, optional: true })),
+      "dashboard",
+    );
+  });
+
+  test("design: an open menu entry follows the color mode and stays readable with its items", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    await openMenu("header", 0)(page);
+    await assertLightAndDark(page, ".menu-header .nav-link.show", "dashboard open menu");
+    await assertReadable(
+      page,
+      [".menu-header .nav-link.show", ".menu-header .dropdown-menu.show .dropdown-item"],
+      "dashboard open menu",
+    );
+  });
+
+  test("design: a submenu box encloses its first entry", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    await openMenu("header", 0)(page);
+    const submenu = page.locator(".menu-header .dropdown-menu.show .dropdown-submenu").first();
+    test.skip((await submenu.count()) === 0, "the first header menu of this deployment has no submenu");
+    await submenu.locator("> .dropdown-toggle").hover({ timeout: resolveTimeout(10_000) });
+    const box = submenu.locator("> .dropdown-menu");
+    await expect(box).toBeVisible();
+    const [boxBottom, entryBottom] = await box.evaluate((menu) => [
+      menu.getBoundingClientRect().bottom,
+      menu.firstElementChild.getBoundingClientRect().bottom,
+    ]);
+    expect(boxBottom, "dashboard: the submenu box must reach below its first entry").toBeGreaterThanOrEqual(
+      entryBottom,
+    );
+  });
+
+  test("design: a hovered card is not filtered and keeps its text readable", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    const card = page.locator(".card").first();
+    test.skip((await card.count()) === 0, "this deployment renders no card");
+    await card.hover({ timeout: resolveTimeout(10_000) });
+    expect(
+      await card.evaluate((element) => getComputedStyle(element).filter),
+      "dashboard: a hovered card must not be filtered",
+    ).toBe("none");
+    await assertReadable(page, [".card:hover .card-title"], "dashboard hovered card");
   });
 
   test("design: gallery of portal states", async ({ page }) => {

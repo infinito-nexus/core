@@ -60,6 +60,7 @@ design:
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: "{{ SOFTWARE_NAME }}"
+  bootstrap: true
   slots:
     logo:
       width: 512

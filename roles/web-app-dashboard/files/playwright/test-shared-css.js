@@ -60,6 +60,12 @@ exports.register = function (shared) {
     expect(documentHtml).toContain(sharedCssPrefix);
     expect(documentHtml).toContain(`${sharedCssPrefix}/default.css`);
     expect(documentHtml).toContain(`${sharedCssPrefix}/bootstrap.css`);
+    expect(
+      await page.evaluate(
+        () => document.head.querySelector('link[rel="stylesheet"], style')?.getAttribute("href") ?? "",
+      ),
+      "the shared cascade layer must be declared before every stylesheet of the app",
+    ).toContain("/_shared/css/layer.css");
     await expectDashboardCssEffects(page);
   });
 };
