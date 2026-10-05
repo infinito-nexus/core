@@ -36,6 +36,9 @@ decidim:
       enabled: true
     swarm:
       enabled: true
+  # TODO: drop this once upstream publishes an arm64 manifest for decidim
+  architectures:
+    - amd64
   image: ghcr.io/decidim/decidim
   version: 0.31.6
   min_storage: 1206MB

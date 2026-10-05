@@ -52,6 +52,9 @@ pretix:
       enabled: true
     swarm:
       enabled: true
+  # TODO: drop this once upstream publishes an arm64 manifest for pretix/standalone
+  architectures:
+    - amd64
   image: pretix/standalone
   version: 2026.8.0
   custom: true
