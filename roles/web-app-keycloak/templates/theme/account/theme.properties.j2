@@ -1,0 +1,11 @@
+parent=keycloak.v3
+styles=design.css?v={{ KEYCLOAK_DESIGN_STYLE_VERSION }}
+kcDarkModeClass={{ KEYCLOAK_DESIGN_DARK_CLASS }}
+{% if KEYCLOAK_DESIGN_TITLE | length > 0 %}
+title={{ KEYCLOAK_DESIGN_TITLE | replace('\\', '\\\\') }} Account Console
+{% endif %}
+{% if lookup('design', application_id).logo is string %}
+logo=/brand.svg?v={{ KEYCLOAK_DESIGN_BRAND_VERSION }}
+favIcon=/favicon.ico?v={{ KEYCLOAK_DESIGN_BRAND_VERSION }}
+favIconType=image/x-icon
+{% endif %}

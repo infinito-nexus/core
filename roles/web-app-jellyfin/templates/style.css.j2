@@ -1,0 +1,17 @@
+{% set design = lookup('design', application_id) %}
+html[data-design-palette].preload {
+  background-color: var(--design-surface-1);
+}
+{% if design.logo is string %}
+html[data-design-palette] .splashLogo {
+  background-image: url("{{ design.urls.icon.svg }}");
+}
+@media screen and (min-device-width: 992px) {
+  html[data-design-palette] .splashLogo {
+    background-image: url("{{ design.urls.brand.svg }}");
+  }
+}
+{% endif %}
+{% filter replace(JELLYFIN_DESIGN_SCOPE, JELLYFIN_DESIGN_SCOPE ~ JELLYFIN_DESIGN_ADMIN_SCOPE) %}
+{% include 'branding.css.j2' %}
+{% endfilter %}

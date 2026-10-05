@@ -1,0 +1,36 @@
+{% set design = lookup('design', application_id) %}
+name: {{ HERMES_DESIGN_THEME | to_json }}
+label: {{ SOFTWARE_NAME | to_json }}
+description: "Corporate design in the light or dark mode of the system"
+palette:
+  background:
+    hex: "var(--design-surface-1)"
+    alpha: 1
+  midground:
+    hex: "var(--design-text)"
+    alpha: 1
+  foreground:
+    hex: "var(--design-text)"
+    alpha: 0
+  warmGlow: "var(--design-primary)"
+  noiseOpacity: 0
+typography:
+  fontSans: "var(--design-font)"
+  fontDisplay: "var(--design-font)"
+layout:
+  radius: "var(--design-radius)"
+colorOverrides:
+  destructive: "var(--design-danger)"
+  destructiveForeground: "var(--design-on-danger)"
+  success: "var(--design-success)"
+  warning: "var(--design-warning)"
+componentStyles:
+  sidebar:
+    background: "var(--design-surface-1)"
+  header:
+    background: "var(--design-surface-1)"
+{% if design.logo is string %}
+assets:
+  logo: {{ design.urls.brand.svg | to_json }}
+{% endif %}
+customCSS: {{ lookup('template', 'dashboard-theme.css.j2') | to_json }}

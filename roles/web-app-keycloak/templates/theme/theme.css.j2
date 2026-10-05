@@ -1,0 +1,260 @@
+{% set scope = ':root[data-design-palette]' %}
+{% set resting = ':where(' ~ scope ~ ')' %}
+:root:not([data-design-palette]) {
+  color-scheme: light;
+}
+
+{{ scope }} {
+  --pf-v5-global--BackgroundColor--100: var(--design-surface-2);
+  --pf-v5-global--BackgroundColor--150: var(--design-surface-3);
+  --pf-v5-global--BackgroundColor--200: var(--design-surface-1);
+  --pf-v5-global--BackgroundColor--light-100: var(--design-surface-2);
+  --pf-v5-global--BackgroundColor--light-200: var(--design-surface-3);
+  --pf-v5-global--BackgroundColor--light-300: var(--design-surface-1);
+  --pf-v5-global--BackgroundColor--dark-100: var(--design-frame);
+  --pf-v5-global--BackgroundColor--dark-200: var(--design-frame-hover);
+  --pf-v5-global--BackgroundColor--dark-300: var(--design-frame);
+  --pf-v5-global--BackgroundColor--dark-400: var(--design-frame-active);
+  --pf-v5-global--Color--100: var(--design-text);
+  --pf-v5-global--Color--200: var(--design-text-muted);
+  --pf-v5-global--Color--300: var(--design-text);
+  --pf-v5-global--Color--400: var(--design-text-muted);
+  --pf-v5-global--Color--light-100: var(--design-on-frame);
+  --pf-v5-global--Color--light-200: var(--design-on-frame);
+  --pf-v5-global--Color--light-300: var(--design-on-frame);
+  --pf-v5-global--Color--dark-100: var(--design-text);
+  --pf-v5-global--Color--dark-200: var(--design-text-muted);
+  --pf-v5-global--active-color--100: var(--design-link);
+  --pf-v5-global--active-color--200: var(--design-surface-active);
+  --pf-v5-global--active-color--300: var(--design-link);
+  --pf-v5-global--active-color--400: var(--design-on-frame);
+  --pf-v5-global--disabled-color--100: var(--design-text-muted);
+  --pf-v5-global--disabled-color--200: var(--design-surface-3);
+  --pf-v5-global--disabled-color--300: var(--design-surface-3);
+  --pf-v5-global--primary-color--100: var(--design-link);
+  --pf-v5-global--primary-color--200: var(--design-primary-800);
+  --pf-v5-global--primary-color--light-100: var(--design-on-frame);
+  --pf-v5-global--primary-color--dark-100: var(--design-link);
+  --pf-v5-global--secondary-color--100: var(--design-text-muted);
+  --pf-v5-global--custom-color--100: var(--design-info-border);
+  --pf-v5-global--custom-color--200: var(--design-info);
+  --pf-v5-global--custom-color--300: var(--design-info);
+{% for status, steps in [('success', [100, 200]), ('info', [100, 200]), ('warning', [100, 200]), ('danger', [100, 200, 300])] %}
+{% for step in steps %}
+  --pf-v5-global--{{ status }}-color--{{ step }}: var(--design-{{ status }});
+{% endfor %}
+{% endfor %}
+  --pf-v5-global--link--Color: var(--design-link);
+  --pf-v5-global--link--Color--hover: var(--design-primary-800);
+  --pf-v5-global--link--Color--light: var(--design-on-frame);
+  --pf-v5-global--link--Color--light--hover: var(--design-on-frame);
+  --pf-v5-global--link--Color--dark: var(--design-link);
+  --pf-v5-global--link--Color--dark--hover: var(--design-primary-800);
+  --pf-v5-global--link--Color--visited: var(--design-link);
+  --pf-v5-global--BorderColor--100: var(--design-border);
+  --pf-v5-global--BorderColor--200: var(--design-border-strong);
+  --pf-v5-global--BorderColor--300: var(--design-border);
+  --pf-v5-global--BorderColor--dark-100: var(--design-border);
+  --pf-v5-global--BorderColor--light-100: var(--design-border-strong);
+  --pf-v5-global--icon--Color--light: var(--design-text-muted);
+  --pf-v5-global--icon--Color--dark: var(--design-text);
+  --pf-v5-global--icon--Color--light--light: var(--design-on-frame);
+  --pf-v5-global--icon--Color--dark--light: var(--design-on-frame);
+  --pf-v5-global--icon--Color--light--dark: var(--design-text-muted);
+  --pf-v5-global--icon--Color--dark--dark: var(--design-text);
+  --pf-v5-global--palette--white: var(--design-surface-2);
+  --pf-v5-global--palette--black-100: var(--design-surface-1);
+  --pf-v5-global--palette--black-150: var(--design-surface-3);
+  --pf-v5-global--palette--black-200: var(--design-surface-3);
+  --pf-v5-global--palette--black-300: var(--design-border);
+  --pf-v5-global--palette--black-400: var(--design-border-strong);
+  --pf-v5-global--palette--black-500: var(--design-border-strong);
+  --pf-v5-global--palette--black-600: var(--design-text-muted);
+  --pf-v5-global--palette--black-700: var(--design-text-muted);
+{% for step in [800, 850, 900, 1000] %}
+  --pf-v5-global--palette--black-{{ step }}: var(--design-text);
+{% endfor %}
+{% for family, status, tinted, steps in [
+     ('green', 'success', true, [100, 200, 300, 400, 500, 600, 700]),
+     ('light-green', 'success', false, [100, 200, 300, 400, 500, 600, 700]),
+     ('gold', 'warning', true, [100, 200, 300, 400, 500, 600, 700]),
+     ('orange', 'warning', true, [100, 200, 300, 400, 500, 600, 700]),
+     ('red', 'danger', true, [100, 200, 300, 400, 500]),
+     ('cyan', 'info', true, [100, 200, 300, 400, 500, 600, 700]),
+     ('light-blue', 'info', false, [100, 200, 300, 400, 500, 600, 700]),
+     ('blue', 'info', true, [100, 200, 300, 500, 600, 700]),
+   ] %}
+{% if tinted %}
+  --pf-v5-global--palette--{{ family }}-50: var(--design-{{ status }}-subtle);
+{% endif %}
+{% for step in steps %}
+  --pf-v5-global--palette--{{ family }}-{{ step }}: var(--design-{{ status }}{{ '-border' if step < 300 and family != 'red' else '' }});
+{% endfor %}
+{% endfor %}
+  --pf-v5-global--palette--blue-400: var(--design-link);
+  --pf-v5-global--palette--purple-50: var(--design-primary-50);
+  --pf-v5-global--palette--purple-100: var(--design-primary-200);
+  --pf-v5-global--palette--purple-200: var(--design-primary-200);
+{% for step in [300, 400, 500, 600, 700] %}
+  --pf-v5-global--palette--purple-{{ step }}: var(--design-link);
+{% endfor %}
+{% if lookup('design', application_id).logo is string %}
+  --keycloak-logo-url: url("../img/brand.svg?v={{ KEYCLOAK_DESIGN_BRAND_VERSION }}");
+  --keycloak-logo-width: {{ KEYCLOAK_DESIGN_BRAND.width }}px;
+  --keycloak-logo-height: {{ KEYCLOAK_DESIGN_BRAND.height }}px;
+{% endif %}
+  --keycloak-bg-logo-url: none;
+  --keycloak-card-top-color: var(--design-primary);
+}
+
+{{ scope }}.login-pf body {
+  background: var(--design-frame);
+}
+
+{{ scope }} .keycloak__loading-container {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+
+{{ scope }} .pf-v5-c-masthead,
+{{ scope }} .pf-v5-c-page__sidebar {
+  --design-focus: var(--design-on-frame);
+  --pf-v5-global--active-color--100: var(--design-on-frame);
+  --pf-v5-global--primary-color--100: var(--design-on-frame);
+  --pf-v5-c-masthead--item-border-color--base: var(--design-frame-hover);
+  --pf-v5-c-masthead__main--before--BorderBottomColor: var(--design-frame-hover);
+}
+
+{{ scope }} .pf-v5-c-masthead .pf-v5-c-menu,
+{{ scope }} .pf-v5-c-page__sidebar .pf-v5-c-menu {
+  --design-focus: var(--design-link);
+  --pf-v5-global--active-color--100: var(--design-link);
+  --pf-v5-global--primary-color--100: var(--design-link);
+}
+
+{% for variant, status in [('gold', 'warning'), ('green', 'success'), ('red', 'danger'), ('blue', 'info')] %}
+{{ scope }} .pf-v5-c-banner.pf-m-{{ variant }} {
+  --pf-v5-c-banner--BackgroundColor: var(--design-{{ status }});
+  --pf-v5-c-banner--Color: var(--design-on-{{ status }});
+}
+
+{% endfor %}
+
+{{ resting }} .pf-v5-c-button {
+{% for fill in ['primary', 'danger', 'warning'] %}
+  --pf-v5-c-button--m-{{ fill }}--BackgroundColor: var(--design-{{ fill }});
+  --pf-v5-c-button--m-{{ fill }}--Color: var(--design-on-{{ fill }});
+{% for state, token in [('hover', 'hover'), ('focus', 'hover'), ('active', 'active')] %}
+  --pf-v5-c-button--m-{{ fill }}--{{ state }}--BackgroundColor: var(--design-{{ fill }}-{{ token }});
+  --pf-v5-c-button--m-{{ fill }}--{{ state }}--Color: var(--design-on-{{ fill }});
+{% endfor %}
+{% endfor %}
+}
+
+{{ resting }} .pf-v5-c-menu-toggle {
+  --pf-v5-c-menu-toggle--m-primary--BackgroundColor: var(--design-primary);
+  --pf-v5-c-menu-toggle--m-primary--Color: var(--design-on-primary);
+  --pf-v5-c-menu-toggle--m-primary--hover--BackgroundColor: var(--design-primary-hover);
+  --pf-v5-c-menu-toggle--m-primary--focus--BackgroundColor: var(--design-primary-hover);
+  --pf-v5-c-menu-toggle--m-primary--active--BackgroundColor: var(--design-primary-active);
+  --pf-v5-c-menu-toggle--m-primary--m-expanded--BackgroundColor: var(--design-primary-active);
+  --pf-v5-c-menu-toggle--m-primary--m-expanded--Color: var(--design-on-primary);
+}
+
+{{ resting }} .pf-v5-c-dropdown {
+  --pf-v5-c-dropdown__toggle--m-primary--BackgroundColor: var(--design-primary);
+  --pf-v5-c-dropdown__toggle--m-primary--Color: var(--design-on-primary);
+  --pf-v5-c-dropdown__toggle--m-primary--hover--BackgroundColor: var(--design-primary-hover);
+  --pf-v5-c-dropdown__toggle--m-primary--focus--BackgroundColor: var(--design-primary-hover);
+  --pf-v5-c-dropdown__toggle--m-primary--active--BackgroundColor: var(--design-primary-active);
+  --pf-v5-c-dropdown--m-expanded__toggle--m-primary--BackgroundColor: var(--design-primary-active);
+  --pf-v5-c-dropdown__menu-item--hover--BackgroundColor: var(--design-surface-hover);
+}
+
+{{ scope }} .pf-v5-c-badge {
+  --pf-v5-c-badge--m-unread--BackgroundColor: var(--design-primary);
+  --pf-v5-c-badge--m-unread--Color: var(--design-on-primary);
+}
+
+{{ scope }} .pf-v5-c-switch {
+  --pf-v5-c-switch__input--checked__toggle--BackgroundColor: var(--design-primary);
+  --pf-v5-c-switch__toggle-icon--Color: var(--design-on-primary);
+}
+
+{{ scope }} .pf-v5-c-wizard {
+  --pf-v5-c-wizard__nav-link--m-current--before--BackgroundColor: var(--design-primary);
+  --pf-v5-c-wizard__nav-link--m-current--before--Color: var(--design-on-primary);
+}
+
+{{ scope }} .pf-v5-c-calendar-month {
+  --pf-v5-c-calendar-month__dates-cell--m-selected__date--BackgroundColor: var(--design-primary);
+  --pf-v5-c-calendar-month__dates-cell--m-selected__date--hover--BackgroundColor: var(--design-primary-hover);
+  --pf-v5-c-calendar-month__dates-cell--m-selected__date--focus--BackgroundColor: var(--design-primary-hover);
+  --pf-v5-c-calendar-month__dates-cell--m-selected__date--Color: var(--design-on-primary);
+  --pf-v5-c-calendar-month__date--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-calendar-month__date--focus--BackgroundColor: var(--design-surface-hover);
+}
+
+{{ scope }} .pf-v5-c-chip {
+  --pf-v5-c-chip--BackgroundColor: var(--design-surface-2);
+}
+
+{{ scope }} .pf-v5-c-table thead {
+  background-color: transparent;
+}
+
+{{ scope }} .pf-v5-c-table {
+  --pf-v5-c-table--cell--m-favorite--Color: var(--design-border-strong);
+  --pf-v5-c-table__favorite--c-button--Color: var(--design-border-strong);
+  --pf-v5-c-table__tr--m-clickable--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-table__tr--m-clickable--focus--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-table__tr--m-clickable--active--BackgroundColor: var(--design-surface-active);
+  --pf-v5-c-table__tr--m-selected--BackgroundColor: var(--design-surface-active);
+  --pf-v5-c-table__tbody--m-clickable--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-table__tbody--m-clickable--focus--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-table__tbody--m-clickable--active--BackgroundColor: var(--design-surface-active);
+  --pf-v5-c-table__tbody--m-selected--BackgroundColor: var(--design-surface-active);
+}
+
+{{ scope }} .pf-v5-c-menu {
+  --pf-v5-c-menu__list-item--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-menu__list-item--focus-within--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-menu__header--c-menu__item--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-menu__header--c-menu__item--focus--BackgroundColor: var(--design-surface-hover);
+}
+
+{{ scope }} .pf-v5-c-context-selector {
+  --pf-v5-c-context-selector__menu-list-item--hover--BackgroundColor: var(--design-surface-hover);
+}
+
+{{ scope }} .pf-v5-c-accordion {
+  --pf-v5-c-accordion__toggle--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-accordion__toggle--focus--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-accordion__toggle--active--BackgroundColor: var(--design-surface-active);
+}
+
+{{ scope }} .pf-v5-c-toggle-group {
+  --pf-v5-c-toggle-group__button--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-toggle-group__button--focus--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-toggle-group__button--m-selected--BackgroundColor: var(--design-surface-active);
+}
+
+{{ scope }} .pf-v5-c-tree-view {
+  --pf-v5-c-tree-view__node--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-tree-view__node--focus--BackgroundColor: var(--design-surface-hover);
+}
+
+{{ scope }} .pf-v5-c-card {
+  --pf-v5-c-card--m-selectable--hover--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-card--m-selectable--focus--BackgroundColor: var(--design-surface-hover);
+  --pf-v5-c-card--m-selectable--m-selected--BackgroundColor: var(--design-surface-active);
+  --pf-v5-c-card--m-selectable--m-clickable--m-current--BackgroundColor: var(--design-surface-active);
+  --pf-v5-c-card--m-selectable-raised--hover--before--BackgroundColor: var(--design-primary);
+  --pf-v5-c-card--m-selectable-raised--focus--before--BackgroundColor: var(--design-primary);
+  --pf-v5-c-card--m-selectable-raised--active--before--BackgroundColor: var(--design-primary);
+  --pf-v5-c-card--m-hoverable-raised--hover--before--BackgroundColor: var(--design-primary);
+}
+
+{{ scope }} .kc-dropdown-panel-content {
+  background-color: var(--design-surface-2);
+}

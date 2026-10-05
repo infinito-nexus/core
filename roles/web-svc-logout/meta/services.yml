@@ -33,10 +33,10 @@ matomo:
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; CSS injection is asserted on the consuming role surfaces
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; JS injection is asserted on the consuming role surfaces
 javascript:

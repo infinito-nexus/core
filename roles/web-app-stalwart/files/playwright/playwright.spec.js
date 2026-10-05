@@ -18,3 +18,4 @@ require("./test-login-native");
 require("./test-mailflow");
 require("./test-onion-mailflow");
 require("./test-personas");
+require("./test-design");

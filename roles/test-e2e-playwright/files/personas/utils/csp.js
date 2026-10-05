@@ -8,7 +8,7 @@
  * covered by the role's CSP.
  *
  * The intent is symmetric: when an injector role like `mastodon`,
- * `web-svc-asset`, `web-svc-cdn`, `web-svc-css`, `web-svc-javascript`
+ * `web-svc-asset`, `web-svc-cdn`, `web-svc-design`, `web-svc-javascript`
  * or `web-svc-simpleicons` is enabled, its origin MUST appear in the
  * CSP. When the injector is disabled, its origin MUST NOT appear in
  * any rendered `<script>` / `<link>` / `<img>` tag — otherwise the
@@ -35,8 +35,8 @@ function injectorBaseUrl(service) {
       return process.env.ASSET_BASE_URL || "";
     case "cdn":
       return process.env.CDN_BASE_URL || "";
-    case "css":
-      return process.env.CSS_BASE_URL || "";
+    case "design":
+      return process.env.DESIGN_BASE_URL || "";
     case "javascript":
       return process.env.JAVASCRIPT_BASE_URL || "";
     case "simpleicons":
@@ -48,7 +48,7 @@ function injectorBaseUrl(service) {
   }
 }
 
-const INJECTOR_SERVICES = ["asset", "cdn", "css", "javascript", "simpleicons", "matomo"];
+const INJECTOR_SERVICES = ["asset", "cdn", "design", "javascript", "simpleicons", "matomo"];
 
 function hostOf(url) {
   if (!url) return "";

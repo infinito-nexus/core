@@ -1,0 +1,33 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  var corporate = {{ JELLYFIN_DESIGN_THEME | to_json }};
+  var light = {{ JELLYFIN_DESIGN_LIGHT_THEMES | to_json }};
+  function mirror() {
+    var theme = root.getAttribute("data-theme");
+    if (!theme || theme === corporate) {
+      root.removeAttribute("data-design-theme");
+      root.setAttribute("data-design-palette", "");
+      return;
+    }
+    root.removeAttribute("data-design-palette");
+    root.setAttribute("data-design-theme", light.indexOf(theme) === -1 ? "dark" : "light");
+  }
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+  mirror();
+{% if design.logo is string %}
+  function brandIcons() {
+    var icon = document.querySelector("link[rel~='icon']");
+    if (icon) {
+      icon.setAttribute("type", "image/x-icon");
+      icon.setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+    }
+    var touch = document.querySelector("link[rel='apple-touch-icon']");
+    if (touch) {
+      touch.setAttribute("href", {{ design.urls['apple-touch-icon'].png | to_json }});
+    }
+  }
+  brandIcons();
+  document.addEventListener("DOMContentLoaded", brandIcons);
+{% endif %}
+})();

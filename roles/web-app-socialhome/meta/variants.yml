@@ -13,6 +13,9 @@
     dashboard:
       enabled: true
       shared: true
+    design:
+      enabled: true
+      shared: true
     logout:
       enabled: true
       shared: true
@@ -29,6 +32,9 @@
       enabled: false
       shared: false
     dashboard:
+      enabled: false
+      shared: false
+    design:
       enabled: false
       shared: false
     logout:

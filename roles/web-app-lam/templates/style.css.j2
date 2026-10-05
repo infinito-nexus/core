@@ -1,20 +1,20 @@
 :root {
---lam-background-color-default: var(--color-01-99);
---lam-input-bg-color: var(--color-01-98);
---lam-text-color-default: var(--color-01-01);
---lam-border-color: var(--color-01-90);
---lam-border-color-primary: var(--color-01-15);
---lam-border-color-secondary: var(--color-01-85);
---lam-background-color-primary: var(--color-01-50);
---lam-background-color-secondary: var(--color-01-90);
---lam-text-color-primary: var(--color-01-99);
---lam-text-color-secondary: var(--color-01-01);
---lam-text-color-ok: var(--color-01-10);
---lam-table-background-color-bright: var(--color-01-98);
---lam-table-background-color-dark: var(--color-01-92);
---lam-table-background-color-hover: var(--color-01-50);
---lam-table-text-color-hover: var(--color-01-99);
---lam-table-border-color: var(--color-01-50);
+--lam-background-color-default: var(--design-surface-2);
+--lam-input-bg-color: var(--design-surface-2);
+--lam-text-color-default: var(--design-text);
+--lam-border-color: var(--design-primary-200);
+--lam-border-color-primary: var(--design-primary-950);
+--lam-border-color-secondary: var(--design-primary-200);
+--lam-background-color-primary: var(--design-primary-600);
+--lam-background-color-secondary: var(--design-primary-200);
+--lam-text-color-primary: var(--design-surface-2);
+--lam-text-color-secondary: var(--design-text);
+--lam-text-color-ok: var(--design-primary-950);
+--lam-table-background-color-bright: var(--design-surface-2);
+--lam-table-background-color-dark: var(--design-primary-100);
+--lam-table-background-color-hover: var(--design-primary-600);
+--lam-table-text-color-hover: var(--design-surface-2);
+--lam-table-border-color: var(--design-primary-600);
 }
 
 
@@ -25,7 +25,7 @@
 }
 
 ul.lam-tab-navigation {
-    background: rgba(var(--color-rgb-01-90), 0.1);
+    background: rgba(var(--design-primary-200-rgb), 0.1);
     border-color:      transparent;
 }
 
@@ -35,15 +35,15 @@ ul.lam-tab-navigation {
 }
 
 .titleBar {
-    background-image: linear-gradient(var(--color-01-83), var(--color-01-92));
-    background-image: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-78), var(--color-01-83), var(--color-01-84), var(--color-01-88));
-    border-top-color: var(--color-01-78);
-    border-left-color: var(--color-01-87);
-    border-right-color: var(--color-01-87);
+    background-image: linear-gradient(var(--design-primary-300), var(--design-primary-100));
+    background-image: linear-gradient(135deg, var(--design-primary-300), var(--design-primary-300), var(--design-primary-200), var(--design-primary-200));
+    border-top-color: var(--design-primary-300);
+    border-left-color: var(--design-primary-200);
+    border-right-color: var(--design-primary-200);
 }
 
 div.statusInfo {
-    background-color: var(--color-01-81);
-    background: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-76), var(--color-01-81), var(--color-01-82), var(--color-01-86));
-    color: var(--color-01-23);
+    background-color: var(--design-primary-300);
+    background: linear-gradient(135deg, var(--design-primary-300), var(--design-primary-300), var(--design-primary-300), var(--design-primary-200));
+    color: var(--design-primary-950);
 }

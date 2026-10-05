@@ -21,6 +21,16 @@
 - name: "🔄 Start the hub before talking to its API"
   meta: flush_handlers
 
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: HOMEASSISTANT
+    resolve_compose_cid: "{{ HOMEASSISTANT_CONTAINER }}"
+
+- name: "👤 Provision the owner account of the hub"
+  ansible.builtin.include_tasks: utils/owner.yml
+
 - name: "🔌 Provision the MCP server surface"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: HOMEASSISTANT_MCP_ENABLED | bool

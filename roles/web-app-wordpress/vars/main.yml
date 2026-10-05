@@ -3,7 +3,7 @@ application_id: "web-app-wordpress"
 entity_name: "{{ application_id | entity_name }}"
 
 WORDPRESS_URL: "{{ lookup('tls', application_id, 'url.base') }}"
-WORDPRESS_TITLE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.title') }}"
+WORDPRESS_TITLE: "{{ lookup('design', application_id).label }}"
 WORDPRESS_MAX_UPLOAD_SIZE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.max_upload_size') }}"
 WORDPRESS_DOCKER_HTML_PATH: "{{ lookup('volume', 'web-app-wordpress', 'data').target }}"
 WORDPRESS_DOCKER_CONF_PATH: "{{ WORDPRESS_CONFIG_PATH }}"

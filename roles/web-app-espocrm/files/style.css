@@ -1,138 +1,138 @@
 :root {
 
-    --body-bg:               var(--color-01-83);
-    --panel-bg:              var(--color-01-89);
-    --panel-default-bg:      var(--color-01-89);
-    --table-bg:              var(--color-01-89);
-    --table-bg-accent:       var(--color-01-87);
-    --code-bg:               var(--color-01-87);
-    --well-bg:               var(--color-01-89);
+    --body-bg:               var(--design-primary-300);
+    --panel-bg:              var(--design-primary-200);
+    --panel-default-bg:      var(--design-primary-200);
+    --table-bg:              var(--design-primary-200);
+    --table-bg-accent:       var(--design-primary-200);
+    --code-bg:               var(--design-primary-200);
+    --well-bg:               var(--design-primary-200);
 
-    --white-color:           var(--color-01-89);
-    --white-color-3:         var(--color-01-86);
-    --white-color-5:         var(--color-01-83);
+    --white-color:           var(--design-primary-200);
+    --white-color-3:         var(--design-primary-200);
+    --white-color-5:         var(--design-primary-300);
 
-    --main-gray:             var(--color-01-85);
-    --main-gray-5:           var(--color-01-80);
-    --main-gray-7:           var(--color-01-79);
-    --main-gray-10:          var(--color-01-78);
-    --main-gray-12:          var(--color-01-77);
-    --main-gray-17:          var(--color-01-70);
-    --main-gray-25:          var(--color-01-62);
-    --main-gray-40:          var(--color-01-49);
-
-
-    --text-color:            var(--color-01-20);
-    --text-white-color:      var(--color-01-89);
-    --text-muted-color:      var(--color-01-60);
-    --text-gray-color:       var(--color-01-45);
-
-    --code-border-color:         var(--color-01-85);
-    --blockquote-border-color:   var(--color-01-80);
+    --main-gray:             var(--design-primary-200);
+    --main-gray-5:           var(--design-primary-300);
+    --main-gray-7:           var(--design-primary-300);
+    --main-gray-10:          var(--design-primary-300);
+    --main-gray-12:          var(--design-primary-300);
+    --main-gray-17:          var(--design-primary-400);
+    --main-gray-25:          var(--design-primary-500);
+    --main-gray-40:          var(--design-primary-700);
 
 
-    --link-color:            var(--color-01-60);
-    --link-hover-color:      var(--color-01-45);
+    --text-color:            var(--design-primary-950);
+    --text-white-color:      var(--design-primary-200);
+    --text-muted-color:      var(--design-primary-500);
+    --text-gray-color:       var(--design-primary-700);
+
+    --code-border-color:         var(--design-primary-200);
+    --blockquote-border-color:   var(--design-primary-300);
 
 
-    --navbar-bg:                 var(--color-01-83);
-    --navbar-link-color:         var(--color-01-60);
-    --navbar-link-icon-color:    var(--color-01-45);
-    --navbar-link-hover-color:   var(--color-01-40);
-    --navbar-link-hover-bg:      var(--color-01-83);
-    --navbar-link-active-bg:     var(--color-01-88);
+    --link-color:            var(--design-primary-500);
+    --link-hover-color:      var(--design-primary-700);
 
-    --navbar-inverse-color:              var(--color-01-60);
-    --navbar-inverse-bg:                 var(--color-01-83);
-    --navbar-inverse-link-color:         var(--color-01-20);
-    --navbar-inverse-link-active-bg:     var(--color-01-87);
-    --navbar-inverse-border:             var(--color-01-85);
-    --navbar-inverse-toggle-hover-bg:    var(--color-01-86);
-    --navbar-inverse-bg-7:               var(--color-01-86);
-    --navbar-inverse-link-hover-color:   var(--color-01-20);
-    --navbar-inverse-link-hover-bg:      var(--color-01-84);
-    --navbar-inverse-link-disabled-color:var(--color-01-28);
+
+    --navbar-bg:                 var(--design-primary-300);
+    --navbar-link-color:         var(--design-primary-500);
+    --navbar-link-icon-color:    var(--design-primary-700);
+    --navbar-link-hover-color:   var(--design-primary-800);
+    --navbar-link-hover-bg:      var(--design-primary-300);
+    --navbar-link-active-bg:     var(--design-primary-200);
+
+    --navbar-inverse-color:              var(--design-primary-500);
+    --navbar-inverse-bg:                 var(--design-primary-300);
+    --navbar-inverse-link-color:         var(--design-primary-950);
+    --navbar-inverse-link-active-bg:     var(--design-primary-200);
+    --navbar-inverse-border:             var(--design-primary-200);
+    --navbar-inverse-toggle-hover-bg:    var(--design-primary-200);
+    --navbar-inverse-bg-7:               var(--design-primary-200);
+    --navbar-inverse-link-hover-color:   var(--design-primary-950);
+    --navbar-inverse-link-hover-bg:      var(--design-primary-200);
+    --navbar-inverse-link-disabled-color:var(--design-primary-900);
     --navbar-inverse-link-disabled-bg:   transparent;
-    --navbar-inverse-link-icon-color:    var(--color-01-39);
-    --navbar-inverse-link-icon-hover-color: var(--color-01-39);
+    --navbar-inverse-link-icon-color:    var(--design-primary-800);
+    --navbar-inverse-link-icon-hover-color: var(--design-primary-800);
 
 
     --site-footer-bg:           transparent;
-    --site-footer-color:        var(--color-01-40);
+    --site-footer-color:        var(--design-primary-800);
 
 
-    --input-color:              var(--color-01-40);
-    --input-bg:                 var(--color-01-89);
-    --input-border:             var(--color-01-82);
-    --input-border-focus:       var(--color-01-60);
+    --input-color:              var(--design-primary-800);
+    --input-bg:                 var(--design-primary-200);
+    --input-border:             var(--design-primary-300);
+    --input-border-focus:       var(--design-primary-500);
     --input-box-shadow:         inset 0 var(--1px) var(--1px)
-                                rgba(var(--color-rgb-01-00), 0.04);
-    --input-bg-disabled:        var(--color-01-80);
-    --input-color-disabled:     var(--color-01-60);
+                                rgba(var(--design-text-rgb), 0.04);
+    --input-bg-disabled:        var(--design-primary-300);
+    --input-color-disabled:     var(--design-primary-500);
     --input-border-width:       var(--1px);
 
 
-    --tooltip-bg:    var(--color-01-05);
-    --tooltip-color: var(--color-01-89);
+    --tooltip-bg:    var(--design-text);
+    --tooltip-color: var(--design-primary-200);
 
 
-    --btn-default-bg:           var(--color-01-88);
-    --btn-default-border:       var(--color-01-82);
-    --btn-default-color:        var(--color-01-40);
-    --btn-default-hover-bg:     var(--color-01-85);
-    --btn-default-hover-border: var(--color-01-80);
-    --btn-default-active-bg:    var(--color-01-82);
-    --btn-default-active-border:var(--color-01-78);
+    --btn-default-bg:           var(--design-primary-200);
+    --btn-default-border:       var(--design-primary-300);
+    --btn-default-color:        var(--design-primary-800);
+    --btn-default-hover-bg:     var(--design-primary-200);
+    --btn-default-hover-border: var(--design-primary-300);
+    --btn-default-active-bg:    var(--design-primary-300);
+    --btn-default-active-border:var(--design-primary-300);
 
-    --btn-primary-bg:           var(--color-01-60);
-    --btn-primary-border:       var(--color-01-60);
-    --btn-primary-color:        var(--color-01-89);
-    --btn-primary-hover-bg:     var(--color-01-45);
-    --btn-primary-hover-border: var(--color-01-45);
-    --btn-primary-active-bg:    var(--color-01-40);
-    --btn-primary-active-border:var(--color-01-38);
+    --btn-primary-bg:           var(--design-primary-500);
+    --btn-primary-border:       var(--design-primary-500);
+    --btn-primary-color:        var(--design-primary-200);
+    --btn-primary-hover-bg:     var(--design-primary-700);
+    --btn-primary-hover-border: var(--design-primary-700);
+    --btn-primary-active-bg:    var(--design-primary-800);
+    --btn-primary-active-border:var(--design-primary-800);
 
 
-    --btn-text-color:           var(--color-01-39);
+    --btn-text-color:           var(--design-primary-800);
     --btn-active-box-shadow:    inset 0 3px 5px
-                                rgba(var(--color-rgb-01-00), 0.125);
+                                rgba(var(--design-text-rgb), 0.125);
 
 
-    --dropdown-bg:              var(--color-01-89);
-    --dropdown-link-color:      var(--color-01-20);
-    --dropdown-link-hover-color:var(--color-01-12);
-    --dropdown-link-hover-bg:   var(--color-01-85);
-    --dropdown-border:          var(--color-01-85);
-    --dropdown-divider-bg:      var(--color-01-87);
+    --dropdown-bg:              var(--design-primary-200);
+    --dropdown-link-color:      var(--design-primary-950);
+    --dropdown-link-hover-color:var(--design-primary-950);
+    --dropdown-link-hover-bg:   var(--design-primary-200);
+    --dropdown-border:          var(--design-primary-200);
+    --dropdown-divider-bg:      var(--design-primary-200);
     --dropdown-box-shadow:      0 4px 6px
-                                rgba(var(--color-rgb-01-00), 0.11);
+                                rgba(var(--design-text-rgb), 0.11);
 
-    --popover-bg:               var(--color-01-89);
+    --popover-bg:               var(--design-primary-200);
 
-    --modal-backdrop-bg:        rgba(var(--color-rgb-01-85), 0.5);
+    --modal-backdrop-bg:        rgba(var(--design-primary-200-rgb), 0.5);
     --modal-backdrop-filter:    blur(1px);
-    --modal-header-bg:          var(--color-01-83);
-    --modal-footer-bg:          var(--color-01-83);
-    --modal-content-bg:         var(--color-01-83);
+    --modal-header-bg:          var(--design-primary-300);
+    --modal-footer-bg:          var(--design-primary-300);
+    --modal-content-bg:         var(--design-primary-300);
     --modal-box-shadow:         0 5px 15px
-                                rgba(var(--color-rgb-01-00), 0.5);
-    --modal-border-color:       var(--color-01-87);
+                                rgba(var(--design-text-rgb), 0.5);
+    --modal-border-color:       var(--design-primary-200);
     --modal-border-width:       0;
 
 
-    --scroll-bg:            var(--color-01-80);
-    --scroll-thumb-bg:      var(--color-01-75);
+    --scroll-bg:            var(--design-primary-300);
+    --scroll-thumb-bg:      var(--design-primary-400);
     --scroll-width:         11px;
     --scroll-border-width:  0;
 
 
-    --default-heading-bg-color: var(--color-01-83);
-    --default-border-color:     var(--color-01-85);
-    --label-color:              var(--color-01-89);
-    --label-default-bg:         var(--color-01-60);
+    --default-heading-bg-color: var(--design-primary-300);
+    --default-border-color:     var(--design-primary-200);
+    --label-color:              var(--design-primary-200);
+    --label-default-bg:         var(--design-primary-500);
 
     --default-box-shadow:       1px 2px 2px
-                                rgba(var(--color-rgb-01-00), 0.05);
+                                rgba(var(--design-text-rgb), 0.05);
     --top-bar-box-shadow:       2px 2px 2px
-                                rgba(var(--color-rgb-01-00), 0.09);
+                                rgba(var(--design-text-rgb), 0.09);
 }

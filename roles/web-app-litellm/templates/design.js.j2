@@ -1,0 +1,30 @@
+{% set design = lookup('design', application_id) %}
+{% if design.title is string or design.logo is string %}
+(function () {
+  function brand() {
+{% if design.title is string %}
+    if (document.title !== {{ design.title | to_json }}) {
+      document.title = {{ design.title | to_json }};
+    }
+{% endif %}
+{% if design.logo is string %}
+    var icons = document.querySelectorAll("link[rel~='icon']");
+    if (icons.length === 0) {
+      var icon = document.createElement("link");
+      icon.rel = "icon";
+      icon.type = "image/x-icon";
+      icon.href = {{ design.urls.favicon_ico | to_json }};
+      document.head.appendChild(icon);
+    }
+    for (var index = 0; index < icons.length; index += 1) {
+      if (icons[index].getAttribute("href") !== {{ design.urls.favicon_ico | to_json }}) {
+        icons[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+      }
+    }
+{% endif %}
+  }
+  new MutationObserver(brand).observe(document.head, { childList: true, subtree: true, characterData: true });
+  brand();
+  document.addEventListener("DOMContentLoaded", brand);
+})();
+{% endif %}

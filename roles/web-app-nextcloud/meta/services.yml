@@ -284,11 +284,11 @@ talk_recording:
   ports:
     internal:
       recording: 1234
-# nocheck: playwright-service-flag: verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag: verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag: captcha backend, infrastructural
 hcaptcha:

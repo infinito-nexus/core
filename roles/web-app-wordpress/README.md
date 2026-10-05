@@ -31,9 +31,119 @@ WordPress offers an extensive array of features that make it a robust platform f
 
 This automated Docker Compose deployment streamlines the process by building a custom WordPress image (which includes tools like msmtp for email delivery) and configuring the necessary PHP settings, ensuring that your WordPress site is secure, scalable, and always up to date.
 
+## Cosmos
+
+The diagram places WordPress in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
+        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
+        dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
+        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_discourse["web-app-discourse 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
+        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
+        dep_web_app_listmonk["web-app-listmonk 🐳🐝"]
+        dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_peertube["web-app-peertube 🐳🐝"]
+        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
+        dep_web_svc_design["web-svc-design 💻"]
+        dep_web_svc_logout["web-svc-logout 🐳🐝"]
+        dep_web_svc_translate["web-svc-translate 🐳🐝"]
+    end
+    subgraph role [web-app-wordpress 🐳🐝]
+        svc_litellm["litellm"]
+        svc_sso["sso"]
+        svc_logout["logout"]
+        svc_dashboard["dashboard"]
+        svc_matomo["matomo"]
+        svc_email["email"]
+        svc_mariadb["mariadb"]
+        svc_discourse["discourse"]
+        svc_bigbluebutton["bigbluebutton"]
+        svc_listmonk["listmonk"]
+        svc_peertube["peertube"]
+        svc_translate["translate"]
+        svc_wordpress["wordpress"]
+        svc_design["design"]
+        svc_prometheus["prometheus"]
+        svc_tor["tor"]
+        svc_container_backup["container_backup"]
+        svc_openwebui["openwebui ❌"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise ❌"]
+    end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
+    dep_svc_net_tor -. "0..1" .-> svc_tor
+    dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_discourse -. "0..1" .-> svc_discourse
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_listmonk -. "0..1" .-> svc_listmonk
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_peertube -. "0..1" .-> svc_peertube
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_stalwart -. "0..1" .-> svc_email
+    dep_web_svc_design -. "0..1" .-> svc_design
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+    dep_web_svc_translate -. "0..1" .-> svc_translate
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
+
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy WordPress onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps=web-app-wordpress full_cycle=false
+```
+
+### Production
+
+Run the published image to provision the inventory and deploy WordPress to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP=web-app-wordpress
+HOST="<your-server>"
+DOMAIN="<your-domain>"
+TLS_MODE=self_signed
+SSH_PUBLIC_KEY="<your-ssh-public-key>"
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  ghcr.io/infinito-nexus/core/debian:latest bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/production
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" \
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
 
 ## Purpose
 
@@ -85,6 +195,12 @@ The front-page CSP + canonical-domain baseline is ungated and always runs.
 - [WordPress Multisite Documentation](https://wordpress.org/support/article/create-a-network/)
 - [WordPress Plugin Repository](https://wordpress.org/plugins/)
 - [WP Discourse Plugin](https://wordpress.org/plugins/wp-discourse/)
+
+## Credits
+
+Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
 
 ## Persona contract opt-outs
 

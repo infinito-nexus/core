@@ -128,6 +128,24 @@ KEYCLOAK_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recap
 KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.key') }}"
 KEYCLOAK_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.secret') }}"
 
+KEYCLOAK_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+KEYCLOAK_DESIGN_THEME: "{{ lookup('config', application_id, 'services.keycloak.design.theme') }}"
+KEYCLOAK_DESIGN_DARK_CLASS: "design-theme-dark"
+KEYCLOAK_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'theme'] | path_join }}"
+KEYCLOAK_DESIGN_BRAND: "{{ lookup('design', application_id).slots.brand }}"
+KEYCLOAK_DESIGN_ON_FRAME: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-on-frame'] }}"
+KEYCLOAK_DESIGN_BRAND_VERSION: >-
+  {{ [lookup('design', application_id) | to_json,
+      KEYCLOAK_DESIGN_ON_FRAME,
+      (lookup('local_mtime_qs', lookup('design', application_id).logo, mode='epoch')
+       if lookup('design', application_id).logo is string else '')]
+     | join('|') | hash('sha1') | truncate(8, True, '') }}
+KEYCLOAK_DESIGN_STYLE_VERSION: "{{ lookup('template', 'theme/theme.css.j2') | hash('sha1') | truncate(8, True, '') }}"
+KEYCLOAK_DESIGN_TITLE: "{{ lookup('design', application_id).title if lookup('design', application_id).title is string else '' }}"
+KEYCLOAK_DESIGN_TITLE_HTML: >-
+  {{ ('<div class="kc-logo-text"><span>' ~ (KEYCLOAK_DESIGN_TITLE | e) ~ '</span></div>')
+     if (KEYCLOAK_DESIGN_TITLE | length > 0 and lookup('design', application_id).logo is string) else '' }}
+
 KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN: |-
   {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
     set -e

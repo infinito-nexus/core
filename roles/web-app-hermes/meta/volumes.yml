@@ -12,3 +12,12 @@ hermes_config:
   mounts:
     - service: hermes
       target: /opt/data/config.yaml
+
+hermes_design_theme:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-hermes', 'directories.config'), 'dashboard-theme.yaml' ] | path_join }}"
+  mode: "0644"
+  mounts:
+    - service: hermes
+      target: /opt/data/dashboard-themes/corporate.yaml
+      when: "{{ lookup('config', 'web-app-hermes', 'services.webui.enabled') | bool and lookup('config', 'web-app-hermes', 'services.design.enabled') | bool }}"

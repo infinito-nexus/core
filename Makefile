@@ -255,6 +255,19 @@ compose-playwright:
 compose-restart:
 	@"$${PYTHON}" -m cli.administration.deploy.development restart
 
+.PHONY: compose-role-sync
+# Re-run only the role of a deployed app against the running stack (no system stages; the spec runs only with pw=).
+# Usage: make compose-role-sync role=<application_id> [variant=<idx>] [pw="<playwright args>"] [keep=true] [base='<hex>']
+# Example: make compose-role-sync role=web-app-gitea variant=0 pw="--grep design: --grep-invert gallery"
+# Param role: deployed application id
+# Param variant: matrix round index the app was deployed with
+# Param pw: Playwright arguments without quotes; when set, the spec of the role is staged again, its .env rendered again and run with them
+# Param keep: true lets that spec run capture the design gallery
+# Param base: hex base color that replaces the one of the inventory for this run, e.g. base='#001f3f'
+compose-role-sync:
+	@: $${role:?role=<application_id> required, e.g. role=web-app-gitea}
+	@role='$(role)' variant='$(variant)' pw='$(pw)' keep='$(keep)' base='$(base)' bash scripts/tests/deploy/local/sync/role.sh
+
 .PHONY: compose-stop
 # Stop the development stack without removing volumes.
 compose-stop:
@@ -278,6 +291,38 @@ compose-up: install
 # Note: exit with `exit`, `quit`, or Ctrl+D.
 console:
 	@"$${PYTHON}" -m cli.console
+
+.PHONY: cosmos
+# Regenerate the '## Cosmos' mermaid diagram in every role README (or one role).
+# Usage: make cosmos [role=<id>]
+# Param role: single role id (default: all roles)
+cosmos:
+	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
+
+.PHONY: design-gallery
+# Rerun the design spec of a deployed app and copy its before/after screenshots to /tmp/design-gallery/<app>/ (no redeploy).
+# Usage: make design-gallery app=<application_id>
+# Param app: deployed application id
+design-gallery:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' bash scripts/tests/design/gallery.sh
+
+.PHONY: design-queue
+# Print the roles that are due for a design pass in working order (new roles first, then by version gap).
+# Usage: make design-queue [args="--next|--all|--format json"]
+# Param args: extra flags for the queue CLI
+design-queue:
+	@"$${PYTHON}" -m cli.meta.roles.design $(args)
+
+.PHONY: design-sync
+# Re-render shared CSS, role style.css and the branding assets of a deployed app (no redeploy; injected scripts stay as deployed).
+# Usage: make design-sync app=<application_id> [variant=<idx>] [base='<hex>']
+# Param app: deployed application id
+# Param variant: matrix round index the app was deployed with
+# Param base: hex base color that replaces the one of the inventory for this run, e.g. base='#001f3f'
+design-sync:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' variant='$(variant)' base='$(base)' bash scripts/tests/design/sync.sh
 
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.

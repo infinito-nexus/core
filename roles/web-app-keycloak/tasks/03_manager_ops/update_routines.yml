@@ -38,6 +38,9 @@
 - name: "📂 Load UserProfile (declarative) Update routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/07_userprofile.yml"
 
+- name: "📂 Load corporate theme selection routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/11_design.yml"
+
 - name: "📂 Load realm-local user and group provisioning routines"
   when: not KEYCLOAK_LDAP_ENABLED | bool
   block:

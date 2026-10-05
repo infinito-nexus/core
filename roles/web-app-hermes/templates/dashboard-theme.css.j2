@@ -1,0 +1,190 @@
+{% set design = lookup('design', application_id) %}
+{% set primary_button = '[class~="bg-midground"][class~="text-background-base"]:not(:disabled)' %}
+{% set statuses = [
+  {
+    'token': 'danger',
+    'text': ['[class~="text-destructive"]', '[class~="text-destructive/70"]', '[class~="hover:text-destructive"]:hover'],
+    'fill': ['[class~="bg-destructive"]'],
+    'subtle': ['[class~="bg-destructive/5"]', '[class~="bg-destructive/[0.06]"]', '[class~="bg-destructive/10"]', '[class~="bg-destructive/15"]', '[class~="hover:bg-destructive/10"]:hover'],
+    'border': ['[class~="border-destructive/20"]', '[class~="border-destructive/30"]', '[class~="border-destructive/40"]', '[class~="border-destructive/50"]', '[class~="hover:border-destructive/50"]:hover'],
+  },
+  {
+    'token': 'success',
+    'text': ['[class~="text-success"]', '[class~="hover:text-success"]:hover', '[class~="text-[oklch(0.7_0.15_155)]"]'],
+    'fill': ['[class~="bg-success"]'],
+    'subtle': ['[class~="bg-success/[0.03]"]', '[class~="bg-success/10"]', '[class~="bg-success/15"]'],
+    'border': ['[class~="border-success/30"]', '[class~="border-success/50"]'],
+  },
+  {
+    'token': 'warning',
+    'text': ['[class~="text-warning"]', '[class~="text-warning/50"]', '[class~="text-warning/80"]', '[class~="hover:text-warning"]:hover'],
+    'fill': ['[class~="bg-warning"]'],
+    'subtle': ['[class~="bg-warning/5"]', '[class~="bg-warning/10"]', '[class~="bg-warning/15"]', '[class~="bg-warning/30"]', '[class~="hover:bg-warning/10"]:hover'],
+    'border': ['[class~="border-warning/20"]', '[class~="border-warning/30"]', '[class~="border-warning/40"]', '[class~="border-warning/50"]', '[class~="border-warning/60"]'],
+  },
+] %}
+{% set palette = [
+  {'hue': 'red', 'steps': [300, 400, 500], 'token': 'danger'},
+  {'hue': 'amber', 'steps': [300, 400, 500], 'token': 'warning'},
+  {'hue': 'emerald', 'steps': [400, 500], 'token': 'success'},
+  {'hue': 'blue', 'steps': [400, 500, 600], 'token': 'info'},
+  {'hue': 'purple', 'steps': [400, 500, 600], 'token': 'link'},
+] %}
+{% set tiers = [
+  {'name': 'copper', 'token': 'warning'},
+  {'name': 'silver', 'token': 'text-muted'},
+  {'name': 'gold', 'token': 'link'},
+  {'name': 'diamond', 'token': 'info'},
+  {'name': 'olympian', 'token': 'success'},
+] %}
+:root {
+  --series-input-token: var(--design-link);
+  --series-output-token: var(--design-success);
+  --text-primary: var(--design-text);
+  --text-secondary: var(--design-text-muted);
+  --text-tertiary: var(--design-text-muted);
+  --text-disabled: color-mix(in srgb, var(--design-text-muted) 60%, transparent);
+  --text-on-accent: var(--design-on-primary);
+{% for color in palette %}
+{% for step in color.steps %}
+  --color-{{ color.hue }}-{{ step }}: var(--design-{{ color.token }});
+{% endfor %}
+{% endfor %}
+}
+
+{% for status in statuses %}
+{{ status.text | join(',\n') }} {
+  color: var(--design-{{ status.token }});
+}
+{{ status.fill | join(',\n') }} {
+  background-color: var(--design-{{ status.token }});
+  color: var(--design-on-{{ status.token }});
+}
+{{ status.subtle | join(',\n') }} {
+  background-color: var(--design-{{ status.token }}-subtle);
+}
+{{ status.border | join(',\n') }} {
+  border-color: var(--design-{{ status.token }}-border);
+}
+{% endfor %}
+[class~="hover:bg-destructive/90"]:hover {
+  background-color: var(--design-danger-hover);
+}
+[class~="bg-destructive"]:active {
+  background-color: var(--design-danger-active);
+}
+[class~="text-[oklch(0.65_0.15_250)]"] {
+  color: var(--design-info);
+}
+[class~="text-[oklch(0.65_0.15_280)]"],
+a[class~="text-primary"] {
+  color: var(--design-link);
+}
+
+.arc-border {
+  display: none;
+}
+[class*="shadow-[inset_-1px_-1px_0_0_#"] {
+  --tw-shadow: inset 0 0 0 1px var(--tw-shadow-color, var(--design-border-strong));
+}
+[class*="active:[filter:"]:hover {
+  background-color: var(--design-surface-hover);
+}
+[class*="active:[filter:"]:active {
+  background-color: var(--design-surface-active);
+  filter: none;
+}
+{{ primary_button }} {
+  --tw-shadow: 0 0 transparent;
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+{{ primary_button }}:hover {
+  background-color: var(--design-primary-hover);
+}
+{{ primary_button }}:active {
+  background-color: var(--design-primary-active);
+  filter: none;
+}
+#app-sidebar nav a:hover {
+  background-color: var(--design-surface-hover);
+}
+#app-sidebar nav a[aria-current="page"] {
+  background-color: var(--design-surface-active);
+}
+#app-sidebar nav a:focus-visible {
+  outline-offset: -2px;
+}
+#app-sidebar nav a > [class~="w-px"],
+[class~="after:bg-midground"]::after {
+  background-color: var(--design-link);
+}
+[class~="bg-background-base/95"] {
+  background-color: var(--design-surface-2);
+}
+
+:root :is(.hermes-kanban-diag, .hermes-kanban-attention, .hermes-kanban-warning-badge, .hermes-kanban-attention-row) {
+  --hermes-diag-warning: var(--design-warning);
+  --hermes-diag-error: var(--design-danger);
+  --hermes-diag-critical: var(--design-danger);
+}
+:root .hermes-kanban-dot-triage {
+  background: var(--design-link);
+}
+:root .hermes-kanban-dot-ready {
+  background: var(--design-warning);
+}
+:root .hermes-kanban-dot-running {
+  background: var(--design-success);
+}
+:root :is(.hermes-kanban-dot-review, .hermes-kanban-dot-done) {
+  background: var(--design-info);
+}
+:root :is(.hermes-kanban-warning-badge, .hermes-kanban-attention-icon, .hermes-kanban-section-head-warning) {
+  color: var(--design-warning);
+}
+:root :is(.hermes-kanban-msg-ok, .hermes-kanban-recovery-msg--ok, .hermes-kanban-diag-msg--ok) {
+  color: var(--design-success);
+}
+:root :is(.hermes-kanban-msg-err, .hermes-kanban-recovery-msg--err, .hermes-kanban-diag-msg--err, .hermes-kanban-event-warning-icon, .hermes-kanban-event-warning-label) {
+  color: var(--design-danger);
+}
+{% for tier in tiers %}
+:root .ha-tier-{{ tier.name }} {
+  --ha-tier: var(--design-{{ tier.token }});
+  box-shadow: none;
+}
+{% endfor %}
+:root :is(.ha-hero, .ha-card) {
+  background: var(--color-card);
+}
+:root .ha-hero::before {
+  content: none;
+}
+:root .ha-progress-track {
+  background: var(--color-muted);
+}
+:root .ha-progress-fill {
+  background: var(--ha-tier);
+}
+:root .ha-slot-star {
+  color: var(--design-info);
+}
+:root :is(.ha-scan-pulse, .ha-scan-progress-fill) {
+  background: var(--design-info);
+}
+:root :is(.ha-error, .ha-share-error) {
+  border-color: var(--design-danger);
+  color: var(--design-danger);
+}
+{% if design.logo is string %}
+
+#app-sidebar > div:first-child > div:first-child > span:last-child,
+#root header[class~="lg:hidden"] > span:last-child {
+  display: block;
+  width: 10rem;
+  height: 2rem;
+  font-size: 0;
+  background: var(--theme-asset-logo) left center / contain no-repeat;
+}
+{% endif %}

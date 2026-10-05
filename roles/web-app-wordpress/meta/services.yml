@@ -77,7 +77,6 @@ wordpress:
   mem_reservation: 0.5g
   mem_limit: 1.5g
   pids_limit: 512
-  title: Blog by {{ service_provider.platform.titel }}
   max_upload_size: 256M
   multisite:
     enabled: false
@@ -89,16 +88,12 @@ wordpress:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-seaweedfs:
+# nocheck: playwright-service-flag, verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
-  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
-  public: true
-# nocheck: playwright-service-flag, verified by web-svc-css provider spec
-css:
-  bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: Blog by {{ service_provider.platform.titel }}
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

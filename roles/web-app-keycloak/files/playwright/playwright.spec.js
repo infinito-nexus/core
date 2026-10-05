@@ -314,3 +314,5 @@ test("biber: app → keycloak → role action → logout", async ({ page }) => {
 test("administrator: app → keycloak → admin action → logout", async ({ page }) => {
   await runAdminFlow(page);
 });
+
+require("./test-design").register();

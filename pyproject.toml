@@ -29,6 +29,7 @@ dependencies = [
 deploy = [
   "ansible==14.4.0",
   "colorscheme-generator @ https://github.com/kevinveenbirkenbach/colorscheme-generator/archive/refs/tags/v0.3.0.zip",
+  "Pillow>=10.1",
   "tld",
   "passlib",
   "requests",

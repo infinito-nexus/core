@@ -34,7 +34,7 @@ class TestCategoriesOf(unittest.TestCase):
         self.assertEqual(categories_of("web-app-yourls"), {"web", "web-app"})
 
     def test_web_svc(self) -> None:
-        self.assertEqual(categories_of("web-svc-css"), {"web", "web-svc"})
+        self.assertEqual(categories_of("web-svc-design"), {"web", "web-svc"})
 
     def test_svc_db(self) -> None:
         self.assertEqual(categories_of("svc-db-postgres"), {"svc", "svc-db"})
@@ -510,11 +510,13 @@ class TestCLIMain(unittest.TestCase):
                 "--logfile",
                 "/tmp/dummy.log",
                 "--apps",
-                " web-app-yourls , web-svc-css ",
+                " web-app-yourls , web-svc-design ",
             ]
         )
         kwargs = mock_verify.call_args.kwargs
-        self.assertEqual(kwargs["deployed_role_ids"], ["web-app-yourls", "web-svc-css"])
+        self.assertEqual(
+            kwargs["deployed_role_ids"], ["web-app-yourls", "web-svc-design"]
+        )
 
 
 if __name__ == "__main__":

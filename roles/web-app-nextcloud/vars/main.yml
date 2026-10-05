@@ -24,6 +24,15 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | selectattr('value.enabled', 'true')
      | map(attribute='key') | list }}
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
+NEXTCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+NEXTCLOUD_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+NEXTCLOUD_DESIGN_PRIMARY: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-primary'] }}"
+NEXTCLOUD_DESIGN_THEMING:
+  name: "{{ lookup('design', application_id).label }}"
+  slogan: "{{ service_provider.platform.subtitel }}"
+  primary_color: "{{ NEXTCLOUD_DESIGN_PRIMARY }}"
+  background_color: "{{ NEXTCLOUD_DESIGN_PRIMARY }}"
+  background: backgroundColor
 NEXTCLOUD_USER_LDAP_ENABLED: "{{ lookup('config', application_id, 'addons.user_ldap.enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 

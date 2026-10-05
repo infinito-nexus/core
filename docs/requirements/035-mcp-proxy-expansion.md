@@ -28,6 +28,91 @@ A disposition change belongs in the ADR, because the audit is the authoritative 
 
 This requirement covers requirement and design work only.
 It does not authorize enabling a new MCP endpoint, upgrading an application, installing an upstream plugin, or widening a credential in the same change that introduces this document.
+`web-app-moodle`, `web-app-wordpress`.
+
+### adapter_server (16)
+
+`svc-db-qdrant`, `web-app-baserow`, `web-app-checkmk`, `web-app-fider`, `web-app-gitea`, `web-app-gitlab`, `web-app-jellyfin`, `web-app-jenkins`, `web-app-listmonk`, `web-app-mattermost`, `web-app-nextcloud`, `web-app-pretix`, `web-app-prometheus`, `web-app-snipe-it`, `web-app-zammad`, `web-svc-libretranslate`.
+
+### blocked (11)
+
+An upstream path exists or is claimed, and something concrete stops it here. Each row names what, using the reason vocabulary above, so "blocked" never reads as "nobody looked".
+
+`svc-ai-litellm`, `svc-ai-lmstudio`, `svc-db-elasticsearch`, `svc-db-mariadb`, `svc-db-redis`, `web-app-discourse`, `web-app-erpnext`, `web-app-matomo`, `web-app-odoo`, `web-app-penpot`, `web-app-shopware`.
+
+| role | reason | blocker |
+| --- | --- | --- |
+| `svc-ai-litellm` | `version_unverified` | The pinned release is inference-only; an MCP-capable one may be selected only after source inspection proves per-server routes, exact tool allowlists and the credential lifecycle. |
+| `svc-ai-lmstudio` | `version_unverified` | The image is an unversioned preview; an explicit MCP-capable headless version has to replace it before a surface can be curated. |
+| `svc-db-elasticsearch` | `missing_dependency` | The maintained native path needs Kibana Agent Builder with its index privileges and licence; the older sidecar is deprecated. |
+| `svc-db-mariadb` | `shared_engine_isolation` | A global MCP server would attach to the shared engine; the alternative is one sidecar per consuming application with a database-scoped read-only principal. |
+| `svc-db-redis` | `stdio_only` | The upstream server is stdio-oriented and broadly mutating over a cache several applications share. |
+| `web-app-discourse` | `stdio_only` | The project-owned server passes ownership, licence, pinning and read-only default, but its HTTP transport serves one session per process, which upstream asserts in `src/test/transport.test.ts` at `v0.3.1`; the deploy probe alone would leave it restart-required. |
+| `web-app-erpnext` | `version_unverified` | The Frappe MCP component is experimental and unverified against the pinned Frappe v16. |
+| `web-app-matomo` | `unreviewed_third_party` | The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source. |
+| `web-app-odoo` | `unreviewed_third_party` | Neither Odoo SA nor the OCA publishes a server; the leading third party carries 197 of 231 commits from one author, keeps its access control in a separate Odoo Apps store module outside any pinnable tag, and defaults to a mutating tool scope. |
+| `web-app-penpot` | `interactive_browser_session` | The server needs an active browser tab and plugin connection, and can execute powerful design-context operations. |
+| `web-app-shopware` | `version_unverified` | The pinned 6.7.8.2 predates the experimental native `/api/_mcp` server. |
+
+### adapter_candidate (38)
+
+An adapter could reach these, and none has been curated yet. The five that used to sit under "current MCP metadata requiring revalidation" are here because that revalidation found no shipped surface to revalidate.
+
+`svc-db-typesense`, `web-app-akaunting`, `web-app-bigbluebutton`, `web-app-bluesky`, `web-app-bookwyrm`, `web-app-bridgy-fed`, `web-app-confluence`, `web-app-decidim`, `web-app-espocrm`, `web-app-friendica`, `web-app-funkwhale`, `web-app-jira`, `web-app-jitsi`, `web-app-joomla`, `web-app-kix`, `web-app-magento`, `web-app-mailu`, `web-app-mastodon`, `web-app-matrix`, `web-app-mediawiki`, `web-app-minio`, `web-app-mobilizon`, `web-app-opencloud`, `web-app-openproject`, `web-app-opentalk`, `web-app-peertube`, `web-app-pihole`, `web-app-pixelfed`, `web-app-postmarks`, `web-app-seaweedfs`, `web-app-semaphore`, `web-app-socialhome`, `web-app-stalwart`, `web-app-suitecrm`, `web-app-taiga`, `web-app-xwiki`, `web-app-yourls`, `web-svc-xmpp`.
+
+### enabler (2)
+
+`svc-ai-mcp-adapter`, `web-app-keycloak`.
+
+`svc-ai-mcp-adapter` carries no MCP surface of its own. It is the adapter runtime a provider role instantiates, so its disposition is `enabler` and it MUST NOT appear in discovery as a provider or a consumer.
+
+### subordinate (2)
+
+`web-svc-collabora`, `web-svc-onlyoffice`.
+
+### no_surface (98)
+
+These roles remain out of shared MCP discovery.
+A future exception requires a new requirement with a fixed operation list, dedicated identity, isolation boundary, human approval for mutations, and audit trail.
+
+**`host_execution_boundary` (39):** `desk-bluray-player`, `desk-chromium`, `desk-copyq`, `desk-docker`, `desk-dotlinker`, `desk-firefox`, `desk-git`, `desk-gnome`, `desk-gnome-caffeine`, `desk-gnome-extensions`, `desk-gnome-terminal`, `desk-gnucash`, `desk-jrnl`, `desk-keepassxc`, `desk-libreoffice`, `desk-micro`, `desk-neovim`, `desk-nextcloud`, `desk-obs`, `desk-qbittorrent`, `desk-retroarch`, `desk-spotify`, `desk-ssh`, `desk-torbrowser`, `desk-virtualbox`, `desk-zoom`, `dev-arduino`, `dev-core`, `dev-java`, `dev-locales`, `dev-make`, `dev-nix`, `dev-nodejs`, `dev-python`, `drv-epson-multiprinter`, `drv-intel`, `drv-lid-switch`, `drv-non-free`, `gen-hunspell`.
+These roles operate a workstation, developer toolchain, device, or host package; bridging them would amount to shared shell, filesystem, browser-session, device, or host execution without an application-specific remote identity.
+
+**`privileged_control_plane` (26):** `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-tor-smtp`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`.
+These roles can recover secrets, alter routing or host state, run code, change deployment state, or reach storage/control-plane sockets; they require a separate audited operations gateway and human approval rather than general-purpose application MCP.
+
+**`shared_engine_isolation` (4):** `svc-db-memcached`, `svc-db-openldap`, `svc-db-postgres`, `svc-db-rabbitmq`.
+A generic endpoint would bypass application and tenant authorization on a shared engine.
+Any future exception requires a provider-application-specific account, namespace/database/schema/queue restriction, fixed named operations, and no engine administrator credential.
+
+**`administrative_surface` (5):** `web-app-fusiondirectory`, `web-app-lam`, `web-app-pgadmin`, `web-app-phpldapadmin`, `web-app-phpmyadmin`.
+These UIs expose identity or database administration rather than a bounded application-domain API and MUST NOT be represented by a shared service-account tool surface.
+
+**`duplicate_owner` (1):** `web-app-litellm`.
+This role is only the UI of the separately classified LiteLLM service role, which owns any future MCP gateway contract.
+
+**`no_remote_surface` (24):** `svc-ai-ollama`, `svc-ai-robot`, `web-app-chess`, `web-app-dashboard`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-app-sphinx`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-design`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`.
+These roles have no independently useful authenticated remote action contract at the pinned implementation.
+Static published content MAY later be consumed through one owning application's bounded `resource_readonly` adapter, but a new MCP sidecar that merely reimplements a static site's behavior does not count as integration.
+Model tool calling in Ollama does not by itself make Ollama an MCP client or server.
+
+## Tool and Adapter Safety Contract
+
+Every adapter MUST enforce request size, response size, timeout, concurrency, pagination, result-row, and stream-duration limits with explicit values in role metadata.
+It MUST log provider `application_id`, consumer `application_id`, tool name, credential subject, result status, duration, and correlation identifier without logging credentials or payload bodies.
+
+Tool discovery MUST be allowlisted by exact name and JSON schema hash.
+An unexpected added, removed, or changed upstream tool MUST fail closed until the checked-in contract is reviewed.
+The policy gateway MUST enforce the same allowlist on `tools/call`; filtering only `tools/list` is insufficient.
+
+Resources, prompts, sampling, elicitation, roots, and any protocol capability added by an upstream MCP release MUST be independently classified.
+The absence of a dangerous tool list does not authorize an unreviewed non-tool MCP capability.
+
+Mutations MUST be classified as reversible, irreversible, external-communication, financial, identity/permission, code-execution, or infrastructure-control.
+Any enabled mutation requires a separate opt-in variant, a distinct RBAC role where practical, an idempotency strategy, a human confirmation boundary, and a tested audit event.
+Infrastructure control, arbitrary code execution, unrestricted filesystem access, identity administration, and raw database mutation remain forbidden for shared clients.
+
+Sidecars and adapters MUST use an immutable version and digest, documented provenance and license, a non-root user, read-only root filesystem, dropped Linux capabilities, no host or control-plane socket, explicit CPU/memory/PID limits, a provider-only network, and no unrelated outbound network access.
 
 ## Acceptance Criteria
 

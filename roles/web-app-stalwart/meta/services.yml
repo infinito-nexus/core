@@ -130,11 +130,14 @@ clamav:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 512
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    brand:
+      width: 472
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

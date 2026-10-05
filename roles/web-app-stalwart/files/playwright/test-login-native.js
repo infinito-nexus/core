@@ -3,12 +3,32 @@ const { test, expect } = require("@playwright/test");
 const { safeIsEnabled, gotoOnion } = require("./personas");
 const {
   appBaseUrl,
+  webmailBaseUrl,
   canonicalDomain,
   oidcIssuerUrl,
+  adminEmail,
+  adminPassword,
   stalwartAdminUsername,
   stalwartAdminPassword,
 } = require("./env");
 const { resolveTimeout } = require("./timeouts");
+
+test("administrator: webmail password login reaches the mailbox (no sso)", async ({ page }) => {
+  test.skip(safeIsEnabled("sso"), "Keycloak owns the webmail login while SSO is on; test-mailflow.js covers that journey.");
+  expect(webmailBaseUrl, "WEBMAIL_BASE_URL must be set").toBeTruthy();
+  expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
+
+  await gotoOnion(page, `${webmailBaseUrl}/?_task=login`);
+  await page.locator("#rcmloginuser").fill(adminEmail);
+  await page.locator("#rcmloginpwd").fill(adminPassword);
+  await page.locator("#rcmloginsubmit").click();
+
+  await expect(
+    page.locator("#messagelist"),
+    "the webmail must reach the mailbox over its internal IMAP hop instead of reporting a storage connection failure",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(page.locator("#mailboxlist li.mailbox.inbox")).toBeVisible();
+});
 
 // WebAdmin native login: the variant where Keycloak is absent and Stalwart's own
 // directory owns the credentials. Without this the sso=false variant deploys a

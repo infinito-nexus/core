@@ -18,8 +18,8 @@ matomo:
   enabled: false
   shared: false
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   enabled: false
   shared: false
 # nocheck: email
@@ -60,6 +60,16 @@ api:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 256
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+# nocheck: email
+# nocheck: dynamic-flag
+email:
+  enabled: false
+  shared: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

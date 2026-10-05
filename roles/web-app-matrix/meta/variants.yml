@@ -22,7 +22,7 @@
     coturn:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -71,7 +71,7 @@
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -132,7 +132,7 @@
     coturn:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:

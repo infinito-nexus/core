@@ -1,21 +1,21 @@
 .title, .subtitle {
-    color: var(--color-01-10);
+    color: var(--design-primary-950);
 }
 
 .is-child {
-    background-color: rgba( var(--color-rgb-01-80), 0.3 );
-    color: var(--color-01-10);
+    background-color: rgba( var(--design-primary-300-rgb), 0.3 );
+    color: var(--design-primary-950);
 }
 
 .footer{
-      background-color: rgba( var(--color-rgb-01-80), 0.3 );
-      color: var(--color-01-90);
+      background-color: rgba( var(--design-primary-300-rgb), 0.3 );
+      color: var(--design-primary-200);
 }
 
 .has-background-primary-light{
-     background-color: rgba( var(--color-rgb-01-80), 0.3 ) !important;
+     background-color: rgba( var(--design-primary-300-rgb), 0.3 ) !important;
 }
 
 .has-background-secondary{
-     background-color: rgba( var(--color-rgb-01-80), 0.3 ) !important;
+     background-color: rgba( var(--design-primary-300-rgb), 0.3 ) !important;
 }

@@ -65,11 +65,12 @@ redis:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ service_provider.platform.titel }}"
 # nocheck: dynamic-flag
 prometheus:
   bond: 1

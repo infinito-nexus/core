@@ -9,7 +9,7 @@ cards:
 {% include 'menu/support.yml.j2' %}
 
 platform:
-  titel:    {{ service_provider.platform.titel | to_json }}
+  titel:    {{ DASHBOARD_PLATFORM_TITLE | to_json }}
   subtitel: {{ service_provider.platform.subtitel | to_json }}
   logo:
     source: {{ DASHBOARD_PLATFORM_LOGO_URL }}

@@ -44,6 +44,22 @@
   ansible.builtin.include_tasks: 00_core/auth.yml
   when: IS_STACK_HOST | bool
 
+- name: "🎨 Apply the corporate design of {{ application_id }}"
+  vars:
+    jellyfin_design_authorization: 'MediaBrowser Token="{{ jellyfin_design_session.json.AccessToken }}"'
+    jellyfin_design_title: "{{ lookup('design', application_id).title if JELLYFIN_DESIGN_ENABLED | bool else false }}"
+    jellyfin_design_css_current: "{{ jellyfin_design_branding.json.get('CustomCss') or '' }}"
+    jellyfin_design_css_foreign: "{{ jellyfin_design_css_current | regex_replace(JELLYFIN_DESIGN_CSS_PATTERN, '') | trim }}"
+    jellyfin_design_css_block: "{{ (JELLYFIN_DESIGN_CSS_OPEN ~ (lookup('template', 'branding.css.j2') | trim) ~ JELLYFIN_DESIGN_CSS_CLOSE) if JELLYFIN_DESIGN_ENABLED
+      | bool else '' }}"
+    jellyfin_design_css: "{{ [jellyfin_design_css_foreign, jellyfin_design_css_block] | select | join('\n') }}"
+  ansible.builtin.include_tasks:
+    file: utils/design.yml
+    apply:
+      delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: IS_STACK_HOST | bool
+
 - name: "🔌 Serve MCP from {{ application_id }}"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: JELLYFIN_MCP_ENABLED | bool

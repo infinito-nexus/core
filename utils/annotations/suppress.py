@@ -124,9 +124,7 @@ def is_suppressed_at(
     return False
 
 
-def rule_and_reason(
-    lines: Sequence[str], line_no: int, rule: str
-) -> tuple[bool, bool]:
+def rule_and_reason(lines: Sequence[str], line_no: int, rule: str) -> tuple[bool, bool]:
     """Whether the construct at 1-based *line_no* carries *rule*, and a reason.
 
     Args:

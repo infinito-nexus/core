@@ -1,0 +1,2317 @@
+{% set design = lookup('design', application_id) %}
+:root,
+.dark {
+  --background: var(--design-surface-2);
+  --foreground: var(--design-text);
+  --card: var(--design-surface-2);
+  --card-foreground: var(--design-text);
+  --popover: var(--design-surface-2);
+  --popover-foreground: var(--design-text);
+  --content-background: var(--design-surface-1);
+  --primary: var(--design-primary);
+  --primary-foreground: var(--design-on-primary);
+  --secondary: var(--design-surface-3);
+  --secondary-foreground: var(--design-text);
+  --muted: var(--design-surface-3);
+  --muted-foreground: var(--design-text-muted);
+  --accent: var(--design-surface-active);
+  --accent-foreground: var(--design-text);
+  --destructive: var(--design-danger);
+  --destructive-foreground: var(--design-on-danger);
+  --border: var(--design-border);
+  --input: var(--design-border-strong);
+  --ring: var(--design-link);
+  --color-red-50: var(--design-danger-subtle);
+  --color-red-300: var(--design-danger-border);
+  --color-red-400: var(--design-danger);
+  --color-red-500: var(--design-danger);
+  --color-red-600: var(--design-danger);
+  --color-amber-500: var(--design-warning);
+  --color-yellow-500: var(--design-warning);
+  --color-green-500: var(--design-success);
+  --color-green-600: var(--design-success);
+  --color-emerald-400: var(--design-success);
+  --color-emerald-500: var(--design-success);
+  --color-blue-500: var(--design-info);
+}
+.text-primary,
+.hover\:text-primary\/80:hover {
+  color: var(--design-link);
+}
+.text-foreground\/60,
+.text-muted-foreground\/50,
+.text-muted-foreground\/60 {
+  color: var(--design-text-muted);
+}
+.hover\:bg-primary\/80:hover,
+.hover\:bg-primary\/90:hover {
+  background-color: var(--design-primary-hover);
+}
+.hover\:bg-destructive\/80:hover,
+.hover\:bg-destructive\/90:hover {
+  background-color: var(--design-danger-hover);
+}
+.hover\:bg-accent:hover,
+.hover\:bg-accent\/50:hover,
+.hover\:bg-muted\/50:hover,
+.hover\:bg-secondary\/80:hover,
+.focus\:bg-accent:focus {
+  background-color: var(--design-surface-hover);
+}
+{% if design.logo is string %}
+svg[viewBox="95 84 500 90"] {
+  background: url("{{ design.urls.brand.svg if design.title is string else design.urls.icon.svg }}") left center / contain no-repeat;
+}
+svg[viewBox="95 84 500 90"] > * {
+  visibility: hidden;
+}
+@media (min-width: 768px) {
+  svg[viewBox="95 84 500 90"] {
+    width: 13rem;
+    background-size: auto 125%;
+  }
+}
+{% endif %}
+body[class*="task-"] {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] a {
+  color: var(--design-link);
+}
+body[class*="task-"] a:hover {
+  color: var(--design-link);
+}
+body[class*="task-"] caption {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] hr {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .mark,
+body[class*="task-"] mark {
+  background-color: var(--design-warning-subtle);
+}
+body[class*="task-"] code {
+  color: var(--design-danger);
+}
+body[class*="task-"] kbd {
+  color: var(--design-on-primary);
+  background-color: var(--design-frame);
+}
+body[class*="task-"] pre {
+  color: var(--design-text);
+}
+body[class*="task-"] .table {
+  color: var(--design-text);
+}
+body[class*="task-"] .table td,
+body[class*="task-"] .table th {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .table thead th {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .table tbody+tbody {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(var(--design-text-rgb), 0.05);
+}
+body[class*="task-"] .table-hover tbody tr:hover {
+  color: var(--design-text);
+  background-color: rgba(var(--design-text-rgb), 0.07);
+}
+body[class*="task-"] .table-active,
+body[class*="task-"] .table-active>td,
+body[class*="task-"] .table-active>th {
+  background-color: rgba(var(--design-text-rgb), 0.07);
+}
+body[class*="task-"] .table-hover .table-active:hover {
+  background-color: rgba(var(--design-text-rgb), 0.07);
+}
+body[class*="task-"] .table-hover .table-active:hover>td,
+body[class*="task-"] .table-hover .table-active:hover>th {
+  background-color: rgba(var(--design-text-rgb), 0.07);
+}
+body[class*="task-"] .form-control {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .form-control:focus {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .form-control::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .form-control::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .form-control:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .form-control::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .form-control::placeholder {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .form-control:disabled,
+body[class*="task-"] .form-control[readonly] {
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] select.form-control:focus::-ms-value {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .form-control-plaintext {
+  color: var(--design-text);
+}
+body[class*="task-"] .form-check-input:disabled~.form-check-label,
+body[class*="task-"] .form-check-input[disabled]~.form-check-label {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .valid-feedback {
+  color: var(--design-success);
+}
+body[class*="task-"] .form-control.is-valid {
+  border-color: var(--design-success);
+}
+body[class*="task-"] .form-control.is-valid:focus {
+  border-color: var(--design-success);
+  box-shadow: 0 0 0 .2rem var(--design-success);
+}
+body[class*="task-"] .custom-select.is-valid {
+  border-color: var(--design-success);
+}
+body[class*="task-"] .custom-select.is-valid:focus {
+  border-color: var(--design-success);
+  box-shadow: 0 0 0 .2rem var(--design-success);
+}
+body[class*="task-"] .form-check-input.is-valid~.form-check-label {
+  color: var(--design-success);
+}
+body[class*="task-"] .custom-control-input.is-valid~.custom-control-label {
+  color: var(--design-success);
+}
+body[class*="task-"] .custom-control-input.is-valid~.custom-control-label::before {
+  border-color: var(--design-success);
+}
+body[class*="task-"] .custom-control-input.is-valid:checked~.custom-control-label::before {
+  border-color: var(--design-success);
+  background-color: var(--design-success);
+}
+body[class*="task-"] .custom-control-input.is-valid:focus~.custom-control-label::before {
+  box-shadow: 0 0 0 .2rem var(--design-success);
+}
+body[class*="task-"] .custom-control-input.is-valid:focus:not(:checked)~.custom-control-label::before {
+  border-color: var(--design-success);
+}
+body[class*="task-"] .custom-file-input.is-valid~.custom-file-label {
+  border-color: var(--design-success);
+}
+body[class*="task-"] .custom-file-input.is-valid:focus~.custom-file-label {
+  border-color: var(--design-success);
+  box-shadow: 0 0 0 .2rem var(--design-success);
+}
+body[class*="task-"] .invalid-feedback {
+  color: var(--design-danger);
+}
+body[class*="task-"] .form-control.is-invalid {
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .form-control.is-invalid:focus {
+  border-color: var(--design-danger);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.25);
+}
+body[class*="task-"] .custom-select.is-invalid {
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .custom-select.is-invalid:focus {
+  border-color: var(--design-danger);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.25);
+}
+body[class*="task-"] .form-check-input.is-invalid~.form-check-label {
+  color: var(--design-danger);
+}
+body[class*="task-"] .custom-control-input.is-invalid~.custom-control-label {
+  color: var(--design-danger);
+}
+body[class*="task-"] .custom-control-input.is-invalid~.custom-control-label::before {
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .custom-control-input.is-invalid:checked~.custom-control-label::before {
+  border-color: var(--design-danger);
+  background-color: var(--design-danger);
+}
+body[class*="task-"] .custom-control-input.is-invalid:focus~.custom-control-label::before {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.25);
+}
+body[class*="task-"] .custom-control-input.is-invalid:focus:not(:checked)~.custom-control-label::before {
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .custom-file-input.is-invalid~.custom-file-label {
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .custom-file-input.is-invalid:focus~.custom-file-label {
+  border-color: var(--design-danger);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.25);
+}
+body[class*="task-"] .btn {
+  color: var(--design-text);
+}
+body[class*="task-"] .btn:hover {
+  color: var(--design-text);
+}
+body[class*="task-"] .btn.focus,
+body[class*="task-"] .btn:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .btn-link {
+  color: var(--design-link);
+}
+body[class*="task-"] .btn-link:hover {
+  color: var(--design-link);
+}
+body[class*="task-"] .btn-link.disabled,
+body[class*="task-"] .btn-link:disabled {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .dropdown-menu {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+body[class*="task-"] .dropdown-divider {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .dropdown-item {
+  color: var(--design-text);
+}
+body[class*="task-"] .dropdown-item:focus,
+body[class*="task-"] .dropdown-item:hover {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] .dropdown-item.active,
+body[class*="task-"] .dropdown-item:active {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .dropdown-item.disabled,
+body[class*="task-"] .dropdown-item:disabled {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .dropdown-header {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .dropdown-item-text {
+  color: var(--design-text);
+}
+body[class*="task-"] .input-group-text {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .custom-control-input:checked~.custom-control-label::before {
+  color: var(--design-on-primary);
+  border-color: var(--design-primary);
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-control-input:focus~.custom-control-label::before {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .custom-control-input:focus:not(:checked)~.custom-control-label::before {
+  border-color: var(--design-primary);
+}
+body[class*="task-"] .custom-control-input:not(:disabled):active~.custom-control-label::before {
+  color: var(--design-on-primary);
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-surface-active);
+}
+body[class*="task-"] .custom-control-input:disabled~.custom-control-label,
+body[class*="task-"] .custom-control-input[disabled]~.custom-control-label {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .custom-control-input:disabled~.custom-control-label::before,
+body[class*="task-"] .custom-control-input[disabled]~.custom-control-label::before {
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .custom-control-label::before {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .custom-checkbox .custom-control-input:indeterminate~.custom-control-label::before {
+  border-color: var(--design-link);
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-checkbox .custom-control-input:disabled:checked~.custom-control-label::before {
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-checkbox .custom-control-input:disabled:indeterminate~.custom-control-label::before {
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-radio .custom-control-input:disabled:checked~.custom-control-label::before {
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-switch .custom-control-label::after {
+  background-color: var(--design-border-strong);
+}
+body[class*="task-"] .custom-switch .custom-control-input:checked~.custom-control-label::after {
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .custom-switch .custom-control-input:disabled:checked~.custom-control-label::before {
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-select {
+  color: var(--design-text-muted);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .custom-select:focus {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .custom-select:focus::-ms-value {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .custom-select:disabled {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .custom-file-input:focus~.custom-file-label {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .custom-file-input:disabled~.custom-file-label,
+body[class*="task-"] .custom-file-input[disabled]~.custom-file-label {
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .custom-file-label {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .custom-file-label::after {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .nav-link.disabled {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .nav-tabs {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .nav-tabs .nav-link:focus,
+body[class*="task-"] .nav-tabs .nav-link:hover {
+  border-color: var(--design-border) var(--design-border) var(--design-border);
+}
+body[class*="task-"] .nav-tabs .nav-link.disabled {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .nav-tabs .nav-item.show .nav-link,
+body[class*="task-"] .nav-tabs .nav-link.active {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border) var(--design-border) var(--design-border);
+}
+body[class*="task-"] .close {
+  color: var(--design-text);
+  text-shadow: 0 1px 0 var(--design-on-primary);
+}
+body[class*="task-"] .close:hover {
+  color: var(--design-text);
+}
+body[class*="task-"] .popover {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=top]>.arrow::before,
+body[class*="task-"] .bs-popover-top>.arrow::before {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=top]>.arrow::after,
+body[class*="task-"] .bs-popover-top>.arrow::after {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=right]>.arrow::before,
+body[class*="task-"] .bs-popover-right>.arrow::before {
+  border-right-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=right]>.arrow::after,
+body[class*="task-"] .bs-popover-right>.arrow::after {
+  border-right-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=bottom]>.arrow::before,
+body[class*="task-"] .bs-popover-bottom>.arrow::before {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=bottom]>.arrow::after,
+body[class*="task-"] .bs-popover-bottom>.arrow::after {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=left]>.arrow::before,
+body[class*="task-"] .bs-popover-left>.arrow::before {
+  border-left-color: var(--design-border);
+}
+body[class*="task-"] .bs-popover-auto[x-placement^=left]>.arrow::after,
+body[class*="task-"] .bs-popover-left>.arrow::after {
+  border-left-color: var(--design-border);
+}
+body[class*="task-"] .popover-body {
+  color: var(--design-text);
+}
+body[class*="task-"] .text-muted {
+  color: var(--design-text-muted) !important;
+}
+body[class*="task-"] a {
+  color: var(--design-link);
+}
+body[class*="task-"] a:hover {
+  color: var(--design-link);
+}
+html:not(.touch) body[class*="task-"] ::-webkit-scrollbar-track {
+  background-color: var(--design-surface-3);
+}
+html:not(.touch) body[class*="task-"] ::-webkit-scrollbar-thumb {
+  background-color: var(--design-border-strong);
+}
+body[class*="task-"] {
+  color: var(--design-text);
+}
+body[class*="task-"] #layout>div>.header {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] #layout>div>.header a.button {
+  color: var(--design-text);
+}
+body[class*="task-"] #layout>div>.footer {
+  border-top-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] #layout-sidebar {
+  border-right-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] #layout-sidebar.sidebar-right {
+  border-left-color: var(--design-border);
+}
+body[class*="task-"] #layout-list {
+  border-right-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] #layout-content {
+  background-color: var(--design-surface-2);
+}
+@media screen and (max-width:768px) {
+  body[class*="task-"] #layout>div>.header {
+    background-color: var(--design-surface-3);
+  }
+  body[class*="task-"] #layout>div>.footer {
+    background-color: var(--design-surface-3);
+  }
+}
+body[class*="task-"] .popup .listbox .footer {
+  border-top-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] p.image-attachment {
+  border-color: var(--design-border);
+  background-color: var(--design-info-subtle);
+}
+body[class*="task-"] p.image-attachment span {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] fieldset.image-attachment legend {
+  color: var(--design-text-muted);
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .iframe-loader {
+  background-color: rgba(var(--design-surface-2-rgb), 0.95);
+}
+body[class*="task-"] .iframe-loader .spinner-border {
+  color: var(--design-border);
+  border-color: currentcolor var(--design-border-strong) currentcolor currentcolor;
+}
+body[class*="task-"] .webkit-scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+  border-color: var(--design-border);
+}
+body[class*="task-"] .quota-widget {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .quota-widget .bar {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+body[class*="task-"] .quota-widget .value {
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .quota-widget .value.warning {
+  background-color: var(--design-danger);
+}
+body[class*="task-"] .image-tools {
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .image-tools a {
+  color: var(--design-on-primary) !important;
+}
+body[class*="task-"] .image-tools a:focus,
+body[class*="task-"] .image-tools a:hover {
+  background-color: var(--design-primary) !important;
+}
+body[class*="task-"] .quota-info .root {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .table-widget {
+  border-color: var(--design-border);
+}
+body[class*="task-"] .table-widget>.footer {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .table-widget table.options-table tr:last-child td {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .table-widget table.options-table tr.selected td {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+body[class*="task-"] table.table tr.deleted td {
+  color: var(--design-text-muted) !important;
+}
+body[class*="task-"] .floating-action-buttons a.button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+  box-shadow: 0 0 5px 5px var(--design-surface-active);
+}
+body[class*="task-"] .btn:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.3);
+}
+body[class*="task-"] .btn-link {
+  color: var(--design-link);
+}
+body[class*="task-"] .btn-secondary {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .btn-secondary:focus {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-border-strong-rgb), 0.5);
+}
+body[class*="task-"] .btn-secondary:hover {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .btn-secondary.disabled,
+body[class*="task-"] .btn-secondary:disabled {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .btn-secondary:not(:disabled):not(.disabled).active,
+body[class*="task-"] .btn-secondary:not(:disabled):not(.disabled):active {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .btn-secondary:not(:disabled):not(.disabled).active:focus,
+body[class*="task-"] .btn-secondary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-border-strong-rgb), 0.53);
+}
+body[class*="task-"] .btn-primary {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+body[class*="task-"] .btn-primary:focus {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.5);
+}
+body[class*="task-"] .btn-primary:hover {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+}
+body[class*="task-"] .btn-primary.disabled,
+body[class*="task-"] .btn-primary:disabled {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+body[class*="task-"] .btn-primary:not(:disabled):not(.disabled).active,
+body[class*="task-"] .btn-primary:not(:disabled):not(.disabled):active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+}
+body[class*="task-"] .btn-primary:not(:disabled):not(.disabled).active:focus,
+body[class*="task-"] .btn-primary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.53);
+}
+body[class*="task-"] .btn-danger {
+  color: var(--design-on-danger);
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .btn-danger:focus {
+  background-color: var(--design-danger-hover);
+  border-color: var(--design-danger);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.5);
+}
+body[class*="task-"] .btn-danger:hover {
+  background-color: var(--design-danger-hover);
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .btn-danger.disabled,
+body[class*="task-"] .btn-danger:disabled {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .btn-danger:not(:disabled):not(.disabled).active,
+body[class*="task-"] .btn-danger:not(:disabled):not(.disabled):active {
+  background-color: var(--design-danger-active);
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .btn-danger:not(:disabled):not(.disabled).active:focus,
+body[class*="task-"] .btn-danger:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.53);
+}
+body[class*="task-"] .ui-widget-overlay {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+body[class*="task-"] .ui-widget {
+  border-color: var(--design-border);
+  box-shadow: 3px 3px 5px var(--design-border);
+}
+body[class*="task-"] .ui-menu .ui-state-active {
+  background-color: var(--design-primary) !important;
+}
+body[class*="task-"] .ui-dialog .ui-dialog-titlebar {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .ui-dialog .ui-dialog-title {
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-dialog .ui-dialog-titlebar-close {
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link {
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link:focus {
+  background-color: var(--design-primary);
+}
+@media screen and (max-width:480px) {
+  body[class*="task-"] .ui-dialog .ui-dialog-titlebar {
+    background-color: var(--design-surface-3);
+  }
+  body[class*="task-"] .ui-dialog .ui-dialog-buttonpane {
+    border-top-color: var(--design-border);
+    background-color: var(--design-surface-3);
+  }
+  body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button.btn-primary,
+  body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button.btn-secondary {
+    color: var(--design-text);
+  }
+  body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button.btn-danger {
+    color: var(--design-danger);
+  }
+  body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link {
+    color: var(--design-text);
+  }
+}
+body[class*="task-"] .ui-slider .ui-slider-range {
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] .ui-slider .ui-slider-handle.ui-state-active {
+  background-color: var(--design-primary);
+  border-color: var(--design-link);
+}
+body[class*="task-"] .ui-datepicker .ui-datepicker-header {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .ui-datepicker .ui-datepicker-next,
+body[class*="task-"] .ui-datepicker .ui-datepicker-prev {
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-datepicker .ui-state-default,
+body[class*="task-"] .ui-datepicker.ui-widget-content .ui-state-default {
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-datepicker .ui-datepicker-days-cell-over a,
+body[class*="task-"] .ui-datepicker .ui-datepicker-days-cell-over a.ui-state-default,
+body[class*="task-"] .ui-datepicker .ui-state-highlight,
+body[class*="task-"] .ui-datepicker.ui-widget-content .ui-state-highlight {
+  background-color: var(--design-surface-active);
+  color: var(--design-link);
+}
+body[class*="task-"] .ui-datepicker a.ui-state-active {
+  background-color: var(--design-primary) !important;
+  color: var(--design-on-primary) !important;
+}
+body[class*="task-"] .minicolors-panel {
+  border-color: var(--design-border);
+  box-shadow: 3px 3px 5px var(--design-border);
+}
+body[class*="task-"] .popover {
+  box-shadow: 3px 3px 5px var(--design-border);
+  border-color: var(--design-border);
+}
+html.layout-phone body[class*="task-"] .popover:not(.select-menu) .listing li:last-child,
+html.layout-small body[class*="task-"] .popover:not(.select-menu) .listing li:last-child {
+  border-bottom-color: var(--design-border);
+}
+html.layout-phone body[class*="task-"] .popover-overlay,
+html.layout-small body[class*="task-"] .popover-overlay {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+body[class*="task-"] .pgpkeyimport div.key.disabled,
+body[class*="task-"] .pgpkeyimport div.key.revoked {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .menu a:not(.disabled):focus,
+body[class*="task-"] .menu a:not(.disabled):hover {
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .menu.toolbar a {
+  color: var(--design-text);
+}
+body[class*="task-"] .menu.toolbar a.selected {
+  color: var(--design-success);
+}
+body[class*="task-"] .menu.toolbar .dropbutton:not(.disabled):hover {
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .menu.toolbar .dropbutton a.dropdown:hover {
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] .menu.pagenav a {
+  color: var(--design-text);
+}
+body[class*="task-"] .menu.pagenav .pagenav-text {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .menu.pagenav.pagenav-list {
+  background-color: var(--design-surface-2);
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .menu.pagenav.pagenav-list+.navlist {
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .menu.pagenav.pagenav-list.expanded+.navlist {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .menu .buttons button {
+  color: var(--design-text);
+}
+body[class*="task-"] .popover .menu li.separator {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .popover .menu li a:not(.disabled):hover {
+  color: var(--design-text);
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .popover .menu li a[aria-haspopup]:after {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .popover .menu li a[aria-haspopup].dropdown:after {
+  color: var(--design-text);
+}
+body[class*="task-"] .popover .menu li a[aria-haspopup]:hover:after {
+  color: var(--design-text);
+}
+body[class*="task-"] .popover .menu .dropbutton:not(.disabled):hover {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .popover .menu .dropbutton a.dropdown {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .popover .menu .dropbutton a.dropdown:hover {
+  background-color: var(--design-primary);
+}
+@media screen and (min-width:769px) {
+  body[class*="task-"] .header a.button.icon:not(.disabled):focus,
+  body[class*="task-"] .header a.button.icon:not(.disabled):hover {
+    background-color: var(--design-surface-hover);
+  }
+}
+@media screen and (max-width:768px) {
+  body[class*="task-"] .menu.listing a {
+    color: var(--design-text);
+  }
+}
+body[class*="task-"] .searchbar {
+  background-color: var(--design-surface-2);
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .searchbar form:before {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .searchbar a {
+  color: var(--design-text);
+}
+body[class*="task-"] .searchbar a.selected {
+  color: var(--design-success);
+}
+body[class*="task-"] .listing li,
+body[class*="task-"] .listing tbody td {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] .listing li a,
+body[class*="task-"] .listing tbody td {
+  color: var(--design-text);
+}
+body[class*="task-"] .listing tbody td a {
+  color: var(--design-text);
+}
+body[class*="task-"] .listing li.selected,
+body[class*="task-"] .listing tr.selected td {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] .listing li.droptarget>a,
+body[class*="task-"] .listing tr.droptarget>td {
+  background-color: var(--design-warning-subtle);
+}
+body[class*="task-"] .listing li.disabled,
+body[class*="task-"] .listing tr.disabled td {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .listing span.secondary {
+  color: var(--design-text-muted);
+}
+html:not(.touch) body[class*="task-"] .listing li>a:focus,
+html:not(.touch) body[class*="task-"] .listing.focus tbody tr.focused>td:first-child,
+html:not(.touch) body[class*="task-"] .listing.focus:not(.withselection) tbody tr.focused>td.selection+td {
+  border-left-color: var(--design-link);
+}
+body[class*="task-"] ul.listing li ul {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .listing-info {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .listing-hover-menu {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  box-shadow: 0 0 5px var(--design-border);
+}
+body[class*="task-"] .listing-hover-menu a.button {
+  color: var(--design-text);
+}
+body[class*="task-"] .listing-hover-menu span.txt {
+  color: var(--design-text-muted);
+}
+@media screen and (max-width:1200px) {
+  body[class*="task-"] .listing.selection-large-only li.selected {
+    color: var(--design-text);
+  }
+}
+body[class*="task-"] .popupmenu .listing li>a:not(.disabled):hover {
+  color: var(--design-text);
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .popupmenu .listing li.selected {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] ul.treelist li.selected>a,
+body[class*="task-"] ul.treelist li.selected>div>a {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] .folderlist li.mailbox .unreadcount {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+body[class*="task-"] .folderlist li.mailbox.recent>a {
+  color: var(--design-link);
+}
+body[class*="task-"] .folderlist li.mailbox.recent>a>.unreadcount {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+body[class*="task-"] .messagelist td.subject span.date,
+body[class*="task-"] .messagelist td.subject span.size {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .messagelist td.subject span.fromto {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .messagelist tr.flagged span.size,
+body[class*="task-"] .messagelist tr.flagged td,
+body[class*="task-"] .messagelist tr.flagged td.subject span.date,
+body[class*="task-"] .messagelist tr.flagged td.subject span.fromto,
+body[class*="task-"] .messagelist tr.flagged td.subject span.subject a {
+  color: var(--design-danger);
+}
+body[class*="task-"] .messagelist tr.deleted td,
+body[class*="task-"] .messagelist tr.deleted td.subject span.date,
+body[class*="task-"] .messagelist tr.deleted td.subject span.fromto,
+body[class*="task-"] .messagelist tr.deleted td.subject span.subject a {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .messagelist span.attachment span {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .messagelist tr.flaggedroot:not(:hover) span.unflagged:before {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .contactlist span.email {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .attachmentslist {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+body[class*="task-"] .attachmentslist li .attachment-name {
+  color: var(--design-text);
+}
+body[class*="task-"] .attachmentslist li .attachment-size {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .propform .form-text {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .formcontent .hint {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .formcontent.raweditor .CodeMirror {
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+body[class*="task-"] .formcontent.raweditor .CodeMirror-focused {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .formcontent.raweditor .CodeMirror-linebackground.line-error {
+  background-color: var(--design-danger);
+}
+body[class*="task-"] .input-group a:focus {
+  background-color: var(--design-info-subtle);
+}
+body[class*="task-"] .proplist li.with-sublist>a.dropdown {
+  color: var(--design-text);
+}
+body[class*="task-"] .multi-input>.content {
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .multi-input>.content.focused {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .multi-input .input-group-text,
+body[class*="task-"] .multi-input input,
+body[class*="task-"] .multi-input input:focus {
+  border-bottom-color: var(--design-border-strong);
+}
+body[class*="task-"] .multi-input .input-group-text {
+  border-left-color: var(--design-border-strong);
+}
+body[class*="task-"] .multi-input.is-invalid>.content {
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .multi-input.is-invalid>.content.focused {
+  border-color: var(--design-danger);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.25);
+}
+body[class*="task-"] .file-upload {
+  border-color: var(--design-border);
+}
+body[class*="task-"] .file-upload .hint {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .file-upload.droptarget.active {
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .file-upload.droptarget.hover {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-hover);
+}
+body[class*="task-"] .recipient-input.focus {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .recipient-input li.recipient,
+body[class*="task-"]>li.recipient.ui-sortable-helper {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .recipient-input li.recipient a.button.icon,
+body[class*="task-"]>li.recipient.ui-sortable-helper a.button.icon {
+  color: var(--design-text);
+}
+body[class*="task-"] .tagedit-list[tabindex="-1"] {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .tagedit-list li.tagedit-listelement-old {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .skinselection .skinthumbnail {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .image-upload {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .image-upload a.button {
+  background-color: rgba(var(--design-surface-2-rgb), 0.85);
+}
+body[class*="task-"] .form-control {
+  color: var(--design-text);
+}
+body[class*="task-"] .form-control:focus {
+  color: var(--design-text);
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .form-control.is-invalid {
+  border-color: var(--design-danger);
+}
+body[class*="task-"] .form-control.is-invalid:focus {
+  border-color: var(--design-danger);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-danger-rgb), 0.25);
+}
+body[class*="task-"] .form-control::placeholder {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .form-control::-ms-input-placeholder,
+body[class*="task-"] .form-control::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .invalid-feedback {
+  color: var(--design-danger);
+}
+body[class*="task-"] .input-group-text {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .input-group-text input:focus {
+  border-color: var(--design-link) !important;
+}
+body[class*="task-"] .custom-switch .custom-control-input:focus~.custom-control-label:before {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] .custom-switch .custom-control-input:focus:not(:checked)~.custom-control-label::before {
+  border-color: var(--design-primary);
+}
+body[class*="task-"] .custom-switch .custom-control-input:checked~.custom-control-label::before {
+  border-color: var(--design-primary);
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-switch .custom-control-input:checked:disabled~.custom-control-label::before {
+  border-color: var(--design-primary);
+  background-color: var(--design-primary);
+}
+body[class*="task-"] .custom-file-input:focus~.custom-file-label {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] div.tox.tox-tinymce {
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox.focused {
+  border-color: var(--design-link) !important;
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25) !important;
+}
+body[class*="task-"] div.tox .tox-toolbar-overlord>div {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] div.tox .tox-toolbar {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] div.tox .tox-dialog {
+  border-color: var(--design-border);
+}
+body[class*="task-"] div.tox .tox-dialog .tox-dialog__body-nav-item--active {
+  color: var(--design-link);
+}
+body[class*="task-"] div.tox .tox-dialog .tox-dialog__body-nav-item--active:hover {
+  color: var(--design-link);
+}
+body[class*="task-"] div.tox .tox-dialog-wrap__backdrop {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+body[class*="task-"] div.tox .tox-dialog__header {
+  border-bottom-color: var(--design-border);
+}
+body[class*="task-"] div.tox .tox-dialog__header .tox-button {
+  color: var(--design-text);
+}
+@media screen and (max-width:480px) {
+  body[class*="task-"] div.tox .tox-dialog__footer {
+    border-top-color: var(--design-border);
+  }
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:focus {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.5);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:hover {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.disabled,
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:disabled {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:not(:disabled):not(.disabled).active,
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:not(:disabled):not(.disabled):active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:not(:disabled):not(.disabled).active:focus,
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.53);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button:focus:not(:disabled) {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:focus {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-border-strong-rgb), 0.5);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:hover {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary.disabled,
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:disabled {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:not(:disabled):not(.disabled).active,
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:not(:disabled):not(.disabled):active {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:not(:disabled):not(.disabled).active:focus,
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-border-strong-rgb), 0.53);
+}
+body[class*="task-"] div.tox .tox-dialog__footer .tox-button.tox-button--secondary:focus:not(:disabled) {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .tox-dialog__title {
+  color: var(--design-text);
+}
+body[class*="task-"] div.tox .tox-label {
+  color: var(--design-text);
+}
+body[class*="task-"] div.tox .tox-color-input>input,
+body[class*="task-"] div.tox .tox-listboxfield .tox-listbox--select,
+body[class*="task-"] div.tox .tox-textarea,
+body[class*="task-"] div.tox .tox-textfield {
+  color: var(--design-text);
+}
+body[class*="task-"] div.tox .tox-color-input>input:focus,
+body[class*="task-"] div.tox .tox-listboxfield .tox-listbox--select:focus,
+body[class*="task-"] div.tox .tox-textarea:focus,
+body[class*="task-"] div.tox .tox-textfield:focus {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+body[class*="task-"] div.tox .image-selector button {
+  color: var(--design-on-primary);
+  background-color: var(--design-border-strong);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .image-selector button:focus {
+  background-color: var(--design-border-strong);
+  border-color: var(--design-border-strong);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-border-strong-rgb), 0.5);
+}
+body[class*="task-"] div.tox .image-selector button:hover {
+  background-color: var(--design-border-strong);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .image-selector button.disabled,
+body[class*="task-"] div.tox .image-selector button:disabled {
+  background-color: var(--design-border-strong);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .image-selector button:not(:disabled):not(.disabled).active,
+body[class*="task-"] div.tox .image-selector button:not(:disabled):not(.disabled):active {
+  background-color: var(--design-border-strong);
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] div.tox .image-selector button:not(:disabled):not(.disabled).active:focus,
+body[class*="task-"] div.tox .image-selector button:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 .2rem rgba(var(--design-border-strong-rgb), 0.53);
+}
+@media screen and (max-width:480px) {
+  body[class*="task-"] div.tox .tox-dialog__header {
+    background-color: var(--design-surface-3);
+  }
+  body[class*="task-"] div.tox .tox-dialog__footer {
+    background-color: var(--design-surface-3);
+  }
+  body[class*="task-"] div.tox .tox-dialog__footer .tox-button {
+    color: var(--design-text) !important;
+  }
+  body[class*="task-"] div.tox .tox-dialog__footer .tox-button:active,
+  body[class*="task-"] div.tox .tox-dialog__footer .tox-button:focus,
+  body[class*="task-"] div.tox .tox-dialog__footer .tox-button:hover {
+    color: var(--design-text);
+  }
+}
+body[class*="task-"] .image-selector.droptarget {
+  border-color: var(--design-border);
+}
+body[class*="task-"] .image-selector .attachmentslist li:focus,
+body[class*="task-"] .image-selector .attachmentslist li:hover {
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] .image-selector .attachmentslist li span.img {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .html-editor .editor-toolbar {
+  border-bottom-color: var(--design-border-strong);
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] .html-editor .editor-toolbar .mce-i-html {
+  color: var(--design-link);
+}
+body[class*="task-"] .html-editor .editor-toolbar .mce-i-html:focus,
+body[class*="task-"] .html-editor .editor-toolbar .mce-i-html:hover {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-active);
+}
+body[class*="task-"] .html-editor>iframe {
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .googie_edit_layer {
+  border-color: var(--design-border-strong);
+}
+body[class*="task-"] .googie_link {
+  color: var(--design-danger);
+}
+body[class*="task-"] .googie_list li.googie_list_onhover {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+body[class*="task-"] #login-form .formbuttons+.oauthlogin {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] #login-footer {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] #login-footer>div {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] #contactpic {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] #contacthead.readonly .source.row {
+  color: var(--design-text-muted);
+}
+body[class*="task-"].status-flagged #message-header>.subject:before {
+  color: var(--design-danger);
+}
+body[class*="task-"] #message-header>.header img.contactphoto {
+  background-color: var(--design-surface-3);
+}
+body[class*="task-"] #message-header .header-headers .header-title {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .message-partheaders {
+  border-top-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .message-partheaders table.headers-table {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .message-part:not(:first-child) {
+  border-top-color: var(--design-border);
+}
+body[class*="task-"] .message-part blockquote {
+  color: var(--design-link);
+  border-left-color: var(--design-info);
+  border-right-color: var(--design-info);
+  background-color: rgba(var(--design-surface-2-rgb), 0.5);
+}
+body[class*="task-"] .message-part blockquote blockquote {
+  color: var(--design-success);
+  border-left-color: var(--design-success);
+  border-right-color: var(--design-success);
+}
+body[class*="task-"] .message-part blockquote blockquote blockquote {
+  color: var(--design-danger);
+  border-left-color: var(--design-danger);
+  border-right-color: var(--design-danger);
+}
+body[class*="task-"] .message-part blockquote span.blockquote-link {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+body[class*="task-"] .message-part span.sig {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .suspicious-address-warning:before {
+  color: var(--design-warning);
+}
+html.dark-mode:not(.touch) body[class*="task-"] ::-webkit-scrollbar-track {
+  background-color: var(--design-surface-3);
+}
+html.dark-mode:not(.touch) body[class*="task-"] ::-webkit-scrollbar-thumb {
+  background-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] #layout-content,
+html.dark-mode body[class*="task-"] #layout-list,
+html.dark-mode body[class*="task-"] #layout-sidebar,
+html.dark-mode body[class*="task-"] #layout>div>.footer,
+html.dark-mode body[class*="task-"] #layout>div>.header,
+html.dark-mode body[class*="task-"] .menu.pagenav.pagenav-list,
+html.dark-mode body[class*="task-"] .menu.pagenav.pagenav-list+.navlist,
+html.dark-mode body[class*="task-"] .menu.pagenav.pagenav-list.expanded+.navlist,
+html.dark-mode body[class*="task-"] .popup .listbox .footer {
+  background-color: transparent;
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] #layout>div>.footer,
+html.dark-mode body[class*="task-"] #layout>div>.header {
+  color: unset;
+}
+html.dark-mode body[class*="task-"] #layout>div>.footer a.button,
+html.dark-mode body[class*="task-"] #layout>div>.header a.button {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .searchbar {
+  background-color: transparent;
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .searchbar a,
+html.dark-mode body[class*="task-"] .searchbar form:before,
+html.dark-mode body[class*="task-"] .searchbar input {
+  color: unset;
+}
+html.dark-mode body[class*="task-"] .searchbar a.selected {
+  color: var(--design-success);
+}
+html.dark-mode body[class*="task-"] .iframe-loader {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+html.dark-mode body[class*="task-"] .iframe-loader .spinner-border {
+  color: var(--design-text-muted);
+  border-color: currentcolor var(--design-border) currentcolor currentcolor;
+}
+html.dark-mode body[class*="task-"] .menu.toolbar a {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .menu.toolbar a.selected {
+  background-color: var(--design-surface-active);
+}
+html.dark-mode body[class*="task-"] .menu.pagenav .pagenav-text,
+html.dark-mode body[class*="task-"] .menu.pagenav a,
+html.dark-mode body[class*="task-"] .popover .menu li a[aria-haspopup]::after,
+html.dark-mode body[class*="task-"] pre {
+  color: unset;
+}
+html.dark-mode.layout-phone body[class*="task-"] .popover,
+html.dark-mode.layout-small body[class*="task-"] .popover {
+  border-left-color: var(--design-border);
+}
+html.dark-mode.layout-phone body[class*="task-"] .popover .menu .dropbutton a.dropdown,
+html.dark-mode.layout-small body[class*="task-"] .popover .menu .dropbutton a.dropdown {
+  background-color: transparent;
+}
+html.dark-mode.layout-phone body[class*="task-"] .popover:not(.select-menu) .listing li:last-child,
+html.dark-mode.layout-small body[class*="task-"] .popover:not(.select-menu) .listing li:last-child {
+  border-color: var(--design-border);
+}
+html.dark-mode.layout-phone body[class*="task-"] .popover-overlay,
+html.dark-mode.layout-small body[class*="task-"] .popover-overlay {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+html.dark-mode body[class*="task-"] .header a.button.icon:not(.disabled):focus,
+html.dark-mode body[class*="task-"] .header a.button.icon:not(.disabled):hover,
+html.dark-mode body[class*="task-"] .menu a:not(.disabled):focus,
+html.dark-mode body[class*="task-"] .menu a:not(.disabled):hover,
+html.dark-mode body[class*="task-"] .menu.toolbar .dropbutton:not(.disabled):hover,
+html.dark-mode body[class*="task-"] .popupmenu .listing li>a:not(.disabled):hover {
+  background-color: var(--design-surface-hover);
+}
+html.dark-mode body[class*="task-"] .menu.toolbar a.selected {
+  color: var(--design-success);
+  background-color: transparent;
+}
+html.dark-mode body[class*="task-"] .menu.toolbar .dropbutton a.dropdown:hover {
+  background-color: var(--design-surface-active);
+}
+html.dark-mode body[class*="task-"] .listing li a,
+html.dark-mode body[class*="task-"] .listing tbody td,
+html.dark-mode body[class*="task-"] .listing tbody td a,
+html.dark-mode body[class*="task-"] .proplist li.with-sublist>a.dropdown {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .listing li,
+html.dark-mode body[class*="task-"] .listing li ul,
+html.dark-mode body[class*="task-"] .listing tbody td {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .listing li.selected,
+html.dark-mode body[class*="task-"] .listing li.selected>a,
+html.dark-mode body[class*="task-"] .listing li.selected>div>a,
+html.dark-mode body[class*="task-"] .listing tr.selected td {
+  color: var(--design-link);
+  background-color: var(--design-surface-active);
+}
+html.dark-mode body[class*="task-"] .listing li.selected ul {
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .listing li.selected ul div.treetoggle {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .listing li.disabled,
+html.dark-mode body[class*="task-"] .listing tr.disabled td {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .listing li.droptarget>a,
+html.dark-mode body[class*="task-"] .listing tr.droptarget>td {
+  background-color: var(--design-warning-subtle);
+}
+html.dark-mode body[class*="task-"] .messagelist {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .messagelist tr:not(.flagged):not(.deleted) td.subject span.date,
+html.dark-mode body[class*="task-"] .messagelist tr:not(.flagged):not(.deleted) td.subject span.fromto,
+html.dark-mode body[class*="task-"] .messagelist tr:not(.flagged):not(.deleted) td.subject span.size {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .messagelist tr:not(.flagged):not(.deleted) td.subject span.msgicon.status {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .messagelist tr:not(.flagged):not(.deleted) span.flag {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .messagelist tr:not(.flagged):not(.deleted).selected td.subject a,
+html.dark-mode body[class*="task-"] .messagelist tr:not(.flagged):not(.deleted).selected td.subject span.msgicon.status {
+  color: var(--design-link);
+}
+html.dark-mode body[class*="task-"] .messagelist tr.flagged:not(.deleted) span.attachment span,
+html.dark-mode body[class*="task-"] .messagelist tr.flagged:not(.deleted) td {
+  color: var(--design-danger);
+}
+html.dark-mode body[class*="task-"] .messagelist tr.deleted td span.attachment span,
+html.dark-mode body[class*="task-"] .messagelist tr.deleted td span.flag,
+html.dark-mode body[class*="task-"] .messagelist tr.deleted td.subject span.date,
+html.dark-mode body[class*="task-"] .messagelist tr.deleted td.subject span.fromto,
+html.dark-mode body[class*="task-"] .messagelist tr.deleted td.subject span.msgicon.status,
+html.dark-mode body[class*="task-"] .messagelist tr.deleted td.subject span.msgicon.status.unread:before,
+html.dark-mode body[class*="task-"] .messagelist tr.deleted td.subject span.subject a {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .messagelist span.attachment span {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .folderlist li.mailbox .unreadcount {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html.dark-mode body[class*="task-"] .attachmentslist {
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .attachmentslist a {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .attachmentslist li .attachment-name {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .attachmentslist li .attachment-size {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .btn {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .btn:focus,
+html.dark-mode body[class*="task-"] .btn:hover {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .btn-primary {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html.dark-mode body[class*="task-"] .btn-primary:hover:not(:disabled) {
+  background-color: var(--design-primary-hover);
+}
+html.dark-mode body[class*="task-"] .btn-secondary {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .btn-secondary:hover:not(:disabled) {
+  background-color: var(--design-surface-hover);
+}
+html.dark-mode body[class*="task-"] .btn-danger {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+html.dark-mode body[class*="task-"] .btn-danger:hover:not(:disabled) {
+  background-color: var(--design-danger-hover);
+}
+html.dark-mode body[class*="task-"] .floating-action-buttons a.button {
+  box-shadow: none;
+  background-color: var(--design-primary);
+}
+html.dark-mode body[class*="task-"] .custom-file-label,
+html.dark-mode body[class*="task-"] .form-control {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .custom-file-label:not(.is-invalid),
+html.dark-mode body[class*="task-"] .form-control:not(.is-invalid) {
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .custom-file-label:focus,
+html.dark-mode body[class*="task-"] .form-control:focus {
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .custom-file-label:focus:not(.is-invalid),
+html.dark-mode body[class*="task-"] .form-control:focus:not(.is-invalid) {
+  color: var(--design-text) !important;
+  border-color: var(--design-link);
+}
+html.dark-mode body[class*="task-"] .custom-file-label::after {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .custom-switch .custom-control-label::before {
+  background-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .custom-switch .custom-control-label::after {
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .custom-switch .custom-control-input:checked~.custom-control-label::before {
+  background-color: var(--design-primary);
+}
+html.dark-mode body[class*="task-"] .custom-switch .custom-control-input:checked~.custom-control-label::after {
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .multi-input:not(.is-invalid)>.content {
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .multi-input:not(.is-invalid)>.content.focused {
+  border-color: var(--design-link);
+}
+html.dark-mode body[class*="task-"] .input-group-text {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .input-group a:focus {
+  border-color: var(--design-link);
+  box-shadow: 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+html.dark-mode body[class*="task-"] .form-control-plaintext {
+  color: unset;
+}
+html.dark-mode body[class*="task-"] .recipient-input.focus {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-link);
+}
+html.dark-mode body[class*="task-"] .recipient-input a.button.icon,
+html.dark-mode body[class*="task-"] .recipient-input input {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .recipient-input .recipient {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .file-upload {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .file-upload.droptarget.active {
+  border-color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .file-upload.droptarget.hover {
+  border-color: var(--design-text);
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .file-upload .attachmentslist {
+  background-color: transparent;
+}
+html.dark-mode body[class*="task-"] .image-upload {
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .image-upload a.button {
+  background-color: rgba(var(--design-text-rgb), 0.25);
+}
+html.dark-mode body[class*="task-"] .formcontent.raweditor .CodeMirror {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .formcontent.raweditor .CodeMirror-focused {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-link);
+}
+html.dark-mode body[class*="task-"] .CodeMirror-line::selection,
+html.dark-mode body[class*="task-"] .CodeMirror-line>span::selection,
+html.dark-mode body[class*="task-"] .CodeMirror-line>span>span::selection,
+html.dark-mode body[class*="task-"] .CodeMirror-selected {
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .CodeMirror-gutters {
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .CodeMirror-activeline-background {
+  background-color: var(--design-surface-active);
+}
+html.dark-mode body[class*="task-"] .skinselection .skinthumbnail {
+  border-color: var(--design-border-strong);
+  background-color: transparent;
+}
+html.dark-mode body[class*="task-"] .html-editor .editor-toolbar {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .html-editor .editor-toolbar .mce-i-html {
+  color: unset;
+}
+html.dark-mode body[class*="task-"] .html-editor .editor-toolbar .mce-i-html:focus,
+html.dark-mode body[class*="task-"] .html-editor .editor-toolbar .mce-i-html:hover {
+  background-color: var(--design-surface-hover);
+}
+html.dark-mode body[class*="task-"] .tox.tox-tinymce {
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .tox .tox-toolbar {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .tox .tox-pop.tox-pop--top:after,
+html.dark-mode body[class*="task-"] .tox .tox-pop.tox-pop--top:before {
+  border-bottom-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .tox .tox-pop__dialog {
+  box-shadow: none;
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .tox .tox-split-button,
+html.dark-mode body[class*="task-"] .tox .tox-swatches__picker-btn,
+html.dark-mode body[class*="task-"] .tox .tox-tbtn {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .tox .tox-split-button svg,
+html.dark-mode body[class*="task-"] .tox .tox-swatches__picker-btn svg,
+html.dark-mode body[class*="task-"] .tox .tox-tbtn svg {
+  fill: var(--design-text) !important;
+}
+html.dark-mode body[class*="task-"] .tox .tox-split-button:focus,
+html.dark-mode body[class*="task-"] .tox .tox-split-button:hover,
+html.dark-mode body[class*="task-"] .tox .tox-swatches__picker-btn:focus,
+html.dark-mode body[class*="task-"] .tox .tox-swatches__picker-btn:hover,
+html.dark-mode body[class*="task-"] .tox .tox-tbtn:focus,
+html.dark-mode body[class*="task-"] .tox .tox-tbtn:hover {
+  color: var(--design-text);
+  background-color: var(--design-surface-hover);
+  box-shadow: none;
+}
+html.dark-mode body[class*="task-"] .tox .tox-tbtn--enabled {
+  background-color: var(--design-surface-hover);
+}
+html.dark-mode body[class*="task-"] .tox .tox-button--naked.tox-button--icon:hover:not(:disabled),
+html.dark-mode body[class*="task-"] .tox .tox-button--naked:focus:not(:disabled) {
+  color: var(--design-text);
+  background-color: var(--design-surface-hover);
+}
+html.dark-mode body[class*="task-"] .tox .tox-button--naked:disabled {
+  background-color: transparent;
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__header .tox-button--naked:hover {
+  background-color: transparent !important;
+}
+html.dark-mode body[class*="task-"] .tox .tox-selectfield select {
+  background-color: transparent;
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .tox .tox-selectfield svg {
+  fill: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .tox .tox-color-input span::before {
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .tox .tox-toolbar__group:not(:last-of-type) {
+  border-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog,
+html.dark-mode body[class*="task-"] .tox .tox-dialog__body,
+html.dark-mode body[class*="task-"] .tox .tox-dialog__footer,
+html.dark-mode body[class*="task-"] .tox .tox-dialog__header,
+html.dark-mode body[class*="task-"] .tox .tox-dialog__title {
+  color: var(--design-text);
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .tox .tox-button--naked,
+html.dark-mode body[class*="task-"] .tox .tox-color-input>input,
+html.dark-mode body[class*="task-"] .tox .tox-dialog__body-nav-item,
+html.dark-mode body[class*="task-"] .tox .tox-dialog__header .tox-button,
+html.dark-mode body[class*="task-"] .tox .tox-insert-table-picker__label,
+html.dark-mode body[class*="task-"] .tox .tox-label,
+html.dark-mode body[class*="task-"] .tox .tox-textfield {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__footer .tox-button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+@media screen and (max-width:480px) {
+  html.dark-mode body[class*="task-"] .tox .tox-dialog__footer .tox-button {
+    color: var(--design-text) !important;
+  }
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__footer .tox-button:focus:not(:disabled) {
+  background-color: var(--design-primary);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__footer .tox-button:hover:not(:disabled) {
+  background-color: var(--design-primary-hover);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__footer .tox-button.tox-button--secondary {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__footer .tox-button.tox-button--secondary:focus:not(:disabled) {
+  background-color: var(--design-surface-hover);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__footer .tox-button.tox-button--secondary:hover:not(:disabled) {
+  background-color: var(--design-surface-hover);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog__body-nav-item--active {
+  color: var(--design-link);
+}
+html.dark-mode body[class*="task-"] .tox .tox-dialog-wrap__backdrop {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+html.dark-mode body[class*="task-"] .tox .tox-menu {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  box-shadow: none;
+}
+html.dark-mode body[class*="task-"] .tox .tox-collection__item-caret svg {
+  fill: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .tox .tox-collection__item {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .tox .tox-collection__item:not(:last-child) {
+  border-bottom-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .tox .tox-collection__item--active,
+html.dark-mode body[class*="task-"] .tox .tox-collection__item--active:not(.tox-collection__item--state-disabled) {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+}
+html.dark-mode body[class*="task-"] .tox .tox-collection__item--enabled {
+  color: var(--design-link);
+  background-color: var(--design-surface-active);
+}
+html.dark-mode body[class*="task-"] .message-part {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .message-part blockquote {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-info);
+  color: var(--design-link);
+}
+html.dark-mode body[class*="task-"] .message-part blockquote span.blockquote-link {
+  color: currentColor;
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .message-part blockquote blockquote {
+  color: var(--design-success);
+  border-color: var(--design-success);
+}
+html.dark-mode body[class*="task-"] .message-part blockquote blockquote blockquote {
+  color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+html.dark-mode body[class*="task-"] .message-part span.sig {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] #message-header .header-headers .header-title {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .message-partheaders {
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .message-partheaders table.headers-table {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] p.image-attachment {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] p.image-attachment span {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] fieldset.image-attachment legend {
+  color: var(--design-text-muted);
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .ui-widget {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .ui-widget-overlay {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+html.dark-mode body[class*="task-"] .ui-widget-content,
+html.dark-mode body[class*="task-"] .ui-widget-header {
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-titlebar {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-title,
+html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-titlebar-close {
+  color: var(--design-text);
+  background-color: transparent;
+}
+html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-buttonpane {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link:focus {
+  background-color: transparent;
+}
+@media screen and (max-width:480px) {
+  html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button.btn-primary:not(.btn-danger),
+  html.dark-mode body[class*="task-"] .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button.btn-secondary {
+    color: var(--design-text);
+  }
+}
+html.dark-mode body[class*="task-"] .ui-datepicker .ui-datepicker-header {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .ui-datepicker th {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .ui-datepicker .ui-datepicker-next,
+html.dark-mode body[class*="task-"] .ui-datepicker .ui-datepicker-prev,
+html.dark-mode body[class*="task-"] .ui-datepicker .ui-state-default,
+html.dark-mode body[class*="task-"] .ui-datepicker.ui-widget-content .ui-state-default {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .ui-datepicker .ui-state-highlight,
+html.dark-mode body[class*="task-"] .ui-datepicker.ui-widget-content .ui-state-highlight {
+  color: var(--design-link);
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .ui-datepicker .ui-datepicker-days-cell-over a {
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .ui-menu {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  box-shadow: none;
+}
+html.dark-mode body[class*="task-"] .ui-menu .ui-menu-item {
+  border-bottom-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .ui-menu .ui-state-active {
+  background-color: var(--design-surface-active) !important;
+}
+html.dark-mode body[class*="task-"] .minicolors-panel {
+  box-shadow: none;
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+html.dark-mode body[class*="task-"] #contacthead.readonly .source.row,
+html.dark-mode body[class*="task-"] #login-footer,
+html.dark-mode body[class*="task-"] .contactlist span.email,
+html.dark-mode body[class*="task-"] .file-upload .hint,
+html.dark-mode body[class*="task-"] .formcontent .hint,
+html.dark-mode body[class*="task-"] .listing span.secondary,
+html.dark-mode body[class*="task-"] .listing-info,
+html.dark-mode body[class*="task-"] ::-webkit-input-placeholder,
+html.dark-mode body[class*="task-"] ::placeholder {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .popover {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  box-shadow: none;
+}
+html.dark-mode body[class*="task-"] .popover .menu li.separator {
+  background-color: transparent;
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .popover .menu ul+li.separator {
+  border-top-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .popover-body {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .bs-popover-auto[x-placement^=right]>.arrow::after,
+html.dark-mode body[class*="task-"] .bs-popover-right>.arrow::after {
+  border-right-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .bs-popover-auto[x-placement^=left]>.arrow::after,
+html.dark-mode body[class*="task-"] .bs-popover-left>.arrow::after {
+  border-left-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .bs-popover-auto[x-placement^=top]>.arrow::after,
+html.dark-mode body[class*="task-"] .bs-popover-top>.arrow::after {
+  border-top-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .bs-popover-auto[x-placement^=bottom]>.arrow::after,
+html.dark-mode body[class*="task-"] .bs-popover-bottom>.arrow::after {
+  border-bottom-color: var(--design-border-strong);
+}
+html.dark-mode body[class*="task-"] .listing-hover-menu {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  box-shadow: 0 0 5px var(--design-border);
+}
+html.dark-mode body[class*="task-"] .listing-hover-menu a.button {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .listing-hover-menu a.button:hover {
+  background-color: transparent;
+}
+html.dark-mode body[class*="task-"] .listing-hover-menu span.txt {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] .nav-tabs {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .nav-tabs .nav-link {
+  color: var(--design-text);
+  border-bottom-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .nav-tabs .nav-link:hover {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .nav-tabs .nav-link.active {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .table {
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .table td,
+html.dark-mode body[class*="task-"] .table th,
+html.dark-mode body[class*="task-"] .table thead th {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .table-widget {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .table-widget>.footer {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .table-widget table.options-table tr:last-child td {
+  border-color: var(--design-border);
+}
+html.dark-mode body[class*="task-"] .table-widget table.options-table tr.selected td {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+html.dark-mode body[class*="task-"] .quota-widget {
+  color: unset;
+}
+html.dark-mode body[class*="task-"] .quota-widget .bar {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-3);
+}
+html.dark-mode body[class*="task-"] .quota-info .root {
+  color: var(--design-text-muted);
+  background-color: transparent;
+}
+html.dark-mode body[class*="task-"] #contactpic,
+html.dark-mode body[class*="task-"] img.contactphoto {
+  background-color: var(--design-surface-3) !important;
+}
+html.dark-mode body[class*="task-"] .pgpkeyimport div.key.disabled,
+html.dark-mode body[class*="task-"] .pgpkeyimport div.key.revoked {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .ui-checkboxradio-label .ui-icon-background {
+  box-shadow: inset 1px 1px 1px var(--design-border);
+}
+body[class*="task-"] .ui-selectable-helper {
+  border-color: var(--design-text);
+}
+body[class*="task-"] .ui-widget-content {
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .ui-widget-header {
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .ui-state-default,
+body[class*="task-"] .ui-widget-content .ui-state-default,
+body[class*="task-"] .ui-widget-header .ui-state-default,
+body[class*="task-"] .ui-button,
+html body[class*="task-"] .ui-button.ui-state-disabled:hover,
+html body[class*="task-"] .ui-button.ui-state-disabled:active {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-state-default a,
+body[class*="task-"] .ui-state-default a:link,
+body[class*="task-"] .ui-state-default a:visited,
+body[class*="task-"] a.ui-button,
+body[class*="task-"] a:link.ui-button,
+body[class*="task-"] a:visited.ui-button,
+body[class*="task-"] .ui-button {
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-state-hover a,
+body[class*="task-"] .ui-state-hover a:hover,
+body[class*="task-"] .ui-state-hover a:link,
+body[class*="task-"] .ui-state-hover a:visited,
+body[class*="task-"] .ui-state-focus a,
+body[class*="task-"] .ui-state-focus a:hover,
+body[class*="task-"] .ui-state-focus a:link,
+body[class*="task-"] .ui-state-focus a:visited,
+body[class*="task-"] a.ui-button:hover,
+body[class*="task-"] a.ui-button:focus {
+  color: var(--design-text);
+}
+body[class*="task-"] .ui-visual-focus {
+  box-shadow: 0 0 3px 1px var(--design-link);
+}
+body[class*="task-"] .ui-state-active,
+body[class*="task-"] .ui-widget-content .ui-state-active,
+body[class*="task-"] .ui-widget-header .ui-state-active,
+body[class*="task-"] a.ui-button:active,
+body[class*="task-"] .ui-button:active,
+body[class*="task-"] .ui-button.ui-state-active:hover {
+  border-color: var(--design-link);
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+body[class*="task-"] .ui-icon-background,
+body[class*="task-"] .ui-state-active .ui-icon-background {
+  border-color: var(--design-link);
+  background-color: var(--design-surface-2);
+}
+body[class*="task-"] .ui-state-active a,
+body[class*="task-"] .ui-state-active a:link,
+body[class*="task-"] .ui-state-active a:visited {
+  color: var(--design-on-primary);
+}
+body[class*="task-"] .ui-state-highlight,
+body[class*="task-"] .ui-widget-content .ui-state-highlight,
+body[class*="task-"] .ui-widget-header .ui-state-highlight {
+  border-color: var(--design-warning-border);
+  background-color: var(--design-warning-subtle);
+  color: var(--design-warning);
+}
+body[class*="task-"] .ui-state-checked {
+  border-color: var(--design-warning-border);
+  background-color: var(--design-warning-subtle);
+}
+body[class*="task-"] .ui-state-highlight a,
+body[class*="task-"] .ui-widget-content .ui-state-highlight a,
+body[class*="task-"] .ui-widget-header .ui-state-highlight a {
+  color: var(--design-warning);
+}
+body[class*="task-"] .ui-state-error,
+body[class*="task-"] .ui-widget-content .ui-state-error,
+body[class*="task-"] .ui-widget-header .ui-state-error {
+  border-color: var(--design-danger-border);
+  background-color: var(--design-danger-subtle);
+  color: var(--design-danger);
+}
+body[class*="task-"] .ui-state-error a,
+body[class*="task-"] .ui-widget-content .ui-state-error a,
+body[class*="task-"] .ui-widget-header .ui-state-error a {
+  color: var(--design-danger);
+}
+body[class*="task-"] .ui-state-error-text,
+body[class*="task-"] .ui-widget-content .ui-state-error-text,
+body[class*="task-"] .ui-widget-header .ui-state-error-text {
+  color: var(--design-danger);
+}
+html:has(> body[class*="task-"]) {
+  scrollbar-color: var(--design-border-strong) var(--design-surface-3);
+}
+html:not([lang]) > body {
+  background-color: var(--design-surface-2);
+{% if design.logo is string %}
+  background-image: url("{{ design.urls.icon.svg }}");
+{% endif %}
+}
+html:not([lang]):not(.dark-mode) > body:before {
+  background: rgba(var(--design-surface-2-rgb), 0.85);
+}
+body[class*="task-"] .btn-primary:hover,
+body[class*="task-"] .btn-primary:focus,
+html.dark-mode body[class*="task-"] .btn-primary:hover,
+html.dark-mode body[class*="task-"] .btn-primary:focus {
+  color: var(--design-on-primary);
+}
+body[class*="task-"] .btn-danger:hover,
+body[class*="task-"] .btn-danger:focus,
+html.dark-mode body[class*="task-"] .btn-danger:hover,
+html.dark-mode body[class*="task-"] .btn-danger:focus {
+  color: var(--design-on-danger);
+}
+@media screen and (min-width: 481px) {
+  body[class*="task-"] #layout-menu,
+  body[class*="task-"] #taskmenu .special-buttons {
+    background-color: var(--design-frame);
+  }
+  body[class*="task-"] #layout-menu {
+    --design-focus: var(--design-on-frame);
+    border-right-color: var(--design-frame-active);
+  }
+  body[class*="task-"] #layout-menu .popover-header {
+    background-color: var(--design-frame) !important;
+  }
+  body[class*="task-"] #layout-menu .special-buttons a:not(:focus) {
+    background-color: var(--design-frame);
+  }
+  body[class*="task-"] #taskmenu a,
+  body[class*="task-"] #taskmenu .action-buttons a,
+  body[class*="task-"] #taskmenu .action-buttons a:hover {
+    color: var(--design-on-frame);
+  }
+  body[class*="task-"] #taskmenu a.logout,
+  body[class*="task-"] #taskmenu a.logout:hover {
+    color: var(--design-on-frame) !important;
+  }
+  body[class*="task-"] #taskmenu a.selected {
+    background-color: var(--design-frame-active);
+  }
+  body[class*="task-"] #taskmenu a:hover,
+  body[class*="task-"] #taskmenu a:focus,
+  body[class*="task-"] #taskmenu .action-buttons a:hover {
+    background-color: var(--design-frame-hover);
+  }
+  body[class*="task-"] #taskmenu a:focus-visible {
+    outline: 2px solid var(--design-on-frame);
+    outline-offset: -2px;
+  }
+}
+@media screen and (max-width: 480px) {
+  body[class*="task-"] #layout-menu,
+  html.layout-phone body[class*="task-"] #layout-menu {
+    background-color: var(--design-surface-2);
+  }
+  body[class*="task-"] #taskmenu a {
+    color: var(--design-text);
+    border-bottom-color: var(--design-border) !important;
+  }
+  body[class*="task-"] #taskmenu .action-buttons a {
+    color: var(--design-link);
+  }
+  body[class*="task-"] #layout-menu .special-buttons a:not(:focus) {
+    background-color: var(--design-surface-2);
+  }
+  body[class*="task-"] #taskmenu a:hover {
+    background-color: var(--design-surface-hover);
+  }
+}
+html.layout-phone body[class*="task-"] .popover-header,
+html.layout-small body[class*="task-"] .popover-header {
+  --design-focus: var(--design-on-frame);
+  background-color: var(--design-frame);
+  border-bottom-color: var(--design-frame-active);
+  color: var(--design-on-frame);
+}
+html.layout-phone body[class*="task-"] .popover-header a,
+html.layout-small body[class*="task-"] .popover-header a {
+  color: var(--design-on-frame);
+}
+body[class*="task-"] #rcmdraglayer {
+  background-color: var(--design-frame);
+  border-color: var(--design-frame-active);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-on-frame);
+}
+body[class*="task-"] #messagestack div {
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+body[class*="task-"] #messagestack div i.icon:before {
+  color: inherit;
+}
+body[class*="task-"] #messagestack .alert-info {
+  background-color: var(--design-info);
+  color: var(--design-on-info);
+}
+body[class*="task-"] #messagestack .alert-success {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+body[class*="task-"] #messagestack .alert-warning {
+  background-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+body[class*="task-"] #messagestack .alert-danger {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+body[class*="task-"] #messagestack .loading {
+  background-color: var(--design-frame-hover);
+  color: var(--design-on-frame);
+}
+body[class*="task-"] .ui.alert {
+  background-color: var(--design-info-subtle);
+  color: var(--design-text);
+}
+body[class*="task-"] .ui.alert > i.icon,
+body[class*="task-"] .ui.alert.loading {
+  color: var(--design-text-muted);
+}
+body[class*="task-"] .ui.alert.alert-success > i.icon:before {
+  color: var(--design-success);
+}
+body[class*="task-"] .ui.alert.alert-warning > i.icon:before {
+  color: var(--design-warning);
+}
+body[class*="task-"] .ui.alert.alert-danger > i.icon:before {
+  color: var(--design-danger);
+}
+body[class*="task-"] .ui.alert a:not(.btn) {
+  color: var(--design-link);
+}
+body[class*="task-"] .ui.alert.boxerror {
+  background-color: var(--design-danger-subtle);
+}
+body[class*="task-"] .ui.alert.boxinformation {
+  background-color: var(--design-info-subtle);
+}
+body[class*="task-"] .ui.alert.boxconfirmation {
+  background-color: var(--design-success-subtle);
+}
+body[class*="task-"] .ui.alert.boxwarning {
+  background-color: var(--design-warning-subtle);
+}

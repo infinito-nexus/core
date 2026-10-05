@@ -23,7 +23,7 @@ MATOMO_ADMIN_USER_KEY: "administrator"
 MATOMO_ADMIN_USER_NAME: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).username }}"
 MATOMO_ADMIN_PASSWORD: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).password }}"
 MATOMO_ADMIN_EMAIL: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).email }}"
-MATOMO_SITE_NAME: "{{ lookup('config', application_id, 'services.matomo.site_name') }}"
+MATOMO_SITE_NAME: "{{ lookup('design', application_id).label }}"
 MATOMO_SITE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 MATOMO_EXCLUDED_IPS: "{{ lookup('config', application_id, 'services.matomo.excluded_ips') }}"
 

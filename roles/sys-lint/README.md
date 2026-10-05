@@ -12,12 +12,33 @@ It deploys nothing. Its only content is `meta/services.yml`, which records the `
 
 Because the pins use the same `(repository, ref)` shape as every other `meta/services.yml`, the existing `update-repository-refs` CI job discovers them on its own: it resolves the newest semver tag of each repository via `git ls-remote --tags` and opens a pull request with the bump. Upgrading a linter is therefore a reviewed commit, not a surprise.
 
+## Cosmos
+
+The diagram places Lint in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph role [sys-lint 💻]
+        svc_actionlint["actionlint"]
+        svc_hadolint["hadolint"]
+        svc_shfmt["shfmt"]
+    end
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **Reproducible installs:** every tool resolves to the pinned `ref`, so the same commit installs the same linter version on every host and in every CI run.
 - **Offline-tolerant:** no tag lookup at install time, so a DNS or API outage no longer breaks `make install-lint`.
 - **Automatically updated:** the `update-repository-refs` job bumps the pins to the newest semver tag and opens a pull request.
 - **One override per tool:** `ACTIONLINT_VERSION`, `HADOLINT_VERSION` and `SHFMT_VERSION` override the pin for a one-off install without editing the role.
+
+## Credits
+
+Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
 
 ## Usage
 

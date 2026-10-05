@@ -15,12 +15,12 @@ For iterating on GitHub Actions workflows with Act, see [Workflow Loop](workflow
 - Before starting the loop, you MUST propose disabling all non-necessary services via the `disable=` make arg to reduce resource usage. In the typical case, this means keeping only the database and disabling everything else. Only proceed without this proposal if the user has already confirmed a full-stack setup.
 - Non-essential provider toggle:
   - WHEN: before first deploy of iteration.
-  - ACTION: ask user "disable matomo, dashboard, prometheus, email, css providers? [Y/n]".
+  - ACTION: ask user "disable matomo, dashboard, prometheus, email, design providers? [Y/n]".
   - DEFAULT: yes (disable all five).
   - SKIP ASK: only if user already answered explicitly in this iteration.
-  - ON YES: pass `disable="matomo,dashboard,prometheus,email,css"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
+  - ON YES: pass `disable="matomo,dashboard,prometheus,email,design"` verbatim to every deploy command. The value is a comma-separated list of provider keys, NOT a glob, NOT a `web-app-*.services.*` path.
   - ON NO: omit the arg entirely.
-  - SIDE EFFECT (yes): inventory initializer auto-removes the provider roles `web-app-matomo`, `web-app-dashboard`, `web-app-prometheus`, `web-app-mailu`, and `web-svc-css`. Do NOT list them in `apps=`.
+  - SIDE EFFECT (yes): inventory initializer auto-removes the provider roles `web-app-matomo`, `web-app-dashboard`, `web-app-prometheus`, `web-app-mailu`, and `web-svc-design`. Do NOT list them in `apps=`.
   - PERSIST: record answer at top of iteration. Reuse for all subsequent deploys without re-asking.
   - WHY IT BITES: `test-e2e-cli` runs in the destructor stage (`tasks/stages/03_destructor.yml`), i.e. after EVERY role of the play. A deploy that still carries the five providers therefore pays for matomo, dashboard and prometheus BEFORE the CLI test you are waiting for even starts. Dropping `disable=` does not only cost resources, it delays the evidence.
 - Every deploy opens with a `=== compose-deploy:` line listing the arguments it actually resolved. Read it instead of trusting the command you typed: rewriting `apps=` is where `disable=` and `full_cycle=` get lost, and the line shows what is missing before the play starts.

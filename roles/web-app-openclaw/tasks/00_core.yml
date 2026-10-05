@@ -15,6 +15,10 @@
   include_role:
     name: sys-stk-full
 
+- name: "🎨 Stage the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/design.yml
+  when: OPENCLAW_DESIGN_ENABLED | bool
+
 - name: "🔌 Configure the OpenClaw MCP surface"
   ansible.builtin.include_tasks: utils/mcp.yml
 

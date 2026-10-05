@@ -1,0 +1,83 @@
+:root {
+  --color-primary: var(--design-link);
+  --color-primary-contrast: var(--design-surface-2);
+{% for step in range(1, 8) %}
+  --color-primary-dark-{{ step }}: color-mix(in oklab, var(--design-link), var(--design-text) {{ step * 12 }}%);
+  --color-primary-light-{{ step }}: color-mix(in oklab, var(--design-link), var(--design-surface-2) {{ step * 13 }}%);
+{% endfor %}
+  --color-secondary: var(--design-border);
+{% for step in range(1, 14) %}
+  --color-secondary-dark-{{ step }}: color-mix(in oklab, var(--design-border), var(--design-text) {{ step * 7 }}%);
+{% endfor %}
+{% for step in range(1, 5) %}
+  --color-secondary-light-{{ step }}: color-mix(in oklab, var(--design-border), var(--design-surface-2) {{ step * 20 }}%);
+{% endfor %}
+{% for step in range(1, 10) %}
+  --color-primary-alpha-{{ step * 10 }}: rgba(var(--design-link-rgb), 0.{{ step }});
+  --color-secondary-alpha-{{ step * 10 }}: rgba(var(--design-border-rgb), 0.{{ step }});
+{% endfor %}
+  --color-body: var(--design-surface-1);
+  --color-box-header: var(--design-surface-3);
+  --color-box-body: var(--design-surface-2);
+  --color-box-body-highlight: color-mix(in oklab, var(--design-primary) 10%, var(--design-surface-2));
+  --color-nav-bg: var(--design-surface-2);
+  --color-secondary-nav-bg: var(--design-surface-2);
+  --color-menu: var(--design-surface-2);
+  --color-card: var(--design-surface-2);
+  --color-button: var(--design-surface-2);
+  --color-code-bg: var(--design-surface-2);
+  --color-secondary-bg: var(--design-surface-3);
+  --color-hover-opaque: var(--design-surface-3);
+  --color-expand-button: var(--design-surface-3);
+  --color-text-dark: var(--design-text);
+  --color-text: var(--design-text);
+  --color-text-light: var(--design-text);
+  --color-text-light-1: var(--design-text-muted);
+  --color-text-light-2: var(--design-text-muted);
+  --color-text-light-3: var(--design-text-muted);
+  --color-grey: var(--design-text-muted);
+  --color-grey-light: var(--design-text-muted);
+  --color-input-background: var(--design-surface-2);
+  --color-input-border: var(--design-border-strong);
+  --color-input-toggle-background: var(--design-border);
+  --color-timeline: var(--design-border);
+  --color-shadow-opaque: var(--design-border);
+  --color-shadow: rgba(var(--design-shadow-color));
+  --color-light: rgba(var(--design-text-rgb), 0.03);
+  --color-light-border: rgba(var(--design-text-rgb), 0.12);
+  --color-hover: rgba(var(--design-text-rgb), 0.05);
+  --color-active: rgba(var(--design-text-rgb), 0.08);
+  --color-reaction-bg: rgba(var(--design-text-rgb), 0.05);
+  --color-markup-table-row: rgba(var(--design-text-rgb), 0.04);
+  --color-markup-code-block: rgba(var(--design-text-rgb), 0.06);
+  --color-markup-code-inline: rgba(var(--design-text-rgb), 0.08);
+  --color-label-bg: rgba(var(--design-text-muted-rgb), 0.3);
+  --color-label-hover-bg: rgba(var(--design-text-muted-rgb), 0.6);
+  --color-label-active-bg: var(--design-text-muted);
+  --color-tooltip-bg: var(--design-text);
+  --color-tooltip-text: var(--design-surface-1);
+  --color-highlight-fg: var(--design-warning);
+  --color-highlight-bg: var(--design-warning-subtle);
+  --color-console-bg: var(--design-surface-2);
+  --color-console-fg: var(--design-text);
+  --color-console-fg-subtle: var(--design-text-muted);
+  --color-console-link: var(--design-text-muted);
+  --color-console-hover-bg: var(--design-surface-3);
+  --color-console-active-bg: var(--design-border);
+{% for status, name in [('danger', 'error'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
+  --color-{{ name }}-text: var(--design-{{ status }});
+  --color-{{ name }}-bg: var(--design-{{ status }}-subtle);
+  --color-{{ name }}-border: var(--design-{{ status }}-border);
+{% endfor %}
+  --color-error-bg-hover: color-mix(in oklab, var(--design-danger) 18%, var(--design-surface-2));
+  --color-error-bg-active: color-mix(in oklab, var(--design-danger) 24%, var(--design-surface-2));
+}
+
+.page-content.home .hero .svg {
+  color: var(--design-primary);
+}
+
+gitea-theme-meta-info {
+  --theme-display-name: {{ (service_provider.platform.titel ~ ' ' ~ gitea_theme_scheme | capitalize) | to_json(ensure_ascii=False) }};
+  --theme-color-scheme: {{ gitea_theme_scheme | to_json }};
+}

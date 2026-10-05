@@ -8,6 +8,74 @@
 
 This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image that pre-installs the `ldap`, `role-strategy`, and `configuration-as-code` plugins plus every plugin its enabled addons declare, then mounts a JCasC YAML file that wires the security realm against Keycloak (variant 0, OIDC) or `svc-db-openldap` (variant 1, LDAP). The setup wizard is skipped via `JAVA_OPTS=-Djenkins.install.runSetupWizard=false` so the JCasC config takes over from first boot.
 
+## Cosmos
+
+The diagram places Jenkins in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
+        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_gitea["web-app-gitea 🐳🐝"]
+        dep_web_app_gitlab["web-app-gitlab 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
+        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
+        dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_mattermost["web-app-mattermost 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
+        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_svc_design["web-svc-design 💻"]
+        dep_web_svc_logout["web-svc-logout 🐳🐝"]
+    end
+    subgraph role [web-app-jenkins 🐳🐝]
+        svc_logout["logout"]
+        svc_dashboard["dashboard"]
+        svc_matomo["matomo"]
+        svc_prometheus["prometheus"]
+        svc_gitea["gitea"]
+        svc_gitlab["gitlab"]
+        svc_mattermost["mattermost"]
+        svc_tor["tor"]
+        svc_sso["sso"]
+        svc_ldap["ldap"]
+        svc_jenkins["jenkins"]
+        svc_jenkinsmcp["jenkinsmcp"]
+        svc_design["design"]
+        svc_container_backup["container_backup"]
+        svc_openwebui["openwebui"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise ❌"]
+    end
+    subgraph dependents [Dependents]
+        dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
+        dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
+    end
+    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
+    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_gitea -. "0..1" .-> svc_gitea
+    dep_web_app_gitlab -. "0..1" .-> svc_gitlab
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
+    dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_mattermost -. "0..1" .-> svc_mattermost
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
+    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_design -. "0..1" .-> svc_design
+    dep_web_svc_logout -. "0..1" .-> svc_logout
+    svc_logout -. "0..1" .-> dpt_web_app_gitlab
+    svc_logout -. "0..1" .-> dpt_web_app_mattermost
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+
 ## Features
 
 - **Containerized deployment:** Run Jenkins through Docker Compose with the role-specific custom image.
@@ -17,6 +85,45 @@ This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image th
 - **JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code.
 - **Pre-installed plugin set:** Bake build-pipeline, credentials, and SCM plugins into the image so first start-up does not block on plugin downloads.
 - **MCP server surface:** Serve the `mcp-server` plugin's streamable-HTTP endpoint on the container network, guarded by an administrator API token and limited to the read-only tool default.
+
+## Quick Setup
+
+### Development
+
+Clone, set up the workstation, and deploy Jenkins onto the local stack:
+
+```bash
+git clone https://github.com/infinito-nexus/core.git
+cd core
+make onboard
+make compose-deploy mode=reinstall apps=web-app-jenkins full_cycle=false
+```
+
+### Production
+
+Run the published image to provision the inventory and deploy Jenkins to a managed server (the mounted volume persists the inventory):
+
+```bash
+APP=web-app-jenkins
+HOST="<your-server>"
+DOMAIN="<your-domain>"
+TLS_MODE=self_signed
+SSH_PUBLIC_KEY="<your-ssh-public-key>"
+
+docker run --rm -it \
+  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  ghcr.io/infinito-nexus/core/debian:latest bash -c '
+    INVENTORY=/etc/infinito.nexus/inventories/production
+    infinito administration inventory provision "$INVENTORY" \
+      --inventory-file "$INVENTORY/devices.yml" \
+      --host "$HOST" \
+      --include "$APP" \
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
+      --password-file "$INVENTORY/.password" \
+      --diff -vv'
+```
 
 ## MCP Server
 
@@ -89,6 +196,12 @@ Plugins are declared in `meta/addons/` under the unified addon contract. `templa
 - [Jenkins oic-auth plugin](https://plugins.jenkins.io/oic-auth/)
 - [Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)
 - [Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)
+
+## Credits
+
+Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**.
+Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
+Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
 
 ## Persona contract opt-outs
 
