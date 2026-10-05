@@ -13,6 +13,7 @@
 - name: 🔨 Build injection facts for '{{ domain }}'
   set_fact:
     inj_enabled: "{{ lookup('applications') | inj_enabled(application_id, SRV_WEB_INJ_COMP_FEATURES_ALL) }}"
+    inj_top_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('top') }}"
     inj_head_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('head') }}"
     inj_body_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('body') }}"
 

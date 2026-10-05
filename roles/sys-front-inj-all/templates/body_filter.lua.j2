@@ -76,6 +76,17 @@ end
 local meta_re = [[<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>\s*]]
 whole = ngx.re.gsub(whole, meta_re, "", "ijo")
 
+local top_snippets = {}
+{{ push_snippets('top_snippets', inj_top_features) }}
+if #top_snippets > 0 then
+    local top_payload = onionize(marked(top_snippets))
+    local function repl_top(m) return m[0] .. top_payload end
+    local with_top = ngx.re.sub(whole, [[<head\b[^>]*>]], repl_top, "ijo")
+    if with_top then
+        whole = with_top
+    end
+end
+
 -- Build head snippets (rendered by Jinja at template time)
 local head_snippets = {}
 {{ push_snippets('head_snippets', inj_head_features) }}

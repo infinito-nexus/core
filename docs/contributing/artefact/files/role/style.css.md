@@ -9,9 +9,11 @@ For browser-side validation requirements after visible UI changes, see [Playwrig
 
 - A role ships its override as `templates/style.css.j2` or `files/style.css`.
 - `sys-front-inj-design` renders it when `services.design.enabled` is enabled.
-- The shared element styles (`body`, links, buttons, form fields, tables, focus outline) sit in the cascade layer `infinito-design`. Every unlayered rule of the app wins over them, so they only style what the app leaves unstyled.
-- An app with its own design system gets the corporate palette by mapping its CSS variables onto the tokens in the role stylesheet (see [web-app-gitea](../../../../../roles/web-app-gitea/templates/style.css.j2)), or through its own theming mechanism (Nextcloud takes the primary color, logo, name and slogan via `occ theming:config` and ships no stylesheet).
-- The Bootstrap mapping in `bootstrap.css` is unlayered and applies to every Bootstrap app.
+- The shared element styles (`body`, links, buttons, form fields, tables, focus outline) sit in the cascade layer `infinito-design`. `layer.css` is linked first in `<head>` and declares that layer before the app's own stylesheets, so every rule of the app wins over them, layered or not. They only style what the app leaves unstyled.
+- The app's own configuration outranks the role stylesheet. A theming configuration carries the palette first (Nextcloud takes the primary color, logo, name and slogan via `occ theming:config` and ships no stylesheet), then an in-house theme or custom CSS option.
+- An in-house theme carries a variable mapping natively (see [web-app-gitea](../../../../../roles/web-app-gitea/templates/theme.css.j2)). The role stylesheet maps the app's CSS variables onto the tokens only for what no in-house option reaches.
+- The Bootstrap component mapping in `bootstrap.css` is unlayered. A role built on Bootstrap links it by setting `bootstrap: true` in its `design:` entry. Set in `web-svc-design`, the value applies to every role.
+- A role stylesheet or design script that renders empty counts as absent: nothing is deployed, linked or injected for it.
 - A role MAY ship `templates/design.js.j2`. `sys-front-inj-design` collapses it, adds its CSP hash and injects it whenever `services.design.enabled` is enabled, independent of `services.javascript.enabled`.
 
 ## Inventory 📋
@@ -29,14 +31,17 @@ The [design_palette](../../../../../plugins/lookup/design_palette.py) lookup der
 | `--design-surface-1` | Page background |
 | `--design-surface-2` | Cards, panels, inputs |
 | `--design-surface-3` | Hover, selected and inset areas, table heads |
-| `--design-surface-hover`, `--design-surface-active` | Hovered and pressed or open neutral controls; body text stays AAA and muted text AA on both |
+| `--design-surface-hover`, `--design-surface-active` | Hovered and pressed or open neutral controls; body text stays AAA, muted text, links and status colors AA on both |
 | `--design-text` | Body text, AAA against every surface |
 | `--design-text-muted` | Secondary text, AA against every surface |
 | `--design-border` | Decorative dividers |
-| `--design-border-strong` | Input and control boundaries, 3:1 against surfaces |
-| `--design-primary` / `--design-on-primary` | Brand surfaces and the text on them |
-| `--design-link` | Links and focus, AA against surfaces |
-| `--design-success`, `--design-warning`, `--design-danger`, `--design-info` | Status text and icons, AA against surfaces |
+| `--design-border-strong` | Input and control boundaries, 3:1 against `--design-surface-1` and `--design-surface-2` |
+| `--design-primary` / `--design-on-primary` | Brand surfaces, 3:1 against `--design-surface-1` and `--design-surface-2`, and the text on them |
+| `--design-frame` / `--design-on-frame` | Large brand surfaces such as a sidebar, masthead or top bar: a deep brand tone in light and dark mode, and the text on it at AAA |
+| `--design-frame-hover`, `--design-frame-active` | Hovered and selected entries inside the frame; the on-color stays AAA |
+| `--design-focus` | Color of the default focus outline. Unset, the outline uses `--design-link`. A frame sets it to `--design-on-frame` on its own element; every focusable it hosts then draws its outline in that color |
+| `--design-link` | Links and focus, AA against every surface |
+| `--design-success`, `--design-warning`, `--design-danger`, `--design-info` | Status text and icons, AA against every surface and against their own `-subtle` background |
 | `--design-on-<status>` | Text on a filled status surface |
 | `--design-primary-hover`, `--design-primary-active`, `--design-<status>-hover`, `--design-<status>-active` | Hovered and pressed filled controls, shifted away from their on-color so its contrast only grows |
 | `--design-<status>-subtle`, `--design-<status>-border` | Alert backgrounds and borders |

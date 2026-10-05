@@ -1,6 +1,6 @@
 ---
 # Constants
-CSS_FILES: ["default.css", "bootstrap.css"]
+CSS_FILES: ["layer.css", "default.css", "bootstrap.css"]
 CSS_BASE_COLOR: "{{ lookup('config', 'web-svc-design', 'services.design.colors.base') }}"
 CSS_FONT: "{{ lookup('config', 'web-svc-design', 'services.design.font') }}"
 

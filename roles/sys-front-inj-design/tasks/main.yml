@@ -10,16 +10,24 @@
            'files': ['templates/style.css.j2','files/style.css'],
            'paths': [app_role_dir]
          }, errors='ignore') | default('', true) }}
+    _app_style_css: "{{ (lookup('template', _app_style_src) | trim) if _app_style_src | length > 0 else '' }}"
   set_fact:
     app_style_src: "{{ _app_style_src }}"
-    app_style_present: "{{ _app_style_src | length > 0 }}"
+    app_style_css: "{{ _app_style_css }}"
+    app_style_present: "{{ _app_style_css | length > 0 }}"
 
 - name: "🚀 Deploy per-app '{{ app_style_src }}' to '{{ css_app_dst }}'"
   when: app_style_present | bool
   copy:
-    content: "{{ lookup('template', app_style_src) }}"
+    content: "{{ app_style_css }}"
     dest: "{{ css_app_dst }}"
     mode: "0644"
+
+- name: "🧹 Remove the per-app stylesheet '{{ css_app_dst }}' a role no longer ships"
+  when: not (app_style_present | bool)
+  ansible.builtin.file:
+    path: "{{ css_app_dst }}"
+    state: absent
 
 - name: "🖼️ Publish corporate branding assets of '{{ application_id }}' on the CDN"
   include_tasks: assets.yml
@@ -33,8 +41,9 @@
            'files': ['templates/design.js.j2'],
            'paths': [lookup('path_absolute', 'roles', application_id)]
          }, errors='ignore') | default('', true) }}
+    _design_js: "{{ (lookup('template', _design_js_src) | trim) if _design_js_src | length > 0 else '' }}"
   set_fact:
-    design_js_one_liner: "{{ (lookup('template', _design_js_src) | to_one_liner) if _design_js_src | length > 0 else '' }}"
+    design_js_one_liner: "{{ (_design_js | to_one_liner) if _design_js | length > 0 else '' }}"
 
 - name: "➕ Append design script CSP hash for '{{ application_id }}'"
   when: design_js_one_liner | length > 0
