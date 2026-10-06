@@ -72,6 +72,8 @@ const DIALOG_DANGER = `${DIALOG} .pf-v5-c-button.pf-m-danger`;
 const KEBAB = "button[aria-label='Kebab toggle']:visible";
 const TABLE = ".pf-v5-c-table";
 const TABLE_ROW = `${TABLE} tbody tr`;
+const USER_SEARCH = "input[placeholder='Search user']";
+const USER_SEARCH_ALL = "*";
 const TABLE_LINK = `${TABLE_ROW} a`;
 const TABLE_HEAD = `${TABLE} thead th`;
 const TABLE_HEAD_ROW = `${TABLE} thead`;
@@ -117,6 +119,17 @@ async function settled(page) {
 async function shown(page, selector) {
   await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
   await settled(page);
+}
+
+/**
+ * Args:
+ *   page: Playwright page already on the realm's user list.
+ */
+async function searchAllUsers(page) {
+  await shown(page, USER_SEARCH);
+  await page.locator(USER_SEARCH).first().fill(USER_SEARCH_ALL);
+  await page.locator(USER_SEARCH).first().press("Enter");
+  await shown(page, TABLE_ROW);
 }
 
 /**
@@ -304,10 +317,16 @@ const accountViews = () => [
 
 const consoleViews = () => [
   consoleView("admin-realm", "", "role=heading[name=/welcome to/i]"),
-  consoleView("admin-users", "/users", TABLE_ROW),
+  consoleView("admin-users", "/users", USER_SEARCH, searchAllUsers),
   consoleView("admin-user-create", "/users/add-user", "role=heading[name='Create user']"),
-  consoleView("admin-navigation", "/users", TABLE_ROW, (page) => navigationOpened(page, "Clients")),
-  consoleView("admin-user-detail", "/users", TABLE_ROW, (page) => followListLink(page, adminUsername, "role=tab[name='Credentials']")),
+  consoleView("admin-navigation", "/users", USER_SEARCH, async (page) => {
+    await searchAllUsers(page);
+    await navigationOpened(page, "Clients");
+  }),
+  consoleView("admin-user-detail", "/users", USER_SEARCH, async (page) => {
+    await searchAllUsers(page);
+    await followListLink(page, adminUsername, "role=tab[name='Credentials']");
+  }),
   consoleView("admin-groups", "/groups", "role=heading[name='Groups']"),
   consoleView("admin-clients", "/clients", TABLE_ROW),
   consoleView("admin-client-detail", "/clients", TABLE_ROW, (page) => followListLink(page, "account", "role=tab[name='Settings']")),
@@ -330,8 +349,8 @@ const consoleViews = () => [
     await shown(page, "role=button[name='Action']");
     await page.locator("role=button[name='Action']").click();
   }),
-  panel("admin-row-menu", consoleRoute("admin-row-menu", "/users"), KEBAB, MENU, (page) => shown(page, TABLE_ROW)),
-  panel("admin-user-menu", consoleRoute("admin-user-menu", "/users"), USER_MENU_TOGGLE, MENU, (page) => shown(page, TABLE_ROW)),
+  panel("admin-row-menu", consoleRoute("admin-row-menu", "/users"), KEBAB, MENU, searchAllUsers),
+  panel("admin-user-menu", consoleRoute("admin-user-menu", "/users"), USER_MENU_TOGGLE, MENU, searchAllUsers),
 ];
 
 exports.register = function () {
@@ -411,7 +430,7 @@ exports.register = function () {
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, consoleRoute(`palette-${mode}`, "/users"));
-      await shown(page, TABLE_ROW);
+      await searchAllUsers(page);
       await expect(page.locator("html"), "PatternFly's own dark stylesheet must stay off").not.toHaveClass(/pf-v5-theme-dark/);
       await assertToken(page, MASTHEAD, "background-color", "--design-frame", `masthead ${mode}`);
       await assertToken(page, SIDEBAR, "background-color", "--design-frame", `sidebar ${mode}`);
@@ -454,7 +473,7 @@ exports.register = function () {
     await shown(page, NOTICE);
     await assertReadable(page, [NOTICE], "keycloak notice");
     await gotoOnion(page, consoleRoute("palette", "/users"));
-    await shown(page, TABLE_ROW);
+    await searchAllUsers(page);
     await assertLightAndDark(page, TABLE_HEAD, "keycloak administration console");
     await assertReadable(page, [CONSOLE_HEADING, TABLE_HEAD, TABLE_LINK, CONSOLE_ADD_USER, NAV_LINK, NAV_CURRENT], "keycloak administration console");
   });
