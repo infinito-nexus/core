@@ -1,0 +1,377 @@
+{% set design = lookup('design', application_id) %}
+{% set app = '.v-application' %}
+{% set theme = ':is(.theme--light, .theme--dark)' %}
+{% set frame = '.v-application .NavDrawer' %}
+{% set shade = ':is([class*="darken-"], [class*="lighten-"], [class*="accent-"])' %}
+{% set fills = [('primary', 'primary'), ('accent', 'primary'), ('error', 'danger'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
+{% set statuses = [('error', 'danger'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
+{% set static_fills = [('red', 'danger'), ('green', 'success'), ('orange', 'warning'), ('amber', 'warning'), ('blue', 'info')] %}
+{{ app }}{{ theme }},
+{{ app }} {{ theme }} {
+  --highlighted-card-bg-color: var(--design-surface-3);
+  --v-background-base: var(--design-surface-2);
+  --v-primary-base: var(--design-primary);
+}
+{{ app }}{{ theme }} {
+  background: var(--design-surface-1);
+  color: var(--design-text);
+}
+html {{ app }} a {
+  color: var(--design-link);
+}
+{{ app }}{{ theme }} .text--primary {
+  color: var(--design-text) !important;
+}
+{{ app }}{{ theme }} :is(.text--secondary, .text--disabled),
+html {{ app }} .grey--text {
+  color: var(--design-text-muted) !important;
+}
+{% for name, token in fills %}
+html {{ app }} .{{ name }},
+html {{ app }} .{{ name }}{{ shade }} {
+  background-color: var(--design-{{ token }}) !important;
+  border-color: var(--design-{{ token }}) !important;
+}
+html {{ app }} .{{ name }}--text,
+html {{ app }} .{{ name }}--text{{ shade }} {
+  color: var(--design-{{ 'link' if token == 'primary' else token }}) !important;
+  caret-color: var(--design-{{ 'link' if token == 'primary' else token }}) !important;
+}
+{{ app }} :is(.v-btn:not(.v-btn--outlined), .v-chip, .v-alert, .v-snack__wrapper, .v-avatar).{{ name }} {
+  color: var(--design-on-{{ token }});
+}
+{{ app }} .v-btn.{{ name }}:hover {
+  background-color: var(--design-{{ token }}-hover) !important;
+  border-color: var(--design-{{ token }}-hover) !important;
+}
+{{ app }} .v-btn.{{ name }}:active {
+  background-color: var(--design-{{ token }}-active) !important;
+  border-color: var(--design-{{ token }}-active) !important;
+}
+{{ app }} .v-btn.{{ name }}::before {
+  opacity: 0;
+}
+{{ app }} :is(.v-chip, .v-alert, .v-snack__wrapper).{{ name }} .v-icon {
+  color: inherit;
+}
+{% endfor %}
+html {{ app }} .secondary {
+  background-color: var(--design-surface-3) !important;
+  border-color: var(--design-border-strong) !important;
+}
+html {{ app }} .secondary--text {
+  color: var(--design-text-muted) !important;
+  caret-color: var(--design-text-muted) !important;
+}
+{{ app }} .v-btn:not(.v-btn--outlined).secondary {
+  color: var(--design-text);
+}
+{{ app }} .v-btn.secondary:hover {
+  background-color: var(--design-surface-hover) !important;
+}
+{{ app }} .v-btn.secondary:active {
+  background-color: var(--design-surface-active) !important;
+}
+{% for name, token in static_fills %}
+html {{ app }} .{{ name }},
+html {{ app }} .{{ name }}{{ shade }} {
+  background-color: var(--design-{{ token }}) !important;
+  border-color: var(--design-{{ token }}) !important;
+}
+{{ app }} :is(.v-chip:not(.v-chip--outlined), .v-avatar, .v-btn:not(.v-btn--outlined)).{{ name }},
+{{ app }} .v-avatar.{{ name }} .white--text {
+  color: var(--design-on-{{ token }}) !important;
+}
+html {{ app }} .{{ name }}--text,
+html {{ app }} .{{ name }}--text{{ shade }} {
+  color: var(--design-{{ 'link' if name == 'blue' else token }}) !important;
+  caret-color: var(--design-{{ 'link' if name == 'blue' else token }}) !important;
+}
+{% endfor %}
+html {{ app }} :is(.blue-grey, .grey),
+html {{ app }} :is(.blue-grey, .grey){{ shade }} {
+  background-color: var(--design-surface-3) !important;
+  border-color: var(--design-border-strong) !important;
+}
+{{ app }} :is(.v-chip, .v-btn:not(.v-btn--outlined)):is(.blue-grey, .grey) {
+  color: var(--design-text);
+}
+{{ app }} :is([style*="color: gray"], [style*="color: grey"]),
+{{ app }} .SingleLineEditable__content.SingleLineEditable__content--placeholder {
+  color: var(--design-text-muted) !important;
+}
+{{ app }} [style*="color: rgb(255, 82, 82)"] {
+  color: var(--design-danger) !important;
+}
+{{ app }} .v-icon[style*="color: rgb(241, 70, 104)"] {
+  color: var(--design-link) !important;
+}
+html {{ app }} .blue-grey--text,
+html {{ app }} .blue-grey--text{{ shade }} {
+  color: var(--design-text-muted) !important;
+  caret-color: var(--design-text-muted) !important;
+}
+{{ app }} {{ theme }}:is(.v-card, .v-sheet, .v-list, .v-btn-toggle:not(.v-btn-toggle--group)) {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+{{ app }} {{ theme }}.v-toolbar.v-sheet,
+{{ app }} {{ theme }}:is(.v-data-table, .v-tabs-items),
+{{ app }} {{ theme }}.v-tabs > .v-tabs-bar {
+  background-color: transparent;
+  color: var(--design-text);
+}
+{{ app }} {{ theme }}.v-card > :is(.v-card__text, .v-card__subtitle),
+{{ app }} {{ theme }}:is(.v-subheader, .v-label, .v-messages, .v-counter),
+{{ app }} {{ theme }}.v-list-item:not(.v-list-item--disabled) :is(.v-list-item__subtitle, .v-list-item__action-text) {
+  color: var(--design-text-muted);
+}
+{{ app }} .v-card[style*="background"],
+{{ app }} [style*="background: rgba(133, 133, 133, 0.06)"] {
+  background: var(--design-surface-3) !important;
+  border-color: var(--design-border) !important;
+}
+{{ app }} {{ theme }} .item-dialog__title-actions,
+{{ app }} .v-bottom-sheet > .v-sheet{{ theme }} {
+  background: var(--design-surface-2);
+}
+{{ app }} .v-overlay .v-overlay__scrim {
+  background-color: var(--design-text) !important;
+}
+{{ app }} .v-tooltip__content,
+{{ app }} .v-snack__wrapper{{ theme }} {
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+}
+{{ app }} {{ theme }}.v-divider,
+{{ app }} {{ theme }}.v-data-table .v-data-footer {
+  border-color: var(--design-border);
+}
+{{ app }} {{ theme }}.v-btn-toggle:not(.v-btn-toggle--group) .v-btn.v-btn {
+  border-color: var(--design-border) !important;
+}
+html {{ app }} .white {
+  background-color: var(--design-surface-2) !important;
+  border-color: var(--design-surface-2) !important;
+}
+{{ app }} .auth__divider::before,
+{{ app }} .auth__divider::after {
+  border-top-color: var(--design-border);
+}
+{{ app }} {{ theme }}.v-icon,
+{{ app }} {{ theme }}.v-btn.v-btn--icon,
+{{ app }} {{ theme }}.v-btn-toggle:not(.v-btn-toggle--group) .v-btn.v-btn .v-icon {
+  color: var(--design-text-muted);
+}
+{{ app }} {{ theme }}.v-btn {
+  color: var(--design-text);
+}
+{{ app }} {{ theme }}.v-btn.v-btn--disabled,
+{{ app }} {{ theme }}.v-btn.v-btn--disabled :is(.v-icon, .v-btn__loading),
+{{ app }} {{ theme }}.v-icon.v-icon.v-icon--disabled {
+  color: var(--design-text-muted) !important;
+}
+{{ app }} {{ theme }}.v-btn.v-btn--disabled.v-btn--has-bg {
+  background-color: var(--design-surface-3) !important;
+}
+{{ app }} {{ theme }}.v-btn:not(.v-btn--has-bg):hover,
+{{ app }} {{ theme }}.v-list-item--link:hover,
+{{ app }} {{ theme }}.v-tabs .v-tab:hover {
+  background-color: var(--design-surface-hover);
+}
+{{ app }} {{ theme }}.v-btn:not(.v-btn--has-bg):active,
+{{ app }} {{ theme }}.v-btn.v-btn--active:not(.v-btn--has-bg),
+{{ app }} {{ theme }}.v-list-item--active,
+{{ app }} {{ theme }}.v-list-item--link:active {
+  background-color: var(--design-surface-active);
+}
+{{ app }} {{ theme }}.v-btn:not(.v-btn--has-bg)::before,
+{{ app }} {{ theme }}.v-list-item.v-list-item::before,
+{{ app }} {{ theme }}.v-tabs .v-tab.v-tab::before,
+{{ app }} .v-alert--text::before {
+  opacity: 0;
+}
+{{ app }} :is(.v-btn, .v-list-item, .v-tab, .v-chip, .v-icon.v-icon--link):focus-visible {
+  outline: 2px solid var(--design-focus, var(--design-link));
+  outline-offset: -2px;
+}
+{{ app }} .v-input--switch:has(input:focus-visible) .v-input--switch__track {
+  outline: 2px solid var(--design-focus, var(--design-link));
+  outline-offset: 2px;
+}
+{{ app }} {{ theme }}.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled),
+{{ app }} {{ theme }}.v-list-item--active {
+  color: var(--design-text);
+}
+{{ app }} {{ theme }}.v-list-item--disabled,
+{{ app }} {{ theme }}.v-data-table .v-data-table__empty-wrapper,
+{{ app }} {{ theme }}.v-data-table .v-data-table-header th.sortable .v-data-table-header__icon,
+{{ app }} {{ theme }}.v-data-table > .v-data-table__wrapper > table > thead > tr > th,
+{{ app }} {{ theme }}.v-tabs > .v-tabs-bar :is(.v-tab:not(.v-tab--active), .v-tab:not(.v-tab--active) > .v-icon, .v-tab--disabled) {
+  color: var(--design-text-muted);
+}
+{{ app }} {{ theme }}.v-data-table > .v-data-table__wrapper > table > thead > tr:last-child > th,
+{{ app }} {{ theme }}.v-data-table > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > :is(td, th):not(.v-data-table__mobile-row),
+{{ app }} {{ theme }}.v-data-table > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > :is(td, th):last-child {
+  border-bottom-color: var(--design-border);
+}
+{{ app }} {{ theme }}.v-data-table > .v-data-table__wrapper > table > tfoot > tr > :is(td, th):not(.v-data-table__mobile-row) {
+  border-top-color: var(--design-border);
+}
+{{ app }} .v-data-table .v-data-table__wrapper > table > tbody > tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+  background-color: var(--design-surface-hover) !important;
+}
+{{ app }} .v-data-table .v-data-table__wrapper > table > tbody > tr:is(.active, .v-data-table__selected) {
+  background-color: var(--design-surface-active) !important;
+}
+{{ app }} {{ theme }}.v-input,
+{{ app }} {{ theme }}.v-input :is(input, textarea),
+{{ app }} {{ theme }}.v-select .v-select__selections {
+  color: var(--design-text);
+}
+{{ app }} {{ theme }}.v-input :is(input, textarea)::placeholder,
+{{ app }} {{ theme }}.v-input--is-disabled,
+{{ app }} {{ theme }}.v-input--is-disabled :is(input, textarea),
+{{ app }} {{ theme }}.v-select.v-input--is-disabled .v-select__selections {
+  color: var(--design-text-muted);
+}
+{{ app }} {{ theme }}.v-text-field > .v-input__control > .v-input__slot::before {
+  border-color: var(--design-border-strong);
+}
+{{ app }} {{ theme }}.v-text-field:not(.v-input--has-state):hover > .v-input__control > .v-input__slot::before {
+  border-color: var(--design-text);
+}
+{{ app }} .v-input .v-input__slot fieldset {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+  color: var(--design-border-strong);
+}
+{{ app }} .v-input.primary--text .v-input__slot fieldset {
+  border-color: var(--design-link);
+}
+{{ app }} .v-input.error--text .v-input__slot fieldset {
+  border-color: var(--design-danger);
+}
+{{ app }} {{ theme }} .v-input .v-label--active {
+  text-shadow: 0 0 2px var(--design-surface-2);
+}
+{{ app }} .InputWithAppendedButton .v-input__append-outer .v-btn {
+  border-color: var(--design-border-strong);
+}
+{{ app }} {{ theme }}.v-input--switch .v-input--switch__thumb {
+  color: var(--design-surface-2);
+}
+{{ app }} {{ theme }}.v-input--switch .v-input--switch__track {
+  color: var(--design-border-strong);
+}
+{{ app }} {{ theme }}.v-chip {
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+{{ app }} {{ theme }}.v-chip:not(.v-chip--active):not([class*="--text"]) {
+  background: var(--design-surface-3);
+}
+{% for name, token in statuses %}
+{{ app }} .v-alert:is(.v-alert--text, .v-alert--outlined).{{ name }}--text {
+  background-color: var(--design-{{ token }}-subtle) !important;
+  border-color: var(--design-{{ token }}-border) !important;
+}
+{% endfor %}
+{{ app }} .CodeMirror,
+{{ app }} .CodeMirror-gutters {
+  background: var(--design-surface-3);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+{{ app }} .EnvironmentEditor {
+  border-color: var(--design-border) !important;
+}
+{{ app }} .CodeMirror-linenumber,
+{{ app }} .CodeMirror pre.CodeMirror-placeholder {
+  color: var(--design-text-muted);
+}
+{{ app }} .CodeMirror-cursor {
+  border-left-color: var(--design-text);
+}
+{{ app }} .CodeMirror-selected {
+  background: var(--design-surface-active);
+}
+{{ app }} .cm-s-default :is(.cm-string, .cm-string-2) {
+  color: var(--design-success);
+}
+{{ app }} .cm-s-default :is(.cm-keyword, .cm-atom, .cm-number, .cm-def) {
+  color: var(--design-info);
+}
+{{ app }} .cm-s-default :is(.cm-property, .cm-variable, .cm-variable-2, .cm-tag) {
+  color: var(--design-text);
+}
+{{ app }} .cm-s-default :is(.cm-comment, .cm-meta) {
+  color: var(--design-text-muted);
+}
+{{ app }} .cm-s-default .cm-error {
+  color: var(--design-danger);
+}
+{{ frame }}.v-navigation-drawer {
+  --design-focus: var(--design-on-frame);
+  background-color: var(--design-frame) !important;
+  border-color: var(--design-frame) !important;
+  color: var(--design-on-frame);
+}
+{{ frame }} {{ theme }}:is(.v-list, .v-sheet) {
+  background: transparent;
+  color: var(--design-on-frame);
+}
+{{ frame }} {{ theme }}.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled),
+{{ frame }} {{ theme }}.v-list-item--active,
+{{ frame }} {{ theme }}:is(.v-icon, .v-btn, .v-btn.v-btn--icon) {
+  color: var(--design-on-frame);
+}
+{{ frame }} {{ theme }}.v-list-item:not(.v-list-item--disabled) .v-list-item__subtitle,
+{{ frame }} .nav-more-toggle .nav-more-title {
+  color: rgba(var(--design-on-frame-rgb), 0.75);
+  opacity: 1;
+}
+{{ frame }} {{ theme }}.v-list-item--link:hover,
+{{ frame }} {{ theme }}.v-btn:not(.v-btn--has-bg):hover {
+  background-color: var(--design-frame-hover);
+}
+{{ frame }} {{ theme }}.v-list-item--active,
+{{ frame }} {{ theme }}.v-list-item--link:active,
+{{ frame }} {{ theme }}.v-list-item[aria-expanded="true"] {
+  background-color: var(--design-frame-active);
+}
+{{ frame }} {{ theme }}.v-divider,
+{{ frame }}{{ theme }}:not(.v-navigation-drawer--floating) .v-navigation-drawer__border {
+  background-color: transparent;
+  border-color: rgba(var(--design-on-frame-rgb), 0.2) !important;
+}
+{{ frame }} .v-chip:is(.red, .warning) {
+  background-color: var(--design-on-frame) !important;
+  border-color: var(--design-on-frame) !important;
+  color: var(--design-frame) !important;
+}
+{{ frame }} .v-input--switch :is(.v-input--switch__thumb, .v-input--switch__thumb.primary--text) {
+  color: var(--design-on-frame) !important;
+}
+{{ frame }} .v-input--switch :is(.v-input--switch__track, .v-input--switch__track.primary--text) {
+  color: rgba(var(--design-on-frame-rgb), 0.4) !important;
+  opacity: 1;
+}
+{{ frame }} .DarkModeSwitchWrap .DarkModeSwitchWrap__icon {
+  color: var(--design-frame) !important;
+}
+{{ frame }} .v-btn.primary--text {
+  color: var(--design-on-frame) !important;
+  background-color: var(--design-frame-active);
+}
+{{ app }} .auth {
+  background-color: var(--design-frame);
+  background-image: none;
+}
+{% if design.logo is string %}
+{{ app }} .auth .v-image__image {
+  background-image: url("{{ design.urls.logo.png }}") !important;
+  background-size: contain;
+}
+{% endif %}

@@ -13,3 +13,4 @@ require("./test-login-native-administrator").register(shared);
 require("./test-login-oidc-administrator").register(shared);
 require("./test-login-oidc-biber").register(shared);
 require("./test-login-ldap-biber").register(shared);
+require("./test-design").register(shared);

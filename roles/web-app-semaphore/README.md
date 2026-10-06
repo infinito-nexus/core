@@ -118,6 +118,7 @@ docker run --rm -it \
 - [Semaphore Documentation](https://docs.semaphoreui.com/)
 - [OIDC / Keycloak configuration](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)
 - [Semaphore GitHub Repository](https://github.com/semaphoreui/semaphore)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/7gHWVy5u3jmoA9qni7W5Zi)
 
 ## Credits
 
