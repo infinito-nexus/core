@@ -25,7 +25,14 @@ from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING
 
+from utils.roles.meta_lookup import get_role_lifecycle
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+UNMAINTAINED_LIFECYCLES = frozenset({"eol"})
 _SEMVER_CORE = r"v?\d+(?:\.\d+){0,4}"
 _VERSIONED_TAG_RE = re.compile(
     rf"^(?P<channel>[A-Za-z][A-Za-z0-9]*-)?(?P<semver>{_SEMVER_CORE})"
@@ -87,3 +94,14 @@ def latest_semver(tags: list[str], depth: int, flavor: str = "") -> str | None:
 
 def resolve_max_fetch_workers() -> int:
     return int(os.environ["INFINITO_WORKER_FETCH"])
+
+
+def is_maintained(roles_root: Path, role: str) -> bool:
+    """Return whether the version-bump backends watch a role.
+
+    Args:
+        roles_root: the ``roles/`` directory that holds the role.
+        role: role name, the directory name under ``roles_root``.
+    """
+    lifecycle = get_role_lifecycle(roles_root / role, role_name=role)
+    return lifecycle not in UNMAINTAINED_LIFECYCLES

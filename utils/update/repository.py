@@ -32,6 +32,7 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update.base import (
+    is_maintained,
     is_semver,
     latest_semver,
     resolve_max_fetch_workers,
@@ -199,6 +200,8 @@ def collect_entries(repo_root: Path) -> list[RepositoryRefEntry]:
     roles_root = repo_root / "roles"
     entries: list[RepositoryRefEntry] = []
     for role_dir in sorted(p for p in roles_root.iterdir() if p.is_dir()):
+        if not is_maintained(roles_root, role_dir.name):
+            continue
         services_path = role_dir / ROLE_FILE_META_SERVICES
         if services_path.is_file():
             entries += _entries_of_file(role_dir.name, services_path, ())

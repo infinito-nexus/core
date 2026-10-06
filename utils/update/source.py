@@ -42,6 +42,7 @@ from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
 from utils.update.base import (
+    is_maintained,
     is_semver,
     latest_semver,
     version_depth,
@@ -384,8 +385,11 @@ def invalid_declarations(repo_root: Path) -> list[str]:
 
 
 def _addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
+    roles_root = repo_root / "roles"
     entries: list[VersionSourceEntry] = []
-    for role, addon_path in iter_addon_files(repo_root / "roles"):
+    for role, addon_path in iter_addon_files(roles_root):
+        if not is_maintained(roles_root, role):
+            continue
         spec = load_yaml(str(addon_path))
         lines = read_text(str(addon_path)).splitlines()
         for source in addon_sources(spec):
@@ -416,11 +420,12 @@ def _addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
 
 def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
     """Return every declared version source that is not suppressed."""
+    roles_root = repo_root / "roles"
     entries: list[VersionSourceEntry] = []
-    for config_path in sorted(
-        (repo_root / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
-    ):
+    for config_path in sorted(roles_root.glob(f"*/{ROLE_FILE_META_SERVICES}")):
         role = config_path.parts[-3]
+        if not is_maintained(roles_root, role):
+            continue
         lines = read_text(str(config_path)).splitlines()
         for entity, config in (load_yaml(str(config_path)) or {}).items():
             declared = config.get(UPDATE_KEY) if isinstance(config, dict) else None

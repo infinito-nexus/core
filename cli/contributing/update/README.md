@@ -2,6 +2,10 @@
 
 Repository-side version maintenance: scan role configuration files for declared upstream versions and bump them in lockstep with new releases.
 
+## Scope
+
+Every role-scoped updater (`docker`, `source`, `pip`, `repository`) and the addon check skip a role whose [lifecycle](../../../docs/contributing/design/role/services/lifecycle.md) is `eol`: no update PR is opened for it and no external test warns about its pins.
+
 ## Declared version sources
 
 A pin the Docker updater (`image` + `version`) and the repository updater
