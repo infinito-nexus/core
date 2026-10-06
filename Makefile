@@ -287,11 +287,25 @@ cosmos:
 
 .PHONY: design-gallery
 # Rerun the design spec of a deployed app and copy its before/after screenshots to /tmp/design-gallery/<app>/ (no redeploy).
-# Usage: make design-gallery app=<application_id>
+# Usage: make design-gallery app=<application_id> [pw="--grep <pattern>"]
+# Example: make design-gallery app=web-app-gitea pw="--grep diag:"
 # Param app: deployed application id
+# Param pw: Playwright arguments without quotes that replace the default `--grep design:`; such a run adds its screenshots to the existing ones
 design-gallery:
 	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
-	@app='$(app)' bash scripts/tests/design/gallery.sh
+	@app='$(app)' pw='$(pw)' bash scripts/tests/design/gallery.sh
+
+.PHONY: design-palette
+# Run the design assertions of a deployed app with another base color and restore the base of the inventory afterwards, also on failure.
+# Usage: make design-palette app=<application_id> base='<hex>' sync=<design|role> [variant=<idx>]
+# Example: make design-palette app=web-app-gitea variant=0 base='#001f3f' sync=role
+# Param app: deployed application id
+# Param base: hex base color for the check
+# Param sync: design re-renders the static design files, role re-runs the app role for values it bakes at deploy time
+# Param variant: matrix round index the app was deployed with
+design-palette:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' base='$(base)' sync='$(sync)' variant='$(variant)' bash scripts/tests/design/palette.sh
 
 .PHONY: design-queue
 # Print the roles that are due for a design pass in working order (new roles first, then by version gap).
