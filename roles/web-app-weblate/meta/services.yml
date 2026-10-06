@@ -74,8 +74,6 @@ weblate:
 beat:
   name: weblate-beat
   bond: 1
-  enabled: true # nocheck: dynamic-flag
-  shared: true
   modes:
     compose:
       enabled: true
@@ -97,8 +95,6 @@ beat:
 worker:
   name: weblate-worker
   bond: 1
-  enabled: true # nocheck: dynamic-flag
-  shared: true
   modes:
     compose:
       enabled: true

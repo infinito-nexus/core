@@ -4,18 +4,18 @@ data:
   name: weblate_data
   mounts:
     - service: weblate
-      target: /app/data
+      target: &app_data_target /app/data
     - service: beat
-      target: /app/data
+      target: *app_data_target
     - service: worker
-      target: /app/data
+      target: *app_data_target
 cache:
   type: volume
   name: weblate_cache
   mounts:
     - service: weblate
-      target: /app/cache
+      target: &app_cache_target /app/cache
     - service: beat
-      target: /app/cache
+      target: *app_cache_target
     - service: worker
-      target: /app/cache
+      target: *app_cache_target
