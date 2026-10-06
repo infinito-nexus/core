@@ -4,4 +4,6 @@ container_port: "{{ lookup('config', application_id, 'services.mobilizon.ports.i
 
 mobilizon_host_conf_exs_file: "{{ [ lookup('container', application_id, 'directories.config'), 'config.exs' ] | path_join }}"
 mobilizon_container: "{{ lookup('config', application_id, 'services.mobilizon.name') }}"
+MOBILIZON_IMAGE: "{{ lookup('config', application_id, 'services.mobilizon.image') }}"
+MOBILIZON_VERSION: "{{ lookup('config', application_id, 'services.mobilizon.version') }}"
 MOBILIZON_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

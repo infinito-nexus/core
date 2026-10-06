@@ -28,7 +28,7 @@ from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
-from utils.update.base import is_semver, version_key
+from utils.update.base import is_maintained, is_semver, version_key
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -74,10 +74,14 @@ def collect_entries(repo_root: Path) -> list[PipPinEntry]:
     Args:
         repo_root: repository root to scan.
     """
+    roles_root = repo_root / "roles"
     entries: list[PipPinEntry] = []
-    for path in sorted((repo_root / "roles").rglob("*.yml")):
+    for path in sorted(roles_root.rglob("*.yml")):
         text = read_text(str(path))
         if "package_name:" not in text:
+            continue
+        role = path.relative_to(roles_root).parts[0]
+        if not is_maintained(roles_root, role):
             continue
         lines = text.splitlines()
         for index, line in enumerate(lines):
@@ -88,7 +92,7 @@ def collect_entries(repo_root: Path) -> list[PipPinEntry]:
                 continue
             entries.append(
                 PipPinEntry(
-                    role=path.relative_to(repo_root / "roles").parts[0],
+                    role=role,
                     package=match.group("package"),
                     version=match.group("version"),
                     config_path=path,
