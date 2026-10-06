@@ -33,3 +33,5 @@
 - name: "🔧 configure outbound email"
   include_tasks: 05_email.yml
   when: ERPNEXT_EMAIL_ENABLED
+- name: "🎨 converge corporate design"
+  include_tasks: 06_design.yml

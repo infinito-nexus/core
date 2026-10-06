@@ -1,0 +1,13 @@
+(function () {
+  var root = document.documentElement;
+  function mirror() {
+    var mode = root.getAttribute("data-theme-mode");
+    if (mode === "light" || mode === "dark") {
+      root.setAttribute("data-design-theme", mode);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  mirror();
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["data-theme-mode"] });
+})();

@@ -117,7 +117,7 @@ docker run --rm -it \
 ## Image & version policy
 
 - **Image**: `frappe/erpnext` (the official single-image, multi-role build from [frappe_docker](https://github.com/frappe/frappe_docker)).
-- **Pin**: a concrete stable v15.x semver (no `:latest`, no `:edge`, no v14 LTS, no v16 pre-release line).
+- **Pin**: a concrete stable semver in `meta/services.yml` (no `:latest`, no `:edge`, no pre-release line).
 - **Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. Schema migrations run automatically on first start of the new image (Frappe ships `bench migrate` in the backend container's entrypoint).
 
 ## Central-service consumer pattern
@@ -171,6 +171,7 @@ make compose-exec service=erpnext-backend \
 - [Frappe Framework Documentation](https://docs.frappe.io/)
 - [frappe_docker (upstream container reference)](https://github.com/frappe/frappe_docker)
 - [Frappe Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/375bh15gNgTHk6jJUoVFNW)
 
 ## Credits
 
