@@ -23,6 +23,22 @@ JITSI_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 JITSI_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
 JITSI_PROSODY_CONFIG_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}prosody-config"
 JITSI_PROSODY_PLUGINS_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}prosody-plugins-custom"
+JITSI_WEB_CONFIG_HOST_PATH: "{{ [JITSI_VOLUMES_DIR, 'config'] | path_join }}"
+JITSI_INTERFACE_CONFIG_HOST_PATH: "{{ [JITSI_WEB_CONFIG_HOST_PATH, 'custom-interface_config.js'] | path_join }}"
+
+JITSI_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+JITSI_DESIGN_TITLE: "{{ lookup('design', application_id).title if JITSI_DESIGN_ENABLED | bool else false }}"
+JITSI_DESIGN_MARK: "{{ application_id }} design"
+JITSI_DESIGN_BRANDING_FILE: "infinito-design-branding.json"
+JITSI_DESIGN_BRANDING_URL: "/{{ JITSI_DESIGN_BRANDING_FILE }}"
+JITSI_DESIGN_TITLE_FILE: "infinito-design-title.html"
+JITSI_DESIGN_FILES:
+  - src: design/branding.json.j2
+    dest: "{{ JITSI_DESIGN_BRANDING_FILE }}"
+  - src: design/title.html.j2
+    dest: "{{ JITSI_DESIGN_TITLE_FILE }}"
+  - src: design/nginx.conf.j2
+    dest: nginx-custom/infinito-design.conf
 
 JITSI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 JITSI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"

@@ -117,6 +117,7 @@ The `guest` persona is always live (no auth chain assumption) and the canonical-
 - [Jitsi Meet Project](https://jitsi.org/)
 - [docker-jitsi-meet (upstream)](https://github.com/jitsi/docker-jitsi-meet)
 - [Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/KcFbkdE1pGPPARuyLdS4fU)
 
 ## Credits
 

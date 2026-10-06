@@ -1,0 +1,557 @@
+.iti-flag {
+  box-shadow: var(--design-shadow-1);
+  background-color: var(--design-border-strong);
+}
+body,
+h1,
+h2,
+h3,
+h5 {
+  color: var(--design-text);
+}
+h6,
+small {
+  color: var(--design-text-muted);
+}
+blockquote {
+  border-left-color: var(--design-border-strong);
+  color: var(--design-text-muted);
+}
+q {
+  color: var(--design-text-muted);
+}
+abbr {
+  border-bottom-color: var(--design-border-strong);
+}
+a {
+  color: var(--design-link);
+}
+* {
+  scrollbar-color: var(--design-border-strong) transparent;
+}
+body {
+  color: var(--design-text);
+  background-color: var(--design-surface-1);
+}
+.jitsi-icon-default svg {
+  fill: var(--icon-svg-fill,var(--design-text));
+}
+.disabled .jitsi-icon svg,
+.jitsi-icon.gray svg {
+  fill: var(--design-text-muted);
+}
+button {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--design-border-strong);
+}
+.as-link,
+.invisible-button {
+  background: 0 0;
+}
+.as-link {
+  color: var(--design-link);
+}
+#reloadProgressBar {
+  background-color: var(--design-surface-active);
+}
+#reloadProgressBar .progress-indicator-fill {
+  background-color: var(--design-primary);
+}
+.always-on-top-toolbox {
+  background-color: var(--toolbox-background-color,var(--design-surface-2));
+}
+.desktop-source-preview-thumbnail {
+  box-shadow: var(--design-shadow-2);
+}
+.modal-dialog-form .input-control {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+.shared-video-dialog-error {
+  color: var(--design-danger);
+}
+.info-dialog .info-password-none,
+.info-dialog .info-password-remote,
+.presence-label,
+.subject {
+  color: var(--design-text);
+}
+.share-audio-dialog .separator-line,
+.share-screen-warn-dialog .separator-line {
+  background-color: var(--design-border);
+}
+#largeVideoWrapper {
+  box-shadow: var(--design-shadow-3);
+}
+#remoteConnectionMessage,
+#remotePresenceMessage .presence-label {
+  text-shadow: none;
+}
+.popupmenu__contents .popupmenu__volume-slider::-webkit-slider-runnable-track,
+.popupmenu__contents .popupmenu__volume-slider::-moz-range-track,
+.popupmenu__contents .popupmenu__volume-slider::-ms-fill-lower {
+  background-color: var(--design-border-strong);
+}
+.recording-dialog .recording-header-line,
+.overflow-menu-hr {
+  border-top-color: var(--design-border);
+}
+.recording-dialog .local-recording-warning.text {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+}
+.recording-dialog .local-recording-warning.notification {
+  color: var(--design-on-warning);
+  background-color: var(--design-warning);
+}
+.recording-dialog .file-sharing-icon-container,
+.recording-dialog .cloud-content-recording-icon-container,
+.recording-dialog .jitsi-content-recording-icon-container-with-switch,
+.recording-dialog .jitsi-content-recording-icon-container-without-switch {
+  background-color: var(--design-surface-3);
+}
+.recording-dialog .recording-info {
+  background-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+.live-stream-dialog .google-error {
+  color: var(--design-danger);
+}
+.live-stream-dialog .google-panel {
+  border-bottom-color: var(--design-border);
+}
+.live-stream-dialog .warning-text {
+  color: var(--design-warning);
+}
+.live-stream-dialog .youtube-go-live-warning {
+  background-color: var(--design-warning-subtle);
+  border-left-color: var(--design-warning);
+  color: var(--design-warning);
+}
+a.disabled {
+  color: var(--design-text-muted) !important;
+}
+#chatconversation.focus-visible {
+  box-shadow: 0 0 0 2px var(--design-link);
+}
+#chatconversation a:link,
+#chatconversation a:visited,
+#chatconversation a:hover,
+#chatconversation a:active {
+  color: var(--design-link);
+}
+#nickname,
+#nickname label[for=nickinput]>div>span {
+  color: var(--design-text-muted);
+}
+.chatmessage.error .usermessage,
+.chat-dialog-header {
+  color: var(--design-text);
+}
+.smileyContainer:hover {
+  background-color: var(--design-surface-hover);
+}
+.mobile-browser .chat-dialog-header .jitsi-icon {
+  background-color: var(--design-surface-3);
+}
+.badge-round {
+  background-color: var(--toolbar-badge-background,var(--design-primary));
+  color: var(--design-on-primary);
+}
+.toolbox-content-wrapper::after {
+  background-color: var(--design-surface-2);
+}
+div.hangup-button {
+  background-color: var(--design-danger);
+}
+@media (hover:hover) and (pointer:fine) {
+div.hangup-button:hover {
+  background-color: var(--design-danger-hover);
+}
+div.hangup-button:active {
+  background-color: var(--design-danger-active);
+}
+}
+div.hangup-button svg {
+  fill: var(--design-on-danger);
+}
+div.hangup-menu-button {
+  background-color: var(--design-danger);
+}
+@media (hover:hover) and (pointer:fine) {
+div.hangup-menu-button:hover {
+  background-color: var(--design-danger-hover);
+}
+div.hangup-menu-button:active {
+  background-color: var(--design-danger-active);
+}
+}
+div.hangup-menu-button svg {
+  fill: var(--design-on-danger);
+}
+.redirectPageMessage .thanks-msg {
+  border-bottom-color: var(--design-border-strong);
+}
+input[type=range]:focus {
+  outline-color: var(--design-link) !important;
+}
+input[type=range]::-webkit-slider-runnable-track,
+input[type=range]::-moz-range-track,
+input[type=range]::-ms-track {
+  background-color: var(--design-border-strong);
+}
+input[type=range]::-webkit-slider-thumb,
+input[type=range]::-moz-range-thumb,
+input[type=range]::-ms-thumb {
+  background-color: var(--design-text);
+  border-color: var(--design-primary);
+  box-shadow: 0 0 1px var(--design-link);
+}
+.error_page h2,
+.unsupported-desktop-browser__title {
+  color: var(--design-text);
+}
+.unsupported-desktop-browser__description,
+.unsupported-desktop-browser__description_small {
+  color: rgba(var(--design-text-rgb), 0.7);
+}
+.unsupported-desktop-browser__link,
+.unsupported-desktop-browser__link:hover,
+.deep-linking-desktop .content .rightColumn .rightColumnContent .title {
+  color: var(--design-link);
+}
+.deep-linking-desktop {
+  background-color: var(--design-surface-2);
+}
+.deep-linking-desktop .header {
+  background-color: var(--design-surface-3);
+}
+.deep-linking-desktop .content .rightColumn .rightColumnContent .description {
+  color: var(--design-text-muted);
+}
+.deep-linking-mobile {
+  background-color: var(--design-surface-2);
+}
+.deep-linking-mobile .header {
+  background-color: var(--design-surface-3);
+}
+.deep-linking-mobile__body {
+  color: var(--design-text);
+}
+.deep-linking-mobile__button {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.deep-linking-mobile__button:active {
+  background-color: var(--design-surface-3);
+}
+.deep-linking-mobile__button_primary {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.deep-linking-mobile__button_primary:active {
+  background-color: var(--design-primary);
+}
+.deep-linking-mobile .deep-linking-dial-in .dial-in-numbers-list {
+  color: var(--design-text);
+}
+.no-mobile-app__title {
+  border-bottom-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+.meetings-list,
+.meetings-list .meetings-list-empty .description {
+  color: var(--design-text);
+}
+.meetings-list .meetings-list-empty-button {
+  color: var(--design-link);
+}
+.meetings-list .button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.meetings-list .item {
+  background-color: var(--design-surface-2);
+}
+.meetings-list .item .subtitle {
+  color: var(--design-text-muted);
+}
+.meetings-list .item.with-click-handler:focus,
+.meetings-list .item.with-click-handler:hover {
+  background-color: var(--design-surface-hover);
+}
+.meetings-list .delete-meeting>svg,
+.meetings-list .item:focus .delete-meeting:hover>svg,
+.meetings-list .item:focus-within .delete-meeting:hover>svg,
+.meetings-list .item:hover .delete-meeting:hover>svg {
+  fill: var(--design-link);
+}
+.navigate-section-section-header,
+.navigate-section-tile-body,
+.navigate-section-tile-title {
+  color: var(--design-on-primary);
+}
+.navigate-section-list-tile {
+  background-color: var(--design-primary);
+}
+.navigate-section-list-tile.with-click-handler:hover {
+  background-color: var(--design-primary-hover);
+}
+.chrome-extension-banner {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-3);
+}
+.chrome-extension-banner__checkbox-label,
+.chrome-extension-banner__text-container {
+  color: var(--design-text);
+}
+.chrome-extension-banner__icon-container {
+  background: url(../images/chromeLogo.svg);
+}
+.chrome-extension-banner__gray-close-icon {
+  fill: var(--design-text-muted);
+}
+.chrome-extension-banner__button-open-url {
+  background-color: var(--design-primary);
+}
+.chrome-extension-banner__button-text {
+  color: var(--design-on-primary);
+}
+.disabled .settings-button-container .toolbox-icon,
+.settings-button-container .toolbox-icon.disabled {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+}
+.disabled .settings-button-container .toolbox-icon:hover,
+.settings-button-container .toolbox-icon.disabled:hover {
+  background-color: var(--design-surface-3);
+}
+.settings-button-small-icon {
+  background-color: var(--design-surface-3);
+  box-shadow: 0 0 0 1px var(--design-surface-2), var(--design-shadow-2);
+}
+.settings-button-small-icon:hover {
+  background-color: var(--design-surface-hover);
+  box-shadow: 0 0 0 1px var(--design-surface-2), var(--design-shadow-2);
+}
+.settings-button-small-icon:hover svg {
+  fill: var(--design-text);
+}
+.settings-button-small-icon:hover.settings-button-small-icon--disabled,
+.settings-button-small-icon--disabled {
+  background-color: var(--design-surface-3);
+}
+.settings-button-small-icon:hover.settings-button-small-icon--disabled svg {
+  fill: var(--design-text-muted);
+}
+.settings-button-small-icon svg {
+  fill: var(--design-text);
+}
+.settings-button-small-icon--disabled svg,
+.jitsi-icon.metr>svg,
+.jitsi-icon.metr--disabled>svg {
+  fill: var(--design-text-muted);
+}
+.metr-l-0 rect:first-child,
+.metr-l-1 rect:nth-child(-n+2),
+.metr-l-2 rect:nth-child(-n+3),
+.metr-l-3 rect:nth-child(-n+4),
+.metr-l-4 rect:nth-child(-n+5),
+.metr-l-5 rect:nth-child(-n+6),
+.metr-l-6 rect:nth-child(-n+7),
+.metr-l-7 rect:nth-child(-n+8) {
+  fill: var(--design-success);
+}
+.lobby-screen-content .lobby-chat-container {
+  background-color: var(--design-surface-2);
+}
+.lobby-screen-content .joining-message {
+  color: var(--design-text);
+}
+#notification-participant-list {
+  background-color: var(--toolbox-background-color,var(--design-surface-2));
+  border-color: var(--design-border);
+}
+#notification-participant-list .title {
+  background-color: var(--design-surface-3);
+}
+#notification-participant-list button.primary {
+  background-color: var(--design-primary);
+}
+@media (max-width:1000px) {
+.lobby-screen-content .lobby-chat-container .lobby-chat-header .title {
+  color: var(--design-text);
+}
+}
+.lobby-prejoin-error {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+#preview {
+  background-color: var(--design-surface-1);
+}
+#preview .avatar text {
+  fill: var(--design-on-frame);
+}
+.invite-more-dialog,
+.security-dialog {
+  color: var(--design-text);
+}
+.invite-more-dialog.separator {
+  background-color: var(--design-border);
+}
+.invite-more-dialog.stream {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+.invite-more-dialog.stream.clicked {
+  background-color: var(--design-success-subtle);
+  border-color: var(--design-success);
+}
+.invite-more-dialog.stream>div>svg>path {
+  fill: var(--design-text);
+}
+.security-dialog.password-section .password-actions button {
+  color: var(--design-link);
+}
+.security-dialog .separator-line {
+  background-color: var(--design-border);
+}
+.jitsi-icon-dominant-speaker {
+  background-color: var(--design-success);
+}
+.reactions-menu {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-3);
+}
+.reactions-menu.with-gif .reactions-row .toolbox-button:last-of-type .toolbox-icon.toggled {
+  background-color: var(--reactions-menu-button-toggled,var(--design-surface-active));
+}
+.welcome {
+  background-color: var(--design-surface-1);
+}
+.welcome .header,
+.welcome .welcome-footer {
+  --design-focus: var(--design-on-frame);
+  background-color: var(--design-frame);
+  background-image: none;
+  color: var(--design-on-frame);
+}
+.welcome .header .header-text-title,
+.welcome .header .header-text-subtitle,
+.welcome .header #moderated-meetings,
+.welcome .header .insecure-room-name-warning {
+  color: var(--design-on-frame);
+}
+.welcome .header .insecure-room-name-warning .jitsi-icon svg {
+  fill: var(--design-on-frame);
+}
+.welcome .welcome-page-settings {
+  background-color: var(--design-frame-hover);
+  color: var(--design-on-frame);
+}
+.welcome .welcome-page-settings:hover {
+  background-color: var(--design-frame-active);
+}
+.welcome .welcome-page-settings .jitsi-icon svg {
+  fill: var(--design-on-frame);
+}
+.welcome .header #enter_room .join-meeting-container {
+  --design-focus: var(--design-link);
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+@media only screen and (max-width: 500px) {
+  .welcome .header #enter_room .join-meeting-container {
+    background-color: transparent;
+  }
+}
+.welcome .header #enter_room .enter-room-input-container .enter-room-input {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+.welcome .header ::placeholder {
+  color: var(--design-text-muted);
+}
+.welcome .header #enter_room .enter-room-input-container .enter-room-input.focus-visible {
+  outline-color: var(--design-link);
+}
+.welcome .welcome-page-button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.welcome .welcome-page-button:hover {
+  background-color: var(--design-primary-hover);
+}
+.welcome .welcome-page-button:active {
+  background-color: var(--design-primary-active);
+}
+.welcome .welcome-page-button:focus-within {
+  outline-color: var(--design-link);
+}
+.welcome .header .not-allow-title-character-div {
+  background-color: var(--design-danger-subtle);
+  color: var(--design-danger);
+}
+.welcome .header .not-allow-title-character-div .jitsi-icon svg {
+  fill: var(--design-danger);
+}
+.welcome .welcome-cards-container {
+  color: var(--design-text);
+}
+.welcome .welcome-card--blue,
+.welcome .welcome-card--dark,
+.welcome .welcome-card--grey {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.welcome .tab-container .tab-buttons,
+.welcome .tab-container .tab-buttons [role="tab"] {
+  background-color: transparent;
+  color: var(--design-text);
+}
+.welcome .tab-container .tab-buttons [role="tab"]:hover {
+  background-color: var(--design-surface-hover);
+}
+.welcome .tab-container .tab-buttons [role="tab"][aria-selected="true"] {
+  background-color: var(--design-surface-active);
+}
+.welcome .welcome-footer-row-block {
+  border-bottom-color: var(--design-frame-hover);
+}
+button[class*="-button-primary-"]:not([class*="-disabled-"]) {
+  color: var(--design-on-primary);
+}
+button[class*="-button-primary-"]:not([class*="-disabled-"]) div > svg {
+  fill: var(--design-on-primary);
+}
+button[class*="-button-destructive-"]:not([class*="-disabled-"]) {
+  color: var(--design-on-danger);
+}
+button[class*="-button-destructive-"]:not([class*="-disabled-"]) div > svg {
+  fill: var(--design-on-danger);
+}
+[data-testid="prejoin.joinOptions"]:hover {
+  background-color: var(--design-primary-hover);
+}
+[class*="-contextMenuItem-selected"] {
+  background-color: var(--design-surface-active);
+}
+.avatar {
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+.avatar svg {
+  fill: var(--design-on-frame);
+}
+[data-testid="stage-display-name"] > div,
+[class*="-indicatorsBackground"],
+[class*="-indicatorsBackground"] .displayname {
+  color: var(--design-on-frame);
+}
+[class*="-indicatorsBackground"] .jitsi-icon svg {
+  fill: var(--design-on-frame);
+}
