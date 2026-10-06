@@ -258,6 +258,24 @@ class TestCollectEntriesCoversAddons(unittest.TestCase):
 
             self.assertEqual(collect_entries(root), [])
 
+    def test_refs_of_an_eol_role_are_not_collected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            role = self._role(root)
+            (role / ROLE_FILE_META_SERVICES).write_text(
+                "example:\n"
+                "  lifecycle: eol\n"
+                "  repository: https://example.test/app.git\n"
+                "  ref: v1.0.0\n",
+                encoding="utf-8",
+            )
+            (role / ROLE_DIR_META_ADDONS / "plug.yml").write_text(
+                "config:\n  repository: https://example.test/plug.git\n  ref: v2.0.0\n",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(collect_entries(root), [])
+
 
 if __name__ == "__main__":
     unittest.main()

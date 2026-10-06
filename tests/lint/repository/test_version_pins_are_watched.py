@@ -9,7 +9,8 @@ or an oversight.
 Scope: every value in ``roles/*/meta/services.yml`` and at the root of
 ``roles/*/meta/addons/*.yml`` whose key names a version and whose content is a
 semver. Moving tags (``latest``, ``stable``, a branch name) are not pins and
-are ignored.
+are ignored. So is every pin of an ``eol`` role: the updaters skip those roles,
+and the lifecycle already says nobody bumps them.
 
 Per-line opt-out: ``# nocheck: unwatched-version`` above the pin, with a
 reason, for a version that must stay where it is. An existing
@@ -27,7 +28,7 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.addons import iter_addon_files
-from utils.update.base import is_semver
+from utils.update.base import is_maintained, is_semver
 from utils.update.docker import collect_entries as docker_entries
 from utils.update.repository import collect_entries as repository_entries
 from utils.update.source import collect_entries as source_entries
@@ -60,6 +61,8 @@ def _watched() -> set[tuple[str, str, str]]:
 def _addon_findings(watched: set[tuple[str, str, str]]) -> list[str]:
     findings: list[str] = []
     for role, addon_path in iter_addon_files(PROJECT_ROOT / "roles"):
+        if not is_maintained(PROJECT_ROOT / "roles", role):
+            continue
         spec = load_yaml(str(addon_path))
         if not isinstance(spec, dict):
             continue
@@ -94,6 +97,8 @@ def _findings() -> list[str]:
         (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
     ):
         role = config_path.parts[-3]
+        if not is_maintained(PROJECT_ROOT / "roles", role):
+            continue
         lines = read_text(str(config_path)).splitlines()
         for entity, config in (load_yaml(str(config_path)) or {}).items():
             if not isinstance(config, dict):
