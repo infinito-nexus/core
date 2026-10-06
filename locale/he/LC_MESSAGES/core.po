@@ -325,9 +325,11 @@ msgid "Community"
 msgstr "קהילה"
 
 # Nginx /OpenResty באמצעות sub_filter*הופנה מהדף CDN-backed Assets.
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: תאימות ל-HTML (CSS, JS, ליירוט , ניתוח, לוחמת iframe)
+# translation-rejected: Composable HTML injection roles (CSS, JS, logout
+# interceptor, analytics, dashboard iframe) for Nginx/OpenResty via
+# sub_filter/Lua with CDN-backed assets.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -412,13 +414,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX Webserver עם HTTP ו- TCP /UDP תמיכה ו- Performance-tuned ברירת מחדל"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "בעל עיצוב עסקי ו `design` דגל שירות, הפניית השם המארח שלו ל- CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "הזרקת עיצוב ארגונית עבור יישומים שמורים על NGINX, איחוד אור ואפלה של אסימוני עיצוב OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -885,6 +889,7 @@ msgstr "פלטפורמה מעקב פרויקטים עבור צוותי תוכנ�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: JavaScript Runtime for Building and run Server-side
+# Applications and Developer Tooling
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -1000,12 +1005,12 @@ msgid "Marker role tagging a host as the Docker Swarm manager node, with the ini
 msgstr "תפקידו של מארקר הוא מארח כמנהל Docker Swarm node, עם הלוגיקה init שהוקצה svc-swarm-nodem-node"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: שיווק שיווק שיווק
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr ""
+"Marketing\n"
+"---\n"
+"Marketing"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -2151,12 +2156,9 @@ msgstr "תכנון עבודה עבור Docker ו Docker Compose עם המשתמ�
 
 # translated-by: libretranslate
 # Board Development on Linux
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Workstation Toolchain ו-Sy-port Authoritys for Arduino
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr ""
+msgstr "מערכת כלי עבודה ואישורים לпорטות סרילור עבור פיתוח לוח Arduino על Linux"
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr-install:description"

@@ -408,13 +408,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver dengan HTTP dan TCP / UDP dukungan arus dan kinerja-tuned baku"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Pemilik konfigurasi desain perusahaan dan `design` Flag layanan, mengarahkan nama host ke CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Injeksi desain korporasi untuk aplikasi yang melayani NGINX-, penyatuan cahaya dan gelap bertema dari token desain OKLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -650,12 +652,10 @@ msgid "Events"
 msgstr "Kejadian"
 
 # pengubahan kode dan konfigurasi termal
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Penyunting teks baris baris baris Vim-masuk akal bagi
+# translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr ""
+msgstr "Ekstensi Vim berbasis command-line untuk editor teks terminal berbasis terminal dan pengeditan konfigurasi"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-chess:description"

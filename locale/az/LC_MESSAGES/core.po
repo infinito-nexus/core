@@ -155,12 +155,9 @@ msgid "Browser-based spinning wheel app for decision making, random selection, a
 msgstr "Proqram təminatı, random seçim və oyunçulaşdırma üçün Browser-based çıxış app"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: The L L L L L facing facing facing facing facing
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr ""
+msgstr "Browser-facing admin interface for the shared lllm gateway, published on its own domain behind the front proxy"
 
 # translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -257,12 +254,17 @@ msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
 msgstr "Kompüter faylları, paket önbellekləri, isteğe bağlı Docker data və yaşlı backups yeniləndirilməsi üçün disk space reclaiming rutin"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Yadda saxla
+# translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 msgstr ""
+"Here is the translation:\n"
+"\n"
+"Klijent-side NFS upravođenje za montiranje rimotske servisa izvođen na svakom nodu sveta, s dostupnom stvarajućim podnežnim rezultatima\n"
+"\n"
+"### Azaziške verzije\n"
+"Klijent-side NFS upravođenje za montiranje rimotske servisa izvođen na svakom nodu sveta, s dostupnom stvarajućim podnežnim rezultatima\n"
+"Klient-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-plain:description"
@@ -414,13 +416,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP və TCP / UDP stream dəstək və performans-tuned defaults ilə Core NGINX webserver"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Korporativ dizayn konfiqurasiya sahibi və `design` xidmət bayrağı, CDN-ə öz hostname idarə"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "NGINX-served apps üçün korporativ dizayn enjeksiyonu, işıqsız işıq və OKLCH dizayn hesabları"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -784,6 +788,7 @@ msgstr "Yardım"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: CA-trust enjeksiyon aktivlərinin qarşısını almaq
+# Docker Compose stack and and and and
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
@@ -1620,12 +1625,10 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "End-to-end-encryptable video konferencing üçün WebRTC platforma"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Yadda saxla
+# translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr ""
+msgstr "Qisəyətli browser töşkil edərək, tövqən, tekstlərden ya URL-lardan QR kódları yaradır. Bu töşkil edərək, fráqətli tərli yerli renderingi təşkil edir"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
@@ -1852,6 +1855,9 @@ msgstr "Sizə xidmətlərinə baxın..."
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Single-user ActivityPub bookmarking site ictimai kitab
+# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
+# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
+# məlumatları öyrənmək Mastodon Fediverse
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
@@ -1876,12 +1882,10 @@ msgctxt "category:dev:title"
 msgid "Software Development Utilties"
 msgstr "Utilties proqramı"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Yadda saxla
+# translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr ""
+msgstr "Sovyet in-soroznaya voda shuruto konferentsiyatsiya s video konferentatsiya, shuruto pereseleniya, shuruto shtormatsiya, s SSO"
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
@@ -2091,12 +2095,10 @@ msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "Axtarış2 Pacman işstations virtual maşınlar üçün hipervisor, çekirdek modulları və uzatma paketi ilə"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Yadda saxla
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr ""
+msgstr "Uchyan systemd konsolnotifications sistemini yukishkan sistem-failures haberleri Telegram ve e-mail kanallarına ulaştırmaktadır."
 
 # translated-by: libretranslate
 msgctxt "category:update:title"

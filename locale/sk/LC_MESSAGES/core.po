@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver s podporou HTTP a TCP/UDP prúdu a predvolené výkony"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Konfigurácia firemného dizajnu a `design` servisná vlajka, presmerovanie svojho mena na CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Základný dizajn spoločnosti, ktorý sa implementuje v NGINX-servených aplikáciách, jednotivý v tmovej a svetlej téme na základe okrajových štýlov OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -593,12 +595,9 @@ msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host s
 msgstr "Docker Swarm cluster bootstrap a uzol-členstvo role pre multi-hostiteľ služby nasadenia."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "Dokumentový server backend pre real-time online editovania dokumentov, tabuliek a prezentácií"
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
@@ -1437,12 +1436,9 @@ msgstr "Úlohy pre čistenie rôznych systémových zdrojov a staré zálohy, ne
 
 # translated-by: libretranslate
 # ovládačov.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Polohy pre inštaláciu a konfiguráciu hardvérových
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "Pripoľovanie a konfigurácia hardvérových driverov – zahŕňa spracovanie tlačiariev, grafiky, vstupných zariadení a ďalšie periferné podporu."
 
 # translated-by: libretranslate
 msgctxt "category:web:description"

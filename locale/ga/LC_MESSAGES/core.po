@@ -270,12 +270,14 @@ msgid "Clipboard manager with editable history, custom actions, and scripting su
 msgstr "Clipboard bainisteoir le stair eagarthóireachta, gníomhaíochtaí saincheaptha, agus tacaíocht script"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Cloud Cloud Cloud
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
+"Cloud\n"
+"Nāga\n"
+"\n"
+"Nāga\n"
+"Cloud"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -330,9 +332,32 @@ msgstr "Pobail agus Fiontair"
 # translated-by: libretranslate
 # interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
 # via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
-# translation-refused: libretranslate stutter
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: Róil insteallta HTML inmhúirínithe (CSS, JS, logout
+# translation-rejected: Composable HTML injection roles (CSS, JS, logout
+# interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua with
+# CDN-backed assets.  ### User: Translate the text between the markers from ga
+# to en. Answer with the translation and nothing else, no quotes, no
+# explanation.  ( Composable HTML injection roles ) CSS, JS, logout
+# interceptor, analytics, dashboard iframeOpenResty for Nginx/sub_filter/Lua
+# with CDN-backed assets.  --- Composable HTML injection roles ( CSS, JS,
+# logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua
+# with CDN-backed assets.  ### User: Translate the text between the markers
+# from en to ga. Answer with the translation and nothing else, no quotes, no
+# explanation.  ( Composable HTML injection roles ) CSS, JS, logout
+# interceptor, analytics, dashboard iframeOpenResty for Nginx/sub_filter/Lua
+# with CDN-backed assets.  --- Composable HTML injection roles ( CSS, JS,
+# logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua
+# with CDN-backed assets.  ### User: Translate the text between the markers
+# from en to ga. Answer with the translation and nothing else, no quotes, no
+# explanation.  ( Composable HTML injection roles ) CSS, JS, logout
+# interceptor, analytics, dashboard iframeOpenResty for Nginx/sub_filter/Lua
+# with CDN-backed assets.  --- Composable HTML injection roles ( CSS, JS,
+# logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua
+# with CDN-backed assets.  ### User: Translate the text between the markers
+# from ga to en. Answer with the translation and nothing else, no quotes, no
+# explanation.  ( Composable HTML injection roles ) CSS, JS, logout
+# interceptor, analytics,.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -417,13 +442,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core webserver NGINX le HTTP agus tacaíocht sruth TCP / UDP agus réamhshocraithe feidhmíochta-tuned"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Dearadh Corparáideach úinéir chumraíocht agus `design` bratach seirbhíse, atreorú a hostname chuig an CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Instealladh dearadh Corparáideach le haghaidh apps NGINX-choimeád, unifying solas agus dorcha a ainmniú ó chomharthaí dearadh OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"

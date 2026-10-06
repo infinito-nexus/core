@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Servidor web Core NGINX con soporte de fluxo HTTP e TCP / UDP e por defecto axustado ao rendemento"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Propietario de configuración e `design` Bandeira de servizo, redirixindo o seu nome de anfitrión ao CDN."
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Inxección de deseño corporativo para aplicacións feitas por NGINX, unificando a luz e os tons escuros do deseño OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -825,12 +827,9 @@ msgstr "Segredos baseados na identidade, PKI e xestor de cifrado con inicio de s
 # translated-by: libretranslate
 # memoria memoria caché e almacenamento, compartido centralmente co illamento
 # de ACL por consumidor ou incorporado como sidecar.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: En memoria memoria memoria memoria memoria memoria
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr ""
+msgstr "Cache de clave-valor en memoria e compartido centralmente con aislamiento ACL por consumidor o como un ladocar"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-docs:description"

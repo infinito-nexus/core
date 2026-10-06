@@ -269,12 +269,11 @@ msgid "Clipboard manager with editable history, custom actions, and scripting su
 msgstr "مدیر Clipboard با تاریخ قابل ویرایش، اقدامات سفارشی و پشتیبانی اسکریپتینگ"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Cloud Cloud Cloud
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
+"Cloud\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -386,6 +385,7 @@ msgstr "مدیریت محتوا"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: سیستم های مدیریت محتوا (CMS CMS CMS CMS) پلتفرم های
+# انتشار وب
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -415,13 +415,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX Webserver با HTTP و TCP/UDP پشتیبانی و پیش فرض های عملکردی"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "طراحی شرکت مالک و `design` پرچم خدمات، هدایت نام میزبان خود را به CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "تزریق طراحی شرکت برای برنامه های NGINX-Save، یکپارچه سازی نور و تیره آنها از توکن های طراحی OKLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -448,9 +450,13 @@ msgstr "ارتباط مشتری"
 
 # translated-by: libretranslate
 # روابط مشتری، خطوط لوله فروش، بازاریابی و فعالیت های پشتیبانی.
-# translation-refused: libretranslate stutter
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: مدیریت روابط مشتری (CRM CRM CRM) نرم افزار برای مدیریت
+# translation-rejected: Customer Relationship Management ( CRM) software for
+# managing customer relationships, sales pipelines, marketing, and support
+# activities.  --- Microsoft Dynamics 365 ( Business Intelligence ) software
+# for managing customer relationships, sales pipelines, marketing, and support
+# activities.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -566,12 +572,11 @@ msgid "Desktop video conferencing client for online meetings, webinars, and scre
 msgstr "ویدئو کنفرانس دسکتاپ مشتری را برای جلسات آنلاین، وبینینارها و به اشتراک گذاری صفحه نمایش"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: توسعه توسعه توسعه
 msgctxt "menu:Development:title"
 msgid "Development"
 msgstr ""
+"Development\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "menu:Development:description"
@@ -629,12 +634,13 @@ msgid "Drivers"
 msgstr "رانندگان"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: آموزش آموزش آموزش
 msgctxt "menu:Education:title"
 msgid "Education"
 msgstr ""
+"Education\n"
+"---\n"
+"Taekwondo\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
@@ -670,6 +676,7 @@ msgstr "حوادث"
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Extensible Vim-line text Editor for Terminal-based
+# code and Configuration
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -1879,12 +1886,12 @@ msgid "Storage"
 msgstr "ذخیره سازی"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: سیستم سیستم سیستم
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
+"System\n"
+"English: System\n"
+"Farsi: سیستم"
 
 # translated-by: libretranslate
 msgctxt "category:sys.front:title"
@@ -2130,12 +2137,9 @@ msgstr "وب مبتنی بر LDAP مشتری برای مرور، جستجو و �
 
 # translated-by: libretranslate
 # PostgreSQL سرورهای اختیاری OAuth2 ورود ورود ورود
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: مدیریت مبتنی بر وب و پلت فرم توسعه برای مدیریت چندین
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr ""
+msgstr "پلتفرم مدیریت و توسعه مبتنی بر وب برای مدیریت چند سرور PostgreSQL با گزینه ورود با OAuth2"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

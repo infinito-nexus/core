@@ -412,13 +412,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Servidor web del nucli NGINX amb implementació de flux HTTP i TCP/UDP i per omissió de rendiment"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Propietari del disseny de l'empresa i `design` Bandera de servei, redirecció del seu nom a la CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Injecció de disseny de Ciatora per a aplicacions de disseny NGINX-served, unificar llum i fosc-los des de fitxes de disseny OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -666,12 +668,9 @@ msgid "Federated chess server for playing and following rule-validated games ove
 msgstr "Servidor d'escacs Federats per jugar i seguir jocs validats de regles sobre l'activitatPub a través de la Federivers"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr ""
+msgstr "Plataforma de comunicació amb criptografia endavant-end, amb client web i xarxes de comunicació exteriors"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"

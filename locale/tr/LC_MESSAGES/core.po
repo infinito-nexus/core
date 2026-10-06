@@ -70,12 +70,19 @@ msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve,
 msgstr "SMTP, IMAP, JMAP, POP3, YönetmeSieve, CalDAV, CardDAV ve yerleşik spam filtreleme"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Analytics Analytics Analytics
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr ""
+"Analytics\n"
+"---\n"
+"আইনি অনুসন্ধান\n"
+"---\n"
+"ইন্টারন্যাশনাল অ্যানালাইসিস কর্মসূচি\n"
+"---\n"
+"ইন্টারন্যাশনাল অ্যানালাইসিস কর্মসূচি\n"
+"আন্তর্জাতিক আইনি সম্প্রদায়\n"
+"---\n"
+"আন্তর্জাতিক আইনি সম্প্রদায়"
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -272,12 +279,16 @@ msgid "Clipboard manager with editable history, custom actions, and scripting su
 msgstr "Açıklamalı tarih, özel eylemler ve senaryo desteği ile videoboard yöneticisi"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Bulut Bulut Bulut
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
+"Cloud\n"
+"---\n"
+"\n"
+"Cloud\n"
+"Translating the text between English and Urdu: \n"
+"クルー\n"
+"クルー"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -315,12 +326,11 @@ msgid "Command-line journal application for creating and managing personal diary
 msgstr "Kur'an-line gazete uygulaması, terminalden kişisel günlük girişleri oluşturmak ve yönetmek için geçerlidir."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Ticaret Ticaret Ticaret
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr ""
+"Commerce\n"
+" commerce"
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:title"
@@ -389,12 +399,9 @@ msgstr "Content Management"
 
 # translated-by: libretranslate
 # platformları
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: İçerik Yönetimi Sistemleri (CMS CMS CMS) ve web yayın
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
-msgstr ""
+msgstr "İçerik Yönetimi Sistemleri ( CMS) ve web yayın platformları"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-wordpress:description"
@@ -418,20 +425,19 @@ msgstr "Core AI bina blokları - hizmet etmek, OpenAI- uyumlu ağ geçidi, vekt�
 
 # translated-by: libretranslate
 # support and performance-tuned defaults
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr ""
+msgstr "Core NGINX webserver, HTTP ve TCP/UDP akış desteği ve performans odaklı varsayılan ayarlarla"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Kurumsal tasarım yapılandırma sahibi ve `design` Servis bayrağı, ev sahibi adını CDN'ye yönlendirin"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "NGINX-served uygulamalar için kurumsal tasarım enjeksiyonu, aydınlatıcı ışık ve onları OKLCH tasarımından karanlık"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -662,12 +668,9 @@ msgid "Event and ticket management tools"
 msgstr "Olay ve bilet yönetimi araçları"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Etkinlikler Etkinlikler Etkinlikler
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr ""
+msgstr "Events"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
@@ -706,12 +709,12 @@ msgstr "Finansal ve Muhasebe yazılımları"
 
 # translated-by: libretranslate
 # için ücretsiz ve açık kaynak TURN /STUN r r r r röportatörü
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: WebRTC'de NAT traversal ve gerçek zamanlı iletişim
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
 msgstr ""
+"---\n"
+"Tr:\n"
+"NAT traversal TURN/STUN relay server for WebRTC and real-time communication free open-source"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-obs:description"
@@ -791,12 +794,14 @@ msgstr "Evlatsız anonim Docker hacimleri için sağlık kontrolü, beyaz liste 
 # translated-by: libretranslate
 # Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
 # Yardım Yardım
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Yardım Yardım Yardım Yardım Yardım Yardım Yardım
 msgctxt "menu:Help:title"
 msgid "Help"
 msgstr ""
+"Help\n"
+"- Tum hiya hai?\n"
+"- Mera paas kuch sirf aapki madad kar saka. Mere paas koi bhi tareekah hai. Apko kaise madad karni hai?\n"
+"- Aapke paas kya kar raha hai?\n"
+"- Main aapke saath khel raha hoon."
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
@@ -991,12 +996,11 @@ msgstr "Bakım görevlerini kritik hizmetler durdurana kadar karıştırma mekan
 # translated-by: libretranslate
 # çalışmıyorken yerelhost aracılığıyla hafif posta teslimat için ek röle röle
 # röle röle röle röle röprü
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Halka geri dönüş- sadece merkezi posta yığını
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
 msgstr ""
+"Loopback-only postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-flowise:description"
@@ -1009,12 +1013,12 @@ msgid "Machine translation engine without a web surface, for pipelines that call
 msgstr "Bir web yüzeyi olmadan makine çevirisi motoru, onu doğrudan çağıran boru hatları için"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Bakım Bakım Bakım
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
 msgstr ""
+"---\n"
+"مکافleta\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:description"
@@ -1027,12 +1031,11 @@ msgid "Marker role tagging a host as the Docker Swarm manager node, with the ini
 msgstr "Marker rolü bir ev sahibi tutmak Docker Swarm Yönetici hayırde, init logic delege ile svc-swarm-node"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Pazarlama Pazarlama Pazarlama Pazarlama
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr ""
+"Marketing\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1045,12 +1048,12 @@ msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to 
 msgstr "Minimal terminal kodlama ajanı, tembel yükleyici bir yetenek sistemi ile, platformun kendi model ağ geçidine kablolandı"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: İzleme İzleme İzleme İzleme İzleme
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr ""
+"Monitoring\n"
+"---\n"
+"نظarroں"
 
 # translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
@@ -1187,12 +1190,9 @@ msgstr "CRM, satış, muhasebe, envanter, HR ve web sitesi yönetimi için açı
 
 # translated-by: libretranslate
 # behind SSO with native LDAP user management
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Open-source IT and application monitoring server
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
-msgstr ""
+msgstr "Açık kaynaklı IT ve uygulama izleme sunucusu, SSO ile birlikte, yerel LDAP kullanıcı yönetimi ile destekleniyor"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-snipe-it:description"
@@ -1417,6 +1417,17 @@ msgstr "Public REST API, veri, tarih ve çevirilerine hizmet ediyor Infinito.Nex
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Halk vhost, açığa çıkan System One karar kararı karar
+# kararı API Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
+# Of Of Of Of Of Of Of Of Of svc-ai-s1
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""
@@ -1502,12 +1513,11 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP ağ geçidi Tor's Seiko dinleyicileri aracılığıyla .onion alıcılar"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Satış Satış Satış Satış Satış Satış
 msgctxt "menu:Sales:title"
 msgid "Sales"
 msgstr ""
+"إدارة\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"
@@ -1639,6 +1649,7 @@ msgstr "Kendi kendine evlenmiş URL, izlemek ve inşa edilen kısa bağlantılar
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Kendi kendine ev sahipliği WebRTC platformu son uç uç
+# uç uç uç-son şifreli video konferencing with beerated doğrulama
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr ""
@@ -1694,6 +1705,8 @@ msgstr "Kendi kendine evlenmiş kitap incelemeleri ve Fediverse'in karşısında
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Kendi kendini mikroblogging, gerçek zamanlı zaman
+# zaman zaman zaman zaman çizelgesi ve topluluk moderasyonları için beslenmiş
+# sosyal ağ
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
 msgstr ""
@@ -1892,12 +1905,11 @@ msgid "Sovereign open-source video conferencing platform for audio/video calls, 
 msgstr "Sovereign open-source video ses / video aramaları, ekran paylaşımı, mola odalar ve SSOSO"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Stack Stack Stack
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr ""
+"Stack\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:description"

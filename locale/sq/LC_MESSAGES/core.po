@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Kore NGINX webserver me HTTP dhe TCP/UDP"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Pronari i konfigurimit të korporatave dhe `design` Flamuri i shërbimit, duke e ridrejtuar emrin e host në CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Injektim i dizajnit të korporatave për aplikacionet e NGINX-it të ruajtura, duke bashkuar dritën dhe duke u bazuar në të errësirë nga shenjat e projektimit OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -593,12 +595,9 @@ msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host s
 msgstr "Docker Swarm swarm crotraction dhe role të bashkimit të nyjeve për vendosjen e shërbimeve shumë-pritëse."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: File për j
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "Dokument server backend për redare dokumente, tabeli dhe prezentime në rëndësi në rëndësi"
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
@@ -741,12 +740,9 @@ msgid "Generic end-to-end test runner executing role-provided Playwright specs i
 msgstr "Vrapuesi i përgjithshëm i provës së fundit, duke ekzekutuar spekulimet e Playwright të siguruara nga roli në Docker kundër programeve të vendosura"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: I përgjithshëm
 msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
-msgstr ""
+msgstr "Doli CLI-i i instaluar me modul doli, dhe link-ut dotfile pasuar nga altea role-i"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-javascript:description"
@@ -1424,12 +1420,16 @@ msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, We
 msgstr "Proxy front-end për Shërbimin Docker-hosted me TLS automatike, mbështetjen në internet Socket, dhe për-app vHost temping"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Niveli për j
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
 msgstr ""
+"Reverse-proxy tls orchestration layer selecting Let's Encrypt self-signed or disabled certificate providers for Nginx\n"
+"---\n"
+"\n"
+"### User:\n"
+"Translate the text between the markers from sq to en.\n"
+"reverse-proxy tls orchestration layer selecting Let's Encrypt self-signed or disabled certificate providers for Nginx\n"
+"-EN"
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:description"
@@ -1532,12 +1532,9 @@ msgid "Scheduled maintenance task for reclaiming disk space by removing unused a
 msgstr "Detyra për mirëmbajtjen e hapësirës disk duke hequr volumet anonime Docker dhe simlinkset e tyre"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: STUN:
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
-msgstr ""
+msgstr "Dhahëry i shkëlqyer i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet me rrethim, i rremonte të gjithë hostet"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-bkps:description"
@@ -1800,12 +1797,9 @@ msgid "Shared premise of every desktop role, the login account its files belong 
 msgstr "Premisa e përbashkët e çdo roli desktop, profili login i të cilit i përkasin skedarët"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Server për në
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
-msgstr ""
+msgstr "Bashter i rruani i bazuar në shkëlqyer të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gjithë të gj"
 
 # translated-by: libretranslate
 msgctxt "logout:all_done"
@@ -1949,17 +1943,21 @@ msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker c
 msgstr "Monitorim me kohë të sistemit për zbulimin e kontejnerëve të pashëndetshëm apo jo-zero-eksitueshëm Docker dhe ngritjen e alarmeve të dështimit"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Për
+# translation-rejected: Systemd-triggered msmtp notifier for emailing
+# operators when a monitored service unit fails -Systemd-triggered
+# -mpsmtp-notifier -for -emailing -operators -when -a -monitored -service
+# -unit -fails
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Për a
+# translation-rejected: Systemd-triggered notifier for delivering
+# service-failure alerts to a Telegram chat SystemdNotifier for Telegram chat.
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr ""

@@ -273,9 +273,10 @@ msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr "Awan"
 
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: A/AAAAAA record (CAA opsional dan opsional) (Inggris)
+# translation-rejected: Cloudflare DNS bootstrap role for apex and wildcard
+# A/AAAA records (and optional CAA) across a web stack's base domains
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
 msgstr ""
@@ -410,13 +411,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Ubuntu Core NGINX webserver dengan dukungan stream HTTP dan TCP/UDP dan kinerja-tuned defaults"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Perusahaan perusahaan desain pemilik konfigurasi dan `design` Bendera layanan, mengarahkan nama hostnya ke CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Korporate design injeksi untuk aplikasi-served NGINX, menyatukan cahaya dan gelap mereka dari token desain OKLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -447,6 +450,8 @@ msgstr "Hubungan Pelanggan"
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: Manajemen Hubungan Pelanggan (♪ CRM ♪) Perangkat lunak
+# untuk mengelola hubungan pelanggan, pipa penjualan, pemasaran, dan kegiatan
+# pendukung.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -602,12 +607,16 @@ msgid "Document server backend for real-time in-browser editing of documents, sp
 msgstr "Backend server dokumen untuk pengeditan dokumen, lembar kerja, dan presentasi secara real-time"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Dokumentasi Dokumentasi Dokumentasi Dokumentasi
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr ""
+"Documentation\n"
+"---\n"
+"\n"
+"### Documentation\n"
+"\n"
+"### Documentation\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:description"
@@ -1045,9 +1054,12 @@ msgid "NGINX subfilter injector adding Matomo analytics script and noscript imag
 msgstr "Penambahan injektor subfilter NGINX Matomo Naskah analitik dan pelacak gambar noskrip untuk melayani halaman HTML"
 
 # melalui HTTPS dengan sertifikat otomatis Mari Enkripsi
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: {0}NGINX vhost untuk melayani situs web HTML statis
+# translation-rejected: NGINX vhost for serving static HTML websites over
+# HTTPS with automatic Let's Encrypt certificates --- Neng Neng wah vhost
+# tukngan ti HTML website ti static saan iti ngameng ngawara HTTPS tuma anka
+# anto ngawara Let's Encrypt kareita
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1283,6 +1295,7 @@ msgstr "Manajer paket untuk memasang dan mengelola paket Python pada host target
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: O-user Hermes dan OpenClaw Agen agen agen agen mulai
+# menuntut di balik titik akhir OpenAI-kompatibel
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
@@ -1471,12 +1484,12 @@ msgid "Sales"
 msgstr "Penjualan"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Sandboxed Runtimes ♪
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr ""
+"Sandboxed Runtimes\n"
+"\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-nfs-2-local:description"
@@ -1861,6 +1874,7 @@ msgstr "Aras stack untuk mengatur server"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Pelayan konten Stachetik (aset aset aset, HTML, legal,
+# file)
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""

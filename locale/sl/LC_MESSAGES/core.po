@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver z HTTP in TCP/UDP stream podporo in učinkovitost uglašene privzete"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Lastnik konfiguracije podjetja in `design` Zastava storitve, preusmeritev imena gostitelja v CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Injekcija korporativnega dizajna za aplikacije, servirane z NGINX, poenotenje svetlobe in temne teme iz žetonov za oblikovanje OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"

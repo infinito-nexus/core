@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Server NGINX de bază cu HTTP și suport flux TCP/UDP și implicite de performanță"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Proprietar de configurare de proiectare corporativă și `design` pavilion de serviciu, redirecționarea numele său gazdă la CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Injectie de design corporatist pentru aplicatii NGINX-servite, unificatoare de lumina si inchise din jetoane de design OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -1429,21 +1431,20 @@ msgid "Reverse-proxy roles for routing and load-balancing traffic to backend ser
 msgstr "Roluri inverse pentru rutarea și echilibrarea traficului către serviciile suport"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Roluri pentru curăţarea diferitelor resurse de sistem.
+# translation-rejected: Roles for cleaning up various system resources—old
+# backups, unused certificates, temporary files, Docker volumes, disk caches,
+# deprecated domains, and more.
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr ""
 
 # translated-by: libretranslate
 # hardware.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Roluri pentru instalarea și configurarea driverelor
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "Instalare și configurare a driverelor hardware – inclusiv imprimante, grafică, dispozitive de intrare și alte suport periferic."
 
 # translated-by: libretranslate
 msgctxt "category:web:description"
@@ -1452,12 +1453,9 @@ msgstr "Roluri pentru gestionarea infrastructurii web care acoperă serviciile d
 
 # translated-by: libretranslate
 # sănătate.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Roluri de monitorizare a sistemului și controale de
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "Verificarea funcționării sistemului – monitorizare și verificări de sănătate – inclusiv verificări automate de tip bot și monitori de nivel scăzut pentru loguri, containere, utilizarea discului și mai multe."
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1595,12 +1593,12 @@ msgid "Self-hosted System One classifier that answers typed questions so the gat
 msgstr "Auto-hosted System One Clasificator care răspunde la întrebări tastat astfel încât poarta poate ruta fără a genera"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr ""
+"Self-hosted url shortener for creating, tracking, and managing short links with built-in click analytics\n"
+"\n"
+"short_url"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
@@ -1944,12 +1942,9 @@ msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts
 msgstr "Rolul de întreținere programat pentru reporniri complete Docker Compose stiva, cu reporniri dure pentru stive cum ar fi Mailu"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr ""
+msgstr "Systemd-timed monitor pentru detectarea containerelor Docker nesigure sau cu excludere de zero și ridicarea alertelor de eșec"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"

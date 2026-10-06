@@ -31,12 +31,9 @@ msgstr "AI Services"
 
 # translated-by: libretranslate
 # experimenting with models.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: AI tools and frameworks for running, managing, and
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
-msgstr ""
+msgstr "يستخدم AI تطبيقات وتحليلات للتنفيذ والمراقبة والاستثمار بطرق مختلفة."
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-cursor:description"
@@ -69,9 +66,10 @@ msgid "Alerting"
 msgstr "الإنذار"
 
 # POP3, ManageSieve, CalDAV, CardDAV and built-in spam filter
-# translation-refused: libretranslate untranslated
+# translation-refused: libretranslate protected-span lost=['3'] gained=['33']
 # nocheck: url
-# translation-rejected: Allin-one Stalwart mail server with SMTP, IMAP, JMAP,
+# translation-rejected: All-in-one Stalwart mail server with SMTP, IMAP, JMAP,
+# POP33, ManageSieve, CalDAV, CardDAV and built-in spam filtering
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -83,12 +81,9 @@ msgstr "التحليل"
 
 # translated-by: libretranslate
 # lookup of peruser application tokens in a local YAML store
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Ansible helper role for idempotent persistence and
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
-msgstr ""
+msgstr "مساعد Ansible لديه دور لـ الاستمرارية غير المتكررة والبحث عن رموز التطبيقات المخصصة لكل مستخدم في مخزن YAML محلي"
 
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
@@ -167,12 +162,9 @@ msgstr "تطبيق العجلات الدوارة على الحشد لاتخاذ 
 
 # translated-by: libretranslate
 # gateway, published on its own domain behind the front proxy
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Browser-facing admin interface for the shared LLM
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr ""
+msgstr "واجهة الإدارة الأمامية للمحطة الذكية المشتركة، المنشورة على نطاقها الخاص على نطاقها الخاص من خلال الواجهة الخلفية"
 
 # translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -245,9 +237,10 @@ msgid "Centralized MariaDB or PostgreSQL database service shared across applicat
 msgstr "المركزية MariaDB أو PostgreSQL خدمات قاعدة البيانات المشتركة عبر التطبيقات Docker Compose"
 
 # إل إس) و(جي إن جي)"
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: "خدمة (سيرتبوت) لـ (أي سي إم)" "دعنا نُشفّر شهادات (تي
+# translation-rejected: Certbot-driven ACME service for Let's Encrypt
+# single-domain and wildcard TLS certificates on NGINX domains
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr ""
@@ -419,29 +412,25 @@ msgstr "الطبقة الرقابية لمهام التنظيف والرصد و�
 # translated-by: libretranslate
 # OpenAI-compatible gateways, vector databases, orchestration, and
 # conversation UIs.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Core AI building blocks-model serving,
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
-msgstr ""
+msgstr "مكونات الذكاء الاصطناعي الأساسية—خدمة النموذج، وممرات OpenAI المتاحة، وقواعد البيانات المتجهة، والتحكم في سير العمل، وواجهات الدردشة."
 
 # translated-by: libretranslate
 # support and performance-tuned defaults
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr ""
+msgstr "مُحَوِّل نGINX للويب مع دعم HTTP و TCP/UDP و الأداء المُحسّن الافتراضي"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "مالك تشكيلة الشركات `design` علم الخدمات، إعادة توجيه لقب مضيفها إلى الشبكة"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "حقنة تصميم الشركات من أجل التطبيقات التي تستخدمها شركة نجينكس، وتوحيد الضوء وإغماضها من مواقد تصميم أوكليك"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -518,21 +507,15 @@ msgstr "منبر للشبكة الاجتماعية اللامركزية والم
 
 # translated-by: libretranslate
 # and password-authenticated sudo for secure privilege escalation
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Dedicated administrator account with SSH key access
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr ""
+msgstr "مُسَاعِد مُتَجَاع مُتَجَاع مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِك مُشَارِ"
 
 # translated-by: libretranslate
 # and passwordless rsync sudo for secure supportive access
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Dedicated system account with SSH-restricted commands
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr ""
+msgstr "نظام حساب مخصص مع أوامر SSH المقيدة وكلمة مرور بدون كلمة مرور rsync sudo للوصول الآمن إلى النسخ الاحتياطية"
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
@@ -565,20 +548,19 @@ msgid "Desktop config role for activating GNOME Shell extensions and installing 
 msgstr "دور عقد المؤتمرات المكتبية لتفعيل نظام المعلومات الجغرافية Shell تمديد وتركيب أداة من أدوات الحرف اليدوية لإدارة تلك الأجهزة"
 
 # LibreOfficeإلخ)
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: أدوار البيئة المكتبية ((جينوم)، (بروزر)
+# translation-rejected: Desktop environment roles & apps (GNOME, LibreOffice,
+# etc.) ---  Desktop environment roles & apps GNOME, LibreOffice, etc.)
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr ""
 
 # Library for Blu-ray discryption and playback on Arch Linux
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Desktop media-player setup with VLC and AACS/BD+
+# translated-by: libretranslate
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
-msgstr ""
+msgstr "مُستمع مُشغّل الوسائط المتعددة مع VLC و مكتبات AACS/BD+ للفك شفرة القرص Blu-ray و تشغيلها على Arch Linux"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
@@ -627,12 +609,9 @@ msgstr "كومة دوكر كومبوس من قواعد البيانات المت
 
 # translated-by: libretranslate
 # roles for multi-host service deployment.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Docker Swarm cluster bootstrap and node-membership
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
-msgstr ""
+msgstr "مراكز Docker Swarm الـ bootstrap و أدوار عضوية المكونات لتعريف خدمات متعددة المضيف."
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
@@ -665,12 +644,10 @@ msgid "Education"
 msgstr "التعليم"
 
 # الشبكة
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: منصة روبوتية مدمجة لـ (هيرمز) على جهاز مكرس ومكون من
+# translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
-msgstr ""
+msgstr "منصة روبوتية مُجسَّدة لـ Hermes على جهاز مُخصص، مُقسمة في شبكة واحدة"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mcp-reconcile:description"
@@ -704,21 +681,15 @@ msgstr "محرِّر للنص القائم على المبادئ التوجيه�
 
 # translated-by: libretranslate
 # rule-validated games over ActivityPub across the Fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Federated ches server for playing and following
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr ""
+msgstr "فدراليChess servidor برای بازی و پیروزی بازی های قانون Validate را بر_activitypubAcross federated Chess server for playing and following rule-validated games over Activitypub across the Fediverse"
 
 # translated-by: libretranslate
 # web client and protocol bridges to external conversation networks
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Federated, end-to-encrypted Messaging platform with a
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr ""
+msgstr "نظام مراسلة آمن مُتصل بالكامل، مع متصفح ويب وبروتوكولات جسرية إلى شبكات الدردشة الخارجية"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"
@@ -726,12 +697,10 @@ msgid "Federated, self-hosted platform for organizing events and building commun
 msgstr "منبر موحّد يستضيف نفسه لتنظيم الأحداث وبناء المجتمعات والجماعات"
 
 # (Bluesky)و(إندي ويب)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: جسر الاتحاد الذي يربط النشاط (الضجة), بروتوكول AT
+# translated-by: libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "اتحاد السدود يربط بين النشاطPub (Fediverse), بروتوكول AT (Bluesky), و IndieWeb"
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -801,9 +770,12 @@ msgid "Generic role installing the doli CLI and applying dotfile symlink mapping
 msgstr ":: دور عام في تركيب نظام \" ديلي كلي \" وتطبيق خرائط ربطات عنق الرحم التي تمر بها أدوار أخرى"
 
 # responses via sub_filter, مع (سي إس بي)
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
 # translation-rejected: Global JavaScript injection layer for NGINX HTML
+# responses via sub_filter, with CSP hashing  ### Global - sub_filter -
+# JavaScript - injection - layer - for - NGINX - HTML - responses - via - CSP
+# - hashing
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr ""
@@ -837,9 +809,12 @@ msgstr "النجدة"
 
 # translated-by: libretranslate
 # الفساد Docker Compose (ج) أكياس المشروع وإثباته
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: دور المساعدة في تركيب أصول حقن الثقة في وكالة مكافحة
+# translation-rejected: Helper role installing CA-trust injection assets for
+# Docker Compose stacks and validating the project CA certificate --- نقل
+# ترخيص CA من دایره را می‌كنیم برای Docker Compose سpires و صحت certifiable
+# project CA Certificate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
@@ -886,12 +861,9 @@ msgstr ":: الدور الذي يضطلع به على المستوى المضي�
 
 # translated-by: libretranslate
 # with OIDC login, group-mapped policies and static-seal auto-unseal
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Identity-based secrets, PKI and encryption manager
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr ""
+msgstr "مخاوف تتعلق بالهوية، وPKI وإدارة التشفير مع تسجيل OIDC، سياسات مُنَظَّمة حسب المجموعة، وشفاء ثابت تلقائي"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-redis:description"
@@ -954,12 +926,10 @@ msgid "JavaScript runtime for building and running server-side applications and 
 msgstr "الوقت الذي يستغرقه بناء وتشغيل تطبيقات جانب الخادم وأدوات المطور"
 
 # من صندوق الرمال
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (كيرنيل) الذي يدير الشفرة كتب الدردشة في حاوية بدلاً
+# translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr ""
+msgstr "خادم الخلفية الذي يعمل الكود، ويسجل في حاوية بدلاً من في سجن المتصفح"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
@@ -968,12 +938,9 @@ msgstr "وكيل مُعَزَّل من طراز Kernel-isolated runtime serving 
 
 # translated-by: libretranslate
 # host: Kata Containers microVMs and the gVisor userspace fallback.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Kernel-isolating container runtimes on the container
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
-msgstr ""
+msgstr "مُحَوِّل مُفَكِّل مُحَوِّل الكُرتِل على المُحَوِّل المُتَوَازِن. Kata Containers microVMs و Fallback gVisor المستخدم."
 
 # translated-by: libretranslate
 msgctxt "role:svc-virt-kata:description"
@@ -982,12 +949,9 @@ msgstr "تشغيل الحاويات المُعَزَّلة التي لا يُث�
 
 # translated-by: libretranslate
 # directory tree with IP-restricted access for swarm-node hosts
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Kernel-level NFS server for exporting a shared
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr ""
+msgstr "مُحَوِّل NFS أساسي لخدمة مشاركة مع الوصول المحدود من خلال IP ل Hosts swarm-node"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
@@ -1006,12 +970,10 @@ msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated 
 msgstr "دعونا ندخل المزود لطبقة \"تي إل إس\" الأمامية التي تضمن إصدار شهادة مؤتمتة ووجود"
 
 # and media players, with XMB and Ozone menu fashions
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Lebretro-based frontend for emulators, game motors,
+# translated-by: libretranslate
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
-msgstr ""
+msgstr "محرر واجهة تعتمد على الويب، للإمباذج، والعتاد، واللاعبين، مع أنظمة XMB و Ozone"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-msmtp:description"
@@ -1108,26 +1070,27 @@ msgstr "جهاز فحص لتعويذة متعددة اللغات مزودة بأ
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: NGINX glue role for 301 Redirects from source to
+# target domains with automatic SSL for the source hosts
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr ""
 
 # 443 إعادة توجيه وتنظيف الحضيض
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: طبقة (إنجينكس) لـ (هاتيبس) لنبدأ مناولة التحدي 80 إلى
+# translation-rejected: NGINX layer for HTTPS with Let's Encrypt ACME
+# challenge handling, port 80 to 443 redirect, and stale vHost cleanup ---
+# NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to
+# 443 redirect, and stale vHost cleanup --
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr ""
 
 # translated-by: libretranslate
 # subdomains to their non-www apex domains
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: NGINX server blocks that permanently redirect www
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr ""
+msgstr "مُحَوِّل نGINX يمنع إعادة التوجيهات الدائمة من الـ subdomains إلى نطاقات الـ apex الخاصة بهم"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
@@ -1139,6 +1102,7 @@ msgstr "حقن مرشّح فرعي لشبكة إن جيناكس Matomo محلل 
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: NGINX vhost for serving static HTML websites over
+# HTTPS with automatic Let's Encrypt certificates
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1199,6 +1163,7 @@ msgstr "الخادم الذي يوجد مقره في نجينكس لاستضاف
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Node.js حزمة حزمة حزمة تركيبة Npm واختياريا تشغيل 'npm
+# ci داخل دليل المشروع
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1348,18 +1313,16 @@ msgstr "الخدمات الأمثل لتحسين نظامك"
 
 # translated-by: libretranslate
 # and other native-language programs
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Optimizing compilationr toolchain for building C, C++
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr ""
+msgstr "تحسين أدوات تطوير المترجم لإنشاء برامج بلغة C و C++ وغيرها من اللغات الأصلية"
 
 # translated-by: libretranslate
 # with TLS certificates, vHost templates, and optional OAuth2
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Orchestration wrapper for perdomain NGINX provisioning
+# with TLS certificates, vHost templates, and optional OAuth2
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
@@ -1432,12 +1395,13 @@ msgid "Power-aware systemd logind configuration for predictable laptop lid-close
 msgstr "تشكيلة لوجستية مصممة على أساس تنبيه السلطة من أجل سلوك حاسوبي قابل للتنبؤ به عبر البطاريات، وشركة AC، والولايات المرفوعة"
 
 # الذي يغذي الأقران على شبكة ويبريك (WebRTC) في مخزن مدمج SQLite
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: البرنامج الاجتماعي الأول للخصوصيات للأسر المعيشية،
+# translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr ""
+"Here's the translation:\n"
+"\n"
+"إمكانية الخصوصية الوحيدة في تطبيق التواصل الاجتماعي للمعاكسات، لفتاج متجاوزات WebRTC في المتصفح الذكي للمعاكسات على قاعدة المخزون الورقي التtight."
 
 # translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
@@ -1499,17 +1463,16 @@ msgstr "سحب من خلال المواهب لحزمة من أعلى المجر�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Python CLI package manager for cloning multiple code
+# repositos and automating common Git العمليات
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr ""
 
 # يضعونها
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: دبابيس الإصدار لـ (جيت هوب) يستعملون الأدوات التي
+# translated-by: libretranslate
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr ""
+msgstr "إطلاق نقاط التفعيل للبرامج النصية الخاصة بـ GitHub، والتي تثبتها أدوات البناء"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
@@ -1530,28 +1493,21 @@ msgstr "Reusable Git سحب البدائي للمستنسخات الضحلة، �
 
 # translated-by: libretranslate
 # allowlisted read surface
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Reusable per-provider MCP adapter exposing a narrow
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr ""
+msgstr "مُحَوِّل مُعَادِل مُتَجَاوِر مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَاوِر مُعَادِل مُتَجَاوِر مُتَجَ"
 
 # التلقائية، دعم (ويب سوكيت) و(فيس فوست)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: مُقدمة عكسية للخدمات المدعوة من (دوكر) بـ (تي إل إس)
+# translated-by: libretranslate
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
-msgstr ""
+msgstr "مخادل عكسي للخدمات المُدارة بواسطة Docker، مع دعم TLS تلقائي، ويدعم WebSocket، وتخصيص التنسيق حسب التطبيق لكل تطبيق"
 
 # مُوقّع ذاتياً، أو مُقدّمين لشهادة مُعاقين
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: الطبقة الراقية لـ (تي إل إس) لاختيار (دعنا نُشفّر،
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr ""
+msgstr "تكوين طبقة التوجيه العكسي لـ TLS، اختيار Let’s Encrypt، أو مزودات الشهادات ذات التوقيع الذاتي، أو غير مُفعل"
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:description"
@@ -1580,12 +1536,9 @@ msgstr ":: دور رصد النظام والفحص الصحي - بما في ذل
 
 # translated-by: libretranslate
 # self-signed TLS certificates for the front-proxy TLS layer
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: SAN-aware certificate provider generating and storing
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
-msgstr ""
+msgstr "مُوزّع شهادات مُحفز بالذكاء الاصطناعي ينتج ويُخزن شهادات TLS ذاتية التوقيع للطبقة الأم للـ TLS"
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor-smtp:description"
@@ -1684,9 +1637,11 @@ msgstr "البنية التحتية ذاتية التشغيل لأجهزة ال�
 
 # translated-by: libretranslate
 # أنابيب CI/CD، وتتبع القضايا
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: منصة (ديفوبس) ذاتياً Git إدارة رموز المصدر، خطوط
+# translation-rejected: Self-hosted DevOps platform for Git source-code
+# management, CI/CD pipelines, and issue tracking --- Self-hosted DevOps
+# platform for Git source-code management, CI/CD pipelines, and issue tracking
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
 msgstr ""
@@ -1727,12 +1682,10 @@ msgid "Self-hosted URL shortener for creating, tracking, and managing short link
 msgstr "مختصرة ذاتية في إنتاج وتتبع وإدارة الروابط القصيرة مع التحليلات ذات النقر"
 
 # المزوّد بالتوثيق الاتحادي
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: منصة (WebRTC) مأهولة ذاتياً للفيديو النهائي المشفّر
+# translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr ""
+msgstr "منصة ويبRTC مُدارة محليًا لحجز الفيديو المُشفّر المُتصل بالكامل، مع المصادقة الموحدة"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
@@ -1954,12 +1907,9 @@ msgstr "موقع تخصيص الكتب للمستعملين الوحيدين ا�
 
 # translated-by: libretranslate
 # dashboards and a built-in MCP server for AI agent access
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Smart-home functioning hub with devices integrations,
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
-msgstr ""
+msgstr "مراقب المنزل الذكي مع تكاملات الأجهزة، لوحات معلومات، ومحطة MCP مدمجة للوصول إلى وكيل الذكاء الاصطناعي"
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:title"
@@ -1978,12 +1928,9 @@ msgstr "معدات تطوير البرامجيات"
 
 # translated-by: libretranslate
 # audio/video calls, screen sharing, breakout rooms, and SSO
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Sovereign open-source video conferencing platform for
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr ""
+msgstr "منصة بث الفيديو مفتوحة المصدر لجدولة مكالمات صوتية/فيديو، ومشاركة الشاشة، ومناطق الاجتماعات الفرعية، و SSO"
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
@@ -2051,12 +1998,13 @@ msgid "System-wide command-line interface for managing and operating the entire 
 msgstr "وصلة بينية بينية على نطاق المنظومة من أجل إدارة وتشغيل بيئة المنبر ذاتيا بأكملها من الصدفة"
 
 # عبر نظام (بايتون) المضيف
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: مُساعد على نطاق المنظومة لتركيب أو ترقية حزمة (بيثون)
+# translated-by: libretranslate
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
 msgstr ""
+"يستخدم نظام الويب المعمول به منع تشغيل تطبيق على الشبكة الرئيسية\n"
+"---\n"
+"استخدم نظام الويب المعمول به منع تشغيل تطبيق على الشبكة الرئيسية"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
@@ -2084,12 +2032,10 @@ msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker c
 msgstr "رصد منتظم للكشف عن حاويات دوكر غير صحية أو غير مستخرجة من الصفر ورفع تنبيهات الفشل"
 
 # تفشل وحدة خدمات مراقَبة
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: مخطّط منظّم (Msmtp) لمشغلي البريد الإلكتروني عندما
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
-msgstr ""
+msgstr "نظام تسجيل تنبيهات msmtp triggered بواسطة نظام الخدمة المراقبة عند فشل وحدة الخدمة المراقبة"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-telegram:description"
@@ -2097,9 +2043,12 @@ msgid "Systemd-triggered notifier for delivering service-failure alerts to a Tel
 msgstr "مُخطر مُبرمج لتقديم تنبيهات بعدم الخدمة إلى دردشة برقية"
 
 # النموذجية للمنصة بدلاً من البائع API
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: وكيل الترميز النهائي من (أنثروبيك) أشار إلى البوابة
+# translation-rejected: --- Terminal coding agent from Anthropic, pointed at
+# the platform's own model gateway instead of the vendor API --- إنتحال
+# كودding_AGENT من Anthropic ، استخدمه في الملاصق المعماري instead of the
+# vender API
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
@@ -2136,12 +2085,9 @@ msgstr "دور التمرين وضع مجلدات دوكر على SSD أو HDD �
 
 # translated-by: libretranslate
 # development, and data science on Linux
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Toolchain for Python scripting, application
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
-msgstr ""
+msgstr "مجموعة أدوات لتطوير البرمجة باستخدام لغة Python، وتطوير التطبيقات، وتحليل البيانات على Linux"
 
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
@@ -2150,12 +2096,9 @@ msgstr "الأدوات"
 
 # translated-by: libretranslate
 # authentication, user provisioning, and secure access control.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Tools for Identity and Access Management, including
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
-msgstr ""
+msgstr "يستخدم هذه التنسيق النموذجي for Identity and Access Management, including authentication, user provisioning, and secure access control."
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:description"
@@ -2187,9 +2130,10 @@ msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
 msgstr "الأدوات التي تساعد على الاستفادة المثلى من خدمات الإنترنت"
 
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: (تور دايمون) ينشر العقد كـ (في)3 خدمات البصل
+# translation-rejected: Tor daemon publishing the node as a v3 onion service
+# ---  V3 Tor daemon publishing the node as a v3 onion service
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr ""
@@ -2264,9 +2208,12 @@ msgstr "الشبكة"
 
 # translated-by: libretranslate
 # الطلب
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: Web UI and API (ب) التشغيل الآلي في جدول زمني أو عند
+# translation-rejected: Web UI and API for running Ansible,
+# Terraform/OpenTofu, and shell automation on a schedule or on demand ---  يوم
+# الويبوين وال API لRunning Ansible, Terraform/OpenTofu, and shell automation
+# on a schedule or on demand
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
 msgstr ""

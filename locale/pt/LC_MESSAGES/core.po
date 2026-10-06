@@ -408,13 +408,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Servidor web NGINX com suporte de fluxo HTTP e TCP/UDP e padrões de desempenho ajustados"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "O proprietário da configuração do projeto corporativo e `design` sinalizador de serviço, redirecionando seu nome de máquina para o CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Injecção de design corporativo para aplicações servidas por NGINX, unificando temas claros e escuros a partir de fichas de design OKLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."

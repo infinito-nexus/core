@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver HTTP ja TCP / UDP stream tuki ja suorituskyky sävytetty oletukset"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Yrityksen suunnittelukokoonpanon omistaja ja `design` palvelulippu, ohjaamalla isäntänimi CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Corporate design inject for NGINX-served apps, yhdistävä valo ja tumma teemat OKLCH design kuponkia"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -1438,12 +1440,9 @@ msgid "Roles for cleaning up various system resources—old backups, unused cert
 msgstr "Roolit siivoamiseen erilaisia järjestelmän resursseja.old varmuuskopiot, käyttämättömät varmenteet, väliaikaiset tiedostot, Docker volyymit, levy välimuistit, deprecated verkkotunnuksia, ja paljon muuta."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Roolit asennus ja konfigurointi -laitteiston ajurit.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "Asennus- ja konfigurointiroolit laitteistopohjaisille ohjauslaitteille – mukaan lukien tulostimet, näytönohjaimet, sisäänrakennetut näppäimistöt ja muut ulkoiset tuki."
 
 # translated-by: libretranslate
 msgctxt "category:web:description"
@@ -1759,12 +1758,9 @@ msgstr "Palvelun optimointi"
 
 # translated-by: libretranslate
 # palautuskomponentteja.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Palvelutason varmuuskopiointi- ja
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr ""
+msgstr "Palvelunlaatuinen varmuuskonttiteknologia—automaattisten tietojen skannauksien käsittely, etäkäyttöpalvelut, synkronointipalvelut ja tietojen ja konttien synkronointi tietokannoissa, tiedoissa ja kontteissa."
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

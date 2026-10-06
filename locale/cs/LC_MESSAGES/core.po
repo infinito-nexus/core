@@ -34,12 +34,10 @@ msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr "AI nástroje a rámce pro běh, řízení a experimentování s modely."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr ""
+msgstr "AI-first code editor nainstalován na pracovníci, jehož endpoint override zůstává operátorem krokem"
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
@@ -414,13 +412,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver s podporou HTTP a TCP / UDP stream a výkonnost- laděnými vadami"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Vlastník konfigurace korporátního designu a `design` služební vlajka, přesměrování svého hostitelského jména na CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Vstřikování firemního designu pro aplikace NGINX- podávané, sjednocující světlo a tmavé témy z designových žetonů OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -502,12 +502,10 @@ msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
 msgstr "Dedikovaný administrátorský účet s přístupem ke klíči SSH a ověřeným heslem sudo pro zvýšení bezpečnosti práv"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr ""
+msgstr "Systém pro správné správu s SSH-restriktivními příkazy a bezpasswordový rsync sudo pro bezpečné přístup k záloze"
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
@@ -879,12 +877,10 @@ msgctxt "role:web-app-meta:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
 msgstr "Interaktivní vizualizace všech grafů Infinito.Nexus role a jejich závislost na transparentnosti architektury"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr ""
+msgstr "Sborování a sledování projektů pro software týmy, s Agilemi, pracovními postupy a volbou OIDC SSO"
 
 # translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
@@ -1048,12 +1044,10 @@ msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "NGINX subfilter injector additing Matomo analytics script and noscript image tracker to service HTML pages"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr ""
+msgstr "NGINX pro provozování statických HTML webových stránek přes HTTPS s automatickými certifikáty Let's Encrypt"
 
 # translated-by: libretranslate
 msgctxt "role:svc-prx-openresty:description"
@@ -1325,12 +1319,10 @@ msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr "Záložní systém Plug- spuštěný pro deduplikované snímky místního záložního stromu na swapplifikovatelné USB zařízení"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
-msgstr ""
+msgstr "Politicky řízený prohlížeč pro Arch Linux desktopy s automaticky nainstalovanými podnikatelskými rozšířeními"
 
 # translated-by: libretranslate
 msgctxt "role:drv-lid-switch:description"
@@ -1691,12 +1683,10 @@ msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "Online kancelářní backend pro real-time editaci dokumentů, tabulek a prezentací v prohlížeči"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-erpnext:description"
@@ -2134,12 +2124,10 @@ msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr "Web- based LDAP administration interface pro správu uživatelských, skupinových a adresářových objektů"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
-msgstr ""
+msgstr "Webové LDAP klienty pro prohlížení, vyhledávání a správu záznamů v LDAP serverech"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
@@ -2181,12 +2169,10 @@ msgctxt "logout:st_failed"
 msgid "failed"
 msgstr "selhalo"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr ""
+msgstr "nFTables packet filter, který má každá role vlastní tabulku, a nahrazeno atomicky a automaticky při startu"
 
 # translated-by: libretranslate
 msgctxt "logout:st_unconfirmed"

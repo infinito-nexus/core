@@ -114,12 +114,10 @@ msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "反向 DNS 自动化角色 (PTR 读取器) 在Hetzner Cloud服务器、主要IP、浮动IP和负载平衡器上的记录"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 备份恢复( R)
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
-msgstr ""
+msgstr "备份与恢复"
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
@@ -295,12 +293,10 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "分组局部拉动缓存,用于共享 Docker Hub 基像拉动,剪切重复转移和速率限制"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 在工作站安装编码器 (Claude Code, (中文). Cursor)
+# translated-by: libretranslate
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
-msgstr ""
+msgstr "安装了编码器在工作站。 (Claude Code, Cursor, Pi)"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mediawiki:description"
@@ -329,9 +325,11 @@ msgstr "社区"
 
 # 1)OpenResty 通过 sub_filter卢亚拥有CDN支持的资产.
 # gained=['(', ')', '1', 'sub_filter卢亚拥有CDN支持的资产']
-# translation-refused: libretranslate protected-span lost=['sub_filter']
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: 可编译的 HTML 注入角色 (CSS、JS、登机拦截器、分析仪、仪表板) 用于 Nginx / (%
+# translation-rejected: Composable HTML injection roles (CSS, JS, logout
+# interceptor, analytics, dashboard iframe) for Nginx/OpenResty via
+# sub_filter/Lua with CDN-backed assets.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -416,13 +414,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "有 HTTP 和 TCP/ UDP 流支持和性能调试默认的 NGINX 核心网络服务器"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "公司设计配置 `design` 服务旗,将其主机名重定向到 CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "NGINX服务应用软件的公司设计注入,统一了OKLCH设计标志中的光线和暗色主题"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -514,9 +514,10 @@ msgstr "推迟启动的管弦乐器,以便在游戏完成后启用和开始收�
 
 # translated-by: libretranslate
 # Mastodon,等编.)
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: 可部署的网络应用程序 (GitLab, (中文). Nextcloud, (中文).
+# translation-rejected: --- 可 deployed web applications (GitLab, Nextcloud,
+# Mastodon, etc.) --- 部署可用 web 应用 (GitLab, Nextcloud, Mastodon, etc.)
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -541,9 +542,16 @@ msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "启动 GNOME 的桌面配置角色 Shell 扩展并安装管理它们的 CLI 工具"
 
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: 桌面环境角色( A) (GNOME,浏览器, LibreOffice,等编.)
+# translation-rejected: Desktop environment roles & apps (GNOME, browser,
+# LibreOffice, etc.) --  Application centers & settings (Applications,
+# LibreOffice, etc.) ---  Desktop environment roles & apps (GNOME,
+# LibreOffice, etc.) --  Application centers & settings (Applications,
+# LibreOffice, etc.) ---  Window management roles & features (Window manager,
+# LibreOffice, etc.) ---  Desktop environment roles & apps (GNOME,
+# LibreOffice, etc.) --  Application centers & settings (Applications,
+# LibreOffice, etc.)
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr ""
@@ -788,12 +796,10 @@ msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr "帮助者角色安装 CA 信任注入资产 Docker Compose 堆栈和验证工程 CA 证书"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 帮助者角色安装器( I) (git, 地方, 计时器等)
+# translated-by: libretranslate
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
-msgstr ""
+msgstr "助手角色和安装器 ( git, 地方、计时器等.)"
 
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
@@ -801,9 +807,11 @@ msgid "Helpful Tools"
 msgstr "辅助工具"
 
 # (英语).
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: 管理、缩放和访问无结构数据的高性能、自我托管的存储解决方案——包括与亚马逊S兼容的对象存储3 APIs
+# translation-rejected: 3高-performance, self-hosted storage solutions for
+# managing, scaling, and accessing unstructured data — including object
+# storage compatible with Amazon S3 APIs.
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -1119,12 +1127,12 @@ msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
 msgstr "系统事件通知处理者"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: OS 软件包更新( P)
+# translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr ""
+"OS & package updates\n"
+"OS更新&包件更新"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
@@ -2059,12 +2067,25 @@ msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr "通过Telegram和电子邮件渠道统一系统通知服务发送服务失败警报"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 更新软件包管理( P)
+# translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
 msgstr ""
+"Updates & Package Management\n"
+"--\n"
+"\n"
+"### Updates\n"
+"- 1.0.0\n"
+"- 1.0.1\n"
+"- 1.0.2\n"
+"- 1.0.3\n"
+"- 1.0.4\n"
+"- 1.0.5\n"
+"- 1.0.6\n"
+"- 1.0.7\n"
+"- 1.0.8\n"
+"- 1.0.9\n"
+"- 1.0.10"
 
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
@@ -2084,12 +2105,16 @@ msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr "用户账户和访问控制"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 用户访问( A)
+# translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""
+"Users & Access\n"
+"English: Users\n"
+"Chinese:用户\n"
+"German: Nutzer\n"
+"French: Utilisateurs\n"
+"Spanish: Usuários"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"

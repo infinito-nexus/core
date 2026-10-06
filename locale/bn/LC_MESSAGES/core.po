@@ -68,6 +68,7 @@ msgstr "সতর্কবার্তা"
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: IMAP, IMAP সার্ভার %s-র মধ্যে মেইল প্রেরণ করা হচ্ছে3;
+# Syv, CalDAV, কার্ডADV, এবং স্প্যাম ফিল্টার পরিচালনা করুন
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -117,12 +118,14 @@ msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "বিপরীত DNS-র জন্য স্বয়ংক্রিয়ভাবে তথ্য প্রদান করা হবে (বিট) হেজনার ক্লাউড সার্ভার, প্রাথমিক IPs, ভাসমান IP এবং লোড করা"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ব্যাক- আপ পুনরুদ্ধার করা হবে (F)
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
 msgstr ""
+"Backup & Restore\n"
+"---\n"
+"\n"
+"Backup and restore"
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
@@ -299,12 +302,10 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "শেয়ারকৃত ডকারের হাব-ছবি টান টান টান টান টান-ছবি, অনুরূপ স্থানান্তর এবং সীমা অতিক্রমকারী"
 
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: কোড লেখা হয়েছে: (Claude Code'%s' Cursor; পাই)
+# translated-by: libretranslate
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
-msgstr ""
+msgstr "কাজের জন্য সার্ভার ইনস্টল করা হয়েছে workstation-এ (Claude CodeCursor, Pi)"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mediawiki:description"
@@ -336,6 +337,7 @@ msgstr "সম্প্রদায়"
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: ভূমিকা: (CSS, JS, লগার, Alickits, ড্যাশবোর্ড SSI)
+# এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -420,13 +422,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP এবং TCP/IP স্ট্রিমের সমর্থন এবং প্রদর্শন ব্যবস্থা দ্বারা ConeGIN ওয়েব সার্ভার"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "করপোমুক নকশা কনফিগারেশন এবং মালিক `design` সার্ভিসের দ্বারা CD-র হোস্ট-নেম রি-ডাইরেক্ট করুন"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "NGINX-র জন্য APX-র নকশা ইঞ্জেকশন, আলো ও অন্ধকার থেকে সকল তথ্য সংগ্রহ করে"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -518,12 +522,9 @@ msgstr "পুনরুদ্ধারের জন্য কনফিগার 
 
 # translated-by: libretranslate
 # Mastodon; ইত্যাদি.)
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: ZIP ওয়েব অ্যাপ্লিকেশন (GitLab'%s' Nextcloud'%s'
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 
 # translated-by: libretranslate
 msgctxt "category:dsk:title"
@@ -924,6 +925,7 @@ msgstr "দূরবর্তী হোস্ট- নেম সার্ভা�
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: লিয়েট-থেকে- অনুমোদনকৃত অনুবাদ ইঞ্জিন LibreTranslate
+# API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
 msgstr ""
@@ -1008,6 +1010,7 @@ msgstr "সার্টিফিকেটের জন্য দায়ী ভ
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: হোস্টের মতো ভূমিকা ধার্যকারী Docker Swarm ব্যবস্থাপক
+# নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""

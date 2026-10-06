@@ -154,12 +154,13 @@ msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr "Naršymo pagrindu besisukančio rato programėlė sprendimų priėmimui, atsitiktiniam pasirinkimui ir žaidimui"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr ""
+"Browser-faced administrator interface for the shared LLM gateway, published on its own domain behind the front proxy\n"
+"\n"
+"### Browser-faced administrator interface for the shared LLM gateway, published on its own domain behind the front proxy"
 
 # translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -308,12 +309,23 @@ msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr "Bendradarbiaujanti \"Wiki\" platforma, skirta naudotojams skirtiems dokumentams su išplėstiniu ekosistemos ir turinio valdymu"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr ""
+"-šiekli\n"
+"-šiaurės\n"
+"-aktyvūs\n"
+"-žmogai\n"
+"-namai\n"
+"-lygai\n"
+"-konfiskavimai\n"
+"-aktivistai\n"
+"-aktyvistai\n"
+"-aktyvisti\n"
+"-konfiskavimo\n"
+"-aktyvistų\n"
+"-aktivistų"
 
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
@@ -415,13 +427,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Pagrindinis NGINX žiniatinklio serveris su HTTP ir TCP / UDP srauto palaikymu ir suderintomis veikimo charakteristikomis"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Įmonės dizaino konfigūracijos savininkas ir `design` paslaugos vėliava, nukreipti savo mazgo vardą į CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Korporatyvinio dizaino įpurškimas į \"NGINX\" aptarnaujamas programas, suvienijantis šviesą ir tamsius teminius dalykus iš OKLCH dizaino žetonų"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -553,12 +567,10 @@ msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "Darbastalio biuro rinkinys dokumentams, skaičiuoklėms ir pristatymams su išsivadavimo fontais ir kalbų paketais"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr ""
+msgstr "Šildymų ir išjungimo programas, kurią galima nustatyti kaip autostatybę, naudojama, kad išjungimo procesas neatsistato, kai ekranas išjungomas"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-zoom:description"
@@ -756,12 +768,15 @@ msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript įpurškimo sluoksnis NGINX HTML atsakams per sub_filter, su CSP maišymo"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr ""
+"Hardná ir įškebešu daunyklas prošlēmienas metų reikštos sakykite, atvirkauti iki kai nuomos atitinanos, vėrdieni išlikausi\n"
+"---\n"
+"\n"
+"### Translate\n"
+"Ašrinkimo, nuomos atitinanos iki kai įškebešu daunyklas nuoma nuo įškebešo ir atvirkauti iki kai nuomos atitinanos."
 
 # translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
@@ -1098,12 +1113,10 @@ msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
 msgstr "Nginx pagrįstas privatumo proxy, kuris atspindi whiteelpoint trijų šalių turtą pagal pirmos partijos domeno"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr ""
+msgstr "Nginx-based serveras naudojamas kaip serveris, kuris kopia statinius elementus iš šioroje į interneto duomenųyklo strategiją"
 
 # translated-by: libretranslate
 msgctxt "role:dev-npm:description"
@@ -1320,12 +1333,14 @@ msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
 msgstr "Prašome laikyti šį puslapį atidaryti, kol tai bus padaryta."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
+"Plugg Triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device\n"
+"---\n"
+"Trąmingu uszczelnionego systemd backupu za hard-link deduplikiacji skaneratorów lokalnego backupa na swobodnie zmieniwalne USB przechowalnik\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
@@ -1607,12 +1622,10 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Savarankiškai patalpinta WebRTC platforma, skirta galiniam šifravimui vaizdo konferencijoms su federacijos autentiškumo patvirtinimu"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr ""
+msgstr "Žinomas programas, kuris generuoja QR kodo iš tekstų ar URLų su saugiam lokalizuotais pasizividinamiems"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
@@ -1712,9 +1725,12 @@ msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr "Savarankiškai patalpinta atvirojo kodo mašininio vertimo API teksto vertimui ir aptikimui kalbomis"
 
-# translation-refused: libretranslate collapsed
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Name
+# translation-rejected: Self-hosted personal AI agent gateway with a browser
+# control UI, sandboxed in a Kata microVM or gVisor runtime  ### Self-hosted
+# personal AI agent gateway with a browser control UI, sandboxed in a Kata
+# microVM or gVisor runtime
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr ""
@@ -1739,12 +1755,10 @@ msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
 msgstr "Savarankiškai veikianti projektų valdymo, darbo paketų sekimo, Gantt planavimo ir komandinio bendradarbiavimo platforma"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
+# translated-by: libretranslate
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr ""
+msgstr "Šūčių tinklė, kuriame galima pasiekti visus iššūkių įrengtus, individualiai pasizividinantį"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
@@ -1864,12 +1878,10 @@ msgstr "Programinės įrangos kūrimas"
 
 # garso ir (arba) vaizdo skambučiams, ekrano bendrinimui, išjungimo kambariams
 # ir SSO
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Valstybinė atvirojo kodo vaizdo konferencijų platforma
+# translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr ""
+msgstr "Svienskas dėlų pasavimo puslapis ikižių translokacijos, translokacijos bei SSO"
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"

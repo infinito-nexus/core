@@ -325,10 +325,13 @@ msgstr "ชุมชน"
 
 # เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
 # Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
+# gained=['sub_filterส']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
 # gained=['sub_filterส']
 # nocheck: url
 # translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
+# เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
+# Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -409,20 +412,23 @@ msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vect
 msgstr "Core AI บล็อก -- Model Pervision, OpenAI ประตูที่เข้ากันได้, ฐานข้อมูลเวกเตอร์, วงออเคสตร้า, และแชต UIs."
 
 # stream และค่าปริยายของการแสดง
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Kore EntertainX เว็บเซอร์ (inX) ด้วย HTTP และ TCP/UDP
+# translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
+# support and performance-tuned defaults - Core
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr ""
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "เจ้าของการปรับแต่งองค์กรและ `design` แฟล็กบริการ, เปลี่ยนรูปแบบชื่อแฟ้มไปยัง CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "การฉีดแบบองค์กรสําหรับ Apps แบบ NGINX-serve, การรวมแสงและความมืดจากป้ายออกแบบ OkLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -899,9 +905,10 @@ msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระ�
 
 # translated-by: libretranslate
 # Kata loader microVMs และ sports overnames.
-# translation-refused: libretranslate untranslated
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Keptember- usinaling times appnation on the paint:
+# translation-rejected: Kernel-isolating container runtimes on the container
+# host: Kata Containers microVMs and the gVisor userspace fallback.
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
 msgstr ""
@@ -957,9 +964,10 @@ msgid "Local self-signed Root CA for issuing trust so containers accept internal
 msgstr "ลายเซ็นตัวเองท้องถิ่นรูท CA สําหรับสร้างความไว้วางใจ เพื่อให้คอนเทนเนอร์ยอมรับจุดปลายของ TLS ภายใน"
 
 # (cross-platiform) อันดับ 1 ในฐานข้อมูล Ke Pass-formats ที่ถูกเข้ารหัสไว้
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: ระบบจัดการรหัสผ่านสําหรับพื้นที่ทํางานแบบไขว้
+# translation-rejected: Local-first cross-platform desktop password manager
+# storing credentials in an encrypted KeePass-format database
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr ""
@@ -1025,12 +1033,10 @@ msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr "เฝ้าดู"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Checknown regory (c.bg transparent c.ศ.
+# translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
-msgstr ""
+msgstr "มูติ-เลเยอร์ ความช่วยเหลือ คำว่าข้อความที่กำหนดระหว่างปุ่มคำชี้แจงจากภาษาอังกฤษเป็นภาษาไทย"
 
 # translated-by: libretranslate
 msgctxt "role:web-opt-rdr-domains:description"
@@ -1410,12 +1416,12 @@ msgstr "ซ่อมแซม"
 
 # การซ่อมแซมระบบยาก/การซ่อมแซมของดอกเกอร์, ระบบสมดุล (Btrfs)
 # และการแก้ไขระบบระดับต่ําอื่นๆ.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: การซ่อมแซมและฟื้นฟูบทบาท --
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr ""
+"---\n"
+"Reparo e recuperação de dados—manter um/uma recuperação do Docker, balançadores Btrfs baixos, e outras resoluções de nível baixo do sistema."
 
 # translated-by: libretranslate
 msgctxt "role:sys-util-git-pull:description"

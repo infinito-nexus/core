@@ -345,12 +345,9 @@ msgstr "Container Registries"
 
 # translated-by: libretranslate
 # running application containers on Linux hosts
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Container engine runtime with Compose for building and
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
-msgstr ""
+msgstr "Motor de combustión interna con Compose para construir y ejecutar contenedores de aplicación en servidores Linux"
 
 # translated-by: libretranslate
 msgctxt "role:svc-swarm-node:description"
@@ -412,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver con soporte de flujo HTTP y TCP/UDP y predeterminados ajustados por rendimiento"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Propietario de configuración de diseño corporativo `design` bandera de servicio, redireccionando su nombre de host al CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Inyección de diseño corporativo para aplicaciones NGINX, unificación de sonidos ligeros y oscuros de los tokens de diseño OKLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -585,21 +584,18 @@ msgstr "herramienta de construcción de base específica (compiladores, ligadore
 
 # translated-by: libretranslate
 # databases with backup, user, and permission management
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Docker Compose stack for containerized relational
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr ""
+msgstr "Stack de Docker para bases de datos relacionales en contenedores con respaldo, usuario y gestión de permisos"
 
 # translated-by: libretranslate
 # roles for multi-host service deployment.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Docker Swarm cluster bootstrap and node-membership
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
+"Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment\n"
+"-- \n"
+"Docker Swarm cluster bootstrap y roles de membresía de nodos para la depilación de servicios en múltiples hospedajes."
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
@@ -1348,12 +1344,11 @@ msgstr "Herramientas de gestión de proyectos"
 
 # translated-by: libretranslate
 # systems via mhwd nonfree hardware detection
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Proprietary GPU driver installer for Arch-based
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
+"Propiedad GPU director instalador para sistemas basados en Arch a través de mhwd no hardware detectado gratuito\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-wildcards:description"

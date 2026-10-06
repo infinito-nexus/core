@@ -291,9 +291,11 @@ msgstr "Клъстер-местни прокси кеш за пакет наго
 
 # translated-by: libretranslate
 # Docker Hub base-image pulls, cut duplicate transfers and rate limits
-# translation-refused: libretranslate untranslated
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Cluster-local local pull-through cash for shared
+# translation-rejected: Cluster-local pull-through cache for shared Docker Hub
+# base-image pulls, cutting duplicate transfers and rate limits
+# -----------------------------------------------
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr ""
@@ -410,20 +412,23 @@ msgstr "Core AI building bursorks год., OpenAI-съвместими порт�
 
 # translated-by: libretranslate
 # support and performance-tunned defaults
-# translation-refused: libretranslate untranslated
+# translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
+# support and performance-tuned defaults ---
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr ""
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Собственик на конфигурация на фирмения дизайн и `design` флага на услугата, пренасочвайки името на хоста си към CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Фирмени дизайнерски инжекции за NGINX-сервирани приложения, обединяващи светлина и тъмни гимнастики от дизайнери на OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -664,6 +669,7 @@ msgstr "Събития"
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Extensible Vim-based command-line text editor for
+# terminal-drived code and configuration editing
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -893,6 +899,7 @@ msgstr "Платформа за проследяване на емисии и п
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: JavaScript runtime for building and running
+# server-side applications and developer tooling
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -1458,9 +1465,13 @@ msgid "Roles for managing web infrastructure—covering static content services 
 msgstr "Роли за управление на уеб инфраструктурата, покриващи услуги за статично съдържание и приложения за достъп до интернет."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Роля за система за мониторинг и здравни проверки . .
+# translation-rejected: Roles for system monitoring and health
+# checks—encompassing bot-style automated checks and core low-level monitors
+# for logs, containers, disk usage, and more. Roles for system monitoring and
+# health checks—encompassing bot-style automated checks and core low-level
+# monitors for logs, containers, disk usage, and more.
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
@@ -1625,6 +1636,7 @@ msgstr "Self-hosted чат интерфейс за взаимодействие 
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted cloud platform for file sync, shareing,
+# real-time cooperation, and team workspaces under your own domain
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
@@ -1659,6 +1671,7 @@ msgstr "Самостоятелно предприятие уики и платф
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted federated reading platform for book
+# reviews and reading tracking over the Fediverse
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
@@ -1760,12 +1773,12 @@ msgstr "Self-hosted, federated платформа за споделяне, хо�
 
 # translated-by: libretranslate
 # real-time visit tracking and site metrics
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted, privacy-first web analytics platform for
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
+"Головни за гледка\n"
+"\n"
+" self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
@@ -2173,6 +2186,7 @@ msgstr "Настройка на работна станция за Docker и Doc
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Workstation toolchain and series-port permissions for
+# Arduino board development on Linux
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""

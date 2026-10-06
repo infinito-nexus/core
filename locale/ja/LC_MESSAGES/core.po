@@ -348,9 +348,10 @@ msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr "Linux ホスト上のアプリケーションコンテナの構築と実行のための Compose によるコンテナエンジンのランタイム"
 
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: スケジューリングサービス用のコンテナオーケストレーションクラスター(プール付きマネージャーとワーカーノード)
+# translation-rejected: Container orchestration cluster for scheduling
+# services across pooled manager and worker nodes
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
 msgstr ""
@@ -410,13 +411,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP と TCP/UDP ストリームのサポートとパフォーマンスチューニングのデフォルトで NGINX の Webserver をコアします。"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "企業の設計構成の所有者および `design` サービスフラグ、ホスト名をCDNにリダイレクトする"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "NGINX-servedアプリのコーポレートデザインインジェクション、OKLCHデザイントークンからライトを統一し、ダークテーマをダーク化"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -793,9 +796,10 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Amazon Sと互換性のあるオブジェクトストレージを含む、管理、スケーリング、および非構造化されたデータへのアクセスのための高性能、セルフホストストレージソリューション3 API の"
 
 # config、パッケージインストール、および安全なトンネル用のIP-forwarding sysctl)
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: ホストレベルのWireGuard VPNサービス(wg-quick
+# translation-rejected: Host-level WireGuard VPN service with wg-quick config,
+# package install, and IP-forwarding sysctl for secure tunnels
 msgctxt "role:svc-net-wireguard-core:description"
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr ""
@@ -1692,9 +1696,12 @@ msgid "Self-hosted open-source machine translation API for translating and detec
 msgstr "テキストを言語間で翻訳し、検出するためのセルフホスト型のオープンソース機械翻訳API"
 
 # セルフホスト型パーソナルAIエージェントゲートウェイ(ブラウザコントロールUI)、片マイクロVMまたはgVisorランタイムでサンドボックス
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected:
+# translation-rejected: Self-hosted personal AI agent gateway with a browser
+# control UI, sandboxed in a Kata microVM or gVisor runtime  ### Self-hosted
+# personal AI agent gateway with a browser control UI, sandboxed in a Kata
+# microVM or gVisor runtime
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr ""
@@ -1705,12 +1712,10 @@ msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycl
 msgstr "Keycloak SSO とセントラル LDAP ディレクトリとファイル同期、共有、コラボレーションのためのセルフホストプラットフォーム"
 
 # ニュースレターおよびメーリングリストのためのセルフホスト型プラットフォーム(購読者セグメンテーションとキャンペーン分析)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
+# translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
-msgstr ""
+msgstr "自社ホスティングプラットフォームは、ニュースレターとメールリストのサブスクリプション分割とキャンペーン分析機能を持つ"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-akaunting:description"
@@ -1758,9 +1763,11 @@ msgid "Service Optimation"
 msgstr "サービス最適化"
 
 # サービスレベルのバックアップとリカバリコンポーネント(自動データスナップショット、リモートバックアップ、同期サービス、データベース、ファイル、コンテナ間でのバックアップオーケストレーション)。.
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate untranslated
 # nocheck: url
-# translation-rejected:
+# translation-rejected: Service-level backup and recovery components— handling
+# automated data snapshots, remote backups, synchronization services, and
+# backup orchestration across databases, files, and containers.
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""

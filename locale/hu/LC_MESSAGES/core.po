@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "NGINX webszerver HTTP és TCP / UDP stream támogatással és teljesítményhangoló alapértelmezéssel"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Vállalati tervezési konfiguráció tulajdonosa és `design` szolgáltatás zászló, a hostname átirányítása a CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Vállalati tervezés NGINX- served alkalmazások, egyesítése fény és sötét témájú OKLCH design tokens"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -1392,6 +1394,8 @@ msgstr "Python CLI csomagkezelő több kódtár klónozásához és közös Git 
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Release pins for the GitHub-release lint tools the
+# toolchain installs  release pins github-release lint tools the toolchain
+# installs
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr ""

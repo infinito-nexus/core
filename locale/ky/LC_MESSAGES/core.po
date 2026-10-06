@@ -285,9 +285,10 @@ msgid "Cluster-local container image registry for serving custom-built images to
 msgstr "Docker Swarm жумушчу түйүндөрүнө атайын курулган сүрөттөрдү жеткирүү үчүн кластердик жергиликтүү контейнердик сүрөт реестри"
 
 # прокси кэш) - бул ар бир ролду жарыялайт.
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Класстердик-локалдык прокси кэш (кластердик-локалдык
+# translation-rejected: Cluster-local proxy cache for package upstreams,
+# serving apt, pip, npm and raw artefacts every role declares
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
 msgstr ""
@@ -329,10 +330,13 @@ msgstr "Коомчулук"
 
 # аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
 # камсыздалган активдери бар Луа.
+# gained=['sub_filterМЧН']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
 # gained=['sub_filterМЧН']
 # nocheck: url
 # translation-rejected: HTML инжекциялык ролдору (CSS, JS, Logout Interceptor,
+# аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
+# камсыздалган активдери бар Луа.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -417,13 +421,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "NGINX веб-сервери, HTTP жана TCP-UDP агым колдоосу жана аткаруу менен жөнгө салынган дефолттор"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Корпоративдик дизайн конфигурациясынын ээси `design` Кызмат көрсөтүү желеги, анын хост аталышын CDNге багыттоо"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "NGINX-кызматталган тиркемелер үчүн корпоративдик дизайн инжекциясы, OKLCH дизайн токендеринен жарык жана караңгы темаларды бириктирүү"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -816,9 +822,16 @@ msgid "Host-level configuration linking Bash and Zsh login shells to a shared .p
 msgstr "Bash жана Zsh login кабыктарын айлана-чөйрөнү ырааттуу жүктөө үчүн жалпы.profile менен байланыштырган хост деңгээлиндеги конфигурация"
 
 # чаралар pyproject.toml Системалык версия (ETC)
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate unknown-token
 # nocheck: url
-# translation-rejected: Долбоорду ачыкка чыгаруу үчүн хост деңгээлиндеги
+# translation-rejected: Host-level provisioning for exposing the project's <x
+# id="0"></x> version system-wide via /etc/environment --- Host-level
+# provisioning for exposing the project's <x id="1"></x> version system-wide
+# via /etc/environment --- Host-level provisioning for exposing the project's
+# <x id="2"></x> version system-wide via /etc/environment --- Host-level
+# provisioning for exposing the project's <x id="3"></x> version system-wide
+# via /etc/environment --- Host-level provisioning for exposing the project's
+# <x id="4"></x> version system-wide via /etc/environment
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr ""
@@ -1063,6 +1076,7 @@ msgstr "NGINX негизделген веб-платформа жана беки
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: NGINX кызмат кылган статикалык баракча юридикалык изин
+# берет (Импрессия) Жинжадан2 үлгүсү үлгүсү үлгүсү
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr ""
@@ -1164,9 +1178,11 @@ msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and webs
 msgstr "Ачык булактуу ERP топтому CRM, сатуу, бухгалтердик эсеп, инвентаризация, кадрлар жана веб-сайтты башкаруу үчүн"
 
 # (SSO)
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Ачык булактуу IT жана тиркемелерди көзөмөлдөө сервери
+# translation-rejected: Open-source IT and application monitoring server
+# behind SSO with native LDAP user management  Open-source IT and application
+# monitoring server behind SSO with native LDAP user management
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
@@ -1803,6 +1819,8 @@ msgstr "Керектөөчүлөргө виртуалдык хост жана к
 # translation-refused: libretranslate added-span lost=[] gained=['<unk>']
 # nocheck: url
 # translation-rejected: Көп түйүндүү жайгаштыруулар тарабынан колдонулган
+# жалпы туруктуу сактоочу арткы бөлүктөр <unk> NFSv4 Сервердик жана клиенттик
+# ролдор.
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""

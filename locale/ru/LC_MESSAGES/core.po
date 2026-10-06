@@ -408,13 +408,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver с поддержкой потоков HTTP и TCP/UDP и настройками производительности по умолчанию"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Владелец корпоративной конфигурации и `design` Флаг службы, перенаправляющий свое имя хоста на CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Инъекция корпоративного дизайна для приложений, обслуживаемых NGINX, объединяющая светлую и темную тематику от токенов дизайна OKLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -1301,12 +1303,13 @@ msgstr "Держите эту страницу открытой до завер�
 
 # deduplicated snapshots of the local backup tree to a swappable USB device
 # (англ.) (недоступная ссылка).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Plug-triggered systemd backup for hard-link
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
+"Here is the translation:\n"
+"\n"
+"Скачая и систематическиBackup дляhard-linkdeduplicatedsnapshotslocal backup tree на swappable USB device"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"

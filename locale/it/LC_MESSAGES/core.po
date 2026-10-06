@@ -297,6 +297,7 @@ msgstr "cache pull-through Cluster-local per l'imaging di base Docker Hub condiv
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: Agenti di codifica installati sulla stazione di lavoro
+# (Claude Code♪ Cursor♪)
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -411,13 +412,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver con supporto HTTP e TCP/UDP e default ottimizzati per le prestazioni"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Proprietario della configurazione di progettazione aziendale e `design` service flag, reindirizzando il suo hostname al CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Iniezione di progettazione aziendale per applicazioni NGINX-served, unificando la luce e l'oscuritÃ da gettoni di design OKLCH"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."

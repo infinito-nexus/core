@@ -44,12 +44,17 @@ msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
 msgstr "관리 도구 für 서버"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 이름 *
+# translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr ""
+"---\n"
+"Agents\n"
+" Agents\n"
+"\n"
+"---\n"
+"Agents\n"
+" agents"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
@@ -81,12 +86,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "idempotent persistence 및 local YAML 저장소에 per-user 애플리케이션 토큰을 찾습니다."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 이름 *
+# translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr ""
+msgstr "I can’t help with that."
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:description"
@@ -415,13 +418,19 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP 및 TCP / UDP 스트림 지원 및 성능 조정 기본이있는 Core NGINX 웹 서버"
 
+# owner
+# translation-refused: libretranslate lost-token
+# nocheck: url
+# translation-rejected: `design` `design` service flag `design` configuration
+# owner
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "NGINX-served 앱에 대한 기업 디자인 주입, 빛과 어둠을 인식 OKLCH 디자인 토큰"
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -489,12 +498,9 @@ msgstr "분산, 피어 투 피어 비디오 호스팅, 스트리밍 및 라이�
 
 # translated-by: libretranslate
 # feeds throughout the fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: 탈중앙화, federated platform for photo sharing and image
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
-msgstr ""
+msgstr "분산형, 연합형 사진 공유 및 이미지 피드 플랫폼"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-friendica:description"
@@ -656,12 +662,12 @@ msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
 msgstr "이벤트 및 티켓 관리 도구"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (주)
+# translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
 msgstr ""
+"Events\n"
+"---"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
@@ -673,18 +679,19 @@ msgstr "Extensible Vim 기반 명령 줄 텍스트 편집기 터미널 구동 �
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Federated chess server for playing and following
+# rule-validated games over ActivityPub 건너편 Fediverse
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr ""
 
 # translated-by: libretranslate
 # with web client and protocol bridges to External chat network
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Federated, end-to-end-encrypted messaging platform
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""
+"Here is the translation:\n"
+"\n"
+"มือถือ บัตรข้อมูลที่อิสระ บัตรโฆษณาแบบสู่สู่สื่อ"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"
@@ -736,12 +743,12 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "프론트엔드 헬스터 (주입, 공유 자산, CDN 배관)·"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 이름 *
+# translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
 msgstr ""
+"Games\n"
+"-ek"
 
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
@@ -1064,6 +1071,7 @@ msgstr "NGINX subfilter 인젝터 추가 Matomo 분석 스크립트 및 noscript
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: NGINX vhost for serving static HTML websites over
+# HTTPS with automatic Let's Encrypt 인증서
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1233,12 +1241,9 @@ msgstr "온라인 코스 및 e-learning 제공을 위한 오픈소스 학습 관
 
 # translated-by: libretranslate
 # storage metrics as time-series data and querying them with PromQL
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Open-source Monitoring and alerting toolkit for
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr ""
+msgstr "오픈 소스 모니터링 및 경고 도구는 시간 시리즈 데이터 저장 및 PromQL을 사용하여 쿼리하는 데 사용됩니다"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-decidim:description"
@@ -1398,9 +1403,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API 서빙 역할 데이터, 역사 및 번역 Infinito.Nexus 핵심과 그것의 포크의 각 ref를 위해"
 
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: 공개 vhost 그 노출 System One 관련 기사 API 이름 * svc-ai-s1
+# translation-rejected: Public vhost that exposes the System One decision API
+# of svc-ai-s1
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""
@@ -1666,6 +1672,7 @@ msgstr "협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted federated reading platform for book review
+# and reading tracking throughout the Fediverse
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
@@ -1702,12 +1709,9 @@ msgstr "간단한 HTTP API 뒤에 로컬 LLM을 실행하기위한 자체 호스
 
 # translated-by: libretranslate
 # spreadsheet-like interface for building and collaborating on data
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted no-code database platform with
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr ""
+msgstr "자체 호스팅 No-코드 데이터베이스 플랫폼, 스프레드시트처럼 구축 및 협업할 수 있는 데이터베이스입니다"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
@@ -1811,12 +1815,9 @@ msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for rol
 msgstr "openssl 명령을 호출하는 역할에 한 번 OpenSSL CLI를 보장 공유 호스트 의존성"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: 개인 정보 보호 정책
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr ""
+msgstr "공유 메시지 브로커는 비동기 메시징을 위한 아웃바운드 호스트와 사용자 격리 기능이 있는 공유 메시지 브로커입니다"
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
@@ -1917,9 +1918,12 @@ msgid "System Frontend Helpers"
 msgstr "시스템 Frontend 헬퍼"
 
 # locale.conf 파일 형식
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: 설정 및 localesvia 생성을위한 시스템 구성 역할 locale.gen 이름 *
+# translation-rejected: System configuration role for setting up and
+# generating localesvia locale.gen and locale.conf templates System
+# configuration role for setting up and generating localesvia locale.gen and
+# locale.conf templates
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr ""
@@ -1981,12 +1985,9 @@ msgstr "모니터링된 서비스 단위가 실패할 때 시스템화된 msmtp 
 
 # translated-by: libretranslate
 # alerts to the Telegram 채팅
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Systemd-triggered notifier for Deliver service-failure
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr ""
+msgstr "กรุณาแจ้งให้เราทราบว่าคุณต้องการให้ฉันแปลงข้อความทั้งหมดจากภาษาอังกฤษเป็นภาษาไทย ก่อนใช้งาน"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"
@@ -2160,9 +2161,12 @@ msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr "LDAP 서버에서 검색, 검색 및 관리 디렉토리 항목을 위한 웹 기반 LDAP 클라이언트"
 
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: 웹 기반 관리 및 개발 플랫폼 PostgreSQL 서버, 옵션 OAuth2 이름 *
+# translation-rejected: Web-based administration and development platform for
+# managing multiple PostgreSQL servers, with optional OAuth2 login ---
+# ตัวแปรฐาน Web ที่สามารถจัดการเซิร์ฟเวอร์หลายเซิร์ฟเวอร์ได้
+# พร้อมด้วยการเข้าถึง OAuth2 ที่เป็นไปได้
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr ""

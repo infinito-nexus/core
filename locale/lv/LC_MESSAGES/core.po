@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Pamata NGINX tīmekļa serveris ar HTTP un TCP/UDP straumēšanas atbalstu un veiktspējas izlīdzinātiem noklusējumiem"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Korporatīvās konstrukcijas konfigurācijas īpašnieks un `design` pakalpojuma karogs, pāradresējot tā datora nosaukumu uz CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Korporatīvā dizaina inžekcija NGINX aplikācijām, apvienojot gaismu un tumšās tās no OKLCH dizaina žetoniem"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -795,9 +797,11 @@ msgstr "Palīglīdzekļi"
 # LuxSCS maksu un maksu par LuxOpCo pakalpojumiem, kas saistīti ar LuxOpCo
 # pakalpojumiem, LuxOpCo un LuxOpCo, LuxOpCo darbībām un LuxOpCo darbībām.3
 # API.
-# translation-refused: libretranslate stutter
+# translation-refused: libretranslate unknown-token
 # nocheck: url
-# translation-rejected: LuxSCS un LuxOpCo LuxSCS LuxOpCo LuxSCS LuxOpCo LuxSCS
+# translation-rejected: High-performance, self-hosted storage solutions for
+# managing, scaling, and accessing unstructured data — including object
+# storage compatible with Amazon S<x id="0"></x> <x id="1"></x>.
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -1386,12 +1390,10 @@ msgid "Public REST API serving role data, history and translations of Infinito.N
 msgstr "Public REST API apkalpo lomu datus, vēsturi un tulkojumi Infinito.Nexus katrai serdes daļai un dakšām"
 
 # skaits * svc-ai-s1
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Publisks vhost, kas atklāj System One lēmums API
+# translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Public vhost that exposes the System One decisions API of svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1816,9 +1818,12 @@ msgid "Signed out everywhere."
 msgstr "Parakstīts visur."
 
 # pakalpojumi.
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: Paraksts, izņemot {failed} skaits * {total}
+# translation-rejected: Signed out, except {failed} of {total} services. ---
+# Sigālēt, uzākst {failed} no {total} pārējgaiden. ---  ### User:  ### Signed
+# out, except {failed} of {total} services. ---  ### Signed out, except
+# {failed} of {total} services.
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
@@ -2204,9 +2209,12 @@ msgctxt "logout:st_pending"
 msgid "signing out"
 msgstr "parakstīšanās"
 
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate lost-token
 # nocheck: url
-# translation-rejected: {done} skaits * {total} Parakstītie pakalpojumi
+# translation-rejected: --- {done} of {total} servicēs ģremnē atvērīti ---
+# ### User:  --- {done} {total}saprūdījumi</x> signāti iznogoti ---  ### User:
+# --- {done} {total}pārtstāvēšanas</x> atsargumi signāti iznogti ---  ###
+# User:  --- {done} {total}uzvālēs</x> signāti atkārtēti
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"

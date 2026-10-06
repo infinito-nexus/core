@@ -409,13 +409,15 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Κεντρικός εξυπηρετητής ιστού NGINX με υποστήριξη ρεύματος HTTP και TCP/UDP και προεπιλεγμένες επιδόσεις"
 
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Ιδιοκτήτης διαμόρφωσης εταιρικής σχεδίασης και `design` σημαία υπηρεσίας, ανακατευθύνοντας το όνομά του στο CDN"
 
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Ένεση εταιρικής σχεδίασης για εφαρμογές που εξυπηρετούνται από το NGINX, ενοποιώντας το φως και το σκούρο θέμα από τις μάρκες σχεδιασμού OKLCH"
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -790,9 +792,11 @@ msgstr "Βοηθητικά Εργαλεία"
 # διαχείριση, κλιμάκωση και πρόσβαση σε μη δομημένα δεδομένα —
 # συμπεριλαμβανομένης της αποθήκευσης αντικειμένων συμβατών με την Amazon S3
 # APIs (στα Αγγλικά).
-# translation-refused: libretranslate structure
+# translation-refused: libretranslate untranslated
 # nocheck: url
-# translation-rejected: Αποθήκευση υψηλής απόδοσης, αυτόνομες λύσεις για τη
+# translation-rejected: --- High-performancia, soluciones de almacenamiento de
+# alta rendimiento, autónomo para gestionar, escalar y acceder a datos no
+# estructurados — compatibles con APIs de Amazon S3.  ---.
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -1003,9 +1007,10 @@ msgid "Marketing"
 msgstr "Εμπορία"
 
 # results without handing a user's query to a tracking search provider
-# translation-refused: libretranslate untranslated
+# translation-refused: libretranslate echo
 # nocheck: url
-# translation-rejected: Metasearch engine the platform questions for web
+# translation-rejected: Metasearch engine the platform queries for web results
+# without handing a user's query to a tracking search provider
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
 msgstr ""
