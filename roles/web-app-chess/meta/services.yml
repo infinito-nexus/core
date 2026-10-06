@@ -23,9 +23,6 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 chess:
-  # nocheck: architecture-pin  Reason: the published v1.0.1 of ghcr.io/kevinveenbirkenbach/fedi-chess is a single linux/amd64 manifest; its workflow now builds linux/amd64,linux/arm64, so the next release makes this declaration removable
-  architectures:
-    - amd64
   healthcheck:
     flavor: curl
   modes:
@@ -34,7 +31,7 @@ chess:
     swarm:
       enabled: true
   image: ghcr.io/kevinveenbirkenbach/fedi-chess
-  version: v1.0.1
+  version: v1.2.2
   name: web-app-chess
   min_storage: 633MB
   backup:
