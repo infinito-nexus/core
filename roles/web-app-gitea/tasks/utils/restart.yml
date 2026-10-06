@@ -7,13 +7,13 @@
       - "{{ GITEA_LOCAL_CID }}"
   changed_when: true
   delegate_to: "{{ GITEA_HOST_NODE }}"
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🔄 swarm | Force an update of the Gitea service"
   ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, entity_name) }}"
   changed_when: true
   timeout: "{{ lookup('timeout', 600) | int }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔍 Resolve the container the restart left running"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
