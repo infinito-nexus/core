@@ -33,6 +33,7 @@ COPY scripts/install ${INFINITO_SRC_DIR}/scripts/install
 RUN set -euo pipefail; \
   source <(grep -hE '^INFINITO_(FILESYSTEM_INSTALL_SCRIPT|APT_UBUNTU_MIRRORS)=' "${INFINITO_SRC_DIR}/default.env"); \
   INFINITO_APT_UBUNTU_MIRRORS="${INFINITO_APT_UBUNTU_MIRRORS:?}" /bin/bash "${INFINITO_SRC_DIR}/scripts/install/apt-mirrors.sh"; \
+  /bin/bash "${INFINITO_SRC_DIR}/scripts/install/dnf-mirrors.sh"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_FILESYSTEM_INSTALL_SCRIPT:?}"
 
 COPY roles/dev-python/files/shell ${INFINITO_SRC_DIR}/roles/dev-python/files/shell
