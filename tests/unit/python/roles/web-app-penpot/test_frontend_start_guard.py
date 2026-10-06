@@ -20,6 +20,7 @@ if [[ "${name}" != *. ]]; then
 \techo "172.30.0.10 ${name}.infinito.test"
 \texit 0
 fi
+echo "${name}" >>"${STUB_DIR}/absolute-names"
 lookups=$(( $(cat "${STUB_DIR}/absolute-lookups" 2>/dev/null || echo 0) + 1 ))
 echo "${lookups}" >"${STUB_DIR}/absolute-lookups"
 if [ "${lookups}" -le "${STUB_UNKNOWN_LOOKUPS}" ]; then
@@ -77,6 +78,14 @@ class TestFrontendStartGuard(unittest.TestCase):
                 timeout=30,
             )
             self.assertEqual(done.returncode, 0, done.stderr)
+            names = load_yaml(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
+            self.assertEqual(
+                set(read_text(str(bin_dir / "absolute-names")).split()),
+                {
+                    f"{names['PENPOT_BACKEND_SERVICE']}.",
+                    f"{names['PENPOT_EXPORTER_SERVICE']}.",
+                },
+            )
             return int(done.stdout)
 
     def test_nginx_waits_until_the_services_resolve_without_the_search_domain(self):

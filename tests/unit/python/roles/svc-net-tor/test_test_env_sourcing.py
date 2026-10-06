@@ -26,6 +26,7 @@ PORTS = [25, 80, 587]
 def _lookup(name: str, *_args: str) -> object:
     return {
         "config": "example.onion",
+        "container_address": "tor",
         "nginx": "/etc/nginx/conf.d/servers",
         "tor_ports": [
             {"onion_port": port, "target": f"127.0.0.1:{port}"} for port in PORTS
@@ -42,8 +43,10 @@ def _render(mode: str) -> str:
     env.filters.update(FilterModule().filters())
     return env.from_string(read_text(str(TEMPLATE))).render(
         lookup=_lookup,
+        application_id="svc-net-tor",
         DEPLOYMENT_MODE=mode,
         TOR_DNSMASQ_CONF="/etc/dnsmasq.d/tor-onion.conf",
+        TOR_FLAVOR="chutney",
     )
 
 
