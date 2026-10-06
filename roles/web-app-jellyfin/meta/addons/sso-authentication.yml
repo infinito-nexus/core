@@ -8,6 +8,8 @@ update:
   monitored: true
   catalog: github-releases
   upstream_id: 9p4/jellyfin-plugin-sso
+  match: "v"
+  strip: true
 config:
   tag: "manifest-release"
   manifest: "https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json"
