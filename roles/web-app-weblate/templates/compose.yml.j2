@@ -4,12 +4,38 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'weblate') }}
     {{ lookup('compose_only', 'container_name', WEBLATE_CONTAINER) }}
+    environment: # nocheck: compose-environment-from-env-file three services share this role's single env.j2; WEBLATE_SERVICE is what tells each task which half of the image to run, so it cannot carry one value for all of them
+      WEBLATE_SERVICE: web
     {{ lookup('container_ports', ['weblate', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
+
+  {% set service_name = 'beat' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'weblate') }}
+    {{ lookup('compose_only', 'container_name', WEBLATE_BEAT_CONTAINER) }}
+    environment: # nocheck: compose-environment-from-env-file see the web service above; this is the only task upstream lets run migrate
+      WEBLATE_SERVICE: celery-beat
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+
+  {% set service_name = 'worker' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'weblate') }}
+    {{ lookup('compose_only', 'container_name', WEBLATE_WORKER_CONTAINER) }}
+    environment: # nocheck: compose-environment-from-env-file see the web service above; this task drains the queues the web task no longer runs
+      WEBLATE_SERVICE: celery-combined
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
 
 {{ lookup('compose_volumes') }}
 

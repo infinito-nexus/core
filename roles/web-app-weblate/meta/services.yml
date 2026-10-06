@@ -70,6 +70,50 @@ weblate:
   pids_limit: 1024
   registration_open: false
   site_title: Infinito.Nexus Translations
+# nocheck: playwright-service-flag — no browser surface; it runs Django's migrate and the beat scheduler
+beat:
+  name: weblate-beat
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+    host:
+      enabled: false
+  image: weblate/weblate
+  version: "2026.9"
+  min_storage: 1GB
+  lifecycle: beta
+  # nocheck: single-replica weblate-beat. It is the only task upstream lets run Django's migrate, and the beat scheduler itself must stay singular or every periodic task fires once per replica.
+  replicas: 1
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+# nocheck: playwright-service-flag — no browser surface; it drains the celery queues
+worker:
+  name: weblate-worker
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+    host:
+      enabled: false
+  image: weblate/weblate
+  version: "2026.9"
+  min_storage: 1GB
+  lifecycle: beta
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
 # nocheck: playwright-service-flag — the gateway reads Weblate over its API, it has no browser surface here
 translate: # nocheck: shared-provider web-svc-translate owns this service; Weblate is only its memory
   bond: 0.5

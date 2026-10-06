@@ -5,9 +5,17 @@ data:
   mounts:
     - service: weblate
       target: /app/data
+    - service: beat
+      target: /app/data
+    - service: worker
+      target: /app/data
 cache:
   type: volume
   name: weblate_cache
   mounts:
     - service: weblate
+      target: /app/cache
+    - service: beat
+      target: /app/cache
+    - service: worker
       target: /app/cache

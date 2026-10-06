@@ -3,6 +3,8 @@ application_id: "web-app-weblate"
 entity_name: "{{ application_id | entity_name }}"
 
 WEBLATE_CONTAINER: "{{ lookup('config', application_id, 'services.weblate.name') }}"
+WEBLATE_BEAT_CONTAINER: "{{ lookup('config', application_id, 'services.beat.name') }}"
+WEBLATE_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
 WEBLATE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 WEBLATE_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
 WEBLATE_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.weblate.registration_open') | bool }}"
