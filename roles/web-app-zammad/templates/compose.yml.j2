@@ -55,6 +55,7 @@
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - path.data={{ ZAMMAD_SEARCH_DATA_DIR }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

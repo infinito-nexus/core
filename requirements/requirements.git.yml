@@ -18,7 +18,7 @@ collections:
   - name: community.general
     source: https://github.com/ansible-collections/community.general.git
     type: git
-    version: 13.4.0
+    version: 13.5.0
 
   - name: community.docker
     source: https://github.com/ansible-collections/community.docker.git
@@ -33,4 +33,4 @@ collections:
   - name: hetzner.hcloud
     source: https://github.com/ansible-collections/hetzner.hcloud.git
     type: git
-    version: 7.1.0
+    version: 7.2.0

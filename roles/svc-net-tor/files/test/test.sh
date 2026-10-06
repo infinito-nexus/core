@@ -18,6 +18,8 @@
 #   SLEEP_SECONDS     wait between attempts
 #   TOR_DNSMASQ_CONF  the dnsmasq drop-in path; its directory is scanned for
 #                     upstreams when a probe fails
+#   TOR_CONTAINER     address of the tor container
+#   TOR_FLAVOR        public or chutney
 
 set -uo pipefail
 
@@ -26,6 +28,8 @@ NGINX_SERVERS_DIR="${NGINX_SERVERS_DIR:?pass NGINX_SERVERS_DIR as env (the deplo
 RETRIES="${RETRIES:?pass RETRIES as env (attempts per domain, from svc-net-tor test.env)}"
 SLEEP_SECONDS="${SLEEP_SECONDS:?pass SLEEP_SECONDS as env (wait between attempts, from svc-net-tor test.env)}"
 TOR_DNSMASQ_CONF="${TOR_DNSMASQ_CONF:?pass TOR_DNSMASQ_CONF as env (the dnsmasq drop-in path, from svc-net-tor vars)}"
+TOR_CONTAINER="${TOR_CONTAINER:?pass TOR_CONTAINER as env (address of the tor container, from svc-net-tor test.env)}"
+TOR_FLAVOR="${TOR_FLAVOR:?pass TOR_FLAVOR as env (public or chutney, from svc-net-tor test.env)}"
 
 discover_domains() {
 	find "${NGINX_SERVERS_DIR}/http" "${NGINX_SERVERS_DIR}/https" \
@@ -101,5 +105,20 @@ done
 echo "[INFO] ${#domains[@]} probed, ${failed} failed"
 
 "$(dirname "${BASH_SOURCE[0]}")/onion_ports.py" || failed=$((failed + 1))
+
+if [[ "${TOR_FLAVOR}" == "chutney" ]]; then
+	status=0
+	workers="$(container exec "${TOR_CONTAINER}" sh -c 'grep -cH "^NumCPUs 1$" /opt/chutney/net/nodes/*/torrc')" || status=$?
+	unbounded="$(sed -n 's/:0$//p' <<<"${workers}")"
+	if [[ "${status}" -gt 1 || -z "${workers}" ]]; then
+		echo "[FAIL] cannot read the chutney node torrcs in ${TOR_CONTAINER}"
+		failed=$((failed + 1))
+	elif [[ -n "${unbounded}" ]]; then
+		echo "[FAIL] chutney nodes without NumCPUs 1 start one worker per host core: ${unbounded//$'\n'/ }"
+		failed=$((failed + 1))
+	else
+		echo "[OK]   every chutney node runs one worker"
+	fi
+fi
 
 [[ "${failed}" -eq 0 ]]
