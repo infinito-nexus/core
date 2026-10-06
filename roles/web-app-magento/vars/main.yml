@@ -19,6 +19,7 @@ MAGENTO_PHP_FPM_CONF_PATH: "{{ [ lookup('container', application_id, 'directorie
 MAGENTO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 
 MAGENTO_SEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.search.name') }}"
+MAGENTO_SEARCH_HEAP_MB: "{{ lookup('service_memory_mb', application_id, 'search', 0.5) }}"
 
 MAGENTO_PHP_CONTAINER: "{{ lookup('config', application_id, 'services.php.name') }}"
 MAGENTO_PHP_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'php') }}"

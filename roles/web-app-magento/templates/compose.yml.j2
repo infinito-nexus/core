@@ -39,7 +39,7 @@
     environment: # nocheck: compose-environment-from-env-file search-only keys; this role sets no docker_compose_env, so its single templates/env.j2 is also the env_file of the nginx and php containers, which must not receive the OpenSearch daemon's discovery.type, plugins.security.disabled or OPENSEARCH_JAVA_OPTS
       - discovery.type=single-node
       - plugins.security.disabled=true
-      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - OPENSEARCH_JAVA_OPTS=-Xms{{ MAGENTO_SEARCH_HEAP_MB }}m -Xmx{{ MAGENTO_SEARCH_HEAP_MB }}m
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

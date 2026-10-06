@@ -61,7 +61,7 @@
     {{ lookup('container_image', 'svc-db-memcached', 'memcached') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_MEMCACHED_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["memcached", "-m", "256"]
+    command: ["memcached", "-m", "{{ lookup('service_memory_mb', application_id, service_name, 0.125) }}"]
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
   {% endif %}

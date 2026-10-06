@@ -51,9 +51,6 @@ joomla:
     no_stop_required: true
   upload:
     size_mb: 100
-  performance:
-    php:
-      memory_limit: 512M
   autocreate_users: true
   ports:
     local:
