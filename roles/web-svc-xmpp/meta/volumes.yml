@@ -8,7 +8,7 @@ data:
     mode: "0770"
   mounts:
     - service: ejabberd
-      target: /home/ejabberd/database
+      target: /opt/ejabberd/database
 conf:
   type: volume
   name: ejabberd_conf
@@ -18,7 +18,7 @@ conf:
     mode: "0770"
   mounts:
     - service: ejabberd
-      target: /home/ejabberd/conf
+      target: /opt/ejabberd/conf
 upload:
   type: volume
   name: ejabberd_upload
@@ -28,7 +28,7 @@ upload:
     mode: "0770"
   mounts:
     - service: ejabberd
-      target: /home/ejabberd/upload
+      target: /opt/ejabberd/upload
 logs:
   type: volume
   name: ejabberd_logs
@@ -38,11 +38,11 @@ logs:
     mode: "0770"
   mounts:
     - service: ejabberd
-      target: /home/ejabberd/logs
+      target: /opt/ejabberd/logs
 ejabberd_yml:
   type: config
   source: "{{ [lookup('container', 'web-svc-xmpp', 'directories.instance'), 'ejabberd.yml'] | path_join }}"
   mode: "0444"
   mounts:
     - service: ejabberd
-      target: /home/ejabberd/conf/ejabberd.yml
+      target: /opt/ejabberd/conf/ejabberd.yml
