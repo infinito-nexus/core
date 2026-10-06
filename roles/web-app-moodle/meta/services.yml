@@ -65,7 +65,6 @@ moodle:
   site_titel: Academy on {{ DOMAIN_PRIMARY }}
   performance:
     php:
-      memory_limit: 512M
       upload_max_filesize: 256M
       post_max_size: 256M
   ports:

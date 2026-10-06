@@ -3,10 +3,7 @@
   {{ service_name }}:
     {{ lookup('compose_only', 'container_name', MEMCACHED_CONTAINER) }}
     {{ lookup('container_image', application_id, 'memcached') }}
-    command:
-      - "memcached"
-      - "-m"
-      - "{{ MEMCACHED_MEMORY_LIMIT_MB }}"
+    command: ["memcached", "-m", "{{ MEMCACHED_MEMORY_LIMIT_MB }}"]
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if MEMCACHED_EXPOSE_LOCAL %}
