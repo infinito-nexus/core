@@ -139,6 +139,10 @@ Four Playwright scenarios are tested:
 3. Biber (non-admin) is denied access
 4. Admin can log out via the logout button
 
+## Further Resources
+
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/2Drasms4VQUcxL7CNnTt36)
+
 ## Credits
 
 Implemented by **[Prageeth Panicker](https://github.com/pragepani)**.

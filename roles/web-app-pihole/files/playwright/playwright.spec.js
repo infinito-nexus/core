@@ -45,6 +45,8 @@ test("Pi-hole returns HTML content under canonical domain", async ({ request }) 
   ).toBe(true);
 });
 
+require("./test-design").register();
+
 // Persona/SSO-specific scenarios live in their own files:
 // test-guest.js (unauthenticated redirect to Keycloak when SSO enabled)
 // test-oauth2.js (administrator/biber SSO login, access control, logout)
