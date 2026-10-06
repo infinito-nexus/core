@@ -25,12 +25,12 @@ redis:
   bond: 1
   enabled: true
   shared: true
-# nocheck: dynamic-flag
-# nocheck: playwright-service-flag
+# nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
+# nocheck: playwright-service-flag - runtime DOM patch (injected logout), no probe-able surface flag
 javascript:
   bond: 1
-  enabled: "{{ 'web-app-keycloak' in group_names }}"
-  shared: "{{ 'web-app-keycloak' in group_names }}"
+  enabled: "{{ lookup('config', 'web-app-pihole', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-pihole', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag
 prometheus:
   bond: 1
