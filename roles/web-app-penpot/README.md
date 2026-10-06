@@ -183,7 +183,7 @@ self-provisions without it. `PENPOT_FLAGS` renders `enable-registration` /
 Resolved by best judgement during the autonomous build (per the requirement's
 Procedure); revisit at PR review:
 
-- **Image tag** pinned to `2.5.4` for all three containers (single upstream tag).
+- **Image tag** pinned in `meta/services.yml`, one upstream tag for all three containers.
 - **Exporter `PENPOT_PUBLIC_URI`** is shared from the single role env file (the
   external HTTPS base URL). Penpot upstream also supports an internal
   `http://frontend:8080` value; the shared-env contract renders one file for all
@@ -232,6 +232,7 @@ OpenLDAP deploy.
 - [Penpot Official Website](https://penpot.app/)
 - [Penpot Configuration Guide](https://help.penpot.app/technical-guide/configuration/)
 - [Penpot Docker Guide](https://github.com/penpot/penpot/tree/main/docker)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/LCynSv3uxC6VYzimXE4CGx)
 
 ## Credits
 
