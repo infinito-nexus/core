@@ -204,6 +204,27 @@ def collapsed(source: str, translation: str) -> bool:
     )
 
 
+def echoes(source: str, translation: str) -> bool:
+    """Return whether the translation carries its whole source and continues.
+
+    A server that answers ``<source>\\n---\\n<rendering>`` passes every other
+    rule: the rendering it appended keeps the spans, the names and the markup,
+    and the separator is made of characters ``structure`` does not count. The
+    reader is then served the English text as its own translation.
+
+    The floor is the one :func:`reason` applies to a plain echo, because the
+    risk it guards against is the same: a short source legitimately survives
+    inside a longer rendering, a sentence does not.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    if source not in translation:
+        return False
+    return sum(character.isalpha() for character in prose(source)) >= ECHO_FLOOR
+
+
 def structure(text: str) -> Counter:
     """Return the markup characters of ``text`` with their multiplicity.
 
@@ -250,6 +271,8 @@ def reason(source: str, translation: str, language: str = "") -> str:
     if translation == source:
         alphabetic = sum(character.isalpha() for character in prose(source))
         return "echo" if alphabetic >= ECHO_FLOOR else ""
+    if echoes(source, translation):
+        return "echo"
     if protected_spans(source) - protected_spans(translation):
         return "protected-span"
     if added_spans(source, translation):
