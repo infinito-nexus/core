@@ -19,12 +19,6 @@ matomo:
 email:
   enabled: false
   shared: false
-# nocheck: dynamic-flag
-# nocheck: playwright-service-flag
-redis:
-  bond: 1
-  enabled: true
-  shared: true
 # nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag - runtime DOM patch (injected logout), no probe-able surface flag
 javascript:

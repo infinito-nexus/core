@@ -38,6 +38,7 @@ from utils.docker.image.ref import (
 from utils.docker.registry import fetch_registry_tags
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import (
+    is_maintained,
     is_semver,
     latest_semver,
     resolve_max_fetch_workers,
@@ -272,6 +273,8 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
         if ref.source_file != ROLE_FILE_META_SERVICES:
             continue
         if not is_semver(ref.version):
+            continue
+        if not is_maintained(roles_root, ref.role):
             continue
 
         config_path = roles_root / ref.role / ROLE_FILE_META_SERVICES

@@ -20,7 +20,7 @@ wanted.each { e ->
   if (!id) { println "ERROR::<missing-id>::Empty extension id in wanted list"; return }
 
   def already = ext.getInstalledExtension(id, ns)
-  if (already) { println "ALREADY_INSTALLED::${id}::${already.id?.version}"; return }
+  if (already && (!ver || already.id?.version?.toString() == ver)) { println "ALREADY_INSTALLED::${id}::${already.id?.version}"; return }
 
   println "INSTALL_START::${id}::${ver ? ver : 'latest'}"
   def job = null
@@ -39,7 +39,7 @@ wanted.each { e ->
   def errMsg = err ? (err?.message ?: err?.toString()) : null
 
   def now = ext.getInstalledExtension(id, ns)
-  if (now) {
+  if (now && (!ver || now.id?.version?.toString() == ver)) {
     // Race-safe: Extension Manager can report "Failed to create install plan"
     // while the extension gets installed by the concurrent distribution job.
     if (caughtErr) println "WARN::${id}::${caughtErr}"
@@ -51,6 +51,6 @@ wanted.each { e ->
     if (!caughtErr && !errMsg && st && st != 'FINISHED') {
       println "ERROR::${id}::Unexpected install state ${st}"
     }
-    println "INSTALLED_MISSING::${id}"
+    println now ? "ERROR::${id}::Still on ${now.id?.version}, wanted ${ver}" : "INSTALLED_MISSING::${id}"
   }
 }

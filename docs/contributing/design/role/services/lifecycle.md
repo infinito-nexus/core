@@ -112,6 +112,7 @@ A role tagged `eol`:
 - MUST clearly state in its `README.md` that the project does not maintain or test it and that operators use it at their own risk.
 - SHOULD link to the upstream project / vendor for support.
 - MUST NOT block any release. CI MAY skip its deploy matrix entry entirely.
+- Is skipped by the version updaters: no update PR bumps its image versions, refs or pins (see [cli/contributing/update](../../../../../cli/contributing/update/README.md)).
 - MAY be removed without a deprecation cycle.
 
 ## The tested envelope 🧪

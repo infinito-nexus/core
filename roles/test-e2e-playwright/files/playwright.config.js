@@ -48,7 +48,10 @@ module.exports = defineConfig({
   expect: { timeout: requiredTimeout("PLAYWRIGHT_EXPECT_TIMEOUT") },
   ...(globalTimeout > 0 ? { globalTimeout } : {}),
   retries: 2,
-  workers: Number(process.env.PLAYWRIGHT_WORKERS) || 1,
+  workers: Math.min(
+    Number(process.env.PLAYWRIGHT_WORKERS) || 1,
+    Number(process.env.PLAYWRIGHT_MAX_WORKERS) || Infinity
+  ),
   fullyParallel: (process.env.PLAYWRIGHT_FULLY_PARALLEL || "").toLowerCase() === "true",
   outputDir: "/reports/test-results",
   reporter: [

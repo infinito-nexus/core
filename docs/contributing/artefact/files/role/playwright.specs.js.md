@@ -308,6 +308,8 @@ The teardown MUST:
   Specs MUST decode quoted values before building URLs or typing credentials.
   The recurring helpers `decodeDotenvQuotedValue(value)` and `normalizeBaseUrl(value)` live in [`personas/utils/dotenv.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/dotenv.js) and are re-exported through `require("./personas")`.
   Specs that need them MUST import from `./personas`; inline copies are forbidden and caught at review.
+- A role whose spec files cannot run in parallel MUST set `PLAYWRIGHT_MAX_WORKERS` in `templates/playwright.env.j2`.
+  The central `playwright.config.js` runs the suite on the smaller of that value and the worker count the harness computed.
 
 ## Service gating contract 🔒
 
