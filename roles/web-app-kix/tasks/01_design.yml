@@ -32,27 +32,27 @@
   register: kix_design_logo_set
   when: KIX_DESIGN_LOGO_ENABLED | bool
 
-- name: "🔍 Find the object icons the corporate design replaced"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - "{{ KIX_BACKEND_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      - sh
-      - -c
-      - 'if [ -d "$1" ]; then ls -1 "$1"; fi'
-      - sh
-      - "{{ KIX_DESIGN_MARKER_DIR }}"
-  register: kix_design_marked
-  changed_when: false
-  delegate_to: "{{ KIX_BACKEND_HOST_NODE }}"
+- name: "🎨 Collect the built-in object icons of {{ application_id }}"
   when: not (KIX_DESIGN_LOGO_ENABLED | bool)
+  block:
+    - name: "🔍 Find the object icons the corporate design replaced"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - "{{ KIX_BACKEND_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+          - sh
+          - -c
+          - 'if [ -d "$1" ]; then ls -1 "$1"; fi'
+          - sh
+          - "{{ KIX_DESIGN_MARKER_DIR }}"
+      register: kix_design_marked
+      changed_when: false
+      delegate_to: "{{ KIX_BACKEND_HOST_NODE }}"
 
-- name: "📖 Read the built-in object icons of {{ application_id }}"
-  ansible.builtin.include_tasks: 02_design_builtin.yml
-  when:
-    - not (KIX_DESIGN_LOGO_ENABLED | bool)
-    - kix_design_marked.stdout_lines | length > 0
+    - name: "📖 Read the built-in object icons of {{ application_id }}"
+      ansible.builtin.include_tasks: 02_design_builtin.yml
+      when: kix_design_marked.stdout_lines | length > 0
 
 - name: "🖼️ Converge the object icons of {{ application_id }}"
   ansible.builtin.shell:

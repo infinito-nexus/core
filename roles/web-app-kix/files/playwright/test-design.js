@@ -9,13 +9,19 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm } = require("./personas");
+const {
+  apiGetOnion,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  performKeycloakLoginForm,
+  requireDotenvValue,
+} = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
-const platformUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const platformPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const kixUsername = decodeDotenvQuotedValue(process.env.KIX_ADMIN_USERNAME || "");
-const kixPassword = decodeDotenvQuotedValue(process.env.KIX_ADMIN_PASSWORD || "");
+const platformUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const platformPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const kixUsername = requireDotenvValue(process.env.KIX_ADMIN_USERNAME, "KIX_ADMIN_USERNAME");
+const kixPassword = requireDotenvValue(process.env.KIX_ADMIN_PASSWORD, "KIX_ADMIN_PASSWORD");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
@@ -404,6 +410,7 @@ exports.register = function (shared) {
     if (title) await expect(page).toHaveTitle(title);
     if (logoUrl) {
       expect(await inlined(SIGN_IN_LOGO, "src"), "the sign-in page must show the generated lockup").toBe(await published(logoUrl));
+      expect(faviconUrl, "DESIGN_FAVICON_URL must be set wherever a logo is configured").toBeTruthy();
       expect(await inlined("link[rel~='icon']", "href"), "the favicon must be the generated one").toBe(
         await published(faviconUrl),
       );
