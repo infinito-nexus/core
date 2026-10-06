@@ -26,6 +26,7 @@ manager_queue:
 manager_var_multigroups:
   type: volume
   name: wazuh_manager_var_multigroups
+  backup: false
   mounts:
     - service: manager
       target: /var/ossec/var/multigroups
