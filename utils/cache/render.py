@@ -161,8 +161,28 @@ def apt_list(distro: str) -> str:
 
 
 def _write(target: Path, content: str) -> Path:
+    """Write ``content`` to ``target``, replacing a file it cannot overwrite.
+
+    A container rendering these carries its own uid into the bind mount, so it
+    leaves a file the host may no longer write while the directory stays the
+    host's. Unlinking needs the directory, not the file, which is why
+    replacing the inode gets through where overwriting does not.
+
+    The replacement happens only after a refusal, never by default:
+    ``compose/swarm/cache.override.yml`` bind-mounts an apt list into a
+    container by inode, and swapping one that was writable anyway would leave
+    that mount reading the file nobody updates any more.
+
+    Args:
+        target: the generated file.
+        content: what it should hold.
+    """
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(content, encoding="utf-8")
+    try:
+        target.write_text(content, encoding="utf-8")
+    except PermissionError:
+        target.unlink()
+        target.write_text(content, encoding="utf-8")
     return target
 
 
