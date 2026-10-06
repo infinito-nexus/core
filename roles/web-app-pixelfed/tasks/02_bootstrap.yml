@@ -1,9 +1,5 @@
 ---
-# The application container starts through a repo-managed entrypoint so Apache
-# comes up first and the Ansible bootstrap can run without racing the image's
-# first-start migration logic.
-# Keep this wait at the top of the bootstrap flow. The later artisan commands
-# assume the repo-managed entrypoint has already brought Apache up.
+# Keep this wait at the top of the flow: every later artisan command assumes it.
 
 - name: "⏳ Wait until Pixelfed application container finished entrypoint bootstrap"
   ansible.builtin.command:
@@ -13,7 +9,7 @@
       - "{{ PIXELFED_LOCAL_CID }}" # nocheck: container-exec-resolver  PIXELFED_LOCAL_CID resolved at delegate_to runtime
       - sh
       - -lc
-      - 'ps -ef | grep -v grep | grep -q "apache2 -DFOREGROUND"'
+      - 'ps -ef | grep -v grep | grep -q "frankenphp run"'
   register: pixelfed_entrypoint_bootstrap
   changed_when: false
   retries: 120
@@ -126,7 +122,8 @@
       - sh
       - -lc
       - |
-        if [ ! -L /var/www/html/public/storage ]; then
+        mkdir -p {{ PIXELFED_PUBLIC_STORAGE_SOURCE }}
+        if [ ! -L {{ PIXELFED_PUBLIC_STORAGE_LINK }} ]; then
           php artisan storage:link
         fi
   register: pixelfed_storage_link
