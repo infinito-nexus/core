@@ -37,6 +37,10 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    brand:
+      width: 240
+      height: 72
 # nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag - runtime DOM patch (injected logout), no probe-able surface flag
 javascript:

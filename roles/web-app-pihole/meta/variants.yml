@@ -12,9 +12,6 @@
     dashboard:
       enabled: true
       shared: true
-    javascript:
-      enabled: true
-      shared: true
     logout:
       enabled: true
       shared: true
@@ -37,9 +34,6 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    javascript:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:

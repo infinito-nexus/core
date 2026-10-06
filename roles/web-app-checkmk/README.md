@@ -6,7 +6,7 @@
 
 ## Overview
 
-Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache-served web GUI, so it needs no external database. All state lives on one persistent volume mounted at `/omd/sites`, and the GUI is served under the OMD site path (`/cmk/check_mk/`). The image is pinned to `checkmk/check-mk-raw:2.4.0p32` in `meta/services.yml`; Checkmk renamed the Raw image to `check-mk-community` from 2.5, so bump the tag only after reviewing the upstream [version notes](https://docs.checkmk.com/latest/en/cmk_versions.html).
+Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache-served web GUI, so it needs no external database. All state lives on one persistent volume mounted at `/omd/sites`, and the GUI is served under the OMD site path (`/cmk/check_mk/`). The image `checkmk/check-mk-raw` is pinned in `meta/services.yml`; Checkmk renamed the Raw image to `check-mk-community` from 2.5, so bump the tag only after reviewing the upstream [version notes](https://docs.checkmk.com/latest/en/cmk_versions.html).
 
 ## Features
 
@@ -34,6 +34,7 @@ Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache
 - [LDAP user management](https://docs.checkmk.com/latest/en/ldap.html)
 - [HTTP header authentication (Werk #7819)](https://checkmk.com/werk/7819)
 - [Checkmk GitHub Repository](https://github.com/Checkmk/checkmk)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Y4XB35NChLhHhvvjNfGGJW)
 
 ## Persona contract opt-outs
 

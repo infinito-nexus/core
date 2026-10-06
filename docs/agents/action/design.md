@@ -24,6 +24,15 @@ For tokens, the cascade layer and the role stylesheet contract see [style.css](.
 - The loop iterates every 30 minutes. On each tick: read the queue, continue the role in progress, or start the first due role.
 - A long-running deploy, gate or gallery run wakes the loop on completion. The 30 minute tick is the fallback.
 - When nothing is due and no gallery awaits an answer, report the status matrix (approved, in review, rejected, due) and wait for the next tick.
+- A role pass has a wall-clock budget: 80 minutes when the injected role stylesheet carries the palette alone, 120 with an in-house carrier or any provisioning change, 180 for a role with several separate surfaces. At the budget, stop polishing, close the pass and list what is left.
+- While the role in progress occupies the stack, a second agent MAY prepare the next due role: it reads the upstream sources of that app and drafts outside the repository. It MUST NOT touch the working tree or the stack.
+
+## Gates
+
+- A role pass runs `make quality-high` once, after its last edit. On a red gate fix every finding, rerun the failed targets, then run the full gate once more.
+- Before that gate, run the targets that cover what you changed: `make test-lint` always, `make lint-javascript` and `make lint-playwright` for a spec, `make lint-css` for a stylesheet, `make lint-markdown` for a README.
+- A full deploy needs a tree that carries a green gate. Record the tree after every green gate: `GIT_INDEX_FILE=<scratch file> git read-tree HEAD`, then `git add -A` and `git write-tree` with the same `GIT_INDEX_FILE`. A working tree that writes the same hash needs no new gate.
+- An edit that belongs to a finished role, such as its gallery link, waits until the next pass has deployed, so that deploy runs on the gated tree.
 
 ## The stack
 
@@ -36,7 +45,7 @@ For tokens, the cascade layer and the role stylesheet contract see [style.css](.
 ## One role pass
 
 1. Read `roles/<role>/AGENTS.md` when present. Role changes stay under `roles/<role>/`. A defect of the shared base goes into its own base commit.
-2. Run `make quality-high` to green, then deploy against the running stack with `INFINITO_PLAYWRIGHT_KEEP=true make compose-deploy apps=<role> variant=0 disable=<every disableable service except design>`. Keep the default `initialize` mode, a single pass, no `full_cycle`, no teardown between roles.
+2. Deploy against the running stack, on a tree that carries a green gate (see [Gates](#gates)), with `INFINITO_PLAYWRIGHT_KEEP=true make compose-deploy apps=<role> variant=0 disable=<every disableable service except design>`. Keep the default `initialize` mode, a single pass, no `full_cycle`, no teardown between roles.
 3. Find the carriers of the app's design in the live stack before you write CSS. List its in-house options first: theming configuration (config, CLI, API or admin setting), theme files or a custom CSS setting, logo and title settings. Then fetch the app's stylesheets through `make compose-exec cmd="curl -sk <url>"` and read its real variable names.
 4. Apply the palette through the app's own configuration. An in-house option MUST be used before the injected role stylesheet, in this order:
    - **Theming configuration** (config, CLI, API or admin setting): feed the palette values server side, as [web-app-nextcloud](../../../roles/web-app-nextcloud/tasks/02_manager_ops/08_design.yml) does with `occ theming:config`. Ship no stylesheet.
@@ -60,16 +69,19 @@ For tokens, the cascade layer and the role stylesheet contract see [style.css](.
    - every failure found on the running stack and fixed as an assertion that fails on the state before the fix,
    - one gallery test with at least 20 views of the frontend and, where the app has one, the backend. Prefer settings, administration, forms, lists and detail pages. Log in where the app has accounts and seed showcase content idempotently where a list would be empty.
    - an account for the signed-in interface. When the role provisions none, add an Ansible task to the role that creates the platform administrator through the app's own CLI or API on every deploy, idempotent and with no password in `argv`. Use OIDC instead where the app supports it natively, and run the design pass of the identity provider in the same go. A gallery of visitor pages alone is not a finished pass.
-9. Capture with `make design-gallery app=<role>` and look at every screenshot in both modes and both viewports.
-10. Check the palette with three further base colors, one after the other: blue `#001f3f`, red `#c62828`, green `#2e7d32`.
-    - `make compose-role-sync role=<role> variant=0 base='<hex>' pw="--grep design: --grep-invert gallery"` renders the role, the shared CSS and the logo with that base and MUST leave the design spec green.
-    - `make design-gallery app=<role>`, then copy `/tmp/design-gallery/<role>/after` to `/tmp/design-palette/<role>/<blue|red|green>` and look at the sign-in page, the start page, a form, a list and an administration page in both modes.
-    - A view that only works with one base color carries a hard-coded color or a value baked at another time than the tokens: fix it and repeat that base.
-    - Finish with the same sync without `base=`, so the stack is back on the color of the inventory.
-    - `base=` needs an inventory that a full deploy provisioned from a development inventory vars file (`INFINITO_INVENTORY_VARS_FILE`) that defines `DESIGN_BASE_COLOR`.
-11. Run `make quality-high` to green.
-12. Publish the gallery as one private Artifact for the role, with the three palette runs as further sections, link it under "Further Resources" in the role README and report the link. Do not wait for the answer; take the next role.
-13. Commit only when the operator asks for it, one bundle per role (`roles/<role>/`). On rejection rework from the comment, run the gate again and republish to the same Artifact.
+9. Look at views while you iterate through a temporary `diag:` test that hands a few views to `captureDesignGallery`: `make design-gallery app=<role> pw="--grep diag:"`. A run with `pw=` adds its screenshots to the existing ones, so it also recaptures a single view after the full run. Capture the full gallery with `make design-gallery app=<role>` once, on the final design, and look at every screenshot in both modes and both viewports. A role with an in-house carrier also captures the full gallery once before that carrier is applied and keeps a copy as its "before" side.
+10. Check the palette with one further base color, blue `#001f3f`. The design spec MUST stay green with it. No gallery run.
+    - `make design-palette app=<role> variant=0 base='#001f3f' sync=design` renders the shared CSS, the role stylesheet and the logos with that base, runs the design assertions and puts the base of the inventory back, also when an assertion fails.
+    - A role that bakes palette values at deploy time (theming configuration, theme file, mounted asset) passes `sync=role`, which re-runs the app role for both renders.
+    - The spec asserts the text of every primary-filled control against `--design-on-primary`, which is dark on a light base and light on a dark one.
+    - A red assertion names a hard-coded color or a value baked at another time than the tokens: fix it and repeat.
+    - The target needs an inventory that a full deploy provisioned from a development inventory vars file (`INFINITO_INVENTORY_VARS_FILE`) that defines `DESIGN_BASE_COLOR`.
+11. Run the targeted targets, then `make quality-high` to green (see [Gates](#gates)).
+12. Close the pass on the final state:
+    - a pass that changed provisioning (a task, a handler, `vars/`, a template or file the role renders or mounts into a container, `meta/` outside the `design:` entry) repeats the full deploy of step 2,
+    - any other pass runs `make compose-role-sync role=<role> variant=0`, then the complete role spec with `make compose-playwright role=<role> pw="--grep-invert gallery"`.
+13. Publish the gallery as one private Artifact for the role and report the link. Do not wait for the answer; take the next role, and link the Artifact under "Further Resources" in the role README once that pass has deployed.
+14. Commit only when the operator asks for it, one bundle per role (`roles/<role>/`). On rejection rework from the comment, run the gate again and republish to the same Artifact.
 
 ## Rules for the stylesheet
 

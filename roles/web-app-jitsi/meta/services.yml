@@ -33,11 +33,15 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
-# nocheck: playwright-service-flag - design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  title: "Jitsi"
+  slots:
+    logo:
+      width: 142
+      height: 64
 # nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag - runtime DOM patch, no probe-able surface flag
 javascript:
