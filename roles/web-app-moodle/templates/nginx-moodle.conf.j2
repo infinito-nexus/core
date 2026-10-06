@@ -7,7 +7,7 @@ server {
     listen [::]:{{ MOODLE_NGINX_PORT }};
 
     server_name _;
-    root {{ MOODLE_CODE_DIR }};
+    root {{ MOODLE_WEBROOT_DIR }};
     index index.php;
 
     client_max_body_size 256M;
