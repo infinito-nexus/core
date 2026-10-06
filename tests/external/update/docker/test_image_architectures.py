@@ -22,9 +22,10 @@ Two rules, one per polarity of the declaration:
   cover all of them;
 * a role that narrows must narrow to exactly its capability. An architecture
   it claims that no longer runs cannot be scheduled, and one its images have
-  all since gained is a pin that keeps the role testing narrower than it
-  could while nothing says so. The second half is what retires a
-  ``# TODO: drop this once upstream publishes an arm64 manifest`` by itself.
+  all since gained is a pin that excludes an architecture the role is
+  compatible with, keeping it tested narrower than it could be while nothing
+  says so. The second half is what retires a declaration by itself once
+  upstream starts publishing the manifest its ``nocheck`` was written for.
 
 A ``version_variants`` ref is skipped: it is a tag the mirror must carry, not
 a version a role deploys.
@@ -180,9 +181,10 @@ class ImageArchitectures(unittest.TestCase):
                 )
             elif stale:
                 offenders.append(
-                    f"{role}: every image now runs on {stale}, which "
-                    f"`architectures` narrows away; drop the declaration and "
-                    f"the TODO above it"
+                    f"{role}: every image it pins now runs on {stale}, which "
+                    f"`architectures` excludes; the declaration keeps the role "
+                    f"off architectures it is compatible with, so drop it "
+                    f"together with the nocheck that justifies it"
                 )
         self.assertEqual(
             [],
