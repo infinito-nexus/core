@@ -141,7 +141,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override base shared is a static literal and this round joins no backup host
-    css:
+    design:
       enabled: false
       shared: false
     discourse:

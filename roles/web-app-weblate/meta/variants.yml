@@ -24,7 +24,7 @@
     email:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     postgres:
@@ -58,7 +58,7 @@
     email:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     postgres:

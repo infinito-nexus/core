@@ -189,7 +189,7 @@
     coturn:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     dashboard:
