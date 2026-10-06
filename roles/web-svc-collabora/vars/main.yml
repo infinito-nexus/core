@@ -6,6 +6,6 @@ domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.collabora.ports.local.http') }}"
 
 COLLABORA_CONTAINER: "{{ lookup('config', application_id, 'services.collabora.name') }}"
-COLLABORA_WOPI_HOST: "{{ lookup('tls', 'web-app-nextcloud', 'protocols.web') }}://{{ lookup('domain', 'web-app-nextcloud') }}:{{ lookup('tls', 'web-app-nextcloud',
-  'ports.web') }}"
+COLLABORA_WOPI_HOST: "{{ lookup('tls', lookup('domain', 'web-app-nextcloud'), 'protocols.web') }}://{{ lookup('domain', 'web-app-nextcloud') }}:{{ lookup('tls', lookup('domain',
+  'web-app-nextcloud'), 'ports.web') }}"
 COLLABORA_DISCOVERY_PATH: "/hosting/discovery"
