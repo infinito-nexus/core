@@ -5,7 +5,7 @@ mechanism: extension
 source: upstream
 bridges:
   - sso
-version: "2.19.6"
+version: "2.28.1"
 update:
   type: http_regex
   url: https://maven.xwiki.org/releases/org/xwiki/contrib/oidc/oidc-authenticator/maven-metadata.xml

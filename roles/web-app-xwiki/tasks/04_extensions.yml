@@ -72,6 +72,7 @@
     label: "{{ plugin.id }}"
   vars:
     ext_id: "{{ plugin.id }}"
+    ext_version: "{{ plugin.version }}"
     result_var: "probe_{{ plugin.id | regex_replace('[^A-Za-z0-9_]', '_') }}"
 
 - name: "📊 XWIKI | Collect probe results"
@@ -83,11 +84,11 @@
     loop_var: plugin
   changed_when: false
 
-- name: "✅ XWIKI | Assert all requested extensions are installed"
+- name: "✅ XWIKI | Assert all requested extensions are on their pinned version"
   vars:
     missing: "{{ (_xwiki_probe_results | default([])) | selectattr('status','equalto',404) | map(attribute='id') | list }}"
   fail:
-    msg: "Missing extensions: {{ missing | join(', ') }}"
+    msg: "Extensions missing or not on their pinned version: {{ missing | join(', ') }}"
   when: missing | length > 0
 
 - name: "🗑️ XWIKI | Delete installer page"

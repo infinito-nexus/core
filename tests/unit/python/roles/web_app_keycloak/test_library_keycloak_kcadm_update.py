@@ -15,6 +15,10 @@ if TYPE_CHECKING:
 ROLE_DIR = PROJECT_ROOT / "roles" / "web-app-keycloak"
 LIB_PATH = PROJECT_ROOT / "library" / "keycloak_kcadm_update.py"
 MODUTILS_PATH = PROJECT_ROOT / "utils" / "kcadm_json.py"
+LOCK_ERROR = (
+    "Failed to refresh access token - "
+    "Failed to get lock on /opt/keycloak/.keycloak/kcadm.config"
+)
 
 
 def _load_py_module(name: str, path: Path):
@@ -213,6 +217,46 @@ class TestKeycloakKcadmUpdate(unittest.TestCase):
 
         self.assertEqual(rc, 1)
         self.assertEqual(len(calls), 1)
+
+    def test_run_kcadm_repeats_a_call_that_lost_the_config_lock(self):
+        m = self.mod
+        outcomes = [
+            DummyCompleted(1, "", LOCK_ERROR),
+            DummyCompleted(1, "", LOCK_ERROR),
+            DummyCompleted(0, "[]", ""),
+        ]
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            return outcomes[len(calls) - 1]
+
+        with (
+            patch.object(m.subprocess, "run", side_effect=fake_run),
+            patch.object(m.time, "sleep", return_value=None) as sleep,
+        ):
+            rc, out, _err = m.run_kcadm(DummyModule(), "kcadm get clients")
+
+        self.assertEqual((rc, out), (0, "[]"))
+        self.assertEqual(calls, ["kcadm get clients"] * 3)
+        self.assertEqual(sleep.call_count, 2)
+
+    def test_run_kcadm_gives_up_on_a_config_lock_that_never_frees(self):
+        m = self.mod
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            return DummyCompleted(1, "", LOCK_ERROR)
+
+        with (
+            patch.object(m.subprocess, "run", side_effect=fake_run),
+            patch.object(m.time, "sleep", return_value=None),
+            self.assertRaises(m.subprocess.CalledProcessError),
+        ):
+            m.run_kcadm(DummyModule(), "kcadm get clients")
+
+        self.assertEqual(len(calls), m.CONFIG_LOCK_MAX_RETRIES + 1)
 
     def test_get_current_object_parses_noisy(self):
         m = self.mod
