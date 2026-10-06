@@ -39,7 +39,14 @@ async function loginAsAdministrator(page) {
       .click({ timeout: resolveTimeout(30_000) });
   }
 
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  const landing = await gotoOnion(page, `${baseUrl}/`);
+  expect(
+    landing.status(),
+    "Jenkins must serve its dashboard to the administrator; 403 means the session never authenticated",
+  ).toBeLessThan(400);
+  await expect(page.locator("a[href$='/logout']").first()).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
 }
 
 /**
