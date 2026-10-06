@@ -9,14 +9,14 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
-const kvMount = decodeDotenvQuotedValue(process.env.OPENBAO_KV_MOUNT || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
+const kvMount = requireDotenvValue(process.env.OPENBAO_KV_MOUNT, "OPENBAO_KV_MOUNT");
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const passwordMount = decodeDotenvQuotedValue(process.env.OPENBAO_PASSWORD_AUTH_MOUNT || "");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
@@ -509,6 +509,7 @@ test("design: the sign-in page shows the generated logo and the configured title
   await openSignIn(page, "token");
   if (title) await expect(page).toHaveTitle(title);
   if (logoUrl) {
+    expect(faviconUrl, "a role that renders a logo also renders DESIGN_FAVICON_URL").toBeTruthy();
     await expect(page.locator(BRAND)).toHaveCSS("background-image", `url("${logoUrl}")`);
     await expect(page.locator(`${BRAND} .hs-icon`)).toHaveCSS("visibility", "hidden");
     await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);

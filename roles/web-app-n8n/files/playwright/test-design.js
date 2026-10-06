@@ -547,6 +547,7 @@ exports.register = function (shared) {
     await shown(WORKFLOW_CARD)(page);
     if (title) await assertTitled(page, "a signed-in page");
     if (logoUrl) {
+      expect(faviconUrl, "a role that renders a logo also renders DESIGN_FAVICON_URL").toBeTruthy();
       await expect(page.locator(`${LOGO} > svg`).first()).toHaveCSS("visibility", "hidden");
       if (lockupUrl) await assertLockup(page);
       await page.locator(COLLAPSE).click();

@@ -275,6 +275,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
+    expect(corporateTheme, "DESIGN_THEME must be set once design is enabled").toBeTruthy();
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await signInPage(page);
@@ -425,6 +426,8 @@ exports.register = function (shared) {
       expect(info.ServerName, "the server must be named after the corporate title").toBe(title);
     }
     if (lockupUrl) {
+      expect(faviconUrl, "a role that renders a lockup also renders DESIGN_FAVICON_URL").toBeTruthy();
+      expect(touchIconUrl, "a role that renders a lockup also renders DESIGN_TOUCH_ICON_URL").toBeTruthy();
       const logo = page.locator(HEADER_LOGO);
       await expect(logo).toHaveCSS("background-image", `url("${lockupUrl}")`);
       const box = await logo.boundingBox();

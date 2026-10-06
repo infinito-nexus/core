@@ -1,12 +1,12 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue } = require("./personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, requireDotenvValue } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
-const baseUrl = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const passwordMount = decodeDotenvQuotedValue(process.env.OPENBAO_PASSWORD_AUTH_MOUNT || "");
-const userpassMount = decodeDotenvQuotedValue(process.env.OPENBAO_USERPASS_MOUNT || "");
+const userpassMount = requireDotenvValue(process.env.OPENBAO_USERPASS_MOUNT, "OPENBAO_USERPASS_MOUNT");
 
 test.use({ ignoreHTTPSErrors: true });
 

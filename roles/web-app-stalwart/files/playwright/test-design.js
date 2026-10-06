@@ -571,6 +571,7 @@ test("design: the web administration shows the generated lockup and the configur
   await shown(WEBUI_USERNAME)(page);
   if (title) await expect(page).toHaveTitle(title);
   if (logoUrl) {
+    expect(faviconUrl, "a role that renders a logo also renders DESIGN_FAVICON_URL").toBeTruthy();
     const logo = page.locator(WEBUI_LOGO);
     await expect(logo).toHaveCSS("background-image", `url("${lockupUrl || logoUrl}")`);
     await expect(logo.locator("path").first()).toHaveCSS("visibility", "hidden");

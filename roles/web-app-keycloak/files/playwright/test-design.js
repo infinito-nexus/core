@@ -9,11 +9,11 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const realm = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
@@ -337,6 +337,7 @@ const consoleViews = () => [
 exports.register = function () {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
+    expect(theme, "DESIGN_THEME must be set once design is enabled").toBeTruthy();
     await gotoOnion(page, signInUrl);
     await shown(page, SIGN_IN_SUBMIT);
     await expect(page.locator("html"), "the design script must mark the page as carrying the palette").toHaveAttribute("data-design-palette", "");
@@ -499,6 +500,7 @@ exports.register = function () {
 
   test("design: the realm's dark mode switch decides, the browser preference only follows it", async ({ page }) => {
     skipUnlessServiceEnabled("design");
+    expect(darkClass, "DESIGN_DARK_CLASS must be set once design is enabled; an empty one builds a regex that matches every class").toBeTruthy();
     const html = page.locator("html");
     await page.emulateMedia({ colorScheme: "dark" });
     await gotoOnion(page, signInUrl);
