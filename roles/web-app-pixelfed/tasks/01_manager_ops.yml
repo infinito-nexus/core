@@ -1,18 +1,4 @@
 ---
-- name: "🚀 Deploy '{{ PIXELFED_ENTRYPOINT_HOST_ABS }}'"
-  ansible.builtin.copy:
-    src: "shell/{{ PIXELFED_ENTRYPOINT_FILE }}"
-    dest: "{{ PIXELFED_ENTRYPOINT_HOST_ABS }}"
-    mode: "0755"
-  notify: compose-up
-
-- name: "🚀 Deploy '{{ PIXELFED_WORKER_ENTRYPOINT_HOST_ABS }}'"
-  ansible.builtin.copy:
-    src: "shell/{{ PIXELFED_WORKER_ENTRYPOINT_FILE }}"
-    dest: "{{ PIXELFED_WORKER_ENTRYPOINT_HOST_ABS }}"
-    mode: "0755"
-  notify: compose-up
-
 - name: "✅ Ensure Pixelfed .env ownership and permissions for www-data"
   ansible.builtin.file:
     path: "{{ PIXELFED_ENV_FILE }}"

@@ -40,9 +40,6 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 pixelfed:
-  # nocheck: architecture-pin  Reason: zknt/pixelfed publishes a single linux/amd64 manifest; the official ghcr.io/pixelfed/pixelfed does carry arm64 but serves FrankenPHP and Caddy on 8080 out of /var/www/html where this role expects nginx on 80 out of /var/www, so adopting it is a rewrite of the role rather than a repin
-  architectures:
-    - amd64
   modes:
     compose:
       enabled: true
@@ -51,8 +48,8 @@ pixelfed:
   bond: 1
   shared: true
   enabled: true # nocheck: dynamic-flag
-  image: zknt/pixelfed
-  version: "20260917"
+  image: ghcr.io/pixelfed/pixelfed
+  version: v0.14.4
   name: pixelfed
   min_storage: 588MB
   backup:
@@ -64,7 +61,7 @@ pixelfed:
     local:
       http: 8010
     internal:
-      http: 80
+      http: 8080
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -74,7 +71,7 @@ worker:
   replicas: 1
   name: pixelfed_worker
   healthcheck:
-    test: ["CMD-SHELL", "test ! -e /var/www/storage/.docker.init || (php artisan horizon:status | grep running)"]
+    test: ["CMD-SHELL", "test ! -e {{ lookup('volume', 'web-app-pixelfed', 'data').target }}/.docker.init || (php artisan horizon:status | grep running)"]
     # nocheck: healthcheck-timing-override  php artisan boots Laravel on every probe, so it stays off a 30s steady-state loop
     interval: 60s
     retries: 5
