@@ -92,8 +92,4 @@
     {{ KEYCLOAK_EXEC_KCADM }} update
     clients/{{ app_client_id }}/default-client-scopes/{{ scope_id_rbac }}
     -r {{ KEYCLOAK_REALM }}
-  register: kc_rbac_default
   changed_when: true
-  # rationale: async; no task in the chain reads the scope back, reaped at the end of update_routines.yml
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

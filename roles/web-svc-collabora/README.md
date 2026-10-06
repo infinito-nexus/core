@@ -9,7 +9,7 @@ This Ansible role deploys Collabora Online (CODE) in Docker to enable real-time,
 * **Dockerized Collabora CODE:** Uses the official `collabora/code` image.
 * **NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for `/cool/` paths.
 * **Docker Network Management:** Creates an isolated `/28` subnet for Collabora and connects containers securely.
-* **Environment Configuration:** Generates a `.env` file with domain, credentials, and extra parameters for Collabora's WOPI server.
+* **Environment Configuration:** Generates a `.env` file that names the Nextcloud origin as the only allowed WOPI host (`aliasgroup1`) and passes the extra parameters to coolwsd.
 
 ## Features
 

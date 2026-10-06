@@ -65,8 +65,6 @@
 - name: "⏳ Reap the remaining Keycloak update jobs"
   ansible.builtin.include_tasks: utils/async/reap.yml
   vars:
-    async_reap_jobs: >-
-      {{ (kc_rbac_default.results | default([kc_rbac_default] if kc_rbac_default is defined else []))
-         + (kc_declared_client_jobs | default([])) }}
+    async_reap_jobs: "{{ kc_declared_client_jobs | default([]) }}"
     async_reap_label: "Keycloak realm updates"
     async_reap_tolerate: []
