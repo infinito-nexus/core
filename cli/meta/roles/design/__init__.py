@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.services.registry import read_yaml_file
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_PLAYWRIGHT_SPEC
 from utils.roles.meta_lookup import get_role_lifecycle
@@ -317,7 +317,7 @@ def repository_root(start: Path) -> Path:
 def _primary_version(services: object, role: str) -> str | None:
     if not isinstance(services, dict):
         return None
-    entry = services.get(get_entity_name(role))
+    entry = services.get(entity_name(role))
     if not isinstance(entry, dict) or entry.get("version") is None:
         return None
     return str(entry["version"]).strip() or None
