@@ -12,8 +12,6 @@ x-environment: &shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_INIT_CONTAINER) }}
     entrypoint: [ "sh", "{{ SHOPWARE_INIT_DOCKER }}" ]
     user: "0:0"
-    environment:
-      INIT_PHP_MEMORY_LIMIT: "{{ lookup('service_memory_mb', application_id, service_name, 0.5) }}M"
     {{ lookup('container_volumes', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}
