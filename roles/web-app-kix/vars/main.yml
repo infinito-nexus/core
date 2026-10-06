@@ -17,6 +17,20 @@ KIX_BACKEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KI
 KIX_FRONTEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KIX_FRONTEND_SERVICE ~ '.ports.internal.http') }}"
 
 KIX_INITIAL_ADMIN_PW: "{{ lookup('config', application_id, 'secrets.credentials.kix_initial_admin_pw') }}"
+KIX_ADMIN_USERNAME: "admin"
+
+KIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+KIX_DESIGN_LOGO_ENABLED: "{{ KIX_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+KIX_DESIGN_CONSOLE: "/opt/kix/bin/kix.Console.pl"
+KIX_DESIGN_MARKER_DIR: "/mnt/data/.infinito-design"
+KIX_DESIGN_FRONTEND_CACHE_KEY: "AgentPortal::OBJECT_ICON"
+KIX_DESIGN_ICONS:
+  agent-portal-logo:
+    slot: "logo"
+    builtin: "/opt/kix/static/img/kix_start.png"
+  agent-portal-icon:
+    slot: "favicon"
+    builtin: "/opt/kix/static/img/kix_start_icon.png"
 
 KIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 KIX_LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"

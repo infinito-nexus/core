@@ -32,11 +32,18 @@ sso:
     allowed_groups:
       - "roles/web-app-kix/administrator"
       - "roles/web-app-kix/user"
-# nocheck: playwright-service-flag - verified by web-svc-design provider spec
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
+  slots:
+    logo:
+      width: 180
+      height: 90
+    favicon:
+      width: 64
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
