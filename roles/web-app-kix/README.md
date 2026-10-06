@@ -114,6 +114,7 @@ docker run --rm -it \
 
 - [KIX Start website](https://www.kixdesk.com/)
 - [KIX documentation](https://docs.kixdesk.com/)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/QHaHoFMnHyx4tgizNu9KKc)
 
 ## Persona contract opt-outs
 
