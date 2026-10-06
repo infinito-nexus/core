@@ -33,24 +33,24 @@
   when: jellyfin_design_css_current != jellyfin_design_css
   changed_when: true
 
-- name: "📖 Read the server configuration of {{ application_id }}"
-  uri_retry:
-    url: "{{ JELLYFIN_API }}/System/Configuration"
-    headers:
-      Authorization: "{{ jellyfin_design_authorization }}"
-  register: jellyfin_design_system
-  when: jellyfin_design_title is string
-
 - name: "🏷️ Name the {{ application_id }} server after the corporate title"
-  uri_retry:
-    url: "{{ JELLYFIN_API }}/System/Configuration"
-    method: POST
-    headers:
-      Authorization: "{{ jellyfin_design_authorization }}"
-    body_format: json
-    body: "{{ jellyfin_design_system.json | combine({'ServerName': jellyfin_design_title}) }}"
-    status_code: [200, 204]
-  when:
-    - jellyfin_design_title is string
-    - jellyfin_design_system.json.get('ServerName') != jellyfin_design_title
-  changed_when: true
+  when: jellyfin_design_title is string
+  block:
+    - name: "📖 Read the server configuration of {{ application_id }}"
+      uri_retry:
+        url: "{{ JELLYFIN_API }}/System/Configuration"
+        headers:
+          Authorization: "{{ jellyfin_design_authorization }}"
+      register: jellyfin_design_system
+
+    - name: "🏷️ Write the corporate title into the server configuration"
+      uri_retry:
+        url: "{{ JELLYFIN_API }}/System/Configuration"
+        method: POST
+        headers:
+          Authorization: "{{ jellyfin_design_authorization }}"
+        body_format: json
+        body: "{{ jellyfin_design_system.json | combine({'ServerName': jellyfin_design_title}) }}"
+        status_code: [200, 204]
+      when: jellyfin_design_system.json.get('ServerName') != jellyfin_design_title
+      changed_when: true
