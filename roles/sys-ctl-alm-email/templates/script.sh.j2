@@ -39,8 +39,38 @@ $STATUS_OUT
 
 ERRMAIL
 
-timeout "{{ email.timeout }}s" "$sendmail_bin" -t < "$mail_tmp"
-rc=$?
+attempts=3
+delay=10
+
+for attempt in $(seq 1 "${attempts}"); do
+  send_err="$(timeout "{{ email.timeout }}s" "$sendmail_bin" -t < "$mail_tmp" 2>&1 1>/dev/null)"
+  rc=$?
+  [ "$rc" -eq 0 ] && exit 0
+
+  case "$rc" in
+    69 | 75 | 124 | 137) ;;
+    76)
+      case "$send_err" in
+        *"the server sent an empty reply"*) ;;
+        *) break ;;
+      esac
+      ;;
+    77)
+      case "$send_err" in
+        *"server message: 4"* | *"Temporary authentication failure"*) ;;
+        *) break ;;
+      esac
+      ;;
+    *) break ;;
+  esac
+
+  if [ "$attempt" -lt "$attempts" ]; then
+    echo "sendmail transient failure (rc=${rc}), attempt ${attempt}/${attempts}; retrying in ${delay}s" >&2
+    sleep "$delay"
+  fi
+done
+
+[ -n "$send_err" ] && echo "$send_err" >&2
 
 if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
   echo "ERROR: sendmail timed out after {{ email.timeout }}s" >&2
