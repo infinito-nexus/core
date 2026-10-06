@@ -348,7 +348,6 @@ msgstr "Container Registries"
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Container engine runtime with Compose for building and
-# running application containers on Linux hosts
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr ""
@@ -412,6 +411,14 @@ msgstr "Bloques de construcción Core AI: servicio de modelos, portales compatib
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver con soporte de flujo HTTP y TCP/UDP y predeterminados ajustados por rendimiento"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -581,7 +588,6 @@ msgstr "herramienta de construcción de base específica (compiladores, ligadore
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Docker Compose stack for containerized relational
-# databases with backup, user, and permission management
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
 msgstr ""
@@ -591,7 +597,6 @@ msgstr ""
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Docker Swarm cluster bootstrap and node-membership
-# roles for multi-host service deployment.
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
@@ -750,11 +755,6 @@ msgstr "Función genérica instalando el doli CLI y aplicando mapas de enlace de
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "capa global de inyección de JavaScript para las respuestas HTML NGINX a través de sub_filter, con la piratería CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Inyección de hoja de estilo global para aplicaciones NGINX, unificación de la luz y el aislamiento oscuro de un esquema de colores dinámico"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1351,7 +1351,6 @@ msgstr "Herramientas de gestión de proyectos"
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Proprietary GPU driver installer for Arch-based
-# systems via mhwd nonfree hardware detection
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
@@ -1760,11 +1759,6 @@ msgstr "Optimación de servicio"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Componentes de copia de seguridad y recuperación a nivel de servicio: gestionar instantáneas de datos automatizados, copias de seguridad remotas, servicios de sincronización y orquestación de copia de seguridad en bases de datos, archivos y contenedores."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Servicio-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

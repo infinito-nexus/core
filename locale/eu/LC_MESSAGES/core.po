@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Oinarrizko NGINX web zerbitzaria HTTP eta TCP/UDP korrontearen euskarriarekin eta errendimenduarekin lotutako lehenespenez"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Rol generikoa doli CLI instalatu eta puntu-fitxategiaren esteka-mapak ap
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "JavaScript injekzio-geruza orokorra NGINX HTML erantzunetarako sub_filter, CSP hashing-arekin"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Estilo-orri globalaren injekzioa NGINXek behatutako aplikazioentzako, argia bateratuz eta kolore-kemaren arabera ilunduz"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1748,11 +1751,6 @@ msgstr "Zerbitzuaren optimizazioa"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Zerbitzu-mailaren babeskopia eta berreskuratze-osagaiak: datu-base, fitxategi eta edukiontzien bidez datu-baseak, babeskopiak, sinkronizazio-zerbitzuak eta babeskopia-ork kudeatzea."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Zerbitzu-erregistroen eginkizuna kanonikoaren jabea `css` bandera eta CSS ostalari-izena CDN-ra birbideratu"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

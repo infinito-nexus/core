@@ -331,6 +331,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr ""
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "ਤੁਹਾਡੇ ਹੋਰ ਸੈਸ਼ਨ ਜਾਂਚੇ ਨਹੀਂ ਜਾ ਸਕੇ।"
@@ -593,10 +601,6 @@ msgstr ""
 
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr ""
-
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
 msgstr ""
 
 msgctxt "role:sys-svc-sshd:description"
@@ -1401,10 +1405,6 @@ msgstr ""
 
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr ""
-
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
 msgstr ""
 
 msgctxt "category:svc:title"

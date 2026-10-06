@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Κεντρικός εξυπηρετητής ιστού NGINX με υποστήριξη ρεύματος HTTP και TCP/UDP και προεπιλεγμένες επιδόσεις"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -740,11 +748,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "Global JavaScript στρώμα εγχύσεων για απαντήσεις HTML NGINX μέσω sub_filter, με hashing CSP"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Παγκόσμια ένεση φύλλου στυλ για εφαρμογές που εξυπηρετούνται από το NGINX, ενοποιώντας το φως και το σκούρο θέμα από ένα δυναμικό σχήμα χρωμάτων"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "Οι ρυθμίσεις δαίμονα OpenSSH Hardened για απομακρυσμένη πρόσβαση με σύνδεση root και ταυτοποίηση κωδικού πρόσβασης απενεργοποιήθηκαν"
@@ -790,9 +793,6 @@ msgstr "Βοηθητικά Εργαλεία"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Αποθήκευση υψηλής απόδοσης, αυτόνομες λύσεις για τη
-# διαχείριση, κλιμάκωση και πρόσβαση σε μη δομημένα δεδομένα —
-# συμπεριλαμβανομένης της αποθήκευσης αντικειμένων συμβατών με την Amazon S3
-# APIs (στα Αγγλικά).
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -1006,7 +1006,6 @@ msgstr "Εμπορία"
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Metasearch engine the platform questions for web
-# results without handing a user's query to a tracking search provider
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
 msgstr ""
@@ -1760,11 +1759,6 @@ msgstr "Βελτιστοποίηση υπηρεσίας"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Συνιστώσες υποστήριξης σε επίπεδο υπηρεσίας και αποκατάστασης— χειρισμός αυτόματων στιγμιότυπων δεδομένων, απομακρυσμένων αντιγράφων ασφαλείας, υπηρεσιών συγχρονισμού, και ενορχήστρωση αντιγράφων ασφαλείας σε βάσεις δεδομένων, αρχεία και δοχεία."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Ο υπηρεσιακός-εγκληματικός ρόλος ανήκει στον κανόνα `css` σημαία και ανακατευθύνοντας το όνομα υπολογιστή CSS στο CDN ανάντη"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

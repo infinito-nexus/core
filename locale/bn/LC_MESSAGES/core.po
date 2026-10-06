@@ -68,7 +68,6 @@ msgstr "সতর্কবার্তা"
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: IMAP, IMAP সার্ভার %s-র মধ্যে মেইল প্রেরণ করা হচ্ছে3;
-# Syv, CalDAV, কার্ডADV, এবং স্প্যাম ফিল্টার পরিচালনা করুন
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -337,7 +336,6 @@ msgstr "সম্প্রদায়"
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: ভূমিকা: (CSS, JS, লগার, Alickits, ড্যাশবোর্ড SSI)
-# এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -421,6 +419,14 @@ msgstr "কোরা AI ভবন ব্লক- ডিজাইন, ডিজা
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP এবং TCP/IP স্ট্রিমের সমর্থন এবং প্রদর্শন ব্যবস্থা দ্বারা ConeGIN ওয়েব সার্ভার"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -515,7 +521,6 @@ msgstr "পুনরুদ্ধারের জন্য কনফিগার 
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: ZIP ওয়েব অ্যাপ্লিকেশন (GitLab'%s' Nextcloud'%s'
-# Mastodon; ইত্যাদি.)
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -756,11 +761,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "NGINX এর জন্য গ্লোবাল জাভাস্ক্রিপ্ট কন্ট্রোল স্তর sub_filter, এবং প ্ রতিশ ্ রুত দিবসের ,"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "NGINX-র জন্য গ্লোবাল স্টাইল-শিল্পী ইঞ্জেকশন, আলো একত্রিত করুন এবং একটি গতিশীল রঙ থেকে গাঢ় রঙ"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "root লগ-ইন ও অনুমোদন ব্যবস্থার সাহায্যে SSH ডেমনের জন্য অত্যন্ত কঠিন"
@@ -924,7 +924,6 @@ msgstr "দূরবর্তী হোস্ট- নেম সার্ভা�
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: লিয়েট-থেকে- অনুমোদনকৃত অনুবাদ ইঞ্জিন LibreTranslate
-# API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
 msgstr ""
@@ -1009,7 +1008,6 @@ msgstr "সার্টিফিকেটের জন্য দায়ী ভ
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: হোস্টের মতো ভূমিকা ধার্যকারী Docker Swarm ব্যবস্থাপক
-# নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""
@@ -1770,11 +1768,6 @@ msgstr "সার্ভিস Operoon"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "সার্ভিসের ব্যাক-আপ ব্যাকআপ এবং পুনরুদ্ধার করতে হবে-এক ধরনের উপাত্ত, দূরবর্তী ব্যাক-আপ, সুসংগতি, এবং ব্যাক-আপ প্রোগ্রাম, ডাটাবেস, এবং ফাইল, ইত্যাদি।"
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "সার্ভিসের ভূমিকার মালিক `css` CDNOversity unit symbol"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

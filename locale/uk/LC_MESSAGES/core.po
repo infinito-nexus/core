@@ -410,6 +410,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX веб-сервер з підтримкою потокового передавання HTTP та TCP/UDP та продуктивними за замовчуванням"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "Не вдалося перевірити ваші інші сеанси."
@@ -737,11 +745,6 @@ msgstr "Генетична роль установки doli CLI і застос�
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Глобальний JavaScript-ін'єкційний шар для NGINX HTML-відповіді через sub_filter, з хешуванням CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Ін'єкції глобального стилю для NGINX-серверних додатків, що визначаються світло і темні їх від динамічних кольорів"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1747,11 +1750,6 @@ msgstr "Оптимізація сервісу"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Комплектуючі для резервного копіювання та відновлення рівня обслуговування — ручні автоматизовані знімки даних, віддалені резервні копії, послуги синхронізації та резервне копіювання з використанням бази даних, файлів та контейнерів."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Службова роль, що володіє канонічними `css` прапорець і перенаправлення CSS hostname до CDN upstream"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

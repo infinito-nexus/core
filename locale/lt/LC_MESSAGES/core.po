@@ -415,6 +415,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Pagrindinis NGINX žiniatinklio serveris su HTTP ir TCP / UDP srauto palaikymu ir suderintomis veikimo charakteristikomis"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -747,11 +755,6 @@ msgstr "Bendrinis vaidmuo diegiant Doli CLI ir taikant dotfile simple mapings pr
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript įpurškimo sluoksnis NGINX HTML atsakams per sub_filter, su CSP maišymo"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Pasaulinis stilių įpurškimas į NGINX aptarnaujamas programas, suvienijantis šviesą ir tamsius teminius dalykus iš dinaminio spalvinio modelio"
 
 # translation-refused: libretranslate collapsed
 # nocheck: url
@@ -1779,11 +1782,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr "Service- lygio atsarginės kopijos ir atkūrimo komponentai - automatizuotų duomenų kadrų tvarkymas, nuotolinės atsarginės kopijos, sinchronizavimo paslaugos ir atsarginės orchestracijos per duomenų bazes, failus ir konteinerius."
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Service- registro vaidmuo turi kanoninis `css` vėliava ir nukreipti CSS mazgo vardą į CDN prieš"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "Paslaugos"
@@ -1869,8 +1867,6 @@ msgstr "Programinės įrangos kūrimas"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Valstybinė atvirojo kodo vaizdo konferencijų platforma
-# garso ir (arba) vaizdo skambučiams, ekrano bendrinimui, išjungimo kambariams
-# ir SSO
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr ""

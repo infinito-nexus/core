@@ -118,8 +118,6 @@ msgstr "Huduma ya kupona ya moja kwa moja inayoanza tena au isiyo na afya Docker
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Jukumu la Automation kwa reverse DNS (wa wa wa wa)
-# Rekodi kwenye seva za Hetzner Cloud, IPs za msingi, IP zinazozunguka, na
-# mizani ya mzigo
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
@@ -339,8 +337,6 @@ msgstr "Jumuiya ya Jumuiya"
 # gained=['sub_filterTumia']
 # nocheck: url
 # translation-rejected: Majukumu ya sindano ya HTML (CSS, JS, uingizaji wa
-# logout, analytics, iframe ya dashibodi) kwa hisani ya RaiaMwema/OpenResty
-# Kwa kupitia sub_filterTumia rasilimali zinazoungwa mkono na CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -400,7 +396,6 @@ msgstr "Usimamizi wa Maudhui"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa
-# ya kuchapisha mtandao
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -429,6 +424,14 @@ msgstr "Core AI jengo vitalu-kuhudumia mfano, OpenAI-sawa gateways, vector datab
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver na HTTP na TCP / UDP msaada wa mkondo na default za utendaji"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -459,8 +462,6 @@ msgstr "Uhusiano wa Wateja"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya
-# kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
-# msaada.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -697,7 +698,6 @@ msgstr "Jukwaa la kujitegemea la kuandaa matukio na kujenga jamii na vikundi"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Daraja la kuunganisha ActivityPub (wa wa wa wa wa),
-# Itifaki ya AT (Bluesky)Mtandao wa IndieWeb
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
 msgstr ""
@@ -771,11 +771,6 @@ msgstr "Jukumu la Generic kufunga doli CLI na kutumia ramani za symlink za dotfi
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Seti ya sindano ya JavaScript ya Global kwa majibu ya NGINX HTML kupitia sub_filter, Kwa mujibu wa CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "sindano ya stylesheet ya kimataifa kwa programu za NGINX zilizohifadhiwa, kuunganisha mwanga na giza kutoka kwa rangi za nguvu"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1107,7 +1102,6 @@ msgstr "Msaidizi wa Mtandao kwa iptables forwarding na NAT masquerading ya mteja
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Ya ya ya sub_filter JavaScript sindano kuelekeza hatua
-# zote logout kwa centralized OIDC moja ishara-nje mwisho
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1517,7 +1511,6 @@ msgstr "Backup iliyopangwa iliyopangwa ya siri za mwenyeji, CA, sifa za ACME, na
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Imeandaliwa mfumo wa Backup Backup Backup Backup kwa
-# kiasi cha chombo cha Docker kwenye saraka ya ndani, na dumps za SQL thabiti
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr ""
@@ -1786,11 +1779,6 @@ msgstr "Uboreshaji wa Huduma"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Backup ya kiwango cha huduma na vipengele vya kupona-kushughulikia picha za data za automatiska, salama za kijijini, huduma za synchronization, na orchestration ya chelezo katika database, faili, na vyombo."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Wajibu wa sekta ya huduma kumiliki Cantonical `css` Bendera na kuelekeza tena jina la CSS kwenye upstream ya CDN"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

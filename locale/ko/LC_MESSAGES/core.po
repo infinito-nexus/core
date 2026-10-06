@@ -415,6 +415,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP 및 TCP / UDP 스트림 지원 및 성능 조정 기본이있는 Core NGINX 웹 서버"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "다른 세션을 확인할 수 없었습니다."
@@ -484,7 +492,6 @@ msgstr "분산, 피어 투 피어 비디오 호스팅, 스트리밍 및 라이�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: 탈중앙화, federated platform for photo sharing and image
-# feeds throughout the fediverse
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
 msgstr ""
@@ -666,7 +673,6 @@ msgstr "Extensible Vim 기반 명령 줄 텍스트 편집기 터미널 구동 �
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Federated chess server for playing and following
-# rule-validated games over ActivityPub 건너편 Fediverse
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr ""
@@ -676,7 +682,6 @@ msgstr ""
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Federated, end-to-end-encrypted messaging platform
-# with web client and protocol bridges to External chat network
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""
@@ -762,11 +767,6 @@ msgstr "Doli CLI를 설치하고 다른 역할에 의해 통과된 dotfile symli
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "NGINX HTML 응답을위한 글로벌 JavaScript 주입 층 sub_filter, CSP 해싱과 함께"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "NGINX-served 앱에 대한 글로벌 스타일 시트 주입, 조명 및 동적 색상 화학에서 어두운 그들"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1064,7 +1064,6 @@ msgstr "NGINX subfilter 인젝터 추가 Matomo 분석 스크립트 및 noscript
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: NGINX vhost for serving static HTML websites over
-# HTTPS with automatic Let's Encrypt 인증서
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1237,7 +1236,6 @@ msgstr "온라인 코스 및 e-learning 제공을 위한 오픈소스 학습 관
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Open-source Monitoring and alerting toolkit for
-# storage metrics as time-series data and querying them with PromQL
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr ""
@@ -1668,7 +1666,6 @@ msgstr "협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted federated reading platform for book review
-# and reading tracking throughout the Fediverse
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
@@ -1708,7 +1705,6 @@ msgstr "간단한 HTTP API 뒤에 로컬 LLM을 실행하기위한 자체 호스
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted no-code database platform with
-# spreadsheet-like interface for building and collaborating on data
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
@@ -1793,11 +1789,6 @@ msgstr "서비스 Optimation"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "서비스 수준 백업 및 복구 구성 요소 - 자동화 된 데이터 스냅 샷, 원격 백업, 동기화 서비스 및 데이터베이스, 파일 및 컨테이너 전역의 백업 오케스트라."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "canonical를 소유하는 서비스 registry 역할 `css` 플래그와 CDN 업스트림에 CSS hostname을 리디렉션"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"
@@ -1929,7 +1920,6 @@ msgstr "시스템 Frontend 헬퍼"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 설정 및 localesvia 생성을위한 시스템 구성 역할 locale.gen 이름 *
-# locale.conf 파일 형식
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr ""
@@ -1994,7 +1984,6 @@ msgstr "모니터링된 서비스 단위가 실패할 때 시스템화된 msmtp 
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Systemd-triggered notifier for Deliver service-failure
-# alerts to the Telegram 채팅
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr ""

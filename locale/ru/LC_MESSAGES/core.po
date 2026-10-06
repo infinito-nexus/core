@@ -408,6 +408,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver с поддержкой потоков HTTP и TCP/UDP и настройками производительности по умолчанию"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "Не удалось проверить ваши другие сеансы."
@@ -735,11 +743,6 @@ msgstr "Общая роль, устанавливающая doli CLI и прим
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Глобальный уровень инъекций JavaScript для HTML-ответов NGINX sub_filter, С помощью CSP Hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Глобальная инъекция таблиц стилей для приложений, обслуживаемых NGINX, объединяющая светлые и темные темы из динамической цветовой схемы"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1301,8 +1304,6 @@ msgstr "Держите эту страницу открытой до завер�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Plug-triggered systemd backup for hard-link
-# deduplicated snapshots of the local backup tree to a swappable USB device
-# (англ.) (недоступная ссылка).
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
@@ -1746,11 +1747,6 @@ msgstr "Сервисная оптимизация"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Компоненты резервного копирования и восстановления на уровне обслуживания - обработка автоматических снимков данных, удаленное резервное копирование, услуги синхронизации и оркестрация резервного копирования в базах данных, файлах и контейнерах."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Служебно-регистрационная роль, владеющая каноническим `css` флаг и перенаправление имени хоста CSS на CDN вверх по течению"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

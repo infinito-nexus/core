@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Servidor web Core NGINX con soporte de fluxo HTTP e TCP / UDP e por defecto axustado ao rendemento"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -740,11 +748,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "Inxección global JavaScript para respostas HTML NGINX sub_filter, Baixar CSP hashing"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Inxección global de follas de estilo para aplicacións NGINX-served, unificando luz e escurecemento a partir dun esquema de cores dinámico"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "configuración daemon de OpenSSH para acceso remoto baseado en clave con login root e contrasinal desactivado"
@@ -825,8 +828,6 @@ msgstr "Segredos baseados na identidade, PKI e xestor de cifrado con inicio de s
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: En memoria memoria memoria memoria memoria memoria
-# memoria memoria caché e almacenamento, compartido centralmente co illamento
-# de ACL por consumidor ou incorporado como sidecar.
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr ""
@@ -1755,11 +1756,6 @@ msgstr "Optimización do servizo"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Compoñentes de copia de seguridade e recuperación a nivel de servizo: manexo de instantáneas de datos automatizados, backups remotos, servizos de sincronización e orquestración de copia de seguridade a través de bases de datos, arquivos e contedores."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Papel de réxime de servizo que posúe o canon `css` Bandeira e redirixindo o nome de anfitrión CSS ao CDN upstream"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

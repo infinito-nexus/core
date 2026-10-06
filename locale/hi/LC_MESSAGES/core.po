@@ -408,6 +408,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP और TCP/UDP धारा समर्थन और प्रदर्शन-tuned डिफ़ॉल्ट के साथ कोर NGINX वेबसर्वर"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "आपके अन्य सत्र जाँचे नहीं जा सके।"
@@ -735,11 +743,6 @@ msgstr "जेनेरिक भूमिका डोली सीएलआई
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "NGINX HTML प्रतिक्रियाओं के माध्यम से वैश्विक जावास्क्रिप्ट इंजेक्शन परत sub_filter, सीएसपी हैशिंग के साथ"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "NGINX-served ऐप के लिए ग्लोबल स्टाइलशीट इंजेक्शन, एक गतिशील रंग कीम से प्रकाश और अंधेरे थीम को एकीकृत करना"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1741,11 +1744,6 @@ msgstr "सेवा अनुकूलन"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "सर्विस लेवल बैकअप और रिकवरी घटक - डेटाबेस, फ़ाइलों और कंटेनरों में स्वचालित डेटा स्नैपशॉट, रिमोट बैकअप, सिंक्रनाइज़ेशन सेवाओं और बैकअप ऑर्केस्ट्रेशन को सौंपना।"
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "सेवा रजिस्ट्री भूमिका का मालिकाना `css` CDN अपस्ट्रीम को सीएसएस होस्टनाम को रीडायरेक्ट करना"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

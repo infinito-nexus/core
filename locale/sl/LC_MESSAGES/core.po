@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver z HTTP in TCP/UDP stream podporo in učinkovitost uglašene privzete"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Splošna vloga namestitve doli CLI in uporabe kartografskih kart dotfile
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Globalna javascription plast za NGINX HTML odzive preko sub_filter, s CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Injekcija globalne slogovne predloge za aplikacije, servirane z NGINX, poenotenje svetlobe in temne teme iz dinamične barvne sheme"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1749,11 +1752,6 @@ msgstr "Optimizacija storitve"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Komponente za varnostno kopiranje in sanacijo na ravni storitve – upravljanje samodejnih posnetkov podatkov, daljinskih varnostnih kopij, sinhronizacijskih storitev in rezervnih orkestracij po bazah podatkov, datotekah in zabojnikih."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Vloga registra storitev, ki je v lasti kanonike `css` označite in preusmerite ime gostitelja CSS v CDN v smeri toka"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

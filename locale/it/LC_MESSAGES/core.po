@@ -297,7 +297,6 @@ msgstr "cache pull-through Cluster-local per l'imaging di base Docker Hub condiv
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: Agenti di codifica installati sulla stazione di lavoro
-# (Claude Code♪ Cursor♪)
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -411,6 +410,14 @@ msgstr "Blocchi di costruzione dell'AI core—modello di servizio, gateway compa
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver con supporto HTTP e TCP/UDP e default ottimizzati per le prestazioni"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -739,11 +746,6 @@ msgstr "Ruolo generico installare il doli CLI e applicare dotfile symlink mappin
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript strato di iniezione per le risposte HTML NGINX tramite sub_filter, con CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Iniezione globale del foglio di stile per le applicazioni NGINX-served, unificando la luce e l'oscuritÃ da un colore dinamicocheme"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1744,11 +1746,6 @@ msgstr "Ottimizzazione del servizio"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Componenti di backup e ripristino a livello di servizio: gestione di istantanee automatizzate di dati, backup remoti, servizi di sincronizzazione e orchestrazione di backup su database, file e container."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Servizio-registry ruolo che possiede la canonica `css` bandiere e reindirizzare il nome host CSS al CDN a monte"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

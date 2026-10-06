@@ -408,6 +408,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver dengan HTTP dan TCP / UDP dukungan arus dan kinerja-tuned baku"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "Sesi Anda yang lain tidak dapat diperiksa."
@@ -645,7 +653,6 @@ msgstr "Kejadian"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Penyunting teks baris baris baris Vim-masuk akal bagi
-# pengubahan kode dan konfigurasi termal
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -739,11 +746,6 @@ msgstr "Peran umum menginstal cli doli dan menerapkan pemetaan symlink dotfile y
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript lapisan injeksi untuk NGINX HTML respon melalui sub_filter, dengan CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "injeksi styleheet global untuk aplikasi yang melayani NGINX-, menyatukan cahaya dan gelap bertema dari skema warna dinamis"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1744,11 +1746,6 @@ msgstr "Optimasi Layanan"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Tingkat servis backup dan komponen pemulihan - menangani snapshot data otomatis, backup jarak jauh, layanan sinkronisasi, dan orkestra backup di seluruh database, berkas, dan kontainer."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Peran Service- registry memiliki kanonikal `css` tandai dan arahkan nama host CSS ke upstream CDN"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

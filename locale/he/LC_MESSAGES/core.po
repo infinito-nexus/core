@@ -328,7 +328,6 @@ msgstr "קהילה"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: תאימות ל-HTML (CSS, JS, ליירוט , ניתוח, לוחמת iframe)
-# Nginx /OpenResty באמצעות sub_filter*הופנה מהדף CDN-backed Assets.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -412,6 +411,14 @@ msgstr "אבני בניין AI הליבה - מודל המשרת, שערים תו
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX Webserver עם HTTP ו- TCP /UDP תמיכה ו- Performance-tuned ברירת מחדל"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -744,11 +751,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "שכבת הזרקת JavaScript גלובלית לתגובות NGINX HTML באמצעות sub_filter, עם CSP hashing"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "הזרקת גליון הסגנון הגלובלי עבור יישומים שמורים NGINX, איחוד אור וחושך אותם מצבעים דינמיים"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "מערכת OpenSSH daemon עבור גישה מרחוק מבוסס מפתח עם כניסה שורש ואימות סיסמה"
@@ -883,7 +885,6 @@ msgstr "פלטפורמה מעקב פרויקטים עבור צוותי תוכנ�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: JavaScript Runtime for Building and run Server-side
-# Applications and Developer Tooling
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -1763,11 +1764,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr "גיבוי ורכיבי התאוששות ברמת השירות - הפעלת תמונות נתונים אוטומטיות, גיבויים מרוחקים, שירותי סינכרוניזציה ותזמורת גיבוי על פני מסדי נתונים, קבצים ומכלים."
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "תפקיד הפיקוח על השירות שבבעלותו את הקנוניה `css` דגל ופניית שם CSS ל- CDN upstream"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "שירותים"
@@ -2158,7 +2154,6 @@ msgstr "תכנון עבודה עבור Docker ו Docker Compose עם המשתמ�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Workstation Toolchain ו-Sy-port Authoritys for Arduino
-# Board Development on Linux
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""

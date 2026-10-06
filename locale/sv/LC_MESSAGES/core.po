@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Kärn NGINX-webbserver med HTTP och TCP / UDP stream support och prestationsjusterade standarder"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Generisk roll att installera doli CLI och tillämpa dotfile symlink kart
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript injection lager för NGINX HTML svar via sub_filter, med CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Global stylesheet injektion för NGINX-tjänade appar, enande ljus och mörka teman från en dynamisk färgscheme"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1749,11 +1752,6 @@ msgstr "Serviceoptimering"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Säkerhetskopiering och återställningskomponenter - hantera automatiserade datasnapshots, fjärrbackups, synkroniseringstjänster och backup-orkestrering över databaser, filer och behållare."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Serviceregistrets roll som äger kanoniska `css` flagga och omdirigera CSS-värdnamnet till CDN-uppströms"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver s podporou HTTP a TCP/UDP prúdu a predvolené výkony"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -741,11 +749,6 @@ msgstr "Generic role installing the doli CLI and application dotfile symlink map
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript vstrekovacia vrstva pre odpovede NGINX HTML cez sub_filter, s hašišovaním CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Global stylesheet injekcia pre NGINX-served aplikácie, zjednocujúce svetlo a tmavé iming z dynamického farebného systému"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1437,7 +1440,6 @@ msgstr "Úlohy pre čistenie rôznych systémových zdrojov a staré zálohy, ne
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: Polohy pre inštaláciu a konfiguráciu hardvérových
-# ovládačov.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
@@ -1756,11 +1758,6 @@ msgstr "Optimalizácia služieb"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Zálohovacie a rekonštrukčné komponenty na servisnej úrovni a na manipuláciu s automatizovanými dátovými snímkami, diaľkovými zálohami, synchronizačnými službami a záložnými orchestrami cez databázy, súbory a kontajnery."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Service-registry role vlastní kanonické `css` vlajka a presmerovanie CSS hostiteľa na CDN proti prúdu"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

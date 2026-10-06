@@ -410,6 +410,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Ubuntu Core NGINX webserver dengan dukungan stream HTTP dan TCP/UDP dan kinerja-tuned defaults"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "Sesi anda yang lain tidak dapat diperiksa."
@@ -439,8 +447,6 @@ msgstr "Hubungan Pelanggan"
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: Manajemen Hubungan Pelanggan (♪ CRM ♪) Perangkat lunak
-# untuk mengelola hubungan pelanggan, pipa penjualan, pemasaran, dan kegiatan
-# pendukung.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -749,11 +755,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "Lapisan injeksi JavaScript global untuk respon HTML NGINX via sub_filter, Dengan hashing CSP"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Suntikan lembar gaya global untuk aplikasi-served-NGINX, menyatukan cahaya dan gelap dari Colorcheme dinamis"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "Konfigurasi daemon OpenSSH yang diperkeras untuk akses jauh berbasis-kunci dengan log masuk root dan otentikasi kata laluan dimatikan"
@@ -1047,7 +1048,6 @@ msgstr "Penambahan injektor subfilter NGINX Matomo Naskah analitik dan pelacak g
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: {0}NGINX vhost untuk melayani situs web HTML statis
-# melalui HTTPS dengan sertifikat otomatis Mari Enkripsi
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1283,7 +1283,6 @@ msgstr "Manajer paket untuk memasang dan mengelola paket Python pada host target
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: O-user Hermes dan OpenClaw Agen agen agen agen mulai
-# menuntut di balik titik akhir OpenAI-kompatibel
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
@@ -1765,11 +1764,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr "Komponen cadangan dan pemulihan tingkat-layanan ¡mengendalikan snapshot data otomatis, backup jarak jauh, layanan sinkronisasi, dan orkestrasi cadangan di seluruh basis data, berkas, dan kontainer."
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Peran dinas-daftar memiliki kanonik `css` Bendera dan mengarahkan nama host CSS ke hulu CDN"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "Layanan Kelayan"
@@ -1867,7 +1861,6 @@ msgstr "Aras stack untuk mengatur server"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Pelayan konten Stachetik (aset aset aset, HTML, legal,
-# file)
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""

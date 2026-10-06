@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Kore NGINX webserver me HTTP dhe TCP/UDP"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -744,11 +752,6 @@ msgstr ""
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "niveli për HTML sub_filter, me CSP-në"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Injektimi global i stileve për aplikacionet e NGINX-it, unifikimi i dritës dhe errëzimi nga një ngjyrë dinamike"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1760,11 +1763,6 @@ msgstr "Optimi i shërbimit"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Përbërësit rezervistë të nivelit të shërbimit dhe të rimëkëmbjes që përdorin fotografi automatike të të dhënave, rezerviste të largëta, shërbime sinkronizimi dhe orkestrim rezervë përmes bazave të të dhënave, dosjeve dhe kontejnerëve."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Roli i regjistrit të shërbimeve që zotëron kanonikën `css` flamur dhe duke ridrejtuar emrin e host CSS në CDN sipër rrymës"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

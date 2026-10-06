@@ -386,7 +386,6 @@ msgstr "مدیریت محتوا"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: سیستم های مدیریت محتوا (CMS CMS CMS CMS) پلتفرم های
-# انتشار وب
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -416,6 +415,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX Webserver با HTTP و TCP/UDP پشتیبانی و پیش فرض های عملکردی"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "نشست‌های دیگر شما بررسی نشد."
@@ -444,7 +451,6 @@ msgstr "ارتباط مشتری"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: مدیریت روابط مشتری (CRM CRM CRM) نرم افزار برای مدیریت
-# روابط مشتری، خطوط لوله فروش، بازاریابی و فعالیت های پشتیبانی.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -664,7 +670,6 @@ msgstr "حوادث"
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Extensible Vim-line text Editor for Terminal-based
-# code and Configuration
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -758,11 +763,6 @@ msgstr "نقش ژنریک نصب Doli CLI و استفاده از نقشه های
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "لایه تزریق جهانی جاوا اسکریپت برای پاسخ های NGINX HTML از طریق sub_filter, با هش CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "تزریق سبک جهانی برای برنامه های NGINX، متحد کردن نور و تیره آنها از یک رنگ های پویا"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1766,11 +1766,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr "پشتیبان گیری سطح خدمات و اجزای بازیابی - دست زدن به تصاویر داده خودکار، پشتیبان گیری از راه دور، خدمات هماهنگ سازی و ارکستر پشتیبان در پایگاه های داده، فایل ها و ظروف."
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "نقش فعال سازی خدمات با مالکیت کانونی `css` پرچم و هدایت نام میزبان CSS به بالادستی CDN"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "خدمات خدمات"
@@ -2138,7 +2133,6 @@ msgstr "وب مبتنی بر LDAP مشتری برای مرور، جستجو و �
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: مدیریت مبتنی بر وب و پلت فرم توسعه برای مدیریت چندین
-# PostgreSQL سرورهای اختیاری OAuth2 ورود ورود ورود
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr ""

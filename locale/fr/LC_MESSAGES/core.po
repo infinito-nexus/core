@@ -408,6 +408,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Serveur web NGINX de base avec support de flux HTTP et TCP/UDP et paramètres de performance par défaut"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "Impossible de vérifier vos autres sessions."
@@ -735,11 +743,6 @@ msgstr "Rôle générique d'installation du Doli CLI et d'application des mappag
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Couche d'injection JavaScript globale pour les réponses HTML NGINX via sub_filter, avec hachage CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Injection de feuille de style globale pour les applications desservies par NGINX, unifiant le thème clair et sombre à partir d'un schéma de couleurs dynamique"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1740,11 +1743,6 @@ msgstr "Optimisation du service"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Composants de sauvegarde et de récupération au niveau du service : gestion des instantanés de données automatisés, des sauvegardes à distance, des services de synchronisation et de l'orchestration de sauvegarde dans les bases de données, les fichiers et les conteneurs."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Service-registry rôle propriétaire du canonique `css` drapeau et rediriger le nom d'hôte CSS vers le CDN en amont"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

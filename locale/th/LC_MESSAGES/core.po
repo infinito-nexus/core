@@ -329,8 +329,6 @@ msgstr "ชุมชน"
 # gained=['sub_filterส']
 # nocheck: url
 # translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
-# เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
-# Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -414,9 +412,16 @@ msgstr "Core AI บล็อก -- Model Pervision, OpenAI ประตูที
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Kore EntertainX เว็บเซอร์ (inX) ด้วย HTTP และ TCP/UDP
-# stream และค่าปริยายของการแสดง
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr ""
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
 msgstr ""
 
 msgctxt "logout:no_check"
@@ -748,11 +753,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "เลเยอร์สําหรับการใช้จาวาสคริปต์สําหรับการตอบสนอง HTML แบบ NGINX sub_filter, กับ CPS Hadhing"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "การฉีดสไตล์ชีตทั่วไปสําหรับแอปพลิเคชันแบบ NGNX ที่ให้บริการ, การรวมแสงและความมืดออกจากเครื่องสีแบบไดนามิก"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "การปรับแต่งดีมอน OpenSHS ที่ใช้สําหรับใช้งานระยะไกลด้วย root ล็อกอิน และปิดการตรวจสอบสิทธิ์รหัสผ่าน"
@@ -902,7 +902,6 @@ msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระ�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Keptember- usinaling times appnation on the paint:
-# Kata loader microVMs และ sports overnames.
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
 msgstr ""
@@ -961,7 +960,6 @@ msgstr "ลายเซ็นตัวเองท้องถิ่นรูท
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: ระบบจัดการรหัสผ่านสําหรับพื้นที่ทํางานแบบไขว้
-# (cross-platiform) อันดับ 1 ในฐานข้อมูล Ke Pass-formats ที่ถูกเข้ารหัสไว้
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr ""
@@ -1415,8 +1413,6 @@ msgstr "ซ่อมแซม"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: การซ่อมแซมและฟื้นฟูบทบาท --
-# การซ่อมแซมระบบยาก/การซ่อมแซมของดอกเกอร์, ระบบสมดุล (Btrfs)
-# และการแก้ไขระบบระดับต่ําอื่นๆ.
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr ""
@@ -1770,11 +1766,6 @@ msgstr "ออปติเมชันของบริการ"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "ส่วนประกอบการสํารองข้อมูลและการกู้คืนของบริการ เช่น การถ่ายภาพอัตโนมัติ, การสํารองข้อมูลระยะไกล, บริการปรับเทียบข้อมูล, และการสํารองข้อมูลของวงออเคสตร้าทั่วฐานข้อมูล, แฟ้ม, และคอนเทนเนอร์"
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "บทบาทของการบริการที่เป็นเจ้าของการตกแต่ง `css` แฟล็กและเปลี่ยนค่าชื่อโฮสต์ของ CSS ไปเป็น CDN upstream"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

@@ -288,7 +288,6 @@ msgstr "Docker Swarm жумушчу түйүндөрүнө атайын куру
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Класстердик-локалдык прокси кэш (кластердик-локалдык
-# прокси кэш) - бул ар бир ролду жарыялайт.
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
 msgstr ""
@@ -334,8 +333,6 @@ msgstr "Коомчулук"
 # gained=['sub_filterМЧН']
 # nocheck: url
 # translation-rejected: HTML инжекциялык ролдору (CSS, JS, Logout Interceptor,
-# аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
-# камсыздалган активдери бар Луа.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -419,6 +416,14 @@ msgstr "Негизги AI курулуш блоктору - моделди те�
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "NGINX веб-сервери, HTTP жана TCP-UDP агым колдоосу жана аткаруу менен жөнгө салынган дефолттор"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -751,11 +756,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "NGINX HTML жооптору үчүн глобалдык JavaScript инжекциялык катмары sub_filter, CSP хэш менен"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "NGINX-кызматталган тиркемелер үчүн глобалдык стилдеги инъекция, динамикалык колошемадан жарык жана караңгы темаларды бириктирүү"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "OpenSSH дамон конфигурациясы ачкычка негизделген алыстан кирүү үчүн тамыр кирүү жана сырсөз аутентификациясы майып"
@@ -819,7 +819,6 @@ msgstr "Bash жана Zsh login кабыктарын айлана-чөйрөнү
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Долбоорду ачыкка чыгаруу үчүн хост деңгээлиндеги
-# чаралар pyproject.toml Системалык версия (ETC)
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr ""
@@ -1064,7 +1063,6 @@ msgstr "NGINX негизделген веб-платформа жана беки
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: NGINX кызмат кылган статикалык баракча юридикалык изин
-# берет (Импрессия) Жинжадан2 үлгүсү үлгүсү үлгүсү
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr ""
@@ -1169,7 +1167,6 @@ msgstr "Ачык булактуу ERP топтому CRM, сатуу, бухга
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Ачык булактуу IT жана тиркемелерди көзөмөлдөө сервери
-# (SSO)
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
@@ -1777,11 +1774,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr "Кызмат деңгээлиндеги резервдик көчүрмө жана калыбына келтирүү компоненттери - автоматташтырылган маалымат сүрөттөрүн, алыстан резервдик көчүрмөлөрдү, синхрондоштуруу кызматтарын жана маалымат базалары, файлдар жана контейнерлер аркылуу резервдик оркестрлөөнү иштетүү."
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Канондук кызматтын каттоо ролу `css` CSS хост аталышын CDNге багыттоо"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "Кызматтар кызматтары"
@@ -1811,8 +1803,6 @@ msgstr "Керектөөчүлөргө виртуалдык хост жана к
 # translation-refused: libretranslate added-span lost=[] gained=['<unk>']
 # nocheck: url
 # translation-rejected: Көп түйүндүү жайгаштыруулар тарабынан колдонулган
-# жалпы туруктуу сактоочу арткы бөлүктөр <unk> NFSv4 Сервердик жана клиенттик
-# ролдор.
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""

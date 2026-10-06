@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Pamata NGINX tīmekļa serveris ar HTTP un TCP/UDP straumēšanas atbalstu un veiktspējas izlīdzinātiem noklusējumiem"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -741,11 +749,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "Globālais JavaScript injekcijas slānis NGINX HTML atbildēm caur sub_filter, ar CSP hashing"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Globālā stilu lapu injekcija NGINX served lietotnēm, apvienojot gaismas un tumšās tās no dinamiskas krāsu shēmas"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "Rūdīta OpenSSH dēmona konfigurācija uz atslēgu bāzētai attālinātai piekļuvei ar root login un paroli autentificēšanu atslēgta"
@@ -795,12 +798,6 @@ msgstr "Palīglīdzekļi"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: LuxSCS un LuxOpCo LuxSCS LuxOpCo LuxSCS LuxOpCo LuxSCS
-# LuxOpCo un LuxSCS LuxOpCo LuxSCS LuxOpCo LuxOpCo LuxSCS LuxOpCo un LuxOpCo
-# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo
-# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo līgumu un LuxOpCo
-# LuxSCS maksu un maksu par LuxOpCo pakalpojumiem, kas saistīti ar LuxOpCo
-# pakalpojumiem, LuxOpCo un LuxOpCo, LuxOpCo darbībām un LuxOpCo darbībām.3
-# API.
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -1392,7 +1389,6 @@ msgstr "Public REST API apkalpo lomu datus, vēsturi un tulkojumi Infinito.Nexus
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Publisks vhost, kas atklāj System One lēmums API
-# skaits * svc-ai-s1
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""
@@ -1775,11 +1771,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr "Servisa līmeņa dublēšanas un atgūšanas komponenti — automatizētu datu momentuzņēmumu apstrāde, attālināti dublējumi, sinhronizācijas pakalpojumi un dublēšanas organizēšana datu bāzēs, failos un konteineros."
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Pakalpojumu reģistra funkcijas, kam pieder kanonika `css` atzīmēt un pāradresēt CSS resursdatora nosaukumu uz CDN augšup"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "Pakalpojumi"
@@ -1828,7 +1819,6 @@ msgstr "Parakstīts visur."
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Paraksts, izņemot {failed} skaits * {total}
-# pakalpojumi.
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."

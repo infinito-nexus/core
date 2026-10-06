@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "NGINX webszerver HTTP és TCP / UDP stream támogatással és teljesítményhangoló alapértelmezéssel"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "A doli CLI telepítése és a más szerepek által átadott dotfile szim
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript injekciós réteg NGINX HTML válaszok keresztül sub_filter, CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Globális stilesheet injekció NGINX- served alkalmazásokhoz, a fény és a sötét témájú, dinamikus színrendszer"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1389,7 +1392,6 @@ msgstr "Python CLI csomagkezelő több kódtár klónozásához és közös Git 
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Release pins for the GitHub-release lint tools the
-# toolchain installs
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr ""
@@ -1753,11 +1755,6 @@ msgstr "Szolgáltatási optimalizálás"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Szolgálati szintű biztonsági mentési és helyreállítási komponensek - automatizált adatpillanatfelvétel kezelése, távoli mentések, szinkronizációs szolgáltatások és mentési hangszerelés adatbázisokban, fájlokban és konténerekben."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Service- Registry szerep tulajdonosa a kanonikus `css` zászló és átirányítása a CSS hostname a CDN upstream"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

@@ -138,7 +138,6 @@ msgstr "لینکس پر سافٹ وئیر انجینئرز کے لیے بیس ت
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: نظام انتظامیہ (systems Profile Profile) کے لیے Base
-# for sex-ins, settlements, and unit statesation -
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr ""
@@ -414,6 +413,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "کورے NGINX ویب سرور کے ساتھ HTP اور TCP/UDP نہر کی معاونت اور کارکردگی سے چلنے والے تنازعات"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "آپ کے دیگر سیشنز کی جانچ نہیں ہو سکی۔"
@@ -496,7 +503,6 @@ msgstr "سیکورٹی اعزازات کے لیے RSH کلیدی رسائی او
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: محفوظ پیشہ ورانہ رسائی کے لیے ایس ایس ایچ درج کردہ
-# کمانڈز اور پاس ورڈی رمز (انگریزی:
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
 msgstr ""
@@ -525,7 +531,6 @@ msgstr "موسیقی ، ڈراما‌نگاروں اور حساب‌کتاب ک�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: رمزِ ڈاک (پوسٹل کوڈ) ایک سیاہ کار کی تنصیب کے لیے خانہ
-# بند کریں
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr ""
@@ -561,9 +566,6 @@ msgstr "سکرین کو ٹھنڈا کرنے اور سونے کو روکنے کے
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی ڈیٹابیس
-# (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) پر
-# انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی ڈیٹابیس (IMDb) اور اسکرین شیئر
-# (انگریزی:
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
 msgstr ""
@@ -647,7 +649,6 @@ msgstr "مکمل فراہم کُنندہ کے مقابلے میں ہر یو آر
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انجن-اگنیسمک کیپ، کوکیو، تلاش، اور Victor engines کے
-# لیے سطح مرتفع (Engner-agnostic fecture) جس میں فی کسشن فراہم کیا جاتا ہے۔
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
 msgstr ""
@@ -727,8 +728,6 @@ msgstr "فرنٹ-ڈر جے ایس ٹرانسفارمنس والدین کی کھ�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: فرنٹ-لائر بیس (انگریزی: Fort-layer base for web
-# Foundation): HTPS Foundation, Constitution Cloudflare settlep, and
-# reut-Proxic settlementing -
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
 msgstr ""
@@ -767,11 +766,6 @@ msgstr "جینیاتی کردار دولی سیریز کو ڈیزائن کرتا
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "GGINXHTML کے جوابات کے لیے عالمی جاوا Javascrip link pelece for NGIX HTML sub_filter، سی ایس پی کے ساتھ"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "دنیا بھر میں University Society for NGINX-profiles کے لیے، روشنی کو آپس میں ملانا اور ایک فعال رنگوں سے اندھیرا کرنا"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -832,7 +826,6 @@ msgstr "میزبانی کی سطح کی دیکھ بھال سسٹمڈ-جوورن�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: میزبانی سطح مرتفع (انگریزی: Thom-level settlement of
-# Bash and Zshology shells) کو مشترکہ طور پر مشترکہ طور پر ملاتی ہے
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr ""
@@ -896,7 +889,6 @@ msgstr "غیر متصل"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انٹیلی وی اے-API [حوالہ درکار] ہارڈ ویئر کے لیے میڈیا
-# ڈرائیور - ایکسیل ویڈیو ڈی کوڈ اور لینکس کی تقسیموں میں
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr ""
@@ -915,7 +907,6 @@ msgstr "شمارے اور پروجیکٹ سافٹ وئیر ٹیموں کے لی�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: جاوا ایسکریپٹ (JavaScrip) کی تعمیر اور چلنے پھرنے والے
-# سروے اور ترقی یافتہ ٹولنگ کے لیے
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -1119,7 +1110,6 @@ msgstr "گنس sub_filter JavaScrip production تمام افعال کو مرکز
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: انٹرنیٹ مووی ڈیٹابیس (IMDb) پر مبنی مواد ادائیگی نیٹ
-# ورک کو اندرونی ویب اطلاقیے تک شیئر کرنے کے لیے استعمال کیا جاتا ہے۔
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
 msgstr ""
@@ -1160,8 +1150,6 @@ msgstr "object-storage see for SeaweedFS/MinIO backnd حل اور per Consumer c
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: On-target Automation for struction a space a space a
-# space a construct space a space a space a space space a space a spapfile
-# taff -
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr ""
@@ -1369,8 +1357,6 @@ msgstr "Policy-manage web Browns for Arch لینکس ڈیسک ٹاپز کے سا
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: پاور ماہرِ نظام (system-Administed protected protected
-# for settleplople Led-world-constitution province for abored community for
-# community community for community of community, AC, and Dected states
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
 msgstr ""
@@ -1600,7 +1586,6 @@ msgstr "Scheduled systemd-timer working Lu's invest SSL/TLS سندوں کو Cert
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: خود کار طور پر کام کرنے والے سی آئی ایس ایم ایس ایس
-# ایس کرک ڈاؤن لوڈ کرنے کے لئے
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
 msgstr ""
@@ -1644,7 +1629,6 @@ msgstr "خود کار محفوظ System One ایسی کلاس‌ئر جو ایس
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: خود مختاری (self-hosted specter) تخلیق کرنے، جاسوسی
-# کرنے اور بنانے کے لیے مختصر تعلقات بنانے کے لیے
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr ""
@@ -1693,7 +1677,6 @@ msgstr "خود مختار ای کامرس پلیٹ فارم فار کیٹل کا
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: خود غرضی (Self-hosted tomation wiki) اور علم النجوم
-# پلیٹ فارم جس میں انفنٹری اور ایپ پر مبنی کشش ثقل (Extension) پائی جاتی ہے۔
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
 msgstr ""
@@ -1743,8 +1726,6 @@ msgstr "خودبخود نو کوڈ ڈیٹابیس پلیٹ فارم جس میں 
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: خود انٹرنیٹ مووی ڈیٹابیس (IMDb) پر انٹرنیٹ مووی
-# ڈیٹابیس (IMDb) پر خود مختار آن لائن آفس بیک وقت دستاویزوں کی ترمیم کے لیے،
-# پروڈیوس اور پیشوں کے لیے
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
@@ -1828,11 +1809,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr ""
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "سروس-ریجنی کردار کینال کا مالک ہوتا ہے۔ `css` سی‌ایس‌ایس‌ایس‌ڈی‌این‌اے کے جھنڈے اور ڈیزائن"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "خدمات"
@@ -1852,7 +1828,6 @@ msgstr "شیئرڈ سٹوڈیو"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: شیئرڈ میزبان نیٹ ایس ایس ایس ایس ایس ایل ایس پی ایل کی
-# تنصیب کے لیے ایک بار نصب کیا جاتا ہے
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
 msgstr ""
@@ -1876,7 +1851,6 @@ msgstr "ہر ڈیسک ٹاپ کردار کی شیئر شیئر کریں، لاگ
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: شیئرڈ وابستگی ڈیٹا بیس سرور برائے اطلاقیات مرکزی ڈی
-# این ایل ذخیرہ (انگریزی: Central Encial database) جو Decker میں واقع ہے۔
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr ""
@@ -1986,8 +1960,6 @@ msgstr "اجزاء کے قریب نظام. اگر دوسرے کرداروں سے
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: پیکج انڈیکس کو تازگی بخشنے اور OS پیکج مینیجر کے ذریعے
-# نصب کردہ پیکج پیکج پیکج پیکج پیکج پیکجوں کو تازہ کرنے کے لئے نظام- قیمتی
-# کردار
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
 msgstr ""

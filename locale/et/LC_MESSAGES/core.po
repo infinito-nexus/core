@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Põhiline NGINX veebiserver HTTP ja TCP/UDP voo toega ning jõudluse häälestatud vaikeväärtustega"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Üldine roll doli CLI paigaldamisel ja teiste rollide poolt edastatud do
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Globaalne JavaScripti süstekiht NGINX HTML- vastuste jaoks sub_filter, CSP räsitud"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Globaalne laaditabeli sisestamine NGINX-served rakendustele, ühendades dünaamilisest värviskeemist valguse ja tumedad need"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1748,11 +1751,6 @@ msgstr "Teenuse optimeerimine"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Teenusetaseme varundamise ja taastamise komponendid - automatiseeritud andmete hetktõmmiste, kaugvarundamiste, sünkroonimisteenuste ja varundamise korraldamine andmebaaside, failide ja konteinerite vahel."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Kanooniline teenistus-registri roll `css` lipp ja CSS masinanime ümbersuunamine CDN-i ülesvoolu"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

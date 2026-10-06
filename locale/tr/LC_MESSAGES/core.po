@@ -392,7 +392,6 @@ msgstr "Content Management"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: İçerik Yönetimi Sistemleri (CMS CMS CMS) ve web yayın
-# platformları
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -422,9 +421,16 @@ msgstr "Core AI bina blokları - hizmet etmek, OpenAI- uyumlu ağ geçidi, vekt�
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
-# support and performance-tuned defaults
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr ""
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
 msgstr ""
 
 msgctxt "logout:no_check"
@@ -703,7 +709,6 @@ msgstr "Finansal ve Muhasebe yazılımları"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: WebRTC'de NAT traversal ve gerçek zamanlı iletişim
-# için ücretsiz ve açık kaynak TURN /STUN r r r r röportatörü
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
 msgstr ""
@@ -764,11 +769,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "NGINX HTML yanıtları için Global JavaScript enjeksiyon tabakası sub_filter, CSP ile beraber"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "NGINX-served uygulamalar için küresel stil tablo enjeksiyonu, ışık ve onları dinamik renklerden karanlık"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "Temel tabanlı uzaktan erişim için sertleştirilmiş OpenSSH daemon yapılandırması kök giriş ve şifre doğrulama engelli engelliler için zorlaştırılmış OpenSSH daemon konfigürasyonu"
@@ -794,10 +794,6 @@ msgstr "Evlatsız anonim Docker hacimleri için sağlık kontrolü, beyaz liste 
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Yardım Yardım Yardım Yardım Yardım Yardım Yardım
-# Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
-# Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
-# Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım
-# Yardım Yardım
 msgctxt "menu:Help:title"
 msgid "Help"
 msgstr ""
@@ -998,8 +994,6 @@ msgstr "Bakım görevlerini kritik hizmetler durdurana kadar karıştırma mekan
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Halka geri dönüş- sadece merkezi posta yığını
-# çalışmıyorken yerelhost aracılığıyla hafif posta teslimat için ek röle röle
-# röle röle röle röle röprü
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
 msgstr ""
@@ -1196,7 +1190,6 @@ msgstr "CRM, satış, muhasebe, envanter, HR ve web sitesi yönetimi için açı
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: Open-source IT and application monitoring server
-# behind SSO with native LDAP user management
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
@@ -1424,17 +1417,6 @@ msgstr "Public REST API, veri, tarih ve çevirilerine hizmet ediyor Infinito.Nex
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Halk vhost, açığa çıkan System One karar kararı karar
-# kararı API Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
-# Of Of Of Of Of Of Of Of Of svc-ai-s1
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""
@@ -1657,7 +1639,6 @@ msgstr "Kendi kendine evlenmiş URL, izlemek ve inşa edilen kısa bağlantılar
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Kendi kendine ev sahipliği WebRTC platformu son uç uç
-# uç uç uç-son şifreli video konferencing with beerated doğrulama
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr ""
@@ -1713,8 +1694,6 @@ msgstr "Kendi kendine evlenmiş kitap incelemeleri ve Fediverse'in karşısında
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Kendi kendini mikroblogging, gerçek zamanlı zaman
-# zaman zaman zaman zaman çizelgesi ve topluluk moderasyonları için beslenmiş
-# sosyal ağ
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
 msgstr ""
@@ -1828,11 +1807,6 @@ msgstr "Hizmet Optimation"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Servis seviyesi yedekleme ve kurtarma bileşenleri – otomatik veri anlıklarını, uzaktan yedekleri, senkronizasyon hizmetleri ve veritabanı, dosyalar ve konteynerler arasında yedekleme orkestrası."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Hizmet-bölgeci rolü kanonik rolünün sahibi `css` Bayrak ve CSS hostnameyi CDN upstream"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

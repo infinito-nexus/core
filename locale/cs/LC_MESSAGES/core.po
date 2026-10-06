@@ -414,6 +414,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver s podporou HTTP a TCP / UDP stream a výkonnost- laděnými vadami"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -745,11 +753,6 @@ msgstr "Generická role instalace doli CLI a aplikace dotykových symlinkových 
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript vstřikovací vrstva pro odpovědi na HTML GINX přes sub_filter, with CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Globální stylesheet injekce pro aplikace NGINX podávané, sjednocující světlo a tmavé témy z dynamického barevného schématu"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1769,11 +1772,6 @@ msgstr "Optimalizace služeb"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Záložní a recovery service-level - manipulace s automatickými datovými snímky, vzdálenými zálohami, synchronizačními službami a zálohováním napříč databázemi, soubory a kontejnery."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Úloha registru služeb vlastnící kanoniku `css` vlajka a přesměrování hostitelského jména CSS na CDN proti proudu"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

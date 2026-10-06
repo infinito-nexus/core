@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX-retservanto kun HTTP kaj TCP/UDP-flua subteno kaj rezultigaj defaŭltoj"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Genera rolo instalanta la doli CLI kaj apliki dotfile-simligajn mapadojn
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Tutmonda JavaScript injekto tavolo por NGINX HTML respondoj per sub_filter, Kun CSP haŝiŝo"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Tutmonda stilfolio injekto por NGINX-servitaj programoj, unuigante lumon kaj malhelan alportadon de dinamikaj kolorkemizoj"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1749,11 +1752,6 @@ msgstr "Servo Optimation"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Servo-nivela rezervo kaj normaligkomponentoj - manĝanta aŭtomatigitaj datenkufroj, malproksimaj rezervaĵoj, sinkronigadservoj, kaj rezervreĝisorado trans datumbazoj, dosieroj, kaj ujoj."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Servo-administra rolo posedanta la kanonikan `css` Flago kaj redirektado de la CSS mastro-nomo al la CDN kontraŭflue"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

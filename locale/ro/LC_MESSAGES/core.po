@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Server NGINX de bază cu HTTP și suport flux TCP/UDP și implicite de performanță"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Rolul generic de instalare a Doli CLI și aplicarea map-uri Symlink dotf
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Strat de injectare Global JavaScript pentru răspunsurile NGINX HTML prin sub_filter, cu hashing CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Injectie globala de foi de stil pentru aplicatii NGINX-servite, lumina unificatoare si lezarea intunecata dintr-un sistem dinamic de culoare"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1438,7 +1441,6 @@ msgstr ""
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: Roluri pentru instalarea și configurarea driverelor
-# hardware.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
@@ -1453,7 +1455,6 @@ msgstr "Roluri pentru gestionarea infrastructurii web care acoperă serviciile d
 # translation-refused: libretranslate truncated
 # nocheck: url
 # translation-rejected: Roluri de monitorizare a sistemului și controale de
-# sănătate.
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
@@ -1765,11 +1766,6 @@ msgstr "Optimizarea serviciului"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Componentele de backup și de recuperare de la nivel de serviciu se bazează pe capturi automatizate de date, backup-uri de la distanță, servicii de sincronizare și orchestrare de rezervă prin baze de date, fișiere și containere."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Rolul de serviciu-registru detinerea canonica `css` pavilion și redirecționarea numele gazdei CSS către CDN în amonte"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

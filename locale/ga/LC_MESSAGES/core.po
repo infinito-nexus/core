@@ -333,8 +333,6 @@ msgstr "Pobail agus Fiontair"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Róil insteallta HTML inmhúirínithe (CSS, JS, logout
-# interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
-# via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -418,6 +416,14 @@ msgstr "Core AI bloic tógála-samhail ag freastal, OpenAI-comhoiriúnach geata�
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core webserver NGINX le HTTP agus tacaíocht sruth TCP / UDP agus réamhshocraithe feidhmíochta-tuned"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -748,11 +754,6 @@ msgstr "Ról cineálach a shuiteáil an doli CLI agus a chur i bhfeidhm mapaí s
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Sraith instealladh Domhanda JavaScript le haghaidh freagraí NGINX HTML trí sub_filter, le hashing CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Instealladh stílbhileog domhanda le haghaidh apps NGINX-choimeád, unifying solas agus dorcha a ainmniú ó colorscheme dinimiciúil"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1758,11 +1759,6 @@ msgstr "Seirbhís Optimation"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Seirbhís-leibhéal cúltaca agus comhpháirteanna a ghnóthú-lámhaigh snapshots sonraí uathoibrithe, cúltacaí iargúlta, seirbhísí sioncrónaithe, agus cúltaca orchestration thar bunachair sonraí, comhaid, agus coimeádáin."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Ról clárlainne seirbhíse ar leis an Canonical `css` bratach agus atreorú an t-óstach CSS chuig an CDN upstream"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

@@ -414,6 +414,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP və TCP / UDP stream dəstək və performans-tuned defaults ilə Core NGINX webserver"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -747,11 +755,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "NGINX HTML cavabları üçün Global JavaScript enjeksiyon kağızı sub_filter, CSP ilə"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "NGINX-served apps üçün Global stilsheet enjeksiyonu, işıqsız işıq və dinamik rənglərcheme"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "Qeydiyyatdan keçirilmiş OpenSSH daemon konfiqurasiyası"
@@ -781,7 +784,6 @@ msgstr "Yardım"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: CA-trust enjeksiyon aktivlərinin qarşısını almaq
-# Docker Compose stack and and and and
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
@@ -1789,11 +1791,6 @@ msgid "Service-level backup and recovery components—handling automated data sn
 msgstr "Service-level backup and recovery komponentləri - avtomatlaşdırılmış data snapshots, uzaq backups, synchronization xidmətləri, və data faylları, və konteynerlər arasında backup orqansiya."
 
 # translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Service-registry rol canonical `css` flag  the  the"
-
-# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "Elanlar"
@@ -1855,9 +1852,6 @@ msgstr "Sizə xidmətlərinə baxın..."
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Single-user ActivityPub bookmarking site ictimai kitab
-# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
-# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
-# məlumatları öyrənmək Mastodon Fediverse
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""

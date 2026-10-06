@@ -412,6 +412,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Servidor web del nucli NGINX amb implementació de flux HTTP i TCP/UDP i per omissió de rendiment"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -744,11 +752,6 @@ msgstr "Funció genèrica Instal· lant la línia CLI del puntli i aplicar mapes
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "La capa de injecció JavaScript global per a respostes HTMLNGINX via sub_filter, amb resum de CSP"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "injecció de fulls d' estil global per a aplicacions NGINX-serves, unificar llum i fosc-los d'un esquema de colors dinàmic"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1754,11 +1757,6 @@ msgstr "Optimització del servei"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Còpia de seguretat i components de recuperació de l'automatització de dades, còpies de seguretat remotes, serveis de sincronització i còpia de seguretat a través de bases de dades, fitxers i contenidors."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Funció de servei que posseeix la canònica `css` Bandera i redirecció del nom de la màquina CSS a la transmissió CDN"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

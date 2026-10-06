@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver na may HTTP at TCP/UDP spa support at performance-tuned defaults"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Ang papel na ginagampanan ng Generic ay nagkakabit ng doli CLI at ang pa
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript injection layer para sa mga tugon ng NGINX HTML sa pamamagitan ng sub_filter, kasama ang CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Global styleheet injection para sa NGINX-served apps, pagsasanib ng liwanag at madilim na mga ito mula sa isang dinamikong colorche"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1750,11 +1753,6 @@ msgstr "Paglilingkod sa Optimasyon"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Serbisyo-level backup at revival ang mga bahagi ng paggamit ng mga automated data snaps, remote backups, coordination services, at backup orchestration sa ibayo ng database, files, at containers."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Service-registry ang papel na pagmamay-ari ng kanonikal `css` bandila at ang Pagtutuwid ng CSS hostname sa CDN sa gawing itaas ng ilog"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

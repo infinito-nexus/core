@@ -410,6 +410,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "HTTP と TCP/UDP ストリームのサポートとパフォーマンスチューニングのデフォルトで NGINX の Webserver をコアします。"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "他のセッションを確認できませんでした。"
@@ -740,11 +748,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "NGINX HTML 応答のグローバル JavaScript 射出レイヤー sub_filter, CSPハッシュ付き"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "NGINX-servedアプリのグローバルスタイルシートインジェクション、光を統一し、ダイナミックなカラーケムから暗くする"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "ルートログインとパスワード認証が無効なキーベースのリモートアクセスのための強化されたOpenSSHデーモン構成"
@@ -793,7 +796,6 @@ msgstr "Amazon Sと互換性のあるオブジェクトストレージを含む�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: ホストレベルのWireGuard VPNサービス(wg-quick
-# config、パッケージインストール、および安全なトンネル用のIP-forwarding sysctl)
 msgctxt "role:svc-net-wireguard-core:description"
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr ""
@@ -1693,7 +1695,6 @@ msgstr "テキストを言語間で翻訳し、検出するためのセルフホ
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected:
-# セルフホスト型パーソナルAIエージェントゲートウェイ(ブラウザコントロールUI)、片マイクロVMまたはgVisorランタイムでサンドボックス
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr ""
@@ -1707,7 +1708,6 @@ msgstr "Keycloak SSO とセントラル LDAP ディレクトリとファイル�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected:
-# ニュースレターおよびメーリングリストのためのセルフホスト型プラットフォーム(購読者セグメンテーションとキャンペーン分析)
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr ""
@@ -1761,15 +1761,9 @@ msgstr "サービス最適化"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected:
-# サービスレベルのバックアップとリカバリコンポーネント(自動データスナップショット、リモートバックアップ、同期サービス、データベース、ファイル、コンテナ間でのバックアップオーケストレーション)。.
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "運河を所有するサービス登録の役割 `css` CSS ホスト名を CDN 上流にフラグしてリダイレクトする"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

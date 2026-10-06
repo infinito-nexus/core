@@ -330,8 +330,6 @@ msgstr "Ghi chú"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: Chức năng tiêm HTML hiệu chỉnh được (CSS, JS, bộ ngăn
-# chặn, phân tích, bảng điều khiển tôi khung) Nginx/OpenResty qua
-# sub_filter(Tiếng Tây Ban Nha).
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -421,6 +419,14 @@ msgstr "Core AI xây dựng khối - mdel phục vụ, OpenAI- tương ứng v�
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Trình phục vụ Mạng Core NGINX với HTTP và TCP/UDP hỗ trợ luồng và các mặc định hiệu suất"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -755,13 +761,6 @@ msgstr "Vai trò chung của việc cài đặt doli CLI và áp dụng các b�
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Lớp tiêm JavaScript toàn cục cho phản ứng HTML NGINX qua sub_filter, Với âm thanh của kênh CNP"
-
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1777,11 +1776,6 @@ msgstr "Làm báp têm"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Hỗ trợ cấp dịch vụ và phục hồi các thành phần tự động chụp ảnh dữ liệu, dự phòng từ xa, dịch vụ đồng bộ hóa, và dàn nhạc dự phòng trên cơ sở dữ liệu, tập tin và các công cụ."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Bộ phận phục vụ đóng vai trò sở hữu chính điển `css` Cờ và chuyển tên máy CN sang ngược dòng CDN"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

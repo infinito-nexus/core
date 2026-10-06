@@ -330,10 +330,8 @@ msgstr "社区"
 # 1)OpenResty 通过 sub_filter卢亚拥有CDN支持的资产.
 # gained=['(', ')', '1', 'sub_filter卢亚拥有CDN支持的资产']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
-# gained=['(', ')', '1', 'sub_filter卢亚拥有CDN支持的资产']
 # nocheck: url
 # translation-rejected: 可编译的 HTML 注入角色 (CSS、JS、登机拦截器、分析仪、仪表板) 用于 Nginx / (%
-# 1)OpenResty 通过 sub_filter卢亚拥有CDN支持的资产.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -417,6 +415,14 @@ msgstr "核心AI构件——服务模式、OpenAI兼容网关、矢量数据库�
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "有 HTTP 和 TCP/ UDP 流支持和性能调试默认的 NGINX 核心网络服务器"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -511,7 +517,6 @@ msgstr "推迟启动的管弦乐器,以便在游戏完成后启用和开始收�
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 可部署的网络应用程序 (GitLab, (中文). Nextcloud, (中文).
-# Mastodon,等编.)
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -754,11 +759,6 @@ msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter
 msgstr "NGINX HTML 响应的全球 JavaScript 注入层 sub_filter,带有CSP散列"
 
 # translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "为 NGINX 服务的应用程序注入全局样式表, 统一光线和暗色主题从动态色板中"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "硬化 OpenSSH 守护进程配置, 用于基于密钥的远程访问, 并禁止根登录和密码认证"
@@ -804,7 +804,6 @@ msgstr "辅助工具"
 # translation-refused: libretranslate structure
 # nocheck: url
 # translation-rejected: 管理、缩放和访问无结构数据的高性能、自我托管的存储解决方案——包括与亚马逊S兼容的对象存储3 APIs
-# (英语).
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -1767,11 +1766,6 @@ msgstr "服务优化"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "服务级备份和回收组件——处理自动数据快照、远程备份、同步服务以及跨越数据库、文件和容器的备份协调。."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "拥有警犬的服务注册角色 `css` 标记并重定向 CSS 主机名到上游 CDN"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

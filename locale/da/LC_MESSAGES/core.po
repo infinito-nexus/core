@@ -409,6 +409,14 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver med HTTP og TCP / UDP stream support og performance-tunede standard"
 
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -738,11 +746,6 @@ msgstr "Generisk rolle at installere doli CLI og anvende dotfile symlink tilknyt
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript indsprøjtningslag til NGINX HTML respons via sub_filter, med CSP hashing"
-
-# translated-by: libretranslate
-msgctxt "role:sys-front-inj-css:description"
-msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Global stilark injektion til NGINX- serverede apps, samlende lys og mørke temaer fra et dynamisk farveskema"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -1748,11 +1751,6 @@ msgstr "Serviceoptimering"
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Service- niveau backup og recovery komponenter - håndtering af automatiserede data snapshots, eksterne sikkerhedskopier, synkronisering tjenester, og backup orkestrering på tværs af databaser, filer, og containere."
-
-# translated-by: libretranslate
-msgctxt "role:web-svc-css:description"
-msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "Service- register rolle, der ejer kanonisk `css` flag og omdirigere CSS-værtsnavnet til CDN opstrøms"
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"
