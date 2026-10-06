@@ -18,6 +18,9 @@
   until: checkmk_ready.rc == 0
   delegate_to: "{{ CHECKMK_HOST_NODE }}"
 
+- name: "🎨 Converge the corporate design of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/design.yml
+
 - name: "🔑 Converge the administrator password onto the site that already exists"
   ansible.builtin.command:
     argv:
