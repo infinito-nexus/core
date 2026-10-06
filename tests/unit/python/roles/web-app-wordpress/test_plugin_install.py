@@ -21,6 +21,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
@@ -148,8 +149,7 @@ def run_installer(**overrides) -> Result:
             timeout=60,
             check=False,
         )
-        call_log = calls.read_text()  # nocheck: cache-read tempdir fixture
-        recorded = [line for line in call_log.splitlines() if line]
+        recorded = [line for line in read_text(str(calls)).splitlines() if line]
         return Result(completed.returncode, completed.stdout, recorded)
 
 
