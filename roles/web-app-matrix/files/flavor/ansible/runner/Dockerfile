@@ -27,6 +27,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       iptables \
       openssh-client \
       python3-venv \
+      sudo \
       systemd \
       systemd-sysv \
  && rm -rf /var/lib/apt/lists/*

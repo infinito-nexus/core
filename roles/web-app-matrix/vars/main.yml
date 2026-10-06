@@ -5,9 +5,7 @@ compose_mode_force: "{{ 'compose' if lookup('config', application_id, 'services.
 
 location_upload: "~ ^/_matrix/media/v3/"
 
-MATRIX_ONION_NODE: "{{ lookup('config', 'svc-net-tor', 'services.tor.node', '') }}"
-MATRIX_SERVER_NAME: "{{ MATRIX_ONION_NODE if (MATRIX_ONION_NODE and lookup('domain', application_id) is search('\\.onion$')) else lookup('config', application_id,
-  'services.matrix.server_name') }}"
+MATRIX_SERVER_NAME: "{{ lookup('matrix_server_name') }}"
 MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
 MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 MATRIX_WELL_KNOWN_DIRECTORY: "{{ [ lookup('nginx','directories.data.well_known'), 'matrix' ] | path_join }}"
