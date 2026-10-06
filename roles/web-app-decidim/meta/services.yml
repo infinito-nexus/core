@@ -27,6 +27,9 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
   enabled: true # nocheck: dynamic-flag
 decidim:
+  # nocheck: architecture-pin  Reason: ghcr.io/decidim/decidim publishes a single linux/amd64 manifest and upstream offers no arm64 tag, so reaching arm64 means building the Rails application from source the way web-app-pretix does, which this role does not
+  architectures:
+    - amd64
   healthcheck:
     flavor: curl
     path: up

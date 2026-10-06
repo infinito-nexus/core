@@ -35,6 +35,9 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 taiga:
+  # nocheck: architecture-pin  Reason: every tag of taiga-back, taiga-front, taiga-events and taiga-protected answers with a single linux/amd64 manifest, so arm64 would mean building all four of the stack's images from source rather than one
+  architectures:
+    - amd64
   healthcheck:
     test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8000),5).close()"]
     retries: 5

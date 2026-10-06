@@ -40,6 +40,9 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 pixelfed:
+  # nocheck: architecture-pin  Reason: zknt/pixelfed publishes a single linux/amd64 manifest; the official ghcr.io/pixelfed/pixelfed does carry arm64 but serves FrankenPHP and Caddy on 8080 out of /var/www/html where this role expects nginx on 80 out of /var/www, so adopting it is a rewrite of the role rather than a repin
+  architectures:
+    - amd64
   modes:
     compose:
       enabled: true

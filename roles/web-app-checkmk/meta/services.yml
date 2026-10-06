@@ -49,6 +49,9 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 # nocheck: playwright-service-flag  self-provider
 checkmk:
+  # nocheck: architecture-pin  Reason: checkmk ships the Raw edition as an appliance image only, and every 2.4 and 2.5 tag of checkmk/check-mk-raw answers with a single linux/amd64 manifest, so there is nothing to pin to and nothing to build from
+  architectures:
+    - amd64
   enabled: true
   shared: true
   bond: 1
