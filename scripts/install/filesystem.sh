@@ -69,6 +69,21 @@ retry() {
 	done
 }
 
+# Param: $@ dnf command, retried with the metadata cache dropped between tries
+retry_dnf() {
+	local attempt=1
+	until "$@"; do
+		if [ "${attempt}" -ge "${RETRIES}" ]; then
+			log "ERROR: '$*' failed after ${attempt} attempts"
+			return 1
+		fi
+		log "attempt ${attempt} of '$1' failed; dropping dnf metadata and retrying"
+		dnf clean metadata
+		sleep $((attempt * 5))
+		attempt=$((attempt + 1))
+	done
+}
+
 install_apt() {
 	export DEBIAN_FRONTEND=noninteractive
 	local apt_opts=(-o Acquire::Retries="${RETRIES}" -qq)
@@ -120,13 +135,13 @@ install_pacman() {
 install_dnf_native() {
 	case "${ID:-}" in
 	fedora)
-		retry dnf install -y e2fsprogs btrfs-progs
+		retry_dnf dnf install -y e2fsprogs btrfs-progs
 		return
 		;;
 	esac
 	log "adding EPEL, the only place the EL family carries btrfs-progs"
-	retry dnf install -y epel-release
-	retry dnf install -y e2fsprogs btrfs-progs
+	retry_dnf dnf install -y epel-release
+	retry_dnf dnf install -y e2fsprogs btrfs-progs
 }
 
 # Param: $1 path segment of the zfsonlinux repository, `fedora` or `epel`
@@ -154,11 +169,11 @@ download_zfs_source() {
 	rm -rf "${dir}"
 	mkdir -p "${dir}"
 	if command -v dnf5 >/dev/null 2>&1; then
-		retry dnf install -y --disablerepo=zfs dnf5-plugins >&2
+		retry_dnf dnf install -y --disablerepo=zfs dnf5-plugins >&2
 	else
-		retry dnf install -y --disablerepo=zfs dnf-plugins-core >&2
+		retry_dnf dnf install -y --disablerepo=zfs dnf-plugins-core >&2
 	fi
-	retry dnf download --source --disablerepo=zfs --enablerepo=zfs-source --destdir="${dir}" zfs >&2
+	retry_dnf dnf download --source --disablerepo=zfs --enablerepo=zfs-source --destdir="${dir}" zfs >&2
 	srpm="$(find "${dir}" -maxdepth 1 -name 'zfs-*.src.rpm' | head -n1)"
 	if [ -z "${srpm}" ]; then
 		log "ERROR: the zfs-source repository offers no zfs source RPM" >&2
@@ -176,7 +191,7 @@ install_zfs_from_source() {
 	if [ "${ID:-}" != fedora ]; then
 		crb=(--enablerepo=crb)
 	fi
-	retry dnf builddep -y "${crb[@]}" "${srpm}"
+	retry_dnf dnf builddep -y "${crb[@]}" "${srpm}"
 	mapfile -t added < <(rpm -qa --qf '%{NAME}\n' | sort | comm -13 "${before}" -)
 
 	rm -rf "${topdir}"
@@ -186,7 +201,7 @@ install_zfs_from_source() {
 		! -name '*-debug*' ! -name '*-devel-*' ! -name 'zfs-test*' \
 		! -name 'zfs-dracut*' ! -name 'python3-pyzfs*' ! -name 'pam_zfs_key*' \
 		! -name 'zfs-dkms*' ! -name 'zfs-kmod*')
-	retry dnf install -y "${runtime[@]}"
+	retry_dnf dnf install -y "${runtime[@]}"
 
 	log "dropping ${#added[@]} build dependencies of the zfs rebuild"
 	if command -v dnf5 >/dev/null 2>&1; then
@@ -218,7 +233,7 @@ install_dnf() {
 	log "zfs userland version: ${zfs_version}"
 
 	if ! command -v rpmbuild >/dev/null 2>&1; then
-		retry dnf install -y rpm-build
+		retry_dnf dnf install -y rpm-build
 	fi
 
 	local topdir=/tmp/zfs-kmod-container
@@ -246,7 +261,7 @@ SPEC
 	if [ -n "${source_rpm}" ]; then
 		install_zfs_from_source "${source_rpm}" "${before}"
 	else
-		retry dnf install -y zfs
+		retry_dnf dnf install -y zfs
 		dnf remove -y zfs-release
 	fi
 
