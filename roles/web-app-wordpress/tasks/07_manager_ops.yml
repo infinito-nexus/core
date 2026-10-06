@@ -15,9 +15,7 @@
 
 - name: "🔄 Convert to Multisite when opted in"
   include_tasks: 03_multisite.yml
-  when: >-
-    (lookup('config', application_id, 'services.wordpress.multisite.enabled')
-      | default(false) | bool)
+  when: WORDPRESS_MULTISITE_ENABLED | bool
 
 - name: "🛑 Assert every required addon is claimed by an install path"
   ansible.builtin.assert:
