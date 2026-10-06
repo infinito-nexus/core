@@ -5,6 +5,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 proxy_x_forwarded_proto: "https"
 
 OPENCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.opencloud.name') }}"
+OPENCLOUD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
 OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
@@ -12,12 +13,92 @@ OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
 OPENCLOUD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 OPENCLOUD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
+OPENCLOUD_ADMIN_USERNAME: "admin"
 OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 
 OPENCLOUD_MACHINE_AUTH_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.machine_auth_api_key') }}"
 OPENCLOUD_STORAGE_SYSTEM_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.storage_system_jwt_secret') }}"
 OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_secret') }}"
 OPENCLOUD_TRANSFER_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.transfer_secret') }}"
+
+OPENCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+OPENCLOUD_DESIGN_THEME_ID: "infinito"
+OPENCLOUD_DESIGN_THEME_DIR: "/var/lib/opencloud/web/assets/themes/{{ OPENCLOUD_DESIGN_THEME_ID }}"
+OPENCLOUD_DESIGN_THEME_URL_PATH: "themes/{{ OPENCLOUD_DESIGN_THEME_ID }}"
+OPENCLOUD_UPSTREAM_THEME_URL_PATH: "themes/opencloud"
+OPENCLOUD_DESIGN_LOGO_FILES:
+  - "logo.svg"
+  - "logo-mobile.svg"
+  - "favicon.svg"
+OPENCLOUD_DESIGN_ROLES:
+  background: surface-1
+  onBackground: text
+  surface: surface-1
+  onSurface: text
+  surfaceVariant: surface-3
+  onSurfaceVariant: text-muted
+  surfaceDim: surface-3
+  surfaceBright: surface-1
+  surfaceContainerLowest: surface-1
+  surfaceContainerLow: surface-2
+  surfaceContainer: surface-2
+  surfaceContainerHigh: surface-3
+  surfaceContainerHighest: surface-hover
+  surfaceTint: primary
+  inverseSurface: text
+  inverseOnSurface: surface-1
+  inversePrimary: surface-1
+  outline: border-strong
+  outlineVariant: border-strong
+  shadow: text
+  scrim: text
+  primary: primary
+  onPrimary: on-primary
+  primaryContainer: surface-3
+  onPrimaryContainer: text
+  primaryFixed: surface-3
+  onPrimaryFixed: text
+  secondary: link
+  onSecondary: surface-1
+  secondaryContainer: surface-active
+  onSecondaryContainer: text
+  secondaryFixed: surface-3
+  onSecondaryFixed: text
+  tertiary: info
+  onTertiary: on-info
+  tertiaryContainer: info-subtle
+  onTertiaryContainer: info
+  tertiaryFixed: info-subtle
+  onTertiaryFixed: info
+  error: danger
+  onError: on-danger
+  errorContainer: danger-subtle
+  onErrorContainer: danger
+  chrome: frame
+  onChrome: on-frame
+OPENCLOUD_DESIGN_ICON_COLORS:
+  archive: warning
+  audio: info
+  code: text-muted
+  document: info
+  drawio: warning
+  epub: warning
+  file: text-muted
+  folder: primary
+  form: success
+  graphic: warning
+  ifc: info
+  image: warning
+  jupyter: warning
+  markdown: info
+  medical: info
+  notes: warning
+  pdf: danger
+  presentation: warning
+  root: info
+  spreadsheet: success
+  text: text-muted
+  video: info
 
 # Exception: the tls lookup raises when web-app-opentalk is not in scope
 OPENCLOUD_OPENTALK_ENABLED: "{{ ('web-app-opentalk' in group_names) | lower }}"

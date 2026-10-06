@@ -4,3 +4,14 @@
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
+
+- name: "🎨 Converge the corporate theme of {{ application_id }}"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🎨 Install the corporate theme of {{ application_id }}"
+      include_tasks: design.yml
+      when: OPENCLOUD_DESIGN_ENABLED | bool
+
+    - name: "🧹 Remove the corporate theme of {{ application_id }}"
+      include_tasks: design_removal.yml
+      when: not (OPENCLOUD_DESIGN_ENABLED | bool)
