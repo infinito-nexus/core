@@ -8,7 +8,9 @@
 # sys-front-inj-matomo and the next round 502s on the public matomo URL).
 #
 # Expects:
-#   apps  (required) e.g. "web-app-nextcloud" or "web-app-keycloak,web-app-matomo"
+#   apps    (required) e.g. "web-app-nextcloud" or "web-app-keycloak,web-app-matomo"
+#   retire  (optional) non-empty also drops the apps from every round
+#           inventory under INFINITO_INVENTORY_DIR, which is then required
 #
 # Designed to be invoked from the host via:
 #   docker exec -e apps="${apps}" <container> \
@@ -62,6 +64,15 @@ echo ">>> Wiping token-store entries for: ${apps[*]}"
 
 echo ">>> Wiping databases.csv entries for: ${apps[*]}"
 "${python_bin}" -m utils.cleanup.databases_csv "${apps[@]}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+
+if [[ -n "${retire:-}" ]]; then
+	: "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR must be passed along with retire}"
+	echo ">>> Dropping inventory groups for: ${apps[*]}"
+	for inventory_file in "${INFINITO_INVENTORY_DIR}"/devices.yml "${INFINITO_INVENTORY_DIR}"-*/devices.yml; do
+		[[ -f "${inventory_file}" ]] || continue
+		"${python_bin}" -c 'import sys; from pathlib import Path; from cli.administration.inventory.provision.services_disabler import remove_roles_from_inventory; remove_roles_from_inventory(Path(sys.argv[1]), sys.argv[2:])' "${inventory_file}" "${apps[@]}"
+	done
+fi
 
 if [[ "${#entities[@]}" -lt 1 ]]; then
 	echo "!!! WARNING: no valid entities found: skipping entity purge"
