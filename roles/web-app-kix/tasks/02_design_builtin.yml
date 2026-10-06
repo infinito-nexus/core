@@ -1,0 +1,23 @@
+---
+- name: "🔍 Resolve the frontend node and container of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ KIX_FRONTEND_SERVICE }}"
+    resolve_output_prefix: KIX_FRONTEND
+    resolve_compose_cid: "{{ KIX_FRONTEND_CONTAINER }}"
+
+- name: "📖 Read the built-in object icons of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ KIX_FRONTEND_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - base64
+      - -w0
+      - "{{ item.value.builtin }}"
+  loop: "{{ KIX_DESIGN_ICONS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: kix_design_builtin_set
+  changed_when: false
+  delegate_to: "{{ KIX_FRONTEND_HOST_NODE }}"
