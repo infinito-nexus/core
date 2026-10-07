@@ -117,7 +117,7 @@ async function runAdminFlow(page, opts = {}) {
 
     let loginAttempted = await tryNativeLogin(15_000);
     if (!loginAttempted) {
-      for (const loginPath of ["/login", "/admin/", "/admin"]) {
+      for (const loginPath of ["/login", "/admin/", "/admin", "/accounts/login/"]) {
         await gotoOnion(page,`${base}${loginPath}`, { waitUntil: "domcontentloaded" }).catch(() => {});
         if (await tryNativeLogin()) {
           loginAttempted = true;
