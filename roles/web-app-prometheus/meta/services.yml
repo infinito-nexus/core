@@ -101,7 +101,7 @@ blackbox-exporter:
     flavor: wget
     path: -/healthy
   image: prom/blackbox-exporter
-  version: v0.28.0
+  version: v0.29.0
   name: prometheus-blackbox
   cpus: "0.1"
   mem_reservation: 16m
@@ -113,7 +113,7 @@ blackbox-exporter:
       http: 9115
 cadvisor:
   image: gcr.io/cadvisor/cadvisor
-  version: v0.52.1
+  version: v0.55.1
   update:
     type: registry_tags
     image: gcr.io/cadvisor/cadvisor
