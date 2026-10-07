@@ -8,7 +8,7 @@ Confluence is Atlassian’s enterprise wiki and collaboration platform. This rol
 
 ## Overview
 
-The role builds a minimal custom image on top of the official Confluence image, prepares persistent volumes, and exposes the app behind your reverse proxy. Configuration is driven by variables (image, version, volumes, domains, OIDC). JVM heap sizing is auto-derived from host RAM with safe caps to avoid `Xms > Xmx`.
+The role builds a minimal custom image on top of the official Confluence image, prepares persistent volumes, and exposes the app behind your reverse proxy. Configuration is driven by variables (image, version, volumes, domains, OIDC). JVM heap sizing follows the container's `mem_limit`: `JVM_MAXIMUM_MEMORY` is 70 % of it and `JVM_MINIMUM_MEMORY` 35 %.
 
 ## Features
 
@@ -16,7 +16,7 @@ The role builds a minimal custom image on top of the official Confluence image, 
 * **Reverse-Proxy Ready:** Sets `ATL_PROXY_NAME/PORT/SCHEME/SECURE` so Confluence generates correct external URLs behind HTTPS.
 * **OIDC SSO (Optional):** Pre-templated vars for issuer, client, scopes, JWKS; compatible with Atlassian DC SSO/OIDC marketplace apps.
 * **Central Database:** PostgreSQL integration (local or central DB) with bootstrap credentials from role vars.
-* **JVM Auto-Tuning:** `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` computed from host memory with upper bounds.
+* **JVM Auto-Tuning:** `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` are 35 % and 70 % of the service `mem_limit`.
 * **Health Checks:** Curl-based container healthcheck for early failure detection.
 * **CSP & Canonical Domains:** Hooks into platform CSP/SSL/domain management to keep policies strict and URLs stable.
 * **Backup Friendly:** Data isolated under `{{ CONFLUENCE_HOME }}`.

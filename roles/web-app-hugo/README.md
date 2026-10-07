@@ -8,7 +8,7 @@
 
 The role uses a multi-stage Dockerfile:
 
-1. **Builder stage:** pinned `hugomods/hugo:exts-<version>` (extended Hugo) clones the configured content repository and runs `hugo --minify -e <env> -b <baseURL>` to render the site to `/public`.
+1. **Builder stage:** pinned `ghcr.io/gohugoio/hugo:v<version>` (the official extended Hugo image) clones the configured content repository and runs `hugo --minify -e <env> -b <baseURL>` to render the site to `/public`.
 2. **Serve stage:** pinned `nginx:<version>-alpine` ships the rendered `/public` from the builder stage as `/usr/share/nginx/html`.
 
 `compose build` re-bakes the static output whenever the cloned content changes, so deploys are content-driven without any runtime build step.
@@ -19,13 +19,7 @@ The role uses a multi-stage Dockerfile:
 
 ## Configuration
 
-The default configuration in `meta/services.yml` builds the Hugo documentation:
-
-```yaml
-hugo:
-  source_repository: https://github.com/gohugoio/hugoDocs.git
-  source_version:    v0.148.0
-```
+The default configuration in `meta/services.yml` builds the Hugo documentation from `https://github.com/gohugoio/hugoDocs.git` at the tag pinned as `services.hugo.source_version`.
 
 To host your own Hugo site, override `services.hugo.source_repository` and `services.hugo.source_version` in your inventory. Example:
 
@@ -48,7 +42,7 @@ V1 supports **exactly one canonical domain** per role deploy. The play asserts t
 
 - [Hugo official site](https://gohugo.io/)
 - [Hugo documentation source: gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)
-- [hugomods/hugo Docker images](https://hub.docker.com/r/hugomods/hugo)
+- [Official Hugo container image](https://github.com/gohugoio/hugo/pkgs/container/hugo)
 
 ## Persona contract opt-outs
 

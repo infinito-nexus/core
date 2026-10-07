@@ -78,7 +78,7 @@ GITEA_MCP_COMMAND:
   - "-t"
   - "http"
   - "--port"
-  - "{{ GITEA_MCP_PORT | string }}"
+  - "{{ GITEA_MCP_SIDECAR_PORT | string }}"
   - "-r"
 GITEA_MCP_INITIALIZE_PAYLOAD:
   jsonrpc: "2.0"

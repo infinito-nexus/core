@@ -13,7 +13,7 @@
       - "no"
       - --save
       - ""
-      - --maxmemory {{ lookup('service_memory_mb', application_id, 'redis', 0.8) }}mb
+      - --maxmemory {{ lookup('service_memory_mb', application_id, 'redis', 0.8, provider='svc-db-redis') }}mb
       - --maxmemory-policy
       - "allkeys-lru"
     # nocheck: container-healthcheck-literal  probes every second, so the SPOT's 5s start cadence would report healthy later than this block already does

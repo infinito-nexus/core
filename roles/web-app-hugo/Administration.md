@@ -42,9 +42,9 @@ make compose-exec cmd="docker compose -f /opt/docker/web-app-hugo/docker-compose
 Common causes:
 
 - **`hugo` reports unknown content / module errors**: the upstream repository moved a directory or a Hugo Module. Pin to a known-good tag in `source_version`.
-- **`hugo` reports template execution errors**: the theme's templates are incompatible with the bundled Hugo binary. Bump `services.hugo.builder_version` (e.g. to a newer `exts-<version>` tag) or pin the source repo to a tag known to build with the current Hugo.
+- **`hugo` reports template execution errors**: the theme's templates are incompatible with the bundled Hugo binary. Bump `services.hugo.builder_version` (e.g. to a newer `v<version>` tag) or pin the source repo to a tag known to build with the current Hugo.
 - **Module fetch fails (`go.mod` resolution)**: Hugo modules pull from `proxy.golang.org`. Network egress to that host must be allowed by the local firewall / proxy.
 
 ## Rotating the Hugo binary
 
-To upgrade the extended Hugo binary independently of the content repo, edit `services.hugo.builder_version` in `meta/services.yml` (e.g. `exts-0.149.0`). The change invalidates only the builder layer, not the cloned repo, so the next `compose build` reuses the same content but with the new binary.
+To upgrade the extended Hugo binary independently of the content repo, edit `services.hugo.builder_version` in `meta/services.yml` (e.g. `v0.166.0`). The change invalidates only the builder layer, not the cloned repo, so the next `compose build` reuses the same content but with the new binary.

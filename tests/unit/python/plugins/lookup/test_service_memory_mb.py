@@ -8,6 +8,7 @@ from ansible.errors import AnsibleError
 from plugins.lookup.service_memory_mb import LookupModule, docker_bytes, share_mb
 
 _APP = "web-app-demo"
+_PROVIDER = "svc-db-cache"
 
 
 class TestDockerBytes(unittest.TestCase):
@@ -55,22 +56,36 @@ class TestShareMb(unittest.TestCase):
             share_mb("1m", 0.5)
 
 
-class TestLookupResolvesTheContainerLimit(unittest.TestCase):
-    def _run(self, services: dict, variables: dict, terms: list) -> int:
+class _LookupCase(unittest.TestCase):
+    def _run(
+        self,
+        services: dict,
+        variables: dict,
+        terms: list,
+        provided: dict | None = None,
+        **kwargs,
+    ) -> int:
         templar = MagicMock()
         templar.available_variables = variables
         templar.template.side_effect = lambda value: {"{{ HOST }}": "1.5g"}.get(
             value, value
         )
         applications = MagicMock()
-        applications.run.return_value = [{_APP: {"services": services}}]
+        applications.run.return_value = [
+            {
+                _APP: {"services": services},
+                _PROVIDER: {"services": provided or {}},
+            }
+        ]
         lookup = LookupModule(loader=None, templar=templar)
         with patch(
             "plugins.lookup.service_memory_mb.lookup_loader.get",
             return_value=applications,
         ):
-            return lookup.run(terms, variables=variables)[0]
+            return lookup.run(terms, variables=variables, **kwargs)[0]
 
+
+class TestLookupResolvesTheContainerLimit(_LookupCase):
     def test_the_named_service_wins(self) -> None:
         services = {"search": {"mem_limit": "2g"}, "demo": {"mem_limit": "8g"}}
 
@@ -95,6 +110,78 @@ class TestLookupResolvesTheContainerLimit(unittest.TestCase):
     def test_the_term_count_is_checked(self) -> None:
         with self.assertRaises(AnsibleError):
             self._run({"search": {"mem_limit": "2g"}}, {}, [_APP, "search"])
+
+
+class TestProviderCapsAnInheritedLimit(_LookupCase):
+    def _sidecar(
+        self,
+        services: dict,
+        provided: dict | None = None,
+        share: float = 0.8,
+        variables: dict | None = None,
+        **kwargs,
+    ) -> int:
+        if provided is None:
+            provided = {"cache": {"mem_limit": "512m"}}
+        return self._run(
+            services,
+            variables or {},
+            [_APP, "cache", share],
+            provided=provided,
+            **(kwargs or {"provider": _PROVIDER}),
+        )
+
+    def test_an_inherited_limit_is_capped_at_the_providers(self) -> None:
+        for inherited, expected in (("4g", 409), ("1g", 409), ("512m", 409)):
+            with self.subTest(inherited=inherited):
+                self.assertEqual(
+                    self._sidecar({"demo": {"mem_limit": inherited}}), expected
+                )
+
+    def test_a_small_inherited_limit_stays_below_its_own_container(self) -> None:
+        self.assertEqual(self._sidecar({"demo": {"mem_limit": "256m"}}), 204)
+
+    def test_the_cap_uses_the_share_of_the_call(self) -> None:
+        self.assertEqual(self._sidecar({"demo": {"mem_limit": "4g"}}, share=0.25), 128)
+
+    def test_the_host_default_is_capped_as_well(self) -> None:
+        variables = {"RESOURCE_MEM_LIMIT": "{{ HOST }}"}
+
+        self.assertEqual(self._sidecar({}, variables=variables), 409)
+
+    def test_a_declared_limit_is_not_capped(self) -> None:
+        services = {"cache": {"mem_limit": "1g"}, "demo": {"mem_limit": "4g"}}
+
+        self.assertEqual(self._sidecar(services), 819)
+
+    def test_a_provider_without_a_limit_raises_even_when_nothing_is_capped(
+        self,
+    ) -> None:
+        for services in (
+            {"demo": {"mem_limit": "4g"}},
+            {"cache": {"mem_limit": "1g"}},
+        ):
+            with self.subTest(services=services), self.assertRaises(AnsibleError):
+                self._sidecar(services, provided={"cache": {}})
+
+    def test_only_the_providers_limit_for_that_very_service_counts(self) -> None:
+        with self.assertRaises(AnsibleError):
+            self._run(
+                {"demo": {"mem_limit": "4g"}},
+                {},
+                [_APP, "store", 0.8],
+                provided={"cache": {"mem_limit": "512m"}},
+                provider=_PROVIDER,
+            )
+
+    def test_a_provider_that_is_no_role_raises(self) -> None:
+        for provider in ("", None, "svc-db-missing"):
+            with self.subTest(provider=provider), self.assertRaises(AnsibleError):
+                self._sidecar({"cache": {"mem_limit": "1g"}}, provider=provider)
+
+    def test_a_misspelled_option_raises(self) -> None:
+        with self.assertRaises(AnsibleError):
+            self._sidecar({"demo": {"mem_limit": "4g"}}, providr=_PROVIDER)
 
 
 if __name__ == "__main__":

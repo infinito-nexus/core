@@ -119,7 +119,7 @@ websocket:
 # nocheck: playwright-service-flag - internal sub-component (bundled search)
 search:
   image: docker.elastic.co/elasticsearch/elasticsearch
-  version: "9.5.4"
+  version: "9.5.5"
   update:
     type: registry_tags
     image: docker.elastic.co/elasticsearch/elasticsearch

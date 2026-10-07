@@ -49,7 +49,7 @@ gitea:
   shared: true
   provides: gitea
   image: gitea/gitea
-  version: 28.0.0
+  version: 28.1.0
   replicas: 1 # nocheck: single-replica  single-writer app state on swarm-shared NFS; concurrent multi-node writers corrupt app.ini
   min_storage: 270MB
   backup:
@@ -116,6 +116,13 @@ giteamcpupstream:
     type: registry_tags
     image: docker.gitea.com/gitea-mcp-server
   name: gitea-mcp
+  healthcheck:
+    test:
+      - "CMD"
+      - "/app/gitea-mcp"
+      - "-healthcheck"
+      - "--port"
+      - "{{ lookup('config', 'web-app-gitea', 'services.giteamcpupstream.ports.internal.http') | string }}"
   cpus: 0.25
   mem_reservation: 0.1g
   mem_limit: 0.25g

@@ -18,7 +18,7 @@ The central stack (`templates/compose.yml.j2`) runs `redis:alpine` with:
 
 Per-consumer provisioning (`tasks/01_init.yml`) runs with `application_id=svc-db-redis` and `database_consumer_id=<consumer>`; it resolves the consumer's username, password and key-prefix via `lookup('engine', 'redis', <consumer>, ...)` and reconciles an idempotent `ACL SETUSER` restricted to `~{entity}:*`. The ACL users are recreated by the consumer's `01_init` on every deploy, so a container restart that drops the in-memory ACL set is healed on the next run.
 
-The embedded snippet (`templates/service.yml.j2`) keeps the previous single-host behaviour: an unauthenticated in-memory Redis attached to the consumer stack's default network.
+The embedded snippet (`templates/service.yml.j2`) keeps the previous single-host behaviour: an unauthenticated in-memory Redis attached to the consumer stack's default network. Its `maxmemory` is 80 % of the consumer's `services.redis.mem_limit`; a consumer that declares none gets 80 % of the limit its container inherits, at most 80 % of this role's own `mem_limit`.
 
 ## Features
 
