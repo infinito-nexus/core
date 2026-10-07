@@ -49,7 +49,9 @@
 
 - name: "📥 Load the models of {{ application_id }} after the deploy"
   ansible.builtin.include_tasks: utils/install_models.yml
-  when: LIBRETRANSLATE_ENGINE_LOADING_MODEL == 'task'
+  when:
+    - LIBRETRANSLATE_ENGINE_LOADING_MODEL == 'task'
+    - IS_STACK_HOST | bool
 
 - name: "🎮 Verify the GPU reached {{ application_id }}"
   ansible.builtin.include_tasks: utils/assert_gpu.yml
