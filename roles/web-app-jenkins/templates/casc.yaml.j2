@@ -26,9 +26,9 @@ jenkins:
       configurations:
         - server: "ldap://{{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}"
           rootDN: "{{ LDAP.DN.ROOT }}"
-          userSearchBase: "{{ LDAP.DN.OU.USERS }}"
+          userSearchBase: "{{ LDAP.OU.USERS }}"
           userSearch: "uid={0}"
-          groupSearchBase: "{{ LDAP.DN.OU.GROUPS }}"
+          groupSearchBase: "{{ LDAP.OU.GROUPS }}"
           managerDN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
           managerPasswordSecret: "{{ LDAP.BIND_CREDENTIAL }}"
 {% else %}
