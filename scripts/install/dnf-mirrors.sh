@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# CentOS' metalink carries its own sha512 for repomd.xml, so the digest and
-# the bytes arrive from two sources that can disagree; when they do, every
-# mirror fails the checksum and no retry clears it. The mirrorlist serves the
-# same mirrors with no second digest to contradict them, giving up the
-# metalink's integrity check on repomd.xml while packages stay GPG-verified.
-# Fedora ships the same metalink shape unaffected, so it is left alone.
 set -euo pipefail
 
 shopt -s nullglob
@@ -13,4 +7,19 @@ if [[ ${#repos[@]} -eq 0 ]]; then
 	exit 0
 fi
 
-sed -i -E 's#^metalink=(https?://mirrors\.centos\.org)/metalink\?#mirrorlist=\1/mirrorlist?#' "${repos[@]}"
+upstream='https://mirror.stream.centos.org'
+
+for_repo() {
+	# Param: $1 repo id as the metalink query spells it, $2 directory on the upstream
+	sed -i -E \
+		"s#^metalink=https?://mirrors\\.centos\\.org/metalink\\?repo=centos-$1-([^-&]+)-stream.*#baseurl=$upstream/\\1-stream/$2/\\\$basearch/os/#" \
+		"${repos[@]}"
+}
+
+for_repo baseos BaseOS
+for_repo appstream AppStream
+
+# Exception: a SIG repository is laid out as SIGs/<stream>/<sig>/<arch>/<component>, which for_repo's <repo>/<arch>/os shape cannot express.
+sed -i -E \
+	"s#^metalink=https?://mirrors\\.centos\\.org/metalink\\?repo=centos-extras-sig-extras-common-([^-&]+)-stream.*#baseurl=$upstream/SIGs/\\1-stream/extras/\\\$basearch/extras-common/#" \
+	"${repos[@]}"
