@@ -214,6 +214,10 @@ odoo shell -d <database_name>
 docker logs odoo -f
 ```
 
+## Further Resources
+
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/GwSV4V4SaWCZzhdkpCVmya)
+
 ## Persona contract opt-outs
 
 The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo renders its SSO provider link only on `/web/login` inside the `.o_login_auth` container, not on the site root the persona helper starts from, and its logout sits behind the user menu. The full Keycloak round trip for both users is covered by the role's own `odoo: admin sso login, verify ui, logout` and `odoo: biber sso login, verify ui, logout` scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js).

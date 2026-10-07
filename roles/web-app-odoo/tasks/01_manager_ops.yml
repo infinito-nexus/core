@@ -105,3 +105,6 @@
   delay: 10
   until: odoo_health_after_restart.rc == 0
   when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
+
+- name: "🎨 converge corporate design"
+  include_tasks: 07_design.yml

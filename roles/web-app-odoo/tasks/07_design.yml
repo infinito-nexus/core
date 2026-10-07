@@ -1,0 +1,31 @@
+---
+- name: "📥 read the generated logo set of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [ODOO_DESIGN_ASSETS_DIR, item] | path_join }}"
+  loop:
+    - logo.svg
+    - favicon.ico
+  register: odoo_design_assets
+  when: ODOO_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 converge corporate branding and theme files of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ ODOO_LOCAL_CID | quote }}
+      odoo shell --no-http -d {{ ODOO_DB_NAME | quote }}
+    stdin: "DESIGN_PAYLOAD = '{{ odoo_design_payload | to_json | b64encode }}'\n{{ lookup('ansible.builtin.file', ODOO_DESIGN_SCRIPT) }}"
+  vars:
+    odoo_design_payload:
+      title: "{{ ODOO_DESIGN_TITLE }}"
+      logo: "{{ odoo_design_assets.results[0].content if ODOO_DESIGN_LOGO_ENABLED | bool else '' }}"
+      favicon: "{{ odoo_design_assets.results[1].content if ODOO_DESIGN_LOGO_ENABLED | bool else '' }}"
+      themes:
+        web.assets_backend: "{{ lookup('ansible.builtin.file', ODOO_DESIGN_THEMES['web.assets_backend']) if ODOO_DESIGN_ENABLED | bool else '' }}"
+        web.assets_frontend: "{{ lookup('ansible.builtin.file', ODOO_DESIGN_THEMES['web.assets_frontend']) if ODOO_DESIGN_ENABLED | bool else '' }}"
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_design_apply
+  changed_when: "'DESIGN_CHANGED' in odoo_design_apply.stdout"
+  failed_when: >-
+    odoo_design_apply.rc != 0
+    or ('DESIGN_CHANGED' not in odoo_design_apply.stdout and 'DESIGN_UNCHANGED' not in odoo_design_apply.stdout)
+  timeout: "{{ lookup('timeout', 300) | int }}"
