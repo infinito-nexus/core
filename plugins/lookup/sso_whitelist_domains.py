@@ -20,6 +20,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.cookie_scope import domain_strings
+from utils.templating.ansible import render_ansible_strict
 from utils.tls_common import is_onion_domain
 
 TOR_APPLICATION_ID = "svc-net-tor"
@@ -54,7 +55,16 @@ class LookupModule(LookupBase):
 
         scopes: list[str] = []
         if any(not is_onion_domain(domain) for domain in app_domains):
-            primary_domain = str(variables.get("DOMAIN_PRIMARY") or "").strip()
+            raw_primary = variables.get("DOMAIN_PRIMARY") or ""
+            if isinstance(raw_primary, str) and ("{{" in raw_primary or "{%" in raw_primary):
+                raw_primary = render_ansible_strict(
+                    templar=templar,
+                    raw=raw_primary,
+                    var_name="DOMAIN_PRIMARY",
+                    err_prefix="sso_whitelist_domains",
+                    variables=variables,
+                )
+            primary_domain = str(raw_primary or "").strip()
             if not primary_domain:
                 raise AnsibleError(
                     "lookup('sso_whitelist_domains'): DOMAIN_PRIMARY must be set to "
