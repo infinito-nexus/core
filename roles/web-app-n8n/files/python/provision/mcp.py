@@ -118,6 +118,14 @@ def api_key():
         sys.exit(f"FAILED listing api keys: {status} {body}")
 
     existing = (body or {}).get("data") if isinstance(body, dict) else body
+    if existing and not (
+        isinstance(existing, list) and all(isinstance(key, dict) for key in existing)
+    ):
+        sys.exit(
+            f"FAILED listing api keys: expected a list of key objects, got "
+            f"{type(existing).__name__} carrying "
+            f"{sorted(existing) if isinstance(existing, dict) else [type(k).__name__ for k in existing]}"
+        )
     matches = [key for key in existing or [] if key.get("label") == KEY_NAME]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} api keys named {KEY_NAME}")
