@@ -133,6 +133,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 - [Decidim documentation](https://docs.decidim.org/)
 - [Decidim Docker image](https://ghcr.io/decidim/decidim)
 - [omniauth_openid_connect](https://github.com/omniauth/omniauth_openid_connect)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/4MNz31wg3FuRvYoGMmbKxV)
 
 ## Persona contract opt-outs
 

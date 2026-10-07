@@ -207,3 +207,4 @@ test("guest: public-landing → auth chain → never authenticated", async ({ pa
 });
 
 require("./test-seaweedfs");
+require("./test-design");

@@ -27,3 +27,6 @@
 
 - name: "▶️ Run Decidim setup routines"
   include_tasks: 01_setup.yml
+
+- name: "🎨 Converge the corporate design of the Decidim organization"
+  include_tasks: 03_design.yml
