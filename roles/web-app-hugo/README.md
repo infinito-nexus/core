@@ -120,6 +120,7 @@ V1 supports **exactly one canonical domain** per role deploy. The play asserts t
 - [Hugo official site](https://gohugo.io/)
 - [Hugo documentation source: gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)
 - [Official Hugo container image](https://github.com/gohugoio/hugo/pkgs/container/hugo)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/3XUrh5156aYeHdLP8pFZus)
 
 ## Persona contract opt-outs
 
