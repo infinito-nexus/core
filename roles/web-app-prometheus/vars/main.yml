@@ -25,6 +25,10 @@ CADVISOR_CONTAINER: "{{ lookup('config', application_id, 'services.cadvisor.name
 NODE_EXPORTER_CONTAINER: "{{ lookup('config', application_id, 'services.node-exporter.name') }}"
 PROMETHEUS_QUERY_TIMEOUT: "{{ (lookup('config', application_id, 'mcp.limits.timeout_seconds') | int * 2) ~ 's' }}"
 
+PROMETHEUS_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+PROMETHEUS_PAGE_TITLE: "{{ lookup('design', application_id).title if PROMETHEUS_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else ''
+  }}"
+
 PROMETHEUS_MCP_ENABLED: "{{ lookup('config', application_id, 'services.prometheusmcp.enabled') | bool }}"
 PROMETHEUS_MCP_SERVICE_KEY: "prometheusmcp"
 PROMETHEUS_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.prometheusmcp.name') }}"

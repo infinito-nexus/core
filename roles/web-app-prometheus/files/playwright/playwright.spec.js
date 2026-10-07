@@ -7,6 +7,7 @@ test.use({
 });
 
 require("./test-mcp-guest").register();
+require("./test-design").register();
 
 // `docker --env-file` preserves the quotes emitted by `dotenv_quote`,
 // so normalize these values before building URLs or typing credentials.
