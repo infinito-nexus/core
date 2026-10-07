@@ -6,7 +6,7 @@
 
 ## Overview
 
-The role builds a lean custom image on top of the official Jira Software image, provisions persistent volumes, and exposes the app behind your reverse proxy. Variables control image/version/volumes/domains/SSO. JVM heap sizing is auto-derived from host RAM with safe caps to prevent `Xms > Xmx`.
+The role builds a lean custom image on top of the official Jira Software image, provisions persistent volumes, and exposes the app behind your reverse proxy. Variables control image/version/volumes/domains/SSO. JVM heap sizing follows the container's `mem_limit`: `JVM_MAXIMUM_MEMORY` is 70 % of it and `JVM_MINIMUM_MEMORY` 35 %.
 
 ## Cosmos
 
@@ -60,7 +60,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 * **Reverse-Proxy/HTTPS Ready:** Preconfigured Atlassian Tomcat proxy envs so Jira respects external scheme/host/port.
 * **OIDC SSO (Optional):** Pre-templated vars for issuer, client, endpoints, scopes; compatible with Atlassian DC SSO/OIDC marketplace apps.
 * **Central Database:** PostgreSQL integration (local or central) with credentials sourced from role configuration.
-* **JVM Auto-Tuning:** Safe calculation of `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` with caps to avoid VM init errors.
+* **JVM Auto-Tuning:** `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` are 35 % and 70 % of the service `mem_limit`.
 * **Health Checks:** Container healthcheck for quicker failure detection and stable automation.
 * **CSP & Canonical Domains:** Integrates with platform CSP and domain management.
 * **Backup Ready:** Persistent data under `{{ JIRA_STORAGE_PATH }}`.

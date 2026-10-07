@@ -22,6 +22,9 @@ ZAMMAD_MEMCACHED_CONTAINER: "{{ lookup('engine', 'memcached', application_id, 'c
 ZAMMAD_RAILS_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_RAILS_SERVICE ~ '.ports.internal.http') }}"
 ZAMMAD_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_WEBSOCKET_SERVICE ~ '.ports.internal.http') }}"
 ZAMMAD_SEARCH_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SEARCH_SERVICE ~ '.ports.internal.http') }}"
+ZAMMAD_SEARCH_HEAP_MB: "{{ lookup('service_memory_mb', application_id, ZAMMAD_SEARCH_SERVICE, 0.25) }}"
+ZAMMAD_SEARCH_MAJOR: "{{ (lookup('config', application_id, 'services.search.version') | string).split('.') | first }}"
+ZAMMAD_SEARCH_DATA_DIR: "{{ [lookup('volume', application_id, 'zammad_search').target, ZAMMAD_SEARCH_MAJOR] | path_join }}"
 
 # Exception: env.j2 must never set DATABASE_URL. The image's config/pre_initializers/database_url.rb
 # builds it from POSTGRESQL_* only while DATABASE_URL is blank, so presetting it drops
