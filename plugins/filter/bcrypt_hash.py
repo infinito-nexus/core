@@ -12,7 +12,31 @@
 # such self-test and hashes correctly in the same environment.
 from __future__ import annotations
 
+import base64
+import hashlib
+
 import bcrypt
+
+_STD_TO_BCRYPT_B64 = bytes.maketrans(
+    b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+    b"./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+)
+
+
+def _seeded_salt(seed: str, secret: bytes) -> bytes:
+    """A fixed bcrypt salt derived from the seed and the secret.
+
+    Args:
+        seed: caller-chosen, non-empty string that separates otherwise equal secrets.
+        secret: the UTF-8 encoded secret being hashed.
+
+    Returns:
+        ``$2b$12$`` plus 22 bcrypt-base64 characters encoding the first 16
+        bytes of sha256(seed + secret).
+    """
+    digest = hashlib.sha256(seed.encode("utf-8") + secret).digest()[:16]
+    encoded = base64.b64encode(digest)[:22].translate(_STD_TO_BCRYPT_B64)
+    return b"$2b$12$" + encoded
 
 
 class FilterModule:
@@ -22,7 +46,7 @@ class FilterModule:
         }
 
     @staticmethod
-    def bcrypt_hash(value):
+    def bcrypt_hash(value, salt_seed=None):
         if not isinstance(value, str) or not value:
             raise ValueError("bcrypt_hash: value must be a non-empty string")
 
@@ -34,4 +58,11 @@ class FilterModule:
                 "letting bcrypt truncate or reject it."
             )
 
-        return bcrypt.hashpw(secret, bcrypt.gensalt()).decode("utf-8")
+        if salt_seed is None:
+            salt = bcrypt.gensalt()
+        elif isinstance(salt_seed, str) and salt_seed:
+            salt = _seeded_salt(salt_seed, secret)
+        else:
+            raise ValueError("bcrypt_hash: salt_seed must be a non-empty string when given")
+
+        return bcrypt.hashpw(secret, salt).decode("utf-8")

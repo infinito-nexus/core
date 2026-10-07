@@ -52,6 +52,39 @@ class TestBcryptHash(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "74 bytes"):
             self.f(password)
 
+    def test_same_secret_and_seed_give_the_same_hash(self):
+        self.assertEqual(
+            self.f("same-password", "app:indexer-admin"),
+            self.f("same-password", "app:indexer-admin"),
+        )
+
+    def test_different_seed_gives_a_different_hash(self):
+        self.assertNotEqual(
+            self.f("same-password", "app:indexer-admin"),
+            self.f("same-password", "app:dashboard-service"),
+        )
+
+    def test_different_secret_gives_a_different_hash(self):
+        self.assertNotEqual(
+            self.f("password-one", "app:indexer-admin"),
+            self.f("password-two", "app:indexer-admin"),
+        )
+
+    def test_seeded_hash_verifies_against_the_original_password(self):
+        password = "correct horse battery staple"
+        hashed = self.f(password, "app:indexer-admin")
+        self.assertTrue(
+            bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+        )
+        self.assertTrue(hashed.startswith("$2b$12$"))
+
+    def test_no_seed_stays_randomized(self):
+        self.assertNotEqual(self.f("same-password"), self.f("same-password"))
+
+    def test_empty_seed_raises(self):
+        with self.assertRaises(ValueError):
+            self.f("some-password", "")
+
     def test_none_raises(self):
         with self.assertRaises(ValueError):
             self.f(None)
