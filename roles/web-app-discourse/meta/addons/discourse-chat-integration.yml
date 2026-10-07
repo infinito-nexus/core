@@ -3,14 +3,7 @@ enabled: "{{ (lookup('config', 'web-app-discourse', 'services.matrix.enabled') |
   bool) }}"
 required: false
 mechanism: plugin
-source: upstream
+source: bundled
 bridges:
   - matrix
   - mattermost
-update:
-  monitored: true
-  catalog: discourse-meta
-  upstream_id: discourse-chat-integration
-config:
-  repository: https://github.com/discourse/discourse-chat-integration.git
-  ref: main

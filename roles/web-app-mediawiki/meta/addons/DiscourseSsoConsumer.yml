@@ -11,4 +11,4 @@ update:
   catalog: mediawiki-extension
   upstream_id: DiscourseSsoConsumer
 config:
-  archive: "https://codeload.github.com/centertap/DiscourseSsoConsumer/tar.gz/refs/heads/main"
+  archive: "https://codeberg.org/centertap/DiscourseSsoConsumer/archive/main.tar.gz"
