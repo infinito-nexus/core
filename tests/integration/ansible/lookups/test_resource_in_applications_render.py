@@ -1,8 +1,9 @@
 """The `resource` lookup resolves while the real applications payload renders.
 
-Two meta files read their memory back out of this lookup: web-app-nextcloud
-sizes PHP from it and svc-opt-swapfile sizes the swapfile from it. Both are
-rendered by `get_merged_applications`, so the lookup runs *inside* that render.
+svc-opt-swapfile reads its size back out of this lookup, and a swapfile belongs
+to the host rather than to a container, so it stays measured against the host's
+memory. It is rendered by `get_merged_applications`, so the lookup runs *inside*
+that render.
 
 Two ways that can go wrong, and neither shows up against a hand-built scope:
 
@@ -31,7 +32,6 @@ from . import PROJECT_ROOT
 
 _ROLES_DIR = PROJECT_ROOT / "roles"
 
-_NEXTCLOUD = "web-app-nextcloud"
 _SWAPFILE = "svc-opt-swapfile"
 
 
@@ -70,14 +70,11 @@ class TestResourceInApplicationsRender(unittest.TestCase):
     def tearDown(self) -> None:
         _reset_cache_for_tests()
 
-    def test_the_render_completes_and_sizes_both_consumers(self) -> None:
+    def test_the_render_completes_and_sizes_its_consumer(self) -> None:
         applications = _render(_scope(RESOURCE_HOST_MEM_MB_OVERRIDE=64000))
 
-        php = applications[_NEXTCLOUD]["services"]["nextcloud"]["performance"]["php"]
         swapfile = applications[_SWAPFILE]["services"]["swapfile"]
 
-        self.assertEqual(php["memory_limit"], f"{64000 // 30}M")
-        self.assertEqual(php["opcache_memory_consumption"], f"{64000 // 30}M")
         self.assertEqual(swapfile["swapfile_size"], "64000M")
 
     def test_an_unmeasurable_host_aborts_the_render(self) -> None:
