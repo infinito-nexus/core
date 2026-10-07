@@ -26,8 +26,9 @@
   mirror();
 {% if design.title is string %}
   function brandTitle() {
-    if (document.title === "Portal") {
-      document.title = {{ design.title | to_json }};
+    var wanted = {{ design.title | to_json }};
+    if (document.title !== wanted) {
+      document.title = wanted;
     }
   }
   new MutationObserver(brandTitle).observe(document.head, { childList: true, subtree: true, characterData: true });
