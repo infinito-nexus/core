@@ -5,6 +5,7 @@ const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, r
 test.use({ ignoreHTTPSErrors: true });
 
 require("./test-admin-native");
+require("./test-design");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");

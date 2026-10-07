@@ -123,6 +123,7 @@ docker run --rm -it \
 * [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->
 * [Shopware Developer Documentation](https://developer.shopware.com/)
 * [Shopware Store (Plugins)](https://store.shopware.com/en/)
+* [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/TLzWb6b51sQTvihCdbdXbT)
 
 ## Persona contract opt-outs
 
