@@ -20,7 +20,7 @@ WAZUH_CERTS_GENERATOR_MOUNTS:
   - "type=bind,source={{ WAZUH_CERTS_CONFIG_HOST }},target={{ lookup('volume', application_id, 'certs_generator_config').target }},readonly"
   - "type=bind,source={{ WAZUH_CERTS_ENTRYPOINT_HOST }},target={{ lookup('volume', application_id, 'certs_generator_entrypoint').target }},readonly"
   - "type=bind,source={{ WAZUH_CERTS_DIR_HOST }},target={{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
-WAZUH_CERTS_TOOL_VERSION: "4.14"
+WAZUH_CERTS_TOOL_VERSION: "{{ lookup('config', application_id, 'services.manager.version') | regex_replace('^(\\d+\\.\\d+).*$', '\\1') }}"
 
 WAZUH_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 WAZUH_CERTS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs' ] | path_join }}"
