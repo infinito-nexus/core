@@ -77,7 +77,9 @@
     container ps -aq --filter {{ ('name=^' ~ WAZUH_CERTS_GENERATOR_CONTAINER ~ '$') | quote }} | xargs -r container rm -f
     timeout -k 30 {{ lookup('timeout', 600) | int }} container run --rm \
       --name {{ WAZUH_CERTS_GENERATOR_CONTAINER | quote }} \
+      --entrypoint {{ WAZUH_CERTS_ENTRYPOINT_TARGET | quote }} \
       --env CERT_TOOL_VERSION={{ WAZUH_CERTS_TOOL_VERSION | quote }} \
+      --env WAZUH_MANAGER_NODE={{ WAZUH_MANAGER_CONTAINER | quote }} \
       {% for mount in WAZUH_CERTS_GENERATOR_MOUNTS %}--mount {{ mount | quote }} {% endfor %}\
       {{ WAZUH_CERTS_GENERATOR_IMAGE | quote }}
   args:

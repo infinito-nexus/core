@@ -1,62 +1,39 @@
-#!/bin/bash
-# Wazuh Docker Copyright (C) 2017, Wazuh Inc. (License GPLv2)
+#!/usr/bin/env bash
+set -euo pipefail
+
 unset CURL_CA_BUNDLE SSL_CERT_FILE REQUESTS_CA_BUNDLE NODE_EXTRA_CA_CERTS
 
-CERT_TOOL=wazuh-certs-tool.sh
-# shellcheck disable=SC2034 # unmodified vendor logic
-PASSWORD_TOOL=wazuh-passwords-tool.sh
-PACKAGES_URL=https://packages.wazuh.com/$CERT_TOOL_VERSION/
-PACKAGES_DEV_URL=https://packages-dev.wazuh.com/$CERT_TOOL_VERSION/
+: "${CERT_TOOL_VERSION:?CERT_TOOL_VERSION must name the wazuh-certs-tool release}"
+: "${WAZUH_MANAGER_NODE:?WAZUH_MANAGER_NODE must name the manager node in /config/certs.yml}"
 
-OUTPUT_FILE="/$CERT_TOOL"
+config_src="/config/certs.yml"
+out_dir="/certificates"
+tool_url="https://packages.wazuh.com/${CERT_TOOL_VERSION}/wazuh-certs-tool.sh"
 
-download_package() {
-    local url=$1
-    echo "Checking $url$CERT_TOOL ..."
-    if curl -fsL --connect-timeout 10 --max-time 60 --retry-all-errors --retry-delay 2 "$url$CERT_TOOL" -o "$OUTPUT_FILE"; then
-        echo "Downloaded $CERT_TOOL from $url"
-        return 0
-    else
-        return 1
-    fi
-}
+work_dir="$(mktemp -d)"
+trap 'rm -rf "${work_dir}"' EXIT
 
-if download_package "$PACKAGES_URL"; then
-    :
-elif download_package "$PACKAGES_DEV_URL"; then
-    echo "WARNING: $CERT_TOOL was not found on the stable bucket ($PACKAGES_URL)." >&2
-    echo "WARNING: falling back to the dev bucket ($PACKAGES_DEV_URL), which is unversioned/unstable upstream." >&2
-else
-    echo "The tool to create the certificates does not exist in any bucket"
-    echo "ERROR: certificates were not created"
-    exit 1
+if ! curl --connect-timeout 10 --max-time 120 --fail --silent --show-error --location \
+  --retry 5 --retry-delay 5 --retry-all-errors \
+  --output "${work_dir}/wazuh-certs-tool.sh" "${tool_url}"; then
+  echo "ERROR: downloading ${tool_url} failed; no certificates were generated" >&2
+  exit 1
 fi
 
-cp /config/certs.yml /config.yml
-chmod 700 "$OUTPUT_FILE"
+cp "${config_src}" "${work_dir}/config.yml"
+bash "${work_dir}/wazuh-certs-tool.sh" --all
 
-# shellcheck disable=SC1090 # unmodified vendor logic; CERT_TOOL is a fixed, known filename
-source /$CERT_TOOL -A
-nodes_server=$( cert_parseYaml /config.yml | grep -E "nodes[_]+server[_]+[0-9]+=" | sed -e 's/nodes__server__[0-9]=//' | sed 's/"//g' )
-# shellcheck disable=SC2206 # unmodified vendor logic; node names are always simple hostnames, never contain spaces/globs
-node_names=($nodes_server)
+cp "${work_dir}"/wazuh-certificates/* "${out_dir}/"
+cp "${out_dir}/root-ca.pem" "${out_dir}/root-ca-manager.pem"
+cp "${out_dir}/root-ca.key" "${out_dir}/root-ca-manager.key"
 
-echo "Moving created certificates to the destination directory"
-cp /wazuh-certificates/* /certificates/
-echo "Changing certificate permissions"
-chmod -R 500 /certificates
-chmod -R 400 /certificates/*
-echo "Setting UID indexer and dashboard"
-chown 1000:1000 /certificates/*
-echo "Setting UID for wazuh manager and worker"
-cp /certificates/root-ca.pem /certificates/root-ca-manager.pem
-cp /certificates/root-ca.key /certificates/root-ca-manager.key
-chown 999:999 /certificates/root-ca-manager.pem
-chown 999:999 /certificates/root-ca-manager.key
+chmod 0400 "${out_dir}"/*
+chown 1000:1000 "${out_dir}"/*
+chown 999:999 \
+  "${out_dir}/root-ca-manager.pem" \
+  "${out_dir}/root-ca-manager.key" \
+  "${out_dir}/${WAZUH_MANAGER_NODE}.pem" \
+  "${out_dir}/${WAZUH_MANAGER_NODE}-key.pem"
+chmod 0500 "${out_dir}"
 
-# shellcheck disable=SC2068 # unmodified vendor logic; node names are always simple hostnames, never contain spaces/globs
-for i in ${node_names[@]};
-do
-  chown 999:999 "/certificates/${i}.pem"
-  chown 999:999 "/certificates/${i}-key.pem"
-done
+echo "Wazuh certificates written to ${out_dir}"

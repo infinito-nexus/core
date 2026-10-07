@@ -98,7 +98,7 @@ certs_generator_entrypoint:
   mode: "0555"
   mounts:
     - service: certs_generator
-      target: &entrypoint_target /entrypoint.sh
+      target: &entrypoint_target /infinito-entrypoint.sh
 indexer_entrypoint:
   type: config
   source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'indexer-entrypoint.sh' ] | path_join }}"
