@@ -17,6 +17,7 @@
   {% endif %}
   {% set service_name = 'manager' %}
   {% set docker_restart_policy = DOCKER_RESTART_POLICY %}
+  {% set docker_compose_env = WAZUH_MANAGER_ENV_FILE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'manager') }}
@@ -26,21 +27,12 @@
       nofile:
         soft: 655360
         hard: 655360
-    environment:
-      - "INDEXER_URL={{ WAZUH_INDEXER_URL }}"
-      - "INDEXER_USERNAME={{ WAZUH_INDEXER_ADMIN_USERNAME }}"
-      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
-      - "FILEBEAT_SSL_VERIFICATION_MODE=full"
-      - "SSL_CERTIFICATE_AUTHORITIES={{ lookup('volume', application_id, 'root_ca_manager_pem').target }}"
-      - "SSL_CERTIFICATE={{ lookup('volume', application_id, 'manager_filebeat_pem').target }}"
-      - "SSL_KEY={{ lookup('volume', application_id, 'manager_filebeat_key_pem').target }}"
-      - "API_USERNAME={{ WAZUH_WUI_USERNAME }}"
-      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra=certs_generator_dependency) | indent(4) }}
 
   {% set service_name = 'indexer' %}
+  {% set docker_compose_env = '' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'indexer') }}
@@ -61,20 +53,13 @@
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
   {% set service_name = 'dashboard' %}
+  {% set docker_compose_env = WAZUH_DASHBOARD_ENV_FILE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'console') }}
     {{ lookup('compose_only', 'container_name', WAZUH_DASHBOARD_CONTAINER) }}
     hostname: "{{ WAZUH_DASHBOARD_CONTAINER }}"
     {{ lookup('container_ports', ['console', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    environment:
-      - "INDEXER_USERNAME={{ WAZUH_INDEXER_ADMIN_USERNAME }}"
-      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
-      - "WAZUH_API_URL=https://{{ WAZUH_MANAGER_CONTAINER }}"
-      - "DASHBOARD_USERNAME={{ WAZUH_DASHBOARD_SERVICE_USERNAME }}"
-      - "DASHBOARD_PASSWORD={{ WAZUH_DASHBOARD_SERVICE_PASSWORD }}"
-      - "API_USERNAME={{ WAZUH_WUI_USERNAME }}"
-      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={

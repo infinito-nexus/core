@@ -35,6 +35,19 @@
     - wazuh.yml
   notify: compose-up
 
+- name: "📄 Render per-service env files for the Wazuh manager and dashboard"
+  stack_host_template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0640"
+    force: true
+  loop:
+    - { src: manager.env.j2, dest: "{{ WAZUH_MANAGER_ENV_FILE }}" }
+    - { src: dashboard.env.j2, dest: "{{ WAZUH_DASHBOARD_ENV_FILE }}" }
+  loop_control:
+    label: "{{ item.src }}"
+  notify: compose-up
+
 - name: "📋 Copy static Wazuh indexer roles.yml"
   ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
     src: roles.yml

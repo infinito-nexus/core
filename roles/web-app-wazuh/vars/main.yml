@@ -23,6 +23,8 @@ WAZUH_CERTS_GENERATOR_MOUNTS:
 WAZUH_CERTS_TOOL_VERSION: "{{ lookup('config', application_id, 'services.manager.version') | regex_replace('^(\\d+\\.\\d+).*$', '\\1') }}"
 
 WAZUH_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+WAZUH_MANAGER_ENV_FILE: "{{ [lookup('container', application_id, 'directories.env'), 'manager.env'] | path_join }}"
+WAZUH_DASHBOARD_ENV_FILE: "{{ [lookup('container', application_id, 'directories.env'), 'dashboard.env'] | path_join }}"
 WAZUH_CERTS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs' ] | path_join }}"
 WAZUH_CERTS_CONFIG_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.yml' ] | path_join }}"
 WAZUH_CERTS_ENTRYPOINT_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs-entrypoint.sh' ] | path_join }}"
