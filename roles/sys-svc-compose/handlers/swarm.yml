@@ -32,7 +32,11 @@
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
+  register: _swarm_pre_deploy_rebuild
   timeout: "{{ lookup('timeout', 3600) | int }}"
+  retries: 3
+  delay: 30
+  until: _swarm_pre_deploy_rebuild is succeeded
   when: _swarm_pre_deploy_build is failed
   listen:
     - compose-up
