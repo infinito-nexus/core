@@ -121,6 +121,14 @@ class TestResolveBranding(unittest.TestCase):
         self.assertFalse(slots["icon"]["text_only"])
         self.assertTrue(slots["login"]["text_only"])
 
+    def test_slot_carries_the_frame_flag(self) -> None:
+        apps = self._apps(
+            {}, {"slots": {"topbar": {"width": 320, "height": 64, "frame": True}}}
+        )
+        slots = resolve_branding(apps, "web-app-a", self.root)["slots"]
+        self.assertTrue(slots["topbar"]["frame"])
+        self.assertFalse(slots["icon"]["frame"])
+
     def test_missing_logo_file_fails_loudly(self) -> None:
         with self.assertRaisesRegex(ValueError, "not found"):
             resolve_branding(
