@@ -63,6 +63,8 @@ class FilterModule:
         elif isinstance(salt_seed, str) and salt_seed:
             salt = _seeded_salt(salt_seed, secret)
         else:
-            raise ValueError("bcrypt_hash: salt_seed must be a non-empty string when given")
+            raise ValueError(
+                "bcrypt_hash: salt_seed must be a non-empty string when given"
+            )
 
         return bcrypt.hashpw(secret, salt).decode("utf-8")
