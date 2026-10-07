@@ -20,7 +20,12 @@ import re
 from pathlib import Path
 
 from utils.cache.yaml import load_yaml
-from utils.roles.entity.name import entity_name
+
+try:
+    from utils.roles.entity.name import entity_name
+except ImportError:
+    from utils.roles.entity.name import get_entity_name as entity_name
+
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import get_role_lifecycle
 from utils.roles.order import find_roles

@@ -126,6 +126,9 @@ class DocsHandler(SimpleHTTPRequestHandler):
         elif not slash:
             self._redirect(f"/{version}/")
         elif not self.library.servable(version) or self.library.outdated(version):
+            if self.library.failed(version):
+                self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
+                return
             self.library.request(version)
             if wanted := rest.partition("/")[0]:
                 self.library.request(version, wanted)
@@ -145,6 +148,9 @@ class DocsHandler(SimpleHTTPRequestHandler):
         if not self.library.translation_servable(version, code):
             if not self.library.translates(version, code):
                 self.send_error(HTTPStatus.NOT_FOUND)
+                return
+            if self.library.failed(version, code) or self.library.failed(version):
+                self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
                 return
             self.library.request(version, code)
             body = BUILDING.format(version=html.escape(f"{version}/{code}"))

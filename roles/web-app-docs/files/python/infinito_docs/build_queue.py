@@ -54,6 +54,18 @@ class Queue:
             return
         queued.touch()
 
+    def failed(self, version, code=None):
+        """Whether this target's last build failed at the ref it would build now.
+
+        Args:
+            version: version directory name.
+            code: language code of a translation, or None for the site itself.
+        """
+        head, _ = self.refs()
+        marker = version if code is None else f"{version}{QUEUE_SEPARATOR}{code}"
+        failed_ref = self._failed_at(marker)
+        return bool(failed_ref) and failed_ref == self._wanted_ref(version, head)
+
     def is_queued(self, marker):
         """Whether ``marker`` waits in either lane.
 

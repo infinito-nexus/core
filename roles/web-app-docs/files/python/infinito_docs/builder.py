@@ -41,7 +41,8 @@ class Builder:
     def _failed(self, marker, state, exc, ref):
         self._append_log(state, str(exc))
         self._save_state(marker, **{**state, "state": "failed", "ref": ref})
-        print(f"build {marker} failed: {exc}", file=sys.stderr, flush=True)
+        tail = "\n".join(state["log"])
+        print(f"build {marker} failed: {exc}\n{tail}", file=sys.stderr, flush=True)
 
     def _failed_at(self, marker):
         """Return the ref whose build of ``marker`` last failed, else empty.
