@@ -14,6 +14,8 @@ SNIPE_IT_SERVICE: "{{ entity_name }}"
 SNIPE_IT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, SNIPE_IT_SERVICE) }}"
 SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_key') }}"
 
+SNIPE_IT_MAIL_FROM_NAME: "{{ lookup('config', application_id, 'services.email.from_name') }}"
+
 SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 

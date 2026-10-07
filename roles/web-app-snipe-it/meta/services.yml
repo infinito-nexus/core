@@ -21,6 +21,7 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
+  from_name: "{{ service_provider.company.titel }} - Snipe-IT"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — cache engine, no Playwright surface
