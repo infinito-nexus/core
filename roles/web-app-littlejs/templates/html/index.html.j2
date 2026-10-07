@@ -4,6 +4,9 @@
         <meta charset="utf-8">
         <title>{{ LITTLEJS_TITLE }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+{% if LITTLEJS_DESIGN_LOGO_ENABLED | bool %}
+        <link rel="icon" type="image/png" href="{{ lookup('design', application_id).urls.favicon.png }}">
+{% endif %}
 
         <link
             href="{{ lookup('asset', application_id, 'bootstrap', 'dist/css/bootstrap.min.css') }}"
@@ -16,9 +19,114 @@
             href="{{ lookup('asset', application_id, '@fortawesome/fontawesome-free', 'css/all.min.css') }}"
             crossorigin="anonymous"
         />
+
+        <style>
+            body.littlejs-launcher {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            body.littlejs-launcher > main {
+                flex: 1 0 auto;
+            }
+
+            .navbar.app-frame {
+                --design-focus: var(--design-on-frame, var(--bs-white));
+                --design-focus-ring: 0 0 0 3px var(--design-on-frame, var(--bs-white));
+                --bs-navbar-color: var(--design-on-frame, var(--bs-white));
+                --bs-navbar-hover-color: var(--design-on-frame, var(--bs-white));
+                --bs-navbar-active-color: var(--design-on-frame, var(--bs-white));
+                --bs-navbar-brand-color: var(--design-on-frame, var(--bs-white));
+                --bs-navbar-brand-hover-color: var(--design-on-frame, var(--bs-white));
+                --bs-navbar-toggler-border-color: var(--design-on-frame, var(--bs-white));
+                background-color: var(--design-frame, var(--bs-dark));
+                border: 0;
+            }
+
+            .navbar.app-frame .navbar-brand img {
+                display: block;
+            }
+
+            .navbar.app-frame .nav-link {
+                border-radius: var(--design-radius-sm, var(--bs-border-radius-sm));
+            }
+
+            .navbar.app-frame .nav-link:hover,
+            .navbar.app-frame .navbar-toggler:hover {
+                background-color: var(--design-frame-hover, transparent);
+            }
+
+            .navbar.app-frame .nav-link.show {
+                background-color: var(--design-frame-active, transparent);
+            }
+
+            .navbar.app-frame .btn-link {
+                --bs-btn-color: var(--design-on-frame, var(--bs-white));
+                --bs-btn-hover-color: var(--design-on-frame, var(--bs-white));
+                --bs-btn-active-color: var(--design-on-frame, var(--bs-white));
+                --bs-btn-hover-bg: var(--design-frame-hover, transparent);
+                --bs-btn-active-bg: var(--design-frame-active, transparent);
+                font-size: 0.8rem;
+                text-decoration: none;
+            }
+
+            .navbar.app-frame .btn-link:hover {
+                text-decoration: underline;
+            }
+
+            .navbar.app-frame .dropdown-menu {
+                --design-focus: var(--design-link, var(--bs-link-color));
+                --design-focus-ring: 0 0 0 3px color-mix(in srgb, var(--design-link, var(--bs-link-color)) 45%, transparent);
+                --bs-dropdown-divider-bg: var(--design-border, var(--bs-border-color));
+            }
+
+            .dropdown-submenu > .dropdown-item:has(+ .dropdown-menu.show) {
+                background-color: var(--design-surface-active, var(--bs-secondary-bg));
+            }
+
+            .dropdown-menu .dropdown-submenu {
+                position: relative;
+            }
+
+            .dropdown-menu .dropdown-submenu > .dropdown-menu {
+                top: 0;
+                right: 100%;
+                left: auto;
+                margin-right: 0.1rem;
+            }
+
+            .footer-bar {
+                position: sticky;
+                bottom: 0;
+                z-index: 1030;
+            }
+
+            .app-card {
+                transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, border-color 0.12s ease-out;
+            }
+
+            .app-card:hover {
+                transform: translateY(-3px);
+                border-color: var(--design-primary, var(--bs-primary));
+                box-shadow: var(--design-shadow-3, var(--bs-box-shadow-lg));
+            }
+
+            .app-icon {
+                font-size: 2.6rem;
+            }
+
+            .app-badge {
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                background-color: var(--design-surface-3, var(--bs-secondary-bg));
+                color: var(--design-text-muted, var(--bs-secondary-color));
+            }
+        </style>
     </head>
 
-    <body>
+    <body class="littlejs-launcher">
     {% include "nav/top.html.j2" %}
 
     {% include "main.html.j2" %}

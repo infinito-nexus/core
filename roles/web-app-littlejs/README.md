@@ -102,6 +102,7 @@ docker run --rm -it \
 
 - Upstream engine & examples: [KilledByAPixel/LittleJS](https://github.com/KilledByAPixel/LittleJS)
 - LittleJS README & docs: [GitHub – LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/C3oQVsPJHLZCQHRVYRnw3w)
 
 ## Persona contract opt-outs
 
