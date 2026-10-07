@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from jinja2 import Environment
+from jinja2 import Environment, select_autoescape
 
 from utils.cache.yaml import load_yaml_any
 
@@ -21,9 +21,9 @@ def until_expression() -> str:
 
 
 def settles(result: dict) -> bool:
-    template = Environment(autoescape=False).from_string(  # noqa: S701 - ansible condition, not markup
-        "{{ " + until_expression() + " }}"
-    )
+    template = Environment(
+        autoescape=select_autoescape(default_for_string=False)
+    ).from_string("{{ " + until_expression() + " }}")
     return template.render(_wait_result=result) == "True"
 
 

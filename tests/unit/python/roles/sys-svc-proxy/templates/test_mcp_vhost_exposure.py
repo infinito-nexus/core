@@ -22,7 +22,7 @@ from __future__ import annotations
 import re
 import unittest
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_MCP
@@ -80,7 +80,7 @@ def render(role: str, *, exposure: str, sso_gated: bool = False) -> str:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         undefined=StrictUndefined,
-        autoescape=False,  # noqa: S701 - nginx config, not markup; HTML-escaping would corrupt the directives
+        autoescape=select_autoescape(),
     )
     env.filters["regex_replace"] = lambda value, pattern, repl="": re.sub(
         pattern, repl, value

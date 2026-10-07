@@ -96,6 +96,8 @@ COPY build/php-conf/opcache-recommended.ini /usr/local/etc/php/conf.d/opcache-re
 COPY build/php-conf/moodle-runtime.ini      /usr/local/etc/php/conf.d/moodle-runtime.ini
 COPY build/php-conf/zz-moodle-pool.conf     /usr/local/etc/php-fpm.d/zz-moodle-pool.conf
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 COPY build/install/moodle-source.sh /tmp/install-moodle-source.sh
 RUN bash /tmp/install-moodle-source.sh && rm /tmp/install-moodle-source.sh
 

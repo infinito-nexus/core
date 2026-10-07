@@ -19,15 +19,18 @@ MOODLE_BUILD_FILES:
   opcache_ini: "php-conf/opcache-recommended.ini"
   runtime_ini: "php-conf/moodle-runtime.ini"
   fpm_pool: "php-conf/zz-moodle-pool.conf"
-MOODLE_VERSION_FILE: "version.php" # bootstrap-detection sentinel
-MOODLE_AUTH_SUBDIR: "auth" # top-level auth/ tree
-MOODLE_WEBSERVICE_SUBDIR: "webservice"
+MOODLE_PUBLIC_SUBDIR: "public"
+MOODLE_PUBLIC_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_PUBLIC_SUBDIR] | path_join }}"
+MOODLE_VERSION_FILE: "{{ [MOODLE_PUBLIC_SUBDIR, 'version.php'] | path_join }}"
+MOODLE_AUTH_SUBDIR: "{{ [MOODLE_PUBLIC_SUBDIR, 'auth'] | path_join }}"
+MOODLE_WEBSERVICE_SUBDIR: "{{ [MOODLE_PUBLIC_SUBDIR, 'webservice'] | path_join }}"
 MOODLE_CLI_RELPATH: "admin/cli" # admin CLI script dir
 
 MOODLE_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.auth_oidc.version') }}"
 MOODLE_OIDC_PLUGIN_UPSTREAM: "{{ lookup('config', application_id, 'addons.auth_oidc.update.upstream_id') }}"
 MOODLE_OIDC_PLUGIN_ARCHIVE_URL: "https://github.com/{{ MOODLE_OIDC_PLUGIN_UPSTREAM }}/archive/refs/tags/{{ MOODLE_OIDC_PLUGIN_VERSION }}.zip"
-MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_AUTH_SUBDIR, 'oidc'] | path_join }}"
+MOODLE_OIDC_PLUGIN_URL_PATH: "auth/oidc"
+MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_PUBLIC_SUBDIR, MOODLE_OIDC_PLUGIN_URL_PATH] | path_join }}"
 MOODLE_OIDC_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_OIDC_PLUGIN_RELPATH] | path_join }}"
 MOODLE_CLI_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_CLI_RELPATH] | path_join }}"
 MOODLE_CONFIG: "{{ [MOODLE_CODE_DIR, 'config.php'] | path_join }}"
@@ -60,17 +63,10 @@ MOODLE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.e
 MOODLE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
 MOODLE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
 MOODLE_LITELLM_IMAGE_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/images/generations"
-MOODLE_LITELLM_SETTINGS:
-  - { component: aiprovider_openai, name: enabled, value: "1" }
-  - { component: aiprovider_openai, name: apikey, value: "{{ MOODLE_LITELLM_API_KEY }}" }
-  - { component: aiprovider_openai, name: action_generate_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
-  - { component: aiprovider_openai, name: action_generate_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
-  - { component: aiprovider_openai, name: action_summarise_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
-  - { component: aiprovider_openai, name: action_summarise_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
-  - { component: aiprovider_openai, name: action_generate_image_endpoint, value: "{{ MOODLE_LITELLM_IMAGE_ENDPOINT }}" }
-  - { component: aiprovider_openai, name: generate_image, value: "0" }
-  - { component: aiplacement_courseassist, name: enabled, value: "1" }
-  - { component: aiplacement_editor, name: enabled, value: "1" }
+MOODLE_LITELLM_PROVIDER_NAME: "LiteLLM gateway"
+MOODLE_LITELLM_PLACEMENTS:
+  - aiplacement_courseassist
+  - aiplacement_editor
 
 MOODLE_EGRESS_BLOCKED_HOSTS:
   - "0.0.0.0"

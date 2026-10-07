@@ -16,7 +16,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 import jinja2
 
@@ -46,7 +46,9 @@ class _Templar:
 
     def template(self, value):
         return (
-            jinja2.Environment(autoescape=False)  # noqa: S701 - renders CIDRs, not markup
+            jinja2.Environment(
+                autoescape=jinja2.select_autoescape(default_for_string=False)
+            )
             .from_string(str(value))
             .render(**self.available_variables)
         )

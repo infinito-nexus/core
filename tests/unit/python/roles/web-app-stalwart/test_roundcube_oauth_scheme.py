@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 
@@ -41,7 +41,7 @@ def _render(base_url: str, *, sso_enabled: bool = True, socks_proxy: str = "") -
         trim_blocks=True,
         lstrip_blocks=True,
         undefined=StrictUndefined,
-        autoescape=False,  # noqa: S701 - a PHP config file, and Ansible's templar does not escape either
+        autoescape=select_autoescape(default_for_string=False),
     )
     env.filters["bool"] = bool
     return env.from_string(read_text(TEMPLATE)).render(

@@ -129,6 +129,8 @@ if [ "$_have_lock" = "1" ]; then
   # cannot write into root-owned cache dirs -> permanent 500 without this.
   chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/cache" "${APP_DIR}/public/legacy/cache" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
+  chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/logs"
+
   rmdir "$BOOT_LOCK" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   trap - EXIT TERM INT
 else
