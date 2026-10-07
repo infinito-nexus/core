@@ -47,7 +47,7 @@ config:
               - "{{ LDAP.SERVER.URI | regex_replace('^ldaps?://', '') }}"
             enable_ssl: "{{ LDAP.SERVER.SECURITY == 'ldaps' }}"
             enable_start_tls: "{{ LDAP.SERVER.SECURITY == 'starttls' }}"
-            verify_hostnames: false
+            verify_hostnames: true
             bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
             password: "{{ LDAP.BIND_CREDENTIAL }}"
             userbase: "{{ LDAP.DN.OU.USERS }}"
