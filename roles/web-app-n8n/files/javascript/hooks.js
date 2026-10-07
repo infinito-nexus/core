@@ -48,10 +48,12 @@ module.exports = {
 
         this.logger?.info(`SSO middleware initializing with header: ${headerName}`);
 
-        const Layer = require('router/lib/layer');
+        const { createRequire } = require('module');
         const { dirname, resolve } = require('path');
         const { randomBytes } = require('crypto');
-        const { hash } = require('bcryptjs');
+        const n8nRequire = createRequire(require.resolve('n8n'));
+        const Layer = createRequire(n8nRequire.resolve('express'))('router/lib/layer');
+        const { hash } = n8nRequire('bcryptjs');
         const { issueCookie } = require(resolve(dirname(require.resolve('n8n')), 'auth/jwt'));
 
         // Trust the proxy for correct X-Forwarded-* handling and rate limiting
@@ -114,18 +116,17 @@ module.exports = {
 
             this.logger?.info(`SSO auto-login attempt for email: ${userEmail}`);
 
-            // 1) Try to fetch the user (n8n 1.95.3 stores 'role' as a plain string column)
             let user = await UserRepo.findOne({
               where: { email: userEmail },
+              relations: ['role'],
             });
 
-            // 2) If not found — create the user (with 'global:member' role) and a project
             if (!user) {
               const hashed = await hash(randomBytes(16).toString('hex'), 10);
 
               const userData = {
                 email: userEmail,
-                role: 'global:member', // string-based role is valid for createUserWithProject
+                role: { slug: 'global:member' },
                 password: hashed,
               };
               if (userFirstName) userData.firstName = userFirstName;
@@ -136,7 +137,6 @@ module.exports = {
 
               this.logger?.info(`Created new user: ${userEmail} (${userFirstName} ${userLastName}) via SSO`);
             } else {
-              // 3) Update first/last name if they changed upstream
               let changed = false;
               if (userFirstName && user.firstName !== userFirstName) {
                 user.firstName = userFirstName;
@@ -154,7 +154,6 @@ module.exports = {
               }
             }
 
-            // 4) Ensure 'user.role' exists (plain string column, e.g. 'global:member')
             if (!user.role) {
               this.logger?.error(`User ${userEmail} has no valid role; cannot issue cookie.`);
               res.statusCode = 401;
@@ -162,10 +161,8 @@ module.exports = {
               return;
             }
 
-            // 5) Issue n8n auth cookie
             issueCookie(res, user);
 
-            // 6) Attach context for downstream middleware/routes
             req.user = user;
             req.userId = user.id;
 

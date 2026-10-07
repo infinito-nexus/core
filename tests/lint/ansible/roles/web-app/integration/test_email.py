@@ -168,12 +168,6 @@ class TestWebAppRolesIntegrateEmail(unittest.TestCase):
                     missing.append("enabled: true")
                 if not is_explicit_truth(svc.get("shared")):
                     missing.append("shared: true")
-                if missing:
-                    rel = (
-                        config.relative_to(root).as_posix()
-                        if config.is_file()
-                        else role_path.relative_to(root).as_posix()
-                    )
                 if not _role_pins_the_mail_relay(role_path):
                     errors.append(
                         f"[{role_path.name}]: calls lookup('email', ...) but no "

@@ -54,7 +54,8 @@
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ES_JAVA_OPTS=-Xms{{ ZAMMAD_SEARCH_HEAP_MB }}m -Xmx{{ ZAMMAD_SEARCH_HEAP_MB }}m
+      - path.data={{ ZAMMAD_SEARCH_DATA_DIR }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
@@ -65,7 +66,7 @@
     {{ lookup('container_image', 'svc-db-memcached', 'memcached') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_MEMCACHED_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["memcached", "-m", "256"]
+    command: ["memcached", "-m", "{{ lookup('service_memory_mb', application_id, service_name, 0.125) }}"]
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
   {% endif %}

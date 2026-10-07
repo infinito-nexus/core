@@ -7,10 +7,10 @@ collections:
   - name: kewlfft.aur
     version: 0.13.0
   - name: community.general
-    version: 13.4.0
+    version: 13.5.0
   - name: community.docker
     version: 5.4.0
   - name: community.library_inventory_filtering_v1
     version: 1.1.5
   - name: hetzner.hcloud
-    version: 7.1.0
+    version: 7.2.0

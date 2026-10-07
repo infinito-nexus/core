@@ -10,8 +10,7 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
-from unittest import mock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from ansible.errors import AnsibleError
 
@@ -40,7 +39,7 @@ class TestMcpClientBearerLookup(unittest.TestCase):
     def _run(self, terms, credential, role_credentials=None, users=None):
         lookup = self.mod.LookupModule()
         lookup._templar = _DummyTemplar()
-        lookup._loader = mock.MagicMock()
+        lookup._loader = MagicMock()
 
         class _StubConfig:
             def run(self, terms_, variables=None, **kwargs):

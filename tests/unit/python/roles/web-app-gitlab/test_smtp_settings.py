@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 
@@ -50,7 +50,7 @@ def _render(email: dict, ca_file: str = "") -> str:
         trim_blocks=True,
         lstrip_blocks=True,
         undefined=StrictUndefined,
-        autoescape=False,  # noqa: S701 - a Ruby config file, and Ansible's templar does not escape either
+        autoescape=select_autoescape(default_for_string=False),
     )
     env.filters["bool"] = bool
     env.filters["ruby_dq"] = lambda value: '"' + str(value).replace('"', '\\"') + '"'

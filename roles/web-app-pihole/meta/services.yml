@@ -21,12 +21,6 @@ email:
   shared: false
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
-redis:
-  bond: 1
-  enabled: true
-  shared: true
-# nocheck: dynamic-flag
-# nocheck: playwright-service-flag
 javascript:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

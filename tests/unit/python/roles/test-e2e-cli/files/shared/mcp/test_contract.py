@@ -659,5 +659,79 @@ class TestSseSessionProbe(unittest.TestCase):
         self.assertIn("absent from the probed URL", stderr.getvalue())
 
 
+NEGOTIATED = "2025-03-26"
+
+
+class StrictProvider:
+    def __init__(self):
+        self.seen = []
+        self._server = ThreadingHTTPServer(("127.0.0.1", 0), self._handler())
+        threading.Thread(target=self._server.serve_forever, daemon=True).start()
+
+    @property
+    def url(self):
+        host, port = self._server.server_address[:2]
+        return f"http://{host}:{port}/mcp"
+
+    def stop(self):
+        self._server.shutdown()
+        self._server.server_close()
+
+    def _handler(self):
+        provider = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                length = int(self.headers.get("Content-Length", "0"))
+                payload = json.loads(self.rfile.read(length) or b"{}")
+                method = payload.get("method")
+                version = self.headers.get("MCP-Protocol-Version")
+                status, answer = 200, {"jsonrpc": "2.0", "id": payload.get("id")}
+                if self.headers.get("Authorization") != "Bearer real":
+                    status, answer["error"] = 401, {"code": -32001, "message": "no"}
+                elif method == "initialize":
+                    answer["result"] = {"protocolVersion": NEGOTIATED}
+                elif version != NEGOTIATED:
+                    status = 400
+                    answer["error"] = {
+                        "code": -32600,
+                        "message": "MCP-Protocol-Version header is required",
+                    }
+                elif method == "tools/list":
+                    answer["result"] = {
+                        "tools": [{"name": "a_get"}, {"name": "a_list"}]
+                    }
+                else:
+                    answer["result"] = {"isError": False, "content": []}
+                if method != "initialize":
+                    provider.seen.append((method, version))
+                body = json.dumps(answer).encode()
+                self.send_response(status)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+        return Handler
+
+
+class TestProtocolVersionHeader(unittest.TestCase):
+    def test_every_request_after_initialize_names_the_negotiated_version(self):
+        provider = StrictProvider()
+        self.addCleanup(provider.stop)
+        load({"MCP_URL": provider.url}).main()
+        self.assertEqual(
+            provider.seen,
+            [
+                ("notifications/initialized", NEGOTIATED),
+                ("tools/list", NEGOTIATED),
+                ("tools/call", NEGOTIATED),
+            ],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

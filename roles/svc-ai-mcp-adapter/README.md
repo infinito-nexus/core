@@ -26,6 +26,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Client-facing authentication:** The adapter issues its own bearer. The upstream credential authenticates the adapter to the provider and says nothing about who called the adapter, which is the gap the project-owned MCP sidecars leave open.
 - **Allowlist on `tools/call`:** Filtering only `tools/list` would leave every unlisted operation callable by name.
 - **Read-only by default:** A non-`GET`/`HEAD` operation is refused unless `mutating_tools_enabled` is explicitly true.
+- **Path arguments stay in their segment:** A value that fills a `{placeholder}` of the contracted path is percent-encoded, and an empty value or one made only of dots is refused, so a call cannot resolve to a path the contract does not name.
 - **Enforced ceilings:** Request size, response size, timeout, concurrency, page size and result count come from the contract and are applied, not merely declared.
 - **Bounded ranges:** A tool whose schema declares `start`, `end` and `step` has its point count checked against `result_items` and is refused with the smallest step that fits, so the upstream never scans a range whose result the adapter would discard.
 - **Fail-closed on drift:** A tool contract whose hash no longer matches its pinned `schema_sha256` refuses to start.

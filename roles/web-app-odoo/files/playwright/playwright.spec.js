@@ -74,14 +74,9 @@ async function isOdooAuthenticated(locator) {
   }
 }
 
-// Perform logout from Odoo by navigating directly to the logout URL.
-async function performOdooLogout(page, odooBaseUrl) {
-  const logoutUrl = `${odooBaseUrl.replace(/\/$/, "")}/web/session/logout`;
-
-  await gotoOnion(page, logoutUrl);
-
-  // Give the logout a moment to process
-  await page.waitForTimeout(resolveTimeout(2_000));
+async function logOutThroughTheUserMenu(page) {
+  await page.locator("button.o_user_menu").first().click({ timeout: resolveTimeout(30_000) });
+  await page.locator('[data-menu="logout"]').first().click({ timeout: resolveTimeout(30_000) });
 }
 
 test.beforeEach(() => {
@@ -91,6 +86,13 @@ test.beforeEach(() => {
   expect(adminPassword, "ADMIN_PASSWORD must be set in the Playwright env file").toBeTruthy();
   expect(biberUsername, "BIBER_USERNAME must be set in the Playwright env file").toBeTruthy();
   expect(biberPassword, "BIBER_PASSWORD must be set in the Playwright env file").toBeTruthy();
+});
+
+test("odoo: the suite runs on one worker", async () => {
+  expect(
+    test.info().config.workers,
+    "an OAuth sign-in ends every other session of the same account, so PLAYWRIGHT_MAX_WORKERS must keep the spec files that share the administrator on one worker"
+  ).toBe(1);
 });
 
 // Scenario I: Odoo → SSO login as admin → verify authenticated → logout
@@ -137,8 +139,8 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
     )
     .toBe(true);
 
-  // 7. Perform logout from Odoo by navigating to the logout URL
-  await performOdooLogout(page, odooBaseUrl);
+  // 7. Log out through the user menu
+  await logOutThroughTheUserMenu(page);
 
   // 8. Verify we're back on the login page (provider list visible again)
   await expect
@@ -198,8 +200,8 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
     )
     .toBe(true);
 
-  // 7. Perform logout from Odoo
-  await performOdooLogout(page, odooBaseUrl);
+  // 7. Log out through the user menu
+  await logOutThroughTheUserMenu(page);
 
   // 8. Verify we're back on the login page
   await expect

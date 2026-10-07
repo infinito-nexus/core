@@ -11,6 +11,7 @@ APP_ROOT="/var/www/html"
 MARKER="$APP_ROOT/.infinito/installed"
 LOG_PREFIX="[INIT]"
 PHP_BIN="php"
+PHP_MEMORY_LIMIT="${INIT_PHP_MEMORY_LIMIT:?INIT_PHP_MEMORY_LIMIT must be set}"
 
 log() { printf "%s %s\n" "$LOG_PREFIX" "$1"; }
 fail() { printf "%s [ERROR] %s\n" "$LOG_PREFIX" "$1" >&2; exit 1; }
@@ -104,18 +105,18 @@ fi
 
 if [ "$FIRST_INSTALL" -eq 1 ]; then
   log "Performing first-time Shopware installation..."
-  $PHP_BIN -d memory_limit=1024M bin/console system:install --basic-setup --create-database
+  $PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console system:install --basic-setup --create-database
   log "Locking the 'admin' account that --basic-setup creates with the published default password..."
   DEFAULT_ADMIN_PASSWORD="$($PHP_BIN -r 'echo bin2hex(random_bytes(32));')"
-  $PHP_BIN -d memory_limit=1024M bin/console user:change-password admin \
+  $PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console user:change-password admin \
     --password="$DEFAULT_ADMIN_PASSWORD"
   mkdir -p "$(dirname "$MARKER")"
   : > "$MARKER"
 fi
 
 log "Running database migrations..."
-$PHP_BIN -d memory_limit=1024M bin/console database:migrate --all
-$PHP_BIN -d memory_limit=1024M bin/console database:migrate-destructive --all
+$PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console database:migrate --all
+$PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console database:migrate-destructive --all
 
 log "Rebuilding caches and assets..."
 $PHP_BIN bin/console cache:clear
