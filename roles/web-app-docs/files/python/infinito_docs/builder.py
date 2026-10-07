@@ -88,6 +88,7 @@ class Builder:
         env = {
             **os.environ,
             "PYTHONPATH": os.pathsep.join([str(src), str(self.package_dir.parent)]),
+            "PYTHONUNBUFFERED": "1",
         }
         state["phase"] = "generate"
         for step, command in enumerate(generators, start=1):

@@ -38,8 +38,8 @@ docs:
       checksum_url: "https://cdn.jsdelivr.net/npm/mermaid@{version}/dist/mermaid.min.js"
   fetch_interval: 900
   build:
-    jobs: "{{ [1, (RESOURCE_HOST_CPUS | int // 2)] | max }}"
-    parallel: "{{ [1, [2, (RESOURCE_HOST_CPUS | int // 2)] | min] | max }}"
+    sphinx_process_mb: 3072
+    sphinx_overhead_mb: 2048
   i18n:
     preload_languages:
       - "{{ HOST_LL }}"
@@ -60,7 +60,7 @@ docs:
   lifecycle: beta
   cpus: "95%"
   mem_reservation: 512m
-  mem_limit: 4g
+  mem_limit: "{{ (lookup('resource', 'host_mem_mb') | int) * 2 // 3 }}M"
   pids_limit: 512
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
