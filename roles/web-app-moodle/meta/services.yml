@@ -45,7 +45,7 @@ moodle:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: true
-  app_version: 4.5.11
+  app_version: 5.3.0
   update:
     key: app_version
     type: git_tags
@@ -64,7 +64,6 @@ moodle:
   pids_limit: 512
   performance:
     php:
-      memory_limit: 512M
       upload_max_filesize: 256M
       post_max_size: 256M
   ports:

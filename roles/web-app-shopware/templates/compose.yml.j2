@@ -53,6 +53,7 @@ x-environment: &shopware
     <<: *shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_WORKER_CONTAINER) }}
     entrypoint: {{ SHOPWARE_WORKER_ENTRYPOINT }}
+    command: ["--memory-limit={{ lookup('service_memory_mb', application_id, service_name, 0.25) }}M"]
     {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
@@ -82,7 +83,7 @@ x-environment: &shopware
       - discovery.type=single-node
       - plugins.security.disabled=true
       - bootstrap.memory_lock=true
-      - OPENSEARCH_JAVA_OPTS=-Xms{{ SHOPWARE_OPENSEARCH_MEM_RESERVATION }} -Xmx{{ SHOPWARE_OPENSEARCH_MEM_RESERVATION }}
+      - OPENSEARCH_JAVA_OPTS=-Xms{{ SHOPWARE_OPENSEARCH_HEAP_MB }}m -Xmx{{ SHOPWARE_OPENSEARCH_HEAP_MB }}m
     ulimits:
       memlock: { soft: -1, hard: -1 }
     {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}

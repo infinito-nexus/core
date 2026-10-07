@@ -93,7 +93,7 @@
     - { name: "field_map_lastnamephonetic", value: "name_phonetic_family" }
     - { name: "field_lock_lastnamephonetic", value: "locked" }
     - { name: "field_updatelocal_lastnamephonetic", value: "oneveryloginupdate" }
-    - { name: "alternateloginurl", value: "{{ lookup('tls', application_id, 'url.base') }}{{ MOODLE_OIDC_PLUGIN_RELPATH }}/" }
+    - { name: "alternateloginurl", value: "{{ lookup('tls', application_id, 'url.base') }}{{ MOODLE_OIDC_PLUGIN_URL_PATH }}/" }
   loop_control:
     label: "{{ item.name }}"
   shell: >

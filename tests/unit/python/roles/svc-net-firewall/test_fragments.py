@@ -129,7 +129,7 @@ def _render(path: str, mode: str = "swarm") -> str:
     environment = jinja2.Environment(
         keep_trailing_newline=True,
         trim_blocks=True,
-        autoescape=False,  # noqa: S701  nftables, not markup
+        autoescape=jinja2.select_autoescape(default_for_string=False),
     )
     return environment.from_string(read_text(path)).render(
         DEPLOYMENT_MODE=mode, **COMMON
