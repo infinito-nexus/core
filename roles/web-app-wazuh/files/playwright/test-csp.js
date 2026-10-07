@@ -34,7 +34,7 @@ async function typeIntoDevToolsConsole(page) {
     .first()
     .click({ timeout: resolveTimeout(5_000) })
     .catch(() => {});
-  await editor.click({ timeout: resolveTimeout(10_000) });
+  await editor.focus({ timeout: resolveTimeout(10_000) });
   await page.keyboard.type("GET _cluster/health", { delay: 50 });
   await page.waitForTimeout(resolveTimeout(3_000));
 }
@@ -70,9 +70,7 @@ test("wazuh dashboard: script-src-elem unsafe-inline and worker-src blob: are de
   ).toContain("'unsafe-inline'");
   expect(directives["worker-src"] || [], "Expected worker-src to grant blob:").toContain("blob:");
 
-  await typeIntoDevToolsConsole(page).catch((err) =>
-    console.warn(`wazuh dev tools console was not typed into: ${err}`),
-  );
+  await typeIntoDevToolsConsole(page);
 
   await expectNoCspViolations(page, diagnostics, "wazuh dashboard (home + dev tools console)");
 });
