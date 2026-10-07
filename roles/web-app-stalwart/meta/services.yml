@@ -44,7 +44,7 @@ stalwart:
   placement: manager
   image: stalwartlabs/stalwart
   version: "v0.16.25"
-  webui_version: "v1.0.5"
+  webui_version: "v1.0.11"
   update:
     key: webui_version
     type: git_tags

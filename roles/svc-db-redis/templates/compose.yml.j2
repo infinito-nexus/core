@@ -10,7 +10,7 @@
         exec redis-server
         --requirepass {{ REDIS_PASSWORD | quote }}
         --appendonly yes
-        --maxmemory {{ lookup('applications') | redis_maxmemory_mb(application_id, 0.8, RESOURCE_MEM_LIMIT | int) }}mb
+        --maxmemory {{ lookup('service_memory_mb', application_id, service_name, 0.8) }}mb
         --maxmemory-policy allkeys-lru
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

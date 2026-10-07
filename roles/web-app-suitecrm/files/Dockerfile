@@ -4,6 +4,7 @@ ARG SUITECRM_BASE_VERSION
 FROM ${SUITECRM_BASE_IMAGE}:${SUITECRM_BASE_VERSION} AS base
 
 ARG SUITECRM_APP_DIR
+ARG SUITECRM_PHP_MEMORY_LIMIT
 
 RUN rm -rf /var/lib/apt/lists/* \
   && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y \
@@ -31,11 +32,11 @@ RUN rm -rf /var/lib/apt/lists/* \
       ldap \
   && rm -rf /var/lib/apt/lists/*
 
-RUN { \
+RUN : "${SUITECRM_PHP_MEMORY_LIMIT:?}" && { \
       echo 'file_uploads = On'; \
       echo 'upload_max_filesize = 32M'; \
       echo 'post_max_size = 32M'; \
-      echo 'memory_limit = 512M'; \
+      echo "memory_limit = ${SUITECRM_PHP_MEMORY_LIMIT}"; \
    } > /usr/local/etc/php/conf.d/suitecrm-upload.ini
 
 RUN a2enmod rewrite headers
