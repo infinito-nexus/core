@@ -48,7 +48,12 @@ test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1
   await u.fill(adminUsername);
   await p.fill(adminPassword);
   await page.locator("button[name='Submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  const landing = await gotoOnion(page, `${expectedBase}/`);
+  expect(
+    landing.status(),
+    "the LDAP realm must serve the dashboard; 403 means the bind never authenticated",
+  ).toBeLessThan(400);
+  await expect(page.locator("a[href$='/logout']").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 require("./test-mcp-guest");
