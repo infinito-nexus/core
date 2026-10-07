@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { installCspViolationObserver } = require("./personas");
+const { installCspViolationObserver, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const shared = require("./_shared");
@@ -10,13 +10,7 @@ const RBAC_TIERS = [
   { role: "readonly-auditor", expectSecurityUi: false },
 ];
 
-function becomesVisible(locator, timeout) {
-  return locator
-    .first()
-    .waitFor({ state: "visible", timeout: resolveTimeout(timeout) })
-    .then(() => true)
-    .catch(() => false);
-}
+const ROLES_API_PATH = "/api/v1/configuration/roles";
 
 exports.register = function () {
   for (const tier of RBAC_TIERS) {
@@ -36,30 +30,42 @@ exports.register = function () {
             shared.env.biberPassword,
           );
 
-          await page
-            .goto(`${shared.env.appBaseUrl}/app/security-dashboards-plugin#/roles`, {
-              waitUntil: "domcontentloaded",
-            })
-            .catch(() => {});
-          const securityUiVisible = await becomesVisible(
-            page.getByText(/internal users|role mappings|create role/i),
-            30_000,
+          const rolesApi = page.waitForResponse(
+            (r) => r.request().method() === "GET" && new URL(r.url()).pathname.endsWith(ROLES_API_PATH),
+            { timeout: resolveTimeout(60_000) },
           );
+          const nav = await gotoOnion(page, `${shared.env.appBaseUrl}/app/security-dashboards-plugin#/roles`, {
+            waitUntil: "domcontentloaded",
+          });
+          expect(
+            nav ? nav.status() : 0,
+            `${tier.role} navigation to the Security management UI failed (page: ${page.url()})`,
+          ).toBeLessThan(400);
+          const rolesStatus = (await rolesApi).status();
+          const roleTable = page.locator("[data-test-subj='role-list']");
 
           if (tier.expectSecurityUi) {
             expect(
-              securityUiVisible,
+              rolesStatus,
+              `${tier.role} MUST reach the Security management UI (roles API ${rolesStatus}, page: ${page.url()})`,
+            ).toBe(200);
+            await expect(
+              roleTable,
               `${tier.role} MUST reach the Security management UI (page: ${page.url()})`,
-            ).toBe(true);
+            ).toBeVisible({ timeout: resolveTimeout(30_000) });
           } else {
-            const deniedMarker = await becomesVisible(
-              page.getByText(/no permissions|not authorized|forbidden|missing.*permission/i),
-              10_000,
-            );
             expect(
-              securityUiVisible === false || deniedMarker === true,
-              `${tier.role} MUST NOT reach the Security management UI (saw content=${securityUiVisible}, denied-marker=${deniedMarker}, page: ${page.url()})`,
-            ).toBe(true);
+              rolesStatus,
+              `${tier.role} MUST NOT reach the Security management UI (roles API ${rolesStatus}, page: ${page.url()})`,
+            ).toBe(403);
+            await expect(
+              roleTable,
+              `${tier.role} MUST NOT reach the Security management UI (role table rendered, page: ${page.url()})`,
+            ).toHaveCount(0);
+            await expect(
+              page.locator("[data-test-subj='create-role']"),
+              `${tier.role} MUST NOT reach the Security management UI (create-role button rendered, page: ${page.url()})`,
+            ).toHaveCount(0);
           }
         } finally {
           await biberCtx.close().catch(() => {});
