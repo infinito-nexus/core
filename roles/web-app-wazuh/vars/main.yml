@@ -8,7 +8,7 @@ WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id,
 WAZUH_INDEXER_HTTP_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.local.http') }}"
 WAZUH_INDEXER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.internal.http') }}"
 WAZUH_INDEXER_URL: "https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
-WAZUH_INDEXER_HEAP: "{{ (lookup('config', application_id, 'services.indexer.mem_limit') | human_to_bytes) // 2 // 1048576 }}m"
+WAZUH_INDEXER_HEAP: "{{ lookup('service_memory_mb', application_id, 'indexer', 0.5) }}m"
 
 WAZUH_DASHBOARD_CONTAINER: "{{ lookup('config', application_id, 'services.console.name') }}"
 WAZUH_DASHBOARD_HTTP_PORT: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
