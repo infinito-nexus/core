@@ -17,6 +17,7 @@ const superadminUsername = decodeDotenvQuotedValue(process.env.XWIKI_SUPERADMIN_
 const superadminPassword = decodeDotenvQuotedValue(process.env.XWIKI_SUPERADMIN_PASSWORD || "");
 
 const EXTENSION_ID = "org.xwiki.contrib.llm:application-ai-llm-models-ui";
+const EXTENSION_PAGE_PATH = "/rest/wikis/xwiki/spaces/AI/spaces/Code/pages/AIConfig";
 
 test("ai-llm: the AI LLM Application extension is installed on the wiki", async ({ page }) => {
   skipUnlessAddonEnabled("ai-llm");
@@ -33,19 +34,19 @@ test("ai-llm: the AI LLM Application extension is installed on the wiki", async 
   expect(superadminUsername, "XWIKI_SUPERADMIN_USERNAME must be set").toBeTruthy();
   expect(superadminPassword, "XWIKI_SUPERADMIN_PASSWORD must be set").toBeTruthy();
 
-  const installed = await page.request.get(
-    `${appBaseUrl}/rest/extensions/${encodeURIComponent(EXTENSION_ID)}`,
-    {
-      headers: { Accept: "application/json" },
-      params: { media: "json" },
-      failOnStatusCode: false,
-      timeout: resolveTimeout(60_000),
+  const installed = await page.request.get(`${appBaseUrl}${EXTENSION_PAGE_PATH}`, {
+    headers: {
+      Accept: "application/json",
+      Authorization: `Basic ${Buffer.from(`${superadminUsername}:${superadminPassword}`).toString("base64")}`,
     },
-  );
+    params: { media: "json" },
+    failOnStatusCode: false,
+    timeout: resolveTimeout(60_000),
+  });
 
   expect(
     installed.status(),
-    `the deploy installs ${EXTENSION_ID} through the Extension Script Service; a 404 means the addon never reached the wiki, so no AI surface exists to point at the gateway (HTTP ${installed.status()})`,
+    `the deploy installs ${EXTENSION_ID} through the Extension Script Service, and its XAR carries ${EXTENSION_PAGE_PATH}; a 404 means the addon never reached the wiki, so no AI surface exists to point at the gateway (HTTP ${installed.status()})`,
   ).toBe(200);
 
   await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});

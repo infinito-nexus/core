@@ -22,6 +22,7 @@ test("addon gitlab_integration: the webhook endpoint is mounted for the partner 
     },
     data: {},
     failOnStatusCode: false,
+    maxRedirects: 0,
     timeout: resolveTimeout(60_000),
   });
 
@@ -30,7 +31,7 @@ test("addon gitlab_integration: the webhook endpoint is mounted for the partner 
     "the gitlab integration module mounts POST /webhooks/gitlab; a 404 means the route is absent, so GitLab push and merge-request events never reach a work package",
   ).not.toBe(404);
   expect(
-    [401, 403],
+    [302, 401, 403],
     `the webhook carries no key= token here, so the mounted route must refuse it; anything else means the endpoint accepts unauthenticated callers - got HTTP ${response.status()}`,
   ).toContain(response.status());
 });

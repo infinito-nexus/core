@@ -95,6 +95,7 @@ function shown(selector) {
 
 exports.register = function (shared) {
   const base = shared.env.appBaseUrl;
+  const ssoGatePassed = new WeakSet();
 
   /**
    * Args:
@@ -102,7 +103,7 @@ exports.register = function (shared) {
    */
   async function openSignIn(page) {
     await gotoOnion(page, `${base}/auth`);
-    if (shared.env.ssoEnabled) {
+    if (shared.env.ssoEnabled && !ssoGatePassed.has(page)) {
       await expect
         .poll(() => page.url(), { timeout: resolveTimeout(30_000), message: "SSO must gate the sign-in page" })
         .toContain(`${shared.env.oidcIssuerUrl}/protocol/openid-connect/auth`);
@@ -110,6 +111,7 @@ exports.register = function (shared) {
       await expect
         .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "SSO must hand back to the app" })
         .toContain(shared.env.canonicalDomain);
+      ssoGatePassed.add(page);
       await gotoOnion(page, `${base}/auth`);
     }
     await expect(page.locator(USERNAME)).toBeVisible({ timeout: resolveTimeout(60_000) });

@@ -20,13 +20,19 @@ test("addon storages: the partner Nextcloud is registered as a file storage", as
   const response = await page.request.get(`${appBaseUrl}/api/v3/storages`, {
     headers: { Accept: "application/json" },
     failOnStatusCode: false,
+    maxRedirects: 0,
     timeout: resolveTimeout(60_000),
   });
 
   expect(
     response.status(),
-    "the storages collection must be served; a 404 means the module is not loaded in this OpenProject build. This status alone proves nothing about the session - the endpoint answers 200 with an empty collection for an anonymous caller too, which is why the count below is the real assertion",
+    "the storages collection must be served; a 404 means the module is not loaded in this OpenProject build, a 302 that runAdminFlow left no session and OpenProject is redirecting to its login. This status alone proves nothing about the session - the endpoint answers 200 with an empty collection for an anonymous caller too, which is why the count below is the real assertion",
   ).toBe(200);
+
+  expect(
+    response.headers()["content-type"] || "",
+    "the collection must come back as JSON; an HTML body means OpenProject served its login page under 200, so runAdminFlow established no session and every assertion below would read an empty page rather than a storage",
+  ).toContain("json");
 
   const body = await response.json();
   expect(
