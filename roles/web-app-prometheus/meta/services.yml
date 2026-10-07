@@ -94,7 +94,7 @@ blackbox-exporter:
     flavor: wget
     path: -/healthy
   image: prom/blackbox-exporter
-  version: v0.28.0
+  version: v0.29.0
   name: prometheus-blackbox
   cpus: "0.1"
   mem_reservation: 16m
