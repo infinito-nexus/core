@@ -1,0 +1,48 @@
+---
+- name: "⏳ Fider | Wait for the migrated schema"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/count-tenants.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_design_schema
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: fider_design_schema is succeeded
+
+- name: "📥 Fider | Read the generated logo"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, 'logo.png'] | path_join }}"
+  register: fider_design_logo
+  when: FIDER_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Fider | Apply title, custom CSS and logo"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/apply-design.sql"
+    named_args:
+      title: "{{ FIDER_DESIGN_TITLE }}"
+      bootstrap_name: "{{ SOFTWARE_NAME }}"
+      css: "{{ lookup('template', 'custom.css.j2') }}"
+      logo_key: "{{ FIDER_DESIGN_LOGO_KEY }}"
+      logo_base64: "{{ fider_design_logo.content if FIDER_DESIGN_LOGO_ENABLED | bool else '' }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_design_apply
+  changed_when: (fider_design_apply.rows[0][0] | int) > 0
+  when: FIDER_DESIGN_ENABLED | bool
+
+- name: "🧹 Fider | Remove title, custom CSS and logo the role set"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/remove-design.sql"
+    named_args:
+      title: "{{ lookup('design', application_id).label }}"
+      bootstrap_name: "{{ SOFTWARE_NAME }}"
+      logo_key: "{{ FIDER_DESIGN_LOGO_KEY }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_design_removal
+  changed_when: (fider_design_removal.rows[0][0] | int) > 0
+  when: not (FIDER_DESIGN_ENABLED | bool)

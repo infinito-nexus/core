@@ -1,0 +1,245 @@
+{% set neutral = {
+  'white': 'surface-2',
+  'black': 'text',
+  'gray-50': 'surface-hover',
+  'gray-100': 'surface-1',
+  'gray-200': 'border',
+  'gray-300': 'border-strong',
+  'gray-400': 'border-strong',
+  'gray-500': 'text-muted',
+  'gray-600': 'text-muted',
+  'gray-700': 'text-muted',
+  'gray-800': 'text',
+  'gray-900': 'text',
+  'primary-50': 'surface-hover',
+  'primary-light': 'primary-200',
+  'primary-base': 'primary',
+  'primary-dark': 'primary-hover',
+} %}
+{% set status = {'green': 'success', 'yellow': 'warning', 'red': 'danger', 'blue': 'info'} %}
+{% set shades = {'50': '-subtle', '100': '-subtle', '200': '-border', '300': '-border', '400': '', '500': '', '600': '', '700': '', '800': '', '900': ''} %}
+{% set properties = {'bg': 'background-color', 'border': 'border-color', 'text': 'color'} %}
+{% set utilities = {
+  'bg-white': 'surface-2',
+  'bg-gray-50': 'surface-hover',
+  'bg-gray-100': 'surface-1',
+  'bg-gray-200': 'surface-3',
+  'border-gray-200': 'border',
+  'border-gray-400': 'border-strong',
+  'border-gray-700': 'border-strong',
+  'text-gray-400': 'text-muted',
+  'text-gray-500': 'text-muted',
+  'text-gray-600': 'text-muted',
+  'text-gray-700': 'text-muted',
+  'text-gray-800': 'text',
+  'text-gray-900': 'text',
+  'text-white': 'on-primary',
+  'text-primary-base': 'link',
+  'text-green-500': 'success',
+  'text-green-600': 'success',
+  'text-green-700': 'success',
+  'text-green-800': 'success',
+  'border-green-400': 'success-border',
+  'bg-green-100': 'success-subtle',
+  'bg-green-200': 'success-subtle',
+  'text-yellow-500': 'warning',
+  'text-yellow-800': 'warning',
+  'border-yellow-400': 'warning-border',
+  'border-yellow-500': 'warning-border',
+  'bg-yellow-50': 'warning-subtle',
+  'bg-yellow-100': 'warning-subtle',
+  'text-blue-200': 'text-muted',
+  'text-blue-600': 'info',
+  'text-blue-700': 'info',
+  'text-blue-800': 'info',
+  'border-blue-200': 'info-border',
+  'border-blue-400': 'info-border',
+  'border-blue-500': 'info',
+  'bg-blue-50': 'info-subtle',
+  'bg-blue-100': 'info-subtle',
+  'text-red-500': 'danger',
+  'text-red-600': 'danger',
+  'text-red-700': 'danger',
+  'text-red-800': 'danger',
+  'border-red-300': 'danger-border',
+  'bg-red-100': 'danger-subtle',
+} %}
+body[data-theme] {
+  --infinito-design-carrier: 1;
+  --primary-color: var(--design-primary);
+  --primary-color-light: var(--design-primary-200);
+  --primary-color-dark: var(--design-primary-hover);
+{% for name, token in neutral.items() %}
+  --colors-{{ name }}: var(--design-{{ token }});
+{% endfor %}
+{% for name, token in status.items() %}
+{% for shade, suffix in shades.items() %}
+  --colors-{{ name }}-{{ shade }}: var(--design-{{ token }}{{ suffix }});
+{% endfor %}
+{% endfor %}
+}
+{% for name, token in utilities.items() %}
+body[data-theme] .{{ name }} {
+  {{ properties[name.split('-')[0]] }}: var(--design-{{ token }});
+}
+{% endfor %}
+body[data-theme] .hover\:bg-gray-100:hover,
+body[data-theme] .hover\:bg-blue-200:hover,
+body[data-theme] .c-action-button:hover,
+body[data-theme] .c-editor-button:hover,
+body[data-theme] .c-markdown-toggle:hover,
+body[data-theme] .c-side-menu__item:hover,
+body[data-theme] .c-tags-select__option:hover,
+body[data-theme] .dropdown-menu button:hover {
+  background-color: var(--design-surface-hover);
+}
+body[data-theme] .hover\:bg-gray-200:hover,
+body[data-theme] .c-editor-button.is-active,
+body[data-theme] .dropdown-menu button.is-selected {
+  background-color: var(--design-surface-active);
+}
+body[data-theme] .c-input__suffix,
+body[data-theme] .c-tags-select__selected-item,
+body[data-theme] .c-markdown blockquote,
+body[data-theme] .c-markdown code,
+body[data-theme] .c-markdown pre,
+body[data-theme] .tiptap blockquote,
+body[data-theme] .tiptap code,
+body[data-theme] .tiptap pre {
+  background-color: var(--design-surface-3);
+}
+body[data-theme] .c-editor-toolbar {
+  border-bottom-color: var(--design-border);
+}
+body[data-theme] .p-show-post__actions,
+body[data-theme] #p-show-post .p-show-post__actions {
+  border-top-color: var(--design-primary);
+}
+body[data-theme] .c-toggle {
+  background-color: var(--design-border-strong);
+}
+body[data-theme] .c-toggle--enabled {
+  background-color: var(--design-success);
+}
+body[data-theme] .c-button--primary {
+  color: var(--design-on-primary);
+}
+body[data-theme] .c-button--primary:active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+}
+body[data-theme] .c-button--danger:hover {
+  color: var(--design-on-danger);
+  box-shadow: 0 2px 4px 0 rgba(var(--design-danger-rgb), 0.2);
+}
+body[data-theme] .c-button--link,
+body[data-theme] .text-link,
+body[data-theme] .text-link:hover,
+body[data-theme] .header-emphasis,
+body[data-theme] .c-powered a,
+body[data-theme] #p-legal a,
+body[data-theme] .c-moderation-item__post-reference a,
+body[data-theme] .c-side-menu__item--active,
+body[data-theme] .c-side-menu__item--active:hover,
+body[data-theme] .c-username--staff,
+body[data-theme] .c-roadmap-post-link:hover .c-roadmap-post__title,
+body[data-theme] .c-posts-container__post-link:hover .c-posts-container__post-title,
+body[data-theme] .c-votes-panel__more-avatar:hover:not(:disabled) {
+  color: var(--design-link);
+}
+body[data-theme] .c-posts-container__post,
+body[data-theme] #p-home .p-home__add-idea-btn,
+body[data-theme] .c-roadmap-post,
+body[data-theme] .c-comment__card,
+body[data-theme] .c-moderation-item,
+body[data-theme] .c-share-feedback__content,
+body[data-theme] .c-comment-input-card,
+body[data-theme] #p-show-post .c-comment-input-card,
+body[data-theme] .p-show-post__post-card,
+body[data-theme] #p-show-post .p-show-post__post-card,
+body[data-theme] .p-show-post__action-col > .card,
+body[data-theme] #p-show-post .p-show-post__action-col > .card {
+  background-color: var(--design-surface-2);
+}
+body[data-theme] .c-share-feedback {
+  background-color: var(--design-surface-1);
+}
+body[data-theme] .c-response-details__card,
+body[data-theme] #p-show-post .c-response-details__card {
+  background-color: var(--design-info-subtle);
+}
+body[data-theme] .p-show-post__discussion-count,
+body[data-theme] #p-show-post .p-show-post__discussion-count {
+  color: var(--design-info);
+  background-color: var(--design-info-subtle);
+}
+body[data-theme] .c-post-filter-btn,
+body[data-theme] .c-post-sort-btn {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+body[data-theme] .c-votes-panel__more-avatar {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+body[data-theme] .c-vote-counter__button {
+  color: var(--design-link);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+body[data-theme] .c-vote-counter__button:hover {
+  color: var(--design-link);
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-primary);
+}
+body[data-theme] .c-vote-counter__button--voted,
+body[data-theme] .c-vote-counter__button--voted:hover {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+body[data-theme] .c-vote-counter__icon,
+body[data-theme] .c-vote-counter__button:hover .c-vote-counter__icon,
+body[data-theme] .c-vote-counter__button--voted .c-vote-counter__icon {
+  color: inherit;
+}
+body[data-theme] .c-signin-social-button {
+  border-color: var(--design-border-strong);
+}
+body[data-theme] .c-signin-social-button span,
+body[data-theme] .c-modal-window .c-modal-closeicon:hover {
+  color: var(--design-text);
+}
+body[data-theme] .c-loader__spinner::after {
+  border-top-color: var(--design-text-muted);
+}
+body[data-theme] .c-button--loading::after {
+  border-top-color: var(--design-text);
+}
+body[data-theme] *:focus:not(.no-focus),
+body[data-theme] .c-dropdown__handle:focus:not(.no-focus) .c-post-filter-btn,
+body[data-theme] .c-dropdown__handle:focus:not(.no-focus) .c-post-sort-btn {
+  box-shadow: 0 0 0 3px rgba(var(--design-primary-rgb), 0.25) !important;
+}
+body[data-theme] .c-dropdown__handle:focus:not(.no-focus) {
+  box-shadow: none !important;
+}
+@keyframes infinito-design-dimmer {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+body[data-theme] .c-modal-dimmer {
+  animation-name: infinito-design-dimmer;
+}
+body[data-theme="light"] .c-modal-dimmer {
+  background-color: rgba(var(--design-neutral-950-rgb), 0.6);
+}
+body[data-theme="dark"] .c-modal-dimmer {
+  background-color: rgba(var(--design-neutral-50-rgb), 0.7);
+}
