@@ -14,6 +14,20 @@ from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-n8n/files/python/provision/mcp.py"
 PAGE_SIZE = 10
+WORKFLOW_PAGE_SIZE = 100
+MAX_PAGE_SIZE = 250
+
+
+def paged(items, offset, limit):
+    """Return one page the way n8n slices a listing.
+
+    Args:
+        items: every record the listing holds.
+        offset: index of the first record on the page.
+        limit: requested page size, capped like n8n caps it.
+    """
+    return items[offset : offset + min(limit, MAX_PAGE_SIZE)]
+
 
 ENV = {
     "N8N_BASE": "http://n8n:5678",
@@ -76,9 +90,12 @@ class FakeApi:
             self.credentials = [c for c in self.credentials if c["id"] != dead]
             return 200, {"success": True}
         if path.startswith("/rest/api-keys?") and method == "GET":
-            label = parse_qs(urlsplit(path).query)["label"][0].lower()
+            query = parse_qs(urlsplit(path).query)
+            label = query["label"][0].lower()
             items = [dict(key) for key in self.keys if label in key["label"].lower()]
-            return 200, {"data": {"items": items[:PAGE_SIZE]}}
+            skip = int(query.get("skip", ["0"])[0])
+            take = int(query.get("take", [str(PAGE_SIZE)])[0])
+            return 200, {"data": {"items": paged(items, skip, take)}}
         if path == "/rest/api-keys" and method == "POST":
             self.keys = [{"id": "k1", "label": payload["label"]}]
             self.scopes = set(payload["scopes"])
@@ -86,8 +103,21 @@ class FakeApi:
         if path.startswith("/rest/api-keys/") and method == "DELETE":
             self.deleted_keys.append(path.rsplit("/", 1)[-1])
             return 200, {"success": True}
-        if path == "/api/v1/workflows" and method == "GET":
-            return 200, {"data": [dict(flow) for flow in self.workflows]}
+        if path.split("?")[0] == "/api/v1/workflows" and method == "GET":
+            query = parse_qs(urlsplit(path).query)
+            name = query.get("name", [""])[0]
+            hits = [dict(flow) for flow in self.workflows if name in flow["name"]]
+            cursor = query.get("cursor", [f"0:{WORKFLOW_PAGE_SIZE}"])[0].split(":")
+            offset, limit = (int(cursor[0]), int(cursor[1]))
+            if "limit" in query:
+                limit = int(query["limit"][0])
+            page = paged(hits, offset, limit)
+            following = offset + len(page)
+            more = following < len(hits)
+            return 200, {
+                "data": page,
+                "nextCursor": f"{following}:{limit}" if more else None,
+            }
         if path == "/api/v1/workflows" and method == "POST":
             self.created_workflows.append(payload)
             return 200, dict(payload, id="w1", active=False)
@@ -226,6 +256,34 @@ class TestProvisionMcp(unittest.TestCase):
         with patch.object(module, "call", unpaged):
             module.main()
         self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_a_stale_managed_key_behind_a_full_filtered_page_is_still_replaced(
+        self,
+    ) -> None:
+        module = load_script()
+        near = [
+            {"id": f"n{n}", "label": f"infinito:mcp-copy-{n}"}
+            for n in range(MAX_PAGE_SIZE)
+        ]
+        api = FakeApi(keys=[*near, {"id": "old", "label": "infinito:mcp"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_a_managed_workflow_on_a_later_page_is_updated_not_duplicated(
+        self,
+    ) -> None:
+        module = load_script()
+        near = [
+            {"id": f"n{n}", "name": f"infinito:mcp-server copy {n}"}
+            for n in range(MAX_PAGE_SIZE)
+        ]
+        managed = {"id": "w9", "name": "infinito:mcp-server", "active": True}
+        api = FakeApi(workflows=[*near, managed])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual([], api.created_workflows)
+        self.assertEqual(1, len(api.updated_workflows))
 
     def test_a_key_that_only_contains_the_managed_name_is_left_alone(self) -> None:
         module = load_script()

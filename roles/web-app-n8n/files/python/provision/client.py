@@ -39,6 +39,7 @@ PROVIDERS = json.loads(os.environ.get("N8N_MCP_PROVIDERS", "[]"))
 
 REST = "/rest"
 PUBLIC = "/api/v1"
+PAGE = 250
 CREDENTIAL_TYPE = "httpBearerAuth"
 BEARER_AUTH = "bearerAuth"
 CLIENT_PREFIX = "infinito:mcp-client:"
@@ -137,6 +138,48 @@ def record(body, what):
     return created
 
 
+def api_keys_labelled(label):
+    """Return every API key whose label n8n matches against ``label``, all pages.
+
+    Args:
+        label: text n8n looks for inside each label.
+    """
+    found = []
+    while True:
+        query = urllib.parse.urlencode(
+            {"label": label, "take": PAGE, "skip": len(found)}
+        )
+        status, body = call(f"{REST}/api-keys?{query}")
+        if status != 200:
+            sys.exit(f"FAILED listing api keys: {status} {body}")
+        page = records(body, "api keys")
+        found.extend(page)
+        if len(page) < PAGE:
+            return found
+
+
+def workflows_named(key, name):
+    """Return every workflow n8n matches against ``name``, following ``nextCursor``.
+
+    Args:
+        key: the public-API key.
+        name: workflow name n8n filters on.
+    """
+    found = []
+    query = {"name": name, "limit": PAGE}
+    while True:
+        status, body = call(
+            f"{PUBLIC}/workflows?{urllib.parse.urlencode(query)}", api_key=key
+        )
+        if status != 200:
+            sys.exit(f"FAILED listing workflows: {status} {body}")
+        found.extend(records(body, "workflows"))
+        cursor = body.get("nextCursor") if isinstance(body, dict) else None
+        if not cursor:
+            return found
+        query = {"name": name, "cursor": cursor}
+
+
 def login():
     status, body = call(
         f"{REST}/login",
@@ -153,17 +196,11 @@ def api_key():
     n8n returns the usable secret only once, as ``rawApiKey``, and a listed key
     is redacted, so the key cannot be carried between runs. It is minted here
     and revoked before the run ends; an entry left behind under the managed name
-    belongs to a run that died and is deleted rather than guessed at. n8n pages
-    the listing at ten keys and matches ``label`` as a substring, so the query
-    narrows to the managed name and the exact match happens here.
+    belongs to a run that died and is deleted rather than guessed at. n8n matches
+    ``label`` as a substring, so the exact match happens here.
     """
-    query = urllib.parse.urlencode({"label": KEY_NAME})
-    status, body = call(f"{REST}/api-keys?{query}")
-    if status != 200:
-        sys.exit(f"FAILED listing api keys: {status} {body}")
-
     matches = [
-        key for key in records(body, "api keys") if key.get("label") == KEY_NAME
+        key for key in api_keys_labelled(KEY_NAME) if key.get("label") == KEY_NAME
     ]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} api keys named {KEY_NAME}")
@@ -364,11 +401,10 @@ def managed_workflow(key):
     Args:
         key: the public-API key.
     """
-    status, body = call(f"{PUBLIC}/workflows", api_key=key)
-    if status != 200:
-        sys.exit(f"FAILED listing workflows: {status} {body}")
     matches = [
-        flow for flow in records(body, "workflows") if flow.get("name") == WORKFLOW_NAME
+        flow
+        for flow in workflows_named(key, WORKFLOW_NAME)
+        if flow.get("name") == WORKFLOW_NAME
     ]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} workflows named {WORKFLOW_NAME}")
