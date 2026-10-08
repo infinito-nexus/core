@@ -33,7 +33,7 @@ On the operator's order up to four role passes run at the same time on the one s
 
 - One baseline deploy carries the whole batch: `apps=<role>,<role>,...` with the variant and the disable list of a single pass. A role's own service key is taken out of the list and restored through `INFINITO_INVENTORY_EXTRA_VARS`. Pass agents run no full deploy.
 - Every command that touches the stack, the test suite or a lint target runs as `flock /tmp/design-pass.lock <command>`, one command per lock. Editing files and reading sources needs no lock.
-- Every locked command carries its own cap, `flock /tmp/design-pass.lock timeout <seconds> <command>`: 300 for a `diag:` run or single gallery views, 900 for a spec run, a full gallery or the palette check, 1500 for a role sync, 600 for `make test` or a lint target. A run that hits its cap is measured with a `diag:` run at one viewport and not repeated with a longer cap.
+- Every locked command carries its own cap, `flock /tmp/design-pass.lock timeout <seconds> <command>`: 300 for a `diag:` run or single gallery views, 900 for a spec run, a full gallery or the palette check with `sync=design`, 2700 for the palette check with `sync=role`, 1500 for a role sync, 600 for `make test` or a lint target. A run that hits its cap is measured with a `diag:` run at one viewport and not repeated with a longer cap.
 - A ready wait in a gallery `prepare` or a page helper is at most 10 seconds and has passed in a `diag:` run at one viewport before a run captures more than one view.
 - Wait for the lock with `timeout 570 flock /tmp/design-pass.lock true`: exit 124 means it is still held.
 - An image pull or any other download runs without the lock and under `timeout`.
