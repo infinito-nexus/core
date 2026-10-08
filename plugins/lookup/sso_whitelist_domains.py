@@ -56,7 +56,9 @@ class LookupModule(LookupBase):
         scopes: list[str] = []
         if any(not is_onion_domain(domain) for domain in app_domains):
             raw_primary = variables.get("DOMAIN_PRIMARY") or ""
-            if isinstance(raw_primary, str) and ("{{" in raw_primary or "{%" in raw_primary):
+            if isinstance(raw_primary, str) and (
+                "{{" in raw_primary or "{%" in raw_primary
+            ):
                 raw_primary = render_ansible_strict(
                     templar=templar,
                     raw=raw_primary,

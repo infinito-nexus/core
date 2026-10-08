@@ -15,7 +15,8 @@ DOCS_SPHINX_PROCESS_MB: "{{ lookup('config', application_id, 'services.docs.buil
 DOCS_SPHINX_OVERHEAD_MB: "{{ lookup('config', application_id, 'services.docs.build.sphinx_overhead_mb') | int }}"
 DOCS_BUILD_MEM_MB: "{{ lookup('service_memory_mb', application_id, 'docs', 1.0) | int }}"
 DOCS_BUILD_PARALLEL: "{{ [1, [2, (DOCS_BUILD_MEM_MB | int) // ((DOCS_SPHINX_OVERHEAD_MB | int) + (DOCS_SPHINX_PROCESS_MB | int))] | min] | max }}"
-DOCS_BUILD_JOBS: "{{ [1, [(RESOURCE_HOST_CPUS | int // 2), ((DOCS_BUILD_MEM_MB | int) - (DOCS_BUILD_PARALLEL | int) * (DOCS_SPHINX_OVERHEAD_MB | int)) // ((DOCS_BUILD_PARALLEL | int) * (DOCS_SPHINX_PROCESS_MB | int))] | min] | max }}"
+DOCS_BUILD_JOBS: "{{ [1, [(RESOURCE_HOST_CPUS | int // 2), ((DOCS_BUILD_MEM_MB | int) - (DOCS_BUILD_PARALLEL | int) * (DOCS_SPHINX_OVERHEAD_MB | int)) // ((DOCS_BUILD_PARALLEL
+  | int) * (DOCS_SPHINX_PROCESS_MB | int))] | min] | max }}"
 DOCS_I18N_PRELOAD_LANGUAGES: "{{ lookup('config', application_id, 'services.docs.i18n.preload_languages') }}"
 DOCS_PORT: "{{ lookup('config', application_id, 'services.docs.ports.internal.http') }}"
 DOCS_LOCAL_BASE_URL: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.docs.ports.local.http') }}"

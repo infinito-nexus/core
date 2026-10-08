@@ -41,7 +41,8 @@
   ansible.builtin.set_fact:
     mattermost_addon_install:
       rc: "{{ (mattermost_addon_install_release if mattermost_addon.value.config.archive is defined else mattermost_addon_install_marketplace).rc | default(1) }}"
-      source: "{{ ('mmctl plugin install-url ' ~ mattermost_addon.value.config.archive) if mattermost_addon.value.config.archive is defined else ('mmctl plugin marketplace install ' ~ mattermost_addon.value.config.plugin_id) }}"
+      source: "{{ ('mmctl plugin install-url ' ~ mattermost_addon.value.config.archive) if mattermost_addon.value.config.archive is defined else ('mmctl plugin marketplace
+        install ' ~ mattermost_addon.value.config.plugin_id) }}"
 
 - name: "⚠️ Mattermost | Report the skipped {{ mattermost_addon.key }} install"
   ansible.builtin.debug:
