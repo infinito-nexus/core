@@ -3,5 +3,7 @@ display_startup_errors = Off
 log_errors = On
 error_reporting = E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
 
-session.save_handler = files
-session.save_path = "{{ SUITECRM_APP_DIR }}/tmp"
+session.save_handler = redis
+session.save_path = ${SUITECRM_SESSION_SAVE_PATH}
+redis.session.locking_enabled = 1
+redis.session.lock_retries = -1
