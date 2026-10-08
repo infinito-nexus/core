@@ -9,16 +9,18 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.SNIPE_IT_BASE_URL || "").replace(/\/$/, "");
-const issuer = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
-const username = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const password = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.SNIPE_IT_BASE_URL, "SNIPE_IT_BASE_URL")).replace(/\/$/, "");
+const username = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const password = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
+const issuer = ssoEnabled
+  ? normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"))
+  : "";
 const ROW = "table.snipe-table tbody tr[data-index]";
 const FRAME = ".main-header, .main-sidebar";
 const USER_MENU = "li.user.user-menu > a.dropdown-toggle";

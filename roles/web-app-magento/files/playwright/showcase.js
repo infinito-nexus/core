@@ -3,14 +3,14 @@ const crypto = require("node:crypto");
 const { expect } = require("@playwright/test");
 
 const { USAGE_NOTICE, adminSignIn, hideUsageNotice } = require("./admin");
-const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { apiFetchOnion, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const adminNativePassword = requireDotenvValue(process.env.ADMIN_NATIVE_PASSWORD, "ADMIN_NATIVE_PASSWORD");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 const ADMIN_MENU = ".menu-wrapper #nav";
 const ADMIN_BUSY = [

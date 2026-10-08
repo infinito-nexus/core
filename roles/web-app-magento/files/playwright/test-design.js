@@ -11,13 +11,13 @@ const {
   tokenValue,
 } = require("./design");
 const { MENU, guestViews, memberViews, usageNoticeShows } = require("./gallery-views");
-const { apiGetOnion, decodeDotenvQuotedValue } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { SIGN_IN_FORM, adminNavigator, customerSignIn, hideUsageNotice, openShop, seedShowcase } = require("./showcase");
 const { resolveTimeout } = require("./timeouts");
 
 const designTitle = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
-const designTheme = decodeDotenvQuotedValue(process.env.DESIGN_THEME || "");
+const designTheme = requireDotenvValue(process.env.DESIGN_THEME, "DESIGN_THEME");
 const designLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const designAdminLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_ADMIN_LOGO_URL || "");
 const designAdminLoginLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_ADMIN_LOGIN_LOGO_URL || "");

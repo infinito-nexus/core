@@ -9,12 +9,12 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const designTitle = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
-const schemeName = decodeDotenvQuotedValue(process.env.DESIGN_SCHEME_NAME || "");
+const schemeName = requireDotenvValue(process.env.DESIGN_SCHEME_NAME, "DESIGN_SCHEME_NAME");
 
 const MODES = ["light", "dark"];
 const DESKTOP = { width: 1440, height: 900 };

@@ -1,6 +1,6 @@
 const { expect } = require("@playwright/test");
 
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -32,7 +32,7 @@ async function landing(page) {
 async function adminPasswordSignIn(page) {
   const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
   const username = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-  const password = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+  const password = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
   const nativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
 
   expect(base, "APP_BASE_URL must be set").toBeTruthy();
