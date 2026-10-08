@@ -68,7 +68,9 @@ class TestDotenvQuoteModeAware(unittest.TestCase):
     """
 
     def setUp(self):
-        env = jinja2.Environment(autoescape=False)  # noqa: S701 - test renders a .env value, not HTML
+        env = jinja2.Environment(
+            autoescape=jinja2.select_autoescape(default_for_string=False)
+        )
         env.filters["dotenv_quote"] = FilterModule().filters()["dotenv_quote"]
         self.env = env
 

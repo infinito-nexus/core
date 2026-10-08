@@ -20,7 +20,7 @@ import json
 import unittest
 
 import yaml
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import PROJECT_ROOT
 
@@ -82,7 +82,9 @@ def _yaml(text: str):
 
 
 def _render(directory, name, **context) -> str:
-    env = Environment(loader=FileSystemLoader(str(directory)), autoescape=False)  # noqa: S701 - renders configuration, not markup
+    env = Environment(
+        loader=FileSystemLoader(str(directory)), autoescape=select_autoescape()
+    )
     env.filters.update(_filters())
     return env.get_template(name).render(**context)
 

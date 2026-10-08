@@ -47,6 +47,7 @@ DENY_TOO_MANY_REQUESTS = "too_many_concurrent_requests"
 DENY_UNKNOWN_ARGUMENT = "undeclared_argument"
 DENY_MISSING_ARGUMENT = "missing_required_argument"
 DENY_RANGE_TOO_WIDE = "range_too_wide"
+DENY_PATH_ARGUMENT = "path_argument_not_a_segment"
 
 RANGE_ARGUMENTS = ("start", "end", "step")
 
@@ -189,6 +190,17 @@ def assert_arguments(
         raise PermissionError(f"{DENY_MISSING_ARGUMENT}: {name!r} requires {missing}")
 
 
+def assert_path_arguments(
+    spec: Mapping[str, Any], name: str, arguments: Mapping[str, Any] | None
+) -> None:
+    path = str(spec["path"])
+    for key, value in (arguments or {}).items():
+        if "{" + key + "}" in path and not str(value).strip("."):
+            raise PermissionError(
+                f"{DENY_PATH_ARGUMENT}: {name!r} takes no {str(value)!r} as {key!r}"
+            )
+
+
 def parse_instant(value: Any) -> float:
     """Return a range boundary in unix seconds.
 
@@ -217,10 +229,14 @@ def parse_duration(value: Any) -> float:
         return float(text)
     except ValueError:
         pass
-    parts = re.findall(r"(\d+)(ms|[smhdwy])", text)
-    if not parts or "".join(n + u for n, u in parts) != text:
+    *tokens, rest = re.split(r"(ms|[smhdwy])", text)
+    numbers, units = tokens[::2], tokens[1::2]
+    if rest or not numbers or not all(number.isdecimal() for number in numbers):
         raise ValueError(f"not a duration: {text!r}")
-    return sum(int(n) * DURATION_UNITS[u] for n, u in parts)
+    return sum(
+        int(number) * DURATION_UNITS[unit]
+        for number, unit in zip(numbers, units, strict=True)
+    )
 
 
 def assert_range(
@@ -341,6 +357,7 @@ def authorize_call(
         )
 
     assert_arguments(spec, name, arguments)
+    assert_path_arguments(spec, name, arguments)
     assert_range(spec, name, arguments, contract["limits"]["result_items"])
 
     return method, str(spec["path"])

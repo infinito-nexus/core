@@ -45,7 +45,6 @@ GATE = PROJECT_ROOT / (
 )
 _HEADER_RE = re.compile(r"x[-_]forwarded[-_]access[-_]token", re.IGNORECASE)
 _EMITS_RE = re.compile(r"proxy_set_header|auth_request_set")
-_SKIP_DIRS = {".git", "node_modules", "__pycache__"}
 _TEXT_SUFFIXES = {
     ".js",
     ".mjs",

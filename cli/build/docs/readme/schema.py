@@ -45,9 +45,10 @@ _OPTIONAL_CTX: dict = {
 
 
 def _render(ctx: dict) -> str:
-    env = jinja2.Environment(  # noqa: S701 — renders Markdown, not HTML; escaping would corrupt it
+    env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(str(TEMPLATE_DIR)),
         keep_trailing_newline=True,
+        autoescape=jinja2.select_autoescape(),
     )
     return env.get_template(TEMPLATE_NAME).render(**ctx)
 

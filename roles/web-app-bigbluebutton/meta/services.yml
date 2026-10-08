@@ -104,7 +104,7 @@ prometheus:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-web:
   image: alangecker/bbb-docker-web
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
@@ -134,25 +134,25 @@ bbb-pads:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-export-annotations:
   image: alangecker/bbb-docker-bbb-export-annotations
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 webrtc-sfu:
   image: alangecker/bbb-docker-webrtc-sfu
-  version: "v2.22.0"
+  version: "v2.24.0"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 fsesl-akka:
   image: alangecker/bbb-docker-fsesl-akka
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 apps-akka:
   image: alangecker/bbb-docker-apps-akka
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
@@ -163,19 +163,19 @@ bbb-graphql-server:
     timeout: 10s
     retries: 5
   image: alangecker/bbb-docker-graphql-server
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-actions:
   image: alangecker/bbb-docker-graphql-actions
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-middleware:
   image: alangecker/bbb-docker-graphql-middleware
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
@@ -187,7 +187,7 @@ periodic:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 recordings:
   image: alangecker/bbb-docker-recordings
-  version: "v3.0.23"
+  version: "v3.0.39"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated

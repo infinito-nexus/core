@@ -1,7 +1,7 @@
 import unittest
 
 from ansible.module_utils.parsing.convert_bool import boolean as ansible_boolean
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from tests.integration.roles import PROJECT_ROOT
 from utils.cache.files import read_text
@@ -37,7 +37,7 @@ def _render_dnsmasq(**overrides):
     variables.update(overrides)
     env = Environment(
         loader=FileSystemLoader(str(PROJECT_ROOT)),
-        autoescape=False,  # noqa: S701 - dnsmasq config, html escaping would corrupt it
+        autoescape=select_autoescape(),
     )
     template = env.get_template("roles/svc-net-tor/templates/dnsmasq-tor-onion.conf.j2")
     return template.render(**variables)
@@ -146,7 +146,7 @@ class TestStaticBindSurvivesBoot(unittest.TestCase):
         self.assertLess(names.index(DROPIN_BLOCK), names.index(START_TASK))
 
         reload_expression = start["ansible.builtin.systemd"]["daemon_reload"]
-        env = Environment(autoescape=False)  # noqa: S701 - renders a boolean, not markup
+        env = Environment(autoescape=select_autoescape(default_for_string=False))
         env.filters["bool"] = ansible_boolean
         env.tests["changed"] = lambda result: bool(result.get("changed", False))
 
@@ -192,7 +192,7 @@ class TestHostResolver(unittest.TestCase):
         task = next(t for t in tasks if t.get("name") == RESOLV_TASK)
         env = Environment(
             loader=FileSystemLoader(str(PROJECT_ROOT)),
-            autoescape=False,  # noqa: S701 - resolv.conf, html escaping would corrupt it
+            autoescape=select_autoescape(),
         )
         template = env.get_template(
             f"roles/svc-net-tor/templates/{task['ansible.builtin.template']['src']}"

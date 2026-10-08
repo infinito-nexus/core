@@ -29,7 +29,7 @@ buildkit:
   enabled: false
   shared: false
   image: moby/buildkit
-  version: "v0.33.1"
+  version: "v0.34.0"
 # nocheck: dynamic-flag
 act-runner:
   enabled: false

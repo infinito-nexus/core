@@ -5,7 +5,7 @@ import json
 import re
 import unittest
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from . import PROJECT_ROOT
 
@@ -102,7 +102,7 @@ def render(saml_apps: list[str], client_apps: list[str] | None = None) -> str:
         trim_blocks=True,
         keep_trailing_newline=True,
         undefined=StrictUndefined,
-        autoescape=False,  # noqa: S701 - renders JSON, where HTML escaping corrupts the value
+        autoescape=select_autoescape(),
     )
     env.filters["path_join"] = path_join
     env.filters["to_json"] = json.dumps

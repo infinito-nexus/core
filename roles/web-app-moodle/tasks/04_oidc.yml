@@ -112,7 +112,7 @@
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/cfg.php
     --name=alternateloginurl
-    --set={{ (lookup('tls', application_id, 'url.base') ~ MOODLE_OIDC_PLUGIN_RELPATH ~ '/') | quote }}
+    --set={{ (lookup('tls', application_id, 'url.base') ~ MOODLE_OIDC_PLUGIN_URL_PATH ~ '/') | quote }}
   changed_when: false
 
 - name: "🔧 Set auth = 'oidc' for all users except guest"

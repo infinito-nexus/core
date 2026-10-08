@@ -14,7 +14,7 @@ import unittest
 from pathlib import Path
 
 import yaml
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.litellm.model_routes import litellm_model_routes
 from plugins.filter.merge.with_defaults import merge_with_defaults
@@ -87,7 +87,10 @@ def render(
         measured_speed: alias -> tokens per second from the last deploy's
             measurement; empty means nothing has been measured yet.
     """
-    env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - YAML, not markup
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     env.filters["bool"] = _ansible_bool
     env.filters["to_json"] = json.dumps
     env.filters["litellm_model_routes"] = litellm_model_routes

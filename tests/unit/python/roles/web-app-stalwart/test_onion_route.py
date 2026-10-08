@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -34,7 +34,7 @@ def _render(template_path, **variables) -> str:
         trim_blocks=True,
         lstrip_blocks=True,
         undefined=StrictUndefined,
-        autoescape=False,  # noqa: S701 - JMAP request bodies, never HTML
+        autoescape=select_autoescape(default_for_string=False),
     )
     env.filters["to_json"] = json.dumps
     env.filters["int"] = int
