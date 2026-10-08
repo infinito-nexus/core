@@ -1,0 +1,598 @@
+html:root {
+  --body-bg: var(--design-surface-1);
+  --body-bg-rgb: var(--design-surface-1-rgb);
+  --body-color: var(--design-text);
+  --body-color-rgb: var(--design-text-rgb);
+  --emphasis-color: var(--design-text);
+  --emphasis-color-rgb: var(--design-text-rgb);
+  --secondary-color: var(--design-text-muted);
+  --secondary-color-rgb: var(--design-text-muted-rgb);
+  --secondary-bg: var(--design-surface-3);
+  --secondary-bg-rgb: var(--design-surface-3-rgb);
+  --tertiary-color: var(--design-text-muted);
+  --tertiary-color-rgb: var(--design-text-muted-rgb);
+  --tertiary-bg: var(--design-surface-2);
+  --tertiary-bg-rgb: var(--design-surface-2-rgb);
+  --border-color: var(--design-border);
+  --border-color-translucent: var(--design-border);
+  --code-color: var(--design-text);
+  --highlight-color: var(--design-text);
+  --highlight-bg: var(--design-warning-subtle);
+  --focus-ring-color: rgba(var(--design-link-rgb), 0.25);
+  --form-valid-color: var(--design-success);
+  --form-valid-border-color: var(--design-success);
+  --form-invalid-color: var(--design-danger);
+  --form-invalid-border-color: var(--design-danger);
+  --box-shadow-sm: var(--design-shadow-1);
+  --box-shadow: var(--design-shadow-2);
+  --box-shadow-lg: var(--design-shadow-3);
+
+  --primary: var(--design-primary);
+  --primary-rgb: var(--design-primary-rgb);
+  --primary-text-emphasis: var(--design-link);
+  --primary-bg-subtle: var(--design-surface-3);
+  --primary-border-subtle: var(--design-border);
+  --secondary: var(--design-text-muted);
+  --secondary-rgb: var(--design-text-muted-rgb);
+  --secondary-text-emphasis: var(--design-text);
+  --secondary-bg-subtle: var(--design-surface-3);
+  --secondary-border-subtle: var(--design-border);
+  --light: var(--design-surface-3);
+  --light-rgb: var(--design-surface-3-rgb);
+  --light-text-emphasis: var(--design-text);
+  --light-bg-subtle: var(--design-surface-2);
+  --light-border-subtle: var(--design-border);
+  --dark-text-emphasis: var(--design-text);
+  --dark-bg-subtle: var(--design-surface-3);
+  --dark-border-subtle: var(--design-border-strong);
+{% for status in ['success', 'info', 'warning', 'danger'] %}
+  --{{ status }}: var(--design-{{ status }});
+  --{{ status }}-rgb: var(--design-{{ status }}-rgb);
+  --{{ status }}-text-emphasis: var(--design-{{ status }});
+  --{{ status }}-bg-subtle: var(--design-{{ status }}-subtle);
+  --{{ status }}-border-subtle: var(--design-{{ status }}-border);
+{% endfor %}
+{% for step in [100, 200, 300, 400, 500, 600, 700, 800, 900] %}
+  --gray-{{ step }}: var(--design-neutral-{{ step }});
+{% endfor %}
+
+  --template-bg-light: var(--design-surface-1);
+  --template-text-dark: var(--design-text);
+  --template-text-light: var(--design-on-frame);
+  --template-link-color: var(--design-link);
+  --template-special-color: var(--design-text);
+  --cassiopeia-color-brand: var(--design-on-frame);
+}
+
+html,
+body.site {
+  color: var(--design-text);
+  background-color: var(--design-surface-1);
+}
+
+.container-header,
+.footer {
+  --design-focus: var(--design-on-frame);
+  color: var(--design-on-frame);
+  background-color: var(--design-frame);
+  background-image: none;
+}
+
+.container-header .navbar-brand,
+.container-header .navbar-brand a,
+.container-header .navbar-brand:hover,
+.container-header .navbar-brand:focus,
+.container-header .site-description,
+.container-header .mod-menu,
+.container-header .navbar-toggler,
+.container-header .mod-finder,
+.container-header .mod-finder a:not(.jmodedit),
+.container-header .mod-finder a:not(.jmodedit):hover,
+.container-header .mod-finder a:not(.jmodedit):focus,
+.container-topbar,
+.container-below-top,
+.footer a:not(.btn):hover,
+.footer a:not(.btn):focus {
+  color: var(--design-on-frame);
+}
+
+.container-header .navbar-toggler {
+  border-color: var(--design-on-frame);
+}
+
+.container-header .mod-menu > li.active::after,
+.container-header .mod-menu > li:hover::after,
+.container-header .metismenu > li > a:hover::after,
+.container-header .metismenu > li > button:hover::before,
+.container-header .metismenu > li.active > a::after,
+.container-header .metismenu > li.active > button::before {
+  background: var(--design-on-frame);
+}
+
+.footer .metismenu.mod-menu .mm-collapse {
+  background: var(--design-frame-hover);
+}
+
+@media (width <= 991.98px) {
+  .container-header .mod-menu .mod-menu__sub a,
+  .container-header .mod-menu .mod-menu__sub span {
+    color: var(--design-on-frame);
+  }
+
+  .container-header .metismenu.mod-menu .mm-collapse {
+    background-color: var(--design-frame-hover);
+  }
+}
+
+@media (width >= 992px) {
+  .container-header .mod-menu :where(.mod-menu__sub:not(.mod-menu__sub *)) {
+    --design-focus: var(--design-link);
+    color: var(--design-text);
+    background-color: var(--design-surface-2);
+  }
+}
+
+.container-header .mod-menu .parent > ul,
+.metismenu.mod-menu .parent > ul {
+  color: var(--design-text);
+}
+
+.metismenu.mod-menu .mm-collapse {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-1);
+}
+
+.metismenu.mod-menu .mm-collapse > li.parent > ul,
+.sidebar-right .metismenu .mm-collapse,
+.sidebar-left .metismenu .mm-collapse {
+  background-color: var(--design-surface-3);
+}
+
+.metismenu.mod-menu .metismenu-item.divider:not(.parent),
+.metismenu.mod-menu .mm-collapse > li.divider:not(.parent),
+.sidebar-right .metismenu .metismenu-item.divider:not(.parent),
+.sidebar-left .metismenu .metismenu-item.divider:not(.parent) {
+  border-color: var(--design-border);
+}
+
+.container-header .mod-finder .awesomplete > ul {
+  color: var(--design-text);
+  background: var(--design-surface-2);
+}
+{% for fill in ['primary', 'success', 'warning', 'danger', 'info'] %}
+
+.btn-{{ fill }} {
+  --btn-color: var(--design-on-{{ fill }});
+  --btn-bg: var(--design-{{ fill }});
+  --btn-border-color: var(--design-{{ fill }});
+  --btn-hover-color: var(--design-on-{{ fill }});
+  --btn-hover-bg: var(--design-{{ fill }}-hover);
+  --btn-hover-border-color: var(--design-{{ fill }}-hover);
+  --btn-active-color: var(--design-on-{{ fill }});
+  --btn-active-bg: var(--design-{{ fill }}-active);
+  --btn-active-border-color: var(--design-{{ fill }}-active);
+  --btn-disabled-color: var(--design-on-{{ fill }});
+  --btn-disabled-bg: var(--design-{{ fill }});
+  --btn-disabled-border-color: var(--design-{{ fill }});
+}
+
+.badge.bg-{{ fill }} {
+  --badge-color: var(--design-on-{{ fill }});
+}
+{% endfor %}
+
+.btn-secondary,
+.btn-light,
+.btn-outline-secondary {
+  --btn-color: var(--design-text);
+  --btn-border-color: var(--design-border-strong);
+  --btn-hover-color: var(--design-text);
+  --btn-hover-bg: var(--design-surface-hover);
+  --btn-hover-border-color: var(--design-border-strong);
+  --btn-active-color: var(--design-text);
+  --btn-active-bg: var(--design-surface-active);
+  --btn-active-border-color: var(--design-border-strong);
+  --btn-disabled-color: var(--design-text-muted);
+  --btn-disabled-border-color: var(--design-border);
+}
+
+.btn-secondary,
+.btn-light {
+  --btn-bg: var(--design-surface-3);
+  --btn-disabled-bg: var(--design-surface-3);
+}
+
+.btn-outline-primary {
+  --btn-color: var(--design-link);
+  --btn-border-color: var(--design-link);
+  --btn-hover-color: var(--design-on-primary);
+  --btn-hover-bg: var(--design-primary);
+  --btn-hover-border-color: var(--design-primary);
+  --btn-active-color: var(--design-on-primary);
+  --btn-active-bg: var(--design-primary-active);
+  --btn-active-border-color: var(--design-primary-active);
+}
+
+.modal .btn-primary:not([href]),
+.modal .btn-primary:not([href]):hover {
+  color: var(--design-on-primary);
+}
+
+.modal .btn-success:not([href]),
+.modal .btn-success:not([href]):hover {
+  color: var(--design-on-success);
+}
+
+.btn.jmodedit {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+
+.btn-close,
+.navbar-toggler-icon {
+  filter: brightness(0) invert(var(--design-invert));
+}
+
+.back-to-top-link {
+  color: var(--design-link);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-link);
+}
+
+.back-to-top-link:hover,
+.back-to-top-link:focus {
+  color: var(--design-on-primary);
+  border-color: var(--design-primary-hover);
+}
+
+.card {
+  --card-border-color: var(--design-border);
+  --card-cap-bg: var(--design-surface-3);
+}
+
+.accordion {
+  --accordion-active-color: var(--design-text);
+  --accordion-active-bg: var(--design-surface-active);
+}
+
+.progress,
+.progress-stacked {
+  --progress-bar-color: var(--design-on-primary);
+  --progress-bar-bg: var(--design-primary);
+}
+{% for status in ['success', 'info', 'danger'] %}
+
+.btn-outline-{{ status }} {
+  --btn-color: var(--design-{{ status }});
+  --btn-border-color: var(--design-{{ status }});
+  --btn-hover-color: var(--design-on-{{ status }});
+  --btn-hover-bg: var(--design-{{ status }});
+  --btn-hover-border-color: var(--design-{{ status }});
+  --btn-active-color: var(--design-on-{{ status }});
+  --btn-active-bg: var(--design-{{ status }}-active);
+  --btn-active-border-color: var(--design-{{ status }}-active);
+}
+{% endfor %}
+
+.card,
+.boxed .blog-item,
+.options-form,
+.options-form > legend,
+.nav-tabs + .tab-content,
+.subhead {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+
+.boxed .blog-item {
+  box-shadow: var(--design-shadow-1), inset 0 3px 0 var(--design-primary);
+}
+
+.subhead,
+.nav-tabs + .tab-content,
+.no-card .newsflash-horiz li,
+joomla-dialog dialog {
+  box-shadow: var(--design-shadow-1);
+}
+
+.no-card .newsflash-horiz li {
+  border-color: var(--design-border);
+}
+
+.card-header,
+.breadcrumb,
+.mod-breadcrumbs__wrapper .breadcrumb {
+  background-color: var(--design-surface-3);
+}
+
+.breadcrumb-item.active,
+.breadcrumb-item + .breadcrumb-item::before,
+figcaption {
+  color: var(--design-text-muted);
+}
+
+.form-control,
+.form-select,
+.custom-select,
+.btn-group > input {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+
+.form-select,
+.custom-select {
+  appearance: auto;
+  background-image: none;
+}
+{% for status in ['success', 'danger'] %}
+
+.form-select.form-select-{{ status }},
+.form-select.custom-select-{{ status }} {
+  color: var(--design-{{ status }});
+  background-color: var(--design-surface-2);
+  border-color: var(--design-{{ status }});
+}
+
+.form-select.form-select-{{ status }} option,
+.form-select.custom-select-{{ status }} option {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+{% endfor %}
+
+.form-control:focus,
+.form-select:focus,
+.custom-select:focus {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-link);
+  box-shadow: var(--design-focus-ring-inset);
+}
+
+.form-select[multiple],
+.form-select optgroup,
+.form-select option {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+
+.form-select[multiple] option:checked {
+  color: var(--design-on-primary);
+}
+
+.form-check-input {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+
+.form-check-input:checked {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+
+.input-group-text {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+
+.invalid {
+  color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+
+.valid {
+  border-color: var(--design-success);
+}
+
+[role="tooltip"]:not(.show) {
+  color: var(--design-text);
+  background: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  box-shadow: var(--design-shadow-2);
+}
+
+.subhead .btn {
+  color: var(--design-text);
+  background: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+
+.subhead .btn:not([disabled]):hover,
+.subhead .btn:not([disabled]):active,
+.subhead .btn:not([disabled]):focus,
+.subhead .btn:not([disabled]):hover > span,
+.subhead .btn:not([disabled]):active > span,
+.subhead .btn:not([disabled]):focus > span {
+  color: var(--design-text);
+  background-color: var(--design-surface-hover);
+}
+
+.subhead .btn[disabled] {
+  background: var(--design-surface-3);
+}
+
+.accordion .list-group-item {
+  color: var(--design-link);
+}
+
+.dropdown-menu {
+  --dropdown-bg: var(--design-surface-2);
+  --dropdown-color: var(--design-text);
+  --dropdown-border-color: var(--design-border);
+  --dropdown-link-color: var(--design-text);
+  --dropdown-link-hover-color: var(--design-text);
+  --dropdown-link-hover-bg: var(--design-surface-hover);
+  --dropdown-link-active-color: var(--design-on-primary);
+  --dropdown-link-active-bg: var(--design-primary);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+
+.nav.nav-tabs {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+  box-shadow: none;
+}
+
+.nav.nav-tabs .nav-link {
+  color: var(--design-link);
+  box-shadow: none;
+}
+
+.nav.nav-tabs .nav-link.active {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+  background-image: none;
+  box-shadow: none;
+}
+
+.nav.nav-tabs .nav-link.active::after {
+  background-color: var(--design-primary);
+}
+
+.nav-pills {
+  --nav-pills-link-active-color: var(--design-on-primary);
+  --nav-pills-link-active-bg: var(--design-primary);
+}
+
+.pagination {
+  --pagination-color: var(--design-link);
+  --pagination-bg: var(--design-surface-2);
+  --pagination-border-color: var(--design-border);
+  --pagination-hover-color: var(--design-link);
+  --pagination-hover-bg: var(--design-surface-hover);
+  --pagination-hover-border-color: var(--design-border);
+  --pagination-focus-color: var(--design-link);
+  --pagination-focus-bg: var(--design-surface-hover);
+  --pagination-active-color: var(--design-on-primary);
+  --pagination-active-bg: var(--design-primary);
+  --pagination-active-border-color: var(--design-primary);
+  --pagination-disabled-color: var(--design-text-muted);
+  --pagination-disabled-bg: var(--design-surface-2);
+  --pagination-disabled-border-color: var(--design-border);
+}
+
+.list-group {
+  --list-group-color: var(--design-text);
+  --list-group-bg: var(--design-surface-2);
+  --list-group-border-color: var(--design-border);
+  --list-group-action-hover-bg: var(--design-surface-hover);
+  --list-group-action-active-bg: var(--design-surface-active);
+  --list-group-active-color: var(--design-on-primary);
+  --list-group-active-bg: var(--design-primary);
+  --list-group-active-border-color: var(--design-primary);
+}
+
+.modal {
+  --modal-color: var(--design-text);
+  --modal-bg: var(--design-surface-2);
+  --modal-border-color: var(--design-border);
+}
+
+.tbody-icon [class^="icon-"],
+.tbody-icon [class*=" icon-"],
+.tbody-icon [class^="fa-"],
+.tbody-icon [class*=" fa-"] {
+  color: var(--design-text-muted);
+}
+
+.tbody-icon .icon-publish,
+.tbody-icon .icon-check,
+.tbody-icon .fa-check {
+  color: var(--design-success);
+  border-color: var(--design-success);
+}
+
+.tbody-icon .icon-checkedout,
+.tbody-icon .icon-lock,
+.tbody-icon .fa-lock {
+  color: var(--design-text);
+}
+
+.tbody-icon .icon-delete,
+.tbody-icon .fa-delete,
+.tbody-icon .icon-times,
+.tbody-icon .fa-times {
+  color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+
+joomla-alert {
+  --jui-alert-button-color-dark: var(--design-text);
+  --jui-alert-button-color-light: transparent;
+{% for status in ['success', 'info', 'warning', 'danger'] %}
+  --jui-alert-{{ status }}-color: var(--design-text);
+  --jui-alert-{{ status }}-background-color: var(--design-{{ status }}-subtle);
+  --jui-alert-{{ status }}-border-color: var(--design-{{ status }}-border);
+  --jui-alert-{{ status }}-link-color: var(--design-link);
+{% endfor %}
+}
+{% for type, status in [('success', 'success'), ('message', 'success'), ('info', 'info'), ('notice', 'info'), ('warning', 'warning'), ('error', 'danger'), ('danger', 'danger')] %}
+
+#system-message-container joomla-alert[type="{{ type }}"] {
+  --alert-heading-text: var(--design-on-{{ status }});
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+{% endfor %}
+
+#system-message-container joomla-alert .alert-link {
+  color: var(--design-link);
+}
+
+.choices {
+  --choices-bg-color: var(--design-surface-2);
+  --choices-bg-color-dropdown: var(--design-surface-2);
+  --choices-bg-color-disabled: var(--design-surface-3);
+  --choices-keyline-color: var(--design-border-strong);
+  --choices-primary-color: var(--design-primary);
+  --choices-item-color: var(--design-on-primary);
+  --choices-text-color: var(--design-text);
+  --choices-highlighted-color: var(--design-surface-hover);
+  --choices-highlight-color: var(--design-link);
+  --choices-invalid-color: var(--design-danger);
+  --choices-disabled-color: var(--design-surface-3);
+  --choices-item-disabled-color: var(--design-text-muted);
+  border-color: var(--design-border-strong);
+}
+
+.choices.is-focused {
+  border-color: var(--design-link);
+  box-shadow: var(--design-focus-ring-inset);
+}
+
+.choices[data-type*="select-one"] .choices__inner,
+.choices[data-type*="select-multiple"] .choices__inner {
+  background: var(--design-surface-2);
+}
+
+.choices__input::placeholder {
+  color: var(--design-text-muted);
+}
+
+.js-stools-container-bar .btn-toolbar .js-stools-btn-clear {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+
+.js-stools-container-filters-visible {
+  background-color: var(--design-surface-2);
+}
+
+.plg_system_webauthn_login_button svg path,
+.plg_system_webauthn_login_button svg circle {
+  fill: currentcolor;
+}
+
+.editor .mce-tinymce {
+  border-color: var(--design-border);
+}
+
+.editor .mce-btn,
+.editor .mce-panel {
+  background: var(--design-surface-3);
+}

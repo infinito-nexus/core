@@ -1,0 +1,16 @@
+(function () {
+  var root = document.documentElement;
+  if (!root.hasAttribute("data-color-scheme-os") && !root.hasAttribute("data-color-scheme")) {
+    return;
+  }
+  function mirror() {
+    var scheme = root.getAttribute("data-color-scheme");
+    if (scheme === "dark" || scheme === "light") {
+      root.setAttribute("data-design-theme", scheme);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  mirror();
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["data-color-scheme"] });
+})();
