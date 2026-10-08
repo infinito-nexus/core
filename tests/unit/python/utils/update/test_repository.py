@@ -218,6 +218,44 @@ class TestApplyUpdates(unittest.TestCase):
             self.assertEqual(read_text(str(config_b)), "  ref: v2.1.0\n")
 
 
+SOURCED_FIRST = (
+    "sourced:\n"
+    "  repository: https://example.test/a.git\n"
+    "  ref: v1.0.0\n"
+    "  update:\n"
+    "    key: ref\n"
+    "    type: http_regex\n"
+    "    url: https://example.test/tags\n"
+    "    pattern: 'a (v[0-9.]+)'\n"
+    "plain:\n"
+    "  repository: https://example.test/b.git\n"
+    "  ref: v1.0.0\n"
+)
+
+
+class TestSourcedRef(unittest.TestCase):
+    def test_a_sourced_ref_is_skipped_and_keeps_its_own_line(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config = root / "roles" / "web-app-example" / ROLE_FILE_META_SERVICES
+            config.parent.mkdir(parents=True)
+            config.write_text(SOURCED_FIRST, encoding="utf-8")
+
+            entries = collect_entries(root)
+
+            self.assertEqual(
+                [(entry.entity_path, entry.line) for entry in entries],
+                [(("plain",), 11)],
+            )
+
+            apply_updates([RepositoryRefUpdate(entry=entries[0], latest="v1.1.0")])
+
+            written = config.read_text()  # nocheck: cache-read  just rewritten here
+            lines = written.splitlines()
+            self.assertEqual(lines[2], "  ref: v1.0.0")
+            self.assertEqual(lines[10], "  ref: v1.1.0")
+
+
 class TestCollectEntriesCoversAddons(unittest.TestCase):
     def _role(self, root: Path) -> Path:
         role = root / "roles" / "web-app-example"
