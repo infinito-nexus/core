@@ -29,6 +29,7 @@ mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
+# nocheck: playwright-service-flag — session store behind every request, no Playwright surface of its own
 redis:
   bond: 1
   backup:
