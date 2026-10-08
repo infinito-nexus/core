@@ -14,6 +14,19 @@ SNIPE_IT_SERVICE: "{{ entity_name }}"
 SNIPE_IT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, SNIPE_IT_SERVICE) }}"
 SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_key') }}"
 
+SNIPE_IT_INITIAL_SETTINGS:
+  alert_email: "{{ lookup('users', 'administrator').email }}"
+  alerts_enabled: 1
+  auto_increment_assets: 0
+  brand: 1
+  default_currency: "USD"
+  full_multiple_companies_support: 0
+  locale: "{{ HOST_LL_CC }}"
+  next_auto_tag_base: 1
+  pwd_secure_min: 10
+  site_name: "Snipe-IT"
+  zerofill_count: 0
+
 SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 
