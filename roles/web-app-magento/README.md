@@ -40,6 +40,7 @@ flowchart LR
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
         svc_email["email"]
+        svc_two_factor["two_factor"]
         svc_php["php"]
         svc_nginx["nginx"]
         svc_mariadb["mariadb"]
