@@ -3,7 +3,7 @@ platform_administrator:
   description: Application administrator for {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}
   firstname: Platform
   lastname: Administrator
-  username: platform-administrator
+  username: platformadministrator
   authorized_keys: []
   accounts: [mailbox, identity]
 
