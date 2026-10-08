@@ -5,6 +5,7 @@ FROM ${SUITECRM_BASE_IMAGE}:${SUITECRM_BASE_VERSION} AS base
 
 ARG SUITECRM_APP_DIR
 ARG SUITECRM_PHP_MEMORY_LIMIT
+ARG SUITECRM_PHPREDIS_VERSION
 
 RUN rm -rf /var/lib/apt/lists/* \
   && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y \
@@ -31,6 +32,10 @@ RUN rm -rf /var/lib/apt/lists/* \
       opcache \
       ldap \
   && rm -rf /var/lib/apt/lists/*
+
+RUN : "${SUITECRM_PHPREDIS_VERSION:?}" \
+  && pecl install "redis-${SUITECRM_PHPREDIS_VERSION}" \
+  && docker-php-ext-enable redis
 
 RUN : "${SUITECRM_PHP_MEMORY_LIMIT:?}" && { \
       echo 'file_uploads = On'; \

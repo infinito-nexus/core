@@ -2,6 +2,7 @@
 
     {{ lookup('engine', 'redis', application_id) }}            # full dict
     {{ lookup('engine', 'redis', application_id, 'url') }}     # one field
+    {{ lookup('engine', 'redis', application_id, 'session_path') }}  # phpredis session.save_path
 
 Mirrors the ``database`` lookup but for the non-RDBMS engines registered in
 :data:`utils.roles.applications.services.engines.ENGINES` (redis, memcached,
@@ -16,6 +17,7 @@ See ``docs/architecture/central-engines.md``.
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
@@ -44,7 +46,29 @@ _FIELDS = (
     "prefix",
     "url",
     "container",
+    "session_path",
 )
+
+
+def redis_session_path(
+    host: str, port: int, prefix: str, username: str, password: str
+) -> str:
+    """Return the phpredis ``session.save_path`` of one consumer.
+
+    Args:
+        host: redis host the consumer reaches.
+        port: redis port.
+        prefix: consumer prefix; session keys become ``<prefix>:session:<id>``.
+        username: ACL user, sent only together with a password.
+        password: redis password; empty for an embedded sidecar.
+    """
+    path = f"tcp://{host}:{port}?prefix={quote(prefix, safe='')}:session:"
+    if password:
+        path += (
+            f"&auth[user]={quote(username, safe='')}"
+            f"&auth[pass]={quote(password, safe='')}"
+        )
+    return path
 
 
 def qdrant_consumer_key(applications: dict[str, Any], svc_id: str) -> str:
@@ -197,6 +221,17 @@ class LookupModule(LookupBase):
             "prefix": prefix,
             "url": url,
             "container": container,
+            "session_path": (
+                redis_session_path(
+                    host,
+                    port,
+                    prefix,
+                    username if shared else "",
+                    password if shared else "",
+                )
+                if engine == "redis"
+                else ""
+            ),
         }
         if want == "all":
             return [resolved]
