@@ -8,6 +8,9 @@ walker that rewrites the matching ``version:`` line.
 
 Suppress a check by placing ``# nocheck: docker-version`` on the line
 directly above the ``version:`` key.
+
+A ``version`` that names its own upstream in an ``update:`` block belongs to
+:mod:`utils.update.source` and is not collected here.
 """
 
 from __future__ import annotations
@@ -28,6 +31,7 @@ import yaml
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml
 from utils.docker.image.discovery import iter_role_images
 from utils.docker.image.ref import (
     DOCKER_HUB_REGISTRIES,
@@ -38,6 +42,7 @@ from utils.docker.image.ref import (
 from utils.docker.registry import fetch_registry_tags
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import (
+    declares_source,
     is_maintained,
     is_semver,
     latest_semver,
@@ -265,6 +270,20 @@ def suppressed_services(config_path: Path) -> set[str]:
     return names
 
 
+def sourced_services(config_path: Path) -> set[str]:
+    """Return service names whose ``version`` declares its own upstream.
+
+    Args:
+        config_path: a role's ``meta/services.yml``.
+    """
+    services = load_yaml(str(config_path)) or {}
+    return {
+        str(service)
+        for service, config in services.items()
+        if declares_source(config, "version")
+    }
+
+
 def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
     roles_root = repo_root / "roles"
     entries: list[DockerImageVersionEntry] = []
@@ -281,6 +300,8 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
 
         config_path = roles_root / ref.role / ROLE_FILE_META_SERVICES
         if ref.service in suppressed_services(config_path):
+            continue
+        if ref.service in sourced_services(config_path):
             continue
 
         if ref.registry == "docker.io":

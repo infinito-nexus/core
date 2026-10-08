@@ -12,6 +12,8 @@ entity_name: "{{ application_id | entity_name }}"
 OPENTALK_CTRL_CONTAINER: "{{ lookup('config', application_id, 'services.controller.name') }}"
 OPENTALK_CTRL_HTTP_PORT: "{{ lookup('config', application_id, 'services.controller.ports.local.http') }}"
 OPENTALK_CTRL_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.controller.ports.internal.http') }}"
+OPENTALK_CTRL_SERVICE_API_KEY_ID: "controller"
+OPENTALK_CTRL_SERVICE_API_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.service_api_secret') }}"
 
 OPENTALK_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.opentalk.name') }}"
 OPENTALK_FRONTEND_HTTP_PORT: "{{ lookup('config', application_id, 'services.opentalk.ports.local.http') }}"
@@ -34,11 +36,11 @@ OPENTALK_LIVEKIT_API_SECRET: "{{ lookup('config', application_id, 'secrets.crede
 OPENTALK_OBJSTORE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, lookup('objstore', application_id, 'engine')) }}"
 
 OPENTALK_RABBIT_CONTAINER: "{{ lookup('config', application_id, 'services.rabbit.name') }}"
-OPENTALK_RABBIT_QUEUE: "opentalk_recorder"
 
 OPENTALK_RECORDER_CONTAINER: "{{ lookup('config', application_id, 'services.recorder.name') }}"
-OPENTALK_RECORDER_OIDC_CLIENT_ID: "opentalk-recorder"
-OPENTALK_RECORDER_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recorder_oidc_client_secret') }}"
+OPENTALK_RECORDER_HTTP_PORT: "{{ lookup('config', application_id, 'services.recorder.ports.internal.http') }}"
+OPENTALK_RECORDER_API_KEY_ID: "recorder"
+OPENTALK_RECORDER_API_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recorder_api_secret') }}"
 
 OPENTALK_KEYCLOAK_BASE_URL: "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$','') }}"
 OPENTALK_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"

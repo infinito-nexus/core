@@ -15,7 +15,7 @@ This role deploys the OpenTalk stack using Docker Compose and exposes the web fr
 - **Single Sign-On:** Frontend and controller share one Keycloak client and realm.
 - **Federated User Lookup:** Invitee search resolves through the Keycloak admin Web API, so any user federated from OpenLDAP into Keycloak becomes findable inside OpenTalk.
 - **OpenCloud File Integration:** Pick files from OpenCloud in a meeting without re-authenticating when `web-app-opencloud` is deployed alongside.
-- **Meeting Recordings:** A dedicated recorder consumes recording jobs from the RabbitMQ queue and stores MP4 archives in MinIO.
+- **Meeting Recordings:** The controller starts recordings on a dedicated recorder over its REST API, and the recorder stores MP4 archives in MinIO.
 - **Shared Infrastructure:** Reuses `svc-db-postgres` for relational data and `web-svc-coturn` for STUN and TURN.
 
 ## Developer Notes
