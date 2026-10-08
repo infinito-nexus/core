@@ -95,6 +95,59 @@ def call(path, method="GET", payload=None, api_key=None):
         return error.code, error.read().decode(errors="replace")
 
 
+def shape(value):
+    """Describe a value for a failure message, without quoting its content.
+
+    Args:
+        value: Decoded response fragment.
+
+    Returns:
+        The type, and for a mapping its keys, which name fields rather than
+        carrying the credentials a value would.
+    """
+    if isinstance(value, dict):
+        return f"a mapping with keys {sorted(map(str, value))}"
+    if isinstance(value, list):
+        return f"a list of {sorted({type(item).__name__ for item in value})}"
+    return f"a {type(value).__name__}"
+
+
+def records(body, what):
+    """Return the records of a list response.
+
+    Args:
+        body: Decoded body, either ``{"data": [...]}`` or a bare list.
+        what: Noun naming the collection, for the failure message.
+
+    Returns:
+        The records, empty when the response carries none.
+    """
+    listed = body.get("data", body) if isinstance(body, dict) else body
+    if listed is None:
+        return []
+    if not isinstance(listed, list) or not all(
+        isinstance(item, dict) for item in listed
+    ):
+        sys.exit(f"FAILED listing {what}: expected records, got {shape(listed)}")
+    return listed
+
+
+def record(body, what):
+    """Return the single record of a create response.
+
+    Args:
+        body: Decoded body, either ``{"data": {...}}`` or a bare mapping.
+        what: Noun naming the record, for the failure message.
+
+    Returns:
+        The record mapping.
+    """
+    created = body.get("data", body) if isinstance(body, dict) else body
+    if not isinstance(created, dict):
+        sys.exit(f"FAILED creating {what}: expected a record, got {shape(created)}")
+    return created
+
+
 def login():
     status, body = call(
         f"{REST}/login",
@@ -117,16 +170,9 @@ def api_key():
     if status != 200:
         sys.exit(f"FAILED listing api keys: {status} {body}")
 
-    existing = (body or {}).get("data") if isinstance(body, dict) else body
-    if existing and not (
-        isinstance(existing, list) and all(isinstance(key, dict) for key in existing)
-    ):
-        sys.exit(
-            f"FAILED listing api keys: expected a list of key objects, got "
-            f"{type(existing).__name__} carrying "
-            f"{sorted(existing) if isinstance(existing, dict) else [type(k).__name__ for k in existing]}"
-        )
-    matches = [key for key in existing or [] if key.get("label") == KEY_NAME]
+    matches = [
+        key for key in records(body, "api keys") if key.get("label") == KEY_NAME
+    ]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} api keys named {KEY_NAME}")
     for key in matches:
@@ -148,7 +194,7 @@ def api_key():
     )
     if status not in (200, 201):
         sys.exit(f"FAILED creating api key {KEY_NAME}: {status} {body}")
-    created = (body or {}).get("data") if isinstance(body, dict) else body
+    created = record(body, f"api key {KEY_NAME}")
     return str(created["rawApiKey"]), str(created["id"])
 
 
@@ -174,8 +220,11 @@ def bearer_credential():
     if status != 200:
         sys.exit(f"FAILED listing credentials: {status} {body}")
 
-    existing = (body or {}).get("data") if isinstance(body, dict) else body
-    matches = [item for item in existing or [] if item.get("name") == CREDENTIAL_NAME]
+    matches = [
+        item
+        for item in records(body, "credentials")
+        if item.get("name") == CREDENTIAL_NAME
+    ]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} credentials named {CREDENTIAL_NAME}")
 
@@ -188,7 +237,7 @@ def bearer_credential():
         status, body = call(f"{REST}/credentials", method="POST", payload=payload)
         if status not in (200, 201):
             sys.exit(f"FAILED creating {CREDENTIAL_NAME}: {status} {body}")
-        created = (body or {}).get("data") if isinstance(body, dict) else body
+        created = record(body, CREDENTIAL_NAME)
         return {"id": str(created["id"]), "name": CREDENTIAL_NAME}, True
 
     status, body = call(
@@ -276,8 +325,9 @@ def upsert_workflow(key, credential):
     if status != 200:
         sys.exit(f"FAILED listing workflows: {status} {body}")
 
-    existing = (body or {}).get("data") if isinstance(body, dict) else body
-    matches = [flow for flow in existing or [] if flow.get("name") == WORKFLOW_NAME]
+    matches = [
+        flow for flow in records(body, "workflows") if flow.get("name") == WORKFLOW_NAME
+    ]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} workflows named {WORKFLOW_NAME}")
 
