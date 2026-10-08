@@ -18,6 +18,7 @@ config:
         | to_json }}"
     - appid: "spreed"
       configkey: "stun_servers"
+      type: array
       configvalue: >-
         {{
           [
@@ -30,6 +31,7 @@ config:
         }}
     - appid: "spreed"
       configkey: "turn_servers"
+      type: array
       configvalue: >-
         {{
           [
@@ -45,6 +47,7 @@ config:
       configvalue: "{{ NEXTCLOUD_HPB_INTERNAL_SECRET }}"
     - appid: "spreed"
       configkey: "recording_servers"
+      type: array
       configvalue: >-
         {{
           {
