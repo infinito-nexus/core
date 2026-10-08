@@ -8,6 +8,7 @@ Environment:
     ENGINE_MODE:              ``compose`` or ``swarm``.
     AGENT_RUNTIME:            OCI runtime of compose agents.
     AGENT_CONSTRAINT:         placement constraint of swarm agents.
+    AGENT_NETWORK_PREFIX:     name every swarm agent network starts with.
     LITELLM_URL:              gateway base URL.
     LITELLM_KEY:              the broker's own gateway key.
     AGENT_MODEL:              model alias agents are configured with.
@@ -53,11 +54,16 @@ USER_EMAIL_HEADER = "X-OpenWebUI-User-Email"
 HOP_BY_HOP = {"connection", "transfer-encoding", "keep-alive", "content-length"}
 
 ENGINE = Engine(ENV["ENGINE_SOCKET"], timeout=120)
+MAX_RUNNING = int(ENV["MAX_RUNNING"])
 BACKEND = (
-    SwarmBackend(ENGINE, ENV["AGENT_CONSTRAINT"])
+    SwarmBackend(
+        ENGINE, ENV["AGENT_CONSTRAINT"], ENV["AGENT_NETWORK_PREFIX"], MAX_RUNNING
+    )
     if ENV["ENGINE_MODE"] == "swarm"
     else ComposeBackend(ENGINE, ENV["AGENT_RUNTIME"])
 )
+if ENV["ENGINE_MODE"] == "swarm":
+    BACKEND.ensure_pool(socket.gethostname(), ENV["BROKER_ALIAS"])
 AGENTS = Agents(
     backend=BACKEND,
     engine=ENGINE,
@@ -69,7 +75,7 @@ AGENTS = Agents(
     context=int(ENV["AGENT_CONTEXT"] or 0),
     idle_stop=ENV["IDLE_STOP"].lower() == "true",
     idle_seconds=int(ENV["IDLE_MINUTES"]) * 60,
-    max_running=int(ENV["MAX_RUNNING"]),
+    max_running=MAX_RUNNING,
     start_timeout=int(ENV["START_TIMEOUT"]),
 )
 ACCESS = Keycloak(

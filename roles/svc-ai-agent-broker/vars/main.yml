@@ -15,6 +15,7 @@ AGENT_BROKER_MODEL: "{{ AGENT_BROKER_AGENTS.model }}"
 AGENT_BROKER_CONTEXT: "{{ AI_MODEL_CONTEXTS[AGENT_BROKER_MODEL] | default('', true) }}"
 AGENT_BROKER_RUNTIME: "{{ SANDBOX_RUNTIME }}"
 AGENT_BROKER_CONSTRAINT: "node.labels.{{ SANDBOX_NODE_LABEL }} == true"
+AGENT_BROKER_NETWORK_PREFIX: "{{ entity_name }}-agent"
 AGENT_SOCKET_PROXY_NAME: "{{ lookup('config', application_id, 'services.socket-proxy.name') }}"
 AGENT_ENGINE_SOCKET: "{{ [lookup('volume', application_id, 'engine_socket').target, 'engine.sock'] | path_join }}"
 

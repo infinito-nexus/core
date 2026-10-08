@@ -219,27 +219,27 @@ class Agents:
                 if self._running_count() >= self.max_running:
                     raise CapacityError(f"{self.max_running} agents already running")
                 key = secrets.token_urlsafe(32)
-                network_id = self.engine.ensure_network(
+                network_id = self.backend.network_for(
                     name,
-                    self.backend.network_driver,
                     {LABEL_PLATFORM: platform, LABEL_OWNER: owner},
+                    self.self_container,
+                    self.broker_alias,
                 )
-                self.engine.connect(network_id, self.self_container, self.broker_alias)
                 detail = self.backend.create(
                     self._spec(platform, owner, key), network_id
                 )
             else:
-                network_id = self.engine.ensure_network(
+                network_id = self.backend.network_for(
                     name,
-                    self.backend.network_driver,
                     {LABEL_PLATFORM: platform, LABEL_OWNER: owner},
+                    self.self_container,
+                    self.broker_alias,
                 )
-                self.engine.connect(network_id, self.self_container, self.broker_alias)
             key = self._remember(detail)
             if not self.backend.is_running(detail):
                 if self._running_count() >= self.max_running:
                     raise CapacityError(f"{self.max_running} agents already running")
-                self.backend.start(detail)
+                self.backend.start(detail, network_id)
             self._wait_healthy(platform, name, key)
             self._last_used[name] = time.monotonic()
             return f"http://{name}:{self.platforms[platform]['port']}", key
