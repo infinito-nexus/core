@@ -62,9 +62,7 @@ class TestIdentityUsernameCharset(unittest.TestCase):
             if "identity" in (entry.get("accounts") or []) and not (
                 IDENTITY_USERNAME.match(username)
             ):
-                offenders.append(
-                    f"{key}: {username!r} is not lowercase alphanumeric"
-                )
+                offenders.append(f"{key}: {username!r} is not lowercase alphanumeric")
 
         if offenders:
             self.fail(
