@@ -15,6 +15,8 @@ STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefer
 
 MASK_CREDENTIALS_IN_LOGS: true
 
+IAM_USERNAME_MAX_LENGTH: 20 # Discourse refuses a longer one with ActiveRecord::RecordInvalid, and it is the tightest consumer
+
 HOST_CURRENCY: "EUR"
 HOST_TIMEZONE: "UTC"
 HOST_TIMEZONE_LABEL: "United Kingdom"

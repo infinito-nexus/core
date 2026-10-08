@@ -1,6 +1,6 @@
 ---
 web-app-semaphore-breakglass:
-  username: breakglass-administrator
+  username: breakglass-admin
   accounts: []
   forward: platform_administrator
   description: Semaphore local break-glass admin; not provisioned to IAM, mail forwards to the platform administrator mailbox

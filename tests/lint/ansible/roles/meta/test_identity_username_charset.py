@@ -4,11 +4,22 @@ import re
 import unittest
 
 from utils.cache.users import get_user_defaults
+from utils.cache.yaml import load_yaml
 
 from . import PROJECT_ROOT
 
 IDENTITY_USERNAME = re.compile(r"^[a-z0-9]+$")
-IDENTITY_USERNAME_MAX = 20
+_GENERAL_VARS = PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"
+
+
+def username_max_length() -> int:
+    """The username ceiling every IAM consumer is configured against.
+
+    Returns:
+        ``IAM_USERNAME_MAX_LENGTH`` from the global variables, which the
+        Keycloak user profile and the OpenLDAP constraint overlay both render.
+    """
+    return int(load_yaml(str(_GENERAL_VARS))["IAM_USERNAME_MAX_LENGTH"])
 
 
 class TestIdentityUsernameCharset(unittest.TestCase):
@@ -38,27 +49,27 @@ class TestIdentityUsernameCharset(unittest.TestCase):
         was too long stays too long, and the second consumer only speaks up
         once the first is satisfied.
         """
+        maximum = username_max_length()
         users = get_user_defaults(roles_dir=str(PROJECT_ROOT / "roles"))
         offenders: list[str] = []
         for key, entry in sorted(users.items()):
-            if "identity" not in (entry.get("accounts") or []):
-                continue
             username = str(entry.get("username", ""))
-            if not IDENTITY_USERNAME.match(username):
-                offenders.append(
-                    f"{key}: {username!r} is not lowercase alphanumeric"
-                )
-            elif len(username) > IDENTITY_USERNAME_MAX:
+            if len(username) > maximum:
                 offenders.append(
                     f"{key}: {username!r} is {len(username)} characters, "
-                    f"over the {IDENTITY_USERNAME_MAX} Discourse allows"
+                    f"over the {maximum} of IAM_USERNAME_MAX_LENGTH"
+                )
+            if "identity" in (entry.get("accounts") or []) and not (
+                IDENTITY_USERNAME.match(username)
+            ):
+                offenders.append(
+                    f"{key}: {username!r} is not lowercase alphanumeric"
                 )
 
         if offenders:
             self.fail(
-                "These users are registered as an identity but carry a "
-                "username one of Keycloak, Mastodon or Discourse refuses:\n"
-                "  - " + "\n  - ".join(offenders)
+                "These declared users carry a username an IAM consumer "
+                "refuses:\n  - " + "\n  - ".join(offenders)
             )
 
 

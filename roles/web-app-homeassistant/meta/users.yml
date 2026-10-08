@@ -1,5 +1,6 @@
 ---
 mcp-web-app-homeassistant:
+  username: mcp-homeassistant
   firstname: Infinito
   lastname: MCP
   accounts: []

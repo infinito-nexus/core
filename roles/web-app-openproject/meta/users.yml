@@ -1,5 +1,6 @@
 ---
 gitlab-web-app-openproject:
+  username: gitlab-openproject
   firstname: Infinito
   lastname: GitLab
   accounts: []
