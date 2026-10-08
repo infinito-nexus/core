@@ -6,7 +6,7 @@ base_url = "{{ OPENTALK_URL }}"
 
 [http]
 port = {{ OPENTALK_CTRL_INTERNAL_PORT }}
-service_api_keys = [{ "id" = "controller", "secret" = "{{ lookup('config', application_id, 'secrets.credentials.service_api_secret') }}" }]
+service_api_keys = [{ "id" = "{{ OPENTALK_CTRL_SERVICE_API_KEY_ID }}", "secret" = "{{ OPENTALK_CTRL_SERVICE_API_SECRET }}" }]
 
 [database]
 url = "postgres://{{ lookup('database', application_id, 'username') }}:{{ lookup('database', application_id, 'password') }}@{{ lookup('database', application_id, 'host') }}:{{ lookup('database', application_id, 'port') }}/{{ lookup('database', application_id, 'name') }}"
@@ -38,6 +38,9 @@ public_url = "wss://{{ OPENTALK_DOMAIN }}/livekit"
 service_url = "http://livekit:{{ OPENTALK_LIVEKIT_HTTP_PORT }}"
 api_key = "{{ OPENTALK_LIVEKIT_API_KEY }}"
 api_secret = "{{ OPENTALK_LIVEKIT_API_SECRET }}"
+[roomserver.modules.recording]
+url = "http://recorder:{{ OPENTALK_RECORDER_HTTP_PORT }}"
+api_key = { id = "{{ OPENTALK_RECORDER_API_KEY_ID }}", secret = "{{ OPENTALK_RECORDER_API_SECRET }}" }
 [roomserver.modules.echo]
 [roomserver.modules.chat]
 [roomserver.modules.polls]
@@ -55,5 +58,4 @@ secret_key = "{{ lookup('objstore', application_id, 'secret_key') }}"
 [rabbit_mq]
 url = "amqp://guest:guest@rabbit/%2F"
 mail_task_queue = "opentalk_mailer"
-recording_task_queue = "{{ OPENTALK_RABBIT_QUEUE }}"
 
