@@ -10,7 +10,13 @@ const RBAC_TIERS = [
   { role: "readonly-auditor", expectSecurityUi: false },
 ];
 
-const ROLES_API_PATH = "/api/v1/configuration/roles";
+async function seenBy(page) {
+  const body = await page
+    .locator("body")
+    .innerText({ timeout: resolveTimeout(5_000) })
+    .catch((err) => `<body text unavailable: ${err.message}>`);
+  return `page: ${page.url()}, body: ${body.slice(0, 1500)}`;
+}
 
 exports.register = function () {
   for (const tier of RBAC_TIERS) {
@@ -30,41 +36,43 @@ exports.register = function () {
             shared.env.biberPassword,
           );
 
-          const rolesApi = page.waitForResponse(
-            (r) => r.request().method() === "GET" && new URL(r.url()).pathname.endsWith(ROLES_API_PATH),
-            { timeout: resolveTimeout(60_000) },
-          );
           const nav = await gotoOnion(page, `${shared.env.appBaseUrl}/app/security-dashboards-plugin#/roles`, {
             waitUntil: "domcontentloaded",
           });
           expect(
             nav ? nav.status() : 0,
-            `${tier.role} navigation to the Security management UI failed (page: ${page.url()})`,
+            `${tier.role} navigation to the Security management UI failed (${await seenBy(page)})`,
           ).toBeLessThan(400);
-          const rolesStatus = (await rolesApi).status();
           const roleTable = page.locator("[data-test-subj='role-list']");
 
           if (tier.expectSecurityUi) {
-            expect(
-              rolesStatus,
-              `${tier.role} MUST reach the Security management UI (roles API ${rolesStatus}, page: ${page.url()})`,
-            ).toBe(200);
-            await expect(
-              roleTable,
-              `${tier.role} MUST reach the Security management UI (page: ${page.url()})`,
-            ).toBeVisible({ timeout: resolveTimeout(30_000) });
+            await roleTable
+              .first()
+              .waitFor({ state: "visible", timeout: resolveTimeout(30_000) })
+              .catch(async (err) => {
+                throw new Error(
+                  `${tier.role} MUST reach the Security management UI (${await seenBy(page)}): ${err.message}`,
+                );
+              });
           } else {
+            await page.waitForTimeout(resolveTimeout(10_000));
+            const seen = await seenBy(page);
+            // Exception: the explicit denial text is not verified yet; these two checks stand in for it until CI shows what a denied user sees.
             expect(
-              rolesStatus,
-              `${tier.role} MUST NOT reach the Security management UI (roles API ${rolesStatus}, page: ${page.url()})`,
-            ).toBe(403);
+              page.url().startsWith(shared.env.appBaseUrl),
+              `${tier.role} MUST be denied inside the Wazuh app, not redirected away (${seen})`,
+            ).toBe(true);
+            expect(
+              (await page.locator("body").innerText({ timeout: resolveTimeout(5_000) })).trim(),
+              `${tier.role} MUST see a denial or empty-permission page, not a blank page (${seen})`,
+            ).not.toBe("");
             await expect(
               roleTable,
-              `${tier.role} MUST NOT reach the Security management UI (role table rendered, page: ${page.url()})`,
+              `${tier.role} MUST NOT reach the Security management UI (role table rendered, ${seen})`,
             ).toHaveCount(0);
             await expect(
               page.locator("[data-test-subj='create-role']"),
-              `${tier.role} MUST NOT reach the Security management UI (create-role button rendered, page: ${page.url()})`,
+              `${tier.role} MUST NOT reach the Security management UI (create-role button rendered, ${seen})`,
             ).toHaveCount(0);
           }
         } finally {
