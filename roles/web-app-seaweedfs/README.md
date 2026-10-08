@@ -138,6 +138,7 @@ docker run --rm -it \
 - [SeaweedFS on GitHub](https://github.com/seaweedfs/seaweedfs)
 - [SeaweedFS Wiki](https://github.com/seaweedfs/seaweedfs/wiki)
 - [Amazon S3 API](https://aws.amazon.com/s3/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/KARCkLWPrQKjbZDUynYfit)
 
 ## Credits
 

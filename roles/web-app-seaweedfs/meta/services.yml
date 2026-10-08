@@ -45,6 +45,14 @@ prometheus:
   bond: 1
   enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
   shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 50
+      height: 50
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
   healthcheck:

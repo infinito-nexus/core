@@ -17,6 +17,9 @@
     prometheus:
       enabled: "{{ 'svc-net-tor' not in group_names }}"
       shared: "{{ 'svc-net-tor' not in group_names }}"
+    design:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -33,3 +36,6 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false
