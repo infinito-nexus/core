@@ -122,6 +122,15 @@ MOODLE_OIDC_CUSTOM_SCOPE: "{{ lookup('config', 'web-app-keycloak', 'services.key
 MOODLE_OIDC_SCOPES: "openid profile email phone address {{ MOODLE_OIDC_CUSTOM_SCOPE }}"
 
 MOODLE_SITE_TITLE: "{{ lookup('design', application_id).label }}"
+MOODLE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MOODLE_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+MOODLE_DESIGN_PRIMARY: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-primary'] }}"
+MOODLE_DESIGN_LOGO_ENABLED: "{{ MOODLE_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+MOODLE_DESIGN_STAGING_PREFIX: "/tmp/design-"
+MOODLE_DESIGN_LOGO_FILES:
+  logo: "logo.png"
+  logocompact: "logo-compact.png"
+  favicon: "favicon.png"
 
 MOODLE_FPM_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.fpm') }}"
 MOODLE_NGINX_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.http') }}"

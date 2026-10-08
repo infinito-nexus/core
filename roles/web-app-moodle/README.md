@@ -186,6 +186,7 @@ Plugins installed through the web interface live only in the code volume and are
 - [Moodle Official Website](https://moodle.org/)
 - [Moodle Developer Documentation: Docker images](https://moodledev.io/general/app/development/setup/docker-images)
 - [moodlehq/moodle-docker](https://github.com/moodlehq/moodle-docker) (extension list reference)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/AEkEpfFy4RJ5Cx42MCTwJ9)
 
 ## Persona contract opt-outs
 
