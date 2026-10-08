@@ -27,6 +27,9 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
+# nocheck: bond-baseline - a role-local switch with no provider role to place; variant 0 runs with SSO, where two-factor authentication is off
+two_factor:
+  enabled: "{{ MAIL_PROVIDER in group_names and 'web-app-keycloak' not in group_names }}"
 php:
   image: markoshust/magento-php
   version: 8.4-fpm # nocheck: docker-version — magento/product-community-edition 2.4.8 requires php ~8.2.0||~8.3.0||~8.4.0; dc08bc621 already pinned this down from 8.5 and the image bot reverted it in 1e4f82128, so composer install fails again

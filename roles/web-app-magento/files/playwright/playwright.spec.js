@@ -2,6 +2,8 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const { hideUsageNotice, twoFactorEnabled } = require("./admin");
+require("./test-admin-sign-in");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -50,18 +52,13 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-magento admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(catalog|customers|sales|admin)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /catalog|customer|sales|order|magento/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      if (twoFactorEnabled()) return;
+      await hideUsageNotice(interactivePage);
+      await interactivePage.locator(".admin-user .admin__action-dropdown").click({ timeout: resolveTimeout(30_000) });
+      await expect(
+        interactivePage.locator(".admin-user .account-signout"),
+        "the account menu of the admin holds the sign-out control the logout step clicks",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
     },
   });
 });

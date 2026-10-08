@@ -31,3 +31,8 @@ MAGENTO_COMPOSER_REPOSITORY: "{{ lookup('config', application_id, 'services.mage
 MAGENTO_COMPOSER_PACKAGE: "{{ lookup('config', application_id, 'services.magento.composer.package') }}"
 MAGENTO_COMPOSER_VERSION: "{{ lookup('config', application_id, 'services.magento.composer.version') }}"
 MAGENTO_COMPOSER_SPEC: "{{ MAGENTO_COMPOSER_PACKAGE }}={{ MAGENTO_COMPOSER_VERSION }}"
+
+MAGENTO_TWO_FACTOR_ENABLED: "{{ lookup('config', application_id, 'services.two_factor.enabled') | bool }}"
+MAGENTO_TWO_FACTOR_MODULES:
+  - "Magento_TwoFactorAuth"
+  - "Magento_AdminAdobeImsTwoFactorAuth"
