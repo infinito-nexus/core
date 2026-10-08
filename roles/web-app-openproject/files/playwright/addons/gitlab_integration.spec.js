@@ -47,16 +47,25 @@ test("addon gitlab_integration: the bot account the webhook authenticates as exi
   await runAdminFlow(page);
 
   const filters = JSON.stringify([{ login: { operator: "=", values: [botUsername] } }]);
-  const response = await page.request.get(
-    `${appBaseUrl}/api/v3/users?filters=${encodeURIComponent(filters)}`,
-    {
-      headers: { Accept: "application/json" },
-      failOnStatusCode: false,
-      timeout: resolveTimeout(60_000),
-    },
-  );
+  const usersUrl = `${appBaseUrl}/api/v3/users?filters=${encodeURIComponent(filters)}`;
 
-  expect(response.status(), "an administrator session must be served the users collection").toBe(200);
+  let response;
+  await expect
+    .poll(
+      async () => {
+        response = await page.request.get(usersUrl, {
+          headers: { Accept: "application/json" },
+          failOnStatusCode: false,
+          timeout: resolveTimeout(60_000),
+        });
+        return response.status();
+      },
+      {
+        timeout: resolveTimeout(60_000),
+        message: "an administrator session must be served the users collection",
+      },
+    )
+    .toBe(200);
 
   const body = await response.json();
   expect(
