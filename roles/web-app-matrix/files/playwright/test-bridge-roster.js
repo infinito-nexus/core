@@ -16,6 +16,7 @@ const BRIDGE_TO_BOT_LOCALPART = {
   imessage: "imessagebot",
   instagram: "instagrambot",
   mautrix_discord: "discordbot",
+  mautrix_meta: "metabot",
   mautrix_signal: "signalbot",
   mautrix_slack: "slackbot",
   mautrix_telegram: "telegrambot",
