@@ -162,6 +162,14 @@ async function sessionUserId(page, session) {
   return (await me.json()).id;
 }
 
+async function refusalDetail(response) {
+  try {
+    return (await response.text()).replace(/\s+/g, " ").slice(0, 300);
+  } catch (error) {
+    return `body unreadable: ${error.message}`;
+  }
+}
+
 async function listedModels(page, session, path) {
   const resp = await page.request.get(`${session.base}${path}`, { headers: session.headers });
   expect(resp.ok(), `OpenWebUI ${path} (HTTP ${resp.status()})`).toBeTruthy();
@@ -221,7 +229,10 @@ exports.register = function (shared) {
           },
           timeout: resolveTimeout(1_800_000),
         });
-        expect(chat.ok(), `the ${platform} agent must answer through the broker (HTTP ${chat.status()})`).toBeTruthy();
+        expect(
+          chat.ok(),
+          `the ${platform} agent must answer through the broker (HTTP ${chat.status()}: ${await refusalDetail(chat)})`,
+        ).toBeTruthy();
         const content = ((await chat.json())?.choices?.[0]?.message?.content ?? "").trim();
         expect(content, `the ${platform} agent must return an answer through the broker`).not.toBe("");
       }
@@ -249,7 +260,10 @@ exports.register = function (shared) {
             data: { model: granted, messages: [{ role: "user", content: "ping" }], stream: false },
             timeout: resolveTimeout(1_800_000),
           });
-          expect(answered.ok(), `the ${granted} agent must answer while its group is held (HTTP ${answered.status()})`).toBeTruthy();
+          expect(
+            answered.ok(),
+            `the ${granted} agent must answer while its group is held (HTTP ${answered.status()}: ${await refusalDetail(answered)})`,
+          ).toBeTruthy();
 
           for (const withheld of platforms.filter((platform) => platform !== granted)) {
             expect(models, `${withheld} must stay hidden while biber holds only the ${granted} group`).not.toContain(withheld);
