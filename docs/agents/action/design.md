@@ -17,7 +17,7 @@ For tokens, the cascade layer and the role stylesheet contract see [style.css](.
   3. Ties: the most recently changed role first.
 - `review` roles carry an uncommitted design spec. They wait for the operator and MUST NOT be picked again unless the operator rejected their gallery.
 - `current` roles need no work.
-- You MUST work exactly one role and run exactly one compose stack at a time.
+- You MUST run exactly one compose stack at a time. One role is in progress at a time unless the operator ordered [parallel passes](#parallel-passes).
 
 ## Cadence
 
@@ -26,6 +26,21 @@ For tokens, the cascade layer and the role stylesheet contract see [style.css](.
 - When nothing is due and no gallery awaits an answer, report the status matrix (approved, in review, rejected, due) and wait for the next tick.
 - A role pass has a wall-clock budget: 80 minutes when the injected role stylesheet carries the palette alone, 120 with an in-house carrier or any provisioning change, 180 for a role with several separate surfaces. At the budget, stop polishing, close the pass and list what is left.
 - While the role in progress occupies the stack, a second agent MAY prepare the next due role: it reads the upstream sources of that app and drafts outside the repository. It MUST NOT touch the working tree or the stack.
+
+## Parallel passes
+
+On the operator's order up to four role passes run at the same time on the one stack, each by its own agent.
+
+- One baseline deploy carries the whole batch: `apps=<role>,<role>,...` with the variant and the disable list of a single pass. A role's own service key is taken out of the list and restored through `INFINITO_INVENTORY_EXTRA_VARS`. Pass agents run no full deploy.
+- Every command that touches the stack, the test suite or a lint target runs as `flock /tmp/design-pass.lock <command>`, one command per lock. Editing files and reading sources needs no lock.
+- Every locked command carries its own cap, `flock /tmp/design-pass.lock timeout <seconds> <command>`: 300 for a `diag:` run or single gallery views, 900 for a spec run, a full gallery or the palette check, 1500 for a role sync, 600 for `make test` or a lint target. A run that hits its cap is measured with a `diag:` run at one viewport and not repeated with a longer cap.
+- A ready wait in a gallery `prepare` or a page helper is at most 10 seconds and has passed in a `diag:` run at one viewport before a run captures more than one view.
+- Wait for the lock with `timeout 570 flock /tmp/design-pass.lock true`: exit 124 means it is still held.
+- An image pull or any other download runs without the lock and under `timeout`.
+- An agent edits only `roles/<its role>/`. A test or lint finding in another role's in-flight files belongs to that role's agent: name the path in the report and do not fix it.
+- A role stylesheet with a broken `url()` fails the stack-wide unit `hlth-csp` for every role: read the unit's journal before blaming your own change for a red role sync.
+- The orchestrator verifies each pass as it reports, then runs `make quality-high` once over the batch while every agent holds still.
+- While a batch runs, further agents prepare the next batch as described under "Cadence".
 
 ## Gates
 
