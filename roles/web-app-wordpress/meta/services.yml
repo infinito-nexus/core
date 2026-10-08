@@ -47,7 +47,7 @@ wordpress:
       enabled: true
     swarm:
       enabled: true
-  version: 7.1.2
+  version: 7.1.3
   image: wordpress
   custom: true
   name: wordpress

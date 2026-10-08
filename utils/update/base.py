@@ -105,3 +105,19 @@ def is_maintained(roles_root: Path, role: str) -> bool:
     """
     lifecycle = get_role_lifecycle(roles_root / role, role_name=role)
     return lifecycle not in UNMAINTAINED_LIFECYCLES
+
+
+def declares_source(config: object, key: str) -> bool:
+    """Report whether a services entity names its own upstream for a pin.
+
+    Args:
+        config: one entity of ``meta/services.yml``.
+        key: the pinned key; an ``update:`` block without ``key`` names
+            ``version``.
+    """
+    declared = config.get("update") if isinstance(config, dict) else None
+    sources = declared if isinstance(declared, list) else [declared]
+    return any(
+        isinstance(source, dict) and source.get("key", "version") == key
+        for source in sources
+    )

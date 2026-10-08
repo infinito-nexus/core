@@ -21,7 +21,9 @@ stalwart:
 ```
 
 `key` names the pinned key and defaults to `version`; an entity with several
-pins declares a list of such blocks. Types:
+pins declares a list of such blocks. An `image` + `version` pin that declares a
+source for `version` is bumped from that source alone, the Docker updater skips
+it. Types:
 
 | `type`          | Fields                | Reads                                  |
 | --------------- | --------------------- | -------------------------------------- |
