@@ -97,7 +97,6 @@ MATRIX_ADDON_BAIBOT_LOCALPART: "{{ lookup('config', application_id, 'addons.baib
 MATRIX_ADDON_BAIBOT_PASSWORD: "{{ lookup('config', application_id, 'addons.baibot.config.user_password') }}"
 MATRIX_ADDON_BAIBOT_AGENT_ID: "{{ lookup('config', application_id, 'addons.baibot.config.agent_id') }}"
 MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED: "{{ lookup('config', application_id, 'addons.synapse-usage-exporter.enabled') | bool }}"
-MATRIX_SYNAPSE_METRICS_PORT: "{{ lookup('config', application_id, 'services.prometheus.native_metrics.port') }}"
 
 MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-gitlab.enabled') | bool }}"
 MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-jira.enabled') | bool }}"
