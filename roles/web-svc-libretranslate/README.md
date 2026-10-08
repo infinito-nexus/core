@@ -149,6 +149,10 @@ Key sections include:
 The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (`/translate`, `/detect`, …); see [`meta/services.yml`](./meta/services.yml). Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under [Single sign-on](#single-sign-on) above.
 A non-admin visitor therefore has no UI session to drive, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run unconditionally.
 
+## Further resources
+
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/AsZHqKHUUjvrPuaHAyhe7X)
+
 ## Credits
 
 Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
