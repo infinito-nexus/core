@@ -8,7 +8,6 @@ sso:
   oidc:
     email_by_username: true
     enable_user_creation: true
-    submission_via_relay: true
     clients:
       webui: stalwart-webui
       webmail: stalwart-webmail

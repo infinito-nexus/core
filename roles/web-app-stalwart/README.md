@@ -57,7 +57,7 @@ flowchart LR
     STALWART -- "OIDC directory<br/>(token validation)" --> KC
     MAIL_VHOST -. "SPA login: PKCE<br/>(stalwart-webui client)" .-> KC
     WEBMAIL_VHOST -. "OAuth login" .-> KC
-    APPS -- "STARTTLS :25, no AUTH<br/>(SSO relay, trusted networks)" --> STALWART
+    APPS -- "SMTPS :465, AUTH<br/>(bot credential from the token store)" --> STALWART
     WORLD <-- "public mail ports<br/>(only when active MAIL_PROVIDER)" --> STALWART
 ```
 
@@ -151,19 +151,23 @@ delegates **interactive** authentication to Keycloak:
 
 **Design constraint (validated against the live JMAP schema):** Stalwart's
 authentication directory is *Internal XOR one external directory* — there is no
-chaining or fallback. Enabling SSO therefore **disables password submission**
-for every account, including the machine `no-reply` account. To keep outbound
-notifications working, the role:
+chaining or fallback. Enabling SSO therefore **disables the account password**
+for every account, including the machine `no-reply` account. App passwords are
+checked before the directory and keep working, so with SSO enabled the role:
 
-1. Widens `x:MtaStageRcpt.allowRelaying` to trust the internal Docker networks
-   (`STALWART_TRUSTED_NETWORKS`), so the bot relays without SMTP AUTH; and
-2. Self-declares `services.sso.oidc.submission_via_relay: true`, which makes
-   [`plugins/lookup/email.py`](../../plugins/lookup/email.py) switch the
-   `no-reply` client to unauthenticated STARTTLS relay on port 25.
+1. Creates one app password per bot account, acting for that account as the
+   recovery admin (`tasks/04_manage_user/app_password.yml`), and
+2. Stores it in the token store, where
+   [`plugins/lookup/email.py`](../../plugins/lookup/email.py) reads the SMTP
+   password of the `no-reply` client.
 
-With SSO disabled the role uses the Internal directory and password submission,
-exactly as before. Mailu keeps password submission in both modes and does not
-set `submission_via_relay`.
+A bot gets a new app password when its entry named
+`STALWART_BOT_APP_PASSWORD_DESCRIPTION` is deleted in Stalwart or its token is
+removed from the token store. Relaying stays limited to authenticated sessions
+in both modes (`STALWART_RELAY_RULE`).
+
+With SSO disabled the role uses the Internal directory and the bot's derived
+account password.
 
 ## Calendar & Contacts (CalDAV / CardDAV / WebDAV)
 
@@ -195,8 +199,8 @@ account (or the Keycloak SSO token when SSO is enabled).
 - **`config.json` is bootstrap-only** (data store selection); all other
   configuration lives in the database and is provisioned over JMAP
   (`templates/jmap/*.json.j2`).
-- **Under SSO, trusted internal networks relay without SMTP AUTH** — the
-  no-reply bot has no password once the auth directory is OIDC.
+- **Only authenticated sessions relay, with or without SSO.** Under SSO a bot
+  authenticates with an app password.
 
 ## Features
 
