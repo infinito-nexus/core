@@ -46,7 +46,7 @@ It hooks `http_api_curl` rather than `http_request_args` because the args array 
 - The sign-in page gets `login.css`, the site logo as its logo, the site as the logo link and the site title as its text.
 - `enqueue_block_assets` hands the token stylesheet to the editor canvas.
 
-The stylesheets under [files/css](../css/) are generated and hold `var(--design-*)` references only.
+The stylesheets under `files/css` are generated and hold `var(--design-*)` references only.
 
 ## Deployment 🚚
 
