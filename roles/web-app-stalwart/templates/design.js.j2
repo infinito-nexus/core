@@ -37,10 +37,13 @@
 {% endif %}
 {% if design.logo is string %}
   function brandIcon() {
-    var icons = document.querySelectorAll("link[rel~='icon'][href$='favicon.svg']");
+    var wanted = {{ design.urls.favicon_ico | to_json }};
+    var icons = document.querySelectorAll("link[rel~='icon']");
     for (var index = 0; index < icons.length; index += 1) {
-      icons[index].setAttribute("type", "image/x-icon");
-      icons[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+      if (icons[index].getAttribute("href") !== wanted) {
+        icons[index].setAttribute("type", "image/x-icon");
+        icons[index].setAttribute("href", wanted);
+      }
     }
   }
   new MutationObserver(brandIcon).observe(document.head, { childList: true, subtree: true });
