@@ -42,15 +42,17 @@ class TestChooseLayout(unittest.TestCase):
 
 class TestRenderAssets(unittest.TestCase):
     SLOTS: ClassVar[dict] = {
-        "icon": {"width": 512, "height": 512, "text_only": False},
-        "header": {"width": 320, "height": 64, "text_only": False},
-        "banner": {"width": 960, "height": 160, "text_only": False},
-        "wordmark": {"width": 320, "height": 64, "text_only": True},
+        "icon": {"width": 512, "height": 512, "text_only": False, "frame": False},
+        "header": {"width": 320, "height": 64, "text_only": False, "frame": False},
+        "banner": {"width": 960, "height": 160, "text_only": False, "frame": False},
+        "wordmark": {"width": 320, "height": 64, "text_only": True, "frame": False},
+        "topbar": {"width": 320, "height": 64, "text_only": False, "frame": True},
     }
+    COLORS: ClassVar[tuple] = ("#001f3f", "#ffffff", "#fefefe", "#00152c")
 
     def test_every_slot_renders_png_and_svg_at_its_size(self) -> None:
         assets = render_assets(
-            LOGO, "Gitea", "git.example.org", "#001f3f", "#ffffff", self.SLOTS
+            LOGO, "Gitea", "git.example.org", *self.COLORS, self.SLOTS
         )
         for name, spec in self.SLOTS.items():
             with self.subTest(slot=name):
@@ -64,7 +66,7 @@ class TestRenderAssets(unittest.TestCase):
 
     def test_text_carries_fill_and_outline(self) -> None:
         assets = render_assets(
-            LOGO, "Gitea", "git.example.org", "#001f3f", "#ffffff", self.SLOTS
+            LOGO, "Gitea", "git.example.org", *self.COLORS, self.SLOTS
         )
         texts = TEXT_RE.findall(assets["banner.svg"].decode("utf-8"))
         self.assertEqual(
@@ -75,17 +77,26 @@ class TestRenderAssets(unittest.TestCase):
             self.assertIn('stroke="#ffffff"', attrs)
             self.assertIn("textLength=", attrs)
 
+    def test_frame_slot_takes_the_frame_colors(self) -> None:
+        assets = render_assets(
+            LOGO, "Gitea", "git.example.org", *self.COLORS, self.SLOTS
+        )
+        texts = TEXT_RE.findall(assets["topbar.svg"].decode("utf-8"))
+        self.assertEqual([content for _, content in texts], ["Gitea"])
+        for attrs, _ in texts:
+            self.assertIn('fill="#fefefe"', attrs)
+            self.assertIn('stroke="#00152c"', attrs)
+        self.assertNotEqual(assets["topbar.png"], assets["header.png"])
+
     def test_favicon_holds_every_size(self) -> None:
         assets = render_assets(
-            LOGO, "Gitea", "git.example.org", "#001f3f", "#ffffff", self.SLOTS
+            LOGO, "Gitea", "git.example.org", *self.COLORS, self.SLOTS
         )
         icon = Image.open(io.BytesIO(assets["favicon.ico"]))
         self.assertEqual(icon.info["sizes"], {(16, 16), (32, 32), (48, 48), (64, 64)})
 
     def test_disabled_title_drops_text_only_slots_and_text(self) -> None:
-        assets = render_assets(
-            LOGO, False, "git.example.org", "#001f3f", "#ffffff", self.SLOTS
-        )
+        assets = render_assets(LOGO, False, "git.example.org", *self.COLORS, self.SLOTS)
         self.assertNotIn("wordmark.png", assets)
         self.assertNotIn(b"<text", assets["banner.svg"])
 

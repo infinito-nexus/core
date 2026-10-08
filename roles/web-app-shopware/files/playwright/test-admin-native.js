@@ -106,6 +106,12 @@ test("administrator: admin login → catalogue → in-app logout", async ({ page
       },
     )
     .toBe(false);
+  if (!ssoEnabled) {
+    await expect(
+      page,
+      "without a provider the administration routes itself to its login form after the logout; a navigation started before that lands is interrupted by it",
+    ).toHaveURL(/#\/login/, { timeout: resolveTimeout(30_000) });
+  }
   await gotoOnion(page, `${appBaseUrl}/admin`, { waitUntil: "domcontentloaded" });
 
   await expect(
@@ -170,3 +176,5 @@ test("administrator: the admin session outlives a logout whose sweep never lands
     "with the conductor blocked the admin cookie must survive: its Clear-Site-Data header is what deletes it across the registrable domain, and the injected logout redirect preempts Shopware's own clearAuthState, so the sibling test's wait is load-bearing rather than decorative",
   ).toBe(true);
 });
+
+module.exports = { signIn, dismissFirstRunWizard };

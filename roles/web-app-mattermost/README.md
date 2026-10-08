@@ -115,6 +115,7 @@ The named volumes `plugins` and `client-plugins` declared in `meta/volumes.yml` 
 - [Mattermost Docker Install](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)
 - [Mattermost Configuration Settings](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)
 - [GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/7PYjn1XjbySfjWBhbzzUyS)
 
 ## Persona contract opt-outs
 

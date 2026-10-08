@@ -84,6 +84,10 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 280
+      height: 80
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:

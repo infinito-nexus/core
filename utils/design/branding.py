@@ -73,6 +73,7 @@ def _slots(raw: dict) -> dict[str, dict]:
             "width": width,
             "height": height,
             "text_only": bool(spec.get("text_only", False)),
+            "frame": bool(spec.get("frame", False)),
         }
     return slots
 
@@ -95,10 +96,12 @@ def resolve_branding(
         ``{"logo": <absolute path> | False, "title": <str> | False,
         "name": <README H1>, "label": <title, else name>,
         "bootstrap": <bool>,
-        "slots": {name: {"width", "height", "text_only"}}}``. ``label`` serves
-        installers that require a site name even when the title replacement
-        is disabled. ``bootstrap`` tells whether the role links the shared
-        Bootstrap component mapping.
+        "slots": {name: {"width", "height", "text_only", "frame"}}}``.
+        ``label`` serves installers that require a site name even when the
+        title replacement is disabled. ``bootstrap`` tells whether the role
+        links the shared Bootstrap component mapping. A slot with ``frame``
+        set is shown on brand-colored chrome, so its text takes the frame
+        text color.
 
     Raises:
         ValueError: When the logo file is missing, a slot is malformed or the

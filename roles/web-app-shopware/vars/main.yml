@@ -38,6 +38,37 @@ SHOPWARE_OIDC_INTERNAL_BASE: "http://{{ lookup('container_service', 'web-app-key
   }}" # nocheck: literal-protocol-lookup  container-to-container hop that must bypass the canonical URL, because cURL refuses the .onion name the tls lookup returns
 SHOPWARE_API_BASE: "http://127.0.0.1:{{ lookup('config', application_id, 'services.web.ports.internal.http') }}"
 
+SHOPWARE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SHOPWARE_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+SHOPWARE_DESIGN_THEME_COLORS:
+  sw-background-color: "--design-surface-1"
+  sw-border-color: "--design-border-strong"
+  sw-color-brand-primary: "--design-primary"
+  sw-color-brand-secondary: "--design-text-muted"
+  sw-color-buy-button: "--design-primary"
+  sw-color-buy-button-text: "--design-on-primary"
+  sw-color-danger: "--design-danger"
+  sw-color-info: "--design-info"
+  sw-color-price: "--design-text"
+  sw-color-success: "--design-success"
+  sw-color-warning: "--design-warning"
+  sw-headline-color: "--design-text"
+  sw-text-color: "--design-text"
+SHOPWARE_DESIGN_THEME_MEDIA:
+  sw-logo-desktop: "{{ lookup('design', application_id).urls.logo.svg }}"
+  sw-logo-favicon: "{{ lookup('design', application_id).urls.favicon.png }}"
+  sw-logo-mobile: "{{ lookup('design', application_id).urls.logo.svg }}"
+  sw-logo-share: "{{ lookup('design', application_id).urls['apple-touch-icon'].png }}"
+  sw-logo-tablet: "{{ lookup('design', application_id).urls.logo.svg }}"
+SHOPWARE_DESIGN_THEME_VALUES: >-
+  {{
+    dict(SHOPWARE_DESIGN_THEME_COLORS.keys() | zip(SHOPWARE_DESIGN_THEME_COLORS.values() | map('extract', SHOPWARE_DESIGN_PALETTE)))
+    | combine(SHOPWARE_DESIGN_THEME_MEDIA if lookup('design', application_id).logo is string else {})
+    if SHOPWARE_DESIGN_ENABLED else {}
+  }}
+SHOPWARE_DESIGN_SHOP_NAME: >-
+  {{ lookup('design', application_id).title if SHOPWARE_DESIGN_ENABLED and lookup('design', application_id).title is string else '' }}
+
 SHOPWARE_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 SHOPWARE_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 

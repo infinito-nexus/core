@@ -25,6 +25,7 @@ A wall's `config.servers` may be left empty to auto-fill with the active Mastodo
 
 - [Fediwall GitHub Repository](https://github.com/defnull/fediwall)
 - [Public demo: fediwall.social](https://fediwall.social/)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Y7qKDVyhjnh5yGPZMtPuFA)
 
 ## Persona contract opt-outs
 

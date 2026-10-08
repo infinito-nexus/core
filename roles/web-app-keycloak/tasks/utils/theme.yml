@@ -24,6 +24,8 @@
         domain: "{{ kc_design.domain }}"
         fill: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
         stroke: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
+        frame_fill: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
+        frame_stroke: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
         slots: "{{ {'brand': KEYCLOAK_DESIGN_BRAND} }}"
         dest: "{{ KEYCLOAK_DESIGN_DIR }}"
 

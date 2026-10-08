@@ -9,7 +9,17 @@ from plugins.action.stack_host_copy import ActionModule as StackHostCopyAction
 from utils.design.branding import is_disabled
 from utils.design.logo import render_assets
 
-_REQUIRED = ("logo", "title", "domain", "fill", "stroke", "slots", "dest")
+_REQUIRED = (
+    "logo",
+    "title",
+    "domain",
+    "fill",
+    "stroke",
+    "frame_fill",
+    "frame_stroke",
+    "slots",
+    "dest",
+)
 
 
 class ActionModule(StackHostCopyAction):
@@ -21,10 +31,12 @@ class ActionModule(StackHostCopyAction):
       logo    absolute logo path
       title   title text, or false
       domain  role domain
-      fill    text color
-      stroke  text outline color
-      slots   {name: {width, height, text_only}}
-      dest    destination directory on the stack host
+      fill          text color of a slot on a page or panel
+      stroke        text outline color of a slot on a page or panel
+      frame_fill    text color of a slot on brand-colored chrome
+      frame_stroke  text outline color of a slot on brand-colored chrome
+      slots         {name: {width, height, text_only, frame}}
+      dest          destination directory on the stack host
     """
 
     def run(
@@ -47,6 +59,8 @@ class ActionModule(StackHostCopyAction):
                 args["domain"],
                 args["fill"],
                 args["stroke"],
+                args["frame_fill"],
+                args["frame_stroke"],
                 args["slots"],
             )
             for name, content in assets.items():

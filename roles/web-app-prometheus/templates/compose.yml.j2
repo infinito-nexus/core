@@ -13,6 +13,9 @@
       - "--storage.tsdb.path={{ lookup('volume', 'web-app-prometheus', 'data').target }}"
       - "--query.timeout={{ PROMETHEUS_QUERY_TIMEOUT }}"
       - "--web.enable-lifecycle"
+      {% if PROMETHEUS_PAGE_TITLE | length > 0 %}
+      - {{ ('--web.page-title=' ~ PROMETHEUS_PAGE_TITLE) | to_json }}
+      {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}

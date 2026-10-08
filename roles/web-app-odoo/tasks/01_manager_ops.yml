@@ -77,3 +77,6 @@
 - name: "♻️ Reload Odoo so the SQL-provisioned config takes effect"
   include_tasks: 08_reload_provisioned_config.yml
   when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool) or (ODOO_OBJSTORE_ENABLED | bool)
+
+- name: "🎨 converge corporate design"
+  include_tasks: 07_design.yml

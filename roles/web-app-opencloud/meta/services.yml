@@ -56,11 +56,20 @@ opencloud:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-# nocheck: playwright-service-flag — verified by web-svc-design provider spec
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 240
+      height: 70
+    logo-mobile:
+      width: 70
+      height: 70
+    favicon:
+      width: 180
+      height: 180
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

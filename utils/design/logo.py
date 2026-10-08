@@ -245,6 +245,8 @@ def render_assets(
     domain: str,
     fill: str,
     stroke: str,
+    frame_fill: str,
+    frame_stroke: str,
     slots: dict[str, dict],
 ) -> dict[str, bytes]:
     """Render every slot as PNG and SVG plus ``favicon.ico``.
@@ -253,9 +255,11 @@ def render_assets(
         logo_path: Logo file.
         title: Title text, or ``False`` when titles are disabled.
         domain: Role domain.
-        fill: Text color.
-        stroke: Text outline color.
-        slots: ``{name: {"width", "height", "text_only"}}``.
+        fill: Text color of a slot on a page or panel.
+        stroke: Text outline color of a slot on a page or panel.
+        frame_fill: Text color of a slot on brand-colored chrome.
+        frame_stroke: Text outline color of a slot on brand-colored chrome.
+        slots: ``{name: {"width", "height", "text_only", "frame"}}``.
 
     Returns:
         ``{filename: content}``.
@@ -272,8 +276,8 @@ def render_assets(
             logo_path,
             str(title),
             domain,
-            fill,
-            stroke,
+            frame_fill if spec["frame"] else fill,
+            frame_stroke if spec["frame"] else stroke,
             spec["width"],
             spec["height"],
             layout,

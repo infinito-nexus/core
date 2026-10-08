@@ -1,0 +1,14 @@
+---
+- name: "🎨 Apply or withdraw the corporate theme values and the shop name"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      -e DESIGN_ENABLED={{ SHOPWARE_DESIGN_ENABLED | string | lower | quote }}
+      -e DESIGN_SHOP_NAME={{ SHOPWARE_DESIGN_SHOP_NAME | quote }}
+      -e DESIGN_VALUES={{ SHOPWARE_DESIGN_THEME_VALUES | to_json | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      php
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/php/design/theme.php') }}"
+  register: shopware_design_theme
+  changed_when: shopware_design_theme.stdout_lines | last != 'unchanged'

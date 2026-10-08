@@ -68,12 +68,15 @@ redis:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
-# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: "{{ service_provider.platform.titel }}"
+  slots:
+    logo:
+      width: 288
+      height: 90
 # nocheck: dynamic-flag
 prometheus:
   bond: 1

@@ -1,0 +1,45 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  var prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+  function mirror() {
+    var theme = root.getAttribute("data-bs-theme");
+    var explicit = theme === "light" || theme === "dark";
+    if (explicit && (theme === "dark") !== prefersDark.matches) {
+      root.setAttribute("data-design-theme", theme);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["data-bs-theme"] });
+  prefersDark.addEventListener("change", mirror);
+  mirror();
+{% if design.title is string %}
+  var title = {{ design.title | to_json }};
+  function brandTitle() {
+    var current = document.title;
+    if (current.indexOf(title) === -1) {
+      document.title = current ? current + " - " + title : title;
+    }
+  }
+  var titleElement = document.querySelector("title");
+  if (titleElement) {
+    new MutationObserver(brandTitle).observe(titleElement, { childList: true, characterData: true, subtree: true });
+    brandTitle();
+  }
+{% endif %}
+{% if design.logo is string %}
+  var icons = {
+    "image/png": {{ design.urls.favicon.png | to_json }},
+    "image/svg+xml": {{ design.urls.favicon.svg | to_json }},
+    "image/vnd.microsoft.icon": {{ design.urls.favicon_ico | to_json }}
+  };
+  var links = document.querySelectorAll("link[rel~='icon']");
+  for (var index = 0; index < links.length; index += 1) {
+    var href = icons[links[index].getAttribute("type")] || icons["image/vnd.microsoft.icon"];
+    if (links[index].getAttribute("href") !== href) {
+      links[index].setAttribute("href", href);
+    }
+  }
+{% endif %}
+})();

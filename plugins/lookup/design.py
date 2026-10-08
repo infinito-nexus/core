@@ -21,7 +21,7 @@ class LookupModule(LookupBase):
       title  title text, or False when the replacement is disabled
       name   role README H1
       label  title, else name (for installers that require a site name)
-      slots  {name: {width, height, text_only}}
+      slots  {name: {width, height, text_only, frame}}
       domain canonical domain of the role
       dest   CDN directory the generated assets are written to
       urls   {"favicon_ico": url, "<slot>": {"png": url, "svg": url}}

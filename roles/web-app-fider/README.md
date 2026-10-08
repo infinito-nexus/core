@@ -41,6 +41,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 ## Further resources
 
 - [Fider GitHub](https://github.com/getfider/fider)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/GBZy3tjQUB7Uw6JtAmpeQR)
 
 ## Persona contract opt-outs
 

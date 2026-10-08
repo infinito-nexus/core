@@ -24,6 +24,7 @@ The app runs as a single Docker container and requires no database or backend se
 - 🧩 Upstream project: [lyqht/mini-qr](https://github.com/lyqht/mini-qr)
 - 📦 Upstream Dockerfile: [View on GitHub](https://github.com/lyqht/mini-qr/blob/main/Dockerfile)
 - 🌐 Docker Image: `ghcr.io/lyqht/mini-qr:latest`
+- 🎨 [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Cd8zt8mspm6aZUzKxcpRgS)
 
 ## Persona contract opt-outs
 

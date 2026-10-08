@@ -23,6 +23,7 @@ This role deploys KIX as an Infinito.Nexus web app behind the project's standard
 
 - [KIX Start website](https://www.kixdesk.com/)
 - [KIX documentation](https://docs.kixdesk.com/)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/QHaHoFMnHyx4tgizNu9KKc)
 
 ## Persona contract opt-outs
 

@@ -160,6 +160,18 @@ design:
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: "{{ ORGANIZATION }} Shop"
+  bootstrap: true
+  slots:
+    logo:
+      width: 300
+      height: 60
+    favicon:
+      width: 96
+      height: 96
+    menu-logo:
+      width: 34
+      height: 34
+      frame: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

@@ -8,6 +8,9 @@ LITTLEJS_HEADLINE: "LittleJS Playground"
 
 LITTLEJS_TITLE: "{{ LITTLEJS_HEADLINE }} – {{ DOMAIN_PRIMARY | upper }}"
 
+LITTLEJS_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+LITTLEJS_DESIGN_LOGO_ENABLED: "{{ LITTLEJS_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+
 # Clone coordinates — SPOT in meta/services.yml
 LITTLEJS_REPOSITORY: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.repository') }}"
 LITTLEJS_REF: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.ref') }}"

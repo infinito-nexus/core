@@ -19,6 +19,7 @@ This role deploys Prometheus as part of the Infinito.Nexus stack using Docker Co
 
 - [Prometheus Documentation](https://prometheus.io/docs/)
 - [prom/prometheus Docker image](https://hub.docker.com/r/prom/prometheus)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/AErHLwwizVRJdT1jiM4xrM)
 
 ## Persona contract opt-outs
 

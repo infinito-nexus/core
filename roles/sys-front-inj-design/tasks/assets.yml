@@ -13,5 +13,7 @@
     domain: "{{ design_branding.domain }}"
     fill: "{{ _palette.light['--design-primary'] }}"
     stroke: "{{ _palette.light['--design-on-primary'] }}"
+    frame_fill: "{{ _palette.light['--design-on-frame'] }}"
+    frame_stroke: "{{ _palette.light['--design-frame'] }}"
     slots: "{{ design_branding.slots }}"
     dest: "{{ design_assets_dest }}"

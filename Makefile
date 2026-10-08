@@ -214,9 +214,11 @@ compose-down:
 	@"$${PYTHON}" -m cli.administration.deploy.development down
 
 .PHONY: compose-entity-purge
-# Purge one or more app entities from the container.
+# Purge one or more app entities from the container and drop them from the round inventories.
+# Usage: make compose-entity-purge apps=<application_id>[,<application_id>...]
+# Param apps: application ids to purge
 compose-entity-purge:
-	@bash scripts/tests/deploy/local/purge/entity.sh
+	@retire=true bash scripts/tests/deploy/local/purge/entity.sh
 
 .PHONY: compose-exec
 # Run a shell or one-off command in the running development container.

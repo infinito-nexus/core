@@ -26,6 +26,7 @@ See [IAM.md](docs/IAM.md) for OIDC discovery and verification commands, and [LDA
 - [opencloud.eu](https://opencloud.eu/)
 - [OpenCloud documentation](https://docs.opencloud.eu/)
 - [opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/PP8jVeTSNBXdJR1NGakVZN)
 
 ## Persona contract opt-outs
 
