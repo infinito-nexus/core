@@ -1,6 +1,6 @@
 /**
- * Corporate design assertions and the before/after gallery capture shared by
- * every role spec whose role consumes the `design` service.
+ * Corporate design assertions and the gallery capture shared by every role
+ * spec whose role consumes the `design` service.
  *
  * - `assertDesignTokens(page, label)`: the `--design-*` tokens are present and
  *   switch between light and dark mode.
@@ -17,16 +17,17 @@
  *   unless it is optional, and at least one element must be measured.
  * - `galleryEnabled()`: true when `INFINITO_PLAYWRIGHT_KEEP=true`.
  * - `captureDesignGallery(page, views)`: per view, color mode and viewport one
- *   screenshot with the injected CSS/JS (`/reports/design/after/`) and one with
- *   every injected snippet stripped from the document
- *   (`/reports/design/before/`), named `<view>-<mode>-<viewport>.png`. Each
- *   screenshot waits up to `SETTLE_TIMEOUT_MS` for finite animations to end.
+ *   screenshot with the injected CSS/JS (`/reports/design/after/`), named
+ *   `<view>-<mode>-<viewport>.png`. Each screenshot waits up to
+ *   `SETTLE_TIMEOUT_MS` for finite animations to end.
  *   A view is `{ name, url, prepare?, afterOnly? }`: `prepare(page)` brings the
- *   opened page into the state to capture, `afterOnly: true` skips the plain
- *   side for a state that only exists with the injected snippets. A plain
- *   side that still carries the snippets fails the view.
+ *   opened page into the state to capture.
  *   `PLAYWRIGHT_GALLERY_VIEWS` (comma-separated names) limits the
  *   capture to those views.
+ *   `PLAYWRIGHT_GALLERY_BEFORE=true` also captures every view with every
+ *   injected snippet stripped from the document (`/reports/design/before/`).
+ *   `afterOnly: true` skips that plain side for a state that only exists with
+ *   the injected snippets; a plain side that still carries them fails the view.
  */
 
 const { expect } = require("@playwright/test");
@@ -46,6 +47,7 @@ const GALLERY_VIEWS = (process.env.PLAYWRIGHT_GALLERY_VIEWS || "")
   .split(",")
   .map((name) => name.trim())
   .filter(Boolean);
+const GALLERY_SIDES = process.env.PLAYWRIGHT_GALLERY_BEFORE === "true" ? ["after", "before"] : ["after"];
 const SETTLE_TIMEOUT_MS = 5_000;
 const FREEZE_CSS = "*, *::before, *::after { transition: none !important; }";
 
@@ -237,7 +239,7 @@ async function captureDesignGallery(page, views) {
   const failures = [];
   // Chromium counts the fulfilled "before" document as public address space and blocks its cross-origin assets on the local stack.
   await page.context().grantPermissions(["local-network-access"]);
-  for (const side of ["after", "before"]) {
+  for (const side of GALLERY_SIDES) {
     if (side === "before") await page.route("**/*", stripInjectedSnippets);
     for (const [viewport, size] of Object.entries(VIEWPORTS)) {
       await page.setViewportSize(size);
