@@ -1,0 +1,26 @@
+body.bg-light {
+  --bs-light-rgb: var(--design-surface-1-rgb);
+}
+
+.table {
+  --bs-table-bg: var(--design-surface-2);
+  --bs-table-striped-bg: var(--design-surface-3);
+}
+
+.table-light {
+  --bs-table-color: var(--design-text);
+  --bs-table-bg: var(--design-surface-3);
+  --bs-table-border-color: var(--design-border);
+}
+
+.table > tbody > tr > td.status-in-process {
+  color: var(--design-warning);
+}
+
+.table > tbody > tr > td.status-success {
+  color: var(--design-success);
+}
+
+.table > tbody > tr > td.status-failure {
+  color: var(--design-danger);
+}

@@ -26,3 +26,4 @@ A node that does not run this role keeps its object store and its S3 endpoint; i
 
 - [SeaweedFS on GitHub](https://github.com/seaweedfs/seaweedfs)
 - [SeaweedFS Wiki](https://github.com/seaweedfs/seaweedfs/wiki)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/KARCkLWPrQKjbZDUynYfit)

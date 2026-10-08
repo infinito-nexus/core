@@ -1,0 +1,96 @@
+---
+- name: "🔍 Resolve the node that holds '{{ JOOMLA_CONTAINER }}' for the design"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: JOOMLA
+    resolve_compose_cid: "{{ JOOMLA_CONTAINER_ADDRESS }}"
+
+- name: "📥 Read the generated logo set of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [JOOMLA_DESIGN_ASSETS_DIR, item] | path_join }}"
+  loop: "{{ JOOMLA_DESIGN_IMAGES | map(attribute='src') | unique | list }}"
+  register: joomla_design_assets
+  when: JOOMLA_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Converge the corporate stylesheets of {{ application_id }}"
+  ansible.builtin.shell: >
+    base64 -d | container exec -i
+    --user {{ JOOMLA_WEB_USER | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }}
+    sh -c {{ lookup('file', 'shell/design_sync.sh') | quote }} design_sync
+    {{ JOOMLA_DESIGN_ENABLED | bool | ternary('present', 'absent') }}
+    {{ JOOMLA_DESIGN_ROOT | quote }} {{ item.dest | quote }}
+  args:
+    stdin: "{{ lookup('template', item.src) | b64encode if JOOMLA_DESIGN_ENABLED | bool else '' }}"
+  loop: "{{ JOOMLA_DESIGN_STYLESHEETS }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  register: joomla_design_stylesheets
+  changed_when: "'CHANGED' in joomla_design_stylesheets.stdout"
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🖼️ Converge the corporate logos and favicons of {{ application_id }}"
+  ansible.builtin.shell: >
+    base64 -d | container exec -i
+    --user {{ JOOMLA_WEB_USER | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }}
+    sh -c {{ lookup('file', 'shell/design_sync.sh') | quote }} design_sync
+    {{ JOOMLA_DESIGN_LOGO_ENABLED | bool | ternary('present', 'absent') }}
+    {{ JOOMLA_DESIGN_ROOT | quote }} {{ item.dest | quote }}
+  args:
+    stdin: "{{ (joomla_design_assets.results | selectattr('item', 'equalto', item.src) | first).content if JOOMLA_DESIGN_LOGO_ENABLED | bool else '' }}"
+  loop: "{{ JOOMLA_DESIGN_IMAGES }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  register: joomla_design_images
+  changed_when: "'CHANGED' in joomla_design_images.stdout"
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🎛️ Converge the template style parameters of {{ application_id }}"
+  ansible.builtin.shell: >
+    container exec -i
+    --user {{ JOOMLA_WEB_USER | quote }}
+    -e J_ROOT={{ JOOMLA_DESIGN_ROOT | quote }}
+    -e J_DESIGN_ENABLED={{ JOOMLA_DESIGN_ENABLED | bool | ternary('1', '0') }}
+    -e J_DESIGN_STYLES={{ JOOMLA_DESIGN_STYLES | to_json | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }} php --
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/php/design_template_styles.php') }}"
+  register: joomla_design_styles
+  changed_when: (joomla_design_styles.stdout | trim) == "changed"
+  failed_when: joomla_design_styles.rc != 0 or (joomla_design_styles.stdout | trim) not in ['changed', 'ok']
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🏷️ Keep the site name of {{ application_id }} on the corporate title"
+  when: JOOMLA_DESIGN_ENABLED | bool
+  block:
+    - name: "🔎 Read the site name of {{ application_id }}"
+      ansible.builtin.shell: >
+        container exec
+        --user {{ JOOMLA_WEB_USER | quote }}
+        {{ JOOMLA_LOCAL_CID | quote }}
+        php {{ JOOMLA_CLI_FILE | quote }} config:get sitename
+      register: joomla_design_sitename
+      changed_when: false
+      delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+    - name: "🏷️ Set the site name of {{ application_id }}"
+      ansible.builtin.shell: >
+        container exec
+        --user {{ JOOMLA_WEB_USER | quote }}
+        {{ JOOMLA_LOCAL_CID | quote }}
+        php {{ JOOMLA_CLI_FILE | quote }} config:set {{ ('sitename=' ~ JOOMLA_SITE_NAME) | quote }}
+      when: JOOMLA_SITE_NAME not in joomla_design_sitename.stdout
+      changed_when: true
+      delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🧹 Clear the Joomla cache after a design change"
+  ansible.builtin.shell: >
+    container exec
+    --user {{ JOOMLA_WEB_USER | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }}
+    php {{ JOOMLA_CLI_FILE | quote }} cache:clean
+  when: joomla_design_styles is changed
+  changed_when: true
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"

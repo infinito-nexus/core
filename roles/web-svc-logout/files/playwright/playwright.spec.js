@@ -12,6 +12,8 @@ const {
 
 test.use({ ignoreHTTPSErrors: true });
 
+require("./test-design").register();
+
 const appBaseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 const cdnBaseUrl = requireDotenvValue(process.env.CDN_BASE_URL, "CDN_BASE_URL");

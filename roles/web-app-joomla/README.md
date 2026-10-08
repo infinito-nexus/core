@@ -48,6 +48,7 @@ Until the biber path is added:
 
 - [Joomla Official Website](https://www.joomla.org/)
 - [Joomla Documentation](https://docs.joomla.org/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/WcX6mKb6zbJMTtrk47XCNk)
 
 ## Persona contract opt-outs
 

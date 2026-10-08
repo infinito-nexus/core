@@ -29,6 +29,7 @@ It solves the common challenge of logging a user out from all connected apps wit
 - [Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)  
 - [Infinito.Nexus Project](https://infinito.nexus)  
 - [Author: Kevin Veen-Birkenbach](https://veen.world)  
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/SVvxgvJNBEZosR3BXkYyPm)  
 
 ---
 
