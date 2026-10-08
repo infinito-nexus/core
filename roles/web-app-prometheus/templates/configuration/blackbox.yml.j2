@@ -24,7 +24,7 @@ modules:
       method: GET
       follow_redirects: false
       fail_if_ssl: false
-      fail_if_not_ssl: {{ lookup('tls', application_id, 'enabled') | bool | lower }}
+      fail_if_not_ssl: false
       tls_config:
-        insecure_skip_verify: {{ not (lookup('tls', application_id, 'enabled') | bool) }}
+        insecure_skip_verify: {{ ((TLS_MODE | lower) == 'self_signed' and not lookup('ca_injected', application_id)) | lower }}
       preferred_ip_protocol: "ip4"
