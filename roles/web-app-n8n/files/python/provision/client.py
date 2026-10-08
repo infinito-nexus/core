@@ -25,6 +25,7 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 BASE = os.environ.get("N8N_BASE", "").rstrip("/")
@@ -90,6 +91,52 @@ def call(path, method="GET", payload=None, api_key=None):
         return error.code, error.read().decode(errors="replace")
 
 
+def shape(value):
+    """Describe a value by its type and, for a mapping, its keys, never its content.
+
+    Args:
+        value: decoded response fragment.
+    """
+    if isinstance(value, dict):
+        return f"a mapping with keys {sorted(map(str, value))}"
+    if isinstance(value, list):
+        return f"a list of {sorted({type(item).__name__ for item in value})}"
+    return f"a {type(value).__name__}"
+
+
+def records(body, what):
+    """Return the records of a list response.
+
+    Args:
+        body: decoded body: ``{"data": [...]}``, a bare list, or the paged
+            ``{"data": {"items": [...], ...}}`` of n8n 2.
+        what: noun naming the collection, for the failure message.
+    """
+    listed = body.get("data", body) if isinstance(body, dict) else body
+    if isinstance(listed, dict) and "items" in listed:
+        listed = listed["items"]
+    if listed is None:
+        return []
+    if not isinstance(listed, list) or not all(
+        isinstance(item, dict) for item in listed
+    ):
+        sys.exit(f"FAILED listing {what}: expected records, got {shape(listed)}")
+    return listed
+
+
+def record(body, what):
+    """Return the single record of a create response.
+
+    Args:
+        body: decoded body, either ``{"data": {...}}`` or a bare mapping.
+        what: noun naming the record, for the failure message.
+    """
+    created = body.get("data", body) if isinstance(body, dict) else body
+    if not isinstance(created, dict):
+        sys.exit(f"FAILED creating {what}: expected a record, got {shape(created)}")
+    return created
+
+
 def login():
     status, body = call(
         f"{REST}/login",
@@ -106,14 +153,18 @@ def api_key():
     n8n returns the usable secret only once, as ``rawApiKey``, and a listed key
     is redacted, so the key cannot be carried between runs. It is minted here
     and revoked before the run ends; an entry left behind under the managed name
-    belongs to a run that died and is deleted rather than guessed at.
+    belongs to a run that died and is deleted rather than guessed at. n8n pages
+    the listing at ten keys and matches ``label`` as a substring, so the query
+    narrows to the managed name and the exact match happens here.
     """
-    status, body = call(f"{REST}/api-keys")
+    query = urllib.parse.urlencode({"label": KEY_NAME})
+    status, body = call(f"{REST}/api-keys?{query}")
     if status != 200:
         sys.exit(f"FAILED listing api keys: {status} {body}")
 
-    existing = (body or {}).get("data") if isinstance(body, dict) else body
-    matches = [key for key in existing or [] if key.get("label") == KEY_NAME]
+    matches = [
+        key for key in records(body, "api keys") if key.get("label") == KEY_NAME
+    ]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} api keys named {KEY_NAME}")
     for key in matches:
@@ -136,7 +187,7 @@ def api_key():
     )
     if status not in (200, 201):
         sys.exit(f"FAILED creating api key {KEY_NAME}: {status} {body}")
-    created = (body or {}).get("data") if isinstance(body, dict) else body
+    created = record(body, f"api key {KEY_NAME}")
     return str(created["rawApiKey"]), str(created["id"])
 
 
@@ -174,8 +225,7 @@ def listed_credentials():
     status, body = call(f"{REST}/credentials")
     if status != 200:
         sys.exit(f"FAILED listing credentials: {status} {body}")
-    existing = (body or {}).get("data") if isinstance(body, dict) else body
-    return list(existing or [])
+    return records(body, "credentials")
 
 
 def credential(provider):
@@ -198,7 +248,7 @@ def credential(provider):
         status, body = call(f"{REST}/credentials", method="POST", payload=payload)
         if status not in (200, 201):
             sys.exit(f"FAILED creating {name}: {status} {body}")
-        created = (body or {}).get("data") if isinstance(body, dict) else body
+        created = record(body, name)
         return {"id": str(created["id"]), "name": name}, True
 
     status, body = call(
@@ -317,8 +367,9 @@ def managed_workflow(key):
     status, body = call(f"{PUBLIC}/workflows", api_key=key)
     if status != 200:
         sys.exit(f"FAILED listing workflows: {status} {body}")
-    existing = (body or {}).get("data") if isinstance(body, dict) else body
-    matches = [flow for flow in existing or [] if flow.get("name") == WORKFLOW_NAME]
+    matches = [
+        flow for flow in records(body, "workflows") if flow.get("name") == WORKFLOW_NAME
+    ]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} workflows named {WORKFLOW_NAME}")
     return matches[0] if matches else None

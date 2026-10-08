@@ -8,10 +8,12 @@ import io
 import json
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-n8n/files/python/provision/client.py"
+PAGE_SIZE = 10
 
 PROVIDER = {
     "id": "web-app-gitea",
@@ -78,8 +80,10 @@ class FakeApi:
             self.deleted_credentials.append(dead)
             self.credentials = [c for c in self.credentials if c["id"] != dead]
             return 200, {"success": True}
-        if path == "/rest/api-keys" and method == "GET":
-            return 200, {"data": [dict(key) for key in self.keys]}
+        if path.startswith("/rest/api-keys?") and method == "GET":
+            label = parse_qs(urlsplit(path).query)["label"][0].lower()
+            items = [dict(key) for key in self.keys if label in key["label"].lower()]
+            return 200, {"data": {"items": items[:PAGE_SIZE]}}
         if path == "/rest/api-keys" and method == "POST":
             self.keys = [{"id": "k1", "label": payload["label"]}]
             return 200, {"data": {"id": "k1", "rawApiKey": "n8n-raw-key"}}
@@ -178,6 +182,28 @@ class TestProvisionClient(unittest.TestCase):
         with patch.object(module, "call", api):
             module.main()
         self.assertEqual(["k1"], api.deleted_keys)
+
+    def test_a_stale_managed_key_behind_a_full_page_is_still_replaced(self) -> None:
+        module = load_script()
+        humans = [{"id": f"h{n}", "label": f"human {n}"} for n in range(PAGE_SIZE)]
+        api = FakeApi(keys=[*humans, {"id": "old", "label": "infinito:mcp"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_an_unknown_listing_shape_names_its_keys_but_never_a_value(self) -> None:
+        module = load_script()
+        api = FakeApi()
+
+        def odd(path, method="GET", payload=None, api_key=None):
+            if path == "/rest/credentials" and method == "GET":
+                return 200, {"data": {"token": "t0ps3cret"}}
+            return api(path, method, payload, api_key)
+
+        with patch.object(module, "call", odd), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertIn("['token']", str(exit_.exception))
+        self.assertNotIn("t0ps3cret", str(exit_.exception))
 
     def test_a_rotated_provider_token_replaces_the_stored_one(self) -> None:
         module = load_script()

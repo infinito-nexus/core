@@ -8,10 +8,12 @@ import io
 import json
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-n8n/files/python/provision/mcp.py"
+PAGE_SIZE = 10
 
 ENV = {
     "N8N_BASE": "http://n8n:5678",
@@ -51,6 +53,7 @@ class FakeApi:
         self.deleted_keys = []
         self.logins = 0
         self.minted = 0
+        self.scopes = set()
 
     def __call__(self, path, method="GET", payload=None, api_key=None):
         if path == "/rest/login":
@@ -72,10 +75,13 @@ class FakeApi:
             self.deleted_credentials.append(dead)
             self.credentials = [c for c in self.credentials if c["id"] != dead]
             return 200, {"success": True}
-        if path == "/rest/api-keys" and method == "GET":
-            return 200, {"data": [dict(key) for key in self.keys]}
+        if path.startswith("/rest/api-keys?") and method == "GET":
+            label = parse_qs(urlsplit(path).query)["label"][0].lower()
+            items = [dict(key) for key in self.keys if label in key["label"].lower()]
+            return 200, {"data": {"items": items[:PAGE_SIZE]}}
         if path == "/rest/api-keys" and method == "POST":
             self.keys = [{"id": "k1", "label": payload["label"]}]
+            self.scopes = set(payload["scopes"])
             return 200, {"data": {"id": "k1", "rawApiKey": "n8n-raw-key"}}
         if path.startswith("/rest/api-keys/") and method == "DELETE":
             self.deleted_keys.append(path.rsplit("/", 1)[-1])
@@ -89,6 +95,8 @@ class FakeApi:
             self.updated_workflows.append(payload)
             return 200, payload
         if path.endswith("/activate") and method == "POST":
+            if "workflow:activate" not in self.scopes:
+                return 403, '{"message":"Forbidden"}'
             self.activated_workflows.append(path.split("/")[-2])
             return 200, {"active": True}
         if path.startswith("/api/v1/workflows/") and method == "DELETE":
@@ -183,6 +191,48 @@ class TestProvisionMcp(unittest.TestCase):
         with patch.object(module, "call", api):
             module.main()
         self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_a_stale_managed_key_behind_a_full_page_is_still_replaced(self) -> None:
+        module = load_script()
+        humans = [{"id": f"h{n}", "label": f"human {n}"} for n in range(PAGE_SIZE)]
+        api = FakeApi(keys=[*humans, {"id": "old", "label": "infinito:mcp"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_an_unknown_listing_shape_names_its_keys_but_never_a_value(self) -> None:
+        module = load_script()
+        api = FakeApi()
+
+        def odd(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/rest/api-keys?"):
+                return 200, {"data": {"secret": "t0ps3cret"}}
+            return api(path, method, payload, api_key)
+
+        with patch.object(module, "call", odd), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertIn("['secret']", str(exit_.exception))
+        self.assertNotIn("t0ps3cret", str(exit_.exception))
+
+    def test_an_unpaged_listing_of_n8n_1_still_finds_the_stale_key(self) -> None:
+        module = load_script()
+        api = FakeApi()
+
+        def unpaged(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/rest/api-keys?"):
+                return 200, {"data": [{"id": "old", "label": "infinito:mcp"}]}
+            return api(path, method, payload, api_key)
+
+        with patch.object(module, "call", unpaged):
+            module.main()
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_a_key_that_only_contains_the_managed_name_is_left_alone(self) -> None:
+        module = load_script()
+        api = FakeApi(keys=[{"id": "near", "label": "infinito:mcp-legacy"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["k1"], api.deleted_keys)
 
     def test_the_run_leaves_no_api_key_behind(self) -> None:
         module = load_script()
