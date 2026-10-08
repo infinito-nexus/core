@@ -33,7 +33,9 @@ class TestRedisSessionPath(unittest.TestCase):
         password = "a&b=c?d#e/f+g h"
         query = parse_qs(
             urlsplit(
-                redis_session_path("redis-central", 6379, "suitecrm", "default", password)
+                redis_session_path(
+                    "redis-central", 6379, "suitecrm", "default", password
+                )
             ).query
         )
         self.assertEqual([password], query["auth[pass]"])
