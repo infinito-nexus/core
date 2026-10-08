@@ -170,9 +170,7 @@ def api_key():
     if status != 200:
         sys.exit(f"FAILED listing api keys: {status} {body}")
 
-    matches = [
-        key for key in records(body, "api keys") if key.get("label") == KEY_NAME
-    ]
+    matches = [key for key in records(body, "api keys") if key.get("label") == KEY_NAME]
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} api keys named {KEY_NAME}")
     for key in matches:
