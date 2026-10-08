@@ -80,6 +80,7 @@ host_var_lib_docker:
   mounts:
     - service: cadvisor
       target: /var/lib/docker
+      when: "{{ IS_COMPOSE_MODE or RUNTIME == 'host' }}"
 
 host_dev_disk:
   type: bind
