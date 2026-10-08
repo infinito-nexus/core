@@ -82,6 +82,7 @@ MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') }
 
 MATRIX_CONFERENCING_JITSI: "{{ lookup('config', application_id, 'services.matrix.conferencing.jitsi') | bool }}"
 MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services.matrix.conferencing.element_call') | bool }}"
+MATRIX_SYNAPSE_METRICS_PORT: "{{ lookup('config', application_id, 'services.prometheus.native_metrics.port') }}"
 
 MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 

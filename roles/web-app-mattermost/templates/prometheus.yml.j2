@@ -1,11 +1,9 @@
   # Mattermost — application and Go runtime metrics.
-  # Scraped container-to-container: prometheus joins the mattermost Docker network and
-  # reaches the app directly at container_name:port — no host binding, no nginx/OAuth2.
   # Requires MM_METRICSSETTINGS_ENABLE=true and MM_METRICSSETTINGS_LISTENADDRESS (set in env.j2 when enabled).
   - job_name: "mattermost"
     scheme: http
     metrics_path: /metrics
     static_configs:
-      - targets: ["{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}"]
+      - targets: ["{{ lookup('native_metrics_target', native_prometheus_application_id) }}"]
         labels:
           app: "{{ native_prometheus_application_id }}"

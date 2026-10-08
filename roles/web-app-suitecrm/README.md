@@ -27,6 +27,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
@@ -44,6 +45,7 @@ flowchart LR
         svc_matomo["matomo"]
         svc_email["email"]
         svc_mariadb["mariadb"]
+        svc_redis["redis"]
         svc_suitecrm["suitecrm"]
         svc_design["design"]
         svc_prometheus["prometheus"]
@@ -53,6 +55,7 @@ flowchart LR
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso

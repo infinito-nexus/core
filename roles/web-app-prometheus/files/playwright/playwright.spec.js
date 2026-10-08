@@ -212,7 +212,7 @@ test("prometheus: biber is denied access after sso login", async ({ browser }) =
 // -----------------------------------------------------------------------------
 
 const prometheusTargetRoles = (() => {
-  const raw = process.env.PROMETHEUS_TARGET_ROLES_JSON || "[]";
+  const raw = decodeDotenvQuotedValue(process.env.PROMETHEUS_TARGET_ROLES_JSON || "[]");
   try {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -221,7 +221,7 @@ const prometheusTargetRoles = (() => {
   }
 })();
 
-test("prometheus scrape: every consumer role reports up=1", async ({ page }) => {
+test("prometheus scrape: every consumer role reports up=1 and passes its probe", async ({ page }) => {
   test.skip(prometheusTargetRoles.length === 0, "no prometheus consumer roles in inventory");
 
   const expectedPrometheusBaseUrl = prometheusBaseUrl.replace(/\/$/, "");
@@ -280,6 +280,26 @@ test("prometheus scrape: every consumer role reports up=1", async ({ page }) => 
     failures,
     `prometheus scrape failures:\n  - ${failures.join("\n  - ")}`
   ).toEqual([]);
+
+  const probeUrl = `${expectedPrometheusBaseUrl}/api/v1/query?query=${encodeURIComponent('probe_success{job="blackbox-healthz"}')}`;
+  await expect
+    .poll(
+      async () => {
+        const response = await page.request.get(probeUrl, { ignoreHTTPSErrors: true });
+        const probes = response.ok() ? (await response.json())?.data?.result || [] : [];
+        return prometheusTargetRoles
+          .filter((target) => {
+            const own = probes.filter((entry) => entry?.metric?.app === target.id);
+            return own.length === 0 || own.some((entry) => entry?.value?.[1] !== "1");
+          })
+          .map((target) => target.id);
+      },
+      {
+        timeout: resolveTimeout(120_000),
+        message: "roles whose /healthz/ready probe is missing or failing (probe_success != 1)",
+      },
+    )
+    .toEqual([]);
 });
 
 // Persona scenarios.
