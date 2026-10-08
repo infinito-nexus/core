@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 const { hideUsageNotice, twoFactorEnabled } = require("./admin");
 require("./test-admin-sign-in");
+require("./test-design");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
