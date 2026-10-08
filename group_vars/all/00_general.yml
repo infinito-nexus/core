@@ -16,6 +16,8 @@ STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefer
 MASK_CREDENTIALS_IN_LOGS: true
 
 IAM_USERNAME_MAX_LENGTH: 20 # Discourse refuses a longer one with ActiveRecord::RecordInvalid, and it is the tightest consumer
+IAM_PLATFORM_ADMIN_USER_KEY: "platform_administrator" # the account every application administers itself with, as declared in roles/user-administrator/meta/users.yml
+IAM_HOST_ADMIN_USER_KEY: "administrator" # the host account; only roles/user-administrator may consume it
 
 HOST_CURRENCY: "EUR"
 HOST_TIMEZONE: "UTC"

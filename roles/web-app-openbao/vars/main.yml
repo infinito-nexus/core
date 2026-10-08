@@ -37,11 +37,10 @@ OPENBAO_SEAL_KEY_PREVIOUS: "{{ OPENBAO_APPLIED.seal_key | default('', true) }}"
 OPENBAO_SEAL_KEY_PREVIOUS_ID: "{{ (OPENBAO_SEAL_KEY_PREVIOUS | hash('sha256'))[:16] if OPENBAO_SEAL_KEY_PREVIOUS else '' }}"
 OPENBAO_SEAL_ROTATING: "{{ (OPENBAO_SEAL_KEY_PREVIOUS | length > 0) and (OPENBAO_SEAL_KEY_PREVIOUS != OPENBAO_SEAL_KEY) }}"
 
-OPENBAO_RECOVERY_USER_KEY: "administrator"
 OPENBAO_RECOVERY_TOKEN_APP: "{{ application_id }}-recovery"
 OPENBAO_RECOVERY_KEY: >-
   {{ (sys_token_store_users | default({}, true))
-     .get(OPENBAO_RECOVERY_USER_KEY, {})
+     .get(IAM_PLATFORM_ADMIN_USER_KEY, {})
      .get('tokens', {})
      .get(OPENBAO_RECOVERY_TOKEN_APP, '') }}
 

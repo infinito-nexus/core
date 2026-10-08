@@ -37,17 +37,43 @@ import re
 import unittest
 
 from utils.cache.files import iter_non_ignored_files, read_text
+from utils.cache.yaml import load_yaml
 
 from . import PROJECT_ROOT
 
 OWNER_ROLE = "roles/user-administrator/"
 
-_HOST_ADMIN_USER = re.compile(r"lookup\(\s*(['\"])users\1\s*,\s*(['\"])administrator\2")
-_HOST_ADMIN_USER_KEY = re.compile(
-    r"^\s*[a-z_]*user_key:\s*['\"]?administrator['\"]?\s*$"
+_GENERAL_VARS = PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"
+
+
+def admin_user_keys() -> tuple[str, str]:
+    """Return the host administrator key and the platform administrator key.
+
+    Returns:
+        ``IAM_HOST_ADMIN_USER_KEY`` and ``IAM_PLATFORM_ADMIN_USER_KEY`` from
+        the global variables, so this rule matches the keys the roles actually
+        resolve instead of a second copy of their spelling.
+    """
+    general = load_yaml(str(_GENERAL_VARS))
+    return (
+        str(general["IAM_HOST_ADMIN_USER_KEY"]),
+        str(general["IAM_PLATFORM_ADMIN_USER_KEY"]),
+    )
+
+
+HOST_ADMIN, PLATFORM_ADMIN = admin_user_keys()
+
+_HOST_ADMIN_USER = re.compile(
+    rf"lookup\(\s*(['\"])users\1\s*,\s*(['\"]){re.escape(HOST_ADMIN)}\2"
 )
-_HOST_ADMIN_DOTTED = re.compile(r"users\.administrator\.")
-_RETIRED_CREDENTIAL = re.compile(r"secrets\.credentials\.administrator_password")
+_HOST_ADMIN_USER_KEY = re.compile(
+    rf"^\s*[a-z_]*user_key:\s*['\"]?{re.escape(HOST_ADMIN)}['\"]?\s*$",
+    re.IGNORECASE,
+)
+_HOST_ADMIN_DOTTED = re.compile(rf"users\.{re.escape(HOST_ADMIN)}\.")
+_RETIRED_CREDENTIAL = re.compile(
+    rf"secrets\.credentials\.{re.escape(HOST_ADMIN)}_password"
+)
 
 _SUFFIXES = (".yml", ".yaml", ".j2", ".py", ".js", ".sh", ".sql")
 
@@ -67,13 +93,13 @@ class TestNoHostAdminCredentialInRoles(unittest.TestCase):
                     or _HOST_ADMIN_DOTTED.search(line)
                 ):
                     findings.append(
-                        f"{rel}:{number}: uses the host administrator account; "
-                        f"use lookup('users', 'platform_administrator') instead"
+                        f"{rel}:{number}: uses the {HOST_ADMIN} account; read "
+                        f"IAM_PLATFORM_ADMIN_USER_KEY ({PLATFORM_ADMIN}) instead"
                     )
                 if _RETIRED_CREDENTIAL.search(line):
                     findings.append(
-                        f"{rel}:{number}: secrets.credentials.administrator_password is "
-                        f"retired; use lookup('users', 'platform_administrator') instead"
+                        f"{rel}:{number}: secrets.credentials.{HOST_ADMIN}_password is "
+                        f"retired; read IAM_PLATFORM_ADMIN_USER_KEY ({PLATFORM_ADMIN}) instead"
                     )
 
         if findings:

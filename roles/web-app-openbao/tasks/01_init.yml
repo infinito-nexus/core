@@ -48,7 +48,7 @@
         name: sys-token-store
         tasks_from: write.yml
       vars:
-        sys_token_store_user_key: "{{ OPENBAO_RECOVERY_USER_KEY }}"
+        sys_token_store_user_key: "{{ IAM_PLATFORM_ADMIN_USER_KEY }}"
         sys_token_store_app: "{{ OPENBAO_RECOVERY_TOKEN_APP }}"
         sys_token_store_token: >-
           {{ (openbao_init_raw.stdout | from_json).recovery_keys_b64 | first }}
