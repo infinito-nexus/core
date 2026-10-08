@@ -76,19 +76,23 @@ async function fillKeycloakLoginForm(page, username, password) {
   await signInButton.click({ timeout: resolveTimeout(30_000) });
 }
 
-// WP uses login_type=auto — visiting wp-login.php triggers OIDC redirect when
-// there's no WP session. We land at Keycloak, sign in, and get redirected
-// back to /wp-admin/.
 async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
   await gotoOnion(page, `${wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
-  const url = page.url();
-  if (!url.includes(wpBaseUrl)) {
-    await fillKeycloakLoginForm(page, username, password);
+
+  if (isServiceEnabled("sso")) {
+    if (!page.url().includes(wpBaseUrl)) {
+      await fillKeycloakLoginForm(page, username, password);
+    }
+  } else {
+    await page.locator("input#user_login").fill(username);
+    await page.locator("input#user_pass").fill(password);
+    await page.locator("input#wp-submit").click({ timeout: resolveTimeout(30_000) });
   }
+
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(60_000),
-      message: `Expected redirect back to ${wpBaseUrl}/wp-admin after OIDC login`,
+      message: `Expected redirect back to ${wpBaseUrl}/wp-admin after signing in`,
     })
     .toContain("/wp-admin");
 }
