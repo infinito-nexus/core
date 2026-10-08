@@ -9,14 +9,14 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { clickFiderSsoButton } = require("./_shared");
 
-const base = decodeDotenvQuotedValue(process.env.FIDER_BASE_URL || "").replace(/\/$/, "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const base = requireDotenvValue(process.env.FIDER_BASE_URL, "FIDER_BASE_URL").replace(/\/$/, "");
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const logoEnabled = process.env.DESIGN_LOGO_ENABLED === "true";
 

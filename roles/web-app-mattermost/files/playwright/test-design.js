@@ -444,6 +444,10 @@ exports.register = function (shared) {
       await expect.poll(() => page.title(), { timeout: resolveTimeout(15_000) }).toContain(title);
     }
     if (logoUrl && page.viewportSize().width >= WIDE) {
+      expect(
+        frameLogoUrl,
+        "DESIGN_LOGO_FRAME_URL must accompany DESIGN_LOGO_URL; empty would assert the header against url(\"\")",
+      ).toBeTruthy();
       await expect(page.locator(HEADER_LOGO)).toHaveCSS("background-image", `url("${frameLogoUrl}")`);
       const box = await page.locator(HEADER_LOGO).boundingBox();
       expect(box.width, "the header logo box must be wider than high").toBeGreaterThan(box.height * 1.5);

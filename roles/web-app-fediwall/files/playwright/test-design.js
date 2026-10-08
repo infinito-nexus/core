@@ -359,6 +359,8 @@ exports.register = function (shared) {
         .toBe(1);
     }
     if (faviconIcoUrl) {
+      expect(faviconPngUrl, "DESIGN_FAVICON_PNG_URL must accompany the ico favicon").toBeTruthy();
+      expect(faviconSvgUrl, "DESIGN_FAVICON_SVG_URL must accompany the ico favicon").toBeTruthy();
       const icons = [
         ["image/png", faviconPngUrl],
         ["image/svg+xml", faviconSvgUrl],

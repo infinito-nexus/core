@@ -9,11 +9,11 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");

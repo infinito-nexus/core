@@ -11,15 +11,21 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const {
+  apiFetchOnion,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { signIn, dismissFirstRunWizard } = require("./test-admin-native");
 
-const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const designLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const designMenuLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_MENU_LOGO_URL || "");
 const designTitle = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
@@ -519,6 +525,8 @@ test("design: the compiled Storefront theme carries the light palette without th
 
 test("design: the storefront shows the configured logo, favicon and shop name", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  expect(designLogoUrl, "DESIGN_LOGO_URL must be set, an empty src would match the unstyled storefront").toBeTruthy();
+  expect(designTitle, "DESIGN_TITLE must be set, toContain against an empty string passes always").toBeTruthy();
   await openStorefront(page, "/account/login", "form.login-form");
   const logo = page.locator("img.header-logo-main-img");
   await expect(logo).toHaveAttribute("src", designLogoUrl);
@@ -536,6 +544,10 @@ test("design: the storefront shows the configured logo, favicon and shop name", 
 
 test("design: the administration maps its tokens and keeps the menu on the frame", async ({ page, request }) => {
   skipUnlessServiceEnabled("design");
+  expect(
+    designMenuLogoUrl,
+    "DESIGN_MENU_LOGO_URL must be set, toContain against an empty string passes always"
+  ).toBeTruthy();
   test.setTimeout(resolveTimeout(240_000));
   await seedShowcase(request);
   await openAdmin(page, "/sw/product/index", ".sw-product-list .sw-data-grid__row");
@@ -609,6 +621,10 @@ test("design: focus stops inside the administration menu draw in the frame text 
 
 test("design: the administration sign-in page sits on the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  expect(
+    designMenuLogoUrl,
+    "DESIGN_MENU_LOGO_URL must be set, toContain against an empty string passes always"
+  ).toBeTruthy();
   await gotoOnion(page, `${base}/admin#/login`);
   await expect(page.locator(".sw-login__content input[type='password']")).toBeVisible({
     timeout: resolveTimeout(60_000),
