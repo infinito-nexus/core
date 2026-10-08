@@ -40,7 +40,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from access import AccessError, Keycloak
 from agents import Agents, CapacityError
-from engine import ComposeBackend, Engine, EngineError, SwarmBackend
+from engine import ComposeBackend, Engine, EngineError
+from swarm import SwarmBackend
 
 ENV = os.environ
 PORT = int(ENV["BROKER_PORT"])
