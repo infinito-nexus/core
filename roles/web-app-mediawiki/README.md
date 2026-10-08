@@ -27,7 +27,7 @@ This role ships its OIDC login stack, its AI editing stack, its object-store bac
 | VisualEditorPlus | extension | enabled when `services.litellm.enabled` | `litellm` |
 | AIEditingAssistant | extension | enabled when `services.litellm.enabled` | `litellm` |
 | AWS | extension | enabled when `services.seaweedfs.enabled` | `seaweedfs` |
-| DiscourseSsoConsumer | extension | enabled when `services.discourse.enabled` and `services.sso.enabled` | `discourse` |
+| DiscourseSsoConsumer | extension | off; no release is compatible with the PluggableAuth this image carries | `discourse` |
 | MachineTranslation | extension | enabled when `services.libretranslate.enabled` | `libretranslate` |
 | PeerTubeEmbed | extension | off; no public archive resolves for this extension | `peertube` |
 

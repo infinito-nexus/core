@@ -1,6 +1,5 @@
 ---
-enabled: "{{ (lookup('config', 'web-app-mediawiki', 'services.discourse.enabled') | bool) and (lookup('config', 'web-app-mediawiki', 'services.sso.enabled') | bool)
-  }}"
+enabled: false
 required: false
 mechanism: extension
 source: upstream
