@@ -16,7 +16,6 @@ HERMES_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')
 HERMES_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
 HERMES_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
 HERMES_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config.yaml' ] | path_join }}"
-HERMES_CONFIG_SEED_PATH: /opt/seed/config.yaml
 HERMES_CONFIG_SEED_HOOK_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config-seed.sh' ] | path_join }}"
 HERMES_DESIGN_THEME_ENABLED: "{{ HERMES_WEBUI_ENABLED | bool and lookup('config', application_id, 'services.design.enabled') | bool }}"
 HERMES_DESIGN_THEME: "corporate"
