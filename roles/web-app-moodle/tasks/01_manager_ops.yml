@@ -102,6 +102,9 @@
   include_tasks: utils/mcp.yml
   when: MOODLE_MCP_ENABLED | bool
 
+- name: "🎨 Align the Boost theme with the corporate design"
+  include_tasks: 06_design.yml
+
 - name: "📧 Verify the relay accepts Moodle's mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool
   block:

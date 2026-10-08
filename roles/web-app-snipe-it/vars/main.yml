@@ -16,12 +16,42 @@ SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_
 
 SNIPE_IT_MAIL_FROM_NAME: "{{ lookup('config', application_id, 'services.email.from_name') }}"
 
+SNIPE_IT_INITIAL_SETTINGS:
+  alert_email: "{{ lookup('users', 'platform_administrator').email }}"
+  alerts_enabled: 1
+  auto_increment_assets: 0
+  brand: 1
+  default_currency: "USD"
+  full_multiple_companies_support: 0
+  locale: "{{ HOST_LL_CC }}"
+  next_auto_tag_base: 1
+  pwd_secure_min: 10
+  site_name: "Snipe-IT"
+  zerofill_count: 0
+
 SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 
 SNIPE_IT_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 SNIPE_IT_SSO_HEADER_NAME: "HTTP_X_FORWARDED_PREFERRED_USERNAME"
 SNIPE_IT_SSO_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+
+SNIPE_IT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SNIPE_IT_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+SNIPE_IT_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')) }}"
+SNIPE_IT_DESIGN_BRANDING: "{{ lookup('design', application_id) }}"
+SNIPE_IT_DESIGN_COLORS:
+  header_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-frame'] }}"
+  nav_link_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-on-frame'] }}"
+  link_light_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-link'] }}"
+  link_dark_color: "{{ SNIPE_IT_DESIGN_PALETTE.dark['--design-link'] }}"
+  custom_css: "{{ lookup('template', 'custom_css.css.j2') }}"
+SNIPE_IT_DESIGN_SETTINGS: >-
+  {{
+    SNIPE_IT_DESIGN_COLORS
+    | combine({'site_name': SNIPE_IT_DESIGN_BRANDING.title} if SNIPE_IT_DESIGN_BRANDING.title is string else {})
+    | combine({'brand': 2, 'assets': ['logo', 'favicon']} if SNIPE_IT_DESIGN_BRANDING.logo is string else {'assets': []})
+  }}
 
 SNIPE_IT_LDAP_FILTER_FRAGMENT: "&(objectClass=inetOrgPerson)"
 SNIPE_IT_LDAP_AUTH_FILTER_QUERY: "{{ LDAP.USER.ATTRIBUTES.ID }}="

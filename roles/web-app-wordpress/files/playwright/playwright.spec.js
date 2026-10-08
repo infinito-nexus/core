@@ -16,3 +16,4 @@ require("./test-biber-persona").register(shared);
 require("./test-administrator-persona").register(shared);
 require("./test-mcp-guest").register(shared);
 require("./test-seaweedfs").register(shared);
+require("./test-design").register(shared);

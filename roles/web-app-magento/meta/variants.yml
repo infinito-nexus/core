@@ -35,6 +35,8 @@
       shared: true
     tor:
       enabled: true
+    two_factor:
+      enabled: false
 - services:
     container_backup:
       enabled: false
@@ -66,4 +68,6 @@
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
+      enabled: true
+    two_factor:
       enabled: true

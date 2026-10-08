@@ -16,3 +16,4 @@ require("./test-guest-persona").register(shared);
 require("./test-mcp-guest").register(shared);
 require("./test-litellm-gateway").register(shared);
 require("./test-seaweedfs").register(shared);
+require("./test-design").register(shared);

@@ -33,6 +33,7 @@ The NGINX Static HTML Server role provides a simple and efficient method to publ
 - [Let's Encrypt](https://letsencrypt.org/)
 - [Static Web Page (Wikipedia)](https://en.wikipedia.org/wiki/Static_web_page)
 - [HTTPS (Wikipedia)](https://en.wikipedia.org/wiki/HTTPS)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/74p2SiuhP6UeWBS97zebfi)
 
 ## ‍ Author Information
 

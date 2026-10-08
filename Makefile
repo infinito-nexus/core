@@ -259,16 +259,18 @@ compose-restart:
 
 .PHONY: compose-role-sync
 # Re-run only the role of a deployed app against the running stack (no system stages; the spec runs only with pw=).
-# Usage: make compose-role-sync role=<application_id> [variant=<idx>] [pw="<playwright args>"] [keep=true] [base='<hex>']
+# Usage: make compose-role-sync role=<application_id> [variant=<idx>] [task=<task file>] [pw="<playwright args>"] [keep=true] [base='<hex>']
 # Example: make compose-role-sync role=web-app-gitea variant=0 pw="--grep design: --grep-invert gallery"
+# Example: make compose-role-sync role=web-app-xwiki variant=0 task=06_design.yml
 # Param role: deployed application id
 # Param variant: matrix round index the app was deployed with
+# Param task: task file of the role that runs alone instead of the whole role; it gets the role variables and nothing an earlier task of the role set
 # Param pw: Playwright arguments without quotes; when set, the spec of the role is staged again, its .env rendered again and run with them
 # Param keep: true lets that spec run capture the design gallery
 # Param base: hex base color that replaces the one of the inventory for this run, e.g. base='#001f3f'
 compose-role-sync:
 	@: $${role:?role=<application_id> required, e.g. role=web-app-gitea}
-	@role='$(role)' variant='$(variant)' pw='$(pw)' keep='$(keep)' base='$(base)' bash scripts/tests/deploy/local/sync/role.sh
+	@role='$(role)' variant='$(variant)' task='$(task)' pw='$(pw)' keep='$(keep)' base='$(base)' bash scripts/tests/deploy/local/sync/role.sh
 
 .PHONY: compose-stop
 # Stop the development stack without removing volumes.
@@ -295,14 +297,16 @@ console:
 	@"$${PYTHON}" -m cli.console
 
 .PHONY: design-gallery
-# Rerun the design spec of a deployed app and copy its before/after screenshots to /tmp/design-gallery/<app>/ (no redeploy).
-# Usage: make design-gallery app=<application_id> [pw="--grep <pattern>"]
-# Example: make design-gallery app=web-app-gitea pw="--grep diag:"
+# Rerun the design spec of a deployed app and copy its screenshots to /tmp/design-gallery/<app>/ (no redeploy).
+# Usage: make design-gallery app=<application_id> [views=<view>[,<view>...]] [before=true] [pw="--grep <pattern>"]
+# Example: make design-gallery app=web-app-gitea views=dashboard,settings
 # Param app: deployed application id
+# Param views: comma-separated view names; only these are captured, by the gallery test alone, and added to the existing screenshots
+# Param before: true also captures every view with the injected snippets stripped from the document
 # Param pw: Playwright arguments without quotes that replace the default `--grep design:`; such a run adds its screenshots to the existing ones
 design-gallery:
 	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
-	@app='$(app)' pw='$(pw)' bash scripts/tests/design/gallery.sh
+	@app='$(app)' pw='$(pw)' views='$(views)' before='$(before)' bash scripts/tests/design/gallery.sh
 
 .PHONY: design-palette
 # Run the design assertions of a deployed app with another base color and restore the base of the inventory afterwards, also on failure.

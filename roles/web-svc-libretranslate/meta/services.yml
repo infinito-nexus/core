@@ -71,11 +71,18 @@ redis:
     disabled: true
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
-# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    favicon:
+      width: 64
+      height: 64
+    logo:
+      width: 180
+      height: 40
+      frame: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — captcha backend, infrastructural
 recaptcha:

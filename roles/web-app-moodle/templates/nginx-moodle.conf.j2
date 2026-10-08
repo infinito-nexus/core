@@ -41,6 +41,6 @@ server {
     location ~* \.(css|js|gif|jpe?g|png|webp|svg|ico|woff2?|ttf)$ {
         expires 1d;
         add_header Cache-Control "public";
-        try_files $uri =404;
+        try_files $uri /r.php$is_args$args;
     }
 }

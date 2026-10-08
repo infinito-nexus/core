@@ -37,6 +37,17 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 
 It hooks `http_api_curl` rather than `http_request_args` because the args array cannot express a proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, so SOCKS5 is reachable only on the raw cURL handle. Without it, libcurl refuses an `.onion` host at name resolution under [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — before `/etc/hosts`, `extra_hosts` or DNS is consulted — and the token exchange fails with cURL error 6, which WordPress surfaces as `wp-login.php?login-error=http_request_failed`.
 
+## Corporate design (infinito-design.php) 🎨
+
+[infinito-design.php](infinito-design.php) reads the `infinito_design` option that [08_design.yml](../../tasks/08_design.yml) writes through [design.php](../php/design.php) and stays inert while that option is absent:
+
+- It registers the admin color scheme `infinito` with `wp_admin_css_color()`. The scheme stylesheet is `wp-content/infinito-design/admin.css`; `extras.css` and `editor.css` are linked at the end of `<head>` for accounts on that scheme, and `admin-bar.css` follows the admin bar onto the site for them.
+- New accounts start on the scheme through the `insert_user_meta` filter. An account that picks another scheme in its profile keeps it.
+- The sign-in page gets `login.css`, the site logo as its logo, the site as the logo link and the site title as its text.
+- `enqueue_block_assets` hands the token stylesheet to the editor canvas.
+
+The stylesheets under [files/css](../css/) are generated and hold `var(--design-*)` references only.
+
 ## Deployment 🚚
 
 Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed.

@@ -44,6 +44,7 @@ This Docker deployment uses Ansible automation to set up Snipe‑IT along with n
 - [Snipe‑IT Official Documentation](https://snipe-it.readme.io/)
 - [Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)
 - [Additional GitHub Issues and Discussions](https://github.com/snipe/snipe-it/issues)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/AadeQG8Gb3cRA94dK8aon2)
 
 ## Persona contract opt-outs
 

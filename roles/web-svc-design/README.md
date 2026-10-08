@@ -34,4 +34,4 @@ applications:
 ## Further Resources
 
 - [CSS on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS)
-- [Corporate design galleries: overview of the before/after review of every designed role](https://claude.ai/artifact/1vbckGSF6TH3ruAEW4TzEC)
+- [Corporate design galleries: overview of the review of every designed role](https://claude.ai/artifact/GQQQwd5vuu5fi1ErMQGCAF)

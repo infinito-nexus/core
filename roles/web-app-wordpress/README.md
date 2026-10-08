@@ -85,6 +85,7 @@ The front-page CSP + canonical-domain baseline is ungated and always runs.
 - [WordPress Multisite Documentation](https://wordpress.org/support/article/create-a-network/)
 - [WordPress Plugin Repository](https://wordpress.org/plugins/)
 - [WP Discourse Plugin](https://wordpress.org/plugins/wp-discourse/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/FZWdjPsZkLfEqUEe3bQ6zj)
 
 ## Persona contract opt-outs
 

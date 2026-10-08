@@ -285,6 +285,12 @@
         _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
       when: "'for the test suite to run' in (_playwright_run.stdout | default(''))"
 
+- name: 💬 Print Playwright result
+  ansible.builtin.debug:
+    msg: "{{ _playwright_run.stdout_lines | select('match', '^ *[0-9]+ (passed|failed|flaky|skipped|did not run)') | list }}"
+  when: (_playwright_run.rc | default(1)) == 0
+  changed_when: false
+
 - name: 🗄️ Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-
     {{ role_path }}/files/archive_playwright_reports.sh

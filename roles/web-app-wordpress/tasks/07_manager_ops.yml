@@ -70,6 +70,9 @@
   vars:
     wp_new_url: "{{ WORDPRESS_URL }}"
 
+- name: "🎨 Apply or withdraw the corporate design"
+  include_tasks: 08_design.yml
+
 - name: "📧 Verify the relay accepted WordPress's startup mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool
   block:

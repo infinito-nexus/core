@@ -113,6 +113,17 @@ design:
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: Academy on {{ DOMAIN_PRIMARY }}
+  bootstrap: true
+  slots:
+    favicon:
+      width: 64
+      height: 64
+    logo:
+      width: 480
+      height: 120
+    logo-compact:
+      width: 300
+      height: 55
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

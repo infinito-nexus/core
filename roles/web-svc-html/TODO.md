@@ -1,0 +1,5 @@
+# To-dos
+
+- The vhost has no root document: `GET /` answers 403 with the built-in page of the proxy, and `meta/server.yml` accepts that status. Cause: no role writes an `index.html` into the webroot and `location /` has no `autoindex`. Options: ship an index document that links the documents the webroot holds, redirect `/` to the start page of the platform, or keep the 403.
+- The 403 and 404 pages are the built-in ones of the proxy and print its version (`openresty/1.31.1.1`). The role stylesheet reaches their gutter and divider, not their text. Cause: the vhost declares no `error_page` and the shared proxy leaves `server_tokens` on. Options: `server_tokens off` in the proxy role, or an `error_page` document of this role.
+- `/favicon.ico` answers 404 and no document of the vhost links an icon, so the browser tab shows none. Cause: the webroot holds no icon and the design injection adds stylesheets only. Options: an icon link in the documents other roles render into the webroot, or a `location = /favicon.ico` that serves the generated `favicon.ico` of the design service.

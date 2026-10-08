@@ -69,3 +69,38 @@ WORDPRESS_PERMALINK_STRUCTURE: "/%postname%/"
 WORDPRESS_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 WORDPRESS_ADMIN_USER: "{{ lookup('users', 'platform_administrator').username }}"
 WORDPRESS_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+
+WORDPRESS_DESIGN: "{{ lookup('design', application_id) }}"
+WORDPRESS_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+WORDPRESS_DESIGN_HOST_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+WORDPRESS_DESIGN_DIRECTORY: "infinito-design"
+WORDPRESS_DESIGN_PATH: "{{ [WORDPRESS_DOCKER_HTML_PATH, 'wp-content', WORDPRESS_DESIGN_DIRECTORY] | path_join }}"
+WORDPRESS_DESIGN_STYLESHEETS: ["admin.css", "admin-bar.css", "extras.css", "editor.css", "login.css"]
+WORDPRESS_DESIGN_LOGOS:
+  site_icon: "icon.png"
+  site_logo: "logo.png"
+WORDPRESS_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+WORDPRESS_DESIGN_SYNC: >-
+  mkdir -p "$(dirname "$1")" && cat > "$1.new" &&
+  if cmp -s "$1.new" "$1"; then rm "$1.new"; else mv "$1.new" "$1" && echo CHANGED; fi
+WORDPRESS_DESIGN_CONFIG:
+  enabled: "{{ WORDPRESS_DESIGN_ENABLED | string | lower }}"
+  title: "{{ WORDPRESS_DESIGN.title if WORDPRESS_DESIGN.title is string else '' }}"
+  directory: "{{ WORDPRESS_DESIGN_DIRECTORY }}"
+  logos: "{{ WORDPRESS_DESIGN_LOGOS if WORDPRESS_DESIGN.logo is string else {} }}"
+  stylesheets: "{{ WORDPRESS_DESIGN_STYLESHEETS }}"
+  global_styles:
+    twentytwentyfive: "{{ lookup('file', [role_path, 'files/json/global-styles.twentytwentyfive.json'] | path_join) | from_json }}"
+  scheme:
+    name: "{{ service_provider.platform.titel }}"
+    colors:
+      - "{{ WORDPRESS_DESIGN_PALETTE['--design-frame'] }}"
+      - "{{ WORDPRESS_DESIGN_PALETTE['--design-frame-active'] }}"
+      - "{{ WORDPRESS_DESIGN_PALETTE['--design-primary'] }}"
+      - "{{ WORDPRESS_DESIGN_PALETTE['--design-surface-1'] }}"
+    icons:
+      base: "{{ WORDPRESS_DESIGN_PALETTE['--design-on-frame'] }}"
+      focus: "{{ WORDPRESS_DESIGN_PALETTE['--design-on-frame'] }}"
+      current: "{{ WORDPRESS_DESIGN_PALETTE['--design-on-frame'] }}"
+  tokens:
+    - "{{ [lookup('cdn', 'web-svc-cdn').urls.shared.css, 'default.css'] | url_join }}"

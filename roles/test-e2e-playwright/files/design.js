@@ -1,6 +1,6 @@
 /**
- * Corporate design assertions and the before/after gallery capture shared by
- * every role spec whose role consumes the `design` service.
+ * Corporate design assertions and the gallery capture shared by every role
+ * spec whose role consumes the `design` service.
  *
  * - `assertDesignTokens(page, label)`: the `--design-*` tokens are present and
  *   switch between light and dark mode.
@@ -17,10 +17,17 @@
  *   unless it is optional, and at least one element must be measured.
  * - `galleryEnabled()`: true when `INFINITO_PLAYWRIGHT_KEEP=true`.
  * - `captureDesignGallery(page, views)`: per view, color mode and viewport one
- *   screenshot with the injected CSS/JS (`/reports/design/after/`) and one with
- *   every injected snippet stripped from the document
- *   (`/reports/design/before/`), named `<view>-<mode>-<viewport>.png`. Each
- *   screenshot waits up to `SETTLE_TIMEOUT_MS` for finite animations to end.
+ *   screenshot with the injected CSS/JS (`/reports/design/after/`), named
+ *   `<view>-<mode>-<viewport>.png`. Each screenshot waits up to
+ *   `SETTLE_TIMEOUT_MS` for finite animations to end.
+ *   A view is `{ name, url, prepare?, afterOnly? }`: `prepare(page)` brings the
+ *   opened page into the state to capture.
+ *   `PLAYWRIGHT_GALLERY_VIEWS` (comma-separated names) limits the
+ *   capture to those views.
+ *   `PLAYWRIGHT_GALLERY_BEFORE=true` also captures every view with every
+ *   injected snippet stripped from the document (`/reports/design/before/`).
+ *   `afterOnly: true` skips that plain side for a state that only exists with
+ *   the injected snippets; a plain side that still carries them fails the view.
  */
 
 const { expect } = require("@playwright/test");
@@ -35,6 +42,12 @@ const VIEWPORTS = {
 };
 const GALLERY_DIR = "/reports/design";
 const INJECTED_SNIPPETS = /<!--infinito-inj-->[\s\S]*?<!--\/infinito-inj-->/g;
+const INJECTION_MARK = "infinito-inj";
+const GALLERY_VIEWS = (process.env.PLAYWRIGHT_GALLERY_VIEWS || "")
+  .split(",")
+  .map((name) => name.trim())
+  .filter(Boolean);
+const GALLERY_SIDES = process.env.PLAYWRIGHT_GALLERY_BEFORE === "true" ? ["after", "before"] : ["after"];
 const SETTLE_TIMEOUT_MS = 5_000;
 const FREEZE_CSS = "*, *::before, *::after { transition: none !important; }";
 
@@ -58,6 +71,33 @@ async function stripInjectedSnippets(route) {
   if (response.status() >= 300 && response.status() < 400) return route.fulfill({ response });
   const body = (await response.text()).replace(INJECTED_SNIPPETS, "");
   return route.fulfill({ response, body });
+}
+
+async function carriesInjection(page) {
+  return page.evaluate((mark) => {
+    const walker = document.createTreeWalker(document, NodeFilter.SHOW_COMMENT);
+    while (walker.nextNode()) {
+      if (walker.currentNode.data === mark) return true;
+    }
+    return false;
+  }, INJECTION_MARK);
+}
+
+async function openView(page, view, side) {
+  await gotoOnion(page, view.url);
+  // A redirect the browser follows and a hash route inside the loaded document both bypass page.route(), so the document is loaded once more by the URL it ended on.
+  if (side === "before" && (await carriesInjection(page))) {
+    const landed = page.url();
+    await gotoOnion(page, "about:blank");
+    await gotoOnion(page, landed);
+  }
+  if (view.prepare) await view.prepare(page);
+  if (side === "before") {
+    expect(
+      await carriesInjection(page),
+      "the plain side still carries the injected snippets; open the view by the URL its document ends on",
+    ).toBe(false);
+  }
 }
 
 async function tokenValue(page, token, property) {
@@ -184,31 +224,32 @@ async function assertReadable(page, selectors, label, min = 4.5) {
   expect(measured, `${label}: no element was measured`).toBeGreaterThan(0);
 }
 
-/**
- * @param {import('@playwright/test').Page} page
- * @param {{name: string, url: string, prepare?: (page) => Promise<void>}[]} views
- */
 function galleryEnabled() {
   return process.env.INFINITO_PLAYWRIGHT_KEEP === "true";
 }
 
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {{name: string, url: string, prepare?: (page) => Promise<void>, afterOnly?: boolean}[]} views
+ */
 async function captureDesignGallery(page, views) {
   if (!galleryEnabled()) return;
+  const wanted = views.filter((view) => GALLERY_VIEWS.length === 0 || GALLERY_VIEWS.includes(view.name));
   const original = page.viewportSize();
   const failures = [];
   // Chromium counts the fulfilled "before" document as public address space and blocks its cross-origin assets on the local stack.
   await page.context().grantPermissions(["local-network-access"]);
-  for (const side of ["after", "before"]) {
+  for (const side of GALLERY_SIDES) {
     if (side === "before") await page.route("**/*", stripInjectedSnippets);
     for (const [viewport, size] of Object.entries(VIEWPORTS)) {
       await page.setViewportSize(size);
-      for (const view of views) {
+      for (const view of wanted) {
+        if (side === "before" && view.afterOnly === true) continue;
         for (const mode of MODES) {
           const file = `${view.name}-${mode}-${viewport}.png`;
           try {
             await page.emulateMedia({ colorScheme: mode });
-            await gotoOnion(page, view.url);
-            if (view.prepare) await view.prepare(page);
+            await openView(page, view, side);
             await settle(page);
             await page.screenshot({ path: `${GALLERY_DIR}/${side}/${file}` });
           } catch (error) {

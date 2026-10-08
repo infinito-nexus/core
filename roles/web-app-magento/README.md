@@ -28,6 +28,7 @@ This role deploys **Magento 2** via Docker Compose. It is aligned with the Infin
 - [Magento Open Source](https://magento.com/)
 - [Adobe Commerce DevDocs](https://developer.adobe.com/commerce/)
 - [OpenSearch](https://opensearch.org/)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/YbKuHVMT2xun44T8Y5ivxF)
 
 ## Persona contract opt-outs
 
