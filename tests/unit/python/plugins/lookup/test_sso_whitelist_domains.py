@@ -8,8 +8,9 @@ from unittest import mock
 from ansible.errors import AnsibleError
 
 from plugins.lookup.sso_whitelist_domains import LookupModule
+from utils.domains.default_primary import default_domain_primary
 
-PRIMARY = "main.infinito.test"
+PRIMARY = default_domain_primary()
 RAW_PRIMARY = "{{ lookup('env', 'SSO_WHITELIST_TEST_DOMAIN') }}"
 
 
