@@ -46,7 +46,7 @@
     name: sys-token-store
     tasks_from: write.yml
   vars:
-    sys_token_store_user_key: administrator
+    sys_token_store_user_key: platform_administrator
     sys_token_store_app: "{{ application_id }}"
     sys_token_store_token: "{{ WEBLATE_ISSUED_TOKEN }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

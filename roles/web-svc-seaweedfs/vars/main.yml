@@ -13,7 +13,7 @@ SEAWEEDFS_S3_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.seaweed
 
 SEAWEEDFS_S3_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.api') }}"
 
-SEAWEEDFS_ADMIN_ACCESS_KEY: "{{ lookup('users', 'administrator').username }}"
-SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'administrator').password }}"
+SEAWEEDFS_ADMIN_ACCESS_KEY: "{{ lookup('users', 'platform_administrator').username }}"
+SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'platform_administrator').password }}"
 
 SEAWEEDFS_S3_CONFIG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3.json' ] | path_join }}"

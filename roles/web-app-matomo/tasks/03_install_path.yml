@@ -11,7 +11,7 @@
   include_tasks: 04_bootstrap.yml
   when: >
     ((matomo_install_state.stdout | trim) != 'installed') or
-    ((lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
+    ((lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
 
 - name: "🩹 Patch database credentials for {{ application_id }}"
   include_tasks:

@@ -21,8 +21,8 @@
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
-      -e ADMIN_USER={{ lookup('users', 'administrator').username | quote }}
-      -e ADMIN_PASSWORD={{ lookup('users', 'administrator').password | quote }}
+      -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
+      -e ADMIN_PASSWORD={{ lookup('users', 'platform_administrator').password | quote }}
       -e OIDC_AUTH_SERVER={{ OIDC.URL | quote }}
       -e OIDC_INTERNAL_BASE={{ SHOPWARE_OIDC_INTERNAL_BASE | quote }}
       -e OIDC_REALM={{ OIDC.CLIENT.REALM | quote }}

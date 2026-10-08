@@ -47,7 +47,7 @@ shaper:
 acl:
   admin:
     user:
-      - "{{ lookup('users', 'administrator').username }}@{{ XMPP_DOMAIN }}"
+      - "{{ lookup('users', 'platform_administrator').username }}@{{ XMPP_DOMAIN }}"
 
 modules:
   mod_admin_extra: {}

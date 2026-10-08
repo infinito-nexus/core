@@ -25,9 +25,9 @@
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       {{ MATTERMOST_MMCTL }} --local user create \
-        --email    "{{ lookup('users', 'administrator').email }}" \
-        --username "{{ lookup('users', 'administrator').username }}" \
-        --password {{ lookup('users', 'administrator').password | quote }} \
+        --email    "{{ lookup('users', 'platform_administrator').email }}" \
+        --username "{{ lookup('users', 'platform_administrator').username }}" \
+        --password {{ lookup('users', 'platform_administrator').password | quote }} \
         --system-admin
   register: mm_create_admin
   changed_when: mm_create_admin.rc == 0
@@ -66,8 +66,8 @@
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       {{ MATTERMOST_MMCTL }} --local team users add \
         main \
-        "{{ lookup('users', 'administrator').email }}"
-  when: lookup('users', 'administrator').email not in mm_team_members.stdout
+        "{{ lookup('users', 'platform_administrator').email }}"
+  when: lookup('users', 'platform_administrator').email not in mm_team_members.stdout
   delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
 - name: "🗂️ Mattermost | Wire administrator OIDC auth"

@@ -47,7 +47,7 @@ MAILU_OIDC_ENABLE_USER_CREATION: "{{ lookup('config', application_id, 'services.
 MAILU_EXTRA_HOSTS: "{{ query('mailu_extra_hosts') }}"
 MAILU_USERS: "{{ lookup('mailu_users') }}"
 MAILU_DOCKER_FLAVOR: "{{ 'ghcr.io/heviat' if MAILU_OIDC_ENABLED | bool else 'ghcr.io/mailu' }}"
-MAILU_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+MAILU_DMARC_RUF: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 MAILU_DKIM_KEY_FILE: "{{ MAILU_DOMAIN }}.dkim.key"
 MAILU_DKIM_KEY_PATH: "/dkim/{{ MAILU_DKIM_KEY_FILE }}"
 MAILU_NGINX_HOST_DIR: "{{ [ MAILU_OVERRIDES_DIR, 'nginx' ] | path_join }}"

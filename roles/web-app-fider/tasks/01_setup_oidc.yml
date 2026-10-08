@@ -64,8 +64,8 @@
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/create-admin-user.sql"
     named_args:
-      full_name: "{{ lookup('users', 'administrator').firstname }} {{ lookup('users', 'administrator').lastname }}"
-      email: "{{ lookup('users', 'administrator').email }}"
+      full_name: "{{ lookup('users', 'platform_administrator').firstname }} {{ lookup('users', 'platform_administrator').lastname }}"
+      email: "{{ lookup('users', 'platform_administrator').email }}"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
 

@@ -15,8 +15,8 @@ FIDER_DESIGN_LOGO_KEY: "logos/infinito-design-logo.png"
 FIDER_TENANT_BOOTSTRAP_BODY:
   tenantName: "{{ SOFTWARE_NAME }}"
   subdomain: "fider"
-  name: "{{ lookup('users', 'administrator').firstname }} {{ lookup('users', 'administrator').lastname }}"
-  email: "{{ lookup('users', 'administrator').email }}"
+  name: "{{ lookup('users', 'platform_administrator').firstname }} {{ lookup('users', 'platform_administrator').lastname }}"
+  email: "{{ lookup('users', 'platform_administrator').email }}"
   legalAgreement: true
   token: ""
 FIDER_MCP_ENABLED: "{{ lookup('config', application_id, 'services.fidermcp.enabled') | bool }}"

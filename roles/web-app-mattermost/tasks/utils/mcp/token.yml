@@ -30,7 +30,7 @@
           - --suppress-warnings
           - token
           - generate
-          - "{{ lookup('users', 'administrator').username }}"
+          - "{{ lookup('users', 'platform_administrator').username }}"
           - "{{ MATTERMOST_MCP_TOKEN_DESCRIPTION }}"
       register: mattermost_mcp_token_mint
       retries: 30

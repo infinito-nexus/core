@@ -29,7 +29,7 @@ GITLAB_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 GITLAB_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
 GITLAB_OIDC_REDIRECT_URI: "{{ (GITLAB_URL | regex_replace('/$', '')) ~ '/users/auth/openid_connect/callback' }}"
 
-GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
 GITLAB_MCP_ENABLED: "{{ lookup('config', application_id, 'services.gitlabmcp.enabled') | bool }}"
 GITLAB_MCP_PATH: "{{ GITLAB_MCP_UPSTREAM_PATH }}"

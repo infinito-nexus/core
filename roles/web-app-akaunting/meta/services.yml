@@ -53,8 +53,8 @@ akaunting:
   min_storage: 527MB
   company:
     name: Akaunting on {{ DOMAIN_PRIMARY | upper }}
-    email: "{{ lookup('users', 'administrator').email }}"
-  setup_admin_email: "{{ lookup('users', 'administrator').email }}"
+    email: "{{ lookup('users', 'platform_administrator').email }}"
+  setup_admin_email: "{{ lookup('users', 'platform_administrator').email }}"
   ports:
     local:
       http: 8025

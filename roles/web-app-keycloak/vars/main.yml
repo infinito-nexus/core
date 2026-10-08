@@ -54,11 +54,11 @@ KEYCLOAK_REALM_IMPORT_FILE_DST: "{{ [KEYCLOAK_REALM_IMPORT_DIR_HOST,KEYCLOAK_REA
 KEYCLOAK_REALM_IMPORT_FILE_DOCKER: "{{ [KEYCLOAK_REALM_IMPORT_DIR_DOCKER,KEYCLOAK_REALM_IMPORT_FILENAME] | path_join }}"
 KEYCLOAK_REALM_TOTP_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.totp_enabled') | bool }}"
 
-KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.bootstrap.username') }}"
-KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'keycloak_bootstrap').username }}"
+KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'keycloak_bootstrap').password }}"
 
 KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.system.username') }}"
-KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
 KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"

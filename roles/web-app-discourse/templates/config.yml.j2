@@ -59,7 +59,7 @@ env:
   #DOCKER_USE_HOSTNAME: true
 
   ## on initial signup example 'user1@example.com,user2@example.com'
-  DISCOURSE_DEVELOPER_EMAILS:       {{ lookup('users', 'administrator').email }}
+  DISCOURSE_DEVELOPER_EMAILS:       {{ lookup('users', 'platform_administrator').email }}
 
   # Set Logo
 {% if service_provider.platform.logo | length > 0 %}

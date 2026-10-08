@@ -14,7 +14,7 @@ OPENCLOUD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabl
 OPENCLOUD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
 OPENCLOUD_ADMIN_USERNAME: "admin"
-OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
 OPENCLOUD_MACHINE_AUTH_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.machine_auth_api_key') }}"
 OPENCLOUD_STORAGE_SYSTEM_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.storage_system_jwt_secret') }}"

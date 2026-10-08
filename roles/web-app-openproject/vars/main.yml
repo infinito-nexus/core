@@ -24,9 +24,9 @@ OPENPROJECT_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.
 OPENPROJECT_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.proxy.name') }}"
 OPENPROJECT_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
 
-OPENPROJECT_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
-OPENPROJECT_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-OPENPROJECT_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'administrator').email }}"
+OPENPROJECT_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+OPENPROJECT_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+OPENPROJECT_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
 OPENPROJECT_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
 

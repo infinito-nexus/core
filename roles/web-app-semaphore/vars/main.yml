@@ -16,9 +16,9 @@ SEMAPHORE_ADMIN_PASSWORD: "{{ lookup('users', 'web-app-semaphore-breakglass').pa
 SEMAPHORE_ADMIN_EMAIL: "{{ lookup('users', 'web-app-semaphore-breakglass').email }}"
 SEMAPHORE_ADMIN_NAME: "Semaphore Break-glass Admin"
 
-SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'administrator').username }}"
-SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'administrator').username }}"
+SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'platform_administrator').username }}"
+SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'platform_administrator').username }}"
 
 SEMAPHORE_OIDC_PROVIDERS_JSON: >-
   {{ {

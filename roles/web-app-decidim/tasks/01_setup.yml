@@ -76,8 +76,8 @@
 - name: "✅ Decidim | Ensure administrator user exists with correct credentials"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
-    -e DECIDIM_ADMIN_EMAIL={{ lookup('users', 'administrator').email | quote }}
-    -e DECIDIM_ADMIN_PASSWORD={{ lookup('users', 'administrator').password | quote }}
+    -e DECIDIM_ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
+    -e DECIDIM_ADMIN_PASSWORD={{ lookup('users', 'platform_administrator').password | quote }}
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:

@@ -7,7 +7,7 @@
 
 - name: "📜 receive certificate for '{{ domain }}'"
   command: >-
-    certbot certonly  --agree-tos  --email {{ lookup('users', 'administrator').email }}
+    certbot certonly  --agree-tos  --email {{ lookup('users', 'platform_administrator').email }}
     --non-interactive  {% if CERTBOT_ACME_CHALLENGE_METHOD != "webroot" %}
     --dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}
     --dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}-credentials {{ CERTBOT_CREDENTIALS_FILE }}

@@ -3,6 +3,9 @@ application_id: "web-app-listmonk"
 entity_name: "{{ application_id | entity_name }}"
 container_port: "{{ lookup('config', application_id, 'services.listmonk.ports.internal.http') }}"
 
+LISTMONK_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+LISTMONK_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
 LISTMONK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
@@ -21,7 +24,7 @@ LISTMONK_SETTINGS:
     value: "\"{{ lookup('tls', application_id, 'url.base') }}\""
 
   - key: "app.notify_emails"
-    value: "{{ [ lookup('users', 'administrator').email ] | to_json }}"
+    value: "{{ [ lookup('users', 'platform_administrator').email ] | to_json }}"
 
   - key: "security.oidc"
     value: >-

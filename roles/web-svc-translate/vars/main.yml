@@ -47,7 +47,7 @@ TRANSLATE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litell
 # nocheck: literal-protocol-lookup  the memory is read on the container network, which speaks plaintext
 TRANSLATE_WEBLATE_URL: "http://{{ lookup('config', 'web-app-weblate', 'services.weblate.name') }}:{{ lookup('config', 'web-app-weblate', 'services.weblate.ports.internal.http')
   }}"
-TRANSLATE_WEBLATE_TOKEN: "{{ lookup('users', 'administrator', {}).get('tokens', {}).get('web-app-weblate', '') }}"
+TRANSLATE_WEBLATE_TOKEN: "{{ lookup('users', 'platform_administrator', {}).get('tokens', {}).get('web-app-weblate', '') }}"
 
 TRANSLATE_ENGINES: >-
   {{ [{'name': 'libretranslate', 'kind': 'libretranslate', 'url': TRANSLATE_LIBRETRANSLATE_URL}] * (TRANSLATE_LIBRETRANSLATE_ENABLED | bool | ternary(1, 0))

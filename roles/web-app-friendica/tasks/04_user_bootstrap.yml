@@ -16,9 +16,9 @@
     --workdir {{ FRIENDICA_APPLICATION_DIR }}
     {{ FRIENDICA_LOCAL_CID | quote }}
     {{ FRIENDICA_APPLICATION_DIR }}/bin/console user add
-    "{{ lookup('users', 'administrator').firstname | default('Administrator') }}"
+    "{{ lookup('users', 'platform_administrator').firstname | default('Administrator') }}"
     administrator
-    "{{ lookup('users', 'administrator').email }}"
+    "{{ lookup('users', 'platform_administrator').email }}"
     en
   delegate_to: "{{ FRIENDICA_HOST_NODE }}"
   when: "'administrator' not in friendica_admin_search.stdout"

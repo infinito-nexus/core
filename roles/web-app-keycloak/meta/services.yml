@@ -69,8 +69,6 @@ keycloak:
     nextcloud: nextcloud
     moodle: moodle
   accounts:
-    bootstrap:
-      username: administrator
     system:
       username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
   ports:

@@ -6,8 +6,8 @@ compose_mode_force: "{{ 'compose' if lookup('config', application_id, 'services.
 location_upload: "~ ^/_matrix/media/v3/"
 
 MATRIX_SERVER_NAME: "{{ lookup('matrix_server_name') }}"
-MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
-MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 MATRIX_WELL_KNOWN_DIRECTORY: "{{ [ lookup('nginx','directories.data.well_known'), 'matrix' ] | path_join }}"
 MATRIX_WELL_KNOWN_FILE: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}server"
 MATRIX_REGISTRATION_FILE_FOLDER: "/registrations/"

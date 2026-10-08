@@ -6,8 +6,8 @@ JELLYFIN_NAME: "{{ lookup('config', application_id, 'services.jellyfin.name') }}
 JELLYFIN_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 JELLYFIN_API: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jellyfin.ports.local.http') }}"
 
-JELLYFIN_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
-JELLYFIN_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+JELLYFIN_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+JELLYFIN_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
 JELLYFIN_API_CLIENT: 'MediaBrowser Client="infinito", Device="ansible", DeviceId="infinito-deploy", Version="1.0.0"'
 

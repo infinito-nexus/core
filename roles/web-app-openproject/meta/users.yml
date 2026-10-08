@@ -4,3 +4,4 @@ gitlab-web-app-openproject:
   lastname: GitLab
   accounts: []
   description: Account the GitLab webhook API token belongs to; every work-package event GitLab posts is attributed to it
+platform_administrator: {}

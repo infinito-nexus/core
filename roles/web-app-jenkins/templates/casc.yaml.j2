@@ -36,8 +36,8 @@ jenkins:
     local:
       allowsSignup: false
       users:
-        - id: "{{ lookup('users', 'administrator').username }}"
-          password: "{{ lookup('users', 'administrator').password }}"
+        - id: "{{ lookup('users', 'platform_administrator').username }}"
+          password: "{{ lookup('users', 'platform_administrator').password }}"
 {% endif %}
 
   authorizationStrategy:
@@ -49,7 +49,7 @@ jenkins:
             permissions:
               - "Overall/Administer"
             entries:
-              - user: "{{ lookup('users', 'administrator').username }}"
+              - user: "{{ lookup('users', 'platform_administrator').username }}"
               - group: "authenticated"
 unclassified:
   location:

@@ -64,7 +64,7 @@ STALWART_ADMIN_PASSWORD: "{{ lookup('users', 'stalwartadmin').password }}"
 
 STALWART_USERS: "{{ lookup('stalwart_users') }}"
 
-STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 
 STALWART_TRUSTED_NETWORKS: "{{ NETWORK_TRUSTED_PROXY_CIDRS }}"
 

@@ -5,7 +5,7 @@
       {{
         (matomo_token_override | default('') | string | trim)
         if (matomo_token_override | default('') | string | trim) != ''
-        else (lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim)
+        else (lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim)
       }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

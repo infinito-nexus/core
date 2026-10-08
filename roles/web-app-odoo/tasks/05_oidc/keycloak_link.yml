@@ -6,7 +6,7 @@
     query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/realm-user.sql"
     named_args:
       realm: "{{ OIDC.CLIENT.REALM }}"
-      admin: "{{ lookup('users', 'administrator').username }}"
+      admin: "{{ lookup('users', 'platform_administrator').username }}"
     expect_rows: true
   register: keycloak_users
 
@@ -17,9 +17,9 @@
     query_file: "{{ role_path }}/files/sql/oidc/update/user-oauth-link.sql"
     named_args:
       provider_id: "{{ keycloak_provider.rows[0][0] | int }}"
-      oauth_uid: "{{ (keycloak_users.rows | map('first') | select('equalto', lookup('users', 'administrator').username) | list | first) }}"
-      login: "{{ lookup('users', 'administrator').username }}"
-  when: keycloak_users.rows | map('first') | select('equalto', lookup('users', 'administrator').username) | list | length > 0
+      oauth_uid: "{{ (keycloak_users.rows | map('first') | select('equalto', lookup('users', 'platform_administrator').username) | list | first) }}"
+      login: "{{ lookup('users', 'platform_administrator').username }}"
+  when: keycloak_users.rows | map('first') | select('equalto', lookup('users', 'platform_administrator').username) | list | length > 0
 
 - name: "🔐 Grant internal user access to OAuth-created users"
   database_query:

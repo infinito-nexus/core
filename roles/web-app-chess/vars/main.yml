@@ -9,7 +9,7 @@ container_hostname: "{{ entity_name }}"
 CHESS_HOSTNAME: "{{ container_hostname }}"
 CHESS_DOMAIN: "{{ domain }}"
 CHESS_ADMIN_URL: ""
-CHESS_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
+CHESS_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
 CHESS_SERVICE: "{{ entity_name }}"
 CHESS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"

@@ -46,8 +46,8 @@ NEXTCLOUD_DOCKER_WORK_DIRECTORY: "{{ lookup('volume', 'web-app-nextcloud', 'data
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ lookup('volume', 'web-app-nextcloud', 'infinito_conf').target }}"
 NEXTCLOUD_DOCKER_CONF_LOADER_PATH: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'config/zzz-infinito.config.php'] | path_join }}"
 
-NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
-NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('config', application_id, 'users.administrator.username') }}"
+NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 
 NEXTCLOUD_INIT_GATE_FILE: "init-gate.sh"
 NEXTCLOUD_INIT_GATE_SRC: "{{ ['shell', 'utils', NEXTCLOUD_INIT_GATE_FILE] | path_join }}"

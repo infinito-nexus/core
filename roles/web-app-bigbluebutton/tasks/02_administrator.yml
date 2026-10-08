@@ -20,13 +20,13 @@
       - exec
       - -i
       - -e
-      - "TARGET_NAME={{ lookup('users', 'administrator').username | upper }}"
+      - "TARGET_NAME={{ lookup('users', 'platform_administrator').username | upper }}"
       - -e
-      - "NEW_NAME={{ lookup('users', 'administrator').username | upper }}"
+      - "NEW_NAME={{ lookup('users', 'platform_administrator').username | upper }}"
       - -e
-      - "NEW_EMAIL={{ lookup('users', 'administrator').email }}"
+      - "NEW_EMAIL={{ lookup('users', 'platform_administrator').email }}"
       - -e
-      - "NEW_PASSWORD_B64={{ lookup('users', 'administrator').password | b64encode }}"
+      - "NEW_PASSWORD_B64={{ lookup('users', 'platform_administrator').password | b64encode }}"
       - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
       - bash
       - -lc

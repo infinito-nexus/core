@@ -6,6 +6,9 @@ swarm_stack_converge_retries: 600
 
 websocket_port: "{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}"
 
+ESPOCRM_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+ESPOCRM_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+
 ESPOCRM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
 ESPOCRM_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
 ESPOCRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"

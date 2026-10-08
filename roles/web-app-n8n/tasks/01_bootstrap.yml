@@ -21,7 +21,7 @@
     method: POST
     body_format: json
     body:
-      emailOrLdapLoginId: "{{ lookup('users', 'administrator').email }}"
+      emailOrLdapLoginId: "{{ lookup('users', 'platform_administrator').email }}"
       password: "{{ N8N_OWNER_PASSWORD }}"
     status_code: [200, 401, 403]
     return_content: false
@@ -37,9 +37,9 @@
     method: POST
     body_format: json
     body:
-      email: "{{ lookup('users', 'administrator').email }}"
-      firstName: "{{ lookup('users', 'administrator').firstname | replace('.', ' ') | trim }}"
-      lastName: "{{ lookup('users', 'administrator').lastname | replace('.', ' ') | trim }}"
+      email: "{{ lookup('users', 'platform_administrator').email }}"
+      firstName: "{{ lookup('users', 'platform_administrator').firstname | replace('.', ' ') | trim }}"
+      lastName: "{{ lookup('users', 'platform_administrator').lastname | replace('.', ' ') | trim }}"
       password: "{{ N8N_OWNER_PASSWORD }}"
     status_code: [200, 201, 400]
     return_content: true
@@ -98,7 +98,7 @@
         method: POST
         body_format: json
         body:
-          emailOrLdapLoginId: "{{ lookup('users', 'administrator').email }}"
+          emailOrLdapLoginId: "{{ lookup('users', 'platform_administrator').email }}"
           password: "{{ N8N_OWNER_PASSWORD }}"
         status_code: [200]
         return_content: false

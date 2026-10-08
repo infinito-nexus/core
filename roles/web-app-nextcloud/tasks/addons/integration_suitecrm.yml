@@ -5,7 +5,7 @@
     nextcloud_crm_instance_dir: "{{ lookup('container', 'web-app-suitecrm', 'directories.instance') }}"
     nextcloud_crm_base_url: "{{ lookup('tls', 'web-app-suitecrm', 'url.base') | trim }}"
     nextcloud_crm_client_name: "Nextcloud ({{ lookup('domain', 'web-app-nextcloud') }})"
-    nextcloud_crm_client_secret: "{{ ('integration_suitecrm' ~ lookup('users', 'administrator').password) | hash('sha256') }}"
+    nextcloud_crm_client_secret: "{{ lookup('config', application_id, 'secrets.credentials.integration_suitecrm_client_secret') }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔍 Probe whether the SuiteCRM partner container is running

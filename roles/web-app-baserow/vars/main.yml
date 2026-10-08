@@ -56,6 +56,6 @@ BASEROW_MCP_CONTRACT:
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 
-BASEROW_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
-BASEROW_BOOTSTRAP_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-BASEROW_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+BASEROW_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+BASEROW_BOOTSTRAP_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+BASEROW_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"

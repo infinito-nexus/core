@@ -63,7 +63,7 @@ MATTERMOST_MCP_TOKEN_DESCRIPTION: mcp
 
 MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 MATTERMOST_KEYCLOAK_ADMIN_USER: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
-MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ lookup('users', 'administrator').password }}"
+MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ lookup('users', 'platform_administrator').password }}"
 
 MATTERMOST_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.mattermostmcp.name') }}"
 MATTERMOST_MCP_PORT: "{{ lookup('config', application_id, 'services.mattermostmcp.ports.internal.http') }}"
