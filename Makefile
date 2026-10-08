@@ -245,16 +245,18 @@ compose-restart:
 
 .PHONY: compose-role-sync
 # Re-run only the role of a deployed app against the running stack (no system stages; the spec runs only with pw=).
-# Usage: make compose-role-sync role=<application_id> [variant=<idx>] [pw="<playwright args>"] [keep=true] [base='<hex>']
+# Usage: make compose-role-sync role=<application_id> [variant=<idx>] [task=<task file>] [pw="<playwright args>"] [keep=true] [base='<hex>']
 # Example: make compose-role-sync role=web-app-gitea variant=0 pw="--grep design: --grep-invert gallery"
+# Example: make compose-role-sync role=web-app-xwiki variant=0 task=06_design.yml
 # Param role: deployed application id
 # Param variant: matrix round index the app was deployed with
+# Param task: task file of the role that runs alone instead of the whole role; it gets the role variables and nothing an earlier task of the role set
 # Param pw: Playwright arguments without quotes; when set, the spec of the role is staged again, its .env rendered again and run with them
 # Param keep: true lets that spec run capture the design gallery
 # Param base: hex base color that replaces the one of the inventory for this run, e.g. base='#001f3f'
 compose-role-sync:
 	@: $${role:?role=<application_id> required, e.g. role=web-app-gitea}
-	@role='$(role)' variant='$(variant)' pw='$(pw)' keep='$(keep)' base='$(base)' bash scripts/tests/deploy/local/sync/role.sh
+	@role='$(role)' variant='$(variant)' task='$(task)' pw='$(pw)' keep='$(keep)' base='$(base)' bash scripts/tests/deploy/local/sync/role.sh
 
 .PHONY: compose-stop
 # Stop the development stack without removing volumes.

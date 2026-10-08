@@ -19,14 +19,17 @@
   vars:
     sync_application_id: "{{ APPLICATIONS_WHITELIST | first }}"
     sync_scope: design
+    sync_task: ""
     sync_playwright: false
   tasks:
     - name: ✅ Assert exactly one application and a known scope are targeted
       ansible.builtin.assert:
         that:
           - APPLICATIONS_WHITELIST | length == 1
-          - sync_scope in ['design', 'role']
-        fail_msg: "Pass one application id in APPLICATIONS_WHITELIST and sync_scope=design|role, got {{ APPLICATIONS_WHITELIST }} and {{ sync_scope }}"
+          - sync_scope in ['design', 'role', 'task']
+          - sync_scope != 'task' or sync_task | length > 0
+        fail_msg: "Pass one application id in APPLICATIONS_WHITELIST and sync_scope=design|role|task (task needs sync_task), got {{ APPLICATIONS_WHITELIST }}, {{
+          sync_scope }} and '{{ sync_task }}'"
         quiet: true
 
     - name: 🔀 Merge variables
@@ -34,7 +37,7 @@
 
     - name: "📍 Place the shared services and the proxy on their hosts"
       ansible.builtin.include_tasks: tasks/utils/constructor/placement.yml
-      when: sync_scope == 'role'
+      when: sync_scope in ['role', 'task']
 
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
       applications_carrier: {}
