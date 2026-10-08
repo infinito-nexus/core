@@ -8,12 +8,14 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 XWIKI_HOST_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
 
 XWIKI_HOSTNAME: "{{ container_hostname }}"
+XWIKI_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 
 XWIKI_HOST_PROPERTIES_PATH: "{{ [lookup('container', application_id, 'directories.config'), 'xwiki.properties'] | path_join }}"
 XWIKI_DOCK_DATA_DIR: "{{ lookup('volume', 'web-app-xwiki', 'data').target }}"
 
 XWIKI_IMAGE: "{{ lookup('config', application_id, 'services.xwiki.image') }}"
 XWIKI_VERSION: "{{ lookup('config', application_id, 'services.xwiki.version') }}"
+XWIKI_PLATFORM_VERSION: "{{ XWIKI_VERSION | split('-') | first }}"
 XWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.xwiki.name') }}"
 XWIKI_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
@@ -22,6 +24,8 @@ XWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')
 XWIKI_SSO_ENABLED: "{{ (XWIKI_OIDC_ENABLED | bool) or (XWIKI_LDAP_ENABLED | bool) }}"
 
 XWIKI_ADMIN_USER: "{{ lookup('users', 'administrator').username }}"
+XWIKI_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+XWIKI_ADMIN_REFERENCE: "XWiki.{{ XWIKI_ADMIN_USER }}"
 XWIKI_ADMIN_GROUP: "administrator"
 XWIKI_ADMIN_GROUP_PAGE: "XWikiAdminGroup"
 
@@ -55,3 +59,90 @@ XWIKI_OIDC_GROUPS_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
 XWIKI_OIDC_ADMIN_PROVIDER_GROUP: "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 
 XWIKI_PLUGINS: "{{ lookup('config', application_id, 'addons') | xwiki_enabled_install_items }}"
+
+XWIKI_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+XWIKI_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+XWIKI_DESIGN_THEME_PAGE: "Infinito"
+XWIKI_DESIGN_THEME_REFERENCE: "FlamingoThemes.{{ XWIKI_DESIGN_THEME_PAGE }}"
+XWIKI_DESIGN_STOCK_THEME_PAGE: "Iceberg"
+XWIKI_DESIGN_THEME_OBJECT: "objects/FlamingoThemesCode.ThemeClass/0"
+XWIKI_DESIGN_LOGO_FILE: "logo.svg"
+XWIKI_REST_THEME_PAGE: "{{ [XWIKI_REST_XWIKI, 'spaces/FlamingoThemes/pages', XWIKI_DESIGN_THEME_PAGE] | url_join }}"
+XWIKI_REST_PREFERENCES: "{{ [XWIKI_REST_XWIKI_PAGES, 'XWikiPreferences/objects/XWiki.XWikiPreferences/0/properties'] | url_join }}"
+XWIKI_DESIGN_TITLE_SUFFIX: " - {{ lookup('design', application_id).label }}"
+XWIKI_DESIGN_TITLE: "$tdoc.getRenderedTitle('plain/1.0'){{ XWIKI_DESIGN_TITLE_SUFFIX }}"
+XWIKI_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+XWIKI_DESIGN_THEME_TOKENS:
+  text-color: text
+  body-bg: surface-1
+  xwiki-page-content-bg: surface-2
+  link-color: link
+  headings-color: text
+  brand-primary: primary
+  brand-success: success
+  brand-info: info
+  brand-warning: warning
+  brand-danger: danger
+  component-active-color: text
+  component-active-bg: surface-active
+  btn-default-color: text
+  btn-default-bg: surface-2
+  btn-default-border: border-strong
+  btn-primary-color: on-primary
+  btn-primary-bg: primary
+  btn-success-color: on-success
+  btn-success-bg: success
+  btn-info-color: on-info
+  btn-info-bg: info
+  btn-warning-color: on-warning
+  btn-warning-bg: warning
+  btn-danger-color: on-danger
+  btn-danger-bg: danger
+  navbar-default-bg: frame
+  navbar-default-color: on-frame
+  navbar-default-link-color: on-frame
+  navbar-default-link-hover-color: on-frame
+  navbar-default-link-hover-bg: frame-hover
+  navbar-default-link-active-color: on-frame
+  navbar-default-link-active-bg: frame-active
+  dropdown-bg: surface-2
+  dropdown-border: border
+  dropdown-divider-bg: border
+  dropdown-link-color: text
+  dropdown-link-hover-color: text
+  dropdown-link-hover-bg: surface-hover
+  input-bg: surface-2
+  input-border: border-strong
+  input-color: text
+  input-border-focus: link
+  input-color-placeholder: text-muted
+  legend-color: text
+  legend-border-color: border
+  panel-bg: surface-2
+  panel-header-text: text
+  breadcrumb-bg: surface-3
+  breadcrumb-color: text-muted
+  breadcrumb-link-color: link
+  table-bg: surface-2
+  table-bg-hover: surface-hover
+  table-border-color: border
+XWIKI_DESIGN_LESS_TOKENS:
+  gray-light: text-muted
+  text-muted: text-muted
+  state-success-bg: success-subtle
+  state-info-bg: info-subtle
+  state-warning-bg: warning-subtle
+  state-danger-bg: danger-subtle
+  xwiki-border-color: border
+  xwiki-drawer-menu-item-hover-bg: surface-hover
+  xwiki-drawer-menu-item-hover-color: text
+  well-bg: surface-1
+XWIKI_DESIGN_THEME_COLORS: >-
+  {{ dict(XWIKI_DESIGN_THEME_TOKENS.keys()
+     | zip(XWIKI_DESIGN_THEME_TOKENS.values() | map('regex_replace', '^', '--design-') | map('extract', XWIKI_DESIGN_PALETTE))) }}
+XWIKI_DESIGN_LESS_COLORS: >-
+  {{ dict(XWIKI_DESIGN_LESS_TOKENS.keys()
+     | zip(XWIKI_DESIGN_LESS_TOKENS.values() | map('regex_replace', '^', '--design-') | map('extract', XWIKI_DESIGN_PALETTE))) }}
+XWIKI_DESIGN_LESS_CODE: >-
+  {% for name, value in XWIKI_DESIGN_LESS_COLORS | dictsort %}@{{ name }}: {{ value }};
+  {% endfor %}@list-group-active-border: @list-group-border; @headings-font-weight: 500;

@@ -1,0 +1,6 @@
+{% set former_theme = _xwiki_design_color_theme.json.value %}
+<object xmlns="http://www.xwiki.org">
+  <className>XWiki.XWikiPreferences</className>
+  <property name="colorTheme"><value>{{ ('' if former_theme == XWIKI_DESIGN_THEME_REFERENCE else former_theme) | e }}</value></property>
+  <property name="title"><value>{{ _xwiki_design_title.json.value | e }}</value></property>
+</object>

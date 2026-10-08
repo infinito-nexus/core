@@ -135,6 +135,7 @@ The OIDC/LDAP runtime configuration (provider URLs, bind DN, secrets) lives in t
 - [XWiki Official Website](https://www.xwiki.org/)  
 - [XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)  
 - [XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)  
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/F8XKp2u85ENaT8NVoVTmg6)  
 
 ## Persona contract opt-outs
 

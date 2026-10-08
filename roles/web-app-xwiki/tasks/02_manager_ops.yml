@@ -59,6 +59,9 @@
 - name: "✅ XWIKI | Ensure Main.WebHome exists"
   include_tasks: 05_main_webhome.yml
 
+- name: "🎨 XWIKI | Reconcile the corporate color theme"
+  include_tasks: 06_design.yml
+
 - block:
     - name: "📁 Create Final Docker Compose File"
       stack_host_template:
