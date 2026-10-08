@@ -45,6 +45,7 @@ async function runAdminFlow(page, opts = {}) {
   const adminUsername = readEnv("ADMIN_USERNAME");
   const adminPassword = readEnv("ADMIN_PASSWORD");
   const adminNativePassword = readEnv("ADMIN_NATIVE_PASSWORD");
+  const adminNativeUsername = readEnv("ADMIN_NATIVE_USERNAME");
 
   if (!appBaseUrl || !canonicalDomain) {
     test.skip(
@@ -98,7 +99,7 @@ async function runAdminFlow(page, opts = {}) {
         )
         .first();
       if (await usernameField.isVisible().catch(() => false)) {
-        await usernameField.fill(adminUsername).catch(() => {});
+        await usernameField.fill(adminNativeUsername || adminUsername).catch(() => {});
       }
       await passwordField.fill(adminNativePassword || adminPassword).catch(() => {});
       await passwordField.press("Enter").catch(() => {});
