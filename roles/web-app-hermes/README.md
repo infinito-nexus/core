@@ -64,7 +64,7 @@ Read the password from the inventory at `applications.web-app-hermes.secrets.cre
 
 ### Configuration
 
-`/opt/data/config.yaml` is rendered by the deploy and mounted as a single file, so the dashboard cannot write it. A theme chosen in the theme switcher lasts until the next page load. Change the inventory and redeploy to persist a setting.
+`/opt/data/config.yaml` is rendered by the deploy, mounted at `/opt/seed/config.yaml` and copied onto the data volume by `/etc/cont-init.d/00-seed-config` before the gateway starts, so the gateway and the dashboard can write it. The copy runs on every start, so a setting changed in the dashboard lasts until the next deploy. Change the inventory to persist one.
 
 ### Corporate design
 
