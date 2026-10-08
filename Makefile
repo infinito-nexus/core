@@ -289,13 +289,14 @@ cosmos:
 
 .PHONY: design-gallery
 # Rerun the design spec of a deployed app and copy its before/after screenshots to /tmp/design-gallery/<app>/ (no redeploy).
-# Usage: make design-gallery app=<application_id> [pw="--grep <pattern>"]
-# Example: make design-gallery app=web-app-gitea pw="--grep diag:"
+# Usage: make design-gallery app=<application_id> [views=<view>[,<view>...]] [pw="--grep <pattern>"]
+# Example: make design-gallery app=web-app-gitea views=dashboard,settings
 # Param app: deployed application id
+# Param views: comma-separated view names; only these are captured, by the gallery test alone, and added to the existing screenshots
 # Param pw: Playwright arguments without quotes that replace the default `--grep design:`; such a run adds its screenshots to the existing ones
 design-gallery:
 	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
-	@app='$(app)' pw='$(pw)' bash scripts/tests/design/gallery.sh
+	@app='$(app)' pw='$(pw)' views='$(views)' bash scripts/tests/design/gallery.sh
 
 .PHONY: design-palette
 # Run the design assertions of a deployed app with another base color and restore the base of the inventory afterwards, also on failure.

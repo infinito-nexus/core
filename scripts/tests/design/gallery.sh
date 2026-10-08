@@ -4,6 +4,7 @@
 #
 # Param app: deployed application id (required).
 # Param pw: Playwright arguments without quotes that replace the default `--grep design:` (optional). Such a run adds its screenshots to the existing ones instead of replacing them.
+# Param views: comma-separated view names without spaces (optional). Only these views are captured, by the gallery test alone unless pw is set, and their screenshots are added to the existing ones.
 set -euo pipefail
 
 : "${app:?app=<application_id> required}"
@@ -19,11 +20,20 @@ out="/tmp/design-gallery/${app}"
 
 cmd="rm -rf '${reports}'" bash scripts/tests/deploy/local/exec/container.sh
 
+selection="--grep design:"
+if [[ -n "${views:-}" ]]; then
+	[[ "${views}" =~ ^[A-Za-z0-9_,-]+$ ]] || {
+		echo "views must be comma-separated view names without spaces: ${views}" >&2
+		exit 2
+	}
+	selection="--grep gallery"
+fi
+
 spec_status=0
-cmd="INFINITO_PLAYWRIGHT_KEEP=true bash scripts/tests/e2e/rerun-spec.sh '${app}' ${pw:---grep design:} --retries=0" \
+cmd="INFINITO_PLAYWRIGHT_KEEP=true PLAYWRIGHT_GALLERY_VIEWS='${views:-}' bash scripts/tests/e2e/rerun-spec.sh '${app}' ${pw:-${selection}} --retries=0" \
 	bash scripts/tests/deploy/local/exec/container.sh || spec_status=$?
 
-[[ -n "${pw:-}" ]] || rm -rf "${out}"
+[[ -n "${pw:-}${views:-}" ]] || rm -rf "${out}"
 mkdir -p "${out}"
 cmd="tar -C '${reports}' -cf - ." bash scripts/tests/deploy/local/exec/container.sh | tar -xf - -C "${out}"
 

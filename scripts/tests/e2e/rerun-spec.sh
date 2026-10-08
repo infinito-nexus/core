@@ -129,6 +129,7 @@ exec docker run --rm \
 	"${net_args[@]}" \
 	--env-file "$env_file" \
 	-e "INFINITO_PLAYWRIGHT_KEEP=${INFINITO_PLAYWRIGHT_KEEP:-}" \
+	-e "PLAYWRIGHT_GALLERY_VIEWS=${PLAYWRIGHT_GALLERY_VIEWS:-}" \
 	"${proxy_env[@]}" \
 	-v "$stage_dir:/e2e" \
 	-v "$stage_dir/volume:/volume" \
