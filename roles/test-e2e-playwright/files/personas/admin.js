@@ -115,22 +115,27 @@ async function runAdminFlow(page, opts = {}) {
       return true;
     };
 
+    const passwordStillShown = () =>
+      page
+        .locator("input[type='password']:visible")
+        .first()
+        .isVisible()
+        .catch(() => false);
+
     let loginAttempted = await tryNativeLogin(15_000);
-    if (!loginAttempted) {
+    if (!loginAttempted || (await passwordStillShown())) {
       for (const loginPath of ["/login", "/admin/", "/admin", "/accounts/login/"]) {
         await gotoOnion(page,`${base}${loginPath}`, { waitUntil: "domcontentloaded" }).catch(() => {});
         if (await tryNativeLogin()) {
           loginAttempted = true;
-          break;
+          if (!(await passwordStillShown())) {
+            break;
+          }
         }
       }
     }
 
-    const passwordStillVisible = await page
-      .locator("input[type='password']:visible")
-      .first()
-      .isVisible()
-      .catch(() => false);
+    const passwordStillVisible = await passwordStillShown();
     nativeLoginCompleted =
       loginAttempted &&
       !passwordStillVisible &&
