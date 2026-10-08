@@ -44,7 +44,7 @@ async function loginAsAdministrator(page) {
     landing.status(),
     "Jenkins must serve its dashboard to the administrator; 403 means the session never authenticated",
   ).toBeLessThan(400);
-  await expect(page.locator("a[href$='/logout']").first()).toBeVisible({
+  await expect(page.locator(`a[href$='/user/${adminUsername}']`).first()).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
 }
