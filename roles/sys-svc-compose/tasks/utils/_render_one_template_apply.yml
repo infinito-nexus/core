@@ -31,7 +31,6 @@
       register: _role_templates_slurp
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    # Exception: a role included as a partner runs on the stack host alone, so a `not IS_STACK_HOST` body never evaluates anywhere and every worker stays without the file.
     - name: "[swarm] Ensure parent directory of '{{ _tpl.dest }}' exists on every node"
       ansible.builtin.file:
         path: "{{ _tpl.dest | dirname }}"

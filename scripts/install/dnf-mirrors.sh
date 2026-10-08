@@ -19,7 +19,6 @@ for_repo() {
 for_repo baseos BaseOS
 for_repo appstream AppStream
 
-# Exception: a SIG repository is laid out as SIGs/<stream>/<sig>/<arch>/<component>, which for_repo's <repo>/<arch>/os shape cannot express.
 sed -i -E \
 	"s#^metalink=https?://mirrors\\.centos\\.org/metalink\\?repo=centos-extras-sig-extras-common-([^-&]+)-stream.*#baseurl=$upstream/SIGs/\\1-stream/extras/\\\$basearch/extras-common/#" \
 	"${repos[@]}"
