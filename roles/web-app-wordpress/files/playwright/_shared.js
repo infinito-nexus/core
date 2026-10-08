@@ -22,6 +22,8 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
+  localAdminUsername: decodeDotenvQuotedValue(process.env.WORDPRESS_ADMIN_USERNAME),
+  localAdminPassword: decodeDotenvQuotedValue(process.env.WORDPRESS_ADMIN_PASSWORD),
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
   rbacGroupPathPrefix: decodeDotenvQuotedValue(process.env.RBAC_GROUP_PATH_PREFIX),
   multisiteEnabled:
@@ -85,6 +87,31 @@ async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
     .poll(() => page.url(), {
       timeout: resolveTimeout(60_000),
       message: `Expected redirect back to ${wpBaseUrl}/wp-admin after OIDC login`,
+    })
+    .toContain("/wp-admin");
+}
+
+/**
+ * Args:
+ *   page: Playwright page without a WordPress session; ends on a /wp-admin URL.
+ */
+async function wpAdminLogin(page) {
+  if (isServiceEnabled("sso")) {
+    await wpAdminLoginViaOidc(page, env.wpBaseUrl, env.adminUsername, env.adminPassword);
+    return;
+  }
+  await gotoOnion(page, `${env.wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
+  const username = page.locator("#user_login");
+  const password = page.locator("#user_pass");
+  await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await username.fill(env.localAdminUsername);
+  await expect(password).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await password.fill(env.localAdminPassword);
+  await page.locator("#wp-submit").click();
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(10_000),
+      message: `Expected ${env.wpBaseUrl}/wp-admin after the local sign-in`,
     })
     .toContain("/wp-admin");
 }
@@ -529,6 +556,7 @@ module.exports = {
   env,
   attachDiagnostics,
   fillKeycloakLoginForm,
+  wpAdminLogin,
   wpAdminLoginViaOidc,
   wpSignOut,
   keycloakAdminToken,
