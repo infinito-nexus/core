@@ -41,6 +41,7 @@ TIMEOUT = 60
 
 MAILBOXES = ("INBOX", "Junk Mail")
 EXTERNAL_RECIPIENT = "relay-probe@example.org"
+RELAY_DENIED = 550
 
 
 def unverified_context() -> ssl.SSLContext:
@@ -62,10 +63,10 @@ def relay(host: str, sender: str, password: str) -> int:
         smtp.ehlo()
         smtp.mail(sender)
         anonymous, _ = smtp.rcpt(EXTERNAL_RECIPIENT)
-    if anonymous < 500:
+    if anonymous != RELAY_DENIED:
         print(
-            f"open relay: an unauthenticated session got {anonymous} "
-            f"for {EXTERNAL_RECIPIENT}",
+            f"relay not denied: an unauthenticated session got {anonymous} "
+            f"for {EXTERNAL_RECIPIENT}, expected {RELAY_DENIED}",
             file=sys.stderr,
         )
         return 1
