@@ -90,6 +90,7 @@ MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') |
   '^', 'mautrix_') | zip(MATRIX_BRIDGE_ADDONS | map(attribute='value.enabled')))) }}"
 
 MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services.matrix.conferencing.element_call') | bool }}"
+MATRIX_SYNAPSE_METRICS_PORT: "{{ lookup('config', application_id, 'services.prometheus.native_metrics.port') }}"
 
 MATRIX_ADDON_BAIBOT_ENABLED: "{{ lookup('config', application_id, 'addons.baibot.enabled') | bool }}"
 MATRIX_ADDON_BAIBOT_LOCALPART: "{{ lookup('config', application_id, 'addons.baibot.config.user_localpart') }}"

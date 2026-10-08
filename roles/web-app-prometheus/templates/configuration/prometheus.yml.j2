@@ -41,20 +41,21 @@ scrape_configs:
 
 {% endfor %}
 
-{% set canonical_map = lookup('applications') | canonical_domains_map(DOMAIN_PRIMARY) %}
+{% set canonical_map = lookup('domains') %}
+{% set probed_roles = lookup('roles_with_service', 'prometheus') | map(attribute='id') | list %}
   - job_name: "blackbox-healthz"
     metrics_path: /probe
     params:
       module: [http_ready]
     static_configs:
 {% for _application_id in CURRENT_PLAY_APPLICATIONS | list | sort %}
-{% if _application_id != application_id %}
+{% if _application_id in probed_roles %}
 {% set domains_raw = canonical_map.get(_application_id, []) %}
 {% set canonical_probe_domains = (domains_raw.values() | list) if (domains_raw is mapping) else domains_raw %}
 {% if canonical_probe_domains | length > 0 %}
       - targets:
 {% for domain in canonical_probe_domains %}
-          - "{{ lookup('tls', application_id, 'protocols.web') }}://{{ domain }}/healthz/ready"
+          - "{{ lookup('tls', domain, 'url.base') }}healthz/ready"
 {% endfor %}
         labels:
           app: "{{ _application_id }}"

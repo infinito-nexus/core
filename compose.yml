@@ -24,7 +24,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      network: host
       args:
         INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_SRC_DIR: ${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}

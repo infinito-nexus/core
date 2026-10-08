@@ -173,11 +173,9 @@ matrix_bot_baibot_config_initial_global_config_handler_catch_all: "static/{{ MAT
 {% endif %}
 
 matrix_synapse_usage_exporter_enabled: {{ MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED | string | lower }}
-{% if MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED %}
 matrix_synapse_metrics_enabled: true
 matrix_synapse_container_metrics_api_host_bind_port: "0.0.0.0:{{ MATRIX_SYNAPSE_METRICS_PORT }}"
 matrix_synapse_metrics_port: {{ MATRIX_SYNAPSE_METRICS_PORT }}
-{% endif %}
 
 jitsi_enabled: {{ MATRIX_JITSI_SELF_HOSTED | string | lower }}
 {% if MATRIX_ADDON_JITSI_ENABLED and not MATRIX_JITSI_SELF_HOSTED | bool %}
