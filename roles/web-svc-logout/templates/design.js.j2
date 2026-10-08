@@ -1,0 +1,17 @@
+{% set design = lookup('design', application_id) %}
+{% if design.title is string or design.logo is string %}
+(function () {
+{% if design.title is string %}
+  var title = {{ design.title | to_json }};
+  if (document.title.indexOf(title) === -1) {
+    document.title = document.title ? document.title + " | " + title : title;
+  }
+{% endif %}
+{% if design.logo is string %}
+  var icon = document.querySelector("link[rel~='icon']") || document.head.appendChild(document.createElement("link"));
+  icon.rel = "icon";
+  icon.type = "image/x-icon";
+  icon.href = {{ design.urls.favicon_ico | to_json }};
+{% endif %}
+})();
+{% endif %}
