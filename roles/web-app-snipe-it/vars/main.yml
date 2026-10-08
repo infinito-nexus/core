@@ -34,6 +34,23 @@ SNIPE_IT_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 SNIPE_IT_SSO_HEADER_NAME: "HTTP_X_FORWARDED_PREFERRED_USERNAME"
 SNIPE_IT_SSO_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
 
+SNIPE_IT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SNIPE_IT_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+SNIPE_IT_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')) }}"
+SNIPE_IT_DESIGN_BRANDING: "{{ lookup('design', application_id) }}"
+SNIPE_IT_DESIGN_COLORS:
+  header_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-frame'] }}"
+  nav_link_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-on-frame'] }}"
+  link_light_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-link'] }}"
+  link_dark_color: "{{ SNIPE_IT_DESIGN_PALETTE.dark['--design-link'] }}"
+  custom_css: "{{ lookup('template', 'custom_css.css.j2') }}"
+SNIPE_IT_DESIGN_SETTINGS: >-
+  {{
+    SNIPE_IT_DESIGN_COLORS
+    | combine({'site_name': SNIPE_IT_DESIGN_BRANDING.title} if SNIPE_IT_DESIGN_BRANDING.title is string else {})
+    | combine({'brand': 2, 'assets': ['logo', 'favicon']} if SNIPE_IT_DESIGN_BRANDING.logo is string else {'assets': []})
+  }}
+
 SNIPE_IT_LDAP_FILTER_FRAGMENT: "&(objectClass=inetOrgPerson)"
 SNIPE_IT_LDAP_AUTH_FILTER_QUERY: "{{ LDAP.USER.ATTRIBUTES.ID }}="
 SNIPE_IT_LDAP_USER_FIRSTNAME: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME | lower }}"

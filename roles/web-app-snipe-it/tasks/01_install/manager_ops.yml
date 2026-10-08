@@ -12,3 +12,6 @@
 - name: "🔧 Configure Snipe-IT trusted-header SSO bridge"
   include_tasks: ../04_sso.yml
   when: SNIPE_IT_SSO_ENABLED | bool
+
+- name: "🎨 Apply the corporate design"
+  include_tasks: ../05_design.yml

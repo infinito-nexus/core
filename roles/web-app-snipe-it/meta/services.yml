@@ -98,6 +98,15 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  title: "Snipe-IT"
+  slots:
+    logo:
+      width: 320
+      height: 80
+      frame: true
+    favicon:
+      width: 96
+      height: 96
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
