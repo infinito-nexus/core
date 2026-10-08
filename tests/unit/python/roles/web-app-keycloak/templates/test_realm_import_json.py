@@ -41,6 +41,7 @@ CONTEXT = {
     "KEYCLOAK_LDAP_ENABLED": True,
     "KEYCLOAK_MOODLE_ENABLED": True,
     "KEYCLOAK_RESERVED_USERNAMES_REGEX": "^(root|admin)$",
+    "IAM_USERNAME_MAX_LENGTH": 20,
     "KEYCLOAK_LDAP_USER_OBJECT_CLASSES": "inetOrgPerson, organizationalPerson",
     "KEYCLOAK_LDAP_CMP_NAME": "ldap",
     "KEYCLOAK_LDAP_URL": "ldap://openldap:389",
@@ -149,6 +150,22 @@ class TestRealmImportJson(unittest.TestCase):
         profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
         declared = {attribute["name"] for attribute in profile["attributes"]}
         self.assertIn("uidNumber", declared)
+
+    def test_the_username_length_follows_the_platform_limit(self) -> None:
+        """Registration must refuse what the tightest consumer refuses, so the
+        profile carries IAM_USERNAME_MAX_LENGTH rather than Keycloak's own 255."""
+        realm = json.loads(render([]))
+        provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
+        profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+        username = next(
+            attribute
+            for attribute in profile["attributes"]
+            if attribute["name"] == "username"
+        )
+        self.assertEqual(
+            username["validations"]["length"]["max"],
+            CONTEXT["IAM_USERNAME_MAX_LENGTH"],
+        )
 
     def test_realm_is_valid_json_with_one_saml_app(self) -> None:
         realm = json.loads(render(["web-app-suitecrm"]))
