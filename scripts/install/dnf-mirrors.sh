@@ -9,8 +9,8 @@ fi
 
 upstream='https://mirror.stream.centos.org'
 
+# Param: $1 repo id as the metalink query spells it, $2 directory on the upstream
 for_repo() {
-	# Param: $1 repo id as the metalink query spells it, $2 directory on the upstream
 	sed -i -E \
 		"s#^metalink=https?://mirrors\\.centos\\.org/metalink\\?repo=centos-$1-([^-&]+)-stream.*#baseurl=$upstream/\\1-stream/$2/\\\$basearch/os/#" \
 		"${repos[@]}"
