@@ -10,7 +10,7 @@ from ansible.errors import AnsibleError
 from plugins.lookup.sso_whitelist_domains import LookupModule
 
 PRIMARY = "main.infinito.test"
-RAW_PRIMARY = "{{ lookup('env', 'INFINITO_WHITELIST_TEST_DOMAIN') }}"
+RAW_PRIMARY = "{{ lookup('env', 'SSO_WHITELIST_TEST_DOMAIN') }}"
 
 
 class _Stub:
@@ -39,8 +39,8 @@ class TestSsoWhitelistDomains(unittest.TestCase):
         self.module = LookupModule()
         self.module._loader = None
         self.module._templar = None
-        os.environ["INFINITO_WHITELIST_TEST_DOMAIN"] = PRIMARY
-        self.addCleanup(os.environ.pop, "INFINITO_WHITELIST_TEST_DOMAIN", None)
+        os.environ["SSO_WHITELIST_TEST_DOMAIN"] = PRIMARY
+        self.addCleanup(os.environ.pop, "SSO_WHITELIST_TEST_DOMAIN", None)
 
     def _run(self, variables, domains=None, node_onion=""):
         domains = {self.APP: f"pihole.{PRIMARY}"} if domains is None else domains
@@ -51,9 +51,7 @@ class TestSsoWhitelistDomains(unittest.TestCase):
             return self.module.run([self.APP], variables=variables)[0]
 
     def test_raw_jinja_primary_domain_is_rendered(self):
-        self.assertEqual(
-            self._run({"DOMAIN_PRIMARY": RAW_PRIMARY}), [f".{PRIMARY}"]
-        )
+        self.assertEqual(self._run({"DOMAIN_PRIMARY": RAW_PRIMARY}), [f".{PRIMARY}"])
 
     def test_plain_primary_domain_passes_through(self):
         self.assertEqual(self._run({"DOMAIN_PRIMARY": PRIMARY}), [f".{PRIMARY}"])
