@@ -13,10 +13,7 @@ S1_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-s1', 'services.s1.name') }
 
 LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
 
-LITELLM_LOOPBACK_HOSTS:
-  - "127.0.0.1"
-  - "::1"
-  - "localhost"
+LITELLM_LOOPBACK_HOSTS: "{{ NETWORK_LOOPBACK_HOSTS }}"
 
 LITELLM_BASE_LOOPBACK_URL: "http://{{ LITELLM_LOOPBACK_HOSTS | first }}:{{ lookup('config','svc-ai-litellm', 'services.litellm.ports.local.http') }}"
 
