@@ -18,6 +18,7 @@ from .builder import (
 from .sites import Sites
 
 REFS_TTL_SECONDS = 10
+GIT_TIMEOUT_SECONDS = 900
 TAG = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 
 
@@ -60,6 +61,7 @@ class Library(Sites, Queue, Builder):
             check=True,
             capture_output=True,
             text=True,
+            timeout=GIT_TIMEOUT_SECONDS,
         ).stdout
 
     def refs(self):
@@ -224,6 +226,7 @@ class Library(Sites, Queue, Builder):
                 ],
                 check=True,
                 capture_output=True,
+                timeout=GIT_TIMEOUT_SECONDS,
             )
         self._forget_refs()
         self.request(LATEST, background=True)

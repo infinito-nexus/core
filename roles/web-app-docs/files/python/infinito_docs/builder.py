@@ -23,6 +23,7 @@ LATEST = "latest"
 DEPLOYED = "deployed"
 LOG_TAIL = 40
 QUEUE_SEPARATOR = ":"
+RUN_TIMEOUT_SECONDS = 3600
 
 
 def write_json(path, payload):
@@ -64,12 +65,17 @@ class Builder:
             stderr=subprocess.STDOUT,
             text=True,
         ) as process:
-            for line in process.stdout:
-                progress = progress_of(line, state["progress"])
-                self._append_log(state, line.rstrip())
-                if progress != state["progress"]:
-                    state["progress"] = progress
-                    self._save_state(version, **state)
+            watchdog = threading.Timer(RUN_TIMEOUT_SECONDS, process.kill)
+            watchdog.start()
+            try:
+                for line in process.stdout:
+                    progress = progress_of(line, state["progress"])
+                    self._append_log(state, line.rstrip())
+                    if progress != state["progress"]:
+                        state["progress"] = progress
+                        self._save_state(version, **state)
+            finally:
+                watchdog.cancel()
         if process.returncode:
             raise subprocess.CalledProcessError(process.returncode, command)
 

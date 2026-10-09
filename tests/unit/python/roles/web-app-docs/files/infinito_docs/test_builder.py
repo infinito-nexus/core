@@ -7,6 +7,8 @@ through :class:`Library`, on the fixture its sibling module owns.
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
 import unittest
 from unittest.mock import patch
 
@@ -16,6 +18,18 @@ from .test_library import LibraryFixture, _commit, builder, library
 
 
 class TestBuilder(LibraryFixture, unittest.TestCase):
+    def test_a_run_that_emits_nothing_is_killed_at_the_deadline(self) -> None:
+        state: dict = {"log": [], "progress": 0}
+        command = [sys.executable, "-c", "import time; time.sleep(60)"]
+
+        with (
+            patch.object(builder, "RUN_TIMEOUT_SECONDS", 0.2),
+            self.assertRaises(subprocess.CalledProcessError),
+        ):
+            self.library._run(
+                "latest", state, command, dict(os.environ), str(self.data)
+            )
+
     def test_latest_is_built_from_the_last_commit(self) -> None:
         self.library.build("latest")
 

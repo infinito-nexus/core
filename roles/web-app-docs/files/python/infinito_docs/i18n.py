@@ -18,6 +18,8 @@ from infinito_docs.commands import generate_commands
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 DOMAIN = "docs"
+GENERATE_TIMEOUT_SECONDS = 1800
+EXTRACT_TIMEOUT_SECONDS = 3600
 
 
 def extract(src: Path, output: Path, jobs: int) -> None:
@@ -45,7 +47,13 @@ def extract(src: Path, output: Path, jobs: int) -> None:
             "PYTHONPATH": os.pathsep.join([str(src), tooling, *inherited]),
         }
         for command in generate_commands(src):
-            subprocess.run(command, check=True, env=env, cwd=scratch)
+            subprocess.run(
+                command,
+                check=True,
+                env=env,
+                cwd=scratch,
+                timeout=GENERATE_TIMEOUT_SECONDS,
+            )
         subprocess.run(
             [
                 sys.executable,
@@ -65,6 +73,7 @@ def extract(src: Path, output: Path, jobs: int) -> None:
             check=True,
             env=env,
             cwd=scratch,
+            timeout=EXTRACT_TIMEOUT_SECONDS,
         )
         shutil.copyfile(out / f"{DOMAIN}.pot", output)
 
