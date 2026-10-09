@@ -57,6 +57,10 @@
         dest: "{{ [AGENT_BROKER_BUILD_DIR, 'server.py'] | path_join }}"
         mode: "0644"
         notify: [compose-build, compose-up]
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/files/python/swarm.py') }}"
+        dest: "{{ [AGENT_BROKER_BUILD_DIR, 'swarm.py'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
 
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
