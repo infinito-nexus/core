@@ -19,7 +19,7 @@
       client_secret: "{{ peertube_design_client.json.client_secret }}"
       grant_type: password
       username: "{{ PEERTUBE_ROOT_USERNAME }}"
-      password: "{{ lookup('users', 'administrator').password }}"
+      password: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
     return_content: true
   register: peertube_design_token
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

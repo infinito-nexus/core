@@ -26,7 +26,7 @@
       client_secret: "{{ peertube_admin_client.json.client_secret }}"
       grant_type: password
       username: "{{ PEERTUBE_ROOT_USERNAME }}"
-      password: "{{ lookup('users', 'administrator').password }}"
+      password: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
     status_code: [200, 400]
   register: peertube_admin_probe
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -49,7 +49,7 @@
           - --
           - -u
           - "{{ PEERTUBE_ROOT_USERNAME }}"
-        stdin: "{{ lookup('users', 'administrator').password }}"
+        stdin: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
       register: peertube_admin_reset
       changed_when: "'User password updated.' in peertube_admin_reset.stdout"
       failed_when: "'User password updated.' not in peertube_admin_reset.stdout"
@@ -68,7 +68,7 @@
           client_secret: "{{ peertube_admin_client.json.client_secret }}"
           grant_type: password
           username: "{{ PEERTUBE_ROOT_USERNAME }}"
-          password: "{{ lookup('users', 'administrator').password }}"
+          password: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
         status_code: [200]
       retries: 0
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
