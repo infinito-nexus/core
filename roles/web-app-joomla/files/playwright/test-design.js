@@ -9,14 +9,20 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const {
+  apiGetOnion,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.JOOMLA_BASE_URL || "").replace(/\/$/, "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.JOOMLA_BASE_URL, "JOOMLA_BASE_URL")).replace(/\/$/, "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
-const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+const title = requireDotenvValue(process.env.DESIGN_TITLE, "DESIGN_TITLE");
 const logoEnabled = process.env.DESIGN_LOGO_ENABLED === "true";
 
 const MODES = ["light", "dark"];
