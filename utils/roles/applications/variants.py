@@ -27,6 +27,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
 )
 from utils.roles.applications.topics import CONFIG_TOPICS, apply_topic, provider_of
+from utils.roles.applications.variant_pins import resolve_pins
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 __all__ = [
@@ -134,8 +135,12 @@ def services_overrides_for_round(
 
     Apps in `primary_app_variants` use the supplied (already clamped)
     index. Other roles with their own variants clamp `round_index` to
-    their own variant count. Roles without variants are absent from the
-    result so the resolver falls through to its disk-read path.
+    their own variant count, unless a `# variant-pin:` marker in the
+    round's active variant of another role pins them (see
+    :mod:`utils.roles.applications.variant_pins`); a primary app keeps
+    its supplied index and no pin overrides it. Roles without variants
+    are absent from the result so the resolver falls through to its
+    disk-read path.
 
     The merged map is what the inventory ALSO bakes into host_vars, so
     feeding the same dict into `CombinedResolver(services_overrides=...)`
@@ -145,16 +150,31 @@ def services_overrides_for_round(
     variants_per_app = get_variants(roles_dir=roles_dir)
     overrides: dict[str, dict] = {}
     roles_path = Path(roles_dir)
-    for role_name, variant_list in variants_per_app.items():
-        if not variant_list:
-            continue
+
+    def _round_index_for(role_name: str, variant_list: list) -> int:
         variant_count = max(1, len(variant_list))
         if role_name in primary_app_variants:
             idx = primary_app_variants[role_name]
         else:
             idx = round_index if round_index < variant_count else 0
-        if not 0 <= idx < len(variant_list):
-            idx = 0
+        return idx if 0 <= idx < len(variant_list) else 0
+
+    active_index = {
+        role_name: _round_index_for(role_name, variant_list)
+        for role_name, variant_list in variants_per_app.items()
+        if variant_list
+    }
+    pinned = resolve_pins(
+        active_index, roles_dir=roles_dir, variants_per_app=variants_per_app
+    )
+    for role_name, index in pinned.items():
+        if role_name not in primary_app_variants and role_name in active_index:
+            active_index[role_name] = index
+
+    for role_name, variant_list in variants_per_app.items():
+        if not variant_list:
+            continue
+        idx = active_index[role_name]
         variant_payload = variant_list[idx] if variant_list else {}
         if not isinstance(variant_payload, Mapping):
             variant_payload = {}

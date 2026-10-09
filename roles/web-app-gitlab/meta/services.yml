@@ -153,13 +153,13 @@ migrations:
 # nocheck: playwright-service-flag
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -216,3 +216,21 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+confluence:
+  enabled: false # nocheck: dynamic-flag - web-app-confluence is EOL, no host may bind it
+  shared: false # nocheck: dynamic-flag - web-app-confluence is EOL, no host may bind it
+jenkins:
+  bond: 0.5
+  enabled: "{{ 'web-app-jenkins' in group_names }}"
+  shared: "{{ 'web-app-jenkins' in group_names }}"
+jira:
+  enabled: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+  shared: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+matrix:
+  bond: 0.5
+  enabled: "{{ 'web-app-matrix' in group_names }}"
+  shared: "{{ 'web-app-matrix' in group_names }}"
+mattermost:
+  bond: 0.5
+  enabled: "{{ 'web-app-mattermost' in group_names }}"
+  shared: "{{ 'web-app-mattermost' in group_names }}"

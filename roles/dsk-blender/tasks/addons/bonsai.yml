@@ -1,0 +1,52 @@
+---
+- name: 🔎 Read the Blender version the distribution installed
+  ansible.builtin.command:
+    argv:
+      - blender
+      - --version
+  register: blender_bonsai_blender_version
+  changed_when: false
+
+- name: 🛑 Refuse a Blender older than the extension declares
+  ansible.builtin.assert:
+    that:
+      - (blender_bonsai_blender_version.stdout_lines | first | regex_search('[0-9]+\\.[0-9]+\\.[0-9]+')) is version(blender_bonsai_blender_min, '>=')
+    fail_msg: >-
+      Bonsai {{ blender_bonsai_version }} declares blender_version_min
+      {{ blender_bonsai_blender_min }}, and this host runs
+      {{ blender_bonsai_blender_version.stdout_lines | first }}. Installing it
+      would place an extension Blender refuses to enable, so the bridge would
+      report success while the IFC surface stays absent.
+    quiet: true
+
+- name: "⬇️ Fetch the Bonsai extension {{ blender_bonsai_version }}"
+  get_url_retry:
+    url: "{{ blender_bonsai_archive_url }}"
+    dest: "{{ blender_bonsai_archive_path }}"
+    checksum: "sha256:{{ blender_bonsai_sha256 }}"
+    mode: "0644"
+
+- name: 🏛️ Install and enable the Bonsai extension
+  ansible.builtin.command:
+    argv:
+      - blender
+      - --command
+      - extension
+      - install-file
+      - --repo
+      - "{{ blender_bonsai_repository }}"
+      - --enable
+      - "{{ blender_bonsai_archive_path }}"
+  register: blender_bonsai_install
+  changed_when: "'Installed' in blender_bonsai_install.stdout"
+
+- name: 🛑 Refuse a Bonsai the extension list does not carry
+  ansible.builtin.command:
+    argv:
+      - blender
+      - --command
+      - extension
+      - list
+  register: blender_bonsai_list
+  changed_when: false
+  failed_when: blender_bonsai_extension_id not in blender_bonsai_list.stdout

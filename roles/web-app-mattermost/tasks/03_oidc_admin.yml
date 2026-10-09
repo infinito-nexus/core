@@ -5,7 +5,7 @@
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/select/user/authservice.sql"
     named_args:
-      email: "{{ lookup('users', 'administrator').email }}"
+      email: "{{ lookup('users', 'platform_administrator').email }}"
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mm_admin_authservice
@@ -18,6 +18,6 @@
         config: "{{ lookup('database', application_id) }}"
         query_file: "{{ role_path }}/files/sql/update/user-to-gitlab-auth.sql"
         named_args:
-          authdata: "{{ lookup('users', 'administrator').uid }}"
-          email: "{{ lookup('users', 'administrator').email }}"
+          authdata: "{{ lookup('users', 'platform_administrator').uid }}"
+          email: "{{ lookup('users', 'platform_administrator').email }}"
         mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

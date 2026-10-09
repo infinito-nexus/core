@@ -32,10 +32,18 @@ networks:
     ip6: "{{ lookup('env', 'INFINITO_IP6') }}"
     dns: "{{ lookup('env', 'INFINITO_DNS_IP') }}"
 
-design:
-  css:
-    colors:
-      base: "#FFA500"
+DESIGN_BASE_COLOR: "#FFA500"
+
+applications:
+  web-svc-design:
+    services:
+      design:
+        colors:
+          base: "{{ DESIGN_BASE_COLOR }}"
+  svc-cache-package:
+    secrets:
+      credentials:
+        admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"
 
 API:
   openai:
@@ -59,7 +67,6 @@ users:
     firstname: "Harry"
     lastname: "Beaver"
     website: "https://www.infinito.nexus/"
-    email: "biber@{{ DOMAIN_PRIMARY }}"
     gpg: "DUMMY-GPG-KEY-NOT-SET"
     password: "VeryUnsecurePassword!1"
 
@@ -69,6 +76,6 @@ users:
     roles: []
     tokens: {}
     authorized_keys: []
-SIZE_PERCENT_CLEANUP_DISC_SPACE: 99 # Exception: set this high because the DinD CI environment in the GitHub workflow can already sit at ~92% disk usage.
+SIZE_PERCENT_CLEANUP_DISC_SPACE: 99
 
 WORKSTATION_USER: biber

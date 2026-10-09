@@ -88,21 +88,64 @@ def serves_mcp(role: str) -> bool:
     return bool((block.get("endpoint") or {}).get("path"))
 
 
+def scraped(role: str) -> bool:
+    """Return whether the role's own vhost is expected to serve metrics.
+
+    Args:
+        role: the role directory name.
+    """
+    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
+    if not meta.is_file():
+        return False
+    block = load_yaml_any(str(meta), default_if_missing={})
+    if not isinstance(block, Mapping):
+        return False
+    prometheus = block.get("prometheus")
+    if not isinstance(prometheus, Mapping):
+        return False
+    return (
+        prometheus.get("enabled") is not False and prometheus.get("scrape") is not False
+    )
+
+
+APPLIES = {
+    "roles/sys-svc-proxy/templates/mcp/vhost.conf.j2": serves_mcp,
+    "roles/web-app-prometheus/templates/nginx/locations.conf.j2": scraped,
+}
+
+SATISFIED_BY = {
+    "roles/web-app-prometheus/templates/nginx/locations.conf.j2": {
+        "roles/web-app-prometheus/templates/nginx/location.conf.j2",
+    },
+}
+
+
 def missing_includes() -> list[str]:
     """Return one finding per override dropping a concern that applies to it.
 
-    An override is only asked for a concern its role actually has. The MCP
-    policy renders nothing for a role with no endpoint path, so demanding it
-    everywhere would report noise and train the reader to skip the report.
+    Applicability is decided per concern, not per override: a concern that
+    renders nothing for this role is not demanded of it, and every other
+    concern is. Gating the whole override on one concern's predicate is how
+    web-app-peertube shipped a vhost that declared prometheus and served no
+    metrics - the MCP skip hid the prometheus requirement along with it.
+
+    A concern may also be met by a narrower include. The full prometheus
+    partial ends in locations that proxy to the role's own backend, which a
+    vhost-only role does not have; those roles carry the log_by_lua half alone
+    and emit the same metric label.
     """
     findings = []
     for path in OVERRIDES:
-        if not serves_mcp(role_of(path)):
-            continue
+        role = role_of(path)
         content = read_text(str(path))
         if is_suppressed_in_head(content.splitlines(), _RULE):
             continue
-        for missing in sorted(required_includes() - set(_INCLUDE_RE.findall(content))):
+        present = set(_INCLUDE_RE.findall(content))
+        for missing in sorted(required_includes() - present):
+            if not APPLIES.get(missing, lambda _role: True)(role):
+                continue
+            if SATISFIED_BY.get(missing, set()) & present:
+                continue
             rel = path.relative_to(PROJECT_ROOT)
             findings.append(f"{rel}: does not include {missing!r}")
     return findings

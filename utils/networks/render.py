@@ -71,7 +71,7 @@ def shared_network_compose_key(
     application_id: str,
     deployment_mode: str,
     registry: dict[str, dict[str, Any]],
-    get_entity_name: Callable[[str], str],
+    entity_name: Callable[[str], str],
     lookup_config: Callable[[str, str, Any], Any],
     lookup_database: Callable[[str, str], Any],
     node_local: bool = False,
@@ -88,7 +88,7 @@ def shared_network_compose_key(
         application_id: role the network belongs to.
         deployment_mode: compose or swarm.
         registry: service registry built from the merged applications.
-        get_entity_name: role id to entity name.
+        entity_name: role id to entity name.
         lookup_config: config value accessor.
         lookup_database: database value accessor.
         node_local: render as compose regardless of deployment_mode.
@@ -98,9 +98,7 @@ def shared_network_compose_key(
     attachments, _ = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
-    return _shared_network_key(
-        attachments, get_entity_name(application_id), get_entity_name
-    )
+    return _shared_network_key(attachments, entity_name(application_id), entity_name)
 
 
 def compute_external_network_roles(
@@ -137,7 +135,7 @@ def render_compose_networks(
     application_id: str,
     deployment_mode: str,
     registry: dict[str, dict[str, Any]],
-    get_entity_name: Callable[[str], str],
+    entity_name: Callable[[str], str],
     lookup_config: Callable[[str, str, Any], Any],
     lookup_database: Callable[[str, str], Any],
     swarm_encrypted: bool = True,
@@ -152,12 +150,12 @@ def render_compose_networks(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
-        lines.append(f"  {get_entity_name(att['role'])}:")
+        lines.append(f"  {entity_name(att['role'])}:")
         lines.append("    external: true")
 
-    own_entity = get_entity_name(application_id)
+    own_entity = entity_name(application_id)
     is_own_shared_net_provider = (
-        _shared_network_key(attachments, own_entity, get_entity_name) == own_entity
+        _shared_network_key(attachments, own_entity, entity_name) == own_entity
     )
     if not _suppress_default(application_id, lookup_database):
         lines.append("  default:")
@@ -199,7 +197,7 @@ def render_container_networks(
     application_id: str,
     deployment_mode: str,
     registry: dict[str, dict[str, Any]],
-    get_entity_name: Callable[[str], str],
+    entity_name: Callable[[str], str],
     lookup_config: Callable[[str, str, Any], Any],
     lookup_database: Callable[[str, str], Any],
     provider_self_alias: bool = True,
@@ -217,7 +215,7 @@ def render_container_networks(
             continue
         if own_network_only and not att["is_provider"]:
             continue
-        lines.append(f"  {get_entity_name(att['role'])}:")
+        lines.append(f"  {entity_name(att['role'])}:")
         aliases = att["aliases"]
         if att["is_provider"] and not provider_self_alias:
             aliases = []

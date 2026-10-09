@@ -1,0 +1,565 @@
+{% set design = lookup('design', application_id) %}
+html[data-design-palette] * {
+  scrollbar-color: var(--design-border-strong) var(--design-border-strong);
+}
+html[data-design-palette] .skinHeader,
+html[data-design-palette] {
+  color: var(--design-text);
+  color: var(--design-text);
+}
+html[data-design-palette] .ui-corner-all,
+html[data-design-palette] .ui-shadow,
+html[data-design-palette] .wizardStartForm {
+  background-color: var(--design-surface-1);
+}
+html[data-design-palette] .emby-collapsible-button {
+  border-color: var(--design-border);
+  border-color: var(--design-border);
+}
+html[data-design-palette] .skinHeader-withBackground {
+  background-color: var(--design-surface-2);
+}
+html[data-design-palette] .skinHeader.semiTransparent {
+  background-color: rgba(var(--design-surface-2-rgb), 0.4);
+}
+html[data-design-palette] .backgroundContainer,
+html[data-design-palette] .dialog,
+html[data-design-palette] .nowPlayingContextMenu,
+html[data-design-palette] .nowPlayingPlaylist,
+html[data-design-palette] {
+  background-color: var(--design-surface-1);
+}
+html[data-design-palette] .backgroundContainer.withBackdrop {
+  background-color: rgba(var(--design-surface-1-rgb), 0.86);
+}
+@media(hover:hover)and (pointer:fine) {
+html[data-design-palette] .paper-icon-button-light:hover:not(:disabled) {
+  background-color: var(--design-surface-hover);
+  color: var(--design-link);
+}
+}
+html[data-design-palette] .paper-icon-button-light:active:not(:disabled) {
+  background-color: var(--design-surface-active);
+  color: var(--design-link);
+}
+html[data-design-palette] .paper-icon-button-light.show-focus:focus {
+  color: var(--design-link);
+}
+html[data-design-palette] .fab,
+html[data-design-palette] .raised {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+html[data-design-palette] .fab:focus,
+html[data-design-palette] .raised:focus {
+  background-color: var(--design-surface-active);
+}
+html[data-design-palette] .button-submit {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .button-submit:focus {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .button-delete {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+html[data-design-palette] .checkboxLabel {
+  color: inherit;
+}
+html[data-design-palette] .checkboxListLabel,
+html[data-design-palette] .inputLabel,
+html[data-design-palette] .inputLabelUnfocused,
+html[data-design-palette] .paperListLabel,
+html[data-design-palette] .textareaLabelUnfocused {
+  color: var(--design-text-muted);
+  color: var(--design-text-muted);
+}
+html[data-design-palette] .inputLabelFocused,
+html[data-design-palette] .selectLabelFocused,
+html[data-design-palette] .textareaLabelFocused {
+  color: var(--design-link);
+}
+html[data-design-palette] .checkboxOutline {
+  border-color: currentColor;
+}
+html[data-design-palette] .collapseContent,
+html[data-design-palette] .formDialogFooter:not(.formDialogFooter-clear),
+html[data-design-palette] .formDialogHeader:not(.formDialogHeader-clear),
+html[data-design-palette] .paperList,
+html[data-design-palette] .visualCardBox {
+  background-color: var(--design-surface-2);
+}
+html[data-design-palette] .defaultCardBackground1 {
+  background-color: var(--design-primary-100);
+}
+html[data-design-palette] .defaultCardBackground2 {
+  background-color: var(--design-primary-200);
+}
+html[data-design-palette] .defaultCardBackground3 {
+  background-color: var(--design-primary-300);
+}
+html[data-design-palette] .defaultCardBackground4 {
+  background-color: var(--design-primary-200);
+}
+html[data-design-palette] .defaultCardBackground5 {
+  background-color: var(--design-primary-100);
+}
+html[data-design-palette] .cardText-secondary,
+html[data-design-palette] .fieldDescription,
+html[data-design-palette] .guide-programNameCaret,
+html[data-design-palette] .listItem .secondary,
+html[data-design-palette] .nowPlayingBarSecondaryText,
+html[data-design-palette] .programSecondaryTitle,
+html[data-design-palette] .secondaryText {
+  color: var(--design-text-muted);
+  color: var(--design-text-muted);
+}
+html[data-design-palette] .actionsheetDivider {
+  background-color: var(--design-border);
+  background-color: var(--design-border);
+}
+html[data-design-palette] .toast {
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+  color: rgba(var(--design-surface-1-rgb), 0.87);
+}
+html[data-design-palette] .appfooter,
+html[data-design-palette] .playlistSectionButton {
+  background-color: var(--design-surface-2);
+  color: var(--design-text-muted);
+  color: var(--design-text);
+}
+html[data-design-palette] .itemSelectionPanel {
+  border-color: var(--design-link);
+}
+html[data-design-palette] .selectionCommandsPanel {
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+html[data-design-palette] .upNextDialog-countdownText {
+  color: var(--design-link);
+}
+html[data-design-palette] .alphaPickerButton {
+  background-color: transparent;
+  color: var(--design-text-muted);
+  color: var(--design-text-muted);
+}
+html[data-design-palette] .alphaPickerButton-selected {
+  color: var(--design-text);
+}
+html[data-design-palette] .alphaPickerButton-tv:focus {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary) !important;
+}
+html[data-design-palette] .detailTableBodyRow-shaded:nth-child(2n) {
+  background-color: var(--design-surface-2);
+  background-color: rgba(var(--design-surface-2-rgb), 0.9);
+}
+html[data-design-palette] .detailRibbon {
+  background-color: rgba(var(--design-surface-2-rgb), 0.8);
+}
+html[data-design-palette] .noBackdropTransparency .detailPagePrimaryContainer,
+html[data-design-palette] .noBackdropTransparency .detailPageSecondaryContainer {
+  background-color: var(--design-surface-1);
+}
+html[data-design-palette] .listItem-border {
+  border-color: var(--design-border) !important;
+}
+html[data-design-palette] .listItem:focus {
+  background-color: var(--design-surface-active);
+}
+html[data-design-palette] .listItem:hover {
+  background-color: var(--design-surface-hover);
+}
+html[data-design-palette] .progressring-spiner {
+  border-color: var(--design-link);
+}
+html[data-design-palette] .button-flat:hover,
+html[data-design-palette] .button-link {
+  color: var(--design-link);
+}
+html[data-design-palette] .mediaInfoText {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+html[data-design-palette] .emby-input,
+html[data-design-palette] .emby-textarea {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  color: inherit;
+}
+html[data-design-palette] .emby-input:focus,
+html[data-design-palette] .emby-textarea:focus {
+  border-color: var(--design-link);
+}
+html[data-design-palette] .emby-select-withcolor {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  color: inherit;
+}
+html[data-design-palette] .emby-select-withcolor>option {
+  background-color: var(--design-surface-2);
+}
+html[data-design-palette] .emby-select-withcolor:focus {
+  border-color: var(--design-link) !important;
+}
+html[data-design-palette] .emby-select-tv-withcolor:focus {
+  background-color: var(--design-primary) !important;
+  color: var(--design-on-primary) !important;
+}
+html[data-design-palette] .emby-checkbox:checked+span+.checkboxOutline {
+  border-color: var(--design-primary);
+}
+html[data-design-palette] .emby-checkbox:focus+span+.checkboxOutline {
+  border-color: var(--design-text);
+}
+html[data-design-palette] .emby-checkbox:checked+span+.checkboxOutline,
+html[data-design-palette] .itemProgressBarForeground {
+  background-color: var(--design-primary);
+}
+html[data-design-palette] .emby-checkbox:focus:not(:checked)+span+.checkboxOutline {
+  border-color: var(--design-link);
+}
+html[data-design-palette] .itemProgressBarForeground-recording {
+  background-color: var(--design-danger);
+}
+html[data-design-palette] .countIndicator,
+html[data-design-palette] .fullSyncIndicator,
+html[data-design-palette] .mediaSourceIndicator,
+html[data-design-palette] .playedIndicator {
+  background-color: var(--design-primary);
+}
+html[data-design-palette] .fullSyncIndicator {
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .drawer-open,
+html[data-design-palette] .mainDrawer {
+  background-color: var(--design-surface-2);
+}
+html[data-design-palette] .navMenuOption:hover {
+  background-color: var(--design-surface-hover);
+}
+html[data-design-palette] .navMenuOption-selected {
+  background-color: var(--design-primary) !important;
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .emby-button.show-focus:focus {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .emby-tab-button {
+  color: var(--design-text-muted);
+}
+html[data-design-palette] .emby-tab-button-active {
+  color: var(--design-text);
+}
+html[data-design-palette] .emby-tab-button.show-focus:focus,
+html[data-design-palette] .emby-tab-button:hover {
+  color: var(--design-link);
+}
+html[data-design-palette] .channelPrograms,
+html[data-design-palette] .guide-channelHeaderCell,
+html[data-design-palette] .programCell {
+  border-color: var(--design-border);
+}
+html[data-design-palette] .programCell-sports {
+  background-color: var(--design-info-subtle) !important;
+}
+html[data-design-palette] .programCell-movie {
+  background-color: var(--design-warning-subtle) !important;
+}
+html[data-design-palette] .programCell-kids {
+  background-color: var(--design-success-subtle) !important;
+}
+html[data-design-palette] .programCell-news {
+  background-color: var(--design-danger-subtle) !important;
+}
+html[data-design-palette] .programCell-active {
+  background-color: var(--design-surface-3) !important;
+}
+html[data-design-palette] .guide-channelHeaderCell:focus,
+html[data-design-palette] .programCell:focus {
+  background-color: var(--design-primary) !important;
+  color: var(--design-on-primary) !important;
+}
+html[data-design-palette] .guide-programTextIcon {
+  background-color: var(--design-text-muted);
+  color: var(--design-surface-1);
+}
+html[data-design-palette] .guide-headerTimeslots {
+  color: inherit;
+}
+html[data-design-palette] .guide-date-tab-button {
+  color: var(--design-text-muted);
+  color: var(--design-text-muted);
+}
+html[data-design-palette] .guide-date-tab-button.emby-tab-button-active,
+html[data-design-palette] .guide-date-tab-button:focus {
+  color: var(--design-link);
+}
+html[data-design-palette] .guide-date-tab-button.show-focus:focus {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .infoBanner {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+html[data-design-palette] .ratingbutton-icon-withrating {
+  color: var(--design-danger);
+}
+html[data-design-palette] .downloadbutton-icon-complete,
+html[data-design-palette] .downloadbutton-icon-on {
+  color: var(--design-link);
+}
+html[data-design-palette] .playstatebutton-icon-played {
+  color: var(--design-danger);
+}
+html[data-design-palette] .buttonActive {
+  color: var(--design-link) !important;
+}
+html[data-design-palette] .card:focus .cardBox.visualCardBox,
+html[data-design-palette] .card:focus .cardBox:not(.visualCardBox) .cardScalable {
+  border-color: var(--design-link) !important;
+}
+html[data-design-palette] ::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(var(--design-text-rgb), 0.12);
+}
+html[data-design-palette] ::-webkit-scrollbar-track-piece {
+  background-color: var(--design-surface-3);
+}
+html[data-design-palette] ::-webkit-scrollbar-thumb:horizontal,
+html[data-design-palette] ::-webkit-scrollbar-thumb:vertical {
+  background-color: var(--design-text-muted);
+}
+html[data-design-palette] .metadataSidebarIcon {
+  color: var(--design-link);
+}
+html[data-design-palette] .emby-button.detailFloatingButton {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html[data-design-palette].layout-tv .emby-button.detailFloatingButton:focus {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+html[data-design-palette] #bookPlayer,
+html[data-design-palette] #comicsPlayer,
+html[data-design-palette] #pdfPlayer {
+  background-color: var(--design-surface-1);
+}
+html[data-design-palette] #comicsPlayer .swiper-pagination {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+html[data-design-palette] #bookPlayer .topButtons,
+html[data-design-palette] #comicsPlayer .actionButtonIcon,
+html[data-design-palette] #pdfPlayer .actionButtonIcon {
+  color: var(--design-text);
+}
+html[data-design-palette] #dialogToc {
+  background-color: var(--design-surface-1);
+}
+html[data-design-palette] #dialogToc .bookplayerButtonIcon {
+  color: var(--design-text-muted);
+}
+html[data-design-palette] #dialogToc .bookplayerButtonIcon:hover {
+  color: var(--design-link);
+}
+html[data-design-palette] #dialogToc .toc li a:link {
+  color: var(--design-text-muted);
+}
+html[data-design-palette] #dialogToc .toc li a:active,
+html[data-design-palette] #dialogToc .toc li a:hover {
+  color: var(--design-link);
+}
+html[data-design-palette] * {
+  scrollbar-color: var(--design-border-strong) var(--design-surface-2);
+}
+html[data-design-palette] progress,
+html[data-design-palette] progress::-webkit-progress-bar {
+  background-color: var(--design-surface-3);
+}
+html[data-design-palette] progress::-moz-progress-bar,
+html[data-design-palette] progress::-webkit-progress-value,
+html[data-design-palette] progress[aria-valuenow]:before,
+html[data-design-palette] .playbackProgress > div {
+  background-color: var(--design-primary);
+}
+html[data-design-palette] .recordingProgressBar::-moz-progress-bar,
+html[data-design-palette] .recordingProgressBar::-webkit-progress-value,
+html[data-design-palette] .recordingProgressBar[aria-valuenow]:before {
+  background-color: var(--design-danger);
+}
+html[data-design-palette] .transcodingProgress > div {
+  background-color: var(--design-warning);
+}
+html[data-design-palette] .listItemIcon:not(.listItemIcon-transparent),
+html[data-design-palette] .filterButtonBubble,
+html[data-design-palette] .mediaSourceIndicator,
+html[data-design-palette] .countIndicator,
+html[data-design-palette] .playedIndicator {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .checkboxIcon {
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .button-accent-flat {
+  color: var(--design-link);
+}
+html[data-design-palette] .textCardImageContainer,
+html[data-design-palette] .cardBox:not(.visualCardBox) .cardPadder,
+html[data-design-palette] .backgroundProgress > div {
+  background-color: var(--design-surface-3);
+}
+html[data-design-palette] .cardPadder .cardImageIcon,
+html[data-design-palette] .reviewerName,
+html[data-design-palette] .searchfields-icon {
+  color: var(--design-text-muted);
+}
+html[data-design-palette] .criticReview {
+  background-color: var(--design-surface-2);
+}
+html[data-design-palette] .mdl-spinner__layer-1,
+html[data-design-palette] .mdl-spinner__layer-2,
+html[data-design-palette] .mdl-spinner__layer-3,
+html[data-design-palette] .mdl-spinner__layer-4 {
+  border-color: var(--design-primary);
+}
+{% set jf_palette = [
+  ('background-default', 'var(--design-surface-1)'),
+  ('background-paper', 'var(--design-surface-2)'),
+  ('common-background', 'var(--design-surface-1)'),
+  ('common-onBackground', 'var(--design-text)'),
+  ('text-primary', 'var(--design-text)'),
+  ('text-secondary', 'var(--design-text-muted)'),
+  ('divider', 'var(--design-border)'),
+  ('action-active', 'var(--design-text)'),
+  ('action-selected', 'var(--design-surface-active)'),
+  ('primary-main', 'var(--design-link)'),
+  ('primary-light', 'var(--design-link)'),
+  ('primary-dark', 'color-mix(in oklab, var(--design-link), var(--design-text) 12%)'),
+  ('primary-contrastText', 'var(--design-surface-2)'),
+  ('secondary-main', 'var(--design-info)'),
+  ('secondary-light', 'var(--design-info)'),
+  ('secondary-dark', 'var(--design-info-hover)'),
+  ('secondary-contrastText', 'var(--design-on-info)'),
+  ('error-main', 'var(--design-danger)'),
+  ('error-light', 'var(--design-danger)'),
+  ('error-dark', 'var(--design-danger-hover)'),
+  ('error-contrastText', 'var(--design-on-danger)'),
+  ('warning-main', 'var(--design-warning)'),
+  ('warning-light', 'var(--design-warning)'),
+  ('warning-dark', 'var(--design-warning-hover)'),
+  ('warning-contrastText', 'var(--design-on-warning)'),
+  ('info-main', 'var(--design-info)'),
+  ('info-light', 'var(--design-info)'),
+  ('info-dark', 'var(--design-info-hover)'),
+  ('info-contrastText', 'var(--design-on-info)'),
+  ('success-main', 'var(--design-success)'),
+  ('success-light', 'var(--design-success)'),
+  ('success-dark', 'var(--design-success-hover)'),
+  ('success-contrastText', 'var(--design-on-success)'),
+] %}
+html[data-design-palette] {
+{% for name, value in jf_palette %}
+  --jf-palette-{{ name }}: {{ value }};
+  --jf-palette-{{ name }}Channel: from {{ value }} r g b;
+{% endfor %}
+{% for level in range(1, 25) %}
+  --jf-overlays-{{ level }}: none;
+{% endfor %}
+{% for status, token in [('error', 'danger'), ('warning', 'warning'), ('info', 'info'), ('success', 'success')] %}
+  --jf-palette-Alert-{{ status }}Color: var(--design-{{ token }});
+  --jf-palette-Alert-{{ status }}IconColor: var(--design-{{ token }});
+  --jf-palette-Alert-{{ status }}StandardBg: var(--design-{{ token }}-subtle);
+  --jf-palette-Alert-{{ status }}FilledBg: var(--design-{{ token }});
+  --jf-palette-Alert-{{ status }}FilledColor: var(--design-on-{{ token }});
+{% endfor %}
+  --jf-palette-text-disabled: rgba(var(--design-text-muted-rgb), 0.7);
+  --jf-palette-text-icon: var(--design-text-muted);
+  --jf-palette-action-hover: var(--design-surface-hover);
+  --jf-palette-action-focus: var(--design-surface-active);
+  --jf-palette-action-disabled: rgba(var(--design-text-muted-rgb), 0.7);
+  --jf-palette-action-disabledBackground: var(--design-surface-3);
+  --jf-palette-AppBar-defaultBg: var(--design-surface-2);
+  --jf-palette-AppBar-darkBg: var(--design-surface-2);
+  --jf-palette-AppBar-darkColor: var(--design-text);
+  --jf-palette-Avatar-defaultBg: var(--design-text-muted);
+  --jf-palette-Button-inheritContainedBg: var(--design-surface-3);
+  --jf-palette-Button-inheritContainedHoverBg: var(--design-surface-hover);
+  --jf-palette-Chip-defaultBorder: var(--design-border-strong);
+  --jf-palette-FilledInput-bg: var(--design-surface-3);
+  --jf-palette-FilledInput-hoverBg: var(--design-surface-hover);
+  --jf-palette-FilledInput-disabledBg: var(--design-surface-3);
+{% for color in ['primary', 'secondary', 'error', 'info', 'success', 'warning'] %}
+  --jf-palette-LinearProgress-{{ color }}Bg: var(--design-surface-3);
+{% endfor %}
+  --jf-palette-Skeleton-bg: var(--design-surface-3);
+  --jf-palette-SnackbarContent-bg: var(--design-text);
+  --jf-palette-SnackbarContent-color: var(--design-surface-1);
+  --jf-palette-Switch-defaultColor: var(--design-text-muted);
+  --jf-palette-Switch-defaultDisabledColor: var(--design-border);
+  --jf-palette-TableCell-border: var(--design-border);
+  --jf-palette-Tooltip-bg: var(--design-text);
+  --jf-palette-starIcon-main: var(--design-warning);
+}
+html[data-design-palette] .MuiTooltip-tooltip {
+  color: var(--design-surface-1);
+}
+html[data-design-palette] .MuiAvatar-root > .MuiSvgIcon-root {
+  color: inherit;
+}
+html[data-design-palette] .MuiAvatar-root:has(> .MuiAvatar-fallback) {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+html[data-design-palette] .MuiPaper-root:has(> .MuiTableContainer-root),
+html[data-design-palette] .MuiPaper-root:has(> .MuiTableContainer-root) > .MuiBox-root,
+html[data-design-palette] .MuiTableRow-root,
+html[data-design-palette] .MuiTableCell-root {
+  background-color: var(--design-surface-2);
+}
+html[data-design-palette] .MuiTableBody-root .MuiTableRow-root:hover > .MuiTableCell-root {
+  background-color: var(--design-surface-hover);
+}
+html[data-design-palette] #pluginsPage div:has(> .MuiInputBase-root) {
+  background-color: var(--design-surface-3);
+}
+html[data-design-palette] #pluginsPage div:has(> .MuiInputBase-root):hover {
+  background-color: var(--design-surface-hover);
+}
+html[data-design-palette] fieldset.verticalSection {
+  border-color: var(--design-border);
+}
+html[data-design-palette] .MuiButton-contained.MuiButton-colorPrimary:not(.Mui-disabled) {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+html[data-design-palette] .MuiButton-contained.MuiButton-colorPrimary:not(.Mui-disabled):hover {
+  background-color: var(--design-primary-hover);
+}
+html[data-design-palette] .MuiButton-contained.MuiButton-colorPrimary:not(.Mui-disabled):active {
+  background-color: var(--design-primary-active);
+}
+html[data-design-palette] .MuiListItemButton-root.Mui-selected,
+html[data-design-palette] .MuiListItemButton-root.Mui-selected:hover,
+html[data-design-palette] .MuiMenuItem-root.Mui-selected,
+html[data-design-palette] .MuiMenuItem-root.Mui-selected:hover {
+  background-color: var(--design-surface-active);
+}
+{% if design.logo is string %}
+html[data-design-palette] .pageTitleWithDefaultLogo {
+  background-image: url("{{ design.urls.brand.svg }}");
+}
+html[data-design-palette].layout-tv .pageTitleWithDefaultLogo {
+  background-image: url("{{ design.urls.icon.svg }}");
+}
+html[data-design-palette] .MuiDrawer-paper .MuiListItemIcon-root > img {
+  content: url("{{ design.urls.icon.svg }}");
+}
+{% endif %}

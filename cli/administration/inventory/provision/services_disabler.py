@@ -233,6 +233,27 @@ def apply_services_disabled(
             written = ", ".join(f"{flag}=false" for flag in flags)
             print(f"[INFO] disable: {app_id}.services.{svc_name} → {written}")
 
+        declaring = find_roles_with_service(svc_name, roles_dir)
+        for app_id, app_data in applications.items():
+            if app_id in declaring or not isinstance(app_data, CommentedMap):
+                continue
+            svc_map = app_data.get("services")
+            if not isinstance(svc_map, CommentedMap):
+                continue
+            svc = svc_map.get(svc_name)
+            if not isinstance(svc, CommentedMap):
+                continue
+            baked = [flag for flag in ("enabled", "shared") if flag in svc]
+            if not baked:
+                continue
+            for flag in baked:
+                svc[flag] = False
+            changed = True
+            written = ", ".join(f"{flag}=false" for flag in baked)
+            print(
+                f"[INFO] disable: {app_id}.services.{svc_name} (variant-baked) → {written}"
+            )
+
     if changed:
         with host_vars_file.open("w", encoding="utf-8") as f:
             yaml_rt.dump(doc, f)

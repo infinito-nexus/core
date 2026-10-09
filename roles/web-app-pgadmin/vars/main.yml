@@ -1,8 +1,8 @@
 ---
 application_id: "web-app-pgadmin"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
-PGADMIN_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+PGADMIN_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 PGADMIN_ADMIN_EMAIL_TLD: "{{ PGADMIN_ADMIN_EMAIL.split('@')[1].split('.')[-1] }}"
 
 PGADMIN_SERVER_MODE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.server_mode') | bool  }}"

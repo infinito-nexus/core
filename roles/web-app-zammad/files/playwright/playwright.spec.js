@@ -19,4 +19,5 @@ require("./test-rest-api-ticket-create").register(shared);
 require("./test-ticket-create-as-customer").register(shared);
 require("./test-ticket-reply-as-agent").register(shared);
 require("./test-websocket-realtime").register(shared);
+require("./test-seaweedfs").register(shared);
 require("./test-ai-gateway").register(shared);

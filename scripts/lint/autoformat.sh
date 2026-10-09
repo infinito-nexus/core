@@ -22,11 +22,6 @@ cd "${REPO_ROOT}"
 RUFF_CACHE_DIR="build/ruff-cache-$(id -u)"
 export RUFF_CACHE_DIR
 
-# Exception: no trap-delete on EXIT for status_dir -- that would race the
-# background workers if the parent shell is interrupted mid-run (the trap
-# fires, the dir disappears, an in-flight worker then tries to write its
-# status file and crashes with "No such file or directory"). Cleanup happens
-# explicitly after `wait` returns, see end of script.
 status_dir="$(mktemp -d)"
 
 # $1 = tool name, $2 = OK|SKIP

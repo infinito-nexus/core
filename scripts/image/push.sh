@@ -4,13 +4,17 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 : "${MATRIX_DISTRO:?Missing MATRIX_DISTRO}"
+IMAGE_ARCH="${IMAGE_ARCH:-$("${script_dir}/../meta/resolve/architecture.sh")}"
 export INFINITO_DISTRO="${MATRIX_DISTRO}"
 
 # shellcheck source=scripts/meta/env/load.sh
 source "${script_dir}/../meta/env/load.sh"
 
+INFINITO_PARENT_IMAGE="$("${script_dir}/../meta/resolve/image/parent.sh")"
+export INFINITO_PARENT_IMAGE
+
 : "${BUILD_CONTEXT_DIR:?Missing BUILD_CONTEXT_DIR}"
-: "${IMAGE_TAG:?Missing IMAGE_TAG}"
+: "${IMAGE_DIGEST_DIR:?Missing IMAGE_DIGEST_DIR}"
 : "${GITHUB_REPOSITORY:?Missing GITHUB_REPOSITORY}"
 : "${USE_NIX_TOKEN:?Missing USE_NIX_TOKEN}"
 : "${INFINITO_PARENT_IMAGE:?Missing INFINITO_PARENT_IMAGE; source scripts/meta/env/load.sh}"
@@ -19,7 +23,9 @@ source "${script_dir}/../meta/env/load.sh"
 ghcr_owner="$(scripts/meta/resolve/repository/owner.sh)"
 repo_name="$("${script_dir}/../meta/resolve/repository/name.sh")"
 
-cache_ref="ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}:buildcache"
+image="ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}"
+cache_ref="${image}:buildcache-${IMAGE_ARCH}"
+metadata="$(mktemp)"
 
 max_attempts="${MAX_ATTEMPTS:-7}"
 retry_delay_seconds="${RETRY_DELAY_SECONDS:-20}"
@@ -38,8 +44,9 @@ while true; do
 
 	if docker buildx build \
 		--file "${BUILD_CONTEXT_DIR}/Dockerfile" \
-		--push \
-		--tag "ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}:${IMAGE_TAG}" \
+		--platform "linux/${IMAGE_ARCH}" \
+		--output "type=image,name=${image},push-by-digest=true,name-canonical=true,push=true" \
+		--metadata-file "${metadata}" \
 		--label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
 		--build-arg "INFINITO_PARENT_IMAGE=${INFINITO_PARENT_IMAGE}" \
 		--build-arg "INFINITO_SRC_DIR=${INFINITO_SRC_DIR}" \
@@ -64,3 +71,8 @@ while true; do
 	sleep "${retry_delay_seconds}"
 	attempt=$((attempt + 1))
 done
+
+mkdir -p "${IMAGE_DIGEST_DIR}"
+jq -er '."containerimage.digest"' "${metadata}" >"${IMAGE_DIGEST_DIR}/${MATRIX_DISTRO}.${IMAGE_ARCH}"
+rm -f "${metadata}"
+echo "Pushed ${image}@$(cat "${IMAGE_DIGEST_DIR}/${MATRIX_DISTRO}.${IMAGE_ARCH}") for linux/${IMAGE_ARCH}."

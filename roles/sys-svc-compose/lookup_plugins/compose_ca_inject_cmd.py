@@ -7,7 +7,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.templating.ansible import render_ansible_strict
 
 
@@ -89,7 +89,7 @@ class LookupModule(LookupBase):
         if not isinstance(wrapper, bool):
             raise AnsibleError("compose_ca_inject_cmd: wrapper must be a bool")
 
-        project = _as_str(get_entity_name(application_id))
+        project = _as_str(entity_name(application_id))
         if not project:
             raise AnsibleError("compose_ca_inject_cmd: resolved project is empty")
 

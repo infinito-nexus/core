@@ -1,0 +1,80 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  var prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+  var picked = "";
+  function stored() {
+    try {
+      var value = window.localStorage.getItem("theme");
+      return value === "light" || value === "dark" ? value : "";
+    } catch (error) {
+      return "";
+    }
+  }
+  function apply() {
+    if (picked) {
+      root.setAttribute("data-design-theme", picked);
+      return;
+    }
+    root.removeAttribute("data-design-theme");
+    var browser = prefersDark.matches ? "dark" : "light";
+    if (root.getAttribute("data-theme") !== browser) {
+      root.setAttribute("data-theme", browser);
+    }
+  }
+  if (/^\/examples\/(index\.html)?$/.test(window.location.pathname)) {
+    picked = stored();
+    prefersDark.addEventListener("change", apply);
+    window.addEventListener("storage", function () {
+      picked = stored();
+      apply();
+    });
+    document.addEventListener(
+      "click",
+      function (event) {
+        if (event.target && event.target.closest && event.target.closest("#buttonTheme")) {
+          window.setTimeout(function () {
+            var theme = root.getAttribute("data-theme");
+            picked = theme === "light" || theme === "dark" ? theme : "";
+            apply();
+          }, 0);
+        }
+      },
+      true
+    );
+    apply();
+  }
+{% if design.title is string or design.logo is string %}
+  function brand() {
+{% if design.title is string %}
+    var title = {{ design.title | to_json }};
+    if (document.title.indexOf(title) === -1) {
+      document.title = document.title ? document.title + " | " + title : title;
+    }
+{% endif %}
+{% if design.logo is string %}
+    var icon = {{ design.urls.favicon.png | to_json }};
+    var links = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < links.length; index += 1) {
+      if (links[index].getAttribute("href") !== icon) {
+        links[index].setAttribute("type", "image/png");
+        links[index].setAttribute("href", icon);
+      }
+    }
+    if (links.length === 0 && document.head) {
+      var link = document.createElement("link");
+      link.setAttribute("rel", "icon");
+      link.setAttribute("type", "image/png");
+      link.setAttribute("href", icon);
+      document.head.appendChild(link);
+    }
+    var symbol = document.querySelector("#topBar .brand img");
+    if (symbol && symbol.getAttribute("src") !== icon) {
+      symbol.setAttribute("src", icon);
+    }
+{% endif %}
+  }
+  document.addEventListener("DOMContentLoaded", brand);
+  brand();
+{% endif %}
+})();

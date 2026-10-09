@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import cache
 from typing import TYPE_CHECKING, Any
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 from . import yaml_io
 
@@ -62,7 +62,7 @@ def build_port_index(
                 if not isinstance(port_value, int):
                     continue
                 role_name, entity = _split_role_and_entity(combined_key, roles_dir)
-                entity_key = entity or get_entity_name(role_name) or role_name
+                entity_key = entity or entity_name(role_name) or role_name
                 role_ports = ports_for_role.setdefault(role_name, {})
                 entity_ports = role_ports.setdefault(entity_key, {})
                 scope_map = entity_ports.setdefault(scope_label, {})
@@ -88,7 +88,7 @@ def _absorb_relays(
         else:
             continue
         role_name, entity = _split_role_and_entity(base, roles_dir)
-        entity_key = entity or get_entity_name(role_name) or role_name
+        entity_key = entity or entity_name(role_name) or role_name
         role_relays = relays_for_role.setdefault(role_name, {})
         role_relays.setdefault(entity_key, {})[kind] = port_value
 

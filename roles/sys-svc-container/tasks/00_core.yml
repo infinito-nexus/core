@@ -16,6 +16,17 @@
   until: sys_svc_container_packages_install is succeeded
   notify: container-manager-restart
 
+- name: "🎮 Check whether this host carries an NVIDIA GPU"
+  ansible.builtin.stat:
+    path: /dev/nvidia0
+  register: sys_svc_container_nvidia_device
+
+- name: "🎮 Let the container manager hand that GPU to its containers"
+  include_tasks: 00_core/nvidia.yml
+  when:
+    - sys_svc_container_nvidia_device.stat.exists
+    - ansible_facts['distribution'] in ['Debian', 'Ubuntu']
+
 - name: 📦 Install Docker Python SDK dependencies via pip
   include_role:
     name: sys-pip-install

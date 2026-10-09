@@ -1,0 +1,19 @@
+---
+- name: 📦 Install GNOME GSettings schemas + GNOME Shell (cross-distro)
+  become: true
+  package_install:
+    id: gnome-shell
+
+- name: 📂 Include dependencies
+  include_role:
+    name: "{{ dependency_role }}"
+  loop:
+    - dsk-gnome-caffeine
+    - dsk-gnome-extensions
+    - dsk-gnome-terminal
+  loop_control:
+    loop_var: dependency_role
+
+- include_tasks: 01_extensions.yml
+
+- include_tasks: utils/once/flag.yml

@@ -1,9 +1,32 @@
 ---
 application_id: "web-app-peertube"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 PEERTUBE_CONTAINER: "{{ lookup('config', application_id, 'services.peertube.name') }}"
-PEERTUBE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+PEERTUBE_HOSTNAME: "{{ lookup('domain', application_id) }}"
+PEERTUBE_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
+PEERTUBE_ROOT_USERNAME: "root"
+
+PEERTUBE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+PEERTUBE_DESIGN: "{{ lookup('design', application_id) }}"
+PEERTUBE_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'design'] | path_join }}"
+PEERTUBE_DESIGN_LOGOS:
+  - type: header-wide
+    file: header-wide.png
+  - type: header-square
+    file: header-square.png
+  - type: favicon
+    file: favicon.png
+PEERTUBE_DESIGN_THEME:
+  PRIMARY_COLOR: "--design-primary"
+  ON_PRIMARY_COLOR: "--design-on-primary"
+  FOREGROUND_COLOR: "--design-text"
+  BACKGROUND_COLOR: "--design-surface-1"
+  BACKGROUND_SECONDARY_COLOR: "--design-surface-3"
+  MENU_FOREGROUND_COLOR: "--design-text"
+  MENU_BACKGROUND_COLOR: "--design-surface-2"
+  HEADER_FOREGROUND_COLOR: "--design-text"
+  HEADER_BACKGROUND_COLOR: "--design-surface-1"
 
 PEERTUBE_OIDC_PLUGIN: "peertube-plugin-auth-openid-connect"
 PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
@@ -11,7 +34,7 @@ PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enable
 PEERTUBE_LIVE_ENABLED: "{{ lookup('config', application_id, 'services.peertube.live.enabled') | bool }}"
 PEERTUBE_RTMP_PORT: "{{ lookup('config', application_id, 'services.peertube.ports.internal.rtmp') }}"
 
-PEERTUBE_CPUS: "{{ lookup('config', application_id, 'services.peertube.cpus') | float }}"
+PEERTUBE_CPUS: "{{ lookup('cpus', application_id, 'peertube') | float }}"
 PEERTUBE_MEM_LIMIT: "{{ lookup('config', application_id, 'services.peertube.mem_limit') }}"
 PEERTUBE_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"
 _peertube_concurrency_candidate: "{{ ((PEERTUBE_CPUS | float) * 0.5) | round(0, 'floor') | int }}"

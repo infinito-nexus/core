@@ -52,6 +52,13 @@ clamav_milter_conf:
   mounts:
     - service: clamav
       target: /etc/clamav/clamav-milter.conf
+webmail_design:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'webmail/design.inc.php' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webmail
+      target: /var/roundcube/config/design.inc.php
 webmail_oauth:
   type: config
   source: "{{ [ lookup('container', 'web-app-stalwart', 'directories.volumes'), 'webmail/oauth.inc.php' ] | path_join }}"

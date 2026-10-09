@@ -1,0 +1,3281 @@
+@import url("../{{ CHECKMK_DESIGN_THEME_LIGHT }}/theme.css?v={{ CHECKMK_VERSION }}") (prefers-color-scheme: light);
+@import url("../{{ CHECKMK_DESIGN_THEME_DARK }}/theme.css?v={{ CHECKMK_VERSION }}") (prefers-color-scheme: dark);
+.select2-dropdown {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+.select2-close-mask {
+  background-color: var(--design-surface-2);
+}
+.select2-container--default .select2-selection--single {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--design-text);
+}
+.select2-container--default .select2-selection--single .select2-selection__placeholder,
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+  color: var(--design-text-muted);
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: var(--design-border-strong) transparent transparent;
+}
+.select2-container--default.select2-container--disabled .select2-selection--single {
+  background-color: var(--design-surface-3);
+}
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+  border-color: transparent transparent var(--design-border-strong);
+}
+.select2-container--default .select2-selection--multiple {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+  color: var(--design-text);
+}
+.select2-container--default.select2-container--focus .select2-selection--multiple,
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  border-color: var(--design-border-strong);
+}
+.select2-container--default.select2-container--disabled .select2-selection--multiple {
+  background-color: var(--design-surface-3);
+}
+.select2-container--default .select2-search--inline .select2-search__field {
+  background-color: transparent;
+  background-image: none;
+}
+.select2-container--default .select2-results__option[aria-disabled=true] {
+  color: var(--design-text-muted);
+}
+.select2-container--default .select2-results__option[aria-selected=true] {
+  background-color: var(--design-surface-active);
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.select2-container--classic .select2-selection--single {
+  background-color: var(--design-surface-3);
+  background-image: linear-gradient(180deg,var(--design-surface-2) 50%,var(--design-surface-3));
+  border-color: var(--design-border-strong);
+}
+.select2-container--classic .select2-selection--single:focus {
+  border-color: var(--design-link);
+}
+.select2-container--classic .select2-selection--single .select2-selection__rendered {
+  color: var(--design-text);
+}
+.select2-container--classic .select2-selection--single .select2-selection__placeholder,
+.select2-container--classic .select2-selection--multiple .select2-selection__choice__remove,
+.select2-container--classic .select2-selection--multiple .select2-selection__choice__remove:hover,
+.select2-container--classic .select2-results__option[aria-disabled=true] {
+  color: var(--design-text-muted);
+}
+.select2-container--classic .select2-selection--single .select2-selection__arrow {
+  background-color: var(--design-surface-active);
+  background-image: linear-gradient(180deg,var(--design-surface-3) 50%,var(--design-border-strong));
+  border-left-color: var(--design-border-strong);
+}
+.select2-container--classic .select2-selection--single .select2-selection__arrow b {
+  border-color: var(--design-border-strong) transparent transparent;
+}
+.select2-container--classic[dir=rtl] .select2-selection--single .select2-selection__arrow {
+  border-right-color: var(--design-border-strong);
+}
+.select2-container--classic.select2-container--open .select2-selection--single {
+  border-color: var(--design-link);
+}
+.select2-container--classic.select2-container--open .select2-selection--single .select2-selection__arrow b {
+  border-color: transparent transparent var(--design-border-strong);
+}
+.select2-container--classic.select2-container--open.select2-container--above .select2-selection--single {
+  background-image: linear-gradient(180deg,var(--design-surface-2) 0,var(--design-surface-3) 50%);
+}
+.select2-container--classic.select2-container--open.select2-container--below .select2-selection--single {
+  background-image: linear-gradient(180deg,var(--design-surface-3) 50%,var(--design-surface-2));
+}
+.select2-container--classic .select2-selection--multiple {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+.select2-container--classic .select2-selection--multiple:focus {
+  border-color: var(--design-link);
+}
+.select2-container--classic .select2-selection--multiple .select2-selection__choice {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+.select2-container--classic.select2-container--open .select2-selection--multiple {
+  border-color: var(--design-link);
+}
+.select2-container--classic .select2-search--dropdown .select2-search__field {
+  border-color: var(--design-border-strong);
+}
+.select2-container--classic .select2-dropdown {
+  background-color: var(--design-surface-2);
+  border-color: transparent;
+}
+.select2-container--classic .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.select2-container--classic.select2-container--open .select2-dropdown {
+  border-color: var(--design-link);
+}
+:root {
+  --tagify-dd-color-primary: var(--design-link);
+  --tagify-dd-text-color: var(--design-text);
+  --tagify-dd-bg-color: var(--design-surface-2);
+}
+.tagify {
+  --tags-disabled-bg: var(--design-surface-3);
+  --tags-border-color: var(--design-border);
+  --tags-hover-border-color: var(--design-border-strong);
+  --tags-focus-border-color: var(--design-link);
+  --tag-bg: var(--design-surface-active);
+  --tag-hover: var(--design-on-primary);
+  --tag-text-color: var(--design-text);
+  --tag-text-color--edit: var(--design-text);
+  --tag-invalid-color: var(--design-danger);
+  --tag-invalid-bg: rgba(var(--design-danger-rgb), 0.5);
+  --tag-remove-bg: rgba(var(--design-danger-rgb), 0.3);
+  --tag-remove-btn-color: var(--design-text);
+  --tag-remove-btn-bg--hover: var(--design-danger);
+  --placeholder-color: rgba(var(--design-text-rgb), 0.4);
+  --placeholder-color-focus: rgba(var(--design-text-rgb), 0.25);
+  border: 1px solid var(--tags-border-color);
+}
+.tagify--loading .tagify__input:after,
+.tagify__tag--loading:after {
+  border-color: var(--design-border) var(--design-border-strong) var(--design-border-strong) rgba(var(--design-border-strong-rgb), 0);
+}
+.tagify__tag__removeBtn {
+  background: var(--tag-remove-btn-bg);
+}
+.tagify__tag__removeBtn:hover {
+  color: var(--design-on-primary);
+}
+.tagify__tag__removeBtn:hover+div:before {
+  box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-remove-bg, ) inset rgba(var(--design-danger-rgb), 0.3) !important;
+}
+.tagify__input:focus:empty:before {
+  color: rgba(var(--design-text-rgb), 0.25);
+  color: var(--placeholder-color-focus);
+}
+.tagify--invalid {
+  --tags-border-color: var(--design-danger);
+}
+.tagify__dropdown {
+  border-top: 1px solid var(--tagify-dd-color-primary);
+}
+.tagify__dropdown__wrapper {
+  background: var(--tagify-dd-bg-color);
+  border-color: currentcolor;
+  border-color: var(--tagify-dd-color-primary);
+  box-shadow: var(--design-shadow-2);
+}
+.tagify__dropdown__item--active {
+  background: var(--tagify-dd-color-primary);
+  color: var(--design-text);
+}
+.dc-chart rect.deselected {
+  fill: var(--design-text-muted);
+}
+.dc-chart .pie-slice {
+  fill: var(--design-on-primary);
+}
+.dc-chart .pie-slice.external {
+  fill: var(--design-text);
+}
+.dc-chart .pie-path {
+  fill: none;
+  stroke: var(--design-text);
+}
+.dc-chart .selected circle,
+.dc-chart .selected path {
+  stroke: var(--design-text-muted);
+}
+.dc-chart .deselected circle,
+.dc-chart .deselected path {
+  stroke: none;
+  fill: var(--design-text-muted);
+}
+.dc-chart .axis line,
+.dc-chart .axis path {
+  fill: none;
+  stroke: var(--design-text);
+}
+.dc-chart .axis .grid-line {
+  fill: none;
+  stroke: var(--design-text-muted);
+}
+.dc-chart .axis .grid-line line {
+  stroke: var(--design-text-muted);
+}
+.dc-chart .grid-line,
+.dc-chart .grid-line line {
+  fill: none;
+  stroke: var(--design-text-muted);
+}
+.dc-chart .brush rect.selection {
+  fill: var(--design-link);
+}
+.dc-chart .brush .custom-brush-handle {
+  fill: var(--design-surface-3);
+  stroke: var(--design-text-muted);
+}
+.dc-chart path.line {
+  fill: none;
+}
+.dc-chart path.area {
+  stroke: none;
+}
+.dc-chart g.state path {
+  stroke: var(--design-on-primary);
+}
+.dc-chart g.deselected path {
+  fill: var(--design-text-muted);
+}
+.dc-chart g.row text {
+  fill: var(--design-on-primary);
+}
+.dc-chart g.dc-tooltip path {
+  fill: none;
+  stroke: var(--design-text-muted);
+}
+.dc-chart g.county path {
+  stroke: var(--design-on-primary);
+  fill: none;
+}
+.dc-chart g.debug rect {
+  fill: var(--design-link);
+}
+.dc-chart .bubble {
+  stroke: none;
+}
+.dc-chart .box line {
+  fill: var(--design-on-primary);
+}
+.dc-chart .box circle,
+.dc-chart .box line,
+.dc-chart .box rect {
+  stroke: var(--design-text);
+}
+.dc-chart .box .data {
+  stroke: none;
+}
+.dc-chart .box .outlier {
+  fill: none;
+  stroke: var(--design-text-muted);
+}
+.dc-chart .box .outlierBold {
+  fill: var(--design-danger);
+  stroke: none;
+}
+.dc-chart .box.deselected .box,
+.dc-chart .heatmap .box-group.deselected rect {
+  fill: var(--design-text-muted);
+}
+.dc-chart .symbol {
+  stroke: none;
+}
+.dc-chart .empty-chart .pie-slice path {
+  fill: var(--design-danger);
+}
+.dc-data-count .filter-count,
+.dc-data-count .total-count {
+  color: var(--design-link);
+}
+.dc-legend g.dc-legend-item.selected {
+  fill: var(--design-link);
+}
+div.dc-html-legend .dc-legend-item-horizontal.selected,
+div.dc-html-legend .dc-legend-item-vertical.selected {
+  background-color: var(--design-info-active);
+  color: var(--design-on-info);
+}
+.simplebar-scrollbar:before {
+  background-color: var(--design-text);
+}
+button,
+input,
+select,
+textarea,
+div.popup_menu select:not([multiple]) {
+  background-color: var(--design-surface-2);
+}
+input[type=file] {
+  color: var(--design-text);
+}
+form label.required:after {
+  color: var(--design-link);
+}
+input:hover,
+input[type=checkbox]:hover+label:before,
+select:hover,
+textarea:hover {
+  background-color: var(--design-surface-hover);
+}
+input[type=checkbox]+label:before {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+button,
+input.button,
+table.vs_duallist a.control {
+  color: var(--design-on-primary);
+}
+body.main .popup_menu table.vs_duallist span.control,
+table.vs_duallist a.control,
+table.vs_duallist body.main .popup_menu span.control {
+  background-color: var(--design-surface-active);
+}
+.wato div.mainmenu a:active,
+button:active,
+input.button:active,
+table.vs_duallist a.control:active {
+  box-shadow: inset 0 0 .5px rgba(var(--design-text-rgb), 0.12);
+}
+button:disabled,
+button:disabled:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+button:disabled:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+button[disabled=disabled],
+button[disabled=disabled]:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+button[disabled=disabled]:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:disabled,
+input.button:disabled:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:disabled:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=password]):disabled,
+input.button:not([type=password]):disabled:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=password]):disabled:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=password])[disabled=disabled],
+input.button:not([type=password])[disabled=disabled]:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=password])[disabled=disabled]:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=text]):disabled,
+input.button:not([type=text]):disabled:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=text]):disabled:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=text])[disabled=disabled],
+input.button:not([type=text])[disabled=disabled]:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button:not([type=text])[disabled=disabled]:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button[disabled=disabled],
+input.button[disabled=disabled]:active {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+input.button[disabled=disabled]:hover {
+  background-color: var(--design-surface-hover);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+#confirm_icon.warn {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+#confirm_icon.warn:active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+  color: var(--design-on-primary);
+}
+button.hot {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+button.hot:active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+  color: var(--design-on-primary);
+}
+input.button.hot {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+input.button.hot:active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+  color: var(--design-on-primary);
+}
+#confirm_icon.warn:hover,
+button.hot:hover,
+input.button.hot:hover {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+}
+.dots {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.dots.required:before {
+  color: var(--design-link);
+}
+h1 {
+  color: var(--design-on-primary);
+}
+b.treeangle.title {
+  color: var(--design-text);
+}
+div.foldable_wrapper {
+  background-color: var(--design-surface-3);
+}
+div.error h1,
+div.message h1,
+div.really h1,
+div.success h1,
+div.warning h1 {
+  color: var(--design-on-primary);
+}
+body.main div.really a,
+div.really,
+div.really h3 {
+  background-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+div.success {
+  background-color: var(--design-surface-3);
+}
+div.message {
+  background-color: var(--design-surface-active);
+}
+div.error {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+div.error a,
+div.error a:link {
+  color: var(--design-on-primary);
+}
+div.error tt {
+  color: inherit;
+}
+.success.flashed {
+  background-color: var(--design-surface-3);
+  box-shadow: 0 2px var(--design-border);
+}
+.success.flashed:before {
+  background-color: var(--design-success);
+}
+.warning.flashed {
+  background-color: var(--design-surface-3);
+  box-shadow: 0 2px var(--design-border);
+}
+.warning.flashed:before {
+  background-color: var(--design-warning);
+}
+.warning:not(.flashed),
+body.main div.warning:not(.flashed) {
+  background-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+.warning:not(.flashed) a,
+.warning:not(.flashed) a:link,
+body.main div.warning:not(.flashed) a,
+body.main div.warning:not(.flashed) a:link {
+  color: var(--design-text);
+}
+table.dictionary td.dictleft span.required {
+  color: var(--design-link);
+}
+td.dictleft div.dictelement.indent:not(div[id*=DictGroup]) {
+  border-left-color: var(--design-border);
+}
+table.vs_duallist a.control:hover {
+  background-color: var(--design-surface-hover);
+}
+div#hover_menu {
+  color: var(--design-text);
+}
+div#hover_menu .graph_container,
+div#hover_menu div.message {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+div#hover_menu .graph_container {
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-1);
+}
+.cp-preview {
+  border-color: var(--design-border-strong);
+  box-shadow: none;
+}
+.cp-small .picker {
+  background-color: var(--design-surface-2);
+}
+.cp-small .picker-indicator {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+.cp-small .slide-indicator {
+  background-color: var(--design-text);
+}
+.cp-input,
+div.ntop .ntop_host table.werks td.werkclassfeature,
+div.ntop .ntop_host table.werks td.werkclassfix,
+div.ntop .ntop_host table.werks td.werkcompincomp_ack,
+div.ntop .ntop_host table.werks td.werklevel2,
+div.ntop .ntop_host table.werks td.werklevel3,
+div.ntop table.werks.table td.werkclassfeature,
+div.ntop table.werks.table td.werkclassfix,
+div.ntop table.werks.table td.werkcompincomp_ack,
+div.ntop table.werks.table td.werklevel2,
+div.ntop table.werks.table td.werklevel3,
+table.data.werks td.werkclassfeature,
+table.data.werks td.werkclassfix,
+table.data.werks td.werkcompincomp_ack,
+table.data.werks td.werklevel2,
+table.data.werks td.werklevel3 {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table.werks td.werklevel2,
+div.ntop table.werks.table td.werklevel2,
+table.data.werks td.werklevel2 {
+  background-color: var(--design-info);
+}
+div.ntop .ntop_host table.werks td.werklevel3,
+div.ntop table.werks.table td.werklevel3,
+table.data.werks td.werklevel3 {
+  background-color: var(--design-info-border);
+}
+div.ntop .ntop_host table.werks td.werkclassfeature,
+div.ntop table.werks.table td.werkclassfeature,
+table.data.werks td.werkclassfeature {
+  background-color: var(--design-success);
+}
+div.ntop .ntop_host table.werks td.werkclassfix,
+div.ntop table.werks.table td.werkclassfix,
+table.data.werks td.werkclassfix {
+  background-color: var(--design-warning);
+}
+div.ntop .ntop_host table.werks td.werkclasssecurity,
+div.ntop table.werks.table td.werkclasssecurity,
+table.data.werks td.werkclasssecurity {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+div.ntop .ntop_host table.werks td.werkcompincomp_unack,
+div.ntop table.werks.table td.werkcompincomp_unack,
+table.data.werks td.werkcompincomp_unack {
+  background-color: var(--design-danger);
+}
+div.ntop .ntop_host table.werks td.werkcompincomp_ack,
+div.ntop table.werks.table td.werkcompincomp_ack,
+table.data.werks td.werkcompincomp_ack {
+  background-color: var(--design-danger-border);
+}
+table.werks td a {
+  color: var(--design-text);
+}
+td.nowiki pre.code {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+td.nowiki pre.file,
+td.nowiki div.filename {
+  background-color: var(--design-warning-border);
+  color: var(--design-text);
+}
+.select2-container--default .select2-results,
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--design-text);
+}
+.select2-container--default .select2-dropdown {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border);
+}
+.select2-container--default .select2-results__option {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.select2-container--default .select2-results__option[aria-selected=true] {
+  background-color: var(--design-surface-active);
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: var(--design-surface-3);
+}
+.link,
+.title {
+  color: var(--design-text);
+}
+div.graph_hover_popup {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-1);
+  color: var(--design-text);
+}
+body.main.visible div.foldable .title {
+  color: var(--design-text);
+}
+.hot:not(.entry) a,
+.hot:not(.entry) span {
+  background-color: var(--design-warning) !important;
+  color: var(--design-on-warning) !important;
+}
+div.info,
+body.main .popup_menu a,
+body.main .popup_menu span,
+body.main a,
+body.main a:link,
+body.main a:visited {
+  color: var(--design-text);
+}
+.simplebar-scrollbar:before {
+  background-color: var(--design-text-muted);
+}
+div.foldable div.success,
+div.swal2-popup {
+  background-color: var(--design-surface-2);
+}
+div.swal2-popup div.swal2-icon {
+  border-color: var(--design-primary);
+  color: var(--design-success);
+}
+div.swal2-popup div.swal2-html-container,
+div.swal2-popup h2.swal2-title,
+h1,
+h2,
+h3,
+h4,
+body,
+body a,
+body a:link,
+body a:visited {
+  color: var(--design-text);
+}
+div.swal2-popup button.swal2-confirm {
+  background-color: var(--design-primary);
+}
+svg text {
+  fill: var(--design-text);
+}
+h3.table,
+div.two_factor_overview>table table.groupheader {
+  background-color: var(--design-surface-3);
+}
+body.hidden:after {
+  background-color: rgba(var(--design-text-rgb), 0.5);
+}
+body.main {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+body.main.screenshotmode {
+  background-color: var(--design-surface-2);
+}
+body.main table.header {
+  background-color: var(--design-surface-1);
+  color: var(--design-on-primary);
+}
+body.main table.header td {
+  color: var(--design-on-primary);
+}
+.popup_menu body.main table.header td.heading span,
+body.main table.header td.heading .popup_menu span,
+body.main table.header td.heading a,
+body.main table.header td.right {
+  color: var(--design-text);
+}
+body.main table.header td.right * {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+body.main div#main_page_content>div.simplebar-track {
+  background-color: var(--design-surface-1);
+}
+#reload_pause {
+  background-color: var(--design-text);
+}
+.pause_bar {
+  background-color: var(--design-surface-2);
+}
+#reload_pause_counter {
+  color: var(--design-on-primary);
+}
+div.ntop .ntop_host table,
+div.ntop table.table,
+table.data {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table th,
+div.ntop table.table th,
+table.data th {
+  background-color: var(--design-surface-3);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div.ntop .ntop_host table th.sort:hover,
+div.ntop table.table th.sort:hover,
+table.data th.sort:hover {
+  background-color: inherit;
+  color: var(--design-text);
+}
+div.ntop .ntop_host table td,
+div.ntop table.table td,
+table.data td {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table td.unused,
+div.ntop table.table td.unused,
+table.data td.unused {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div.ntop .ntop_host table tr>td a:hover,
+div.ntop table.table tr>td a:hover,
+table.data tr.data>td a:hover,
+div.ntop .ntop_host table a,
+div.ntop table.table a,
+table.data a,
+body.main table.data .popup_menu,
+div.ntop .ntop_host table .popup_menu,
+div.ntop table.table .popup_menu,
+table.data .popup_menu,
+tr.groupheader td {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table tr td.fillup,
+div.ntop .ntop_host table tr td.gap,
+div.ntop table.table tr td.fillup,
+div.ntop table.table tr td.gap,
+table.data tr td.fillup,
+table.data tr td.gap {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-surface-1);
+}
+table.groupheader {
+  background-color: var(--design-surface-3);
+}
+div.ntop .ntop_host table tr.group_end,
+div.ntop table.table tr.group_end,
+tr.data.group_end {
+  border-bottom-color: var(--design-border);
+}
+div.ntop .ntop_host table.headerleft tr th,
+div.ntop table.headerleft.table tr th,
+table.data.headerleft tr th {
+  background-color: inherit;
+  color: var(--design-text);
+}
+div.ntop .ntop_host table.headerleft>tbody>tr:nth-child(2n),
+div.ntop table.headerleft.table>tbody>tr:nth-child(2n),
+table.data.headerleft>tbody>tr:nth-child(2n) {
+  background-color: var(--design-surface-2);
+}
+div.ntop .ntop_host table.headerleft>tbody>tr:nth-child(odd),
+div.ntop table.headerleft.table>tbody>tr:nth-child(odd),
+table.data.headerleft>tbody>tr:nth-child(odd) {
+  background-color: var(--design-surface-3);
+}
+#mk_side_search_field {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.tagify__input {
+  background-color: var(--design-surface-active);
+  box-shadow: none;
+  color: var(--design-text);
+}
+input:not(.button),
+input[type=password],
+input[type=text],
+select,
+textarea {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+span.select2 .select2-selection {
+  background-color: var(--design-surface-active);
+}
+.select2-container--default.select2-container--disabled .select2-selection--single {
+  background-color: transparent;
+}
+button {
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+button,
+button:active {
+  background-color: var(--design-surface-active);
+}
+button:hover {
+  background-color: var(--design-surface-hover);
+}
+input.button,
+select.button {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+input.button:active {
+  background-color: var(--design-surface-active);
+}
+input.button:hover {
+  background-color: var(--design-surface-hover);
+}
+select.button:active {
+  background-color: var(--design-surface-active);
+}
+select.button:hover {
+  background-color: var(--design-surface-hover);
+}
+td.content hr {
+  background-color: var(--design-surface-active);
+}
+.inputerror #mk_side_search_field,
+.inputerror div.snapin select,
+.inputerror input,
+.inputerror select,
+.inputerror span.checkbox,
+.inputerror span.select2 .select2-selection,
+.inputerror textarea,
+.inputerror>select,
+div.snapin .inputerror select {
+  background-color: var(--design-danger-border);
+}
+.checkbox label:before {
+  border-color: var(--design-border-strong);
+}
+table.nform {
+  background-color: var(--design-surface-2);
+  box-shadow: 0 0 0 var(--design-border);
+}
+body.main.screenshotmode table.nform {
+  background-color: var(--design-surface-2);
+}
+table.nform tr.heading>td {
+  background-color: transparent;
+}
+table.nform tr.heading td {
+  background-color: var(--design-surface-3);
+}
+table.nform hr {
+  background-color: var(--design-surface-active);
+}
+table.nform .title {
+  color: var(--design-text);
+}
+div.help div.info_icon {
+  background-color: var(--design-info);
+}
+div.help div.help_text {
+  background-color: var(--design-info-border);
+}
+div.help div.help_text tt {
+  color: var(--design-link);
+}
+body.main .popup_menu {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-3);
+  color: var(--design-on-primary);
+}
+body.main .popup_menu a,
+body.main .popup_menu span,
+div.log_output pre,
+.tagify tag>div {
+  color: var(--design-text);
+}
+#popup_menu .icons ul {
+  border-bottom-color: var(--design-border);
+}
+#popup_menu .icons li a:hover {
+  background-color: var(--design-surface-hover);
+}
+#popup_menu .icons li.active a {
+  border-bottom-color: var(--design-border-strong);
+}
+.crash_report pre {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+}
+div.log_output {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: none;
+}
+.dragging {
+  background-color: var(--design-surface-3);
+  box-shadow: var(--design-shadow-3);
+}
+table.debug_vars td,
+table.debug_vars th {
+  border-color: var(--design-border);
+}
+.tagify tag:hover:not([readonly]) div {
+  box-shadow: none;
+}
+.tagify:not([readonly]) tag:hover>div {
+  background-color: var(--design-surface-hover);
+  color: var(--design-text);
+}
+.tagify:not([readonly]) tag>div {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.tagify__tag-text {
+  color: var(--design-text);
+}
+.tagify tag>div,
+.tagify[readonly] tag>div,
+.tagify tag.explicit>div,
+.tagify[readonly] tag.explicit>div {
+  background-color: var(--design-info);
+}
+.tagify tag.discovered>div,
+.tagify[readonly] tag.discovered>div,
+.tagify tag.changed>div,
+.tagify[readonly] tag.changed>div,
+.tagify tag.changed>div :before,
+.tagify[readonly] tag.changed>div :before {
+  background-color: var(--design-warning);
+}
+.tagify tag.added>div,
+.tagify[readonly] tag.added>div,
+.tagify tag.added>div :before,
+.tagify[readonly] tag.added>div :before,
+.tagify tag.removed>div,
+.tagify[readonly] tag.removed>div,
+.tagify tag.removed>div :before,
+.tagify[readonly] tag.removed>div :before {
+  background-color: var(--design-info);
+}
+.tagify tag.ruleset>div,
+.tagify[readonly] tag.ruleset>div {
+  background-color: var(--design-danger);
+}
+.tagify tag.added>div span.tagify__tag-text,
+.tagify tag.changed>div span.tagify__tag-text,
+.tagify tag.explicit>div span.tagify__tag-text,
+.tagify tag.removed>div span.tagify__tag-text,
+.tagify tag.ruleset>div span.tagify__tag-text,
+.tagify[readonly] tag.added>div span.tagify__tag-text,
+.tagify[readonly] tag.changed>div span.tagify__tag-text,
+.tagify[readonly] tag.explicit>div span.tagify__tag-text,
+.tagify[readonly] tag.removed>div span.tagify__tag-text,
+.tagify[readonly] tag.ruleset>div span.tagify__tag-text {
+  color: var(--design-on-primary);
+}
+.tagify__dropdown {
+  background-color: var(--design-surface-active);
+  box-shadow: none;
+}
+.tagify__dropdown__wrapper {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border);
+}
+.tagify__dropdown__item--active {
+  background-color: var(--design-surface-active);
+}
+div#saas_error_page {
+  color: var(--design-text);
+}
+div#saas_error_page div#error_container {
+  background-color: var(--design-surface-3);
+}
+div.ntop .ntop_host table td.perfometer.stale div.title,
+div.ntop .ntop_host table tr td.stale,
+div.ntop table.table td.perfometer.stale div.title,
+div.ntop table.table tr td.stale,
+table.data td.perfometer.stale div.title,
+table.data tr.data td.stale {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.bibox_box.state0,
+.bibox_box.state0 a,
+.hostmatrix .state0,
+.hostmatrix .state0 a,
+.hstate0 span,
+.hstate0 span a,
+.infobox_entry.state0,
+.infobox_entry.state0 a,
+.state0 span,
+.state0 span a,
+.statebullet.state0,
+.statebullet.state0 a,
+.statemini.state0,
+.statemini.state0 a,
+.timeline .state0,
+.timeline .state0 a,
+b.state0,
+b.state0 a,
+div.statea,
+div.statea a,
+div.stated,
+div.stated a,
+span.content.state0,
+span.content.state0 a,
+table.job_details td.state.state0,
+table.job_details td.state.state0 a,
+td.count.hstate0,
+td.count.hstate0 a,
+td.count.state0,
+td.count.state0 a,
+td.fillbackground.state0,
+td.fillbackground.state0 a,
+td.number.state0,
+td.number.state0 a {
+  background-color: var(--design-success) !important;
+  color: var(--design-on-success) !important;
+}
+.bibox_box.state1,
+.bibox_box.state1 a,
+.hostmatrix .state1,
+.hostmatrix .state1 a,
+.infobox_entry.state1,
+.infobox_entry.state1 a,
+.state1 span,
+.state1 span a,
+.statebullet.state1,
+.statebullet.state1 a,
+.statemini.state1,
+.statemini.state1 a,
+.timeline .state1,
+.timeline .state1 a,
+b.state1,
+b.state1 a,
+label.state1,
+label.state1 a,
+span.content.state1,
+span.content.state1 a,
+table.job_details td.state.state1,
+table.job_details td.state.state1 a,
+td.count.state1,
+td.count.state1 a,
+td.fillbackground.state1,
+td.fillbackground.state1 a,
+td.number.state1,
+td.number.state1 a {
+  background-color: var(--design-warning) !important;
+  color: var(--design-on-warning) !important;
+}
+.bibox_box.state2,
+.bibox_box.state2 a,
+.hostmatrix .state2,
+.hostmatrix .state2 a,
+.hstate1 span,
+.hstate1 span a,
+.infobox_entry.state2,
+.infobox_entry.state2 a,
+.state2 span,
+.state2 span a,
+.statebullet.state2,
+.statebullet.state2 a,
+.statemini.state2,
+.statemini.state2 a,
+.timeline .state2,
+.timeline .state2 a,
+b.state2,
+b.state2 a,
+label.state2,
+label.state2 a,
+span.content.state2,
+span.content.state2 a,
+table.job_details td.state.state2,
+table.job_details td.state.state2 a,
+td.count.hstate1,
+td.count.hstate1 a,
+td.count.state2,
+td.count.state2 a,
+td.fillbackground.state2,
+td.fillbackground.state2 a,
+td.number.state2,
+td.number.state2 a {
+  background-color: var(--design-danger) !important;
+  color: var(--design-on-danger) !important;
+}
+.bibox_box.state3,
+.bibox_box.state3 a,
+.hostmatrix .state3,
+.hostmatrix .state3 a,
+.hstate2 span,
+.hstate2 span a,
+.infobox_entry.state3,
+.infobox_entry.state3 a,
+.state3 span,
+.state3 span a,
+.statebullet.state3,
+.statebullet.state3 a,
+.timeline .state3,
+.timeline .state3 a,
+b.state3,
+b.state3 a,
+label.state3,
+label.state3 a,
+span.content.state3,
+span.content.state3 a,
+td.count.hstate2,
+td.count.hstate2 a,
+td.count.state3,
+td.count.state3 a,
+td.fillbackground.state3,
+td.fillbackground.state3 a,
+td.number.state3,
+td.number.state3 a {
+  background-color: var(--design-warning-border) !important;
+  color: var(--design-on-primary) !important;
+}
+.statebullet.statep,
+.statebullet.statep a,
+span.content.state-1,
+span.content.state-1 a,
+table.job_details td.state.statep,
+table.job_details td.state.statep a {
+  background-color: var(--design-surface-active) !important;
+  color: var(--design-on-primary) !important;
+}
+table.job_details td.state.job_running {
+  background-color: var(--design-info) !important;
+  color: var(--design-on-info) !important;
+}
+.hstated span,
+.hstated span a,
+.hstated.count,
+.hstated.count a,
+.hstatep span,
+.hstatep span a,
+.hstatep.count,
+.hstatep.count a,
+.state-1 span,
+.state-1 span a,
+.state-1.count,
+.state-1.count a,
+.stated span,
+.stated span a,
+.stated.count,
+.stated.count a,
+.statep span,
+.statep span a,
+.statep.count,
+.statep.count a {
+  background-color: var(--design-surface-active) !important;
+}
+svg .hoststate,
+svg .svcstate {
+  fill: var(--design-info) !important;
+  stroke: var(--design-info) !important;
+}
+svg .hstate0,
+svg .state0 {
+  fill: var(--design-success) !important;
+  stroke: var(--design-success) !important;
+}
+svg .state1 {
+  fill: var(--design-warning) !important;
+  stroke: var(--design-warning) !important;
+}
+svg .hstate1,
+svg .state2 {
+  fill: var(--design-danger) !important;
+  stroke: var(--design-danger) !important;
+}
+svg .hstate2,
+svg .state3 {
+  fill: var(--design-warning) !important;
+  stroke: var(--design-warning) !important;
+}
+svg .state-1 {
+  fill: var(--design-text-muted) !important;
+  stroke: var(--design-text-muted) !important;
+}
+.status_label {
+  box-shadow: none;
+  color: var(--design-on-primary);
+}
+.status_label.disabled {
+  background-color: var(--design-surface-active);
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.status_label.dead,
+.status_label.down {
+  background-color: var(--design-danger);
+}
+.status_label.online {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+.status_label.partial {
+  background-color: var(--design-warning);
+}
+.status_label.unknown {
+  background-color: var(--design-info);
+}
+.status_label.unreach {
+  background-color: var(--design-warning);
+}
+.status_label.waiting {
+  background-color: var(--design-info);
+}
+div.ntop .ntop_host table tr>td.perfometer .content,
+div.ntop table.table tr>td.perfometer .content,
+table.data tr.data>td.perfometer .content {
+  border-color: var(--design-border);
+}
+tr[class*=odd] {
+  background-color: var(--design-surface-3);
+}
+tr[class*=even] {
+  background-color: var(--design-surface-2);
+}
+.data div.hostdown,
+div.ntop .ntop_host table div.hostdown,
+div.ntop table.table div.hostdown {
+  background-color: var(--design-danger);
+  border-color: var(--design-border-strong);
+}
+div.ntop .ntop_host table td.age,
+div.ntop table.table td.age,
+table.data td.age {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div.ntop .ntop_host table td.age.staletime,
+div.ntop table.table td.age.staletime,
+table.data td.age.staletime {
+  color: var(--design-danger);
+}
+div.ntop .ntop_host table td.age.recent,
+div.ntop table.table td.age.recent,
+table.data td.age.recent {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table .state2 *,
+div.ntop .ntop_host table .state3 *,
+div.ntop table.table .state2 *,
+div.ntop table.table .state3 *,
+table.data .state2 *,
+table.data .state3 * {
+  color: var(--design-on-primary);
+}
+td.badflag span {
+  background-color: var(--design-warning);
+}
+td.goodflag {
+  color: var(--design-success) !important;
+}
+img.siteicon {
+  border-color: var(--design-border-strong);
+}
+div.ntop .ntop_host table tr td table.customvars td:last-child,
+div.ntop table.table tr td table.customvars td:last-child,
+table.data tr.data td table.customvars td:last-child {
+  border-left-color: var(--design-border-strong);
+}
+td.matchgroups span {
+  border-color: rgba(var(--design-border-strong-rgb), 0.8);
+}
+.frozen_aggregation a,
+.frozen_aggregation b.bullet,
+.frozen_aggregation span,
+td.aggrtree .frozen_aggregation a,
+td.aggrtree .frozen_aggregation b.bullet,
+td.aggrtree .frozen_aggregation span {
+  color: var(--design-on-primary);
+}
+.frozen_aggregation.only_in_frozen_aggregation,
+td.aggrtree .frozen_aggregation.only_in_frozen_aggregation,
+.frozen_aggregation.missing_in_frozen_aggregation,
+td.aggrtree .frozen_aggregation.missing_in_frozen_aggregation,
+.frozen_aggregation .frozen_marker.missing,
+td.aggrtree .frozen_aggregation .frozen_marker.missing,
+.frozen_aggregation .frozen_marker.new,
+td.aggrtree .frozen_aggregation .frozen_marker.new {
+  background-color: var(--design-info);
+}
+b.bullet {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+table.aggrtree td.leaf.odd {
+  background-color: var(--design-surface-3);
+}
+table.aggrtree td.leaf.even,
+table.aggrtree td.node,
+div.dashlet div.dashlet_inner.background {
+  background-color: var(--design-surface-2);
+}
+.bibox_box {
+  border-color: var(--design-border-strong);
+}
+.bibox_box.noleaf.open {
+  box-shadow: inset .5px .5px 3px rgba(var(--design-text-rgb), 0.12);
+}
+.bibox_box.noleaf.closed {
+  box-shadow: var(--design-shadow-1);
+}
+div.ntop table.table .bi_tree_container .title,
+table.data.table .bi_tree_container .title {
+  color: var(--design-text);
+}
+div.ntop table.table .bi_tree_container .title ul.subtree,
+table.data.table .bi_tree_container .title ul.subtree {
+  border-left-color: var(--design-border-strong);
+}
+div.dashlet>div.title {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+div.dashlet>div.title.highlighted {
+  background-color: var(--design-surface-3);
+}
+div.dashlet div.title a,
+div.dashlet g.title a text,
+body.main .popup_menu div.dashlet_inner div.stats table.hoststats span,
+div.dashlet_inner div.stats table.hoststats a,
+div.dashlet_inner div.stats table.hoststats body.main .popup_menu span {
+  color: var(--design-text);
+}
+div.dashlet div.success,
+div.dashlet_inner div.stats {
+  background-color: var(--design-surface-2);
+}
+div.dashlet_inner div.stats table td,
+div.dashlet_inner div.stats table th {
+  background-color: var(--design-surface-2);
+  border-top-color: var(--design-border);
+}
+body.main.dashlet,
+body.main.dashlet.view,
+iframe[id^=dashlet_iframe] {
+  background-color: var(--design-surface-2);
+}
+body.main.dashlet div.warning {
+  box-shadow: 0;
+}
+div.dashlet.edit .controls {
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+  border-color: var(--design-border-strong);
+}
+div.dashlet.edit .anchor.on div {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+div.dashlet.edit .anchor.anchor0 {
+  border-top-color: var(--design-border-strong);
+}
+div.dashlet.edit .anchor.anchor0.on {
+  border-top-color: var(--design-primary);
+}
+div.dashlet.edit .anchor.anchor1 {
+  border-top-color: var(--design-border-strong);
+}
+div.dashlet.edit .anchor.anchor1.on {
+  border-top-color: var(--design-primary);
+}
+div.dashlet.edit .anchor.anchor2 {
+  border-bottom-color: var(--design-border-strong);
+}
+div.dashlet.edit .anchor.anchor2.on {
+  border-bottom-color: var(--design-primary);
+}
+div.dashlet.edit .anchor.anchor3 {
+  border-bottom-color: var(--design-border-strong);
+}
+div.dashlet.edit .anchor.anchor3.on {
+  border-bottom-color: var(--design-primary);
+}
+.sizer.max {
+  color: var(--design-danger);
+}
+.sizer.grow,
+.sizer.max {
+  background-color: var(--design-text-muted);
+}
+.sizer.grow {
+  color: var(--design-on-primary);
+}
+.sizer.abs {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+.resize0,
+.resize1 {
+  background-color: var(--design-success);
+  border-color: var(--design-primary);
+}
+.dashlet.pnpgraph .dashlet_inner {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+.dashlet.pnpgraph .container {
+  background-color: var(--design-surface-2);
+}
+.dashlet.pnpgraph div.title a {
+  color: var(--design-text);
+}
+svg .single_value,
+svg .state_component,
+svg .title {
+  fill: var(--design-text);
+}
+svg .status_background {
+  fill: var(--design-surface-2);
+}
+svg .line {
+  fill: none !important;
+}
+svg .gauge_span {
+  fill: var(--design-surface-active);
+}
+svg .gauge_span~path.single_value {
+  fill: var(--design-text-muted);
+}
+svg.renderer g.grid line {
+  stroke: var(--design-link);
+}
+div.alert_overview div.tooltip td.color.critical,
+div.site_overview div.tooltip td.color.critical,
+div.stats_dashlet div.tooltip td.color.critical {
+  background-color: var(--design-danger);
+}
+div.alert_overview div.tooltip td.color.unknown,
+div.site_overview div.tooltip td.color.unknown,
+div.stats_dashlet div.tooltip td.color.unknown,
+div.alert_overview div.tooltip td.color.warning,
+div.site_overview div.tooltip td.color.warning,
+div.stats_dashlet div.tooltip td.color.warning {
+  background-color: var(--design-warning);
+}
+div.alert_overview div.tooltip td.color.downtime,
+div.site_overview div.tooltip td.color.downtime,
+div.stats_dashlet div.tooltip td.color.downtime {
+  background-color: var(--design-info);
+}
+div.alert_overview div.tooltip td.color.ok,
+div.site_overview div.tooltip td.color.ok,
+div.stats_dashlet div.tooltip td.color.ok {
+  background-color: var(--design-success);
+}
+div.alert_overview path.hexagon.hexagon_0,
+div.site_overview path.hexagon.hexagon_0,
+div.stats_dashlet path.hexagon.hexagon_0 {
+  stroke: var(--design-text);
+}
+div.alert_overview path.hexagon.critical,
+div.alert_overview path.hexagon.down,
+div.site_overview path.hexagon.critical,
+div.site_overview path.hexagon.down,
+div.stats_dashlet path.hexagon.critical,
+div.stats_dashlet path.hexagon.down {
+  fill: var(--design-danger);
+  stroke: var(--design-danger);
+}
+div.alert_overview path.hexagon.unknown,
+div.alert_overview path.hexagon.unreachable,
+div.site_overview path.hexagon.unknown,
+div.site_overview path.hexagon.unreachable,
+div.stats_dashlet path.hexagon.unknown,
+div.stats_dashlet path.hexagon.unreachable,
+div.alert_overview path.hexagon.warning,
+div.site_overview path.hexagon.warning,
+div.stats_dashlet path.hexagon.warning {
+  fill: var(--design-warning);
+  stroke: var(--design-warning);
+}
+div.alert_overview path.hexagon.downtime,
+div.site_overview path.hexagon.downtime,
+div.stats_dashlet path.hexagon.downtime,
+div.alert_overview path.hexagon.host_down,
+div.site_overview path.hexagon.host_down,
+div.stats_dashlet path.hexagon.host_down {
+  fill: var(--design-info);
+  stroke: var(--design-info);
+}
+div.alert_overview path.hexagon.ok,
+div.site_overview path.hexagon.ok,
+div.stats_dashlet path.hexagon.ok {
+  fill: var(--design-success);
+  stroke: var(--design-success);
+}
+div.alert_overview g.element_box.host_element path.hexagon.ok,
+div.alert_overview path.hexagon.host_element.ok,
+div.site_overview g.element_box.host_element path.hexagon.ok,
+div.site_overview path.hexagon.host_element.ok,
+div.stats_dashlet g.element_box.host_element path.hexagon.ok,
+div.stats_dashlet path.hexagon.host_element.ok {
+  fill: var(--design-text-muted);
+}
+div.alert_overview g.element_box.host_element path.hexagon.up,
+div.alert_overview path.hexagon.host_element.up,
+div.site_overview g.element_box.host_element path.hexagon.up,
+div.site_overview path.hexagon.host_element.up,
+div.stats_dashlet g.element_box.host_element path.hexagon.up,
+div.stats_dashlet path.hexagon.host_element.up {
+  fill: var(--design-surface-3);
+}
+div.alert_overview path.icon_element,
+div.site_overview path.icon_element,
+div.stats_dashlet path.icon_element {
+  fill: var(--design-surface-3);
+  stroke: var(--design-text);
+}
+div.stats_dashlet path.hexagon.empty {
+  fill: var(--design-surface-3);
+  stroke: var(--design-text-muted);
+}
+div.stats_dashlet div.stats_table a.box {
+  background-color: var(--design-text);
+}
+div.stats_dashlet div.stats_table a.box.critical {
+  background-color: var(--design-danger);
+}
+div.stats_dashlet div.stats_table a.box.unknown,
+div.stats_dashlet div.stats_table a.box.warning {
+  background-color: var(--design-warning);
+}
+div.stats_dashlet div.stats_table a.box.downtime,
+div.stats_dashlet div.stats_table a.box.host_down {
+  background-color: var(--design-info);
+}
+div.stats_dashlet div.stats_table a.box.ok {
+  background-color: var(--design-success);
+}
+div.stats_dashlet div.stats_table a.count:hover,
+div.stats_dashlet div.stats_table a.text:hover {
+  color: var(--design-link);
+}
+div.stats_dashlet div.stats_table .warning {
+  background-color: transparent;
+}
+body.login div#login {
+  background-color: transparent;
+  background-image: none;
+  color: var(--design-text);
+}
+body.login #login_window {
+  background-color: var(--design-surface-3);
+}
+body.login #login_window div.trial_expiration_info {
+  background-color: var(--design-surface-1);
+}
+body.login #login_window div.trial_expiration_info span.remaining_time {
+  color: var(--design-success);
+}
+body.login #login_window div.trial_expiration_info div.time_bar div.passed {
+  background-color: var(--design-surface-3);
+}
+body.login #login_window div.trial_expiration_info div.time_bar div.remaining {
+  background-color: var(--design-success);
+}
+body.login #login_window div.trial_expiration_info.warning {
+  color: var(--design-text);
+}
+body.login #login_window div.trial_expiration_info.warning span.remaining_time {
+  color: var(--design-danger);
+}
+body.login #login_window div.trial_expiration_info.warning div.time_bar div.remaining {
+  background-color: var(--design-danger);
+}
+body.login #_login,
+body.login #_saml2_login_button,
+body.login #_use_backup_code,
+body.login #_use_totp_code,
+body.login input.mode_button {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+body.login #_login:not(.hot),
+body.login #_saml2_login_button:not(.hot) {
+  background-color: var(--design-surface-active);
+}
+body.login #_login:not(.hot):hover,
+body.login #_saml2_login_button:not(.hot):hover {
+  background-color: var(--design-surface-hover);
+}
+body.login #_login:not(.hot):active,
+body.login #_saml2_login_button:not(.hot):active {
+  background-color: unset;
+}
+body.login h2.login_separator {
+  border-bottom-color: var(--design-border);
+}
+body.login h2.login_separator span {
+  background-color: var(--design-surface-3);
+}
+body.login #foot,
+body.login body.main .popup_menu div#login div#foot span,
+body.login div#login div#foot a,
+body.login div#login div#foot body.main .popup_menu span {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+body.login.two_factor input.mode_button {
+  background-color: var(--design-surface-active);
+}
+#logwatch table.section {
+  background-color: var(--design-surface-3);
+}
+#logwatch td.WARN {
+  background-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+#logwatch td.CRIT {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+#logwatch td.OK {
+  background-color: none;
+  color: var(--design-success);
+}
+#logwatch td.lines,
+#logwatch tr:nth-child(odd).context td.lines,
+#logwatch tr:nth-child(2n).context td.lines,
+table.prediction td.legend {
+  color: var(--design-text);
+}
+#logwatch tr:nth-child(odd).context {
+  background-color: var(--design-surface-3);
+}
+#logwatch tr:nth-child(odd).OK {
+  background-color: var(--design-success);
+}
+#logwatch tr:nth-child(odd).WARN {
+  background-color: var(--design-warning);
+}
+#logwatch tr:nth-child(odd).CRIT {
+  background-color: var(--design-danger);
+}
+#logwatch tr:nth-child(2n).context {
+  background-color: var(--design-surface-2);
+}
+#logwatch tr:nth-child(2n).OK {
+  background-color: var(--design-success);
+}
+#logwatch tr:nth-child(2n).WARN {
+  background-color: var(--design-warning);
+}
+#logwatch tr:nth-child(2n).CRIT {
+  background-color: var(--design-danger-border);
+}
+table.prediction {
+  background-color: var(--design-surface-active);
+}
+div.floatfilter {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+div.floatfilter .legend {
+  background-color: rgba(var(--design-surface-2-rgb), 0.2);
+  color: var(--design-text);
+}
+div.floatfilter .legend span {
+  border-bottom-color: rgba(var(--design-border-strong-rgb), 0.2);
+}
+div.floatfilter span.select2-selection {
+  border-color: var(--design-border);
+}
+table.valuespec_listof.filter div.floatfilter[class$=_labels] tr[id*=label_groups_entry]>td.vlof_content>div.bool div.line,
+table.valuespec_listof.filter div.floatfilter[class$=_labels] tr[id*=labels_entry]>td.vlof_content>div.bool div.line {
+  border-top-color: var(--design-border);
+}
+table.valuespec_listof.filter div.floatfilter[class$=_labels] div.label_group {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+table.valuespec_listof.filter div.floatfilter[class$=_labels] a.vlof_add_button {
+  background-color: transparent;
+  background-image: none;
+}
+table.nform table.valuespec_listof .vlof_buttons,
+table.nform table.valuespec_listof .vlof_content {
+  border-bottom-color: var(--design-border);
+}
+div.ntop .ntop_host table.tiled td.tiles div.tile,
+div.ntop table.tiled.table td.tiles div.tile,
+table.data.tiled td.tiles div.tile {
+  background-color: var(--design-surface-2);
+}
+div.ntop .ntop_host table.single td.gap,
+div.ntop table.single.table td.gap,
+table.data.single td.gap {
+  background-color: transparent;
+}
+div.ntop .ntop_host table.matrix tbody>tr>td.left,
+div.ntop table.matrix.table tbody>tr>td.left,
+div.ntop table.table table.data.matrix tbody>tr>td.left,
+table.data.matrix div.ntop table.table tbody>tr>td.left,
+table.data.matrix tbody>tr.data>td.left {
+  background-color: var(--design-surface-2);
+}
+div.ntop .ntop_host table.matrix tbody>tr:first-child,
+div.ntop table.matrix.table tbody>tr:first-child,
+table.data.matrix tbody>tr.data:first-child {
+  background-color: transparent;
+  background-image: none;
+}
+div.ntop .ntop_host table.matrix td.minority,
+div.ntop .ntop_host table.matrix td.minority a,
+div.ntop table.matrix.table td.minority,
+div.ntop table.matrix.table td.minority a,
+table.data.matrix td.minority,
+table.data.matrix td.minority a,
+table.data.matrix td.minority a:link,
+div.ntop .ntop_host tbody table.matrix tr.even0 td.matrixhead,
+div.ntop .ntop_host tbody table.matrix tr.odd0 td.matrixhead,
+div.ntop tbody table.matrix.table tr.even0 td.matrixhead,
+div.ntop tbody table.matrix.table tr.odd0 td.matrixhead,
+tbody div.ntop .ntop_host table.matrix tr.even0 td.matrixhead,
+tbody div.ntop .ntop_host table.matrix tr.odd0 td.matrixhead,
+tbody div.ntop table.matrix.table tr.even0 td.matrixhead,
+tbody div.ntop table.matrix.table tr.odd0 td.matrixhead,
+tbody table.data.matrix tr.even0 td.matrixhead,
+tbody table.data.matrix tr.odd0 td.matrixhead {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table.matrix tr.even0 td.minority,
+div.ntop table.matrix.table tr.even0 td.minority,
+table.data.matrix tr.even0 td.minority {
+  background-color: var(--design-surface-3);
+}
+div.ntop .ntop_host table.matrix tr.odd0 td.minority,
+div.ntop table.matrix.table tr.odd0 td.minority,
+table.data.matrix tr.odd0 td.minority {
+  background-color: var(--design-surface-active);
+}
+div.avlegend.timeline div.state.flapping,
+div.ntop .ntop_host table td.flapping,
+div.ntop table.table td.flapping,
+table.data td.flapping,
+table.timeline td.flapping,
+div.avlegend.timeline div.state.downtime,
+div.ntop .ntop_host table td.downtime,
+div.ntop table.table td.downtime,
+table.data td.downtime,
+table.timeline td.downtime {
+  background-color: var(--design-info);
+}
+div.avlegend.timeline div.state.hostdown,
+div.ntop .ntop_host table tr>td.hostdown,
+div.ntop table.table tr>td.hostdown,
+table.data tr.data>td.hostdown,
+table.timeline td.hostdown {
+  background-color: var(--design-info);
+  color: var(--design-on-info);
+}
+div.avlegend.timeline div.state.unmonitored,
+div.ntop .ntop_host table tr td.unmonitored span,
+div.ntop table.table tr td.unmonitored span,
+table.data tr.data td.unmonitored span,
+table.timeline td.unmonitored {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+div.ntop .ntop_host table.availability tr td.unmonitored,
+div.ntop table.availability.table tr td.unmonitored,
+table.data.availability tr td.unmonitored {
+  background-color: var(--design-surface-active);
+}
+div.ntop .ntop_host table.availability tr td.hostdown,
+div.ntop table.availability.table tr td.hostdown,
+table.data.availability tr td.hostdown {
+  background-color: var(--design-info);
+}
+div.avlegend.timeline div.state.ooservice,
+table.timeline td.ooservice {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+div.avlegend.timeline div.state.chaos,
+table.timeline td.chaos {
+  background-color: var(--design-info-border);
+  color: var(--design-on-primary);
+}
+div.timelinerange div.timelinechoord {
+  border-color: var(--design-border-strong);
+  border-left-color: var(--design-border-strong);
+}
+div.ntop .ntop_host table.oddeven.timelineevents>tbody>tr.hilite,
+div.ntop table.oddeven.timelineevents.table>tbody>tr.hilite,
+table.data.oddeven.timelineevents>tbody>tr.hilite {
+  background-color: var(--design-info-border);
+}
+div.avlegend {
+  background-color: var(--design-surface-3);
+}
+td.invtree table td,
+td.invtree table th {
+  border-color: var(--design-border);
+}
+td.invtree table td,
+div.ntop .ntop_host table.single tr td.invtree table td,
+div.ntop .ntop_host table.single tr td.invtree table th,
+div.ntop table.table tr td.invtree table td,
+div.ntop table.table tr td.invtree table th,
+table.data.single tr.data td.invtree table td,
+table.data.single tr.data td.invtree table th,
+table.data.table tr.data td.invtree table td,
+table.data.table tr.data td.invtree table th {
+  background-color: var(--design-surface-2);
+}
+div.ntop .ntop_host table.single tr td.invtree table td.inactive_cell,
+div.ntop .ntop_host table.single tr td.invtree table th.inactive_cell,
+div.ntop table.table tr td.invtree table td.inactive_cell,
+div.ntop table.table tr td.invtree table th.inactive_cell,
+table.data.single tr.data td.invtree table td.inactive_cell,
+table.data.single tr.data td.invtree table th.inactive_cell,
+table.data.table tr.data td.invtree table td.inactive_cell,
+table.data.table tr.data td.invtree table th.inactive_cell {
+  background-color: var(--design-surface-1);
+}
+div.ntop .ntop_host table.single tr td.invtree table td.inactive_cell>span,
+div.ntop .ntop_host table.single tr td.invtree table th.inactive_cell>span,
+div.ntop table.table tr td.invtree table td.inactive_cell>span,
+div.ntop table.table tr td.invtree table th.inactive_cell>span,
+table.data.single tr.data td.invtree table td.inactive_cell>span,
+table.data.single tr.data td.invtree table th.inactive_cell>span,
+table.data.table tr.data td.invtree table td.inactive_cell>span,
+table.data.table tr.data td.invtree table th.inactive_cell>span {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table.single tr td.invtree table th,
+div.ntop table.table tr td.invtree table th,
+table.data.single tr.data td.invtree table th,
+table.data.table tr.data td.invtree table th {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+div.ntop .ntop_host span.invold table,
+div.ntop span.invold table.table,
+span.invold div.ntop .ntop_host table,
+span.invold div.ntop table.table,
+span.invold table.data,
+td.invtree span.invold {
+  color: var(--design-danger);
+}
+div.ntop .ntop_host span.invnew table,
+div.ntop span.invnew table.table,
+span.invnew div.ntop .ntop_host table,
+span.invnew div.ntop table.table,
+span.invnew table.data,
+td.invtree span.invnew {
+  color: var(--design-link);
+}
+div.ntop .ntop_host table tr td.if_state.if_state_up,
+div.ntop table.table tr td.if_state.if_state_up,
+table.data tr.data td.if_state.if_state_up,
+table.data.single tr.data td.invtree table td.if_state.if_state_up {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+div.ntop .ntop_host table tr td.if_state.if_state_down,
+div.ntop table.table tr td.if_state.if_state_down,
+table.data tr.data td.if_state.if_state_down,
+table.data.single tr.data td.invtree table td.if_state.if_state_down {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+div.ntop .ntop_host table tr td.if_state.if_state_other,
+div.ntop table.table tr td.if_state.if_state_other,
+table.data tr.data td.if_state.if_state_other,
+table.data.single tr.data td.invtree table td.if_state.if_state_other {
+  background-color: var(--design-info);
+}
+div.ntop .ntop_host table tr td.if_state.if_available,
+div.ntop table.table tr td.if_state.if_available,
+table.data tr.data td.if_state.if_available,
+table.data.single tr.data td.invtree table td.if_state.if_available {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+div.ntop .ntop_host table tr td.if_state.if_not_available,
+div.ntop table.table tr td.if_state.if_not_available,
+table.data tr.data td.if_state.if_not_available,
+table.data.single tr.data td.invtree table td.if_state.if_not_available {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+body.main .popup_menu div.ntop .ntop_host table.headerleft.sla span,
+body.main .popup_menu div.ntop table.headerleft.sla.table span,
+body.main .popup_menu table.data.headerleft.sla span,
+div.ntop .ntop_host body.main .popup_menu table.headerleft.sla span,
+div.ntop .ntop_host table.headerleft.sla a,
+div.ntop .ntop_host table.headerleft.sla body.main .popup_menu span,
+div.ntop body.main .popup_menu table.headerleft.sla.table span,
+div.ntop table.headerleft.sla.table a,
+div.ntop table.headerleft.sla.table body.main .popup_menu span,
+table.data.headerleft.sla a,
+table.data.headerleft.sla body.main .popup_menu span,
+div.ntop .ntop_host table tr.notification_context table th,
+div.ntop table.table tr.notification_context table th,
+table.data tr.notification_context table th,
+td.agent_config table.rulesets table td.title,
+td.sla_spec table td.title {
+  color: var(--design-text);
+}
+div.ntop .ntop_host table tr.sla_horizontal_line>td.sla_horizontal_line.black,
+div.ntop table.table tr.sla_horizontal_line>td.sla_horizontal_line.black,
+table.data tr.data.sla_horizontal_line>td.sla_horizontal_line.black {
+  border-bottom-color: var(--design-border-strong);
+}
+div.ntop .ntop_host table tr.ac_test_details table td,
+div.ntop .ntop_host table tr.notification_context table td,
+div.ntop .ntop_host table tr.notification_context table th,
+div.ntop table.table tr.ac_test_details table td,
+div.ntop table.table tr.notification_context table td,
+div.ntop table.table tr.notification_context table th,
+table.data tr.ac_test_details table td,
+table.data tr.notification_context table td,
+table.data tr.notification_context table th,
+td.agent_config table.rulesets table td,
+td.rule_conditions table td {
+  border-color: var(--design-border);
+}
+div.ntop .ntop_host table tr.ac_test_details table td,
+div.ntop .ntop_host table tr.notification_context table td,
+div.ntop table.table tr.ac_test_details table td,
+div.ntop table.table tr.notification_context table td,
+table.data tr.ac_test_details table td,
+table.data tr.notification_context table td,
+td.agent_config table.rulesets table td,
+td.rule_conditions table td {
+  background-color: var(--design-surface-2);
+}
+div.ntop .ntop_host table tr.notification_context table th,
+div.ntop table.table tr.notification_context table th,
+table.data tr.notification_context table th,
+td.agent_config table.rulesets table td.title,
+td.rule_conditions table td.title {
+  background-color: var(--design-surface-3);
+}
+td.agent_config table.rulesets td table td td.title {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+span.muted_text {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.wato {
+  color: var(--design-text);
+}
+.wato div.ntop .ntop_host table th.header_state,
+.wato div.ntop table.table th.header_state,
+.wato table.data th.header_state,
+div.ntop .ntop_host .wato table th.header_state,
+div.ntop .wato table.table th.header_state {
+  color: rgba(var(--design-text-rgb), 0.8) !important;
+}
+.wato div.inherited,
+.wato div.inherited a {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.wato div.inherited b {
+  color: var(--design-text);
+}
+.wato td.inherited {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div.warning_container {
+  background-color: var(--design-warning);
+}
+div.warning_container div.content {
+  background-color: var(--design-surface-3);
+}
+div.warning_container div.content div.button-container a {
+  background-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+div#notification_analysis_container,
+div#datasources_container,
+div#activation_state_message_container,
+div#fixall_container {
+  background-color: var(--design-surface-3);
+}
+div#fixall_container li {
+  border-right-color: var(--design-border-strong);
+}
+div#fixall_container span.changed {
+  color: var(--design-link);
+}
+div.ntop .ntop_host table tr>td.bulkactions,
+div.ntop table.table tr>td.bulkactions,
+table.data tr.data>td.bulkactions,
+div.ntop .ntop_host table tr>td.bulksearch,
+div.ntop table.table tr>td.bulksearch,
+table.data tr.data>td.bulksearch {
+  background-color: transparent;
+  background-image: none;
+}
+.wato div.floatfolder .infos .infos_content,
+.wato div.floatfolder .title,
+.wato div.floatfolder.newfolder {
+  color: var(--design-on-primary);
+}
+.wato div.floatfolder div.title a,
+.wato div.floatfolder div.title body.main .popup_menu span,
+.wato div.floatfolder.locked div.title,
+body.main .popup_menu .wato div.floatfolder div.title span {
+  color: var(--design-text);
+}
+.wato ul.conditions li.no_conditions {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.tagify__dropdown__item,
+.tagify__dropdown__item--active {
+  color: var(--design-text);
+}
+.wato div.ntop .ntop_host table.ruleset tr.disabled td *,
+.wato div.ntop table.ruleset.table tr.disabled td *,
+.wato table.data.ruleset tr.disabled td *,
+div.ntop .ntop_host .wato table.ruleset tr.disabled td *,
+div.ntop .wato table.ruleset.table tr.disabled td * {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.wato div.ntop .ntop_host table.ruleset tr.disabled td .tagify__tag-text,
+.wato div.ntop table.ruleset.table tr.disabled td .tagify__tag-text,
+.wato table.data.ruleset tr.disabled td .tagify__tag-text,
+div.ntop .ntop_host .wato table.ruleset tr.disabled td .tagify__tag-text,
+div.ntop .wato table.ruleset.table tr.disabled td .tagify__tag-text {
+  color: inherit;
+}
+div.ntop .ntop_host table.oddeven>tbody>.matches_search>td,
+div.ntop table.oddeven.table>tbody>.matches_search>td,
+table.data.oddeven>tbody>.matches_search>td {
+  background-color: var(--design-success-border);
+}
+.wato form.search {
+  color: var(--design-text);
+}
+.wato div.mainmenu a,
+.wato div.mainmenu body.main .popup_menu span,
+body.main .popup_menu .wato div.mainmenu span {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+.wato div.mainmenu a:hover,
+.wato div.mainmenu body.main .popup_menu span:hover,
+body.main .popup_menu .wato div.mainmenu span:hover {
+  background-color: var(--design-surface-hover);
+}
+.wato div.mainmenu div.subtitle {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.wato .rulesets div.ruleset a {
+  color: var(--design-text);
+}
+.wato div.no-config-bundles a {
+  background-color: var(--design-primary);
+  border-color: var(--design-border-strong);
+  color: var(--design-on-primary);
+}
+.wato div.globalvars td.content a.modified>table,
+.wato div.globalvars td.simple a.modified,
+.wato div.globalvars td.simple div.toggle_switch_container.modified {
+  border-color: rgba(var(--design-border-strong-rgb), 0.8);
+}
+.wato div.globalvars td.content a.modified>table.on,
+.wato div.globalvars td.simple a.modified.on,
+.wato div.globalvars td.simple div.toggle_switch_container.modified.on {
+  border-color: var(--design-primary);
+}
+.wato table.changes tr.foreign.not_permitted td {
+  color: var(--design-danger);
+}
+.wato table.activation td.details div.warning {
+  background-color: var(--design-warning);
+}
+.wato table.activation td.repprogress div.msg.state_success,
+.wato table.activation td.repprogress div.msg.state_warning,
+.wato table.activation td.repprogress div.progress {
+  color: var(--design-text);
+}
+.wato table.activation td.repprogress div.progress.in_progress {
+  background-color: var(--design-info-border);
+}
+.wato table.activation td.repprogress div.progress.state_success {
+  background-color: var(--design-success);
+}
+.wato table.activation td.repprogress div.progress.state_error {
+  background-color: var(--design-danger);
+}
+.wato table.activation td.repprogress div.progress.state_warning {
+  background-color: var(--design-warning);
+}
+div.ntop .ntop_host table tr.dcd_log_entries>td,
+div.ntop table.table tr.dcd_log_entries>td,
+table.data tr.data.dcd_log_entries>td {
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+}
+.wato form.rule_representation textarea#rule_representation,
+.wato .diag_host .log {
+  border-color: var(--design-border);
+}
+table.logwatch span.match {
+  background-color: var(--design-info-border);
+  color: var(--design-text);
+}
+div.ntop .ntop_host table td.bi_rule_tree b.treeangle,
+div.ntop table.table td.bi_rule_tree b.treeangle,
+table.data td.bi_rule_tree b.treeangle,
+table.setting td.reason {
+  color: var(--design-text);
+}
+.backup_job .log,
+.wato .diag_host .log {
+  background-color: var(--design-surface-1);
+}
+.wato .diag_host .log.diag_success {
+  background-color: var(--design-success-subtle);
+}
+.wato .diag_host .log.diag_failed {
+  background-color: var(--design-danger-border);
+}
+table.setting td.reason span,
+td.settingvalue.unused,
+td.settingvalue.unused td {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.wato table.nform div.title a {
+  color: var(--design-text);
+}
+#profile_repl .site {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+.wato div.ntop .ntop_host table.analyze_config td.state a,
+.wato div.ntop table.analyze_config.table td.state a,
+.wato table.data.analyze_config td.state a,
+div.ntop .ntop_host .wato table.analyze_config td.state a,
+div.ntop .wato table.analyze_config.table td.state a {
+  background-color: transparent;
+  background-image: none;
+}
+.wato h3 {
+  background-color: var(--design-surface-3);
+}
+a.create_rule {
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+a.create_rule,
+a.create_rule:active {
+  background-color: var(--design-surface-active);
+}
+a.create_rule:hover {
+  background-color: var(--design-surface-hover);
+}
+form.biaggr div.label_groups tr[id*=label_groups_entry]>td.vlof_content>div.bool div.line,
+form.biaggr div.label_groups tr[id*=labels_entry]>td.vlof_content>div.bool div.line,
+form.birule div.label_groups tr[id*=label_groups_entry]>td.vlof_content>div.bool div.line,
+form.birule div.label_groups tr[id*=labels_entry]>td.vlof_content>div.bool div.line,
+tr.condition div.label_groups tr[id*=label_groups_entry]>td.vlof_content>div.bool div.line,
+tr.condition div.label_groups tr[id*=labels_entry]>td.vlof_content>div.bool div.line {
+  border-top-color: var(--design-border);
+}
+form.biaggr div.label_groups div.label_group,
+form.birule div.label_groups div.label_group,
+tr.condition div.label_groups div.label_group {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+form.biaggr div.label_groups a.vlof_add_button,
+form.birule div.label_groups a.vlof_add_button,
+tr.condition div.label_groups a.vlof_add_button {
+  background-color: transparent;
+  background-image: none;
+}
+div.dcd_host_manager_state,
+div.dcd_hosts_about_cycle {
+  background-color: var(--design-surface-1) !important;
+}
+body.mobile div.error {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+body.mobile div.command_group a,
+body.mobile table.dataset tr.header {
+  color: var(--design-text);
+}
+body.mobile div.ntop .ntop_host table td,
+body.mobile div.ntop table.table td,
+body.mobile table.data td,
+div.ntop .ntop_host body.mobile table td,
+div.ntop body.mobile table.table td,
+body.mobile div.ntop .ntop_host table.dataset>tbody>tr>td,
+body.mobile div.ntop table.table table.dataset>tbody>tr>td,
+body.mobile table.dataset>tbody>tr.data>td,
+div.ntop .ntop_host body.mobile table.dataset>tbody>tr>td,
+div.ntop table.table body.mobile table.dataset>tbody>tr>td {
+  border-color: var(--design-border);
+}
+body.mobile td.nonstatus {
+  background-color: var(--design-surface-2);
+}
+body.mobile .ui-li-aside.state.state0 {
+  background-color: var(--design-success);
+}
+body.mobile .ui-li-aside.state.state1 {
+  background-color: var(--design-warning);
+}
+body.mobile .ui-li-aside.state.state2 {
+  background-color: var(--design-danger);
+}
+body.mobile #loginfoot,
+body.mobile #loginhead {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+body.mobile input#_saml2_login_button {
+  background-color: var(--design-primary);
+}
+body.mobile #login_error div.error,
+body.mobile #login_error_saml2 div.error {
+  color: var(--design-on-primary);
+}
+body.mobile h2.login_separator {
+  border-bottom-color: var(--design-border-strong);
+}
+body.mobile h2.login_separator span {
+  background-color: var(--design-surface-3);
+}
+body.mobile div.popup_trigger>div.popup_menu a,
+body.side b.treeangle.title,
+#check_mk_sidebar div.shortcuts a,
+#check_mk_sidebar div.shortcuts a:visited,
+#check_mk_sidebar #side_content {
+  color: var(--design-text);
+}
+body.mobile input.button {
+  background-color: var(--design-surface-2);
+}
+body.mobile .select2.select2-container {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+body.mobile .select2.select2-container.select2-container--focus,
+body.mobile .select2.select2-container.select2-container--open {
+  box-shadow: 0 0 12px var(--design-link);
+  -webkit-box-shadow: 0 0 12px var(--design-link);
+  -moz-box-shadow: 0 0 12px var(--design-link);
+}
+body.mobile .select2.select2-container .select2-selection--single .select2-selection__rendered,
+body.side {
+  background-color: var(--design-surface-3);
+}
+#check_mk_sidebar.left {
+  border-left-color: var(--design-border);
+}
+#check_mk_sidebar div.shortcuts {
+  border-bottom-color: var(--design-border);
+}
+#content_area {
+  background-color: var(--design-surface-1);
+}
+#saas,
+#side_fold {
+  border-left-color: var(--design-border);
+  color: var(--design-text);
+}
+#saas:hover,
+#side_fold:hover {
+  border-left-color: var(--design-primary-hover);
+}
+#side_fold:not(.folded) {
+  color: var(--design-link);
+}
+#side_version,
+#side_version a:visited {
+  color: var(--design-text);
+}
+#side_version span.unack_werks {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+body.side div.snapin,
+div.add_snapin div.snapin {
+  background-color: var(--design-surface-3);
+}
+div.snapin div.head {
+  background-color: transparent;
+  background-image: none;
+  color: var(--design-text);
+}
+div.snapin div.content {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+div.snapin td,
+div.snapin h3,
+div.snapin a,
+div.snapin li {
+  color: var(--design-text);
+}
+div.snapin div.snapinexception {
+  background-color: var(--design-danger);
+}
+div.snapin div.snapinexception h2,
+div.snapin div.snapinexception p {
+  color: var(--design-on-primary);
+}
+div.snapin div.footnotelink a.link {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+div#snapinDragIndicator {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-1);
+}
+div.add_snapin div.snapinadder {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+div.add_snapin div.snapinadder:hover {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border);
+}
+div.add_snapin div.snapinadder *,
+div.add_snapin div.snapinadder:hover *,
+div.bookmark {
+  color: var(--design-text);
+}
+div.add_snapin div.snapinadder div.description {
+  border-top-color: var(--design-border);
+}
+div.popup_msg {
+  background-color: var(--design-surface-3);
+}
+#snapin_time div.time {
+  background-color: var(--design-border);
+  color: var(--design-text);
+}
+table.tacticaloverview th {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+table.tacticaloverview td {
+  background-color: var(--design-surface-active);
+}
+table.tacticaloverview td.states a.link {
+  color: var(--design-warning);
+}
+table.tacticaloverview td a,
+table.tacticaloverview td a.link,
+table.tacticaloverview td a:hover,
+table.tacticaloverview td span,
+#snapin_container_wiki div.content,
+#mk_side_search input,
+#mk_side_search input::-moz-placeholder,
+#mk_side_search input::placeholder {
+  color: var(--design-text);
+}
+div.tacticalalert,
+div.tacticalinfo {
+  box-shadow: none;
+}
+div.tacticalalert {
+  background-color: var(--design-danger);
+}
+div.tacticalinfo {
+  background-color: var(--design-info-border);
+}
+#mk_search_results {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+#mk_search_results a,
+#snapin_cmc_stats,
+#snapin_reports i,
+#snapin_reports div.timerange,
+div.node_vis div#popup_menu label {
+  color: var(--design-text);
+}
+#mk_search_results a.active {
+  background-color: var(--design-surface-active);
+}
+#mk_search_results a:hover {
+  background-color: var(--design-surface-hover);
+}
+#snapin_cmc_stats table.cmc_stats tr.dark,
+#snapin_cmc_stats table.cmc_stats tr.light {
+  background-color: var(--design-surface-3);
+}
+div#viewport_information {
+  background-color: var(--design-surface-2);
+}
+div#viewport_information select {
+  background-color: var(--design-surface-3);
+}
+div#viewport_information td#zoom_options {
+  border-bottom-color: var(--design-border);
+  border-top-color: var(--design-border);
+}
+div#viewport_information td#zoom_minus,
+div#viewport_information td#zoom_plus {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+div#top_heading table.menubar td.inpage_search.node_vis input[type=text] {
+  background-color: var(--design-surface-active);
+}
+tr.range_input td.range_input.slider input {
+  accent-color: var(--design-success);
+}
+#svg_content,
+#node_visualization_root_div,
+div.node_vis label.link_info {
+  background-color: var(--design-surface-2);
+}
+div.node_vis div#layout_toggle_panel {
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+}
+div.node_vis div.radio_group {
+  background-color: var(--design-surface-2);
+}
+div.node_vis table.radio_group td {
+  border-bottom-color: var(--design-border);
+  border-top-color: var(--design-border);
+}
+div.node_vis table.radio_group td input[type=radio]:checked+label {
+  background-color: var(--design-surface-active);
+}
+div.node_vis table.radio_group td:hover {
+  background-color: var(--design-surface-hover);
+}
+div.node_vis table.radio_group td:first-child {
+  border-left-color: var(--design-border);
+}
+div.node_vis table.radio_group td:last-child {
+  border-right-color: var(--design-border);
+}
+div.node_vis .node_element .indicator_growth_root {
+  stroke: rgba(var(--design-text-rgb), 0.8);
+}
+div.node_vis div.box,
+div.node_vis img.box {
+  background-color: var(--design-surface-3);
+}
+div.node_vis div#layouting_toolbar input.save_delete.save {
+  border-color: var(--design-primary);
+}
+div.node_vis div#style_management {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+div.node_vis .node_element circle.has_crit_services {
+  stroke: var(--design-danger);
+  fill: none;
+}
+div.node_vis .node_element circle.has_warn_services {
+  stroke: var(--design-warning);
+  fill: none;
+}
+div.node_vis .node_element.focus circle {
+  stroke: var(--design-link) !important;
+}
+div.node_vis .node_element.highlight circle {
+  stroke: var(--design-text) !important;
+}
+div.node_vis circle.edge_marker {
+  fill: var(--design-text-muted);
+}
+div.node_vis .link_element line,
+div.node_vis .link_element path {
+  stroke: var(--design-text-muted);
+}
+div.node_vis .link_element .critical {
+  stroke: var(--design-danger) !important;
+}
+div.node_vis .link_element .highlight {
+  stroke: var(--design-text) !important;
+}
+div.node_vis .only_in_ref circle,
+div.node_vis .only_in_ref line,
+div.node_vis .only_in_ref path,
+div.node_vis .only_in_ref.highlight circle,
+div.node_vis .only_in_ref.highlight line,
+div.node_vis .only_in_ref.highlight path,
+div.node_vis .missing_in_ref circle,
+div.node_vis .missing_in_ref line,
+div.node_vis .missing_in_ref path,
+div.node_vis .missing_in_ref.highlight circle,
+div.node_vis .missing_in_ref.highlight line,
+div.node_vis .missing_in_ref.highlight path {
+  stroke: var(--design-info) !important;
+}
+div.node_vis div#popup_menu ul {
+  background-color: var(--design-surface-1);
+}
+div.node_vis .style_indicator {
+  stroke: var(--design-text);
+}
+div.node_vis circle.style_indicator.focus {
+  stroke: var(--design-warning);
+}
+div.node_vis .style_overlay {
+  stroke: var(--design-surface-active);
+}
+.block_style_overlay {
+  fill: var(--design-surface-active);
+  stroke: var(--design-surface-active);
+}
+div.cmk_tab nav.main-navigation li {
+  border-bottom-color: transparent;
+}
+div.cmk_tab nav.main-navigation li:hover {
+  background-color: var(--design-surface-hover);
+}
+div.cmk_tab nav.main-navigation li.active {
+  border-bottom-color: var(--design-primary-active);
+}
+div.cmk_tab div.main-content {
+  border-color: var(--design-border);
+}
+.bar_chart rect.bar,
+.bar_chart rect.bar.bar_chart,
+.barplot rect.bar,
+.barplot rect.bar.bar_chart {
+  fill: rgba(var(--design-info-rgb), 0.95);
+  stroke: rgba(var(--design-text-rgb), 0.2);
+}
+.bar_chart rect.bar.bar_chart:hover,
+.bar_chart rect.bar:hover,
+.barplot rect.bar.bar_chart:hover,
+.barplot rect.bar:hover {
+  fill: rgba(var(--design-info-rgb), 0.9);
+  stroke: var(--design-text);
+}
+.bar_chart rect.bar.bar_chart.barbar_chart,
+.barplot rect.bar.bar_chart.barbar_chart {
+  fill: rgba(var(--design-link-rgb), 0.9);
+  stroke: rgba(var(--design-text-rgb), 0.3);
+}
+.bar_chart rect.bar.bar_chart.barbar_chart:hover,
+.barplot rect.bar.bar_chart.barbar_chart:hover {
+  fill: rgba(var(--design-link-rgb), 0.9);
+  stroke: var(--design-text);
+}
+div.cmk_figure div.tooltip {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-1);
+  color: var(--design-text);
+}
+div.cmk_figure div.legend {
+  background-color: rgba(var(--design-surface-3-rgb), 0.87);
+}
+div.cmk_figure g.axis {
+  color: transparent;
+}
+div.cmk_figure.average_scatterplot div.tooltip table tr.median+tr,
+div.cmk_figure.average_scatterplot div.tooltip table tr.scatterpoint+tr {
+  border-top-color: var(--design-border-strong);
+}
+div.cmk_figure.average_scatterplot div.tooltip table tr.top_matches td:nth-child(2) {
+  color: var(--design-danger);
+}
+div.cmk_figure.average_scatterplot div.tooltip table tr.bottom_matches td:nth-child(2) {
+  color: var(--design-link);
+}
+div.cmk_figure.average_scatterplot path.pin {
+  stroke: var(--design-text);
+}
+div.cmk_figure.average_scatterplot path.host.hilite {
+  stroke: var(--design-link);
+}
+div.cmk_figure.average_scatterplot circle.scatterdot {
+  fill: var(--design-link);
+}
+div.cmk_figure.average_scatterplot circle.scatterdot.hilite {
+  fill: var(--design-info);
+}
+div.cmk_figure g.title rect,
+div.cmk_figure g.title rect.highlighted {
+  fill: var(--design-surface-3);
+}
+circle.scatterdot {
+  fill: var(--design-link);
+}
+div.dc_table .options .filter_graphs .dc-chart .axis line,
+div.dc_table .options .filter_graphs .dc-chart .axis path {
+  stroke: var(--design-text-muted);
+}
+div.dc_table .options .filter_graphs .main-content svg {
+  stroke: var(--design-warning);
+}
+div.dc_table .options .paging .buttons input:hover:not(:disabled) {
+  background-color: var(--design-surface-hover);
+}
+div.dc_table .options .paging .buttons input:disabled {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+.dc-chart g.row text {
+  fill: var(--design-text);
+}
+#main_menu #mk_side_search_monitoring form,
+#main_menu #mk_side_search_setup form,
+#main_menu #mk_side_search_field {
+  background-color: var(--design-surface-1);
+}
+#main_menu #mk_side_search_monitoring form:focus-within,
+#main_menu #mk_side_search_setup form:focus-within {
+  border-color: var(--design-primary);
+}
+#main_menu div.popup_trigger {
+  border-left-color: var(--design-border);
+}
+#main_menu div.popup_trigger.active {
+  border-left-color: var(--design-primary-active);
+}
+#main_menu div.popup_trigger:not(.delayed):hover {
+  border-left-color: var(--design-primary-hover);
+}
+#main_menu div.popup_trigger.active a.popup_trigger {
+  color: var(--design-link);
+}
+#main_menu div.popup_trigger #messages_link #messages_link_to:not(:empty),
+#main_menu div.popup_trigger #messages_link #werks_link_to:not(:empty),
+#main_menu div.popup_trigger #werks_link #messages_link_to:not(:empty),
+#main_menu div.popup_trigger #werks_link #werks_link_to:not(:empty) {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+#main_menu div.popup_trigger .info_line,
+#main_menu div.popup_trigger .info_line a {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+#main_menu div.popup_trigger .info_line a:hover {
+  color: var(--design-link);
+}
+#main_menu div.popup_trigger div.popup_menu {
+  background-color: var(--design-surface-2);
+  border-right-color: var(--design-primary);
+}
+#main_menu div.popup_trigger div.popup_menu span.new_msg {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+#main_menu div.popup_trigger div.popup_menu div.navigation_bar {
+  border-bottom-color: var(--design-border);
+}
+#main_menu div.popup_trigger div.popup_menu div.content.inner div.topic {
+  border-right-color: var(--design-border);
+}
+#main_menu div.popup_trigger div.popup_menu div.content.inner div.topic input[type=button]:hover {
+  color: var(--design-on-primary);
+}
+#main_menu div.popup_trigger div.popup_menu div.content.inner div.topic h2 {
+  color: var(--design-text);
+}
+#main_menu div.popup_trigger div.popup_menu div.content.inner div.topic ul a:hover,
+#main_menu div.popup_trigger div.popup_menu div.content.inner div.topic li a.active {
+  color: var(--design-link);
+}
+#main_menu div.popup_trigger div.popup_menu div.content.inner div.topic li input.button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+#main_menu #popup_shadow {
+  background-color: rgba(var(--design-surface-2-rgb), 0.2);
+}
+#main_menu li a.popup_trigger {
+  color: var(--design-text);
+}
+#main_menu li a.popup_trigger span#messages_label,
+#main_menu li a.popup_trigger span#werks_label {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+div.success .codelistelement {
+  background-color: var(--design-surface-active);
+}
+div#top_heading div.titlebar,
+div#top_heading table.menubar {
+  background-color: var(--design-surface-1);
+}
+div#top_heading a.title {
+  color: var(--design-text);
+}
+div#top_heading div.page_state>a:hover {
+  color: var(--design-link);
+}
+div#top_heading div.page_state.no_changes div.text_container span.changes_str {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div#top_heading div.page_state.no_changes div.text_container span.changes_str:hover,
+div#top_heading div.page_state.reload>a:hover {
+  color: var(--design-text);
+}
+div#top_heading div.page_state.reload div.icon_container,
+div#top_heading div.page_state.reload div.icon_container>img.icon {
+  border-color: rgba(var(--design-border-strong-rgb), 0.4);
+}
+div#top_heading div.page_state.reload div.icon_container>img.icon {
+  border-color: var(--design-border-strong);
+}
+div#top_heading div.page_state.reload>a:hover div.icon_container>img.icon {
+  border-color: var(--design-primary-hover);
+}
+div#top_heading div.breadcrumb a,
+div#top_heading div.breadcrumb span {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div#top_heading div.breadcrumb a:hover {
+  color: var(--design-text);
+}
+div#top_heading table.menubar td.shortcuts {
+  background-color: var(--design-surface-3);
+}
+div#top_heading table.menubar td.icon_container {
+  background-color: var(--design-surface-3);
+  border-right-color: var(--design-border);
+}
+div#top_heading table.menubar td.inpage_search,
+div#top_heading table.menubar td.menues div.menucontainer {
+  background-color: var(--design-surface-3);
+  border-bottom-color: var(--design-border);
+}
+div#top_heading table.menubar td.menues div.menucontainer:hover {
+  border-bottom-color: var(--design-primary-hover);
+}
+div#top_heading table.menubar td.menues div.menucontainer div.popup_trigger:focus {
+  border-color: var(--design-surface-2);
+}
+div#top_heading table.menubar td.menues div.menucontainer div.menu {
+  background-color: var(--design-surface-3);
+}
+div#top_heading table.menubar td.menues div.menucontainer div.menu div.topic div.topic_title {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div#top_heading table.menubar td.menues div.menucontainer div.menu div.topic div.entry.enabled a:hover {
+  color: var(--design-link);
+}
+div#top_heading table.menubar td.inpage_search form {
+  background-color: var(--design-surface-active);
+}
+div#top_heading table.menubar td.inpage_search input,
+div#top_heading table.menubar td.inpage_search input:active,
+div#top_heading table.menubar td.inpage_search input:focus {
+  background-color: transparent;
+}
+div#top_heading table.menubar td.inpage_search input.submit {
+  background-color: var(--design-primary);
+}
+div#top_heading tr#suggestions {
+  background-color: var(--design-surface-1);
+}
+div#top_heading tr#suggestions td div.suggestion.disabled a {
+  background-color: var(--design-surface-active);
+}
+div#top_heading tr#suggestions td div.suggestion a {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+div#top_heading tr#suggestions td div.suggestion a:hover {
+  background-color: var(--design-surface-hover);
+}
+div#top_heading tr#suggestions td div.suggestion.submit a {
+  border-color: var(--design-primary);
+}
+div#page_menu_popups .confirm_container .confirm_popup,
+div#page_menu_popups .message_container .confirm_popup {
+  background-color: var(--design-surface-3);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_question {
+  background-color: var(--design-warning);
+  border-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_question:active {
+  background-color: var(--design-warning-active);
+  border-color: var(--design-warning-active);
+  color: var(--design-on-warning);
+}
+div#page_menu_popups .message_container .confirm_popup button.confirm_question {
+  background-color: var(--design-warning);
+  border-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+div#page_menu_popups .message_container .confirm_popup button.confirm_question:active {
+  background-color: var(--design-warning-active);
+  border-color: var(--design-warning-active);
+  color: var(--design-on-warning);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_question:hover,
+div#page_menu_popups .message_container .confirm_popup button.confirm_question:hover {
+  background-color: var(--design-warning-hover);
+  border-color: var(--design-warning-hover);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_warning {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_warning:active {
+  background-color: var(--design-danger-active);
+  border-color: var(--design-danger-active);
+  color: var(--design-on-danger);
+}
+div#page_menu_popups .message_container .confirm_popup button.confirm_warning {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+div#page_menu_popups .message_container .confirm_popup button.confirm_warning:active {
+  background-color: var(--design-danger-active);
+  border-color: var(--design-danger-active);
+  color: var(--design-on-danger);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_warning:hover,
+div#page_menu_popups .message_container .confirm_popup button.confirm_warning:hover {
+  background-color: var(--design-danger-hover);
+  border-color: var(--design-danger-hover);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_success {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_success:active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+  color: var(--design-on-primary);
+}
+div#page_menu_popups .message_container .confirm_popup button.confirm_success {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+div#page_menu_popups .message_container .confirm_popup button.confirm_success:active {
+  background-color: var(--design-primary-active);
+  border-color: var(--design-primary-active);
+  color: var(--design-on-primary);
+}
+div#page_menu_popups .confirm_container .confirm_popup button.confirm_success:hover,
+div#page_menu_popups .message_container .confirm_popup button.confirm_success:hover {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+}
+div#page_menu_popups .confirm_icon,
+div#page_menu_popups .message_icon {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+div#page_menu_popups .confirm_icon.confirm_question,
+div#page_menu_popups .message_icon.confirm_question {
+  background-color: var(--design-warning);
+  border-color: var(--design-warning);
+}
+div#page_menu_popups .confirm_icon.confirm_warning,
+div#page_menu_popups .message_icon.confirm_warning {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+div#page_menu_popups .confirm_icon.confirm_success {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+div#page_menu_popups .confirm_icon.message_success {
+  background-color: var(--design-success);
+  border-color: var(--design-primary);
+}
+div#page_menu_popups .message_icon.confirm_success {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+div#page_menu_popups .message_icon.message_success {
+  background-color: var(--design-success);
+  border-color: var(--design-primary);
+}
+div#page_menu_popups .confirm_content,
+div#page_menu_popups .confirm_title,
+div.page_menu_popup>.head h3 {
+  color: var(--design-text);
+}
+div.page_menu_popup {
+  background-color: var(--design-surface-2);
+}
+div.page_menu_popup.side_popup>.head {
+  background-color: inherit;
+}
+div.page_menu_popup>.head {
+  background-color: var(--design-surface-3);
+}
+div.page_menu_popup div.group .button.border_hot {
+  border-color: var(--design-primary);
+}
+div.page_menu_popup div.group .server_time,
+div.page_menu_popup div.group.ack_command_options div.example,
+div.page_menu_popup div.group.ack_command_options div.date_time_picker input[type=date]:not(.active),
+div.page_menu_popup div.group.ack_command_options div.date_time_picker input[type=time]:not(.active),
+div.page_menu_popup div.group.ack_command_options div.disabled,
+div#inpage_search_result_info {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+div.page_menu_popup div.group input.button.duration {
+  border-color: var(--design-border-strong);
+}
+div.page_menu_popup div.group input.button.duration:first-child {
+  border-left-color: var(--design-border-strong);
+}
+div.page_menu_popup div.group input.button.duration:last-child {
+  border-right-color: var(--design-border-strong);
+}
+div.page_menu_popup div.group input.button.duration.active,
+div.page_menu_popup div.group input.button.duration:focus {
+  background-color: var(--design-surface-active);
+}
+div.page_menu_popup div.group input.button.duration:hover {
+  background-color: var(--design-surface-hover);
+}
+div.page_menu_popup div.group hr {
+  border-color: var(--design-border);
+}
+body.dashboard div#page_menu_popups .confirm_container {
+  background-color: rgba(var(--design-text-rgb), 0.2) !important;
+}
+div#page_menu_popups div.side_popup {
+  border-left-color: var(--design-primary);
+}
+div#page_menu_popups div.side_popup form div.floatfilter {
+  background-color: var(--design-surface-2);
+}
+div#page_menu_popups div.side_popup form table.filterform table.valuespec_listof.filter>tbody>tr>td,
+div#page_menu_popups div.side_popup form>div.side_popup_content div.simplebar-content>div.floatfilter {
+  border-bottom-color: var(--design-border);
+}
+div#page_menu_popups div.side_popup form div.side_popup_controls {
+  border-bottom-color: var(--design-border);
+  border-top-color: var(--design-border);
+}
+div#page_menu_popups div.side_popup form div.side_popup_controls a.add div.description {
+  color: var(--design-text-muted);
+}
+div#page_menu_popups div.side_popup form div.side_popup_controls a.add.active div.description,
+div#page_menu_popups div.side_popup form div.side_popup_controls a.add:hover div.description,
+div#page_menu_popups div.side_popup div.popup_filter_list a.filter_group_title {
+  color: var(--design-text);
+}
+div#page_menu_popups div.side_popup div.popup_filter_list {
+  background-color: var(--design-surface-2);
+  border-left-color: var(--design-primary);
+  border-right-color: var(--design-border);
+}
+#form_test_notifications table.test_on td.test_type .button {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border-strong);
+}
+#form_test_notifications table.test_on td.test_type .button.active,
+#form_test_notifications table.test_on td.test_type .button:focus {
+  background-color: var(--design-surface-active);
+}
+#form_test_notifications table.test_on td.test_type .button:hover {
+  background-color: var(--design-surface-hover);
+}
+#form_test_notifications table.test_on td.test_type input {
+  border-color: 1px solid var(--design-border-strong);
+}
+#form_test_notifications table.nform {
+  background-color: transparent;
+  background-image: none;
+}
+#form_test_notifications table.nform tr td.legend div[title^=Host]:after,
+#form_test_notifications table.nform tr td.legend div[title^=Service]:after {
+  color: var(--design-link);
+}
+#form_test_notifications .foldable .valuespec_foldable_content {
+  border-left-color: var(--design-border);
+}
+#form_test_notifications #advanced_opts_d_date_and_time .title {
+  color: rgba(var(--design-text-rgb), 0.8);
+}
+a.more.has_text:hover {
+  color: var(--design-link);
+}
+div.graph table.legend th,
+div.graph table.legend th.scalar {
+  background-color: transparent;
+}
+div.graph table.legend>tbody>tr.scalar.first {
+  border-top-color: var(--design-border-strong);
+}
+div.color {
+  border-color: currentcolor;
+}
+div.graph_with_timeranges div.graph {
+  border-color: var(--design-border);
+  box-shadow: none;
+}
+div.graph_with_timeranges div.graph.preview .title {
+  color: var(--design-text);
+}
+div.graph_with_timeranges div.graph table.legend td {
+  background-color: transparent;
+  background-image: none;
+}
+#info_underline {
+  background-color: var(--design-success);
+}
+meter.password_meter,
+meter.password_meter::-webkit-meter-bar {
+  background-color: var(--design-surface-active);
+}
+meter.password_meter[value="2"]::-webkit-meter-optimum-value,
+meter.password_meter[value="2"]::-moz-meter-bar {
+  background-color: var(--design-danger);
+}
+meter.password_meter[value="3"]::-webkit-meter-optimum-value,
+meter.password_meter[value="3"]::-moz-meter-bar {
+  background-color: var(--design-warning);
+}
+meter.password_meter[value="4"]::-webkit-meter-optimum-value,
+meter.password_meter[value="4"]::-moz-meter-bar {
+  background-color: var(--design-success-border);
+}
+meter.password_meter[value="5"]::-webkit-meter-optimum-value,
+meter.password_meter[value="5"]::-moz-meter-bar {
+  background-color: var(--design-success);
+}
+table.report_contents td.preview img {
+  border-color: var(--design-border-strong);
+  box-shadow: var(--design-shadow-1);
+}
+div.ntop_interface_quickstats td.ifid_chooser {
+  background-color: var(--design-surface-active);
+}
+div.ntop_interface_quickstats td a.alerted_flows,
+div.ntop_interface_quickstats td a.engaged_alerts {
+  background-color: var(--design-danger);
+}
+div.ntop_interface_quickstats td a.num_local_hosts {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+div.ntop_interface_quickstats td a.num_devices,
+div.ntop_interface_quickstats td a.num_flows,
+div.ntop_interface_quickstats td a.num_remote_hosts,
+div.ntop_interface_quickstats td a.throughput_bps {
+  background-color: var(--design-surface-active);
+}
+div.ntop_interface_quickstats td a.alerted_flows,
+div.ntop_interface_quickstats td a.engaged_alerts {
+  color: var(--design-on-primary);
+}
+div.ntop .dc-chart rect.bar {
+  fill: var(--design-text-muted);
+}
+div.ntop .brush rect.selection {
+  fill: var(--design-info);
+}
+div.ntop a.ntop_link {
+  color: var(--design-warning) !important;
+}
+div.ntop .ntop_host table tr:not(.header):nth-child(2n),
+div.ntop table.table tr:not(.header):nth-child(2n) {
+  background-color: var(--design-surface-3);
+}
+div.ntop .ntop_host table tr:not(.header):nth-child(odd),
+div.ntop table.table tr:not(.header):nth-child(odd) {
+  background-color: var(--design-surface-2);
+}
+div.ntop div.breakdown_bar,
+div.ntop .ntop_host table.ntop_overview tr th {
+  color: var(--design-text);
+}
+div.ntop div.breakdown_bar .bytes_sent {
+  background-color: var(--design-warning-border);
+}
+div.ntop div.breakdown_bar .bytes_rcvd,
+div.ntop .badge-disable,
+div.ntop .badge-explore,
+div.ntop .badge-info,
+div.ntop .badge-release {
+  background-color: var(--design-info);
+}
+div.ntop .ntop_host table.ntop_overview thead th {
+  border-bottom-color: var(--design-border-strong);
+}
+div.ntop .badge-delete {
+  background-color: var(--design-danger);
+}
+.dc-chart .pie-slice.external {
+  fill: var(--design-text);
+}
+div#detailed_timeline .axis line,
+div#detailed_timeline .axis path {
+  stroke: var(--design-border);
+}
+div#detailed_timeline .line-daily-services {
+  stroke: var(--design-link);
+}
+div#detailed_timeline .legend-daily-services {
+  fill: var(--design-link);
+}
+div#detailed_timeline .line-monthly-service-averages {
+  fill: none;
+  stroke: var(--design-info);
+}
+div#detailed_timeline .legend-monthly-service-averages {
+  fill: var(--design-info);
+}
+div#detailed_timeline .line-subscription-limit {
+  fill: none;
+  stroke: var(--design-danger);
+}
+div#detailed_timeline .line-free-tests {
+  fill: none;
+  stroke: var(--design-success);
+}
+div#detailed_timeline .legend-subscription-limit {
+  fill: var(--design-danger);
+}
+div#detailed_timeline .legend-free-tests {
+  fill: var(--design-success);
+}
+div#detailed_timeline .legend-current-usage {
+  fill: var(--design-link);
+}
+div#detailed_timeline .legend-first-above-subscription {
+  fill: var(--design-warning);
+}
+div#detailed_timeline .legend-highest-usage {
+  fill: var(--design-info);
+}
+div#detailed_timeline .line-subscription-start-end,
+div#detailed_timeline .line-pointer {
+  stroke: var(--design-text-muted);
+}
+div.tooltip.license_usage {
+  background-color: var(--design-surface-3);
+}
+div.robotmk_banner div.robotmk_banner_icon {
+  background-color: var(--design-info);
+}
+div.robotmk_banner div.help_text {
+  background-color: var(--design-info-border);
+}
+.cse-banner {
+  color: var(--design-on-primary);
+}
+.cse-banner__button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary) !important;
+}
+.cse-banner__button:hover {
+  background-color: var(--design-primary-hover);
+}
+.cse-banner__button:visited {
+  color: var(--design-text) !important;
+}
+@media (prefers-color-scheme: dark) {
+h2+div.info,
+h2+div.success,
+h3+div.info,
+h3+div.success,
+div.ntop .ntop_host table.job_table td div.info,
+div.ntop table.job_table.table td div.info,
+table.data.job_table td div.info {
+  background-color: var(--design-surface-3);
+}
+div.graph table.legend th {
+  border-bottom-color: var(--design-border);
+}
+table.timeline td.hilite,
+table.timeline td.hilite.state2 {
+  border-color: var(--design-border-strong);
+}
+div.node_vis img.layouting_icon,
+div.node_vis div#history_icons img {
+  background-color: var(--design-text);
+  border-color: var(--design-text);
+}
+#main_menu div.popup_trigger.active {
+  background-color: var(--design-surface-active);
+}
+}
+html body[data-theme] {
+  --success: var(--design-primary);
+  --success-dimmed: var(--design-primary);
+  --success-dimmed-2: var(--design-primary-active);
+  --font-color: var(--design-text);
+  --font-color-dimmed: var(--design-text-muted);
+  --ux-theme-0: var(--design-surface-1);
+  --ux-theme-1: var(--design-surface-2);
+  --ux-theme-2: var(--design-surface-3);
+  --ux-theme-3: var(--design-surface-3);
+  --ux-theme-4: var(--design-surface-hover);
+  --ux-theme-5: var(--design-surface-active);
+  --ux-theme-6: var(--design-border);
+  --color-warning: var(--design-warning);
+  --color-danger: var(--design-danger);
+  --error-msg-bg-color: var(--design-danger-subtle);
+  --form-readonly-error-bg-color: var(--design-danger-subtle);
+  --scrollbar-color: var(--design-border-strong);
+  --default-bg-color: var(--design-surface-1);
+  --default-border-color: var(--design-border);
+  --default-table-th-color: var(--design-surface-3);
+  --default-form-element-bg-color: var(--design-surface-active);
+  --default-form-element-bg-color-disabled: var(--design-surface-3);
+  --default-form-element-border-color: var(--design-border-strong);
+  --default-select-hover-color: var(--design-link);
+  --default-select-focus-color: var(--design-link);
+  --default-button-emphasis-color: var(--design-link);
+  --default-border-color-green: var(--design-primary);
+  --default-submit-button-border-color: var(--design-primary-hover);
+  --default-tooltip-icon-color: var(--design-surface-active);
+  --default-tooltip-background-color: var(--design-surface-3);
+  --default-tooltip-text-color: var(--design-text);
+  --default-help-icon-bg-color: var(--design-info);
+  --default-help-icon-bg-color-hover: var(--design-info-hover);
+  --default-component-bg-color: var(--design-surface-3);
+  --custom-scroll-bar-thumb-border-color: var(--design-border);
+  --custom-scroll-bar-thumb-color: var(--design-border-strong);
+  --custom-scroll-bar-backgroud-color: var(--design-surface-1);
+  --help-text-bg-color: var(--design-surface-3);
+  --help-text-font-color: var(--design-text);
+  --form-element-required-color: var(--design-success);
+  --input-hover-bg-color: var(--design-surface-hover);
+  --qs-stage-line-color: var(--design-border);
+}
+html body[data-theme] .cmk-button--variant-primary,
+html body[data-theme] .cmk-button--variant-success {
+  color: var(--design-on-primary);
+}
+@media (prefers-color-scheme: dark) {
+{% for icon in checkmk_design_dark_icons.stdout_lines | sort %}
+  img[src$="{{ CHECKMK_DESIGN_THEME_LIGHT }}/images/{{ icon }}"] {
+    content: url("../{{ CHECKMK_DESIGN_THEME_DARK }}/images/{{ icon }}");
+  }
+{% endfor %}
+}

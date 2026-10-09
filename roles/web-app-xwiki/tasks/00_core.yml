@@ -11,22 +11,24 @@
       vars:
         compose_handlers_flush: false
 
-    - name: "🎬 Stage the XWiki entrypoint wrapper into the compose build context"
-      stack_host_copy:
-        src: shell/xwiki-entrypoint.sh
-        dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'xwiki-entrypoint.sh' ] | path_join }}"
-        mode: "0755"
+    - name: "🎬 Stage and bootstrap the XWiki config on the stack host"
       when: IS_STACK_HOST | bool
-      notify:
-        - compose-build
-        - compose-up
+      block:
+        - name: "🎬 Stage the XWiki entrypoint wrapper into the compose build context"
+          stack_host_copy:
+            src: shell/xwiki-entrypoint.sh
+            dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'xwiki-entrypoint.sh' ] | path_join }}"
+            mode: "0755"
+          notify:
+            - compose-build
+            - compose-up
 
-    - name: 🚀 Deploy Bootstrap Config
-      include_tasks: utils/flush_config.yml
-      when: IS_STACK_HOST | bool
+        - name: 🚀 Deploy Bootstrap Config
+          include_tasks: utils/flush_config.yml
   vars:
     xwiki_oidc_enabled_switch: false
     xwiki_ldap_enabled_switch: false
+    xwiki_blobstore_s3_enabled_switch: false
 
 - name: "👔 XWiki manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml

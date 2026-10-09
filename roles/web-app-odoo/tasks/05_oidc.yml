@@ -61,27 +61,28 @@
     expect_rows: true
   register: oauth_template_check
 
-- name: "📁 Create OAuth template partner"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template/partner.sql"
-    expect_rows: true
-  register: oauth_template_partner
+- name: "📁 Create the OAuth template partner and user"
   when: oauth_template_check.rows | length == 0
+  block:
+    - name: "📁 Create OAuth template partner"
+      database_query:
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template/partner.sql"
+        expect_rows: true
+      register: oauth_template_partner
 
-- name: "📁 Create OAuth template user"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template/user.sql"
-    named_args:
-      partner_id: "{{ oauth_template_partner.rows[0][0] | int }}"
-  register: oauth_template_user
-  when:
-    - oauth_template_check.rows | length == 0
-    - oauth_template_partner.rows is defined
-    - oauth_template_partner.rows | length > 0
+    - name: "📁 Create OAuth template user"
+      database_query:
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/oidc/insert/oauth-template/user.sql"
+        named_args:
+          partner_id: "{{ oauth_template_partner.rows[0][0] | int }}"
+      register: oauth_template_user
+      when:
+        - oauth_template_partner.rows is defined
+        - oauth_template_partner.rows | length > 0
 
 - name: "✅ Ensure OAuth template user is active"
   database_query:
@@ -158,41 +159,6 @@
     expect_rows: true
   register: keycloak_provider
 
-- name: "🔍 Query Keycloak DB for administrator username"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', 'web-app-keycloak') }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/realm-user.sql"
-    named_args:
-      realm: "{{ OIDC.CLIENT.REALM }}"
-      admin: "{{ lookup('users', 'administrator').username }}"
-    expect_rows: true
-  register: keycloak_users
-  when: keycloak_provider.rows | length > 0
-
-- name: "🔗 Link administrator user to Keycloak in Odoo"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/update/user-oauth-link.sql"
-    named_args:
-      provider_id: "{{ keycloak_provider.rows[0][0] | int }}"
-      oauth_uid: "{{ (keycloak_users.rows | map('first') | select('equalto', lookup('users', 'administrator').username) | list | first) }}"
-      login: "{{ lookup('users', 'administrator').username }}"
-  when:
-    - keycloak_provider.rows | length > 0
-    - keycloak_users.rows | map('first') | select('equalto', lookup('users', 'administrator').username) | list | length > 0
-
-- name: "🔐 Grant internal user access to OAuth-created users"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/grant/internal-user-to-oauth/signup-users.sql"
-  when: keycloak_provider.rows | length > 0
-
-- name: "🔐 Grant company access to OAuth-created users"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/grant/company-to-oauth/signup-users.sql"
+- name: "🔗 Link the administrator to the Keycloak OAuth provider"
+  ansible.builtin.include_tasks: 05_oidc/keycloak_link.yml
   when: keycloak_provider.rows | length > 0

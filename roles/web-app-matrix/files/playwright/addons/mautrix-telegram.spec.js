@@ -9,6 +9,10 @@ const TELEGRAM_BOT_LOCALPART = "telegrambot";
 
 test("mautrix-telegram addon: appservice bot is provisioned on the Synapse homeserver", async ({ request }) => {
   skipUnlessAddonEnabled("mautrix-telegram");
+  test.skip(
+    process.env.MATRIX_TELEGRAM_USABLE !== "true",
+    "MATRIX_TELEGRAM_USABLE is not true: the api id and hash are blank, so vars/main.yml drops the bridge from MATRIX_BRIDGE_ADDONS and no appservice is registered",
+  );
   test.setTimeout(resolveTimeout(60_000));
 
   const matrixBaseUrl = shared.env.matrixBaseUrl;

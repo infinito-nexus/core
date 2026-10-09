@@ -30,8 +30,9 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 mattermost:
+  mmctl: /mattermost/bin/mmctl
   healthcheck:
-    test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
+    test: ["CMD", "{{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }}", "--local", "system", "status"]
     # nocheck: healthcheck-timing-override  mmctl spawns a binary and talks to the local socket, so it does not belong on a 30s steady-state loop
     interval: 1m
     # nocheck: healthcheck-timing-override  spawning that binary does not finish inside the 5s default
@@ -45,8 +46,11 @@ mattermost:
   enabled: true # nocheck: dynamic-flag
   shared: true
   user_access_token_enabled: "{{ 'web-app-nextcloud' in group_names }}"
-  image: mattermost/mattermost-team-edition
-  version: 11.11.1
+  image: debian
+  version: 13.7-slim
+  custom: true
+  repository: https://github.com/mattermost/mattermost.git
+  ref: v11.11.1
   min_storage: 659MB
   backup:
     no_stop_required: true
@@ -78,13 +82,21 @@ minio:
   shared: false # nocheck: dynamic-flag
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 280
+      height: 80
+    logo-frame:
+      width: 280
+      height: 80
+      frame: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
@@ -161,3 +173,22 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+# nocheck: playwright-service-flag: bridged gitlab partner, covered by partner role spec
+gitlab:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitlab' in group_names }}"
+  shared: "{{ 'web-app-gitlab' in group_names }}"
+# nocheck: playwright-service-flag: bridged jenkins partner, covered by partner role spec
+jenkins:
+  bond: 0.5
+  enabled: "{{ 'web-app-jenkins' in group_names }}"
+  shared: "{{ 'web-app-jenkins' in group_names }}"
+# nocheck: playwright-service-flag: bridged jira partner, covered by partner role spec
+jira:
+  enabled: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+  shared: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+# nocheck: playwright-service-flag: bridged jitsi partner, covered by partner role spec
+jitsi:
+  bond: 0.5
+  enabled: "{{ 'web-app-jitsi' in group_names }}"
+  shared: "{{ 'web-app-jitsi' in group_names }}"

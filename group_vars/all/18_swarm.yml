@@ -1,15 +1,13 @@
 ---
 DEPLOYMENT_MODE: "{{ 'swarm' if (groups['svc-swarm-node'] | default([]) | length) > 1 else 'compose' }}"
 
-SWARM_CLUSTER_AVAILABLE: "{{ (groups['svc-swarm-node'] | default([]) | length) > 0 }}"
+IS_COMPOSE_MODE: "{{ DEPLOYMENT_MODE == 'compose' }}"
+IS_SWARM_MODE: "{{ DEPLOYMENT_MODE == 'swarm' }}"
 
-# Exception: a role default would be invisible to the by-path include in
-# roles/svc-db-openldap/tasks/01_docker.yml, which reaches into
-# roles/sys-svc-compose/tasks/utils/post_deploy.yml after the role has finished.
 swarm_stack_converge_retries: 600
 
 IS_STACK_HOST: >-
-  {{ DEPLOYMENT_MODE == 'compose'
+  {{ IS_COMPOSE_MODE
      or inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
 
 IS_BACKUP_HOST: >-
@@ -33,7 +31,7 @@ SWARM_REGISTRY_PREFIX: >-
   {{
     (swarm.registry.host ~ ':' ~ swarm.registry.port ~ '/')
     if (
-      DEPLOYMENT_MODE == 'swarm'
+      IS_SWARM_MODE
       and (swarm.registry.host | length > 0)
     )
     else ''

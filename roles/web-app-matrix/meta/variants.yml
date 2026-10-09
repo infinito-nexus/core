@@ -1,13 +1,28 @@
 ---
+# nocheck: variant-limit — variant 3 is the only round that pairs the ansible
+# flavor with svc-ai-litellm. Without it the baibot addon is enabled solely in
+# variant 2, whose compose flavor never renders the MDAD vars that deploy it, so
+# the default flavor's AI surface would ship untested.
+#
+# nocheck: sso-variant-tor — variant 1 is the round that turns gitlab, n8n and
+# jitsi on. jitsi is clearnet-only (its meta/services.yml pins tor off), and
+# tor.exclusive swaps this role's domains for the onion, so an onion-only
+# homeserver cannot pair with it. The hookshot bridges and Element's jitsi
+# conferencing are therefore driven from a clearnet homeserver origin; variant 0
+# pairs the onion with SSO.
+
 - services:
     container_backup:
       enabled: true
     matrix:
       flavor: ansible
+    n8n:
+      enabled: false
+      shared: false
     coturn:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -16,6 +31,12 @@
     email:
       enabled: true
       shared: true
+    gitlab:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
     ldap:
       enabled: true
       shared: true
@@ -50,7 +71,7 @@
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -59,6 +80,15 @@
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitlab:
+      enabled: true
+      shared: true
+    n8n:
+      enabled: true
+      shared: true
+    jitsi:
+      enabled: true
+      shared: true
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -81,7 +111,10 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    tor:
+    tor: # nocheck: variant-tor-collateral jitsi refuses the onion and this is the only round pairing it with the homeserver, so gitlab and n8n ride along on clearnet; a tor round of this role has no budget left for either partner
+      enabled: false
+  addons:
+    hookshot-feeds:
       enabled: true
 
 - services:
@@ -90,13 +123,16 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     matrix:
       flavor: compose
+    n8n:
+      enabled: false
+      shared: false
     seaweedfs:
       enabled: true
       shared: true
     coturn:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -105,6 +141,12 @@
     email:
       enabled: true
       shared: true
+    gitlab:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
     ldap:
       enabled: true
       shared: true
@@ -124,6 +166,69 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
+  addons:
+    mautrix-whatsapp:
+      enabled: true
+    mautrix-telegram:
+      enabled: true
+    mautrix-signal:
+      enabled: true
+    mautrix-slack:
+      enabled: true
+    mautrix-meta:
+      enabled: true
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override base shared is a static literal and this round joins no backup host
+    matrix:
+      flavor: ansible
+    coturn:
+      enabled: false
+      shared: false
+    design:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    gitlab:
+      enabled: false
+      shared: false
+    n8n:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    postgres:
+      shared: true
+    litellm:
+      enabled: true
+    sso:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true
   addons:

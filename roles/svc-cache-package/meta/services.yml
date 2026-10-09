@@ -1,0 +1,74 @@
+---
+# nocheck: dynamic-flag
+node:
+  enabled: true
+  shared: true
+  bond: 1
+package:
+  healthcheck:
+    flavor: http_status
+    port_key: http
+    path: service/rest/v1/status
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  # nocheck: default-placement-manager  the proxy repositories back every build on this host; scheduling them on a worker that still needs them is a chicken-and-egg
+  placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  image: sonatype/nexus3
+  version: 3.91.1-ubi
+  name: package-cache
+  # nocheck: min-storage-headroom  Reason: the image transfers 0.373 GiB, but the service is the blobstore itself and fills up to blobstore_max (40g); sizing the host to the image alone would let the deploy prune a cache it has no room to refill
+  min_storage: 4GB
+  backup:
+    disabled: true
+  cpus: "2"
+  mem_reservation: 1g
+  mem_limit: 4g
+  pids_limit: 512
+  ports:
+    local:
+      http: 8099
+    internal:
+      http: 8081
+  blobstore_max: 40g
+  content_max_age_min: 8640
+  metadata_max_age_min: 0
+  lifecycle: beta
+# nocheck: dynamic-flag  the frontend has no group of its own; it is up exactly when the cache it fronts is
+frontend:
+  healthcheck:
+    flavor: http
+    port_key: http
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  placement: manager # nocheck: default-placement-manager  it fronts the cache beside it
+  enabled: true
+  shared: true
+  bond: 1
+  image: nginx
+  version: 1.31-alpine
+  name: package-cache-frontend
+  # nocheck: dynamic-flag  the throwaway container that issues the CA and leaf certs before nginx starts, not a deployed service
+  init_image: alpine:latest
+  min_storage: 64MB
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 256
+  ports:
+    internal:
+      http: 80
+      https: 443
+  lifecycle: beta
+# nocheck: dynamic-flag - proxied package content is re-fetchable, the backup consumer stays permanently off
+container_backup:
+  enabled: false
+  shared: true

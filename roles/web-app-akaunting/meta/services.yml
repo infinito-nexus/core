@@ -53,8 +53,8 @@ akaunting:
   min_storage: 527MB
   company:
     name: Akaunting on {{ DOMAIN_PRIMARY | upper }}
-    email: "{{ lookup('users', 'administrator').email }}"
-  setup_admin_email: "{{ lookup('users', 'administrator').email }}"
+    email: "{{ lookup('users', 'platform_administrator').email }}"
+  setup_admin_email: "{{ lookup('users', 'platform_administrator').email }}"
   ports:
     local:
       http: 8025
@@ -80,13 +80,13 @@ redis:
   shared: "{{ 'svc-db-redis' in group_names }}"
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

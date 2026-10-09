@@ -1,0 +1,166 @@
+{% set design = lookup('design', application_id) %}
+body.default,
+body.light {
+  --color-background-primary: var(--design-surface-1);
+  --color-background-secondary: var(--design-surface-3);
+  --color-background-tertiary: var(--design-surface-2);
+  --color-background-quaternary: var(--design-border);
+  --color-background-default: var(--design-surface-1);
+  --color-background-disabled: var(--design-surface-3);
+  --color-foreground-primary: var(--design-text);
+  --color-foreground-secondary: var(--design-text-muted);
+  --color-foreground-disabled: var(--design-text-muted);
+  --color-foreground-error: var(--design-danger);
+  --color-icon-default: var(--design-text-muted);
+  --color-accent-primary: var(--design-link);
+  --color-accent-primary-muted: var(--design-primary-200);
+  --color-accent-secondary: var(--design-info);
+  --color-accent-tertiary: var(--design-link);
+  --color-accent-quaternary: var(--design-info);
+  --color-accent-select: rgba(var(--design-primary-rgb), 0.1);
+  --color-accent-background-select: rgba(var(--design-primary-rgb), 0.7);
+  --color-accent-action: var(--design-link);
+  --color-accent-action-hover: var(--design-link);
+  --color-accent-off: var(--design-surface-2);
+  --color-accent-default: var(--design-surface-3);
+  --color-accent-success: var(--design-success);
+  --color-accent-warning: var(--design-warning);
+  --color-accent-error: var(--design-danger);
+  --color-accent-info: var(--design-info);
+  --color-background-success: var(--design-success-subtle);
+  --color-background-warning: var(--design-warning-subtle);
+  --color-background-error: var(--design-danger-subtle);
+  --color-background-info: var(--design-info-subtle);
+  --alert-border-color-success: var(--design-success-border);
+  --alert-border-color-warning: var(--design-warning-border);
+  --alert-border-color-error: var(--design-danger-border);
+  --alert-border-color-info: var(--design-info-border);
+  --status-color-success-200: var(--design-success);
+  --status-color-success-500: var(--design-success);
+  --status-color-warning-500: var(--design-warning);
+  --status-color-error-500: var(--design-danger);
+  --color-shadow-dark: rgba(var(--design-shadow-color));
+  --color-shadow-light: rgba(var(--design-shadow-color));
+  --color-overlay-default: rgba(var(--design-surface-1-rgb), 0.6);
+  --overlay-color: rgba(var(--design-surface-1-rgb), 0.6);
+  --color-canvas: var(--design-surface-3);
+  --color-token-background: var(--design-info-subtle);
+  --color-token-border: var(--design-info-border);
+  --color-token-accent: var(--design-info);
+  --color-token-foreground: var(--design-info);
+  --color-badge-premium: var(--design-warning);
+  --df-secondary: var(--design-text-muted);
+  --low-emphasis-background: var(--design-surface-2);
+  --text-editor-selection-background-color: rgba(var(--design-primary-rgb), 0.7);
+  --grid-editor-plus-btn-foreground: var(--design-on-info);
+  --dropdown-separator-color: var(--design-border);
+  --input-border-color: var(--design-border-strong);
+  --input-border-color-rest: var(--design-border-strong);
+  --input-border-color-hover: var(--design-border-strong);
+  --input-checkbox-border-color-rest: var(--design-border-strong);
+  --search-bar-input-border-color: var(--design-border-strong);
+  --button-background-color-disabled: var(--design-surface-3);
+  --button-secondary-background-color-hover: var(--design-surface-hover);
+  --button-secondary-background-color-active: var(--design-surface-active);
+  --button-tertiary-background-color-hover: var(--design-surface-hover);
+  --button-tertiary-background-color-active: var(--design-surface-active);
+  --button-icon-background-color-selected: var(--design-surface-active);
+  --button-radio-background-color-active: var(--design-surface-active);
+  --radio-btn-background-color-selected: var(--design-surface-active);
+  --layer-row-background-color-hover: var(--design-surface-hover);
+  --layer-row-background-color-selected: var(--design-surface-active);
+  --layer-row-background-color-drag: var(--design-surface-active);
+  --palette-text-background-color-hover: var(--design-surface-hover);
+  --input-background-color-hover: var(--design-surface-hover);
+  --input-checkbox-background-color-rest: var(--design-surface-3);
+  --menu-background-color-hover: var(--design-surface-hover);
+  --context-menu-background-color-selected: var(--design-surface-active);
+  --assets-item-background-color-hover: var(--design-surface-hover);
+  --entry-background-color-hover: var(--design-surface-hover);
+  --sidebar-element-background-color-hover: var(--design-surface-hover);
+  --sidebar-element-background-color-selected: var(--design-surface-active);
+  --button-primary-background-color-rest: var(--design-primary);
+  --button-primary-border-color-rest: var(--design-primary);
+  --button-primary-foreground-color-rest: var(--design-on-primary);
+  --button-primary-background-color-hover: var(--design-primary-hover);
+  --button-primary-border-color-hover: var(--design-primary-hover);
+  --button-primary-foreground-color-hover: var(--design-on-primary);
+  --button-primary-background-color-active: var(--design-primary-active);
+  --button-primary-border-color-active: var(--design-primary-active);
+  --button-primary-foreground-color-active: var(--design-on-primary);
+  --button-warning-background-color-rest: var(--design-warning);
+  --button-warning-border-color-rest: var(--design-warning);
+  --button-warning-foreground-color-rest: var(--design-on-warning);
+  --modal-button-background-color-error: var(--design-danger);
+  --modal-button-foreground-color-error: var(--design-on-danger);
+  --input-checkbox-background-color-active: var(--design-primary);
+  --input-checkbox-foreground-color-active: var(--design-on-primary);
+  --user-count-background-color: var(--design-primary);
+  --user-count-foreground-color: var(--design-on-primary);
+}
+body [class*="_button__button-primary"],
+body [class*="_button__icon-button-primary"] {
+  --button-bg-color: var(--design-primary);
+  --button-fg-color: var(--design-on-primary);
+  --button-hover-bg-color: var(--design-primary-hover);
+  --button-hover-fg-color: var(--design-on-primary);
+  --button-active-bg-color: var(--design-primary-active);
+  --button-active-fg-color: var(--design-on-primary);
+  --button-disabled-bg-color: var(--design-surface-3);
+  --button-disabled-fg-color: var(--design-text-muted);
+  --button-focus-fg-color: var(--design-on-primary);
+  --button-focus-inner-ring-color: var(--design-on-primary);
+  --button-focus-outer-ring-color: var(--design-link);
+}
+body [class*="_button__button-destructive"],
+body [class*="_button__icon-button-destructive"] {
+  --button-bg-color: var(--design-danger);
+  --button-fg-color: var(--design-on-danger);
+  --button-hover-bg-color: var(--design-danger-hover);
+  --button-hover-fg-color: var(--design-on-danger);
+  --button-active-bg-color: var(--design-danger-active);
+  --button-active-fg-color: var(--design-on-danger);
+  --button-disabled-bg-color: var(--design-surface-3);
+  --button-disabled-fg-color: var(--design-text-muted);
+  --button-focus-fg-color: var(--design-on-danger);
+  --button-focus-inner-ring-color: var(--design-on-danger);
+}
+body [class*="_button__button-secondary"],
+body [class*="_button__button-ghost"],
+body [class*="_button__icon-button-secondary"],
+body [class*="_button__icon-button-ghost"] {
+  --button-hover-bg-color: var(--design-surface-hover);
+  --button-active-bg-color: var(--design-surface-active);
+}
+body [class*="__form-submit-btn"] {
+  --button-bg-color: var(--design-primary);
+  --button-border-color: var(--design-primary);
+  --button-fg-color: var(--design-on-primary);
+}
+body [class*="__form-submit-btn"]:hover:not(:disabled) {
+  --button-bg-color: var(--design-primary-hover);
+  --button-border-color: var(--design-primary-hover);
+  --button-fg-color: var(--design-on-primary);
+}
+body [class*="__form-submit-btn"]:disabled {
+  --button-bg-color: var(--design-surface-3);
+  --button-border-color: var(--design-surface-3);
+  --button-fg-color: var(--design-text-muted);
+}
+{% if design.logo is string %}
+a[class*="main_ui_auth__logo-btn"] {
+  display: block;
+  inline-size: 120px;
+  block-size: 40px;
+  background: url("{{ design.urls.brand.svg if design.title is string else design.urls.logo.svg }}") left center / contain no-repeat;
+}
+a[class*="main_ui_auth__logo-btn"] > svg {
+  visibility: hidden;
+}
+[class*="main_ui_dashboard_sidebar__penpot-icon"] {
+  background: url("{{ design.urls.logo.svg }}") center / contain no-repeat;
+}
+[class*="main_ui_dashboard_sidebar__penpot-icon"] > svg {
+  visibility: hidden;
+}
+{% endif %}

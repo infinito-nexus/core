@@ -1,104 +1,100 @@
 /* Discourse */
 :root section#main{
-  --primary:                   var(--color-01-20);
-  --secondary:                 var(--color-01-95);
-  --tertiary:                  var(--color-01-40);
-  --quaternary:                var(--color-01-50);
-  --header_background:         var(--color-01-86);
-  --header_primary:            var(--color-01-20);
-  --highlight:                 var(--color-01-70);
-  --d-selected:                var(--color-01-85);
-  --d-hover:                   var(--color-01-90);
-  --d-sidebar-background:      var(--color-01-92); 
-  --d-sidebar-footer-fade:     var(--color-01-92);
-  --always-black-rgb:          var(--color-rgb-01-01);
-  --primary-rgb:               var(--color-rgb-01-20);
-  --primary-low-rgb:           var(--color-rgb-01-95);
-  --primary-very-low-rgb:      var(--color-rgb-01-99);
-  --secondary-rgb:             var(--color-rgb-01-95);
-  --header_background-rgb:     var(--color-rgb-01-70);
-  --tertiary-rgb:              var(--color-rgb-01-40);
-  --highlight-rgb:             var(--color-rgb-01-70);
-  --success-rgb:               var(--color-rgb-01-50);
-  --primary-very-low:          var(--color-01-99);
-  --primary-low:               var(--color-01-95);
-  --primary-low-mid:           var(--color-01-75);
-  --primary-medium:            var(--color-01-60);
-  --primary-high:              var(--color-01-40);
-  --primary-very-high:         var(--color-01-20);
-  --primary-50:                var(--color-01-99);
-{% for i in range(1, 10) %}
-  {% set primary = i * 100 %}
-  {% set color = 100 - i * 8 %}
-  --primary-{{ primary }}: var(--color-01-{{ "%02d" % color }});
+  --primary:                   var(--design-primary-950);
+  --secondary:                 var(--design-primary-100);
+  --tertiary:                  var(--design-primary-800);
+  --quaternary:                var(--design-primary-600);
+  --header_background:         var(--design-primary-200);
+  --header_primary:            var(--design-primary-950);
+  --highlight:                 var(--design-primary-400);
+  --d-selected:                var(--design-primary-200);
+  --d-hover:                   var(--design-primary-200);
+  --d-sidebar-background:      var(--design-primary-100); 
+  --d-sidebar-footer-fade:     var(--design-primary-100);
+  --always-black-rgb:          var(--design-text-rgb);
+  --primary-rgb:               var(--design-primary-950-rgb);
+  --primary-low-rgb:           var(--design-primary-100-rgb);
+  --primary-very-low-rgb:      var(--design-surface-2-rgb);
+  --secondary-rgb:             var(--design-primary-100-rgb);
+  --header_background-rgb:     var(--design-primary-400-rgb);
+  --tertiary-rgb:              var(--design-primary-800-rgb);
+  --highlight-rgb:             var(--design-primary-400-rgb);
+  --success-rgb:               var(--design-primary-600-rgb);
+  --primary-very-low:          var(--design-surface-2);
+  --primary-low:               var(--design-primary-100);
+  --primary-low-mid:           var(--design-primary-400);
+  --primary-medium:            var(--design-primary-500);
+  --primary-high:              var(--design-primary-800);
+  --primary-very-high:         var(--design-primary-950);
+  --primary-50:                var(--design-surface-2);
+{% for step in range(100, 1000, 100) %}
+  --primary-{{ step }}: var(--design-neutral-{{ step }});
 {% endfor %}
-  --header_primary-low:        rgb(var(--color-rgb-01-75));
-  --header_primary-low-mid:    rgb(var(--color-rgb-01-70));
-  --header_primary-medium:     rgb(var(--color-rgb-01-60));
-  --header_primary-high:       rgb(var(--color-rgb-01-50));
-  --header_primary-very-high:  rgb(var(--color-rgb-01-20));
-  --secondary-low:             var(--color-01-20);
-  --secondary-medium:          var(--color-01-40);
-  --secondary-high:            var(--color-01-60);
-  --secondary-very-high:       var(--color-01-90);
-  --tertiary-very-low:         var(--color-01-99);
-  --tertiary-low:              var(--color-01-95);
-  --tertiary-medium:           var(--color-01-60);
-  --tertiary-high:             var(--color-01-40);
-  --tertiary-hover:            var(--color-01-20);
-  --tertiary-50:               var(--color-01-99);
-{% for i in range(1, 10) %}
-  {% set tertiary = i * 100 %}
-  {% set color = 100 - i * 5 %}
-  --tertiary-{{ tertiary }}: var(--color-01-{{ "%02d" % color }});
+  --header_primary-low:        rgb(var(--design-primary-400-rgb));
+  --header_primary-low-mid:    rgb(var(--design-primary-400-rgb));
+  --header_primary-medium:     rgb(var(--design-primary-500-rgb));
+  --header_primary-high:       rgb(var(--design-primary-600-rgb));
+  --header_primary-very-high:  rgb(var(--design-primary-950-rgb));
+  --secondary-low:             var(--design-primary-950);
+  --secondary-medium:          var(--design-primary-800);
+  --secondary-high:            var(--design-primary-500);
+  --secondary-very-high:       var(--design-primary-200);
+  --tertiary-very-low:         var(--design-surface-2);
+  --tertiary-low:              var(--design-primary-100);
+  --tertiary-medium:           var(--design-primary-500);
+  --tertiary-high:             var(--design-primary-800);
+  --tertiary-hover:            var(--design-primary-950);
+  --tertiary-50:               var(--design-surface-2);
+{% for step in range(100, 1000, 100) %}
+  --tertiary-{{ step }}: var(--design-primary-{{ step }});
 {% endfor %}
-  --quaternary-low:           var(--color-01-80);
-  --highlight-bg:             var(--color-01-90);
-  --highlight-low:            var(--color-01-90);
-  --highlight-medium:         var(--color-01-80);
-  --highlight-high:           var(--color-01-30);
-  --blend-primary-secondary-5:          rgb(var(--color-rgb-01-95));
-  --primary-med-or-secondary-med:       var(--color-01-60);
-  --primary-med-or-secondary-high:      var(--color-01-60);
-  --primary-high-or-secondary-low:      var(--color-01-40);
-  --primary-low-mid-or-secondary-high:  var(--color-01-75);
-  --primary-low-mid-or-secondary-low:   var(--color-01-75);
-  --primary-or-primary-low-mid:         var(--color-01-20);
-  --highlight-low-or-medium:            var(--color-01-90);
-  --tertiary-or-tertiary-low:           var(--color-01-40);
-  --tertiary-low-or-tertiary-high:      var(--color-01-95);
-  --tertiary-med-or-tertiary:           var(--color-01-60);
-  --secondary-or-primary:               var(--color-01-95);
-  --tertiary-or-white:                  var(--color-01-40);
+  --quaternary-low:           var(--design-primary-300);
+  --highlight-bg:             var(--design-primary-200);
+  --highlight-low:            var(--design-primary-200);
+  --highlight-medium:         var(--design-primary-300);
+  --highlight-high:           var(--design-primary-900);
+  --blend-primary-secondary-5:          rgb(var(--design-primary-100-rgb));
+  --primary-med-or-secondary-med:       var(--design-primary-500);
+  --primary-med-or-secondary-high:      var(--design-primary-500);
+  --primary-high-or-secondary-low:      var(--design-primary-800);
+  --primary-low-mid-or-secondary-high:  var(--design-primary-400);
+  --primary-low-mid-or-secondary-low:   var(--design-primary-400);
+  --primary-or-primary-low-mid:         var(--design-primary-950);
+  --highlight-low-or-medium:            var(--design-primary-200);
+  --tertiary-or-tertiary-low:           var(--design-primary-800);
+  --tertiary-low-or-tertiary-high:      var(--design-primary-100);
+  --tertiary-med-or-tertiary:           var(--design-primary-500);
+  --secondary-or-primary:               var(--design-primary-100);
+  --tertiary-or-white:                  var(--design-primary-800);
   --float-kit-arrow-stroke-color:       var(--primary-low);
   --float-kit-arrow-fill-color:         var(--secondary);
-  --d-content-background: rgba( var(--color-rgb-01-83),1 );
+  --d-content-background: rgba( var(--design-primary-300-rgb),1 );
 }
 .search-input--header{
-      background-color: rgba( var(--color-rgb-01-83),0.2 ) !important;
-      color: var(--color-01-01)
+      background-color: rgba( var(--design-primary-300-rgb),0.2 ) !important;
+      color: var(--design-text)
 }
 div#main-outlet, #list-area{
-      background-color: rgba( var(--color-rgb-02-90),1 ) !important;
+      background-color: rgba( var(--design-primary-200-rgb),1 ) !important;
 }
 .list-controls{
-      background-color: rgba( var(--color-rgb-01-90), 0.9) !important;
+      background-color: rgba( var(--design-primary-200-rgb), 0.9) !important;
       border-radius: 30px;
 }
 .topic-list-item{
-      background-color: rgba( var(--color-rgb-01-85), 0.4) !important;
+      background-color: rgba( var(--design-primary-200-rgb), 0.4) !important;
 }
 .topic-list-item a{
-      color: var(--color-01-10) !important;
+      color: var(--design-primary-950) !important;
 }
 div#main-outlet div.regular.ember-view{
-  background-color: rgba( var(--color-rgb-01-85),0.3 );
+  background-color: rgba( var(--design-primary-200-rgb),0.3 );
   border-radius: 06px;
 }
 button.btn{
-  background-color: rgba( var(--color-rgb-01-85),0.9 );
+  background-color: rgba( var(--design-primary-200-rgb),0.9 );
 }
 div.timeline-scrollarea div.timeline-scroller{
-  background-color: rgba( var(--color-rgb-01-85),0.9 ) !important;
+  background-color: rgba( var(--design-primary-200-rgb),0.9 ) !important;
   border-radius: 06px;
 }

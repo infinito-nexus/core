@@ -7,7 +7,7 @@
 
 - name: "🔍 Resolve consumer index namespace + credentials"
   ansible.builtin.set_fact:
-    elasticsearch_consumer_entity: "{{ database_consumer_id | get_entity_name }}"
+    elasticsearch_consumer_entity: "{{ database_consumer_id | entity_name }}"
     elasticsearch_consumer_username: "{{ lookup('engine', 'elasticsearch', database_consumer_id, 'username') }}"
     elasticsearch_consumer_password: "{{ database_password | default(lookup('engine', 'elasticsearch', database_consumer_id, 'password')) | string }}"
   changed_when: false

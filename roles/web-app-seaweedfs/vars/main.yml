@@ -1,35 +1,17 @@
 ---
 application_id: "web-app-seaweedfs"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: seaweedfs-console
 
-SEAWEEDFS_CONTAINER: "{{ lookup('config', application_id, 'services.seaweedfs.name') }}"
-SEAWEEDFS_CONSUMER_COUNT: "{{ lookup('objstore_consumers', 'seaweedfs') | length }}"
-SEAWEEDFS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'seaweedfs') }}"
+SEAWEEDFS_ENGINE_ID: "web-svc-seaweedfs"
+SEAWEEDFS_ENGINE_HOST: "{{ lookup('config', SEAWEEDFS_ENGINE_ID, 'services.seaweedfs.name') }}"
 
-SEAWEEDFS_S3_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.seaweedfs.api_port') }}"
-SEAWEEDFS_FILER_PORT_INTERNAL: 8888
-SEAWEEDFS_MASTER_PORT_INTERNAL: 9333
+SEAWEEDFS_ENGINE_FILER_PORT: "{{ lookup('config', SEAWEEDFS_ENGINE_ID, 'services.seaweedfs.ports.internal.filer') }}"
+SEAWEEDFS_ENGINE_MASTER_PORT: "{{ lookup('config', SEAWEEDFS_ENGINE_ID, 'services.seaweedfs.ports.internal.master') }}"
 
-SEAWEEDFS_S3_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.seaweedfs.ports.local.http') }}"
+SEAWEEDFS_CONSOLE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+SEAWEEDFS_SSO_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.local.sso') }}"
 
-SEAWEEDFS_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.proxy.name') }}"
+SEAWEEDFS_FILER_DOMAIN: "{{ lookup('domains', application_id).filer }}"
+SEAWEEDFS_MASTER_DOMAIN: "{{ lookup('domains', application_id).master }}"
 
-SEAWEEDFS_S3_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.api') }}"
-SEAWEEDFS_FILER_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.filer') }}"
-SEAWEEDFS_MASTER_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.master') }}"
-
-SEAWEEDFS_ADMIN_ACCESS_KEY: "{{ lookup('users', 'administrator').username }}"
-SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'administrator').password }}"
-
-SEAWEEDFS_S3_CONFIG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3.json' ] | path_join }}"
-
-SEAWEEDFS_SSO_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.seaweedfs.ports.local.sso') }}"
-SEAWEEDFS_FRONTEND_ENABLED: "{{ lookup('config', application_id, 'services.frontend.enabled') | bool }}"
-SEAWEEDFS_FRONT_PROXY_MATRIX: >-
-  {{
-    ([
-      { 'domain': SEAWEEDFS_FILER_DOMAIN,  'http_port': SEAWEEDFS_SSO_PORT_PUBLIC },
-      { 'domain': SEAWEEDFS_MASTER_DOMAIN, 'http_port': SEAWEEDFS_SSO_PORT_PUBLIC }
-    ] if SEAWEEDFS_FRONTEND_ENABLED else [])
-    + [{ 'domain': SEAWEEDFS_S3_DOMAIN, 'http_port': SEAWEEDFS_S3_PORT_PUBLIC }]
-  }}
+SEAWEEDFS_NGINX_CONF_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"

@@ -1,19 +1,26 @@
 ---
 application_id: "web-app-socialhome"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 SOCIALHOME_EXTERNAL_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 SOCIALHOME_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.local.http') }}"
 SOCIALHOME_LISTEN_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
-SOCIALHOME_INSTANCE_NAME: "{{ defaults_service_provider.platform.titel }}"
+SOCIALHOME_INSTANCE_NAME: "{{ lookup('design', application_id).label }}"
 
-SOCIALHOME_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
-SOCIALHOME_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+SOCIALHOME_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+SOCIALHOME_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
 SOCIALHOME_CONFIG_FILE: "{{ lookup('volume', 'web-app-socialhome', 'config').target }}"
 SOCIALHOME_CONFIG_HOST_FILE: "{{ [lookup('container', application_id, 'directories.volumes'), 'socialhome.toml'] | path_join }}"
 
 SOCIALHOME_MAX_STORAGE_BYTES: 4294967296
+
+SOCIALHOME_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SOCIALHOME_BRAND_PRIMARY: "#d2542a"
+SOCIALHOME_THEME_PRIMARY: >-
+  {{ (lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-primary'] | lower)
+     if SOCIALHOME_DESIGN_ENABLED | bool else SOCIALHOME_BRAND_PRIMARY }}
+SOCIALHOME_THEME_MARKER_FILE: "{{ [lookup('container', application_id, 'directories.volumes'), 'household-theme-primary'] | path_join }}"
 
 SOCIALHOME_COTURN_ENABLED: "{{ lookup('config', application_id, 'services.coturn.enabled') | bool }}"
 SOCIALHOME_COTURN_HOST: "{{ lookup('domain', 'web-svc-coturn') if SOCIALHOME_COTURN_ENABLED | bool else '' }}"

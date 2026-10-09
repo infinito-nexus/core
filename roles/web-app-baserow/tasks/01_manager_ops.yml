@@ -7,14 +7,18 @@
     resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
 
 - name: "▶️ Run Baserow Django migrations before bootstrapping users"
-  ansible.builtin.shell:
-    cmd: >-
-      container exec -i
-      -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
-      -e SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
-      -e BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
-      {{ BASEROW_LOCAL_CID | quote }}
-      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} locked_migrate --noinput
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}"
+      - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver  BASEROW_LOCAL_CID resolved at delegate_to runtime
+      - "{{ BASEROW_PYTHON }}"
+      - "{{ BASEROW_MANAGE_PY }}"
+      - locked_migrate
+      - --noinput
   register: baserow_migrate_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: >
@@ -28,43 +32,51 @@
   delegate_to: "{{ BASEROW_HOST_NODE }}"
   run_once: true
 
-- name: "🔄 Restart Baserow application after applying migrations (compose mode)"
-  ansible.builtin.command: "container restart {{ BASEROW_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  runtime-resolved CID
-  register: baserow_restart_after_migrate
-  changed_when: baserow_restart_after_migrate.rc == 0
-  when:
-    - baserow_migrate_result.changed
-    - DEPLOYMENT_MODE == 'compose'
-
-- name: "🔄 Restart Baserow application after applying migrations (swarm mode)"
-  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
-  register: baserow_swarm_restart
-  changed_when: baserow_swarm_restart.rc == 0
-  timeout: "{{ lookup('timeout', 600) | int }}"
-  when:
-    - baserow_migrate_result.changed
-    - DEPLOYMENT_MODE == 'swarm'
-
-- name: "🔍 Re-resolve the container the restart replaced"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
-    resolve_output_prefix: BASEROW
-    resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
+- name: "🔄 Restart Baserow once the migrations changed something"
   when: baserow_migrate_result.changed
+  block:
+    - name: "🔄 Restart Baserow application after applying migrations (compose mode)"
+      ansible.builtin.command: "container restart {{ BASEROW_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  runtime-resolved CID
+      register: baserow_restart_after_migrate
+      changed_when: baserow_restart_after_migrate.rc == 0
+      when: IS_COMPOSE_MODE
+
+    - name: "🔄 Restart Baserow application after applying migrations (swarm mode)"
+      ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
+      register: baserow_swarm_restart
+      changed_when: baserow_swarm_restart.rc == 0
+      timeout: "{{ lookup('timeout', 600) | int }}"
+      when: IS_SWARM_MODE
+
+    - name: "🔍 Re-resolve the container the restart replaced"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
+        resolve_output_prefix: BASEROW
+        resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
 
 - name: "🎬 Bootstrap Baserow superuser '{{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}'"
-  ansible.builtin.shell:
-    cmd: >-
-      container exec -i
-      -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
-      -e SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
-      -e BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
-      -e BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME | quote }}
-      -e BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL | quote }}
-      -e BOOTSTRAP_ADMIN_PASSWORD={{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD | quote }}
-      {{ BASEROW_LOCAL_CID | quote }}
-      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} shell -c {{ lookup('file', role_path ~ '/files/python/bootstrap_admin.py') | quote }}
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}"
+      - -e
+      - "BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}"
+      - -e
+      - "BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL }}"
+      - -e
+      - BOOTSTRAP_ADMIN_PASSWORD
+      - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver  BASEROW_LOCAL_CID resolved at delegate_to runtime
+      - "{{ BASEROW_PYTHON }}"
+      - "{{ BASEROW_MANAGE_PY }}"
+      - shell
+      - -c
+      - "{{ lookup('file', role_path ~ '/files/python/bootstrap_admin.py') }}"
+  environment:
+    BOOTSTRAP_ADMIN_PASSWORD: "{{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD }}"
   register: baserow_bootstrap_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'created' in baserow_bootstrap_admin_result.stdout"

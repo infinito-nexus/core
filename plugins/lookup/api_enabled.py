@@ -5,7 +5,7 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.api import provider_enabled, resolve_api
+from utils.cache.api import provider_enabled, resolve_api
 
 
 class LookupModule(LookupBase):

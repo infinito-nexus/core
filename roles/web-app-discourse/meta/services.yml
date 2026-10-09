@@ -79,6 +79,8 @@ discourse:
       http: 80
   proxy:
     service_key: discourse
+  run_after:
+    - web-app-matomo
   lifecycle: beta
   cpus: "1.0"
   mem_reservation: 1g
@@ -86,18 +88,47 @@ discourse:
   pids_limit: 1024
   local_login_enabled: "{{ not (lookup('config', 'web-app-discourse', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.ldap.enabled')
     | bool) }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag: bridged bigbluebutton partner, covered by the discourse-bbb addon spec
+bigbluebutton:
+  bond: 0.5
+  enabled: "{{ 'web-app-bigbluebutton' in group_names }}"
+  shared: "{{ 'web-app-bigbluebutton' in group_names }}"
+# nocheck: playwright-service-flag: bridged jitsi partner, covered by the discourse-jitsi addon spec
+jitsi:
+  bond: 0.5
+  enabled: "{{ 'web-app-jitsi' in group_names }}"
+  shared: "{{ 'web-app-jitsi' in group_names }}"
+# nocheck: playwright-service-flag: bridged mastodon partner, covered by the discourse-activity-pub addon spec
+mastodon:
+  bond: 0.5
+  enabled: "{{ 'web-app-mastodon' in group_names }}"
+  shared: "{{ 'web-app-mastodon' in group_names }}"
+# nocheck: playwright-service-flag: bridged translation gateway, covered by the discourse-translator addon spec
+translate:
+  bond: 0.5
+  enabled: "{{ 'web-svc-translate' in group_names }}"
+  shared: "{{ 'web-svc-translate' in group_names }}"
+# nocheck: playwright-service-flag: bridged matrix partner, covered by the discourse-chat-integration addon spec
+matrix:
+  bond: 0.5
+  enabled: "{{ 'web-app-matrix' in group_names }}"
+  shared: "{{ 'web-app-matrix' in group_names }}"
+# nocheck: playwright-service-flag: bridged mattermost partner, covered by the discourse-chat-integration addon spec
+mattermost:
+  bond: 0.5
+  enabled: "{{ 'web-app-mattermost' in group_names }}"
+  shared: "{{ 'web-app-mattermost' in group_names }}"
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"

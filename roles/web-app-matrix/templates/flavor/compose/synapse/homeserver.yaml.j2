@@ -35,7 +35,7 @@ web_client_location:            "{{ lookup('tls', application_id, 'protocols.web
 public_baseurl:                 "{{ MATRIX_SYNAPSE_URL }}"
 trusted_key_servers:
   - server_name: "matrix.org"
-admin_contact: 'mailto:{{ lookup('users', 'administrator').email }}'
+admin_contact: 'mailto:{{ lookup('users', 'platform_administrator').email }}'
 
 rc_joins:
   local:

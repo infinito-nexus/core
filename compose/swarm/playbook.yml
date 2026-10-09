@@ -32,7 +32,8 @@
     lab_filesystem: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM') }}"
     lab_filesystem_required: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM_REQUIRED') | default('false', true) }}"
     lab_dataroot_size: "{{ '60G' if lab_is_mgr else '30G' }}"
-    lab_no_proxy: "localhost,127.0.0.1,::1,infinito-registry-cache,{{ lab_mgr }},{{ lab_wrk1 }},{{ lab_wrk2 }},{{ lab_nfs }},{{ lab_backup }},gcr.io,storage.googleapis.com,googleusercontent.com"
+    lab_no_proxy: "{{ (NETWORK_LOOPBACK_HOSTS + ['infinito-registry-cache', lab_mgr, lab_wrk1, lab_wrk2, lab_nfs, lab_backup, 'gcr.io', 'storage.googleapis.com',
+      'googleusercontent.com']) | join(',') }}"
   tasks:
     - name: require the lab manager IP (lookup('env') yields '' for a missing key, and an empty dnsmasq address= is valid syntax)
       assert:

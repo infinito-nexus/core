@@ -2,6 +2,7 @@
 Jinja filter: `inj_features(kind)` filters a list of features to only those
 that actually provide the corresponding snippet template file.
 
+- kind='top'  -> roles/sys-front-inj-<feature>/templates/top_sub.j2
 - kind='head' -> roles/sys-front-inj-<feature>/templates/head_sub.j2
 - kind='body' -> roles/sys-front-inj-<feature>/templates/body_sub.j2
 
@@ -24,8 +25,8 @@ def _feature_role_dir(feature: str) -> str:
 
 
 def _has_snippet(feature: str, kind: str) -> bool:
-    if kind not in ("head", "body"):
-        raise ValueError("kind must be 'head' or 'body'")
+    if kind not in ("top", "head", "body"):
+        raise ValueError("kind must be 'top', 'head' or 'body'")
 
     role_dir = _feature_role_dir(feature)
     if not Path(role_dir).is_dir():

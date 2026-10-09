@@ -6,3 +6,43 @@ litellm_config:
   mounts:
     - service: litellm
       target: /etc/litellm/config.yaml
+
+litellm_router_hook:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'router_hook.py' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/router_hook.py
+
+litellm_decider_init:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'infinito_decider', '__init__.py' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/infinito_decider/__init__.py
+
+litellm_decider_history:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'infinito_decider', 'history.py' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/infinito_decider/history.py
+
+litellm_decider_judge:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'infinito_decider', 'judge.py' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/infinito_decider/judge.py
+
+litellm_decider_sampling:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'infinito_decider', 'sampling.py' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/infinito_decider/sampling.py

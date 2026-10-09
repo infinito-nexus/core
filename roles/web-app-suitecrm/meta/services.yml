@@ -59,7 +59,7 @@ suitecrm:
   # nocheck: docker-version
   version: 8.2-apache
   custom: true
-  app_version: 8.9.1
+  app_version: 8.10.2
   phpredis_version: 6.3.0
   update:
     - key: app_version
@@ -89,10 +89,14 @@ suitecrm:
     - web-app-mailu
     - web-app-matomo
   lifecycle: beta
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 368
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

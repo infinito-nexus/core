@@ -61,7 +61,7 @@ bridge:
     permissions:
         "*": relay
         "{{ MATRIX_SERVER_NAME }}": user
-        "@{{ MATRIX_ADMINISTRATOR_USERNAME }}:{{ MATRIX_SERVER_NAME }}": admin
+        "{{ lookup('mxid', MATRIX_ADMINISTRATOR_USERNAME) }}": admin
 
 matrix:
     message_status_events: false

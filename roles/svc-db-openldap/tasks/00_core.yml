@@ -31,7 +31,7 @@
     delay: 5
     timeout: "{{ lookup('timeout', 120) | int }}"
     state: started
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: 🔎 Check if current RootDN/RootPW already work
   ansible.builtin.shell: >

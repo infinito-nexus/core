@@ -70,38 +70,13 @@
   include_tasks: 06_ldap.yml
   when: ODOO_LDAP_ENABLED | bool
 
-- name: "♻️ Restart Odoo to load SQL-provisioned config (compose)"
-  ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
-  changed_when: true
-  when:
-    - (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
-    - DEPLOYMENT_MODE == 'compose'
+- name: "🪣 Configure the object store as attachment storage"
+  include_tasks: 07_objstore.yml
+  when: ODOO_OBJSTORE_ENABLED | bool
 
-- name: "♻️ Restart Odoo to load SQL-provisioned config (swarm)"
-  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, ODOO_SERVICE) }}"
-  changed_when: true
-  timeout: "{{ lookup('timeout', 600) | int }}"
-  when:
-    - (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
-    - DEPLOYMENT_MODE == 'swarm'
+- name: "♻️ Reload Odoo so the SQL-provisioned config takes effect"
+  include_tasks: 08_reload_provisioned_config.yml
+  when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool) or (ODOO_OBJSTORE_ENABLED | bool)
 
-- name: "🔍 Re-resolve Odoo hosting node + container id after the provisioning restart"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: "{{ ODOO_SERVICE }}"
-    resolve_output_prefix: ODOO
-    resolve_compose_cid: "{{ ODOO_CONTAINER }}"
-  when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
-
-- name: "⏳ Wait for Odoo to serve /web/health after the provisioning restart"
-  ansible.builtin.shell: |
-    set -eu
-    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ ODOO_LOCAL_CID | quote }} timeout 10 bash -c 'exec 3<>/dev/tcp/localhost/{{ container_port }} && printf "GET /web/health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && IFS= read -r _status <&3 && case "$_status" in *" 200 "*) exit 0 ;; *) exit 1 ;; esac'
-  delegate_to: "{{ ODOO_HOST_NODE }}"
-  register: odoo_health_after_restart
-  changed_when: false
-  retries: 60
-  delay: 10
-  until: odoo_health_after_restart.rc == 0
-  when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool)
+- name: "🎨 converge corporate design"
+  include_tasks: 09_design.yml

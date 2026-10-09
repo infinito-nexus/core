@@ -1,0 +1,13 @@
+---
+- services:
+    prometheus:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+- services:
+    prometheus:
+      enabled: false
+      shared: false
+    tor:
+      enabled: true

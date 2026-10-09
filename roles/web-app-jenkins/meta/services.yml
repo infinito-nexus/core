@@ -15,6 +15,21 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  native_metrics:
+    enabled: true
+    port: 8080
+gitea:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitea' in group_names }}"
+  shared: "{{ 'web-app-gitea' in group_names }}"
+gitlab:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitlab' in group_names }}"
+  shared: "{{ 'web-app-gitlab' in group_names }}"
+mattermost:
+  bond: 0.5
+  enabled: "{{ 'web-app-mattermost' in group_names }}"
+  shared: "{{ 'web-app-mattermost' in group_names }}"
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
@@ -84,11 +99,11 @@ jenkinsmcp:
   ports:
     internal:
       http: 8080
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

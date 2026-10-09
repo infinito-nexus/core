@@ -116,20 +116,19 @@ class TestHttpCall(unittest.TestCase):
 class TestMain(unittest.TestCase):
     ENV: ClassVar[dict[str, str]] = {
         "LITELLM_PORT": "4000",
-        "LITELLM_MK": "sk-master",
-        "LITELLM_KEYS_PAYLOAD": json.dumps(
-            [
-                {"alias": "web-app-flowise", "key": "sk-new"},
-                {"alias": "web-app-hermes", "key": "sk-known"},
-            ]
-        ),
+        "LITELLM_MASTER_KEY": "sk-master",
     }
+    PAYLOAD: ClassVar[list[dict[str, str]]] = [
+        {"alias": "web-app-flowise", "key": "sk-new"},
+        {"alias": "web-app-hermes", "key": "sk-known"},
+    ]
 
     def test_only_the_created_key_is_announced_as_changed(self):
         proxy = RecordingProxy({"sk-known"}, {"web-app-flowise"})
         buffer = io.StringIO()
         with (
             patch.dict("os.environ", self.ENV, clear=True),
+            patch.object(MODULE.sys, "stdin", io.StringIO(json.dumps(self.PAYLOAD))),
             patch.object(MODULE, "http_call", return_value=proxy),
             redirect_stdout(buffer),
         ):
@@ -139,6 +138,7 @@ class TestMain(unittest.TestCase):
     def test_the_master_key_reaches_the_proxy_as_a_bearer_header(self):
         with (
             patch.dict("os.environ", self.ENV, clear=True),
+            patch.object(MODULE.sys, "stdin", io.StringIO(json.dumps(self.PAYLOAD))),
             patch.object(MODULE, "http_call") as http_call,
         ):
             http_call.return_value = RecordingProxy({"sk-new", "sk-known"}, set())

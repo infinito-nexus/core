@@ -8,7 +8,7 @@ this codebase is the ``depends_on`` lookup:
 
 The lookup emits the map form for compose (with conditions) and the
 list form for swarm. Hand-writing the per-mode gate
-(``{% if DEPLOYMENT_MODE == 'swarm' %} … {% else %} … {% endif %}``)
+(``{% if IS_SWARM_MODE %} … {% else %} … {% endif %}``)
 is the pattern this rule eliminates - it is repetitive, easy to
 forget, and the lookup is the single source of truth for the
 compose/swarm dependency shape.

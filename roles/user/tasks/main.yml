@@ -17,3 +17,4 @@
 
 - name: 🔧 Manage SSH authorized_keys (SPOT-only)
   ansible.builtin.include_tasks: 01_ssh_authorized_keys.yml
+  when: user_config_effective.authorized_keys is defined

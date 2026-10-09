@@ -13,59 +13,24 @@
     state: directory
     mode: "0755"
 
-- name: "📁 Create shared object-store network for '{{ application_id }}'"
-  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
-  vars:
-    network_role_id: "{{ application_id }}"
-
-- name: "📄 Render SeaweedFS S3 identities config"
-  stack_host_template:
-    src: s3.json.j2
-    dest: "{{ SEAWEEDFS_S3_CONFIG_PATH }}"
-  notify: compose-up
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "📄 Render role proxy nginx config"
+- name: "📄 Render the console proxy nginx config"
   stack_host_template:
     src: nginx.conf.j2
-    dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'nginx.conf'] | path_join }}"
+    dest: "{{ SEAWEEDFS_NGINX_CONF_PATH }}"
   notify: compose-up
-  when: SEAWEEDFS_FRONTEND_ENABLED | bool
 
-- name: "▶️ Start the SeaweedFS stack"
+- name: "▶️ Start the SeaweedFS console stack"
   ansible.builtin.meta: flush_handlers
 
 - name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-front-proxy
   vars:
-    domain: "{{ seaweedfs_proxy.domain }}"
-    http_port: "{{ seaweedfs_proxy.http_port }}"
-  loop: "{{ SEAWEEDFS_FRONT_PROXY_MATRIX }}"
+    domain: "{{ seaweedfs_console.domain }}"
+    http_port: "{{ SEAWEEDFS_SSO_PORT_PUBLIC }}"
+  loop:
+    - domain: "{{ SEAWEEDFS_FILER_DOMAIN }}"
+    - domain: "{{ SEAWEEDFS_MASTER_DOMAIN }}"
   loop_control:
-    loop_var: seaweedfs_proxy
-    label: "{{ seaweedfs_proxy.domain }} -> {{ seaweedfs_proxy.http_port }}"
-
-- name: "🧹 Remove stale frontend vhosts while the frontend is disabled"
-  ansible.builtin.file:
-    path: "{{ [lookup('nginx', 'directories.configuration.servers'), seaweedfs_vhost[0], seaweedfs_vhost[1] ~ '.conf'] | path_join }}"
-    state: absent
-  loop: "{{ ['http', 'https'] | product([SEAWEEDFS_FILER_DOMAIN, SEAWEEDFS_MASTER_DOMAIN]) | list }}"
-  loop_control:
-    loop_var: seaweedfs_vhost
-    label: "{{ seaweedfs_vhost[0] }}/{{ seaweedfs_vhost[1] }}"
-  when: not (SEAWEEDFS_FRONTEND_ENABLED | bool)
-  notify: restart-openresty
-
-- name: "⏳ Wait until the SeaweedFS S3 gateway answers"
-  ansible.builtin.shell: >
-    container exec {{ SEAWEEDFS_CONTAINER_ADDRESS }}
-    wget -q -O - http://127.0.0.1:{{ SEAWEEDFS_S3_PORT_INTERNAL }}/status
-  args:
-    executable: /bin/bash
-  register: _seaweedfs_ready
-  retries: 30
-  delay: 5
-  until: _seaweedfs_ready.rc == 0
-  changed_when: false
-  when: IS_STACK_HOST | bool
+    loop_var: seaweedfs_console
+    label: "{{ seaweedfs_console.domain }}"

@@ -114,7 +114,8 @@ def build_redirect_uris(
 
 class LookupModule(LookupBase):
     """
-    Usage:
+    Usage::
+
         {{ lookup('redirect_uris') }}
         {{ lookup('redirect_uris', wildcard='/cb') }}
 
@@ -124,7 +125,8 @@ class LookupModule(LookupBase):
     ``server.tls.enabled`` over the global ``TLS_ENABLED``, and always
     plaintext for an .onion -- never from Keycloak's own TLS state.
 
-    - parameters:
+    Parameters::
+
         wildcard: suffix appended to every URI (default '/*')
         features: config paths ORed to gate an application (default services.sso.enabled)
         dedup: drop repeated URIs (default true)

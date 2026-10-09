@@ -9,3 +9,11 @@
 - name: "🤖 Bind the native AI surface to the platform gateway"
   include_tasks: addons/discourse-ai.yml
   when: DISCOURSE_LITELLM_ENABLED | bool
+
+- name: "🌍 Bind the post translator to the translation gateway"
+  include_tasks: addons/discourse-translator.yml
+  when: DISCOURSE_TRANSLATE_ENABLED | bool
+
+- name: "📈 Render Mermaid fences as diagrams"
+  include_tasks: addons/discourse-mermaid.yml
+  when: DISCOURSE_MERMAID_ENABLED | bool

@@ -1,5 +1,5 @@
 ---
-# include-gated: when: DEPLOYMENT_MODE == "compose"
+# include-gated: when: IS_COMPOSE_MODE
 - name: "⏹️ Keycloak realm-import | Stop running keycloak (compose)"
   ansible.builtin.shell: |
     set -euo pipefail

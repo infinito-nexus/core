@@ -30,6 +30,7 @@ from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_nam
 from utils.docker.mirror import mirror_image
 
 _UA = "infinito-nexus-version-updater"
+_UNKNOWN_PLATFORM = "unknown"
 _CACHE_ROOT = Path(tempfile.gettempdir()) / "infinito-registry-probe"
 _LINK_NEXT_RE = re.compile(r'<([^>]+)>\s*;\s*rel="next"', re.IGNORECASE)
 _CHALLENGE_PARAM_RE = re.compile(r'(\w+)="([^"]*)"')
@@ -385,6 +386,84 @@ def image_healthcheck_probed(
         found = _healthcheck_at(candidate, reference, os_name, architecture)
         if found is not None:
             _cache_write("healthcheck", found, image, reference, os_name, architecture)
+            return found, "mirror" if candidate == mirrored else "upstream"
+    return None, "none"
+
+
+def _platforms_at(image: str, reference: str) -> set[str] | None:
+    doc = fetch_manifest(image, reference)
+    if doc is None:
+        return None
+    manifests = doc.get("manifests")
+    if isinstance(manifests, list) and manifests:
+        found = set()
+        for entry in manifests:
+            if not isinstance(entry, dict):
+                continue
+            platform = entry.get("platform") or {}
+            os_name, architecture = platform.get("os"), platform.get("architecture")
+            if not os_name or not architecture or os_name == _UNKNOWN_PLATFORM:
+                continue
+            found.add(f"{os_name}/{architecture}")
+        return found or None
+    config_digest = (doc.get("config") or {}).get("digest")
+    if not isinstance(config_digest, str) or not config_digest:
+        return None
+    blob = _fetch_blob(image, config_digest)
+    if blob is None:
+        return None
+    os_name, architecture = blob.get("os"), blob.get("architecture")
+    if not os_name or not architecture:
+        return None
+    return {f"{os_name}/{architecture}"}
+
+
+def manifest_platforms(image: str, reference: str) -> set[str] | None:
+    """Return the ``os/architecture`` set ``image:reference`` publishes.
+
+    Args:
+        image: image name, with or without registry host.
+        reference: tag or digest.
+
+    Returns:
+        Every platform of a multi-platform index, or the single platform of a
+        one-platform manifest, read from its config blob. ``None`` when the
+        answer is indeterminate: an unresolvable name, a network error, an
+        auth wall, a rate limit, or a body that names no platform at all. A
+        caller must not read ``None`` as "publishes nothing".
+
+    Attestation entries are left out: BuildKit records them in the index under
+    the platform ``unknown/unknown``, and counting them would report an
+    architecture no node can run.
+    """
+    return manifest_platforms_probed(image, reference)[0]
+
+
+def manifest_platforms_probed(
+    image: str, reference: str
+) -> tuple[set[str] | None, str]:
+    """:func:`manifest_platforms` plus which address answered.
+
+    Returns:
+        ``(platforms, source)`` where source is ``cache``, ``mirror``,
+        ``upstream`` or ``none``.
+
+    The platform set is a property of the image rather than of the registry
+    serving it, so the mirror answers it as well as the upstream does and is
+    asked first. That matters more here than for a single probe: a sweep over
+    every pinned image is ~160 manifest reads, and Docker Hub's anonymous
+    allowance is counted per IP and shared by everything else on that address.
+    Determinate answers are cached on disk, so a rerun spends nothing on a pin
+    that did not move.
+    """
+    cached = _cache_read("platforms", image, reference)
+    if isinstance(cached, list):
+        return set(cached), "cache"
+    mirrored = mirror_image(image)
+    for candidate in _probe_order(image):
+        found = _platforms_at(candidate, reference)
+        if found is not None:
+            _cache_write("platforms", sorted(found), image, reference)
             return found, "mirror" if candidate == mirrored else "upstream"
     return None, "none"
 

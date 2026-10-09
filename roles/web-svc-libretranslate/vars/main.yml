@@ -1,12 +1,17 @@
 ---
 application_id: web-svc-libretranslate # ID of the application
 
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 LIBRETRANSLATE_SERVICE: "{{ entity_name }}"
 LIBRETRANSLATE_IMAGE: "{{ lookup('config', application_id, 'services.libretranslate.image') }}"
-LIBRETRANSLATE_VERSION: "{{ lookup('config', application_id, 'services.libretranslate.version') }}"
+LIBRETRANSLATE_GPU: "{{ lookup('gpu', application_id, 'libretranslate') }}"
+LIBRETRANSLATE_VERSION: "{{ lookup('config', application_id, 'services.libretranslate.version') ~ ('-cuda' if LIBRETRANSLATE_GPU | bool else '') }}"
 LIBRETRANSLATE_LOAD_ONLY: "{{ lookup('config', application_id, 'services.libretranslate.load_only') | join(',') }}"
+LIBRETRANSLATE_DIRECTIONS: "{{ lookup('config', application_id, 'services.libretranslate.directions') }}"
+LIBRETRANSLATE_APP_USER: "{{ 'root' if LIBRETRANSLATE_GPU | bool else 'libretranslate' }}"
+LIBRETRANSLATE_THREADS: "{{ [(lookup('cpus', application_id, 'libretranslate') | float) | round(0, 'ceil') | int, 1] | max }}"
+LIBRETRANSLATE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'libretranslate') }}"
 LIBRETRANSLATE_MCP_ENABLED: "{{ lookup('config', application_id, 'services.libretranslatemcp.enabled') | bool }}"
 LIBRETRANSLATE_MCP_SERVICE_KEY: "libretranslatemcp"
 LIBRETRANSLATE_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.libretranslatemcp.name') }}"
@@ -25,3 +30,6 @@ LIBRETRANSLATE_MCP_CONTRACT:
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 LIBRETRANSLATE_MCP_UPSTREAM_KEY: ""
+
+LIBRETRANSLATE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
+LIBRETRANSLATE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

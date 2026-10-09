@@ -31,3 +31,156 @@ MAGENTO_COMPOSER_REPOSITORY: "{{ lookup('config', application_id, 'services.mage
 MAGENTO_COMPOSER_PACKAGE: "{{ lookup('config', application_id, 'services.magento.composer.package') }}"
 MAGENTO_COMPOSER_VERSION: "{{ lookup('config', application_id, 'services.magento.composer.version') }}"
 MAGENTO_COMPOSER_SPEC: "{{ MAGENTO_COMPOSER_PACKAGE }}={{ MAGENTO_COMPOSER_VERSION }}"
+
+MAGENTO_TWO_FACTOR_ENABLED: "{{ lookup('config', application_id, 'services.two_factor.enabled') | bool }}"
+MAGENTO_TWO_FACTOR_MODULES:
+  - "Magento_TwoFactorAuth"
+  - "Magento_AdminAdobeImsTwoFactorAuth"
+
+MAGENTO_DESIGN: "{{ lookup('design', application_id) }}"
+MAGENTO_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MAGENTO_DESIGN_ASSETS_NAME: "design"
+MAGENTO_DESIGN_ASSETS_PATH: "{{ [MAGENTO_ROOT | dirname, MAGENTO_DESIGN_ASSETS_NAME] | path_join }}"
+MAGENTO_DESIGN_LOGO_SIZE:
+  width: "{{ (MAGENTO_DESIGN.slots.logo.width / 2) | int | string }}"
+  height: "{{ (MAGENTO_DESIGN.slots.logo.height / 2) | int | string }}"
+MAGENTO_DESIGN_TITLE_VALUES:
+  design/head/default_title: "{{ MAGENTO_DESIGN.title }}"
+  design/head/title_suffix: "- {{ MAGENTO_DESIGN.title }}"
+  design/header/welcome: "{{ MAGENTO_DESIGN.title }}"
+  design/header/logo_alt: "{{ MAGENTO_DESIGN.title }}"
+  design/email/logo_alt: "{{ MAGENTO_DESIGN.title }}"
+  general/store_information/name: "{{ MAGENTO_DESIGN.title }}"
+MAGENTO_DESIGN_LOGO_VALUES:
+  design/header/logo_width: "{{ MAGENTO_DESIGN_LOGO_SIZE.width }}"
+  design/header/logo_height: "{{ MAGENTO_DESIGN_LOGO_SIZE.height }}"
+  design/email/logo_width: "{{ MAGENTO_DESIGN_LOGO_SIZE.width }}"
+  design/email/logo_height: "{{ MAGENTO_DESIGN_LOGO_SIZE.height }}"
+MAGENTO_DESIGN_LOGO_FILES:
+  design/header/logo_src:
+    directory: "logo"
+    source: "{{ [MAGENTO_DESIGN_ASSETS_PATH, 'logo.svg'] | path_join }}"
+  design/head/shortcut_icon:
+    directory: "favicon"
+    source: "{{ [MAGENTO_DESIGN_ASSETS_PATH, 'favicon.ico'] | path_join }}"
+  design/email/logo:
+    directory: "email/logo"
+    source: "{{ [MAGENTO_DESIGN_ASSETS_PATH, 'logo.png'] | path_join }}"
+MAGENTO_DESIGN_VALUES: >-
+  {{ (MAGENTO_DESIGN_TITLE_VALUES if MAGENTO_DESIGN.title is string else {})
+     | combine(MAGENTO_DESIGN_LOGO_VALUES if MAGENTO_DESIGN.logo is string else {}) }}
+MAGENTO_DESIGN_FILES: "{{ MAGENTO_DESIGN_LOGO_FILES if MAGENTO_DESIGN.logo is string else {} }}"
+MAGENTO_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+MAGENTO_DESIGN_THEME_NAME: "Infinito/corporate"
+MAGENTO_DESIGN_THEME_COLOR_TOKENS:
+  color-white: surface-2
+  color-black: text
+  color-black_dark: text
+  color-gray19: text
+  color-gray20: text
+  color-gray34: text-muted
+  color-gray37: text-muted
+  color-gray40: text-muted
+  color-gray43: text-muted
+  color-gray46: text-muted
+  color-very-dark-gray: text-muted
+  color-gray-darken3: text-muted
+  color-gray-darken4: text-muted
+  color-gray-middle5: text-muted
+  color-brownie: text-muted
+  color-brownie-vanilla: text-muted
+  color-darkie-gray: text-muted
+  color-gray52: border-strong
+  color-gray55: border-strong
+  color-gray56: border-strong
+  color-gray60: border-strong
+  color-gray62: border-strong
+  color-gray64: border-strong
+  color-gray68: border-strong
+  color-gray76: border
+  color-gray78: border
+  color-gray79: border
+  color-gray80: border
+  color-gray82: border
+  color-gray83: border
+  color-gray_light: border
+  color-lighter-grayish: border
+  color-gray-light2: border
+  color-gray-light3: border
+  color-gray-light4: border
+  color-gray-light5: border
+  color-gray-light6: border
+  color-gray-middle2: border
+  color-gray-darken2: border
+  color-gray89: surface-active
+  color-gray90: surface-active
+  color-gray-middle1: surface-active
+  color-gray-darken1: surface-active
+  color-gray91: surface-hover
+  color-gray92: surface-hover
+  color-gray94: surface-3
+  color-gray95: surface-3
+  color-white-smoke: surface-3
+  color-white-dark-smoke: surface-3
+  color-white-fog: surface-3
+  color-gray-light0: surface-3
+  color-gray-light01: surface-3
+  color-gray-darken0: surface-3
+  color-gray-middle3: frame
+  color-gray-middle4: frame
+  color-red9: danger
+  color-red10: danger
+  color-red11: danger-active
+  color-red12: danger-hover
+  color-pink1: danger-subtle
+  color-orange-red1: primary
+  color-orange-red2: primary
+  color-orange-red3: primary
+  color-orange-red4: primary
+  color-dark-green1: success
+  color-gray-light1: success-subtle
+  color-blue1: primary
+  color-blue2: link
+  color-blue3: link
+  color-sky-blue1: link
+  color-blue-dodger: link
+  color-brownie1: warning
+  color-brownie-light1: warning
+  color-yellow-light1: warning-subtle
+  color-yellow-light2: warning-subtle
+  color-yellow-light3: warning-border
+  page__background-color: surface-1
+  primary__color: text
+  text__color__muted: text-muted
+  link__color: link
+  link__visited__color: link
+  focus__color: link
+  button__color: text
+  button__hover__background: surface-hover
+  button__active__background: surface-active
+  button-primary__color: on-primary
+  button-primary__hover__color: on-primary
+  button-primary__active__color: on-primary
+  button-primary__hover__background: primary-hover
+  button-primary__active__background: primary-active
+  header-panel__background-color: frame
+  header-panel__text-color: on-frame
+  copyright__background-color: frame
+  form-element-input__border-color: border-strong
+  form-element-input-placeholder__color: text-muted
+MAGENTO_DESIGN_THEME_BORDER_TOKENS:
+  button__border: border-strong
+  button-primary__hover__border: primary-hover
+  button-primary__active__border: primary-active
+  select__border: border-strong
+MAGENTO_DESIGN_THEME_VARIABLES: >-
+  {{ dict(MAGENTO_DESIGN_THEME_COLOR_TOKENS.keys()
+       | zip(MAGENTO_DESIGN_THEME_COLOR_TOKENS.values() | map('regex_replace', '^', '--design-') | map('extract', MAGENTO_DESIGN_PALETTE)))
+     | combine(dict(MAGENTO_DESIGN_THEME_BORDER_TOKENS.keys()
+       | zip(MAGENTO_DESIGN_THEME_BORDER_TOKENS.values() | map('regex_replace', '^', '--design-') | map('extract', MAGENTO_DESIGN_PALETTE)
+             | map('regex_replace', '^', '1px solid ')))) }}
+MAGENTO_DESIGN_THEME:
+  path: "frontend/{{ MAGENTO_DESIGN_THEME_NAME }}"
+  title: "Corporate Design"
+  parent: "Magento/luma"
+  variables: "{{ MAGENTO_DESIGN_THEME_VARIABLES }}"

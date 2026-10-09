@@ -1,0 +1,17 @@
+---
+enabled: false
+required: false
+mechanism: addon
+source: upstream
+version: "0.9.0"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: IfcOpenShell/IfcOpenShell
+config:
+  extension_id: bonsai
+  blender_min: "5.1.0"
+  repository: user_default
+  archive_url:
+    https://extensions.blender.org/download/sha256:1fd502374827eb6982fc095231ad4a9f656fef36f81a5074dfee788af12f823c/add-on-bonsai-v0.9.0-linux-x64.zip
+  sha256: "1fd502374827eb6982fc095231ad4a9f656fef36f81a5074dfee788af12f823c"

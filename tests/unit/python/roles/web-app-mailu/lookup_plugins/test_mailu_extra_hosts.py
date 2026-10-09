@@ -46,6 +46,8 @@ class TestMailuExtraHosts(unittest.TestCase):
         variables = {
             "application_id": "web-app-mailu",
             "DEPLOYMENT_MODE": "compose",
+            "IS_COMPOSE_MODE": True,
+            "IS_SWARM_MODE": False,
             "DOCKER_IN_CONTAINER": False,
             "MAILU_OIDC_ENABLED": False,
             "MAILU_OIDC_HOST": "auth.example.org",

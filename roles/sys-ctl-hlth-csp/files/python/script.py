@@ -165,8 +165,6 @@ def build_docker_cmd(
     if use_host_network:
         cmd.extend(["--network", "host"])
 
-    # Exception: runs as root because with-ca-trust.sh installs the CA into the
-    # container trust store, which an unprivileged user cannot write to.
     cmd.extend(["--user", "0:0"])
 
     cmd.append(image)

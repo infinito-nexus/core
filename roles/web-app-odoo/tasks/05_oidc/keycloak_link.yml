@@ -1,0 +1,34 @@
+---
+- name: "🔍 Query Keycloak DB for administrator username"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', 'web-app-keycloak') }}"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/realm-user.sql"
+    named_args:
+      realm: "{{ OIDC.CLIENT.REALM }}"
+      admin: "{{ lookup('users', 'platform_administrator').username }}"
+    expect_rows: true
+  register: keycloak_users
+
+- name: "🔗 Link administrator user to Keycloak in Odoo"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc/update/user-oauth-link.sql"
+    named_args:
+      provider_id: "{{ keycloak_provider.rows[0][0] | int }}"
+      oauth_uid: "{{ (keycloak_users.rows | map('first') | select('equalto', lookup('users', 'platform_administrator').username) | list | first) }}"
+      login: "{{ lookup('users', 'platform_administrator').username }}"
+  when: keycloak_users.rows | map('first') | select('equalto', lookup('users', 'platform_administrator').username) | list | length > 0
+
+- name: "🔐 Grant internal user access to OAuth-created users"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc/grant/internal-user-to-oauth/signup-users.sql"
+
+- name: "🔐 Grant company access to OAuth-created users"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc/grant/company-to-oauth/signup-users.sql"

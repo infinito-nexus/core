@@ -1,0 +1,63 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  function chosenScheme() {
+    try {
+      return JSON.parse(window.localStorage.getItem("hugoDocsUserSettings") || "{}").colorScheme;
+    } catch (error) {
+      return 0;
+    }
+  }
+  function mirror() {
+    var chosen = chosenScheme();
+    if (chosen === 2) {
+      root.setAttribute("data-design-theme", "light");
+    } else if (chosen === 3) {
+      root.setAttribute("data-design-theme", "dark");
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  function mirrorLater() {
+    window.setTimeout(mirror, 0);
+  }
+  new MutationObserver(mirrorLater).observe(root, { attributes: true, attributeFilter: ["class"] });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", mirrorLater);
+  window.addEventListener("storage", mirrorLater);
+  document.addEventListener(
+    "click",
+    function (event) {
+      if (event.target && event.target.closest && event.target.closest("#theme-toggle")) {
+        mirrorLater();
+      }
+    },
+    true
+  );
+  mirror();
+{% if design.title is string or design.logo is string %}
+  function brand() {
+{% if design.title is string %}
+    var title = {{ design.title | to_json }};
+    if (document.title.indexOf(title) === -1) {
+      document.title = document.title ? document.title + " | " + title : title;
+    }
+{% endif %}
+{% if design.logo is string %}
+    var icons = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < icons.length; index += 1) {
+      icons[index].setAttribute("href", {{ design.urls.favicon.png | to_json }});
+    }
+    var touch = document.querySelector("link[rel='apple-touch-icon']");
+    if (touch) {
+      touch.setAttribute("href", {{ design.urls['apple-touch-icon'].png | to_json }});
+    }
+    var mask = document.querySelector("link[rel='mask-icon']");
+    if (mask) {
+      mask.parentNode.removeChild(mask);
+    }
+{% endif %}
+  }
+  document.addEventListener("DOMContentLoaded", brand);
+  brand();
+{% endif %}
+})();

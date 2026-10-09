@@ -8,7 +8,7 @@
     nextcloud_mm_base_url: "{{ lookup('tls', 'web-app-mattermost', 'url.base') }}"
     nextcloud_mm_local_url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'web-app-mattermost', 'services.mattermost.ports.local.http') }}"
     nextcloud_mm_redirect_path: "/apps/integration_mattermost/oauth-redirect"
-    nextcloud_mm_exec_chdir: "{{ lookup('container', 'web-app-mattermost', 'directories.instance') if DEPLOYMENT_MODE == 'compose' else omit }}"
+    nextcloud_mm_exec_chdir: "{{ lookup('container', 'web-app-mattermost', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   changed_when: false
 
 - name: 🔧 Provision the bidirectional Mattermost <-> Nextcloud OAuth coupling

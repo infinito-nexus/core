@@ -1,0 +1,45 @@
+---
+- name: "🖼️ Stage the corporate logo set of {{ application_id }}"
+  when: MOODLE_DESIGN_LOGO_ENABLED | bool
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ MOODLE_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ MOODLE_DESIGN_DIR }}"
+
+    - name: "📤 Hand the corporate logo set to the Moodle container"
+      ansible.builtin.shell: >-
+        cat {{ [MOODLE_DESIGN_DIR, item] | path_join | quote }}
+        | container exec -i --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+        sh -c {{ ('cat > ' ~ MOODLE_DESIGN_STAGING_PREFIX ~ item) | quote }}
+      args:
+        executable: /bin/bash
+      loop: "{{ MOODLE_DESIGN_LOGO_FILES.values() | list }}"
+      changed_when: false
+
+- name: "🎨 Apply the corporate design of {{ application_id }}"
+  ansible.builtin.shell: >
+    container exec -i --user {{ MOODLE_RUNTIME_USER }}
+    -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
+    -e DESIGN_ENABLED={{ MOODLE_DESIGN_ENABLED | bool | ternary('1', '0') }}
+    -e DESIGN_BRAND_COLOR={{ MOODLE_DESIGN_PRIMARY | quote }}
+    -e DESIGN_SCSS_B64={{ lookup('file', 'scss/boost.scss') | b64encode | quote }}
+    -e DESIGN_TITLE={{ MOODLE_SITE_TITLE | quote }}
+    -e DESIGN_LOGO_PATH={{ (moodle_design_staged | ternary(MOODLE_DESIGN_STAGING_PREFIX ~ MOODLE_DESIGN_LOGO_FILES.logo, '')) | quote }}
+    -e DESIGN_LOGO_COMPACT_PATH={{ (moodle_design_staged | ternary(MOODLE_DESIGN_STAGING_PREFIX ~ MOODLE_DESIGN_LOGO_FILES.logocompact, '')) | quote }}
+    -e DESIGN_FAVICON_PATH={{ (moodle_design_staged | ternary(MOODLE_DESIGN_STAGING_PREFIX ~ MOODLE_DESIGN_LOGO_FILES.favicon, '')) | quote }}
+    {{ MOODLE_CONTAINER_ADDRESS }} php
+  args:
+    stdin: "{{ lookup('file', 'php/provision/design.php') }}"
+  vars:
+    moodle_design_staged: "{{ MOODLE_DESIGN_LOGO_ENABLED | bool }}"
+  register: moodle_design
+  changed_when: (moodle_design.stdout_lines | last) == 'CHANGED'

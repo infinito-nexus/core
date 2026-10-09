@@ -114,7 +114,7 @@ class TestSchemaCacheIsNotTruncated(unittest.TestCase):
             (load_yaml_any(path, default_if_missing={}) or {}).get(CREDENTIALS_KEY, {})
         )
         self.assertEqual(before, after)
-        self.assertIn("administrator_password", after)
+        self.assertIn("oidc_client_secret", after)
 
 
 if __name__ == "__main__":

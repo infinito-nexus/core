@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-moodle"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 swarm_stack_converge_retries: 600
 
 MOODLE_CODE_DIR: "{{ lookup('volume', 'web-app-moodle', 'code').target }}"
@@ -16,21 +16,24 @@ MOODLE_BUILD_FILES:
   install_source: "install/moodle-source.sh"
   install_oidc: "install/auth-oidc.sh"
   install_mcp: "install/webservice-mcp.sh"
+  install_objectfs: "install/tool-objectfs.sh"
+  patch_objectfs: "patch/tool-objectfs-path-style.patch"
   opcache_ini: "php-conf/opcache-recommended.ini"
   runtime_ini: "php-conf/moodle-runtime.ini"
   fpm_pool: "php-conf/zz-moodle-pool.conf"
-MOODLE_PUBLIC_SUBDIR: "public"
-MOODLE_PUBLIC_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_PUBLIC_SUBDIR] | path_join }}"
-MOODLE_VERSION_FILE: "{{ [MOODLE_PUBLIC_SUBDIR, 'version.php'] | path_join }}"
-MOODLE_AUTH_SUBDIR: "{{ [MOODLE_PUBLIC_SUBDIR, 'auth'] | path_join }}"
-MOODLE_WEBSERVICE_SUBDIR: "{{ [MOODLE_PUBLIC_SUBDIR, 'webservice'] | path_join }}"
-MOODLE_CLI_RELPATH: "admin/cli" # admin CLI script dir
+MOODLE_WEBROOT_SUBDIR: "public"
+MOODLE_WEBROOT_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_WEBROOT_SUBDIR] | path_join }}"
+MOODLE_VERSION_FILE: "{{ [MOODLE_WEBROOT_SUBDIR, 'version.php'] | path_join }}"
+MOODLE_AUTH_SUBDIR: "{{ [MOODLE_WEBROOT_SUBDIR, 'auth'] | path_join }}"
+MOODLE_WEBSERVICE_SUBDIR: "{{ [MOODLE_WEBROOT_SUBDIR, 'webservice'] | path_join }}"
+MOODLE_ADMIN_TOOL_SUBDIR: "{{ [MOODLE_WEBROOT_SUBDIR, 'admin/tool'] | path_join }}"
+MOODLE_CLI_RELPATH: "admin/cli"
 
 MOODLE_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.auth_oidc.version') }}"
 MOODLE_OIDC_PLUGIN_UPSTREAM: "{{ lookup('config', application_id, 'addons.auth_oidc.update.upstream_id') }}"
 MOODLE_OIDC_PLUGIN_ARCHIVE_URL: "https://github.com/{{ MOODLE_OIDC_PLUGIN_UPSTREAM }}/archive/refs/tags/{{ MOODLE_OIDC_PLUGIN_VERSION }}.zip"
 MOODLE_OIDC_PLUGIN_URL_PATH: "auth/oidc"
-MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_PUBLIC_SUBDIR, MOODLE_OIDC_PLUGIN_URL_PATH] | path_join }}"
+MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_WEBROOT_SUBDIR, MOODLE_OIDC_PLUGIN_URL_PATH] | path_join }}"
 MOODLE_OIDC_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_OIDC_PLUGIN_RELPATH] | path_join }}"
 MOODLE_CLI_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_CLI_RELPATH] | path_join }}"
 MOODLE_CONFIG: "{{ [MOODLE_CODE_DIR, 'config.php'] | path_join }}"
@@ -38,9 +41,9 @@ MOODLE_CONFIG: "{{ [MOODLE_CODE_DIR, 'config.php'] | path_join }}"
 MOODLE_RUNTIME_USER: "www-data"
 MOODLE_RUNTIME_USER_GROUP: "{{ MOODLE_RUNTIME_USER }}:{{ MOODLE_RUNTIME_USER }}"
 
-MOODLE_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
-MOODLE_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-MOODLE_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
+MOODLE_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+MOODLE_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+MOODLE_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
 MOODLE_RELEASE: "{{ lookup('config', application_id, 'services.moodle.app_version') }}"
 MOODLE_TARBALL_URL: "https://github.com/moodle/moodle/archive/refs/tags/v{{ MOODLE_RELEASE }}.tar.gz"
@@ -85,6 +88,15 @@ MOODLE_EGRESS_SETTINGS:
     value: "{{ (MOODLE_EGRESS_ALLOWED_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else [])) | join(MOODLE_EGRESS_NEWLINE)
       }}"
 
+MOODLE_OBJECTFS_ENABLED: "{{ lookup('config', application_id, 'services.seaweedfs.enabled') }}"
+MOODLE_OBJECTFS_PLUGIN_COMMIT: "{{ lookup('config', application_id, 'addons.tool_objectfs.version') }}"
+MOODLE_OBJECTFS_PLUGIN_UPSTREAM: "{{ lookup('config', application_id, 'addons.tool_objectfs.update.upstream_id') }}"
+MOODLE_OBJECTFS_PLUGIN_ARCHIVE_URL: "https://github.com/{{ MOODLE_OBJECTFS_PLUGIN_UPSTREAM }}/archive/{{ MOODLE_OBJECTFS_PLUGIN_COMMIT }}.zip"
+MOODLE_OBJECTFS_PLUGIN_RELPATH: "{{ [MOODLE_ADMIN_TOOL_SUBDIR, 'objectfs'] | path_join }}"
+MOODLE_OBJECTFS_PLUGIN_SOURCE_DIR: "{{ [MOODLE_SOURCE_DIR, MOODLE_OBJECTFS_PLUGIN_RELPATH] | path_join }}"
+MOODLE_OBJECTFS_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_OBJECTFS_PLUGIN_RELPATH] | path_join }}"
+MOODLE_OBJECTFS_READY_FILE: "{{ [MOODLE_CODE_DIR, '.objectfs.installed'] | path_join }}"
+
 MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
 MOODLE_MCP_PLUGIN_VERSION: "v0.6.0"
 MOODLE_MCP_PLUGIN_ARCHIVE_URL: "https://github.com/onbirdev/moodle-webservice_mcp/archive/refs/tags/{{ MOODLE_MCP_PLUGIN_VERSION }}.zip"
@@ -121,7 +133,16 @@ MOODLE_MCP_TOOLS_LIST_PAYLOAD:
 MOODLE_OIDC_CUSTOM_SCOPE: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.moodle') }}"
 MOODLE_OIDC_SCOPES: "openid profile email phone address {{ MOODLE_OIDC_CUSTOM_SCOPE }}"
 
-MOODLE_SITE_TITLE: "{{ lookup('config', application_id, 'services.moodle.site_titel') }}"
+MOODLE_SITE_TITLE: "{{ lookup('design', application_id).label }}"
+MOODLE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MOODLE_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+MOODLE_DESIGN_PRIMARY: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-primary'] }}"
+MOODLE_DESIGN_LOGO_ENABLED: "{{ MOODLE_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+MOODLE_DESIGN_STAGING_PREFIX: "/tmp/design-"
+MOODLE_DESIGN_LOGO_FILES:
+  logo: "logo.png"
+  logocompact: "logo-compact.png"
+  favicon: "favicon.png"
 
 MOODLE_FPM_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.fpm') }}"
 MOODLE_NGINX_PORT: "{{ lookup('config', application_id, 'services.moodle.ports.internal.http') }}"

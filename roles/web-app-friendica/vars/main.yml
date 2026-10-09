@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-friendica"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 FRIENDICA_SERVICE: "{{ entity_name }}"
 FRIENDICA_CONTAINER: "{{ entity_name }}"

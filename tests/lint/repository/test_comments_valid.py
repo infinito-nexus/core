@@ -4,8 +4,9 @@ A comment is VALID only when it is one of:
 
 * a **file-header** block (leading comment lines explaining the file),
 * a **doc comment** directly above a class / function / method / rule,
-* a **tool directive** (`noqa`, `nocheck`, `type: ignore`, `shellcheck`,
-  `rubocop:`, `stylelint-disable`, `pragma`, language annotations, ...),
+* a **tool directive** (`noqa`, `nocheck`, `variant-pin`, `type: ignore`,
+  `shellcheck`, `rubocop:`, `stylelint-disable`, `pragma`, language
+  annotations, ...),
 * a **marked exception** -- a mid-code comment that flags a real trip-wire
   (warning, pitfall, deliberate non-idiomatic choice) whose text starts with
   one of the exception markers (`Exception`, ...),
@@ -89,6 +90,7 @@ _MARKER_RE = re.compile(rf"^[\s*/#>-]*(?:{'|'.join(_MARKERS)})\b", re.IGNORECASE
 _DIRECTIVE_RE = re.compile(
     r"\b("
     r"noqa|nocheck|nosec|bandit|type:\s*ignore|type:\s*\w|pragma|pylint|mypy|ruff"
+    r"|variant-pin"
     r"|flake8|pyright|isort|fmt:\s*(?:on|off)|yapf|coding[:=]|shellcheck|yamllint"
     r"|hadolint"
     r"|rubocop|frozen_string_literal|sourcery|phpcs|phpstan|psalm|phan"

@@ -4,7 +4,6 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
-# nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -62,7 +61,6 @@ moodle:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
-  site_titel: Academy on {{ DOMAIN_PRIMARY }}
   performance:
     php:
       upload_max_filesize: 256M
@@ -105,18 +103,53 @@ cron:
   pids_limit: 256
   # nocheck: single-replica moodle cron.php scheduler; concurrent replicas double-run scheduled tasks
   replicas: 1
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+seaweedfs:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: Academy on {{ DOMAIN_PRIMARY }}
+  bootstrap: true
+  slots:
+    favicon:
+      width: 64
+      height: 64
+    logo:
+      width: 480
+      height: 120
+    logo-compact:
+      width: 300
+      height: 55
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag: bridged bigbluebutton partner, covered by the mod_bigbluebuttonbn addon spec
+bigbluebutton:
+  bond: 0.5
+  enabled: "{{ 'web-app-bigbluebutton' in group_names }}"
+  shared: "{{ 'web-app-bigbluebutton' in group_names }}"
+# nocheck: playwright-service-flag: bridged jitsi partner, covered by the mod_jitsi addon spec
+jitsi:
+  bond: 0.5
+  enabled: "{{ 'web-app-jitsi' in group_names }}"
+  shared: "{{ 'web-app-jitsi' in group_names }}"
+# nocheck: playwright-service-flag: bridged matrix partner, covered by the communication_matrix addon spec
+matrix:
+  bond: 0.5
+  enabled: "{{ 'web-app-matrix' in group_names }}"
+  shared: "{{ 'web-app-matrix' in group_names }}"
+# nocheck: playwright-service-flag: bridged nextcloud partner, covered by the repository_owncloud addon spec
+nextcloud:
+  bond: 0.5
+  enabled: "{{ 'web-app-nextcloud' in group_names }}"
+  shared: "{{ 'web-app-nextcloud' in group_names }}"
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"

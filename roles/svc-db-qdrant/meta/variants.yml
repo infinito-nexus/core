@@ -1,6 +1,13 @@
 ---
 # Matrix-deploy variant overrides for svc-db-qdrant.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: variant-pin-required — same finding as web-app-prometheus: the
+# flowise and openwebui admission pairs sit in different rounds, the sweep
+# already cuts every one of those rows as a clone, and the two ways to align
+# the rounds were measured. Pinning qdrant true in the consumers' variant 1
+# makes web-app-flowise v1 and web-app-openwebui v1 the two test_order
+# offenders, which that guard cannot exempt.
 
 - services:
     tor:

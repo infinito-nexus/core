@@ -1,15 +1,27 @@
 ---
 application_id: "web-app-mattermost"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 
 MATTERMOST_DATABASE_DSN: "{{ lookup('database', application_id, 'url_full') }}?sslmode=disable&connect_timeout=10"
 
 MATTERMOST_CONTAINER: "{{ lookup('config', application_id, 'services.mattermost.name') }}"
+MATTERMOST_BASE_IMAGE: "{{ lookup('config', application_id, 'services.mattermost.image') }}"
+MATTERMOST_BASE_VERSION: "{{ lookup('config', application_id, 'services.mattermost.version') }}"
+MATTERMOST_VERSION: "{{ lookup('config', application_id, 'services.mattermost.ref') | regex_replace('^v', '') }}"
+MATTERMOST_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+MATTERMOST_MMCTL: "{{ lookup('config', application_id, 'services.mattermost.mmctl') }}"
 
 MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+
+MATTERMOST_ADDONS_ENABLED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled', 'true') | list }}"
+
+MATTERMOST_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MATTERMOST_SITE_NAME_MAX_LENGTH: 30
+MATTERMOST_DESIGN_TITLE: "{{ lookup('design', application_id).title[:MATTERMOST_SITE_NAME_MAX_LENGTH] if MATTERMOST_DESIGN_ENABLED | bool and lookup('design', application_id).title
+  is string else '' }}"
 
 MATTERMOST_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 MATTERMOST_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
@@ -51,7 +63,7 @@ MATTERMOST_MCP_TOKEN_DESCRIPTION: mcp
 
 MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 MATTERMOST_KEYCLOAK_ADMIN_USER: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
-MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ lookup('users', 'administrator').password }}"
+MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ lookup('users', 'platform_administrator').password }}"
 
 MATTERMOST_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.mattermostmcp.name') }}"
 MATTERMOST_MCP_PORT: "{{ lookup('config', application_id, 'services.mattermostmcp.ports.internal.http') }}"

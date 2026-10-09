@@ -1,0 +1,10 @@
+---
+- name: "🚨 Alertmanager plugin reads the partner alert API"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: tasks/utils/addon.yml installed and enabled
+      {{ mattermost_addon.value.config.plugin_id }}. Set the Alertmanager URL to
+      http://{{ mattermost_addon.value.config.partner_host }}:{{ mattermost_addon.value.config.partner_port }}
+      and point the partner's webhook receiver at this instance to complete the
+      coupling.
+  changed_when: false

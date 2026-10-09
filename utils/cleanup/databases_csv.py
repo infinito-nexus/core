@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from utils.paths import FILE_DATABASE_SECRETS
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 DEFAULT_CSV = FILE_DATABASE_SECRETS
 
@@ -42,14 +42,14 @@ def wipe_database_entries(
     app_ids: list[str], csv_file: Path | None = None
 ) -> list[str]:
     """Remove rows whose database or username column matches an entity
-    derived from *app_ids* via :func:`get_entity_name`."""
+    derived from *app_ids* via :func:`entity_name`."""
     path = csv_file or _resolve_csv_file()
     if not path.exists():
         return []
 
     targets: set[str] = set()
     for app_id in app_ids:
-        entity = get_entity_name(app_id)
+        entity = entity_name(app_id)
         if entity:
             targets.add(entity)
     if not targets:

@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.roles.meta_lookup import get_role_run_after
 from utils.roles.validation.invokable import types_from_group_names
@@ -127,16 +127,16 @@ def discover_role_services(
     config: dict[str, Any],
 ) -> dict[str, dict[str, Any]]:
     services = _as_mapping(config.get("services"))
-    entity_name = get_entity_name(role_name)
-    primary_entry = _as_mapping(services.get(entity_name))
+    entity = entity_name(role_name)
+    primary_entry = _as_mapping(services.get(entity))
     alias_entries = {
         key: _as_mapping(entry)
         for key, entry in services.items()
         if isinstance(entry, dict)
-        and _normalized_name(_as_mapping(entry).get("canonical")) == entity_name
+        and _normalized_name(_as_mapping(entry).get("canonical")) == entity
     }
     provides = _normalized_name(primary_entry.get("provides"))
-    if provides == entity_name:
+    if provides == entity:
         provides = ""
 
     is_provider = bool(primary_entry) and (
@@ -147,7 +147,7 @@ def discover_role_services(
     if not is_provider:
         return {}
 
-    primary_id = provides or entity_name
+    primary_id = provides or entity
     raw_covers = primary_entry.get("covers")
     covers: list[str] = (
         [_normalized_name(item) for item in raw_covers if isinstance(item, str)]
@@ -157,8 +157,8 @@ def discover_role_services(
     covers = [c for c in covers if c]
     base_entry = {
         "role": role_name,
-        "entity_name": entity_name,
-        "source_key": entity_name,
+        "entity_name": entity,
+        "source_key": entity,
         "deploy_type": detect_deploy_type(role_name),
         "bucket": detect_service_bucket(role_name),
         "service_type": detect_service_channel(role_name),

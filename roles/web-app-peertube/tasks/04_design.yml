@@ -1,0 +1,43 @@
+---
+- name: "🔑 PEERTUBE | Read the OAuth client of the web interface"
+  uri_retry:
+    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/oauth-clients/local"
+    headers:
+      Host: "{{ PEERTUBE_HOSTNAME }}"
+    return_content: true
+  register: peertube_design_client
+
+- name: "🔑 PEERTUBE | Obtain an API token for root"
+  uri_retry:
+    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/users/token"
+    method: POST
+    headers:
+      Host: "{{ PEERTUBE_HOSTNAME }}"
+    body_format: form-urlencoded
+    body:
+      client_id: "{{ peertube_design_client.json.client_id }}"
+      client_secret: "{{ peertube_design_client.json.client_secret }}"
+      grant_type: password
+      username: "{{ PEERTUBE_ROOT_USERNAME }}"
+      password: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
+    return_content: true
+  register: peertube_design_token
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 PEERTUBE | Read the logos PeerTube serves"
+  uri_retry:
+    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/config"
+    headers:
+      Host: "{{ PEERTUBE_HOSTNAME }}"
+    return_content: true
+  register: peertube_design_config
+
+- name: "🎨 PEERTUBE | Apply the corporate logos"
+  ansible.builtin.include_tasks: design/apply.yml
+  when:
+    - PEERTUBE_DESIGN_ENABLED | bool
+    - PEERTUBE_DESIGN.logo is string
+
+- name: "🧹 PEERTUBE | Remove the corporate logos the role uploaded"
+  ansible.builtin.include_tasks: design/remove.yml
+  when: not (PEERTUBE_DESIGN_ENABLED | bool and PEERTUBE_DESIGN.logo is string)

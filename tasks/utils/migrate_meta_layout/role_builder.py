@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Any
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_RBAC,
@@ -39,7 +39,7 @@ def build(
     relays_for_role: dict[str, dict[str, int]],
 ) -> None:
     role_name = role_dir.name
-    primary_entity = get_entity_name(role_name) or role_name
+    primary_entity = entity_name(role_name) or role_name
 
     config = _load_mapping(role_dir / "config" / "main.yml", role_name)
     schema = _load_mapping(role_dir / "schema" / "main.yml", role_name)

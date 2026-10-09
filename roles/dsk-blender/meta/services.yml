@@ -1,0 +1,26 @@
+---
+# nocheck: dynamic-flag  the desktop base is the premise of every dsk role, not a per-host option
+desktop-base:
+  bond: 1
+  enabled: true
+  shared: true
+blender:
+  modes:
+    host:
+      enabled: true
+  lifecycle: alpha
+  min_storage: "2GB"
+  cpus: "4.0"
+  mem_reservation: "1g"
+  mem_limit: "8g"
+  pids_limit: 1024
+# nocheck: playwright-service-flag, dynamic-flag  MCP client on the same workstation, registered when the host deploys it
+claude:
+  bond: 0.5
+  enabled: "{{ 'dsk-gnt-claude' in group_names }}"
+  shared: "{{ 'dsk-gnt-claude' in group_names }}"
+# nocheck: playwright-service-flag, dynamic-flag  MCP client on the same workstation, registered when the host deploys it
+code:
+  bond: 0.5
+  enabled: "{{ 'dsk-code' in group_names }}"
+  shared: "{{ 'dsk-code' in group_names }}"

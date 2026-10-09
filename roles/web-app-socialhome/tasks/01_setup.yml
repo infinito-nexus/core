@@ -1,9 +1,4 @@
 ---
-# Exception: upstream provisions the admin from SH_ADMIN_PASSWORD in
-# platform/standalone/adapter.py on_startup but never calls mark_complete(), so the SPA keeps
-# rendering the setup wizard. Re-posting the same credentials is a no-op for provision_admin()
-# and flips the setup flag; 409 means a previous run already did it.
-
 - name: "⏳ Wait for Social Home at {{ SOCIALHOME_INTERNAL_URL }}/healthz"
   uri_retry:
     url: "{{ SOCIALHOME_INTERNAL_URL }}/healthz"

@@ -16,6 +16,9 @@
   when: KEYCLOAK_LOGOUT_PANEL_ENABLED | bool
   notify: reload-openresty
 
+- name: "🎨 Load the corporate theme routine for '{{ application_id }}'"
+  include_tasks: utils/theme.yml
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

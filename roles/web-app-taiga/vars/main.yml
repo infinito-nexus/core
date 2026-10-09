@@ -1,12 +1,12 @@
 ---
 application_id: "web-app-taiga"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 TAIGA_EMAIL_BACKEND: "{{ 'smtp' if lookup('email', application_id).smtp else 'console' }}"
 
-TAIGA_SUPERUSER_NAME: "{{ lookup('users', 'administrator').username }}"
-TAIGA_SUPERUSER_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-TAIGA_SUPERUSER_EMAIL: "{{ lookup('users', 'administrator').email }}"
+TAIGA_SUPERUSER_NAME: "{{ lookup('users', 'platform_administrator').username }}"
+TAIGA_SUPERUSER_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+TAIGA_SUPERUSER_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
 TAIGA_COOKIE_SECURE: "{{ lookup('tls', application_id, 'enabled') | bool | capitalize }}"
 

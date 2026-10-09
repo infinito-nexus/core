@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { skipUnlessServiceEnabled } = require("../service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -49,6 +50,7 @@ function pluginName(plugin) {
 
 test("docker_manager: the docker_manager plugin is installed and registered on the Discourse instance", async ({ page }) => {
   skipUnlessAddonEnabled("docker_manager");
+  skipUnlessServiceEnabled("sso");
 
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
   expect(discourseBaseUrl, "DISCOURSE_BASE_URL must be set").toBeTruthy();

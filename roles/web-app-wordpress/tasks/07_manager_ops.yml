@@ -15,9 +15,7 @@
 
 - name: "🔄 Convert to Multisite when opted in"
   include_tasks: 03_multisite.yml
-  when: >-
-    (lookup('config', application_id, 'services.wordpress.multisite.enabled')
-      | default(false) | bool)
+  when: WORDPRESS_MULTISITE_ENABLED | bool
 
 - name: "🛑 Assert every required addon is claimed by an install path"
   ansible.builtin.assert:
@@ -71,6 +69,9 @@
   when: (wp_is_multisite.stdout | trim) == '0'
   vars:
     wp_new_url: "{{ WORDPRESS_URL }}"
+
+- name: "🎨 Apply or withdraw the corporate design"
+  include_tasks: 08_design.yml
 
 - name: "📧 Verify the relay accepted WordPress's startup mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool

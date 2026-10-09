@@ -5,6 +5,7 @@ ansible_shell_executable: /bin/bash # Required so shell tasks with `set -euo pip
 SOFTWARE_NAME: "Infinito.Nexus" # Name of the software
 SOFTWARE_DOMAIN: "{{ SOFTWARE_NAME | lower }}" # Software domain
 SOFTWARE_URL: "https://{{ SOFTWARE_DOMAIN }}" # Url of the software provicer
+SOFTWARE_REPOSITORY: "https://github.com/infinito-nexus/core.git"
 
 ORGANIZATION: "{{ SOFTWARE_NAME }}"
 
@@ -13,6 +14,10 @@ RUNTIME: "host" # Where does this instance run in? Valid: act, github, dev, host
 STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefers free storage space over cache
 
 MASK_CREDENTIALS_IN_LOGS: true
+
+IAM_USERNAME_MAX_LENGTH: 20 # Discourse refuses a longer one with ActiveRecord::RecordInvalid, and it is the tightest consumer
+IAM_PLATFORM_ADMIN_USER_KEY: "platform_administrator" # the account every application administers itself with, as declared in roles/user-administrator/meta/users.yml
+IAM_HOST_ADMIN_USER_KEY: "administrator" # the host account; only roles/user-administrator may consume it
 
 HOST_CURRENCY: "EUR"
 HOST_TIMEZONE: "UTC"

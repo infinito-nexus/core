@@ -6,13 +6,10 @@
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
-      enabled: true
-      shared: true
-    javascript:
       enabled: true
       shared: true
     logout:
@@ -33,13 +30,10 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    javascript:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:

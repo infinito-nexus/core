@@ -5,9 +5,9 @@
   const LOGOUT_PATH = "/protocol/openid-connect/logout";
   const START_GRACE = 20000;
   const SWEEP_LIMIT = 60000;
-  const BUSY = "#8a6d00";
-  const OK = "#1d6f2b";
-  const WARN = "#9b2226";
+  const BUSY = "var(--design-warning, #8a6d00)";
+  const OK = "var(--design-success, #1d6f2b)";
+  const WARN = "var(--design-danger, #9b2226)";
 
   let box, status, hint, counter, list;
   const rows = {};
@@ -52,7 +52,7 @@
     box.setAttribute("role", "status");
     box.setAttribute("aria-live", "polite");
     box.setAttribute("dir", s.dir);
-    box.style.cssText = "max-width:34rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid rgba(0,0,0,.15);border-left-width:5px;border-radius:.5rem;background:rgba(255,255,255,.94);color:#222;font:14px/1.6 system-ui,sans-serif;text-align:start";
+    box.style.cssText = "max-width:34rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid var(--design-border, rgba(0,0,0,.15));border-left-width:5px;border-radius:.5rem;background:var(--design-surface-2, rgba(255,255,255,.94));color:var(--design-text, #222);font:14px/1.6 system-ui,sans-serif;text-align:start";
     status = box.appendChild(document.createElement("p"));
     status.style.cssText = "margin:0;font-weight:700;font-size:15px";
     hint = box.appendChild(document.createElement("p"));
@@ -89,7 +89,7 @@
     build();
     if (!rows[host]) {
       const item = list.appendChild(document.createElement("li"));
-      item.style.cssText = "display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.25rem 0;border-top:1px solid rgba(0,0,0,.08)";
+      item.style.cssText = "display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.25rem 0;border-top:1px solid var(--design-border, rgba(0,0,0,.08))";
       const name = item.appendChild(document.createElement("span"));
       name.textContent = label(host);
       name.title = host;

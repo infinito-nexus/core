@@ -9,7 +9,7 @@
         lookup(
           'config',
           application_id,
-          'services.' ~ (application_id | get_entity_name) ~ '.ports.local.http',
+          'services.' ~ (application_id | entity_name) ~ '.ports.local.http',
           ''
         )
       }}

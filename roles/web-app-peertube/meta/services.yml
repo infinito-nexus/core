@@ -45,8 +45,8 @@ minio:
   public: true
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 peertube:
@@ -88,11 +88,22 @@ peertube:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
+  slots:
+    header-wide:
+      width: 192
+      height: 48
+    header-square:
+      width: 48
+      height: 48
+    favicon:
+      width: 32
+      height: 32
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

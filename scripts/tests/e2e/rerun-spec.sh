@@ -128,6 +128,9 @@ exec docker run --rm \
 	--ipc=host --shm-size=1g \
 	"${net_args[@]}" \
 	--env-file "$env_file" \
+	-e "INFINITO_PLAYWRIGHT_KEEP=${INFINITO_PLAYWRIGHT_KEEP:-}" \
+	-e "PLAYWRIGHT_GALLERY_VIEWS=${PLAYWRIGHT_GALLERY_VIEWS:-}" \
+	-e "PLAYWRIGHT_GALLERY_BEFORE=${PLAYWRIGHT_GALLERY_BEFORE:-}" \
 	"${proxy_env[@]}" \
 	-v "$stage_dir:/e2e" \
 	-v "$stage_dir/volume:/volume" \

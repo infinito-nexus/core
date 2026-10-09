@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-jenkins', 'services.gitea.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: upstream
+version: "latest"
+bridges:
+  - gitea
+config:
+  plugin_id: gitea
+  server_url: "{{ lookup('tls', 'web-app-gitea', 'url.base') }}"

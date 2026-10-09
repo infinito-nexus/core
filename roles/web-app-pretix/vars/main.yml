@@ -24,8 +24,13 @@ PRETIX_REDIS_CACHE_DB: 1
 PRETIX_REDIS_BROKER_DB: 0
 PRETIX_REDIS_RESULT_DB: 2
 
-PRETIX_IMAGE: "{{ lookup('config', application_id, 'services.pretix.image') }}"
-PRETIX_VERSION: "{{ lookup('config', application_id, 'services.pretix.version') }}"
+PRETIX_SOURCE_REPOSITORY: "{{ lookup('config', application_id, 'services.pretix.source_repository') }}"
+PRETIX_SOURCE_VERSION: "{{ lookup('config', application_id, 'services.pretix.source_version') }}"
+PRETIX_SOURCE_DIR: "{{ [lookup('container', application_id, 'directories.services'), 'pretix'] | path_join }}"
+PRETIX_SOURCE_DOCKERFILE_NAME: "Dockerfile.infinito"
+PRETIX_SOURCE_DOCKERFILE: "{{ [PRETIX_SOURCE_DIR, PRETIX_SOURCE_DOCKERFILE_NAME] | path_join }}"
+PRETIX_BASE_IMAGE: "{{ lookup('config', application_id, 'services.pretix.image') }}"
+PRETIX_BASE_VERSION: "{{ lookup('config', application_id, 'services.pretix.version') }}"
 PRETIX_CONTAINER: "{{ lookup('config', application_id, 'services.pretix.name') }}"
 PRETIX_MCP_ENABLED: "{{ lookup('config', application_id, 'services.pretixmcp.enabled') | bool }}"
 PRETIX_MCP_SERVICE_KEY: "pretixmcp"

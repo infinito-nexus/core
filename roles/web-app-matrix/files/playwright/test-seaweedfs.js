@@ -8,8 +8,8 @@
 // /_matrix/media/v3/upload endpoint is mirrored into the consumer bucket as a
 // new object the moment Synapse stores it. The action signs the administrator
 // into Element and sets a profile avatar; the avatar PNG is uploaded as a
-// Synapse media object, and the shared check proves the bucket grew via the
-// Filer UI.
+// Synapse media object, and the shared check proves the bucket grew by listing
+// it over the S3 API.
 //
 // Required env (rendered by templates/playwright.env.j2):
 //   ELEMENT_BASE_URL, OIDC_ISSUER_URL, the admin login vars consumed by
@@ -32,7 +32,6 @@ test.use({ ignoreHTTPSErrors: true });
 test("seaweedfs: an uploaded Matrix avatar is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
-  skipUnlessServiceEnabled("seaweedfs_frontend");
   test.skip(
     !(process.env.MATRIX_FLAVOR || "").toLowerCase().includes("ansible"),
     "Matrix media is offloaded to SeaweedFS only in the ansible flavor; the compose flavor stores media on local disk, so the bucket never grows.",

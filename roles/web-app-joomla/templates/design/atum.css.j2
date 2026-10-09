@@ -1,0 +1,601 @@
+html:root,
+html:root[data-bs-theme="dark"],
+html:root[data-color-scheme="dark"] {
+  --body-bg: var(--design-surface-2);
+  --body-bg-rgb: var(--design-surface-2-rgb);
+  --body-color: var(--design-text);
+  --body-color-rgb: var(--design-text-rgb);
+  --emphasis-color: var(--design-text);
+  --emphasis-color-rgb: var(--design-text-rgb);
+  --secondary-color: var(--design-text-muted);
+  --secondary-color-rgb: var(--design-text-muted-rgb);
+  --secondary-bg: var(--design-surface-3);
+  --secondary-bg-rgb: var(--design-surface-3-rgb);
+  --tertiary-color: var(--design-text-muted);
+  --tertiary-color-rgb: var(--design-text-muted-rgb);
+  --tertiary-bg: var(--design-surface-3);
+  --tertiary-bg-rgb: var(--design-surface-3-rgb);
+  --border-color: var(--design-border);
+  --border-color-translucent: var(--design-border);
+  --heading-color: var(--design-text);
+  --code-color: var(--design-text);
+  --highlight-color: var(--design-text);
+  --highlight-bg: var(--design-warning-subtle);
+  --focus-ring-color: rgba(var(--design-link-rgb), 0.25);
+  --form-valid-color: var(--design-success);
+  --form-valid-border-color: var(--design-success);
+  --form-invalid-color: var(--design-danger);
+  --form-invalid-border-color: var(--design-danger);
+  --box-shadow-sm: var(--design-shadow-1);
+  --box-shadow: var(--design-shadow-2);
+  --box-shadow-lg: var(--design-shadow-3);
+
+  --primary: var(--design-primary);
+  --primary-rgb: var(--design-primary-rgb);
+  --primary-text-emphasis: var(--design-link);
+  --primary-bg-subtle: var(--design-surface-3);
+  --primary-border-subtle: var(--design-border);
+  --secondary: var(--design-text-muted);
+  --secondary-rgb: var(--design-text-muted-rgb);
+  --secondary-text-emphasis: var(--design-text);
+  --secondary-bg-subtle: var(--design-surface-3);
+  --secondary-border-subtle: var(--design-border);
+  --light: var(--design-surface-3);
+  --light-rgb: var(--design-surface-3-rgb);
+  --light-text-emphasis: var(--design-text);
+  --light-bg-subtle: var(--design-surface-2);
+  --light-border-subtle: var(--design-border);
+  --dark-text-emphasis: var(--design-text);
+  --dark-bg-subtle: var(--design-surface-3);
+  --dark-border-subtle: var(--design-border-strong);
+{% for status in ['success', 'info', 'warning', 'danger'] %}
+  --{{ status }}: var(--design-{{ status }});
+  --{{ status }}-rgb: var(--design-{{ status }}-rgb);
+  --{{ status }}-text-emphasis: var(--design-{{ status }});
+  --{{ status }}-bg-subtle: var(--design-{{ status }}-subtle);
+  --{{ status }}-border-subtle: var(--design-{{ status }}-border);
+  --{{ status }}-border: var(--design-{{ status }}-border);
+  --state-{{ status }}-bg: var(--design-{{ status }}-subtle);
+  --state-{{ status }}-text: var(--design-{{ status }});
+  --state-{{ status }}-icon: var(--design-{{ status }});
+  --state-{{ status }}-border: var(--design-{{ status }}-border);
+  --state-{{ status }}-link-color: var(--design-{{ status }});
+  --state-{{ status }}-heading-bg: var(--design-{{ status }});
+  --state-{{ status }}-bg-hvr: var(--design-{{ status }});
+  --state-{{ status }}-text-hvr: var(--design-on-{{ status }});
+  --state-{{ status }}-icon-hvr: var(--design-on-{{ status }});
+{% endfor %}
+{% for status in ['success', 'info', 'danger'] %}
+  --atum-btn-{{ status }}: var(--design-{{ status }});
+  --atum-btn-{{ status }}-bg: var(--design-surface-2);
+  --atum-btn-{{ status }}-border: 1px solid var(--design-border-strong);
+  --atum-btn-{{ status }}-icon: var(--design-{{ status }});
+  --atum-btn-{{ status }}-bg-hvr: var(--design-{{ status }});
+  --atum-btn-{{ status }}-hvr: var(--design-on-{{ status }});
+  --atum-btn-{{ status }}-icon-hvr: var(--design-on-{{ status }});
+{% endfor %}
+  --atum-btn-info-color-hvr: var(--design-on-info);
+  --state-error-bg: var(--design-danger-subtle);
+  --state-error-text: var(--design-danger);
+  --state-error-icon: var(--design-danger);
+  --state-error-border: 1px solid var(--design-danger-border);
+  --state-error-heading-bg: var(--design-danger);
+  --state-error-bg-hvr: var(--design-danger);
+  --state-error-text-hvr: var(--design-on-danger);
+  --state-success-btn-border: 1px solid var(--design-success);
+  --error-bg-subtle: var(--design-danger-subtle);
+  --error-border-subtle: var(--design-danger-border);
+  --error-text-emphasis: var(--design-danger);
+  --alert-info-bg: var(--design-info-subtle);
+  --alert-info-border: 1px solid var(--design-info-border);
+  --alert-info-color: var(--design-text);
+  --states-link-color: var(--design-link);
+  --states-btn-primary-bg: var(--design-primary);
+  --states-btn-primary-bg-hover: var(--design-primary-hover);
+  --states-btn-primary-border: var(--design-primary);
+  --states-btn-primary-color: var(--design-on-primary);
+  --switcher-toggle-inside-bg: var(--design-surface-2);
+  --switcher-toggle-outside-off-bg: var(--design-border-strong);
+  --switcher-toggle-outside-on-bg: var(--design-success);
+  --atum-btn-action: var(--design-text);
+  --atum-btn-action-border: 1px solid var(--design-border-strong);
+  --atum-calendar-buttons-color: var(--design-text);
+  --atum-calendar-disabled-bg: var(--design-surface-3);
+  --atum-calendar-disabled-color: var(--design-text-muted);
+  --atum-calendar-select-bg: var(--design-surface-2);
+  --atum-calendar-week-bg: var(--design-surface-3);
+  --border: var(--design-border);
+  --drag-color: var(--design-text);
+  --drag-background-color: var(--design-info-subtle);
+  --image-bg: var(--design-surface-2);
+  --media-browser-file-bg: var(--design-surface-3);
+  --media-drive-bg: var(--design-surface-2);
+  --media-toolbar-bg: var(--design-surface-2);
+  --media-toolbar-icon-bg-hvr: var(--design-surface-hover);
+  --media-toolbar-icon-color: var(--design-text);
+  --media-manager-content-color: var(--design-link);
+  --media-manager-file-icon-color: var(--design-text-muted);
+  --media-manager-infobar-dt-color: var(--design-text-muted);
+  --new-module-border: 1px solid var(--design-border);
+  --new-module-link-bg: var(--design-surface-3);
+  --new-modules-icon-color-hvr: var(--design-on-primary);
+  --quickicon-link-hvr: var(--design-on-primary);
+  --treeselect-line-color: var(--design-border);
+  --toggle-color: var(--design-on-frame);
+  --icon-square-bg: var(--design-primary);
+  --icon-check-square-bg: var(--design-primary);
+{% for step in [100, 200, 300, 400, 500, 600, 700, 800, 900] %}
+  --gray-{{ step }}: var(--design-neutral-{{ step }});
+{% endfor %}
+
+  --admin-background: var(--design-surface-1);
+  --template-bg-light: var(--design-surface-1);
+  --main-bg: var(--design-surface-1);
+  --options-form-legend-bg: var(--design-surface-1);
+
+  --card-bg: var(--design-surface-2);
+  --card-bg-dark: var(--design-surface-2);
+  --card-header-bg: var(--design-surface-2);
+  --card-body-bg: var(--design-surface-2);
+  --main-card-bg: var(--design-surface-2);
+  --form-control-bg: var(--design-surface-2);
+  --form-select-background: var(--design-surface-2);
+  --form-select-background-rtl: var(--design-surface-2);
+  --atum-calendar-select-bg-url: none;
+  --atum-calendar-select-bg-url-rtl: none;
+  --atum-btn-bg: var(--design-surface-2);
+  --atum-list-group-bg: var(--design-surface-2);
+  --quickicon-bg: var(--design-surface-2);
+  --toolbar-bg: var(--design-surface-2);
+  --atum-subhead-bg: var(--design-surface-2);
+  --atum-subhead-bg-img: none;
+  --bg-normal: var(--design-surface-2);
+  --joomla-tab-btn-aria-exp-bg: var(--design-surface-2);
+
+  --template-bg-dark-3: var(--design-surface-3);
+  --template-bg-dark-5: var(--design-surface-3);
+  --template-bg-dark-7: var(--design-surface-3);
+  --template-quickicon-bg: var(--design-surface-3);
+  --form-control-bg-disabled: var(--design-surface-3);
+  --form-select-option-disabled-bg: var(--design-surface-3);
+  --quickicon-linkadd-bg: var(--design-surface-3);
+  --quickicon-amount-bg: var(--design-surface-3);
+  --details-bg: var(--design-surface-3);
+  --input-group-text-bg: var(--design-surface-3);
+  --media-manager-overlay-bg: var(--design-surface-3);
+  --media-manager-overlay-header-bg: var(--design-surface-3);
+  --bg-reverted: var(--design-surface-3);
+
+  --atum-btn-bg-hvr: var(--design-surface-hover);
+  --atum-dropdown-link-hover-bg: var(--design-surface-hover);
+  --media-manager-tree-item-hover-bg: var(--design-surface-hover);
+  --joomla-tab-btn-hvr: var(--design-link);
+
+  --template-text-dark: var(--design-text);
+  --text-normal: var(--design-text);
+  --table-color: var(--design-text);
+  --options-form-color: var(--design-text);
+  --options-form-legend-color: var(--design-text);
+  --card-color: var(--design-text);
+  --card-header-color: var(--design-text);
+  --login-label-color: var(--design-text);
+  --template-special-color: var(--design-text);
+  --dark-mode-text-light: var(--design-text);
+  --module-actions-color: var(--design-text);
+  --nav-header-color: var(--design-text);
+  --popover-header-color: var(--design-text);
+  --atum-btn: var(--design-text);
+  --atum-btn-icon: var(--design-text);
+  --atum-btn-hvr: var(--design-text);
+  --atum-btn-icon-hvr: var(--design-text);
+  --atum-btn-action-icon: var(--design-text);
+  --template-quickicon-color: var(--design-text);
+  --quickicon-linkadd-color: var(--design-text);
+  --input-group-text-color: var(--design-text);
+  --media-tree-item-color: var(--design-text);
+  --media-manager-toolbar-icon-color: var(--design-text);
+  --new-modules-icon-color: var(--design-text);
+
+  --text-muted-color: var(--design-text-muted);
+  --text-muted-hvr-color: var(--design-text);
+  --icon-checkedout-color: var(--design-text-muted);
+
+  --btn-primary-bg: var(--design-primary);
+  --btn-primary-border: 1px solid var(--design-primary);
+  --btn-primary-color: var(--design-on-primary);
+  --btn-primary-bg-hvr: var(--design-primary-hover);
+  --btn-primary-border-hvr: 1px solid var(--design-primary-hover);
+  --btn-primary-toggle-bg: var(--design-primary-active);
+  --btn-primary-toggle-border: var(--design-primary-active);
+  --atum-btn-primary: var(--design-link);
+  --atum-btn-primary-bg: var(--design-surface-2);
+  --atum-btn-primary-border: 1px solid var(--design-border-strong);
+  --atum-btn-primary-icon: var(--design-link);
+  --atum-btn-primary-bg-hvr: var(--design-primary);
+  --atum-btn-primary-hvr: var(--design-on-primary);
+  --atum-btn-primary-icon-hvr: var(--design-on-primary);
+  --atum-btn-action-bg-hvr: var(--design-primary);
+  --js-stools-btn-clear-bg: var(--design-primary);
+  --form-check-input-checked-bg-color: var(--design-primary);
+  --choices-list-multiple-item-bg: var(--design-primary);
+  --choices-list-multiple-item: var(--design-on-primary);
+  --file-selector-btn-bg: var(--design-primary);
+  --file-selector-btn-bg-hvr: var(--design-primary-hover);
+  --joomla-tablist-btn-aria-exp: var(--design-on-primary);
+  --joomla-tablist-btn-aria-exp-bg: var(--design-primary);
+  --joomla-tablist-btn-aria-exp-aft-bg: var(--design-primary-active);
+  --template-quickicon-bg-hvr: var(--design-primary);
+  --quickicon-linkadd-bg-hvr: var(--design-primary);
+  --new-modules-bg: var(--design-surface-3);
+  --new-modules-bg-hvr: var(--design-primary);
+  --cpanel-addmodule-hover: var(--design-primary);
+
+  --btn-secondary-bg: var(--design-surface-3);
+  --btn-secondary-border: 1px solid var(--design-border-strong);
+  --btn-secondary-color: var(--design-text);
+  --btn-secondary-bg-hvr: var(--design-surface-hover);
+  --btn-secondary-color-hvr: var(--design-text);
+  --btn-secondary-border-hvr: 1px solid var(--design-border-strong);
+  --atum-btn-secondary: var(--design-text);
+
+  --link-color: var(--design-link);
+  --link-color-rgb: var(--design-link-rgb);
+  --link-color-rgb-hvr: var(--design-link-rgb);
+  --link-hover-color: var(--design-link);
+  --link-hover-color-rgb: var(--design-link-rgb);
+  --template-link-color: var(--design-link);
+  --template-link-hover-color: var(--design-link);
+  --table-link-color: var(--design-link);
+  --alert-link-text-color: var(--design-link);
+  --template-contrast: var(--design-link);
+  --focus: var(--design-link);
+
+  --template-bg-dark-10: var(--design-border);
+  --template-bg-dark-15: var(--design-border);
+  --atum-list-group-border-color: var(--design-border);
+  --main-card-col-border-left: 1px solid var(--design-border);
+  --joomla-tablist-border-bottom: 1px solid var(--design-border);
+  --joomla-tab-btn-region-border: 1px solid var(--design-border);
+  --table-border-top-nfc: 2px solid var(--design-border);
+  --dropdown-item-border-bottom: 1px solid var(--design-border);
+  --quickicon-border: 1px solid var(--design-border);
+  --details-border: 1px solid var(--design-border);
+  --media-manager-border: 1px solid var(--design-border);
+
+  --template-bg-dark-20: var(--design-border-strong);
+  --template-bg-dark-30: var(--design-border-strong);
+  --template-bg-dark-40: var(--design-border-strong);
+  --input-border-color: var(--design-border-strong);
+  --form-control-border: 1px solid var(--design-border-strong);
+  --form-control-border-disabled: 1px solid var(--design-border);
+  --form-select-border: 1px solid var(--design-border-strong);
+  --form-check-input-border: 1px solid var(--design-border-strong);
+  --options-form-border: 1px solid var(--design-border-strong);
+  --atum-btn-border: 1px solid var(--design-border-strong);
+  --choices-input-border-color: var(--design-border-strong);
+  --input-group-text-border: 1px solid var(--design-border-strong);
+
+  --template-bg-dark: var(--design-frame);
+  --template-bg-dark-80: var(--design-frame);
+  --template-sidebar-bg: var(--design-frame);
+  --sidebarwrapper-bg: var(--design-frame);
+  --sidebar-bg: var(--design-frame);
+  --header-bg: var(--design-frame);
+  --dropdown-header-bg: var(--design-frame);
+  --login-main-bg: var(--design-frame);
+
+  --template-text-light: var(--design-on-frame);
+  --template-sidebar-font-color: var(--design-on-frame);
+  --template-sidebar-link-color: var(--design-on-frame);
+  --sidebar-item-color: var(--design-on-frame);
+  --sidebar-item-color-hvr: var(--design-on-frame);
+  --sidebar-toggle-link: var(--design-on-frame);
+  --main-nav-item-title: var(--design-on-frame);
+  --header-item-content-jversion-color: var(--design-on-frame);
+  --text-reverted: var(--design-on-frame);
+
+  --template-bg-dark-60: var(--design-frame-hover);
+  --template-bg-dark-65: var(--design-frame-hover);
+  --template-bg-dark-75: var(--design-frame-hover);
+  --sidebar-item-bg-hvr: var(--design-frame-hover);
+  --sidebar-toggle-bg: var(--design-frame-hover);
+  --main-nav-ul-bg: var(--design-frame-hover);
+  --main-nav-divider-bg: var(--design-frame-hover);
+  --main-nav-item-title-hvr-bg: var(--design-frame-hover);
+  --main-nav-badge: var(--design-frame-hover);
+  --header-item-content-bg: var(--design-frame-hover);
+  --dropdown-item-bg-hvr: var(--design-frame-hover);
+  --mobile-menu-collapse-bg: var(--design-frame-hover);
+
+  --template-bg-dark-50: var(--design-frame-active);
+  --template-bg-dark-70: var(--design-frame-active);
+  --template-bg-dark-90: var(--design-frame-active);
+  --main-nav-mm-active-bg: var(--design-frame-active);
+  --main-nav-mm-active-quicktask-bg: var(--design-frame-active);
+  --header-logo-bg: var(--design-frame-active);
+  --header-item-content-bg-hvr: var(--design-frame-active);
+  --dropdown-item-bg: var(--design-frame-active);
+  --sidebar-accent-bg: var(--design-frame-active);
+
+  --success-text: var(--design-success);
+  --successhvr: var(--design-success-hover);
+  --icon-success: var(--design-success);
+  --icon-success-border: var(--design-success);
+  --danger-text: var(--design-danger);
+  --dangerhvr: var(--design-danger-hover);
+  --darkdanger: var(--design-danger);
+  --darkdangerhvr: var(--design-danger-hover);
+  --error: var(--design-danger);
+  --errorhvr: var(--design-danger-hover);
+  --warning-text: var(--design-on-warning);
+  --warninghvr: var(--design-warning-hover);
+  --featured-icon-color: var(--design-warning);
+  --badge-bg-info: var(--design-info);
+
+  --atum-box-shadow: var(--design-shadow-1);
+  --dropdown-box-shadow: var(--design-shadow-2);
+  --login-box-shadow: var(--design-shadow-2);
+  --login-focus-box-shadow: inset 0 0 1px 1px var(--design-link);
+  --focus-shadow: var(--design-link);
+  --form-aria-grabbed-box-shadow: 0 0 2px 1px var(--design-link);
+}
+
+.header,
+.sidebar-wrapper {
+  --design-focus: var(--design-on-frame);
+  --focus: var(--design-on-frame);
+}
+{% if JOOMLA_DESIGN_LOGO_ENABLED | bool %}
+
+.header .logo:not(.small) {
+  padding-block: 5px;
+}
+
+.header .logo:not(.small) img:not(.logo-collapsed) {
+  block-size: {{ lookup('design', application_id).slots['admin-brand'].height }}px;
+  inline-size: 100%;
+}
+{% endif %}
+
+.header,
+.header a,
+.header .page-title,
+.header .dropdown-header,
+.header .dropdown-item,
+.header-item-content,
+.header-item-content a,
+.header-item-content button,
+.header-item-icon > *,
+.view-login .h1,
+.task-logout .h1,
+.view-login .sidebar-wrapper .card-header {
+  color: var(--design-on-frame);
+}
+
+.view-login #sidebar .card {
+  color: var(--design-on-frame);
+  background: var(--design-frame-hover);
+}
+
+.bg-warning {
+  color: var(--design-on-warning);
+}
+
+html .skip-to {
+  --design-focus: var(--design-link);
+}
+
+html .skip-to button,
+html .skip-to [role="menu"],
+html .skip-to [role="menuitem"] {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+
+html .skip-to button:focus,
+html .skip-to button:hover,
+html .skip-to [role="menuitem"]:focus,
+html .skip-to [role="menuitem"]:hover {
+  color: var(--design-text);
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-link);
+}
+
+.js-stools-container-bar .btn-toolbar .js-stools-btn-clear {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+
+.js-stools-container-bar .btn-toolbar .js-stools-btn-clear[disabled],
+[data-bs-theme="dark"] .js-stools-container-bar .btn-toolbar .js-stools-btn-clear[disabled] {
+  color: var(--design-text-muted);
+  background: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+
+joomla-tab[view="accordion"] > div[role="tablist"] {
+  background-color: var(--design-surface-2);
+}
+
+joomla-tab > button[role="region"]:not([aria-selected="true"], :hover, :focus) {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+
+joomla-alert {
+  --jui-alert-button-color-dark: var(--design-text);
+  --jui-alert-button-color-light: transparent;
+{% for status in ['success', 'info', 'warning', 'danger'] %}
+  --jui-alert-{{ status }}-color: var(--design-text);
+  --jui-alert-{{ status }}-background-color: var(--design-{{ status }}-subtle);
+  --jui-alert-{{ status }}-border-color: var(--design-{{ status }}-border);
+  --jui-alert-{{ status }}-link-color: var(--design-link);
+{% endfor %}
+}
+{% for type, status in [('success', 'success'), ('message', 'success'), ('info', 'info'), ('notice', 'info'), ('warning', 'warning'), ('error', 'danger'), ('danger', 'danger')] %}
+
+#system-message-container joomla-alert[type="{{ type }}"] {
+  --alert-heading-text: var(--design-on-{{ status }});
+}
+
+#system-message-container joomla-alert[type="{{ type }}"] .alert-heading {
+  color: var(--design-on-{{ status }});
+}
+{% endfor %}
+
+.choices {
+  --choices-bg-color: var(--design-surface-2);
+  --choices-bg-color-dropdown: var(--design-surface-2);
+  --choices-bg-color-disabled: var(--design-surface-3);
+  --choices-keyline-color: var(--design-border-strong);
+  --choices-primary-color: var(--design-primary);
+  --choices-item-color: var(--design-on-primary);
+  --choices-text-color: var(--design-text);
+  --choices-highlighted-color: var(--design-surface-hover);
+  --choices-highlight-color: var(--design-link);
+  --choices-invalid-color: var(--design-danger);
+  --choices-disabled-color: var(--design-surface-3);
+  --choices-item-disabled-color: var(--design-text-muted);
+  border-color: var(--design-border-strong);
+}
+
+.choices.is-focused {
+  border-color: var(--design-link);
+  box-shadow: var(--design-focus-ring-inset);
+}
+
+.choices[data-type*="select-one"] .choices__inner,
+.choices[data-type*="select-multiple"] .choices__inner,
+[data-bs-theme="dark"] .choices[data-type*="select-one"] .choices__inner,
+[data-bs-theme="dark"] .choices[data-type*="select-multiple"] .choices__inner {
+  background: var(--design-surface-2);
+}
+
+.choices__input::placeholder {
+  color: var(--design-text-muted);
+}
+
+.form-select,
+.custom-select,
+[data-bs-theme="dark"] .form-select,
+[data-bs-theme="dark"] .custom-select {
+  --form-select-bg-img: none;
+  appearance: auto;
+}
+{% for status in ['success', 'danger'] %}
+
+.form-select.form-select-{{ status }},
+.form-select.custom-select-{{ status }} {
+  color: var(--design-{{ status }});
+  background-color: var(--design-surface-2);
+  border-color: var(--design-{{ status }});
+}
+
+.form-select.form-select-{{ status }} option,
+.form-select.custom-select-{{ status }} option {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+{% endfor %}
+
+.table th .inactive [class^="icon-"],
+.table th .inactive [class*=" icon-"] {
+  color: var(--design-text-muted);
+}
+
+.dropdown-item + .dropdown-item,
+[data-bs-theme="dark"] .dropdown-divider {
+  border-block-start-color: var(--design-border);
+}
+
+[data-bs-theme="dark"] .j-main-container .table {
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-1);
+}
+
+[data-bs-theme="dark"] .j-main-container .table tr:hover,
+[data-bs-theme="dark"] .com_cpanel .card .list-group-item:hover {
+  background: var(--design-surface-hover);
+}
+
+[data-bs-theme="dark"] .subhead {
+  border-block-color: var(--design-border);
+}
+
+[data-bs-theme="dark"] .com_cpanel .card {
+  box-shadow: var(--design-shadow-1);
+}
+
+[data-bs-theme="dark"] .sidebar-wrapper .main-nav .badge {
+  color: var(--design-on-frame);
+  background-color: var(--design-frame-active);
+}
+
+.form-check-input:focus,
+.switcher input:focus ~ .toggle-outside {
+  box-shadow: var(--design-focus-ring);
+}
+
+.form-check-input[type="checkbox"]:indeterminate {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+{% for fill in ['primary', 'success', 'danger'] %}
+
+.modal .btn.btn-{{ fill }},
+.modal .btn.btn-{{ fill }}:not([href]),
+[data-bs-theme="dark"] .modal .btn.btn-{{ fill }},
+[data-bs-theme="dark"] .modal .btn.btn-{{ fill }}:not([href]) {
+  color: var(--design-on-{{ fill }});
+  background: var(--design-{{ fill }});
+  border-color: var(--design-{{ fill }});
+}
+
+.modal .btn.btn-{{ fill }}:hover,
+.modal .btn.btn-{{ fill }}:not([href]):hover,
+.modal .btn.btn-{{ fill }}:not([href]):focus,
+[data-bs-theme="dark"] .modal .btn.btn-{{ fill }}:hover,
+[data-bs-theme="dark"] .modal .btn.btn-{{ fill }}:not([href]):hover {
+  color: var(--design-on-{{ fill }});
+  background: var(--design-{{ fill }}-hover);
+  border-color: var(--design-{{ fill }}-hover);
+}
+
+.modal .btn.btn-{{ fill }} [class^="icon-"],
+.modal .btn.btn-{{ fill }} [class*=" icon-"] {
+  color: var(--design-on-{{ fill }});
+}
+{% endfor %}
+
+.modal .btn.btn-secondary,
+.modal .btn.btn-secondary:not([href]),
+[data-bs-theme="dark"] .modal .btn.btn-secondary,
+[data-bs-theme="dark"] .modal .btn.btn-secondary:not([href]) {
+  color: var(--design-text);
+  background: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+}
+
+.modal .btn.btn-secondary:not([href]):hover,
+.modal .btn.btn-secondary:not([href]):focus,
+[data-bs-theme="dark"] .modal .btn.btn-secondary:hover,
+[data-bs-theme="dark"] .modal .btn.btn-secondary:not([href]):hover {
+  color: var(--design-text);
+  background: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+}
+
+.quick-icons .quickicon-linkadd a:hover *,
+.quick-icons .quickicon-linkadd a:focus * {
+  color: var(--design-on-primary);
+}
+
+.plg_system_webauthn_login_button svg path,
+.plg_system_webauthn_login_button svg circle {
+  fill: currentcolor;
+}
+
+.btn-close {
+  filter: brightness(0) invert(var(--design-invert));
+}

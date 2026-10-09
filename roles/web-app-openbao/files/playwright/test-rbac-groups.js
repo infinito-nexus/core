@@ -1,19 +1,25 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const baseUrl = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
-const kvMount = decodeDotenvQuotedValue(process.env.OPENBAO_KV_MOUNT || "");
-const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME || "");
-const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || "");
-const lamBaseUrl = normalizeBaseUrl(process.env.LAM_BASE_URL || "");
+const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
+const kvMount = requireDotenvValue(process.env.OPENBAO_KV_MOUNT, "OPENBAO_KV_MOUNT");
+const biberUsername = requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_USERNAME");
+const biberPassword = requireDotenvValue(process.env.BIBER_PASSWORD, "BIBER_PASSWORD");
+const lamBaseUrl = normalizeBaseUrl(process.env.LAM_BASE_URL || ""); // nocheck: unguarded-env-default -- emitted only when lam is enabled; the spec skips otherwise
 const lamOauth2Fronted = String(process.env.LAM_OAUTH2_FRONTED || "").toLowerCase() === "true";
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const ldapAdminPassword = decodeDotenvQuotedValue(process.env.LDAP_ADMIN_PASSWORD || "");
-const groupDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_RBAC_GROUP_DN_TEMPLATE || "");
-const userDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_USER_DN_TEMPLATE || "");
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const ldapAdminPassword = decodeDotenvQuotedValue(process.env.LDAP_ADMIN_PASSWORD || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
+const groupDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_RBAC_GROUP_DN_TEMPLATE || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
+const userDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_USER_DN_TEMPLATE || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
+const ldapDnBase = decodeDotenvQuotedValue(process.env.LDAP_DN_BASE || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
 
 const RBAC_ROLES = ["administrator", "operator", "reader"];
 const PROBE_PATH = `${kvMount}/data/playwright/rbac-probe`;
@@ -22,7 +28,6 @@ const POLICY_PATH = "sys/policies/acl/operator";
 const groupDn = (role) => groupDnTemplate.replace("<role>", role);
 const biberDn = () => userDnTemplate.replace("<uid>", biberUsername);
 const groupCn = (role) => groupDn(role).replace(/^cn=/, "").split(",")[0];
-const rootSuffix = () => groupDn("administrator").split(",").slice(-2).join(",");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -66,7 +71,7 @@ async function setGroupMembership(page, role, operation) {
   await gotoOnion(page, `${lamBaseUrl}/lam/templates/tools/multiEdit.php`, { waitUntil: "load" });
   await page.waitForLoadState("networkidle");
 
-  await page.locator("select#suffix").selectOption(rootSuffix());
+  await page.locator("select#suffix").selectOption(ldapDnBase);
   await page.locator("input#filter").fill(`(cn=${groupCn(role)})`);
   await page.locator("select#op_0").selectOption(operation);
   await page.locator("input#attr_0").fill("member");

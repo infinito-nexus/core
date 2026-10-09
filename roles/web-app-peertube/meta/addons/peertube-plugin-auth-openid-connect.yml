@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-peertube', 'services.sso.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - sso

@@ -26,7 +26,7 @@
     "name": "username",
     "displayName": "${username}",
     "validations": {
-      "length": { "min": 3, "max": 255 },
+      "length": { "min": 3, "max": IAM_USERNAME_MAX_LENGTH },
       "pattern": {
         "pattern": "^(?!(?:" ~ KEYCLOAK_RESERVED_USERNAMES_REGEX | replace('\\', '\\\\') ~ ")$)[a-z0-9]+$",
         "error-message": "Username is reserved or contains invalid characters. Only lowercase letters (a–z) and digits (0–9) are allowed."

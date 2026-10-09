@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-zammad"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 ZAMMAD_INIT_SERVICE: "init"
 ZAMMAD_RAILS_SERVICE: "railsserver"
@@ -26,10 +26,6 @@ ZAMMAD_SEARCH_HEAP_MB: "{{ lookup('service_memory_mb', application_id, ZAMMAD_SE
 ZAMMAD_SEARCH_MAJOR: "{{ (lookup('config', application_id, 'services.search.version') | string).split('.') | first }}"
 ZAMMAD_SEARCH_DATA_DIR: "{{ [lookup('volume', application_id, 'zammad_search').target, ZAMMAD_SEARCH_MAJOR] | path_join }}"
 
-# Exception: env.j2 must never set DATABASE_URL. The image's config/pre_initializers/database_url.rb
-# builds it from POSTGRESQL_* only while DATABASE_URL is blank, so presetting it drops
-# POSTGRESQL_OPTIONS and Rails falls back to its default pool of 5, below the thread count
-# BackgroundServices starts in the scheduler.
 ZAMMAD_DB_POOL: 50
 
 ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
@@ -60,6 +56,7 @@ ZAMMAD_OIDC_GROUP_ROLE_MAP:
 ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
 ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
+ZAMMAD_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
 ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"

@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-matrix', 'services.prometheus.enabled') | bool }}"
+required: false
+mechanism: addon
+source: upstream
+bridges:
+  - prometheus

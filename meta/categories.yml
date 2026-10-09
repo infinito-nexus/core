@@ -150,13 +150,19 @@ roles:
     run_after: [drv]
     invokable: true
 
-  desk:
+  dsk:
     title: "Desktop"
     hanzi: "桌面" # Means "desktop" or literally "desk surface".
     description: "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
     icon: "fas fa-desktop"
     stage: workstation
     invokable: true
+
+    gnt:
+      title: "Agents"
+      hanzi: "代理" # Means "agent" or "proxy".
+      description: "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+      icon: "fas fa-robot"
 
   web:
     title: "Web Infrastructure"
@@ -252,6 +258,17 @@ roles:
         across databases, files, and containers."
       icon: "fas fa-database"
       run_after: [svc-ai]
+      invokable: true
+
+    cache:
+      title: "Package Caches"
+      hanzi: "缓存" # Means "cache" or "buffer".
+      description: "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
+      icon: "fas fa-warehouse"
+      bootstrap: true
+      modes:
+        compose: true
+        swarm: false
       invokable: true
 
     registry:

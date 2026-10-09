@@ -40,7 +40,7 @@
         condition: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) | swarm_restart_condition }}
       resources:
         limits:
-          cpus: "{{ lookup('applications') | resource_filter(application_id, 'cpus', service_name | default(''), RESOURCE_CPUS) | string }}"
+          cpus: "{{ lookup('applications') | resource_filter(application_id, 'cpus', service_name | default(''), RESOURCE_CPUS, host_cpus=RESOURCE_HOST_CPUS) | string }}"
           memory: {{ lookup('applications') | resource_filter(application_id, 'mem_limit', service_name | default(''), RESOURCE_MEM_LIMIT) }}
           pids: {{ lookup('applications') | resource_filter(application_id, 'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT) }}
 {% if RUNTIME != 'github' %}

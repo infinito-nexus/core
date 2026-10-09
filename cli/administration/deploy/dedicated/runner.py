@@ -13,6 +13,7 @@ from cli.administration.inventory.provision.services_disabler import (
     assert_services_disabled_inventory_consistency_from_env,
 )
 from cli.meta.roles.services.called import verify as verify_required_system_services
+from cli.meta.runtime import detect_runtime
 
 from .proc import run, run_make
 
@@ -35,12 +36,6 @@ def run_ansible_playbook(
     """Run ansible-playbook with the given parameters and execution modes."""
     start_time = datetime.datetime.now(tz=datetime.UTC)
     print(f"\n▶️ Script started at: {start_time.isoformat()}\n", flush=True)
-
-    if modes.get("MODE_CLEANUP", False):
-        print("\n🧹 Cleaning up...\n", flush=True)
-        run_make(repo_root, "clean")
-    else:
-        print("\n🧹 Cleanup skipped (MODE_CLEANUP not set or False)\n", flush=True)
 
     if not skip_build:
         print("\n🛠️  Running project build (make setup)...\n", flush=True)
@@ -130,6 +125,7 @@ def run_ansible_playbook(
             log_path=ansible_log_path,
             log_byte_offset=log_offset_before,
             deployed_role_ids=allowed_applications,
+            runtime=detect_runtime(),
         )
         if not ok:
             print(

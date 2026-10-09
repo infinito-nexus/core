@@ -1,21 +1,33 @@
 ---
 # Matrix-deploy variant overrides for web-app-mediawiki.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 1 exists so peertube, which is clearnet-only,
+# has a round of its own. It carries nothing else; libretranslate moved to
+# variant 2, which keeps the onion, so the MachineTranslation extension is now
+# proven over it. Variant 0 pairs the onion with SSO.
 
-# variant pinning every dynamic services.yml flag to true so the
-# matrix exercises the in-group_names branch of web-app-mediawiki.
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
       enabled: true
       shared: true
+    discourse:
+      enabled: true
+      shared: true
     email:
       enabled: true
       shared: true
+    libretranslate:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
     logout:
       enabled: true
       shared: true
@@ -30,6 +42,9 @@
       enabled: true
       shared: true
     prometheus:
+      enabled: true
+      shared: true
+    seaweedfs:
       enabled: true
       shared: true
     tor:
@@ -38,15 +53,24 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    libretranslate:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: true
+      shared: true
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -63,22 +87,34 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
-      enabled: true
+      enabled: false
 
 - services:
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    libretranslate:
+      enabled: true
+      shared: true
+    peertube:
+      enabled: false
+      shared: false
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -88,12 +124,15 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
-      enabled: true
+      enabled: false
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true

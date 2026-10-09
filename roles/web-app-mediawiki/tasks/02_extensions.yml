@@ -56,3 +56,13 @@
   changed_when: false
   failed_when: _oidc_class.rc != 0
   when: MEDIAWIKI_OIDC_ENABLED | bool
+- name: "✅ EXT | Sanity check: AWS SDK S3 client present"
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ MEDIAWIKI_LOCAL_CID | quote }} bash -lc
+    'php -r "@require \"{{ MEDIAWIKI_HTML_DIR }}/extensions/AWS/vendor/autoload.php\"; exit(class_exists(\"Aws\\\\S3\\\\S3Client\")?0:1);"'
+  args:
+    executable: /bin/bash
+  register: _aws_sdk_class
+  changed_when: false
+  failed_when: _aws_sdk_class.rc != 0
+  when: MEDIAWIKI_OBJSTORE_ENABLED | bool

@@ -52,6 +52,10 @@ redis:
   mem_limit: 1g
   pids_limit: 512
 opentalk:
+  # TODO: make this role arm64-capable so the declaration below can go
+  # nocheck: architecture-pin  Reason: opentalk/web-frontend, opentalk/controller and opentalk/recorder each answer with a single linux/amd64 manifest on registry.opencode.de, and the images are pulled rather than built here
+  architectures:
+    - amd64
   modes:
     compose:
       enabled: true
@@ -119,7 +123,7 @@ livekit:
       relay:
         start: 60000
         end: 60999
-# nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-app-minio)
+# nocheck: playwright-service-flag — object store, no Playwright surface; the live S3 backend is the seaweedfs block below, web-app-minio is end of life and stays off
 minio:
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
@@ -133,7 +137,7 @@ seaweedfs:
   bond: 1
   name: opentalk-seaweedfs
   enabled: true # nocheck: dynamic-flag
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 rabbit:
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "ping"]
@@ -164,11 +168,15 @@ recorder:
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 294
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

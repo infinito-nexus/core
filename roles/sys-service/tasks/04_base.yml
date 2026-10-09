@@ -1,26 +1,26 @@
 ---
-- name: "🔍 find best matching source for service script"
-  set_fact:
-    system_service_script_src: >-
-      {{ lookup('first_found',
-        {
-          'files': [
-            'templates/script.sh.j2',
-            'templates/script.py.j2',
-            'files/shell/script.sh',
-            'files/python/script.py'
-          ],
-          'paths': [ system_service_role_dir ]
-        },
-        errors='strict'
-      ) }}
+- name: "📂 Copy the service files for '{{ system_service_id }}'"
   when: system_service_copy_files | bool
+  block:
+    - name: "🔍 find best matching source for service script"
+      set_fact:
+        system_service_script_src: >-
+          {{ lookup('first_found',
+            {
+              'files': [
+                'templates/script.sh.j2',
+                'templates/script.py.j2',
+                'files/shell/script.sh',
+                'files/python/script.py'
+              ],
+              'paths': [ system_service_role_dir ]
+            },
+            errors='strict'
+          ) }}
 
-- name: "📂 Load file logic for '{{ system_service_id }}'"
-  include_tasks: 05_files.yml
-  when:
-    - system_service_copy_files | bool
-    - system_service_script_src | default('') | length > 0
+    - name: "📂 Load file logic for '{{ system_service_id }}'"
+      include_tasks: 05_files.yml
+      when: system_service_script_src | default('') | length > 0
 
 - name: "📂 Load systemctl logic for '{{ system_service_id }}'"
   include_tasks: 06_service.yml

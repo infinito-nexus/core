@@ -1,0 +1,23 @@
+---
+- name: "🛑 Require the resolved BigBlueButton API endpoint and shared secret"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.assert:
+    that:
+      - WORDPRESS_BBB_API_URL is match('^https?://')
+      - WORDPRESS_BBB_API_SECRET | length > 0
+    fail_msg: >-
+      {{ application_id }} enables the bigbluebutton service but the addon
+      resolved api_url='{{ WORDPRESS_BBB_API_URL }}' and an api_secret of
+      {{ WORDPRESS_BBB_API_SECRET | length }} characters. Without both values
+      the conferencing plugin cannot reach web-app-bigbluebutton, so the
+      pairing would install dead. Deploy the partner role so its url.base and
+      secrets.credentials.shared_secret exist.
+
+- name: "🔧 BigBlueButton server pairing is entered on the plugin's own settings page"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: video-conferencing-with-bbb stores the server URL
+      {{ WORDPRESS_BBB_API_URL }} and its secret in the plugin's own options,
+      whose upstream keys are not part of a documented contract; enter them
+      under Settings -> BigBlueButton after the deploy.
+  changed_when: false

@@ -1,0 +1,98 @@
+---
+- name: "🔍 Resolve the backend node and container of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ KIX_BACKEND_SERVICE }}"
+    resolve_output_prefix: KIX_BACKEND
+    resolve_compose_cid: "{{ KIX_BACKEND_CONTAINER }}"
+
+- name: "⏳ Wait until the backend of {{ application_id }} is healthy"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - --type
+      - container
+      - --format
+      - "{% raw %}{{.State.Health.Status}}{% endraw %}"
+      - "{{ KIX_BACKEND_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+  register: kix_backend_health
+  changed_when: false
+  retries: 120
+  delay: 5
+  until: (kix_backend_health.stdout | trim) == 'healthy'
+  delegate_to: "{{ KIX_BACKEND_HOST_NODE }}"
+
+- name: "📖 Read the corporate logo set of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, item.value.slot ~ '.png'] | path_join }}"
+  loop: "{{ KIX_DESIGN_ICONS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: kix_design_logo_set
+  when: KIX_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Collect the built-in object icons of {{ application_id }}"
+  when: not (KIX_DESIGN_LOGO_ENABLED | bool)
+  block:
+    - name: "🔍 Find the object icons the corporate design replaced"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - "{{ KIX_BACKEND_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+          - sh
+          - -c
+          - 'if [ -d "$1" ]; then ls -1 "$1"; fi'
+          - sh
+          - "{{ KIX_DESIGN_MARKER_DIR }}"
+      register: kix_design_marked
+      changed_when: false
+      delegate_to: "{{ KIX_BACKEND_HOST_NODE }}"
+
+    - name: "📖 Read the built-in object icons of {{ application_id }}"
+      ansible.builtin.include_tasks: 02_design_builtin.yml
+      when: kix_design_marked.stdout_lines | length > 0
+
+- name: "🖼️ Converge the object icons of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ KIX_BACKEND_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/object_icon_sync.sh') | quote }} object_icon_sync
+      {{ item.key | quote }}
+      {{ 'present' if KIX_DESIGN_LOGO_ENABLED | bool else 'absent' }}
+      {{ KIX_DESIGN_CONSOLE | quote }}
+      {{ KIX_DESIGN_MARKER_DIR | quote }}
+    stdin: "{{ kix_design_payloads[item.key] }}"
+  loop: "{{ KIX_DESIGN_ICONS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  vars:
+    kix_design_sources: "{{ kix_design_logo_set if KIX_DESIGN_LOGO_ENABLED | bool else kix_design_builtin_set }}"
+    kix_design_payloads: >-
+      {{ dict(kix_design_sources.results | map(attribute='item.key')
+              | zip(kix_design_sources.results | map(attribute='content' if KIX_DESIGN_LOGO_ENABLED | bool else 'stdout'))) }}
+  register: kix_design_icons
+  changed_when: "'CONVERGED' in kix_design_icons.stdout"
+  delegate_to: "{{ KIX_BACKEND_HOST_NODE }}"
+  when: (KIX_DESIGN_LOGO_ENABLED | bool) or (kix_design_marked.stdout_lines | length > 0)
+
+- name: "🔍 Resolve the cache node and container of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: redis
+    resolve_output_prefix: KIX_REDIS
+    resolve_compose_cid: "{{ entity_name ~ '-redis' }}"
+
+- name: "🧹 Drop the object icon cache the frontend keeps of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ KIX_REDIS_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - redis-cli
+      - DEL
+      - "{{ KIX_DESIGN_FRONTEND_CACHE_KEY }}"
+  changed_when: true
+  delegate_to: "{{ KIX_REDIS_HOST_NODE }}"
+  when: kix_design_icons is changed

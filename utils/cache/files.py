@@ -53,6 +53,8 @@ _DEFAULT_SKIP_DIRS: frozenset[str] = frozenset(
     }
 )
 
+_ROOT_SKIP_DIRS: frozenset[str] = frozenset({"build"})
+
 
 @lru_cache(maxsize=1)
 def _local_exclude_dirs() -> frozenset[str]:
@@ -91,7 +93,10 @@ def _all_project_files(root_str: str) -> tuple[str, ...]:
     skip_dirs = _DEFAULT_SKIP_DIRS | _local_exclude_dirs()
     paths: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root_str, topdown=True):
-        dirnames[:] = [d for d in dirnames if d not in skip_dirs]
+        skip = skip_dirs
+        if dirpath == root_str:
+            skip = skip | _ROOT_SKIP_DIRS
+        dirnames[:] = [d for d in dirnames if d not in skip]
         paths.extend(str(Path(dirpath) / fn) for fn in filenames)
     return tuple(paths)
 

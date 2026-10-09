@@ -1,0 +1,16 @@
+---
+enabled: "{{ lookup('config', 'web-app-mattermost', 'services.gitlab.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: "v2.0.0"
+bridges:
+  - gitlab
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: mattermost/mattermost-plugin-gitlab
+config:
+  plugin_id: com.github.manland.mattermost-plugin-gitlab
+  archive: https://github.com/mattermost/mattermost-plugin-gitlab/releases/download/v2.0.0/mattermost-plugin-gitlab-v2.0.0.tar.gz
+  partner_url: "{{ lookup('tls', 'web-app-gitlab', 'url.base') }}"

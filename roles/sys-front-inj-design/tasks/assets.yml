@@ -1,0 +1,19 @@
+---
+- name: "🏷️ Resolve corporate branding for '{{ application_id }}'"
+  set_fact:
+    design_branding: "{{ lookup('design', application_id) }}"
+
+- name: "🖼️ Render the branding assets of '{{ application_id }}'"
+  when: design_branding.logo is string
+  vars:
+    _palette: "{{ lookup('design_palette', CSS_BASE_COLOR) }}"
+  design_assets:
+    logo: "{{ design_branding.logo }}"
+    title: "{{ design_branding.title }}"
+    domain: "{{ design_branding.domain }}"
+    fill: "{{ _palette.light['--design-primary'] }}"
+    stroke: "{{ _palette.light['--design-on-primary'] }}"
+    frame_fill: "{{ _palette.light['--design-on-frame'] }}"
+    frame_stroke: "{{ _palette.light['--design-frame'] }}"
+    slots: "{{ design_branding.slots }}"
+    dest: "{{ design_assets_dest }}"

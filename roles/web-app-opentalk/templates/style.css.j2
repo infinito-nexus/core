@@ -1,0 +1,323 @@
+{% set design = lookup('design', application_id) %}
+body,
+.loading-container {
+  background: var(--design-frame);
+}
+.lds-ring div {
+  border-color: var(--design-on-frame) transparent transparent transparent;
+}
+#root > span:first-child {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+#root > .MuiContainer-root,
+#root > .MuiContainer-root::before {
+  background: var(--design-surface-1);
+}
+#main-content-dashboard {
+  --design-focus: var(--design-link);
+  color: var(--design-text);
+}
+#main-content-dashboard .MuiTypography-root {
+  color: var(--design-text);
+}
+#main-content-dashboard > .MuiBox-root,
+#main-content-dashboard > .MuiBox-root > form,
+#main-content-dashboard [data-testid^="events-page-header"],
+#main-content-dashboard .MuiContainer-root > .MuiStack-root {
+  background-color: var(--design-surface-1);
+}
+#main-content-dashboard .MuiListItem-root > div,
+#main-content-dashboard [data-testid="MeetingOverviewCard"] {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+#main-content-dashboard .MuiAccordionSummary-root,
+#main-content-dashboard [data-testid="filter-by-invites"],
+#main-content-dashboard [data-testid="favoriteMeeting"],
+[data-testid="selfTest"] .MuiIconButton-root {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+#main-content-dashboard :is(:has(> [data-testid="empty-entry"]), :has(> * > [data-testid="empty-entry"])) {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+#main-content-dashboard [data-testid="empty-entry"] {
+  background-color: transparent;
+}
+#main-content-dashboard [data-testid="empty-entry"],
+#main-content-dashboard [data-testid="empty-entry"] * {
+  color: var(--design-text);
+}
+#main-content-dashboard :has(> * > [data-testid="empty-entry"]) :is(.MuiTypography-root, .MuiSvgIcon-root, svg) {
+  color: var(--design-text);
+  fill: currentcolor;
+}
+.MuiStepLabel-root .MuiStepLabel-label {
+  background-color: transparent;
+  color: var(--design-text);
+}
+#root > .MuiIconButton-root,
+#root > .MuiButton-root {
+  border-color: var(--design-on-frame);
+  color: var(--design-on-frame);
+}
+.MuiAvatar-root {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+:is(#root, .MuiModal-root) :focus-visible,
+:is(#root, .MuiModal-root) .Mui-focusVisible {
+  outline-color: var(--design-focus, var(--design-link));
+}
+
+.MuiPaper-root {
+  --design-focus: var(--design-link);
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+.MuiDivider-root {
+  border-color: var(--design-border);
+}
+.MuiSkeleton-root {
+  background-color: var(--design-surface-3);
+}
+.MuiLink-root {
+  color: var(--design-link);
+}
+.MuiTooltip-tooltip {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.MuiListItemText-secondary {
+  color: var(--design-text-muted);
+}
+.MuiListItemButton-root.Mui-focusVisible,
+.MuiListItemButton-root:hover {
+  background-color: var(--design-surface-hover);
+}
+
+.MuiButton-root.MuiButton-containedPrimary,
+.MuiIconButton-root.MuiIconButton-colorPrimary {
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+}
+.MuiButton-root.MuiButton-containedPrimary:hover,
+.MuiIconButton-root.MuiIconButton-colorPrimary:hover {
+  background-color: var(--design-neutral-800);
+  color: var(--design-surface-1);
+}
+.MuiButton-root.MuiButton-containedPrimary:active,
+.MuiIconButton-root.MuiIconButton-colorPrimary:active {
+  background-color: var(--design-neutral-700);
+}
+.MuiButton-root.MuiButton-containedSecondary,
+.MuiIconButton-root.MuiIconButton-colorSecondary {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.MuiButton-root.MuiButton-containedSecondary:hover,
+.MuiIconButton-root.MuiIconButton-colorSecondary:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.MuiButton-root.MuiButton-containedSecondary:active,
+.MuiIconButton-root.MuiIconButton-colorSecondary:active {
+  background-color: var(--design-primary-active);
+}
+.MuiButton-root.MuiButton-contained.Mui-disabled,
+.MuiIconButton-root.MuiIconButton-root.Mui-disabled {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.MuiButton-root.MuiButton-containedError {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+.MuiButton-root.MuiButton-containedError:hover {
+  background-color: var(--design-danger-hover);
+}
+.MuiButton-root.MuiButton-containedError:active {
+  background-color: var(--design-danger-active);
+}
+.MuiButton-root.MuiButton-outlined {
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+.MuiButton-root.MuiButton-outlined:hover,
+.MuiButton-root.MuiButton-text:hover {
+  background-color: var(--design-surface-hover);
+}
+.MuiButton-root.MuiButton-text {
+  color: var(--design-link);
+}
+
+.MuiInputBase-root.MuiInputBase-colorPrimary,
+.MuiPickersInputBase-root.MuiPickersInputBase-colorPrimary {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+.MuiInputBase-root.MuiInputBase-colorPrimary .MuiSvgIcon-root,
+.MuiPickersInputBase-root.MuiPickersInputBase-colorPrimary .MuiSvgIcon-root,
+.MuiSelect-icon {
+  color: var(--design-text-muted);
+  fill: var(--design-text-muted);
+}
+.MuiInputBase-root .MuiInputBase-input::placeholder {
+  color: var(--design-text-muted);
+  opacity: 1;
+}
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline,
+.MuiPickersOutlinedInput-root .MuiPickersOutlinedInput-notchedOutline {
+  border-color: var(--design-border-strong);
+}
+.MuiOutlinedInput-root.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline,
+.MuiPickersOutlinedInput-root.Mui-focused:not(.Mui-error) .MuiPickersOutlinedInput-notchedOutline {
+  border-color: var(--design-link);
+}
+.MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline,
+.MuiPickersOutlinedInput-root.Mui-error .MuiPickersOutlinedInput-notchedOutline {
+  border-color: var(--design-danger);
+}
+.MuiInputLabel-root,
+.MuiFormLabel-root {
+  color: var(--design-text);
+}
+.MuiFormControl-root .MuiInputLabel-root.MuiInputLabel-shrink {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+.MuiFormHelperText-root {
+  color: var(--design-text-muted);
+}
+.MuiFormHelperText-root.Mui-error {
+  color: var(--design-danger);
+}
+
+.MuiMenuItem-root {
+  color: var(--design-text);
+}
+.MuiMenuItem-root:hover,
+.MuiMenuItem-root.Mui-focusVisible {
+  background-color: var(--design-surface-hover);
+}
+.MuiMenuItem-root.Mui-selected,
+.MuiMenuItem-root.Mui-selected:hover {
+  background-color: var(--design-surface-active);
+}
+.MuiTab-root {
+  color: var(--design-text-muted);
+}
+.MuiTab-root:hover {
+  background-color: var(--design-surface-hover);
+}
+.MuiTab-root.Mui-selected {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.MuiChip-root {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+.MuiCheckbox-root,
+.MuiRadio-root {
+  color: var(--design-border-strong);
+}
+.MuiCheckbox-root.Mui-checked,
+.MuiRadio-root.Mui-checked {
+  color: var(--design-primary);
+}
+.MuiSwitch-root .MuiSwitch-track {
+  background-color: var(--design-border-strong);
+}
+.MuiSwitch-root .Mui-checked + .MuiSwitch-track {
+  background-color: var(--design-primary);
+}
+.MuiSwitch-root .MuiSwitch-switchBase .MuiSwitch-thumb {
+  background-color: var(--design-surface-1);
+}
+.MuiStepIcon-root {
+  color: var(--design-border-strong);
+}
+.MuiStepIcon-root.Mui-active,
+.MuiStepIcon-root.Mui-completed {
+  color: var(--design-primary);
+}
+.MuiStepIcon-root .MuiStepIcon-text {
+  fill: var(--design-on-primary);
+}
+.MuiStepConnector-root .MuiStepConnector-line {
+  border-color: var(--design-border);
+}
+
+[data-testid="PrimaryNavigation"] {
+  --design-focus: var(--design-on-frame);
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+[data-testid="PrimaryNavigation"] .MuiListItem-root {
+  background-color: transparent;
+}
+[data-testid="PrimaryNavigation"] [data-testid="PrimaryNavItem"],
+[data-testid="PrimaryNavigation"] .MuiButton-root {
+  background-color: transparent;
+  color: var(--design-on-frame);
+}
+[data-testid="PrimaryNavigation"] .MuiTypography-root,
+[data-testid="PrimaryNavigation"] .MuiSvgIcon-root {
+  color: var(--design-on-frame);
+}
+[data-testid="PrimaryNavigation"] [data-testid="PrimaryNavItem"]:hover,
+[data-testid="PrimaryNavigation"] .MuiButton-root:hover {
+  background-color: var(--design-frame-hover);
+  color: var(--design-on-frame);
+}
+[data-testid="PrimaryNavigation"] .active-link {
+  background-color: var(--design-frame-active);
+  color: var(--design-on-frame);
+}
+.MuiContainer-root > div.MuiStack-root > div > div:has(> .MuiTypography-h1) {
+  --design-focus: var(--design-on-frame);
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+.MuiContainer-root > div.MuiStack-root > div > div:has(> .MuiTypography-h1) :is(.MuiTypography-h1, button, svg) {
+  color: var(--design-on-frame);
+  fill: var(--design-on-frame);
+}
+
+[data-testid="SecondaryNavigation"] {
+  --design-focus: var(--design-link);
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+[data-testid="SecondaryNavigation"] [data-testid="SecondaryNavItem"] {
+  background-color: transparent;
+  color: var(--design-text);
+}
+[data-testid="SecondaryNavigation"] [data-testid="SecondaryNavItem"]::after {
+  background-color: var(--design-primary);
+}
+[data-testid="SecondaryNavigation"] [data-testid="SecondaryNavItem"]:hover {
+  background-color: var(--design-surface-hover);
+}
+[data-testid="SecondaryNavigation"] [data-testid="SecondaryNavItem"].active {
+  background-color: var(--design-surface-active);
+}
+
+[data-testid="selfTest"] > div {
+  --design-focus: var(--design-link);
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+{% if design.logo is string %}
+
+svg[viewBox="0 0 206.392 45.061"] {
+  background: url("{{ design.urls.logo.svg }}") left center / contain no-repeat;
+}
+svg[viewBox="0 0 206.392 45.061"] > * {
+  display: none;
+}
+{% endif %}

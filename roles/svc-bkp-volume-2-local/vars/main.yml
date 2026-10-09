@@ -83,7 +83,7 @@ BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED_CLI: >-
   {%- endif %}
 
 BKP_VOLUME_2_LOCAL_HARD_RESTART_CLI: >-
-  {% if DEPLOYMENT_MODE == 'compose' and BKP_VOLUME_2_LOCAL_HARD_RESTART | length > 0 -%}
+  {% if IS_COMPOSE_MODE and BKP_VOLUME_2_LOCAL_HARD_RESTART | length > 0 -%}
     --hard-restart-projects {{ BKP_VOLUME_2_LOCAL_HARD_RESTART | join(' ') }}
   {%- endif %}
 

@@ -28,6 +28,7 @@
 
 - name: "📁 Pre-create NFS subdirs for '{{ application_id }}' (swarm + NFS only)"
   include_tasks: "utils/nfs_prep.yml"
+  when: IS_SWARM_MODE
 
 - name: "✅ Ensure instance dir for '{{ application_id }}' is up"
   include_tasks: "utils/up.yml"

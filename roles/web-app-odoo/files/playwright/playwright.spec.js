@@ -1,8 +1,11 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
+const { awaitOnionHandoff, decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
+
+require("./test-seaweedfs");
+
 test.use({
   ignoreHTTPSErrors: true
 });
@@ -109,12 +112,10 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
   await clickOdooSsoButton(page);
 
   // 3. After clicking SSO, the page navigates to Keycloak.
-  await expect
-    .poll(() => page.url(), {
-      timeout: resolveTimeout(60_000),
-      message: "Expected page to navigate to Keycloak for authentication"
-    })
-    .toContain(oidcIssuerUrl.replace(/\/$/, ""));
+  await awaitOnionHandoff(page, oidcIssuerUrl.replace(/\/$/, ""), async () => {
+    await gotoOnion(page, odooLoginUrl);
+    await clickOdooSsoButton(page);
+  });
 
   // 4. Perform OIDC login with admin credentials
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
@@ -171,12 +172,10 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
   await clickOdooSsoButton(page);
 
   // 3. Wait for navigation to Keycloak
-  await expect
-    .poll(() => page.url(), {
-      timeout: resolveTimeout(60_000),
-      message: "Expected page to navigate to Keycloak for authentication"
-    })
-    .toContain(oidcIssuerUrl.replace(/\/$/, ""));
+  await awaitOnionHandoff(page, oidcIssuerUrl.replace(/\/$/, ""), async () => {
+    await gotoOnion(page, odooLoginUrl);
+    await clickOdooSsoButton(page);
+  });
 
   // 4. Perform OIDC login with biber credentials
   await performKeycloakLoginForm(page, biberUsername, biberPassword);
@@ -245,3 +244,5 @@ test("administrator: app → universal logout", async ({ page }) => {
     },
   });
 });
+
+require("./test-design").register(require("./_shared"));

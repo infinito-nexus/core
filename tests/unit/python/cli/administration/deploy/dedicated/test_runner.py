@@ -89,7 +89,11 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         def was_called(cmd: list[str]) -> bool:
             return any(call_cmd == cmd for call_cmd, _kw in calls)
 
-        self.assertTrue(was_called(["make", "clean"]), "Expected 'make clean'")
+        self.assertFalse(
+            was_called(["make", "clean"]),
+            "MODE_CLEANUP tidies the deployed system, so it must not git-clean "
+            "the control checkout and delete the inventory being deployed",
+        )
         self.assertTrue(was_called(["make", "setup"]), "Expected 'make setup'")
 
         for call_cmd, kw in calls:

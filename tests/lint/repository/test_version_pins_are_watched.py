@@ -100,7 +100,8 @@ def _findings() -> list[str]:
         if not is_maintained(PROJECT_ROOT / "roles", role):
             continue
         lines = read_text(str(config_path)).splitlines()
-        for entity, config in (load_yaml(str(config_path)) or {}).items():
+        services = load_yaml(str(config_path)) or {}
+        for entity, config in services.items():
             if not isinstance(config, dict):
                 continue
             for key, value in config.items():

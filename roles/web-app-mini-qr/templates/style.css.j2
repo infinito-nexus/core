@@ -1,0 +1,197 @@
+{% set design = lookup('design', application_id) %}
+{% set focus = 'var(--design-focus, var(--design-link))' %}
+{% set modal = '[aria-labelledby="data-to-encode-modal-title"]' %}
+{% set chrome = ':where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))' %}
+{% macro paint(property, value, classes, state='') %}
+{% for cls in classes %}
+:root [class~="{{ cls }}"]{{ state }}{{ ',' if not loop.last else ' {' }}
+{% endfor %}
+  {{ property }}: {{ value }};
+}
+{% endmacro %}
+body,
+#app > main > .min-h-screen {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+{{ chrome }},
+{{ chrome }}::before,
+{{ chrome }}::after {
+  border-color: var(--design-border);
+}
+{{ paint('background-color', 'var(--design-surface-2)', ['bg-white', 'bg-zinc-50', 'bg-background', 'bg-popover']) }}
+{{ paint('background-color', 'var(--design-surface-3)', ['bg-zinc-100', 'bg-gray-100', 'bg-gray-50', 'bg-gray-200']) }}
+{{ paint('background-color', 'var(--design-border)', ['bg-zinc-200', 'bg-border']) }}
+{{ paint('background-color', 'var(--design-border-strong)', ['bg-gray-300', 'bg-muted']) }}
+{{ paint('background-color', 'var(--design-info-subtle)', ['bg-blue-50']) }}
+{{ paint('background-color', 'var(--design-surface-hover)', ['hover:bg-zinc-100', 'hover:bg-zinc-200', 'hover:bg-gray-50', 'hover:bg-accent'], ':hover') }}
+{{ paint('background-color', 'var(--design-surface-hover)', ['data-[highlighted]:bg-accent'], '[data-highlighted]') }}
+{{ paint('background-color', 'var(--design-surface-active)', ['data-[state=open]:bg-accent'], '[data-state="open"]') }}
+{{ paint('color', 'var(--design-text)', ['text-zinc-900', 'text-zinc-800', 'text-zinc-700', 'text-gray-800', 'text-gray-700', 'text-foreground', 'text-popover-foreground']) }}
+{{ paint('color', 'var(--design-text)', ['hover:text-zinc-900', 'hover:text-zinc-700', 'hover:text-gray-700', 'hover:text-accent-foreground'], ':hover') }}
+{{ paint('color', 'var(--design-text-muted)', ['text-zinc-600', 'text-zinc-500', 'text-gray-600', 'text-gray-500', 'text-gray-400', 'text-muted-foreground']) }}
+{{ paint('color', 'var(--design-text-muted)', ['placeholder:text-muted-foreground'], '::placeholder') }}
+{{ paint('color', 'var(--design-text-muted)', ['data-[state=open]:text-muted-foreground'], '[data-state="open"]') }}
+{{ paint('color', 'var(--design-danger)', ['text-red-500']) }}
+{{ paint('color', 'var(--design-link)', ['text-blue-600']) }}
+{{ paint('border-color', 'var(--design-border)', ['border-zinc-200', 'border-gray-200', 'border-gray-100']) }}
+{{ paint('border-color', 'var(--design-border-strong)', ['border-zinc-300', 'border-gray-300', 'border-slate-300', 'border-input']) }}
+{{ paint('border-color', 'var(--design-text-muted)', ['hover:border-gray-400'], ':hover') }}
+{{ paint('border-color', 'var(--design-primary)', ['border-zinc-900', 'border-gray-900']) }}
+{{ paint('border-top-color', 'var(--design-primary)', ['border-t-blue-500']) }}
+{{ paint('border-color', 'var(--design-danger)', ['border-red-500']) }}
+{{ paint('border-color', 'var(--design-danger)', ['focus:border-red-500'], ':focus') }}
+{{ paint('border-color', 'var(--design-info-border)', ['border-blue-200', 'border-blue-400']) }}
+{{ paint('--tw-ring-color', focus, ['focus-visible:ring-zinc-700', 'focus-visible:ring-ring'], ':focus-visible') }}
+{{ paint('--tw-ring-color', focus, ['focus:ring-ring'], ':focus') }}
+{{ paint('--tw-ring-color', 'var(--design-danger)', ['focus:ring-red-500'], ':focus') }}
+{{ paint('--tw-ring-offset-color', 'var(--design-surface-1)', ['ring-offset-background']) }}
+a,
+a:visited,
+a:active {
+  color: var(--design-link);
+}
+:root p{{ chrome }},
+:root label,
+:root legend,
+:root .radio > label,
+:root .radio > * > label {
+  color: var(--design-text);
+}
+:root {{ chrome }}::selection {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+:root {{ chrome }}::-webkit-scrollbar-track {
+  background-color: var(--design-surface-3);
+}
+:root {{ chrome }}::-webkit-scrollbar-thumb {
+  background-color: var(--design-border-strong);
+}
+:root {{ chrome }}::-webkit-scrollbar-thumb:hover {
+  background-color: var(--design-text-muted);
+}
+:root input::placeholder,
+:root textarea::placeholder {
+  color: var(--design-text-muted);
+}
+:root .text-input,
+:root .secondary-button {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+:root .button {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+:root .button:hover:not(:disabled),
+:root .secondary-button:hover:not(:disabled) {
+  background-color: var(--design-surface-hover);
+}
+:root .button:active:not(:disabled),
+:root .secondary-button:active:not(:disabled) {
+  background-color: var(--design-surface-active);
+}
+#export-options .button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+#export-options .button:hover:not(:disabled) {
+  background-color: var(--design-primary-hover);
+}
+#export-options .button:active:not(:disabled) {
+  background-color: var(--design-primary-active);
+}
+#app .icon-button {
+  background-color: transparent;
+  color: var(--design-text);
+}
+#app .icon-button:hover {
+  background-color: var(--design-surface-hover);
+}
+:root .text-input:focus-visible,
+:root .button:focus-visible,
+:root .secondary-button:focus-visible,
+:root .icon-button:focus-visible,
+:root input[type="color"]:focus-visible,
+:root input[type="checkbox"]:focus,
+:root .radio:focus-within {
+  --tw-ring-color: {{ focus }};
+}
+:root fieldset:focus-visible {
+  outline-color: {{ focus }};
+}
+:root input[type="color"] {
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+:root input[type="radio"],
+:root input[type="checkbox"] {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+:root input[type="checkbox"]:hover {
+  border-color: var(--design-text-muted);
+}
+:root input[type="radio"]::before,
+:root input[type="checkbox"]::before {
+  background-color: var(--design-primary);
+  color: var(--design-primary);
+}
+#app footer {
+  background-color: rgba(var(--design-surface-1-rgb), 0.8);
+}
+:is(.icon-button, .button, .secondary-button, [role="combobox"], {{ modal }}) svg :is([fill="#abcbca"], [fill="#abcabc"], [fill="#888888"]) {
+  fill: currentColor;
+}
+:is(.icon-button, .button, .secondary-button, [role="combobox"], {{ modal }}) svg[stroke="#abcbca"],
+:is(.icon-button, .button, .secondary-button, [role="combobox"], {{ modal }}) svg :is([stroke="#abcbca"], [stroke="#888888"]) {
+  stroke: currentColor;
+}
+.prose {
+  --tw-prose-body: var(--design-text);
+  --tw-prose-headings: var(--design-text);
+  --tw-prose-lead: var(--design-text-muted);
+  --tw-prose-links: var(--design-link);
+  --tw-prose-bold: var(--design-text);
+  --tw-prose-counters: var(--design-text-muted);
+  --tw-prose-bullets: var(--design-text-muted);
+  --tw-prose-hr: var(--design-border);
+  --tw-prose-quotes: var(--design-text);
+  --tw-prose-quote-borders: var(--design-border);
+  --tw-prose-captions: var(--design-text-muted);
+  --tw-prose-code: var(--design-text);
+  --tw-prose-pre-code: var(--design-text);
+  --tw-prose-pre-bg: var(--design-surface-3);
+  --tw-prose-th-borders: var(--design-border-strong);
+  --tw-prose-td-borders: var(--design-border);
+  --tw-prose-invert-body: var(--design-text);
+  --tw-prose-invert-headings: var(--design-text);
+  --tw-prose-invert-lead: var(--design-text-muted);
+  --tw-prose-invert-links: var(--design-link);
+  --tw-prose-invert-bold: var(--design-text);
+  --tw-prose-invert-counters: var(--design-text-muted);
+  --tw-prose-invert-bullets: var(--design-text-muted);
+  --tw-prose-invert-hr: var(--design-border);
+  --tw-prose-invert-quotes: var(--design-text);
+  --tw-prose-invert-quote-borders: var(--design-border);
+  --tw-prose-invert-captions: var(--design-text-muted);
+  --tw-prose-invert-code: var(--design-text);
+  --tw-prose-invert-pre-code: var(--design-text);
+  --tw-prose-invert-pre-bg: var(--design-surface-3);
+  --tw-prose-invert-th-borders: var(--design-border-strong);
+  --tw-prose-invert-td-borders: var(--design-border);
+}
+{% if design.logo is string %}
+#app h1 {
+  width: 200px;
+  height: 48px;
+  overflow: hidden;
+  font-size: 0;
+  background: url("{{ design.urls.logo.svg }}") left center / contain no-repeat;
+}
+#app h1.text-xl {
+  width: 150px;
+  height: 36px;
+}
+{% endif %}

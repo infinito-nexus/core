@@ -39,7 +39,7 @@
       {{ ERPNEXT_QUEUE_SHORT_CONTAINER }} \
       {{ ERPNEXT_QUEUE_LONG_CONTAINER }}
   changed_when: false
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🔄 restart Frappe services to pick up newly-installed app (swarm mode)"
   ansible.builtin.command: >-
@@ -53,7 +53,7 @@
     - queue-long
   changed_when: false
   timeout: "{{ lookup('timeout', 600) | int }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔍 Re-resolve ERPNext backend node + CID after restart"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

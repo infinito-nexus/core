@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-bookwyrm"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('container_hostname', application_id) }}"

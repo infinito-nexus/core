@@ -5,11 +5,9 @@ compose_mode_force: "{{ 'compose' if lookup('config', application_id, 'services.
 
 location_upload: "~ ^/_matrix/media/v3/"
 
-MATRIX_ONION_NODE: "{{ lookup('config', 'svc-net-tor', 'services.tor.node', '') }}"
-MATRIX_SERVER_NAME: "{{ MATRIX_ONION_NODE if (MATRIX_ONION_NODE and lookup('domain', application_id) is search('\\.onion$')) else lookup('config', application_id,
-  'services.matrix.server_name') }}"
-MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
-MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+MATRIX_SERVER_NAME: "{{ lookup('matrix_server_name') }}"
+MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 MATRIX_WELL_KNOWN_DIRECTORY: "{{ [ lookup('nginx','directories.data.well_known'), 'matrix' ] | path_join }}"
 MATRIX_WELL_KNOWN_FILE: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}server"
 MATRIX_REGISTRATION_FILE_FOLDER: "/registrations/"
@@ -36,7 +34,7 @@ MATRIX_SYNAPSE_VOLUME: "{{ lookup('volume', application_id, 'synapse_data').name
 MATRIX_SYNAPSE_UID: 991
 MATRIX_SYNAPSE_GID: 991
 MATRIX_MDAD_SERVICE_KEY: "matrix"
-MATRIX_MDAD_CONTAINER: "{{ application_id | get_entity_name }}"
+MATRIX_MDAD_CONTAINER: "{{ application_id | entity_name }}"
 MATRIX_MDAD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, MATRIX_MDAD_SERVICE_KEY) }}"
 MATRIX_SYNAPSE_DOMAIN: "{{ lookup('domains', application_id).synapse }}"
 MATRIX_SYNAPSE_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
@@ -59,6 +57,11 @@ MATRIX_ELEMENT_PORT: "{{ lookup('config', 'web-app-matrix', 'services.element.po
 MATRIX_ELEMENT_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.element.ports.internal.http') }}"
 MATRIX_ELEMENT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'element-config.json' ] | path_join }}"
 
+MATRIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MATRIX_DESIGN_TITLE: "{{ (lookup('design', application_id).title or '') if MATRIX_DESIGN_ENABLED | bool else '' }}"
+MATRIX_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.svg if (MATRIX_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string) else
+  '' }}"
+
 MATRIX_MDAD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}mdad"
 MATRIX_MDAD_RUNNER_BUILD_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'runner' ] | path_join }}"
 MATRIX_MDAD_PLAYBOOK_TAGS: "{{ lookup('config', application_id, 'services.matrix.playbook_tags') }}"
@@ -78,11 +81,36 @@ MATRIX_MDAD_DAEMON_JSON:
     max-size: "10m"
     max-file: "3"
 
-MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') }}"
+MATRIX_TELEGRAM_USABLE: >-
+  {{ (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_id', '') | string | trim | length > 0)
+     and (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_pin', '') | string | trim | length > 0) }}
 
-MATRIX_CONFERENCING_JITSI: "{{ lookup('config', application_id, 'services.matrix.conferencing.jitsi') | bool }}"
+MATRIX_BRIDGE_ADDONS_DECLARED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'bridge') | selectattr('value.config.bridge_name',
+  'defined') | list }}"
+
+MATRIX_BRIDGE_ADDONS: >-
+  {{ MATRIX_BRIDGE_ADDONS_DECLARED if MATRIX_TELEGRAM_USABLE | bool
+     else (MATRIX_BRIDGE_ADDONS_DECLARED | rejectattr('value.config.bridge_name', 'equalto', 'telegram') | list) }}
+MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') | combine(dict(MATRIX_BRIDGE_ADDONS | map(attribute='value.config.bridge_name') | map('regex_replace',
+  '^', 'mautrix_') | zip(MATRIX_BRIDGE_ADDONS | map(attribute='value.enabled')))) }}"
+
 MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services.matrix.conferencing.element_call') | bool }}"
 MATRIX_SYNAPSE_METRICS_PORT: "{{ lookup('config', application_id, 'services.prometheus.native_metrics.port') }}"
+
+MATRIX_ADDON_BAIBOT_ENABLED: "{{ lookup('config', application_id, 'addons.baibot.enabled') | bool }}"
+MATRIX_ADDON_BAIBOT_LOCALPART: "{{ lookup('config', application_id, 'addons.baibot.config.user_localpart') }}"
+MATRIX_ADDON_BAIBOT_PASSWORD: "{{ lookup('config', application_id, 'addons.baibot.config.user_password') }}"
+MATRIX_ADDON_BAIBOT_AGENT_ID: "{{ lookup('config', application_id, 'addons.baibot.config.agent_id') }}"
+MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED: "{{ lookup('config', application_id, 'addons.synapse-usage-exporter.enabled') | bool }}"
+
+MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-gitlab.enabled') | bool }}"
+MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-jira.enabled') | bool }}"
+MATRIX_ADDON_HOOKSHOT_WEBHOOKS_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-webhooks.enabled') | bool }}"
+MATRIX_ADDON_HOOKSHOT_FEEDS_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-feeds.enabled') | bool }}"
+MATRIX_JITSI_SELF_HOSTED: "{{ (lookup('config', application_id, 'services.jitsi.enabled') | bool) and not (lookup('config', application_id, 'services.jitsi.shared')
+  | bool) }}"
+MATRIX_ADDON_JITSI_ENABLED: "{{ lookup('config', application_id, 'addons.jitsi.enabled') | bool }}"
+MATRIX_ADDON_JITSI_PREFERRED_DOMAIN: "{{ lookup('config', application_id, 'addons.jitsi.config.preferred_domain') }}"
 
 MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 

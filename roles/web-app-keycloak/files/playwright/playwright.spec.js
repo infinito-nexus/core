@@ -1,40 +1,10 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
+const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, attachDiagnostics, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, requireDotenvValue, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 const { provisionKeycloakUser } = require("./admin-console");
 test.use({ ignoreHTTPSErrors: true });
-
-// -----------------------------------------------------------------------------
-// Shared helpers (inlined on purpose: the runner only stages this file).
-// -----------------------------------------------------------------------------
-
-function attachDiagnostics(page) {
-  const consoleErrors = [];
-  const pageErrors = [];
-  const cspRelated = [];
-
-  page.on("console", (message) => {
-    if (message.type() === "error") {
-      consoleErrors.push(message.text());
-    }
-
-    if (/content security policy|csp/i.test(message.text())) {
-      cspRelated.push({ source: "console", text: message.text() });
-    }
-  });
-
-  page.on("pageerror", (error) => {
-    const text = String(error);
-    pageErrors.push(text);
-
-    if (/content security policy|csp/i.test(text)) {
-      cspRelated.push({ source: "pageerror", text });
-    }
-  });
-
-  return { consoleErrors, pageErrors, cspRelated };
-}
 
 async function fillKeycloakLoginForm(page, username, password) {
   const usernameField = page.locator("input[name='username'], input#username").first();
@@ -79,6 +49,7 @@ const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME);
 const superAdminUsername = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME);
 const superAdminPassword = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
+const adminDisplayName = requireDotenvValue(process.env.ADMIN_DISPLAY_NAME, "ADMIN_DISPLAY_NAME");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
@@ -178,7 +149,7 @@ test("normal-realm administrator logs in through account interface and logs out"
     })
     .toContain("/account");
 
-  await expect(page.locator("body")).toContainText(new RegExp(adminUsername, "i"), { timeout: resolveTimeout(60_000) });
+  await expect(page.locator("body")).toContainText(adminDisplayName, { timeout: resolveTimeout(60_000) });
 
   await keycloakSignOutFromAccountConsole(page);
 
@@ -316,6 +287,23 @@ test("normal-realm biber logs in through account interface and logs out", async 
 // Bodies live in the shared persona helpers under
 // roles/test-e2e-playwright/files/personas/{guest,biber,admin}.js.
 
+test("the logout panel carries the German catalogue from the core translations", async ({ page }) => {
+  skipUnlessServiceEnabled("javascript");
+  const expected = JSON.parse(decodeDotenvQuotedValue(process.env.LOGOUT_PANEL_DE_JSON || "") || "{}");
+  expect(expected.checking, "LOGOUT_PANEL_DE_JSON must carry the German logout strings").toBeTruthy();
+  const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME || "");
+  await gotoOnion(page, `${appBaseUrl}/realms/${realmName}/protocol/openid-connect/logout`);
+  await expect
+    .poll(() => page.evaluate(() => Boolean(window.__INFINITO_LOGOUT__)), {
+      message: "Expected the logout panel to load on the logout page",
+      timeout: resolveTimeout(30_000),
+    })
+    .toBe(true);
+  const catalogue = await page.evaluate(() => window.__INFINITO_LOGOUT__.i18n);
+  expect(catalogue.de, "Expected the German strings of core.po in the served panel").toEqual(expected);
+  await expect(page.locator("#infinito-logout-status")).toBeVisible({ timeout: resolveTimeout(30_000) });
+});
+
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {
   await runGuestFlow(page);
 });
@@ -327,3 +315,5 @@ test("biber: app → keycloak → role action → logout", async ({ page }) => {
 test("administrator: app → keycloak → admin action → logout", async ({ page }) => {
   await runAdminFlow(page);
 });
+
+require("./test-design").register();

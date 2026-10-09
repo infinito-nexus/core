@@ -16,7 +16,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -59,7 +59,7 @@ class LookupModule(LookupBase):
                 f"services.prometheus.native_metrics.port for {application_id!r}"
             )
 
-        service_key = conf("service_key") or get_entity_name(application_id)
+        service_key = conf("service_key") or entity_name(application_id)
         if not service_key:
             raise AnsibleError(
                 f"native_metrics_target: cannot derive service key for {application_id!r}"

@@ -30,6 +30,21 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
+gitlab:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitlab' in group_names }}"
+  shared: "{{ 'web-app-gitlab' in group_names }}"
+jira:
+  enabled: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+  shared: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+n8n:
+  bond: 0.5
+  enabled: "{{ 'web-app-n8n' in group_names }}"
+  shared: "{{ 'web-app-n8n' in group_names }}"
+jitsi:
+  bond: 0.5
+  enabled: "{{ 'web-app-jitsi' in group_names }}"
+  shared: "{{ 'web-app-jitsi' in group_names }}"
 # nocheck: playwright-service-flag — TURN/STUN server, no Playwright surface (provider: web-svc-coturn)
 coturn:
   bond: 1
@@ -87,23 +102,26 @@ matrix-chatgpt-bot:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
-# nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-app-seaweedfs)
+# nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-svc-seaweedfs)
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 512
+      height: 512
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
   native_metrics:
-    enabled: true
+    enabled: true # nocheck: dynamic-flag — both flavors publish a scrape target, so no inventory decides this
     port: "{{ 9000 if lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'compose' else 9100 }}"
     service_key: "{{ 'synapse' if lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'compose' else 'matrix' }}"
   communication:
@@ -145,9 +163,8 @@ matrix:
     appservice_irc: false
     chatgpt: "{{ 'svc-ai-litellm' in group_names }}"
     discord: false
-    gitter: false
     heisenbridge: true
-    hookshot: false
+    hookshot: "{{ 'web-app-gitlab' in group_names or 'web-app-n8n' in group_names }}"
     mautrix_discord: false
     mautrix_signal: false
     mautrix_slack: false
@@ -156,7 +173,6 @@ matrix:
     mautrix_whatsapp: false
   conferencing:
     element_call: true
-    jitsi: true
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -170,7 +186,6 @@ matrix:
   pids_limit: 256
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"

@@ -1,11 +1,23 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion, webmailSsoLogin, waitForEmailInMailbox, safeIsEnabled } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  expectHstsWhenTls,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+  safeIsEnabled,
+  waitForEmailInMailbox,
+  webmailSsoLogin,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const webmailBaseUrl = normalizeBaseUrl(decodeDotenvQuotedValue(process.env.WEBMAIL_BASE_URL || ""));
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
@@ -41,6 +53,7 @@ test("GitLab returns HTML content under canonical domain", async ({ request }) =
 });
 
 require("./test-mcp-guest");
+require("./test-integrations").register();
 
 // Outbound mail. `templates/config/smtp_settings.rb.j2` derives ActionMailer's
 // `tls:` from the provider's own declaration, and tls/starttls are mutually
@@ -54,6 +67,7 @@ test("gitlab: a password-reset request is delivered to the recipient's mailbox",
   test.skip(!ssoEnabled, "the administrator account is created by the first SSO login");
   test.skip(!webmailBaseUrl, "the active mail provider serves no webmail vhost to read from");
   expect(adminEmail, "ADMIN_EMAIL must be set").toBeTruthy();
+  expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 
   await runAdminFlow(page);

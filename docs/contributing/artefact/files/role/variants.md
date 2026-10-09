@@ -29,6 +29,30 @@ A **variant** is the role's assembled per-role meta payload (the same payload `a
 - Variant 0 is the canonical baseline. The first entry SHOULD manually enumerate every dynamic service-key declared in `meta/services.yml` and pin each one to `enabled: true, shared: true`. The literal-true pins document the role's "all dynamics on" maximum-footprint deploy shape that every non-baseline variant either re-affirms or explicitly disables (see [test_non_baseline_explicit_disables.py](../../../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py)).
 - `{}` is permitted only when `meta/services.yml` declares no dynamic-enabled service-key, so there is nothing for the baseline to pin (for example pure matrix-driver roles such as `svc-bkp-volume-2-local`, whose every service-key originates in `variants.yml`).
 
+## Pinning A Partner's Variant 📌
+
+A round hands every role the round index and clamps to variant 0 when the role has fewer entries. A pairing therefore holds only while both variant lists happen to agree on an index, and it breaks silently once the partner has fewer variants than the round.
+
+A `# variant-pin:` comment on the line above a service entry forces the partner into one variant for that round:
+
+```yaml
+- services:
+    # variant-pin: web-app-nextcloud#3
+    nextcloud:
+      enabled: true
+      shared: true
+```
+
+The token follows the `role#variant` form used by the priority slots. `#reciprocal` resolves to the partner's variant that switches this role back on, so neither side tracks the other's index:
+
+```yaml
+    # variant-pin: web-app-nextcloud#reciprocal
+```
+
+The marker is a comment, so it never reaches the merged services map or `host_vars`. It applies only to the variant entry it stands in; the same role's other variants are unaffected. A primary app keeps the index the sweep assigned it and no pin overrides it.
+
+Two roles pinning the same partner to different variants in one round raises `VariantPinConflictError` before an inventory is written. An index that no longer points at the reciprocating variant is caught by [test_variant_pins.py](../../../../../tests/integration/roles/meta/variants/test_variant_pins.py); `#reciprocal` needs exactly one candidate variant on the partner or it raises.
+
 ## Credentials Interaction 🔐
 
 A variant entry MAY toggle `services.<key>.enabled+shared` to pull additional shared providers into the round's closure (for example `services.ldap.enabled: true` to add `svc-db-openldap`).

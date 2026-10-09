@@ -1,0 +1,69 @@
+---
+# nocheck: dynamic-flag
+# nocheck: logout
+logout:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: oidc
+# nocheck: sso
+sso:
+  enabled: false
+  shared: false
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+redis:
+  enabled: false
+  shared: "{{ 'svc-db-redis' in group_names }}"
+  backup:
+    disabled: true
+meta:
+  healthcheck:
+    flavor: curl
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: ghcr.io/infinito-nexus/meta
+  version: v2.0.4
+  name: meta
+  min_storage: 1040MB
+  ports:
+    internal:
+      http: 80
+    local:
+      http: 8047
+  lifecycle: alpha
+  cpus: "0.2"
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 256
+api:
+  bond: 1
+  enabled: "{{ 'web-svc-api' in group_names }}"
+  shared: "{{ 'web-svc-api' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag

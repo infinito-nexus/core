@@ -28,7 +28,7 @@ from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.database import RDBMS_SERVICE_KEYS
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VOLUMES
 from utils.roles.meta_lookup import get_role_mode_enabled
 from utils.storage.nfs import swarm_nfs_backed
@@ -75,7 +75,7 @@ def _single_replica_service_names(role_id: str, services: dict) -> set[str] | No
     entity key. Replicas resolve service-first and fall back to the primary
     entity, so a pin there covers every service in the role.
     """
-    primary = get_entity_name(role_id) or role_id
+    primary = entity_name(role_id) or role_id
     if _declares_one_replica(services.get(primary)):
         return None
     return {

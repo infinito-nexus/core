@@ -23,85 +23,7 @@
     - not (DOMAIN_PRIMARY is search('\.onion$'))
 
 - name: 🔀 Merge variables
-  block:
-    - name: 🔀 Merge networks definitions
-      ansible.builtin.set_fact:
-        networks: "{{ defaults_networks | combine(networks | default({}, true), recursive=True) }}"
-
-    - name: 🧊 Render the applications SPOT once for the merge block
-      applications_carrier: {}
-
-    - name: "✅ Sanity check: all group_names must exist in applications"
-      ansible.builtin.assert:
-        that:
-          - group_name in lookup('applications')
-        fail_msg: "Group '{{ group_name }}' has no entry in 'applications'"
-        success_msg: "Group '{{ group_name }}' is defined in 'applications'"
-      loop: "{{ group_names }}"
-      loop_control:
-        loop_var: group_name
-      when: MODE_ASSERT | bool
-
-    - name: 🔀 Merge current play applications
-      ansible.builtin.set_fact:
-        CURRENT_PLAY_APPLICATIONS: "{{ lookup('applications_current_play') }}"
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-    - name: 🔀 Merge current play domain definitions
-      ansible.builtin.set_fact:
-        CURRENT_PLAY_DOMAINS: >-
-          {{
-            lookup('applications')
-            | canonical_domains_map(
-                DOMAIN_PRIMARY,
-                recursive=True,
-                roles_base_dir=(lookup('path_absolute', 'roles')),
-                seed=(CURRENT_PLAY_APPLICATIONS | dict2items | map(attribute='key') | list)
-              )
-          }}
-
-    - name: 🔧 Set CURRENT_PLAY_REDIRECT_DOMAINS
-      ansible.builtin.set_fact:
-        CURRENT_PLAY_REDIRECT_DOMAINS: "{{ lookup('current_play_redirect_domains') }}"
-
-    - name: 🔧 Set current play all domains incl. www redirect if enabled
-      ansible.builtin.set_fact:
-        CURRENT_PLAY_DOMAINS_ALL: >-
-          {{
-            (
-              CURRENT_PLAY_DOMAINS
-              | combine(
-                  CURRENT_PLAY_REDIRECT_DOMAINS | default([])
-                  | items2dict(key_name='source', value_name='source'),
-                  recursive=True
-                )
-            )
-            | generate_all_domains(WWW_REDIRECT_ENABLED | bool)
-          }}
-
-    - name: ✅ Assert OIDC resolves lazily (inventory overrides live in OIDC_OVERRIDE)
-      ansible.builtin.assert:
-        that:
-          - OIDC.CLIENT.DISCOVERY_DOCUMENT is defined
-        fail_msg: >-
-          OIDC does not resolve to the full defaults tree. An inventory most
-          likely still defines 'OIDC:' at host level, shadowing the lazy
-          group_var — migrate that block to 'OIDC_OVERRIDE:' so the issuer can
-          family-align to each consuming role.
-        quiet: true
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-    - name: 🔀 Merge design configuration
-      ansible.builtin.set_fact:
-        design: "{{ defaults_design | combine(design | default({}, true), recursive=True) }}"
-
-    - name: 🔀 Merge service_provider configuration
-      ansible.builtin.set_fact:
-        service_provider: "{{ defaults_service_provider | combine(service_provider | default({}, true), recursive=True) }}"
-
-    - name: 🧊 Drop the merge-block carrier so later stages re-render
-      applications_carrier:
-        clear: true
+  ansible.builtin.include_tasks: ./tasks/utils/constructor/variables.yml
 
 - name: "💾 Persist {{ SOFTWARE_NAME }} version"
   ansible.builtin.include_role:
@@ -127,39 +49,8 @@
     - MODE_CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool
 
-- name: "🖥️ Auto-place single-host shared services on first manager (swarm mode)"
-  ansible.builtin.add_host:
-    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] }}"
-    groups: "{{ role_id }}"
-  loop: "{{ lookup('roles_with_placement', 'manager') }}"
-  loop_control:
-    loop_var: role_id
-    label: "{{ role_id }}"
-  when:
-    - (groups['svc-swarm-manager'] | default([]) | length) > 0
-    - role_id in groups
-    - (groups[role_id] | default([]) | length) == 0
-  run_once: true
-  changed_when: false
-
-- name: "🔧 auto-place svc-prx-openresty (swarm manager, first compose host) for vhosts"
-  ansible.builtin.add_host:
-    name: "{{ (groups['svc-swarm-manager'] | default([]))[0] | default(ansible_play_hosts | first) }}"
-    groups: svc-prx-openresty
-  vars:
-    _web_groups: >-
-      {{
-        groups
-        | dict2items
-        | selectattr('key', 'match', '^web-')
-        | rejectattr('value', 'equalto', [])
-        | list
-      }}
-  when:
-    - (groups['svc-prx-openresty'] | default([]) | length) == 0
-    - (_web_groups | length) > 0
-  run_once: true
-  changed_when: false
+- name: "📍 Place the shared services and the proxy on their hosts"
+  ansible.builtin.include_tasks: ./tasks/utils/constructor/placement.yml
 
 - name: "🥾 Bootstrap svc-swarm-node"
   ansible.builtin.include_role:
@@ -172,10 +63,11 @@
     service_loader_preloading: true
   changed_when: false
 
-- name: "🥾 Bootstrap NFS clients + registry + sandbox runtimes (MUST precede Preload)"
+- name: "🥾 Bootstrap storage + cache + registry + runtimes (MUST precede Preload)"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop:
     - svc-storage
+    - svc-cache
     - svc-registry
     - svc-virt
   loop_control:

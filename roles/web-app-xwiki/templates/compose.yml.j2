@@ -9,29 +9,18 @@
     {{ lookup('compose_only', 'container_name', XWIKI_CONTAINER) }}
     hostname: '{{ XWIKI_HOSTNAME}}'
     {{ lookup('container_ports', ['xwiki', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    environment:
-      JAVA_OPTS: >-
-        {% if xwiki_oidc_enabled_switch| bool %}
-        -Dxwiki.authentication.authservice=oidc
-        -Dxwiki.authentication.authclass=org.xwiki.contrib.oidc.auth.OIDCAuthServiceImpl
-        {% elif xwiki_ldap_enabled_switch | bool %}
-        -Dxwiki.authentication.authclass=org.xwiki.contrib.ldap.XWikiLDAPAuthServiceImpl
-        -Dxwiki.authentication.authservice=ldap
-        -Dxwiki.authentication.ldap=1
-        -Dxwiki.authentication.ldap.trylocal={{ (XWIKI_LDAP_TRYLOCAL | bool) | ternary(1, 0) }}
-        -Dxwiki.authentication.ldap.group_mapping=XWiki.{{ XWIKI_ADMIN_GROUP_PAGE }}={{ XWIKI_LDAP_ADMIN_GROUP_DN }}
-        -Dxwiki.authentication.ldap.mode_group_sync=always
-        -Dxwiki.authentication.ldap.server={{ XWIKI_LDAP_SERVER }}
-        -Dxwiki.authentication.ldap.port={{ XWIKI_LDAP_PORT }}
-        -Dxwiki.authentication.ldap.base_DN={{ XWIKI_LDAP_BASE_DN }}
-        -Dxwiki.authentication.ldap.bind_DN={{ XWIKI_LDAP_BIND_DN }}
-        -Dxwiki.authentication.ldap.bind_pass={{ XWIKI_LDAP_BIND_PASS }}
-        -Dxwiki.authentication.ldap.fields_mapping={{ XWIKI_LDAP_FIELDS_MAPPING }}
-        -Dxwiki.authentication.ldap.update_user=1
-        {% else %}
-        -Dxwiki.authentication.authservice=standard
-        -Dxwiki.authentication.authclass=com.xpn.xwiki.user.impl.xwiki.XWikiAuthServiceImpl
-        {% endif %}
+    environment: # nocheck: compose-environment-from-env-file the LDAP keys follow xwiki_ldap_enabled_switch, and tasks/02_manager_ops.yml flips it for a second render of compose.yml.j2 alone; env.j2 renders once under tasks/00_core.yml with the switch pinned false, so an env-file copy would freeze the disabled state and LDAP would never reach the container
+      XWIKI_PROPERTIES_SOURCE: "{{ lookup('volume', application_id, 'properties').target }}"
+      {% if xwiki_ldap_enabled_switch | bool and not (xwiki_oidc_enabled_switch | bool) %}
+      XWIKI_CFG_LDAP_SERVER: "{{ XWIKI_LDAP_SERVER }}"
+      XWIKI_CFG_LDAP_PORT: "{{ XWIKI_LDAP_PORT }}"
+      XWIKI_CFG_LDAP_BASE_DN: "{{ XWIKI_LDAP_BASE_DN }}"
+      XWIKI_CFG_LDAP_BIND_DN: "{{ XWIKI_LDAP_BIND_DN }}"
+      XWIKI_CFG_LDAP_BIND_PASS: "{{ XWIKI_LDAP_BIND_PASS }}"
+      XWIKI_CFG_LDAP_FIELDS_MAPPING: "{{ XWIKI_LDAP_FIELDS_MAPPING }}"
+      XWIKI_CFG_LDAP_GROUP_MAPPING: "XWiki.{{ XWIKI_ADMIN_GROUP_PAGE }}={{ XWIKI_LDAP_ADMIN_GROUP_DN }}"
+      XWIKI_CFG_LDAP_TRYLOCAL: "{{ (XWIKI_LDAP_TRYLOCAL | bool) | ternary(1, 0) }}"
+      {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

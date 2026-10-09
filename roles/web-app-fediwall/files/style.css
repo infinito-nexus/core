@@ -1,0 +1,83 @@
+body {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+
+#page header {
+  background-color: var(--design-surface-2);
+  border-bottom: 1px solid var(--design-border);
+}
+
+#page footer aside {
+  color: var(--design-text-muted);
+  opacity: 1 !important;
+}
+
+#page footer .btn-link:hover {
+  background-color: var(--design-surface-hover);
+}
+
+#page footer .btn-link:active {
+  background-color: var(--design-surface-active);
+}
+
+#status-row {
+  color: var(--design-text-muted);
+  opacity: 1 !important;
+}
+
+#status-row [data-icon="triangle-exclamation"] {
+  color: var(--design-danger);
+}
+
+.wall-item .card {
+  box-shadow: var(--design-shadow-2);
+}
+
+.wall-item .card.pinned .card-header {
+  background-color: var(--design-surface-active);
+  box-shadow: inset 0 3px 0 var(--design-primary);
+}
+
+.wall-item div.profile {
+  color: var(--design-text-muted);
+  opacity: 1;
+}
+
+.form-control:focus {
+  background-color: var(--design-surface-2);
+}
+
+.form-check-input {
+  appearance: auto;
+  background-image: none;
+}
+
+.form-check-input:active {
+  filter: none;
+}
+
+.form-check-input:focus {
+  box-shadow: var(--design-focus-ring);
+}
+
+#cfg-tabs {
+  --bs-nav-tabs-link-active-bg: var(--design-surface-2);
+  --bs-nav-tabs-link-active-border-color: var(--design-border) var(--design-border) var(--design-surface-2);
+  --bs-nav-tabs-link-hover-border-color: var(--design-border);
+}
+
+#cfg-tabs .nav-link:not(.active):hover {
+  background-color: var(--design-surface-hover);
+}
+
+body > ul > li > a {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  color: var(--design-link);
+}
+
+body > ul > li > a:hover {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-link);
+}

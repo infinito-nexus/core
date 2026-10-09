@@ -4,7 +4,7 @@ data:
   name: pixelfed_data
   mounts:
     - service: pixelfed
-      target: &var_www_storage_target /var/www/storage
+      target: &var_www_storage_target /var/www/html/storage
     - service: worker
       target: *var_www_storage_target
 
@@ -14,22 +14,6 @@ env:
   mode: "0444"
   mounts:
     - service: pixelfed
-      target: &var_www_env_target /var/www/.env
+      target: &var_www_env_target /var/www/html/.env
     - service: worker
       target: *var_www_env_target
-
-entrypoint:
-  type: config
-  source: "{{ [lookup('container', 'web-app-pixelfed', 'directories.instance'), 'docker-entrypoint.sh'] | path_join }}"
-  mode: "0555"
-  mounts:
-    - service: pixelfed
-      target: /infinito-pixelfed-entrypoint.sh
-
-worker_entrypoint:
-  type: config
-  source: "{{ [lookup('container', 'web-app-pixelfed', 'directories.instance'), 'worker-entrypoint.sh'] | path_join }}"
-  mode: "0555"
-  mounts:
-    - service: worker
-      target: /infinito-pixelfed-worker-entrypoint.sh

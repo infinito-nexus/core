@@ -318,6 +318,44 @@ class TestApplyServicesDisabled(unittest.TestCase):
             result["applications"]["web-app-matomo"]["services"],
         )
 
+    def test_flips_a_service_a_variant_baked_without_the_role_declaring_it(self):
+        self._write_host_vars(
+            {
+                "applications": {
+                    "web-app-openbao": {
+                        "services": {"lam": {"enabled": True, "shared": True}}
+                    }
+                }
+            }
+        )
+        self._make_role("web-app-openbao", {"ldap": {"enabled": True, "shared": True}})
+
+        apply_services_disabled(self.host_vars, ["lam"], roles_dir=self.roles_dir)
+
+        lam = self._read_host_vars()["applications"]["web-app-openbao"]["services"][
+            "lam"
+        ]
+        self.assertFalse(lam["enabled"])
+        self.assertFalse(lam["shared"])
+
+    def test_a_variant_baked_service_keeps_the_flag_set_it_already_had(self):
+        self._write_host_vars(
+            {
+                "applications": {
+                    "web-app-moodle": {"services": {"lam": {"enabled": True}}}
+                }
+            }
+        )
+        self._make_role("web-app-moodle", {"ldap": {"enabled": True}})
+
+        apply_services_disabled(self.host_vars, ["lam"], roles_dir=self.roles_dir)
+
+        lam = self._read_host_vars()["applications"]["web-app-moodle"]["services"][
+            "lam"
+        ]
+        self.assertFalse(lam["enabled"])
+        self.assertNotIn("shared", lam)
+
     def test_creates_compose_section_for_app_without_compose(self):
         self._write_host_vars(
             {

@@ -1,0 +1,15 @@
+---
+enabled: "{{ lookup('config', 'web-app-mattermost', 'services.jira.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: "v5.0.0"
+bridges:
+  - jira
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: mattermost/mattermost-plugin-jira
+config:
+  plugin_id: jira
+  partner_url: "{{ lookup('tls', 'web-app-jira', 'url.base') }}"

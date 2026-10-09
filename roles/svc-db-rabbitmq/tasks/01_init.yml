@@ -7,7 +7,7 @@
 
 - name: "🔍 Resolve consumer vhost + credentials"
   ansible.builtin.set_fact:
-    rabbitmq_consumer_vhost: "{{ database_consumer_id | get_entity_name }}"
+    rabbitmq_consumer_vhost: "{{ database_consumer_id | entity_name }}"
     rabbitmq_consumer_username: "{{ lookup('engine', 'rabbitmq', database_consumer_id, 'username') }}"
     rabbitmq_consumer_password: "{{ database_password | default(lookup('engine', 'rabbitmq', database_consumer_id, 'password')) | string }}"
   changed_when: false
@@ -66,9 +66,7 @@
   delay: "{{ RABBITMQ_DELAY }}"
   until: rmq_add_user.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: >
-    rabbitmq_consumer_username not in
-    (rmq_users.stdout | from_json | map(attribute='user') | list)
+  when: rabbitmq_consumer_username not in (rmq_users.stdout | from_json | map(attribute='user') | list)
 
 - name: "✅ Ensure user password matches inventory: {{ rabbitmq_consumer_username }}"
   ansible.builtin.shell: >
@@ -80,9 +78,7 @@
   delay: "{{ RABBITMQ_DELAY }}"
   until: rmq_change_password.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: >
-    rabbitmq_consumer_username in
-    (rmq_users.stdout | from_json | map(attribute='user') | list)
+  when: rabbitmq_consumer_username in (rmq_users.stdout | from_json | map(attribute='user') | list)
 
 - name: "🔐 Grant full perms on vhost '{{ rabbitmq_consumer_vhost }}' to consumer user"
   ansible.builtin.shell: >

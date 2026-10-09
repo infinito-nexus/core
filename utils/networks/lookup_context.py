@@ -12,7 +12,6 @@ Args of :func:`build_context` are documented on the function.
 
 from __future__ import annotations
 
-import contextlib
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -21,23 +20,10 @@ from ansible.plugins.loader import lookup_loader
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
 )
+from utils.templating.vars import resolve_var as resolve_var
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-
-
-def resolve_var(templar: Any, value: Any) -> Any:
-    """Template ``value`` when a templar is available, else pass it through.
-
-    Args:
-        templar: the plugin's templar, or None.
-        value: raw variable value.
-    """
-    if templar is None:
-        return value
-    with contextlib.suppress(Exception):
-        return templar.template(value)
-    return value
 
 
 @dataclass(frozen=True)

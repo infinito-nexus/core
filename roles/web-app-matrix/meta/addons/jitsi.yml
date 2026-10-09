@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-matrix', 'services.jitsi.enabled') | bool }}"
+required: false
+mechanism: module
+source: bundled
+bridges:
+  - jitsi
+config:
+  preferred_domain: "{{ lookup('domain', 'web-app-jitsi') }}"

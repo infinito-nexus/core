@@ -1,0 +1,73 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  var household = {{ (lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-primary'] | lower) | to_json }};
+  function chosen() {
+    try {
+      var theme = window.localStorage.getItem("sh_theme");
+      return theme === "light" || theme === "dark" ? theme : null;
+    } catch (error) {
+      return null;
+    }
+  }
+  function mirror() {
+    var theme = chosen();
+    if (theme) {
+      root.setAttribute("data-design-theme", theme);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+    if (root.style.getPropertyValue("--sh-primary").trim().toLowerCase() === household) {
+      root.setAttribute("data-design-household-primary", "");
+    } else {
+      root.removeAttribute("data-design-household-primary");
+    }
+  }
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["class", "style"] });
+  mirror();
+{% if design.title is string %}
+  var title = {{ design.title | to_json }};
+  var brand = "Social Home";
+  var separator = " · ";
+  function brandTitle() {
+    var current = document.title;
+    if (current === brand) {
+      document.title = title;
+      return;
+    }
+    var suffix = separator + brand;
+    if (current.slice(-suffix.length) !== suffix) {
+      return;
+    }
+    var page = current.slice(0, -suffix.length);
+    document.title = page && page !== title ? page + separator + title : title;
+  }
+  function watchTitle() {
+    var element = document.querySelector("title");
+    if (!element) {
+      return false;
+    }
+    new MutationObserver(brandTitle).observe(element, { childList: true, characterData: true, subtree: true });
+    brandTitle();
+    return true;
+  }
+  if (!watchTitle()) {
+    document.addEventListener("DOMContentLoaded", watchTitle);
+  }
+{% endif %}
+{% if design.logo is string %}
+  var icon = {{ design.urls.favicon_ico | to_json }};
+  function brandIcon() {
+    var icons = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < icons.length; index += 1) {
+      if (icons[index].getAttribute("href") !== icon) {
+        icons[index].setAttribute("type", "image/x-icon");
+        icons[index].setAttribute("href", icon);
+      }
+    }
+  }
+  new MutationObserver(brandIcon).observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ["href"] });
+  brandIcon();
+  document.addEventListener("DOMContentLoaded", brandIcon);
+{% endif %}
+})();

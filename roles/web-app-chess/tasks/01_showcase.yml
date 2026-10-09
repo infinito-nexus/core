@@ -1,0 +1,28 @@
+---
+- name: "🔍 Resolve the {{ application_id }} container for the showcase games"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ CHESS_SERVICE }}"
+    resolve_output_prefix: CHESS_APP
+    resolve_compose_cid: "{{ CHESS_CONTAINER }}"
+
+- name: "♟️ Converge the showcase games of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "CHESS_SHOWCASE_STATE={{ 'present' if CHESS_SHOWCASE_ENABLED | bool else 'absent' }}"
+      - "{{ CHESS_APP_LOCAL_CID }}" # nocheck: container-exec-resolver  CHESS_APP_LOCAL_CID resolved at delegate_to runtime
+      - node
+      - --input-type=module
+      - "-"
+    stdin: "{{ lookup('template', 'showcase.mjs.j2') }}"
+  register: chess_showcase
+  retries: 30
+  delay: 5
+  until: chess_showcase.rc == 0
+  changed_when: "'CHANGED' in chess_showcase.stdout_lines"
+  delegate_to: "{{ CHESS_APP_HOST_NODE }}"
+  run_once: true

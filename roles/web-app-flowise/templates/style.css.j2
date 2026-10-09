@@ -1,0 +1,342 @@
+{% set design = lookup('design', application_id) %}
+html body {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+  scrollbar-color: var(--design-border-strong) var(--design-surface-1);
+}
+
+.MuiAppBar-root {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+
+.MuiAppBar-root .MuiToolbar-root {
+  border-bottom-color: var(--design-border);
+}
+
+.MuiDrawer-root .MuiDrawer-paper {
+  background: var(--design-surface-1);
+  color: var(--design-text);
+  border-right-color: var(--design-border);
+}
+
+.MuiMenu-paper,
+.MuiPopover-paper,
+.MuiDialog-paper,
+.MuiAutocomplete-paper,
+.MuiPopper-root .MuiPaper-root,
+.MuiTableContainer-root {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+
+.MuiPopper-root .MuiList-root {
+  background-color: var(--design-surface-2);
+}
+
+.MuiTableContainer-root {
+  border-color: var(--design-border);
+}
+
+.MuiCard-root .MuiCard-root {
+  background: var(--design-surface-2);
+  color: var(--design-text);
+  border-color: var(--design-border);
+}
+
+.MuiCard-root .MuiCard-root:hover {
+  background: var(--design-surface-hover);
+}
+
+.MuiTableHead-root .MuiTableRow-root {
+  background-color: var(--design-surface-3);
+}
+
+.MuiTableCell-root,
+.MuiTableCell-root.MuiTableCell-head {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+
+.MuiDivider-root {
+  border-color: var(--design-border);
+}
+
+.MuiTypography-h1,
+.MuiTypography-h2,
+.MuiTypography-h3,
+.MuiTypography-h4,
+.MuiTypography-h5,
+.MuiTypography-h6,
+.MuiTypography-body1,
+.MuiTypography-body2,
+.MuiTypography-subtitle1,
+.MuiListItemText-primary,
+.MuiCardHeader-root {
+  color: var(--design-text);
+}
+
+.MuiTypography-caption,
+.MuiTypography-subtitle2,
+.MuiInputBase-input::placeholder {
+  color: var(--design-text-muted);
+}
+
+.MuiOutlinedInput-root,
+.MuiOutlinedInput-input {
+  background: var(--design-surface-2);
+  color: var(--design-text);
+}
+
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: var(--design-border-strong);
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--design-link);
+}
+
+.MuiButton-containedPrimary,
+.MuiButton-containedSecondary,
+.MuiFab-secondary {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+
+.MuiButton-containedPrimary:hover,
+.MuiButton-containedSecondary:hover,
+.MuiFab-secondary:hover {
+  background-color: var(--design-primary-hover);
+  background-image: none;
+}
+
+.MuiButton-containedPrimary:active,
+.MuiButton-containedSecondary:active,
+.MuiFab-secondary:active {
+  background-color: var(--design-primary-active);
+}
+
+.MuiButton-textPrimary,
+.MuiButton-outlinedPrimary {
+  color: var(--design-link);
+}
+
+.MuiButton-outlinedPrimary {
+  border-color: var(--design-border-strong);
+}
+
+.MuiButton-textPrimary:hover,
+.MuiButton-outlinedPrimary:hover {
+  background-color: var(--design-surface-hover);
+}
+
+.MuiLink-root {
+  color: var(--design-link);
+}
+
+a[style*="#2196f3"],
+a[style*="rgb(33, 150, 243)"] {
+  color: var(--design-link) !important;
+}
+
+span[style*="color: red"] {
+  color: var(--design-danger) !important;
+}
+
+.MuiAvatar-root {
+  background: var(--design-surface-3);
+  color: var(--design-link);
+}
+
+.MuiAppBar-root .MuiAvatar-rounded:hover {
+  background: var(--design-surface-hover);
+  color: var(--design-text);
+}
+
+.MuiListItemButton-root {
+  color: var(--design-text);
+}
+
+.MuiListItemIcon-root {
+  color: var(--design-text-muted);
+}
+
+.MuiListItemButton-root:hover {
+  background-color: var(--design-surface-hover);
+  color: var(--design-text);
+}
+
+.MuiListItemButton-root:hover .MuiListItemIcon-root {
+  color: var(--design-text);
+}
+
+.MuiListItemButton-root.Mui-selected,
+.MuiListItemButton-root.Mui-selected:hover {
+  background-color: var(--design-surface-active);
+  color: var(--design-link);
+}
+
+.MuiListItemButton-root.Mui-selected .MuiListItemIcon-root,
+.MuiListItemButton-root.Mui-selected .MuiTypography-root {
+  color: var(--design-link);
+}
+
+.MuiToggleButton-root {
+  color: var(--design-text-muted);
+  border-color: var(--design-border-strong);
+}
+
+.MuiToggleButton-root.Mui-selected,
+.MuiToggleButton-root.Mui-selected:hover {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+
+.MuiAppBar-root .MuiSwitch-thumb {
+  background-color: var(--design-primary);
+}
+
+.MuiAppBar-root .MuiSwitch-track,
+.MuiAppBar-root .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background-color: var(--design-border-strong);
+}
+
+.MuiSwitch-switchBase.Mui-checked {
+  color: var(--design-primary);
+}
+
+.MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background-color: var(--design-primary);
+}
+
+.MuiTooltip-tooltip {
+  background: var(--design-text);
+  color: var(--design-surface-1);
+}
+
+.MuiChip-root {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+
+.MuiSkeleton-root {
+  background-color: var(--design-surface-3);
+}
+
+.MuiAlert-standardInfo {
+  background-color: var(--design-info-subtle);
+  color: var(--design-text);
+}
+
+.MuiAlert-filledError {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+
+.MuiAlert-filledSuccess {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+
+.MuiAutocomplete-option:hover {
+  background: var(--design-surface-hover) !important;
+}
+
+a[href="https://github.com/FlowiseAI/Flowise"] > div {
+  border-color: var(--design-border);
+}
+
+a[href="https://github.com/FlowiseAI/Flowise"] > div > div {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+  border-right-color: var(--design-border);
+}
+
+a[href="https://github.com/FlowiseAI/Flowise"] > div > div:last-child {
+  background-color: var(--design-surface-2);
+}
+
+a[href="https://github.com/FlowiseAI/Flowise"] svg {
+  fill: var(--design-text) !important;
+}
+
+a[href="https://github.com/FlowiseAI/Flowise"] .MuiTypography-root {
+  color: var(--design-text);
+}
+
+.react-flow .react-flow__background {
+  background-color: var(--design-surface-1);
+}
+
+.react-flow .react-flow__edge-path {
+  stroke: var(--design-text-muted);
+}
+
+.react-flow__node .MuiCard-root {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+  border-color: var(--design-border-strong);
+}
+
+.react-flow__node .MuiDivider-root + .MuiBox-root {
+  background-color: var(--design-surface-3);
+}
+
+.react-flow .react-flow__controls .react-flow__controls-button {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+  fill: var(--design-text);
+}
+
+.react-flow .react-flow__controls .react-flow__controls-button:hover {
+  background-color: var(--design-surface-hover);
+}
+
+.react-flow .react-flow__attribution {
+  background-color: var(--design-surface-2);
+  color: var(--design-text-muted);
+}
+
+.react-flow .react-flow__attribution a {
+  color: var(--design-text-muted);
+}
+
+.MuiFab-primary {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+
+.MuiFab-primary:hover {
+  background-color: var(--design-primary-hover);
+}
+
+.MuiPaginationItem-root.Mui-selected {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+
+.MuiPaginationItem-root.Mui-selected:hover {
+  background-color: var(--design-primary-hover);
+}
+
+.MuiIconButton-colorPrimary {
+  color: var(--design-link);
+}
+
+.MuiIconButton-colorError {
+  color: var(--design-danger);
+}
+
+@media (max-width: 599.95px) {
+  form > .MuiStack-root,
+  .MuiCard-root > .MuiCardContent-root > .MuiStack-root {
+    max-width: 100%;
+  }
+}
+{% if design.logo is string %}
+
+img[alt="Flowise"] {
+  content: url("{{ design.urls.brand.svg }}");
+}
+{% endif %}

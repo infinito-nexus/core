@@ -18,10 +18,19 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
+  slots:
+    favicon:
+      width: 64
+      height: 64
+    logo:
+      width: 200
+      height: 40
+      frame: true
 # nocheck: dynamic-flag
 javascript:
   bond: 1

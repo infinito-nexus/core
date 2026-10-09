@@ -4,7 +4,7 @@
   register: system_service_run_unit_present
   changed_when: false
   failed_when: false
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔄 Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times)"
   ansible.builtin.systemd:
@@ -15,5 +15,5 @@
   delay: "{{ SYS_SERVICE_RUNNER_DELAY }}"
   until: result is not failed
   when: >-
-    DEPLOYMENT_MODE == 'compose'
+    IS_COMPOSE_MODE
     or system_service_run_unit_present.rc == 0

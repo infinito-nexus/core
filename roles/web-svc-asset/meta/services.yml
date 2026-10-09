@@ -28,7 +28,7 @@ matomo:
   # nocheck: matomo-track
   track: false
 # nocheck: dynamic-flag
-css:
+design:
   enabled: false
   shared: false
 prometheus:

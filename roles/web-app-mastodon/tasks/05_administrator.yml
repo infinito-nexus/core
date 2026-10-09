@@ -2,7 +2,7 @@
 - name: 🧹 Unblock the administrator username
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i -u root
-    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'administrator').username | quote }}
+    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'platform_administrator').username | quote }}
     {{ MASTODON_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
@@ -12,8 +12,8 @@
 - name: 📁 Create admin account via tootctl
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c
-    "bin/tootctl accounts create {{ lookup('users', 'administrator').username }}
-    --email {{ lookup('users', 'administrator').email }}
+    "bin/tootctl accounts create {{ lookup('users', 'platform_administrator').username }}
+    --email {{ lookup('users', 'platform_administrator').email }}
     --confirmed --role Owner"
   register: tootctl_create
   changed_when: tootctl_create.rc == 0
@@ -28,7 +28,7 @@
       account without reporting the name as taken: {{ tootctl_create.stderr }}
 - name: 👍 Approve the administrator account in Mastodon
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'platform_administrator').username }} --approve"
   register: tootctl_approve
   changed_when: false
   # rationale: async; approvals run overlapped, reaped below before the login spec

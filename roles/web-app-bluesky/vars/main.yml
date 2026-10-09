@@ -5,6 +5,7 @@ BLUESKY_SOCIAL_APP_DIR: "{{ [ lookup('container', application_id, 'directories.s
 BLUESKY_SOCIAL_APP_REPOSITORY: "{{ lookup('config', application_id, 'services.view.repository') }}"
 BLUESKY_SOCIAL_APP_REF: "{{ lookup('config', application_id, 'services.view.ref') }}"
 BLUESKY_GEOLOCATION_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/geolocation/index.tsx' ] | path_join }}"
+BLUESKY_SOCIAL_APP_DOCKERFILE: "{{ [ BLUESKY_SOCIAL_APP_DIR,'Dockerfile' ] | path_join }}"
 
 BLUESKY_PDSADMIN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_FILE: "{{ [ BLUESKY_PDSADMIN_DIR, 'pdsadmin' ] | path_join }}"
@@ -36,9 +37,9 @@ BLUESKY_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enable
 BLUESKY_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_secret') }}"
 BLUESKY_ROTATION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.plc_rotation_key_k256_private_key_hex') }}"
 
-BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-BLUESKY_ADMIN_HANDLE: "kc-{{ lookup('users', 'administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
+BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+BLUESKY_ADMIN_HANDLE: "kc-{{ lookup('users', 'platform_administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
 BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_API_PORT }}"
 
 BLUESKY_FRONT_PROXY_CONTENT: "{{ lookup('template', 'extra_locations.conf.j2') }}"

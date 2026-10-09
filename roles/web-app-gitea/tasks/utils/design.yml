@@ -1,0 +1,19 @@
+---
+- name: "📁 Ensure the design directory of {{ application_id }} exists"
+  ansible.builtin.file:
+    path: "{{ GITEA_DESIGN_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🖼️ Render the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_role:
+    name: sys-front-inj-design
+    tasks_from: assets.yml
+  vars:
+    design_assets_dest: "{{ GITEA_DESIGN_DIR }}"
+
+- name: "🏠 Render the corporate start page of {{ application_id }}"
+  stack_host_template:
+    src: home.tmpl.j2
+    dest: "{{ [GITEA_DESIGN_DIR, 'home.tmpl'] | path_join }}"
+    mode: "0644"

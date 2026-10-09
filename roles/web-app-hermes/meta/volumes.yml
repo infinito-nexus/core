@@ -11,4 +11,21 @@ hermes_config:
   mode: "0644"
   mounts:
     - service: hermes
-      target: /opt/data/config.yaml
+      target: /opt/seed/config.yaml
+
+hermes_config_seed_hook:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-hermes', 'directories.config'), 'config-seed.sh' ] | path_join }}"
+  mode: "0755"
+  mounts:
+    - service: hermes
+      target: /etc/cont-init.d/00-seed-config
+
+hermes_design_theme:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-hermes', 'directories.config'), 'dashboard-theme.yaml' ] | path_join }}"
+  mode: "0644"
+  mounts:
+    - service: hermes
+      target: /opt/data/dashboard-themes/corporate.yaml
+      when: "{{ lookup('config', 'web-app-hermes', 'services.webui.enabled') | bool and lookup('config', 'web-app-hermes', 'services.design.enabled') | bool }}"

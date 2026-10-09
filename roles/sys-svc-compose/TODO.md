@@ -1,3 +1,3 @@
 # Todos
 
-- Make network name equal to get_entity_name
+- Make network name equal to entity_name

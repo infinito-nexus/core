@@ -22,7 +22,6 @@ class ConfigEntryNotSetError(AppConfigKeyError):
     """
 
 
-# Exception: the sentinel must not be False - genuine False leaves would be coerced to the default.
 _MISSING = object()
 
 

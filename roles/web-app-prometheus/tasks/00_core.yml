@@ -52,8 +52,10 @@
 - name: "📁 Pre-create native-metrics docker networks (idempotent)"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
   vars:
-    network_role_id: "{{ item }}"
+    network_role_id: "{{ metrics_app }}"
   loop: "{{ lookup('native_metrics_apps') }}"
+  loop_control:
+    loop_var: metrics_app
 
 - name: "🚿 flush handlers for '{{ application_id }}'"
   meta: flush_handlers

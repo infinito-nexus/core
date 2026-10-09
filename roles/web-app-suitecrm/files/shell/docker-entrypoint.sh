@@ -47,8 +47,6 @@ while :; do
     _have_lock=1
     break
   fi
-  # Exception: 1800s exceeds the orchestrator kill ceiling (start_period 20m
-  # plus retries), so only a dead leader's lock can be this old.
   _lock_mtime=$(stat -c %Y "$BOOT_LOCK" 2>/dev/null || echo 0)
   if [ "$_lock_mtime" -gt 0 ] && [ $(($(date +%s) - _lock_mtime)) -ge 1800 ]; then
     log "Stale boot lock detected - removing it and retrying."
@@ -124,9 +122,6 @@ if [ "$_have_lock" = "1" ]; then
     chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/public/legacy"
   fi
 
-  # Exception: install/cache:clear above run as root; the legacy language
-  # caches they wipe are regenerated lazily by apache as www-data, which
-  # cannot write into root-owned cache dirs -> permanent 500 without this.
   chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/cache" "${APP_DIR}/public/legacy/cache" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
   chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/logs"

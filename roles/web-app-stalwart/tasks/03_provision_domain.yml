@@ -15,19 +15,20 @@
           | selectattr('name', 'equalto', STALWART_DOMAIN)
           | map(attribute='id') | first) | default('') }}
 
-- name: "📁 Create Stalwart domain '{{ STALWART_DOMAIN }}'"
-  include_tasks: jmap_call.yml
-  vars:
-    stalwart_jmap_body: >-
-      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-          'methodCalls': [['x:Domain/set',
-            {'create': {'d': {'name': STALWART_DOMAIN}}}, 'c0']]} | to_json }}
+- name: "📁 Create the Stalwart domain when it does not exist yet"
   when: stalwart_domain_id | length == 0
+  block:
+    - name: "📁 Create Stalwart domain '{{ STALWART_DOMAIN }}'"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:Domain/set',
+                {'create': {'d': {'name': STALWART_DOMAIN}}}, 'c0']]} | to_json }}
 
-- name: "📖 Capture newly created domain id"
-  ansible.builtin.set_fact:
-    stalwart_domain_id: "{{ stalwart_jmap.methodResponses[0][1].created.d.id }}"
-  when: stalwart_domain_id | length == 0
+    - name: "📖 Capture newly created domain id"
+      ansible.builtin.set_fact:
+        stalwart_domain_id: "{{ stalwart_jmap.methodResponses[0][1].created.d.id }}"
 
 - name: "⚙️ Provision Stalwart accounts"
   include_tasks:

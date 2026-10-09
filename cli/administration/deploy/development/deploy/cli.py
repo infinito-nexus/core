@@ -19,6 +19,7 @@ from cli.administration.deploy.development.inventory import (
 from cli.administration.deploy.development.variant_select import (
     add_variant_args,
     apply_variant_filter,
+    env_guide_host_pin,
 )
 from cli.administration.inventory.provision.services_disabler import (
     find_provider_roles,
@@ -119,10 +120,12 @@ def handler(args: argparse.Namespace) -> int:
     if passthrough and passthrough[0] == "--":
         passthrough = passthrough[1:]
 
+    roles_dir = str(compose.repo_root / "roles")
     plan = plan_dev_inventory_matrix(
-        roles_dir=str(compose.repo_root / "roles"),
+        roles_dir=roles_dir,
         primary_apps=primary_app_ids,
         base_inventory_dir=str(args.inventory_dir),
+        pinned_variants=env_guide_host_pin(roles_dir, primary_app_ids),
     )
     try:
         plan = apply_variant_filter(plan, args)

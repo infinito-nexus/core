@@ -53,9 +53,6 @@ _BACKUP = f"{_PREFIX}{_NAMES['INFINITO_SWARM_BACKUP_NAME']}"
 
 def _host_topology(app_id: str) -> list[tuple[str, str]]:
     app_hosts: list[tuple[str, str]] = [(app_id, _MANAGER)]
-    # Exception: svc-swarm-manager is the IS_STACK_HOST marker group; leaking
-    # workers into it flips IS_STACK_HOST true on workers and skips the CA
-    # fetch. Keep it manager-only.
     if app_id != "svc-swarm-manager" and get_role_placement(app_id) != "manager":
         app_hosts.extend((app_id, w) for w in _WORKERS)
     return [

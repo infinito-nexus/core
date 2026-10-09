@@ -46,9 +46,10 @@ stalwart:
   version: "v0.16.25"
   webui_version: "v1.0.11"
   update:
-    key: webui_version
-    type: git_tags
-    repository: https://github.com/stalwartlabs/webui.git
+    - key: webui_version
+      type: git_tags
+      repository: https://github.com/stalwartlabs/webui.git
+      match: "v"
   name: stalwart
   backup:
     project_hard_restart: true
@@ -89,7 +90,7 @@ stalwart:
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
-  shared: "{{ ('svc-db-postgres' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
+  shared: "{{ ('svc-db-postgres' in group_names) and (IS_COMPOSE_MODE) }}"
   image: postgres
   version: "18"
   cpus: "0.8"
@@ -120,7 +121,7 @@ webmail:
 clamav:
   enabled: true
   shared: false
-  image: clamav/clamav
+  image: clamav/clamav-debian
   version: "1.5.4"
   ports:
     internal:
@@ -129,11 +130,14 @@ clamav:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 512
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    brand:
+      width: 472
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

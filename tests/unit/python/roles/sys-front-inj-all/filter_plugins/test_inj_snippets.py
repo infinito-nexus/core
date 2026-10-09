@@ -49,20 +49,26 @@ class TestInjSnippets(unittest.TestCase):
 
         cls.mod = module
 
+        cls.feature_top_only = "zz_toponly"
         cls.feature_head_only = "zz_headonly"
         cls.feature_body_only = "zz_bodyonly"
         cls.feature_both = "zz_both"
         cls.feature_missing = "zz_missing"
 
+        cls._mkrole(cls.feature_top_only, top=True)
         cls._mkrole(cls.feature_head_only, head=True, body=False)
         cls._mkrole(cls.feature_body_only, head=False, body=True)
         cls._mkrole(cls.feature_both, head=True, body=True)
 
     @classmethod
-    def _mkrole(cls, feature, head=False, body=False):
+    def _mkrole(cls, feature, head=False, body=False, top=False):
         role_dir = str(Path(cls.roles_dir) / f"sys-front-inj-{feature}")
         tmpl_dir = str(Path(role_dir) / "templates")
         Path(tmpl_dir).mkdir(parents=True, exist_ok=True)
+        if top:
+            (Path(tmpl_dir) / "top_sub.j2").write_text(
+                "<!-- top test -->\n", encoding="utf-8"
+            )
         if head:
             with Path(str(Path(tmpl_dir) / "head_sub.j2")).open(
                 "w", encoding="utf-8"
@@ -77,6 +83,15 @@ class TestInjSnippets(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.tmp.cleanup()
+
+    def test_top_features_filter(self):
+        features = [self.feature_top_only, self.feature_head_only, self.feature_both]
+        result = self.mod.inj_features_filter(features, kind="top")
+        self.assertEqual(result, [self.feature_top_only])
+
+    def test_unknown_kind_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.mod.inj_features_filter([self.feature_both], kind="footer")
 
     def test_head_features_filter(self):
         features = [self.feature_head_only, self.feature_both, self.feature_body_only]

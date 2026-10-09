@@ -1,0 +1,54 @@
+---
+# nocheck: playwright-service-flag — translation engine without a browser surface of its own
+ltengine:
+  name: ltengine
+  healthcheck:
+    flavor: http_status
+    path: languages
+    # nocheck: healthcheck-timing-override  the server downloads its GGUF weights before it binds, and a cold node pays that once
+    start_period: 30m
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+    host:
+      enabled: false
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  image: nvidia/cuda
+  # nocheck: docker-version  runtime base of the self-built binary, not the served application
+  version: 12.6.3-runtime-ubuntu24.04
+  builder_image: nvidia/cuda
+  builder_version: 12.6.3-devel-ubuntu24.04
+  rust_version: 1.99.0
+  update:
+    - key: builder_version
+      type: registry_tags
+      image: nvidia/cuda
+      match: devel-ubuntu24.04
+    - key: rust_version
+      type: git_tags
+      repository: https://github.com/rust-lang/rust.git
+  custom: true
+  gpu: true
+  repository: https://github.com/LibreTranslate/LTEngine
+  # nocheck: repository-version  upstream's only tag predates the served server, so the pin is a commit
+  ref: 9b748ddd84c02da9569bd96db3cf33c53e4665fa
+  # nocheck: min-storage-headroom  Reason: the CUDA runtime base the binary is built on, plus the GGUF weights the server downloads into its models volume on first start
+  min_storage: 5GB
+  model: gemma3-1b
+  char_limit: 5000
+  ports:
+    internal:
+      http: 5050
+  lifecycle: alpha
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 512
+# nocheck: playwright-service-flag
+tor:
+  enabled: false # nocheck: dynamic-flag  an engine consumed over the internal network publishes no onion surface
+  shared: false # nocheck: dynamic-flag  same

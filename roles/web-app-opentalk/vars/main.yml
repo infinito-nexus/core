@@ -7,7 +7,7 @@
 # OPENTALK_OPENCLOUD_URL is gated behind group_names because the `tls`
 # lookup raises for roles outside the current host's scope.
 application_id: "web-app-opentalk"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 OPENTALK_CTRL_CONTAINER: "{{ lookup('config', application_id, 'services.controller.name') }}"
 OPENTALK_CTRL_HTTP_PORT: "{{ lookup('config', application_id, 'services.controller.ports.local.http') }}"
@@ -48,6 +48,8 @@ OPENTALK_KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 
 OPENTALK_CTRL_OIDC_CLIENT_ID: "opentalk-controller"
 OPENTALK_CTRL_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.controller_oidc_client_secret') }}"
+
+OPENTALK_FRONTEND_OIDC_CLIENT_ID: "opentalk-frontend"
 
 OPENTALK_KEYCLOAK_CLIENT_ID: "{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}"
 OPENTALK_KEYCLOAK_CLIENT_SECRET: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"

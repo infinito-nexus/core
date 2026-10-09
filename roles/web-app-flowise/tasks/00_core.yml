@@ -21,6 +21,9 @@
   vars:
     compose_handlers_flush: true
 
+- name: "👤 Provision the Flowise instance owner"
+  ansible.builtin.include_tasks: utils/owner.yml
+
 - name: "🔌 Reconcile the MCP server registry"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: FLOWISE_MCP_SERVERS | length > 0

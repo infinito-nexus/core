@@ -1,0 +1,53 @@
+---
+- name: "📦 Mattermost | Install {{ mattermost_addon.key }} from its pinned release"
+  when: mattermost_addon.value.config.archive is defined
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ MATTERMOST_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ MATTERMOST_MMCTL }}"
+      - --local
+      - plugin
+      - install-url
+      - --force
+      - "{{ mattermost_addon.value.config.archive }}"
+  register: mattermost_addon_install_release
+  changed_when: mattermost_addon_install_release.rc == 0
+  failed_when: mattermost_addon_install_release.rc != 0 and (mattermost_addon.value.required | bool)
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
+
+- name: "📦 Mattermost | Install {{ mattermost_addon.key }} from the plugin marketplace"
+  when: mattermost_addon.value.config.archive is not defined
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ MATTERMOST_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ MATTERMOST_MMCTL }}"
+      - --local
+      - plugin
+      - marketplace
+      - install
+      - "{{ mattermost_addon.value.config.plugin_id }}"
+  register: mattermost_addon_install_marketplace
+  changed_when: mattermost_addon_install_marketplace.rc == 0
+  failed_when: mattermost_addon_install_marketplace.rc != 0 and (mattermost_addon.value.required | bool)
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
+
+- name: "🧮 Mattermost | Record how {{ mattermost_addon.key }} installed"
+  ansible.builtin.set_fact:
+    mattermost_addon_install:
+      rc: "{{ (mattermost_addon_install_release if mattermost_addon.value.config.archive is defined else mattermost_addon_install_marketplace).rc | default(1) }}"
+      source: "{{ ('mmctl plugin install-url ' ~ mattermost_addon.value.config.archive) if mattermost_addon.value.config.archive is defined else ('mmctl plugin marketplace
+        install ' ~ mattermost_addon.value.config.plugin_id) }}"
+
+- name: "⚠️ Mattermost | Report the skipped {{ mattermost_addon.key }} install"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: optional addon '{{ mattermost_addon.key }}' stays absent -
+      '{{ mattermost_addon_install.source }}'
+      failed, so the plugin is neither installed nor enabled in this run.
+  when: (mattermost_addon_install.rc | int) != 0

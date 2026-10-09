@@ -26,7 +26,7 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -55,8 +55,8 @@ class TestServicesNoSelfReference(unittest.TestCase):
             if not isinstance(data, dict):
                 continue
 
-            entity_name = get_entity_name(role_name)
-            entry = data.get(entity_name)
+            entity = entity_name(role_name)
+            entry = data.get(entity)
             if not isinstance(entry, dict):
                 continue
 
@@ -64,7 +64,7 @@ class TestServicesNoSelfReference(unittest.TestCase):
                 value = entry.get(flag)
                 if _is_self_reference(value, role_name):
                     offenders.append(
-                        f"{role_name}: services.{entity_name}.{flag}={value!r} "
+                        f"{role_name}: services.{entity}.{flag}={value!r} "
                         f"is a tautological self-reference. The role's own "
                         f"primary entity is loaded only when the role itself "
                         f"is in group_names, so the Jinja always resolves "

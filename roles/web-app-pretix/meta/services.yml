@@ -52,8 +52,16 @@ pretix:
       enabled: true
     swarm:
       enabled: true
-  image: pretix/standalone
-  version: 2026.8.0
+  image: python
+  # nocheck: docker-version  runtime base of the source build, not the served application
+  version: "3.13"
+  source_repository: https://github.com/pretix/pretix.git
+  source_version: v2026.8.0
+  update:
+    - key: source_version
+      type: git_tags
+      repository: https://github.com/pretix/pretix.git
+      match: "v"
   custom: true
   name: pretix
   min_storage: 1003MB
@@ -74,11 +82,12 @@ pretix:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
-# nocheck: playwright-service-flag — CSS consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ DOMAIN_PRIMARY | upper }} Tickets"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

@@ -2,7 +2,7 @@
 application_id: "web-app-matomo"
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.matomo.ports.local.http') }}"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 MATOMO_SERVICE: "{{ entity_name }}"
 MATOMO_NAME: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"
@@ -19,11 +19,10 @@ MATOMO_BOOTSTRAP_ATTEMPTS: 3
 MATOMO_INSTALLER_STEP_DEADLINE_S: 420
 MATOMO_BOOTSTRAP_SWARM_POLL_DELAY_S: 15
 
-MATOMO_ADMIN_USER_KEY: "administrator"
-MATOMO_ADMIN_USER_NAME: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).username }}"
-MATOMO_ADMIN_PASSWORD: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).password }}"
-MATOMO_ADMIN_EMAIL: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).email }}"
-MATOMO_SITE_NAME: "{{ lookup('config', application_id, 'services.matomo.site_name') }}"
+MATOMO_ADMIN_USER_NAME: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).username }}"
+MATOMO_ADMIN_PASSWORD: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
+MATOMO_ADMIN_EMAIL: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).email }}"
+MATOMO_SITE_NAME: "{{ lookup('design', application_id).label }}"
 MATOMO_SITE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 MATOMO_EXCLUDED_IPS: "{{ lookup('config', application_id, 'services.matomo.excluded_ips') }}"
 

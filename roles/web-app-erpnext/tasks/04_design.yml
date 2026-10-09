@@ -1,0 +1,19 @@
+---
+- name: "🎨 converge corporate branding and theme file of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e DESIGN_TITLE -e DESIGN_LOGO_URL -e DESIGN_FAVICON_URL -e DESIGN_THEME_CSS
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/design_settings.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    DESIGN_TITLE: "{{ ERPNEXT_DESIGN_TITLE }}"
+    DESIGN_LOGO_URL: "{{ ERPNEXT_DESIGN_LOGO_URL }}"
+    DESIGN_FAVICON_URL: "{{ ERPNEXT_DESIGN_FAVICON_URL }}"
+    DESIGN_THEME_CSS: "{{ lookup('ansible.builtin.template', 'theme.css.j2') if ERPNEXT_DESIGN_ENABLED | bool else '' }}"
+  register: erpnext_design_apply
+  changed_when: "'DESIGN_CHANGED' in erpnext_design_apply.stdout"
+  timeout: "{{ lookup('timeout', 60) | int }}"

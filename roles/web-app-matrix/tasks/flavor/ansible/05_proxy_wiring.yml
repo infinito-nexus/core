@@ -54,24 +54,25 @@
     or 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([])
     or (matrix_synapse_loopback_probe is not skipped and matrix_synapse_loopback_probe is failed)
 
-- name: "💾 ansible-flavor: dump matrix-mdad diagnostics"
-  ansible.builtin.debug:
-    var: matrix_mdad_diagnostics
+- name: "🛑 ansible-flavor: report the matrix-mdad diagnostics and fail"
   when: matrix_mdad_diagnostics is not skipped
+  block:
+    - name: "💾 ansible-flavor: dump matrix-mdad diagnostics"
+      ansible.builtin.debug:
+        var: matrix_mdad_diagnostics
 
-- name: "🛑 ansible-flavor: fail after diagnostics if Synapse never became reachable"
-  ansible.builtin.fail:
-    msg: >-
-      {% if 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
-      the docker daemon inside matrix-mdad failed to start - see matrix_mdad_diagnostics above.
-      {%- elif 'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
-      matrix-mdad bootstrap failed inside the container, in its galaxy install or its playbook - see matrix_mdad_diagnostics above.
-      {%- elif matrix_mdad_bootstrap_state is failed -%}
-      matrix-mdad bootstrap never reached a terminal state within the wait budget - see matrix_mdad_diagnostics above.
-      {%- else -%}
-      Synapse loopback probe never reached 200 - see matrix_mdad_diagnostics above.
-      {%- endif %}
-  when: matrix_mdad_diagnostics is not skipped
+    - name: "🛑 ansible-flavor: fail after diagnostics if Synapse never became reachable"
+      ansible.builtin.fail:
+        msg: >-
+          {% if 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
+          the docker daemon inside matrix-mdad failed to start - see matrix_mdad_diagnostics above.
+          {%- elif 'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
+          matrix-mdad bootstrap failed inside the container, in its galaxy install or its playbook - see matrix_mdad_diagnostics above.
+          {%- elif matrix_mdad_bootstrap_state is failed -%}
+          matrix-mdad bootstrap never reached a terminal state within the wait budget - see matrix_mdad_diagnostics above.
+          {%- else -%}
+          Synapse loopback probe never reached 200 - see matrix_mdad_diagnostics above.
+          {%- endif %}
 
 - name: "🔍 ansible-flavor: probe Element web client on host loopback"
   uri_retry:

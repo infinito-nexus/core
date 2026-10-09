@@ -1,0 +1,13 @@
+---
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    s1:
+      flavor: laya
+
+- services:
+    s1:
+      flavor: torch
+      healthcheck:
+        path: healthz

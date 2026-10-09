@@ -8,7 +8,7 @@
         require "vendor/autoload.php";
         $app = require "bootstrap/app.php";
         $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-        $exists = \App\Models\User::where("username", "{{ lookup('users', 'administrator').username }}")
+        $exists = \App\Models\User::where("username", "{{ lookup('users', 'platform_administrator').username }}")
           ->whereNull("deleted_at")
           ->exists();
         exit($exists ? 0 : 1);
@@ -23,11 +23,11 @@
     -e APP_KEY="{{ SNIPE_IT_APP_KEY }}"
     {{ SNIPE_IT_CONTAINER_ADDRESS }}
     php artisan snipeit:create-admin
-    --first_name "{{ lookup('users', 'administrator').firstname }}"
-    --last_name "{{ lookup('users', 'administrator').lastname }}"
-    --username "{{ lookup('users', 'administrator').username }}"
-    --email "{{ lookup('users', 'administrator').email }}"
-    --password {{ lookup('users', 'administrator').password | quote }}
+    --first_name "{{ lookup('users', 'platform_administrator').firstname }}"
+    --last_name "{{ lookup('users', 'platform_administrator').lastname }}"
+    --username "{{ lookup('users', 'platform_administrator').username }}"
+    --email "{{ lookup('users', 'platform_administrator').email }}"
+    --password {{ lookup('users', 'platform_administrator').password | quote }}
     --no-interaction
   when: snipe_it_admin_exists.rc != 0
   register: snipe_it_admin_create

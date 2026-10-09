@@ -1,0 +1,52 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: WEBLATE
+    resolve_compose_cid: "{{ WEBLATE_CONTAINER }}"
+
+- name: "🔑 Read the API token Weblate issued to its administrator"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ WEBLATE_LOCAL_CID }}" # nocheck: container-exec-resolver  the token lives in Weblate's own database and only its management shell prints it
+      - weblate
+      - shell
+      - -c
+      - "{{ WEBLATE_TOKEN_QUERY }}"
+  register: weblate_api_token
+  retries: 30
+  delay: 10
+  until: weblate_api_token.rc == 0 and ((weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('')) | length) >=
+    WEBLATE_TOKEN_MIN_LENGTH
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ WEBLATE_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Keep the token the shell printed last, not the banner above it"
+  ansible.builtin.set_fact:
+    WEBLATE_ISSUED_TOKEN: "{{ weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('') }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse a Weblate that issued no usable token"
+  ansible.builtin.assert:
+    that:
+      - (WEBLATE_ISSUED_TOKEN | length) >= WEBLATE_TOKEN_MIN_LENGTH
+    fail_msg: >-
+      Weblate printed no API token for '{{ WEBLATE_ADMIN_USERNAME }}', so the
+      translation gateway would read the translation memory with an empty
+      bearer and every reviewed string would be ignored.
+
+- name: "💾 Persist the token so the translation gateway can read the memory"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: platform_administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ WEBLATE_ISSUED_TOKEN }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -1,6 +1,7 @@
 ---
 # nocheck: playwright-service-flag — self-provider
 libretranslate:
+  name: libretranslate
   healthcheck:
     test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
     # nocheck: healthcheck-timing-override  the probe starts a venv interpreter, which does not finish inside the 5s default
@@ -15,11 +16,12 @@ libretranslate:
   shared: true
   image: libretranslate/libretranslate
   version: v1.9.6
+  version_variants:
+    - "-cuda"
   custom: true
   min_storage: 402MB
-  load_only:
-    - en
-    - de
+  load_only: []
+  directions: both
   ports:
     local:
       http: 8045
@@ -29,10 +31,11 @@ libretranslate:
   proxy:
     service_key: libretranslate
   lifecycle: beta
-  cpus: "0.2"
-  mem_reservation: 128m
-  mem_limit: 256m
-  pids_limit: 256
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  gpu: true
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -68,11 +71,18 @@ redis:
     disabled: true
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    favicon:
+      width: 64
+      height: 64
+    logo:
+      width: 180
+      height: 40
+      frame: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — captcha backend, infrastructural
 recaptcha:

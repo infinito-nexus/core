@@ -41,7 +41,7 @@ from plugins.lookup.container_address import _resolve_bare_name
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 from . import PROJECT_ROOT
 
@@ -78,7 +78,7 @@ def _resolve_key(arg: str, app: str) -> str | None:
     if literal:
         return literal.group(1)
     if arg.strip() == "entity_name":
-        return get_entity_name(app)
+        return entity_name(app)
     if arg.strip() == "application_id":
         return app
     return None

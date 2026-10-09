@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-erpnext"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 ERPNEXT_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.backend.name') }}"
 ERPNEXT_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
@@ -28,6 +28,12 @@ ERPNEXT_API_BOT_USER: "{{ lookup('users', 'erpnext-api-bot') }}"
 ERPNEXT_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')   | bool }}"
 ERPNEXT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
 ERPNEXT_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
+
+ERPNEXT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+ERPNEXT_DESIGN_LOGO_ENABLED: "{{ ERPNEXT_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+ERPNEXT_DESIGN_TITLE: "{{ lookup('design', application_id).title if ERPNEXT_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+ERPNEXT_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.svg if ERPNEXT_DESIGN_LOGO_ENABLED | bool else '' }}"
+ERPNEXT_DESIGN_FAVICON_URL: "{{ lookup('design', application_id).urls.favicon_ico if ERPNEXT_DESIGN_LOGO_ENABLED | bool else '' }}"
 
 ERPNEXT_DB_HOST: "{{ lookup('database', application_id, 'host') }}"
 ERPNEXT_DB_PORT: "{{ lookup('database', application_id, 'port') }}"

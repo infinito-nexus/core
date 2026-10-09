@@ -17,6 +17,7 @@ require("./test-no-console-noise").register(shared);
 
 // Per-service shared / role-local asset coverage.
 require("./test-shared-css").register(shared);
+require("./test-design").register(shared);
 require("./test-cdn-role-stylesheet").register(shared);
 require("./test-logout-js-injection").register(shared);
 require("./test-simpleicons-cards").register(shared);
@@ -24,6 +25,7 @@ require("./test-icons").register(shared);
 require("./test-header-navbar-logos").register(shared);
 require("./test-iframe-sync").register(shared);
 require("./test-matomo-integration").register(shared);
+require("./test-i18n").register(shared);
 
 // OIDC login → account → logout round-trip.
 require("./test-oidc-login").register(shared);

@@ -23,7 +23,7 @@ UseEntryGuards 0
 AutomapHostsOnResolve 1
 AutomapHostsSuffixes .onion
 VirtualAddrNetworkIPv4 {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }}
-{% if DEPLOYMENT_MODE == 'swarm' %}
+{% if IS_SWARM_MODE %}
 TransPort 0.0.0.0:{{ TOR_TRANS_PORT }}
 DNSPort 0.0.0.0:{{ TOR_DNS_PORT }}
 {% else %}

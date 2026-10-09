@@ -39,27 +39,27 @@
       }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "💾 Persist store (idempotent, single-writer via STACK_HOST)"
-  ansible.builtin.copy:
-    dest: "{{ FILE_TOKENS }}"
-    owner: "{{ SYS_TOKEN_STORE_OWNER }}"
-    group: "{{ SYS_TOKEN_STORE_GROUP }}"
-    mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
-    content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
+- name: "💾 Write the token store when the merge changed it"
   when: sys_token_store_users_merged != sys_token_store_users
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  become: true
+  block:
+    - name: "💾 Persist store (idempotent, single-writer via STACK_HOST)"
+      ansible.builtin.copy:
+        dest: "{{ FILE_TOKENS }}"
+        owner: "{{ SYS_TOKEN_STORE_OWNER }}"
+        group: "{{ SYS_TOKEN_STORE_GROUP }}"
+        mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
+        content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      become: true
 
-- name: "🪞 Mirror the store onto the controller, where every users lookup reads"
-  ansible.builtin.copy:
-    dest: "{{ FILE_TOKENS }}"
-    mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
-    content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
-  when:
-    - sys_token_store_users_merged != sys_token_store_users
-    - DEPLOYMENT_MODE == 'swarm'
-  delegate_to: localhost
-  run_once: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    - name: "🪞 Mirror the store onto the controller, where every users lookup reads"
+      ansible.builtin.copy:
+        dest: "{{ FILE_TOKENS }}"
+        mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
+        content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
+      when: IS_SWARM_MODE
+      delegate_to: localhost
+      run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

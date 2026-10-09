@@ -16,7 +16,9 @@ BLUESKY_STAGING = tuple(
     PROJECT_ROOT / "roles/web-app-bluesky/tasks" / name
     for name in ("01_social_app.yml", "02_login_broker.yml", "03_pds.yml")
 )
+SEARXNG_CORE = PROJECT_ROOT / "roles/svc-ai-searxng/tasks/00_core.yml"
 COMPOSE_OWNER = "sys-svc-compose"
+RENDER_REPLICATED = "render_replicated_templates.yml"
 _NOTIFY = re.compile(r"^\s*notify:\s*(?:\[\s*)?['\"]?(compose-[\w-]+)", re.MULTILINE)
 
 
@@ -148,6 +150,32 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         self.assertLess(bootstrap, notify)
         self.assertIn(
             "run_once_sys_svc_compose is not defined", str(tasks[bootstrap].get("when"))
+        )
+
+    def test_searxng_bootstraps_the_compose_host_before_it_renders(self) -> None:
+        tasks = load_yaml_str(read_text(str(SEARXNG_CORE)))
+        bootstrap = next(
+            index
+            for index, task in enumerate(tasks)
+            if _role_include(task).get("name") == COMPOSE_OWNER
+            and _role_include(task).get("tasks_from") == "00_core.yml"
+        )
+        render = next(
+            index
+            for index, task in enumerate(tasks)
+            if RENDER_REPLICATED
+            in str((task.get("ansible.builtin.include_tasks") or {}).get("file", ""))
+        )
+        self.assertLess(
+            bootstrap,
+            render,
+            "the render notifies compose-up, and the next task pulls in "
+            "sys-svc-container, whose unconditional flush would run the "
+            "handlers before sys-svc-compose installs the compose wrapper",
+        )
+        self.assertIn(
+            "run_once_sys_svc_compose is not defined",
+            str(tasks[bootstrap].get("when")),
         )
 
     def test_the_owner_still_holds_every_compose_topic_that_is_notified(self) -> None:

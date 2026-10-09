@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-gitlab', 'services.sso.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - sso

@@ -1,6 +1,11 @@
 ---
 # Matrix-deploy variant overrides for web-app-discourse.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 2 exists so bigbluebutton and jitsi, both
+# clearnet-only, have a round of their own. It carries nothing else; the mastodon,
+# matrix and mattermost couplings moved to variant 1, which keeps the onion, and
+# variant 0 pairs the onion with SSO.
 
 - services:
     container_backup:
@@ -32,11 +37,29 @@
     prometheus:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
+    translate:
+      enabled: false
+      shared: false
     tor:
       enabled: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    mastodon:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: false
+      shared: false
 - services:
     container_backup:
       enabled: false
@@ -68,8 +91,85 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    translate:
+      enabled: true
+      shared: true
     tor:
       enabled: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    mastodon:
+      enabled: true
+      shared: true
+    matrix:
+      enabled: true
+      shared: true
+    mattermost:
+      enabled: true
+      shared: true
+  addons: &addons_static_off
+    discourse-mermaid:
+      enabled: false
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    asset:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+    sso:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    postgres:
+      shared: true
+    redis:
+      shared: true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    translate:
+      enabled: false
+      shared: false
+    tor:
+      enabled: false
+    bigbluebutton:
+      enabled: true
+      shared: true
+    jitsi:
+      enabled: true
+      shared: true
+    mastodon:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: false
+      shared: false
+  addons: *addons_static_off

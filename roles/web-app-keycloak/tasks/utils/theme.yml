@@ -1,0 +1,43 @@
+---
+- name: "🧹 Remove the corporate theme of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ KEYCLOAK_DESIGN_DIR }}"
+    state: absent
+  when: not KEYCLOAK_DESIGN_ENABLED | bool
+
+- name: "🎨 Stage the corporate theme of {{ application_id }}"
+  when: KEYCLOAK_DESIGN_ENABLED | bool
+  block:
+    - name: "📁 Ensure the theme directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ KEYCLOAK_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the frame lockup and favicon of {{ application_id }}"
+      when: lookup('design', application_id).logo is string
+      vars:
+        kc_design: "{{ lookup('design', application_id) }}"
+      design_assets:
+        logo: "{{ kc_design.logo }}"
+        title: "{{ kc_design.title }}"
+        domain: "{{ kc_design.domain }}"
+        fill: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
+        stroke: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
+        frame_fill: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
+        frame_stroke: "{{ KEYCLOAK_DESIGN_ON_FRAME }}"
+        slots: "{{ {'brand': KEYCLOAK_DESIGN_BRAND} }}"
+        dest: "{{ KEYCLOAK_DESIGN_DIR }}"
+
+    - name: "🎨 Render the corporate theme files of {{ application_id }}"
+      stack_host_template:
+        src: "theme/{{ item.src }}.j2"
+        dest: "{{ [KEYCLOAK_DESIGN_DIR, item.dest] | path_join }}"
+        mode: "0644"
+      loop:
+        - { src: "login/theme.properties", dest: "login.properties" }
+        - { src: "account/theme.properties", dest: "account.properties" }
+        - { src: "admin/theme.properties", dest: "admin.properties" }
+        - { src: "theme.css", dest: "theme.css" }
+      loop_control:
+        label: "{{ item.dest }}"

@@ -41,6 +41,6 @@
   include_role:
     name: user
   vars:
-    user_key: "administrator"
+    user_key: "{{ IAM_HOST_ADMIN_USER_KEY }}"
 
 - include_tasks: utils/once/flag.yml

@@ -26,7 +26,7 @@ phpmyadmin:
       enabled: true
   version: 5.2.3
   name: phpmyadmin
-  image: phpmyadmin/phpmyadmin
+  image: phpmyadmin
   min_storage: 422MB
   autologin: false
   ports:
@@ -54,10 +54,10 @@ sso:
       host: phpmyadmin
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-phpmyadmin', role='administrator') }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 # nocheck: email
 # nocheck: dynamic-flag
 email:

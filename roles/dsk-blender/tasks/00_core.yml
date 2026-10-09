@@ -1,0 +1,22 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: 📦 install blender
+  package_install:
+    id: blender
+
+- name: 🧩 Bind Blender to the agents on this workstation
+  ansible.builtin.include_tasks:
+    file: addons/mcp-for-blender.yml
+    apply:
+      become: true
+      become_user: "{{ blender_user }}"
+  when: blender_mcp_enabled | bool
+
+- name: 🏛️ Give Blender its IFC and BIM surface
+  ansible.builtin.include_tasks:
+    file: addons/bonsai.yml
+    apply:
+      become: true
+      become_user: "{{ blender_user }}"
+  when: blender_bonsai_enabled | bool

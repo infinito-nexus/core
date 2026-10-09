@@ -48,8 +48,8 @@ pixelfed:
   bond: 1
   shared: true
   enabled: true # nocheck: dynamic-flag
-  image: zknt/pixelfed
-  version: "20261008"
+  image: ghcr.io/pixelfed/pixelfed
+  version: v0.14.4
   name: pixelfed
   min_storage: 588MB
   backup:
@@ -57,12 +57,11 @@ pixelfed:
   cpus: 0.75
   mem_reservation: 0.5g
   mem_limit: 0.75g
-  titel: Pictures on {{ DOMAIN_PRIMARY }}
   ports:
     local:
       http: 8010
     internal:
-      http: 80
+      http: 8080
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -72,7 +71,7 @@ worker:
   replicas: 1
   name: pixelfed_worker
   healthcheck:
-    test: ["CMD-SHELL", "test ! -e /var/www/storage/.docker.init || (php artisan horizon:status | grep running)"]
+    test: ["CMD-SHELL", "test ! -e {{ lookup('volume', 'web-app-pixelfed', 'data').target }}/.docker.init || (php artisan horizon:status | grep running)"]
     # nocheck: healthcheck-timing-override  php artisan boots Laravel on every probe, so it stays off a 30s steady-state loop
     interval: 60s
     retries: 5
@@ -88,14 +87,23 @@ minio:
   public: true
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: Pictures on {{ DOMAIN_PRIMARY }}
+  bootstrap: true
+  slots:
+    logo:
+      width: 128
+      height: 128
+    brand:
+      width: 180
+      height: 32
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

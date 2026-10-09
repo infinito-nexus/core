@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-gitlab', 'services.confluence.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - confluence
+config:
+  confluence_url: "{{ lookup('tls', 'web-app-confluence', 'url.base') }}"

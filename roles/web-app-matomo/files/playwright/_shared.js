@@ -5,15 +5,23 @@
 
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, gotoOnion, installCspViolationObserver, normalizeBaseUrl } = require("./personas");
+const {
+  decodeDotenvJsonList,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  installCspViolationObserver,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const matomoApiToken = decodeDotenvQuotedValue(process.env.MATOMO_API_TOKEN);
 const matomoTrackingScope = (process.env.MATOMO_TRACKING_SCOPE || "").trim().toLowerCase();
 
@@ -28,15 +36,10 @@ const matomoCanonicalDomain = (() => {
 // Emitted at deploy time by templates/playwright.env.j2 via the
 // roles_with_service('matomo') Ansible filter: one entry per role declared as a
 // matomo consumer in its meta/services.yml.
-const matomoTargetRoles = (() => {
-  const raw = process.env.MATOMO_TARGET_ROLES_JSON || "[]";
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
+const matomoTargetRoles = decodeDotenvJsonList(
+  process.env.MATOMO_TARGET_ROLES_JSON,
+  "MATOMO_TARGET_ROLES_JSON"
+);
 
 function attachDiagnostics(page) {
   const consoleErrors = [];
@@ -78,16 +81,15 @@ function hostOf(value) {
   }
 }
 
-// MUST mirror sys-front-inj-matomo matomo_site_domain in root scope: one shared site per registrable domain, not per subdomain
-function baseDomainOf(host) {
-  return String(host || "")
-    .toLowerCase()
-    .replace(/^(?:.*\.)?(.+\..+)$/, "$1");
+function siteRootDomainOf(host) {
+  const name = hostOf(host);
+  return name.endsWith(domainPrimary)
+    ? domainPrimary
+    : name.toLowerCase().replace(/^(?:.*\.)?(.+\..+)$/, "$1");
 }
 
-// Tracking-site needle for a consumer host: full subdomain in 'sub' scope (one site per subdomain), registrable base in 'root' scope (one shared site)
 function siteNeedleFor(host) {
-  return matomoTrackingScope === "root" ? baseDomainOf(host) : hostOf(host);
+  return matomoTrackingScope === "root" ? siteRootDomainOf(host) : hostOf(host);
 }
 
 async function setupMatomoPage(page) {
@@ -138,7 +140,6 @@ module.exports = {
   matomoTargetRoles,
   attachDiagnostics,
   hostOf,
-  baseDomainOf,
   siteNeedleFor,
   setupMatomoPage,
   loginAsAdmin,

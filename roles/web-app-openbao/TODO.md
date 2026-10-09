@@ -1,0 +1,3 @@
+# TODO
+
+- Recovery token moved account: the recovery token was stored under `administrator`, a user this role never declared in `meta/users.yml`, and now follows `IAM_PLATFORM_ADMIN_USER_KEY`. Writer and reader both derive from the var, so a fresh deployment is consistent, but a deployment initialised earlier holds its recovery token under the old account: `01_init.yml` then reads an empty `OPENBAO_RECOVERY_KEY` and silently skips the block that rebuilds the AppRole when neither login is accepted. Move the stored token onto `platform_administrator` on such a deployment before relying on that path again.

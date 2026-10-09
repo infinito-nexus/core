@@ -18,9 +18,17 @@ a single organizer chosen deterministically by slug. With no organizer there is
 nothing to attach it to, and no tool call could name one either, so that case
 converges to a no-op instead of failing.
 
+``shell_scoped`` feeds this to IPython, which executes an indented block only
+once a dedented line follows it. A block that ends the input is left unrun, and
+the last line of the output is IPython's exit prompt rather than a result, so
+the final statement is a top-level print of a marker the task matches on.
+
 Environment:
     MCP_TEAM:  team name to converge.
     MCP_TOKEN: token value to pin on it.
+
+Output:
+    PRETIX_RESULT=CHANGED or PRETIX_RESULT=UNCHANGED on its own line.
 """
 
 import os
@@ -35,9 +43,7 @@ TOKEN_NAME = "mcp-upstream"  # noqa: S105 a label, not a secret
 changed = False
 
 organizer = Organizer.objects.order_by("slug").first()
-if organizer is None:
-    print("UNCHANGED")
-else:
+if organizer is not None:
     team, created = Team.objects.get_or_create(
         organizer=organizer,
         name=TEAM,
@@ -58,4 +64,4 @@ else:
     )
     changed = changed or created
 
-    print("CHANGED" if changed else "UNCHANGED")
+print("PRETIX_RESULT=CHANGED" if changed else "PRETIX_RESULT=UNCHANGED")

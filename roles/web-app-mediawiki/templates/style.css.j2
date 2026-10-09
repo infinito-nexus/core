@@ -6,25 +6,25 @@
 
 /* ---------- App-scoped variables (derived from global color scale) ---------- */
 :root {
-  --mw-primary:                var(--color-01-60);
-  --mw-primary-contrast:       var(--color-01-99);
-  --mw-secondary:              var(--color-01-85);
-  --mw-accent:                 var(--color-01-50);
+  --mw-primary:                var(--design-primary-500);
+  --mw-primary-contrast:       var(--design-surface-2);
+  --mw-secondary:              var(--design-primary-200);
+  --mw-accent:                 var(--design-primary-600);
 
-  --mw-surface:                var(--color-01-92);
-  --mw-surface-variant:        var(--color-01-90);
-  --mw-surface-muted:          var(--color-01-95);
+  --mw-surface:                var(--design-primary-100);
+  --mw-surface-variant:        var(--design-primary-200);
+  --mw-surface-muted:          var(--design-primary-100);
 
-  --mw-text:                   var(--color-01-20);
-  --mw-text-muted:             var(--color-01-45);
-  --mw-heading:                var(--color-01-15);
-  --mw-link:                   var(--color-01-55);
-  --mw-link-hover:             var(--color-01-60);
-  --mw-link-visited:           var(--color-01-45);
+  --mw-text:                   var(--design-primary-950);
+  --mw-text-muted:             var(--design-primary-700);
+  --mw-heading:                var(--design-primary-950);
+  --mw-link:                   var(--design-primary-600);
+  --mw-link-hover:             var(--design-primary-500);
+  --mw-link-visited:           var(--design-primary-700);
 
-  --mw-border:                 var(--color-01-85);
-  --mw-divider:                var(--color-01-87);
-  --mw-focus:                  rgba(var(--color-rgb-01-65), .35);
+  --mw-border:                 var(--design-primary-200);
+  --mw-divider:                var(--design-primary-200);
+  --mw-focus:                  rgba(var(--design-primary-500-rgb), .35);
 
   --mw-success:                var(--bs-success);
   --mw-warning:                var(--bs-warning);
@@ -34,7 +34,7 @@
 body.skin-vector,
 .skin-vector .mw-page-container {
   background-color: var(--mw-surface);
-  background-image: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg,
+  background-image: linear-gradient(135deg,
     var(--mw-surface),
     var(--mw-surface-variant),
     var(--mw-surface-muted),
@@ -46,11 +46,11 @@ body.skin-vector,
 .skin-vector .vector-header,
 .skin-vector .vector-header-container,
 .skin-vector .mw-header {
-  background-color: var(--color-01-80);
-  background-image: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg,
-    var(--color-01-75), var(--color-01-80), var(--color-01-81), var(--color-01-85)
+  background-color: var(--design-primary-300);
+  background-image: linear-gradient(135deg,
+    var(--design-primary-400), var(--design-primary-300), var(--design-primary-300), var(--design-primary-200)
   );
-  color: var(--color-01-17);
+  color: var(--design-primary-950);
   border-bottom: 1px solid var(--mw-divider);
 }
 
@@ -182,7 +182,7 @@ body.skin-vector,
 table.wikitable,
 .mw-parser-output table.infobox,
 .mw-parser-output table.prettytable {
-  background-color: var(--color-01-99);
+  background-color: var(--design-surface-2);
   border: 1px solid var(--mw-border);
   color: var(--mw-text);
 }
@@ -193,9 +193,9 @@ table.wikitable > * > tr > td {
 }
 
 table.wikitable > * > tr > th {
-  background-color: var(--color-01-80);
-  background-image: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg,
-    var(--color-01-75), var(--color-01-80), var(--color-01-81), var(--color-01-85)
+  background-color: var(--design-primary-300);
+  background-image: linear-gradient(135deg,
+    var(--design-primary-400), var(--design-primary-300), var(--design-primary-300), var(--design-primary-200)
   );
   color: var(--mw-heading);
 }
@@ -230,8 +230,8 @@ table.wikitable > * > tr > th {
 /* ---------- Dark-mode helpers (for browser extensions honoring vars) ---------- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --mw-text:         var(--color-01-90);
-    --mw-text-muted:   var(--color-01-80);
-    --mw-heading:      var(--color-01-95);
+    --mw-text:         var(--design-primary-200);
+    --mw-text-muted:   var(--design-primary-300);
+    --mw-heading:      var(--design-primary-100);
   }
 }

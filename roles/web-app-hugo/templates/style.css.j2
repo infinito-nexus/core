@@ -1,0 +1,391 @@
+{% set design = lookup('design', application_id) %}
+{% if 'gohugoio/hugoDocs' in lookup('config', application_id, 'services.hugo.source_repository') %}
+:root,
+body > header [role="dialog"] {
+  --design-focus: var(--design-link);
+  --color-white: var(--design-surface-1);
+  --color-black: var(--design-text);
+  --color-light: var(--design-surface-2);
+  --color-dark: var(--design-text);
+  --color-primary: var(--design-link);
+  --color-gray-50: var(--design-surface-hover);
+  --color-gray-100: var(--design-border);
+  --color-gray-200: var(--design-border);
+  --color-gray-300: var(--design-border);
+  --color-gray-400: var(--design-border-strong);
+  --color-gray-500: var(--design-text-muted);
+  --color-gray-600: var(--design-text-muted);
+  --color-gray-700: var(--design-text);
+  --color-gray-800: var(--design-text);
+  --color-gray-900: var(--design-text);
+  --color-slate-50: var(--design-surface-3);
+  --color-slate-400: var(--design-text-muted);
+  --color-slate-500: var(--design-text-muted);
+  --color-slate-900: var(--design-text);
+  --color-blue-500: var(--design-text);
+  --color-blue-600: var(--design-link);
+  --color-blue-950: var(--design-frame);
+}
+
+:root.dark,
+:root.dark body > header [role="dialog"] {
+  --color-white: var(--design-text);
+  --color-black: var(--design-surface-1);
+  --color-light: var(--design-text);
+  --color-dark: var(--design-surface-2);
+  --color-gray-100: var(--design-text);
+  --color-gray-200: var(--design-text);
+  --color-gray-300: var(--design-text);
+  --color-gray-400: var(--design-text-muted);
+  --color-gray-600: var(--design-border-strong);
+  --color-gray-700: var(--design-border);
+  --color-gray-800: var(--design-border);
+  --color-gray-900: var(--design-surface-2);
+  --color-slate-200: var(--design-text);
+  --color-slate-300: var(--design-text);
+  --color-slate-600: var(--design-border);
+  --color-slate-700: var(--design-surface-3);
+  --color-slate-800: var(--design-border);
+  --color-blue-200: var(--design-link);
+  --color-blue-300: var(--design-text);
+  --color-blue-400: var(--design-text);
+  --color-blue-500: var(--design-link);
+  --color-blue-950: var(--design-surface-1);
+}
+
+body > header,
+body > footer,
+body > div.bg-blue-950 {
+  --design-focus: var(--design-on-frame);
+  --color-white: var(--design-on-frame);
+  --color-gray-200: var(--design-on-frame);
+  --color-gray-300: var(--design-on-frame);
+  --color-gray-400: var(--design-on-frame);
+  --color-gray-600: var(--design-on-frame);
+  --color-gray-800: var(--design-frame-active);
+  --color-slate-400: var(--design-on-frame);
+  --color-slate-500: var(--design-on-frame);
+  --color-blue-300: var(--design-on-frame);
+  --color-blue-500: var(--design-on-frame);
+  --color-blue-600: var(--design-on-frame);
+  --color-blue-800: var(--design-frame-active);
+  --color-blue-900: var(--design-frame-hover);
+  --color-blue-950: var(--design-frame);
+}
+
+body > header[class~="bg-blue-950/80"] {
+  background-color: var(--design-frame);
+}
+
+body > header a.font-semibold:hover {
+  background-color: var(--design-frame-hover);
+  box-shadow: 0 0 0 4px var(--design-frame-hover);
+  border-radius: var(--design-radius-sm);
+}
+
+body > footer a:hover {
+  text-decoration: underline;
+}
+
+body > header a[aria-label="Star on GitHub"] {
+  background-color: var(--design-frame-active);
+  color: var(--design-on-frame);
+}
+
+body > header a[aria-label="Star on GitHub"]:hover {
+  background-color: var(--design-frame-hover);
+}
+
+body > header a[aria-label="Star on GitHub"] svg {
+  fill: var(--design-on-frame);
+}
+
+button[aria-label="Search"]:focus-visible,
+#theme-toggle:focus-visible {
+  outline: 2px solid var(--design-focus);
+  outline-offset: 2px;
+}
+
+#theme-toggle,
+#theme-toggle:hover {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+
+#theme-toggle:hover {
+  background-color: var(--design-primary-hover);
+}
+
+#theme-toggle:active {
+  background-color: var(--design-primary-active);
+}
+
+#theme-toggle:focus {
+  box-shadow: none;
+}
+
+{% if design.logo is string %}
+body > header > div:first-child > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding-left: 40px;
+  background: url("{{ design.urls['apple-touch-icon'].svg }}") left center / 32px 32px no-repeat;
+}
+
+img[src$="hugo-logo-wide.svg"] {
+  content: url("{{ design.urls.logo.svg }}");
+}
+
+body > footer img[src$="hugo-logo-wide.svg"] {
+  content: url("{{ design.urls['apple-touch-icon'].svg }}");
+  width: 3.5rem;
+  aspect-ratio: 1;
+}
+{% endif %}
+{% if design.title is string %}
+
+body > header > div:first-child > a {
+  font-size: 0;
+}
+
+body > header > div:first-child > a::after {
+  content: {{ design.title | to_json(ensure_ascii=False) }};
+  font-size: 1.25rem;
+}
+{% endif %}
+
+.bg-blue-600 {
+  --color-white: var(--design-on-primary);
+  --color-blue-500: var(--design-primary-hover);
+  --color-blue-600: var(--design-primary);
+  --color-blue-800: var(--design-primary-hover);
+}
+
+.bg-blue-500 {
+  --color-white: var(--design-on-primary);
+  --color-blue-400: var(--design-primary-hover);
+  --color-blue-500: var(--design-primary);
+}
+
+a.bg-blue-600:active,
+a.bg-blue-500:active {
+  background-color: var(--design-primary-active);
+}
+
+.content {
+  --tw-prose-body: var(--design-text);
+  --tw-prose-headings: var(--design-text);
+  --tw-prose-lead: var(--design-text-muted);
+  --tw-prose-links: var(--design-link);
+  --tw-prose-bold: var(--design-text);
+  --tw-prose-counters: var(--design-text-muted);
+  --tw-prose-bullets: var(--design-text-muted);
+  --tw-prose-hr: var(--design-border);
+  --tw-prose-quotes: var(--design-text);
+  --tw-prose-quote-borders: var(--design-border-strong);
+  --tw-prose-captions: var(--design-text-muted);
+  --tw-prose-kbd: var(--design-text);
+  --tw-prose-kbd-shadows: var(--design-border-strong);
+  --tw-prose-code: var(--design-text);
+  --tw-prose-pre-code: var(--design-text);
+  --tw-prose-pre-bg: var(--design-surface-2);
+  --tw-prose-th-borders: var(--design-border);
+  --tw-prose-td-borders: var(--design-border);
+}
+
+.content code {
+  color: var(--design-text);
+}
+
+.content th,
+.content th code {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+
+a.a--block:hover {
+  background-color: var(--design-surface-hover);
+}
+
+a.a--block:hover .text-primary {
+  color: var(--design-link);
+}
+
+.render-hook-codeblock > .san-serif {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+
+.shortcode-code nav button:hover {
+  background-color: var(--design-surface-hover);
+}
+
+.shortcode-code nav button.bg-light {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 2px 0 var(--design-primary);
+}
+
+.border-l-4.bg-blue-50 {
+  background-color: var(--design-info-subtle);
+  border-color: var(--design-info-border);
+  border-left-color: var(--design-info);
+}
+
+.border-l-4.bg-blue-50 svg {
+  fill: var(--design-info);
+}
+
+.border-l-4.bg-green-50 {
+  background-color: var(--design-success-subtle);
+  border-color: var(--design-success-border);
+  border-left-color: var(--design-success);
+}
+
+.border-l-4.bg-green-50 svg {
+  fill: var(--design-success);
+}
+
+.border-l-4.bg-orange-50 {
+  background-color: var(--design-warning-subtle);
+  border-color: var(--design-warning-border);
+  border-left-color: var(--design-warning);
+}
+
+.border-l-4.bg-orange-50 svg {
+  fill: var(--design-warning);
+}
+
+.border-l-4.bg-red-50 {
+  background-color: var(--design-danger-subtle);
+  border-color: var(--design-danger-border);
+  border-left-color: var(--design-danger);
+}
+
+.border-l-4.bg-red-50 svg {
+  fill: var(--design-danger);
+}
+
+.bg-green-200 {
+  background-color: var(--design-success-subtle);
+  fill: var(--design-success);
+}
+
+.bg-green-200 a,
+.bg-green-200 a:hover {
+  color: var(--design-success);
+}
+
+.bg-orange-200 {
+  background-color: var(--design-warning-subtle);
+  fill: var(--design-warning);
+}
+
+.bg-orange-200 a,
+.bg-orange-200 a:hover {
+  color: var(--design-warning);
+}
+
+.bg-green-200 a:hover,
+.bg-orange-200 a:hover {
+  text-decoration: underline;
+}
+
+[role="dialog"] input[type="search"] {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+  box-shadow: inset 0 0 0 1px var(--design-border-strong);
+}
+
+[role="dialog"] ul[role="list"] > li {
+  border-color: var(--design-border);
+}
+
+[role="dialog"] ul[role="list"] a {
+  color: var(--design-text);
+}
+
+[role="dialog"] ul[role="list"] a:hover,
+[role="dialog"] ul[role="list"] a:focus {
+  background-color: var(--design-surface-hover);
+  color: var(--design-text);
+}
+
+:root .chroma {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+
+:root .chroma .hl {
+  background-color: var(--design-surface-active);
+}
+
+:root .chroma .lnt,
+:root .chroma .ln,
+:root .chroma .c,
+:root .chroma .ch,
+:root .chroma .cm,
+:root .chroma .c1,
+:root .chroma .cs,
+:root .chroma .cp,
+:root .chroma .cpf,
+:root .chroma .o,
+:root .chroma .ow,
+:root .chroma .or {
+  color: var(--design-text-muted);
+}
+
+:root .chroma .k,
+:root .chroma .kc,
+:root .chroma .kd,
+:root .chroma .kn,
+:root .chroma .kp,
+:root .chroma .kr {
+  color: var(--design-link);
+}
+
+:root .chroma .kt,
+:root .chroma .nb,
+:root .chroma .bp,
+:root .chroma .l,
+:root .chroma .ld,
+:root .chroma .m,
+:root .chroma .mb,
+:root .chroma .mf,
+:root .chroma .mh,
+:root .chroma .mi,
+:root .chroma .il,
+:root .chroma .mo {
+  color: var(--design-info);
+}
+
+:root .chroma .nf,
+:root .chroma .fm {
+  color: var(--design-warning);
+}
+
+:root .chroma .nv,
+:root .chroma .vc,
+:root .chroma .vg,
+:root .chroma .vi,
+:root .chroma .vm {
+  color: var(--design-text);
+}
+
+:root .chroma .s,
+:root .chroma .sa,
+:root .chroma .sb,
+:root .chroma .sc,
+:root .chroma .dl,
+:root .chroma .sd,
+:root .chroma .s2,
+:root .chroma .se,
+:root .chroma .sh,
+:root .chroma .si,
+:root .chroma .sx,
+:root .chroma .sr,
+:root .chroma .s1,
+:root .chroma .ss {
+  color: var(--design-success);
+}
+{% endif %}

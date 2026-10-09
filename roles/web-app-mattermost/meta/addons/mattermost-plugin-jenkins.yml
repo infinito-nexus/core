@@ -1,0 +1,16 @@
+---
+enabled: "{{ lookup('config', 'web-app-mattermost', 'services.jenkins.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: "v1.1.0"
+bridges:
+  - jenkins
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: mattermost-community/mattermost-plugin-jenkins
+config:
+  plugin_id: jenkins
+  archive: https://github.com/mattermost-community/mattermost-plugin-jenkins/releases/download/v1.1.0/jenkins-1.1.0.tar.gz
+  partner_url: "{{ lookup('tls', 'web-app-jenkins', 'url.base') }}"

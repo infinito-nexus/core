@@ -13,3 +13,4 @@ require("./test-login-administrator").register(shared);
 require("./test-login-biber").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-biber-persona").register(shared);
+require("./test-design").register(shared);

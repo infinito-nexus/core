@@ -17,16 +17,17 @@
           | selectattr('issuerUrl', 'equalto', OIDC.CLIENT.ISSUER_URL)
           | map(attribute='id') | first) | default('') }}
 
-- name: "📁 Create the Keycloak OIDC authentication directory"
-  include_tasks: jmap_call.yml
-  vars:
-    stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/create_oidc.json.j2') }}"
+- name: "📁 Create the Keycloak OIDC directory when it does not exist yet"
   when: stalwart_oidc_dir_id | length == 0
+  block:
+    - name: "📁 Create the Keycloak OIDC authentication directory"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/create_oidc.json.j2') }}"
 
-- name: "📖 Capture the newly created OIDC directory id"
-  ansible.builtin.set_fact:
-    stalwart_oidc_dir_id: "{{ stalwart_jmap.methodResponses[0][1].created.kc.id }}"
-  when: stalwart_oidc_dir_id | length == 0
+    - name: "📖 Capture the newly created OIDC directory id"
+      ansible.builtin.set_fact:
+        stalwart_oidc_dir_id: "{{ stalwart_jmap.methodResponses[0][1].created.kc.id }}"
 
 - name: "🧹 Clear the OIDC directory's required audience"
   include_tasks: jmap_call.yml

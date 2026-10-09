@@ -27,7 +27,7 @@ from utils.roles.mapping import ROLE_DIR_META_ADDONS
 from utils.update.base import is_maintained
 
 MECHANISMS: frozenset[str] = frozenset(
-    {"addon", "plugin", "mu_plugin", "extension", "module", "bridge"}
+    {"addon", "plugin", "mu_plugin", "extension", "module", "bridge", "theme"}
 )
 
 SOURCES: frozenset[str] = frozenset({"upstream", "bundled", "vendored", "built"})

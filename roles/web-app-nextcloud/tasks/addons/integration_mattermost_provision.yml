@@ -12,7 +12,7 @@
 - name: ⏳ Wait until Mattermost mmctl local mode is ready
   shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
-    /mattermost/bin/mmctl --local system status
+    {{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }} --local system status
   args:
     chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
   delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
@@ -26,7 +26,7 @@
 - name: 🟢 Enable the Mattermost OAuth 2.0 service provider (required for the connector)
   shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
-    /mattermost/bin/mmctl --local config set ServiceSettings.EnableOAuthServiceProvider true
+    {{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }} --local config set ServiceSettings.EnableOAuthServiceProvider true
   args:
     chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
   delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
@@ -36,7 +36,8 @@
 - name: ⚙️ Generate a short-lived admin personal access token for OAuth provisioning
   shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
-    /mattermost/bin/mmctl --local token generate {{ lookup('users', 'administrator').username }} infinito-nc-oauth-provision --json
+    {{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }} --local token generate {{ lookup('users', 'platform_administrator').username }} infinito-nc-oauth-provision
+    --json
   args:
     chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
   delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
@@ -113,7 +114,7 @@
 - name: 🚫 Revoke the short-lived admin personal access token
   shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_MM_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ NEXTCLOUD_MM_LOCAL_CID | quote }}
-    /mattermost/bin/mmctl --local token revoke {{ nextcloud_mm_token_id }}
+    {{ lookup('config', 'web-app-mattermost', 'services.mattermost.mmctl') }} --local token revoke {{ nextcloud_mm_token_id }}
   args:
     chdir: "{{ nextcloud_mm_exec_chdir | default(omit) }}"
   delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"

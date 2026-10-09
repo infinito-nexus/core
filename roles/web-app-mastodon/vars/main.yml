@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-mastodon"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 MASTODON_CONTAINER: "{{ lookup('config', application_id, 'services.mastodon.name') }}"
 MASTODON_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"

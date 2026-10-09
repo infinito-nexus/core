@@ -12,7 +12,7 @@ Examples:
 - `web-app-keycloak` provides `oidc`
 - `svc-db-mariadb` provides `mariadb`
 
-Each service entry lives in the provider role's own [meta/services.yml](../../../../../roles), where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper).
+Each service entry lives in the provider role's own `meta/services.yml`, where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper).
 See [layout.md](layout.md) for the full per-role meta layout.
 
 ## Role-Local Service Metadata 🏷️
@@ -52,7 +52,7 @@ javascript:
 
 Rules:
 
-- The primary service entry is the role entity name returned by `get_entity_name`.
+- The primary service entry is the role entity name returned by `entity_name`.
 - `provides:` is only used when the public service name differs from the entity name.
 - `canonical:` is only used on alias entries that resolve back to the primary service key.
 - `frontend` vs. `backend` is derived from the role name prefix, not stored in config.
@@ -68,7 +68,7 @@ Primary implementation files:
 
 The discovery layer:
 
-- scans role configs from [roles/](../../../../../roles)
+- scans role configs from [roles/](../../../../../roles/)
 - discovers provider entries from `services`
 - derives deploy type and loader bucket from the role name
 - resolves `provides:` and `canonical:`
@@ -88,7 +88,7 @@ Global bucket order:
 4. `web-svc`
 5. `web-app`
 
-Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in [meta/services.yml](../../../../../roles) (i.e. `services.<primary_entity>.run_after`).
+Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in `meta/services.yml` (i.e. `services.<primary_entity>.run_after`).
 
 Rules:
 

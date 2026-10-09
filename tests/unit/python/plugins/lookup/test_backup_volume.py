@@ -86,6 +86,8 @@ class TestSwarmNfsExclusion(unittest.TestCase):
 
     SWARM_NFS: ClassVar[dict] = {
         "DEPLOYMENT_MODE": "swarm",
+        "IS_COMPOSE_MODE": False,
+        "IS_SWARM_MODE": True,
         "storage": {"backend": "nfs"},
         "groups": {"svc-bkp-nfs-2-local": ["nfs-server"]},
     }
@@ -99,7 +101,7 @@ class TestSwarmNfsExclusion(unittest.TestCase):
             "web-app-nextcloud": {
                 "volumes": {"data": {"name": "nextcloud_data"}},
             },
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "volumes": {"data": {"name": "seaweedfs_data"}},
             },
         }
@@ -212,6 +214,8 @@ class TestSwarmNfsExclusion(unittest.TestCase):
                 apps,
                 variables={
                     "DEPLOYMENT_MODE": "compose",
+                    "IS_COMPOSE_MODE": True,
+                    "IS_SWARM_MODE": False,
                     "storage": {"backend": "local"},
                 },
             ),

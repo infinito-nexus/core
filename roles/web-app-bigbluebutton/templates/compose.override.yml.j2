@@ -82,7 +82,7 @@ services:
   {{ service_name }}:
     {{ lookup('container_image', application_id, service_name) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file MS_WEBRTC_LISTEN_IPS relies on compose expanding ${EXTERNAL_IPv4} from --env-file, which env_file values never get; compose_mods.py:39 also pins env.j2 onto every bbb service, so these mediasoup keys would reach all ~20 containers instead of webrtc-sfu
       MS_WORKERS: "1"
       MS_ENABLE_IPV6: "{{ BBB_IP6_ENABLED | bool | lower }}"
       MS_WEBRTC_LISTEN_IPS: >-

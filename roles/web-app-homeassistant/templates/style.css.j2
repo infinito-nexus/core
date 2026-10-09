@@ -1,0 +1,37 @@
+{% set design = lookup('design', application_id) %}
+{% set sign_in = ':root:has(ha-authorize)' %}
+{{ sign_in }} {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+{{ sign_in }} body {
+{% for name, value in HOMEASSISTANT_DESIGN_VARIABLES | dictsort %}
+  --{{ name }}: {{ value }};
+{% endfor %}
+{% for wa, ha in [('brand', 'primary'), ('neutral', 'neutral'), ('success', 'success'), ('warning', 'warning'), ('danger', 'danger')] %}
+  --wa-color-{{ wa }}-fill-loud: var(--ha-color-fill-{{ ha }}-loud-resting);
+  --wa-color-{{ wa }}-fill-normal: var(--ha-color-fill-{{ ha }}-normal-resting);
+  --wa-color-{{ wa }}-fill-quiet: var(--ha-color-fill-{{ ha }}-quiet-hover);
+  --wa-color-{{ wa }}-border-loud: var(--ha-color-border-{{ ha }}-loud);
+  --wa-color-{{ wa }}-border-normal: var(--ha-color-border-{{ ha }}-normal);
+  --wa-color-{{ wa }}-border-quiet: var(--ha-color-border-{{ ha }}-quiet);
+  --wa-color-{{ wa }}-on-loud: var(--ha-color-on-{{ ha }}-loud);
+  --wa-color-{{ wa }}-on-normal: var(--ha-color-on-{{ ha }}-normal);
+  --wa-color-{{ wa }}-on-quiet: var(--ha-color-on-{{ ha }}-quiet);
+{% endfor %}
+  --wa-color-text-quiet: var(--ha-color-text-secondary);
+  --wa-color-text-normal: var(--primary-text-color);
+  --wa-color-surface-default: var(--card-background-color);
+  --wa-color-surface-raised: var(--card-background-color);
+  --wa-color-surface-border: var(--ha-color-border-neutral-quiet);
+  --wa-focus-ring-color: var(--ha-color-focus);
+  --wa-form-control-background-color: var(--card-background-color);
+  --wa-form-control-border-color: var(--ha-color-border-neutral-quiet);
+  --wa-form-control-value-color: var(--primary-text-color);
+  --wa-form-control-placeholder-color: var(--ha-color-text-secondary);
+}
+{% if design.logo is string %}
+{{ sign_in }} .header img {
+  content: url("{{ design.urls.logo.svg }}");
+}
+{% endif %}

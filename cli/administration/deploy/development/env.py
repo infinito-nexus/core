@@ -25,8 +25,18 @@ def compose_file_args() -> list[str]:
         out += ["-f", "compose/cache.override.yml"]
         if profile.shared_cache_network():
             out += ["-f", "compose/cache.shared.override.yml"]
+    if profile.gpu_reservable():
+        out += ["-f", "compose/gpu.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
         out += ["-f", "compose/noports.override.yml"]
+    if all(
+        (os.environ.get(key) or "").strip()
+        for key in (
+            "INFINITO_TOOLS_LIBRETRANSLATE_PORT",
+            "INFINITO_TOOLS_MODELS_HOST_PATH",
+        )
+    ):
+        out += ["-f", "compose/tools.override.yml"]
     return out
 
 

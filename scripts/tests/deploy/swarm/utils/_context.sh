@@ -14,7 +14,7 @@ fi
 
 : "${APP_ID:?APP_ID required}"
 
-ENTITY="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "from utils.roles.entity.name import get_entity_name; print(get_entity_name('${APP_ID}'))")"
+ENTITY="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "from utils.roles.entity.name import entity_name; print(entity_name('${APP_ID}'))")"
 
 STACK_NAME="${ENTITY}"
 CUSTOM_IMAGE_REPO="${ENTITY}_custom"

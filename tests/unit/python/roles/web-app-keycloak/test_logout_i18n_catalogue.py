@@ -13,22 +13,26 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
+from utils.i18n.extract import logout_context
+from utils.i18n.keyed import keyed_catalogue
+from utils.i18n.languages import load_languages
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
 TEMPLATE = ROLE / "files" / "javascript" / "logout-panel.js"
 REFERENCE = "en"
-RIGHT_TO_LEFT = {"ar", "fa", "ur"}
-EXPECTED_LANGUAGES = 30
+MINIMUM_LANGUAGES = 30
 
 
 class TestLogoutCatalogue(unittest.TestCase):
     def setUp(self) -> None:
-        self.catalogue = load_yaml(CATALOGUE_FILE)
+        self.catalogue = keyed_catalogue(
+            PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)
+        )
         self.template = read_text(str(TEMPLATE))
 
     def test_the_promised_number_of_languages_is_offered(self) -> None:
-        self.assertEqual(len(self.catalogue), EXPECTED_LANGUAGES)
+        self.assertGreaterEqual(len(self.catalogue), MINIMUM_LANGUAGES)
         self.assertIn(
             REFERENCE, self.catalogue, "English is the fallback and must exist"
         )
@@ -51,12 +55,12 @@ class TestLogoutCatalogue(unittest.TestCase):
                         str(value).strip(), "empty strings render as nothing"
                     )
 
-    def test_right_to_left_languages_are_marked_and_others_are_not(self) -> None:
+    def test_every_language_takes_its_direction_from_the_language_list(self) -> None:
+        languages = load_languages(PROJECT_ROOT)
         for lang, entry in self.catalogue.items():
             with self.subTest(language=lang):
-                self.assertEqual(
-                    entry["dir"], "rtl" if lang in RIGHT_TO_LEFT else "ltr"
-                )
+                self.assertEqual(entry["dir"], languages[lang]["direction"])
+        self.assertEqual(self.catalogue["ar"]["dir"], "rtl")
 
     def test_every_key_the_panel_reads_exists_in_every_language(self) -> None:
         used = set(re.findall(r"\bs\.([a-z_]+)", self.template))

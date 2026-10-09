@@ -44,6 +44,24 @@ class TestComposePull(unittest.TestCase):
         self.assertEqual(out, "hello\n")
         self.assertEqual(err, "warn: variable is not set\n")
 
+    def test_run_cmd_reports_a_timeout_instead_of_hanging(self) -> None:
+        def fake_run(*args, **kwargs):
+            self.assertEqual(kwargs["timeout"], self.m.RUN_TIMEOUT_SECONDS)
+            raise self.m.subprocess.TimeoutExpired(
+                cmd=["compose", "build"],
+                timeout=self.m.RUN_TIMEOUT_SECONDS,
+                output=b"step 3/4\n",
+                stderr=b"pulling\n",
+            )
+
+        with patch.object(self.m.subprocess, "run", side_effect=fake_run):
+            rc, out, err = self.m.run_cmd(["compose", "build"], cwd=Path("/"), env={})
+
+        self.assertEqual(rc, self.m.TIMEOUT_RC)
+        self.assertEqual(out, "step 3/4\n")
+        self.assertIn(f"timed out after {self.m.RUN_TIMEOUT_SECONDS}s", err)
+        self.assertIn("pulling", err)
+
     def test_base_compose_cmd_delegates_to_wrapper(self) -> None:
         cmd = self.m.base_compose_cmd(project="p", cwd=Path("/x"))
         self.assertEqual(cmd[0], "/usr/bin/compose")

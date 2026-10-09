@@ -47,6 +47,13 @@ autoformat: install-lint
 autoformat-restage:
 	@bash scripts/git/autoformat_restage.sh "$(MAKE)" autoformat
 
+.PHONY: binfmt
+# Make an architecture executable here through emulation.
+# Param arch: amd64 | arm64 (default: the platform in INFINITO_DOCKER_PLATFORM)
+binfmt:
+	@"$${PYTHON}" -m cli.administration.deploy.development binfmt \
+		$(if $(arch),--architecture "$(arch)")
+
 .PHONY: bond
 # Serve the role bond matrix, where editing a cell rewrites the role's bond.
 bond:
@@ -92,6 +99,13 @@ build-no-cache-all:
 		echo "=== build-no-cache: $$d ==="; \
 		INFINITO_DISTRO="$$d" "$(MAKE)" build-no-cache; \
 	done
+
+.PHONY: cache-apply
+# Install this checkout's cache declarations into the running cache stack.
+# Note: creates the Nexus proxy repos, issues the frontend certs, installs the upstream map the frontend mounts and reloads it.
+# Note: `make compose-up` runs it for a checkout that shares another one's cache stack; call it directly after changing a `cache:` declaration.
+cache-apply:
+	@bash scripts/system/cache/apply.sh
 
 .PHONY: cheat
 # Print the operator prompt cheatsheet from docs/contributing/tools/agents/cheatsheet.md.
@@ -200,9 +214,11 @@ compose-down:
 	@"$${PYTHON}" -m cli.administration.deploy.development down
 
 .PHONY: compose-entity-purge
-# Purge one or more app entities from the container.
+# Purge one or more app entities from the container and drop them from the round inventories.
+# Usage: make compose-entity-purge apps=<application_id>[,<application_id>...]
+# Param apps: application ids to purge
 compose-entity-purge:
-	@bash scripts/tests/deploy/local/purge/entity.sh
+	@retire=true bash scripts/tests/deploy/local/purge/entity.sh
 
 .PHONY: compose-exec
 # Run a shell or one-off command in the running development container.
@@ -241,6 +257,21 @@ compose-playwright:
 compose-restart:
 	@"$${PYTHON}" -m cli.administration.deploy.development restart
 
+.PHONY: compose-role-sync
+# Re-run only the role of a deployed app against the running stack (no system stages; the spec runs only with pw=).
+# Usage: make compose-role-sync role=<application_id> [variant=<idx>] [task=<task file>] [pw="<playwright args>"] [keep=true] [base='<hex>']
+# Example: make compose-role-sync role=web-app-gitea variant=0 pw="--grep design: --grep-invert gallery"
+# Example: make compose-role-sync role=web-app-xwiki variant=0 task=06_design.yml
+# Param role: deployed application id
+# Param variant: matrix round index the app was deployed with
+# Param task: task file of the role that runs alone instead of the whole role; it gets the role variables and nothing an earlier task of the role set
+# Param pw: Playwright arguments without quotes; when set, the spec of the role is staged again, its .env rendered again and run with them
+# Param keep: true lets that spec run capture the design gallery
+# Param base: hex base color that replaces the one of the inventory for this run, e.g. base='#001f3f'
+compose-role-sync:
+	@: $${role:?role=<application_id> required, e.g. role=web-app-gitea}
+	@role='$(role)' variant='$(variant)' task='$(task)' pw='$(pw)' keep='$(keep)' base='$(base)' bash scripts/tests/deploy/local/sync/role.sh
+
 .PHONY: compose-stop
 # Stop the development stack without removing volumes.
 compose-stop:
@@ -265,12 +296,46 @@ compose-up: install
 console:
 	@"$${PYTHON}" -m cli.console
 
-.PHONY: cosmos
-# Regenerate the '## Cosmos' mermaid diagram in every role README (or one role).
-# Usage: make cosmos [role=<id>]
-# Param role: single role id (default: all roles)
-cosmos:
-	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
+.PHONY: design-gallery
+# Rerun the design spec of a deployed app and copy its screenshots to /tmp/design-gallery/<app>/ (no redeploy).
+# Usage: make design-gallery app=<application_id> [views=<view>[,<view>...]] [before=true] [pw="--grep <pattern>"]
+# Example: make design-gallery app=web-app-gitea views=dashboard,settings
+# Param app: deployed application id
+# Param views: comma-separated view names; only these are captured, by the gallery test alone, and added to the existing screenshots
+# Param before: true also captures every view with the injected snippets stripped from the document
+# Param pw: Playwright arguments without quotes that replace the default `--grep design:`; such a run adds its screenshots to the existing ones
+design-gallery:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' pw='$(pw)' views='$(views)' before='$(before)' bash scripts/tests/design/gallery.sh
+
+.PHONY: design-palette
+# Run the design assertions of a deployed app with another base color and restore the base of the inventory afterwards, also on failure.
+# Usage: make design-palette app=<application_id> base='<hex>' sync=<design|role> [variant=<idx>]
+# Example: make design-palette app=web-app-gitea variant=0 base='#001f3f' sync=role
+# Param app: deployed application id
+# Param base: hex base color for the check
+# Param sync: design re-renders the static design files, role re-runs the app role for values it bakes at deploy time
+# Param variant: matrix round index the app was deployed with
+design-palette:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' base='$(base)' sync='$(sync)' variant='$(variant)' bash scripts/tests/design/palette.sh
+
+.PHONY: design-queue
+# Print the roles that are due for a design pass in working order (new roles first, then by version gap).
+# Usage: make design-queue [args="--next|--all|--format json"]
+# Param args: extra flags for the queue CLI
+design-queue:
+	@"$${PYTHON}" -m cli.meta.roles.design $(args)
+
+.PHONY: design-sync
+# Re-render shared CSS, role style.css and the branding assets of a deployed app (no redeploy; injected scripts stay as deployed).
+# Usage: make design-sync app=<application_id> [variant=<idx>] [base='<hex>']
+# Param app: deployed application id
+# Param variant: matrix round index the app was deployed with
+# Param base: hex base color that replaces the one of the inventory for this run, e.g. base='#001f3f'
+design-sync:
+	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
+	@app='$(app)' variant='$(variant)' base='$(base)' bash scripts/tests/design/sync.sh
 
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
@@ -283,18 +348,12 @@ diagnose-disk-usage:
 diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
 
-.PHONY: docs
-# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, and the root-README roles index.
-docs:
-	@"$(MAKE)" cosmos
-	@"$(MAKE)" readme-generate quick_setup=true
-	@"$(MAKE)" readme-index
-
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
 # Note: runtime context covers distro, cache sizes, secrets, and the like.
 dotenv:
 	@python3 -m cli.meta.env
+	@python3 -m cli.meta.cache
 
 .PHONY: dotenv-force
 # Force a clean .env regeneration in a stripped environment.
@@ -302,6 +361,7 @@ dotenv:
 dotenv-force:
 	@rm -f .env
 	@env -i HOME="$${HOME}" PATH="$${PATH}" python3 -m cli.meta.env
+	@set -a; . ./.env; set +a; python3 -m cli.meta.cache
 
 .PHONY: environment-bootstrap
 # Bootstrap the local development environment.
@@ -330,6 +390,40 @@ fix-dockerignore:
 # Example: make help target=compose-playwright
 help:
 	@bash scripts/make/help.sh $(target)
+
+.PHONY: i18n-extract
+# Merge the translatable strings of core and the documentation into the gettext catalogs under locale/.
+# Param domain: core | docs (empty: both)
+i18n-extract:
+	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)")
+
+.PHONY: i18n-prune
+# Empty the translations that altered a protected span so the next i18n-translate redoes them.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language)
+i18n-prune:
+	@"$${PYTHON}" -m cli.build.i18n prune $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
+.PHONY: i18n-retry
+# Offer the entries a previous run recorded as refused again, after the masking or the damage predicate changed.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language)
+i18n-retry:
+	@"$${PYTHON}" -m cli.build.i18n retry $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
+.PHONY: i18n-translate
+# Machine-translate the empty and fuzzy entries of the gettext catalogs through the translation gateway, deploying its bundle when it does not answer.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language the gateway serves)
+# Param redeploy: true — deploy the bundle even when a gateway already answers (after changing its code or its backends)
+i18n-translate:
+	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)") $(if $(filter true,$(redeploy)),--redeploy)
+
+.PHONY: i18n-tune
+# Measure the fastest LibreTranslate client settings on this host and record them for `make dotenv`.
+# Param language: ISO 639-1 code the sweep translates into (default: de)
+i18n-tune:
+	@"$${PYTHON}" -m cli.build.i18n tune $(if $(language),--language "$(language)")
 
 .PHONY: install
 # Install all runtime dependencies.
@@ -422,11 +516,6 @@ install-system-python:
 # Install the virtual environment.
 install-venv: install-system-python
 	@bash scripts/install/venv.sh
-
-.PHONY: integration-matrix
-# Regenerate the role-by-role integration matrix from the roles and the curated edge map.
-integration-matrix:
-	@"$${PYTHON}" -m cli.build.docs.integration_matrix
 
 .PHONY: kernel-loop-load
 # Load the kernel loop driver the swarm backup DR drill needs.
@@ -596,42 +685,14 @@ onboard: bootstrap install-skills install-alias environment-bootstrap
 	@"$(MAKE)" compose-exec cmd="bash scripts/install/dev-extras.sh"
 
 .PHONY: quality
-# Regenerate generated docs, autoformat, then run the full test suite (pre-commit gate).
+# Autoformat, then run the full test suite (pre-commit gate).
 quality:
-	@"$(MAKE)" docs
 	@"$(MAKE)" autoformat
 	@"$(MAKE)" test
 
 .PHONY: quality-high
 # Full gate: quality (autoformat + test) followed by every lint check.
 quality-high: quality lint
-
-.PHONY: readme-check
-# Verify every role README matches the schema template (writes nothing; fails if any would change).
-readme-check:
-	@"$${PYTHON}" -m cli.build.docs.readme --check
-
-.PHONY: readme-generate
-# Generate/complete role README.md files from templates/roles/README.md.j2.tmpl.
-# Usage: make readme-generate [role=<id>] [override=true] [cosmos=true] [quick_setup=true]
-# Param role: single role id (default: all roles)
-# Param override: true regenerates managed sections even when present
-# Param cosmos: true regenerates only the Cosmos diagram
-# Param quick_setup: true regenerates only the Quick Setup section
-readme-generate:
-	@"$${PYTHON}" -m cli.build.docs.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
-
-.PHONY: readme-index
-# Regenerate the invokable-role overview table in the root README.md.
-# Param check: true verifies only and fails when the table is outdated
-readme-index:
-	@"$${PYTHON}" -m cli.build.docs.readme.overview $(if $(filter true,$(check)),--check)
-
-.PHONY: requirements-archive
-# Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).
-requirements-archive:
-	@"$${PYTHON}" -m pip install --quiet --upgrade kpmx
-	@"$${PYTHON}" -m pkgmgr archive docs/requirements
 
 .PHONY: roundtrip
 # Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
@@ -775,6 +836,7 @@ swarm-shell:
 	@SWARM_NAME='$(name)' node='$(node)' bash scripts/tests/deploy/act/shell_node.sh
 
 SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
+SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 
 .PHONY: swarm-zombie
 # Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
@@ -783,6 +845,7 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
 # Param name: optional cluster-id prefix for the container + network names; release with the same name=.
+# Param arch: architecture the cluster deploys on, amd64 | arm64 (default: the host's own).
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
@@ -799,11 +862,13 @@ swarm-zombie: install-act
 	 disable=$(disable); \
 	 SWARM_NAME=$(or $(name),$(app)); \
 	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \
-	 INFINITO_DISTROS=$(SWARM_DISTROS)" \
+	 INFINITO_DISTROS=$(SWARM_DISTROS); \
+	 INFINITO_ARCHITECTURES=$(SWARM_ARCH); \
+	 INFINITO_ARCHITECTURE=$(SWARM_ARCH)" \
 	 ACT_WORKFLOW=.github/workflows/call-test-deploy.yml \
 	 ACT_JOB=deploy \
 	 ACT_MATRIX="apps:$(app);variant:$(or $(variant),0);mode:swarm" \
-	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable)" \
+	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable) architectures=$(SWARM_ARCH)" \
 	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge
@@ -850,6 +915,15 @@ test-main-merged:
 # Verify every commit an in-progress merge brings in (HEAD..MERGE_HEAD) is signed (commit-msg gate).
 test-merge-signed:
 	@bash scripts/git/assert/merge_signed.sh
+
+.PHONY: test-oracle
+# Run the suite whose verdict comes from a model (not part of the `test` fan-out).
+# Note: brings the tools lane up first, because the checks run inside the stack's container and cannot deploy the model they ask.
+test-oracle: install
+	@"$${PYTHON}" -m utils.inventory.tools
+	@INFINITO_TEST_TYPE="oracle" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
 
 .PHONY: test-performance
 # Run the runtime-performance suite (not part of the `test` fan-out).
@@ -917,7 +991,7 @@ worktree-prune:
 .PHONY: worktree-up
 # Check a branch out into an isolated worktree with its own subnet, ports and container names.
 # Usage: make worktree-up branch=<name> [base=<dir>]
-# Note: the worktree shares the primary checkout's cache stack instead of starting its own.
+# Note: the worktree shares the primary checkout's cache stack instead of starting its own; `make cache-apply` serves its own cache declarations from it.
 # Param branch: branch to check out (required).
 # Param base: parent directory for the worktree (default ~/.local/share/worktrees/<domain>/<account>/<repo>).
 worktree-up:

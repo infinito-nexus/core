@@ -30,7 +30,7 @@ xmpp:
       enabled: true
   # nocheck: single-replica
   replicas: 1
-  image: ejabberd/ecs
+  image: ghcr.io/processone/ejabberd
   version: "26.09"
   name: ejabberd
   ports:

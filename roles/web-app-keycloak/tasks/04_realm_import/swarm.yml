@@ -29,7 +29,7 @@
     container service create --detach --restart-condition on-failure --restart-max-attempts 3 --name "$JOB" \
       --constraint node.role==manager \
       --env-file {{ lookup('container', application_id, 'files.env') | quote }} \
-      --network {{ application_id | get_entity_name | quote }} \
+      --network {{ application_id | entity_name | quote }} \
       {{ KEYCLOAK_DB_NETWORK_ARG }} \
       --mount type=bind,source={{ KEYCLOAK_REALM_IMPORT_DIR_HOST | quote }},target={{ KEYCLOAK_REALM_IMPORT_DIR_DOCKER | quote }},readonly \
       --entrypoint /opt/keycloak/bin/kc.sh \

@@ -1,11 +1,13 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { skipUnlessServiceEnabled } = require("../service-gating");
 const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger -> ActivityStreams actor)", async ({ browser }) => {
   skipUnlessAddonEnabled("activitypub");
+  skipUnlessServiceEnabled("sso");
   test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });

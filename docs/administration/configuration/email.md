@@ -38,18 +38,16 @@ overridden from inventory by setting the matching `SYSTEM_EMAIL_<KEY>` variable
 ## Per-Application Overrides 🧩
 
 Applications MAY override any subset of these keys under
-`compose.services.email` in their role or inventory.
+`services.email` in their role or inventory.
 
 Role defaults:
 
 ```yaml
-# roles/<application_id>/config/main.yml
-compose:
-  services:
-    email:
-      host: smtp.app.example.org
-      port: 587
-      tls: true
+# roles/<application_id>/meta/services.yml
+email:
+  host: smtp.app.example.org
+  port: 587
+  tls: true
 ```
 
 Inventory overrides:
@@ -58,10 +56,9 @@ Inventory overrides:
 # group_vars/<group>.yml or host_vars/<host>.yml
 applications:
   web-app-nextcloud:
-    compose:
-      services:
-        email:
-          username: nextcloud@example.org
+    services:
+      email:
+        username: nextcloud@example.org
 ```
 
 Overrides are merged on top of the resolved defaults. Keys MUST use the short,
@@ -71,7 +68,7 @@ lowercased names listed above.
 
 For each key, the first defined source wins:
 
-1. `applications['<application_id>'].compose.services.email.<key>`, applied
+1. `applications['<application_id>'].services.email.<key>`, applied
    only when an `application_id` is passed.
 2. A `SYSTEM_EMAIL_<KEY>` variable defined in inventory, group vars, or host
    vars. No such file ships with the project. This form is an escape hatch for

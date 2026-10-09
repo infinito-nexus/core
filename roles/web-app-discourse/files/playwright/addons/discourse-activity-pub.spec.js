@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { skipUnlessServiceEnabled } = require("../service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -49,6 +50,7 @@ function findSetting(settings, name) {
 
 test("discourse-activity-pub: federation plugin installed and the live ActivityPub surface reaches the fediverse partner network", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-activity-pub");
+  skipUnlessServiceEnabled("sso");
 
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
   expect(discourseBaseUrl, "DISCOURSE_BASE_URL must be set").toBeTruthy();

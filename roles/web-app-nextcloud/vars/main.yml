@@ -1,7 +1,7 @@
 ---
 application_id: "web-app-nextcloud"
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 swarm_stack_converge_retries: 600
 
@@ -24,6 +24,15 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | selectattr('value.enabled', 'true')
      | map(attribute='key') | list }}
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
+NEXTCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+NEXTCLOUD_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+NEXTCLOUD_DESIGN_PRIMARY: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-primary'] }}"
+NEXTCLOUD_DESIGN_THEMING:
+  name: "{{ lookup('design', application_id).label }}"
+  slogan: "{{ service_provider.platform.subtitel }}"
+  primary_color: "{{ NEXTCLOUD_DESIGN_PRIMARY }}"
+  background_color: "{{ NEXTCLOUD_DESIGN_PRIMARY }}"
+  background: backgroundColor
 NEXTCLOUD_USER_LDAP_ENABLED: "{{ lookup('config', application_id, 'addons.user_ldap.enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
@@ -37,8 +46,8 @@ NEXTCLOUD_DOCKER_WORK_DIRECTORY: "{{ lookup('volume', 'web-app-nextcloud', 'data
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ lookup('volume', 'web-app-nextcloud', 'infinito_conf').target }}"
 NEXTCLOUD_DOCKER_CONF_LOADER_PATH: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'config/zzz-infinito.config.php'] | path_join }}"
 
-NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
-NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('config', application_id, 'users.administrator.username') }}"
+NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 
 NEXTCLOUD_INIT_GATE_FILE: "init-gate.sh"
 NEXTCLOUD_INIT_GATE_SRC: "{{ ['shell', 'utils', NEXTCLOUD_INIT_GATE_FILE] | path_join }}"
@@ -63,13 +72,11 @@ NEXTCLOUD_PROXY_EXCLUDED_PUBLIC_HOSTS:
   - codeberg.org
   - gitlab.com
 
-NEXTCLOUD_PROXY_EXCLUDED_INTERNAL_HOSTS:
-  - "{{ NEXTCLOUD_PROXY_DNS_NAME }}"
-  - "{{ NEXTCLOUD_CONTEXT_AGENT_DNS_NAME }}"
+NEXTCLOUD_PROXY_EXCLUDED_INTERNAL_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [NEXTCLOUD_PROXY_DNS_NAME, NEXTCLOUD_CONTEXT_AGENT_DNS_NAME] }}"
 
 NEXTCLOUD_PROXY_SERVICE: "proxy"
 NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.name') }}"
-NEXTCLOUD_PROXY_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_PROXY_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_PROXY_CONTAINER }}"
+NEXTCLOUD_PROXY_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_PROXY_SERVICE) if IS_SWARM_MODE else NEXTCLOUD_PROXY_CONTAINER }}"
 
 NEXTCLOUD_MCP_ENABLED: "{{ lookup('config', application_id, 'services.context_agent.enabled') | bool }}"
 NEXTCLOUD_MCP_PATH: "{{ lookup('config', application_id, 'mcp.adapter.upstream_path') }}"
@@ -102,7 +109,7 @@ NEXTCLOUD_CONTEXT_AGENT_CONTAINER: "{{ lookup('config', application_id, 'service
 NEXTCLOUD_CONTEXT_AGENT_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE ~ '.version') }}"
 NEXTCLOUD_CONTEXT_AGENT_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE ~ '.ports.internal.http') }}"
 NEXTCLOUD_CONTEXT_AGENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.context_agent_app_secret') }}"
-NEXTCLOUD_CONTEXT_AGENT_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_CONTEXT_AGENT_CONTAINER }}"
+NEXTCLOUD_CONTEXT_AGENT_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE) if IS_SWARM_MODE else NEXTCLOUD_CONTEXT_AGENT_CONTAINER }}"
 NEXTCLOUD_CONTEXT_AGENT_DAEMON: "manual_install"
 NEXTCLOUD_CONTEXT_AGENT_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_PROXY_DNS_NAME }}:{{ container_port }}"
 NEXTCLOUD_CONTEXT_AGENT_ROUTES:

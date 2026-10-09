@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
@@ -8,12 +9,12 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.tls_common import resolve_enabled
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")
 OBJSTORE_PROVIDER_ROLE = {
-    "seaweedfs": "web-app-seaweedfs",
+    "seaweedfs": "web-svc-seaweedfs",
     "minio": "web-app-minio",
 }
 OBJSTORE_DEFAULT_PORT = {"seaweedfs": 8333, "minio": 9000}
@@ -74,7 +75,7 @@ class LookupModule(LookupBase):
             templar=getattr(self, "_templar", None),
         ).run([], variables=vars_)[0]
         path_instances = self._require_var(vars_, "DIR_COMPOSITIONS")
-        consumer_entity = get_entity_name(consumer_id)
+        consumer_entity = entity_name(consumer_id)
 
         active = [
             e for e in OBJSTORE_ENGINES if _is_enabled(applications, consumer_id, e)
@@ -108,6 +109,7 @@ class LookupModule(LookupBase):
                 "volume": "",
                 "endpoint": "",
                 "url": "",
+                "credentialed_url": "",
                 "public_domain": "",
                 "public_bucket": "",
                 "public_url": "",
@@ -140,7 +142,7 @@ class LookupModule(LookupBase):
         ).strip() or engine
 
         host = central_name if central_enabled else engine
-        network = get_entity_name(provider_role) if central_enabled else consumer_entity
+        network = entity_name(provider_role) if central_enabled else consumer_entity
         container = central_name if central_enabled else f"{consumer_entity}-{engine}"
         port = get(
             applications,
@@ -211,6 +213,8 @@ class LookupModule(LookupBase):
         )
         endpoint = f"{host}:{port}"
         url = f"http://{endpoint}"
+        userinfo = f"{quote(access_key, safe='')}:{quote(secret_key, safe='')}"
+        credentialed_url = f"http://{userinfo}@{endpoint}"
 
         public_domain = get(
             applications,
@@ -255,6 +259,7 @@ class LookupModule(LookupBase):
             "volume": volume,
             "endpoint": endpoint,
             "url": url,
+            "credentialed_url": credentialed_url,
             "public_domain": public_domain,
             "public_bucket": public_bucket,
             "public_url": public_url,

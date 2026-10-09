@@ -1,5 +1,5 @@
 ---
-# include-gated: when: DEPLOYMENT_MODE == "compose"
+# include-gated: when: IS_COMPOSE_MODE
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
@@ -9,12 +9,13 @@
 - name: 📂 include 02_create-and-seed-database.yml for multiple bridges
   include_tasks: 02_create-and-seed-database.yml
   vars:
-    database_password: "{{ item.database_password }}"
-    database_username: "{{ item.database_username }}"
-    database_name: "{{ item.database_name }}"
+    database_password: "{{ bridge.database_password }}"
+    database_username: "{{ bridge.database_username }}"
+    database_name: "{{ bridge.database_name }}"
   loop: "{{ MATRIX_BRIDGES }}"
   loop_control:
-    label: "{{ item.bridge_name }}"
+    loop_var: bridge
+    label: "{{ bridge.bridge_name }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 cleanup project folder"
@@ -83,7 +84,7 @@
 
 - name: "🐳 compose-mode lifecycle (pull + up)"
   include_tasks: 03_compose_pull_and_up.yml
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🚿 Flush handlers so the stack deploys before the Synapse wait"
   meta: flush_handlers
@@ -98,27 +99,28 @@
   delay: 2
   until: matrix_synapse_health.status == 200
 
-- name: "✅ Wait until Synapse reaches every bridge as ready"
-  ansible.builtin.shell:
-    cmd: >-
-      container exec {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
-      {{ 10 | curl(retries=0) }} --noproxy '*' -fS
-      http://mautrix-{{ item.bridge_name }}:{{ item.appservice_port }}/_matrix/mau/ready
-    executable: /bin/bash
-  loop: "{{ MATRIX_BRIDGES }}"
-  loop_control:
-    label: "{{ item.bridge_name }}"
-  register: matrix_bridge_ready
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  retries: 60
-  delay: 10
-  until: matrix_bridge_ready.rc == 0
-  changed_when: false
+- name: "👤 Do the stack-host-only part of the Matrix bring-up"
   when: IS_STACK_HOST | bool
+  block:
+    - name: "✅ Wait until Synapse reaches every bridge as ready"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
+          {{ 10 | curl(retries=0) }} --noproxy '*' -fS
+          http://mautrix-{{ item.bridge_name }}:{{ item.appservice_port }}/_matrix/mau/ready
+        executable: /bin/bash
+      loop: "{{ MATRIX_BRIDGES }}"
+      loop_control:
+        label: "{{ item.bridge_name }}"
+      register: matrix_bridge_ready
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      retries: 60
+      delay: 10
+      until: matrix_bridge_ready.rc == 0
+      changed_when: false
 
-- name: "👤 Provision what only the stack host owns (accounts, bridge token, compose)"
-  ansible.builtin.include_tasks: utils/stack_host_provisioning.yml
-  when: IS_STACK_HOST | bool
+    - name: "👤 Provision what only the stack host owns (accounts, bridge token, compose)"
+      ansible.builtin.include_tasks: utils/stack_host_provisioning.yml
 
 - name: "🔄 Flush all handlers after docker setup so they don't intervine with openresty"
   meta: flush_handlers

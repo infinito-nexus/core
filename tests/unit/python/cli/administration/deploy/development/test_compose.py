@@ -95,6 +95,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_GIT_COMMON_DIR": "",
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_GPU_COUNT": "0",
         },
         clear=False,
     )
@@ -126,6 +127,8 @@ class TestComposeUpRetries(unittest.TestCase):
                 "compose",
                 "-f",
                 "compose.yml",
+                "-f",
+                "compose/tools.override.yml",
                 "ps",
                 "-q",
                 "infinito",
@@ -144,6 +147,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_GIT_COMMON_DIR": "",
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_GPU_COUNT": "0",
         },
         clear=False,
     )
@@ -169,6 +173,8 @@ class TestComposeUpRetries(unittest.TestCase):
                 "compose.yml",
                 "-f",
                 "compose/cache.override.yml",
+                "-f",
+                "compose/tools.override.yml",
                 "ps",
                 "-q",
                 "infinito",
@@ -287,6 +293,41 @@ class TestComposeUpRetries(unittest.TestCase):
         compose.wait_for_healthy.assert_called_once_with()
         compose._bootstrap_package_cache.assert_called_once()
         compose._generate_package_frontend_certs.assert_called_once()
+        compose._install_package_frontend_ca_in_runner.assert_called_once()
+
+    @patch.dict(
+        os.environ,
+        {
+            "INFINITO_BUILD": "1",
+            "INFINITO_IMAGE": "infinito-debian",
+            "INFINITO_PULL_POLICY": "never",
+            "CI": "",
+            "GITHUB_ACTIONS": "",
+            "INFINITO_RUNNING_ON_GITHUB": "",
+            "INFINITO_GIT_COMMON_DIR": "/primary/.git",
+            "INFINITO_CACHE_NETWORK": "infinito-nexus-core_default",
+            "INFINITO_CACHE_STACK": "",
+        },
+        clear=False,
+    )
+    def test_up_applies_the_declarations_to_a_cache_stack_it_shares(self) -> None:
+        compose = self._compose()
+        compose._render_coredns_corefile = MagicMock()
+        compose._compose_up_with_retries = MagicMock()
+        compose.wait_for_healthy = MagicMock()
+        compose._bootstrap_package_cache = MagicMock()
+        compose._generate_package_frontend_certs = MagicMock()
+        compose._apply_shared_cache = MagicMock()
+        compose._install_package_frontend_ca_in_runner = MagicMock()
+
+        compose.up(run_entry_init=False)
+
+        compose._compose_up_with_retries.assert_called_once_with(
+            ["up", "-d", "coredns", "infinito"], attempts=6, delay_s=30
+        )
+        compose._generate_package_frontend_certs.assert_not_called()
+        compose._bootstrap_package_cache.assert_not_called()
+        compose._apply_shared_cache.assert_called_once()
         compose._install_package_frontend_ca_in_runner.assert_called_once()
 
 

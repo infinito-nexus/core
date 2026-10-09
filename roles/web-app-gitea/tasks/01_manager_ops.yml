@@ -38,9 +38,9 @@
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       /app/gitea/gitea admin user create \
         --admin \
-        --username "{{ lookup('users', 'administrator').username }}" \
-        --password {{ lookup('users', 'administrator').password | quote }} \
-        --email    "{{ lookup('users', 'administrator').email }}" \
+        --username "{{ lookup('users', 'platform_administrator').username }}" \
+        --password {{ lookup('users', 'platform_administrator').password | quote }} \
+        --email    "{{ lookup('users', 'platform_administrator').email }}" \
         -c {{ GITEA_CONFIG }}
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: create_admin

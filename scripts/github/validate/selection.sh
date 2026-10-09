@@ -10,6 +10,7 @@
 #   INPUT_TOR         tor axis of the run
 #   INPUT_DISTROS     distro pool of the run ('' = every declared distro)
 #   INPUT_FILESYSTEM  filesystem pool of the run ('' = every declared kind)
+#   INPUT_ARCHITECTURES  architecture pool of the run ('' = amd64 and arm64)
 #   INPUT_LIFECYCLES  lifecycle envelope of the run
 #
 # Exits non-zero when a token names a row this branch does not have or pins an
@@ -28,4 +29,5 @@ source scripts/meta/env/load.sh
 	--tor "${INPUT_TOR:-auto}" \
 	--distros "${INPUT_DISTROS:-}" \
 	--filesystem "${INPUT_FILESYSTEM:-}" \
+	--architectures "${INPUT_ARCHITECTURES:-}" \
 	--lifecycles "${INPUT_LIFECYCLES:-}"

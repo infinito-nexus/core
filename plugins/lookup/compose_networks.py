@@ -18,7 +18,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.networks.lookup_context import build_context, resolve_var
 from utils.networks.render import render_compose_networks
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -50,7 +50,7 @@ class LookupModule(LookupBase):
                 application_id=str(application_id),
                 deployment_mode=ctx.deployment_mode,
                 registry=ctx.registry,
-                get_entity_name=get_entity_name,
+                entity_name=entity_name,
                 lookup_config=ctx.lookup_config,
                 lookup_database=ctx.lookup_database,
                 swarm_encrypted=swarm_encrypted,

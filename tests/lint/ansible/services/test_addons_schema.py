@@ -1,7 +1,8 @@
 """Schema lint for the unified addon contract: ``roles/*/meta/addons/*.yml``.
 
 The unified addon contract promotes role-level extensions (``addon`` /
-``plugin`` / ``mu_plugin`` / ``extension`` / ``module`` / ``bridge``) to a
+``plugin`` / ``mu_plugin`` / ``extension`` / ``module`` / ``theme`` /
+``bridge``) to a
 first-class, directory-rooted topic: one ``meta/addons/<addon_id>.yml`` file
 per addon, whose file root IS the addon spec (no wrapping key; the filename
 stem is the addon id).

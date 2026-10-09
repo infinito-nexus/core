@@ -1,0 +1,9 @@
+---
+enabled: "{{ (lookup('config', 'web-app-discourse', 'services.matrix.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.mattermost.enabled') |
+  bool) }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - matrix
+  - mattermost

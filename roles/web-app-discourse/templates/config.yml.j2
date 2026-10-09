@@ -59,7 +59,7 @@ env:
   #DOCKER_USE_HOSTNAME: true
 
   ## on initial signup example 'user1@example.com,user2@example.com'
-  DISCOURSE_DEVELOPER_EMAILS:       {{ lookup('users', 'administrator').email }}
+  DISCOURSE_DEVELOPER_EMAILS:       {{ lookup('users', 'platform_administrator').email }}
 
   # Set Logo
 {% if service_provider.platform.logo | length > 0 %}
@@ -136,8 +136,9 @@ hooks:
         cd: $home/plugins
         cmd:
 {% for plugin_name, plugin_config in DISCOURSE_PLUGINS.items() %}
-{% if plugin_config.enabled and plugin_config.source != 'bundled' %}
-          - git clone --depth=1 --branch {{ plugin_config.config.ref }} {{ plugin_config.config.repository }}
+{% if plugin_config.enabled and plugin_config.source != 'bundled' and plugin_config.mechanism == 'plugin' %}
+{% set plugin_dir = (plugin_config.config.repository | basename | regex_replace('\.git$', '')) | quote %}
+          - rm -rf {{ plugin_dir }} && git clone --depth=1 --branch {{ plugin_config.config.ref }} {{ plugin_config.config.repository }}
 {% endif %}
 {% endfor %}
 

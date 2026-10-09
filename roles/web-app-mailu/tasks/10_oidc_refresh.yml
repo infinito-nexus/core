@@ -14,15 +14,15 @@
   until: mailu_oidc_issuer_probe.stdout == '200'
 
 - name: "🔄 Restart Mailu admin so the OIDC provider config is re-fetched (compose)"
-  ansible.builtin.command: "container restart {{ MAILU_ADMIN_CONTAINER_ADDRESS }}"
+  ansible.builtin.shell: "container restart {{ MAILU_ADMIN_CONTAINER_ADDRESS }}"
   changed_when: true
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🔄 Restart Mailu admin so the OIDC provider config is re-fetched (swarm)"
   ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'admin') }}"
   changed_when: true
   timeout: "{{ lookup('timeout', 600) | int }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🧹 Clear the deferred OIDC refresh flag"
   ansible.builtin.set_fact:

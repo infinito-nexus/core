@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-hugo"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 HUGO_CONTAINER: "{{ entity_name }}"
 HUGO_SERVICE: "{{ entity_name }}"

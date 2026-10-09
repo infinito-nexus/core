@@ -39,11 +39,11 @@
           - restart
           - "{{ LISTMONK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
       changed_when: true
-      when: DEPLOYMENT_MODE == 'compose'
+      when: IS_COMPOSE_MODE
       delegate_to: "{{ LISTMONK_IDENTITY_HOST_NODE }}"
 
     - name: "🔄 swarm | force an update of the Listmonk service"
       ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'listmonk') }}"
       changed_when: true
       timeout: "{{ lookup('timeout', 600) | int }}"
-      when: DEPLOYMENT_MODE == 'swarm'
+      when: IS_SWARM_MODE

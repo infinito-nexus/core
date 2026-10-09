@@ -1,4 +1,4 @@
 ---
 canonical:
-  - libretranslate.{{ DOMAIN_PRIMARY }}
+  - libre.translate.{{ DOMAIN_PRIMARY }}
 aliases: []

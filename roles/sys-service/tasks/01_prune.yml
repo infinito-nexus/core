@@ -90,16 +90,17 @@
   when: sys_service_old_units_timers | length > 0
   failed_when: false
 
-- name: "🗑️ sys-service | Delete old-version unit files"
-  become: true
-  ansible.builtin.file:
-    path: "{{ [ DIR_SYSTEM_SERVICE, item ] | path_join }}"
-    state: absent
-  loop: "{{ (sys_service_old_units_services + sys_service_old_units_timers) | unique }}"
+- name: "🗑️ sys-service | Remove the old-version units"
   when: (sys_service_old_units_services | length > 0) or (sys_service_old_units_timers | length > 0)
+  block:
+    - name: "🗑️ sys-service | Delete old-version unit files"
+      become: true
+      ansible.builtin.file:
+        path: "{{ [ DIR_SYSTEM_SERVICE, item ] | path_join }}"
+        state: absent
+      loop: "{{ (sys_service_old_units_services + sys_service_old_units_timers) | unique }}"
 
-- name: "🔄 sys-service | systemd daemon-reload after pruning"
-  become: true
-  ansible.builtin.systemd:
-    daemon_reload: true
-  when: (sys_service_old_units_services | length > 0) or (sys_service_old_units_timers | length > 0)
+    - name: "🔄 sys-service | systemd daemon-reload after pruning"
+      become: true
+      ansible.builtin.systemd:
+        daemon_reload: true

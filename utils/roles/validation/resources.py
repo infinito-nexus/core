@@ -6,7 +6,7 @@ from humanfriendly import parse_size
 
 from utils.annotations.message import warning
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -67,17 +67,17 @@ def filter_roles_by_min_storage(
                 )
             continue
 
-        entity_name = get_entity_name(role_name)
-        if not entity_name:
+        entity = entity_name(role_name)
+        if not entity:
             cfg_path_early = role_dir / ROLE_FILE_META_SERVICES
             if cfg_path_early.is_file():
                 try:
                     early_cfg = _load_yaml_file(cfg_path_early)
                     if isinstance(early_cfg, dict) and role_name in early_cfg:
-                        entity_name = role_name
+                        entity = role_name
                 except Exception:  # noqa: S110 - non-fatal: malformed services.yml just skips the role
                     pass
-        if not entity_name:
+        if not entity:
             if emit_warnings:
                 warning(
                     f"Could not derive entity_name from role_name '{role_name}'.",
@@ -99,7 +99,7 @@ def filter_roles_by_min_storage(
                 )
             continue
 
-        service_cfg = _deep_get(cfg, [entity_name])
+        service_cfg = _deep_get(cfg, [entity])
         if service_cfg is None or not isinstance(service_cfg, dict):
             out.append(role_name)
             continue
@@ -109,7 +109,7 @@ def filter_roles_by_min_storage(
         if min_storage_val is None:
             if emit_warnings:
                 warning(
-                    f"Missing key services.{entity_name}.min_storage in {cfg_path} (treating as 0GB)",
+                    f"Missing key services.{entity}.min_storage in {cfg_path} (treating as 0GB)",
                     title="min_storage validation",
                 )
             out.append(role_name)

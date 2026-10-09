@@ -32,7 +32,8 @@ class ValidDeployId:
         """
         Validate a list of application IDs against both role definitions and inventory.
 
-        Returns:
+        Returns::
+
           {
             "app1": {"in_roles": False, "in_inventory": True},
             "app2": {"in_roles": True, "in_inventory": False},

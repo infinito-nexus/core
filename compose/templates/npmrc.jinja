@@ -1,0 +1,8 @@
+{#
+  Rendered from the cache: declarations. npm reaches the frontend under the
+  real registry hostname, which extra_hosts maps to it; the service name
+  would not resolve, because coredns does not answer for it. strict-ssl=false
+  accepts the frontend's self-signed certificate.
+#}
+registry={{ CACHE_PACKAGE_NPM_REGISTRY }}
+strict-ssl=false

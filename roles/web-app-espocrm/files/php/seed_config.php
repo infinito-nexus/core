@@ -37,8 +37,10 @@ function to_camel_case(string $input): string
 }
 
 /**
- * Normalize booleans if the value looks boolean-like.
- * Returns true/false for typical boolean strings, otherwise the original string.
+ * Normalize booleans if the value looks boolean-like, and decode a JSON object
+ * into a PHP array so nested config keys can travel in a single ENV value.
+ * Returns true/false for typical boolean strings, an array for a JSON object,
+ * otherwise the original string.
  */
 function cast_value(string $value)
 {
@@ -50,6 +52,14 @@ function cast_value(string $value)
 
     if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
         return false;
+    }
+
+    if (str_starts_with(trim($value), '{')) {
+        $decoded = json_decode($value, true);
+
+        if (is_array($decoded)) {
+            return $decoded;
+        }
     }
 
     return $value; // keep as string
@@ -97,7 +107,7 @@ foreach ($_ENV as $envKey => $envValue) {
             "ENV %s -> config key '%s' = %s",
             $envKey,
             $configKey,
-            var_export($value, true)
+            is_array($value) ? '<redacted array>' : var_export($value, true)
         ));
     }
 

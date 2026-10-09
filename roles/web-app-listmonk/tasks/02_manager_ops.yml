@@ -25,7 +25,7 @@
   shell: |
     {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
     UPDATE users
-    SET email = '{{ lookup('users', 'administrator').email }}',
+    SET email = '{{ lookup('users', 'platform_administrator').email }}',
         password_login = {{ 'false' if lookup('config',application_id, 'services.sso.enabled') else 'true' }}
     WHERE username = 'administrator';
     EOSQL
@@ -36,7 +36,7 @@
   ansible.builtin.shell:
     cmd: >-
       {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1
-      -v pw={{ lookup('config', application_id, 'secrets.credentials.administrator_password') | quote }}
+      -v pw={{ lookup('users', 'platform_administrator').password | quote }}
     stdin: "{{ lookup('file', 'sql/realign_admin_credential.sql') }}"
   register: listmonk_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

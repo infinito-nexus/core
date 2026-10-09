@@ -1,0 +1,28 @@
+---
+- name: "📌 apply Social Login Key for Keycloak"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e PROVIDER_NAME -e BUTTON_TEXT
+      -e CLIENT_ID -e CLIENT_SECRET -e ISSUER_URL
+      -e GROUP_ROLE_MAP_JSON
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/oidc_settings.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    PROVIDER_NAME: "keycloak"
+    BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
+    CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+    CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+    ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"
+    GROUP_ROLE_MAP_JSON: "{{ ERPNEXT_OIDC_GROUP_ROLE_MAP | to_json }}"
+  register: erpnext_oidc_apply
+  changed_when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
+  timeout: "{{ lookup('timeout', 60) | int }}"
+
+- name: "🔄 Restart Frappe after a Social Login Key change"
+  ansible.builtin.include_tasks: "social_login_key_restart.yml"
+  when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"

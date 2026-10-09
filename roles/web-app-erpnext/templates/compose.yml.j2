@@ -43,7 +43,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bash", "-c", "{{ ERPNEXT_BACKEND_READY_GATE }} exec nginx-entrypoint.sh"]
     {{ lookup('depends_on', {'backend': 'service_started', 'websocket': 'service_started'}) }}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file nginx-entrypoint.sh inputs for frontend only; this role sets no docker_compose_env, so its one env_file reaches all 7 services
       BACKEND: "backend:{{ ERPNEXT_BACKEND_PORT }}"
       SOCKETIO: "websocket:{{ ERPNEXT_WEBSOCKET_PORT }}"
       FRAPPE_SITE_NAME_HEADER: "{{ ERPNEXT_SITE_NAME }}"

@@ -3,9 +3,11 @@ const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
+const { clickFiderSsoButton } = require("./_shared");
 
 require("./test-seaweedfs");
 require("./test-mcp-guest").register();
+require("./test-design").register();
 
 test.use({
   ignoreHTTPSErrors: true
@@ -21,26 +23,6 @@ const adminUsername  = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword  = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername  = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
-
-// Click through Fider's sign-in page to reach the SSO provider button.
-// Fider shows a "Sign in" button in the header, then a modal listing OAuth providers.
-async function clickFiderSsoButton(locator) {
-  // Click "Sign in" in the Fider header
-  const signInLink = locator
-    .getByRole("button", { name: /sign in/i })
-    .or(locator.getByRole("link", { name: /sign in/i }));
-
-  await signInLink.first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
-  await signInLink.first().click();
-
-  // Fider shows a "Join the conversation" modal with a "Continue with ... SSO" button.
-  // The display_name is set to "{{ SOFTWARE_NAME }} SSO" = "Infinito.Nexus SSO".
-  const ssoButton = locator.getByRole("link", { name: /continue with/i });
-
-  await ssoButton.first().waitFor({ state: "visible", timeout: resolveTimeout(15_000) });
-  // force: true bypasses aria-disabled which Fider sets on the button during modal render
-  await ssoButton.first().click({ force: true, timeout: resolveTimeout(30_000) });
-}
 
 test.beforeEach(() => {
   expect(oidcIssuerUrl,  "OIDC_ISSUER_URL must be set in the Playwright env file").toBeTruthy();

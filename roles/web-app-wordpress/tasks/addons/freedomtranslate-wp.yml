@@ -1,0 +1,4 @@
+---
+- name: "🌍 FreedomTranslate: stack-host container ops against the translation gateway"
+  include_tasks: freedomtranslate-wp-stack-host.yml
+  when: IS_STACK_HOST | bool

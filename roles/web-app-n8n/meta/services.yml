@@ -33,11 +33,17 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 128
+      height: 128
+    brand:
+      width: 160
+      height: 80
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
@@ -56,6 +62,8 @@ n8n:
   enabled: true
   shared: true
   bond: 1
+  personalization_enabled: false
+  diagnostics_enabled: false
   healthcheck:
     flavor: wget
     path: healthz/readiness
@@ -67,7 +75,7 @@ n8n:
   backup:
     no_stop_required: false
   image: docker.n8n.io/n8nio/n8n
-  version: "2.42.3"
+  version: "2.43.2"
   update:
     type: registry_tags
     image: docker.n8n.io/n8nio/n8n

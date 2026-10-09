@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-gitea"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 GITEA_LDAP_AUTH_ARGS:
   - '--name "LDAP ({{ DOMAIN_PRIMARY }})"'
@@ -22,6 +22,22 @@ GITEA_CONTAINER: "{{ lookup('config', application_id, 'services.gitea.name') }}"
 GITEA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 GITEA_USER: "git"
 GITEA_CONFIG: "/data/gitea/conf/app.ini"
+
+GITEA_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+GITEA_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+GITEA_THEME_DIR: "/data/gitea/public/assets/css"
+GITEA_THEMES:
+  auto: corporate-auto
+  light: corporate-light
+  dark: corporate-dark
+GITEA_THEMES_COLORBLIND:
+  - gitea-auto-protanopia-deuteranopia
+  - gitea-auto-tritanopia
+  - gitea-light-protanopia-deuteranopia
+  - gitea-light-tritanopia
+  - gitea-dark-protanopia-deuteranopia
+  - gitea-dark-tritanopia
+GITEA_THEMES_OFFERED: "{{ GITEA_THEMES.values() | list + GITEA_THEMES_COLORBLIND }}"
 
 GITEA_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 GITEA_REDIS_ADDRESS: "{{ lookup('engine', 'redis', application_id, 'host') }}:{{ lookup('engine', 'redis', application_id, 'port') }}"

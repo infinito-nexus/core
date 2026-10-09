@@ -4,6 +4,9 @@ This directory contains platform-specific scripts for setting up local DNS resol
 
 All scripts map `*.infinito.test` → `127.0.0.1` so that local deployments are reachable via their expected hostnames.
 
+Every stack has its own domain below it (`INFINITO_DOMAIN`): the primary checkout is `main.infinito.test`, a worktree from `make worktree-up` is its branch lowercased with every character outside `a-z0-9_-` replaced by `-` (`feature/store-i18n` → `feature-store-i18n.infinito.test`).
+`linux.sh` routes each stack's domain to that checkout's `INFINITO_BIND_IP`, read from the `.env` of every `git worktree list` entry. Re-run `make network-dns-setup` after creating or removing a worktree.
+
 ---
 
 ## Scripts 📄

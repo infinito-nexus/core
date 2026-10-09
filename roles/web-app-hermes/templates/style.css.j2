@@ -1,0 +1,50 @@
+{% if lookup('config', application_id, 'services.webui.enabled') | bool %}
+{% set design = lookup('design', application_id) %}
+{% set sign_in = ':root:has(.provider-list)' %}
+{{ sign_in }} {
+  --background: var(--design-surface-1);
+  --background-base: var(--design-surface-1);
+  --midground: var(--design-link);
+  --foreground: var(--design-text);
+  --hairline: var(--design-border);
+  --hairline-strong: var(--design-border-strong);
+}
+{{ sign_in }} body {
+  background-image: none;
+}
+{{ sign_in }} :is(.card, .field-input) {
+  background: var(--design-surface-2);
+}
+{{ sign_in }} .card {
+  box-shadow: var(--design-shadow-3);
+}
+{{ sign_in }} :is(.subtitle, .form-title, .field-label, footer) {
+  color: var(--design-text-muted);
+}
+{{ sign_in }} .form-error {
+  color: var(--design-danger);
+}
+{{ sign_in }} .provider-btn {
+  background: var(--design-primary);
+  color: var(--design-on-primary);
+  box-shadow: none;
+}
+{{ sign_in }} .provider-btn:hover {
+  background: var(--design-primary-hover);
+  filter: none;
+}
+{{ sign_in }} .provider-btn:active {
+  background: var(--design-primary-active);
+  filter: none;
+}
+{% if design.logo is string %}
+{{ sign_in }} .brand {
+  height: 3rem;
+  font-size: 0;
+  background: url("{{ design.urls.brand.svg }}") center / contain no-repeat;
+}
+{{ sign_in }} .brand .dot {
+  display: none;
+}
+{% endif %}
+{% endif %}

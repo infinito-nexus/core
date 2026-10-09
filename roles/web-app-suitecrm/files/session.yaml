@@ -1,0 +1,10 @@
+---
+services:
+  infinito.session.handler.php_ini:
+    class: SessionHandler
+
+  session.handler.legacy_bridge:
+    class: App\Security\Session\LegacyBridgeSessionHandler
+    arguments:
+      - "@infinito.session.handler.php_ini"
+      - "@App\\Engine\\LegacyHandler\\DefaultLegacyHandler"

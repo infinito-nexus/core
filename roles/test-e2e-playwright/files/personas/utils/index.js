@@ -13,6 +13,7 @@
  */
 
 const env = require("./env");
+const onion = require("./onion");
 const tls = require("./tls");
 const keycloak = require("./keycloak");
 const mapache = require("./mapache");
@@ -27,6 +28,7 @@ const mailbox = require("./mailbox");
 
 module.exports = {
   ...env,
+  ...onion,
   ...tls,
   ...keycloak,
   ...mapache,

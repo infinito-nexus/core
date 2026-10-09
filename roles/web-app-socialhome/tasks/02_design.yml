@@ -1,0 +1,64 @@
+---
+- name: "📥 Look up the household primary colour the role wrote last"
+  ansible.builtin.stat:
+    path: "{{ SOCIALHOME_THEME_MARKER_FILE }}"
+    checksum_algorithm: sha1
+  register: socialhome_theme_marker
+
+- name: "🎨 Converge the household primary colour"
+  when: SOCIALHOME_DESIGN_ENABLED | bool or socialhome_theme_marker.stat.exists
+  block:
+    - name: "🔑 Request an administrator token for the household theme"
+      uri_retry:
+        url: "{{ SOCIALHOME_INTERNAL_URL }}/api/auth/token"
+        method: POST
+        body_format: json
+        body:
+          username: "{{ SOCIALHOME_ADMIN_USERNAME }}"
+          password: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
+        status_code: 200
+      register: socialhome_theme_token
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🎨 Read the household theme"
+      uri_retry:
+        url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
+        status_code: 200
+      register: socialhome_theme
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🎨 Write the household primary colour"
+      uri_retry:
+        url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
+        method: PUT
+        body_format: json
+        body:
+          primary_color: "{{ SOCIALHOME_THEME_PRIMARY }}"
+        headers:
+          Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
+        status_code: 200
+      register: socialhome_theme_written
+      changed_when: true
+      when:
+        - socialhome_theme.json.primary_color | lower != SOCIALHOME_THEME_PRIMARY
+        - socialhome_theme.json.primary_color | lower == SOCIALHOME_BRAND_PRIMARY or (socialhome_theme_marker.stat.exists and
+          socialhome_theme_marker.stat.checksum == (socialhome_theme.json.primary_color | lower | hash('sha1')))
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🏷️ Mark the household primary colour as the role's"
+  stack_host_copy:
+    content: "{{ SOCIALHOME_THEME_PRIMARY }}"
+    dest: "{{ SOCIALHOME_THEME_MARKER_FILE }}"
+    mode: "0644"
+  when:
+    - SOCIALHOME_DESIGN_ENABLED | bool
+    - socialhome_theme_written is changed
+
+- name: "🧹 Drop the household theme marker"
+  ansible.builtin.file:
+    path: "{{ SOCIALHOME_THEME_MARKER_FILE }}"
+    state: absent
+  when: not (SOCIALHOME_DESIGN_ENABLED | bool)

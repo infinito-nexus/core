@@ -1,7 +1,8 @@
 ---
-administrator: {}
 mcp-web-app-wordpress:
+  username: mcp-wordpress
   firstname: Infinito
   lastname: MCP
   accounts: []
   description: Account the WordPress MCP application password is issued for; the published abilities need the read capability and nothing more
+platform_administrator: {}

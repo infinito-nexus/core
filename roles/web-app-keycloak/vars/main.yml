@@ -1,10 +1,9 @@
 ---
 application_id: "web-app-keycloak"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
 KEYCLOAK_CONTAINER_HOSTNAME: "{{ entity_name }}"
-KEYCLOAK_DOMAIN: "{{ domain }}"
 KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 KEYCLOAK_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 KEYCLOAK_REALM_URL: "{{ KEYCLOAK_URL }}/realms/{{ KEYCLOAK_REALM }}"
@@ -55,17 +54,14 @@ KEYCLOAK_REALM_IMPORT_FILE_DST: "{{ [KEYCLOAK_REALM_IMPORT_DIR_HOST,KEYCLOAK_REA
 KEYCLOAK_REALM_IMPORT_FILE_DOCKER: "{{ [KEYCLOAK_REALM_IMPORT_DIR_DOCKER,KEYCLOAK_REALM_IMPORT_FILENAME] | path_join }}"
 KEYCLOAK_REALM_TOTP_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.totp_enabled') | bool }}"
 
-KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.bootstrap.username') }}"
-KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'keycloak_bootstrap').username }}"
+KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'keycloak_bootstrap').password }}"
 
 KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.system.username') }}"
-KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
 KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
-# Exception: KEYCLOAK_LOCAL_CID is set by utils/login.yml after resolving the swarm-hosting
-# node; fall back to the compose-mode container_address when the fact is not yet set
-# so vars resolve cleanly before the manager-side ops kick in.
 KEYCLOAK_TARGET_CONTAINER: "{{ KEYCLOAK_LOCAL_CID | default(KEYCLOAK_CONTAINER_ADDRESS) }}" # nocheck: container-var-name-lookup references the consumer's container, not this role's service
 KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_TARGET_CONTAINER }}" # nocheck: container-exec-resolver # nocheck: container-var-name-lookup references the consumer's container, not this role's service
 KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
@@ -131,6 +127,24 @@ KEYCLOAK_DECLARED_CLIENT_IDS: "{{ lookup('applications') | kc_declared_client_id
 KEYCLOAK_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.key') }}"
 KEYCLOAK_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.secret') }}"
+
+KEYCLOAK_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+KEYCLOAK_DESIGN_THEME: "{{ lookup('config', application_id, 'services.keycloak.design.theme') }}"
+KEYCLOAK_DESIGN_DARK_CLASS: "design-theme-dark"
+KEYCLOAK_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'theme'] | path_join }}"
+KEYCLOAK_DESIGN_BRAND: "{{ lookup('design', application_id).slots.brand }}"
+KEYCLOAK_DESIGN_ON_FRAME: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-on-frame'] }}"
+KEYCLOAK_DESIGN_BRAND_VERSION: >-
+  {{ [lookup('design', application_id) | to_json,
+      KEYCLOAK_DESIGN_ON_FRAME,
+      (lookup('local_mtime_qs', lookup('design', application_id).logo, mode='epoch')
+       if lookup('design', application_id).logo is string else '')]
+     | join('|') | hash('sha1') | truncate(8, True, '') }}
+KEYCLOAK_DESIGN_STYLE_VERSION: "{{ lookup('template', 'theme/theme.css.j2') | hash('sha1') | truncate(8, True, '') }}"
+KEYCLOAK_DESIGN_TITLE: "{{ lookup('design', application_id).title if lookup('design', application_id).title is string else '' }}"
+KEYCLOAK_DESIGN_TITLE_HTML: >-
+  {{ ('<div class="kc-logo-text"><span>' ~ (KEYCLOAK_DESIGN_TITLE | e) ~ '</span></div>')
+     if (KEYCLOAK_DESIGN_TITLE | length > 0 and lookup('design', application_id).logo is string) else '' }}
 
 KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN: |-
   {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '

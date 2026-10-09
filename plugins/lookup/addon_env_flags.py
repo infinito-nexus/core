@@ -83,10 +83,12 @@ class LookupModule(LookupBase):
     addon (sorted by env key, newline-joined), where the env-key derivation
     matches addon-gating.js exactly.
 
-    A flag is ``true`` only when the addon is both ``enabled`` AND
-    ``required``. Optional addons (``required: false``) are intentionally
-    skipped by the spec suite — they are a variant axis, not a guaranteed
-    surface — so their gate flag is ``false`` even when enabled.
+    A flag is ``true`` when the addon is ``enabled`` and, where it declares
+    ``bridges``, at least one bridged partner is deployed in this round.
+    ``required`` does not enter the gate: it says whether a failed install
+    aborts the play, not whether the addon runs, and ANDing it here made the
+    spec of every optional addon unreachable in every variant, because no
+    variant pins ``required`` while variants do pin addon ``enabled``.
     """
 
     def run(self, terms, variables: dict[str, Any] | None = None, **kwargs):
@@ -127,9 +129,7 @@ class LookupModule(LookupBase):
             spec = (
                 addons.get(addon_id) if isinstance(addons.get(addon_id), dict) else {}
             )
-            active = _is_enabled(spec.get("enabled", False)) and _is_enabled(
-                spec.get("required", False)
-            )
+            active = _is_enabled(spec.get("enabled", False))
             if active and deployed_roles is not None:
                 bridges = spec.get("bridges")
                 if isinstance(bridges, list) and bridges:

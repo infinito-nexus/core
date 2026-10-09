@@ -1,13 +1,23 @@
 ---
 # Matrix-deploy variant overrides for web-app-moodle.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 3 exists so mod_bigbluebuttonbn and mod_jitsi,
+# whose partners pin tor.enabled to a literal false, have a round of their own. It
+# carries nothing else; every other round keeps the onion on.
+#
+# nocheck: variant-limit — folding the media round into an existing variant was
+# measured and does not fit: variant 2 already carries matrix, lam, ldap and
+# litellm, and adding the AI and cloud partners there puts the round at 69 GB
+# against the 64 GB cap. A fourth round is the only way repository_owncloud,
+# aiprovider_openwebui, hermes and openclaw reach the onion.
 
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-moodle.
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -36,10 +46,25 @@
     prometheus:
       enabled: true
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
     litellm:
       enabled: false
     tor:
       enabled: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: false
+      shared: false
+    nextcloud:
+      enabled: false
+      shared: false
 
     openwebui:
       enabled: false
@@ -54,7 +79,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -80,10 +105,25 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     litellm:
       enabled: false
     tor:
       enabled: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: false
+      shared: false
+    nextcloud:
+      enabled: true
+      shared: true
     openwebui:
       enabled: true
       shared: true
@@ -93,6 +133,7 @@
     openclaw:
       enabled: true
       shared: true
+
 - services:
     container_backup:
       enabled: false
@@ -106,7 +147,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -124,10 +165,84 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     litellm:
       enabled: true
     tor:
       enabled: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: true
+      shared: true
+    nextcloud:
+      enabled: false
+      shared: false
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    tor:
+      enabled: false
+    bigbluebutton:
+      enabled: true
+      shared: true
+    jitsi:
+      enabled: true
+      shared: true
+    matrix:
+      enabled: false
+      shared: false
+    nextcloud:
+      enabled: false
+      shared: false
     openwebui:
       enabled: false
       shared: false

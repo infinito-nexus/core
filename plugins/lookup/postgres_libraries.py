@@ -1,6 +1,7 @@
 """Resolve postgres-extension library install recipes.
 
-Usage:
+Usage::
+
   {{ lookup('postgres_libraries', ['vector', 'bloom']) }}
 
 Takes a list of extension names and returns the subset that needs a

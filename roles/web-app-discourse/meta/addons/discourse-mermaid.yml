@@ -1,0 +1,12 @@
+---
+enabled: true
+required: false
+mechanism: theme
+source: upstream
+update:
+  monitored: true
+  catalog: discourse-meta
+  upstream_id: discourse-mermaid-theme-component
+config:
+  repository: https://github.com/discourse/discourse-mermaid-theme-component.git
+  ref: main

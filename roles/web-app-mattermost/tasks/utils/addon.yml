@@ -1,0 +1,25 @@
+---
+- name: "📦 Mattermost | Provision the upstream {{ mattermost_addon.key }} plugin"
+  ansible.builtin.include_tasks: addon_upstream.yml
+  when: mattermost_addon.value.source == 'upstream'
+
+- name: "🟢 Mattermost | Enable {{ mattermost_addon.key }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ MATTERMOST_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ MATTERMOST_MMCTL }}"
+      - --local
+      - plugin
+      - enable
+      - "{{ mattermost_addon.value.config.plugin_id }}"
+  register: mattermost_addon_enable
+  changed_when: mattermost_addon_enable.rc == 0
+  failed_when: mattermost_addon_enable.rc != 0 and (mattermost_addon.value.required | bool)
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
+  when: mattermost_addon.value.source == 'bundled' or (mattermost_addon_install.rc | default(1) | int) == 0
+
+- name: "🔧 Mattermost | Run the {{ mattermost_addon.key }} integration hook"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/addons/{{ mattermost_addon.key }}.yml"

@@ -1,11 +1,18 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+  requireDotenvValue,
+  runGuestFlow,
+} = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled      = isServiceEnabled("sso");
-const oidcIssuerUrl    = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const oidcIssuerUrl    = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const n8nBaseUrl       = normalizeBaseUrl(process.env.N8N_BASE_URL || "");
 const adminEmail       = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
 const adminUsername    = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -58,7 +65,7 @@ async function signInViaN8nOidc(page, username, password, personaLabel) {
 // Completes n8n's own local login form. Used by the administrator persona
 // for the V2 (no SSO) journey, where the owner account (administrator's
 // email + the break-glass N8N_OWNER_PASSWORD) provisioned by
-// tasks/02_bootstrap.yml is the only way to reach n8n's authenticated
+// tasks/01_bootstrap.yml is the only way to reach n8n's authenticated
 // surface.
 async function performN8nLoginForm(page, email, password) {
   const emailInput    = page.locator('input[type="email"], input[name="email"]').first();

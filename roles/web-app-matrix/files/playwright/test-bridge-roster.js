@@ -2,30 +2,22 @@ const { test, expect } = require("./onion-test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue } = require("./personas");
 
+const OWNED_BY_ADDON_SPEC = new Set([
+  "hookshot",
+  "mautrix_meta",
+  "mautrix_signal",
+  "mautrix_slack",
+  "mautrix_telegram",
+  "mautrix_whatsapp",
+]);
+
 const BRIDGE_TO_BOT_LOCALPART = {
   appservice_irc: "ircbot",
-  appservice_kakaotalk: "kakaotalkbot",
-  appservice_slack: "slackbot",
   chatgpt: "chatgptbot",
   discord: "discordbot",
-  facebook: "facebookbot",
-  gitter: "gitterbot",
-  googlechat: "googlechatbot",
   heisenbridge: "heisenbridge",
-  hookshot: "hookshot",
-  imessage: "imessagebot",
-  instagram: "instagrambot",
   mautrix_discord: "discordbot",
-  mautrix_signal: "signalbot",
-  mautrix_slack: "slackbot",
-  mautrix_telegram: "telegrambot",
   mautrix_twitter: "twitterbot",
-  mautrix_whatsapp: "whatsappbot",
-  signal: "signalbot",
-  slack: "slackbot",
-  sms: "smsbot",
-  telegram: "telegrambot",
-  whatsapp: "whatsappbot",
 };
 
 function isTruthy(value) {
@@ -54,6 +46,9 @@ exports.register = function (shared) {
 
     const failures = [];
     for (const bridge of enabled) {
+      if (OWNED_BY_ADDON_SPEC.has(bridge)) {
+        continue;
+      }
       const localpart = BRIDGE_TO_BOT_LOCALPART[bridge];
       if (!localpart) {
         failures.push(`${bridge}: no bot localpart registered in BRIDGE_TO_BOT_LOCALPART map`);

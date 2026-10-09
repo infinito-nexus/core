@@ -80,9 +80,6 @@ def _hits(lines: list[str], targets: dict[str, str]) -> list[tuple[int, str, str
             start = line.find(target)
             if start < 0:
                 continue
-            # Exception: a relative path whose tail equals the target is not the
-            # target - `src: shell/entrypoint.sh` ends in `/entrypoint.sh` but
-            # names a role-local file, not the container mount.
             before = line[start - 1 : start] if start else ""
             if before and _BOUNDARY.match(before):
                 continue
