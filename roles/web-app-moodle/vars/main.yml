@@ -63,17 +63,10 @@ MOODLE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.e
 MOODLE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
 MOODLE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
 MOODLE_LITELLM_IMAGE_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/images/generations"
-MOODLE_LITELLM_SETTINGS:
-  - { component: aiprovider_openai, name: enabled, value: "1" }
-  - { component: aiprovider_openai, name: apikey, value: "{{ MOODLE_LITELLM_API_KEY }}" }
-  - { component: aiprovider_openai, name: action_generate_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
-  - { component: aiprovider_openai, name: action_generate_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
-  - { component: aiprovider_openai, name: action_summarise_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
-  - { component: aiprovider_openai, name: action_summarise_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
-  - { component: aiprovider_openai, name: action_generate_image_endpoint, value: "{{ MOODLE_LITELLM_IMAGE_ENDPOINT }}" }
-  - { component: aiprovider_openai, name: generate_image, value: "0" }
-  - { component: aiplacement_courseassist, name: enabled, value: "1" }
-  - { component: aiplacement_editor, name: enabled, value: "1" }
+MOODLE_LITELLM_PROVIDER_NAME: "LiteLLM gateway"
+MOODLE_LITELLM_PLACEMENTS:
+  - aiplacement_courseassist
+  - aiplacement_editor
 
 MOODLE_EGRESS_BLOCKED_HOSTS:
   - "0.0.0.0"

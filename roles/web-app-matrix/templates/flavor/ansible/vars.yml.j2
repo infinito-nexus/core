@@ -153,5 +153,9 @@ matrix_bridge_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | string
 matrix_bridge_mautrix_whatsapp_enabled: {{ MATRIX_BRIDGE.mautrix_whatsapp | string | lower }}
 matrix_bridge_mautrix_gitter_enabled: {{ MATRIX_BRIDGE.gitter | string | lower }}
 
+matrix_synapse_metrics_enabled: true
+matrix_synapse_container_metrics_api_host_bind_port: "0.0.0.0:{{ MATRIX_SYNAPSE_METRICS_PORT }}"
+matrix_synapse_metrics_port: {{ MATRIX_SYNAPSE_METRICS_PORT }}
+
 jitsi_enabled: {{ MATRIX_CONFERENCING_JITSI | string | lower }}
 matrix_rtc_enabled: {{ MATRIX_CONFERENCING_ELEMENT_CALL | string | lower }}

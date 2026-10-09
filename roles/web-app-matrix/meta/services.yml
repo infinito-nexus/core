@@ -104,8 +104,8 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
   native_metrics:
     enabled: true
-    port: 9000
-    service_key: synapse
+    port: "{{ 9000 if lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'compose' else 9100 }}"
+    service_key: "{{ 'synapse' if lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'compose' else 'matrix' }}"
   communication:
     channel: true
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec

@@ -92,6 +92,40 @@ def latest_semver(tags: list[str], depth: int, flavor: str = "") -> str | None:
     return max(candidates, key=version_key, default=None)
 
 
+def captured_versions(body: str, pattern: str, template: str = "") -> list[str]:
+    """Return the version every match of a pattern names.
+
+    Args:
+        body: text to search.
+        pattern: regular expression; its first group is the version.
+        template: when set, a ``str.format`` template over the pattern's named
+            groups that assembles the version instead, for a tag built from
+            several upstream values.
+    """
+    return [
+        template.format(**match.groupdict()) if template else match.group(1)
+        for match in re.finditer(pattern, body)
+    ]
+
+
+def newer_version(current: str, found: list[str], assembled: bool) -> str | None:
+    """Return the version *current* should move to, or ``None``.
+
+    Args:
+        current: the pinned version.
+        found: every version the upstream offers.
+        assembled: *found* was built from several upstream values, so a
+            changed suffix is a move and not another flavour.
+    """
+    if assembled:
+        newest = max(filter(is_semver, found), key=version_key, default=None)
+        moved = newest not in (None, current)
+    else:
+        newest = latest_semver(found, version_depth(current), version_flavor(current))
+        moved = bool(newest) and version_key(current) != version_key(newest)
+    return newest if moved and version_key(current) <= version_key(newest) else None
+
+
 def resolve_max_fetch_workers() -> int:
     return int(os.environ["INFINITO_WORKER_FETCH"])
 
@@ -105,3 +139,19 @@ def is_maintained(roles_root: Path, role: str) -> bool:
     """
     lifecycle = get_role_lifecycle(roles_root / role, role_name=role)
     return lifecycle not in UNMAINTAINED_LIFECYCLES
+
+
+def declares_source(config: object, key: str) -> bool:
+    """Report whether a services entity names its own upstream for a pin.
+
+    Args:
+        config: one entity of ``meta/services.yml``.
+        key: the pinned key; an ``update:`` block without ``key`` names
+            ``version``.
+    """
+    declared = config.get("update") if isinstance(config, dict) else None
+    sources = declared if isinstance(declared, list) else [declared]
+    return any(
+        isinstance(source, dict) and source.get("key", "version") == key
+        for source in sources
+    )
