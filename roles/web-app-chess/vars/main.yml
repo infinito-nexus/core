@@ -18,3 +18,12 @@ CHESS_HMAC_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.hma
 CHESS_KEY_FILENAME: "signing-key"
 CHESS_APP_DATA_DIR: "{{ lookup('volume', 'web-app-chess', 'data').target }}"
 CHESS_APP_KEY_FILE: "{{ [ CHESS_APP_DATA_DIR, CHESS_KEY_FILENAME ] | path_join }}"
+
+CHESS_SHOWCASE_ENABLED: "{{ (lookup('config', application_id, 'services.design.enabled') | bool) and ENVIRONMENT == 'development' }}"
+CHESS_SHOWCASE:
+  prefix: "showcase"
+  players: "https://players.invalid"
+  games:
+    live: "5f0c1a2e-8b7d-4c3a-9e61-2d4b6a8c0e01"
+    mate: "5f0c1a2e-8b7d-4c3a-9e61-2d4b6a8c0e02"
+    fresh: "5f0c1a2e-8b7d-4c3a-9e61-2d4b6a8c0e03"

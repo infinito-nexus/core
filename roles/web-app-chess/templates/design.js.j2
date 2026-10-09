@@ -1,0 +1,32 @@
+{% set design = lookup('design', application_id) %}
+{% if design.title is string or design.logo is string %}
+(function () {
+  function brand() {
+{% if design.title is string %}
+    var title = {{ design.title | to_json }};
+    if (document.title.indexOf(title) === -1) {
+      document.title = document.title ? document.title + " | " + title : title;
+    }
+{% endif %}
+{% if design.logo is string %}
+    var icon = {{ design.urls.favicon.png | to_json }};
+    var links = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < links.length; index += 1) {
+      if (links[index].getAttribute("href") !== icon) {
+        links[index].setAttribute("type", "image/png");
+        links[index].setAttribute("href", icon);
+      }
+    }
+    if (links.length === 0 && document.head) {
+      var link = document.createElement("link");
+      link.setAttribute("rel", "icon");
+      link.setAttribute("type", "image/png");
+      link.setAttribute("href", icon);
+      document.head.appendChild(link);
+    }
+{% endif %}
+  }
+  document.addEventListener("DOMContentLoaded", brand);
+  brand();
+})();
+{% endif %}
