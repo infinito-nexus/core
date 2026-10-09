@@ -42,12 +42,21 @@
     and (_peertube_app_table_check.rows[0][0] | default('')) == 'application'
   changed_when: false
 
+- name: "🔎 PEERTUBE | Read which of the two columns still carries no default"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query: "{{ lookup('file', role_path ~ '/files/sql/check-application-defaults.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+  register: _peertube_app_defaults_missing
+  changed_when: false
+
 - name: "🔧 PEERTUBE | Back-fill column defaults so bootstrap INSERT keeps NOT NULL"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query: "{{ lookup('file', role_path ~ '/files/sql/backfill-application-defaults.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
-  register: _peertube_app_defaults
+  when: (_peertube_app_defaults_missing.rows | default([]) | length) > 0
+  changed_when: true
   notify: compose-up
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
