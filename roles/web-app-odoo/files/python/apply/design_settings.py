@@ -278,10 +278,8 @@ icon = ""
 if website:
     results += [
         converge_field(state, website, "name", title, DEFAULT_WEBSITE_NAME),
-        converge_field(state, website, "logo", logo, website._default_logo().content),
-        converge_field(
-            state, website, "favicon", favicon, website._default_favicon().content
-        ),
+        converge_field(state, website, "logo", logo, website._default_logo()),
+        converge_field(state, website, "favicon", favicon, website._default_favicon()),
     ]
     if favicon:
         icon = f"/web/image/website/{website.id}/favicon?unique={digest(favicon)}"
