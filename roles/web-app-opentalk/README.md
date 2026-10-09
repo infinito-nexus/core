@@ -127,6 +127,7 @@ See [IAM.md](docs/IAM.md) for the OIDC and Keycloak admin Web API setup, and [LD
 - [opentalk.eu](https://opentalk.eu/)
 - [OpenTalk documentation](https://docs.opentalk.eu/)
 - [OpenTalk setup template](https://gitlab.opencode.de/opentalk/ot-setup)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/HiGt5TL5Dg52aceGkYJEeK)
 
 ## Persona contract opt-outs
 
