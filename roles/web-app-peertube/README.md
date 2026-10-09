@@ -126,6 +126,7 @@ See [Upgrade.md](./Upgrade.md) for guidance on upgrading your PeerTube deploymen
 
 - [PeerTube Official Documentation](https://docs.joinpeertube.org/install-docker)
 - [PeerTube GitHub Issues](https://github.com/Chocobozzz/PeerTube/issues/3091)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/VN7YZTQM34SyQJDeXU5Q2B)
 
 ## Credits
 

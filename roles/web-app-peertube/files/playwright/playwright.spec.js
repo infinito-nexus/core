@@ -4,7 +4,10 @@ const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 require("./test-seaweedfs");
+require("./test-design").register();
 test.use({ ignoreHTTPSErrors: true });
+
+const AUTHENTICATED_MARKER = "my-header .logged-in-container, my-header my-notification-dropdown";
 
 const oidcEnabled = isServiceEnabled("sso");
 
@@ -94,11 +97,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
     })
     .toContain(peertubeBaseUrl);
 
-  const authenticatedMarker = page
-    .locator(
-      "my-avatar-menu, my-user-notifications, my-header my-avatar, a[href='/my-account'], button.dropdown-toggle my-avatar"
-    )
-    .first();
+  const authenticatedMarker = page.locator(AUTHENTICATED_MARKER).first();
 
   await expect
     .poll(
@@ -139,6 +138,21 @@ test("administrator: peertube OIDC login and logout", async ({ page }) => {
       }
     )
     .toBe(true);
+});
+
+test("administrator: root signs in to the local form with the administrator password", async ({ page }) => {
+  await gotoOnion(page, `${peertubeBaseUrl}/login`);
+  const username = page.locator("#username");
+  const password = page.locator("#password");
+  await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await username.fill("root");
+  await expect(password).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await password.fill(adminPassword);
+  await page.locator('input[type="submit"].primary-button').click();
+  await expect(
+    page.locator(AUTHENTICATED_MARKER).first(),
+    "root must sign in with the administrator password the role converges"
+  ).toBeVisible({ timeout: resolveTimeout(10_000) });
 });
 
 test("biber: peertube OIDC login and logout", async ({ page }) => {
