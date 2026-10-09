@@ -73,7 +73,7 @@ n8n:
   backup:
     no_stop_required: false
   image: docker.n8n.io/n8nio/n8n
-  version: "2.42.3"
+  version: "2.43.2"
   update:
     type: registry_tags
     image: docker.n8n.io/n8nio/n8n
