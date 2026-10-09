@@ -62,6 +62,8 @@ n8n:
   enabled: true
   shared: true
   bond: 1
+  personalization_enabled: false
+  diagnostics_enabled: false
   healthcheck:
     flavor: wget
     path: healthz/readiness

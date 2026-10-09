@@ -1,4 +1,1 @@
 # TODO
-
-- First-run survey: for the freshly bootstrapped owner n8n mounts its personalization survey (`personalization-form`, a dialog without a close control) over `/home/workflows` and `/workflow/<id>` until the survey is answered; `templates/env.j2` sets neither `N8N_PERSONALIZATION_ENABLED` nor `N8N_DIAGNOSTICS_ENABLED`, so the survey stays enabled. `files/playwright/test-design.js` answers it empty through `POST /rest/me/survey`, the way the dialog's only button does. Set `N8N_PERSONALIZATION_ENABLED=false` in `templates/env.j2`, or answer the survey for the owner in `tasks/01_bootstrap.yml`.
-- Stale path: `files/playwright/_shared.js` and `files/playwright/test-login-administrator.js` name `tasks/02_bootstrap.yml` as the task file that provisions the owner; the file is `tasks/01_bootstrap.yml`.

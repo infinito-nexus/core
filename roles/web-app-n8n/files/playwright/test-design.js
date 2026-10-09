@@ -197,13 +197,14 @@ async function rest(page, method, path, payload) {
 
 /**
  * Args:
- *   page: signed-in Playwright page of an owner; the first-run survey n8n lays over the workflow list and the editor gets answered empty when it is still open, the way its only button does.
+ *   page: signed-in Playwright page of an owner; the first-run survey n8n lays over the workflow list and the editor gets answered empty when it is still open, the way its only button does, and is left alone when the deployment reports it disabled.
  */
 async function skipSurvey(page) {
   const owner = await rest(page, "GET", "/rest/login");
   expect(owner.status, "the session must resolve its user").toBe(200);
   if (owner.data.personalizationAnswers) return;
   const settings = await rest(page, "GET", "/rest/settings");
+  if (settings.data.personalizationSurveyEnabled === false) return;
   const answered = await rest(page, "POST", "/rest/me/survey", {
     version: SURVEY_VERSION,
     personalization_survey_submitted_at: new Date().toISOString(),
