@@ -4,6 +4,8 @@ platform_administrator:
   firstname: Platform
   lastname: Administrator
   username: platformadmin
+  roles:
+    - administrator
   authorized_keys: []
   accounts: [mailbox, identity]
 
