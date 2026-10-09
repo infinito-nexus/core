@@ -103,9 +103,7 @@ class TestManagedSectionsNotCommitted(unittest.TestCase):
         for title in MANAGED_SECTIONS:
             for level in ("##", "#", "####"):
                 with self.subTest(title=title, level=level):
-                    self.assertEqual(
-                        1, len(managed_headings(f"{level} {title}"))
-                    )
+                    self.assertEqual(1, len(managed_headings(f"{level} {title}")))
             with self.subTest(title=title, case="lowered"):
                 self.assertEqual(1, len(managed_headings(f"## {title.lower()}")))
 
