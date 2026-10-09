@@ -109,11 +109,11 @@ test("keycloak enforces Content-Security-Policy and exposes canonical domain fro
   const response = await gotoOnion(page, `${appBaseUrl}/realms/${realmName}/account/`);
   expect(response, "Expected Keycloak account page response").toBeTruthy();
   expect(response.status(), "Expected Keycloak account page to respond successfully").toBeLessThan(400);
+  const documentHtml = await response.text();
 
   const directives = assertCspResponseHeader(response, "keycloak account page");
   await assertCspMetaParity(page, directives, "keycloak account page");
 
-  const documentHtml = await response.text();
   expect(
     documentHtml.includes(canonicalDomain) || (await page.content()).includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" (from applications lookup) to appear in the Keycloak UI`
