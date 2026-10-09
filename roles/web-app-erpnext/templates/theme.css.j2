@@ -208,8 +208,8 @@ html body {
 }
 
 html .btn.btn-primary,
-html body .page-card .page-card-actions .btn:is(.btn-login, .btn-ldap-login),
-html body .page-card .page-card-actions .btn.btn-signup:not(:disabled) {
+html body .page-card .btn:is(.btn-login, .btn-ldap-login),
+html body .page-card .btn.btn-signup:not(:disabled) {
   --btn-primary: var(--design-primary);
   --neutral: var(--design-on-primary);
   --icon-fill-bg: var(--design-primary);
@@ -218,8 +218,8 @@ html body .page-card .page-card-actions .btn.btn-signup:not(:disabled) {
 }
 
 html .btn.btn-primary:hover,
-html body .page-card .page-card-actions .btn:is(.btn-login, .btn-ldap-login):is(:hover, :focus),
-html body .page-card .page-card-actions .btn.btn-signup:not(:disabled):is(:hover, :focus) {
+html body .page-card .btn:is(.btn-login, .btn-ldap-login):is(:hover, :focus),
+html body .page-card .btn.btn-signup:not(:disabled):is(:hover, :focus) {
   --btn-primary: var(--design-primary-hover);
   background: var(--design-primary-hover);
   color: var(--design-on-primary);
@@ -232,12 +232,12 @@ html[data-theme="dark"] .btn.btn-primary:active {
   --gray-900: var(--design-on-primary);
 }
 
-html body .page-card .page-card-actions .btn.btn-login-option {
+html body .page-card .btn.btn-login-option {
   background: var(--design-surface-3);
   color: var(--design-text);
 }
 
-html body .page-card .page-card-actions .btn.btn-login-option:hover {
+html body .page-card .btn.btn-login-option:hover {
   background: var(--design-surface-hover);
 }
 
