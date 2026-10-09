@@ -9,18 +9,18 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const showcase = process.env.CHESS_SHOWCASE_ENABLED === "true";
-const liveGame = decodeDotenvQuotedValue(process.env.CHESS_SHOWCASE_LIVE_GAME || "");
-const mateGame = decodeDotenvQuotedValue(process.env.CHESS_SHOWCASE_MATE_GAME || "");
-const freshGame = decodeDotenvQuotedValue(process.env.CHESS_SHOWCASE_FRESH_GAME || "");
-const prefix = decodeDotenvQuotedValue(process.env.CHESS_SHOWCASE_PREFIX || "");
+const liveGame = requireDotenvValue(process.env.CHESS_SHOWCASE_LIVE_GAME, "CHESS_SHOWCASE_LIVE_GAME");
+const mateGame = requireDotenvValue(process.env.CHESS_SHOWCASE_MATE_GAME, "CHESS_SHOWCASE_MATE_GAME");
+const freshGame = requireDotenvValue(process.env.CHESS_SHOWCASE_FRESH_GAME, "CHESS_SHOWCASE_FRESH_GAME");
+const prefix = requireDotenvValue(process.env.CHESS_SHOWCASE_PREFIX, "CHESS_SHOWCASE_PREFIX");
 
 const MODES = ["light", "dark"];
 const USAGE = "ol.usage";

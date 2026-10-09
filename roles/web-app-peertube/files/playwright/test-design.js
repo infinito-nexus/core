@@ -11,7 +11,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -32,7 +32,7 @@ const THEME_TOKENS = {
   headerBackgroundColor: "--design-surface-1",
 };
 
-const ADMIN_PASSWORD = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const ADMIN_PASSWORD = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const DESIGN_LOGO_URL = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const DESIGN_TITLE = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
@@ -296,11 +296,9 @@ exports.register = function () {
 
   test("design: PeerTube serves the corporate logo and title", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    const logoUrl = DESIGN_LOGO_URL;
-    const title = DESIGN_TITLE;
-    test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
+    test.skip(!DESIGN_LOGO_URL && !DESIGN_TITLE, "logo and title replacement are disabled for this role");
     const base = baseUrl();
-    if (logoUrl) {
+    if (DESIGN_LOGO_URL) {
       const config = await (await api(page.request, `${base}/api/v1/config`)).json();
       for (const type of ["header-wide", "header-square", "favicon"]) {
         const entry = config.instance.logo.find((logo) => logo.type === type);
@@ -312,7 +310,7 @@ exports.register = function () {
         ).toBe("image/png");
       }
       const wide = config.instance.logo.find((logo) => logo.type === "header-wide");
-      const generated = await apiGetOnion(page.request, logoUrl);
+      const generated = await apiGetOnion(page.request, DESIGN_LOGO_URL);
       expect(generated.ok(), "the generated lockup is published on the CDN").toBe(true);
       const pngSize = (buffer) => [buffer.readUInt32BE(16), buffer.readUInt32BE(20)];
       expect(
@@ -329,9 +327,9 @@ exports.register = function () {
       expect(box.width, "the header lockup must be wider than high").toBeGreaterThan(box.height * 2);
       await expect(page.locator("my-header .instance-name"), "the lockup carries the title").toHaveCount(0);
     }
-    if (title) {
+    if (DESIGN_TITLE) {
       await gotoOnion(page, `${base}/videos/browse`);
-      await expect(page).toHaveTitle(new RegExp(title), { timeout: resolveTimeout(10_000) });
+      await expect(page).toHaveTitle(new RegExp(DESIGN_TITLE), { timeout: resolveTimeout(10_000) });
     }
   });
 

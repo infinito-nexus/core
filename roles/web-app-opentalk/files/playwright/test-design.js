@@ -340,6 +340,7 @@ test("design: the dashboard shows the generated logo and the configured title", 
     await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
   if (logoUrl) {
+    expect(faviconUrl, "DESIGN_FAVICON_URL is written whenever the logo is").toBeTruthy();
     await expect(page.locator(`${MAIN} ${LOGO}`)).toHaveCSS("background-image", `url("${logoUrl}")`);
     await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
     const box = await page.locator(`${MAIN} ${LOGO}`).boundingBox();

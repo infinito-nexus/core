@@ -9,15 +9,15 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.FLOWISE_BASE_URL || "").replace(/\/+$/, "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.FLOWISE_BASE_URL, "FLOWISE_BASE_URL")).replace(/\/+$/, "");
 const ownerEmail = decodeDotenvQuotedValue(process.env.FLOWISE_OWNER_EMAIL || "");
 const ownerPassword = decodeDotenvQuotedValue(process.env.FLOWISE_OWNER_PASSWORD || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
 const lockupUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOCKUP_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
@@ -452,6 +452,7 @@ test("design: logo, favicon and title are the configured ones", async ({ page })
   await settled(page, LOGO);
   if (title) await expect.poll(() => page.title()).toBe(title);
   if (lockupUrl) {
+    expect(faviconUrl, "DESIGN_FAVICON_URL is written whenever the lockup is").toBeTruthy();
     await expect(page.locator(LOGO).first()).toHaveCSS("content", `url("${lockupUrl}")`);
     const box = await page.locator(LOGO).first().boundingBox();
     expect(box.width, "the header logo box must be wider than high").toBeGreaterThan(box.height);

@@ -10,13 +10,13 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.SOCIALHOME_ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.SOCIALHOME_ADMIN_PASSWORD || "");
+const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const adminUsername = requireDotenvValue(process.env.SOCIALHOME_ADMIN_USERNAME, "SOCIALHOME_ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.SOCIALHOME_ADMIN_PASSWORD, "SOCIALHOME_ADMIN_PASSWORD");
 const sidebarLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_SIDEBAR_LOGO_URL || "");
 const loginLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGIN_LOGO_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
@@ -439,6 +439,7 @@ exports.register = function () {
       expect(await page.title(), "the upstream brand must be gone from the title").not.toContain("Social Home");
     }
     if (sidebarLogoUrl) {
+      expect(faviconUrl, "DESIGN_FAVICON_URL is written whenever the sidebar logo is").toBeTruthy();
       await expect(page.locator(BRAND)).toHaveCSS("background-image", `url("${sidebarLogoUrl}")`);
       await expect(page.locator(`${BRAND} .sh-logo`)).toBeHidden();
       const box = await page.locator(BRAND).boundingBox();

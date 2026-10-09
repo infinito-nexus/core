@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { samlLoginTo } = require("./saml-login");
@@ -59,9 +59,9 @@ const SHELL_FOOTER = "scrm-footer-ui .footer";
 const SHELL_LIST_LOADED = `${SHELL_TABLE} a.field-link, ${SHELL_TABLE} :text("No results found")`;
 
 exports.register = function () {
-  const base = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-  const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-  const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+  const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+  const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+  const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
   const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
   const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
   const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
@@ -358,6 +358,7 @@ exports.register = function () {
       await expect(page.locator("input[name='system_name']"), "the system name the shell shows as title").toHaveValue(title);
     }
     if (logoUrl) {
+      expect(faviconUrl, "DESIGN_FAVICON_URL is written whenever the logo is").toBeTruthy();
       const expected = async (url) => (await apiGetOnion(page.request, url)).body();
       const served = async (path) => {
         const response = await apiGetOnion(page.request, `${base}/${path}`);
