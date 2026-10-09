@@ -17,7 +17,7 @@
       - -e
       - "FLOWISE_ADMIN_EMAIL={{ FLOWISE_API_BOT_USER.email }}"
       - -e
-      - "FLOWISE_ADMIN_PASSWORD={{ FLOWISE_API_BOT_PASSWORD }}"
+      - FLOWISE_ADMIN_PASSWORD
       - -e
       - "FLOWISE_ADMIN_NAME={{ FLOWISE_API_BOT_USER.username }}"
       - -e
@@ -26,6 +26,8 @@
       - python3
       - "-"
     stdin: "{{ lookup('file', 'python/mint_mcp_api_key.py') }}"
+  environment:
+    FLOWISE_ADMIN_PASSWORD: "{{ FLOWISE_API_BOT_PASSWORD }}"
   register: flowise_mcp_identity
   retries: 30
   delay: 10
@@ -44,7 +46,7 @@
       - -e
       - "FLOWISE_BASE=http://localhost:{{ FLOWISE_PORT_INTERNAL }}"
       - -e
-      - "FLOWISE_API_KEY={{ (flowise_mcp_identity.stdout_lines | last | from_json).api_key }}"
+      - FLOWISE_API_KEY
       - -e
       - "FLOWISE_WORKSPACE={{ (flowise_mcp_identity.stdout_lines | last | from_json).workspace_id }}"
       - -e
@@ -57,6 +59,8 @@
       - python3
       - "-"
     stdin: "{{ lookup('file', 'python/reconcile/mcp_servers.py') }}"
+  environment:
+    FLOWISE_API_KEY: "{{ (flowise_mcp_identity.stdout_lines | last | from_json).api_key }}"
   register: flowise_mcp_registry
   retries: 30
   delay: 10
