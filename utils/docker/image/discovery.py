@@ -51,7 +51,8 @@ class ImageRef:
         version: e.g. ``17-3.5``
         source: full pull ref, e.g. ``docker.io/library/postgres:16``
         registry: source registry hostname, e.g. ``docker.io``, ``quay.io``
-        source_file: role-relative file the ref was read from
+        source_file: file the ref was read from, role-relative for a role
+            image and repository-relative for a ``runner`` image
     """
 
     role: str
@@ -225,3 +226,53 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
                 registry=_detect_registry(image),
                 source_file=ROLE_FILE_META_SERVICES,
             )
+
+
+RUNNER_ROLE = "runner"
+RUNNER_COMPOSE_FILES = ("compose.yml", "compose/cache.override.yml")
+RUNNER_ENV_IMAGES = ("INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE",)
+
+
+def _runner_image(service: str, image: str, source_file: str) -> ImageRef | None:
+    base, suffix = split_name_and_suffix(image)
+    if not suffix.startswith(":") or not is_mirrorable_image(base):
+        return None
+    version = suffix[1:]
+    return ImageRef(
+        role=RUNNER_ROLE,
+        service=service,
+        name=canonical_image_name(base),
+        version=version,
+        source=image_source(base, version),
+        registry=_detect_registry(base),
+        source_file=source_file,
+    )
+
+
+def iter_runner_images(repo_root: Path) -> Iterable[ImageRef]:
+    """Yield the images the CI runner pulls itself, outside every role.
+
+    Args:
+        repo_root: repository root holding the RUNNER_COMPOSE_FILES and
+            ``default.env``. A compose ``image`` that interpolates a variable,
+            carries no tag or is pinned by digest yields nothing.
+    """
+    from utils.env.parser import parse_static_env
+
+    for source_file in RUNNER_COMPOSE_FILES:
+        services = load_yaml(repo_root / source_file).get("services") or {}
+        for service, spec in services.items():
+            image = (
+                str(spec.get("image") or "").strip() if isinstance(spec, dict) else ""
+            )
+            if not image or "${" in image:
+                continue
+            ref = _runner_image(str(service), image, source_file)
+            if ref is not None:
+                yield ref
+
+    declared = parse_static_env(repo_root / "default.env")
+    for key in RUNNER_ENV_IMAGES:
+        ref = _runner_image(key, declared[key], "default.env")
+        if ref is not None:
+            yield ref

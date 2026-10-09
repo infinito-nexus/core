@@ -141,6 +141,7 @@ jobs:
   test-dns:
     needs:
       - build-ci-images
+      - images-mirror-missing
       - validate-selection
     uses: ./.github/workflows/call-test-dns.yml
     with:
