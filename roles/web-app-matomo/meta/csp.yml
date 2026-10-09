@@ -7,6 +7,7 @@ whitelist:
 flags:
   script-src-attr:
     unsafe-eval: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: Matomo core renders the top-bar "What's new" entry with an inline onclick (plugins/CoreAdminHome/Menu.php); logout-enabled deploys already grant it through the logout injector
   script-src-elem:
     unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
     unsafe-eval: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface

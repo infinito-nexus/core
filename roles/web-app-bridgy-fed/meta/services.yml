@@ -38,6 +38,7 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  ready_path: robots.txt
 bridgy-fed:
   healthcheck:
     flavor: tcp

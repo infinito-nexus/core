@@ -17,6 +17,9 @@ reused for every entry pointing at the same repo.
 
 Suppress a check by placing ``# nocheck: repository-version`` on the
 line directly above the `ref:` key.
+
+A `ref:` that names its own upstream in an ``update:`` block belongs to
+:mod:`utils.update.source` and is not collected here.
 """
 
 from __future__ import annotations
@@ -32,6 +35,7 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update.base import (
+    declares_source,
     is_maintained,
     is_semver,
     latest_semver,
@@ -70,23 +74,32 @@ class RepositoryRefUpdate:
     latest: str
 
 
+def _walk(
+    node, path: tuple[str, ...]
+) -> Iterator[tuple[tuple[str, ...], str, str, dict]]:
+    """Yield ``(entity_path, repository, ref, entity)`` for every dict in
+    the tree that declares both keys with truthy string values."""
+    if isinstance(node, dict):
+        repo = node.get("repository")
+        ref = node.get("ref")
+        if isinstance(repo, str) and repo and isinstance(ref, str) and ref:
+            yield (path, repo.strip(), ref.strip(), node)
+        for key, value in node.items():
+            if key in ("repository", "ref"):
+                continue
+            yield from _walk(value, (*path, str(key)))
+    elif isinstance(node, list):
+        for index, item in enumerate(node):
+            yield from _walk(item, (*path, f"[{index}]"))
+
+
 def walk_repo_ref_pairs(
     node, path: tuple[str, ...]
 ) -> Iterator[tuple[tuple[str, ...], str, str]]:
     """Yield ``(entity_path, repository, ref)`` for every dict in the
     tree that declares both keys with truthy string values."""
-    if isinstance(node, dict):
-        repo = node.get("repository")
-        ref = node.get("ref")
-        if isinstance(repo, str) and repo and isinstance(ref, str) and ref:
-            yield (path, repo.strip(), ref.strip())
-        for key, value in node.items():
-            if key in ("repository", "ref"):
-                continue
-            yield from walk_repo_ref_pairs(value, (*path, str(key)))
-    elif isinstance(node, list):
-        for index, item in enumerate(node):
-            yield from walk_repo_ref_pairs(item, (*path, f"[{index}]"))
+    for entity_path, repo, ref, _entity in _walk(node, path):
+        yield (entity_path, repo, ref)
 
 
 def git_ls_remote_tags(url: str) -> list[str]:
@@ -171,14 +184,14 @@ def _entries_of_file(
 
     suppressed = suppressed_ref_lines(config_path)
     entries: list[RepositoryRefEntry] = []
-    for entity_path, repo, ref in walk_repo_ref_pairs(data, entity_prefix):
+    for entity_path, repo, ref, entity in _walk(data, entity_prefix):
         if not is_semver(ref):
             continue
         candidates = ref_line_index.get(ref) or []
         if not candidates:
             continue
         line_no = candidates.pop(0)
-        if line_no in suppressed:
+        if line_no in suppressed or declares_source(entity, "ref"):
             continue
         entries.append(
             RepositoryRefEntry(

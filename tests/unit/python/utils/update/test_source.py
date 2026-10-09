@@ -84,6 +84,30 @@ update:
 }
 
 
+COMPOUND = """\
+---
+bundle:
+  image: example/part
+  version: "v1.10.12-v3.0.23"
+  update:
+    type: http_regex
+    url: https://example.test/tags
+    pattern: 'core (?P<core>v[0-9.]+)\\npart (?P<part>v[0-9.]+)'
+    template: "{part}-{core}"
+"""
+
+SUFFIXED = """\
+---
+bundle:
+  image: example/part
+  version: "v1.10.12-v3.0.23"
+  update:
+    type: http_regex
+    url: https://example.test/tags
+    pattern: 'part (v[0-9.]+-v[0-9.]+)'
+"""
+
+
 def _repo(services: str = SERVICES) -> Path:
     tmp = Path(tempfile.mkdtemp())
     config = tmp / "roles" / "web-app-example" / ROLE_FILE_META_SERVICES
@@ -150,6 +174,36 @@ class TestOutdated(unittest.TestCase):
         root = _repo()
         with mock.patch.object(module, "candidates", return_value=["2.0.0", "1.9.9"]):
             self.assertEqual(module.outdated([self._entry(root)], root), [])
+
+
+class TestTemplate(unittest.TestCase):
+    def _outdated(self, services: str, upstream: str) -> list[str]:
+        root = _repo(services)
+        with mock.patch.object(module, "documents", return_value=upstream):
+            updates = module.outdated(module.collect_entries(root), root)
+        return [update.latest for update in updates]
+
+    def test_a_template_assembles_the_tag_from_several_upstream_values(self) -> None:
+        self.assertEqual(
+            self._outdated(COMPOUND, "core v3.0.39\npart v1.11.3\n"),
+            ["v1.11.3-v3.0.39"],
+        )
+
+    def test_a_templated_tag_moves_when_only_its_suffix_changed(self) -> None:
+        self.assertEqual(
+            self._outdated(COMPOUND, "core v3.0.39\npart v1.10.12\n"),
+            ["v1.10.12-v3.0.39"],
+        )
+
+    def test_an_unchanged_or_older_templated_tag_reports_nothing(self) -> None:
+        self.assertEqual(self._outdated(COMPOUND, "core v3.0.23\npart v1.10.12\n"), [])
+        self.assertEqual(self._outdated(COMPOUND, "core v3.0.23\npart v1.9.0\n"), [])
+
+    def test_without_a_template_a_changed_suffix_is_another_flavour(self) -> None:
+        self.assertEqual(self._outdated(SUFFIXED, "part v1.11.3-v3.0.39\n"), [])
+        self.assertEqual(
+            self._outdated(SUFFIXED, "part v1.11.3-v3.0.23\n"), ["v1.11.3-v3.0.23"]
+        )
 
 
 class TestAddons(unittest.TestCase):
