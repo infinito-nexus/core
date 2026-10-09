@@ -111,11 +111,6 @@ class Engine:
     def connect(self, network_id, container, alias, realize_timeout=120, pause=2):
         """Attach ``container`` to ``network_id`` once the network is usable.
 
-        Exception: only compose attaches at runtime. A swarm service task
-        cannot be attached to a network it was not created with, so
-        :meth:`SwarmBackend.ensure_pool` puts the broker on its networks
-        through its service spec instead of calling this.
-
         Args:
             network_id: id ``ensure_network`` returned.
             container: container id or name to attach.

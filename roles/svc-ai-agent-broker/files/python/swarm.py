@@ -31,12 +31,6 @@ class SwarmBackend:
     def ensure_pool(self, container, alias):
         """Create the pool networks and put the broker's own service on them.
 
-        Exception: a service task cannot be attached to a network at runtime,
-        and an overlay is realized per node, so the broker cannot reach a
-        network an agent created on a sandbox node. The networks therefore
-        exist up front and enter the broker's own service spec, which costs one
-        reschedule of this task the first time and none afterwards.
-
         Args:
             container: the broker's own container, whose service spec is updated.
             alias: name the agents reach the broker by.
@@ -84,13 +78,6 @@ class SwarmBackend:
 
     def _occupancy(self, name):
         """Return this agent's own pool network and the ones others hold.
-
-        Exception: a service counts as holding its networks from the moment
-        its desired replica count is raised, not from the moment a task
-        reports running. The engine records the desired count synchronously,
-        so a claim is visible to the next caller immediately; waiting for the
-        task would leave a window in which the same network is handed out
-        twice and two agents share one network.
 
         Args:
             name: agent name to report separately from the others.
