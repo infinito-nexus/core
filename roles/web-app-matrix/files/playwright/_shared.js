@@ -365,6 +365,7 @@ async function signInViaElementPassword(page, username, password, personaLabel) 
   const pwField = page
     .locator('input[name="password"], #mx_LoginForm_password, input[type="password"]')
     .first();
+  await expect(pwField, `${personaLabel}: Element password field must accept input`).toBeEditable({ timeout: resolveTimeout(30_000) });
   await pwField.fill(password);
 
   const submitBtn = page

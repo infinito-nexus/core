@@ -9,7 +9,15 @@
         }
     },
     "logout_redirect_url": "{{ OIDC.CLIENT.LOGOUT_URL if MATRIX_OIDC_ENABLED | bool else MATRIX_BASE_URL }}",
-    "brand": "Element",
+    "brand": {{ (MATRIX_DESIGN_TITLE or 'Element') | to_json }},
+{% if MATRIX_DESIGN_ENABLED | bool %}
+    "branding": {
+{% if MATRIX_DESIGN_LOGO_URL %}
+        "auth_header_logo_url": {{ MATRIX_DESIGN_LOGO_URL | to_json }},
+{% endif %}
+        "welcome_background_url": ""
+    },
+{% endif %}
     "integrations_ui_url": "https://scalar.vector.im/",
     "integrations_rest_url": "https://scalar.vector.im/api", {# nocheck: url #}
     "integrations_widgets_urls": [
