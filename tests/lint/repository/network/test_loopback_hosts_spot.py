@@ -40,6 +40,11 @@ _COMMENT = re.compile(r"\s+#.*$")
 _HOST_LIST = re.compile(
     r"(?i)^[\s\-]*[\w.]*(?:no_proxy|allowed_hosts)\s*[:=]\s*(?P<value>.+)$"
 )
+_LOOKUP = "proxy_excluded_hosts"
+_INTERNAL_EXCLUSION = re.compile(
+    r"^(?P<key>[A-Z][A-Z0-9_]*PROXY[A-Z0-9_]*(?:EXCLUDED|BYPASS)[A-Z0-9_]*)\s*:"
+)
+_COMPOSITION = re.compile(r"[A-Z][A-Z0-9_]*PROXY[A-Z0-9_]*(?:EXCLUDED|BYPASS)")
 
 
 def forms_in(text: str) -> set[str]:
@@ -96,6 +101,45 @@ class TestLoopbackHostsSpot(unittest.TestCase):
                 f"Offending lines:\n{formatted}"
             )
 
+    def test_internal_proxy_exclusions_come_from_the_lookup(self) -> None:
+        findings: list[tuple[str, int, str]] = []
+        for path_str, content in iter_project_files_with_content(
+            extensions=(".yml",),
+            exclude_tests=True,
+        ):
+            rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
+            lines = content.splitlines()
+            for idx, line in enumerate(lines):
+                stripped = _COMMENT.sub("", line).strip()
+                match = _INTERNAL_EXCLUSION.match(stripped)
+                if not match or "PUBLIC" in match.group("key"):
+                    continue
+                block = "\n".join(lines[idx : idx + 6])
+                if _LOOKUP in block:
+                    continue
+                value = stripped[len(match.group(0)) :]
+                if _COMPOSITION.search(value):
+                    continue
+                if is_suppressed_at(lines, idx + 1, _RULE, mode="same-or-above"):
+                    continue
+                findings.append((rel, idx + 1, match.group("key")))
+
+        if findings:
+            formatted = "\n".join(
+                f"- {p}:{n}: {k}"
+                for p, n, k in sorted(set(findings), key=lambda i: (i[0], i[1]))
+            )
+            self.fail(
+                "Found proxy-exclusion lists that name their internal hosts by "
+                "hand. A role exporting a proxy applies it to every HTTP call "
+                "the app makes, so an internal dependency left off the list is "
+                "proxied and fails.\n\n"
+                f"Fix: render `lookup('{_LOOKUP}', application_id)` and "
+                "concatenate the role's own extra hosts. A list of public "
+                "hosts belongs in a separate `..._PUBLIC_...` variable.\n\n"
+                f"Offending variables:\n{formatted}"
+            )
+
     def test_the_scan_detects_host_lists_and_not_their_near_misses(self) -> None:
         caught = (
             "no_proxy=localhost,127.0.0.1",
@@ -127,6 +171,37 @@ class TestLoopbackHostsSpot(unittest.TestCase):
             {"ipv4", "ipv6", "name"},
             forms_in("127.0.0.1 ::1 localhost"),
             "every form must be detectable, or the rule passes vacuously",
+        )
+
+    def test_the_exclusion_scan_separates_enumeration_from_composition(self) -> None:
+        enumerating = 'ROLE_PROXY_EXCLUDED_INTERNAL_HOSTS: ["db", "cache"]'
+        match = _INTERNAL_EXCLUSION.match(enumerating)
+        self.assertIsNotNone(match, "an internal exclusion list must be recognised")
+        self.assertNotIn("PUBLIC", match.group("key"))
+        value = enumerating[len(match.group(0)) :]
+        self.assertIsNone(
+            _COMPOSITION.search(value),
+            "a hand-written list must not look like a composition",
+        )
+
+        composed = (
+            "ROLE_PROXY_EXCLUDED_HOSTS: "
+            '"{{ ROLE_PROXY_EXCLUDED_PUBLIC_HOSTS + ROLE_PROXY_EXCLUDED_INTERNAL_HOSTS }}"'
+        )
+        composed_match = _INTERNAL_EXCLUSION.match(composed)
+        self.assertIsNotNone(composed_match)
+        self.assertIsNotNone(
+            _COMPOSITION.search(composed[len(composed_match.group(0)) :]),
+            "a concatenation of other exclusion vars must count as composition",
+        )
+
+        public = 'ROLE_PROXY_EXCLUDED_PUBLIC_HOSTS: ["github.com"]'
+        public_match = _INTERNAL_EXCLUSION.match(public)
+        self.assertIsNotNone(public_match)
+        self.assertIn(
+            "PUBLIC",
+            public_match.group("key"),
+            "a public host list must be exempt; it names no internal service",
         )
 
     def test_the_spot_covers_every_loopback_form(self) -> None:
