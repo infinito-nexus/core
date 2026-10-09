@@ -21,6 +21,7 @@ This Docker Compose deployment automates the installation and operation of a Pix
 
 * [Official Pixelfed website](https://pixelfed.org/)
 * [Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)
+* [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/NZHqJBSryezaKba1jskYaZ)
 
 ## Persona contract opt-outs
 

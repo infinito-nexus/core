@@ -15,7 +15,12 @@
 - name: "🐳 Finalize compose deploy for '{{ application_id }}'"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
-- name: "🔐 Complete the standalone first-boot setup for '{{ application_id }}'"
-  include_tasks: 01_setup.yml
-  run_once: true
+- name: "🔐 Configure Social Home through its API for '{{ application_id }}'"
   when: IS_STACK_HOST | bool
+  run_once: true
+  block:
+    - name: "🔐 Complete the standalone first-boot setup for '{{ application_id }}'"
+      include_tasks: 01_setup.yml
+
+    - name: "🎨 Converge the household theme for '{{ application_id }}'"
+      include_tasks: 02_design.yml

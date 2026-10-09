@@ -6,31 +6,6 @@
     resolve_output_prefix: FLOWISE
     resolve_compose_cid: "{{ FLOWISE_CONTAINER }}"
 
-- name: "🔐 Converge the password of the Flowise MCP API identity"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "NODE_PATH={{ FLOWISE_NODE_MODULES }}"
-      - -e
-      - "FLOWISE_ADMIN_EMAIL={{ FLOWISE_API_BOT_USER.email }}"
-      - -e
-      - "FLOWISE_ADMIN_PASSWORD={{ FLOWISE_API_BOT_PASSWORD }}"
-      - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - node
-      - "-"
-    stdin: "{{ lookup('file', 'javascript/reconcile/identity_password.js') }}"
-  register: flowise_mcp_password
-  retries: 30
-  delay: 10
-  until: flowise_mcp_password.rc == 0
-  changed_when: flowise_mcp_password.stdout.startswith('CHANGED')
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  delegate_to: "{{ FLOWISE_HOST_NODE }}"
-  run_once: true
-
 - name: "🔑 Mint the scoped Flowise API identity for the MCP registry"
   ansible.builtin.command:
     argv:

@@ -1,0 +1,59 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  var key = "pf_m2s.color-scheme";
+  function stored() {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (error) {
+      return null;
+    }
+  }
+  function chosen() {
+    var body = document.body;
+    if (body && body.classList.contains("force-dark-mode")) {
+      return "dark";
+    }
+    if (body && body.classList.contains("force-light-mode")) {
+      return "light";
+    }
+    var value = stored();
+    return value === "dark" || value === "light" ? value : null;
+  }
+  function mirror() {
+    var theme = chosen();
+    if (theme) {
+      root.setAttribute("data-design-theme", theme);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  function watchBody() {
+    new MutationObserver(mirror).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    mirror();
+  }
+  mirror();
+  window.addEventListener("storage", function (event) {
+    if (event.key === key) {
+      mirror();
+    }
+  });
+  if (document.body) {
+    watchBody();
+  } else {
+    document.addEventListener("DOMContentLoaded", watchBody);
+  }
+{% if design.logo is string %}
+  function brandIcon() {
+    var icons = document.querySelectorAll("link[rel~='icon'], link[rel='apple-touch-icon']");
+    for (var index = 0; index < icons.length; index += 1) {
+      if (icons[index].getAttribute("href") !== {{ design.urls.favicon_ico | to_json }}) {
+        icons[index].setAttribute("type", "image/x-icon");
+        icons[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+      }
+    }
+  }
+  new MutationObserver(brandIcon).observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ["href"] });
+  brandIcon();
+{% endif %}
+})();

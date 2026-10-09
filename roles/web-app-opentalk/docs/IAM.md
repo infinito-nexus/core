@@ -5,8 +5,8 @@ OpenTalk authenticates users against the central Keycloak realm via OIDC and loo
 ## OIDC 🪪
 
 - Issuer URL: `{{ OIDC.CLIENT.ISSUER_URL }}`
-- Frontend client ID: `{{ OIDC.CLIENT.ID }}` (shared with the rest of the platform)
-- Controller client ID and secret: same shared Keycloak client; the secret is sourced from the central OIDC vault entry
+- Frontend client ID: `{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}`, a dedicated public client whose audience mapper adds the controller client to every access token, so the controller's token introspection accepts it
+- Controller client ID and secret: `{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}`, a confidential client; the secret is `secrets.credentials.controller_oidc_client_secret` of the role
 
 ## User Search 🔍
 

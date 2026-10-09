@@ -141,6 +141,16 @@ matrix_synapse_ext_password_provider_ldap_attributes_name: givenName
 
 matrix_client_element_enabled: true
 matrix_client_element_default_hs_url: "{{ MATRIX_SYNAPSE_URL }}"
+{% if MATRIX_DESIGN_TITLE %}
+matrix_client_element_brand: {{ MATRIX_DESIGN_TITLE | to_json }}
+{% endif %}
+{% if MATRIX_DESIGN_LOGO_URL %}
+matrix_client_element_branding_auth_header_logo_url: {{ MATRIX_DESIGN_LOGO_URL | to_json }}
+{% endif %}
+{% if MATRIX_DESIGN_ENABLED | bool %}
+matrix_client_element_branding_welcome_background_url: ""
+matrix_client_element_configuration_extension_json: '{"default_theme": null}'
+{% endif %}
 
 matrix_bridge_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | string | lower }}
 matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | lower }}

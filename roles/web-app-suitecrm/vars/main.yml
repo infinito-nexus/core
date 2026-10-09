@@ -10,6 +10,8 @@ SUITECRM_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password 
 
 SUITECRM_WELL_SOFTWARE_NAME: "{{ SOFTWARE_DOMAIN | replace('.', '-') }}"
 SUITECRM_PHP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'php.ini'] | path_join }}"
+SUITECRM_SESSION_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'session.yaml'] | path_join }}"
+SUITECRM_SESSION_CONFIG_DOCKER: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/session.yaml'] | path_join }}"
 
 SUITECRM_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SUITECRM_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
@@ -42,6 +44,13 @@ SUITECRM_ENTRYPOINT_SCRIPT_SRC: "shell/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
 SUITECRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
+
+SUITECRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SUITECRM_DESIGN_LOGO_ENABLED: "{{ SUITECRM_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+SUITECRM_DESIGN_TITLE: "{{ lookup('design', application_id).title if SUITECRM_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+SUITECRM_DESIGN_ASSETS_DIR: "{{ lookup('design', application_id).dest }}"
+SUITECRM_DESIGN_SCRIPT: "{{ [role_path, 'files/php/design.php'] | path_join }}"
+SUITECRM_DESIGN_LEGACY_CSS: "legacy.css.j2"
 
 SUITECRM_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"
 SUITECRM_PHP_MEMORY_LIMIT: "{{ lookup('service_memory_mb', application_id, entity_name, 0.25) }}M"

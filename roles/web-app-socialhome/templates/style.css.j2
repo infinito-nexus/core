@@ -1,0 +1,206 @@
+{% set design = lookup('design', application_id) %}
+html:root,
+html.sh-theme-light,
+html.sh-theme-dark {
+  --sh-primary: var(--design-primary);
+  --sh-primary-hover: var(--design-link);
+  --sh-primary-soft: var(--design-surface-active);
+  --sh-primary-text: var(--design-link);
+  --sh-primary-on-soft: var(--design-link);
+  --sh-primary-fill: var(--design-primary);
+  --sh-on-primary-fill: var(--design-on-primary);
+  --sh-primary-fill-hover: var(--design-primary-hover);
+  --sh-success: var(--design-success);
+  --sh-warning: var(--design-warning);
+  --sh-danger: var(--design-danger);
+  --sh-danger-hover: var(--design-danger-hover);
+  --sh-danger-on-soft: var(--design-danger);
+  --sh-on-success-fill: var(--design-on-success);
+  --sh-on-warning-fill: var(--design-on-warning);
+  --sh-on-danger-fill: var(--design-on-danger);
+  --sh-bg: var(--design-surface-2);
+  --sh-bg-secondary: var(--design-surface-1);
+  --sh-bg-tertiary: var(--design-surface-2);
+  --sh-text: var(--design-text);
+  --sh-text-muted: var(--design-text-muted);
+  --sh-border: var(--design-border);
+  --sh-border-strong: var(--design-border-strong);
+  --sh-shadow-xs: var(--design-shadow-1);
+  --sh-shadow-sm: var(--design-shadow-1);
+  --sh-shadow-md: var(--design-shadow-2);
+  --sh-shadow-lg: var(--design-shadow-3);
+  --sh-shadow-xl: var(--design-shadow-3);
+  --sh-shadow-pinned: 0 1px 0 var(--design-border), var(--design-shadow-2);
+  --sh-swatch-ring: var(--design-border-strong);
+}
+
+html.sh-theme-dark[data-design-household-primary] body {
+  --sh-primary: var(--design-primary);
+}
+
+html.sh-theme-dark :focus-visible {
+  outline-color: var(--design-primary);
+}
+
+.sh-login,
+.sh-setup {
+  background: var(--design-surface-1);
+}
+
+.sh-sidenav a:hover,
+.sh-sidenav .sh-sidenav-action:hover,
+.sh-sidenav-identity:hover,
+.sh-btn--secondary:not(:disabled):hover,
+.sh-chip:hover,
+.sh-emoji-btn:hover,
+.sh-toast-action:hover {
+  background: var(--design-surface-hover);
+}
+
+.sh-btn--ghost:not(:disabled):hover {
+  background: var(--design-surface-hover);
+  color: var(--design-text);
+  box-shadow: inset 0 0 0 1.5px var(--design-border-strong);
+}
+
+.sh-sidenav a[aria-current="page"],
+.sh-sidenav a.sh-active,
+.sh-sidenav .sh-sidenav-subitem--active,
+.sh-sidenav-identity[aria-current="page"],
+.sh-mobile-tab.sh-active,
+.sh-chip--active,
+.sh-badge--admin,
+.sh-scope-chip--public,
+.sh-reaction-chip--mine {
+  background: var(--design-surface-active);
+}
+
+.sh-badge--success,
+.sh-badge--moderator,
+.sh-join-mode-chip--open,
+html.sh-theme-dark .sh-join-mode-chip--open {
+  background: var(--design-success-subtle);
+  color: var(--design-success);
+}
+
+.sh-badge--danger,
+.sh-age-chip,
+html.sh-theme-dark .sh-age-chip {
+  background: var(--design-danger-subtle);
+  color: var(--design-danger);
+}
+
+.sh-badge--peer,
+.sh-badge--owner,
+.sh-join-mode-chip--request,
+html.sh-theme-dark .sh-join-mode-chip--request {
+  background: var(--design-warning-subtle);
+  color: var(--design-warning);
+}
+
+.sh-scope-chip--global,
+html.sh-theme-dark .sh-scope-chip--global {
+  background: var(--design-info-subtle);
+  color: var(--design-info);
+}
+
+.sh-join-mode-chip--private,
+html.sh-theme-dark .sh-join-mode-chip--private {
+  background: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+
+.sh-join-elevation {
+  color: var(--sh-accent, var(--design-warning));
+}
+
+.sh-mention--here,
+html.sh-theme-dark .sh-mention--here {
+  color: var(--design-on-warning);
+}
+
+.sh-message--mine {
+  background: var(--design-primary);
+}
+
+.sh-skip-link,
+.sh-install-prompt,
+.sh-install-prompt .sh-btn--secondary,
+.sh-install-prompt .sh-btn--secondary:not(:disabled):hover {
+  color: var(--design-on-primary);
+}
+
+.sh-install-prompt .sh-btn--secondary {
+  border-color: var(--design-on-primary);
+}
+
+.sh-install-prompt .sh-btn--primary,
+.sh-install-prompt .sh-btn--primary:not(:disabled):hover {
+  background: var(--design-on-primary);
+  border-color: var(--design-on-primary);
+  color: var(--design-primary);
+}
+
+.sh-skip-link:focus,
+.sh-install-prompt .sh-btn:focus-visible {
+  outline-color: var(--design-on-primary);
+}
+
+.sh-avatar-status-dot--online,
+.sh-online-pill-dot--online,
+.sh-thread-header-dot--online {
+  background: var(--design-success);
+}
+
+.sh-avatar-status-dot--idle,
+.sh-online-pill-dot--idle,
+.sh-thread-header-dot--idle,
+.sh-friends-status-dot--unreachable {
+  background: var(--design-warning);
+}
+
+.sh-online-pill--online {
+  border-left-color: var(--design-success);
+}
+
+.sh-online-pill--idle {
+  border-left-color: var(--design-warning);
+}
+
+.sh-online-pill-dot {
+  box-shadow: 0 0 0 2px var(--design-surface-2);
+}
+
+.sh-mobile-drawer {
+  box-shadow: var(--design-shadow-3);
+}
+{% if design.logo is string %}
+
+.sh-sidenav .sh-wordmark.sh-sidenav-brand,
+.sh-login-hero .sh-wordmark {
+  box-sizing: content-box;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-origin: content-box;
+}
+
+.sh-sidenav .sh-wordmark.sh-sidenav-brand {
+  flex-shrink: 0;
+  width: {{ design.slots.sidebar.width }}px;
+  height: {{ design.slots.sidebar.height }}px;
+  background-image: url("{{ design.urls.sidebar.svg }}");
+  background-position: left center;
+}
+
+.sh-login-hero .sh-wordmark {
+  width: {{ design.slots.login.width }}px;
+  height: {{ design.slots.login.height }}px;
+  background-image: url("{{ design.urls.login.svg }}");
+  background-position: center;
+}
+
+.sh-sidenav .sh-wordmark.sh-sidenav-brand > *,
+.sh-login-hero .sh-wordmark > * {
+  display: none;
+}
+{% endif %}

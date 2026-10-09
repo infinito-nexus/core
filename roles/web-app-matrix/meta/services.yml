@@ -108,11 +108,14 @@ seaweedfs:
   enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
   shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 512
+      height: 512
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

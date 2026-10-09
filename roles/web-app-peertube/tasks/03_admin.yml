@@ -1,0 +1,74 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: PEERTUBE
+    resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
+
+- name: "🔑 PEERTUBE | Read the OAuth client of the web interface"
+  uri_retry:
+    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/oauth-clients/local"
+    headers:
+      Host: "{{ PEERTUBE_HOSTNAME }}"
+    return_content: true
+  register: peertube_admin_client
+
+- name: "🔎 PEERTUBE | Probe whether root signs in with the administrator password"
+  uri_retry:
+    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/users/token"
+    method: POST
+    headers:
+      Host: "{{ PEERTUBE_HOSTNAME }}"
+    body_format: form-urlencoded
+    body:
+      client_id: "{{ peertube_admin_client.json.client_id }}"
+      client_secret: "{{ peertube_admin_client.json.client_secret }}"
+      grant_type: password
+      username: "{{ PEERTUBE_ROOT_USERNAME }}"
+      password: "{{ lookup('users', 'administrator').password }}"
+    status_code: [200, 400]
+  register: peertube_admin_probe
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 PEERTUBE | Converge the root password through the reset-password CLI"
+  when: peertube_admin_probe.status != 200
+  block:
+    - name: "🔐 PEERTUBE | Hand the administrator password to reset-password on stdin"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - -i
+          - -u
+          - peertube
+          - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  PEERTUBE_LOCAL_CID resolved at delegate_to runtime
+          - npm
+          - run
+          - reset-password
+          - --
+          - -u
+          - "{{ PEERTUBE_ROOT_USERNAME }}"
+        stdin: "{{ lookup('users', 'administrator').password }}"
+      register: peertube_admin_reset
+      changed_when: "'User password updated.' in peertube_admin_reset.stdout"
+      failed_when: "'User password updated.' not in peertube_admin_reset.stdout"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+
+    - name: "✅ PEERTUBE | Root signs in with the administrator password"
+      uri_retry:
+        url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/users/token"
+        method: POST
+        headers:
+          Host: "{{ PEERTUBE_HOSTNAME }}"
+        body_format: form-urlencoded
+        body:
+          client_id: "{{ peertube_admin_client.json.client_id }}"
+          client_secret: "{{ peertube_admin_client.json.client_secret }}"
+          grant_type: password
+          username: "{{ PEERTUBE_ROOT_USERNAME }}"
+          password: "{{ lookup('users', 'administrator').password }}"
+        status_code: [200]
+      retries: 0
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

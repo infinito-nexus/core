@@ -57,6 +57,11 @@ MATRIX_ELEMENT_PORT: "{{ lookup('config', 'web-app-matrix', 'services.element.po
 MATRIX_ELEMENT_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.element.ports.internal.http') }}"
 MATRIX_ELEMENT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'element-config.json' ] | path_join }}"
 
+MATRIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MATRIX_DESIGN_TITLE: "{{ (lookup('design', application_id).title or '') if MATRIX_DESIGN_ENABLED | bool else '' }}"
+MATRIX_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.svg if (MATRIX_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string) else
+  '' }}"
+
 MATRIX_MDAD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}mdad"
 MATRIX_MDAD_RUNNER_BUILD_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'runner' ] | path_join }}"
 MATRIX_MDAD_PLAYBOOK_TAGS: "{{ lookup('config', application_id, 'services.matrix.playbook_tags') }}"

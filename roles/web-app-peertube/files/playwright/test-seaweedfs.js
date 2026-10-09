@@ -64,7 +64,7 @@ async function loginAdminViaOidc(page) {
     .toContain(peertubeBaseUrl);
 
   const authenticatedMarker = page
-    .locator("my-avatar-menu, my-user-notifications, my-header my-avatar, a[href='/my-account'], button.dropdown-toggle my-avatar")
+    .locator("my-header .logged-in-container, my-header my-notification-dropdown")
     .first();
   await expect(authenticatedMarker, "expected an authenticated PeerTube UI marker after OIDC login").toBeVisible({
     timeout: resolveTimeout(60_000),

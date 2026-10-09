@@ -74,6 +74,58 @@
   delegate_to: "{{ OPENTALK_KEYCLOAK_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "📝 Upsert dedicated public Keycloak client for the OpenTalk frontend"
+  vars:
+    opentalk_frontend_origin: "{{ OPENTALK_URL | regex_replace('/+$', '') }}"
+  keycloak_kcadm_update:
+    object_kind: "client"
+    lookup_value: "{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}"
+    desired:
+      clientId: "{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}"
+      name: "OpenTalk Frontend"
+      description: "Public SPA client used by web-app-opentalk; its access tokens carry the controller client as audience."
+      enabled: true
+      protocol: "openid-connect"
+      publicClient: true
+      bearerOnly: false
+      standardFlowEnabled: true
+      implicitFlowEnabled: false
+      directAccessGrantsEnabled: false
+      serviceAccountsEnabled: false
+      frontchannelLogout: false
+      redirectUris:
+        - "{{ opentalk_frontend_origin }}/*"
+      webOrigins:
+        - "{{ opentalk_frontend_origin }}"
+      attributes:
+        "post.logout.redirect.uris": "{{ opentalk_frontend_origin }}/*"
+        "oauth2.device.authorization.grant.enabled": "false"
+      protocolMappers:
+        - name: "opentalk-controller-audience"
+          protocol: "openid-connect"
+          protocolMapper: "oidc-audience-mapper"
+          consentRequired: false
+          config:
+            "included.client.audience": "{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}"
+            "id.token.claim": "false"
+            "access.token.claim": "true"
+            "introspection.token.claim": "true"
+      defaultClientScopes:
+        - "web-origins"
+        - "acr"
+        - "roles"
+        - "profile"
+        - "basic"
+        - "email"
+        - "openid"
+        - "{{ RBAC.GROUP.CLAIM }}"
+    kcadm_exec: "container exec -i {{ OPENTALK_KEYCLOAK_LOCAL_CID }} /opt/keycloak/bin/kcadm.sh" # nocheck: container-exec-resolver  OPENTALK_KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    realm: "{{ OIDC.CLIENT.REALM }}"
+    assert_mode: "{{ MODE_ASSERT | bool }}"
+  register: opentalk_frontend_client
+  changed_when: not opentalk_frontend_client.object_exists
+  delegate_to: "{{ OPENTALK_KEYCLOAK_HOST_NODE }}"
+
 - name: "🔐 Grant OpenTalk controller service account `view-users` role"
   ansible.builtin.shell: |-
     {{ KCEXEC }} sh -lc '

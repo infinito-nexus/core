@@ -23,6 +23,7 @@ The service runs as a lightweight Node.js app backed by PostgreSQL.
 
 - [castling.club GitHub Repository](https://github.com/stephank/castling.club)  
 - [ActivityPub Specification (W3C)](https://www.w3.org/TR/activitypub/)  
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/CvtzegpgerV22NzDLSvxBb)
 
 ## Persona contract opt-outs
 
