@@ -112,7 +112,7 @@ giteamcpupstream:
   enabled: "{{ lookup('config', 'web-app-gitea', 'mcp.enabled') | bool }}"
   shared: false
   image: docker.gitea.com/gitea-mcp-server
-  version: "1.8.0"
+  version: "1.8.1"
   update:
     type: registry_tags
     image: docker.gitea.com/gitea-mcp-server
