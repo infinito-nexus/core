@@ -44,9 +44,3 @@ See [Upgrade.md](./Upgrade.md) for guidance on upgrading your PeerTube deploymen
 - [PeerTube Official Documentation](https://docs.joinpeertube.org/install-docker)
 - [PeerTube GitHub Issues](https://github.com/Chocobozzz/PeerTube/issues/3091)
 - [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/VN7YZTQM34SyQJDeXU5Q2B)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

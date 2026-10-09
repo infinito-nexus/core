@@ -33,9 +33,3 @@ A rendered `socialhome.toml` is mounted alongside the environment file. It carri
 - [Published container images](https://github.com/social-home-io/socialhome/pkgs/container/socialhome)
 - [TURN REST API credential scheme](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00)
 - [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/AeUuASKyKnfVzrwjHQCyM3)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -172,9 +172,3 @@ In addition to the persona and CSP specs:
 - [Matrix Official Website](https://matrix.org/)
 - [Matrix Documentation](https://matrix.org/docs/)
 - [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/ARJ2WC3qqcZAFe8oj2ux9V)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
