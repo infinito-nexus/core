@@ -63,7 +63,7 @@ if (!$account) {
     $new->auth = 'manual';
     $new->confirmed = 1;
     $new->mnethostid = $CFG->mnet_localhost_id;
-    $accountid = user_create_user($new, true, false);
+    $accountid = \core\user::create_user($new, true, false);
     $account = $DB->get_record('user', ['id' => $accountid], '*', MUST_EXIST);
 }
 
@@ -85,9 +85,9 @@ $token = $DB->get_field('external_tokens', 'token', [
 ], IGNORE_MULTIPLE);
 
 if (!$token) {
-    $token = external_generate_token(
+    $token = \core_external\util::generate_token(
         EXTERNAL_TOKEN_PERMANENT,
-        $service->id,
+        $service,
         $account->id,
         $systemcontext
     );
