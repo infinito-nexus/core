@@ -132,6 +132,7 @@ docker run --rm -it \
 * Qdrant: [qdrant.tech](https://qdrant.tech)
 * LiteLLM: [litellm.ai](https://www.litellm.ai)
 * Ollama: [ollama.com](https://ollama.com)
+* [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/M7hkFsuTnwiSqcnhNrreXT)
 
 ## MCP Client
 
