@@ -46,19 +46,19 @@ install_init() {
 }
 
 install_engine() {
-	command -v dockerd >/dev/null 2>&1 && return 0
-
-	if command -v apt-get >/dev/null 2>&1; then
-		apt_install docker.io
-	elif command -v dnf >/dev/null 2>&1; then
-		dnf install -y --allowerasing docker
-		dnf clean all
-	elif command -v pacman >/dev/null 2>&1; then
-		pacman -Sy --noconfirm --needed docker
-		rm -rf /var/cache/pacman/pkg/*
-	else
-		echo "no supported package manager to install a container engine with" >&2
-		exit 1
+	if ! command -v docker >/dev/null 2>&1 || ! command -v dockerd >/dev/null 2>&1; then
+		if command -v apt-get >/dev/null 2>&1; then
+			apt_install docker.io
+		elif command -v dnf >/dev/null 2>&1; then
+			dnf install -y --allowerasing docker
+			dnf clean all
+		elif command -v pacman >/dev/null 2>&1; then
+			pacman -Sy --noconfirm --needed docker
+			rm -rf /var/cache/pacman/pkg/*
+		else
+			echo "no supported package manager to install a container engine with" >&2
+			exit 1
+		fi
 	fi
 
 	systemctl enable docker.service
