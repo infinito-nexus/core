@@ -7,6 +7,7 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  ready_path: admin/
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

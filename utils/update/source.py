@@ -15,10 +15,10 @@ upstream lives::
 ``key`` names the pinned key and defaults to ``version``; an entity with
 several pins declares a list of such blocks. The types are
 ``git_tags`` (repository), ``registry_tags`` (image), ``npm`` (package),
-``http_regex`` (url, pattern) and ``script`` (path, run with the current
-version and printing the latest one). A pin whose asset is fetched by digest
-names its companion checksum beside the type; see
-:mod:`utils.update.checksum`.
+``http_regex`` (one url or several, pattern, optionally a template over the
+pattern's named groups) and ``script`` (path, run with the current version and
+printing the latest one). A pin whose asset is fetched by digest names its
+companion checksum beside the type; see :mod:`utils.update.checksum`.
 
 An addon in ``meta/addons/<id>.yml`` declares the same fields in its
 ``update:`` block, beside ``monitored``, ``catalog`` and ``upstream_id``. A
@@ -33,7 +33,6 @@ import json
 import re
 import subprocess
 import urllib.error
-import urllib.request
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlencode
@@ -45,12 +44,10 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update import checksum
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
 from utils.update.base import (
+    captured_versions,
     is_maintained,
     is_semver,
-    latest_semver,
-    version_depth,
-    version_flavor,
-    version_key,
+    newer_version,
 )
 from utils.update.docker import (
     dockerhub_repo,
@@ -61,6 +58,7 @@ from utils.update.docker import (
     is_ghcr,
     is_mcr,
 )
+from utils.update.fetch import TIMEOUT_SECONDS, documents, get
 from utils.update.pins import archive_index, key_line, top_level_line
 from utils.update.repository import git_ls_remote_tags
 
@@ -72,9 +70,7 @@ NOCHECK_MARKER = "version-source"
 UNWATCHED_MARKER = "unwatched-version"
 UPDATE_KEY = "update"
 DEFAULT_KEY = "version"
-TIMEOUT_SECONDS = 30
 TYPES = ("git_tags", "registry_tags", "npm", "http_regex", "script")
-USER_AGENT = "infinito-nexus-version-source"
 
 
 @dataclass(frozen=True)
@@ -108,16 +104,6 @@ class VersionSourceUpdate:
     latest: str
 
 
-def _get(url: str, headers: dict[str, str] | None = None) -> bytes:
-    request = urllib.request.Request(  # noqa: S310 - https URL of a declared version source
-        url, headers={"User-Agent": USER_AGENT, **(headers or {})}
-    )
-    with urllib.request.urlopen(  # noqa: S310 - https URL of a declared version source
-        request, timeout=TIMEOUT_SECONDS
-    ) as response:
-        return response.read()
-
-
 def dockerhub_named_tags(image: str, match: str) -> list[str]:
     """Return the Docker Hub tags of *image* whose name contains *match*.
 
@@ -129,7 +115,7 @@ def dockerhub_named_tags(image: str, match: str) -> list[str]:
     query = urlencode({"name": match, "page_size": 100})
     url = f"https://hub.docker.com/v2/repositories/{dockerhub_repo(image)}/tags?{query}"
     try:
-        payload = json.loads(_get(url))
+        payload = json.loads(get(url))
     except (OSError, ValueError):
         return []
     return [str(result["name"]) for result in payload.get("results") or []]
@@ -155,7 +141,7 @@ def registry_v2_tags(image: str, match: str = "") -> list[str]:
     host, _, repository = image.partition("/")
     url = f"https://{host}/v2/{repository}/tags/list"
     try:
-        return list(json.loads(_get(url)).get("tags") or [])
+        return list(json.loads(get(url)).get("tags") or [])
     except urllib.error.HTTPError as error:
         if error.code != 401:
             return []
@@ -168,8 +154,8 @@ def registry_v2_tags(image: str, match: str = "") -> list[str]:
         return []
     query = "&".join(f"{name}={value}" for name, value in fields.items())
     try:
-        token = json.loads(_get(f"{realm}?{query}")).get("token", "")
-        payload = _get(url, {"Authorization": f"Bearer {token}"})
+        token = json.loads(get(f"{realm}?{query}")).get("token", "")
+        payload = get(url, {"Authorization": f"Bearer {token}"})
         return list(json.loads(payload).get("tags") or [])
     except (OSError, ValueError):
         return []
@@ -178,19 +164,21 @@ def registry_v2_tags(image: str, match: str = "") -> list[str]:
 def npm_versions(package: str) -> list[str]:
     """Return every published version of an npm *package*."""
     try:
-        payload = json.loads(_get(f"https://registry.npmjs.org/{package}"))
+        payload = json.loads(get(f"https://registry.npmjs.org/{package}"))
     except (OSError, ValueError):
         return []
     return list((payload.get("versions") or {}).keys())
 
 
-def http_regex_versions(url: str, pattern: str) -> list[str]:
-    """Return every capture of *pattern* in the body of *url*."""
+def http_regex_versions(
+    urls: str | list[str], pattern: str, template: str = ""
+) -> list[str]:
+    """Return every version *pattern* names in the documents at *urls*."""
     try:
-        body = _get(url).decode("utf-8", "replace")
+        body = documents(urls)
     except OSError:
         return []
-    return [match.group(1) for match in re.finditer(pattern, body)]
+    return captured_versions(body, pattern, template)
 
 
 def script_versions(repo_root: Path, role: str, path: str, current: str) -> list[str]:
@@ -232,7 +220,11 @@ def candidates(entry: VersionSourceEntry, repo_root: Path) -> list[str]:
     elif kind == "npm":
         found = npm_versions(str(source["package"]))
     elif kind == "http_regex":
-        found = http_regex_versions(str(source["url"]), str(source["pattern"]))
+        found = http_regex_versions(
+            source["url"],
+            str(source["pattern"]),
+            str(source.get("template", "")),
+        )
     elif kind == "script":
         found = script_versions(
             repo_root, entry.role, str(source["path"]), entry.current
@@ -435,12 +427,12 @@ def outdated(
     """Return one update per entry whose source offers a newer version."""
     updates: list[VersionSourceUpdate] = []
     for entry in entries:
-        newest = latest_semver(
+        newest = newer_version(
+            entry.current,
             candidates(entry, repo_root),
-            version_depth(entry.current),
-            version_flavor(entry.current),
+            assembled=bool(entry.source.get("template")),
         )
-        if newest and version_key(entry.current) < version_key(newest):
+        if newest:
             updates.append(VersionSourceUpdate(entry=entry, latest=newest))
     return updates
 

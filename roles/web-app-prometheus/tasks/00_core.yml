@@ -6,6 +6,19 @@
   vars:
     mcp_adapter_instance_dir: "{{ PROMETHEUS_MCP_INSTANCE_DIR }}"
   when: PROMETHEUS_MCP_ENABLED | bool
+
+- name: "🧩 Load the container CLI the data root probe calls"
+  include_role:
+    name: sys-svc-container
+    public: false
+  when: run_once_sys_svc_container is not defined
+
+- name: "🔎 Read the docker data root cAdvisor has to bind"
+  ansible.builtin.command: container info --format '{{ "{{" }}.DockerRootDir{{ "}}" }}'
+  register: prometheus_docker_info
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+
 - name: "🧩 load docker and proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-backend

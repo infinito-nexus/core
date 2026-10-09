@@ -40,6 +40,11 @@ bigbluebutton:
   shared: true
   repository: https://github.com/bigbluebutton/docker.git
   ref: v3.0.23
+  update:
+    key: ref
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   recording:
     enabled: false
     cleanup: true
@@ -104,55 +109,98 @@ prometheus:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-web:
   image: alangecker/bbb-docker-web
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 freeswitch:
   image: alangecker/bbb-docker-freeswitch
-  version: "v1.10.12-v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v1.10.12-v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (?P<bbb>v[0-9.]+)\\nrepos/freeswitch (?P<freeswitch>v[0-9.]+)"
+    template: "{freeswitch}-{bbb}"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 nginx:
   image: alangecker/bbb-docker-nginx
-  version: "v3.0.23-v5.4.4-1.29" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23-v5.4.4-1.29"
+  update:
+    type: http_regex
+    url:
+      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
+    pattern: "repos/bbb-playback (?P<playback>v[0-9.]+)\\n(?:.*\\n)*?repos/bigbluebutton (?P<bbb>v[0-9.]+)\\n(?:.*\\n)*?.*bbb-docker-nginx:.*-(?P<base>[0-9.]+)\\n"
+    template: "{bbb}-{playback}-{base}"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 etherpad:
   image: alangecker/bbb-docker-etherpad
-  version: "2.4.2-s8328b77-p88f3f6b" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "2.4.2-s8328b77-p88f3f6b"
+  update:
+    type: http_regex
+    url:
+      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
+    pattern: "repos/bbb-etherpad-plugin (?P<plugin>[0-9a-f]+)\\nrepos/bbb-etherpad-skin (?P<skin>[0-9a-f]+)\\n(?:.*\\n)*?.*bbb-docker-etherpad:(?P<base>[0-9.]+)-s"
+    template: "{base}-s{skin}-p{plugin}"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-pads:
   image: alangecker/bbb-docker-pads
-  version: "v1.5.8" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v1.5.8"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bbb-pads (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-export-annotations:
   image: alangecker/bbb-docker-bbb-export-annotations
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 webrtc-sfu:
   image: alangecker/bbb-docker-webrtc-sfu
-  version: "v2.22.0" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v2.22.0"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bbb-webrtc-sfu (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 fsesl-akka:
   image: alangecker/bbb-docker-fsesl-akka
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 apps-akka:
   image: alangecker/bbb-docker-apps-akka
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
@@ -163,37 +211,61 @@ bbb-graphql-server:
     timeout: 10s
     retries: 5
   image: alangecker/bbb-docker-graphql-server
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-actions:
   image: alangecker/bbb-docker-graphql-actions
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-middleware:
   image: alangecker/bbb-docker-graphql-middleware
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 periodic:
   image: alangecker/bbb-docker-periodic
-  version: "v3.0.0" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.0"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
+    pattern: "bbb-docker-periodic:(v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 recordings:
   image: alangecker/bbb-docker-recordings
-  version: "v3.0.23" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v3.0.23"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-webrtc-recorder:
   image: alangecker/bbb-docker-webrtc-recorder
-  version: "v0.14.0" # nocheck: docker-version: one release set with bigbluebutton.ref
+  version: "v0.14.0"
+  update:
+    type: http_regex
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    pattern: "repos/bbb-webrtc-recorder (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: script-time helper of upstream generate-compose, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose helper, not group-gated

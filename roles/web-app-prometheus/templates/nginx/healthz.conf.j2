@@ -49,6 +49,7 @@
   }
 
 {% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
+{% set prometheus_ready_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | entity_name), 'http', tail='/' ~ lookup('config', application_id, 'services.prometheus.ready_path', ''), local_port=http_port, internal_port=proxy_internal_port | default('')) %}
   location = /_live_probe {
     internal;
     {{ prometheus_backend }}
@@ -60,7 +61,7 @@
 
   location = /healthz/ready {
     access_log off;
-    {{ prometheus_backend }}
+    {{ prometheus_ready_backend }}
     proxy_set_header        Host $host;
     proxy_connect_timeout   3s;
     proxy_read_timeout      5s;
