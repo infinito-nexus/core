@@ -115,6 +115,10 @@ docker run --rm -it \
       --diff -vv'
 ```
 
+## Further Resources
+
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/QBrrZ24EgnDsvfXLjNb46c)
+
 ## Credits
 
 Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
