@@ -1,0 +1,126 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "📁 Ensure {{ WAZUH_CERTS_DIR_HOST }} exists for the cert-generator bind mount"
+  ansible.builtin.file:
+    path: "{{ WAZUH_CERTS_DIR_HOST }}"
+    state: directory
+    mode: "0755"
+
+- name: "📄 Render node topology for wazuh-certs-generator"
+  stack_host_template:
+    src: certs.yml.j2
+    dest: "{{ WAZUH_CERTS_CONFIG_HOST }}"
+    mode: "0644"
+  notify: compose-up
+
+- name: "📄 Render Wazuh config files bind-mounted into manager/indexer/dashboard"
+  stack_host_template:
+    src: "{{ item }}.j2"
+    dest: "{{ [ WAZUH_INSTANCE_DIR, item ] | path_join }}"
+    mode: "0644"
+  loop:
+    - wazuh_manager.conf
+    - wazuh.indexer.yml
+    - internal_users.yml
+    - config.yml
+    - roles_mapping.yml
+    - opensearch_dashboards.yml
+    - wazuh.yml
+  notify: compose-up
+
+- name: "📄 Render per-service env files for the Wazuh manager and dashboard"
+  stack_host_template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0640"
+    force: true
+  loop:
+    - { src: manager.env.j2, dest: "{{ WAZUH_MANAGER_ENV_FILE }}" }
+    - { src: dashboard.env.j2, dest: "{{ WAZUH_DASHBOARD_ENV_FILE }}" }
+  loop_control:
+    label: "{{ item.src }}"
+  notify: compose-up
+
+- name: "📋 Copy static Wazuh indexer roles.yml"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
+    src: roles.yml
+    dest: "{{ [ WAZUH_INSTANCE_DIR, 'roles.yml' ] | path_join }}"
+    mode: "0644"
+  when: IS_STACK_HOST | bool
+  notify: compose-up
+
+- name: "📋 Copy static Wazuh entrypoint scripts"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
+    src: "shell/{{ item }}"
+    dest: "{{ [ WAZUH_INSTANCE_DIR, item ] | path_join }}"
+    mode: "0555"
+  loop:
+    - certs-entrypoint.sh
+    - indexer-entrypoint.sh
+  when: IS_STACK_HOST | bool
+  notify: compose-up
+
+- name: "🔐 Pre-generate the Wazuh certs before the swarm stack deploys"
+  include_tasks: certs/swarm.yml
+  when:
+    - IS_STACK_HOST | bool
+    - DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔧 Set vm.max_map_count for the Wazuh indexer (OpenSearch requirement)"
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: "262144"
+    state: present
+    reload: true
+    sysctl_file: "{{ WAZUH_SYSCTL_CONF }}"
+  when: not (DOCKER_IN_CONTAINER | bool)
+
+- name: "🔄 Flush compose-up before front-proxy can shadow application_id"
+  ansible.builtin.meta: flush_handlers
+
+- name: "📂 Include front proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    http_port: "{{ WAZUH_DASHBOARD_HTTP_PORT }}"
+    webserver_proxy_service_key: "{{ 'dashboard' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
+    proxy_internal_port: "{{ WAZUH_DASHBOARD_INTERNAL_PORT if DEPLOYMENT_MODE == 'swarm' else '' }}"
+
+- name: "⏳ Wait for Wazuh indexer to answer HTTPS requests (security plugin loaded)"
+  uri_retry:
+    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
+    method: GET
+    validate_certs: false
+    status_code: [200, 401]
+  register: wazuh_indexer_ready
+  until: wazuh_indexer_ready is succeeded
+  retries: 60
+  delay: 5
+
+- name: "🔄 Apply Wazuh indexer security config via securityadmin.sh"
+  include_tasks: 01_securityadmin.yml
+
+- name: "✅ Confirm indexer admin credentials are live post-securityadmin.sh"
+  uri_retry:
+    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
+    method: GET
+    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
+    password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+    force_basic_auth: true
+    validate_certs: false
+    status_code: 200
+    return_content: true
+  register: wazuh_indexer_health
+  until: >-
+    wazuh_indexer_health.json is defined and
+    wazuh_indexer_health.json.status in ['green', 'yellow']
+  retries: 30
+  delay: 5
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

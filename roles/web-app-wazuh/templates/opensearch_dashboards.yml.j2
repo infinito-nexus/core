@@ -1,0 +1,22 @@
+server.host: 0.0.0.0
+server.port: {{ WAZUH_DASHBOARD_INTERNAL_PORT }}
+server.ssl.enabled: false
+opensearch.hosts: {{ WAZUH_INDEXER_URL }}
+opensearch.ssl.verificationMode: certificate
+opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]
+opensearch.requestHeadersWhitelist: ["securitytenant", "Authorization"]
+opensearch_security.multitenancy.enabled: false
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+uiSettings.overrides.defaultRoute: /app/home
+opensearch_security.cookie.ttl: 900000
+opensearch_security.session.ttl: 900000
+opensearch_security.session.keepalive: true
+{% if WAZUH_OIDC_ENABLED %}
+opensearch_security.auth.type: "openid"
+opensearch_security.openid.connect_url: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+opensearch_security.openid.client_id: "{{ OIDC.CLIENT.ID }}"
+opensearch_security.openid.client_secret: "{{ OIDC.CLIENT.SECRET }}"
+opensearch_security.openid.base_redirect_url: "{{ lookup('tls', application_id, 'url.base') }}"
+opensearch_security.openid.scope: "openid profile email groups"
+opensearch_security.openid.logout_url: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+{% endif %}
