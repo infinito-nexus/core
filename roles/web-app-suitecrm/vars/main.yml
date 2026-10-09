@@ -42,5 +42,12 @@ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, '
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
 SUITECRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 
+SUITECRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SUITECRM_DESIGN_LOGO_ENABLED: "{{ SUITECRM_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+SUITECRM_DESIGN_TITLE: "{{ lookup('design', application_id).title if SUITECRM_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+SUITECRM_DESIGN_ASSETS_DIR: "{{ lookup('design', application_id).dest }}"
+SUITECRM_DESIGN_SCRIPT: "{{ [role_path, 'files/php/design.php'] | path_join }}"
+SUITECRM_DESIGN_LEGACY_CSS: "legacy.css.j2"
+
 SUITECRM_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"
 SUITECRM_PHP_MEMORY_LIMIT: "{{ lookup('service_memory_mb', application_id, entity_name, 0.25) }}M"

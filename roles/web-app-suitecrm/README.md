@@ -122,6 +122,7 @@ docker run --rm -it \
 - [SuiteCRM Official Website](https://suitecrm.com/) 🌍  
 - [SuiteCRM Documentation](https://docs.suitecrm.com/) 📖  
 - [Infinito.Nexus Project Repository](https://s.infinito.nexus/code) 🔗  
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/FVuDzMFmK8qpQ42FsBxFwE)  
 
 ## LDAP & SSO Notes
 
