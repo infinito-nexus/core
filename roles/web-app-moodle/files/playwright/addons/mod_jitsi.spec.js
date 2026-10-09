@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { loginAsSiteAdmin } = require("../_shared");
-const { gotoOnion } = require("../personas");
+const { gotoOnion, normalizeBaseUrl } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -10,7 +10,7 @@ test("addon mod_jitsi: the Jitsi activity plugin is installed and listed among M
   skipUnlessAddonEnabled("mod_jitsi");
   test.setTimeout(resolveTimeout(180_000));
 
-  const appBaseUrl = (process.env.APP_BASE_URL || "").replace(/\/$/, "");
+  const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL);
   test.skip(!appBaseUrl, "APP_BASE_URL not set for this role");
 
   await loginAsSiteAdmin(page);

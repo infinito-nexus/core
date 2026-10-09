@@ -3,7 +3,7 @@ const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const { loginAsSiteAdmin } = require("../_shared");
-const { gotoOnion } = require("../personas");
+const { gotoOnion, normalizeBaseUrl } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -12,7 +12,7 @@ test("addon tool_objectfs: the plugin is installed and listed among Moodle's plu
   skipUnlessServiceEnabled("seaweedfs");
   test.setTimeout(resolveTimeout(180_000));
 
-  const appBaseUrl = (process.env.APP_BASE_URL || "").replace(/\/$/, "");
+  const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL);
   test.skip(!appBaseUrl, "APP_BASE_URL not set for this role");
 
   await loginAsSiteAdmin(page);
