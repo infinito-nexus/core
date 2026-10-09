@@ -25,6 +25,7 @@ MEDIAWIKI_USER: "www-data"
 MEDIAWIKI_USER_GID: "33"
 
 MEDIAWIKI_NETWORK_DATABASE: "{{ lookup('database', application_id, 'network') }}"
+MEDIAWIKI_NETWORK_OBJSTORE: "{{ lookup('objstore', application_id, 'network') }}"
 
 MEDIAWIKI_ADMINISTRATOR_NAME: "{{ lookup('users', 'platform_administrator').username }}"
 MEDIAWIKI_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
