@@ -25,8 +25,8 @@
     hostname: "{{ WAZUH_MANAGER_CONTAINER }}"
     ulimits:
       nofile:
-        soft: 655360
-        hard: 655360
+        soft: {{ lookup('config', application_id, 'services.manager.nofile') }}
+        hard: {{ lookup('config', application_id, 'services.manager.nofile') }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra=certs_generator_dependency) | indent(4) }}
@@ -45,8 +45,8 @@
       - "OPENSEARCH_JAVA_OPTS=-Xms{{ WAZUH_INDEXER_HEAP }} -Xmx{{ WAZUH_INDEXER_HEAP }}"
     ulimits:
       nofile:
-        soft: 65536
-        hard: 65536
+        soft: {{ lookup('config', application_id, 'services.indexer.nofile') }}
+        hard: {{ lookup('config', application_id, 'services.indexer.nofile') }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra=certs_generator_dependency) | indent(4) }}

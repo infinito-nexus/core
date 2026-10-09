@@ -76,6 +76,7 @@ manager:
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
+  nofile: 655360
   backup:
     no_stop_required: false
   ports:
@@ -105,6 +106,7 @@ indexer:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 2048
+  nofile: 65536
   backup:
     no_stop_required: false
   ports:
