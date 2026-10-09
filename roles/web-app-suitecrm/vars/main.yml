@@ -7,6 +7,8 @@ swarm_stack_converge_retries: 600
 
 SUITECRM_WELL_SOFTWARE_NAME: "{{ SOFTWARE_DOMAIN | replace('.', '-') }}"
 SUITECRM_PHP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'php.ini'] | path_join }}"
+SUITECRM_SESSION_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'session.yaml'] | path_join }}"
+SUITECRM_SESSION_CONFIG_DOCKER: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/session.yaml'] | path_join }}"
 
 SUITECRM_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SUITECRM_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
