@@ -119,7 +119,7 @@ freeswitch:
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
-    pattern: 'repos/bigbluebutton (?P<bbb>v[0-9.]+)\nrepos/freeswitch (?P<freeswitch>v[0-9.]+)'
+    pattern: "repos/bigbluebutton (?P<bbb>v[0-9.]+)\\nrepos/freeswitch (?P<freeswitch>v[0-9.]+)"
     template: "{freeswitch}-{bbb}"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
@@ -132,7 +132,7 @@ nginx:
     url:
       - https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
       - https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
-    pattern: 'repos/bbb-playback (?P<playback>v[0-9.]+)\n(?:.*\n)*?repos/bigbluebutton (?P<bbb>v[0-9.]+)\n(?:.*\n)*?.*bbb-docker-nginx:.*-(?P<base>[0-9.]+)\n'
+    pattern: "repos/bbb-playback (?P<playback>v[0-9.]+)\\n(?:.*\\n)*?repos/bigbluebutton (?P<bbb>v[0-9.]+)\\n(?:.*\\n)*?.*bbb-docker-nginx:.*-(?P<base>[0-9.]+)\\n"
     template: "{bbb}-{playback}-{base}"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
@@ -145,7 +145,7 @@ etherpad:
     url:
       - https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
       - https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
-    pattern: 'repos/bbb-etherpad-plugin (?P<plugin>[0-9a-f]+)\nrepos/bbb-etherpad-skin (?P<skin>[0-9a-f]+)\n(?:.*\n)*?.*bbb-docker-etherpad:(?P<base>[0-9.]+)-s'
+    pattern: "repos/bbb-etherpad-plugin (?P<plugin>[0-9a-f]+)\\nrepos/bbb-etherpad-skin (?P<skin>[0-9a-f]+)\\n(?:.*\\n)*?.*bbb-docker-etherpad:(?P<base>[0-9.]+)-s"
     template: "{base}-s{skin}-p{plugin}"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
