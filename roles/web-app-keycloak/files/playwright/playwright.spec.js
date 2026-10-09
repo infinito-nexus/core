@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, attachDiagnostics, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, attachDiagnostics, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, requireDotenvValue, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 const { provisionKeycloakUser } = require("./admin-console");
 test.use({ ignoreHTTPSErrors: true });
 
@@ -49,6 +49,7 @@ const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME);
 const superAdminUsername = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME);
 const superAdminPassword = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
+const adminDisplayName = requireDotenvValue(process.env.ADMIN_DISPLAY_NAME, "ADMIN_DISPLAY_NAME");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
@@ -148,7 +149,7 @@ test("normal-realm administrator logs in through account interface and logs out"
     })
     .toContain("/account");
 
-  await expect(page.locator("body")).toContainText(new RegExp(adminUsername, "i"), { timeout: resolveTimeout(60_000) });
+  await expect(page.locator("body")).toContainText(adminDisplayName, { timeout: resolveTimeout(60_000) });
 
   await keycloakSignOutFromAccountConsole(page);
 
