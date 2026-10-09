@@ -87,6 +87,8 @@ proxy:
   pids_limit: 256
   min_storage: 1GB
 cache:
+  # nocheck: single-replica  memcached does not replicate, and OpenProject keeps the session here: a second replica answers requests that carry a session it never stored, so the API returns 401 on every hop the login did not land on
+  replicas: 1
   name: openproject-cache
   cpus: "0.3"
   mem_reservation: 512m
