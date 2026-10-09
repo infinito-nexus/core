@@ -145,6 +145,7 @@ def api_keys_labelled(label):
         label: text n8n looks for inside each label.
     """
     found = []
+    seen = set()
     while True:
         query = urllib.parse.urlencode(
             {"label": label, "take": PAGE, "skip": len(found)}
@@ -153,6 +154,10 @@ def api_keys_labelled(label):
         if status != 200:
             sys.exit(f"FAILED listing api keys: {status} {body}")
         page = records(body, "api keys")
+        ids = {str(key.get("id")) for key in page}
+        if page and ids <= seen:
+            sys.exit(f"FAILED listing api keys: page at skip {len(found)} repeats")
+        seen |= ids
         found.extend(page)
         if len(page) < PAGE:
             return found
@@ -166,6 +171,7 @@ def workflows_named(key, name):
         name: workflow name n8n filters on.
     """
     found = []
+    cursors = set()
     query = {"name": name, "limit": PAGE}
     while True:
         status, body = call(
@@ -177,6 +183,9 @@ def workflows_named(key, name):
         cursor = body.get("nextCursor") if isinstance(body, dict) else None
         if not cursor:
             return found
+        if cursor in cursors:
+            sys.exit("FAILED listing workflows: nextCursor repeats")
+        cursors.add(cursor)
         query = {"name": name, "cursor": cursor}
 
 

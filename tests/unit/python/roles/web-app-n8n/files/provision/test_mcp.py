@@ -285,6 +285,50 @@ class TestProvisionMcp(unittest.TestCase):
         self.assertEqual([], api.created_workflows)
         self.assertEqual(1, len(api.updated_workflows))
 
+    def test_a_repeated_workflow_cursor_aborts_rather_than_loops(self) -> None:
+        module = load_script()
+        api = FakeApi()
+        listings = []
+
+        def stuck(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/api/v1/workflows?"):
+                listings.append(path)
+                if len(listings) > 3:
+                    raise AssertionError("the workflow listing never ends")
+                return 200, {"data": [], "nextCursor": "same"}
+            return api(path, method, payload, api_key)
+
+        with (
+            patch.object(module, "call", stuck),
+            self.assertRaises(SystemExit) as exit_,
+        ):
+            module.main()
+        self.assertIn("nextCursor repeats", str(exit_.exception))
+
+    def test_a_key_listing_that_ignores_skip_aborts_rather_than_loops(self) -> None:
+        module = load_script()
+        api = FakeApi()
+        full = [
+            {"id": f"n{n}", "label": f"infinito:mcp-copy-{n}"}
+            for n in range(MAX_PAGE_SIZE)
+        ]
+        listings = []
+
+        def frozen(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/rest/api-keys?"):
+                listings.append(path)
+                if len(listings) > 3:
+                    raise AssertionError("the key listing never ends")
+                return 200, {"data": {"items": full}}
+            return api(path, method, payload, api_key)
+
+        with (
+            patch.object(module, "call", frozen),
+            self.assertRaises(SystemExit) as exit_,
+        ):
+            module.main()
+        self.assertIn("repeats", str(exit_.exception))
+
     def test_a_key_that_only_contains_the_managed_name_is_left_alone(self) -> None:
         module = load_script()
         api = FakeApi(keys=[{"id": "near", "label": "infinito:mcp-legacy"}])
