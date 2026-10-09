@@ -34,6 +34,7 @@ flowchart LR
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_svc_design["web-svc-design 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-seaweedfs 🐳🐝]
@@ -43,6 +44,7 @@ flowchart LR
         svc_logout["logout"]
         svc_dashboard["dashboard"]
         svc_prometheus["prometheus"]
+        svc_design["design"]
         svc_seaweedfs["seaweedfs"]
         svc_proxy["proxy"]
         svc_container_backup["container_backup"]
@@ -67,6 +69,7 @@ flowchart LR
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_design -. "0..1" .-> svc_design
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_frontend -- "1:1" --> dpt_more
     svc_frontend -. "0..1" .-> dpt_web_app_akaunting
