@@ -15,7 +15,7 @@
       os.environ.update(
           {name: str(value) for name, value in json.loads({{ HOMEASSISTANT_OWNER_ENVIRONMENT | to_json | to_json }}).items()}
       )
-      {{ lookup('file', 'python/provision_mcp.py') }}
+      {{ lookup('file', 'python/provision.py') }}
   register: homeassistant_owner
   retries: 30
   delay: 10

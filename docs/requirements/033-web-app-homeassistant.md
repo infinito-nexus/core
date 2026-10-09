@@ -41,7 +41,7 @@ flowchart LR
 
 | Guarantee | Enforced by |
 | --- | --- |
-| Only Assist-exposed entities are reachable | `ensure_mcp_entry` binds the MCP config entry to `llm_hass_api: ["assist"]` in [provision_mcp.py](../../roles/web-app-homeassistant/files/python/provision_mcp.py) |
+| Only Assist-exposed entities are reachable | `ensure_mcp_entry` binds the MCP config entry to `llm_hass_api: ["assist"]` in [provision.py](../../roles/web-app-homeassistant/files/python/provision.py) |
 | Mutating tools stay off | the MCP long-lived token belongs to a dedicated account pinned to Home Assistant's `system-read-only` group; `ensure_service_account` re-asserts `group_ids` through `config/auth/update` on every run, so an account promoted by hand is demoted again |
 | The endpoint refuses an anonymous caller | [test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js) |
 | The stored bearer still authenticates | `tasks/utils/mcp/probe.yml`, which hard-fails the deploy when the hub rejects it |
