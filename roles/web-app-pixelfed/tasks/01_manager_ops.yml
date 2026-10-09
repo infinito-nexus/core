@@ -39,3 +39,6 @@
 - name: "🥾 Bootstrap the Pixelfed administrator OIDC mapping"
   ansible.builtin.import_tasks: 04_oidc_mapping.yml
   when: PIXELFED_OIDC_ENABLED | bool
+
+- name: "🎨 Converge the Pixelfed design carriers"
+  ansible.builtin.import_tasks: 05_design.yml

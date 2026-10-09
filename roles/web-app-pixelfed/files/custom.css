@@ -1,0 +1,24 @@
+:root,
+.force-light-mode,
+.force-dark-mode {
+  --light: var(--design-surface-2);
+  --dark: var(--design-text);
+  --body-bg: var(--design-surface-1);
+  --body-color: var(--design-text);
+  --nav-bg: var(--design-surface-2);
+  --bg-light: var(--design-surface-3);
+  --primary: var(--design-primary);
+  --light-gray: var(--design-surface-3);
+  --text-lighter: var(--design-text-muted);
+  --card-bg: var(--design-surface-2);
+  --light-hover-bg: var(--design-surface-hover);
+  --btn-light-border: var(--design-border);
+  --input-border: var(--design-border-strong);
+  --comment-bg: var(--design-surface-3);
+  --border-color: var(--design-border);
+  --card-header-accent: var(--design-surface-3);
+  --dropdown-item-hover-bg: var(--design-surface-hover);
+  --dropdown-item-hover-color: var(--design-text);
+  --dropdown-item-color: var(--design-text-muted);
+  --dropdown-item-active-color: var(--design-text);
+}

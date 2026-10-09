@@ -1,0 +1,33 @@
+---
+- name: "🔍 Pixelfed | Resolve hosting node + local container id for the design carriers"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: pixelfed
+    resolve_output_prefix: PIXELFED
+    resolve_compose_cid: "{{ PIXELFED_CONTAINER }}"
+
+- name: "🎨 Converge the role's custom CSS block and site name in Pixelfed"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -u
+      - "{{ PIXELFED_APP_USER }}"
+      - "{{ PIXELFED_LOCAL_CID }}" # nocheck: container-exec-resolver  PIXELFED_LOCAL_CID resolved at delegate_to runtime
+      - php
+    stdin: "<?php $DESIGN_PAYLOAD = '{{ pixelfed_custom_css_payload | to_json | b64encode }}'; ?>{{ lookup('ansible.builtin.file', [role_path, 'files/php/design.php']
+      | path_join) }}"
+  vars:
+    pixelfed_custom_css_payload:
+      app_dir: "{{ PIXELFED_APP_DIR }}"
+      css: "{{ lookup('ansible.builtin.file', [role_path, 'files/custom.css'] | path_join) if PIXELFED_DESIGN_ENABLED | bool else '' }}"
+      begin: "{{ PIXELFED_CUSTOM_CSS_BEGIN }}"
+      end: "{{ PIXELFED_CUSTOM_CSS_END }}"
+      title: "{{ lookup('design', application_id).title if PIXELFED_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+  register: pixelfed_custom_css
+  changed_when: "'DESIGN_CHANGED' in pixelfed_custom_css.stdout"
+  failed_when: >-
+    pixelfed_custom_css.rc != 0
+    or ('DESIGN_CHANGED' not in pixelfed_custom_css.stdout and 'DESIGN_UNCHANGED' not in pixelfed_custom_css.stdout)
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"

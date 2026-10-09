@@ -96,6 +96,14 @@ design:
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: Pictures on {{ DOMAIN_PRIMARY }}
+  bootstrap: true
+  slots:
+    logo:
+      width: 128
+      height: 128
+    brand:
+      width: 180
+      height: 32
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

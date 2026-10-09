@@ -41,7 +41,7 @@
       - "--username={{ PIXELFED_ADMIN_USERNAME }}"
       - "--email={{ PIXELFED_ADMIN_EMAIL }}"
       - "--password={{ PIXELFED_ADMIN_PASSWORD }}"
-      - --is_admin=1
+      - --is_admin=true
       - --confirm_email=1
   when: pixelfed_admin_id_existing.rows | length == 0
   register: pixelfed_admin_create
@@ -60,4 +60,16 @@
   register: pixelfed_admin_id
   changed_when: false
   failed_when: pixelfed_admin_id.rows | length == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👑 Ensure the Pixelfed administrator carries the admin flag"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/admin-flag.sql"
+    named_args:
+      admin_username: "{{ PIXELFED_ADMIN_USERNAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: pixelfed_admin_flag
+  changed_when: (pixelfed_admin_flag.rows[-1][0] | int) > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
