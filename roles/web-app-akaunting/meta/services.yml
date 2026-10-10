@@ -35,7 +35,9 @@ sso:
 ldap:
   enabled: false
   shared: false
+# nocheck: playwright-service-flag  an eol role stores its own primary off, so no AKAUNTING_SERVICE_ENABLED line exists
 akaunting:
+  enabled: false
   healthcheck:
     flavor: tcp
   modes:
@@ -66,7 +68,7 @@ akaunting:
     - web-app-keycloak
     - web-app-stalwart
     - web-app-mailu
-  lifecycle: beta
+  lifecycle: eol
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
