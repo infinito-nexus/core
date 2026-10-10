@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import sys
 import time
+from itertools import chain
 from pathlib import Path
 
 from cli.contributing.mirror.providers import GHCRProvider
-from utils.docker.image.discovery import ImageRef, iter_role_images
+from utils.docker.image.discovery import ImageRef, iter_role_images, iter_runner_images
 
 
 def _validate_positive_int(value: str) -> int:
@@ -22,7 +23,8 @@ def _validate_positive_int(value: str) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Wait until every role-declared image has been mirrored to the "
+            "Wait until every role-declared image and every image the CI runner "
+            "pulls itself has been mirrored to the "
             "configured GHCR registry. Used on fork pull_request runs that depend "
             "on a pull_request_target mirror job populating the destination first."
         ),
@@ -47,7 +49,7 @@ def main() -> int:
     repo_root = Path(args.repo_root).resolve()
 
     refs: dict[str, ImageRef] = {}
-    for img in iter_role_images(repo_root):
+    for img in chain(iter_role_images(repo_root), iter_runner_images(repo_root)):
         refs.setdefault(f"{provider.image_base(img)}:{img.version}", img)
 
     total = len(refs)

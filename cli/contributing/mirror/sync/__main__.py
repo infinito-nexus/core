@@ -4,10 +4,11 @@ import argparse
 import subprocess
 import sys
 import time
+from itertools import chain
 from pathlib import Path
 
 from cli.contributing.mirror.providers import GHCRProvider
-from utils.docker.image.discovery import iter_role_images
+from utils.docker.image.discovery import iter_role_images, iter_runner_images
 
 
 def _validate_positive_int(value: str) -> int:
@@ -52,7 +53,8 @@ def _throttle_before_next_copy(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Mirror every role-declared image to the configured GHCR registry, "
+            "Mirror every role-declared image and every image the CI runner "
+            "pulls itself to the configured GHCR registry, "
             "optionally throttled and optionally skipping already-mirrored "
             "tags."
         ),
@@ -80,7 +82,7 @@ def main() -> int:
 
     last_start_ts: float | None = None
 
-    for img in iter_role_images(repo_root):
+    for img in chain(iter_role_images(repo_root), iter_runner_images(repo_root)):
         last_start_ts = _throttle_before_next_copy(
             images_per_hour=args.images_per_hour,
             last_start_ts=last_start_ts,
