@@ -15,8 +15,12 @@ from utils.roles.applications.services.registry import (
 )
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
+from .ruamel_io import dump_document, load_document
+
 if TYPE_CHECKING:
     from pathlib import Path
+
+DISABLED_SERVICES_RECORD = "_INFINITO_SERVICES_DISABLED"
 
 
 def _load_yaml_mapping_tolerant(path: Path) -> dict:
@@ -260,6 +264,64 @@ def apply_services_disabled_from_env(
     apply_services_disabled(
         host_vars_file, services, roles_dir=roles_dir, inventory_file=inventory_file
     )
+
+
+def _revert_disabled_toggles(applications: CommentedMap, services: list[str]) -> None:
+    for app_id, app_data in applications.items():
+        if not isinstance(app_data, CommentedMap):
+            continue
+        svc_map = app_data.get("services")
+        if not isinstance(svc_map, CommentedMap):
+            continue
+        for svc_name in services:
+            svc = svc_map.get(svc_name)
+            if not isinstance(svc, CommentedMap):
+                continue
+            dropped = [flag for flag in ("enabled", "shared") if svc.get(flag) is False]
+            if not dropped:
+                continue
+            for flag in dropped:
+                del svc[flag]
+            if not svc:
+                del svc_map[svc_name]
+            print(
+                f"[INFO] disable: {app_id}.services.{svc_name} → "
+                f"{', '.join(dropped)} back to the role default"
+            )
+
+
+def reconcile_services_disabled_from_env(host_vars_file: Path, roles_dir: Path) -> None:
+    """Drop the false toggles of every key the previous `disable` run recorded
+    and this run's `disable` no longer lists, then record this run's keys.
+
+    Runs before the variant bake, so a variant that wants a toggle off writes it
+    again right after.
+
+    Args:
+        host_vars_file: host_vars file of the inventory.
+        roles_dir: roles tree the `disable` tokens resolve against.
+    """
+    if not host_vars_file.exists():
+        return
+    current = expand_service_tokens(
+        parse_services_disabled(os.environ.get("disable", "")), roles_dir
+    )
+    doc = load_document(host_vars_file)
+    raw_record = doc.get(DISABLED_SERVICES_RECORD)
+    recorded = [str(key) for key in raw_record] if isinstance(raw_record, list) else []
+    if recorded == current:
+        return
+
+    stale = [key for key in recorded if key not in current]
+    applications = doc.get("applications")
+    if stale and isinstance(applications, CommentedMap):
+        _revert_disabled_toggles(applications, stale)
+
+    if current:
+        doc[DISABLED_SERVICES_RECORD] = current
+    else:
+        del doc[DISABLED_SERVICES_RECORD]
+    dump_document(host_vars_file, doc)
 
 
 def _inventory_application_ids(inventory_file: Path) -> set[str]:

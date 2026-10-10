@@ -9,15 +9,18 @@ from tempfile import TemporaryDirectory
 from ruamel.yaml import YAML
 
 from cli.administration.inventory.provision.services_disabler import (
+    DISABLED_SERVICES_RECORD,
     apply_services_disabled,
     apply_services_disabled_from_env,
     assert_services_disabled_inventory_consistency_from_env,
     find_provider_roles,
     find_services_disabled_conflicts,
     parse_services_disabled,
+    reconcile_services_disabled_from_env,
     remove_roles_from_inventory,
 )
 from utils.cache.yaml import dump_yaml
+from utils.roles.applications.services.registry import discover_role_services
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 
@@ -542,6 +545,109 @@ class TestServicesDisabledConflicts(unittest.TestCase):
                 inventory_dir=self.inventory_dir,
                 roles_dir=self.roles_dir,
             )
+
+
+class TestReconcileServicesDisabledFromEnv(unittest.TestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.yaml_rt = YAML(typ="rt")
+        self.yaml_rt.preserve_quotes = True
+        self.host_vars = self.root / "host_vars.yml"
+        self.roles_dir = self.root / "roles"
+        self.roles_dir.mkdir()
+        self.provider_entry = {"image": "seaweedfs", "enabled": True, "shared": True}
+        self._make_role("web-app-seaweedfs", {"seaweedfs": self.provider_entry})
+        self._make_role(
+            "web-app-bookwyrm",
+            {
+                "seaweedfs": {
+                    "enabled": "{{ 'web-app-seaweedfs' in group_names }}",
+                    "shared": "{{ 'web-app-seaweedfs' in group_names }}",
+                },
+                "minio": {"enabled": False, "shared": False},
+            },
+        )
+        self._make_role("web-app-minio", {"minio": {"enabled": True, "shared": True}})
+        self._write({"applications": {}})
+
+    def _make_role(self, role_name: str, services: dict) -> None:
+        role_dir = self.roles_dir / role_name
+        (role_dir / "meta").mkdir(parents=True)
+        (role_dir / "vars").mkdir(parents=True)
+        dump_yaml(role_dir / ROLE_FILE_META_SERVICES, services)
+        dump_yaml(role_dir / ROLE_FILE_VARS_MAIN, {"application_id": role_name})
+
+    def _write(self, data: dict) -> None:
+        with self.host_vars.open("w") as f:
+            self.yaml_rt.dump(data, f)
+
+    def _read(self) -> dict:
+        with self.host_vars.open("r") as f:
+            return self.yaml_rt.load(f)
+
+    def _provision(self, disable: str) -> None:
+        with unittest.mock.patch.dict(os.environ, {"disable": disable}):
+            reconcile_services_disabled_from_env(self.host_vars, self.roles_dir)
+            apply_services_disabled_from_env(self.host_vars, roles_dir=self.roles_dir)
+
+    def _services(self, app_id: str) -> dict:
+        return self._read()["applications"][app_id].get("services", {})
+
+    def test_a_provider_dropped_from_disable_is_a_registry_provider_again(self):
+        self._provision("minio,seaweedfs")
+        self._provision("minio")
+
+        override = self._services("web-app-seaweedfs").get("seaweedfs", {})
+        self.assertNotIn("enabled", override)
+        self.assertNotIn("shared", override)
+        config = {"services": {"seaweedfs": {**self.provider_entry, **override}}}
+        self.assertIn("seaweedfs", discover_role_services("web-app-seaweedfs", config))
+        self.assertNotIn("seaweedfs", self._services("web-app-bookwyrm"))
+
+    def test_a_key_still_listed_stays_disabled(self):
+        self._provision("minio,seaweedfs")
+        self._provision("minio")
+
+        self.assertEqual(
+            {"enabled": False, "shared": False},
+            dict(self._services("web-app-minio")["minio"]),
+        )
+        self.assertEqual(["minio"], list(self._read()[DISABLED_SERVICES_RECORD]))
+
+    def test_a_toggle_written_true_after_the_disable_survives(self):
+        self._provision("seaweedfs")
+        hv = self._read()
+        consumer = hv["applications"]["web-app-bookwyrm"]["services"]["seaweedfs"]
+        consumer["enabled"] = True
+        self._write(hv)
+
+        self._provision("")
+
+        self.assertEqual(
+            {"enabled": True},
+            dict(self._services("web-app-bookwyrm")["seaweedfs"]),
+        )
+        self.assertNotIn(DISABLED_SERVICES_RECORD, self._read())
+
+    def test_a_false_toggle_no_disable_run_recorded_is_left_alone(self):
+        self._write(
+            {
+                "applications": {
+                    "web-app-bookwyrm": {
+                        "services": {"seaweedfs": {"enabled": False, "shared": False}}
+                    }
+                }
+            }
+        )
+
+        self._provision("")
+
+        self.assertEqual(
+            {"enabled": False, "shared": False},
+            dict(self._services("web-app-bookwyrm")["seaweedfs"]),
+        )
 
 
 if __name__ == "__main__":
