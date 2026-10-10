@@ -1,0 +1,11 @@
+---
+wireguard:
+  Archlinux:
+    - procps-ng
+    - wireguard-tools
+  Debian:
+    - procps
+    - wireguard-tools
+  RedHat:
+    - procps-ng
+    - wireguard-tools

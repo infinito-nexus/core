@@ -17,6 +17,7 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 | `API_OPENROUTER_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | The gateway publishes no `openrouter/auto` model | An OpenRouter key |
 | `INFINITO_MAIL_PRODUCTION_HOST` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | The read-only production mail assertions are skipped, because the task that runs them is gated on this host being set | The public hostname of a deployed mail server, to assert its MX, SPF, DKIM, DMARC and PTR records and its SMTP greeting after a deploy; nothing is sent and nothing is mutated |
 | `INFINITO_MAIL_PRODUCTION_RESOLVER` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Those assertions resolve through the runner's own resolver | A DNS server address, to resolve the records against it instead; ignored while `INFINITO_MAIL_PRODUCTION_HOST` is unset |
+| `INFINITO_SWARM_TRANSPORT_BENCH` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | A meshed round moves its transport and deploys, timing nothing | `true` to time a fixed set of module calls either side of the transport switch, which prices the connection plugin against the privilege escalation. Adds about a minute to a meshed round and changes nothing it proves. Set it for a diagnostic sweep and clear it afterwards |
 
 ## Provider keys: variable or secret? 🔑
 

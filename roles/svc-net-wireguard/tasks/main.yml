@@ -1,0 +1,7 @@
+---
+- include_tasks: 00_core.yml
+  when:
+    - run_once_svc_net_wireguard is not defined
+    - WIREGUARD_ENABLED | bool
+  vars:
+    application_id: svc-net-wireguard

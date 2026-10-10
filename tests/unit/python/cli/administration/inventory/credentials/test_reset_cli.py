@@ -55,6 +55,45 @@ class TestMirrorHostVars(unittest.TestCase):
                 "rotated: true\n",
             )
 
+    def test_a_kept_subtree_stays_with_its_own_host(self):
+        self.source.write_text(
+            "rotated: true\napplications:\n  svc-net-wireguard:\n"
+            "    meshes:\n      swarm:\n        host: mgr-01\n",
+            encoding="utf-8",
+        )
+        (self.host_vars_dir / "wrk-01.yml").write_text(
+            "rotated: false\napplications:\n  svc-net-wireguard:\n"
+            "    meshes:\n      swarm:\n        host: wrk-01\n",
+            encoding="utf-8",
+        )
+
+        _mirror_host_vars(
+            self.host_vars_dir, self.source, keep=["applications.svc-net-wireguard"]
+        )
+
+        content = (self.host_vars_dir / "wrk-01.yml").read_text(  # nocheck: cache-read
+            encoding="utf-8"
+        )
+        self.assertIn("rotated: true", content)
+        self.assertIn("host: wrk-01", content)
+        self.assertNotIn("host: mgr-01", content)
+
+    def test_a_host_without_the_kept_subtree_takes_the_source(self):
+        self.source.write_text(
+            "applications:\n  svc-net-wireguard:\n    meshes:\n"
+            "      swarm:\n        host: mgr-01\n",
+            encoding="utf-8",
+        )
+
+        _mirror_host_vars(
+            self.host_vars_dir, self.source, keep=["applications.svc-net-wireguard"]
+        )
+
+        content = (self.host_vars_dir / "wrk-01.yml").read_text(  # nocheck: cache-read
+            encoding="utf-8"
+        )
+        self.assertIn("host: mgr-01", content)
+
     def test_a_backup_is_not_mirrored_over(self):
         backup = _backup(self.source)
         _mirror_host_vars(self.host_vars_dir, self.source)

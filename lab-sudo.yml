@@ -1,0 +1,14 @@
+---
+- name: "🔓 Let the lab's administrator escalate without a prompt"
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: "🔓 Drop the lab sudoers override"
+      ansible.builtin.copy:
+        content: "administrator ALL=(ALL) NOPASSWD: ALL\n"
+        dest: /etc/sudoers.d/zz-swarm-lab-administrator
+        owner: root
+        group: root
+        mode: "0440"
+        validate: "visudo -cf %s"

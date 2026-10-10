@@ -82,6 +82,11 @@ on:
         required: false
         type: string
         default: "auto"
+      vpn:
+        description: "WireGuard axis of the deploy matrix: 'auto' rotates the mesh over the swarm rows, 'enforced' meshes all of them, 'disabled' meshes none."
+        required: false
+        type: string
+        default: "auto"
       trusted_pr:
         description: "True when the PR carries the maintainer '🛡️ Trusted' label; skips the fork-prereq wait."
         required: false
@@ -187,6 +192,7 @@ jobs:
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
       tor: ${{ inputs.tor }}
+      vpn: ${{ inputs.vpn }}
 
   test-deploy-chunk-1:
     name: 🧱 Chunk 1
@@ -219,6 +225,7 @@ jobs:
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
       tor: ${{ inputs.tor }}
+      vpn: ${{ inputs.vpn }}
 
   test-deploy-chunk-2:
     name: 🧱 Chunk 2
@@ -253,6 +260,7 @@ jobs:
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
       tor: ${{ inputs.tor }}
+      vpn: ${{ inputs.vpn }}
 
   test-deploy-chunk-3:
     name: 🧱 Chunk 3
@@ -289,6 +297,7 @@ jobs:
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
       tor: ${{ inputs.tor }}
+      vpn: ${{ inputs.vpn }}
 
   test-runner-smoke:
     needs:

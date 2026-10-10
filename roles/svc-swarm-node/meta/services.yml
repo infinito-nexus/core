@@ -1,5 +1,4 @@
 ---
-# nocheck: required-by-coverage
 node:
   modes:
     host:

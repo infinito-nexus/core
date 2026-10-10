@@ -1,0 +1,19 @@
+---
+wireguard:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  name: wireguard
+  lifecycle: alpha
+  enabled: "{{ DEPLOYMENT_MODE == 'swarm' }}"
+  shared: true
+  bond: 1
+  min_storage: "1MB"
+  cpus: "0.01"
+  mem_reservation: "8m"
+  mem_limit: "16m"
+  pids_limit: 8

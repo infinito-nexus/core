@@ -76,11 +76,14 @@
 - name: "✅ Assert no pre-existing local data at {{ DIR_VAR_LIB }} (mount would hide it)"
   ansible.builtin.assert:
     that:
-      - (_svc_storage_nfs_client_premount_state.stdout | trim) in ["mounted", "empty"]
+      - >-
+        'STATE=mounted' in _svc_storage_nfs_client_premount_state.stdout
+        or 'STATE=empty' in _svc_storage_nfs_client_premount_state.stdout
     fail_msg: >-
       Pre-existing local data found at {{ DIR_VAR_LIB }}; NFS mount-over
       would silently hide it. Migrate or remove the local tree manually,
-      then re-run the deploy.
+      then re-run the deploy. Probe said:
+      {{ _svc_storage_nfs_client_premount_state.stdout | trim }}
 
 - name: "✅ Ensure infinito state mount point exists"
   ansible.builtin.file:

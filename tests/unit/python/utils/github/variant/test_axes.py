@@ -111,6 +111,7 @@ class TestArtifactSlug(unittest.TestCase):
                             entry["tor"] == "true",
                             entry["distro"],
                             entry["filesystem"],
+                            entry["vpn"] == "true",
                         ),
                     ),
                 )
@@ -222,7 +223,7 @@ class TestPriorityCoverage(unittest.TestCase):
     def test_an_incapable_priority_variant_skips_its_onion_runs(self) -> None:
         rows = [_row("web-app-a", 1, ("compose", "swarm"), priority=True)]
         entries = _assign(rows, sweep=0, tor_mode="auto", variants_per_app=_VARIANTS)
-        self.assertEqual([e["tor"] for e in entries], ["false", "false"])
+        self.assertEqual({e["tor"] for e in entries}, {"false"})
 
 
 class TestAssign(unittest.TestCase):
@@ -371,8 +372,35 @@ class TestPinnedAxes(unittest.TestCase):
             priority=True,
             pin_mode="swarm",
             pin_tor=False,
+            pin_vpn=False,
         )
         self.assertEqual(len(self._entries(row)), 1)
+
+    def test_a_held_mesh_axis_overrides_a_priority_rows_pin(self) -> None:
+        """A run that holds the axis must not delete the rows that fight it.
+
+        The pin narrows a cross product, so a conflicting one removes every
+        combination and the row leaves the matrix entirely -- while a regular
+        row with the same pin is simply moved onto the held side.
+        """
+        row = _row(
+            "web-app-b", 0, ("swarm",), priority=True, pin_mode="swarm", pin_vpn=False
+        )
+        entries = _assign(
+            [row],
+            sweep=0,
+            tor_mode="auto",
+            variants_per_app=_VARIANTS,
+            vpn_mode="enforced",
+        )
+        self.assertNotEqual(entries, [])
+        self.assertEqual({e["vpn"] for e in entries}, {"true"})
+
+    def test_a_priority_rows_pin_still_narrows_a_rotating_axis(self) -> None:
+        row = _row(
+            "web-app-b", 0, ("swarm",), priority=True, pin_mode="swarm", pin_vpn=False
+        )
+        self.assertEqual({e["vpn"] for e in self._entries(row)}, {"false"})
 
     def test_an_unoffered_mode_aborts_the_matrix(self) -> None:
         row = _row("web-app-b", 0, ("compose",), pin_mode="swarm")
@@ -447,7 +475,13 @@ class TestDistroAndFilesystemAxes(unittest.TestCase):
     def test_a_priority_row_spreads_its_combinations_over_the_pool(self) -> None:
         rows = [_row("web-app-b", 0, ("compose", "swarm"), priority=True)]
         entries = _assign(rows, sweep=0, tor_mode="auto", variants_per_app=_VARIANTS)
-        self.assertEqual(len({e["distro"] for e in entries}), len(entries))
+        self.assertEqual(
+            len({e["distro"] for e in entries}),
+            min(len(entries), len(axes.DISTROS)),
+            "a priority row must walk the pool, not repeat one distribution; "
+            "once it has more combinations than the pool has members, the "
+            "rotation wraps and every distribution is proven at least once",
+        )
 
     def test_a_pinned_distro_replaces_the_rotation(self) -> None:
         rows = [_row("web-app-b", 0, ("compose",), pin_distro="fedora")]

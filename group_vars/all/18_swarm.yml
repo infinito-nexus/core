@@ -22,7 +22,16 @@ swarm_stack_fatal_grace: 180
 
 swarm:
   manager:
-    advertise_addr: ""
+    # Rationale: swarm must bind to the mesh, not the underlay, or its control
+    # and overlay ports stay reachable outside the tunnel that exists to carry
+    # them. Resolved from the mesh the cross-host writer put in the inventory.
+    advertise_addr: >-
+      {{ (hostvars[STACK_HOST].applications['svc-net-wireguard'].meshes.swarm.address)
+         if (WIREGUARD_ENABLED | bool
+              and hostvars[STACK_HOST].applications is defined
+              and 'svc-net-wireguard' in hostvars[STACK_HOST].applications
+              and 'swarm' in hostvars[STACK_HOST].applications['svc-net-wireguard'].meshes)
+         else '' }}
   network:
     encryption: true
   registry:

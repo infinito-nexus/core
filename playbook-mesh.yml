@@ -1,0 +1,22 @@
+---
+- name: "🔒 Bring every host of this inventory onto the mesh"
+  hosts: all
+  become: true
+  vars:
+    WIREGUARD_ENABLED: true
+    MESH_BOOTSTRAP: false
+  pre_tasks:
+    - name: "🧊 Render the applications SPOT once and carry it into every task's worker"
+      applications_carrier: {}
+
+    - name: "🔓 Get apt ready before the first apt task"
+      ansible.builtin.include_tasks: "./tasks/utils/apt/ready.yml"
+      when: ansible_facts['os_family'] == 'Debian'
+  roles:
+    - role: user-root
+      when: MESH_BOOTSTRAP | bool
+
+    - role: user-administrator
+      when: MESH_BOOTSTRAP | bool
+
+    - role: svc-net-wireguard

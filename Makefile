@@ -782,6 +782,7 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Param distros: optional single distro the cluster runs on (default: INFINITO_DISTRO from .env).
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
+# Param vpn: optional WireGuard axis (auto|enforced|disabled); default disabled, so `disable=` may switch the mesh off like any other service.
 # Param name: optional cluster-id prefix for the container + network names; release with the same name=.
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
@@ -803,7 +804,7 @@ swarm-zombie: install-act
 	 ACT_WORKFLOW=.github/workflows/call-test-deploy.yml \
 	 ACT_JOB=deploy \
 	 ACT_MATRIX="apps:$(app);variant:$(or $(variant),0);mode:swarm" \
-	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable)" \
+	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm vpn=$(or $(vpn),disabled) disable=$(disable)" \
 	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge

@@ -1,0 +1,22 @@
+---
+- name: "⏱️ Measure the per-task cost of the transport in force"
+  hosts: svc-swarm-manager
+  gather_facts: false
+  vars:
+    transport_bench_iterations: 200
+  tasks:
+    - name: "⏱️ {{ transport_bench_iterations }} module calls without escalation"
+      ansible.builtin.command: /bin/true
+      become: false
+      changed_when: false
+      loop: "{{ range(transport_bench_iterations | int) | list }}"
+      loop_control:
+        label: ""
+
+    - name: "⏱️ {{ transport_bench_iterations }} module calls through become"
+      ansible.builtin.command: /bin/true
+      become: true
+      changed_when: false
+      loop: "{{ range(transport_bench_iterations | int) | list }}"
+      loop_control:
+        label: ""
