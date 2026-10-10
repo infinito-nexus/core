@@ -23,6 +23,10 @@ class TestMirrorSync(unittest.TestCase):
                 "cli.contributing.mirror.sync.__main__.iter_role_images",
                 return_value=[image],
             ),
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_runner_images",
+                return_value=[],
+            ),
             patch.object(
                 sync_main.GHCRProvider,
                 "image_base",
@@ -49,6 +53,43 @@ class TestMirrorSync(unittest.TestCase):
         self.assertEqual(result, 0)
         mock_tag_exists.assert_called_once_with(image)
         mock_mirror.assert_not_called()
+
+    def test_runner_images_are_mirrored_with_the_role_images(self) -> None:
+        image = ImageRef(
+            role="runner",
+            service="coredns",
+            name="coredns/coredns",
+            version="1.14.4",
+            source="docker.io/coredns/coredns:1.14.4",
+            registry="docker.io",
+            source_file="compose.yml",
+        )
+
+        with (
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_role_images",
+                return_value=[],
+            ),
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_runner_images",
+                return_value=[image],
+            ),
+            patch.object(sync_main.GHCRProvider, "mirror") as mock_mirror,
+            patch(
+                "sys.argv",
+                [
+                    "mirror-sync",
+                    "--ghcr-namespace",
+                    "acme",
+                    "--ghcr-repository",
+                    "myrepo",
+                ],
+            ),
+        ):
+            result = sync_main.main()
+
+        self.assertEqual(result, 0)
+        mock_mirror.assert_called_once_with(image)
 
 
 if __name__ == "__main__":  # pragma: no cover
