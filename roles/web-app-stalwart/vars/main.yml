@@ -65,7 +65,8 @@ STALWART_USERS: "{{ lookup('stalwart_users') }}"
 
 STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
 
-STALWART_TRUSTED_NETWORKS: "{{ NETWORK_TRUSTED_PROXY_CIDRS }}"
+STALWART_BOT_APP_PASSWORD_DESCRIPTION: "Infinito.Nexus submission"
+STALWART_RELAY_RULE: "!is_empty(authenticated_as)"
 
 STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
 

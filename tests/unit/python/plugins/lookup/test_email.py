@@ -253,7 +253,7 @@ class TestEmailLookup(unittest.TestCase):
         _write_role_config(
             self._tmp,
             "web-app-mailprov",
-            {"sso": {"oidc": {"submission_via_relay": True}}},
+            {"sso": {"enabled": True}},
         )
         variables = {
             "MAIL_PROVIDER": "web-app-mailprov",
@@ -269,56 +269,11 @@ class TestEmailLookup(unittest.TestCase):
         self.assertFalse(result["start_tls"])
         self.assertFalse(result["tls"])
 
-    def test_sso_relay_provider_disables_auth_and_uses_port_25(self) -> None:
-        # submission_via_relay + Keycloak deployed -> relay on 25, no auth, STARTTLS.
+    def test_a_provider_behind_sso_keeps_authenticated_submission(self) -> None:
         _write_role_config(
             self._tmp,
             "web-app-mailprov",
-            {"sso": {"oidc": {"submission_via_relay": True}}},
-        )
-        variables = {
-            "MAIL_PROVIDER": "web-app-mailprov",
-            "group_names": ["web-app-mailprov", "web-app-keycloak"],
-            "groups": {"web-app-mailprov": ["host1"], "web-app-keycloak": ["host1"]},
-            "TLS_ENABLED": True,
-            "inventory_hostname": "host1",
-        }
-        result = self.lookup.run(
-            [], variables=variables, roles_dir=str(self._tmp / "roles")
-        )[0]
-        self.assertEqual(result["port"], 25)
-        self.assertFalse(result["auth"])
-        self.assertTrue(result["start_tls"])
-
-    def test_sso_relay_inactive_without_keycloak(self) -> None:
-        # Same provider, but Keycloak is not deployed: keep authenticated 465.
-        _write_role_config(
-            self._tmp,
-            "web-app-mailprov",
-            {"sso": {"oidc": {"submission_via_relay": True}}},
-        )
-        variables = {
-            "MAIL_PROVIDER": "web-app-mailprov",
-            "group_names": ["web-app-mailprov"],
-            "groups": {"web-app-mailprov": ["host1"]},
-            "TLS_ENABLED": True,
-            "inventory_hostname": "host1",
-        }
-        result = self.lookup.run(
-            [], variables=variables, roles_dir=str(self._tmp / "roles")
-        )[0]
-        self.assertEqual(result["port"], 465)
-        self.assertTrue(result["auth"])
-        self.assertFalse(result["start_tls"])
-
-    def test_sso_relay_inactive_when_sso_enabled_pinned_false(self) -> None:
-        # A variant pins the provider's sso.enabled to a literal false while
-        # submission_via_relay stays true (role default) and Keycloak is still
-        # deployed: the provider keeps password auth, so no relay mode.
-        _write_role_config(
-            self._tmp,
-            "web-app-mailprov",
-            {"sso": {"enabled": False, "oidc": {"submission_via_relay": True}}},
+            {"sso": {"enabled": True}},
         )
         variables = {
             "MAIL_PROVIDER": "web-app-mailprov",
@@ -332,6 +287,7 @@ class TestEmailLookup(unittest.TestCase):
         )[0]
         self.assertEqual(result["port"], 465)
         self.assertTrue(result["auth"])
+        self.assertEqual(result["auth_mechanism"], "on")
         self.assertFalse(result["start_tls"])
 
     def test_a_provider_without_plaintext_submission_falls_back_to_its_mx(
@@ -395,33 +351,6 @@ class TestEmailLookup(unittest.TestCase):
         self.assertEqual(result["port"], 587)
         self.assertTrue(result["auth"])
         self.assertEqual(result["auth_mechanism"], "plain")
-
-    def test_sso_relay_active_with_untemplated_enabled_gate(self) -> None:
-        # The role default gates sso.enabled on group_names (raw Jinja here);
-        # the guard must not treat the untemplated string as false.
-        _write_role_config(
-            self._tmp,
-            "web-app-mailprov",
-            {
-                "sso": {
-                    "enabled": "{{ 'web-app-keycloak' in group_names }}",
-                    "oidc": {"submission_via_relay": True},
-                }
-            },
-        )
-        variables = {
-            "MAIL_PROVIDER": "web-app-mailprov",
-            "group_names": ["web-app-mailprov", "web-app-keycloak"],
-            "groups": {"web-app-mailprov": ["host1"], "web-app-keycloak": ["host1"]},
-            "TLS_ENABLED": True,
-            "inventory_hostname": "host1",
-        }
-        result = self.lookup.run(
-            [], variables=variables, roles_dir=str(self._tmp / "roles")
-        )[0]
-        self.assertEqual(result["port"], 25)
-        self.assertFalse(result["auth"])
-        self.assertTrue(result["start_tls"])
 
     def test_computed_defaults_are_templated(self) -> None:
         self.lookup._templar = _DummyTemplar(

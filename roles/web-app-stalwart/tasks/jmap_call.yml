@@ -1,6 +1,7 @@
 ---
 # Reusable management JMAP call: in `stalwart_jmap_body` (JSON), out `stalwart_jmap`.
 # Param: stalwart_jmap_tolerate_rejected - true when the caller reads a set-level rejection itself (e.g. alreadyExists).
+# Param: stalwart_jmap_act_as - account address the recovery admin acts for; unset runs the call as the admin itself.
 - name: "🔧 Stalwart JMAP call"
   ansible.builtin.shell:
     cmd: >-
@@ -9,7 +10,7 @@
       -H "Content-Type:application/json"
       {{ STALWART_JMAP_URL }}
     stdin: |-
-      user = {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | to_json(ensure_ascii=False) }}
+      user = {{ ((stalwart_jmap_act_as ~ '%' if stalwart_jmap_act_as is defined else '') ~ STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | to_json(ensure_ascii=False) }}
       data-binary = {{ stalwart_jmap_body | to_json(ensure_ascii=False) }}
   register: stalwart_jmap_raw
   changed_when: false

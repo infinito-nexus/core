@@ -166,9 +166,6 @@ class LookupModule(LookupBase):
             return _as_bool(variables.get("TLS_ENABLED"))
         if short_key == "port":
             external = _as_bool(resolved.get("external"))
-            # SSO relay: port 25 is the only listener not requiring SMTP AUTH.
-            if self._provider_uses_sso_relay(variables):
-                return 25
             if not external:
                 return 25
             ports = self._provider_ports(variables)
@@ -179,8 +176,7 @@ class LookupModule(LookupBase):
             # binds the implicit-TLS client ports plus the MX, so it advertises
             # no `submission`; fall back to the MX port rather than a listener
             # nothing answers on (`auth` drops with it -- an MX takes local
-            # recipients without SMTP AUTH, the same property the SSO relay
-            # above relies on).
+            # recipients without SMTP AUTH).
             return ports.get("submission") or ports.get("smtp", 25)
         if short_key == "host":
             env = resolved.get("environment")
@@ -200,8 +196,6 @@ class LookupModule(LookupBase):
             env = resolved.get("environment")
             if env in ("external_container", "localhost"):
                 return False
-            if self._provider_uses_sso_relay(variables):
-                return False
             # The MX listener offers no SMTP AUTH: when `port` fell back to it
             # because the provider binds no plaintext submission, announcing
             # AUTH aborts msmtp with EX_UNAVAILABLE before it ever sends.
@@ -216,11 +210,7 @@ class LookupModule(LookupBase):
                 return "off"
             return "on" if _as_bool(resolved.get("tls")) else "plain"
         if short_key == "start_tls":
-            if str(resolved.get("host") or "").lower().endswith(
-                ".onion"
-            ) or self._provider_onion_primary(variables):
-                return False
-            return self._provider_uses_sso_relay(variables)
+            return False
         if short_key == "smtp":
             return True
         if short_key == "from":
@@ -255,8 +245,7 @@ class LookupModule(LookupBase):
 
     def _provider_services(self, variables: dict[str, Any]) -> dict[str, Any]:
         """The active provider's ``services`` block, or ``{}`` when it cannot be
-        resolved. Both the relay probe and the port probe read the provider's
-        own self-declaration, so the applications lookup is done once here."""
+        resolved. The port probe reads the provider's own self-declaration."""
         apps = ApplicationsLookup()
         apps._templar = getattr(self, "_templar", None)
         forwarded = {
@@ -298,27 +287,6 @@ class LookupModule(LookupBase):
             except (TypeError, ValueError):
                 continue
         return out
-
-    def _provider_uses_sso_relay(self, variables: dict[str, Any]) -> bool:
-        """True when the active provider self-declares SSO relay (via
-        ``services.sso.oidc.submission_via_relay``) and Keycloak is deployed."""
-        group_names = variables.get("group_names") or []
-        if "web-app-keycloak" not in group_names:
-            return False
-        services = self._provider_services(variables)
-        sso = services.get("sso") or {} if isinstance(services, dict) else {}
-        oidc = sso.get("oidc") or {} if isinstance(sso, dict) else {}
-        if not isinstance(oidc, dict):
-            return False
-        # A variant/inventory can pin the provider's sso.enabled to a literal
-        # false while submission_via_relay stays true in the role defaults —
-        # then the provider keeps password auth and never widens allowRelaying,
-        # so relay mode must be off. Untemplated Jinja (the role default gates
-        # on group_names) falls through to the Keycloak check above.
-        enabled = sso.get("enabled") if isinstance(sso, dict) else None
-        if enabled is not None and "{{" not in str(enabled) and not _as_bool(enabled):
-            return False
-        return _as_bool(oidc.get("submission_via_relay"))
 
     def _provider_onion_primary(self, variables: dict[str, Any]) -> bool:
         """True when the provider's own host serves it onion-first.

@@ -2,7 +2,7 @@
 
 Ruby's ``net/smtp`` authenticates whenever a ``user_name`` or ``password`` is
 present, falling back to its default auth type — ``authentication: nil`` does
-NOT switch it off. So on the provider's SSO relay, where port 25 offers no
+NOT switch it off. So on the provider's MX listener, where port 25 offers no
 AUTH at all, leaving the credentials in the hash makes every send die with
 ``503 5.5.1 AUTH not allowed`` while GitLab still reports the mail as queued.
 The credentials therefore have to be omitted, not merely unaccompanied by an
