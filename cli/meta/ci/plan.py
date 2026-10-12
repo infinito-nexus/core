@@ -12,7 +12,9 @@ diverge. One row per ``role#variant`` candidate in global query order, with
 the chunk it falls into and the axes it was assigned.
 
 Status per row: ⭐ a priority row, ✅ deployed by this sweep, ❌ beyond the
-sweep's budget (raise ``--offset`` to reach it), ✂️ cut as redundant coverage —
+sweep's budget (raise ``--offset`` to reach it), ⭐❌ a priority row the budget
+did not reach — ``--offset`` indexes the regular line only, so this one needs a
+shorter priority line or a run of its own, ✂️ cut as redundant coverage —
 a clone or a row an earlier one already embeds, which no sweep deploys.
 ``--cli`` renders fixed-width terminal tables instead of Markdown.
 
@@ -108,7 +110,8 @@ def cells(
         if instructions.redundant(entry):
             status, where = _CUT, ""
         elif chunk is None:
-            status, where = _OFF, ""
+            status = f"{_STAR}{_OFF}" if entry["priority"] == "true" else _OFF
+            where = ""
         else:
             status = _STAR if entry["priority"] == "true" else _OK
             where = str(chunk)
