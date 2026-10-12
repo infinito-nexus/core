@@ -10,6 +10,8 @@ const {
   runBiberFlow,
   runGuestFlow,
 } = require("./personas");
+const { openManagementSurface } = require("./_shared");
+
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -56,20 +58,5 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-openproject admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(projects|work packages|admin)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /project|work package|backlog|openproject/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page, { adminInteraction: openManagementSurface });
 });

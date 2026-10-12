@@ -2,7 +2,8 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceDisabled } = require("../service-gating");
-const { normalizeBaseUrl, requireDotenvValue, runAdminFlow } = require("../personas");
+const { normalizeBaseUrl, requireDotenvValue } = require("../personas");
+const { withAdminSession } = require("../_shared");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -44,32 +45,32 @@ test("addon gitlab_integration: the bot account the webhook authenticates as exi
   const botUsername = requireDotenvValue(process.env.GITLAB_BOT_USERNAME, "GITLAB_BOT_USERNAME");
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
 
-  await runAdminFlow(page);
-
   const filters = JSON.stringify([{ login: { operator: "=", values: [botUsername] } }]);
   const usersUrl = `${appBaseUrl}/api/v3/users?filters=${encodeURIComponent(filters)}`;
 
-  let response;
-  await expect
-    .poll(
-      async () => {
-        response = await page.request.get(usersUrl, {
-          headers: { Accept: "application/json" },
-          failOnStatusCode: false,
+  await withAdminSession(page, async (authenticatedPage) => {
+    let response;
+    await expect
+      .poll(
+        async () => {
+          response = await authenticatedPage.request.get(usersUrl, {
+            headers: { Accept: "application/json" },
+            failOnStatusCode: false,
+            timeout: resolveTimeout(60_000),
+          });
+          return response.status();
+        },
+        {
           timeout: resolveTimeout(60_000),
-        });
-        return response.status();
-      },
-      {
-        timeout: resolveTimeout(60_000),
-        message: "an administrator session must be served the users collection",
-      },
-    )
-    .toBe(200);
+          message: "an administrator session must be served the users collection",
+        },
+      )
+      .toBe(200);
 
-  const body = await response.json();
-  expect(
-    Number(body.total || 0),
-    `tasks/addons/gitlab_integration.yml creates '${botUsername}' and mints the API token the webhook URL carries as key=. No such account means the hook never ran, so every event GitLab posts answers 403`,
-  ).toBe(1);
+    const body = await response.json();
+    expect(
+      Number(body.total || 0),
+      `tasks/addons/gitlab_integration.yml creates '${botUsername}' and mints the API token the webhook URL carries as key=. No such account means the hook never ran, so every event GitLab posts answers 403`,
+    ).toBe(1);
+  });
 });
