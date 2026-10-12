@@ -87,6 +87,14 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 182
+      height: 40
+      frame: true
+    favicon:
+      width: 180
+      height: 180
 # nocheck: dynamic-flag
 recaptcha:
   enabled: "{{ RECAPTCHA_ENABLED | bool }}"

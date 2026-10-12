@@ -81,3 +81,6 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: espocrm_admin_password.rc == 0
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+
+- name: "🎨 Apply the corporate design of {{ application_id }}"
+  ansible.builtin.include_tasks: 03_design.yml

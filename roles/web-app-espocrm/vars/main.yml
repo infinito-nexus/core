@@ -39,6 +39,14 @@ ESPOCRM_SCRIPT_SEED_HOST_ABS: "{{ [ lookup('container', application_id, 'directo
 ESPOCRM_SCRIPT_SEED_HOST_REL: "volumes/{{ ESPOCRM_SCRIPT_SEED_FILE }}"
 ESPOCRM_SCRIPT_SEED_DOCKER: "{{ [ ESPOCRM_BIN_DIR, ESPOCRM_SCRIPT_SEED_FILE ] | path_join }}"
 
+ESPOCRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+ESPOCRM_DESIGN_TITLE: "{{ (lookup('design', application_id).title or '') if ESPOCRM_DESIGN_ENABLED | bool else '' }}"
+ESPOCRM_DESIGN_THEME: "Infinito"
+ESPOCRM_DESIGN_MODULE_PATH: "custom/Espo/Modules/InfinitoDesign"
+ESPOCRM_DESIGN_ASSETS_PATH: "client/custom/infinito-design"
+ESPOCRM_DESIGN_ASSETS: ["logo.svg", "favicon.svg", "favicon.ico"]
+ESPOCRM_DESIGN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'design' ] | path_join }}"
+
 ESPOCRM_MAINTENANCE_MODE: "{{ lookup('config', application_id, 'services.espocrm.maintenance_mode') }}"
 ESPOCRM_CRON_DISABLED: "{{ ESPOCRM_MAINTENANCE_MODE }}"
 ESPOCRM_USE_CACHE: "{{ not ESPOCRM_MAINTENANCE_MODE }}"
