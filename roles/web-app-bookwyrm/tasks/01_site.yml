@@ -1,0 +1,75 @@
+---
+- name: "📥 Read the corporate logos of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, item.value] | path_join }}"
+  loop: "{{ BOOKWYRM_DESIGN_IMAGES | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: bookwyrm_design_images
+  when: BOOKWYRM_DESIGN_LOGO_ENABLED | bool
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "bookwyrm"
+    resolve_output_prefix: BOOKWYRM_SITE
+    resolve_compose_cid: "{{ BOOKWYRM_CONTAINER }}"
+
+- name: "👤 Converge the BookWyrm administrator, title, logos and corporate theme"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - ADMIN_USERNAME
+      - -e
+      - ADMIN_EMAIL
+      - -e
+      - ADMIN_PASSWORD
+      - -e
+      - DESIGN_STATE
+      - -e
+      - SITE_NAME
+      - -e
+      - THEME_NAME
+      - -e
+      - THEME_PATH
+      - -e
+      - LOGO_SMALL
+      - -e
+      - LOGO
+      - -e
+      - FAVICON
+      - "{{ BOOKWYRM_SITE_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - /venv/bin/python
+      - manage.py
+      - shell
+      - --command
+      - "import sys; exec(sys.stdin.read())"
+    stdin: "{{ lookup('file', 'python/site_design.py') }}"
+  environment:
+    ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
+    ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
+    ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    DESIGN_STATE: "{{ 'present' if BOOKWYRM_DESIGN_ENABLED | bool else 'absent' }}"
+    SITE_NAME: "{{ lookup('design', application_id).label }}"
+    THEME_NAME: "{{ BOOKWYRM_THEME_NAME }}"
+    THEME_PATH: "{{ BOOKWYRM_THEME_PATH }}"
+    LOGO_SMALL: "{{ bookwyrm_design_logos['logo_small'] }}"
+    LOGO: "{{ bookwyrm_design_logos['logo'] }}"
+    FAVICON: "{{ bookwyrm_design_logos['favicon'] }}"
+  vars:
+    bookwyrm_design_logos: >-
+      {{ dict(bookwyrm_design_images.results | map(attribute='item.key') | zip(bookwyrm_design_images.results | map(attribute='content')))
+         if BOOKWYRM_DESIGN_LOGO_ENABLED | bool
+         else dict(BOOKWYRM_DESIGN_IMAGES.keys() | product([''])) }}
+  register: bookwyrm_site
+  retries: 10
+  delay: 6
+  until: bookwyrm_site.stdout is search('(?m)^BOOKWYRM_RESULT=[A-Z]+$')
+  changed_when: bookwyrm_site.stdout is search('(?m)^BOOKWYRM_RESULT=CHANGED$')
+  failed_when: bookwyrm_site.stdout is not search('(?m)^BOOKWYRM_RESULT=(UNCHANGED|CHANGED)$')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ BOOKWYRM_SITE_HOST_NODE }}"
+  run_once: true

@@ -46,4 +46,6 @@ RUN adduser --disabled-password --gecos '' bookwyrm \
  && mkdir -p /app/data /app/media \
  && chown -R bookwyrm:bookwyrm /app /venv
 
+COPY --chown=bookwyrm:bookwyrm infinito.scss /app/bookwyrm/static/css/themes/infinito.scss
+
 USER bookwyrm
