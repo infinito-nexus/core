@@ -59,8 +59,8 @@ KEYCLOAK_ENV_FILE: "{{ lookup('container', application_id, 'files.env') }}"
 KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'keycloak_bootstrap').username }}"
 KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'keycloak_bootstrap').password }}"
 
-KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.system.username') }}"
-KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ OIDC.ADMIN.USERNAME }}"
+KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ OIDC.ADMIN.PASSWORD }}"
 
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
 KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
