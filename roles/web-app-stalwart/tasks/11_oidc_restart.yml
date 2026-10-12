@@ -35,8 +35,8 @@
 - name: "🔄 Restart Stalwart until the OIDC directory survives the build"
   ansible.builtin.shell: >-
     {{ ('container restart ' ~ STALWART_CONTAINER) if IS_COMPOSE_MODE
-       else ('container service update --force '
-             ~ lookup('container_service', application_id, 'stalwart')) }}
+    else ('container service update --force '
+    ~ lookup('container_service', application_id, 'stalwart')) }}
     && container exec -i {{ STALWART_CONTAINER_ADDRESS }}
     {{ 30 | curl }} -sS -f
     -u {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | quote }}
