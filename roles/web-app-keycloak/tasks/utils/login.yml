@@ -46,9 +46,19 @@
   failed_when: false
   delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
 
-- name: ✅ Ensure permanent Keycloak admin exists (bootstrap when login fails)
-  ansible.builtin.include_tasks:
-    file: login_bootstrap_admin.yml
-    apply:
-      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+- name: 🔁 Recover the permanent admin after the rendered password was refused
   when: kc_login_perm.rc != 0
+  block:
+    - name: ♻️ Absorb a rotation with the credential the previous deploy used
+      ansible.builtin.include_tasks:
+        file: converge_previous_admin.yml
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+      when: (KEYCLOAK_PREVIOUS_ADMIN_PASSWORD | default('')) | length > 0
+
+    - name: ✅ Ensure permanent Keycloak admin exists (bootstrap on a fresh instance)
+      ansible.builtin.include_tasks:
+        file: login_bootstrap_admin.yml
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+      when: not (kc_converged_from_previous | default(false) | bool)

@@ -1,0 +1,32 @@
+---
+- name: "🔑 Keycloak converge | Sign in with the password the previous deploy rendered"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    container exec -i -e KEYCLOAK_PREVIOUS_ADMIN_PASSWORD {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} config credentials \
+        --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
+        --realm master \
+        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        --password "$KEYCLOAK_PREVIOUS_ADMIN_PASSWORD"
+    '
+  environment:
+    KEYCLOAK_PREVIOUS_ADMIN_PASSWORD: "{{ KEYCLOAK_PREVIOUS_ADMIN_PASSWORD }}"
+  register: kc_login_previous
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Keycloak converge | Move the permanent admin onto the rendered password"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
+    container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+      {{ KEYCLOAK_KCADM }} set-password -r master \
+        --username "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
+        --new-password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+    '
+  register: kc_converge_set_password
+  changed_when: kc_converge_set_password.rc == 0
+  when: kc_login_previous.rc == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Keycloak converge | Record that the rotation was absorbed"
+  ansible.builtin.set_fact:
+    kc_converged_from_previous: "{{ (kc_converge_set_password.rc | default(1) | int) == 0 }}"
