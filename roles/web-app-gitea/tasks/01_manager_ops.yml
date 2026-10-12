@@ -41,6 +41,7 @@
         --username "{{ lookup('users', 'platform_administrator').username }}" \
         --password "$GITEA_ADMIN_PASSWORD" \
         --email    "{{ lookup('users', 'platform_administrator').email }}" \
+        --must-change-password=false \
         -c {{ GITEA_CONFIG }}
     '
   environment:
