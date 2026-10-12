@@ -13,25 +13,27 @@
   delay: 5
   changed_when: false
 
-- name: "✅ Ensure Greenlight admin (B64-safe, idempotent)"
+- name: "✅ Ensure Greenlight admin (verified, idempotent)"
   ansible.builtin.command:
     argv:
       - container
       - exec
       - -i
       - -e
-      - "TARGET_NAME={{ lookup('users', 'administrator').username | upper }}"
+      - NEW_NAME
       - -e
-      - "NEW_NAME={{ lookup('users', 'administrator').username | upper }}"
+      - NEW_EMAIL
       - -e
-      - "NEW_EMAIL={{ lookup('users', 'administrator').email }}"
-      - -e
-      - "NEW_PASSWORD_B64={{ lookup('users', 'administrator').password | b64encode }}"
+      - NEW_PASSWORD
       - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
       - bash
       - -lc
       - "bundle exec rails runner -"
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight_ensure_admin.rb') }}"
+  environment:
+    NEW_NAME: "{{ lookup('users', 'administrator').username | upper }}"
+    NEW_EMAIL: "{{ lookup('users', 'administrator').email }}"
+    NEW_PASSWORD: "{{ lookup('users', 'administrator').password }}"
   register: greenlight_admin_map
   changed_when: "'CHANGED' in greenlight_admin_map.stdout"
   failed_when: greenlight_admin_map.rc != 0

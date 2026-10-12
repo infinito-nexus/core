@@ -1,0 +1,20 @@
+{% set design = lookup('design', application_id) %}
+{% if design.logo is string %}
+(function () {
+  var favicon = {{ design.urls.favicon_ico | to_json }};
+  function icon() {
+    var link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement("link");
+      link.setAttribute("rel", "icon");
+      document.head.appendChild(link);
+    }
+    if (link.getAttribute("href") !== favicon) {
+      link.setAttribute("type", "image/x-icon");
+      link.setAttribute("href", favicon);
+    }
+  }
+  if (document.head) icon();
+  document.addEventListener("DOMContentLoaded", icon);
+})();
+{% endif %}

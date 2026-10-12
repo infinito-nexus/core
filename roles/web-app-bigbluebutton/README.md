@@ -90,7 +90,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - 🔐 **SSO with OIDC & LDAP** (optional)
 - 🧱 Automatic `.env` templating and domain/NGINX integration
 - 🛠 Volume patching and Docker Compose customization
-- 📬 SMTP integration and Greenlight admin creation
+- 📬 SMTP integration and Greenlight admin creation: the administrator is verified and active, and its password converges on every deploy
+- 🎨 Corporate design for Greenlight: brand color and logo through the Greenlight site settings, dark mode through the role stylesheet; the meeting client (`/html5client`) keeps the upstream design
 - 🧪 Workarounds for known Docker Compose or Etherpad issues
 
 ## Quick Setup
@@ -150,6 +151,7 @@ docker run --rm -it \
 
 - [BigBlueButton Docker Docs](https://docs.bigbluebutton.org/greenlight/v3/install/)
 - [Networking Fixes & Issues](https://stackoverflow.com/questions/53347951/web-app-network-not-found)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Q7yW5QtrffnuDSQvmRZSXu)
 
 ## Credits
 
