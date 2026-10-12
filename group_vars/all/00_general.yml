@@ -32,7 +32,7 @@ HOST_LANG: "{{HOST_LL_CC}}.{{HOST_CS}}"
 HOST_DATE_FORMAT: "YYYY-MM-DD"
 HOST_TIME_FORMAT: "HH:mm"
 
-HOST_ARCHITECTURE_BY_KERNEL: # ansible_architecture to the OCI tokens the deploy matrix rotates; index it with the fact of the node that runs the container
+HOST_ARCHITECTURE_BY_KERNEL: # kernel machine names to the OCI tokens the deploy matrix rotates; index it with the fact of the node that runs the container
   x86_64: amd64
   aarch64: arm64
 

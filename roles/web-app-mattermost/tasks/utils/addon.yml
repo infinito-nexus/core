@@ -1,18 +1,20 @@
 ---
 - name: "🧮 Mattermost | Resolve the architecture {{ mattermost_addon.key }} would run on"
   ansible.builtin.set_fact:
-    mattermost_addon_architecture: "{{ HOST_ARCHITECTURE_BY_KERNEL[hostvars[MATTERMOST_HOST_NODE].ansible_architecture] | default('', true) }}"
+    mattermost_addon_architecture: "{{ HOST_ARCHITECTURE_BY_KERNEL[hostvars[MATTERMOST_HOST_NODE].ansible_facts['architecture']] }}"
+
+- name: "🧮 Mattermost | Decide whether {{ mattermost_addon.key }} can run here"
+  ansible.builtin.set_fact:
     mattermost_addon_runnable: >-
       {{ (mattermost_addon.value.architectures is not defined)
-         or (HOST_ARCHITECTURE_BY_KERNEL[hostvars[MATTERMOST_HOST_NODE].ansible_architecture] | default('', true))
-            in mattermost_addon.value.architectures }}
+         or mattermost_addon_architecture in mattermost_addon.value.architectures }}
 
 - name: "⏭️ Mattermost | Report {{ mattermost_addon.key }} as out of reach on this node"
   ansible.builtin.debug:
     msg: >-
       {{ application_id }}: {{ mattermost_addon.key }} declares
-      architectures={{ mattermost_addon.value.architectures | default([]) }} and
-      {{ MATTERMOST_HOST_NODE }} runs {{ mattermost_addon_architecture or hostvars[MATTERMOST_HOST_NODE].ansible_architecture }},
+      architectures={{ mattermost_addon.value.architectures }} and
+      {{ MATTERMOST_HOST_NODE }} runs {{ mattermost_addon_architecture }},
       so the plugin is neither installed nor enabled here.
   when: not (mattermost_addon_runnable | bool)
 
