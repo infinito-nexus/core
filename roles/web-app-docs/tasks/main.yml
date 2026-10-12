@@ -64,13 +64,21 @@
     url: "{{ DOCS_LOCAL_BASE_URL }}/deployed/{{ item }}"
     status_code: [200, 202]
     timeout: "{{ lookup('timeout', 30) | int }}"
-  loop: >-
-    {{ (DOCS_I18N_PRELOAD_LANGUAGES | reject('eq', HOST_LL)
-        | map('regex_replace', '$', '/') | list)
-       + (DOCS_I18N_PRELOAD_LANGUAGES | select('eq', HOST_LL)
-          | map('regex_replace', '.+', '') | list) }}
+  loop: "{{ DOCS_I18N_PRELOAD_PATHS }}"
   register: docs_deployed_warm
   until: docs_deployed_warm is not failed
   retries: 12
   delay: 10
+  changed_when: false
+
+- name: "⏳ Wait for the preloaded sites of '{{ application_id }}'"
+  uri_retry:
+    url: "{{ DOCS_LOCAL_BASE_URL }}/deployed/{{ item }}"
+    status_code: [200]
+    timeout: "{{ lookup('timeout', 30) | int }}"
+  loop: "{{ DOCS_I18N_PRELOAD_PATHS }}"
+  register: docs_deployed_built
+  until: docs_deployed_built is not failed
+  retries: 120
+  delay: 30
   changed_when: false

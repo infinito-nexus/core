@@ -116,9 +116,14 @@ class LibraryFixture(unittest.TestCase):
         self._env.stop()
         self._tmp.cleanup()
 
-    def _replica(self):
+    def _replica(self, preload=("de", "fr", "it")):
         return library.Library(
-            str(self.repo), self.data, 1, self.package, self.data / "no-snapshot"
+            str(self.repo),
+            self.data,
+            1,
+            self.package,
+            self.data / "no-snapshot",
+            preload,
         )
 
     def _site(self, version: str, name: str) -> str:

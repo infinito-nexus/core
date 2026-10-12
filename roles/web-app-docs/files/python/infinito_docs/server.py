@@ -8,6 +8,8 @@ Environment:
     DOCS_FETCH_INTERVAL: seconds between two fetches of new commits and tags.
     DOCS_PORT: port to listen on.
     DOCS_SNAPSHOT_DIR: the deployed working tree, served as version ``deployed``.
+    DOCS_I18N_PRELOAD_LANGUAGES: comma-separated language codes a finished
+        version build queues on its own.
 """
 
 from __future__ import annotations
@@ -172,6 +174,7 @@ def main():
         int(os.environ["DOCS_BUILD_JOBS"]),
         PACKAGE_DIR,
         os.environ["DOCS_SNAPSHOT_DIR"],
+        os.environ["DOCS_I18N_PRELOAD_LANGUAGES"].split(","),
     )
     threading.Thread(
         target=library.run_builder,

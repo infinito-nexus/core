@@ -152,7 +152,8 @@ class Builder:
             self._publish(version, out / "html", ref)
             self._ready(version)
             for code in translated:
-                self.request(version, code, background=True)
+                if code in self.preload:
+                    self.request(version, code, background=True)
         except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
             self._failed(version, state, exc, ref)
         finally:

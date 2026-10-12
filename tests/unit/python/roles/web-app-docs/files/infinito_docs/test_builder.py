@@ -167,6 +167,23 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
                 encoding="utf-8",
             )
 
+    def test_a_language_outside_the_preload_set_is_not_prefetched(self) -> None:
+        self._translated_repo("de", "az")
+        _commit(self.repo, "two languages")
+        self.library.fetch()
+
+        self.library.build("latest")
+
+        self.assertTrue(self.library.translates("latest", "az"))
+        self.assertTrue((self.library.queue / "background" / "latest:de").exists())
+        self.assertFalse((self.library.queue / "background" / "latest:az").exists())
+
+        self.library.request("latest", "az")
+        self.assertTrue(
+            (self.library.queue / "latest:az").exists(),
+            "a visitor asking for an unpreloaded language must still queue it",
+        )
+
     def test_a_new_commit_rebuilds_the_translated_sites_too(self) -> None:
         self._translated_repo("de")
         _commit(self.repo, "first")

@@ -31,9 +31,13 @@ class Library(Sites, Queue, Builder):
         jobs: parallel Sphinx processes per build.
         package_dir: the ``infinito_docs`` package directory.
         snapshot_dir: the deployed working tree, built as version ``deployed``.
+        preload: language codes a finished version build queues on its own;
+            every other translation is built when a visitor opens it.
     """
 
-    def __init__(self, repository, data_dir, jobs, package_dir, snapshot_dir):
+    def __init__(
+        self, repository, data_dir, jobs, package_dir, snapshot_dir, preload=()
+    ):
         data = Path(data_dir)
         self.repository = repository
         self.mirror = data / "repo.git"
@@ -45,6 +49,7 @@ class Library(Sites, Queue, Builder):
         self.prepared = data / "prepared"
         self.lock_file = data / "builder.lock"
         self.jobs = jobs
+        self.preload = frozenset(code for code in preload if code)
         self.package_dir = Path(package_dir)
         self.snapshot = Path(snapshot_dir)
         self._snapshot_ref = ""
