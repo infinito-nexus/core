@@ -91,6 +91,24 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 400
+      height: 80
+      frame: true
+    logo-small:
+      width: 80
+      height: 80
+      frame: true
+    favicon:
+      width: 64
+      height: 64
+    apple-touch-icon:
+      width: 180
+      height: 180
+    large-icon:
+      width: 512
+      height: 512
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

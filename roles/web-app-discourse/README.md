@@ -138,6 +138,7 @@ The `ldap` service block in [`meta/services.yml`](./meta/services.yml) is intent
 - [Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)
 - [Discourse Meta Forum](https://meta.discourse.org/)
 - [Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/X47CVFA5hqqrm6MbxxL5aN)
 
 ## Credits
 
