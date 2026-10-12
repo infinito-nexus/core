@@ -1,7 +1,7 @@
 server.host: 0.0.0.0
 server.port: {{ WAZUH_DASHBOARD_INTERNAL_PORT }}
 server.ssl.enabled: false
-opensearch.hosts: https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}
+opensearch.hosts: {{ WAZUH_INDEXER_URL }}
 opensearch.ssl.verificationMode: certificate
 opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]
 opensearch.requestHeadersWhitelist: ["securitytenant", "Authorization"]

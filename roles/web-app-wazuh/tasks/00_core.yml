@@ -35,6 +35,19 @@
     - wazuh.yml
   notify: compose-up
 
+- name: "📄 Render per-service env files for the Wazuh manager and dashboard"
+  stack_host_template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0640"
+    force: true
+  loop:
+    - { src: manager.env.j2, dest: "{{ WAZUH_MANAGER_ENV_FILE }}" }
+    - { src: dashboard.env.j2, dest: "{{ WAZUH_DASHBOARD_ENV_FILE }}" }
+  loop_control:
+    label: "{{ item.src }}"
+  notify: compose-up
+
 - name: "📋 Copy static Wazuh indexer roles.yml"
   ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
     src: roles.yml
@@ -54,8 +67,11 @@
   when: IS_STACK_HOST | bool
   notify: compose-up
 
-- name: "🔄 Flush compose-up before front-proxy can shadow application_id"
-  ansible.builtin.meta: flush_handlers
+- name: "🔐 Pre-generate the Wazuh certs before the swarm stack deploys"
+  include_tasks: certs/swarm.yml
+  when:
+    - IS_STACK_HOST | bool
+    - DEPLOYMENT_MODE == 'swarm'
 
 - name: "🔧 Set vm.max_map_count for the Wazuh indexer (OpenSearch requirement)"
   ansible.posix.sysctl:
@@ -65,6 +81,9 @@
     reload: true
     sysctl_file: "{{ WAZUH_SYSCTL_CONF }}"
   when: not (DOCKER_IN_CONTAINER | bool)
+
+- name: "🔄 Flush compose-up before front-proxy can shadow application_id"
+  ansible.builtin.meta: flush_handlers
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:
@@ -92,7 +111,7 @@
   uri_retry:
     url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
     method: GET
-    user: admin
+    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
     password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
     force_basic_auth: true
     validate_certs: false
