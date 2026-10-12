@@ -58,18 +58,14 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-espocrm admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(admin|leads|accounts|contacts)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /lead|account|contact|opportunity|crm|administration/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      await interactivePage.locator("#nav-menu-dropdown").click({ timeout: resolveTimeout(30_000) });
+      const link = interactivePage.getByRole("link", { name: /^administration$/i }).first();
+      await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await link.click({ timeout: resolveTimeout(30_000) });
+      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(interactivePage).toHaveURL(/#Admin/, {
+        timeout: resolveTimeout(30_000),
+      });
     },
   });
 });

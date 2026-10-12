@@ -62,18 +62,23 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-mastodon admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(notifications|profile|admin|federation)$/i })
+      await interactivePage
+        .getByRole("navigation", { name: /^\s*main\s*$/i })
+        .getByRole("button", { name: /^\s*more\s*$/i })
+        .click({ timeout: resolveTimeout(30_000) });
+      const administration = interactivePage
+        .getByRole("link", { name: /^\s*administration\s*$/i })
         .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /notification|profile|federation|mastodon|administration/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      await expect(administration).toBeVisible({ timeout: resolveTimeout(30_000) });
+      const [adminTab] = await Promise.all([
+        interactivePage.context().waitForEvent("page"),
+        administration.click({ timeout: resolveTimeout(30_000) }),
+      ]);
+      await adminTab.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(adminTab).toHaveURL(/\/admin\/dashboard/, {
+        timeout: resolveTimeout(30_000),
+      });
+      await adminTab.close();
     },
   });
 });

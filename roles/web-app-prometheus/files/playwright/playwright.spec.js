@@ -312,20 +312,13 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // Prometheus admin-only interaction: open the targets / status page.
-      // Confirms the operator reaches the management surface; biber is
-      // covered by the deny-check inside runAdminFlow's sibling helper.
-      const statusLink = interactivePage
-        .getByRole("link", { name: /^(targets|status|alerts|graph|runtime|build)$/i })
-        .first();
-      if (await statusLink.isVisible().catch(() => false)) {
-        await statusLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /endpoint|state|labels|targets|alerts|series/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      const alertsLink = interactivePage.getByRole("link", { name: /^alerts$/i }).first();
+      await expect(alertsLink).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await alertsLink.click({ timeout: resolveTimeout(30_000) });
+      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(interactivePage).toHaveURL(/\/alerts/, {
+        timeout: resolveTimeout(30_000),
+      });
     },
   });
 });

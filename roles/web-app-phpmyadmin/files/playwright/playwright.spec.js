@@ -58,18 +58,13 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-phpmyadmin admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(databases|sql|export|admin)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /database|sql|table|export|phpmyadmin/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      const link = interactivePage.getByRole("link", { name: /^user accounts$/i }).first();
+      await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await link.click({ timeout: resolveTimeout(30_000) });
+      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(interactivePage).toHaveURL(/route=\/server\/privileges/, {
+        timeout: resolveTimeout(30_000),
+      });
     },
   });
 });
