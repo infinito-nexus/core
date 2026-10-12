@@ -135,6 +135,14 @@ elasticsearch:
   pids_limit: 512
 init:
   name: zammad-init
+  watermark:
+    low: "85%"
+    high: "90%"
+    flood_stage: "95%"
+    max_headroom:
+      low: 200gb
+      high: 150gb
+      flood_stage: 100gb
   cpus: "1.0"
   mem_reservation: 256m
   mem_limit: 1g
