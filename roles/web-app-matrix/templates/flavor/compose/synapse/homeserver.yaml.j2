@@ -83,6 +83,7 @@ oidc_providers:
     client_id:      "{{ OIDC.CLIENT.ID }}"
     client_secret:  "{{ OIDC.CLIENT.SECRET }}"
     scopes: ["openid", "profile"]
+    allow_existing_users: true
     user_mapping_provider:
       config:
         localpart_template: "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.USERNAME }}{% raw %}}}{% endraw %}"

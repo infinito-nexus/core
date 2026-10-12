@@ -20,6 +20,7 @@ The compose flavor is **deprecated**. New deployments should use the ansible fla
 - **Interoperability:** Bridge communications with external platforms (Signal, Telegram, Slack, IRC, Discord, Gitter, Twitter, and more) through MDAD-managed appservices.
 - **Scalable Architecture:** Designed to handle increasing user loads and message volumes with high performance.
 - **Flexible Client Support:** Access Matrix services via modern web clients like Element, plus integrated Element Call and Jitsi video conferencing.
+- **One account per person:** The OIDC provider carries `allow_existing_users: true`, so the Keycloak sign-in binds to the account the role registered natively for the same localpart instead of claiming a free one with a counter appended. Keycloak is the only identity provider of the deployment and both identities are rendered from the same user declaration, which is what makes that binding safe.
 
 ## Flavors
 
