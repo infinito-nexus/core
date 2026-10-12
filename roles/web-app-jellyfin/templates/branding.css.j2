@@ -379,18 +379,28 @@ html[data-design-palette] #dialogToc .toc li a:hover {
 html[data-design-palette] * {
   scrollbar-color: var(--design-border-strong) var(--design-surface-2);
 }
-html[data-design-palette] progress,
+html[data-design-palette] progress {
+  background-color: var(--design-surface-3);
+}
 html[data-design-palette] progress::-webkit-progress-bar {
   background-color: var(--design-surface-3);
 }
-html[data-design-palette] progress::-moz-progress-bar,
-html[data-design-palette] progress::-webkit-progress-value,
+html[data-design-palette] progress::-moz-progress-bar {
+  background-color: var(--design-primary);
+}
+html[data-design-palette] progress::-webkit-progress-value {
+  background-color: var(--design-primary);
+}
 html[data-design-palette] progress[aria-valuenow]:before,
 html[data-design-palette] .playbackProgress > div {
   background-color: var(--design-primary);
 }
-html[data-design-palette] .recordingProgressBar::-moz-progress-bar,
-html[data-design-palette] .recordingProgressBar::-webkit-progress-value,
+html[data-design-palette] .recordingProgressBar::-moz-progress-bar {
+  background-color: var(--design-danger);
+}
+html[data-design-palette] .recordingProgressBar::-webkit-progress-value {
+  background-color: var(--design-danger);
+}
 html[data-design-palette] .recordingProgressBar[aria-valuenow]:before {
   background-color: var(--design-danger);
 }

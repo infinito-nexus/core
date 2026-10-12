@@ -2394,8 +2394,10 @@ table.tacticaloverview td a:hover,
 table.tacticaloverview td span,
 #snapin_container_wiki div.content,
 #mk_side_search input,
-#mk_side_search input::-moz-placeholder,
 #mk_side_search input::placeholder {
+  color: var(--design-text);
+}
+#mk_side_search input::-moz-placeholder {
   color: var(--design-text);
 }
 div.tacticalalert,
@@ -3047,23 +3049,33 @@ div.graph_with_timeranges div.graph table.legend td {
 #info_underline {
   background-color: var(--design-success);
 }
-meter.password_meter,
+meter.password_meter {
+  background-color: var(--design-surface-active);
+}
 meter.password_meter::-webkit-meter-bar {
   background-color: var(--design-surface-active);
 }
-meter.password_meter[value="2"]::-webkit-meter-optimum-value,
+meter.password_meter[value="2"]::-webkit-meter-optimum-value {
+  background-color: var(--design-danger);
+}
 meter.password_meter[value="2"]::-moz-meter-bar {
   background-color: var(--design-danger);
 }
-meter.password_meter[value="3"]::-webkit-meter-optimum-value,
+meter.password_meter[value="3"]::-webkit-meter-optimum-value {
+  background-color: var(--design-warning);
+}
 meter.password_meter[value="3"]::-moz-meter-bar {
   background-color: var(--design-warning);
 }
-meter.password_meter[value="4"]::-webkit-meter-optimum-value,
+meter.password_meter[value="4"]::-webkit-meter-optimum-value {
+  background-color: var(--design-success-border);
+}
 meter.password_meter[value="4"]::-moz-meter-bar {
   background-color: var(--design-success-border);
 }
-meter.password_meter[value="5"]::-webkit-meter-optimum-value,
+meter.password_meter[value="5"]::-webkit-meter-optimum-value {
+  background-color: var(--design-success);
+}
 meter.password_meter[value="5"]::-moz-meter-bar {
   background-color: var(--design-success);
 }

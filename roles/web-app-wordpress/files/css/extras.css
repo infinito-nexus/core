@@ -76,7 +76,9 @@
   border-color: var(--design-border-strong);
   color: var(--design-text-muted);
 }
-.media-frame ::-webkit-input-placeholder,
+.media-frame ::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 .media-frame ::-moz-placeholder {
   color: var(--design-text-muted);
 }
@@ -988,7 +990,9 @@ div.wp-link-preview a.wplink-url-error {
 .wp-picker-container .iris-picker {
   border-color: var(--design-border);
 }
-.wp-color-picker::-webkit-input-placeholder,
+.wp-color-picker::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 .wp-color-picker::-moz-placeholder {
   color: var(--design-text-muted);
 }

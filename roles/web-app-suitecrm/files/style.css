@@ -1046,8 +1046,12 @@
 :root:has(app-root) .custom-range {
   background-color: transparent;
 }
-:root:has(app-root) .custom-range:focus::-webkit-slider-thumb,
-:root:has(app-root) .custom-range:focus::-moz-range-thumb,
+:root:has(app-root) .custom-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px var(--design-surface-2), 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
+:root:has(app-root) .custom-range:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 1px var(--design-surface-2), 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
+}
 :root:has(app-root) .custom-range:focus::-ms-thumb {
   box-shadow: 0 0 0 1px var(--design-surface-2), 0 0 0 .2rem rgba(var(--design-link-rgb), 0.25);
 }
@@ -1078,12 +1082,18 @@
 :root:has(app-root) .custom-range::-ms-track {
   background-color: transparent;
 }
-:root:has(app-root) .custom-range::-ms-fill-lower,
+:root:has(app-root) .custom-range::-ms-fill-lower {
+  background-color: var(--design-surface-active);
+}
 :root:has(app-root) .custom-range::-ms-fill-upper {
   background-color: var(--design-surface-active);
 }
-:root:has(app-root) .custom-range:disabled::-webkit-slider-thumb,
-:root:has(app-root) .custom-range:disabled::-moz-range-thumb,
+:root:has(app-root) .custom-range:disabled::-webkit-slider-thumb {
+  background-color: var(--design-border-strong);
+}
+:root:has(app-root) .custom-range:disabled::-moz-range-thumb {
+  background-color: var(--design-border-strong);
+}
 :root:has(app-root) .custom-range:disabled::-ms-thumb {
   background-color: var(--design-border-strong);
 }
@@ -4007,7 +4017,9 @@
   background-color: var(--design-surface-3);
   color: var(--design-text);
 }
-:root:has(app-root) .modal-backdrop,
+:root:has(app-root) .modal-backdrop {
+  background-color: var(--design-surface-3);
+}
 :root:has(app-root) .modal-body::-webkit-scrollbar-track {
   background-color: var(--design-surface-3);
 }
@@ -5114,10 +5126,18 @@
 :root:has(app-root) .p-input-icon-left>.p-icon-wrapper.p-icon,
 :root:has(app-root) .p-input-icon-left>i:first-of-type,
 :root:has(app-root) .p-input-icon-right>.p-icon-wrapper,
-:root:has(app-root) .p-input-icon-right>i:last-of-type,
-:root:has(app-root) ::-webkit-input-placeholder,
-:root:has(app-root) :-moz-placeholder,
-:root:has(app-root) ::-moz-placeholder,
+:root:has(app-root) .p-input-icon-right>i:last-of-type {
+  color: var(--design-text-muted);
+}
+:root:has(app-root) ::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root:has(app-root) :-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root:has(app-root) ::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 :root:has(app-root) :-ms-input-placeholder {
   color: var(--design-text-muted);
 }

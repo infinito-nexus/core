@@ -90,8 +90,12 @@ button {
 #remotePresenceMessage .presence-label {
   text-shadow: none;
 }
-.popupmenu__contents .popupmenu__volume-slider::-webkit-slider-runnable-track,
-.popupmenu__contents .popupmenu__volume-slider::-moz-range-track,
+.popupmenu__contents .popupmenu__volume-slider::-webkit-slider-runnable-track {
+  background-color: var(--design-border-strong);
+}
+.popupmenu__contents .popupmenu__volume-slider::-moz-range-track {
+  background-color: var(--design-border-strong);
+}
 .popupmenu__contents .popupmenu__volume-slider::-ms-fill-lower {
   background-color: var(--design-border-strong);
 }
@@ -198,13 +202,25 @@ div.hangup-menu-button svg {
 input[type=range]:focus {
   outline-color: var(--design-link) !important;
 }
-input[type=range]::-webkit-slider-runnable-track,
-input[type=range]::-moz-range-track,
+input[type=range]::-webkit-slider-runnable-track {
+  background-color: var(--design-border-strong);
+}
+input[type=range]::-moz-range-track {
+  background-color: var(--design-border-strong);
+}
 input[type=range]::-ms-track {
   background-color: var(--design-border-strong);
 }
-input[type=range]::-webkit-slider-thumb,
-input[type=range]::-moz-range-thumb,
+input[type=range]::-webkit-slider-thumb {
+  background-color: var(--design-text);
+  border-color: var(--design-primary);
+  box-shadow: 0 0 1px var(--design-link);
+}
+input[type=range]::-moz-range-thumb {
+  background-color: var(--design-text);
+  border-color: var(--design-primary);
+  box-shadow: 0 0 1px var(--design-link);
+}
 input[type=range]::-ms-thumb {
   background-color: var(--design-text);
   border-color: var(--design-primary);

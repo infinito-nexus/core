@@ -550,8 +550,12 @@
   -webkit-box-shadow: inset 0 1px 1px rgba(var(--design-text-rgb), 0.07), 0 0 8px rgba(var(--design-link-rgb), 0.6);
   box-shadow: inset 0 1px 1px rgba(var(--design-text-rgb), 0.07), 0 0 8px rgba(var(--design-link-rgb), 0.6);
 }
-:where(html:not([data-design-app-theme="custom"])) .form-control::-moz-placeholder,
-:where(html:not([data-design-app-theme="custom"])) .form-control:-ms-input-placeholder,
+:where(html:not([data-design-app-theme="custom"])) .form-control::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:where(html:not([data-design-app-theme="custom"])) .form-control:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 :where(html:not([data-design-app-theme="custom"])) .form-control::-webkit-input-placeholder {
   color: var(--design-text-muted);
 }

@@ -32,8 +32,15 @@
 *,
 :after,
 :before,
-::-webkit-backdrop,
 ::backdrop {
+  --tw-ring-offset-color: var(--design-surface-2);
+  --tw-ring-color: rgba(var(--design-link-rgb), 0.5);
+  --tw-ring-offset-shadow: 0 0 transparent;
+  --tw-ring-shadow: 0 0 transparent;
+  --tw-shadow: 0 0 transparent;
+  --tw-shadow-colored: 0 0 transparent;
+}
+::-webkit-backdrop {
   --tw-ring-offset-color: var(--design-surface-2);
   --tw-ring-color: rgba(var(--design-link-rgb), 0.5);
   --tw-ring-offset-shadow: 0 0 transparent;
@@ -47,13 +54,21 @@
   border-color: var(--design-border);
 }
 input::-webkit-input-placeholder,
-textarea::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 input::-moz-placeholder,
-textarea::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 input:-ms-input-placeholder,
-textarea:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 input::-ms-input-placeholder,
-textarea::-ms-input-placeholder,
+textarea::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 input::placeholder,
 textarea::placeholder {
   color: var(--design-text-muted);
@@ -159,13 +174,21 @@ textarea:focus {
   border-color: var(--design-link);
 }
 input::-webkit-input-placeholder,
-textarea::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 input::-moz-placeholder,
-textarea::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 input:-ms-input-placeholder,
-textarea:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 input::-ms-input-placeholder,
-textarea::-ms-input-placeholder,
+textarea::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 input::placeholder,
 textarea::placeholder {
   color: var(--design-text-muted);
@@ -182,12 +205,17 @@ textarea::placeholder {
   --tw-ring-offset-color: var(--design-surface-2);
   --tw-ring-color: var(--design-link);
 }
-input[type=file]::-webkit-file-upload-button,
+input[type=file]::-webkit-file-upload-button {
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+}
 input[type=file]::file-selector-button {
   background-color: var(--design-text);
   color: var(--design-surface-1);
 }
-input[type=file]::-webkit-file-upload-button:hover,
+input[type=file]::-webkit-file-upload-button:hover {
+  background-color: var(--design-text-muted);
+}
 input[type=file]::file-selector-button:hover {
   background-color: var(--design-text-muted);
 }
@@ -206,10 +234,18 @@ input[type=file]::file-selector-button:hover {
   border-color: var(--design-border-strong);
   color: var(--design-text);
 }
-.input-money::-webkit-input-placeholder,
-.input-money::-moz-placeholder,
-.input-money:-ms-input-placeholder,
-.input-money::-ms-input-placeholder,
+.input-money::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.input-money::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+.input-money:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
+.input-money::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 .input-money::placeholder {
   color: var(--design-text-muted);
 }
@@ -445,10 +481,18 @@ input[type=file]::file-selector-button:hover {
 .text-yellow-800 {
   color: var(--design-warning);
 }
-.placeholder-light-gray::-webkit-input-placeholder,
-.placeholder-light-gray::-moz-placeholder,
-.placeholder-light-gray:-ms-input-placeholder,
-.placeholder-light-gray::-ms-input-placeholder,
+.placeholder-light-gray::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.placeholder-light-gray::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+.placeholder-light-gray:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
+.placeholder-light-gray::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 .placeholder-light-gray::placeholder {
   color: var(--design-text-muted);
 }
@@ -500,10 +544,18 @@ table thead a:hover {
   border-color: var(--design-border-strong);
   color: var(--design-text);
 }
-.el-select .el-input .el-input__inner::-webkit-input-placeholder,
-.el-select .el-input .el-input__inner::-moz-placeholder,
-.el-select .el-input .el-input__inner:-ms-input-placeholder,
-.el-select .el-input .el-input__inner::-ms-input-placeholder,
+.el-select .el-input .el-input__inner::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.el-select .el-input .el-input__inner::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+.el-select .el-input .el-input__inner:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
+.el-select .el-input .el-input__inner::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 .el-select .el-input .el-input__inner::placeholder {
   color: var(--design-text-muted);
 }
@@ -535,10 +587,18 @@ table thead a:hover {
   border-color: var(--design-border-strong);
   color: var(--design-text);
 }
-.el-date-editor input::-webkit-input-placeholder,
-.el-date-editor input::-moz-placeholder,
-.el-date-editor input:-ms-input-placeholder,
-.el-date-editor input::-ms-input-placeholder,
+.el-date-editor input::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.el-date-editor input::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+.el-date-editor input:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
+.el-date-editor input::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 .el-date-editor input::placeholder {
   color: var(--design-text-muted);
 }
@@ -562,10 +622,18 @@ table thead a:hover {
   background-color: var(--design-primary) !important;
   border-color: var(--design-primary) !important;
 }
-.el-date-editor .el-range-input::-webkit-input-placeholder,
-.el-date-editor .el-range-input::-moz-placeholder,
-.el-date-editor .el-range-input:-ms-input-placeholder,
-.el-date-editor .el-range-input::-ms-input-placeholder,
+.el-date-editor .el-range-input::-webkit-input-placeholder {
+  color: var(--design-text);
+}
+.el-date-editor .el-range-input::-moz-placeholder {
+  color: var(--design-text);
+}
+.el-date-editor .el-range-input:-ms-input-placeholder {
+  color: var(--design-text);
+}
+.el-date-editor .el-range-input::-ms-input-placeholder {
+  color: var(--design-text);
+}
 .el-date-editor .el-range-input,
 .el-date-editor .el-range-input::placeholder {
   color: var(--design-text);
@@ -581,7 +649,10 @@ table thead a:hover {
 .swiper-pagination-bullet-active {
   background-color: var(--design-text-muted) !important;
 }
-::-moz-selection,
+::-moz-selection {
+  background-color: var(--design-primary-active);
+  color: var(--design-on-primary);
+}
 ::selection {
   background-color: var(--design-primary-active);
   color: var(--design-on-primary);
@@ -692,9 +763,13 @@ body,
 }
 .el-date-editor .el-range__icon,
 .el-date-editor .el-range-input,
-.el-date-editor .el-range-input::-webkit-input-placeholder,
-.el-date-editor .el-range-input::-ms-input-placeholder,
 .el-date-editor .el-range-input::placeholder {
+  color: var(--design-text-muted);
+}
+.el-date-editor .el-range-input::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.el-date-editor .el-range-input::-ms-input-placeholder {
   color: var(--design-text-muted);
 }
 .el-date-editor .el-range-separator {
@@ -757,8 +832,12 @@ body,
 .el-input::-webkit-scrollbar-thumb {
   background-color: var(--design-border-strong);
 }
-.el-input::-webkit-scrollbar-corner,
-.el-input::-webkit-scrollbar-track,
+.el-input::-webkit-scrollbar-corner {
+  background-color: var(--design-surface-2);
+}
+.el-input::-webkit-scrollbar-track {
+  background-color: var(--design-surface-2);
+}
 .el-input::-webkit-scrollbar-track-piece {
   background-color: var(--design-surface-2);
 }
@@ -769,9 +848,13 @@ body,
 }
 .el-input__prefix,
 .el-input__suffix,
-.el-input__inner::-webkit-input-placeholder,
-.el-input__inner::-ms-input-placeholder,
 .el-input__inner::placeholder {
+  color: var(--design-text-muted);
+}
+.el-input__inner::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.el-input__inner::-ms-input-placeholder {
   color: var(--design-text-muted);
 }
 .el-input__inner:hover {
