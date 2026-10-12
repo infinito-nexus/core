@@ -1,0 +1,25 @@
+---
+- name: "🔍 Resolve the FusionDirectory hosting node and container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: fusiondirectory
+    resolve_output_prefix: FUSIONDIRECTORY
+    resolve_compose_cid: "{{ FUSIONDIRECTORY_CONTAINER }}"
+    resolve_converge_retries: 60
+    resolve_converge_delay: 5
+
+- name: "📇 Add the FusionDirectory schemas, admin ACL and configuration to LDAP"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e FD_ADMIN_UID -e FD_GROUP_RDN -e FD_TIMEZONE -e FD_USER_RDN
+      {{ FUSIONDIRECTORY_LOCAL_CID | quote }}
+      bash -s
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/shell/ldap/bootstrap.sh') }}"
+  environment:
+    FD_ADMIN_UID: "{{ lookup('users', 'platform_administrator').username }}"
+    FD_GROUP_RDN: "{{ LDAP.DN.OU.GROUPS | regex_replace(',.*$', '') }}"
+    FD_TIMEZONE: "{{ HOST_TIMEZONE }}"
+    FD_USER_RDN: "{{ LDAP.DN.OU.USERS | regex_replace(',.*$', '') }}"
+  delegate_to: "{{ FUSIONDIRECTORY_HOST_NODE }}"
+  register: fusiondirectory_ldap_bootstrap
+  changed_when: fusiondirectory_ldap_bootstrap.stdout | trim | length > 0

@@ -17,6 +17,8 @@ test.beforeEach(async ({ page }) => {
   await page.context().clearCookies();
 });
 
+require("./test-design").register();
+
 test("baseline: FusionDirectory responds on the canonical domain", async ({ page }) => {
   const r = await gotoOnion(page, `${baseUrl}/`);
   expect(r).toBeTruthy();
