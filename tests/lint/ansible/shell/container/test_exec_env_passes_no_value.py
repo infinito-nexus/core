@@ -21,6 +21,10 @@ The check is on the flag, not on the command before it: associating an ``-e``
 with its ``container exec`` is unreliable across a YAML block scalar, and
 ``docker run -e`` leaks the same way.
 
+An ``argv:`` list spells the same thing across two entries, ``-e`` on one and
+``NAME={{ … }}`` on the next, so a line-oriented scan never sees them
+together. Those lists are therefore read from the parsed YAML as well.
+
 A literal value cannot carry a secret, so ``-e RAILS_ENV=production`` passes.
 Of the interpolated ones the rule takes those carrying a credential, by the
 variable's name **or** by a credential source in the expression behind it.
@@ -44,6 +48,7 @@ from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -62,8 +67,60 @@ _SECRET_SOURCE = re.compile(
 )
 
 
+_NOT_A_SECRET_NAME = re.compile(
+    r"(?:_NAME|_EMAIL|_USER|_USERNAME|_OWNER|_ID|_URL|_HOST|_PORT|_PATH|_DAYS)$",
+    re.IGNORECASE,
+)
+_ARGV_ASSIGNMENT = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=(.*)$", re.DOTALL)
+_MODULE_KEYS = (
+    "command",
+    "ansible.builtin.command",
+    "shell",
+    "ansible.builtin.shell",
+)
+
+
 def _is_scan_target(rel_path: str) -> bool:
     return rel_path.startswith("roles/") and rel_path.endswith(_EXTENSIONS)
+
+
+def _carries_credential(name: str, value: str) -> bool:
+    """Decide whether an ``NAME=VALUE`` pair hands over a secret.
+
+    Args:
+        name: the variable name to the left of the ``=``.
+        value: everything to its right, Jinja included.
+
+    Returns:
+        True when the name reads like a credential or the expression draws
+        from a credential source. A name whose last segment is ``_NAME``,
+        ``_OWNER``, ``_EMAIL`` or similar describes the credential rather
+        than carrying it, so the name alone does not convict it; a
+        credential source in the value still does.
+    """
+    by_name = bool(_SECRET_NAME.search(name)) and not _NOT_A_SECRET_NAME.search(name)
+    return by_name or bool(_SECRET_SOURCE.search(value))
+
+
+def _argv_lists(node):
+    """Yield every ``argv:`` list a task hands to a command module.
+
+    Args:
+        node: a parsed YAML document, or any fragment of one.
+
+    Yields:
+        Each ``argv`` list found under a ``command``/``shell`` mapping.
+    """
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key in _MODULE_KEYS and isinstance(value, dict):
+                argv = value.get("argv")
+                if isinstance(argv, list):
+                    yield argv
+            yield from _argv_lists(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _argv_lists(item)
 
 
 class TestContainerExecEnvPassesNoValue(unittest.TestCase):
@@ -87,14 +144,44 @@ class TestContainerExecEnvPassesNoValue(unittest.TestCase):
                     value = line[match.end() : stop]
                     if not _INTERPOLATED.search(value):
                         continue
-                    if not (
-                        _SECRET_NAME.search(name) or _SECRET_SOURCE.search(value)
-                    ):
+                    if not _carries_credential(name, value):
                         continue
                     line_no = idx + 1
                     if is_suppressed_at(lines, line_no, _RULE, mode="same-or-above"):
                         continue
                     findings.append((rel, line_no, f"-e {name}={value.strip()[:60]}"))
+
+            if not rel.endswith((".yml", ".yaml")):
+                continue
+            try:
+                doc = load_yaml_any(path_str)
+            except Exception:  # pragma: no cover - malformed YAML is another rule's
+                continue
+            for argv in _argv_lists(doc):
+                for element in argv:
+                    if not isinstance(element, str):
+                        continue
+                    assignment = _ARGV_ASSIGNMENT.match(element)
+                    if not assignment:
+                        continue
+                    name, value = assignment.group(1), assignment.group(2)
+                    if not _INTERPOLATED.search(value):
+                        continue
+                    if not _carries_credential(name, value):
+                        continue
+                    line_no = next(
+                        (
+                            number
+                            for number, line in enumerate(lines, 1)
+                            if f"{name}=" in line
+                        ),
+                        1,
+                    )
+                    if is_suppressed_at(lines, line_no, _RULE, mode="same-or-above"):
+                        continue
+                    findings.append(
+                        (rel, line_no, f"argv {name}={value.strip()[:52]}")
+                    )
 
         if findings:
             formatted = "\n".join(

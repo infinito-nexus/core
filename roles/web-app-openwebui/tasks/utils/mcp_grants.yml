@@ -12,7 +12,7 @@
       - -e
       - "OPENWEBUI_ADMIN_NAME={{ OPENWEBUI_API_BOT_USER.username }}"
       - -e
-      - "OPENWEBUI_ADMIN_PASSWORD={{ OPENWEBUI_API_BOT_USER.password }}"
+      - OPENWEBUI_ADMIN_PASSWORD
       - -e
       - "OPENWEBUI_MCP_GROUPS={{ openwebui_mcp_groups | to_json }}"
       - -e
@@ -23,6 +23,8 @@
       - python3
       - "-"
     stdin: "{{ lookup('file', 'python/provision_mcp_grants.py') }}"
+  environment:
+    OPENWEBUI_ADMIN_PASSWORD: "{{ OPENWEBUI_API_BOT_USER.password }}"
   register: openwebui_mcp_grants
   retries: 30
   delay: 10

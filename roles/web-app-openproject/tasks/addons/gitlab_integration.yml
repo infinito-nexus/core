@@ -10,18 +10,22 @@
       - -e
       - "OPENPROJECT_GITLAB_BOT_MAIL={{ OPENPROJECT_GITLAB_BOT.email }}"
       - -e
-      - "OPENPROJECT_GITLAB_BOT_PASSWORD={{ OPENPROJECT_GITLAB_BOT.password }}"
+      - OPENPROJECT_GITLAB_BOT_PASSWORD
       - -e
       - "OPENPROJECT_GITLAB_TOKEN_NAME={{ openproject_addon.value.config.token_name }}"
       - -e
-      - "OPENPROJECT_GITLAB_WEBHOOK_SECRET={{ OPENPROJECT_GITLAB_WEBHOOK_SECRET }}"
+      - OPENPROJECT_GITLAB_WEBHOOK_SECRET
       - -e
-      - "OPENPROJECT_GITLAB_API_TOKEN={{ OPENPROJECT_GITLAB_TOKEN_HELD }}"
+      - OPENPROJECT_GITLAB_API_TOKEN
       - "{{ OPENPROJECT_WEB_LOCAL_CID }}" # nocheck: container-exec-resolver CID resolved at delegate_to runtime; container_address targets a manager-only subshell
       - bash
       - -lc
       - "cd /app && bundle exec rails runner -"
     stdin: "{{ lookup('file', 'ruby/addons/gitlab/ensure_gitlab_webhook.rb') }}"
+  environment:
+    OPENPROJECT_GITLAB_BOT_PASSWORD: "{{ OPENPROJECT_GITLAB_BOT.password }}"
+    OPENPROJECT_GITLAB_WEBHOOK_SECRET: "{{ OPENPROJECT_GITLAB_WEBHOOK_SECRET }}"
+    OPENPROJECT_GITLAB_API_TOKEN: "{{ OPENPROJECT_GITLAB_TOKEN_HELD }}"
   delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   register: openproject_gitlab_provision
   changed_when: "'CHANGED' in openproject_gitlab_provision.stdout"

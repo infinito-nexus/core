@@ -13,7 +13,7 @@
       - exec
       - -i
       - -e
-      - "OPENPROJECT_ADMIN_PASSWORD={{ OPENPROJECT_ADMINISTRATOR_PASSWORD }}"
+      - OPENPROJECT_ADMIN_PASSWORD
       - -e
       - "OPENPROJECT_ADMIN_LOGIN={{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
       - -e
@@ -23,6 +23,8 @@
       - -lc
       - "cd /app && bundle exec rails runner -"
     stdin: "{{ lookup('file', 'ruby/ensure_admin_user.rb') }}"
+  environment:
+    OPENPROJECT_ADMIN_PASSWORD: "{{ OPENPROJECT_ADMINISTRATOR_PASSWORD }}"
   delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

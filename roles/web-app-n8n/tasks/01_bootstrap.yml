@@ -79,11 +79,13 @@
           - -e
           - "N8N_OWNER_EMAIL={{ N8N_OWNER_EMAIL }}"
           - -e
-          - "N8N_OWNER_PASSWORD={{ N8N_OWNER_PASSWORD }}"
+          - N8N_OWNER_PASSWORD
           - "{{ N8N_LOCAL_CID }}" # nocheck: container-exec-resolver
           - node
           - "-"
         stdin: "{{ lookup('file', 'javascript/reconcile/owner_password.js') }}"
+      environment:
+        N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
       register: n8n_owner_password
       retries: 30
       delay: 10

@@ -14,11 +14,13 @@
       - -e
       - "GITLAB_MCP_PROTOCOL_VERSION={{ GITLAB_MCP_PROTOCOL_VERSION }}"
       - -e
-      - "GITLAB_MCP_TOKEN={{ gitlab_mcp_token }}"
+      - GITLAB_MCP_TOKEN
       - "{{ GITLAB_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
       - ruby
       - "-"
     stdin: "{{ lookup('file', 'ruby/probe_mcp_token.rb') }}"
+  environment:
+    GITLAB_MCP_TOKEN: "{{ gitlab_mcp_token }}"
   register: gitlab_mcp_probe
   retries: 30
   delay: 10
