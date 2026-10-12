@@ -40,6 +40,7 @@ from collections.abc import Mapping
 from utils.annotations.suppress import is_suppressed_at, is_suppressed_in_head
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.github.variant.pools import ARCHITECTURES
 from utils.roles.mapping import ROLE_DIR_META_ADDONS
 from utils.update.addons import (
     ADDON_KEYS,
@@ -127,6 +128,21 @@ class TestAddonsSchema(unittest.TestCase):
                         f"{prefix} has unknown key(s) {sorted(unknown)}; "
                         f"app-specific data goes under 'config:'. ({rel})"
                     )
+
+                if "architectures" in spec:
+                    declared = spec["architectures"]
+                    if (
+                        not isinstance(declared, list)
+                        or not declared
+                        or any(value not in ARCHITECTURES for value in declared)
+                    ):
+                        errors.append(
+                            f"{prefix} has invalid architectures {declared!r}; "
+                            f"expected a non-empty list drawn from "
+                            f"{sorted(ARCHITECTURES)}. An unknown token would "
+                            f"match no host and silently drop the addon from "
+                            f"every deploy. ({rel})"
+                        )
 
                 if "mechanism" not in spec:
                     errors.append(f"{prefix} is missing required 'mechanism'. ({rel})")

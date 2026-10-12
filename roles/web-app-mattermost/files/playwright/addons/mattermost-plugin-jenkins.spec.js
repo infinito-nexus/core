@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
+const { decodeDotenvQuotedValue } = require("../personas");
 const { activePluginIds } = require("./_plugins");
 
 const PLUGIN_ID = "jenkins";
@@ -11,6 +12,12 @@ test.use({ ignoreHTTPSErrors: true });
 test("addon mattermost-plugin-jenkins: the Jenkins plugin is installed and active", async ({ page }) => {
   skipUnlessAddonEnabled("mattermost-plugin-jenkins");
   skipUnlessServiceEnabled("sso");
+  const architecture = decodeDotenvQuotedValue(process.env.MATTERMOST_ARCHITECTURE || "");
+  test.skip(
+    architecture !== "amd64",
+    `meta/addons/mattermost-plugin-jenkins.yml declares architectures: [amd64] and this node runs ` +
+      `${architecture || "an unmapped architecture"}, so tasks/utils/addon.yml installed nothing to assert against`,
+  );
   test.setTimeout(resolveTimeout(240_000));
 
   const active = await activePluginIds(page);

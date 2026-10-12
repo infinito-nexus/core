@@ -43,6 +43,7 @@ ADDON_KEYS: frozenset[str] = frozenset(
         "group",
         "update",
         "config",
+        "architectures",
     }
 )
 
