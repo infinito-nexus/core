@@ -70,6 +70,18 @@
 - name: 🚿 Flush handlers to make DB available before password reset
   meta: flush_handlers
 
+- name: 🪪 Carry the administrator EspoCRM installed onto the declared username
+  ansible.builtin.shell:
+    cmd: |
+      # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e ESPOCRM_ADMIN_USERNAME {{ ESPOCRM_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/carry_admin_username.php') }}"
+  environment:
+    ESPOCRM_ADMIN_USERNAME: "{{ ESPOCRM_ADMIN_USERNAME }}"
+  register: espocrm_admin_carry
+  changed_when: espocrm_admin_carry.stdout is search('\[CHANGED\]')
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+
 - name: 🔑 Realign the administrator password EspoCRM persisted at install
   ansible.builtin.shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node

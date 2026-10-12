@@ -43,11 +43,15 @@
       - artisan
       - tinker
       - "--execute={{ lookup('file', 'php/realign_admin_password.php') }}"
-  register: akaunting_admin_password
-  changed_when: "'CHANGED' in akaunting_admin_password.stdout_lines"
-  failed_when: >-
-    akaunting_admin_password.rc != 0
-    or 'FAILED' in akaunting_admin_password.stdout
+  register: akaunting_admin_realign
+  changed_when: "'CHANGED' in akaunting_admin_realign.stdout_lines"
+  failed_when: akaunting_admin_realign.rc != 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ AKAUNTING_HOST_NODE }}"
+  run_once: true
+
+- name: "🧭 Akaunting | Report that no account carries the declared e-mail"
+  ansible.builtin.fail:
+    msg: "{{ akaunting_admin_realign.stdout }}"
+  when: "'FAILED' in akaunting_admin_realign.stdout"
   run_once: true

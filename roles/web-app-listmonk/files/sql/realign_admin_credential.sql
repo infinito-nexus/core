@@ -4,5 +4,5 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 UPDATE users
 SET password = crypt(:'pw', gen_salt('bf'))
-WHERE username = 'administrator'
+WHERE username = :'login'
   AND (password IS NULL OR password <> crypt(:'pw', password));
