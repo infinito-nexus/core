@@ -11,12 +11,12 @@
 - name: "📇 Add the FusionDirectory schemas, admin ACL and configuration to LDAP"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i -e FD_ADMIN_UID -e FD_GROUP_RDN -e FD_TIMEZONE -e FD_USER_RDN
+      container exec -i -e FD_ADMIN_DN -e FD_GROUP_RDN -e FD_TIMEZONE -e FD_USER_RDN
       {{ FUSIONDIRECTORY_LOCAL_CID | quote }}
       bash -s
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/shell/ldap/bootstrap.sh') }}"
   environment:
-    FD_ADMIN_UID: "{{ lookup('users', 'platform_administrator').username }}"
+    FD_ADMIN_DN: "{{ LDAP.USER.ATTRIBUTES.ID }}=platform_administrator,{{ LDAP.DN.OU.USERS }}"
     FD_GROUP_RDN: "{{ LDAP.DN.OU.GROUPS | regex_replace(',.*$', '') }}"
     FD_TIMEZONE: "{{ HOST_TIMEZONE }}"
     FD_USER_RDN: "{{ LDAP.DN.OU.USERS | regex_replace(',.*$', '') }}"

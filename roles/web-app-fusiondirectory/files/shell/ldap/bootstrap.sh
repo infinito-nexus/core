@@ -3,7 +3,7 @@
 # Output: one line per schema, entry or ACL grant it added; nothing when all exist.
 #
 # Required env, supplied via `container exec -e KEY`:
-#   FD_ADMIN_UID   uid of the platform administrator persona
+#   FD_ADMIN_DN    DN of the platform administrator persona's entry
 #   FD_GROUP_RDN   RDN of the groups branch (e.g. ou=groups)
 #   FD_TIMEZONE    timezone FusionDirectory renders dates in
 #   FD_USER_RDN    RDN of the users branch (e.g. ou=users)
@@ -15,7 +15,6 @@ uri="ldap://${LDAP01_HOST}:${LDAP01_PORT}"
 base="${LDAP01_BASE_DN}"
 schema_dir=/www/fusiondirectory/contrib/openldap
 role_dn="cn=admin,ou=aclroles,${base}"
-admin_dn="uid=${FD_ADMIN_UID},${FD_USER_RDN},${base}"
 
 ldap() {
   local tool="$1"
@@ -65,7 +64,7 @@ description: Gives all rights on all objects
 gosaAclTemplate: 0:all;cmdrw
 LDIF
 
-acl=":subtree:$(b64 "$role_dn"):$(b64 "$admin_dn")"
+acl=":subtree:$(b64 "$role_dn"):$(b64 "$FD_ADMIN_DN")"
 base_entry="$(ldap ldapsearch -LLL -o ldif-wrap=no -b "$base" -s base "(objectClass=*)" objectClass gosaAclEntry)"
 if ! grep -q -F "$acl" <<<"$base_entry"; then
   {
@@ -79,7 +78,7 @@ if ! grep -q -F "$acl" <<<"$base_entry"; then
     echo "add: gosaAclEntry"
     echo "gosaAclEntry: $(grep -c '^gosaAclEntry:' <<<"$base_entry")${acl}"
   } | ldap ldapmodify >/dev/null
-  echo "granted ${role_dn} to ${admin_dn}"
+  echo "granted ${role_dn} to ${FD_ADMIN_DN}"
 fi
 
 add_absent "ou=fusiondirectory,${base}" <<LDIF
