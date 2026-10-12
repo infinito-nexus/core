@@ -107,18 +107,15 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-gitlab admin-only interaction: open a management surface.
       const link = interactivePage
-        .getByRole("link", { name: /^(projects|groups|admin|settings)$/i })
+        .getByRole("link", { name: /^admin(\s*area)?$/i })
         .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /project|group|merge request|issue|admin area|gitlab/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await link.click({ timeout: resolveTimeout(30_000) });
+      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(interactivePage).toHaveURL(/\/admin/, {
+        timeout: resolveTimeout(30_000),
+      });
     },
   });
 });
