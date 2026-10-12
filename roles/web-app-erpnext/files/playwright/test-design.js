@@ -21,26 +21,38 @@ const THEME_LINK = 'link[rel="stylesheet"][href*="infinito-design.css"]';
 const FAVICON = "link[rel~='icon']";
 const LOGIN_CARD = ".for-login .page-card";
 const LOGIN_EMAIL = "#login_email";
-const LOGIN_SUBMIT = ".for-login .btn-login[type='submit']";
+const LOGIN_SUBMIT = ".for-login .page-card-actions button[type='submit']";
 const LOGIN_LOGO = ".for-login img.app-logo";
 const LOGIN_ERROR = ".for-login .login-error-banner";
+const LOGIN_ERROR_ICON = `${LOGIN_ERROR} > svg`;
+const LOGIN_ERROR_TITLE = `${LOGIN_ERROR} .es-alert__title`;
 const FOLDER_TILE = ".desktop-container .folder-icon";
 const ACTIVE_FILTER = ".btn.filter-button.btn-primary-light";
 const PAGE_HEAD = ".page-head";
-const PAGE_TITLE = ".page-head .title-text";
+const PAGE_TITLE = ".page-head .es-breadcrumbs li:last-child .es-breadcrumbs__item";
 const SIDEBAR = ".body-sidebar";
 const SIDEBAR_ENTRY = `${SIDEBAR} .standard-sidebar-item:not(.active-sidebar) .sidebar-item-label`;
 const SIDEBAR_SELECTED = `${SIDEBAR} .standard-sidebar-item.active-sidebar`;
+const SIDEBAR_LINK_ENTRY = `${SIDEBAR} .standard-sidebar-item:not(.active-sidebar):has(a:not(.section-break))`;
+const SIDEBAR_HOVERED = `${SIDEBAR_LINK_ENTRY}:hover`;
 const LIST_HEAD = ".frappe-list .list-row-head";
 const LIST_ROW = ".frappe-list .list-row-container .list-row";
 const LIST_READY = ".frappe-list .result:visible, .frappe-list .no-result:visible";
 const FORM_READY = ".form-layout .form-page";
 const WORKSPACE_WIDGET = ".layout-main-section .widget";
-const PRIMARY_ACTION = ".page-head .page-actions .primary-action";
+const CONTENT_RULE = ".layout-main-section hr";
+const PAGE_ACTIONS = ".page-head .page-actions";
+const PRIMARY_ACTION = `${PAGE_ACTIONS} .primary-action`;
+const PRIMARY_ICON = `${PRIMARY_ACTION} .icon`;
 const DESKTOP_LOGO = "#brand-logo";
 const DESKTOP_READY = ".desktop-wrapper .desktop-container";
 const DIALOG = ".modal.show .modal-content";
 const THEME_GRID = `${DIALOG} .theme-grid`;
+const THEME_CARD = `${THEME_GRID} .theme-card-wrapper .theme-card`;
+const THEME_DARK = `${THEME_GRID} .theme-card-wrapper:has([data-theme="dark"]):not(:has([data-theme="light"])) .theme-card`;
+const THEME_LIGHT = `${THEME_GRID} .theme-card-wrapper:has([data-theme="light"]):not(:has([data-theme="dark"])) .theme-card`;
+const THEME_AUTO = `${THEME_GRID} .theme-card-wrapper:has([data-theme="light"]):has([data-theme="dark"]) .theme-card`;
+const RED_PROBE = "#design-red-probe .es-button";
 const SHOWCASE_TODO = "Design showcase";
 
 exports.register = function (shared) {
@@ -48,7 +60,7 @@ exports.register = function (shared) {
 
   function shown(selector) {
     return async (page) => {
-      await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
+      await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
     };
   }
 
@@ -116,6 +128,26 @@ exports.register = function (shared) {
     await shown(ready)(page);
   }
 
+  /**
+   * Args:
+   *   page: signed-in Playwright page on a desk route; its page actions hold one destructive solid button that Frappe's own button component rendered.
+   */
+  async function addRedAction(page) {
+    const markup = await page.evaluate(() =>
+      window.frappe.ui.button.html({ label: "Delete", variant: "solid", theme: "red" }),
+    );
+    await page.evaluate(
+      ([html, actions]) => {
+        document.getElementById("design-red-probe")?.remove();
+        const holder = document.createElement("div");
+        holder.id = "design-red-probe";
+        holder.innerHTML = html;
+        document.querySelector(actions).appendChild(holder);
+      },
+      [markup, PAGE_ACTIONS],
+    );
+  }
+
   async function openLogin(page) {
     await gotoOnion(page, `${base}/login`);
     await shown(LOGIN_EMAIL)(page);
@@ -140,17 +172,6 @@ exports.register = function (shared) {
     const stored = page.waitForResponse((response) => response.url().includes("switch_theme"));
     await page.locator(tile).click();
     await stored;
-  }
-
-  /**
-   * Args:
-   *   page: Playwright page whose every document opens the desk sidebar expanded at desktop width; the desk persists the collapsed state of a narrow viewport and would carry it into the next wide capture.
-   */
-  async function sidebarFollowsViewport(page) {
-    await page.addInitScript(() => {
-      if (!window.location.protocol.startsWith("http")) return;
-      if (window.innerWidth >= 768) window.localStorage.setItem("sidebar-expanded", "true");
-    });
   }
 
   /**
@@ -287,6 +308,7 @@ exports.register = function (shared) {
       await openLogin(page);
       await assertToken(page, "body", "background-color", "--design-surface-2", `sign-in ${mode}`);
       await assertToken(page, LOGIN_CARD, "background-color", "--design-surface-2", `sign-in ${mode}`);
+      await assertToken(page, LOGIN_EMAIL, "background-color", "--design-surface-2", `sign-in field ${mode}`);
       await assertToken(page, LOGIN_EMAIL, "color", "--design-text", `sign-in ${mode}`);
       await assertToken(page, LOGIN_SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
       await assertToken(page, LOGIN_SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
@@ -302,8 +324,8 @@ exports.register = function (shared) {
       [
         `${LOGIN_CARD} h4`,
         `${LOGIN_CARD} .page-card-subtitle`,
-        `${LOGIN_CARD} .form-label`,
-        `${LOGIN_CARD} .forgot-password-message a`,
+        `${LOGIN_CARD} label[for='login_email']`,
+        `${LOGIN_CARD} a[href='#forgot']`,
         LOGIN_SUBMIT,
         { selector: `${LOGIN_CARD} .btn-login-option`, optional: true },
       ],
@@ -340,6 +362,7 @@ exports.register = function (shared) {
       await assertToken(page, PAGE_HEAD, "border-bottom-color", "--design-border", `page head divider ${mode}`);
       await assertToken(page, PRIMARY_ACTION, "background-color", "--design-primary", `primary action ${mode}`);
       await assertToken(page, PRIMARY_ACTION, "color", "--design-on-primary", `primary action ${mode}`);
+      await assertToken(page, PRIMARY_ICON, "stroke", "--design-on-primary", `primary action icon ${mode}`);
       await page.locator(PRIMARY_ACTION).hover();
       await assertToken(page, PRIMARY_ACTION, "background-color", "--design-primary-hover", `hovered ${mode}`);
       await assertToken(page, PRIMARY_ACTION, "color", "--design-on-primary", `hovered ${mode}`);
@@ -348,6 +371,13 @@ exports.register = function (shared) {
       await assertToken(page, PRIMARY_ACTION, "color", "--design-on-primary", `pressed ${mode}`);
       await page.locator(PAGE_TITLE).hover();
       await page.mouse.up();
+      await page.locator(SIDEBAR_LINK_ENTRY).first().hover();
+      await assertToken(page, SIDEBAR_HOVERED, "background-color", "--design-surface-hover", `hovered entry ${mode}`);
+      await addRedAction(page);
+      await assertToken(page, RED_PROBE, "background-color", "--design-danger", `destructive action ${mode}`);
+      await assertToken(page, RED_PROBE, "color", "--design-on-danger", `destructive action ${mode}`);
+      await openDesk(page, "permission-manager", CONTENT_RULE);
+      await assertToken(page, CONTENT_RULE, "border-top-color", "--design-border", `content rule ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
     await openDesk(page, "todo", LIST_ROW);
@@ -369,7 +399,8 @@ exports.register = function (shared) {
       await gotoOnion(page, `${base}/login`);
       await failedSignIn(page);
       await assertToken(page, LOGIN_ERROR, "background-color", "--design-danger-subtle", `rejected sign-in ${mode}`);
-      await assertToken(page, LOGIN_ERROR, "color", "--design-danger", `rejected sign-in ${mode}`);
+      await assertToken(page, LOGIN_ERROR_ICON, "color", "--design-danger", `rejected sign-in icon ${mode}`);
+      await assertToken(page, LOGIN_ERROR_TITLE, "color", "--design-text", `rejected sign-in text ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
     await signIn(page);
@@ -402,16 +433,18 @@ exports.register = function (shared) {
     );
     const light = await tokenValue(page, "--design-surface-2", "color");
     await themeDialogOpened(page);
-    await pickTheme(page, `${THEME_GRID} [data-theme="dark"][data-is-auto-theme="false"]`);
+    await assertToken(page, THEME_CARD, "background-color", "--design-surface-2", "theme tile light");
+    await pickTheme(page, THEME_DARK);
     await expect(root).toHaveAttribute("data-theme", "dark");
     await expect(root).toHaveAttribute("data-design-theme", "dark");
     await assertToken(page, "body", "background-color", "--design-surface-2", "switched to dark");
+    await assertToken(page, THEME_CARD, "background-color", "--design-surface-2", "theme tile dark");
     expect(await tokenValue(page, "--design-surface-2", "color"), "the dark palette must differ").not.toBe(light);
-    await pickTheme(page, `${THEME_GRID} [data-theme="light"][data-is-auto-theme="false"]`);
+    await pickTheme(page, THEME_LIGHT);
     await expect(root).toHaveAttribute("data-theme", "light");
     await expect(root).toHaveAttribute("data-design-theme", "light");
     expect(await tokenValue(page, "--design-surface-2", "color")).toBe(light);
-    await pickTheme(page, `${THEME_GRID} [data-is-auto-theme="true"]`);
+    await pickTheme(page, THEME_AUTO);
     await expect(root).toHaveAttribute("data-theme", "light");
     await expect(root).not.toHaveAttribute("data-design-theme", /.+/);
   });
@@ -443,7 +476,6 @@ exports.register = function (shared) {
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
     test.setTimeout(resolveTimeout(2_400_000));
     const failures = [];
-    await sidebarFollowsViewport(page);
     try {
       await captureDesignGallery(page, publicViews());
     } catch (error) {

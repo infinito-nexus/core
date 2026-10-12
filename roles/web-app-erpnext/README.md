@@ -118,7 +118,7 @@ docker run --rm -it \
 
 - **Image**: `frappe/erpnext` (the official single-image, multi-role build from [frappe_docker](https://github.com/frappe/frappe_docker)).
 - **Pin**: a concrete stable semver in `meta/services.yml` (no `:latest`, no `:edge`, no pre-release line).
-- **Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. Schema migrations run automatically on first start of the new image (Frappe ships `bench migrate` in the backend container's entrypoint).
+- **Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. No migration runs on its own: the image entrypoint only links the baked assets and starts gunicorn, so after a bump an existing site needs `bench --site <site> migrate` (see `TODO.md`).
 
 ## Central-service consumer pattern
 
@@ -171,7 +171,7 @@ make compose-exec service=erpnext-backend \
 - [Frappe Framework Documentation](https://docs.frappe.io/)
 - [frappe_docker (upstream container reference)](https://github.com/frappe/frappe_docker)
 - [Frappe Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/375bh15gNgTHk6jJUoVFNW)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/XUTNiMVVCT8K3t96cvQjBj)
 
 ## Credits
 
