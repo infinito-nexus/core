@@ -45,7 +45,27 @@ Open items that only a live run can settle:
 - `tasks/01_setup.yml` comment is stale: at 2026.10.8 the headless seed marks setup complete itself (upstream `platform/standalone/adapter.py`), so the task always answers 409 (measured: `ok`, never `changed`). Options: drop the task or rewrite the comment.
 - `meta/csp.yml` keeps `script-src-elem unsafe-inline` for an inline theme script the 2026.10.8 shell no longer has (it loads `assets/theme-boot.js`; measured: the served `/feed` carries no inline script of its own). Options: drop the flag after checking `hlth-csp`; the injected design script then needs its CSP hash, which `sys-front-inj-design` adds.
 
-## Deferred wiring
+## The administrator password survives no rotation
+
+`SOCIALHOME_ADMIN_PASSWORD` rotates between the two passes of a matrix-deploy round, and nothing
+re-applies it. Upstream's `platform/standalone/adapter.py` calls `provision_admin()` on every boot,
+but it returns early as soon as any row exists in `platform_users`, and its INSERT is
+`ON CONFLICT(username) DO NOTHING`. The second pass therefore renders a password the instance never
+learns, and `02_design.yml` fails on the token request, which demands `status_code: 200`. Loud, but
+never self-healing. Every other role of this class now carries a realign; this one does not.
+
+A realign is writable in principle: `platform/local_credentials.py` exposes `hash_password` and
+`verify_password`, both importable in the image, so the task could compare and then write
+`platform_users.password_hash` directly. Three things block it, and all three need one live round
+to settle:
+
+- `LocalCredentialStore.set_password` also writes `is_admin=excluded.is_admin`, so the convenient
+  API demotes the administrator unless `is_admin=True` is passed; only a direct column update is
+  safe.
+- The database is embedded SQLite in a node-local volume, written through the application's own
+  enqueue-writer queue. An external writer can meet `database is locked`.
+- The database path inside the container is unverified, as is whether the running image carries the
+  source the fix would be written against.
 
 - `SH_MAX_STORAGE_BYTES` is pinned to 4 GiB in `vars/main.yml` so the app's media cap stays inside
   `services.socialhome.min_storage` (5 GB). Raising one without the other lets the volume outgrow
