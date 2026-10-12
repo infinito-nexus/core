@@ -42,9 +42,11 @@ def read(record, field):
         The content bytes of a binary field, the text of any other field.
     """
     value = record[field]
-    if record._fields[field].type == "binary":
-        return value.content if value else b""
-    return value or ""
+    if record._fields[field].type != "binary":
+        return value or ""
+    if not value:
+        return b""
+    return base64.b64decode(value)
 
 
 def write(record, field, value):
@@ -168,7 +170,7 @@ def converge_theme(bundle, css):
         attachment.unlink()
         return changed
     raw = css.encode("utf-8")
-    fresh = not attachment or attachment.raw.content != raw
+    fresh = not attachment or attachment.raw != raw
     if not attachment:
         attachment.create(
             {
