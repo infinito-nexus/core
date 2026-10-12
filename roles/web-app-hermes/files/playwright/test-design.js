@@ -16,6 +16,8 @@ const { resolveTimeout } = require("./timeouts");
 const MODES = ["light", "dark"];
 const SHELL = "#root > [data-layout-variant]";
 const SAVE = "button:text-is('Save')";
+const DIVIDER = "main [class~='border-border']";
+const SIDEBAR_LOGO = "#app-sidebar > div:first-child > div:first-child > span:last-child";
 const CORPORATE_THEME = /Corporate design/;
 const TERMINAL_PAINTED_BYTES = 8_000;
 const TERMINAL_STARTUP_MS = 15_000;
@@ -159,6 +161,31 @@ async function chooseTheme(page, name) {
   await page.getByRole("option", { name }).click();
 }
 
+/**
+ * Args:
+ *   page: signed-in dashboard page that loads the kanban plugin stylesheet.
+ *
+ * Returns:
+ *   Per severity, the marker border and the label color of a kanban diagnostic card.
+ */
+async function kanbanDiagnostics(page) {
+  return page.evaluate(() => {
+    const result = {};
+    for (const severity of ["warning", "error", "critical"]) {
+      const card = document.createElement("div");
+      card.className = `hermes-kanban-diag hermes-kanban-diag--${severity}`;
+      const label = document.createElement("span");
+      label.className = "hermes-kanban-diag-sev";
+      label.textContent = severity;
+      card.appendChild(label);
+      document.querySelector("#root").appendChild(card);
+      result[severity] = [getComputedStyle(card).borderLeftColor, getComputedStyle(label).color];
+      card.remove();
+    }
+    return result;
+  });
+}
+
 exports.register = function (shared) {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("webui");
@@ -209,6 +236,10 @@ exports.register = function (shared) {
       await assertToken(page, SHELL, "background-color", "--design-surface-1", `dashboard ${mode}`);
       await assertToken(page, SAVE, "background-color", "--design-primary", `dashboard ${mode}`);
       await assertToken(page, SAVE, "color", "--design-on-primary", `dashboard ${mode}`);
+      await assertToken(page, DIVIDER, "border-top-color", "--design-border", `dashboard card border ${mode}`);
+      expect(await tokenValue(page, "--color-border", "border-top-color"), `plugin border variable ${mode}`).toBe(
+        await tokenValue(page, "--design-border", "border-top-color"),
+      );
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, SHELL, "hermes dashboard");
@@ -225,6 +256,24 @@ exports.register = function (shared) {
       ],
       "hermes dashboard",
     );
+  });
+
+  test("design: kanban diagnostics take the status tokens", async ({ page }) => {
+    skipUnlessServiceEnabled("webui");
+    skipUnlessServiceEnabled("design");
+    await shared.signIn(page, "/kanban");
+    await ready(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      const warning = await tokenValue(page, "--design-warning", "color");
+      const danger = await tokenValue(page, "--design-danger", "color");
+      expect(await kanbanDiagnostics(page), `kanban diagnostics ${mode}`).toEqual({
+        warning: [warning, warning],
+        error: [danger, danger],
+        critical: [danger, danger],
+      });
+    }
+    await page.emulateMedia({ colorScheme: null });
   });
 
   test("design: a theme chosen in the dashboard replaces the corporate one and sets the mode", async ({ page }) => {
@@ -270,9 +319,12 @@ exports.register = function (shared) {
     await shared.signIn(page);
     if (title) await expect(page).toHaveTitle(title);
     if (logoUrl) {
-      await expect(page.locator("#app-sidebar > div:first-child > div:first-child > span:last-child")).toHaveCSS(
-        "background-image",
-        `url("${logoUrl}")`,
+      const logo = page.locator(SIDEBAR_LOGO);
+      await expect(logo).toHaveCSS("background-image", `url("${logoUrl}")`);
+      const box = await logo.boundingBox();
+      expect(box, "the sidebar logo must render").not.toBeNull();
+      expect(box.width, "the sidebar logo box must be wider than high for the wordmark lockup").toBeGreaterThan(
+        box.height * 1.5,
       );
       const favicon = await page.locator("link[rel='icon']").getAttribute("href");
       expect((await apiGetOnion(page.request, favicon)).ok(), "the generated favicon is published on the CDN").toBe(true);
@@ -285,9 +337,17 @@ exports.register = function (shared) {
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
     test.setTimeout(resolveTimeout(1_800_000));
     const base = shared.env.baseUrl;
+    const failures = [];
+    const capture = async (views) => {
+      try {
+        await captureDesignGallery(page, views);
+      } catch (error) {
+        failures.push(error.message);
+      }
+    };
 
     await shared.openSignIn(page);
-    await captureDesignGallery(page, [
+    await capture([
       { name: "login", url: `${base}/login` },
       {
         name: "login-focus",
@@ -302,7 +362,7 @@ exports.register = function (shared) {
     await terminalPainted(page, terminal);
     await page.waitForTimeout(resolveTimeout(TERMINAL_STARTUP_MS));
 
-    await captureDesignGallery(page, [
+    await capture([
       { name: "sessions", url: `${base}/sessions`, prepare: ready },
       {
         name: "session-open",
@@ -333,7 +393,14 @@ exports.register = function (shared) {
       { name: "cron-create", url: `${base}/cron`, prepare: dialog("Create") },
       { name: "skills", url: `${base}/skills`, prepare: ready },
       { name: "kanban", url: `${base}/kanban`, prepare: ready },
-      { name: "plugins", url: `${base}/plugins`, prepare: ready },
+      {
+        name: "plugins",
+        url: `${base}/plugins`,
+        prepare: async (current) => {
+          await ready(current);
+          await expect(current.locator("[data-testid='plugin-catalog-section']")).toBeVisible();
+        },
+      },
       { name: "mcp", url: `${base}/mcp`, prepare: ready },
       { name: "mcp-add", url: `${base}/mcp`, prepare: dialog("Add Server") },
       { name: "channels", url: `${base}/channels`, prepare: ready },
@@ -356,5 +423,6 @@ exports.register = function (shared) {
         },
       },
     ]);
+    expect(failures, failures.join("\n")).toEqual([]);
   });
 };

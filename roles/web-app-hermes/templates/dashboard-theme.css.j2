@@ -122,12 +122,16 @@ a[class~="text-primary"] {
 [class~="bg-background-base/95"] {
   background-color: var(--design-surface-2);
 }
-
-:root :is(.hermes-kanban-diag, .hermes-kanban-attention, .hermes-kanban-warning-badge, .hermes-kanban-attention-row) {
-  --hermes-diag-warning: var(--design-warning);
-  --hermes-diag-error: var(--design-danger);
-  --hermes-diag-critical: var(--design-danger);
+[class~="border-border"],
+[class~="[&_button]:border-border"] button {
+  border-color: var(--design-border);
 }
+{% for alpha in [30, 50, 60] %}
+[class~="border-border/{{ alpha }}"] {
+  border-color: color-mix(in srgb, var(--design-border) {{ alpha }}%, transparent);
+}
+{% endfor %}
+
 :root .hermes-kanban-dot-triage {
   background: var(--design-link);
 }

@@ -134,7 +134,7 @@ docker run --rm -it \
 
 ## Further Resources
 
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/PUxq9QvoaTxiHSvdkRsR71)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Hxk1EBA1UtRNoTCiP1Vg76)
 
 ## Web dashboard
 
@@ -181,7 +181,7 @@ Read the password from the inventory at `applications.web-app-hermes.secrets.cre
 
 | Carrier | Content |
 | --- | --- |
-| `/opt/data/dashboard-themes/corporate.yaml` | Dashboard theme that reads the `--design-*` tokens: `palette`, `typography` and `layout` for surface, text, font and radius, `colorOverrides` for the status colors, `componentStyles` for the sidebar and header surface, `assets.logo` for the logo, `customCSS` for the primary action, navigation states, baked utility colors and plugin colors. `dashboard.theme` pins it as the default. |
+| `/opt/data/dashboard-themes/corporate.yaml` | Dashboard theme that reads the `--design-*` tokens: `palette`, `typography` and `layout` for surface, text, font and radius, `colorOverrides` for the border and status colors, `componentStyles` for the sidebar and header surface, `assets.logo` for the logo, `customCSS` for the primary action, navigation states, card and list borders, baked utility colors and plugin colors. `dashboard.theme` pins it as the default. |
 | Role stylesheet | Sign-in page only. That page is rendered outside the theme system. |
 | Design script | Sets the title and the favicon and mirrors the mode of a chosen built-in theme into `data-design-theme`. |
 

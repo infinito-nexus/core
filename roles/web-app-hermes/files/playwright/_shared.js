@@ -47,8 +47,10 @@ async function signIn(page, path = "/") {
   await openBehindProxy(page, path);
   if (!isServiceEnabled("sso")) {
     const form = page.locator("form.provider-form");
+    const password = form.locator("input[name='password']");
     await form.locator("input[name='username']").fill(env.adminUsername);
-    await form.locator("input[name='password']").fill(env.webuiPassword);
+    await expect(password).toBeEditable({ timeout: resolveTimeout(60_000) });
+    await password.fill(env.webuiPassword);
     await form.locator("button[type='submit']").click();
   }
   await expect(page.locator("#app-sidebar")).toBeVisible({ timeout: resolveTimeout(60_000) });
