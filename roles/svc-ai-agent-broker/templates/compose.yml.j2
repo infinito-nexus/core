@@ -40,7 +40,9 @@
       - "-proxysocketendpoint={{ AGENT_ENGINE_SOCKET }}"
       - "-proxysocketendpointfilemode=0666"
       - "-allowhealthcheck"
-      - "-allowbindmountfrom=/nonexistent"
+      {% for source in AGENT_BROKER_ALLOWED_BIND_MOUNTS %}
+      - "-allowbindmountfrom={{ source }}"
+      {% endfor %}
       - "-allowGET=^(/v[0-9.]+)?/(_ping|version|containers/json|containers/[^/]+/json|images/.+/json|networks|networks/[^/]+|services|services/[^/]+|tasks)$$"
       - "-allowPOST=^(/v[0-9.]+)?/(images/create|volumes/create|networks/create|networks/[^/]+/connect|containers/create|containers/[^/]+/(start|stop)|services/create|services/[^/]+/update)$$"
       - "-watchdoginterval=3600"

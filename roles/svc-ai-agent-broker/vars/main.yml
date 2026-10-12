@@ -18,6 +18,11 @@ AGENT_BROKER_CONSTRAINT: "node.labels.{{ SANDBOX_NODE_LABEL }} == true"
 AGENT_BROKER_NETWORK_PREFIX: "{{ entity_name }}-agent"
 AGENT_SOCKET_PROXY_NAME: "{{ lookup('config', application_id, 'services.socket-proxy.name') }}"
 AGENT_ENGINE_SOCKET: "{{ [lookup('volume', application_id, 'engine_socket').target, 'engine.sock'] | path_join }}"
+AGENT_BROKER_ALLOWED_BIND_MOUNTS:
+  - "{{ CA_TRUST.wrapper_host }}"
+  - "{{ CA_TRUST.bundle_host }}"
+  - "{{ CA_TRUST.cert_host }}"
+  - "{{ CA_TRUST.php_ini_host }}"
 
 AGENT_BROKER_PLATFORMS_DECLARED:
   hermes:
