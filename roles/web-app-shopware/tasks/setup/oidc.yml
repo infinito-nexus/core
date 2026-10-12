@@ -22,15 +22,18 @@
       container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
       -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
-      -e ADMIN_PASSWORD={{ lookup('users', 'platform_administrator').password | quote }}
+      -e ADMIN_PASSWORD
       -e OIDC_AUTH_SERVER={{ OIDC.URL | quote }}
       -e OIDC_INTERNAL_BASE={{ SHOPWARE_OIDC_INTERNAL_BASE | quote }}
       -e OIDC_REALM={{ OIDC.CLIENT.REALM | quote }}
       -e OIDC_CLIENT_ID={{ OIDC.CLIENT.ID | quote }}
-      -e OIDC_CLIENT_SECRET={{ OIDC.CLIENT.SECRET | quote }}
+      -e OIDC_CLIENT_SECRET
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       php
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}"
+  environment:
+    ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+    OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

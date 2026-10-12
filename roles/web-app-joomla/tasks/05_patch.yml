@@ -7,11 +7,13 @@
     -e J_DBTYPE={{ JOOMLA_DB_CONNECTOR | quote }}
     -e J_DBHOST={{ (lookup('database', application_id, 'host') ~ ':' ~ lookup('database', application_id, 'port')) | quote }}
     -e J_DBUSER={{ lookup('database', application_id, 'username') | quote }}
-    -e J_DBPASS={{ lookup('database', application_id, 'password') | quote }}
+    -e J_DBPASS
     -e J_DBNAME={{ lookup('database', application_id, 'name') | quote }}
     {{ JOOMLA_LOCAL_CID | quote }} php --
   args:
     stdin: "{{ lookup('file', role_path ~ '/files/php/configure_db.php') }}"
+  environment:
+    J_DBPASS: "{{ lookup('database', application_id, 'password') }}"
   register: cfg_patch
   changed_when: cfg_patch.stdout == "changed"
   failed_when: cfg_patch.rc != 0

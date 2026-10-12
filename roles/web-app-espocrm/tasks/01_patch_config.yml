@@ -3,11 +3,13 @@
   ansible.builtin.shell:
     cmd: >-
       container exec -i --user root
-      -e CONFIG_KEY={{ item.key }}
-      -e CONFIG_VALUE={{ item.value | quote }}
-      -e CONFIG_FILE={{ ESPOCRM_CONFIG_FILE_PRIVATE | quote }}
+      -e CONFIG_KEY -e CONFIG_VALUE -e CONFIG_FILE
       {{ ESPOCRM_LOCAL_CID | quote }} sh
     stdin: "{{ lookup('file', 'shell/patch_config_key.sh') }}"
+  environment:
+    CONFIG_KEY: "{{ item.key }}"
+    CONFIG_VALUE: "{{ item.value }}"
+    CONFIG_FILE: "{{ ESPOCRM_CONFIG_FILE_PRIVATE }}"
   loop:
     - { key: host, value: "{{ lookup('database', application_id, 'host') }}" }
     - { key: dbname, value: "{{ lookup('database', application_id, 'name') }}" }

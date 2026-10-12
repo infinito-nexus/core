@@ -77,11 +77,13 @@
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
     -e DECIDIM_ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
-    -e DECIDIM_ADMIN_PASSWORD={{ lookup('users', 'platform_administrator').password | quote }}
+    -e DECIDIM_ADMIN_PASSWORD
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
     stdin: "{{ lookup('file', 'ruby/ensure/admin_user.rb') }}"
+  environment:
+    DECIDIM_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   register: decidim_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'Admin user ready' in decidim_admin_result.stdout"

@@ -53,13 +53,15 @@
       -e LDAP_SERVER={{ CHECKMK_LDAP_SERVER | quote }}
       -e LDAP_PORT={{ CHECKMK_LDAP_PORT | quote }}
       -e LDAP_BIND_DN={{ CHECKMK_LDAP_BIND_DN | quote }}
-      -e LDAP_BIND_PASSWORD={{ CHECKMK_LDAP_BIND_PASSWORD | quote }}
+      -e LDAP_BIND_PASSWORD
       -e LDAP_USER_DN={{ CHECKMK_LDAP_USER_DN | quote }}
       -e LDAP_GROUP_DN={{ CHECKMK_LDAP_GROUP_DN | quote }}
       -e LDAP_UID_ATTR={{ CHECKMK_LDAP_USER_ID_ATTR | quote }}
       {{ CHECKMK_LOCAL_CID | quote }}
       bash -s
     stdin: "{{ lookup('file', 'shell/configure-sso.sh') }}"
+  environment:
+    LDAP_BIND_PASSWORD: "{{ CHECKMK_LDAP_BIND_PASSWORD }}"
   delegate_to: "{{ CHECKMK_HOST_NODE }}"
   when: (CHECKMK_SSO_ENABLED | bool) or (CHECKMK_LDAP_ENABLED | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

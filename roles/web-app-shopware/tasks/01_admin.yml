@@ -5,13 +5,15 @@
       container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
       -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
-      -e ADMIN_PASSWORD={{ lookup('users', 'platform_administrator').password | quote }}
+      -e ADMIN_PASSWORD
       -e ADMIN_FIRST_NAME={{ lookup('users', 'platform_administrator').username | quote }}
       -e ADMIN_LAST_NAME={{ DOMAIN_PRIMARY | lower | quote }}
       -e ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       sh
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/shell/admin/user.sh') }}"
+  environment:
+    ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🛡️ Ensure the Shopware admin still holds the admin privilege"

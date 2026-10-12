@@ -28,11 +28,12 @@ SLEEP_SECONDS="${SLEEP_SECONDS:-15}"
 
 DB_PASSWORD="$(printf '%s' "${DB_PASSWORD_B64}" | base64 -d 2>/dev/null)"
 [ -n "${DB_PASSWORD}" ] || { echo "[FATAL] DB_PASSWORD_B64 missing or undecodable" >&2; exit 2; }
+export MYSQL_PWD="${DB_PASSWORD}"
 
 # Local: authenticate inside the container over TCP (127.0.0.1) so the server
 # enforces password auth — a genuine credential check.
 auth_local() {
-	container exec -e MYSQL_PWD="${DB_PASSWORD}" "${DB_CONTAINER}" \
+	container exec -e MYSQL_PWD "${DB_CONTAINER}" \
 		mariadb -h 127.0.0.1 -u "${DB_USER}" -N -B -e 'SELECT 1' 2>/dev/null |
 		grep -qx 1
 }

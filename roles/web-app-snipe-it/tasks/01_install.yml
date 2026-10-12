@@ -25,10 +25,12 @@
 - name: ▶️ Run Snipe-IT migrations (idempotent)
   ansible.builtin.shell: >-
     container exec -i
-    -e APP_KEY="{{ SNIPE_IT_APP_KEY }}"
+    -e APP_KEY
     -e XDG_CONFIG_HOME=/tmp
     {{ SNIPE_IT_CONTAINER_ADDRESS }}
     php artisan migrate --force
+  environment:
+    APP_KEY: "{{ SNIPE_IT_APP_KEY }}"
   register: snipeit_migrate
   changed_when: >
     ('Migrating:' in snipeit_migrate.stdout)

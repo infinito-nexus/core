@@ -58,8 +58,10 @@
 
 - name: "📁 Create user: {{ rabbitmq_consumer_username }}"
   ansible.builtin.shell: >
-    container exec -e RMQ_PW={{ rabbitmq_consumer_password | quote }} {{ RABBITMQ_CONTAINER_ADDRESS }} sh -lc
+    container exec -e RMQ_PW {{ RABBITMQ_CONTAINER_ADDRESS }} sh -lc
     'rabbitmqctl -q add_user {{ rabbitmq_consumer_username | quote }} "$RMQ_PW"'
+  environment:
+    RMQ_PW: "{{ rabbitmq_consumer_password }}"
   register: rmq_add_user
   changed_when: rmq_add_user.rc == 0
   retries: "{{ RABBITMQ_RETRIES }}"
@@ -70,8 +72,10 @@
 
 - name: "✅ Ensure user password matches inventory: {{ rabbitmq_consumer_username }}"
   ansible.builtin.shell: >
-    container exec -e RMQ_PW={{ rabbitmq_consumer_password | quote }} {{ RABBITMQ_CONTAINER_ADDRESS }} sh -lc
+    container exec -e RMQ_PW {{ RABBITMQ_CONTAINER_ADDRESS }} sh -lc
     'rabbitmqctl -q change_password {{ rabbitmq_consumer_username | quote }} "$RMQ_PW"'
+  environment:
+    RMQ_PW: "{{ rabbitmq_consumer_password }}"
   register: rmq_change_password
   changed_when: false
   retries: "{{ RABBITMQ_RETRIES }}"

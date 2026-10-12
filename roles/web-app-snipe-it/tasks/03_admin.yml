@@ -2,7 +2,7 @@
 - name: "🔎 Check if Snipe-IT admin user already exists (by username)"
   ansible.builtin.shell: |
     container exec -i \
-      -e APP_KEY="{{ SNIPE_IT_APP_KEY }}" \
+      -e APP_KEY \
       {{ SNIPE_IT_CONTAINER_ADDRESS }} \
       php -r '
         require "vendor/autoload.php";
@@ -13,22 +13,27 @@
           ->exists();
         exit($exists ? 0 : 1);
       '
+  environment:
+    APP_KEY: "{{ SNIPE_IT_APP_KEY }}"
   register: snipe_it_admin_exists
   changed_when: false
   failed_when: false
 
 - name: "📁 Create Snipe-IT administrator account"
-  ansible.builtin.shell: >
-    container exec -i
-    -e APP_KEY="{{ SNIPE_IT_APP_KEY }}"
-    {{ SNIPE_IT_CONTAINER_ADDRESS }}
-    php artisan snipeit:create-admin
-    --first_name "{{ lookup('users', 'platform_administrator').firstname }}"
-    --last_name "{{ lookup('users', 'platform_administrator').lastname }}"
-    --username "{{ lookup('users', 'platform_administrator').username }}"
-    --email "{{ lookup('users', 'platform_administrator').email }}"
-    --password {{ lookup('users', 'platform_administrator').password | quote }}
-    --no-interaction
+  ansible.builtin.shell: |
+    container exec -i -e APP_KEY -e SNIPE_IT_REALIGN_PASSWORD \
+      {{ SNIPE_IT_CONTAINER_ADDRESS }} sh -lc '
+        php artisan snipeit:create-admin \
+          --first_name "{{ lookup('users', 'platform_administrator').firstname }}" \
+          --last_name "{{ lookup('users', 'platform_administrator').lastname }}" \
+          --username "{{ lookup('users', 'platform_administrator').username }}" \
+          --email "{{ lookup('users', 'platform_administrator').email }}" \
+          --password "$SNIPE_IT_REALIGN_PASSWORD" \
+          --no-interaction
+      '
+  environment:
+    APP_KEY: "{{ SNIPE_IT_APP_KEY }}"
+    SNIPE_IT_REALIGN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   when: snipe_it_admin_exists.rc != 0
   register: snipe_it_admin_create
   changed_when: "'New user created' in snipe_it_admin_create.stdout"

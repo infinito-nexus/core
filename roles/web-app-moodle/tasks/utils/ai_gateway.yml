@@ -7,13 +7,15 @@
     container exec -i --user {{ MOODLE_RUNTIME_USER }}
     -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
     -e AI_PROVIDER_NAME={{ MOODLE_LITELLM_PROVIDER_NAME | quote }}
-    -e AI_API_KEY={{ MOODLE_LITELLM_API_KEY | quote }}
+    -e AI_API_KEY
     -e AI_CHAT_ENDPOINT={{ MOODLE_LITELLM_CHAT_ENDPOINT | quote }}
     -e AI_CHAT_MODEL={{ LITELLM_CHAT_MODEL | quote }}
     -e AI_IMAGE_ENDPOINT={{ MOODLE_LITELLM_IMAGE_ENDPOINT | quote }}
     {{ MOODLE_CONTAINER_ADDRESS }} php
   args:
     stdin: "{{ lookup('file', 'php/provision/ai_gateway.php') }}"
+  environment:
+    AI_API_KEY: "{{ MOODLE_LITELLM_API_KEY }}"
   register: moodle_ai_provider
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

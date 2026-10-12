@@ -28,8 +28,9 @@
           ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
             {{ lookup('path_absolute', 'roles/svc-db-postgres/files/shell/set_postgres_superuser_password.sh') }}
             {{ lookup('database', application_id, 'container') | quote }}
-            {{ lookup('database', application_id, 'password') | quote }}
             {{ lookup('database', application_id, 'username') | quote }}
+          environment:
+            POSTGRES_SUPERUSER_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
           register: _app_db_realign
           no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
           changed_when: _app_db_realign.stdout is search('\\[CHANGED\\]')
