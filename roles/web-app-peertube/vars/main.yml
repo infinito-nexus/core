@@ -6,6 +6,7 @@ PEERTUBE_CONTAINER: "{{ lookup('config', application_id, 'services.peertube.name
 PEERTUBE_HOSTNAME: "{{ lookup('domain', application_id) }}"
 PEERTUBE_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
 PEERTUBE_ROOT_USERNAME: "root"
+PEERTUBE_ROOT_PASSWORD: "{{ (lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password | string)[:50] }}"
 
 PEERTUBE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 PEERTUBE_DESIGN: "{{ lookup('design', application_id) }}"

@@ -37,6 +37,8 @@ The plugin is installed through PeerTube's own `plugin:install` and its settings
 
 ## Developer Notes
 
+The native `root` account signs in with the **first 50 characters** of the platform administrator's password, not the whole secret. PeerTube caps a user password at 50 characters and 72 bytes (`CONSTRAINTS_FIELDS.USERS.PASSWORD`, "Limited by bcrypt algorithm"), and a declared user's password is 64 characters: handed over in full, `/api/v1/users/token` answers `too_long_password` and `npm run reset-password` refuses it with "New password is invalid.". `PEERTUBE_ROOT_PASSWORD` in [vars/main.yml](./vars/main.yml) is the single place that bounds it; the deploy, the design token and `templates/playwright.env.j2` all read it from there. Signing in through Keycloak uses the full password.
+
 See [Upgrade.md](./Upgrade.md) for guidance on upgrading your PeerTube deployment.
 
 ## Further Resources

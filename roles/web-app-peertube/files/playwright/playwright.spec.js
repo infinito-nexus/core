@@ -23,6 +23,8 @@ const oidcButtonText = decodeDotenvQuotedValue(process.env.OIDC_BUTTON_TEXT || "
 const peertubeBaseUrl = normalizeBaseUrl(process.env.PEERTUBE_BASE_URL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
+const rootUsername = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_USERNAME);
+const rootPassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
@@ -34,6 +36,8 @@ test.beforeEach(async ({ page }) => {
   expect(peertubeBaseUrl, "PEERTUBE_BASE_URL must be set").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
+  expect(rootUsername, "ADMIN_NATIVE_USERNAME must be set").toBeTruthy();
+  expect(rootPassword, "ADMIN_NATIVE_PASSWORD must be set").toBeTruthy();
   expect(biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
@@ -145,9 +149,9 @@ test("administrator: root signs in to the local form with the administrator pass
   const username = page.locator("#username");
   const password = page.locator("#password");
   await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
-  await username.fill("root");
+  await username.fill(rootUsername);
   await expect(password).toBeEditable({ timeout: resolveTimeout(10_000) });
-  await password.fill(adminPassword);
+  await password.fill(rootPassword);
   await page.locator('input[type="submit"].primary-button').click();
   await expect(
     page.locator(AUTHENTICATED_MARKER).first(),

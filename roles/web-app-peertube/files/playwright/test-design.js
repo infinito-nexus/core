@@ -32,7 +32,7 @@ const THEME_TOKENS = {
   headerBackgroundColor: "--design-surface-1",
 };
 
-const ADMIN_PASSWORD = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const ROOT_PASSWORD = requireDotenvValue(process.env.ADMIN_NATIVE_PASSWORD, "ADMIN_NATIVE_PASSWORD");
 const DESIGN_LOGO_URL = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const DESIGN_TITLE = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
@@ -73,7 +73,7 @@ async function rootHeaders(request) {
       client_secret: client.client_secret,
       grant_type: "password",
       username: ROOT_USERNAME,
-      password: ADMIN_PASSWORD,
+      password: ROOT_PASSWORD,
     },
   });
   expect(response.status(), "root must obtain an API token with the administrator password").toBe(200);
@@ -94,7 +94,7 @@ async function signInRoot(page) {
   await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
   await username.fill(ROOT_USERNAME);
   await expect(password).toBeEditable({ timeout: resolveTimeout(10_000) });
-  await password.fill(ADMIN_PASSWORD);
+  await password.fill(ROOT_PASSWORD);
   await page.locator('input[type="submit"].primary-button').click();
   await expect(page.locator(SIGNED_IN)).toBeAttached({ timeout: resolveTimeout(10_000) });
 }
