@@ -133,7 +133,7 @@ docker run --rm -it \
 
 - [Gitea Official Website](https://gitea.io/)
 - [Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/TM24gqSHJCqMMQDhS1kxyq)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/2sFaGadUqQRHP7VdSUFuwY)
 
 ## MCP Server
 

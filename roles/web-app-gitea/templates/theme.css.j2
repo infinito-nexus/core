@@ -71,6 +71,32 @@
 {% endfor %}
   --color-error-bg-hover: color-mix(in oklab, var(--design-danger) 18%, var(--design-surface-2));
   --color-error-bg-active: color-mix(in oklab, var(--design-danger) 24%, var(--design-surface-2));
+{% for status, name in [('danger', 'red'), ('success', 'green')] %}
+  --color-{{ name }}: var(--design-{{ status }});
+  --color-{{ name }}-light: var(--design-{{ status }}-hover);
+  --color-{{ name }}-dark-1: var(--design-{{ status }}-hover);
+  --color-{{ name }}-dark-2: var(--design-{{ status }}-active);
+  --color-{{ name }}-badge: var(--design-{{ status }});
+  --color-{{ name }}-badge-bg: var(--design-{{ status }}-subtle);
+  --color-{{ name }}-badge-hover-bg: color-mix(in oklab, var(--design-{{ status }}) 18%, var(--design-surface-2));
+{% endfor %}
+}
+
+{% for status, name in [('danger', 'red'), ('success', 'green')] %}
+.ui.{{ name }}.button,
+.ui.{{ name }}.buttons .button,
+.ui.ui.ui.{{ name }}.label,
+a.ui.ui.ui.{{ name }}.label:hover {
+  color: var(--design-on-{{ status }});
+}
+
+{% endfor %}
+.runner-container .task-status-failure {
+  color: var(--design-on-danger);
+}
+
+.runner-container .task-status-success {
+  color: var(--design-on-success);
 }
 
 .page-content.home .hero .svg {
