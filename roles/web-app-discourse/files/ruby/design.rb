@@ -145,7 +145,6 @@ else
   end
 end
 
-# Exception: Stylesheet::Manager.clear_theme_cache! drops only the keys of this console process, so the app servers keep the old theme stylesheet until the whole cache is cleared.
 Stylesheet::Manager.cache.clear
 
 puts "design_changed=#{changed.any?}"
