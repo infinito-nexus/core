@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -17,6 +17,7 @@ const corporateTheme = decodeDotenvQuotedValue(process.env.DESIGN_THEME || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const iconUrl = decodeDotenvQuotedValue(process.env.DESIGN_ICON_URL || "");
 const lockupUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOCKUP_URL || "");
+const splashUrl = decodeDotenvQuotedValue(process.env.DESIGN_SPLASH_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const touchIconUrl = decodeDotenvQuotedValue(process.env.DESIGN_TOUCH_ICON_URL || "");
 
@@ -33,6 +34,9 @@ const HEADER = ".skinHeader";
 const HEADER_LOGO = ".skinHeader .pageTitleWithDefaultLogo";
 const HEADER_TAB = ".skinHeader .emby-tab-button";
 const HEADER_BUTTON = ".skinHeader .headerSearchButton";
+const HEADER_TAB_MUTED = "rgba(var(--design-on-frame-rgb), 0.72)";
+const SELECTION_PANEL = "#design-probe-selection";
+const FOCUSABLE = "button:visible, a[href]:visible, input:visible, [tabindex]:not([tabindex='-1']):visible";
 const DRAWER = ".mainDrawer";
 const DRAWER_BUTTON = ".skinHeader .mainDrawerButton";
 const NAV_ENTRY = ".mainDrawer .navMenuOption";
@@ -164,6 +168,82 @@ async function assertLoads(page, url) {
     ),
     `the page must be allowed to load ${url}`,
   ).toBe(true);
+}
+
+/**
+ * Args:
+ *   page: Playwright page that shows the frame.
+ *   frame: frame element whose focus stops are walked with the Tab key.
+ *   label: assertion label.
+ */
+async function assertFrameFocus(page, frame, label) {
+  const ring = `${await tokenValue(page, "--design-on-frame", "color")} 0px 0px 0px 2px inset`;
+  await page.locator(frame).first().locator(FOCUSABLE).first().focus();
+  await page.keyboard.press("Shift+Tab");
+  let stops = 0;
+  for (let step = 0; step < 20; step += 1) {
+    await page.keyboard.press("Tab");
+    const name = await page.evaluate((selector) => {
+      const element = document.activeElement;
+      return element && element.closest(selector) ? `${element.tagName.toLowerCase()}.${[...element.classList].join(".")}` : null;
+    }, frame);
+    if (name === null) break;
+    stops += 1;
+    await expect
+      .poll(() => page.evaluate(() => getComputedStyle(document.activeElement).boxShadow), {
+        message: `${label}: ${name} must draw its focus ring in --design-on-frame`,
+      })
+      .toBe(ring);
+  }
+  expect(stops, `${label}: the Tab key must reach the focus stops of ${frame}`).toBeGreaterThan(0);
+}
+
+/**
+ * Args:
+ *   page: Playwright page that shows the surface the lockup sits on.
+ *   url: served SVG lockup.
+ *   token: token whose light value the generator bakes into the title.
+ *   surface: element the lockup is painted on.
+ *   mode: color scheme the page shows that lockup in.
+ *   min: contrast the title must reach on the surface.
+ *   label: assertion label.
+ */
+async function assertLockupTitle(page, url, token, surface, mode, min, label) {
+  const source = await (await apiGetOnion(page.request, url)).text();
+  const fill =/<text[^>]*\sfill="([^"]+)"/.exec(source)[1];
+  await page.emulateMedia({ colorScheme: "light" });
+  expect(await colorOf(page, fill), `${label}: the title of ${url} must be filled with the light ${token}`).toBe(await colorOf(page, `var(${token})`));
+  await page.emulateMedia({ colorScheme: mode });
+  const contrast = () =>
+    page
+      .locator(surface)
+      .first()
+      .evaluate((element, color) => {
+        const context = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+        const rgba = (value) => {
+          context.clearRect(0, 0, 1, 1);
+          context.fillStyle = "#000";
+          context.fillStyle = value;
+          context.fillRect(0, 0, 1, 1);
+          return [...context.getImageData(0, 0, 1, 1).data];
+        };
+        let background = [255, 255, 255];
+        for (let current = element; current; current = current.parentElement) {
+          const [r, g, b, a] = rgba(getComputedStyle(current).backgroundColor);
+          if (a > 127) {
+            background = [r, g, b];
+            break;
+          }
+        }
+        const luminance = ([r, g, b]) =>
+          [r, g, b]
+            .map((channel) => channel / 255)
+            .map((channel) => (channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4))
+            .reduce((sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index], 0);
+        const [fg, bg] = [luminance(rgba(color)), luminance(background)];
+        return (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
+      }, fill);
+  await expect.poll(contrast, { message: `${label}: the title of ${url} must reach contrast ${min} on ${surface} in ${mode} mode` }).toBeGreaterThanOrEqual(min);
 }
 
 /**
@@ -306,13 +386,18 @@ exports.register = function (shared) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, route(`home-${mode}`, "home"));
       await shown(page, HOME_MESSAGE);
-      await assertToken(page, HEADER, "background-color", "--design-surface-2", `header ${mode}`);
+      await assertToken(page, HEADER, "background-color", "--design-frame", `header ${mode}`);
+      await assertToken(page, HEADER, "color", "--design-on-frame", `header ${mode}`);
       await assertToken(page, HOME_MESSAGE, "color", "--design-text", `empty library state ${mode}`);
       await assertToken(page, HOME_LINK, "color", "--design-link", `link ${mode}`);
-      await assertToken(page, `${HEADER_TAB}.emby-tab-button-active`, "color", "--design-text", `selected tab ${mode}`);
-      await assertToken(page, `${HEADER_TAB}:not(.emby-tab-button-active)`, "color", "--design-text-muted", `unselected tab ${mode}`);
+      await assertToken(page, `${HEADER_TAB}.emby-tab-button-active`, "color", "--design-on-frame", `selected tab ${mode}`);
+      expect(await computed(page, `${HEADER_TAB}:not(.emby-tab-button-active)`, "color"), `unselected tab ${mode}: ${HEADER_TAB_MUTED}`).toBe(
+        await colorOf(page, HEADER_TAB_MUTED),
+      );
+      await assertFrameFocus(page, HEADER, `header ${mode}`);
       await page.locator(HEADER_BUTTON).hover();
-      await assertToken(page, HEADER_BUTTON, "background-color", "--design-surface-hover", `hovered header button ${mode}`);
+      await assertToken(page, HEADER_BUTTON, "background-color", "--design-frame-hover", `hovered header button ${mode}`);
+      await assertToken(page, HEADER_BUTTON, "color", "--design-on-frame", `hovered header button ${mode}`);
       await navigationOpened(page);
       await assertToken(page, DRAWER, "background-color", "--design-surface-2", `navigation ${mode}`);
       await assertToken(page, NAV_ENTRY, "color", "--design-text", `navigation entry ${mode}`);
@@ -333,6 +418,30 @@ exports.register = function (shared) {
     await navigationOpened(page);
     await assertLightAndDark(page, DRAWER, "jellyfin navigation");
     await assertReadable(page, [HOME_MESSAGE, HOME_LINK, NAV_ENTRY, `${HEADER_TAB}.emby-tab-button-active`, `${HEADER_TAB}:not(.emby-tab-button-active)`], "jellyfin shell");
+  });
+
+  test("design: the selection bar is a frame that draws focus in the on-frame color", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await signIn(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, route(`selection-${mode}`, "home"));
+      await shown(page, HOME_MESSAGE);
+      await page.evaluate((id) => {
+        const panel = document.createElement("div");
+        panel.id = id;
+        panel.className = "selectionCommandsPanel";
+        const button = document.createElement("button");
+        button.className = "paper-icon-button-light";
+        button.textContent = "select";
+        panel.appendChild(button);
+        document.body.appendChild(panel);
+      }, SELECTION_PANEL.slice(1));
+      await assertToken(page, SELECTION_PANEL, "background-color", "--design-frame", `selection bar ${mode}`);
+      await assertToken(page, SELECTION_PANEL, "color", "--design-on-frame", `selection bar ${mode}`);
+      await assertFrameFocus(page, SELECTION_PANEL, `selection bar ${mode}`);
+    }
   });
 
   test("design: the administration takes its Material palette from the tokens", async ({ page }) => {
@@ -375,6 +484,7 @@ exports.register = function (shared) {
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await assertToken(page, ADMIN_TABLE_CELL, "background-color", "--design-surface-2", `table cell ${mode}`);
+      await assertToken(page, ADMIN_TABLE_CELL, "border-bottom-color", "--design-border", `table divider ${mode}`);
       await assertToken(page, ADMIN_TABLE_HEAD, "background-color", "--design-surface-2", `table head ${mode}`);
       await assertToken(page, ADMIN_TABLE_AVATAR, "background-color", "--design-surface-3", `user symbol ${mode}`);
     }
@@ -402,7 +512,7 @@ exports.register = function (shared) {
         .poll(() => computed(page, HEADER, "background-color"), { message: "the picked theme must paint its own header" })
         .not.toBe("rgba(0, 0, 0, 0)");
       expect(await computed(page, HEADER, "background-color"), "the picked theme must keep its own header color").not.toBe(
-        await tokenValue(page, "--design-surface-2", "background-color"),
+        await tokenValue(page, "--design-frame", "background-color"),
       );
       expect(await computed(page, ".backgroundContainer", "background-color"), "the picked theme must keep its own page color").not.toBe(lightSurface);
     } finally {
@@ -439,20 +549,29 @@ exports.register = function (shared) {
         (Number(/font-size="(\d+)"/.exec(source)[1]) * box.height) / natural.height,
         "the title of the lockup must not be painted smaller than 12px",
       ).toBeGreaterThanOrEqual(12);
+      for (const mode of MODES) await assertLockupTitle(page, lockupUrl, "--design-on-frame", HEADER, mode, 4.5, `header lockup ${mode}`);
+      await page.emulateMedia({ colorScheme: null });
       await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);
       await expect(page.locator("link[rel='apple-touch-icon']")).toHaveAttribute("href", touchIconUrl);
       for (const url of [lockupUrl, iconUrl, faviconUrl, touchIconUrl]) await assertLoads(page, url);
     }
   });
 
-  test("design: the start screen shows the lockup before the client has booted", async ({ page }) => {
+  test("design: the start screen shows a lockup readable in both modes before the client has booted", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(!lockupUrl, "logo replacement is disabled for this role");
+    test.skip(!lockupUrl || !splashUrl, "logo replacement is disabled for this role");
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.route("**/main.jellyfin.bundle.js*", (request) => request.abort());
-    await gotoOnion(page, `${base}/web/`);
-    await expect(page.locator(".splashLogo")).toHaveCSS("background-image", `url("${lockupUrl}")`);
-    await assertToken(page, "html", "background-color", "--design-surface-1", "start screen");
+    for (const [mode, url, token] of [
+      ["light", splashUrl, "--design-link"],
+      ["dark", lockupUrl, "--design-on-frame"],
+    ]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, `${base}/web/`);
+      await expect(page.locator(".splashLogo")).toHaveCSS("background-image", `url("${url}")`);
+      await assertToken(page, "html", "background-color", "--design-surface-1", `start screen ${mode}`);
+      await assertLockupTitle(page, url, token, "html", mode, 3, `start screen lockup ${mode}`);
+    }
   });
 
   test("design: the administration drawer shows the corporate symbol next to the title", async ({ page }) => {

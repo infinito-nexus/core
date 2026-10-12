@@ -115,7 +115,7 @@ Jellyfin has **no native OIDC/LDAP**; auth is plugin-based with an important cli
 - **LDAP plugin** works on **every client** (web + native Android/iOS/TV/desktop apps).
 - **OIDC SSO plugin** is **web-UI only** - native apps cannot use it (they sign in via LDAP/local).
 
-`files/configure-auth.sh` (run on the deploy host) completes the first-run wizard (seeds the break-glass admin), installs both plugins via Jellyfin's own `/Packages` installer, writes the plugin configs, and restarts.
+`files/shell/configure-auth.sh` (run on the deploy host) completes the first-run wizard (seeds the break-glass admin), installs both plugins via Jellyfin's own `/Packages` installer, writes the plugin configs, and restarts.
 
 ## Further Resources
 
@@ -123,7 +123,7 @@ Jellyfin has **no native OIDC/LDAP**; auth is plugin-based with an important cli
 - [Container installation](https://jellyfin.org/docs/general/installation/container/)
 - [LDAP plugin](https://github.com/jellyfin/jellyfin-plugin-ldapauth)
 - [SSO/OIDC plugin](https://github.com/9p4/jellyfin-plugin-sso)
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Q1AHrVLgKVPErMC2BH4hU4)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/4zZWCud2vac1oP6UXGK5k7)
 
 ## Persona contract opt-outs
 

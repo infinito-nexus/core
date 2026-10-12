@@ -8,6 +8,11 @@ html[data-design-palette] .splashLogo {
 }
 @media screen and (min-device-width: 992px) {
   html[data-design-palette] .splashLogo {
+    background-image: url("{{ design.urls.splash.svg }}");
+  }
+}
+@media screen and (min-device-width: 992px) and (prefers-color-scheme: dark) {
+  html[data-design-palette] .splashLogo {
     background-image: url("{{ design.urls.brand.svg }}");
   }
 }
