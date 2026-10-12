@@ -5,6 +5,21 @@ BLUESKY_SOCIAL_APP_DIR: "{{ [ lookup('container', application_id, 'directories.s
 BLUESKY_SOCIAL_APP_REPOSITORY: "{{ lookup('config', application_id, 'services.view.repository') }}"
 BLUESKY_SOCIAL_APP_REF: "{{ lookup('config', application_id, 'services.view.ref') }}"
 BLUESKY_GEOLOCATION_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/geolocation/index.tsx' ] | path_join }}"
+BLUESKY_ALF_THEMES_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR, 'src/alf/themes.ts' ] | path_join }}"
+BLUESKY_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+BLUESKY_DESIGN_SOURCE_PATCHES:
+  - path: src/components/Button.tsx
+    regexp: "backgroundColor: t\\.palette\\.primary_600,"
+    replace: "backgroundColor: t.palette.design_primary_hover,"
+  - path: src/components/Button.tsx
+    regexp: "(color === 'negative'\\) \\{\\n\\s+if \\(!disabled\\) \\{\\n\\s+baseStyles\\.push\\(\\{color: t\\.palette\\.)white\\}"
+    replace: "\\1design_on_negative}"
+  - path: src/screens/Settings/AccountSettings.tsx
+    regexp: "\\{color: t\\.palette\\.primary_500\\}, a\\.font_semi_bold"
+    replace: "{color: t.palette.primary_600}, a.font_semi_bold"
+  - path: src/view/com/composer/select-language/PostLanguageSelect.tsx
+    regexp: "pressed \\|\\| hovered \\? t\\.palette\\.primary_300 : t\\.palette\\.primary_500"
+    replace: "pressed || hovered ? t.palette.primary_700 : t.palette.primary_600"
 
 BLUESKY_PDSADMIN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_FILE: "{{ [ BLUESKY_PDSADMIN_DIR, 'pdsadmin' ] | path_join }}"

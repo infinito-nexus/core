@@ -1,4 +1,23 @@
 ---
+- name: 🔎 Probe the social app checkout against the pinned ref
+  ansible.builtin.git:
+    repo: "{{ BLUESKY_SOCIAL_APP_REPOSITORY }}"
+    dest: "{{ BLUESKY_SOCIAL_APP_DIR }}"
+    version: "{{ BLUESKY_SOCIAL_APP_REF }}"
+    force: true
+  check_mode: true
+  register: bluesky_social_app_probe
+
+- name: 🔎 Find a corporate ALF theme left in the checkout
+  ansible.builtin.find:
+    paths: "{{ BLUESKY_ALF_THEMES_PATH | dirname }}"
+    patterns: "{{ BLUESKY_ALF_THEMES_PATH | basename }}"
+    contains: "DESIGN_THEMES"
+  register: bluesky_social_app_theme_left
+  when:
+    - not (BLUESKY_DESIGN_ENABLED | bool)
+    - bluesky_social_app_probe is not changed
+
 - name: ⬇️ clone social app repository
   git:
     repo: "{{ BLUESKY_SOCIAL_APP_REPOSITORY }}"
@@ -6,6 +25,9 @@
     version: "{{ BLUESKY_SOCIAL_APP_REF }}"
     force: true
   register: bluesky_social_app_clone
+  when: >-
+    bluesky_social_app_probe is changed
+    or (bluesky_social_app_theme_left is not skipped and bluesky_social_app_theme_left.matched > 0)
 
 - name: 💪 Force BAPP_CONFIG_URL to same-origin /config
   ansible.builtin.replace:
@@ -18,3 +40,22 @@
     path: "{{ BLUESKY_GEOLOCATION_PATH }}"
     regexp: "^\\s*const\\s+IPCC_URL\\s*=\\s*.*$"
     replace: "const IPCC_URL = '/ipcc'"
+
+- name: 🎨 Render the corporate ALF theme into the social app build context
+  stack_host_template:
+    src: alf-themes.ts.j2
+    dest: "{{ BLUESKY_ALF_THEMES_PATH }}"
+    mode: "0644"
+  register: bluesky_social_app_theme
+  when: BLUESKY_DESIGN_ENABLED | bool
+
+- name: "🎨 Point text and hover colors of the social app at the corporate slots"
+  ansible.builtin.replace:
+    path: "{{ [BLUESKY_SOCIAL_APP_DIR, item.path] | path_join }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop: "{{ BLUESKY_DESIGN_SOURCE_PATCHES }}"
+  loop_control:
+    label: "{{ item.path }}"
+  register: bluesky_social_app_design_patches
+  when: BLUESKY_DESIGN_ENABLED | bool

@@ -124,6 +124,8 @@ RBAC stays gating-only because the PDS has no in-app role concept beyond "accoun
 
 See [Administration.md](./Administration.md) for live container administration through `pdsadmin`. See [README.md](./files/login-broker/README.md) for the login-broker's environment contract and failure modes.
 
+With `design` on, `templates/alf-themes.ts.j2` and the source patches in `BLUESKY_DESIGN_SOURCE_PATCHES` are applied to the social-app checkout before the image build, so a palette change rebuilds the `web` image; run `make design-palette` for this role with `sync=role`. The design spec signs in through `createSession` on the PDS plus a seeded `BSKY_STORAGE`, and stores a birthdate preference for the administrator to pass the age-assurance gate.
+
 ## Further Resources
 
 - [Bluesky Official Website](https://bsky.social/)
@@ -132,6 +134,7 @@ See [Administration.md](./Administration.md) for live container administration t
 - [Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)
 - [Self-hosting Bluesky with Docker and SWAG](https://therobbiedavis.com/selfhosting-bluesky-with-web-app-and-swag/)
 - [pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/9VPZ42hi6acmeZHnyTq3xS)
 
 ## Credits
 
