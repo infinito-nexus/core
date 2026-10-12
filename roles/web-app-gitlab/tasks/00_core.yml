@@ -33,3 +33,6 @@
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml
   when: GITLAB_MCP_ENABLED | bool
+
+- name: "🎨 Converge the GitLab appearance"
+  include_tasks: 03_design.yml
