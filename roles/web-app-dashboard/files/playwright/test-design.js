@@ -4,6 +4,7 @@ const {
   assertDesignTokens,
   assertLightAndDark,
   assertReadable,
+  assertToken,
   captureDesignGallery,
   galleryEnabled,
 } = require("./design");
@@ -27,9 +28,19 @@ async function hoverIfVisible(locator) {
   }
 }
 
+async function openBurger(page, menu) {
+  const toggler = page.locator(`.menu-${menu} .navbar-toggler`).first();
+  if (await toggler.isVisible().catch(() => false)) {
+    await toggler.click({ timeout: resolveTimeout(10_000) });
+    await page
+      .locator(`.menu-${menu} .navbar-collapse.show`)
+      .waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
+  }
+}
+
 function openMenu(menu, pick) {
   return async (page) => {
-    await clickIfVisible(page.locator(`.menu-${menu} .navbar-toggler`).first());
+    await openBurger(page, menu);
     const toggles = page.locator(`.menu-${menu} .nav-item.dropdown > .dropdown-toggle`);
     await clickIfVisible(pick === "last" ? toggles.last() : toggles.nth(pick));
   };
@@ -63,6 +74,51 @@ exports.register = function (shared) {
       ].map((selector) => ({ selector, optional: true })),
       "dashboard",
     );
+  });
+
+  test("design: portal page, header, navigation and scroll thumb take their tokens in light and dark mode", async ({
+    page,
+  }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, "body", "background-color", "--design-surface-1", `dashboard page ${mode}`);
+      await assertToken(page, "header.header", "background-color", "--design-surface-2", `dashboard header ${mode}`);
+      await assertToken(page, ".navbar.menu-header", "background-color", "--design-surface-2", `dashboard navbar ${mode}`);
+      await assertToken(page, ".navbar.menu-header", "color", "--design-text", `dashboard navbar text ${mode}`);
+      await assertToken(page, "#scroll-thumb", "background-color", "--design-neutral-400", `dashboard scroll thumb ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: cards take the surface, text and divider tokens in light and dark mode", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    test.skip((await page.locator(".card").count()) === 0, "this deployment renders no card");
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, ".card", "background-color", "--design-surface-2", `dashboard card ${mode}`);
+      await assertToken(page, ".card", "color", "--design-text", `dashboard card text ${mode}`);
+      await assertToken(page, ".card .card-title", "color", "--design-text", `dashboard card title ${mode}`);
+      await assertToken(page, ".card", "border-top-color", "--design-border", `dashboard card divider ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: the current language is filled with the primary color and its text", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    await openMenu("header", "last")(page);
+    const active = ".menu-header .language-menu.show .dropdown-item.active";
+    await expect(page.locator(active)).toBeVisible({ timeout: resolveTimeout(10_000) });
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, active, "background-color", "--design-primary", `dashboard current language ${mode}`);
+      await assertToken(page, active, "color", "--design-on-primary", `dashboard current language text ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertReadable(page, [active], "dashboard current language");
   });
 
   test("design: an open menu entry follows the color mode and stays readable with its items", async ({ page }) => {
@@ -119,11 +175,7 @@ exports.register = function (shared) {
       { name: "start-de", url: `${base}/de` },
       { name: "start-ja", url: `${base}/ja` },
       { name: "start-ar-rtl", url: `${base}/ar` },
-      {
-        name: "nav-burger",
-        url: `${base}/`,
-        prepare: (page) => clickIfVisible(page.locator(".menu-header .navbar-toggler").first()),
-      },
+      { name: "nav-burger", url: `${base}/`, prepare: (page) => openBurger(page, "header") },
       { name: "header-menu-first", url: `${base}/`, prepare: openMenu("header", 0) },
       { name: "header-menu-second", url: `${base}/`, prepare: openMenu("header", 1) },
       { name: "header-menu-last", url: `${base}/`, prepare: openMenu("header", "last") },
@@ -148,7 +200,7 @@ exports.register = function (shared) {
       {
         name: "cards",
         url: `${base}/`,
-        prepare: (page) => page.locator(".card").nth(3).scrollIntoViewIfNeeded().catch(() => {}),
+        prepare: (page) => page.locator(".card").last().scrollIntoViewIfNeeded({ timeout: resolveTimeout(10_000) }),
       },
       { name: "card-hover", url: `${base}/`, prepare: (page) => hoverIfVisible(page.locator(".card").first()) },
       {
@@ -163,7 +215,7 @@ exports.register = function (shared) {
         name: "tooltip",
         url: `${base}/`,
         prepare: async (page) => {
-          await clickIfVisible(page.locator(".menu-header .navbar-toggler").first());
+          await openBurger(page, "header");
           await hoverIfVisible(page.locator('.menu-header .nav-link[data-bs-toggle="tooltip"]').first());
           await page.locator(".tooltip.show").waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
         },

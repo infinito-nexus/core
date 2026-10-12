@@ -139,7 +139,7 @@ docker run --rm -it \
 
 ## Further Resources
 
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/J5Qb5EVNRNxnaTkVQZqxDp)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/GFoanFHAfahsaArwDpxZ1d)
 
 ## Persona contract opt-outs
 

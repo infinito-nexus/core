@@ -40,6 +40,10 @@ footer {
     border-color: var(--design-border-strong);
 }
 
+#scroll-thumb {
+    background-color: var(--design-neutral-400);
+}
+
 /* port-ui pins top and bottom of a submenu inline, which collapses its box to the padding. */
 .dropdown-submenu > .dropdown-menu {
     height: max-content;
