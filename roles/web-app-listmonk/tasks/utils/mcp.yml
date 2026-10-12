@@ -17,6 +17,9 @@
     stdin: "{{ lookup('file', 'sql/mcp_identity.sql') }}"
   register: listmonk_mcp_identity
   changed_when: "'INSERT 0 1' in listmonk_mcp_identity.stdout_lines or 'UPDATE 1' in listmonk_mcp_identity.stdout_lines"
+  failed_when: >-
+    listmonk_mcp_identity.rc != 0
+    or listmonk_mcp_identity.stdout is search('\[FAIL\]')
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

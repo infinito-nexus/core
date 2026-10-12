@@ -131,6 +131,9 @@
             PGPASSWORD: "{{ MATRIX_POSTGRES_PASSWORD }}"
           register: matrix_mdad_password_update
           changed_when: "'UPDATE 1' in matrix_mdad_password_update.stdout"
+          failed_when: >-
+            matrix_mdad_password_update.rc != 0
+            or 'UPDATE 1' not in matrix_mdad_password_update.stdout
 
 - name: "🔀 front-proxy: Element web client"
   ansible.builtin.include_role:
