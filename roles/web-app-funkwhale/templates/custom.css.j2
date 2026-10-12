@@ -1,0 +1,169 @@
+{% set ramp_steps = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950] %}
+{% macro ramp(prefix, anchor) %}
+{% for step in ramp_steps %}
+{% if step < 550 %}
+  --{{ prefix }}-{{ step }}: color-mix(in oklab, var({{ anchor }}) {{ (step * 100 / 550) | round(1) }}%, var(--design-surface-1));
+{% elif step == 550 %}
+  --{{ prefix }}-{{ step }}: var({{ anchor }});
+{% else %}
+  --{{ prefix }}-{{ step }}: color-mix(in oklab, var({{ anchor }}) {{ ((1000 - step) * 100 / 450) | round(1) }}%, var(--design-text));
+{% endif %}
+{% endfor %}
+{% endmacro %}
+{% macro status_ramp(prefix, status) %}
+{% for step in ramp_steps %}
+{% if step <= 400 %}
+  --{{ prefix }}-{{ step }}: color-mix(in oklab, var(--design-{{ status }}-subtle) {{ (step * 100 / 400) | round(1) }}%, var(--design-surface-1));
+{% elif step < 550 %}
+  --{{ prefix }}-{{ step }}: color-mix(in oklab, var(--design-{{ status }}) {{ ((step - 400) * 100 / 150) | round(1) }}%, var(--design-{{ status }}-subtle));
+{% elif step == 550 %}
+  --{{ prefix }}-{{ step }}: var(--design-{{ status }});
+{% else %}
+  --{{ prefix }}-{{ step }}: color-mix(in oklab, var(--design-{{ status }}) {{ ((1000 - step) * 100 / 450) | round(1) }}%, var(--design-text));
+{% endif %}
+{% endfor %}
+{% endmacro %}
+:root {
+  --color-default-50: var(--design-surface-2);
+  --color-default-100: var(--design-surface-2);
+  --color-default-150: var(--design-surface-1);
+  --color-default-200: var(--design-surface-3);
+  --color-default-250: var(--design-surface-hover);
+  --color-default-300: var(--design-surface-active);
+  --color-default-350: var(--design-border);
+  --color-default-400: color-mix(in oklab, var(--design-border), var(--design-border-strong));
+  --color-default-450: var(--design-border-strong);
+  --color-default-500: color-mix(in oklab, var(--design-border-strong), var(--design-text-muted));
+  --color-default-550: color-mix(in oklab, var(--design-border-strong) 25%, var(--design-text-muted));
+  --color-default-600: var(--design-text-muted);
+  --color-default-650: color-mix(in oklab, var(--design-text-muted) 66%, var(--design-text));
+  --color-default-700: color-mix(in oklab, var(--design-text-muted) 33%, var(--design-text));
+  --color-default-750: var(--design-text);
+  --color-default-800: var(--design-text);
+  --color-default-850: var(--design-text);
+  --color-default-900: var(--design-text);
+  --color-default-950: var(--design-text);
+  --fw-blue-400: var(--design-link);
+  --fw-blue-500: var(--design-primary);
+  --fw-blue-700: var(--design-primary-active);
+{{ ramp('color-primary', '--design-primary') }}
+{{ ramp('color-accent', '--design-link') }}
+}
+:root,
+.color-default,
+.color-default-solid,
+.color-default-ghost,
+.color-primary,
+.color-primary-solid,
+.color-primary-ghost {
+  --color-link: var(--design-link);
+  --color-link-hover: var(--design-link);
+  --color-link-active: var(--design-link);
+  --color-focus: var(--design-focus, var(--design-link));
+}
+.color-primary,
+.color-primary-solid,
+.color-primary-ghost {
+{{ ramp('color', '--design-primary') }}
+}
+.color-accent,
+.color-accent-solid,
+.color-accent-ghost {
+{{ ramp('color', '--design-link') }}
+}
+.color-destructive,
+.color-destructive-solid,
+.color-destructive-ghost {
+{{ ramp('color', '--design-danger') }}
+}
+{% for hue, status in [['blue', 'info'], ['green', 'success'], ['ochre', 'warning'], ['yellow', 'warning'], ['red', 'danger'], ['purple', 'info'], ['pink', 'danger']] %}
+.color-{{ hue }},
+.color-{{ hue }}-solid,
+.color-{{ hue }}-ghost,
+.color-{{ hue }}-deep-solid,
+.color-{{ hue }}-deep-ghost {
+{{ status_ramp('color', status) }}
+}
+{% endfor %}
+.theme-light,
+.theme-dark {
+  --vibrant-color: var(--design-primary);
+  --vibrant-hover-color: var(--design-primary-hover);
+  --vibrant-active-color: var(--design-primary-active);
+  --primary-color: var(--design-primary);
+  --primary-hover-color: var(--design-primary-hover);
+  --primary-active-color: var(--design-primary-active);
+  --accent-color: var(--design-link);
+  --accent-hover-color: var(--design-link);
+  --accent-active-color: var(--design-link);
+{% for status in ['success', 'warning', 'danger'] %}
+  --{{ status }}-color: var(--design-{{ status }});
+  --{{ status }}-hover-color: var(--design-{{ status }}-hover);
+  --{{ status }}-active-color: var(--design-{{ status }}-active);
+{% endfor %}
+  --link-color: var(--design-link);
+  --link-hover-color: var(--design-link);
+  --sidebar-background: var(--design-surface-3);
+  --sidebar-active-item-background: var(--design-surface-active);
+  --site-background: var(--design-surface-1);
+  --text-color: var(--design-text);
+  --discrete-text-color: var(--design-text-muted);
+  --really-discrete-text-color: var(--design-text-muted);
+  --secondary-menu-active-item-color: var(--design-text);
+  --button-basic-color: var(--design-text);
+  --input-background: var(--design-surface-2);
+  --divider-color: var(--design-border);
+  --dropdown-item-hover-background: var(--design-surface-hover);
+  --segment-background: var(--design-surface-2);
+  --table-background: var(--design-surface-2);
+  --card-background: var(--design-surface-2);
+  --modal-background: var(--design-surface-2);
+  --tooltip-background: var(--design-surface-2);
+  --dimmer-background: rgba(var(--design-surface-1-rgb), 0.85);
+  --border-color: var(--design-border);
+  --light-background-color: var(--design-surface-3);
+}
+html,
+body {
+  background-color: var(--design-surface-3);
+}
+{% for fill in ['primary', 'danger'] %}
+{% set scope = '.color-primary-solid' if fill == 'primary' else '.color-destructive-solid' %}
+{{ scope }}:is(a, button, select, [ui-interactive]) {
+  background-color: var(--design-{{ fill }});
+  color: var(--design-on-{{ fill }});
+}
+{{ scope }}:is(a, button, select, [ui-interactive]):is(:hover, :focus-visible) {
+  background-color: var(--design-{{ fill }}-hover);
+}
+{{ scope }}:is(a, button, select, [ui-interactive]):is(:active, [aria-pressed=true], [aria-expanded=true], [aria-selected=true], [aria-checked=true]) {
+  background-color: var(--design-{{ fill }}-active);
+}
+{% endfor %}
+.color-primary-solid:not(a, button, select, [ui-interactive]) {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+  box-shadow: 0 0 0 1px var(--design-border);
+}
+:is(body.theme-light, body.theme-dark, html:not(.dark) > body:not(.theme-dark), html.dark > body:not(.theme-light)) .opaque {
+  background-color: rgba(var(--design-surface-2-rgb), 0.8);
+}
+[class*="_banner_"] [class*="_introCard_"] {
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+  border-radius: var(--design-radius-lg);
+  padding: var(--design-space-4);
+  --color-link: var(--design-on-frame);
+  --color-link-hover: var(--design-on-frame);
+  --color-link-active: var(--design-on-frame);
+  --design-focus: var(--design-on-frame);
+}
+[class*="_banner_"] [class*="_headerCard_"].color-default-solid {
+  background-color: var(--design-surface-2) !important;
+}
+[class*="_slider_"] input[type="range"]::-webkit-slider-runnable-track {
+  background-color: var(--design-surface-active);
+}
+[class*="_slider_"] input[type="range"]::-moz-range-track {
+  background-color: var(--design-surface-active);
+}

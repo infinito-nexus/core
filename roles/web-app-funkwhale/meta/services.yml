@@ -35,6 +35,7 @@ api:
   healthcheck:
     flavor: curl
     path: api/v1/instance/nodeinfo/2.0
+  name: funkwhale-api
   image: funkwhale/api
   version: 2.0.11
   min_storage: 588MB
@@ -125,6 +126,10 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 80
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

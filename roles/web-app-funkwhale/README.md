@@ -115,6 +115,11 @@ docker run --rm -it \
       --diff -vv'
 ```
 
+## Further Resources
+
+- [Funkwhale Official Website](https://www.funkwhale.audio/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/AkshzUW9k2sWfY8qbHsnGZ)
+
 ## Persona contract opt-outs
 
 [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in every matrix variant, because the shared persona helper cannot drive this role's sign-in in any of them. Three independent reasons, each sufficient on its own:

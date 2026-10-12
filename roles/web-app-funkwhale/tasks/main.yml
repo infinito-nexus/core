@@ -4,3 +4,9 @@
     name: sys-stk-full
   vars:
     webserver_extra_configuration: "client_max_body_size 512M;"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🏛️ Converge the administrator and the instance theming of {{ application_id }}"
+  ansible.builtin.include_tasks: 01_manager.yml
