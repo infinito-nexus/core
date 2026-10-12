@@ -1,0 +1,269 @@
+{% set design = lookup('design', application_id) %}
+{% set shared_css_dir = lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'css') %}
+@import url("{{ [lookup('cdn', 'web-svc-cdn').urls.shared.css, 'default.css', lookup('local_mtime_qs', [shared_css_dir, 'default.css.j2'] | path_join)] | url_join }}");
+
+:root {
+  --lam-background-color-default: var(--design-surface-1);
+  --lam-input-bg-color: var(--design-surface-2);
+  --lam-text-color-default: var(--design-text);
+  --lam-border-color: var(--design-border-strong);
+  --lam-border-color-primary: var(--design-primary);
+  --lam-background-color-primary: var(--design-primary);
+  --lam-text-color-primary: var(--design-on-primary);
+  --lam-border-color-secondary: var(--design-border-strong);
+  --lam-background-color-secondary: var(--design-surface-3);
+  --lam-text-color-secondary: var(--design-text);
+  --lam-border-color-danger: var(--design-danger);
+  --lam-background-color-danger: var(--design-surface-2);
+  --lam-text-color-danger: var(--design-danger);
+  --lam-background-color-danger-hover: var(--design-danger);
+  --lam-text-color-danger-hover: var(--design-on-danger);
+  --lam-text-color-error: var(--design-danger);
+  --lam-text-color-ok: var(--design-success);
+  --lam-table-background-color-bright: var(--design-surface-1);
+  --lam-table-background-color-dark: var(--design-surface-2);
+  --lam-table-background-color-hover: var(--design-surface-hover);
+  --lam-table-text-color-hover: var(--design-text);
+  --lam-table-border-color: var(--design-border);
+  --swal2-background: var(--design-surface-1);
+  --swal2-color: var(--design-text);
+  --swal2-input-border: 1px solid var(--design-border-strong);
+  --swal2-footer-border-color: var(--design-border);
+  --swal2-close-button-color: var(--design-text-muted);
+  --swal2-validation-message-background: var(--design-danger-subtle);
+  --swal2-validation-message-color: var(--design-text);
+}
+
+div.wunderbaum {
+  --wb-node-text-color: var(--design-text);
+  --wb-background-color: var(--design-surface-1);
+  --wb-alternate-row-color: var(--design-surface-2);
+  --wb-alternate-row-color-hover: var(--design-surface-hover);
+  --wb-hover-color: var(--design-surface-hover);
+  --wb-hover-border-color: var(--design-surface-hover);
+  --wb-active-color: var(--design-surface-active);
+  --wb-active-hover-color: var(--design-surface-active);
+  --wb-active-border-color: var(--design-link);
+  --wb-active-hover-border-color: var(--design-link);
+  --wb-focus-border-color: var(--design-link);
+  --wb-bg-highlight-color: var(--design-primary);
+  --wb-border-color: var(--design-border);
+  --wb-grid-color: var(--design-border);
+  --wb-header-color: var(--design-surface-3);
+  --wb-dim-color: var(--design-text-muted);
+  --wb-error-color: var(--design-danger);
+  --wb-error-background-color: var(--design-danger-subtle);
+}
+
+dialog {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+
+a,
+a:link,
+a:visited,
+a:active,
+a.classicBold {
+  color: var(--design-link);
+}
+
+hr,
+div.lam-tab-container,
+div.lam-vertical-tab-container,
+table.lam-vertical-tabs {
+  border-color: var(--design-border);
+}
+
+button:hover,
+li.lam-tab:hover,
+li.lam-tab-active:hover,
+li.lam-vertical-tabs:hover,
+button.lam-accordion-button:hover {
+  filter: none;
+  background-color: var(--design-surface-hover);
+}
+
+button.lam-primary:hover,
+.swal2-styled.swal2-confirm:hover {
+  background-color: var(--design-primary-hover);
+}
+
+button.lam-primary:active,
+.swal2-styled.swal2-confirm:active {
+  background-color: var(--design-primary-active);
+}
+
+button.lam-danger:hover {
+  background-color: var(--design-danger-hover);
+}
+
+li.lam-tab {
+  filter: none;
+  background: var(--design-surface-3);
+}
+
+li.lam-tab-active {
+  background: var(--design-surface-1);
+}
+
+li.lam-vertical-tabs {
+  filter: none;
+  background-color: var(--design-surface-3);
+}
+
+li.lam-vertical-tabs-selected {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border-strong);
+}
+
+td.lam-vertical-tabs-navigation,
+ul.lam-tab-navigation {
+  background-color: var(--design-surface-2);
+}
+
+button.lam-accordion-button-active {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+
+.titleBar {
+  background: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+
+.roundedShadowBox {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-text);
+}
+
+.lam-header {
+  box-shadow: 0 1px 0 var(--design-border);
+}
+
+div.lam-navigation-layer {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-2);
+}
+
+.module-list li {
+  background: var(--design-surface-3);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+
+table.accountlist > tbody > tr:hover:first-child,
+table.accountlist > tbody > tr:hover:nth-child(2),
+table.account {
+  color: var(--design-text);
+}
+
+table.account {
+  border-color: var(--design-border);
+}
+
+tr.account {
+  background-color: var(--design-surface-2);
+}
+
+div.statusInfo {
+  background-color: var(--design-info-subtle);
+  border-color: var(--design-info-border);
+  color: var(--design-text);
+}
+
+div.statusWarn {
+  background-color: var(--design-warning-subtle);
+  border-color: var(--design-warning-border);
+  color: var(--design-text);
+}
+
+div.statusError {
+  background-color: var(--design-danger-subtle);
+  border-color: var(--design-danger-border);
+  color: var(--design-text);
+}
+
+div.filled {
+  background-color: var(--design-warning-subtle);
+  border-color: var(--design-warning-border);
+}
+
+input.markFail,
+input:invalid {
+  background-color: var(--design-danger-subtle);
+}
+
+input.markOk {
+  background-color: var(--design-success-subtle);
+}
+
+input.markPass {
+  background-color: var(--design-surface-2);
+}
+
+.lam-input-error {
+  border-color: var(--design-danger);
+}
+
+span.lam-required {
+  color: var(--design-warning);
+}
+
+div.tree-highlight input,
+div.tree-highlight textarea,
+div.tree-highlight select {
+  border-color: var(--design-success-border);
+}
+
+span.tree-badge {
+  color: var(--design-text);
+}
+
+div.lam-help,
+div.tippy-box {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-text);
+}
+
+.modal-content {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+
+img[src$=".svg"]:not(div.lam-header-left img, a.icon-active img, span.tree-badge img),
+input.smallImageButton {
+  filter: invert(var(--design-invert)) hue-rotate(calc(var(--design-invert) * 180deg));
+}
+{% if design.logo is string %}
+
+div.lam-header-left img {
+  content: url("{{ design.urls.logo.svg }}");
+}
+{% endif %}
+
+@media only screen and (max-width: 40.0625em) {
+  table.responsive-table tr,
+  table.responsive-table td {
+    border-bottom-color: var(--design-border);
+  }
+}
+
+@media only screen and (min-width: 40.0625em) {
+  table.alternating-color tbody tr:nth-child(odd) {
+    background-color: var(--design-surface-2);
+  }
+
+  .tree-left-area {
+    border-right-color: var(--design-border);
+  }
+
+  .tree-right-area {
+    border-left-color: var(--design-border);
+  }
+}

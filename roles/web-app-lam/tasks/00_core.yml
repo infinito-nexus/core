@@ -4,3 +4,16 @@
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
+
+- name: "🎨 Render the in-house stylesheet of {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "900_infinito.css.j2"
+        dest: "{{ LAM_DESIGN_CSS_HOST }}"
+        mode: "0644"
+  when: LAM_DESIGN_ENABLED | bool
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers

@@ -4,3 +4,5 @@ application_id: "web-app-lam"
 
 LAM_CONTAINER: "{{ application_id | get_entity_name }}"
 LAM_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+LAM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+LAM_DESIGN_CSS_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), '900_infinito.css'] | path_join }}"
