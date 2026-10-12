@@ -19,7 +19,8 @@ PASSWORD_TOKEN_RE = re.compile(r"(?i)\b[a-z0-9_]*password[a-z0-9_]*\b")
 QUOTE_FILTER_RE = re.compile(r"\|\s*quote\b", re.IGNORECASE)
 
 SHELL_KEY_RE = re.compile(r"^\s*(?:ansible\.builtin\.)?shell\s*:\s*(.*)$")
-STDIN_KEY_RE = re.compile(r"^\s*stdin\s*:\s*[|>]")
+STDIN_KEY_RE = re.compile(r"^\s*stdin\s*:")
+STDIN_BLOCK_RE = re.compile(r"^\s*stdin\s*:\s*[|>]")
 
 QUOTE_CHARS = {"'", '"'}
 
@@ -97,12 +98,22 @@ def _mask_stdin_subblocks(block: str) -> str:
     Jinja inside is parsed by the target program (mariadb, psql, ...), so
     the shell injection vector this test guards against does not apply
     there. Preserve line numbers by replacing content with empty strings.
+
+    The inline form ``stdin: "{{ … }}"`` travels the same pipe and is masked
+    the same way, over its one line. Matching only ``stdin: |`` and
+    ``stdin: >`` left it exposed, and demanding ``| quote`` there would be
+    wrong twice over: the value is no shell argument, and the quoting would
+    reach the target program verbatim.
     """
     lines = block.splitlines()
     out = list(lines)
     i = 0
     while i < len(lines):
         if STDIN_KEY_RE.match(lines[i]):
+            if not STDIN_BLOCK_RE.match(lines[i]):
+                out[i] = ""
+                i += 1
+                continue
             stdin_indent = _indent_level(lines[i])
             out[i] = ""
             j = i + 1
