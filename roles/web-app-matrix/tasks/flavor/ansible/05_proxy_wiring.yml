@@ -84,18 +84,51 @@
   delay: 2
   until: matrix_element_loopback_probe.status == 200
 
-- name: "📁 ansible-flavor: create native Synapse admin (DiD, idempotent shared-secret)"
+- name: "🔑 ansible-flavor: converge the native Synapse admin account"
   when: IS_STACK_HOST | bool
-  ansible.builtin.shell:
-    cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved; ansible flavor forces compose mode
-      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-synapse register_new_matrix_user
-      -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
-      -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
-      -a -c {{ lookup('volume', 'web-app-matrix', 'synapse_config').target }} http://localhost:8008
-  register: matrix_admin_create
-  changed_when: matrix_admin_create.rc == 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
-  failed_when: matrix_admin_create.rc != 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  block:
+    - name: "📁 ansible-flavor: create native Synapse admin (DiD, idempotent shared-secret)"
+      ansible.builtin.shell:
+        cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved; ansible flavor forces compose mode
+          container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-synapse register_new_matrix_user
+          -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
+          -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
+          -a -c {{ lookup('volume', 'web-app-matrix', 'synapse_config').target }} http://localhost:8008
+      register: matrix_admin_create
+      changed_when: matrix_admin_create.rc == 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
+      failed_when: matrix_admin_create.rc != 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔑 ansible-flavor: realign the admin password Synapse stored"
+      when: not matrix_admin_create.changed
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      block:
+        - name: "🔑 ansible-flavor: hash the declared admin password"
+          ansible.builtin.shell:
+            cmd: >- # nocheck: raw-docker, container-exec-resolver  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved
+              container exec -i {{ MATRIX_MDAD_CONTAINER_ADDRESS }} docker exec -i matrix-synapse
+              hash_password -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+            stdin: "{{ MATRIX_ADMINISTRATOR_PASSWORD }}"
+            executable: /bin/bash
+          register: matrix_mdad_password_hash
+          changed_when: false
+
+        - name: "🔑 ansible-flavor: point the admin at the declared password"
+          ansible.builtin.shell:
+            cmd: >-
+              container exec -i -e PGPASSWORD
+              {{ lookup('database', application_id, 'address') }}
+              psql -v ON_ERROR_STOP=1 -U {{ MATRIX_POSTGRES_USER | quote }}
+              -d {{ MATRIX_POSTGRES_DATABASE | quote }}
+              -v hash={{ (matrix_mdad_password_hash.stdout_lines | last | trim) | quote }}
+              -v name={{ lookup('mxid', MATRIX_ADMINISTRATOR_USERNAME) | quote }}
+              -f -
+            stdin: "{{ lookup('file', 'sql/realign_user_password.sql') }}"
+            executable: /bin/bash
+          environment:
+            PGPASSWORD: "{{ MATRIX_POSTGRES_PASSWORD }}"
+          register: matrix_mdad_password_update
+          changed_when: "'UPDATE 1' in matrix_mdad_password_update.stdout"
 
 - name: "🔀 front-proxy: Element web client"
   ansible.builtin.include_role:

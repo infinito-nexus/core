@@ -9,6 +9,9 @@ MAGENTO_INSTALL_MARKER: "{{ [ magento_volume_mountpoint.stdout | trim, 'html/var
 MAGENTO_DOMAIN: "{{ lookup('domain',application_id) }}"
 MAGENTO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
+MAGENTO_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+MAGENTO_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+
 MAGENTO_PHP_HOST: "php"
 MAGENTO_PHP_PORT: "{{ lookup('config', application_id, 'services.php.ports.internal.fpm') }}"
 MAGENTO_NGINX_PORT: "{{ lookup('config', application_id, 'services.magento.ports.internal.http') }}"

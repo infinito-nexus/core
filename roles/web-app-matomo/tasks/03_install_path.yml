@@ -7,6 +7,13 @@
   changed_when: false
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
+- name: "🔑 Matomo install | Realign the superuser of an existing install"
+  include_tasks:
+    file: utils/converge_superuser.yml
+    apply:
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
+  when: (matomo_install_state.stdout | trim) == 'installed'
+
 - name: "🥾 Bootstrap Matomo (Initialisation and setting of API token if not defined)"
   include_tasks: 04_bootstrap.yml
   when: >

@@ -1,0 +1,16 @@
+---
+- name: "🔑 Realign the administrator password Matomo persisted at install"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    cmd: >
+      container exec -i --user root
+      -e MATOMO_CONFIG -e MATOMO_SUPERUSER_LOGIN -e MATOMO_SUPERUSER_PASSWORD
+      {{ MATOMO_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/converge_superuser_password.php') }}"
+  environment:
+    MATOMO_CONFIG: "{{ MATOMO_CONFIG }}"
+    MATOMO_SUPERUSER_LOGIN: "{{ MATOMO_ADMIN_USER_NAME }}"
+    MATOMO_SUPERUSER_PASSWORD: "{{ MATOMO_ADMIN_PASSWORD }}"
+  register: matomo_superuser_realign
+  changed_when: matomo_superuser_realign.stdout is search('\[CHANGED\]')
+  failed_when: matomo_superuser_realign.rc != 0 or matomo_superuser_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

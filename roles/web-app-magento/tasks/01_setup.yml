@@ -81,6 +81,24 @@
   register: magento_db_password_realign
   changed_when: "'You saved the new configuration' in magento_db_password_realign.stdout"
 
+- name: "🔑 Realign the Magento administrator password with the declared one"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ MAGENTO_USER }}
+      -e MAGENTO_REALIGN_ROOT -e MAGENTO_REALIGN_USERNAME -e MAGENTO_REALIGN_PASSWORD
+      {{ MAGENTO_PHP_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
+  environment:
+    MAGENTO_REALIGN_ROOT: "{{ MAGENTO_ROOT }}"
+    MAGENTO_REALIGN_USERNAME: "{{ MAGENTO_ADMIN_USERNAME }}"
+    MAGENTO_REALIGN_PASSWORD: "{{ MAGENTO_ADMIN_PASSWORD }}"
+  register: magento_admin_password_realign
+  changed_when: magento_admin_password_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    magento_admin_password_realign.rc != 0
+    or magento_admin_password_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🪣 Wire Magento to its S3 remote storage"
   when: MAGENTO_OBJSTORE_ENABLED | bool
   block:

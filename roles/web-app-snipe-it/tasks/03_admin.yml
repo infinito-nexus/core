@@ -39,3 +39,20 @@
       and 'users_groups' in (snipe_it_admin_create.stderr | default(''))
     )
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Realign the administrator password Snipe-IT persisted at install"
+  ansible.builtin.shell:
+    cmd: >
+      container exec -i
+      -e APP_KEY -e SNIPE_IT_REALIGN_USERNAME -e SNIPE_IT_REALIGN_PASSWORD
+      {{ SNIPE_IT_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
+  environment:
+    APP_KEY: "{{ SNIPE_IT_APP_KEY }}"
+    SNIPE_IT_REALIGN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+    SNIPE_IT_REALIGN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  when: snipe_it_admin_exists.rc == 0
+  register: snipe_it_admin_realign
+  changed_when: snipe_it_admin_realign.stdout is search('\[CHANGED\]')
+  failed_when: snipe_it_admin_realign.rc != 0 or snipe_it_admin_realign.stderr is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

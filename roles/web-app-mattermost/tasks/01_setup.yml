@@ -34,6 +34,19 @@
   failed_when: mm_create_admin.rc != 0 and 'already exists' not in (mm_create_admin.stdout + mm_create_admin.stderr)
   delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
+- name: "🔑 Realign the administrator password Mattermost persisted at install"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i -e MATTERMOST_ADMIN_PASSWORD {{ MATTERMOST_LOCAL_CID | quote }} \
+      {{ MATTERMOST_MMCTL }} --local user change-password \
+        "{{ lookup('users', 'platform_administrator').username }}" \
+        --password "$MATTERMOST_ADMIN_PASSWORD"
+  environment:
+    MATTERMOST_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  register: mm_realign_admin
+  changed_when: mm_realign_admin.rc == 0
+  delegate_to: "{{ MATTERMOST_HOST_NODE }}"
+
 - name: "📁 Mattermost | Create default team"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \

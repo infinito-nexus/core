@@ -47,6 +47,20 @@
   changed_when: "'has been successfully created' in create_admin.stdout"
   failed_when: create_admin.rc != 0 and 'user already exists' not in create_admin.stderr
 
+- name: "🔑 Realign the administrator password Gitea persisted at install"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+      /app/gitea/gitea admin user change-password \
+        --username "{{ lookup('users', 'platform_administrator').username }}" \
+        --password "$GITEA_ADMIN_PASSWORD" \
+        --must-change-password=false \
+        -c {{ GITEA_CONFIG }}
+  environment:
+    GITEA_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  changed_when: true
+
 - name: "⏳ Wait until Gitea setup and migrations are ready"
   uri_retry:
     url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}/api/v1/version"

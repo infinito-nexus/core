@@ -14,7 +14,8 @@ u, created = User.objects.get_or_create(
     defaults={"email": email, "is_staff": True, "is_superuser": True},
 )
 
-if created:
+password_written = created or not u.check_password(password)
+if password_written:
     u.set_password(password)
     u.save()
 
@@ -29,4 +30,4 @@ if profile.completed_onboarding is not True:
 if profile_updates:
     profile.save(update_fields=profile_updates)
 
-print("created" if created or profile_created else "exists")
+print("created" if password_written or profile_created else "exists")
