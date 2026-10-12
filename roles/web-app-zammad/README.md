@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via `sys-stk-full`. Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via Mailu are wired when their providers are present.
+This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via `sys-stk-full`. Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via Stalwart are wired when their providers are present.
 
 ## Cosmos
 
@@ -25,11 +25,11 @@ flowchart LR
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
@@ -75,11 +75,11 @@ flowchart LR
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
@@ -92,9 +92,10 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Helpdesk ticketing:** Multi-channel agent and customer surface for email, web and (optionally) chat tickets.
 - **Direct OIDC SSO:** Sign in through the shared Keycloak OIDC client without an oauth2-proxy sidecar; redirect URI is auto-registered.
 - **LDAP federation:** When `svc-db-openldap` is present, Zammad authenticates and provisions accounts against the central LDAP.
-- **Mail-to-ticket:** When `web-app-mailu` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
+- **Mail-to-ticket:** When `web-app-stalwart` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
 - **Server-name alias:** `zammad.helpdesk.{{ DOMAIN_PRIMARY }}` is a true vhost alias of `helpdesk.{{ DOMAIN_PRIMARY }}` (not a 301 redirect).
 - **Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists.
+- **Search index per Elasticsearch major:** The index lives in a directory named after the Elasticsearch major inside the `zammad_search` volume. A new major starts on an empty directory and `zammad-init` rebuilds the index from the database on the same deploy.
 - **Wizard bypass:** First deploy seeds `auto_wizard.json` so no manual setup UI step is required.
 
 ## Quick Setup

@@ -32,7 +32,7 @@
 - name: "💾 XWIKI | Save Groovy check result for {{ ext_id }}"
   set_fact:
     "{{ result_var }}":
-      status: "{{ _check_output.content | xwiki_extension_status }}"
+      status: "{{ _check_output.content | xwiki_extension_status(ext_version) }}"
       raw: "{{ _check_output.content }}"
 
 - name: "🗑️ XWIKI | Delete checker page"

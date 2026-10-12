@@ -8,6 +8,7 @@ This directory contains scripts that resolve metadata and derived values used by
 
 Examples in this folder and its subfolders:
 
+- `baseline_remote.sh` resolves the remote whose main CI diffs against
 - `repository/name.sh` resolves the concrete repository name once for callers
 - `repository/owner.sh` resolves the concrete repository owner once for callers
 - See [pr/README.md](pr/README.md) for the Pull Request-specific resolvers.

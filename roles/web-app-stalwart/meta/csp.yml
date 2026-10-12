@@ -1,0 +1,12 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the WebAdmin SPA lays out its dialogs, tables and progress bars by writing `style="..."` attributes from JS; without it the settings and account views render unstyled and overlap.
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: Stalwart's WebAdmin index.html boots the SPA from an inline <script> block it serves itself; blocked, the page stays blank and the console reports a script-src-elem violation.
+  script-src-attr:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the same bundle wires handlers through inline `on*` attributes, so the WebAdmin controls stop responding without it.
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: the WebAdmin bundle builds functions dynamically at runtime; blocked, the SPA aborts during boot with an EvalError before it renders.
+whitelist:
+  connect-src:
+    - "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$', '') }}"

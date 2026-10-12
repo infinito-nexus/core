@@ -13,8 +13,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -52,7 +52,7 @@ seaweedfs:
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 penpot:
   healthcheck:
-    flavor: curl
+    flavor: http_status
   modes:
     compose:
       enabled: true
@@ -74,11 +74,12 @@ penpot:
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 frontend:
   image: penpotapp/frontend
-  version: "2.17.2"
+  version: "2.18.3"
   name: penpot-frontend
   cpus: "0.5"
   mem_reservation: 256m
@@ -86,7 +87,7 @@ frontend:
   pids_limit: 256
 backend:
   image: penpotapp/backend
-  version: "2.17.2"
+  version: "2.18.3"
   name: penpot-backend
   cpus: "1.0"
   mem_reservation: 1g
@@ -99,7 +100,7 @@ backend:
       http: 6060
 exporter:
   image: penpotapp/exporter
-  version: "2.17.2"
+  version: "2.18.3"
   name: penpot-exporter
   cpus: "0.5"
   mem_reservation: 512m

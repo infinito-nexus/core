@@ -3,6 +3,7 @@ enabled: "{{ lookup('config', 'web-app-jellyfin', 'services.ldap.enabled') | boo
 required: false
 mechanism: plugin
 source: upstream
+# nocheck: unwatched-version  Reason: the pin is bound to config.tag, config.url and the md5 of that release archive, which a version bump alone cannot follow
 version: "23.0.0.0"
 update:
   monitored: true

@@ -12,7 +12,7 @@ from __future__ import annotations
 import unittest
 
 import yaml
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 
@@ -72,7 +72,10 @@ def render(*, ollama=(), lmstudio=(), keys=None):
         lmstudio: preload entries svc-ai-lmstudio declares; empty means not deployed.
         keys: env-name -> provider key for the remote backends.
     """
-    env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - YAML, not markup
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     env.filters["bool"] = _ansible_bool
     rendered = env.from_string(read_text(str(TEMPLATE))).render(
         LITELLM_OLLAMA_BACKEND=str(bool(ollama)),

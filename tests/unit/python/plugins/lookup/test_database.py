@@ -160,6 +160,7 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertTrue(out["enabled"])
         self.assertFalse(out["shared"])
         self.assertTrue(out["local"])
+        self.assertTrue(out["managed"])
 
         self.assertEqual(out["id"], "svc-db-postgres")
 
@@ -196,6 +197,50 @@ class DatabaseLookupTests(unittest.TestCase):
                 "5432",
             )
 
+    def test_dedicated_with_name_override_is_not_managed(self):
+        applications = {
+            "web-app-foo": {
+                "services": {
+                    "postgres": {
+                        "enabled": True,
+                        "shared": False,
+                        "name": "foo-postgres-1",
+                    }
+                },
+                "credentials": {"database_password": "pw"},
+            },
+            "svc-db-postgres": {
+                "services": {
+                    "postgres": {
+                        "name": "postgres-central",
+                        "image": "postgis/postgis",
+                        "version": "16",
+                        "ports": {"local": {"postgres": "5432"}},
+                    }
+                }
+            },
+        }
+        ports = {"localhost": {"database": {"svc-db-postgres": "5432"}}}
+        vars_ = {
+            "applications": applications,
+            "ports": ports,
+            "DIR_COMPOSITIONS": "/opt/compose/",
+        }
+
+        lookup = self._make_lookup(vars_)
+
+        with patch.object(
+            self.db_lookup_mod,
+            "get_entity_name",
+            side_effect=self._fake_get_entity_name,
+        ):
+            out = lookup.run(["web-app-foo"], variables=vars_)[0]
+
+        self.assertTrue(out["enabled"])
+        self.assertFalse(out["shared"])
+        self.assertTrue(out["local"])
+        self.assertFalse(out["managed"])
+
     def test_postgres_shared_uses_central_name_for_host_instance_container_volume(self):
         applications = {
             "web-app-foo": {
@@ -231,6 +276,7 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertTrue(out["enabled"])
         self.assertTrue(out["shared"])
         self.assertFalse(out["local"])
+        self.assertFalse(out["managed"])
 
         self.assertEqual(out["id"], "svc-db-postgres")
 
@@ -328,6 +374,48 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertEqual(out["id"], "svc-db-postgres")
 
         self.assertEqual(out["version"], "15")
+
+    def test_image_override_on_consumer_wins_over_default(self):
+        applications = {
+            "web-app-foo": {
+                "services": {
+                    "postgres": {
+                        "enabled": True,
+                        "shared": False,
+                        "image": "postgres",
+                        "version": "17",
+                    }
+                },
+                "credentials": {"database_password": "pw"},
+            },
+            "svc-db-postgres": {
+                "services": {
+                    "postgres": {
+                        "name": "postgres-central",
+                        "image": "postgis/postgis",
+                        "version": "16",
+                    }
+                }
+            },
+        }
+        ports = {"localhost": {"database": {"svc-db-postgres": "5432"}}}
+        vars_ = {
+            "applications": applications,
+            "ports": ports,
+            "DIR_COMPOSITIONS": "/opt/compose/",
+        }
+
+        lookup = self._make_lookup(vars_)
+
+        with patch.object(
+            self.db_lookup_mod,
+            "get_entity_name",
+            side_effect=self._fake_get_entity_name,
+        ):
+            out = lookup.run(["web-app-foo"], variables=vars_)[0]
+
+        self.assertEqual(out["image"], "postgres")
+        self.assertEqual(out["version"], "17")
 
     def test_local_flag_for_variant_disabling_dedicated_db(self):
         applications = {

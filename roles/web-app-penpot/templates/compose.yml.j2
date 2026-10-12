@@ -8,7 +8,7 @@
     command:
       - /bin/bash
       - -c
-      - 'until getent hosts {{ PENPOT_BACKEND_SERVICE }} >/dev/null 2>&1 && getent hosts {{ PENPOT_EXPORTER_SERVICE }} >/dev/null 2>&1; do sleep 1; done; exec nginx -g "daemon off;"'
+      - 'until getent hosts {{ PENPOT_BACKEND_SERVICE }}. >/dev/null 2>&1 && getent hosts {{ PENPOT_EXPORTER_SERVICE }}. >/dev/null 2>&1; do sleep 1; done; exec nginx -g "daemon off;"'
     {{ lookup('container_ports', ['penpot', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', 'penpot') | indent(4) }}

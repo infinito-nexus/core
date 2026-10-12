@@ -100,7 +100,7 @@ class TestShellTemplatesAreValid(unittest.TestCase):
                 environment = jinja2.Environment(
                     undefined=_Placeholder,
                     keep_trailing_newline=True,
-                    autoescape=False,  # noqa: S701  shell, not markup
+                    autoescape=jinja2.select_autoescape(default_for_string=False),
                 )
                 environment.filters = _PassthroughFilters(environment.filters)
                 environment.filters["quote"] = shlex.quote

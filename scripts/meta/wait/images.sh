@@ -25,6 +25,8 @@ pr_updated_at="${PR_UPDATED_AT:-}"
 pr_updated_at_floor=""
 last_run_state=""
 last_run_id=""
+lookup_failure_limit=30
+lookup_failures=0
 
 if [[ -n "${pr_updated_at}" ]]; then
 	if ! pr_updated_at_floor="$(date -u -d "${pr_updated_at} - 300 seconds" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null)"; then
@@ -56,9 +58,15 @@ build_image_refs() {
 mapfile -t image_refs < <(build_image_refs)
 
 find_matching_run() {
+	local query="event=${TARGET_EVENT}&per_page=100"
+
+	if [[ -n "${pr_head_sha}" ]]; then
+		query+="&head_sha=${pr_head_sha}"
+	fi
+
 	gh api --paginate \
 		-H "Accept: application/vnd.github+json" \
-		"/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW_FILE}/runs?event=${TARGET_EVENT}&per_page=100" |
+		"/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW_FILE}/runs?${query}" |
 		jq -sc \
 			--argjson pr_number "${PR_NUMBER}" \
 			--arg pr_head_sha "${pr_head_sha}" \
@@ -66,10 +74,14 @@ find_matching_run() {
         [
           .[]
           | .workflow_runs[]?
-          | select(any(.pull_requests[]?;
-              (.number // -1) == $pr_number
-              and ($pr_head_sha == "" or (.head.sha // $pr_head_sha) == $pr_head_sha)
-            ))
+          | select(
+              if $pr_head_sha != "" then
+                (.head_sha // "") == $pr_head_sha
+                and ((.display_title // "") | test("PR #\($pr_number)( |$)"))
+              else
+                any(.pull_requests[]?; (.number // -1) == $pr_number)
+              end
+            )
           | select($pr_updated_at_floor == "" or .created_at >= $pr_updated_at_floor)
         ]
         | sort_by(.created_at)
@@ -105,7 +117,18 @@ for attempt in $(seq 1 "${WAIT_ATTEMPTS}"); do
 		exit 0
 	fi
 
-	run_json="$(find_matching_run)"
+	if run_json="$(find_matching_run)"; then
+		lookup_failures=0
+	else
+		lookup_failures=$((lookup_failures + 1))
+		if [[ "${lookup_failures}" -ge "${lookup_failure_limit}" ]]; then
+			echo "The lookup of the privileged workflow run failed ${lookup_failures} times in a row." >&2
+			exit 1
+		fi
+		echo "[${attempt}/${WAIT_ATTEMPTS}] Lookup of the privileged workflow run failed (${lookup_failures}/${lookup_failure_limit}). Waiting ${WAIT_SLEEP_SECONDS}s..."
+		sleep "${WAIT_SLEEP_SECONDS}"
+		continue
+	fi
 
 	if [[ -n "${run_json}" && "${run_json}" != "null" ]]; then
 		run_id="$(jq -r '.id' <<<"${run_json}")"

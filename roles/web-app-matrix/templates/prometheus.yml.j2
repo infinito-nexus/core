@@ -1,12 +1,10 @@
   # Matrix Synapse — server and federation metrics.
   # Requires enable_metrics: true in homeserver.yaml.
   # Enable via native_metrics.enabled: true in inventory.
-  # Scraped container-to-container: prometheus joins the matrix Docker network and
-  # reaches synapse directly at container_name:port — no host binding, no nginx/OAuth2.
   - job_name: "matrix-synapse"
     scheme: http
     metrics_path: /_synapse/metrics
     static_configs:
-      - targets: ["{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}"]
+      - targets: ["{{ lookup('native_metrics_target', native_prometheus_application_id) }}"]
         labels:
           app: "{{ native_prometheus_application_id }}"

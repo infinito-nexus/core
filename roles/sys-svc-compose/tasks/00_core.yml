@@ -52,3 +52,4 @@
     - DEPLOYMENT_MODE == 'swarm'
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
+    - inventory_hostname not in (groups['svc-storage-nfs-server'] | default([]))

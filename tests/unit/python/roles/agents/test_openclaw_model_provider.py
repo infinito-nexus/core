@@ -16,7 +16,7 @@ import importlib.util
 import json
 import unittest
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import PROJECT_ROOT
 
@@ -51,7 +51,9 @@ def _render(**overrides) -> dict:
     Args:
         overrides: context values replacing the defaults.
     """
-    env = Environment(loader=FileSystemLoader(str(OPENCLAW)), autoescape=False)  # noqa: S701 - renders configuration, not markup
+    env = Environment(
+        loader=FileSystemLoader(str(OPENCLAW)), autoescape=select_autoescape()
+    )
     env.filters.update(_filters())
     return json.loads(
         env.get_template("openclaw.json.j2").render(**{**CONTEXT, **overrides})

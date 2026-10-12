@@ -465,7 +465,7 @@ class TestResolveApiKey(unittest.TestCase):
         modules = {}
         backend.install(modules)
         with patch.dict("sys.modules", modules):
-            return module, asyncio.run(module.resolve_api_key())
+            return asyncio.run(module.resolve_api_key())
 
     def test_an_existing_administrator_key_is_reused_and_kept(self) -> None:
         backend = FakeBackend(
@@ -473,7 +473,7 @@ class TestResolveApiKey(unittest.TestCase):
             keys={"admin1": "sk-operator"},
         )
 
-        _module, (user_id, key, minted) = self._resolve(backend)
+        user_id, key, minted = self._resolve(backend)
 
         self.assertEqual("admin1", user_id)
         self.assertEqual("sk-operator", key)
@@ -483,7 +483,7 @@ class TestResolveApiKey(unittest.TestCase):
     def test_a_missing_key_is_minted_and_marked_for_removal(self) -> None:
         backend = FakeBackend([FakeUser("admin1", "admin")])
 
-        _module, (user_id, key, minted) = self._resolve(backend)
+        user_id, key, minted = self._resolve(backend)
 
         self.assertEqual("admin1", user_id)
         self.assertTrue(key.startswith("sk-"))
@@ -493,7 +493,7 @@ class TestResolveApiKey(unittest.TestCase):
     def test_an_instance_without_users_gets_one_administrator(self) -> None:
         backend = FakeBackend([])
 
-        _module, (user_id, _key, minted) = self._resolve(backend)
+        user_id, _key, minted = self._resolve(backend)
 
         self.assertEqual(["admin"], [user.role for user in backend.created])
         self.assertEqual(backend.created[0].id, user_id)
@@ -512,9 +512,8 @@ class TestResolveApiKey(unittest.TestCase):
             admin_id, _key, minted = asyncio.run(module.resolve_api_key())
             self.assertTrue(minted)
             try:
-                exploding_grant(_key)
-            except RuntimeError:
-                pass
+                with self.assertRaises(RuntimeError):
+                    exploding_grant(_key)
             finally:
                 asyncio.run(module.drop_api_key(admin_id))
 

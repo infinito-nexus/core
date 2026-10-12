@@ -1097,7 +1097,7 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-# Variant 11: bigbluebutton
+# Variant 11: bigbluebutton - clearnet, because bigbluebutton rides no node onion
 - services:
     container_backup:
       enabled: false
@@ -1183,7 +1183,7 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
-      enabled: true
+      enabled: false
     hermes:
       enabled: false
       shared: false

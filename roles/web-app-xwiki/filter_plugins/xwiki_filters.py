@@ -3,18 +3,18 @@ from __future__ import annotations
 import re
 
 
-def xwiki_extension_status(raw: str) -> int:
+def xwiki_extension_status(raw: str, version: str = "") -> int:
     """
     Parse the output of the Groovy CheckExtension page.
 
     - Strips HTML tags and entities (&nbsp;)
-    - Returns 200 if extension is INSTALLED, otherwise 404
 
     Args:
         raw: Raw HTTP body from the checker page.
+        version: The pinned version; empty accepts any installed version.
 
     Returns:
-        200 if installed, 404 if missing/unknown.
+        200 if installed in the pinned version, otherwise 404.
     """
     if raw is None:
         return 404
@@ -23,7 +23,8 @@ def xwiki_extension_status(raw: str) -> int:
     text = text.replace("&nbsp;", " ").replace("\u00a0", " ")
     text = text.strip()
 
-    if text.startswith("INSTALLED::"):
+    suffix = f"::{version}" if version else ""
+    if text.startswith("INSTALLED::") and text.endswith(suffix):
         return 200
     return 404
 

@@ -6,7 +6,7 @@
 
 ## Overview
 
-The role builds a lean custom image on top of the official Jira Software image, provisions persistent volumes, and exposes the app behind your reverse proxy. Variables control image/version/volumes/domains/SSO. JVM heap sizing is auto-derived from host RAM with safe caps to prevent `Xms > Xmx`.
+The role builds a lean custom image on top of the official Jira Software image, provisions persistent volumes, and exposes the app behind your reverse proxy. Variables control image/version/volumes/domains/SSO. JVM heap sizing follows the container's `mem_limit`: `JVM_MAXIMUM_MEMORY` is 70 % of it and `JVM_MINIMUM_MEMORY` 35 %.
 
 ## Cosmos
 
@@ -20,9 +20,9 @@ flowchart LR
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
@@ -44,12 +44,12 @@ flowchart LR
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -- "0..0" --> svc_sso
-    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_stalwart -- "0..0" --> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    linkStyle 4,5 stroke:red;
+    linkStyle 4,7 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -60,7 +60,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 * **Reverse-Proxy/HTTPS Ready:** Preconfigured Atlassian Tomcat proxy envs so Jira respects external scheme/host/port.
 * **OIDC SSO (Optional):** Pre-templated vars for issuer, client, endpoints, scopes; compatible with Atlassian DC SSO/OIDC marketplace apps.
 * **Central Database:** PostgreSQL integration (local or central) with credentials sourced from role configuration.
-* **JVM Auto-Tuning:** Safe calculation of `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` with caps to avoid VM init errors.
+* **JVM Auto-Tuning:** `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` are 35 % and 70 % of the service `mem_limit`.
 * **Health Checks:** Container healthcheck for quicker failure detection and stable automation.
 * **CSP & Canonical Domains:** Integrates with platform CSP and domain management.
 * **Backup Ready:** Persistent data under `{{ JIRA_STORAGE_PATH }}`.

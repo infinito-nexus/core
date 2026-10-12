@@ -23,11 +23,11 @@ flowchart LR
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
@@ -60,11 +60,11 @@ flowchart LR
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
@@ -121,7 +121,7 @@ docker run --rm -it \
 
 ## MCP server
 
-The role exposes a Model Context Protocol surface through the `webservice_mcp` protocol plugin, baked into the image at `webservice/mcp` and served by the NGINX sidecar.
+The role exposes a Model Context Protocol surface through the `webservice_mcp` protocol plugin, baked into the image at `public/webservice/mcp` and served by the NGINX sidecar.
 
 | Property | Value |
 | --- | --- |
@@ -173,7 +173,13 @@ This is an accepted trade-off, not an oversight. Moodle offers no allowlist, so 
 
 ## Image source
 
-This role builds its own Moodle image from upstream Moodle source on top of the official `php:8.3-fpm` base.
+This role builds its own Moodle image from upstream Moodle source on top of the official `php:8.3-fpm` base and installs the Composer dependencies that source declares. The NGINX sidecar serves the `public` directory of the code volume and hands every other path to Moodle's router.
+
+## Updates
+
+The image carries the Moodle release pinned as `services.moodle.app_version` in `meta/services.yml`. On start the entrypoint compares that release with the one recorded in the code volume. When the image is newer, it copies the image's tree next to the old one and swaps them once the copy is complete. An image that is older than the recorded release refuses to start. `tasks/01_manager_ops.yml` then runs `admin/cli/upgrade.php`, which migrates the database.
+
+Plugins installed through the web interface live only in the code volume and are not carried over to the next release. Declare a plugin under `meta/addons/` so the image ships it.
 
 ## Further Resources
 

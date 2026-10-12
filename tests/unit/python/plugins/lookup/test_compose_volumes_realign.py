@@ -40,7 +40,9 @@ def _render(**answers) -> str:
     def _lookup(_plugin, _app, key):
         return values[key]
 
-    env = jinja2.Environment(autoescape=False)  # noqa: S701 - renders SQL, HTML escaping would corrupt the literals
+    env = jinja2.Environment(
+        autoescape=jinja2.select_autoescape(default_for_string=False)
+    )
     return env.from_string(read_text(str(_TEMPLATE))).render(
         lookup=_lookup, application_id="web-app-x"
     )

@@ -9,8 +9,8 @@
     container_backup:
       enabled: true
     prometheus:
-      enabled: true
-      shared: true
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
     redis:
       shared: true
     tor:

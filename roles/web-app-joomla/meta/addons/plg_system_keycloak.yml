@@ -3,6 +3,7 @@ enabled: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }
 required: false
 mechanism: plugin
 source: built
+# nocheck: unwatched-version  Reason: the plugin is built in this repository from files/joomla-oidc-plugin, so the version is ours and has no upstream
 version: "1.0.0"
 bridges:
   - sso

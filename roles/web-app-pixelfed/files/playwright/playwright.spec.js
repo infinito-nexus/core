@@ -13,9 +13,9 @@ test.use({
 
 test.beforeAll(shared.beforeAll);
 
-test.afterAll(shared.afterAll);
-
 test.beforeEach(shared.beforeEach);
+
+test.afterAll(shared.afterAll);
 
 require("./test-oidc-login-biber").register(shared);
 require("./test-oidc-login-administrator").register(shared);

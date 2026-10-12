@@ -26,6 +26,8 @@ tar -xzf "${TARBALL_PATH}" --strip-components=1 -C "${MOODLE_SOURCE_DIR}"
 test -d "${MOODLE_SOURCE_DIR}/${MOODLE_AUTH_SUBDIR}"
 test -f "${MOODLE_SOURCE_DIR}/${MOODLE_VERSION_FILE}"
 
+COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --classmap-authoritative --no-interaction --working-dir="${MOODLE_SOURCE_DIR}"
+
 mkdir -p "${MOODLE_CODE_DIR}" "${MOODLE_DATA_DIR}"
 chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" \
   "${MOODLE_SOURCE_DIR}" "${MOODLE_CODE_DIR}" "${MOODLE_DATA_DIR}"

@@ -2,7 +2,15 @@
   {% set service_update_order = 'stop-first' %}
   {% set service_name = 'openbao' %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, 'openbao') }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        OPENBAO_IMAGE: "{{ OPENBAO_IMAGE }}"
+        OPENBAO_VERSION: "{{ OPENBAO_VERSION }}"
+        OPENBAO_LDAP_PLUGIN_IMAGE: "{{ OPENBAO_LDAP_PLUGIN_IMAGE }}"
+        OPENBAO_LDAP_PLUGIN_VERSION: "{{ OPENBAO_LDAP_PLUGIN_VERSION }}"
+        OPENBAO_LDAP_PLUGIN_BINARY: "{{ OPENBAO_LDAP_PLUGIN_BINARY }}"
+        OPENBAO_PLUGIN_DIR: "{{ OPENBAO_PLUGIN_DIR_DOCKER }}"
+    {{ lookup('container_image', application_id, 'openbao', version=OPENBAO_IMAGE_TAG) }}
     {{ lookup('compose_only', 'container_name', OPENBAO_NAME) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_ports', ['openbao', 'http', DOCKER_BIND_HOST]) | indent(4) }}

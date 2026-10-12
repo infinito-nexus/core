@@ -193,7 +193,7 @@ jobs:
   fork-prereqs-ready:
     name: 🚦 Gate Dependencies
     needs: wait-fork-prereq-run
-    if: ${{ always() && inputs.fork_prereqs }}
+    if: ${{ !cancelled() && inputs.fork_prereqs }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.0

@@ -51,4 +51,6 @@ server {
 
     try_files /dev/null {{ webserver_websocket_location }};
   }
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
 }

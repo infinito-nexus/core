@@ -21,6 +21,12 @@ for attempt in $(seq 1 "${attempts}"); do
 
   case "${rc}" in
     69 | 75 | 124) ;;
+    76)
+      case "${msmtp_err}" in
+        *"the server sent an empty reply"*) ;;
+        *) exit "${rc}" ;;
+      esac
+      ;;
     77)
       case "${msmtp_err}" in
         *"server message: 4"* | *"Temporary authentication failure"*) ;;

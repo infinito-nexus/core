@@ -1,0 +1,9 @@
+{
+  "using": ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"],
+  "methodCalls": [["x:MtaMilter/set", {"update": { {{ stalwart_av_milter_id | to_json }}: {
+    "tempFailOnError": false,
+    "timeoutConnect": {{ STALWART_CLAMAV_MILTER_TIMEOUT_CONNECT_MS | int }},
+    "timeoutCommand": {{ STALWART_CLAMAV_MILTER_TIMEOUT_COMMAND_MS | int }},
+    "timeoutData": {{ STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS | int }}
+  }}}, "c0"]]
+}

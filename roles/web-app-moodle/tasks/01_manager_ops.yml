@@ -48,6 +48,13 @@
     - "'Database tables already present' not in moodle_install.stderr"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "⬆️ Upgrade the Moodle database to the release in the code volume"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
+  register: moodle_upgrade
+  changed_when: "'No upgrade needed' not in moodle_upgrade.stderr"
+
 - name: "🔑 Realign the administrator password Moodle persisted at install"
   when: not (MOODLE_OIDC_ENABLED | bool)
   # nocheck: password-quote  the token is upstream's CLI filename, not a credential

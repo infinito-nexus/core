@@ -1,4 +1,5 @@
 memory_limit={{ MOODLE_PHP_MEMORY_LIMIT }}
+opcache.memory_consumption={{ lookup('service_memory_mb', application_id, 'moodle', 0.125) }}
 upload_max_filesize={{ MOODLE_PHP_UPLOAD_MAX_FILESIZE }}
 post_max_size={{ MOODLE_PHP_POST_MAX_SIZE }}
 max_execution_time={{ MOODLE_PHP_MAX_EXECUTION_TIME }}

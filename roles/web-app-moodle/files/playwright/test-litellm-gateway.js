@@ -5,7 +5,10 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
 
-const ENDPOINT_FIELD = "#id_s_aiprovider_openai_action_generate_text_endpoint";
+const providerName = decodeDotenvQuotedValue(process.env.MOODLE_AI_PROVIDER_NAME || "");
+
+const ENDPOINT_FIELD = "#id_endpoint";
+const GENERATE_TEXT_ACTION = "core_ai\\aiactions\\generate_text";
 const USER_MENU = ".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']";
 const GATEWAY_PROMPT = "Reply with the single word: pong";
 
@@ -80,22 +83,47 @@ exports.register = function (shared) {
 
     await loginAsSiteAdmin(page, shared);
 
+    expect(
+      providerName,
+      "MOODLE_AI_PROVIDER_NAME must name the provider instance the deploy creates; without it the test cannot tell that instance from one an administrator added",
+    ).toBeTruthy();
+
+    await gotoOnion(page, `${shared.env.moodleBaseUrl}/admin/settings.php?section=aiprovider`, {
+      waitUntil: "domcontentloaded",
+      timeout: resolveTimeout(60_000),
+    });
+
+    const providerLink = page
+      .locator("tr", { hasText: providerName })
+      .locator("a[href*='/ai/configure.php']")
+      .first();
+    await expect(
+      providerLink,
+      `the AI providers page must list the instance "${providerName}"; its absence means the deploy created no provider instance or the session lacks moodle/site:config`,
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
+
+    const providerId = new URL(
+      await providerLink.getAttribute("href"),
+      shared.env.moodleBaseUrl,
+    ).searchParams.get("id");
+
     await gotoOnion(
       page,
-      `${shared.env.moodleBaseUrl}/admin/settings.php?section=aiprovider_openai_generate_text`,
+      `${shared.env.moodleBaseUrl}/ai/configure_actions.php` +
+        `?provider=aiprovider_openai&action=${encodeURIComponent(GENERATE_TEXT_ACTION)}&providerid=${providerId}`,
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) },
     );
 
     const endpointField = page.locator(ENDPOINT_FIELD);
     await expect(
       endpointField,
-      "the aiprovider_openai generate_text settings page must render its API endpoint field; its absence means the provider was never configured or the session lacks moodle/site:config",
+      "the generate_text settings page of the provider instance must render its API endpoint field; its absence means the instance carries no generate_text action",
     ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const configuredEndpoint = ((await endpointField.inputValue()) || "").trim();
     expect(
       configuredEndpoint,
-      "aiprovider_openai/action_generate_text_endpoint must be an http(s) URL written by the deploy, not the upstream api.openai.com default",
+      "the generate_text endpoint of the provider instance must be an http(s) URL written by the deploy, not the upstream api.openai.com default",
     ).toMatch(/^https?:\/\/.+/i);
 
     const endpointHost = new URL(configuredEndpoint).hostname;

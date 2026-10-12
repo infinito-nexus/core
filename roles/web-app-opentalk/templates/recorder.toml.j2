@@ -1,14 +1,10 @@
 # OpenTalk recorder configuration.
 # Reference: https://docs.opentalk.eu/admin/recorder/configuration/
 
-[auth]
-issuer = "{{ OIDC.CLIENT.ISSUER_URL }}"
-client_id = "{{ OPENTALK_RECORDER_OIDC_CLIENT_ID }}"
-client_secret = "{{ OPENTALK_RECORDER_OIDC_CLIENT_SECRET }}"
-
 [controller]
-domain = "{{ OPENTALK_DOMAIN }}"
+url = "http://controller:{{ OPENTALK_CTRL_INTERNAL_PORT }}"
+api_key = { id = "{{ OPENTALK_CTRL_SERVICE_API_KEY_ID }}", secret = "{{ OPENTALK_CTRL_SERVICE_API_SECRET }}" }
 
-[rabbitmq]
-uri = "amqp://guest:guest@rabbit/%2F"
-queue = "{{ OPENTALK_RABBIT_QUEUE }}"
+[http]
+port = {{ OPENTALK_RECORDER_HTTP_PORT }}
+api_keys = [{ id = "{{ OPENTALK_RECORDER_API_KEY_ID }}", secret = "{{ OPENTALK_RECORDER_API_SECRET }}" }]

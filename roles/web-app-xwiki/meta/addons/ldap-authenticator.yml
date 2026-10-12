@@ -5,7 +5,11 @@ mechanism: extension
 source: upstream
 bridges:
   - ldap
-version: "9.15.7"
+version: "9.16.6"
+update:
+  type: http_regex
+  url: https://maven.xwiki.org/releases/org/xwiki/contrib/ldap/ldap-authenticator/maven-metadata.xml
+  pattern: "<version>([0-9][0-9.]*)</version>"
 group: ldap
 config:
   id: org.xwiki.contrib.ldap:ldap-authenticator

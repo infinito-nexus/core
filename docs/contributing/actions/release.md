@@ -41,7 +41,7 @@ A higher count is fine for short bursts of releases, but the active changelog SH
 
    Pass `--dry-run` to preview without writing.
 3. Run `make test` locally and confirm everything is green.
-4. Commit the changelog and any archive additions in a single commit with subject `Release version <MAJOR>.<MINOR>.<PATCH>` (matching the historical convention).
+4. Commit the changelog and any archive additions in a single commit with subject `Release version <MAJOR>.<MINOR>.<PATCH>` (matching the historical convention). A push to `main` whose head commit carries that subject cancels the running `main` pipeline, and [test_release_tag_commit_subject.py](../../../tests/integration/meta/workflows/test_release_tag_commit_subject.py) fails for every tag from `v13.0.0` on that sits on another subject.
 5. Tag the commit: `git tag -a v<MAJOR>.<MINOR>.<PATCH> -m "Release version <MAJOR>.<MINOR>.<PATCH>"`.
 6. Push the branch and the tag with [git-sign-push](https://github.com/kevinveenbirkenbach/git-maintainer-tools), running it outside the sandbox.
 

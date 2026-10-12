@@ -1,0 +1,18 @@
+---
+# include-gated: when: STALWART_PRODUCTION_HOST | length > 0
+# Read-only assertions against a publicly reachable mail server: DNS records, rDNS and
+# the SMTP greeting. Nothing is sent and nothing is mutated, so this is safe to run at
+# the end of every deploy that targets such a server.
+- name: "🔎 Assert the production mail server's public DNS and SMTP facts"
+  ansible.builtin.script:
+    cmd: >-
+      {{ [ role_path, 'files/python/production_facts.py' ] | path_join }}
+      --mail-host {{ STALWART_PRODUCTION_HOST | quote }}
+      --mail-domain {{ STALWART_DOMAIN | quote }}
+      {{ ('--dkim-selector ' ~ (stalwart_dkim_selector | quote))
+         if stalwart_dkim_selector is defined else '' }}
+      {{ ('--resolver ' ~ (STALWART_PRODUCTION_RESOLVER | quote))
+         if STALWART_PRODUCTION_RESOLVER | length > 0 else '' }}
+      {{ ('--metrics-file ' ~ (STALWART_MAIL_FACTS_METRICS_FILE | quote))
+         if STALWART_PROMETHEUS_ENABLED | bool else '' }}
+  changed_when: false

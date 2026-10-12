@@ -15,6 +15,10 @@ if TYPE_CHECKING:
 ROLE_DIR = PROJECT_ROOT / "roles" / "web-app-keycloak"
 LIB_PATH = PROJECT_ROOT / "library" / "keycloak_kcadm_update.py"
 MODUTILS_PATH = PROJECT_ROOT / "utils" / "kcadm_json.py"
+LOCK_ERROR = (
+    "Failed to refresh access token - "
+    "Failed to get lock on /opt/keycloak/.keycloak/kcadm.config"
+)
 
 
 def _load_py_module(name: str, path: Path):
@@ -49,6 +53,12 @@ def _install_role_local_kcadm_json_into_ansible_module_utils() -> None:
         sys.modules["ansible.module_utils.basic"] = basic
 
     sys.modules["ansible.module_utils.kcadm_json"] = role_modutils
+
+    scopes_modutils = _load_py_module(
+        "role_web_app_keycloak_module_utils_keycloak_scopes_for_ansible",
+        PROJECT_ROOT / "utils" / "keycloak_scopes.py",
+    )
+    sys.modules["ansible.module_utils.keycloak_scopes"] = scopes_modutils
 
 
 class DummyModule:
@@ -208,6 +218,46 @@ class TestKeycloakKcadmUpdate(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertEqual(len(calls), 1)
 
+    def test_run_kcadm_repeats_a_call_that_lost_the_config_lock(self):
+        m = self.mod
+        outcomes = [
+            DummyCompleted(1, "", LOCK_ERROR),
+            DummyCompleted(1, "", LOCK_ERROR),
+            DummyCompleted(0, "[]", ""),
+        ]
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            return outcomes[len(calls) - 1]
+
+        with (
+            patch.object(m.subprocess, "run", side_effect=fake_run),
+            patch.object(m.time, "sleep", return_value=None) as sleep,
+        ):
+            rc, out, _err = m.run_kcadm(DummyModule(), "kcadm get clients")
+
+        self.assertEqual((rc, out), (0, "[]"))
+        self.assertEqual(calls, ["kcadm get clients"] * 3)
+        self.assertEqual(sleep.call_count, 2)
+
+    def test_run_kcadm_gives_up_on_a_config_lock_that_never_frees(self):
+        m = self.mod
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            return DummyCompleted(1, "", LOCK_ERROR)
+
+        with (
+            patch.object(m.subprocess, "run", side_effect=fake_run),
+            patch.object(m.time, "sleep", return_value=None),
+            self.assertRaises(m.subprocess.CalledProcessError),
+        ):
+            m.run_kcadm(DummyModule(), "kcadm get clients")
+
+        self.assertEqual(len(calls), m.CONFIG_LOCK_MAX_RETRIES + 1)
+
     def test_get_current_object_parses_noisy(self):
         m = self.mod
         dummy = DummyModule()
@@ -223,6 +273,82 @@ class TestKeycloakKcadmUpdate(unittest.TestCase):
                 kcadm_exec="kcadm",
             )
         self.assertEqual(cur, {"id": "abc", "name": "thing"})
+
+    def _run_converge(self, desired, assignments, catalog):
+        """Drive converge_client_scope_lists with a fake kcadm; returns the
+        mutating commands it issued, in order."""
+        m = self.mod
+        dummy = DummyModule()
+        mutations = []
+
+        def fake_run_kcadm(_module, cmd, ignore_rc=False):
+            for kind, payload in assignments.items():
+                if f"get clients/c1/{kind} " in cmd:
+                    return 0, payload, ""
+            if "get client-scopes " in cmd:
+                return 0, catalog, ""
+            mutations.append(cmd)
+            return 0, "", ""
+
+        changed = m.converge_client_scope_lists(
+            fake_run_kcadm, dummy, "c1", desired, "example", "kcadm"
+        )
+        return changed, mutations
+
+    def test_converge_client_scopes_adds_and_removes(self):
+        changed, mutations = self._run_converge(
+            desired={"defaultClientScopes": ["a", "b"]},
+            assignments={
+                "default-client-scopes": '[{"id":"s-old","name":"old"},{"id":"s-a","name":"a"}]'
+            },
+            catalog='[{"id":"s-b","name":"b"},{"id":"s-old","name":"old"}]',
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            mutations,
+            [
+                "kcadm delete clients/c1/default-client-scopes/s-old -r example",
+                "kcadm update clients/c1/default-client-scopes/s-b -r example",
+            ],
+        )
+
+    def test_converge_client_scopes_noop_when_in_sync(self):
+        changed, mutations = self._run_converge(
+            desired={"defaultClientScopes": ["a"]},
+            assignments={"default-client-scopes": '[{"id":"s-a","name":"a"}]'},
+            catalog='[{"id":"s-a","name":"a"}]',
+        )
+        self.assertFalse(changed)
+        self.assertEqual(mutations, [])
+
+    def test_converge_client_scopes_removals_precede_additions_across_lists(self):
+        """Scope `x` moves default -> optional: it must be unassigned from
+        default BEFORE it is assigned to optional."""
+        changed, mutations = self._run_converge(
+            desired={"defaultClientScopes": [], "optionalClientScopes": ["x"]},
+            assignments={
+                "default-client-scopes": '[{"id":"s-x","name":"x"}]',
+                "optional-client-scopes": "[]",
+            },
+            catalog='[{"id":"s-x","name":"x"}]',
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            mutations,
+            [
+                "kcadm delete clients/c1/default-client-scopes/s-x -r example",
+                "kcadm update clients/c1/optional-client-scopes/s-x -r example",
+            ],
+        )
+
+    def test_converge_client_scopes_skips_undeclared_lists(self):
+        changed, mutations = self._run_converge(
+            desired={"clientId": "no-scope-lists-here"},
+            assignments={"default-client-scopes": '[{"id":"s-a","name":"a"}]'},
+            catalog="[]",
+        )
+        self.assertFalse(changed)
+        self.assertEqual(mutations, [])
 
 
 if __name__ == "__main__":

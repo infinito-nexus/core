@@ -29,7 +29,7 @@ BLUESKY_API_DOMAIN: "{{ lookup('domains', application_id).api }}"
 BLUESKY_API_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.api.ports.local.http') }}"
 BLUESKY_PDS_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.api.ports.internal.http') }}"
 
-BLUESKY_PDS_HANDLE_DOMAIN: "{{ DOMAIN_PRIMARY | regex_replace('\\.(example|test|invalid|local|localhost|arpa|alt|internal|onion)$', '.app') }}"
+BLUESKY_PDS_HANDLE_DOMAIN: "{{ DOMAIN_PRIMARY | regex_replace('\\.test$', '.app') }}"
 
 BLUESKY_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 

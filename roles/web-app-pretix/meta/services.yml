@@ -19,8 +19,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — Redis cache, no Playwright surface
@@ -53,7 +53,7 @@ pretix:
     swarm:
       enabled: true
   image: pretix/standalone
-  version: 2026.7.0
+  version: 2026.8.0
   custom: true
   name: pretix
   min_storage: 1003MB
@@ -71,6 +71,7 @@ pretix:
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: playwright-service-flag — CSS consumer, no Playwright surface (provider: web-svc-css)

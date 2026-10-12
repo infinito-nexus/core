@@ -18,6 +18,10 @@ path "sys/mounts/*" {
   capabilities = ["create", "read", "update", "delete", "sudo"]
 }
 
+path "sys/plugins/reload/backend" {
+  capabilities = ["update"]
+}
+
 path "auth/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }

@@ -85,6 +85,8 @@ class LookupModule(LookupBase):
         database_service = get_database_service_config(applications, consumer_id)
         enabled = bool(database_service.get("enabled", False))
         shared = bool(database_service.get("shared", False))
+        name_override = str(database_service.get("name") or "").strip()
+        managed = bool(enabled and not shared and not name_override)
 
         if not dbtype:
             resolved = {
@@ -92,6 +94,7 @@ class LookupModule(LookupBase):
                 "enabled": enabled,
                 "shared": shared,
                 "local": bool(enabled and not shared),
+                "managed": managed,
                 "type": "",
                 "name": consumer_entity,
                 "instance": "",
@@ -184,13 +187,21 @@ class LookupModule(LookupBase):
             default=default_version,
         )
 
-        image = get(
+        default_image = get(
             applications,
             db_id,
             f"services.{dbtype}.image",
             strict=False,
             default=dbtype,
             skip_missing_app=True,
+        )
+
+        image = get(
+            applications,
+            consumer_id,
+            f"services.{dbtype}.image",
+            strict=False,
+            default=default_image,
         )
 
         env_dir = f"{path_instances}{get_entity_name(consumer_id)}/.env/"
@@ -245,6 +256,7 @@ class LookupModule(LookupBase):
             "enabled": enabled,
             "shared": shared,
             "local": bool(enabled and not shared),
+            "managed": managed,
             "type": dbtype,
             "name": name,
             "instance": instance,

@@ -53,7 +53,7 @@
 - name: "📦 Install plg_system_keycloak via Joomla CLI"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec --user {{ JOOMLA_WEB_USER | quote }} {{ JOOMLA_LOCAL_CID | quote }}
-    php -d memory_limit=512M {{ JOOMLA_CLI_FILE | quote }}
+    php -d memory_limit={{ JOOMLA_PHP_MEMORY_LIMIT }} {{ JOOMLA_CLI_FILE | quote }}
     extension:install --path={{ JOOMLA_OIDC_PLUGIN_ZIP | quote }}
   register: plugin_install
   changed_when: "'Extension installed successfully' in plugin_install.stdout"
@@ -63,8 +63,8 @@
   delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
 - name: "🔍 Resolve plg_system_keycloak extension ID" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_LOCAL_CID | quote }} php -d memory_limit=512M {{ JOOMLA_CLI_FILE }} extension:list
-    | awk '/plg_system_keycloak/ {print $2; exit}'"
+  ansible.builtin.shell: "container exec --user {{ JOOMLA_WEB_USER }} {{ JOOMLA_LOCAL_CID | quote }} php -d memory_limit={{ JOOMLA_PHP_MEMORY_LIMIT }} {{ JOOMLA_CLI_FILE
+    }} extension:list | awk '/plg_system_keycloak/ {print $2; exit}'"
   register: plugin_id_lookup
   changed_when: false
   failed_when: plugin_id_lookup.stdout | trim | length == 0
@@ -73,7 +73,7 @@
 - name: "🟢 Enable plg_system_keycloak via Joomla CLI"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec --user {{ JOOMLA_WEB_USER | quote }} {{ JOOMLA_LOCAL_CID | quote }}
-    php -d memory_limit=512M {{ JOOMLA_CLI_FILE | quote }}
+    php -d memory_limit={{ JOOMLA_PHP_MEMORY_LIMIT }} {{ JOOMLA_CLI_FILE | quote }}
     extension:enable {{ plugin_id_lookup.stdout | trim | quote }}
   register: plugin_enable
   changed_when: "'has been enabled' in plugin_enable.stdout or 'enabled successfully' in plugin_enable.stdout"

@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_DIR_META_ADDONS
+from utils.update.base import is_maintained
 
 MECHANISMS: frozenset[str] = frozenset(
     {"addon", "plugin", "mu_plugin", "extension", "module", "bridge"}
@@ -45,7 +46,26 @@ ADDON_KEYS: frozenset[str] = frozenset(
     }
 )
 
-UPDATE_KEYS: frozenset[str] = frozenset({"monitored", "catalog", "upstream_id"})
+VERSION_SOURCE_KEYS: frozenset[str] = frozenset(
+    {
+        "key",
+        "type",
+        "repository",
+        "image",
+        "package",
+        "url",
+        "pattern",
+        "path",
+        "match",
+        "strip",
+    }
+)
+
+UPDATE_KEYS: frozenset[str] = (
+    frozenset({"monitored", "catalog", "upstream_id"}) | VERSION_SOURCE_KEYS
+)
+
+GITHUB_RELEASES_CATALOG = "github-releases"
 
 SUPPORTED_CATALOGS: frozenset[str] = frozenset(
     {
@@ -60,7 +80,7 @@ SUPPORTED_CATALOGS: frozenset[str] = frozenset(
         "gnome-extensions",
         "chrome-webstore",
         "firefox-amo",
-        "github-releases",
+        GITHUB_RELEASES_CATALOG,
     }
 )
 
@@ -157,6 +177,8 @@ def collect_addon_entries(roles_root: Path) -> list[AddonEntry]:
     """
     entries: list[AddonEntry] = []
     for role_name, addon_file in iter_addon_files(roles_root):
+        if not is_maintained(roles_root, role_name):
+            continue
         spec = load_yaml_any(str(addon_file), default_if_missing={})
         if isinstance(spec, Mapping):
             entries.append(

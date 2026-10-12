@@ -62,7 +62,14 @@ flowise:
   # nocheck: docker-version
   version: "24-slim"
   npm_version: 3.1.4
-  sqlite_version: 12.11.1
+  update:
+    - key: npm_version
+      type: npm
+      package: flowise
+    - key: sqlite_version
+      type: npm
+      package: better-sqlite3
+  sqlite_version: 13.0.3
   custom: true
   name: flowise
   # nocheck: min-storage-headroom  Reason: the deployed image is built here from node:24-slim and measures 4.8 GB, so the base image transfer is not its footprint
@@ -82,6 +89,7 @@ flowise:
   run_after:
     - web-app-keycloak
     - web-app-matomo
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: dynamic-flag
@@ -108,8 +116,8 @@ javascript:
   shared: true
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

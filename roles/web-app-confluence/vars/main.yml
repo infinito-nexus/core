@@ -25,7 +25,7 @@ CONFLUENCE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_na
 CONFLUENCE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 CONFLUENCE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 
-CONFLUENCE_JVM_MAX: "{{ lookup('applications') | jvm_max_mb(application_id) }}m"
-CONFLUENCE_JVM_MIN: "{{ lookup('applications') | jvm_min_mb(application_id) }}m"
+CONFLUENCE_JVM_MAX: "{{ lookup('service_memory_mb', application_id, entity_name, 0.7) }}m"
+CONFLUENCE_JVM_MIN: "{{ lookup('service_memory_mb', application_id, entity_name, 0.35) }}m"
 
 CONFLUENCE_TRUST_STORE_ENABLED: "{{ lookup('config', application_id, 'services.confluence.truststore_enabled') }}"

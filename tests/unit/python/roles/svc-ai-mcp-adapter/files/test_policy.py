@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import time
 import unittest
 
 from . import PROJECT_ROOT
@@ -234,6 +235,26 @@ class TestDeclaredArguments(unittest.TestCase):
         self.assertEqual("GET", method)
 
 
+class TestPathArguments(unittest.TestCase):
+    def call(self, **arguments):
+        return policy.authorize_call(contract(), "checkmk_get_host_status", arguments)
+
+    def test_a_value_made_only_of_dots_is_refused(self):
+        for dots in range(4):
+            with self.subTest(dots=dots):
+                with self.assertRaises(PermissionError) as caught:
+                    self.call(host="." * dots)
+                self.assertIn(policy.DENY_PATH_ARGUMENT, str(caught.exception))
+
+    def test_dots_inside_a_segment_pass(self):
+        for value in ("web-01.example", "..web", "web.."):
+            with self.subTest(value=value):
+                self.call(host=value)
+
+    def test_a_query_argument_may_be_made_only_of_dots(self):
+        self.call(host="web-01", columns="." * 2)
+
+
 RANGE_TOOLS = {
     "prometheus_query_range": {
         "method": "GET",
@@ -325,6 +346,22 @@ class TestDurationGrammar(unittest.TestCase):
         """`1h30` is not a Prometheus duration; accepting it would guess."""
         with self.assertRaises(ValueError):
             policy.parse_duration("1h30")
+
+    def test_anything_but_number_unit_pairs_is_refused(self):
+        for text in ("", "h", "1hh", "1.5h", "-1h", "1 h", "1sm", "abc"):
+            with self.subTest(text=text), self.assertRaises(ValueError):
+                policy.parse_duration(text)
+
+    def test_a_long_digit_run_is_refused_in_linear_time(self):
+        started = time.monotonic()
+        with self.assertRaises(ValueError):
+            policy.parse_duration("0" * 20_000 + "!")
+        self.assertLess(
+            time.monotonic() - started,
+            1.0,
+            "parsing must not rescan the digit run from every start position; "
+            "a backtracking pattern needs several seconds for this input",
+        )
 
 
 class TestAudit(unittest.TestCase):

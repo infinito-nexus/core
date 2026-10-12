@@ -1,5 +1,146 @@
 # Changelog
 
+## [15.0.0] - 2026-10-03
+
+**Breaking Changes**
+
+* **Stalwart replaces Mailu as the default mail provider.** *MAIL_PROVIDER* now defaults to
+  *web-app-stalwart*, and every application switches its mail settings on only while the
+  configured provider is deployed. An inventory that keeps Mailu must set
+  *MAIL_PROVIDER: web-app-mailu*, otherwise its applications stop sending mail. Mailu is now
+  *deprecated*: it keeps working until it is removed, but new deployments must not adopt it,
+  and CI no longer deploys or tests it, the mailbox import included. To move over, deploy
+  Stalwart next to Mailu and switch on *services.stalwart.migration.import_mailu*: in compose
+  mode the role imports every inventory account's mail from Mailu over IMAP, keeping
+  folders, flags and dates, and re-runs skip what is already there. See
+  [web-app-stalwart](roles/web-app-stalwart/README.md).
+
+* **PostgreSQL 18 on the official image.** PGDG archived the Debian 11 repository that the
+  old *postgis/postgis:17-3.5* base installed from, so every build of the shared database
+  image failed. *svc-db-postgres* and the per-application database now run the official
+  multi-arch *postgres:18* image, and the data volume mounts at */var/lib/postgresql*.
+  Existing PostgreSQL 17 clusters are not migrated. Dump every database before you deploy
+  this release and restore it into the new cluster afterwards. PostGIS is installed only for
+  a role that declares it.
+
+* **Major versions arrive with the image updates.** MariaDB moves from 12.3 to 13.0 and
+  upgrades its system tables on start. Odoo moves from 19.0 to 20.0 and does not migrate an
+  existing database across major versions on its own, so back up Odoo before you deploy.
+  XWiki moves from 17.10 to 18.8, and the OpenLDAP base from Debian 12 to 13.
+
+**For Users**
+
+* **Stalwart mail server.** The new *web-app-stalwart* role runs SMTP, submission, IMAP,
+  POP3, JMAP, ManageSieve, CalDAV, CardDAV and WebDAV in one server, with spam filtering,
+  DKIM and DMARC signing and a web admin interface, plus Roundcube webmail and a ClamAV scan
+  of incoming mail. Domains, accounts, TLS, Keycloak sign-in, DKIM keys and DNS records are
+  provisioned through Stalwart's management API on every deploy, in compose and in swarm
+  mode. Two silent failures are closed: a Keycloak that was still starting could leave
+  Stalwart without single sign-on for the life of the process, and the server wrote no logs
+  at all. Both are fixed. See [web-app-stalwart](roles/web-app-stalwart/README.md).
+
+* **Mail to and from onion addresses.** The new *svc-net-tor-smtp* role accepts mail for
+  *.onion* recipients and delivers it over Tor. The applications reach an onion mail
+  provider too: 27 roles now resolve the provider's onion host inside their containers and
+  skip STARTTLS towards it, since no certificate can exist for an onion name and Tor already
+  encrypts the link. GitLab's test suite checks that a password reset mail actually arrives.
+
+* **GitLab migrations no longer run out of locks.** GitLab's database migration failed on
+  PostgreSQL 18 with "out of shared memory". The shared and the per-application PostgreSQL
+  now allow 256 locks per transaction.
+
+* **Backups survive a file truncated mid-copy.** *baudolo* 7.0.2 lets the stopped checksum
+  copy replace a live pre-copy that a writing container broke by truncating files under
+  rsync, which used to abort the backup.
+
+**For Developers**
+
+* **The mail provider is a service, not a role name.** Stalwart declares *provides: email*
+  and Mailu *covers: [email]*. The new *mail_provider* lookup returns the configured provider
+  while it is deployed, otherwise the first deployed role offering *email*, and reads the
+  cluster-wide groups so swarm workers agree with the manager. The port-collision lint
+  accepts a collision only inside a registry-declared provider-alternative group, and a new
+  lint fails every role that reads the *email* lookup without emitting
+  *container_extra_hosts*.
+
+* **Deprecated roles are untested.** A role in the *deprecated* lifecycle stage is no longer
+  deployed or tested by CI and cannot block a release, so Stalwart stopped pulling Mailu into
+  its deploy round. The allowed lifecycle values now have one source, the stage list in
+  [lifecycle.md](docs/contributing/design/role/services/lifecycle.md).
+
+* **Release pushes on main.** A push to *main* whose head commit starts with
+  *Release version* cancels the running *main* pipeline, so the release starts at once. A
+  release-tagged commit deploys every chunk instead of stopping at the first failed one, and
+  still ends red when any chunk fails, which keeps a broken release from being published. A
+  new integration test requires every release tag from v13.0.0 on to sit on that subject,
+  and the test job now checks out the full history with tags.
+
+* **Cancelling CI runs.** Pull request runs fail fast: the first failed row cancels its
+  siblings in the deploy and workspace matrices, while push and manual runs keep every row.
+  Identical deploy rows from different runs queue behind each other again, keyed on every
+  matrix axis. A cancel now also stops jobs that used to run after a failure:
+  *!cancelled()* replaces *always()*, enforced by lint, and only *done* and
+  *report-main-failures* still report a cancelled run. CodeRabbit reviews draft pull
+  requests too.
+
+* **Onion port probe runs everywhere.** A role with more than one onion-forwarded port wrote
+  an unquoted port list into *test.env*, so sourcing it left the list empty and the probe
+  passed without checking anything. The list is quoted now, and a unit test sources the
+  rendered file in compose and swarm mode.
+
+* **Agent sandbox.** *git commit --amend* is denied, the host's credential files stay
+  unreadable inside the sandbox, sandboxed commands may reach local services on 127.0.0.1
+  to 127.0.0.12 and localhost, and third-party plugins are no longer switched on for every
+  contributor.
+
+* **Ansible collections from Git first.** The automated retune made Git the preferred
+  source for Ansible collections, with Galaxy as the fallback, after Galaxy's median install
+  time reached three times Git's.
+
+* Image and dependency version jumps (net since 14.2.0):
+  * *svc-db-postgres*: postgis/postgis 17-3.5 to postgres 18
+  * *svc-db-mariadb*: 12.3 to 13.0
+  * *svc-db-redis*: 8.10.1-alpine to 8.10.2-alpine
+  * *svc-db-openldap* (Debian base): 12.15-slim to 13.7-slim
+  * *svc-ai-ollama*: 0.34.2 to 0.35.0
+  * *svc-runner* (BuildKit): v0.33.0 to v0.33.1
+  * *svc-net-tor-smtp*: newly on python 3.14-slim
+  * *web-app-stalwart*: newly pinned to Stalwart v0.16.24, Roundcube 1.7.4-apache, ClamAV
+    1.5.4 and postgres 18
+  * *web-app-dashboard* (port-ui): 2.1.3 to 2.2.2
+  * *web-app-erpnext*: v16.35.0 to v16.37.0
+  * *web-app-espocrm*: 10.0.8 to 10.0.9
+  * *web-app-gitlab*: v19.3.2 to v19.4.1 (all six CNG component images)
+  * *web-app-joomla*: 6.1.3-php8.3-apache to 6.1.4-php8.3-apache
+  * *web-app-keycloak*: 26.7.4 to 26.8.0, oauth2-proxy v7.15.4 to v7.15.5
+  * *web-app-magento*: OpenSearch 3.8.0 to 3.9.0
+  * *web-app-matomo*: 5.13.0 to 5.14.0
+  * *web-app-matrix*: Synapse v1.160.0 to v1.162.0, Element v1.12.28 to v1.12.30
+  * *web-app-odoo*: 19.0 to 20.0
+  * *web-app-peertube*: v8.3.0 to v8.3.1
+  * *web-app-seaweedfs*: 4.46 to 4.48
+  * *web-app-shopware*: OpenSearch 3.8.0 to 3.9.0
+  * *web-app-snipe-it*: v8.7.2-alpine to v8.8.0-alpine
+  * *web-app-socialhome*: 2026.9.18 to 2026.10.2
+  * *web-app-xwiki*: 17.10.13 to 18.8.0
+  * *web-app-bluesky* (view): 1.132.0 to 1.134.0
+  * *web-app-discourse*: v2026.8.0 to v2026.9.0
+  * *web-svc-logout*: universal-logout v1.3.1 to v1.4.1
+  * *web-svc-xmpp*: 26.07 to 26.09
+  * *pkgmgr*: v1.16.1 to v2.0.2
+  * *backup-docker-to-local* (*baudolo*): 7.0.1 to 7.0.2
+  * *ruff* (dev): 0.16.7 to 0.16.9
+  * *brace-expansion* (dev): ^5.0.9 to ^5.0.12
+
+**Contributors**
+
+* [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): Stalwart as the default
+  mail provider in compose and swarm mode, the Tor SMTP gateway, onion mail delivery for
+  every mail-sending role, the Mailu import and the provider resolution
+* [Kevin Veen-Birkenbach](https://veen.world): PostgreSQL 18, release-aware CI cancellation
+  and chunk gating, the release tag test, the Mailu deprecation and the untested deprecated
+  stage, the agent sandbox policy, review and version maintenance
+
 ## [14.2.0] - 2026-09-22
 
 **For Users**

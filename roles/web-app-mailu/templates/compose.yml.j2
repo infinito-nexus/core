@@ -5,7 +5,11 @@
     {{ lookup('compose_only', 'container_name', MAILU_FRONT_CONTAINER_ADDRESS) }}
     {{ lookup('container_image', application_id, 'front', image=MAILU_DOCKER_FLAVOR ~ '/nginx', version=MAILU_VERSION) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if MAILU_ACTIVE_PROVIDER | bool %}
     {{ lookup('container_ports_mailu') | indent(4) }}
+    {% else %}
+    {{ lookup('container_ports', ['mailu', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

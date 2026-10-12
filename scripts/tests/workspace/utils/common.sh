@@ -55,8 +55,18 @@ load_repo_env() {
 load_repo_env
 ensure_git_safe_directory
 
-DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?INFINITO_DOMAIN comes from the .env scripts/meta/env/load.sh sources}"
-MATOMO_URL="https://matomo.${INFINITO_DOMAIN:?INFINITO_DOMAIN comes from the .env scripts/meta/env/load.sh sources}"
+if [[ -z "${INFINITO_DOMAIN:-}" ]]; then
+	for _env_file in "${REPO_ROOT}/.env" "${REPO_ROOT}/default.env"; do
+		if [[ -f "${_env_file}" ]]; then
+			INFINITO_DOMAIN="$(sed -n 's/^INFINITO_DOMAIN=//p' "${_env_file}" | head -n1)"
+			[[ -n "${INFINITO_DOMAIN}" ]] && break
+		fi
+	done
+	unset _env_file
+fi
+DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?Missing INFINITO_DOMAIN in .env and default.env}"
+MATOMO_URL="https://matomo.${INFINITO_DOMAIN}"
+
 : "${DASHBOARD_URL}" "${MATOMO_URL}"
 
 # Print the generated inventory and host_vars for debugging and verification.

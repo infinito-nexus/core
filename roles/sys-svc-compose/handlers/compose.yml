@@ -81,7 +81,11 @@
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
+  register: compose_rebuild
   timeout: "{{ lookup('timeout', 3600) | int }}"
+  retries: 3
+  delay: 30
+  until: compose_rebuild is succeeded
   when: compose_build is failed
   listen:
     - compose-build

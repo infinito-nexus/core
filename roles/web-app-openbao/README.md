@@ -20,9 +20,9 @@ flowchart LR
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
@@ -36,6 +36,7 @@ flowchart LR
         svc_email["email ❌"]
         svc_prometheus["prometheus"]
         svc_openbao["openbao"]
+        svc_auth_ldap["auth-ldap"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
@@ -44,12 +45,12 @@ flowchart LR
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_stalwart -- "0..0" --> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    linkStyle 5 stroke:red;
+    linkStyle 7 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -111,6 +112,7 @@ docker run --rm -it \
 - **Every deploy rotates the AppRole.** The `role_id`/`secret_id` a run is handed are not the ones the running instance holds. `tasks/01_init.yml` tries the inventory pair, falls back to the pair recorded in `.applied.json`, then `tasks/06_rotate.yml` re-pins to this run's values and destroys the old SecretID. The record is written last, so a run that dies partway leaves the previous generation intact. `custom-secret-id` is **not** idempotent — re-writing a held SecretID answers `500` — so the swap is gated on the value having changed.
 - **Bootstrap leaves no stored root token.** The first deploy holds it in memory, pins both AppRole halves to inventory values, then revokes it. Tokens reach the CLI through stdin and the container token helper, never through process arguments, and the helper file is removed at the end of the run.
 - **Paths that look wrong and are not.** Policies mount at `/openbao/policies/`, because OpenBao parses *every* file under `-config` as server configuration. Storage is `/openbao/file`, not `/openbao/data`: the image pre-chowns only `/openbao/{config,logs,file}` for the non-root `openbao` user, so a volume elsewhere lands root-owned and raft cannot write. `command:` is just `server` — the entrypoint appends `-config` itself, and passing it duplicates the flag.
+- **The LDAP auth method is an external plugin.** `files/Dockerfile` copies the `openbao-plugin-auth-ldap` binary out of the `auth-ldap` image declared in `meta/services.yml` into `/opt/openbao/plugins`, and `templates/plugins.hcl.j2` registers it as `plugin "auth" "ldap"` under the tag of that image. The file sets `plugin_auto_register = true` explicitly, because the server loads a config directory and 2.7.1 does not apply the documented default on that path. The mount is enabled with `-plugin-version=latest`, so it loads whichever plugin version the running image ships. To upgrade the plugin, bump `auth-ldap.version` and redeploy. `tasks/addons/auth-ldap.yml` tunes and reloads a mount that the former builtin engine created.
 - **Do not alert on `vault_core_unsealed`.** OpenBao keeps Vault's metric namespace, and a healthy unsealed node emits `vault_core_unsealed{cluster=""} 0`, so an alert on `== 0` fires permanently. Use `/v1/sys/health` (503 while sealed); `vault_core_active{cluster="…"} == 1` corroborates.
 - **Alert rules ship with the role.** `templates/prometheus/alert_rules.yml.j2` is discovered by the `alert_rule_roles` lookup, which returns only roles that are actually scraped, so the fragment carries no activation guard of its own. It must start at the `groups:` item level.
 - **Swarm:** single replica, `placement: manager`, `nfs: false` on the raft volume, `service_update_order = stop-first`. Raft's BoltDB store is mmap + `fsync` based, so it must stay node-local and must never have two tasks writing one directory.

@@ -14,6 +14,9 @@ Three patterns:
   ``workflow_dispatch``. Both forms count: ``gh workflow run <file>.yml`` and a
   REST POST to ``actions/workflows/<file>.yml/dispatches``.
 
+A ``github.com/<owner>/<repo>/...`` URL into another repository names that
+repository's workflow, which this tree cannot hold, so it is never matched.
+
 Why
 ===
 Renaming a workflow silently breaks every one of those. A `uses:` line fails
@@ -46,6 +49,7 @@ _WORKFLOW_DIR = PROJECT_ROOT / ".github" / "workflows"
 _SUFFIXES = {".md", ".yml", ".yaml", ".py", ".sh", ".j2", ".rst", ".txt"}
 _REFERENCE_RE = re.compile(r"(?:\.github|actions)/workflows/([A-Za-z0-9._-]+\.ya?ml)")
 _BARE_RE = re.compile(r"(?<![\w/.-])([A-Za-z0-9][A-Za-z0-9._-]*\.ya?ml)")
+_FOREIGN_URL_RE = re.compile(r"github\.com/(?!infinito-nexus/core/)[\w.-]+/[\w.-]+/\S*")
 _DISPATCH_RE = re.compile(
     r"gh workflow run\s+(?P<cli>[A-Za-z0-9._-]+\.ya?ml)"
     r"|actions/workflows/(?P<api>[A-Za-z0-9._-]+\.ya?ml)/dispatches"
@@ -90,7 +94,8 @@ def missing_references() -> list[str]:
     for rel, lines in _candidates():
         patterns = _patterns(PROJECT_ROOT / rel)
         for number, line in enumerate(lines, 1):
-            names = {name for pattern in patterns for name in pattern.findall(line)}
+            own = _FOREIGN_URL_RE.sub("", line)
+            names = {name for pattern in patterns for name in pattern.findall(own)}
             offenders.extend(
                 f"{rel}:{number}: {name}" for name in sorted(names) if name not in known
             )

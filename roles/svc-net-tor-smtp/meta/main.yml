@@ -1,0 +1,32 @@
+---
+# nocheck: info-media no official demo video
+galaxy_info:
+  author: Alejandro Roman Ibanez
+  description: SMTP gateway that relays .onion recipients through Tor's SOCKS listener
+  license: Infinito.Nexus Community License (Non-Commercial)
+  galaxy_tags:
+    - tor
+    - onion
+    - smtp
+    - mail
+    - networking
+    - self-hosted
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+dependencies: []

@@ -1,0 +1,75 @@
+---
+# Restart only while the issuer answers: Stalwart resolves the OIDC issuer at
+# (re)start, and a restart with the issuer down sticks on internal auth.
+
+- name: "⏳ Wait for the OIDC issuer discovery endpoint"
+  ansible.builtin.shell: >-
+    container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -ksS -o /dev/null -w "%{http_code}"
+    --proxy {{ STALWART_OIDC_SOCKS_PROXY | quote }} {{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}
+  register: stalwart_oidc_issuer_probe
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: stalwart_oidc_issuer_probe.stdout == '200'
+
+- name: "🔄 Restart Stalwart so OIDC directory changes take effect (compose)"
+  ansible.builtin.command: "container restart {{ STALWART_CONTAINER }}"
+  changed_when: true
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🔄 Restart Stalwart so OIDC directory changes take effect (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'stalwart') }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "⏳ Wait for Stalwart API after the OIDC restart"
+  include_tasks: 01_wait_for_api.yml
+
+- name: "📖 Read the authentication singleton back"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/authentication/get.json.j2') }}"
+
+- name: "🔄 Restart Stalwart until the OIDC directory survives the build"
+  ansible.builtin.shell: >-
+    {{ ('container restart ' ~ STALWART_CONTAINER) if DEPLOYMENT_MODE == 'compose'
+       else ('container service update --force '
+             ~ lookup('container_service', application_id, 'stalwart')) }}
+    && container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -sS -f
+    -u {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | quote }}
+    -H "Content-Type:application/json"
+    --data-binary {{ lookup('template', 'jmap/authentication/get.json.j2') | quote }}
+    {{ STALWART_JMAP_URL }}
+  register: stalwart_oidc_bind_retry
+  when: (stalwart_jmap.methodResponses[0][1].list | first).directoryId != stalwart_oidc_dir_id
+  changed_when: true
+  retries: 3
+  delay: 10
+  until:
+    - stalwart_oidc_bind_retry.rc == 0
+    - (stalwart_oidc_bind_retry.stdout | from_json).methodResponses[0][1].list[0].directoryId == stalwart_oidc_dir_id
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📖 Read the authentication singleton after the retries"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/authentication/get.json.j2') }}"
+
+- name: "✅ Ensure Stalwart authenticates against the OIDC directory"
+  ansible.builtin.assert:
+    that:
+      - (stalwart_jmap.methodResponses[0][1].list | first).directoryId == stalwart_oidc_dir_id
+    fail_msg: >-
+      Stalwart dropped the Keycloak OIDC directory '{{ stalwart_oidc_dir_id }}'
+      and is serving internal auth, so WebAdmin SSO and IMAP OAUTHBEARER refuse
+      every Keycloak token. Its log names the reason
+      ({{ STALWART_LOG_DIR }}/stalwart.log*, event registry.build-error).
+    quiet: true
+
+- name: "🧹 Clear the deferred OIDC restart flag"
+  ansible.builtin.set_fact:
+    stalwart_oidc_restart_pending: false

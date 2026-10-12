@@ -12,6 +12,7 @@ nfs-client:
     swarm:
       enabled: false
   name: nfs-client
+  # nocheck: unwatched-version  Reason: the NFS protocol generation the client mounts with, not a release of a product
   nfs_version: 4
   lifecycle: beta
   min_storage: "50MB"

@@ -17,7 +17,6 @@ import unittest.mock as mock
 from pathlib import Path
 
 import plugins.lookup.alert_rule_roles as module
-from plugins.lookup.alert_rule_roles import LookupModule
 
 
 class _Templar:
@@ -29,7 +28,7 @@ class _Templar:
 
 
 def _make_lookup(vars_=None):
-    lm = LookupModule()
+    lm = module.LookupModule()
     lm._templar = _Templar(vars_ or {})
     lm._loader = mock.MagicMock()
     return lm

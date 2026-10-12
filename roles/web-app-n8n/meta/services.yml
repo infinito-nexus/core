@@ -15,8 +15,8 @@ sso:
       - "{{ lookup('rbac_group_path', application_id='web-app-n8n', role='mcp') }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -67,7 +67,10 @@ n8n:
   backup:
     no_stop_required: false
   image: docker.n8n.io/n8nio/n8n
-  version: "1.100.1"
+  version: "2.43.4"
+  update:
+    type: registry_tags
+    image: docker.n8n.io/n8nio/n8n
   name: n8n
   min_storage: 422MB
   cpus: "1.0"
@@ -85,6 +88,7 @@ n8n:
   run_after:
     - web-app-keycloak
     - web-app-matomo
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: dynamic-flag

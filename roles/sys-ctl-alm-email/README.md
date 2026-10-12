@@ -15,12 +15,12 @@ The diagram places Automated Email Alerts for Service Failures in the Infinito.N
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
-        dep_web_app_mailu["web-app-mailu 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
     end
     subgraph role [sys-ctl-alm-email 💻]
         svc_email["email"]
     end
-    dep_web_app_mailu -- "1:1" --> svc_email
+    dep_web_app_stalwart -- "1:1" --> svc_email
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

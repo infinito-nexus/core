@@ -34,10 +34,18 @@ hugo:
   image: nginx
   version: 1.31-alpine
   custom: true
-  builder_image: hugomods/hugo
-  builder_version: exts-0.148.0
+  builder_image: ghcr.io/gohugoio/hugo
+  builder_version: v0.167.0
   source_repository: https://github.com/gohugoio/hugoDocs.git
-  source_version: v0.148.0
+  source_version: v0.165.0
+  update:
+    - key: builder_version
+      type: registry_tags
+      image: ghcr.io/gohugoio/hugo
+      match: "v"
+    - key: source_version
+      type: git_tags
+      repository: https://github.com/gohugoio/hugoDocs.git
   hugo_environment: production
   hugo_minify: true
   ports:

@@ -21,6 +21,9 @@ if [ "${TOR_FLAVOR}" = "chutney" ]; then
     CHUTNEY_LISTEN_ADDRESS=127.0.0.1 \
         ./chutney init --net "${net}"
     ./chutney configure
+    for torrc in net/nodes/*/torrc; do
+        echo "NumCPUs 1" >>"${torrc}"
+    done
     ./chutney start
     ./chutney wait_for_bootstrap
 

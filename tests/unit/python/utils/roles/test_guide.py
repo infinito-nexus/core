@@ -1,6 +1,6 @@
 import unittest
+import unittest.mock as mock
 from typing import ClassVar
-from unittest import mock
 
 from utils.cache.applications import get_variants
 from utils.roles.guide import guide_deployable, guide_variant, smallest_variant

@@ -39,7 +39,7 @@ Because Bash is allowed wholesale, the operational safety of shell invocations r
 
 1. **`deny`** (precedence 1): structurally destructive shapes are blocked outright, even when sandboxed. Covers shell loops (`for`/`while`/`until`), cross-repo `git -C *`, force-push/reset/clean/amend, `rm -rf*`, `sudo*`, privileged `gh` verbs (`secret`/`ssh-key`/`gpg-key`/`variable`/`extension`/`workflow enable`/`workflow disable`/`repo delete`/`pr merge`/`issue transfer`), and mutating `gh api` verbs (`DELETE`/`PUT`, secrets/keys/collaborators/merge paths).
 2. **`ask`** (precedence 2): mutating `gh`/`docker`/`git` verbs and `Skill(update-config*)` pause for operator review. Every image mutation (`docker run`/`build`/`push`/`login`), `gh api` with a non-GET verb or a body-flag or `graphql`, every known `gh` mutating verb (21 of them via `gh * <verb>*`), `git commit*`, and anything touching `.claude/settings.json` routes through here.
-3. **Sandbox** (precedence 3): everything else runs under `allowWrite` / `denyRead` / `allowedDomains`. Writes outside `allowWrite` fail with `EROFS`; reads from `~/.ssh`, `~/.gnupg`, `~/.aws`, etc. are denied; outbound connections to anything not in `allowedDomains` fail.
+3. **Sandbox** (precedence 3): everything else runs under `allowWrite` / `denyRead` / `allowedDomains`. Writes outside `allowWrite` fail with `EROFS`; reads from the default `~/.ssh` private keys, `~/.gnupg`, `~/.aws`, etc. are denied; outbound connections to anything not in `allowedDomains` fail.
 
 The `sandbox.autoAllowBashIfSandboxed: true` flag is retained as belt-and-suspenders. If `Bash(*)` were ever removed, the sandbox auto-allow would still cover the common shapes, but it is no longer the primary gate.
 

@@ -1,0 +1,13 @@
+---
+application_id: "svc-net-tor-smtp"
+
+TOR_SMTP_IMAGE: "{{ lookup('config', application_id, 'services.tor-smtp.image') }}"
+TOR_SMTP_VERSION: "{{ lookup('config', application_id, 'services.tor-smtp.version') }}"
+TOR_SMTP_CONTAINER: "{{ lookup('config', application_id, 'services.tor-smtp.name') }}"
+TOR_SMTP_LISTEN_PORT: "{{ lookup('config', application_id, 'services.tor-smtp.ports.internal.smtp') }}"
+
+TOR_SMTP_SOCKS: "{{ lookup('tor_socks_proxy') | regex_replace('^socks5h://', '') }}"
+TOR_SMTP_SOCKS_HOST: "{{ TOR_SMTP_SOCKS.split(':')[0] }}"
+TOR_SMTP_SOCKS_PORT: "{{ TOR_SMTP_SOCKS.split(':')[1] }}"
+
+TOR_SMTP_HELO: "{{ DOMAIN_PRIMARY }}"

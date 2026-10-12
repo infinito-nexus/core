@@ -44,7 +44,7 @@ SHOPWARE_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 SHOPWARE_OPENSEARCH_PORT: "{{ lookup('config', application_id, 'services.opensearch.ports.internal.http') }}"
 SHOPWARE_OPENSEARCH_ENABLED: "{{ lookup('config', application_id, 'services.opensearch.enabled') }}"
 SHOPWARE_OPENSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.opensearch.name') }}"
-SHOPWARE_OPENSEARCH_MEM_RESERVATION: "{{ lookup('config', application_id, 'services.opensearch.mem_reservation') }}"
+SHOPWARE_OPENSEARCH_HEAP_MB: "{{ lookup('service_memory_mb', application_id, 'opensearch', 0.5) }}"
 SHOPWARE_OPENSEARCH_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.opensearch_initial_admin_password') }}"
 
 swarm_stack_fatal_grace: 600

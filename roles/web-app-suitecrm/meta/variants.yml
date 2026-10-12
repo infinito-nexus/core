@@ -24,6 +24,8 @@
       shared: true
     mariadb:
       shared: true
+    redis:
+      shared: true
     matomo:
       enabled: true
       shared: true
@@ -56,6 +58,8 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mariadb:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    redis:
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

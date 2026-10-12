@@ -23,8 +23,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
@@ -55,7 +55,7 @@ semaphore:
   pids_limit: 1024
   min_storage: 530MB
   image: semaphoreui/semaphore
-  version: "v2.19.14"
+  version: "v2.19.16"
   backup:
     no_stop_required: true
   name: semaphore

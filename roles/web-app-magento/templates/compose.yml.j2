@@ -16,6 +16,7 @@
       retries: 5
       start_period: 10m
       start_interval: 5s
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'php' %}
@@ -27,6 +28,7 @@
     {{ lookup('container_depends_on', application_id, extra={
   'search': {'condition': 'service_started'},
 }) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'search' %}
@@ -37,8 +39,9 @@
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
-      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - OPENSEARCH_JAVA_OPTS=-Xms{{ MAGENTO_SEARCH_HEAP_MB }}m -Xmx{{ MAGENTO_SEARCH_HEAP_MB }}m
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes') }}

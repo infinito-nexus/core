@@ -41,7 +41,7 @@
     -e APP_KEY="{{ SNIPE_IT_APP_KEY }}"
     -e XDG_CONFIG_HOME=/tmp
     {{ SNIPE_IT_CONTAINER_ADDRESS }}
-    php -d memory_limit=512M artisan db:seed --force
+    php -d memory_limit={{ lookup('service_memory_mb', application_id, SNIPE_IT_SERVICE, 0.25) }}M artisan db:seed --force
   register: snipeit_seed
   changed_when: "'Seeding:' in snipeit_seed.stdout"
   failed_when: snipeit_seed.rc != 0

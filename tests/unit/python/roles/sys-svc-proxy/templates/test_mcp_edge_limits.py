@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import unittest
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.applications import get_application_defaults
 from utils.cache.yaml import load_yaml
@@ -44,7 +44,7 @@ def render(name: str, **context) -> str:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         undefined=StrictUndefined,
-        autoescape=False,  # noqa: S701 - nginx config, not markup; Ansible renders it the same way and HTML-escaping `$binary_remote_addr` would break it
+        autoescape=select_autoescape(),
     )
     return env.get_template(name).render(**context)
 

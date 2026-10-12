@@ -1,5 +1,12 @@
 # Mailu
 
+> **⚠️ Deprecated.** Mailu is superseded by [`web-app-stalwart`](../web-app-stalwart/),
+> the default email provider. The role keeps working until it is removed, but new
+> deployments MUST NOT adopt it and existing ones MUST migrate. Follow
+> [Migration from Mailu](../web-app-stalwart/README.md#migration-from-mailu) to move
+> the mailboxes over. Until then, set `MAIL_PROVIDER: web-app-mailu` to keep routing
+> the mail abstraction (`plugins/lookup/email.py`, `sys-svc-mail`) to Mailu.
+
 ## Description
 
 Revolutionize your email communications with Mailu, a secure and flexible mail server solution that integrates comprehensive features like robust SMTP/IMAP support, advanced spam filtering, DKIM signing, and seamless webmail access. With its modern design and performance-oriented architecture, Mailu empowers you to manage digital correspondence with efficiency and reliability.
@@ -28,6 +35,7 @@ flowchart LR
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
@@ -36,6 +44,7 @@ flowchart LR
         svc_logout["logout"]
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
+        svc_email["email"]
         svc_mailu["mailu"]
         svc_redis["redis"]
         svc_unbound["unbound"]
@@ -55,21 +64,6 @@ flowchart LR
         svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
-    subgraph dependents [Dependents]
-        dpt_sys_ctl_alm_email["sys-ctl-alm-email 💻"]
-        dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
-        dpt_web_app_baserow["web-app-baserow 🐳🐝"]
-        dpt_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
-        dpt_web_app_bluesky["web-app-bluesky 🐳🐝"]
-        dpt_web_app_bookwyrm["web-app-bookwyrm 🐳🐝"]
-        dpt_web_app_bridgy_fed["web-app-bridgy-fed 🐳🐝"]
-        dpt_web_app_checkmk["web-app-checkmk 🐳🐝"]
-        dpt_web_app_confluence["web-app-confluence 🐳🐝"]
-        dpt_web_app_decidim["web-app-decidim 🐳🐝"]
-        dpt_web_app_discourse["web-app-discourse 🐳🐝"]
-        dpt_web_app_erpnext["web-app-erpnext 🐳🐝"]
-        dpt_more["..."]
-    end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_redis -. "0..1" .-> svc_redis
@@ -78,22 +72,9 @@ flowchart LR
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_mailu -- "1:1" --> dpt_more
-    svc_mailu -- "1:1" --> dpt_sys_ctl_alm_email
-    svc_mailu -. "0..1" .-> dpt_web_app_akaunting
-    svc_mailu -. "0..1" .-> dpt_web_app_baserow
-    svc_mailu -. "0..1" .-> dpt_web_app_bigbluebutton
-    svc_mailu -. "0..1" .-> dpt_web_app_bluesky
-    svc_mailu -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_mailu -- "0..0" --> dpt_web_app_bridgy_fed
-    svc_mailu -. "0..1" .-> dpt_web_app_checkmk
-    svc_mailu -- "0..0" --> dpt_web_app_confluence
-    svc_mailu -. "0..1" .-> dpt_web_app_decidim
-    svc_mailu -. "0..1" .-> dpt_web_app_discourse
-    svc_mailu -. "0..1" .-> dpt_web_app_erpnext
-    linkStyle 17,19 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -149,7 +130,7 @@ docker run --rm -it \
 ## Further Resources
 
 - [Mailu Official Website](https://mailu.io/)
-- [Mailu compose setup guide](https://mailu.io/1.7/compose/setup.html)
+- [Mailu compose setup guide](https://mailu.io/2024.06/compose/setup.html)
 - [SysPass issue #1299](https://github.com/nuxsmin/sysPass/issues/1299)
 - [Mailu issue #1719](https://github.com/Mailu/Mailu/issues/1719)
 - [Mailu issue #1171](https://github.com/Mailu/Mailu/issues/1171)

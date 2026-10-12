@@ -1,5 +1,6 @@
 ---
 status_codes:
   default:
+    - 302
     - 301
     - 200

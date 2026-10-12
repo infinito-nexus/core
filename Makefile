@@ -188,8 +188,10 @@ compose-app-restart:
 # Param full_cycle: true | false — when true, also run the async update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
+# Param skip_compile: true | false — skip the in-container entry.sh recompile (use when the venv is prebuilt)
 compose-deploy:
 	@$(if $(debug),INFINITO_DEBUG="$(debug)") \
+	 $(if $(skip_compile),INFINITO_SKIP_COMPILE="$(skip_compile)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
 .PHONY: compose-down
@@ -282,12 +284,11 @@ diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
 
 .PHONY: docs
-# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, the root-README roles index, and the MCP audit report.
+# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, and the root-README roles index.
 docs:
 	@"$(MAKE)" cosmos
 	@"$(MAKE)" readme-generate quick_setup=true
 	@"$(MAKE)" readme-index
-	@"$(MAKE)" mcp-audit
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
@@ -537,11 +538,6 @@ lint-shellcheck: install-lint
 lint-sql: install-lint
 	@bash scripts/install/wrapper.sh sql
 	@bash scripts/lint/wrapper.sh sql
-
-.PHONY: mcp-audit
-# Regenerate the MCP audit report; test_mcp_audit_report fails when it drifts.
-mcp-audit:
-	@"$${PYTHON}" -m cli.build.docs.mcp_audit
 
 .PHONY: meta-list
 # Print the repository role list.

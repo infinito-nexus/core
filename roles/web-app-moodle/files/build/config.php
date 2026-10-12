@@ -40,6 +40,7 @@ $CFG->dataroot             = moodle_env('MOODLE_DATAROOT');
 $CFG->localcachedir        = moodle_env('MOODLE_LOCALCACHEDIR');
 $CFG->admin                = 'admin';
 $CFG->directorypermissions = 02770;
+$CFG->routerconfigured     = true;
 
 $CFG->reverseproxy = moodle_env_bool('MOODLE_REVERSEPROXY');
 $CFG->sslproxy     = moodle_env_bool('MOODLE_SSLPROXY');

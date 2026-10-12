@@ -22,7 +22,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from jinja2 import Template
+from jinja2 import Template, select_autoescape
 
 from utils.cache.files import read_text
 
@@ -62,7 +62,10 @@ class TestSshWrapperRsyncE2E(unittest.TestCase):
         (self.version_dir / "data" / "file2.txt").write_text("second")
 
         self.wrapper = self.work / "wrapper.sh"
-        rendered = Template(read_text(str(WRAPPER_TEMPLATE))).render(
+        rendered = Template(
+            read_text(str(WRAPPER_TEMPLATE)),
+            autoescape=select_autoescape(default_for_string=False),
+        ).render(
             DIR_BACKUPS=str(self.backups),
             BACKUP_REPOSITORIES=[BACKUP_TYPE],
         )

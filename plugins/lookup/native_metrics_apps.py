@@ -1,12 +1,35 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache import ROLES_DIR
+from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.config import get as get_app_conf
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+
+
+def compose_mode_force(app_id: str) -> str:
+    """Return the role's own deploy-mode override.
+
+    Args:
+        app_id: the role directory name.
+
+    Returns:
+        The literal ``compose_mode_force`` from the role's vars, or ``""`` when
+        it is absent or a Jinja expression, which cannot be resolved from the
+        scraping role's variable scope and so leaves the override invisible here.
+    """
+    path = ROLES_DIR / app_id / ROLE_FILE_VARS_MAIN
+    if not path.is_file():
+        return ""
+    data = load_yaml_any(str(path), default_if_missing={})
+    raw = data.get("compose_mode_force") if isinstance(data, Mapping) else None
+    value = "" if raw is None else str(raw).strip()
+    return "" if "{{" in value else value
 
 
 class LookupModule(LookupBase):
@@ -16,8 +39,10 @@ class LookupModule(LookupBase):
       2. a prometheus.yml.j2 template at roles/<app_id>/templates/
       3. reachable from this prometheus: NOT on a node-local force_bridge
          network under swarm, which a swarm prometheus can neither join nor
-         resolve. This is the single point that gates force_bridge apps out of
-         the native-metrics precreate + scrape.
+         resolve, and NOT pinned to compose by its own compose_mode_force while
+         the cluster runs swarm, which would make the scrape target name the
+         wrong object. This is the single point that gates unreachable apps out
+         of the native-metrics precreate + scrape.
 
     Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps
     that expose a native /metrics endpoint without hardcoding each app name.
@@ -76,6 +101,9 @@ class LookupModule(LookupBase):
                 skip_missing_app=True,
             )
             if is_swarm and bool(force_bridge):
+                continue
+
+            if is_swarm and compose_mode_force(app_id) == "compose":
                 continue
 
             result.append(app_id)

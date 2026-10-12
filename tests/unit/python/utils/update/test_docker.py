@@ -5,7 +5,33 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import read_text
-from utils.update.docker import _registry_cursor, update_config_versions
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.update.docker import (
+    _registry_cursor,
+    collect_entries,
+    sourced_services,
+    update_config_versions,
+)
+
+SOURCED = """bundled:
+  image: example/app
+  version: v1.0.0
+  update:
+    type: http_regex
+    url: https://example.invalid/bundle
+    pattern: "app:(v[0-9.]+)"
+tracked:
+  image: example/side
+  version: v2.0.0
+  other_version: v3.0.0
+  update:
+    - key: other_version
+      type: git_tags
+      repository: https://example.invalid/side.git
+plain:
+  image: example/plain
+  version: v4.0.0
+"""
 
 
 class TestRegistryCursor(unittest.TestCase):
@@ -14,6 +40,20 @@ class TestRegistryCursor(unittest.TestCase):
 
     def test_bare_numeric_pin_scans_from_start(self) -> None:
         self.assertIsNone(_registry_cursor("19.1.1"))
+
+
+class TestDeclaredSource(unittest.TestCase):
+    def test_a_version_with_its_own_source_is_left_to_that_source(self) -> None:
+        root = Path(tempfile.mkdtemp())
+        config = root / "roles" / "web-app-example" / ROLE_FILE_META_SERVICES
+        config.parent.mkdir(parents=True)
+        config.write_text(SOURCED, encoding="utf-8")
+
+        self.assertEqual(sourced_services(config), {"bundled"})
+        self.assertEqual(
+            sorted(entry.service for entry in collect_entries(root)),
+            ["plain", "tracked"],
+        )
 
 
 class TestUpdateDocker(unittest.TestCase):

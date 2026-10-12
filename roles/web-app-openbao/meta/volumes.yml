@@ -25,6 +25,14 @@ config:
     - service: openbao
       target: /openbao/config/openbao.hcl
 
+config_plugins:
+  type: config
+  source: "{{ [lookup('container', 'web-app-openbao', 'directories.config'), 'plugins.hcl'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openbao
+      target: /openbao/config/plugins.hcl
+
 policy_ansible_admin:
   type: config
   source: "{{ [lookup('container', 'web-app-openbao', 'directories.config'), 'policies', 'ansible-admin.hcl'] | path_join }}"

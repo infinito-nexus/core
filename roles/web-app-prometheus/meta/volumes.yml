@@ -75,11 +75,11 @@ host_sys:
 
 host_var_lib_docker:
   type: bind
-  source: "/var/lib/docker/"
+  source: &docker_root "{{ prometheus_docker_info.stdout }}"
   read_only: true
   mounts:
     - service: cadvisor
-      target: /var/lib/docker
+      target: *docker_root
 
 host_dev_disk:
   type: bind
@@ -97,3 +97,11 @@ host_proc:
   mounts:
     - service: node-exporter
       target: /host/proc
+
+metrics_textfile:
+  type: bind
+  source: "{{ DIR_METRICS_TEXTFILE }}"
+  read_only: true
+  mounts:
+    - service: node-exporter
+      target: /host/textfile

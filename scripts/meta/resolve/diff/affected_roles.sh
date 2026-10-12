@@ -55,8 +55,9 @@ emit_all() {
 	exit 0
 }
 
-git fetch --quiet --no-tags --prune --depth=50 origin main >/dev/null 2>&1 ||
-	git fetch --quiet --no-tags --prune origin main
+baseline_remote="$(./scripts/meta/resolve/baseline_remote.sh)"
+git fetch --quiet --no-tags --depth=50 "${baseline_remote}" main:refs/remotes/origin/main --force >/dev/null 2>&1 ||
+	git fetch --quiet --no-tags "${baseline_remote}" main:refs/remotes/origin/main --force
 
 if base="$(git merge-base origin/main HEAD 2>/dev/null)"; then
 	mapfile -t changed_paths < <(git diff --name-only "${base}" HEAD --)

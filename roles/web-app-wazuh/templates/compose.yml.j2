@@ -47,7 +47,7 @@
     hostname: "{{ WAZUH_INDEXER_CONTAINER }}"
     {{ lookup('container_ports', ['indexer', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     environment:
-      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "OPENSEARCH_JAVA_OPTS=-Xms{{ WAZUH_INDEXER_HEAP }} -Xmx{{ WAZUH_INDEXER_HEAP }}"
     ulimits:
       memlock:
         soft: -1

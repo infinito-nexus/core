@@ -15,10 +15,13 @@ ARG HUGO_BASE_URL
 ARG HUGO_ENVIRONMENT
 ARG HUGO_MINIFY
 
-WORKDIR /src
-COPY ./services/repository/ /src/
+USER root
+RUN install -d -o hugo -g hugo /src /public
+USER hugo:hugo
 
-RUN apk add --no-cache nodejs npm
+WORKDIR /src
+COPY --chown=hugo:hugo ./services/repository/ /src/
+
 RUN set -eu; \
     if [ -f package.json ]; then \
         npm install --no-audit --no-fund --no-progress; \

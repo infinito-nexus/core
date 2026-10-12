@@ -34,6 +34,7 @@ x-op-app: &app
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["{{ OPENPROJECT_AWAIT_MIGRATIONS_TARGET }}", "{{ OPENPROJECT_MIGRATION_WAIT_SECONDS }}", "{{ OPENPROJECT_MIGRATION_POLL_SECONDS }}", "./docker/prod/web"]
     {{ lookup('compose_only', 'container_name', OPENPROJECT_WEB_CONTAINER) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
@@ -48,6 +49,7 @@ x-op-app: &app
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["{{ OPENPROJECT_AWAIT_MIGRATIONS_TARGET }}", "{{ OPENPROJECT_MIGRATION_WAIT_SECONDS }}", "{{ OPENPROJECT_MIGRATION_POLL_SECONDS }}", "./docker/prod/worker"]
     {{ lookup('compose_only', 'container_name', OPENPROJECT_WORKER_CONTAINER) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
@@ -61,6 +63,7 @@ x-op-app: &app
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: "./docker/prod/cron"
     {{ lookup('compose_only', 'container_name', OPENPROJECT_CRON_CONTAINER) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
@@ -75,6 +78,7 @@ x-op-app: &app
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: "./docker/prod/seeder"
     {{ lookup('compose_only', 'container_name', OPENPROJECT_SEEDER_CONTAINER) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
 

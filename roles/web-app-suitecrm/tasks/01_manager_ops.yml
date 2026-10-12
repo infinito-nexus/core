@@ -14,6 +14,14 @@
   notify:
     - compose-up
 
+- name: "📄 Deploy SuiteCRM session handler wiring"
+  stack_host_copy:
+    src: "session.yaml"
+    dest: "{{ SUITECRM_SESSION_CONFIG_HOST }}"
+    mode: "0444"
+  notify:
+    - compose-up
+
 - name: "🚀 Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:
     src: "{{ SUITECRM_ENTRYPOINT_SCRIPT_SRC }}"
@@ -24,3 +32,20 @@
 
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers
+
+- name: "⏳ Wait until the SuiteCRM container is healthy"
+  shell: >
+    container inspect --type container --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ SUITECRM_CONTAINER_ADDRESS }}
+  register: suitecrm_health
+  changed_when: false
+  until: suitecrm_health.stdout.strip() == "healthy"
+  retries: 300
+  delay: 5
+
+- name: "🔎 List SuiteCRM log paths the web user cannot write"
+  shell: >
+    container exec --user {{ SUITECRM_WEB_USER }} {{ SUITECRM_CONTAINER_ADDRESS }}
+    find {{ SUITECRM_APP_DIR }}/logs ! -writable
+  register: suitecrm_unwritable_logs
+  changed_when: false
+  failed_when: suitecrm_unwritable_logs.rc != 0 or suitecrm_unwritable_logs.stdout | length > 0

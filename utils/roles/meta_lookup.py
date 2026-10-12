@@ -140,6 +140,16 @@ def get_role_lifecycle(role: PathLike, *, role_name: str | None = None) -> str |
     return str(raw).strip().lower() if isinstance(raw, str) else None
 
 
+def get_role_provides(role: PathLike, *, role_name: str | None = None) -> str | None:
+    """Return the service the role's primary entity ``provides`` (or ``None``)."""
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    if primary is None:
+        return None
+    raw = primary.get("provides")
+    return raw.strip() if isinstance(raw, str) and raw.strip() else None
+
+
 MODES: tuple[str, ...] = ("compose", "swarm", "host")
 """Every deploy mode a role's primary entity may toggle. ``compose``/``swarm``
 target stack roles (own container stack); ``host`` targets invokable roles that

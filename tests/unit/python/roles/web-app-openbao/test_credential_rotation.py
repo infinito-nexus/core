@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import unittest
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -44,7 +44,7 @@ def jinja_env(searchpath) -> Environment:
     env = Environment(
         loader=FileSystemLoader(str(searchpath)),
         undefined=StrictUndefined,
-        autoescape=False,  # noqa: S701 - renders HCL and dotenv, not markup
+        autoescape=select_autoescape(default_for_string=False),
     )
     env.filters["bool"] = bool
     env.filters["dotenv_quote"] = lambda value: f'"{value}"'

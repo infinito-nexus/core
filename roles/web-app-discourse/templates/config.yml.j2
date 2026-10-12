@@ -22,7 +22,7 @@ params:
 
   ## Set db_shared_buffers to a max of 25% of the total memory.
   ## will be set automatically by bootstrap based on detected RAM, or you can override
-  db_shared_buffers: "4096MB"
+  db_shared_buffers: "{{ lookup('service_memory_mb', application_id, 'discourse', 0.25) }}MB"
 
   ## can improve sorting performance, but adds memory usage per-connection
   #db_work_mem: "40MB"
@@ -74,7 +74,7 @@ env:
   DISCOURSE_SMTP_ADDRESS:           {{ email.host }}
   DISCOURSE_SMTP_PORT:              {{ email.port }}
   DISCOURSE_SMTP_USER_NAME:         {{ email.username }}
-  DISCOURSE_SMTP_PASSWORD:          {{ email.password }}
+  DISCOURSE_SMTP_PASSWORD:          {{ email.password | to_json }}
   DISCOURSE_SMTP_ENABLE_START_TLS:  {{ email.start_tls }}
   DISCOURSE_SMTP_FORCE_TLS:         {{ email.tls }}
   DISCOURSE_SMTP_DOMAIN:            {{ email.domain }}
@@ -164,3 +164,4 @@ docker_args:
   - --add-host={{ extra_host }}
 {% endfor %}
   - --name={{ DISCOURSE_CONTAINER }}
+{{ lookup('container_extra_hosts', docker_flags=true) }}

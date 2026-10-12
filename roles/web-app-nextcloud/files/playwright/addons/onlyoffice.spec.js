@@ -6,9 +6,6 @@ const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
-const MINIMAL_DOCX_BASE64 =
-  "UEsDBBQAAAAIAEq201x5bjPX6AAAAK0BAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbH1QyU7DMBD9FWuuKHHggBCK0wPLETiUDxjZk8SqN3nc0v49Tlt6QIXjzFv1+tXeO7GjzDYGBbdtB4KCjsaGScHn+rV5AMEFg0EXAyk4EMNq6NeHRCyqNrCCuZT0KCXrmTxyGxOFiowxeyz1zJNMqDc4kbzrunupYygUSlMWDxj6Zxpx64p42df3qUcmxyCeTsQlSwGm5KzGUnG5C+ZXSnNOaKvyyOHZJr6pBJBXExbk74Cz7r0Ok60h8YG5vKGvLPkVs5Em6q2vyvZ/mys94zhaTRf94pZy1MRcF/euvSAebfjpL49zD99QSwMECgAAAAAASrbTXAAAAAAAAAAAAAAAAAYAAABfcmVscy9QSwMEFAAAAAgASrbTXJv9N+qtAAAAKQEAAAsAAABfcmVscy8ucmVsc43POw7CMAwG4KtE3mlaBoRQ0y4IqSsqB7ASN61oHkrCo7cnAwNFDIy2f3+W6/ZpZnanECdnBVRFCYysdGqyWsClP232wGJCq3B2lgQsFKFt6jPNmPJKHCcfWTZsFDCm5A+cRzmSwVg4TzZPBhcMplwGzT3KK2ri27Lc8fBpwNpknRIQOlUB6xdP/9huGCZJRydvhmz6ceIrkWUMmpKAhwuKq3e7yCzwpuarF5sXUEsDBAoAAAAAAEq201wAAAAAAAAAAAAAAAAFAAAAd29yZC9QSwMEFAAAAAgASrbTXC5rweurAAAA6wAAABEAAAB3b3JkL2RvY3VtZW50LnhtbEWOQQ7CIBBFr0LYW6oLY5q27jyBHgBhaIkwQ4Bae3uhLty8n8lM3p/++vGOvSEmSzjwY9NyBqhIW5wG/rjfDhfOUpaopSOEgW+Q+HXs106TWjxgZkWAqVsHPuccOiGSmsHL1FAALDtD0ctcxjiJlaIOkRSkVPzeiVPbnoWXFnlVPklvNUNFrMijRWPRZmKEbiNjrAKmaAmuCFhpUq9e1LvKuDPs/LnE/8/xC1BLAQIeAxQAAAAIAEq201x5bjPX6AAAAK0BAAATAAAAAAAAAAEAAACkgQAAAABbQ29udGVudF9UeXBlc10ueG1sUEsBAh4DCgAAAAAASrbTXAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAQAO1BGQEAAF9yZWxzL1BLAQIeAxQAAAAIAEq201yb/TfqrQAAACkBAAALAAAAAAAAAAEAAACkgT0BAABfcmVscy8ucmVsc1BLAQIeAwoAAAAAAEq201wAAAAAAAAAAAAAAAAFAAAAAAAAAAAAEADtQRMCAAB3b3JkL1BLAQIeAxQAAAAIAEq201wua8HrqwAAAOsAAAARAAAAAAAAAAEAAACkgTYCAAB3b3JkL2RvY3VtZW50LnhtbFBLBQYAAAAABQAFACABAAAQAwAAAAA=";
-
 test("onlyoffice addon: opening a document loads the partner document-server editor", async ({ browser }) => {
   skipUnlessAddonEnabled("onlyoffice");
   test.setTimeout(resolveTimeout(180_000));
@@ -39,7 +36,7 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
       .setInputFiles({
         name: docName,
         mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        buffer: Buffer.from(MINIMAL_DOCX_BASE64, "base64"),
+        buffer: Buffer.from(shared.MINIMAL_DOCX_BASE64, "base64"),
       });
 
     const docBasename = docName.replace(/\.docx$/, "");

@@ -1,0 +1,6 @@
+---
+administrator: {}
+stalwartadmin:
+  description: Recovery administrator the role authenticates the management API and WebAdmin with
+  username: stalwartadmin
+  accounts: []

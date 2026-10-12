@@ -30,8 +30,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -49,7 +49,7 @@ gitea:
   shared: true
   provides: gitea
   image: gitea/gitea
-  version: 1.27.3
+  version: 28.1.0
   replicas: 1 # nocheck: single-replica  single-writer app state on swarm-shared NFS; concurrent multi-node writers corrupt app.ini
   min_storage: 270MB
   backup:
@@ -82,6 +82,7 @@ gitea:
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: playwright-service-flag
@@ -111,8 +112,18 @@ giteamcpupstream:
   enabled: "{{ lookup('config', 'web-app-gitea', 'mcp.enabled') | bool }}"
   shared: false
   image: docker.gitea.com/gitea-mcp-server
-  version: "1.6.0"
+  version: "1.8.1"
+  update:
+    type: registry_tags
+    image: docker.gitea.com/gitea-mcp-server
   name: gitea-mcp
+  healthcheck:
+    test:
+      - "CMD"
+      - "/app/gitea-mcp"
+      - "-healthcheck"
+      - "--port"
+      - "{{ lookup('config', 'web-app-gitea', 'services.giteamcpupstream.ports.internal.http') | string }}"
   cpus: 0.25
   mem_reservation: 0.1g
   mem_limit: 0.25g

@@ -45,6 +45,7 @@ Environment:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import queue
@@ -76,7 +77,7 @@ SESSION_TIMEOUT = 20
 WRONG_CREDENTIAL = "Bearer " + "0" * 40
 SESSION_HEADER = "Mcp-Session-Id"
 
-SESSION = {"id": ""}
+SESSION = {"id": "", "protocol": ""}
 
 
 def unguarded_url():
@@ -120,6 +121,8 @@ def rpc(method, params=None, authorization=None, url=None, notification=False):
         request.add_header("Authorization", authorization)
     if SESSION["id"]:
         request.add_header(SESSION_HEADER, SESSION["id"])
+    if SESSION["protocol"]:
+        request.add_header("MCP-Protocol-Version", SESSION["protocol"])
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT) as response:  # noqa: S310 fixed internal http origin
             session = response.headers.get(SESSION_HEADER)
@@ -320,21 +323,20 @@ class SseSession:
         self.content_type = self._response.headers.get("Content-Type", "")
         event = None
         try:
-            for raw in self._response:
-                line = raw.decode(errors="replace").rstrip("\r\n")
-                if line.startswith("event:"):
-                    event = line.split(":", 1)[1].strip()
-                elif line.startswith("data:"):
-                    data = line.split(":", 1)[1].strip()
-                    if event == "endpoint":
-                        self.endpoint = urllib.parse.urljoin(self.url, data)
-                        self._announced.set()
-                    else:
-                        self._messages.put(data)
-                elif not line:
-                    event = None
-        except (OSError, ValueError):
-            pass
+            with contextlib.suppress(OSError, ValueError):
+                for raw in self._response:
+                    line = raw.decode(errors="replace").rstrip("\r\n")
+                    if line.startswith("event:"):
+                        event = line.split(":", 1)[1].strip()
+                    elif line.startswith("data:"):
+                        data = line.split(":", 1)[1].strip()
+                        if event == "endpoint":
+                            self.endpoint = urllib.parse.urljoin(self.url, data)
+                            self._announced.set()
+                        else:
+                            self._messages.put(data)
+                    elif not line:
+                        event = None
         finally:
             self._announced.set()
 
@@ -463,6 +465,8 @@ def main():
     if status != 200:
         reject(f"authenticated initialize answered {status}: {body[:200]}")
     reject_error("authenticated initialize", rpc_error(body))
+    result = json.loads(body).get("result") or {}
+    SESSION["protocol"] = result.get("protocolVersion", "")
 
     rpc("notifications/initialized", authorization=AUTH, notification=True)
 

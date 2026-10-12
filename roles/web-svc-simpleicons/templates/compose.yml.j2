@@ -6,7 +6,7 @@
         SIMPLEICONS_IMAGE: "{{ SIMPLEICONS_IMAGE }}"
         SIMPLEICONS_VERSION: "{{ SIMPLEICONS_VERSION }}"
         container_port: "{{ container_port | string }}"
-    {{ lookup('container_image', application_id, 'simpleicons', image=SIMPLEICONS_LOCAL_IMAGE, version=SIMPLEICONS_LOCAL_VERSION) }}
+    {{ lookup('container_image', application_id, 'simpleicons', image=SIMPLEICONS_LOCAL_IMAGE, version=SIMPLEICONS_LOCAL_TAG) }}
     {{ lookup('compose_only', 'container_name', "simpleicons-server") }}
     {{ lookup('container_ports', ['simpleicons', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

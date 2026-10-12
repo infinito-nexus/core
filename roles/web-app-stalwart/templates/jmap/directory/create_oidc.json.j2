@@ -1,0 +1,11 @@
+{
+  "using": ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"],
+  "methodCalls": [["x:Directory/set", {"create": {"kc": {
+    "@type": "Oidc",
+    "description": {{ ('Keycloak SSO (' ~ OIDC.CLIENT.REALM ~ ')') | to_json }},
+    "issuerUrl": {{ OIDC.CLIENT.ISSUER_URL | to_json }},
+    "claimUsername": {{ OIDC.ATTRIBUTES.USERNAME | to_json }},
+    "usernameDomain": {{ STALWART_DOMAIN | to_json }},
+    "claimName": "name"
+  }}}, "c0"]]
+}

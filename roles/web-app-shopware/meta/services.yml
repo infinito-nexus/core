@@ -25,8 +25,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -63,6 +63,7 @@ shopware:
       http: 8060
   run_after:
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
   cpus: "1.0"
@@ -98,7 +99,6 @@ worker:
     - async
     - low_priority
     - --time-limit=300
-    - --memory-limit=512M
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 2g
@@ -141,7 +141,7 @@ opensearch:
   # nocheck: single-replica
   replicas: 1
   image: opensearchproject/opensearch
-  version: 3.8.0
+  version: 3.9.0
   name: shopware-opensearch
   ports:
     internal:

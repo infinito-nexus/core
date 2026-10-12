@@ -62,7 +62,7 @@ Adding entries here widens the agent's effective write scope. New paths SHOULD b
 
 ## Read Restrictions 🚫
 
-The following directories are never readable, even if a task explicitly requests access:
+The following paths are never readable, even if a task explicitly requests access:
 
 | Path | What it protects |
 |---|---|
@@ -70,8 +70,12 @@ The following directories are never readable, even if a task explicitly requests
 | `~/.kube` | Kubernetes cluster credentials. |
 | `~/.aws` | AWS access keys and configuration. |
 | `~/.config/gcloud` | Google Cloud service account credentials. |
+| `~/.docker/config.json` | Registry credentials that `docker login` stores inline. Docker CLI calls inside the sandbox pull anonymously and print `WARNING: Error loading config file` on stderr. |
+| `~/.git-credentials` | HTTPS credentials written by git's `store` credential helper. |
+| `~/.netrc` | Machine credentials read by `curl`, `git`, and `pip`. |
+| `~/.ssh/id_dsa`, `~/.ssh/id_ecdsa`, `~/.ssh/id_ecdsa_sk`, `~/.ssh/id_ed25519`, `~/.ssh/id_ed25519_sk`, `~/.ssh/id_rsa` | The default SSH private keys. |
 
-`~/.ssh` is intentionally **not** in this list. Denying it would make `git push` over SSH unreachable and defeat the `Bash(git push*)` ask-gate. The trade-off and its mitigations are documented in [security.md](security.md#assumption-10) (Assumption 10).
+The rest of `~/.ssh` stays readable, because `ssh` needs `known_hosts` and `config` for `git fetch`; authentication goes through the SSH agent. See [security.md](security.md#assumption-10-ssh-stays-readable-except-for-the-default-private-keys-) (Assumption 10).
 
 ## Network 🌐
 
@@ -79,7 +83,7 @@ The `sandbox.network` block governs outbound and local connectivity from inside 
 
 | Field | Current value | Effect |
 |---|---|---|
-| `allowedDomains` | List of domain patterns the agent or its tooling needs to reach. Apex domains are listed bare (`pypi.org`, `github.com`, `ghcr.io`, `letsencrypt.org`, `monogramm.io`, `cybermaster.space`, `infinito.nexus`, `infinito.test`); subdomain families use the `*.parent.tld` form (`*.pythonhosted.org`, `*.ansible.com`, `*.amazonaws.com`, `*.github.com`, `*.githubusercontent.com`, `*.npmjs.org`, `*.docker.com`, `*.gitea.com`, `*.hcaptcha.com`, `*.gstatic.com`, `*.taiga.io`, `*.infinito.nexus`). | Subdomain wildcards (`*.example.com`) are honored, but a bare `*` is not; sandboxed network access is enforced per pattern, and any unmatched host triggers an interactive `SandboxNetworkAccess` prompt. Add a new pattern here when introducing tooling that fetches from a new origin; egress is still bounded by any host-level firewall on top. |
+| `allowedDomains` | List of domain patterns the agent or its tooling needs to reach. Apex domains are listed bare (`pypi.org`, `github.com`, `ghcr.io`, `letsencrypt.org`, `monogramm.io`, `cybermaster.space`, `infinito.nexus`, `infinito.test`); subdomain families use the `*.parent.tld` form (`*.pythonhosted.org`, `*.ansible.com`, `*.amazonaws.com`, `*.github.com`, `*.githubusercontent.com`, `*.npmjs.org`, `*.docker.com`, `*.gitea.com`, `*.hcaptcha.com`, `*.gstatic.com`, `*.taiga.io`, `*.infinito.nexus`, `*.infinito.test`). | Subdomain wildcards (`*.example.com`) are honored, but a bare `*` is not; sandboxed network access is enforced per pattern, and any unmatched host triggers an interactive `SandboxNetworkAccess` prompt. Add a new pattern here when introducing tooling that fetches from a new origin; egress is still bounded by any host-level firewall on top. |
 | `allowAllUnixSockets` | `true` | The sandbox can connect to any Unix-domain socket on the host. Required so commands like `docker`, `systemctl`, and language servers continue to work; these all communicate over Unix sockets (e.g. `/var/run/docker.sock`). |
 | `allowLocalBinding` | `true` | The agent MAY bind listening sockets on `localhost` (e.g. `make compose-up`, `python -m http.server`, dev servers). Required for any local end-to-end testing. |
 

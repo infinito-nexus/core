@@ -9,10 +9,14 @@ from copy import deepcopy
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.kcadm_json import json_from_noisy_stdout
+from ansible.module_utils.keycloak_scopes import converge_client_scope_lists
 
 NO_SUCH_CONTAINER_RE = re.compile(r"no such container", re.IGNORECASE)
 DEAD_CID_MAX_RETRIES = 80
 DEAD_CID_RETRY_DELAY = 3
+CONFIG_LOCK_RE = re.compile(r"Failed to get lock on")
+CONFIG_LOCK_MAX_RETRIES = 10
+CONFIG_LOCK_RETRY_DELAY = 1
 
 DOCUMENTATION = r"""
 ---
@@ -118,7 +122,7 @@ result:
 """
 
 
-def _shell(cmd, check):
+def _shell(cmd, check, lock_retries=CONFIG_LOCK_MAX_RETRIES):
     rc = subprocess.run(  # noqa: S602 - host-trusted argv; kcadm wrapper needs shell pipes/&&
         cmd,
         shell=True,
@@ -127,6 +131,9 @@ def _shell(cmd, check):
     )
     stdout = rc.stdout.decode("utf-8", errors="replace").strip()
     stderr = rc.stderr.decode("utf-8", errors="replace").strip()
+    if rc.returncode != 0 and lock_retries and CONFIG_LOCK_RE.search(stderr):
+        time.sleep(CONFIG_LOCK_RETRY_DELAY)
+        return _shell(cmd, check, lock_retries - 1)
     return rc.returncode, stdout, stderr
 
 
@@ -467,6 +474,11 @@ def run_module():
             stdout=out,
             stderr=err,
             payload=desired_obj,
+        )
+
+    if object_kind == "client":
+        converge_client_scope_lists(
+            run_kcadm, module, object_id, desired, realm, kcadm_exec
         )
 
     result["changed"] = True

@@ -56,7 +56,7 @@
     {{ lookup('compose_restart') }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('depends_on', {'rabbit': 'service_healthy', 'controller': 'service_started'}) }}
+    {{ lookup('depends_on', {'controller': 'service_started'}) }}
     logging:
       driver: journald
 

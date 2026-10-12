@@ -275,7 +275,8 @@ failed chunk:
 `skipped` counts as passed, so an empty chunk never blocks the chain. After
 fixing what broke a sweep, `resume_from_chunk` re-enters at that index instead
 of re-running the green chunks. Both are inputs on `entry-manual-steer.yml`;
-the other entry points take the defaults. A retrigger carries the source run's
+the other entry points take the defaults, except that a release push on `main`
+(a `vX.Y.Z` tag on the pushed commit) runs with `chunk_gate: false`. A retrigger carries the source run's
 `chunk_gate` over unless `infinito administration deploy ci trigger
 --chunk-gate false` overrides it; the `i8ciallon` alias is `i8ciall` with that
 override, for sweeps that should report every chunk before anyone looks.
@@ -302,6 +303,20 @@ belong to the entry's group, and the entry's `cancel-in-progress` reaches them.
 `call-images-build-ci.yml` and `call-images-mirror-missing.yml` still declare
 one, so a run whose only live job is theirs stays outside the entry's group and
 waits for the fallback.
+
+The `deploy` job of `call-test-deploy.yml` holds a job-level group keyed on every
+matrix axis: `mode`, `tor`, `distro`, `filesystem`, `apps` and `variant`. One
+deployment runs at a time across all branches; an identical one from another
+run queues behind it (`queue: max`), and a cancel removes a queued one.
+
+On `pull_request` and `pull_request_target` the deploy and workspace matrices
+run `fail-fast`: the first failed row cancels its siblings in that matrix. Push
+and manual runs keep every row.
+
+A job that runs after a failed `needs` guards its `if:` with `!cancelled()`, not
+`always()`, so a cancel stops it. Only `done` and `report-main-failures` keep
+`always()`: they report the cancelled run. Enforced by
+[test_workflow_cancellable_jobs_no_always.py](../../tests/lint/repository/test_workflow_cancellable_jobs_no_always.py).
 
 ## Scheduled and standalone
 

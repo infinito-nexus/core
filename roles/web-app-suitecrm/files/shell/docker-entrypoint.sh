@@ -112,6 +112,11 @@ if [ "$_have_lock" = "1" ]; then
     log "SuiteCRM already installed - skipping installer."
   fi
 
+  if [ -d "${APP_DIR}/cache/prod" ] && [ -n "$(find "${APP_DIR}/extensions" -path '*/config/*' -type f -newer "${APP_DIR}/cache/prod" -print -quit)" ]; then
+    CACHE_REFRESH=1
+    log "Extension config is newer than the prod cache - refreshing it."
+  fi
+
   if [ "$CACHE_REFRESH" = "1" ] || [ ! -d "${APP_DIR}/cache/prod" ]; then
     log "Clearing Symfony cache..."
     php bin/console cache:clear --no-warmup || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
@@ -128,6 +133,8 @@ if [ "$_have_lock" = "1" ]; then
   # caches they wipe are regenerated lazily by apache as www-data, which
   # cannot write into root-owned cache dirs -> permanent 500 without this.
   chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/cache" "${APP_DIR}/public/legacy/cache" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+
+  chown -R "$WEB_USER:$WEB_GROUP" "${APP_DIR}/logs"
 
   rmdir "$BOOT_LOCK" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   trap - EXIT TERM INT

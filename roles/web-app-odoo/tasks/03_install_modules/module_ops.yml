@@ -79,6 +79,18 @@
         auth_oauth_https_install.rc != 0
         or 'invalid module names' in (auth_oauth_https_install.stdout ~ auth_oauth_https_install.stderr)
 
+- name: "🛑 Fail when Odoo did not install the auth_oauth_https module"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/installed-module.sql"
+    named_args:
+      module: "auth_oauth_https"
+    expect_rows: true
+  register: auth_oauth_https_installed
+  failed_when: auth_oauth_https_installed.rows | length == 0
+  when: ODOO_OIDC_ENABLED | bool
+
 - name: "📦 Install auth_ldap module for LDAP support"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node

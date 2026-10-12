@@ -36,21 +36,23 @@ gateway:
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
-# nocheck: dynamic-flag
+# nocheck: dynamic-flag  coturn runs with user_auth_enabled false, so it keeps no credential store to back; the entry stays literal until auth is switched on and no template references redis today.
 redis:
   backup:
     disabled: true
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
+# nocheck: variants-coverage — the tor conjunct is the clearnet-variant-tor invariant below, so no variant may pin the true polarity on an onion node
+# nocheck: bond-baseline — same reason: variant 0 must not pin the scrape consumer on
 prometheus:
   bond: 1
-  enabled: "{{ 'web-app-prometheus' in group_names }}"
-  shared: "{{ 'web-app-prometheus' in group_names }}"
+  enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
 
+# nocheck: clearnet-variant-tor — STUN/TURN on UDP plus a 20000-port relay range, which no onion descriptor can publish; the only HTTP is a gateway returning a plaintext OK. No dashboard, logout, css or matomo block and no Playwright spec, so an onion round claims no visitable surface for it. Its one consumer declaration, prometheus, carries the tor gate.
 tor:
-  enabled: false # nocheck: dynamic-flag
-  shared: false # nocheck: dynamic-flag
-# nocheck: dynamic-flag
+  enabled: false # nocheck: dynamic-flag  no group can turn this on: see the clearnet-variant-tor reason above
+  shared: false # nocheck: dynamic-flag  same
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1

@@ -13,6 +13,7 @@ from . import PROJECT_ROOT
 
 SCRIPT_REL = Path("scripts/meta/resolve/diff/affected_roles.sh")
 SCRIPT_PATH = PROJECT_ROOT / SCRIPT_REL
+BASELINE_REL = Path("scripts/meta/resolve/baseline_remote.sh")
 
 ROLE_TASKS_MAIN_REL = f"roles/web-app-foo/{ROLE_FILE_TASKS_MAIN}"
 
@@ -46,6 +47,9 @@ class TestDiffAffectedRoles(unittest.TestCase):
         )
         subprocess.run(["git", "config", "user.name", "ci"], cwd=repo, check=True)
         subprocess.run(
+            ["git", "config", "commit.gpgsign", "false"], cwd=repo, check=True
+        )
+        subprocess.run(
             ["git", "remote", "add", "origin", str(bare)], cwd=repo, check=True
         )
 
@@ -53,6 +57,10 @@ class TestDiffAffectedRoles(unittest.TestCase):
         script_target.parent.mkdir(parents=True)
         shutil.copy2(SCRIPT_PATH, script_target)
         script_target.chmod(0o755)
+
+        baseline_target = repo / BASELINE_REL
+        shutil.copy2(PROJECT_ROOT / BASELINE_REL, baseline_target)
+        baseline_target.chmod(0o755)
 
         for rel, content in base_files.items():
             dest = repo / rel
@@ -89,6 +97,7 @@ class TestDiffAffectedRoles(unittest.TestCase):
         env["INFINITO_DISTRO"] = "test"
         env["PYTHON"] = str(fake_python)
         env.pop("BASH_ENV", None)
+        env.pop("GITHUB_REPOSITORY", None)
 
         return repo, env
 

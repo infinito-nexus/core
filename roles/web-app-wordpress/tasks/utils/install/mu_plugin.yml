@@ -1,7 +1,7 @@
 ---
 - name: "📦 Normalise the install contract for '{{ mu_plugin_name }}'"
   ansible.builtin.set_fact:
-    wp_mu_plugin_required: "{{ lookup('config', application_id, 'addons.' ~ mu_plugin_name ~ '.required', false) | bool }}"
+    wp_mu_plugin_required: "{{ lookup('config', application_id, 'addons.' ~ mu_plugin_name ~ '.required') | bool }}"
   changed_when: false
 
 - name: "📋 Copy mu-plugin '{{ mu_plugin_name }}' into the container"

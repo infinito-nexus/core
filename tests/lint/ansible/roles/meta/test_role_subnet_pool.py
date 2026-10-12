@@ -37,7 +37,9 @@ def _declared_space() -> tuple[list[ipaddress.IPv4Network], list[str]]:
     data = load_yaml_any(str(NETWORKS_FILE), default_if_missing={}) or {}
     pool = data.get("NETWORK_ROLE_SUBNET_POOL")
     if isinstance(pool, str) and "{{" in pool:
-        pool = jinja2.Template(pool).render(**data)
+        pool = jinja2.Template(
+            pool, autoescape=jinja2.select_autoescape(default_for_string=False)
+        ).render(**data)
     roles = data.get("NETWORK_ROLE_SUBNET_EXCEPTION_ROLES") or []
     if not isinstance(pool, str) or not isinstance(roles, list):
         raise TypeError(

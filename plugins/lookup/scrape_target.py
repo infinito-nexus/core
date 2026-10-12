@@ -1,6 +1,7 @@
 """Lookup ``scrape_target``: mode-aware ``<host>:<port>`` for a Prometheus
 scrape target. Swarm resolves ``tasks.<entity>_<service_key>`` (per-task DNS);
-compose uses ``compose_host`` or the service container name."""
+compose uses ``compose_host`` or the service container name. ``port`` overrides
+the ``services.<service_key>.ports.internal.<port_kind>`` lookup."""
 
 from __future__ import annotations
 
@@ -37,12 +38,20 @@ class LookupModule(LookupBase):
         if not service_key:
             raise AnsibleError("scrape_target: service_key must be non-empty")
 
-        port_kind = (
+        explicit_port_kind = (
             _as_str(terms[2]) if len(terms) > 2 else _as_str(kwargs.get("port_kind"))
-        ) or "http"
+        )
+        port_kind = explicit_port_kind or "http"
         compose_host = (
             _as_str(terms[3]) if len(terms) > 3 else _as_str(kwargs.get("compose_host"))
         )
+        port_override = _as_str(kwargs.get("port"))
+        if port_override and explicit_port_kind:
+            raise AnsibleError(
+                f"scrape_target: {application_id!r} passed both port={port_override!r} "
+                f"and port_kind={explicit_port_kind!r}; port wins and port_kind would be "
+                "silently dropped, so pass only one"
+            )
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
@@ -57,7 +66,7 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
         ).run([], variables=vars_)[0]
 
-        port = _as_str(
+        port = port_override or _as_str(
             get(
                 applications=applications,
                 application_id=application_id,

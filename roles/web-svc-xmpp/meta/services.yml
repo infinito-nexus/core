@@ -7,6 +7,7 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  ready_path: admin/
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -30,7 +31,7 @@ xmpp:
   # nocheck: single-replica
   replicas: 1
   image: ejabberd/ecs
-  version: "26.07"
+  version: "26.09"
   name: ejabberd
   ports:
     local:

@@ -1,0 +1,32 @@
+---
+- name: "⏳ Wait for the stalwart task to converge (swarm; no-op in compose)"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: stalwart
+
+- name: "⏳ Wait until Stalwart answers /healthz/ready"
+  ansible.builtin.shell: >-
+    container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -fsS -o /dev/null {{ STALWART_LOCAL_BASE_URL }}/healthz/ready
+  register: stalwart_api_check
+  retries: 30
+  delay: 5
+  until: stalwart_api_check.rc == 0
+  changed_when: false
+
+- name: "⏳ Wait until Stalwart leaves bootstrap mode and accepts management calls"
+  ansible.builtin.shell: >-
+    container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -sS -f
+    -u {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | quote }}
+    -H "Content-Type:application/json"
+    --data-binary {{ STALWART_JMAP_APPLICATION_GET | quote }}
+    {{ STALWART_JMAP_URL }}
+  register: stalwart_manage_check
+  retries: 30
+  delay: 5
+  until:
+    - stalwart_manage_check.rc == 0
+    - (stalwart_manage_check.stdout | from_json).methodResponses[0][0] != 'error'
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

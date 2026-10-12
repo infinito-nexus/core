@@ -1,0 +1,6 @@
+# The pinned recorder ({{ lookup('config', application_id, 'services.recorder.version') }}) declares its task queue as
+# transient and non-exclusive. RabbitMQ 4 refuses that by default and answers
+# the declare with an AMQP hard error, so the recorder never consumes and
+# retries forever. Permitting it keeps recordings working until the recorder
+# leaves the rabbitmq transport; see the version pin in meta/services.yml.
+deprecated_features.permit.transient_nonexcl_queues = true

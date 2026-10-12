@@ -19,6 +19,7 @@ GITLAB_SHELL_METRICS_PORT: "{{ lookup('config', application_id, 'services.shell.
 
 GITLAB_EMAIL: "{{ lookup('email', application_id) }}"
 GITLAB_EMAIL_ENABLED: "{{ GITLAB_EMAIL.enabled | bool }}"
+GITLAB_EMAIL_CA_FILE: "{{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else '' }}"
 
 GITLAB_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 GITLAB_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"

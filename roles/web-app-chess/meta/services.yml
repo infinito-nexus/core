@@ -31,7 +31,7 @@ chess:
     swarm:
       enabled: true
   image: ghcr.io/kevinveenbirkenbach/fedi-chess
-  version: v1.0.1
+  version: v1.2.2
   name: web-app-chess
   min_storage: 633MB
   backup:
