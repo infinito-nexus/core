@@ -1,0 +1,28 @@
+---
+- name: "⏳ Wait until the pgAdmin container is healthy"
+  ansible.builtin.shell: >
+    container inspect --type container
+    --format '{% raw %}{{.State.Health.Status}}{% endraw %}'
+    {{ PGADMIN_CONTAINER_ADDRESS }}
+  register: pgadmin_health
+  changed_when: false
+  until: pgadmin_health.stdout.strip() == "healthy"
+  retries: 60
+  delay: 5
+
+- name: "🔑 Realign the pgAdmin administrator with the declared password"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e PGADMIN_ADMIN_EMAIL -e PGADMIN_ADMIN_PASSWORD
+      {{ PGADMIN_CONTAINER_ADDRESS }} sh -s
+    stdin: "{{ lookup('file', 'shell/realign_admin_password.sh') }}"
+  environment:
+    PGADMIN_ADMIN_EMAIL: "{{ PGADMIN_ADMIN_EMAIL }}"
+    PGADMIN_ADMIN_PASSWORD: "{{ PGADMIN_ADMIN_PASSWORD }}"
+  register: pgadmin_admin_realign
+  changed_when: pgadmin_admin_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    pgadmin_admin_realign.rc != 0
+    or pgadmin_admin_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

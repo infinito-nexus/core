@@ -42,6 +42,23 @@
   retries: 300
   delay: 5
 
+- name: "🔑 Realign the SuiteCRM administrator password with the declared one"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ SUITECRM_WEB_USER }}
+      -e SUITECRM_REALIGN_USERNAME -e SUITECRM_REALIGN_PASSWORD
+      {{ SUITECRM_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
+  environment:
+    SUITECRM_REALIGN_USERNAME: "{{ SUITECRM_ADMIN_USERNAME }}"
+    SUITECRM_REALIGN_PASSWORD: "{{ SUITECRM_ADMIN_PASSWORD }}"
+  register: suitecrm_admin_password_realign
+  changed_when: suitecrm_admin_password_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    suitecrm_admin_password_realign.rc != 0
+    or suitecrm_admin_password_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🧹 Rebuild the Symfony container when the session handler override is newer"
   shell: >
     container exec --user {{ SUITECRM_WEB_USER }} {{ SUITECRM_CONTAINER_ADDRESS }}

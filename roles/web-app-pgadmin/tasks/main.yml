@@ -6,3 +6,7 @@
 - name: "🔧 configure pgadmin servers"
   include_tasks: configuration.yml
   when: PGADMIN_SERVER_MODE | bool
+
+- name: "🖥️ pgAdmin stack-host post-deploy (administrator realign)"
+  include_tasks: manager_ops.yml
+  when: IS_STACK_HOST | bool

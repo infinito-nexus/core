@@ -1,27 +1,29 @@
 ---
-- name: "📁 Create / promote MediaWiki admin user (one-shot)"
-  ansible.builtin.command: >-
-    container run --rm
-    --network {{ MEDIAWIKI_NETWORK_DATABASE }}
-    -u {{ MEDIAWIKI_USER }}
-    -v {{ MEDIAWIKI_VOLUME_IMAGES }}:{{ MEDIAWIKI_HTML_DIR }}/images
-    -v {{ MEDIAWIKI_VOLUME_EXTENSIONS }}:{{ MEDIAWIKI_HTML_DIR }}/extensions
-    -v {{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}:{{ MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH }}:ro
-    -v {{ MEDIAWIKI_LOCAL_MOUNT_DIR }}:{{ MEDIAWIKI_LOCAL_PATH }}:ro
-    {{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}
-    php {{ MEDIAWIKI_HTML_DIR }}/maintenance/run.php createAndPromote
-    --bureaucrat --sysop
-    {{ MEDIAWIKI_ADMINISTRATOR_NAME }}
-    {{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}
-  register: create_admin
-  changed_when: >
-    ('created' in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default('')))) or
-    ('Created' in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
-  failed_when: >
-    create_admin.rc != 0 and
-    ('already exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
-    and
-    ('Account exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
+- name: "🔑 Realign the MediaWiki administrator account and its password"
+  ansible.builtin.command:
+    cmd: >-
+      container run --rm -i
+      --network {{ MEDIAWIKI_NETWORK_DATABASE }}
+      -u {{ MEDIAWIKI_USER }}
+      -v {{ MEDIAWIKI_VOLUME_IMAGES }}:{{ MEDIAWIKI_HTML_DIR }}/images
+      -v {{ MEDIAWIKI_VOLUME_EXTENSIONS }}:{{ MEDIAWIKI_HTML_DIR }}/extensions
+      -v {{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}:{{ MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH }}:ro
+      -v {{ MEDIAWIKI_LOCAL_MOUNT_DIR }}:{{ MEDIAWIKI_LOCAL_PATH }}:ro
+      -e MEDIAWIKI_HTML_DIR -e MEDIAWIKI_ADMIN_NAME -e MEDIAWIKI_ADMIN_PASSWORD
+      -e MEDIAWIKI_LOCAL_LOGIN
+      {{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}
+      sh -s
+    stdin: "{{ lookup('file', 'shell/realign_admin_password.sh') }}"
+  environment:
+    MEDIAWIKI_HTML_DIR: "{{ MEDIAWIKI_HTML_DIR }}"
+    MEDIAWIKI_ADMIN_NAME: "{{ MEDIAWIKI_ADMINISTRATOR_NAME }}"
+    MEDIAWIKI_ADMIN_PASSWORD: "{{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}"
+    MEDIAWIKI_LOCAL_LOGIN: "{{ MEDIAWIKI_LOCAL_PASSWORD_LOGIN | string | lower }}"
+  register: mediawiki_admin_realign
+  changed_when: mediawiki_admin_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    mediawiki_admin_realign.rc != 0
+    or mediawiki_admin_realign.stdout is search('\[FAIL\]')
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

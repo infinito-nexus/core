@@ -13,6 +13,7 @@ pgadmin:
   image: dpage/pgadmin4
   version: "9.18"
   min_storage: 378MB
+  name: pgadmin
   server_mode: false
   master_password_required: true
   ports:

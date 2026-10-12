@@ -31,3 +31,21 @@
     --admin_password={{ WORDPRESS_ADMIN_PASSWORD | quote }}
     --admin_email={{ WORDPRESS_ADMIN_EMAIL | quote }}
     --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+
+- name: "🔑 Realign the WordPress administrator with the declared password"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i -u {{ WORDPRESS_USER }}
+      -e WP_REALIGN_LOGIN -e WP_REALIGN_PASSWORD
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+    stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
+  environment:
+    WP_REALIGN_LOGIN: "{{ WORDPRESS_ADMIN_USER }}"
+    WP_REALIGN_PASSWORD: "{{ WORDPRESS_ADMIN_PASSWORD }}"
+  register: wordpress_admin_realign
+  changed_when: wordpress_admin_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    wordpress_admin_realign.rc != 0
+    or wordpress_admin_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
