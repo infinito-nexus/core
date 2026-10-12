@@ -124,6 +124,7 @@ docker run --rm -it \
 
 - [Baserow Homepage](https://baserow.io/)
 - [Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Qr2HLJfTFq9rEMs9HeKE2w)
 
 ## SSO
 
@@ -244,7 +245,7 @@ This role reads it from `credentials.secret_key` and writes it into the containe
 
 The Playwright `biber` persona is blocked permanently. `meta/services.yml` restricts `sso.oauth2.allowed_groups` to the `web-app-baserow` administrator RBAC group, so a non-admin identity is rejected by the oauth2-proxy before Baserow renders, and no deploy step provisions a Baserow account for that user.
 
-The `administrator` persona is blocked only while SSO is off. In that configuration `PROXY_HEADER_SSO` is false, so the trusted-header bridge is inactive and the sole account is the Django superuser bootstrapped by `tasks/01_manager_ops.yml` via `files/bootstrap_admin.py`, whose identifier is the ORM `username` rather than the e-mail Baserow's own sign-in form asks for. With SSO enabled the header bridge supplies the session and the persona runs.
+The `administrator` persona is blocked only while SSO is off. In that configuration `PROXY_HEADER_SSO` is false, so the trusted-header bridge is inactive and the sole account is the Django superuser bootstrapped by `tasks/01_manager_ops.yml` via `files/python/bootstrap_admin.py` under its e-mail address, which Baserow's own sign-in form asks for, while the persona helper types the Keycloak username. With SSO enabled the header bridge supplies the session and the persona runs.
 
 ## Credits
 
