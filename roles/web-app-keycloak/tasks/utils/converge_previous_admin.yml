@@ -13,7 +13,6 @@
   register: kc_login_previous
   changed_when: false
   failed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔧 Keycloak converge | Move the permanent admin onto the rendered password"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
@@ -25,7 +24,6 @@
   register: kc_converge_set_password
   changed_when: kc_converge_set_password.rc == 0
   when: kc_login_previous.rc == 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔧 Keycloak converge | Record that the rotation was absorbed"
   ansible.builtin.set_fact:

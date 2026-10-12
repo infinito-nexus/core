@@ -54,6 +54,7 @@
         file: converge_previous_admin.yml
         apply:
           delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       when: (KEYCLOAK_PREVIOUS_ADMIN_PASSWORD | default('')) | length > 0
 
     - name: ✅ Ensure permanent Keycloak admin exists (bootstrap on a fresh instance)
