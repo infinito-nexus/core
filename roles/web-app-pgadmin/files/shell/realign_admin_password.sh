@@ -26,16 +26,12 @@ if [ "$current_sha" = "$declared_sha" ]; then
   exit 0
 fi
 
-# Exception: --admin is not optional. update-user reads data['role'] without
-# a guard, so a call that carries neither --admin nor --role dies on a KeyError.
 if ! out="$(/venv/bin/python3 /pgadmin4/setup.py update-user \
   "$PGADMIN_ADMIN_EMAIL" --admin --password "$PGADMIN_ADMIN_PASSWORD" 2>&1)"; then
   echo "[FAIL] setup.py update-user exited non-zero: ${out}" >&2
   exit 1
 fi
 
-# Exception: update-user prints "User not found" and "Something went wrong."
-# and still exits 0, so only the account table it renders counts as success.
 case "$out" in
 *"User Details"*) ;;
 *)

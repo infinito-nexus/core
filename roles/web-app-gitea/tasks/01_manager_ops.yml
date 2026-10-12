@@ -35,13 +35,16 @@
 - name: "📁 Create initial admin user"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+    container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       /app/gitea/gitea admin user create \
         --admin \
         --username "{{ lookup('users', 'platform_administrator').username }}" \
-        --password {{ lookup('users', 'platform_administrator').password | quote }} \
+        --password "$GITEA_ADMIN_PASSWORD" \
         --email    "{{ lookup('users', 'platform_administrator').email }}" \
         -c {{ GITEA_CONFIG }}
+    '
+  environment:
+    GITEA_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: create_admin
   changed_when: "'has been successfully created' in create_admin.stdout"
@@ -50,12 +53,13 @@
 - name: "🔑 Realign the administrator password Gitea persisted at install"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+    container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       /app/gitea/gitea admin user change-password \
         --username "{{ lookup('users', 'platform_administrator').username }}" \
         --password "$GITEA_ADMIN_PASSWORD" \
         --must-change-password=false \
         -c {{ GITEA_CONFIG }}
+    '
   environment:
     GITEA_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"

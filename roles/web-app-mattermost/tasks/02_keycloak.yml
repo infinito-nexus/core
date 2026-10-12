@@ -14,12 +14,14 @@
 
 - name: "🔑 Mattermost | Keycloak — authenticate kcadm.sh"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-    container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
-    /opt/keycloak/bin/kcadm.sh config credentials
+    container exec -i -e MATTERMOST_KEYCLOAK_ADMIN_PASS {{ MATTERMOST_KC_LOCAL_CID | quote }}
+    sh -lc '/opt/keycloak/bin/kcadm.sh config credentials
     --server "http://localhost:8080"
     --realm master
-    --user {{ MATTERMOST_KEYCLOAK_ADMIN_USER | quote }}
-    --password {{ MATTERMOST_KEYCLOAK_ADMIN_PASS | quote }}
+    --user "{{ MATTERMOST_KEYCLOAK_ADMIN_USER }}"
+    --password "$MATTERMOST_KEYCLOAK_ADMIN_PASS"'
+  environment:
+    MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ MATTERMOST_KEYCLOAK_ADMIN_PASS }}"
   args:
     chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"

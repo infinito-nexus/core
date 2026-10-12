@@ -48,9 +48,6 @@ require_once $root . '/app/bootstrap.php';
 
 try {
     $objects = Bootstrap::create(BP, $_SERVER)->getObjectManager();
-    // Exception: AREA_ADMINHTML would register admin_user_save_after, whose observer
-    // constructs Backend\Model\Auth\Session and starts a PHP session the CLI has no
-    // request for. The cost of AREA_GLOBAL is the admin_passwords history row.
     $objects->get(State::class)->setAreaCode(Area::AREA_GLOBAL);
 
     $user = $objects->get(UserFactory::class)->create()->loadByUsername($username);

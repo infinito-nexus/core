@@ -15,13 +15,8 @@ if [ -z "${MEDIAWIKI_HTML_DIR:-}" ] || [ -z "${MEDIAWIKI_ADMIN_NAME:-}" ]; then
   exit 1
 fi
 
-# Exception: --force is what turns createAndPromote from a one-shot creator
-# into a realign; without it an existing account aborts with "Account exists".
 set -- --force --bureaucrat --sysop "$MEDIAWIKI_ADMIN_NAME"
 
-# Exception: PluggableAuth unsets the LocalPassword provider while local login
-# is off, and AuthManager then answers every password change with "ignored",
-# which createAndPromote turns into a fatal error.
 if [ "${MEDIAWIKI_LOCAL_LOGIN:-}" = "true" ]; then
   if [ -z "${MEDIAWIKI_ADMIN_PASSWORD:-}" ]; then
     echo "[FAIL] MEDIAWIKI_ADMIN_PASSWORD is empty; refusing to set it." >&2

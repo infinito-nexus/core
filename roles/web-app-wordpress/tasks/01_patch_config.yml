@@ -30,10 +30,6 @@
   notify: compose-up
 
 - name: 🔄 Update DB password in {{ WORDPRESS_CONFIG_FILE }}
-  # Exception: the backslash in `\${PATCH_PASSWORD}` is load-bearing. The task
-  # environment puts the value in the host shell too, so an unescaped `$` would
-  # expand there and write the password straight back into the container exec
-  # argv, which is the leak this form exists to avoid.
   shell: >
     container exec --user root
     -e PATCH_PASSWORD

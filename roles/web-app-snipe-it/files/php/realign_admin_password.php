@@ -43,8 +43,6 @@ try {
     $user->save();
     echo "[CHANGED] the Snipe-IT administrator was realigned with the declared password\n";
 } catch (Throwable $error) {
-    // Exception: an uncaught throw prints call arguments unless
-    // zend.exception_ignore_args is set, which would put the password on stderr.
     fwrite(STDERR, '[FAIL] ' . $error->getMessage() . "\n");
     exit(1);
 }

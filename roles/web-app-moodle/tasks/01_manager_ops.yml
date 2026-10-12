@@ -28,14 +28,17 @@
 
 - name: "▶️ Run Moodle install (idempotent)"
   shell: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
-    php {{ MOODLE_CLI_DIR }}/install_database.php
+    container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
+    {{ MOODLE_CONTAINER_ADDRESS }}
+    sh -lc 'php {{ MOODLE_CLI_DIR }}/install_database.php
     --agree-license
-    --adminuser={{ MOODLE_ADMIN_USERNAME | quote }}
-    --adminpass={{ MOODLE_ADMIN_PASSWORD | quote }}
-    --adminemail={{ MOODLE_ADMIN_EMAIL | quote }}
+    --adminuser="{{ MOODLE_ADMIN_USERNAME }}"
+    --adminpass="$MOODLE_ADMIN_PASSWORD"
+    --adminemail="{{ MOODLE_ADMIN_EMAIL }}"
     --fullname="{{ MOODLE_SITE_TITLE }}"
-    --shortname=Academy
+    --shortname=Academy'
+  environment:
+    MOODLE_ADMIN_PASSWORD: "{{ MOODLE_ADMIN_PASSWORD }}"
   register: moodle_install
   retries: 20
   delay: 15
@@ -59,11 +62,14 @@
   when: not (MOODLE_OIDC_ENABLED | bool)
   # nocheck: password-quote  the token is upstream's CLI filename, not a credential
   shell: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
-    php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
-    --username={{ MOODLE_ADMIN_USERNAME | quote }}
-    --password={{ MOODLE_ADMIN_PASSWORD | quote }}
-    --ignore-password-policy
+    container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
+    {{ MOODLE_CONTAINER_ADDRESS }}
+    sh -lc 'php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
+    --username="{{ MOODLE_ADMIN_USERNAME }}"
+    --password="$MOODLE_ADMIN_PASSWORD"
+    --ignore-password-policy'
+  environment:
+    MOODLE_ADMIN_PASSWORD: "{{ MOODLE_ADMIN_PASSWORD }}"
   register: moodle_admin_password
   changed_when: moodle_admin_password.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

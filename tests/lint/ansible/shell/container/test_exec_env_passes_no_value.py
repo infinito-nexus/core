@@ -12,35 +12,22 @@ The safer form is ``-e NAME`` with no value. The engine then forwards the
 variable from its own environment, which an Ansible task fills with a
 task-level ``environment:`` mapping and a shell script with ``export``.
 
-What that buys, stated exactly, because the reduction is real but partial:
-with ``ansible.builtin.script`` the value reaches no argv at all, since the
-script reads it from an inherited environment. With ``shell`` and ``command``
-it still appears once, on the module wrapper's own command line: ansible-core
-assembles ``NAME='value' /usr/bin/python …`` from ``Shell.env_prefix`` in
-``build_module_command``. The window shrinks from the whole container call,
-re-executed on every pass of an ``until:`` retry loop, to the module's own
-runtime, and the value no longer repeats per retry. It does not vanish.
+With ``ansible.builtin.script`` the value then reaches no argv; with
+``shell`` and ``command`` it still appears once on the module wrapper's own
+line, which ``Shell.env_prefix`` builds, so the exposure shrinks rather than
+vanishes.
 
-The check is on the flag, not on the command in front of it. Associating an
-``-e`` with its ``container exec`` is unreliable across a YAML block scalar,
-where the flag sits on its own line with no continuation marker, and it would
-buy nothing: ``docker run -e`` and ``podman exec -e`` leak the value exactly
-the same way.
+The check is on the flag, not on the command before it: associating an ``-e``
+with its ``container exec`` is unreliable across a YAML block scalar, and
+``docker run -e`` leaks the same way.
 
-A literal value cannot carry a secret, so ``-e RAILS_ENV=production`` and
-``-e XDG_CONFIG_HOME=/tmp`` pass. Of the interpolated ones the rule takes
-those that carry a credential, by either of two independent signals: the
-variable's own name, or a credential source in the expression behind it
-(``.password``, ``secrets.credentials.``, a ``'password'`` lookup key, a
-``_SECRET``/``_TOKEN``/``_PW`` variable).
-
-The second signal is what keeps this from being a name denylist, which would
-be no protection on its own: a secret handed over as ``-e FOO={{
-lookup('users', 'x').password }}`` is caught by its source even though its
-name says nothing. What still slips through is a secret from a source this
-rule does not know, under a name that does not say so. Ports, paths and model
-names pass deliberately; they are not worth the churn of moving every
-interpolated value in the repository.
+A literal value cannot carry a secret, so ``-e RAILS_ENV=production`` passes.
+Of the interpolated ones the rule takes those carrying a credential, by the
+variable's name **or** by a credential source in the expression behind it.
+The second signal is what keeps this from being a name denylist: a secret
+passed as ``-e FOO={{ lookup('users', 'x').password }}`` is caught by its
+source. One from a source this rule does not know, under a name that does not
+say so, still slips through.
 
 Per-line opt-out
 ================

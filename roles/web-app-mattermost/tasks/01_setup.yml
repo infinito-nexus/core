@@ -23,12 +23,15 @@
 - name: "📁 Mattermost | Create system administrator user"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-    container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
+    container exec -i -e MATTERMOST_ADMIN_PASSWORD {{ MATTERMOST_LOCAL_CID | quote }} sh -lc '
       {{ MATTERMOST_MMCTL }} --local user create \
         --email    "{{ lookup('users', 'platform_administrator').email }}" \
         --username "{{ lookup('users', 'platform_administrator').username }}" \
-        --password {{ lookup('users', 'platform_administrator').password | quote }} \
+        --password "$MATTERMOST_ADMIN_PASSWORD" \
         --system-admin
+    '
+  environment:
+    MATTERMOST_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   register: mm_create_admin
   changed_when: mm_create_admin.rc == 0
   failed_when: mm_create_admin.rc != 0 and 'already exists' not in (mm_create_admin.stdout + mm_create_admin.stderr)
@@ -37,10 +40,11 @@
 - name: "🔑 Realign the administrator password Mattermost persisted at install"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-    container exec -i -e MATTERMOST_ADMIN_PASSWORD {{ MATTERMOST_LOCAL_CID | quote }} \
+    container exec -i -e MATTERMOST_ADMIN_PASSWORD {{ MATTERMOST_LOCAL_CID | quote }} sh -lc '
       {{ MATTERMOST_MMCTL }} --local user change-password \
         "{{ lookup('users', 'platform_administrator').username }}" \
         --password "$MATTERMOST_ADMIN_PASSWORD"
+    '
   environment:
     MATTERMOST_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   register: mm_realign_admin

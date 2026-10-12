@@ -50,22 +50,35 @@
           - |
             set -o pipefail
             container exec {{ JOOMLA_LOCAL_CID | quote }} rm -f "{{ JOOMLA_CONFIG_FILE }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-            exec container exec --user "{{ JOOMLA_WEB_USER }}" {{ JOOMLA_LOCAL_CID | quote }} \
-              php "{{ JOOMLA_INSTALLER_CLI_FILE }}" install \
-              "--db-type={{ JOOMLA_DB_CONNECTOR }}" \
-              "--db-host={{ lookup('database', application_id, 'host') }}" \
-              "--db-user={{ lookup('database', application_id, 'username') }}" \
-              "--db-pass=${J_DB_PASSWORD}" \
-              "--db-name={{ lookup('database', application_id, 'name') }}" \
-              "--admin-user={{ JOOMLA_USER }}" \
-              "--admin-username={{ JOOMLA_USER_NAME }}" \
-              "--admin-password=${J_ADMIN_PASSWORD}" \
-              "--admin-email={{ JOOMLA_USER_EMAIL }}" \
-              --no-interaction \
-              "--site-name={{ JOOMLA_SITE_NAME }}"
+            exec container exec --user "{{ JOOMLA_WEB_USER }}" \
+              -e J_CLI -e J_DB_TYPE -e J_DB_HOST -e J_DB_USER -e J_DB_PASSWORD \
+              -e J_DB_NAME -e J_ADMIN_USER -e J_ADMIN_USERNAME -e J_ADMIN_PASSWORD \
+              -e J_ADMIN_EMAIL -e J_SITE_NAME \
+              {{ JOOMLA_LOCAL_CID | quote }} sh -lc '
+                php "$J_CLI" install \
+                  "--db-type=$J_DB_TYPE" \
+                  "--db-host=$J_DB_HOST" \
+                  "--db-user=$J_DB_USER" \
+                  "--db-pass=$J_DB_PASSWORD" \
+                  "--db-name=$J_DB_NAME" \
+                  "--admin-user=$J_ADMIN_USER" \
+                  "--admin-username=$J_ADMIN_USERNAME" \
+                  "--admin-password=$J_ADMIN_PASSWORD" \
+                  "--admin-email=$J_ADMIN_EMAIL" \
+                  --no-interaction \
+                  "--site-name=$J_SITE_NAME"'
       environment:
+        J_CLI: "{{ JOOMLA_INSTALLER_CLI_FILE }}"
+        J_DB_TYPE: "{{ JOOMLA_DB_CONNECTOR }}"
+        J_DB_HOST: "{{ lookup('database', application_id, 'host') }}"
+        J_DB_USER: "{{ lookup('database', application_id, 'username') }}"
         J_DB_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
+        J_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
+        J_ADMIN_USER: "{{ JOOMLA_USER }}"
+        J_ADMIN_USERNAME: "{{ JOOMLA_USER_NAME }}"
         J_ADMIN_PASSWORD: "{{ JOOMLA_USER_PASSWORD }}"
+        J_ADMIN_EMAIL: "{{ JOOMLA_USER_EMAIL }}"
+        J_SITE_NAME: "{{ JOOMLA_SITE_NAME }}"
       register: j_install
       retries: 5
       delay: 5

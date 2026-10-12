@@ -33,16 +33,18 @@
     stalwart_jmap_body: "{{ lookup('template', 'jmap/authentication/get.json.j2') }}"
 
 - name: "🔄 Restart Stalwart until the OIDC directory survives the build"
-  ansible.builtin.shell: >-
-    {{ ('container restart ' ~ STALWART_CONTAINER) if IS_COMPOSE_MODE
-    else ('container service update --force '
-    ~ lookup('container_service', application_id, 'stalwart')) }}
-    && container exec -i {{ STALWART_CONTAINER_ADDRESS }}
-    {{ 30 | curl }} -sS -f
-    -u {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | quote }}
-    -H "Content-Type:application/json"
-    --data-binary {{ lookup('template', 'jmap/authentication/get.json.j2') | quote }}
-    {{ STALWART_JMAP_URL }}
+  ansible.builtin.shell:
+    cmd: >-
+      {{ ('container restart ' ~ STALWART_CONTAINER) if IS_COMPOSE_MODE
+      else ('container service update --force '
+      ~ lookup('container_service', application_id, 'stalwart')) }}
+      </dev/null && container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+      {{ 30 | curl }} -sS -f -K -
+      -H "Content-Type:application/json"
+      {{ STALWART_JMAP_URL }}
+    stdin: |-
+      user = {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | to_json(ensure_ascii=False) }}
+      data-binary = {{ lookup('template', 'jmap/authentication/get.json.j2') | to_json(ensure_ascii=False) }}
   register: stalwart_oidc_bind_retry
   when: (stalwart_jmap.methodResponses[0][1].list | first).directoryId != stalwart_oidc_dir_id
   changed_when: true
