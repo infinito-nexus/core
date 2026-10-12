@@ -9,8 +9,8 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = decodeDotenvQuotedValue(process.env.DECIDIM_BASE_URL || process.env.APP_BASE_URL);
@@ -18,6 +18,9 @@ const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const logoEnabled = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_ENABLED || "") === "true";
+const objectStoreUrl = isServiceEnabled("seaweedfs")
+  ? requireDotenvValue(process.env.SEAWEEDFS_S3_URL, "SEAWEEDFS_S3_URL")
+  : "";
 
 const MODES = ["light", "dark"];
 const MARK = "infinito-design-";
@@ -74,6 +77,28 @@ function shown(selector) {
   return async (page) => {
     await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   };
+}
+
+/**
+ * Assert that an attribute addresses an asset the design owns.
+ *
+ * @param {import('@playwright/test').Locator} locator element carrying the asset
+ * @param {string} attribute attribute holding the URL, `src` or `href`
+ * @param {string} slot design slot the file name carries, `logo` or `favicon`
+ */
+async function expectDesignAsset(locator, attribute, slot) {
+  const value = await locator.getAttribute(attribute);
+  const origin = new URL(value, base).origin;
+  if (objectStoreUrl && origin === new URL(objectStoreUrl).origin) {
+    return;
+  }
+  expect(
+    value,
+    `the ${slot} the app serves itself must be the generated one, which Active Storage keeps ` +
+      `under the '${MARK}' name that ruby/ensure/design.rb also reads to leave a foreign ` +
+      `upload alone; served from the object store the URL is the opaque blob key instead, and ` +
+      `only that name check drops out`,
+  ).toMatch(new RegExp(`${MARK}${slot}`));
 }
 
 /**
@@ -361,10 +386,17 @@ test("design: the public pages take surfaces, text, actions and frames from the 
       ),
     HERO,
   );
+  const assetOrigins = [new URL(base).origin];
+  if (objectStoreUrl) {
+    assetOrigins.push(new URL(objectStoreUrl).origin);
+  }
   for (const url of heroImages) {
-    expect(new URL(url).origin, "the hero image is requested from the app, not from the stylesheet host").toBe(
-      new URL(base).origin,
-    );
+    expect(
+      assetOrigins,
+      `the hero image is requested from the app or, with the object store deployed, from its ` +
+        `bucket host, never from the stylesheet host; Active Storage decides which of the two ` +
+        `serves an upload, and a third origin means the stylesheet brought its own asset in`,
+    ).toContain(new URL(url).origin);
   }
 });
 
@@ -445,7 +477,7 @@ test("design: organization name, colors, logo and favicon are the configured one
   if (!logoEnabled) return;
   const logo = page.locator(PUBLIC_LOGO).first();
   await expect(logo).toBeVisible();
-  await expect(logo).toHaveAttribute("src", new RegExp(`${MARK}logo`));
+  await expectDesignAsset(logo, "src", "logo");
   await expect
     .poll(() => logo.evaluate((element) => element.complete && element.naturalWidth > 0), {
       message: "the header logo must load",
@@ -453,11 +485,11 @@ test("design: organization name, colors, logo and favicon are the configured one
     .toBe(true);
   const box = await logo.boundingBox();
   expect(box.width, "the header logo is a lockup, wider than high").toBeGreaterThan(box.height * 1.5);
-  await expect(page.locator("link[rel='icon']").first()).toHaveAttribute("href", new RegExp(`${MARK}favicon`));
+  await expectDesignAsset(page.locator("link[rel='icon']").first(), "href", "favicon");
   await page.setViewportSize({ width: 390, height: 844 });
   const mobile = page.locator(MOBILE_LOGO).first();
   await expect(mobile, "below 1024 px the header shows the favicon").toBeVisible();
-  await expect(mobile).toHaveAttribute("src", new RegExp(`${MARK}favicon`));
+  await expectDesignAsset(mobile, "src", "favicon");
   await expect
     .poll(() => mobile.evaluate((element) => element.complete && element.naturalWidth > 0), {
       message: "the mobile header logo must load",
@@ -468,7 +500,7 @@ test("design: organization name, colors, logo and favicon are the configured one
   await openAdmin(page);
   const symbol = page.locator(ADMIN_LOGO).first();
   await expect(symbol).toBeVisible();
-  await expect(symbol).toHaveAttribute("src", new RegExp(`${MARK}logo`));
+  await expectDesignAsset(symbol, "src", "logo");
   const symbolBox = await symbol.boundingBox();
   expect(symbolBox.width, "the administration navigation shows the square symbol").toBeLessThan(symbolBox.height * 1.5);
 });
