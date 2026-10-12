@@ -48,3 +48,7 @@ SSO with auto-account-creation, which collapses the chain to a single
 - First-login autocreate via SAML's `auto_register` option must be tested
   with both the `administrator` and `biber` openldap-sourced identities
   before ldapauth is removed.
+
+## Open self-registration
+
+- `/register` serves the sign-up form to every visitor because the installer writes `'register_policy' => \Friendica\Module\Register::OPEN` into `config/local.config.php:27` (`bin/console config config register_policy` reports `2`), while upstream's own default in `static/settings.config.php:27` is `CLOSED`; options: set `config.register_policy` to `CLOSED` (or `APPROVE`) from the role through `bin/console config` or a mounted `config/*.config.php`, or make it an inventory switch.

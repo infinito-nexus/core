@@ -12,6 +12,18 @@
   include_tasks: 02_ldap.yml
   when: FRIENDICA_LDAP_ENABLED | bool
 
+- name: "🎨 Render Friendica design config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "design.config.php.j2"
+        dest: "{{ FRIENDICA_DESIGN_CONFIG_HOST }}"
+        mode: "0644"
+        owner: "root"
+        group: "33"
+  when: FRIENDICA_DESIGN_ENABLED | bool
+
 - name: "🔄 Flush handlers so '{{ FRIENDICA_CONTAINER }}' is up before container tasks"
   meta: flush_handlers
 
@@ -30,6 +42,15 @@
   register: friendica_ldap_config_cleanup
   changed_when: friendica_ldap_config_cleanup.rc == 0
   when: not (FRIENDICA_LDAP_ENABLED | bool)
+
+- name: "🗑️ Remove stale design config leftover when design is disabled"
+  shell: > # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+    container exec --user root {{ FRIENDICA_LOCAL_CID | quote }}
+    sh -c 'test ! -e {{ FRIENDICA_DESIGN_CONFIG_DOCKER }} || { rm -f {{ FRIENDICA_DESIGN_CONFIG_DOCKER }} && echo REMOVED; }'
+  delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+  register: friendica_design_config_cleanup
+  changed_when: "'REMOVED' in friendica_design_config_cleanup.stdout"
+  when: not (FRIENDICA_DESIGN_ENABLED | bool)
 
 - name: 🔎 Check if Friendica local.config.php exists
   shell: > # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime

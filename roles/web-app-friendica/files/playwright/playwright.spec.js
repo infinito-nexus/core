@@ -17,3 +17,4 @@ require("./test-native-login-administrator").register(shared);
 require("./test-side-by-side-sessions").register(shared);
 require("./test-anonymous-profile-view").register(shared);
 require("./test-admin-follow-biber").register(shared);
+require("./test-design").register(shared);

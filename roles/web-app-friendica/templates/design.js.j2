@@ -1,0 +1,62 @@
+(function () {
+  var provisioned = {{ FRIENDICA_DESIGN_PALETTE['--design-surface-1'] | to_json }};
+  var selector = 'link[href*="view/theme/frio/style.pcss"]';
+
+  function normalize(value) {
+    var probe = document.createElement("span");
+    probe.style.color = value;
+    document.documentElement.appendChild(probe);
+    var color = getComputedStyle(probe).color;
+    probe.remove();
+    return color;
+  }
+
+  function lightness(rgb) {
+    var parts = rgb.match(/\d+(\.\d+)?/g);
+    if (!parts) return 1;
+    return (0.2126 * parts[0] + 0.7152 * parts[1] + 0.0722 * parts[2]) / 255;
+  }
+
+  function schemeBackground(link) {
+    var rules;
+    try {
+      rules = link.sheet.cssRules;
+    } catch (error) {
+      return null;
+    }
+    for (var i = 0; i < rules.length; i += 1) {
+      if (rules[i].selectorText === "body" && rules[i].style.backgroundColor) {
+        return rules[i].style.backgroundColor;
+      }
+    }
+    return null;
+  }
+
+  function mirror() {
+    var link = document.querySelector(selector);
+    if (!link || !link.sheet) return;
+    var background = schemeBackground(link);
+    if (background === null) return;
+    var root = document.documentElement;
+    if (normalize(background) === normalize(provisioned)) {
+      root.removeAttribute("data-design-theme");
+      return;
+    }
+    root.setAttribute("data-design-theme", lightness(normalize(background)) < 0.5 ? "dark" : "light");
+  }
+
+  function start() {
+    var link = document.querySelector(selector);
+    if (link && !link.sheet) {
+      link.addEventListener("load", mirror, { once: true });
+      return;
+    }
+    mirror();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+})();
