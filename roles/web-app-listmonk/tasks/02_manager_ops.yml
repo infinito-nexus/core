@@ -37,11 +37,15 @@
     cmd: >-
       {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1
       -v login={{ LISTMONK_ADMIN_USERNAME | quote }}
-      -v pw={{ LISTMONK_ADMIN_PASSWORD | quote }}
     stdin: "{{ lookup('file', 'sql/realign_admin_credential.sql') }}"
+  environment:
+    LISTMONK_REALIGN_PASSWORD: "{{ LISTMONK_ADMIN_PASSWORD }}"
   register: listmonk_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: "'UPDATE 1' in listmonk_admin_password.stdout"
+  changed_when: listmonk_admin_password.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    listmonk_admin_password.rc != 0
+    or listmonk_admin_password.stdout is search('\[FAIL\]')
 
 - name: 📌 Apply all Listmonk settings
   shell: |

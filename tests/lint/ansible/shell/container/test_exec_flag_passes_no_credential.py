@@ -17,6 +17,10 @@ keyed on flag names would be noise. A dash-flag immediately followed by a
 Jinja expression that reads a credential is the shape that leaks, and nothing
 else matches it.
 
+A flag may also carry an assignment, as ``psql -v pw={{ … }}`` does, so the
+value is taken through an optional ``name=`` as well. ``-e``/``--env`` are
+left to ``container-exec-env-value``, which owns that spelling.
+
 The remedy, in order of preference
 ==================================
 1. Hand the value over on **stdin**, where it reaches no argv at all.
@@ -59,7 +63,9 @@ _CREDENTIAL = (
     r"|CLIENT\.SECRET"
 )
 _FLAG_WITH_CREDENTIAL = re.compile(
-    r"(?<!\S)(--?[A-Za-z][A-Za-z0-9-]*)[= ]\s*\{\{[^}]*(?:" + _CREDENTIAL + r")"
+    r"(?<!\S)(?!-e\b|--env\b)(--?[A-Za-z][A-Za-z0-9-]*)[= ]\s*"
+    r"(?:[A-Za-z_][A-Za-z0-9_]*=)?"
+    r"\{\{[^}]*(?:" + _CREDENTIAL + r")"
 )
 
 
