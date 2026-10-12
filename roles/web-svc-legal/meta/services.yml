@@ -17,6 +17,11 @@ html:
   bond: 1
   enabled: true
   shared: true
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: renders the imprint into web-svc-html's web root, where web-svc-html's design applies and its design spec covers the page
+design:
+  enabled: false
+  shared: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

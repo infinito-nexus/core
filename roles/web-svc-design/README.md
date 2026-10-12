@@ -47,13 +47,13 @@ flowchart LR
         dpt_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dpt_web_app_bluesky["web-app-bluesky 🐳🐝"]
         dpt_web_app_bookwyrm["web-app-bookwyrm 🐳🐝"]
-        dpt_web_app_bridgy_fed["web-app-bridgy-fed 🐳🐝"]
         dpt_web_app_checkmk["web-app-checkmk 🐳🐝"]
         dpt_web_app_chess["web-app-chess 🐳🐝"]
         dpt_web_app_confluence["web-app-confluence 🐳🐝"]
         dpt_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dpt_web_app_decidim["web-app-decidim 🐳🐝"]
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
+        dpt_web_app_erpnext["web-app-erpnext 🐳🐝"]
         dpt_more["..."]
     end
     dep_svc_net_tor -. "0..1" .-> svc_tor
@@ -65,13 +65,13 @@ flowchart LR
     svc_design -. "0..1" .-> dpt_web_app_bigbluebutton
     svc_design -. "0..1" .-> dpt_web_app_bluesky
     svc_design -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_design -. "0..1" .-> dpt_web_app_bridgy_fed
     svc_design -. "0..1" .-> dpt_web_app_checkmk
     svc_design -. "0..1" .-> dpt_web_app_chess
     svc_design -. "0..1" .-> dpt_web_app_confluence
     svc_design -. "0..1" .-> dpt_web_app_dashboard
     svc_design -. "0..1" .-> dpt_web_app_decidim
     svc_design -. "0..1" .-> dpt_web_app_discourse
+    svc_design -. "0..1" .-> dpt_web_app_erpnext
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

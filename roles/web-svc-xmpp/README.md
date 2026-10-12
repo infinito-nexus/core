@@ -26,6 +26,7 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_sso["sso"]
         svc_ldap["ldap"]
+        svc_design["design ❌"]
         svc_xmpp["xmpp"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]

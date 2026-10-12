@@ -24,6 +24,7 @@ flowchart LR
     subgraph role [web-svc-mirror 💻]
         svc_dashboard["dashboard"]
         svc_mirror["mirror"]
+        svc_design["design ❌"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
     end

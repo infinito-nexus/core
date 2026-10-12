@@ -50,10 +50,11 @@ onlyoffice:
   proxy:
     service_key: onlyoffice
   lifecycle: beta
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: document server; standalone it serves only static notice pages, the editors render only inside a host app that signs their configuration with the JWT secret
 design:
-  bond: 1
-  enabled: "{{ 'web-svc-design' in group_names }}"
-  shared: "{{ 'web-svc-design' in group_names }}"
+  enabled: false
+  shared: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

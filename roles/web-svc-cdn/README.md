@@ -27,6 +27,7 @@ flowchart LR
         svc_build["build"]
         svc_matomo["matomo"]
         svc_javascript["javascript"]
+        svc_design["design ❌"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
     end

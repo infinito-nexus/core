@@ -22,6 +22,7 @@ flowchart LR
     subgraph role [web-svc-legal]
         svc_legal["legal ❌"]
         svc_html["html"]
+        svc_design["design ❌"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
     end

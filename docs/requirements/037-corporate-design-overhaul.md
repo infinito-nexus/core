@@ -20,7 +20,7 @@ These choices are settled at requirement creation time and bound the implementat
 10. **Verification.** Every change passes `make quality-high` and a minimal compose deploy against the running stack: `make compose-deploy apps=<role> variant=0 disable=<every disableable service except design>` (default `initialize` mode, no teardown, single pass, no `full_cycle`). CSS and branding iterations run without a redeploy through `make design-sync app=<role> variant=0` (re-renders shared CSS, role `style.css` and the generated logo assets). A changed `design.js`, task, template or `meta/` file runs through `make compose-role-sync role=<role> variant=0`, which re-runs only the app role against the running stack and renders the CSP hash in the vhost with it. A role pass runs `make test` and the lint targets of the file types it touched after its last edit, and closes with a role sync and the complete role spec; a pass that changed provisioning runs that role sync twice, and the second run reports no change for the tasks it added. `make quality-high` runs once per two or three role passes, at every merge of the main branch and before a role is committed. Each role is also asserted with one further base color, blue `#001f3f`, through `base=` on the sync targets. Swarm verification is out of scope.
 11. **Review gallery.** Each role gets its own private Artifact with at least 20 views, each captured in light and dark mode and in a desktop (1440×900) and a mobile (390×844) viewport, so at least 80 screenshots of the designed state per role. The views favour detail-rich surfaces: settings, administration, forms, lists and detail pages, logged in where the app has accounts, with idempotently seeded showcase content where a list or detail page would otherwise be empty. `make design-gallery app=<role>` captures them in one spec run and copies them to `/tmp/design-gallery/<role>/`. A comparison with the app before the design is captured on request only: `before=true` adds every view with every injected snippet stripped from the document (the body filter wraps its injections in `<!--infinito-inj-->` markers). The operator approves or rejects by comment.
 12. **Frontend and backend.** Every role is styled and tested on its frontend and, where the app has one, on its separate backend (admin surface such as `wp-admin`, the Shopware or Magento admin, the Joomla administrator). A role with a backend shows backend views in its gallery in addition to the frontend views, and its Playwright spec covers both surfaces.
-13. **Scope.** In-scope roles are invokable, carry a lifecycle inside the tested envelope (`alpha` to `maintenance`), and expose a web UI.
+13. **Scope.** In-scope roles are invokable, carry a lifecycle inside the tested envelope (`alpha` to `maintenance`), and expose a web UI. A `web-app-` or `web-svc-` role without a UI to design sets `design.enabled: false` in its `meta/services.yml` with `# nocheck: design-off  Reason: <text>`, which a lint enforces, and `make design-queue` skips it: `web-app-bridgy-fed`, `web-app-mig` (operator decision), `web-svc-asset`, `web-svc-cdn`, `web-svc-collabora`, `web-svc-coturn`, `web-svc-file`, `web-svc-legal`, `web-svc-mirror`, `web-svc-onlyoffice`, `web-svc-simpleicons` and `web-svc-xmpp`.
 
 ## Acceptance Criteria
 
@@ -55,7 +55,6 @@ A role is checked when its frontend and, where present, its backend are styled, 
 - [ ] web-app-bigbluebutton
 - [ ] web-app-bluesky
 - [ ] web-app-bookwyrm
-- [ ] web-app-bridgy-fed
 - [ ] web-app-checkmk
 - [ ] web-app-chess
 - [ ] web-app-dashboard
@@ -90,7 +89,6 @@ A role is checked when its frontend and, where present, its backend are styled, 
 - [ ] web-app-matrix
 - [ ] web-app-mattermost
 - [ ] web-app-mediawiki
-- [ ] web-app-mig
 - [ ] web-app-mini-qr
 - [ ] web-app-mobilizon
 - [ ] web-app-moodle
@@ -126,12 +124,9 @@ A role is checked when its frontend and, where present, its backend are styled, 
 - [ ] web-app-xwiki
 - [ ] web-app-yourls
 - [ ] web-app-zammad
-- [ ] web-svc-collabora
 - [ ] web-svc-html
-- [ ] web-svc-legal
 - [ ] web-svc-libretranslate
 - [ ] web-svc-logout
-- [ ] web-svc-onlyoffice
 
 ## Cross-linking
 

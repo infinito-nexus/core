@@ -49,10 +49,11 @@ mig:
   mem_limit: 256m
   pids_limit: 256
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: out of the design scope by operator decision; the pinned image's graph never renders (TODO.md)
 design:
-  bond: 1
-  enabled: "{{ 'web-svc-design' in group_names }}"
-  shared: "{{ 'web-svc-design' in group_names }}"
+  enabled: false
+  shared: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

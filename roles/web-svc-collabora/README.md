@@ -27,6 +27,7 @@ flowchart LR
         svc_matomo["matomo"]
         svc_redis["redis"]
         svc_collabora["collabora"]
+        svc_design["design ❌"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
     end

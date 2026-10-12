@@ -22,6 +22,7 @@ redis:
   shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: design-off  Reason: icon API; '/' redirects to the docs or answers plain text, every other route returns an SVG or PNG
 design:
   enabled: false
   shared: false

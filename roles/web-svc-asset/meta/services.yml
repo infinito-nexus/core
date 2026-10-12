@@ -28,6 +28,7 @@ matomo:
   # nocheck: matomo-track
   track: false
 # nocheck: dynamic-flag
+# nocheck: design-off  Reason: the asset domain redirects onto web-svc-file, which serves the copied assets; no page of its own
 design:
   enabled: false
   shared: false

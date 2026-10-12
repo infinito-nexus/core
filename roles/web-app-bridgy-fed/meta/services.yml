@@ -28,10 +28,11 @@ matomo:
   # nocheck: matomo-track - root serves Werkzeug's default 404 without </head>/<body>, head injection cannot anchor
   track: false
 # nocheck: playwright-service-flag - design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: flask_app serves only federation endpoints; '/' answers Werkzeug's bare 404
 design:
-  bond: 1
-  enabled: "{{ 'web-svc-design' in group_names }}"
-  shared: "{{ 'web-svc-design' in group_names }}"
+  enabled: false
+  shared: false
   # nocheck: matomo-track - same 404-without-anchors page, shared CSS <link> cannot inject
   track: false
 prometheus:

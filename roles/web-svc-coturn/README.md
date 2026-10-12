@@ -48,6 +48,7 @@ flowchart LR
         svc_coturn["coturn"]
         svc_gateway["gateway"]
         svc_redis["redis"]
+        svc_design["design ❌"]
         svc_prometheus["prometheus"]
         svc_tor["tor ❌"]
         svc_container_backup["container_backup"]

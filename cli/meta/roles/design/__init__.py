@@ -1,8 +1,8 @@
 """Work queue of the corporate-design routine.
 
-A role is a candidate when it is a ``web-app-`` or ``web-svc-`` role with a web
-UI of its own and its lifecycle sits inside the tested envelope. Every
-candidate carries exactly one state:
+A role is a candidate when it is a ``web-app-`` or ``web-svc-`` role, its
+lifecycle sits inside the tested envelope and its ``design`` service is not
+switched off with ``enabled: false``. Every candidate carries exactly one state:
 
 * ``review``: its design spec is untracked or modified and waits for approval.
 * ``new``: HEAD carries no design spec for it.
@@ -45,19 +45,7 @@ BASE_PATHS: tuple[str, ...] = (
     "utils/design/palette.py",
 )
 UI_PREFIXES: tuple[str, ...] = ("web-app-", "web-svc-")
-UI_LESS_ROLES: frozenset[str] = frozenset(
-    {
-        "web-svc-asset",
-        "web-svc-cdn",
-        "web-svc-coturn",
-        "web-svc-design",
-        "web-svc-file",
-        "web-svc-legal",
-        "web-svc-mirror",
-        "web-svc-simpleicons",
-        "web-svc-xmpp",
-    }
-)
+DESIGN_ENTITY = "design"
 
 STATE_REVIEW = "review"
 STATE_NEW = "new"
@@ -324,9 +312,25 @@ def _primary_version(services: object, role: str) -> str | None:
     return str(entry["version"]).strip() or None
 
 
+def design_disabled(role_dir: Path) -> bool:
+    """Whether a role switches its ``design`` service off.
+
+    Args:
+        role_dir: Directory of the role.
+
+    Returns:
+        ``True`` when ``meta/services.yml`` sets ``design.enabled`` to the
+        literal ``false``; a templated or missing flag counts as on.
+    """
+    entry = read_yaml_file(role_dir / ROLE_FILE_META_SERVICES).get(DESIGN_ENTITY)
+    return isinstance(entry, dict) and entry.get("enabled") is False
+
+
 def _is_candidate(role_dir: Path, envelope: frozenset[str]) -> bool:
     role = role_dir.name
-    if not role.startswith(UI_PREFIXES) or role in UI_LESS_ROLES:
+    if not role.startswith(UI_PREFIXES) or get_entity_name(role) == DESIGN_ENTITY:
+        return False
+    if design_disabled(role_dir):
         return False
     return get_role_lifecycle(role_dir, role_name=role) in envelope
 
@@ -338,10 +342,11 @@ def candidate_roles(roles_dir: Path) -> list[str]:
         roles_dir: Directory holding the roles.
 
     Returns:
-        Sorted names of the ``web-app-`` and ``web-svc-`` roles that have a web
-        UI of their own and carry a lifecycle inside the tested envelope. A
-        role without a ``design`` service entry is included: its design pass
-        adds the entry.
+        Sorted names of the ``web-app-`` and ``web-svc-`` roles that carry a
+        lifecycle inside the tested envelope and do not switch their ``design``
+        service off (see :func:`design_disabled`). ``web-svc-design``, the
+        provider, is no candidate. A role without a ``design`` service entry is
+        included: its design pass adds the entry.
     """
     envelope = tested_lifecycles()
     return [
