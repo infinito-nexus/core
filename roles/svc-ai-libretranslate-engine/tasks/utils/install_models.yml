@@ -21,12 +21,8 @@
   delay: 15
   until: libretranslate_engine_install.rc == 0
   changed_when: "'Installed' in libretranslate_engine_install.stdout"
+  notify: container-recreate
   delegate_to: "{{ LIBRETRANSLATE_ENGINE_HOST_NODE }}"
 
-- name: "🔄 Restart {{ application_id }} so it loads what was installed"
-  when: libretranslate_engine_install.changed | default(false) | bool
-  ansible.builtin.shell:
-    # nocheck: raw-docker, container-exec-resolver  the server reads its package list once at startup, so models installed into the running container stay invisible until it restarts
-    cmd: "container restart {{ LIBRETRANSLATE_ENGINE_LOCAL_CID }}"
-  changed_when: true
-  delegate_to: "{{ LIBRETRANSLATE_ENGINE_HOST_NODE }}"
+- name: "🚿 Recreate {{ application_id }} so it reads the installed models"
+  ansible.builtin.meta: flush_handlers
