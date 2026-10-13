@@ -27,7 +27,6 @@ const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASS
 const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
-const iconUrl = requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL");
 
 const MODES = ["light", "dark"];
 const HEADER = "header.op-app-header";
@@ -212,6 +211,7 @@ test("design: a theme picked in the interface settings is respected and mirrored
 test("design: header shows the generated logo and the tab the configured title", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl, "logo replacement is disabled for this role");
+  const iconUrl = requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL");
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
   await shown(LOGO)(page);

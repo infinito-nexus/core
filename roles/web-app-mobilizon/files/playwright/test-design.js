@@ -19,7 +19,6 @@ const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONI
 const adminEmail = requireDotenvValue(process.env.ADMIN_EMAIL, "ADMIN_EMAIL");
 const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
-const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
@@ -272,6 +271,7 @@ test("design: the navbar shows the generated logo and the instance carries the c
   await shown(NAVBAR)(page);
   await expect(page).toHaveTitle(title, { timeout: resolveTimeout(10_000) });
   test.skip(!logoUrl, "logo replacement is disabled for this role");
+  const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
   const logo = page.locator(`${NAVBAR} a[href='/'] img`);
   await expect(logo).toBeVisible({ timeout: resolveTimeout(10_000) });
   await expect(logo).toHaveAttribute("src", logoUrl);

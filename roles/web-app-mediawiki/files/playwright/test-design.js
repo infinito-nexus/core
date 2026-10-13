@@ -18,8 +18,6 @@ const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
 const iconUrl = decodeDotenvQuotedValue(process.env.DESIGN_ICON_URL || "");
-const wordmarkUrl = requireDotenvValue(process.env.DESIGN_WORDMARK_URL, "DESIGN_WORDMARK_URL");
-const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
@@ -332,6 +330,8 @@ test("design: the header shows the generated logo and wordmark and the configure
   await shown(HEADER)(page_);
   if (title) await expect.poll(() => page_.title()).toContain(title);
   if (iconUrl) {
+    const wordmarkUrl = requireDotenvValue(process.env.DESIGN_WORDMARK_URL, "DESIGN_WORDMARK_URL");
+    const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
     await expect(page_.locator(".mw-logo-icon")).toHaveAttribute("src", iconUrl);
     await expect(page_.locator("img.mw-logo-wordmark")).toHaveAttribute("src", wordmarkUrl);
     const box = await page_.locator("img.mw-logo-wordmark").boundingBox();

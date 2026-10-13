@@ -14,8 +14,6 @@ const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
-const iconUrl = requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL");
-const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
 
 const MODES = ["light", "dark"];
 const MAIN = "main";
@@ -294,6 +292,8 @@ test("design: the role stylesheet keeps the breadcrumb navigation visible", asyn
 test("design: logo, icon and favicon come from the design lookup", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl, "logo replacement is disabled for this role");
+  const iconUrl = requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL");
+  const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page, "/");
   await expect(page.locator(SIDEBAR_LOGO)).toHaveCSS("content", `url("${logoUrl}")`);

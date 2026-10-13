@@ -12,8 +12,6 @@ const {
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
-const brandUrl = requireDotenvValue(process.env.DESIGN_BRAND_URL, "DESIGN_BRAND_URL");
-const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
@@ -388,6 +386,8 @@ exports.register = function (shared) {
       await expect(page.locator(LOGIN_LOGO)).toHaveAttribute("alt", title);
     }
     if (logoUrl) {
+      const brandUrl = requireDotenvValue(process.env.DESIGN_BRAND_URL, "DESIGN_BRAND_URL");
+      const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
       const image = page.locator(LOGIN_LOGO);
       await expect
         .poll(() => image.evaluate((element) => element.complete && element.naturalWidth > 0), {

@@ -17,7 +17,6 @@ const SHOWCASE = "Design Showcase";
 const PLUGIN_MANIFEST = "/plugins/infinito-design/infinito-design.json";
 const PLUGIN_SHEET = "/plugins/infinito-design/infinito-design.css";
 const LOGO_URL = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
-const LOGO_AUTH_URL = requireDotenvValue(process.env.DESIGN_LOGO_AUTH_URL, "DESIGN_LOGO_AUTH_URL");
 const MODES = ["light", "dark"];
 
 function base() {
@@ -243,6 +242,7 @@ exports.register = function (shared) {
   test("design: the navbar and the sign-in page show the corporate logo", async ({ page, request }) => {
     skipUnlessServiceEnabled("design");
     test.skip(!LOGO_URL, "no logo configured");
+    const LOGO_AUTH_URL = requireDotenvValue(process.env.DESIGN_LOGO_AUTH_URL, "DESIGN_LOGO_AUTH_URL");
     await gotoOnion(page, `${base()}/discover`);
     await ready(page, "nav.navbar .nav-left .logo");
     const logo = page.locator("nav.navbar .nav-left .logo").first();
