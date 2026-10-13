@@ -1,0 +1,12 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+discovery.type=single-node
+xpack.security.enabled=false
+ES_JAVA_OPTS=-Xms{{ ZAMMAD_SEARCH_HEAP_MB }}m -Xmx{{ ZAMMAD_SEARCH_HEAP_MB }}m
+path.data={{ ZAMMAD_SEARCH_DATA_DIR }}
+cluster.routing.allocation.disk.watermark.low={{ ZAMMAD_SEARCH_WATERMARK.low }}
+cluster.routing.allocation.disk.watermark.high={{ ZAMMAD_SEARCH_WATERMARK.high }}
+cluster.routing.allocation.disk.watermark.flood_stage={{ ZAMMAD_SEARCH_WATERMARK.flood_stage }}
+cluster.routing.allocation.disk.watermark.low.max_headroom={{ ZAMMAD_SEARCH_WATERMARK.max_headroom.low }}
+cluster.routing.allocation.disk.watermark.high.max_headroom={{ ZAMMAD_SEARCH_WATERMARK.max_headroom.high }}
+cluster.routing.allocation.disk.watermark.flood_stage.max_headroom={{ ZAMMAD_SEARCH_WATERMARK.max_headroom.flood_stage }}
