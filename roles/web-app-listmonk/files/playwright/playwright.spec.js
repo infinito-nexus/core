@@ -5,6 +5,7 @@ const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, r
 test.use({ ignoreHTTPSErrors: true });
 
 require("./test-mcp-guest").register();
+require("./test-design").register();
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");

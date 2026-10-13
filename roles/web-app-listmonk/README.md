@@ -124,6 +124,7 @@ docker run --rm -it \
 - [Listmonk Official Website](https://listmonk.app/)
 - [Listmonk Installation Documentation](https://listmonk.app/docs/installation/)
 - [Listmonk GitHub Repository](https://github.com/knadh/listmonk/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/XHHFGfbzxtd6JxuRDB31vy)
 
 ## Credits
 

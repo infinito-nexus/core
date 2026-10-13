@@ -1,0 +1,16 @@
+{% for entry in LISTMONK_DESIGN_APPEARANCE %}
+{% set value = (lookup('template', entry.template) | trim) if LISTMONK_DESIGN_ENABLED | bool else '' %}
+UPDATE settings
+SET value = to_jsonb($infinito_value${{ value }}$infinito_value$::text)
+WHERE key = '{{ entry.key }}'
+  AND (value #>> '{}' = '' OR starts_with(value #>> '{}', $infinito_marker${{ entry.marker }}$infinito_marker$))
+  AND value IS DISTINCT FROM to_jsonb($infinito_value${{ value }}$infinito_value$::text);
+{% endfor %}
+{% for entry in LISTMONK_DESIGN_BRANDING %}
+{% set value = entry.design if LISTMONK_DESIGN_ENABLED | bool else entry.fallback %}
+UPDATE settings
+SET value = to_jsonb($infinito_value${{ value }}$infinito_value$::text)
+WHERE key = '{{ entry.key }}'
+  AND value IS DISTINCT FROM to_jsonb($infinito_value${{ value }}$infinito_value$::text){% if value | length == 0 %}
+  AND value = to_jsonb($infinito_value${{ entry.design }}$infinito_value$::text){% endif %};
+{% endfor %}
