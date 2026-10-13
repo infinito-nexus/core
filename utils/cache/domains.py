@@ -269,7 +269,14 @@ def get_merged_domains(
     ).get("node")
     node_onion = str(_render_raw(node_raw or "", "services.tor.node") or "").strip()
     group_names = variables.get("group_names") or []
-    if node_onion and "svc-net-tor" in group_names:
+    if "svc-net-tor" in group_names:
+        if not node_onion:
+            raise ValueError(
+                "get_merged_domains: 'svc-net-tor' is deployed but "
+                "applications.svc-net-tor.services.tor.node is empty. "
+                "Skipping the onion injection would serve every exclusive "
+                "app on clearnet without saying so."
+            )
         merged = _inject_onion_domains(
             merged,
             apps,
