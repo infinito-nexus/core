@@ -1,3 +1,4 @@
 # TODO
 
 - Drop the custom image build once the pinned Mobilizon release ships the PostgreSQL 18 migration fix (upstream merge request 1683, milestone 5.3.0). The build of `files/Dockerfile` fails on that release and names the migration that no longer needs the patch. Then delete `files/Dockerfile`, the `build` block in `templates/compose.yml.j2`, `MOBILIZON_IMAGE` and `MOBILIZON_VERSION` in `vars/main.yml`, and `custom: true` in `meta/services.yml`.
+- `templates/env.j2` renders `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` inside the `{% if email.enabled %}` block, so a deploy with `sso` on and `email` off leaves the database login form open next to Keycloak (`config.exs.j2` defaults the key to `false`). Options: move the line out of the email block, or derive it in `config.exs.j2` from the SSO and LDAP flags.

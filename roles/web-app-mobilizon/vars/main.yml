@@ -7,3 +7,14 @@ mobilizon_container: "{{ lookup('config', application_id, 'services.mobilizon.na
 MOBILIZON_IMAGE: "{{ lookup('config', application_id, 'services.mobilizon.image') }}"
 MOBILIZON_VERSION: "{{ lookup('config', application_id, 'services.mobilizon.version') }}"
 MOBILIZON_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MOBILIZON_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MOBILIZON_DESIGN: "{{ lookup('design', application_id) }}"
+MOBILIZON_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+MOBILIZON_DESIGN_COLORS:
+  primary_color: "{{ MOBILIZON_DESIGN_PALETTE['--design-primary'] if MOBILIZON_DESIGN_ENABLED | bool else None }}"
+  secondary_color: "{{ MOBILIZON_DESIGN_PALETTE['--design-primary-100'] if MOBILIZON_DESIGN_ENABLED | bool else None }}"
+MOBILIZON_DESIGN_MEDIAS:
+  instance_logo: "{{ {'url': MOBILIZON_DESIGN.urls.logo.svg, 'name': 'logo.svg', 'content_type': 'image/svg+xml', 'width': MOBILIZON_DESIGN.slots.logo.width, 'height':
+    MOBILIZON_DESIGN.slots.logo.height} if MOBILIZON_DESIGN_ENABLED | bool and MOBILIZON_DESIGN.logo is string else None }}"
+  instance_favicon: "{{ {'url': MOBILIZON_DESIGN.urls.favicon.png, 'name': 'favicon.png', 'content_type': 'image/png', 'width': MOBILIZON_DESIGN.slots.favicon.width,
+    'height': MOBILIZON_DESIGN.slots.favicon.height} if MOBILIZON_DESIGN_ENABLED | bool and MOBILIZON_DESIGN.logo is string else None }}"

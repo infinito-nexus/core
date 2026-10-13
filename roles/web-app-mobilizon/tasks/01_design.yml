@@ -1,0 +1,62 @@
+---
+- name: "▶️ MOBILIZON | Start the container with the rendered configuration"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 MOBILIZON | Resolve hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: mobilizon
+    resolve_output_prefix: MOBILIZON
+    resolve_compose_cid: "{{ mobilizon_container }}"
+
+- name: "⏳ MOBILIZON | Wait until the running node answers rpc"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ MOBILIZON_LOCAL_CID }}" # nocheck: container-exec-resolver  MOBILIZON_LOCAL_CID resolved at delegate_to runtime
+      - /bin/mobilizon
+      - rpc
+      - IO.puts(:ok)
+  register: mobilizon_rpc_probe
+  until: mobilizon_rpc_probe.rc == 0
+  retries: 60
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ MOBILIZON_HOST_NODE }}"
+
+- name: "👤 MOBILIZON | Ensure the platform administrator with a profile"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ MOBILIZON_LOCAL_CID }}" # nocheck: container-exec-resolver  MOBILIZON_LOCAL_CID resolved at delegate_to runtime
+      - /bin/mobilizon
+      - rpc
+      - "{{ lookup('file', 'elixir/administrator.exs') }}"
+    expand_argument_vars: false
+    stdin: "{{ {'email': lookup('users', 'platform_administrator').email, 'password': lookup('users', 'platform_administrator').password, 'username':
+      lookup('users', 'platform_administrator').username} | to_json }}"
+  register: mobilizon_administrator
+  changed_when: "'MOBILIZON_ADMINISTRATOR=changed' in mobilizon_administrator.stdout"
+  failed_when: mobilizon_administrator.rc != 0 or 'MOBILIZON_ADMINISTRATOR=' not in mobilizon_administrator.stdout
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ MOBILIZON_HOST_NODE }}"
+
+- name: "🎨 MOBILIZON | Converge palette colors, logo and favicon settings"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ MOBILIZON_LOCAL_CID }}" # nocheck: container-exec-resolver  MOBILIZON_LOCAL_CID resolved at delegate_to runtime
+      - /bin/mobilizon
+      - rpc
+      - "{{ lookup('file', 'elixir/design.exs') }}"
+    expand_argument_vars: false
+    stdin: "{{ {'colors': MOBILIZON_DESIGN_COLORS, 'medias': MOBILIZON_DESIGN_MEDIAS} | to_json }}"
+  register: mobilizon_design
+  changed_when: "'MOBILIZON_DESIGN=changed' in mobilizon_design.stdout"
+  failed_when: mobilizon_design.rc != 0 or 'MOBILIZON_DESIGN=' not in mobilizon_design.stdout
+  delegate_to: "{{ MOBILIZON_HOST_NODE }}"

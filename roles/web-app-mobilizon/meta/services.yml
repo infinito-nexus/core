@@ -65,7 +65,13 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
-  title: Mobilizon on {{ DOMAIN_PRIMARY | upper }}
+  slots:
+    logo:
+      width: 160
+      height: 48
+    favicon:
+      width: 152
+      height: 152
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
