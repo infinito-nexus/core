@@ -23,7 +23,7 @@ const SIGN_IN_PAGE = ".auth";
 const SIGN_IN_CARD = ".auth .v-card";
 const USERNAME = "#auth-username";
 const SUBMIT = '[data-testid="auth-signin"]';
-const BRAND = ".auth .v-image__image";
+const BRAND = ".auth .v-image__image:not(.v-image__image--preload)";
 const FRAME = ".NavDrawer";
 const NAV_DASHBOARD = `${FRAME} [data-testid="sidebar-dashboard"]`;
 const NAV_SELECTED = `${FRAME} [data-testid="sidebar-keys"]`;
@@ -36,6 +36,8 @@ const TOOLBAR_TITLE = ".v-toolbar__title";
 const TABLE = ".v-data-table";
 const TABLE_HEAD = `${TABLE} > .v-data-table__wrapper > table > thead > tr:last-child > th`;
 const TABLE_CELL = `${TABLE} > .v-data-table__wrapper > table > tbody > tr > td`;
+const ROW_CELL = `${TABLE} > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > td`;
+const CONTENT_DIVIDER = `${APP} hr.v-divider:not(${FRAME} hr)`;
 const PRIMARY_ACTION = ".v-toolbar .v-btn.primary";
 const EDITOR = ".CodeMirror";
 const NAV_ICON = ".v-app-bar__nav-icon";
@@ -193,6 +195,26 @@ exports.register = function (shared) {
     await page.locator(trigger).click();
     await shown(MENU)(page);
     await expect(page.locator(MENU)).toHaveCSS("opacity", "1");
+  }
+
+  /**
+   * Args:
+   *   page: Playwright page whose rendered output is sampled.
+   *   x: horizontal viewport coordinate in CSS pixels.
+   *   y: vertical viewport coordinate in CSS pixels.
+   *
+   * Returns:
+   *   The color of the rendered pixel as `rgb(r, g, b)`.
+   */
+  async function renderedPixel(page, x, y) {
+    const png = await page.screenshot({ clip: { x, y, width: 1, height: 1 } });
+    return page.evaluate(async (bytes) => {
+      const bitmap = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: "image/png" }));
+      const context = new OffscreenCanvas(1, 1).getContext("2d");
+      context.drawImage(bitmap, 0, 0);
+      const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+      return `rgb(${r}, ${g}, ${b})`;
+    }, Array.from(png));
   }
 
   /**
@@ -517,6 +539,28 @@ exports.register = function (shared) {
       ],
       "semaphore shell",
     );
+  });
+
+  test("design: list rows, page and menu dividers draw in --design-border in both modes", async ({ page }) => {
+    shared.skipUnlessServiceEnabled("design");
+    test.setTimeout(resolveTimeout(180_000));
+    await signIn(page);
+    const { project } = await seedShowcase(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, `${base}/project/${project}/keys`);
+      await shown(ROW_CELL)(page);
+      const border = await tokenValue(page, "--design-border", "color");
+      const cell = await page.locator(ROW_CELL).first().boundingBox();
+      await expect
+        .poll(() => renderedPixel(page, cell.x + cell.width / 2, cell.y + cell.height - 1), {
+          message: `list ${mode}: the rendered pixel between two rows must be --design-border`,
+        })
+        .toBe(border);
+      await assertToken(page, CONTENT_DIVIDER, "border-top-color", "--design-border", `page divider ${mode}`);
+      await menuOpened(page, USER_MENU);
+      await assertToken(page, `${MENU} hr.v-divider`, "border-top-color", "--design-border", `menu divider ${mode}`);
+    }
   });
 
   test("design: literal colors of hints, placeholders, neutral buttons and inset tables come from the palette", async ({
