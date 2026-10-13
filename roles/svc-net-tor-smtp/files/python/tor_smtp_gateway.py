@@ -39,11 +39,13 @@ log = logging.getLogger("tor-smtp-gateway")
 
 ONION_SMTP_PORT = 25
 
+# nocheck: environ-get-default  templates/env.j2 writes only the four config-derived keys; nothing renders TOR_SMTP_LISTEN_HOST, so the bind address is this file's own
 LISTEN_HOST = os.environ.get("TOR_SMTP_LISTEN_HOST", "0.0.0.0")  # noqa: S104 - relay bind; reachability is gated by the compose network, not this bind
 LISTEN_PORT = int(os.environ["TOR_SMTP_LISTEN_PORT"])
 SOCKS_HOST = os.environ["TOR_SOCKS_HOST"]
 SOCKS_PORT = int(os.environ["TOR_SOCKS_PORT"])
 HELO_NAME = os.environ["TOR_SMTP_HELO"]
+# nocheck: environ-get-default  no template renders TOR_SMTP_TIMEOUT; the per-hop budget of a Tor circuit is the gateway's own, not the inventory's
 TIMEOUT = int(os.environ.get("TOR_SMTP_TIMEOUT", "120"))
 
 

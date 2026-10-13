@@ -77,6 +77,7 @@ def show_iface_routes() -> None:
 def show_proxies() -> None:
     section("proxy env vars")
     for key in PROXY_ENV_KEYS:
+        # nocheck: environ-get-default  the placeholder is printed, never used as a value, and it keeps an absent proxy variable distinguishable from one set to the empty string
         line(key, os.environ.get(key, "<unset>"))
 
 

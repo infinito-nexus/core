@@ -291,7 +291,7 @@ def main() -> int:
             failures += roundtrip
             if roundtrip:
                 pass
-            elif os.environ.get("SEAWEEDFS_TEST_PRIMARY_IS_PUBLIC", "false") == "true":
+            elif os.environ["SEAWEEDFS_TEST_PRIMARY_IS_PUBLIC"] == "true":
                 print(
                     "SKIP: every consumer on this host is public; the private-read denial has no bucket to run in"
                 )

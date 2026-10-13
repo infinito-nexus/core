@@ -12,6 +12,7 @@ def ensure() -> None:
     if which("ansible-lint"):
         return
     log("Missing command 'ansible-lint'. Installing via pip.")
+    # nocheck: environ-get-default  the fallback is the package name this installer exists for; ANSIBLE_LINT_PIP_SPEC is the contributor's way to pin a version or a fork, and no deploy sets it
     spec = os.environ.get("ANSIBLE_LINT_PIP_SPEC", "ansible-lint")
     install_pip_pkg(spec)
     if not which("ansible-lint"):

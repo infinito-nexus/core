@@ -344,6 +344,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
     p.add_argument(
         "--inventory-dir",
+        # nocheck: environ-get-default  the fallback is this module's own _DEFAULT_INVENTORY_DIR constant, and matrix.py is itself the process that exports INFINITO_INVENTORY_DIR to the rounds below it
         default=os.environ.get(
             "INFINITO_INVENTORY_DIR", _DEFAULT_INVENTORY_DIR
         ),  # nocheck: swarm-test base; matrix sets it per round, compose resolves the key via its own handler

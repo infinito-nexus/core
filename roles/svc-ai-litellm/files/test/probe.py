@@ -322,7 +322,9 @@ def main() -> int:
     base = f"http://127.0.0.1:{os.environ['PORT']}"
     chat_model = os.environ["CHAT_MODEL"].strip()
     chat_model_served = os.environ["CHAT_MODEL_SERVED"] == "true"
+    # nocheck: environ-get-default  test.sh passes an explicit -e list into the container and RETRIES is not in it; the attempt budget is the probe's own
     retries = int(os.environ.get("RETRIES", "10"))
+    # nocheck: environ-get-default  likewise unlisted in test.sh's -e set; the wait between attempts is the probe's own
     pause = float(os.environ.get("SLEEP_SECONDS", "6"))
 
     listing = _call(base, key, "/v1/models")

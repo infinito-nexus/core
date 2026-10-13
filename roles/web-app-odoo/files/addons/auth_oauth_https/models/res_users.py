@@ -9,8 +9,6 @@ from odoo.exceptions import AccessDenied
 
 _logger = logging.getLogger(__name__)
 
-OIDC_UID_FIELD = os.environ.get("ODOO_OIDC_UID_FIELD", "preferred_username")
-
 
 class ResUsersOAuthConfigurableUid(models.Model):
     """
@@ -20,8 +18,8 @@ class ResUsersOAuthConfigurableUid(models.Model):
     provider's userinfo response to identify users. However, this claim is not
     standard in OIDC - Keycloak maps the internal UUID as user_id by default.
 
-    This override changes the lookup to use a configurable claim field
-    (default: 'preferred_username'), set via the ODOO_OIDC_UID_FIELD env var.
+    This override changes the lookup to use the claim field the deploy names
+    in ODOO_OIDC_UID_FIELD, rendered from OIDC.ATTRIBUTES.USERNAME.
     This aligns Odoo with how other applications in the infinito.nexus stack
     identify users:
     - Mastodon: OIDC_UID_FIELD = preferred_username
@@ -110,18 +108,24 @@ class ResUsersOAuthConfigurableUid(models.Model):
         infinito.nexus stack identify users.
 
         This override runs after the upstream unification and, when the
-        configured claim (default: preferred_username) is present in the
-        validation dict, replaces user_id with that claim. Standard Odoo
+        configured claim is present in the validation dict, replaces user_id
+        with that claim. Standard Odoo
         _auth_oauth_signin then searches res_users.oauth_uid for the remapped
         value, matching the seeded administrator/biber accounts.
+
+        ODOO_OIDC_UID_FIELD is read here rather than at import time: env.j2
+        writes it only while services.sso.enabled is true, and the addon
+        stays installed after SSO is turned off, so a module-scope read would
+        stop Odoo from loading the addon at all.
         """
         validation = super()._auth_oauth_validate(provider, access_token)
-        if validation.get(OIDC_UID_FIELD):
-            validation["user_id"] = validation[OIDC_UID_FIELD]
+        uid_field = os.environ["ODOO_OIDC_UID_FIELD"]
+        if validation.get(uid_field):
+            validation["user_id"] = validation[uid_field]
             _logger.debug(
                 "OAuth: remapped user_id to %s '%s' for provider %s",
-                OIDC_UID_FIELD,
-                validation[OIDC_UID_FIELD],
+                uid_field,
+                validation[uid_field],
                 provider,
             )
         return validation

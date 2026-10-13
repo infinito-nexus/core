@@ -526,6 +526,7 @@ def _load_services_via_config(
 
 def _cache_frontend_ca_host() -> str:
     """Runner-internal path to the package-cache frontend CA, or '' when the cache is inactive."""
+    # nocheck: environ-get-default  nothing in the repo writes CA_TRUST_CERT_EXTRA_HOST; the path mirrors CA_SRC in roles/svc-cache-package/files/shell/ca.sh, and this file is copied to the target as a stdlib-only script, so it cannot import that constant
     path = os.environ.get(
         "CA_TRUST_CERT_EXTRA_HOST", "/opt/package-frontend-ca.crt"
     ).strip()

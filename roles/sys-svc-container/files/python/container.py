@@ -342,7 +342,7 @@ def container_run(argv: list[str], debug: bool, with_ca: bool) -> int:
         wrapper_container,
     ]
     extra_opts: list[str] = []
-    extra_host = os.environ.get(
+    extra_host = os.environ.get(  # nocheck: environ-get-default  nothing in the repo writes CA_TRUST_CERT_EXTRA_HOST; the path mirrors CA_SRC in roles/svc-cache-package/files/shell/ca.sh, and this file is copied to the target as a stdlib-only script, so it cannot import that constant
         "CA_TRUST_CERT_EXTRA_HOST", "/opt/package-frontend-ca.crt"
     ).strip()
     extra_path = Path(extra_host) if extra_host else None

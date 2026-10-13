@@ -95,6 +95,7 @@ def main() -> int:
     if not os.environ.get("SWARM_NAME"):
         raise SystemExit("extend_inventory: SWARM_NAME is required (cluster id)")
     app_id = os.environ["APP_ID"]
+    # nocheck: environ-get-default  swarm-test base: matrix.py exports INV_PATH per round, a contributor running this step standalone gets the same /tmp/inv base the routine scripts use
     inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_PATH
 
     closure = derive_includes(app_id)
