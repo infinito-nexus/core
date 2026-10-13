@@ -111,6 +111,7 @@ RBAC is not feasible beyond the group gate: Postmarks has no in-app authorisatio
 
 - [Postmarks (GitHub)](https://github.com/ckolderup/postmarks)
 - [ActivityPub (W3C Recommendation)](https://www.w3.org/TR/activitypub/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/NGop4V968jJFtzeckXpUfi)
 
 ## Persona contract opt-outs
 
