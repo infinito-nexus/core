@@ -50,3 +50,22 @@
     sys_token_store_app: "{{ application_id }}"
     sys_token_store_token: "{{ WEBLATE_ISSUED_TOKEN }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "♻️ Re-render the translation gateway against the stored token"
+  when: WEBLATE_TRANSLATE_ENABLED | bool
+  block:
+    - name: "🛑 Refuse a store the gateway's own lookup cannot read back"
+      ansible.builtin.assert:
+        that:
+          - (lookup('users', 'platform_administrator', {}).get('tokens', {}).get(application_id, '') | length) >= WEBLATE_TOKEN_MIN_LENGTH
+        fail_msg: >-
+          The token store does not hand '{{ application_id }}' back to the users
+          lookup, so the gateway would be rendered with an empty bearer and every
+          reviewed string would be overwritten by a machine engine.
+
+    - name: "♻️ Reconcile 'web-svc-translate' now the token exists"
+      ansible.builtin.include_role:
+        name: web-svc-translate
+        tasks_from: utils/reconcile.yml
+      vars:
+        application_id: web-svc-translate

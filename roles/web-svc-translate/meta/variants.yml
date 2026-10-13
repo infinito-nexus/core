@@ -27,9 +27,6 @@
     sso:
       enabled: true
       shared: true
-    logout:
-      enabled: true
-      shared: true
     postgres:
       shared: true
     tor:
@@ -57,9 +54,6 @@
     sso:
       enabled: false
       shared: false
-    logout:
-      enabled: false
-      shared: false
     postgres:
       shared: false
     tor:
@@ -85,9 +79,6 @@
       enabled: true
       shared: true
     sso:
-      enabled: false
-      shared: false
-    logout:
       enabled: false
       shared: false
     postgres:
