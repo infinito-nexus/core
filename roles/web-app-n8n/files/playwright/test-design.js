@@ -22,27 +22,34 @@ const MODES = ["light", "dark"];
 const NO_SIGN_IN_PAGE = "the oauth2-proxy gate signs every visitor in, so n8n never renders its own sign-in page";
 const SIGN_IN_FORM = "[data-test-id='auth-form']";
 const SUBMIT = "[data-test-id='form-submit-button']";
-const PASSWORD = `${SIGN_IN_FORM} input[type='password']`;
+const FIELD = `${SIGN_IN_FORM} .n8n-input__wrapper`;
+const RESTING_FIELD = `${FIELD}:has(input[type='password']):not(:focus-within)`;
+const FOCUSED_FIELD = `${FIELD}:focus-within`;
 const LOGO = "[data-test-id='n8n-logo']";
-const COLLAPSED_LOGO = `${LOGO}[class*='_sidebarCollapsed_']`;
-const COLLAPSE = "#collapse-change-button";
+const SIDE_MENU = "#side-menu";
+const COLLAPSED = `${SIDE_MENU}[class*='_sideMenuCollapsed_']`;
+const COLLAPSE = "#toggle-sidebar-button";
 const SETTINGS_BACK = "[data-test-id='settings-back']";
-const AUTO_COLLAPSE_BELOW = 900;
+const COLLAPSED_BELOW = 900;
 const ADD = "[data-test-id='universal-add']";
 const SIDEBAR = "#sidebar";
 const MENU_ITEM = `${SIDEBAR} [data-test-id='menu-item']`;
 const WORKFLOW_CARD = "[data-test-id='resources-list-item-workflow']";
 const WORKFLOW_NAME = "[data-test-id='workflow-card-name']";
 const CREATE_WORKFLOW = "[data-test-id='add-resource-workflow']";
+const PREVIEW_BADGE = "[class*='_badge_'][class*='_secondary_']";
 const CREDENTIAL_ROW = "[data-test-id='resources-list-item']";
 const EXECUTION_ROW = "[data-test-id='global-execution-list-item']";
-const ROW_CHECKBOX = `${EXECUTION_ROW} .el-checkbox__inner`;
+const ROW_CHECKBOX = `${EXECUTION_ROW} [data-test-id='select-execution-checkbox']`;
+const ROW_DIVIDER = `${EXECUTION_ROW} td`;
 const AVATAR_DISC = ".n8n-avatar svg g > rect";
+const AVATAR_INITIALS = ".n8n-avatar span";
 const CANVAS_NODE = ".vue-flow__node";
 const THEME_SELECT = "[data-test-id='theme-select']";
+const THEME_FIELD = `${THEME_SELECT} .el-input__inner`;
 const SAVE_SETTINGS = "[data-test-id='save-settings-button']";
 const OPTION = ".el-select-dropdown__item:visible";
-const DIALOG = ".el-dialog:visible";
+const DIALOG = "[role='dialog']:visible";
 const CONFIRM = ".el-message-box__btns .btn--confirm";
 const CANCEL = ".el-message-box__btns .btn--cancel";
 const SURVEY_VERSION = "v4";
@@ -78,14 +85,14 @@ async function animationsSettled(page) {
               );
             }),
         ),
-      { message: "every finite animation of the page must have ended" },
+      { message: "every finite animation of the page must have ended", timeout: resolveTimeout(10_000) },
     )
     .toBe(false);
 }
 
 function shown(selector) {
   return async (page) => {
-    await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
+    await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
     await animationsSettled(page);
   };
 }
@@ -95,7 +102,19 @@ function opened(trigger, panel) {
     await shown(trigger)(page);
     await page.locator(trigger).first().click();
     await shown(panel)(page);
-    await expect(page.locator(panel).first()).toHaveCSS("opacity", "1");
+    await expect
+      .poll(
+        () =>
+          page
+            .locator(panel)
+            .first()
+            .evaluate((element) => {
+              const container = element.closest("[role='menu'], [role='listbox'], [role='dialog'], .el-popper") || element;
+              return getComputedStyle(container).opacity;
+            }),
+        { message: `${panel} must have finished fading in`, timeout: resolveTimeout(10_000) },
+      )
+      .toBe("1");
   };
 }
 
@@ -163,7 +182,16 @@ async function assertLockup(page) {
   const lockup = await apiGetOnion(page.request, logo.url);
   expect(lockup.ok(), "the lockup must be served").toBe(true);
   const titleSize = (Number(/font-size="(\d+)"/.exec(await lockup.text())[1]) * logo.painted.height) / logo.natural.height;
-  const entrySize = await page.locator(MENU_ITEM).first().evaluate((entry) => parseFloat(getComputedStyle(entry).fontSize));
+  const entrySize = await page
+    .locator(MENU_ITEM)
+    .first()
+    .evaluate((entry) => {
+      const walker = document.createTreeWalker(entry, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        if (walker.currentNode.textContent.trim()) return parseFloat(getComputedStyle(walker.currentNode.parentElement).fontSize);
+      }
+      return parseFloat(getComputedStyle(entry).fontSize);
+    });
   expect(titleSize, "the title of the lockup must not be smaller than the sidebar entries").toBeGreaterThanOrEqual(entrySize);
 }
 
@@ -274,6 +302,7 @@ async function seedShowcase(page) {
   if ((await executed()).data.results.length === 0) {
     const run = await rest(page, "POST", `/rest/workflows/${workflow.id}/run`, {
       workflowData: { ...showcaseWorkflow(), id: workflow.id },
+      triggerToStartFrom: { name: "Start" },
     });
     expect(run.status, "running the showcase workflow once").toBeLessThan(300);
     await expect
@@ -316,25 +345,29 @@ function signInViews(base) {
 
 /**
  * Args:
- *   views: gallery views of the signed-in interface. n8n keeps the collapse state of the main sidebar across pages, so each view first brings a wide viewport into the state it names: collapsed for a view marked `collapsed`, expanded otherwise. Below the width n8n collapses the sidebar by itself the state stays as it is.
+ *   views: gallery views of the signed-in interface. n8n keeps the collapse state of the main sidebar across pages, so each view first brings the sidebar into the state it names: collapsed for a view marked `collapsed` and on a narrow viewport, expanded otherwise. A view marked `modal` opens a dialog with its document that covers the sidebar toggle and keeps the state it finds.
  *
  * Returns:
  *   The views with that step in front of their own preparation.
  */
 function withSidebarState(views) {
-  return views.map(({ collapsed = false, ...view }) => ({
-    ...view,
-    prepare: async (page) => {
-      await shown(`${SIDEBAR} ${LOGO}, ${SETTINGS_BACK}`)(page);
-      const wide = page.viewportSize().width >= AUTO_COLLAPSE_BELOW;
-      if (wide && (await page.locator(COLLAPSED_LOGO).isVisible()) !== collapsed) {
-        await page.locator(COLLAPSE).click();
-        await expect(page.locator(COLLAPSED_LOGO)).toHaveCount(collapsed ? 1 : 0);
-        await animationsSettled(page);
-      }
-      await view.prepare(page);
-    },
-  }));
+  return views.map(({ collapsed = false, modal = false, ...view }) =>
+    modal
+      ? view
+      : {
+          ...view,
+          prepare: async (page) => {
+            await shown(`${SIDE_MENU}, ${SETTINGS_BACK}`)(page);
+            const wanted = collapsed || page.viewportSize().width < COLLAPSED_BELOW;
+            if ((await page.locator(SIDE_MENU).count()) > 0 && (await page.locator(COLLAPSED).count()) > 0 !== wanted) {
+              await page.locator(COLLAPSE).click();
+              await expect(page.locator(COLLAPSED)).toHaveCount(wanted ? 1 : 0);
+              await animationsSettled(page);
+            }
+            await view.prepare(page);
+          },
+        },
+  );
 }
 
 function signedInViews(base, { workflowId, credentialId }) {
@@ -349,23 +382,7 @@ function signedInViews(base, { workflowId, credentialId }) {
       `${WORKFLOW_CARD} [data-test-id='workflow-card-actions']`,
       "[data-test-id='action-open']:visible",
     ),
-    open(
-      "add-menu",
-      "/home/workflows",
-      "[data-test-id='universal-add']",
-      "[data-test-id='navigation-menu-item']:visible",
-    ),
-    {
-      name: "user-menu",
-      url: `${base}/home/workflows`,
-      prepare: async (page) => {
-        await shown(WORKFLOW_CARD)(page);
-        const expanded = page.locator("[data-test-id='user-menu']");
-        const collapsed = page.locator("[data-test-id='main-sidebar-user-menu'] .n8n-avatar");
-        await ((await expanded.isVisible()) ? expanded : collapsed).click();
-        await shown(".el-dropdown-menu:visible")(page);
-      },
-    },
+    open("add-menu", "/home/workflows", ADD, "[data-test-id='navigation-menu-item']:visible"),
     {
       name: "navigation",
       url: `${base}/home/workflows`,
@@ -377,11 +394,12 @@ function signedInViews(base, { workflowId, credentialId }) {
     },
     { name: "navigation-collapsed", url: `${base}/home/workflows`, collapsed: true, prepare: shown(WORKFLOW_CARD) },
     view("credentials", "/home/credentials", CREDENTIAL_ROW),
-    view("credential-new", "/home/credentials/create", DIALOG),
-    view("credential-edit", `/home/credentials/${credentialId}`, DIALOG),
+    { ...view("credential-new", "/home/credentials/create", DIALOG), modal: true },
+    { ...view("credential-edit", `/home/credentials/${credentialId}`, DIALOG), modal: true },
     {
       name: "credential-delete",
       url: `${base}/home/credentials/${credentialId}`,
+      modal: true,
       prepare: opened("[data-test-id='credential-delete-button']", CONFIRM),
     },
     view("executions", "/home/executions", EXECUTION_ROW),
@@ -460,7 +478,19 @@ exports.register = function (shared) {
       await assertToken(page, SIGN_IN_FORM, "background-color", "--design-surface-2", `sign-in ${mode}`);
       await assertToken(page, SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
       await assertToken(page, SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
-      await assertToken(page, PASSWORD, "border-top-color", "--design-border-strong", `sign-in ${mode}`);
+      await assertToken(page, FIELD, "background-color", "--design-surface-1", `sign-in field ${mode}`);
+      await page.locator(`${SIGN_IN_FORM} input`).first().focus();
+      for (const [field, token] of [
+        [RESTING_FIELD, "--design-border"],
+        [FOCUSED_FIELD, "--design-link"],
+      ]) {
+        const color = await tokenValue(page, token, "color");
+        await expect
+          .poll(() => page.locator(field).first().evaluate((element) => getComputedStyle(element).boxShadow), {
+            message: `sign-in ${mode}: the outline of ${field} must be drawn in ${token}`,
+          })
+          .toContain(color);
+      }
       await page.locator(SUBMIT).hover();
       await assertToken(page, SUBMIT, "background-color", "--design-primary-hover", `hovered sign-in ${mode}`);
     }
@@ -478,13 +508,13 @@ exports.register = function (shared) {
       await gotoOnion(page, `${base}/home/workflows`);
       await shown(WORKFLOW_CARD)(page);
       await assertToken(page, "body", "background-color", "--design-surface-1", `shell ${mode}`);
-      await assertToken(page, `${SIDEBAR} > div`, "background-color", "--design-surface-2", `shell ${mode}`);
+      await assertToken(page, SIDE_MENU, "background-color", "--design-surface-2", `shell ${mode}`);
       await assertToken(page, WORKFLOW_CARD, "background-color", "--design-surface-2", `shell ${mode}`);
       await assertToken(page, WORKFLOW_NAME, "color", "--design-text", `shell ${mode}`);
-      await assertToken(page, AVATAR_DISC, "fill", "--design-frame", `avatar ${mode}`);
-      await assertToken(page, ".n8n-avatar span", "color", "--design-on-frame", `avatar ${mode}`);
       await assertToken(page, CREATE_WORKFLOW, "background-color", "--design-primary", `shell ${mode}`);
       await assertToken(page, CREATE_WORKFLOW, "color", "--design-on-primary", `shell ${mode}`);
+      await assertToken(page, PREVIEW_BADGE, "background-color", "--design-info-subtle", `badge ${mode}`);
+      await assertToken(page, PREVIEW_BADGE, "color", "--design-info", `badge ${mode}`);
       await page.locator(CREATE_WORKFLOW).hover();
       await assertToken(page, CREATE_WORKFLOW, "background-color", "--design-primary-hover", `hovered action ${mode}`);
     }
@@ -498,8 +528,22 @@ exports.register = function (shared) {
 
     await gotoOnion(page, `${base}/home/executions`);
     await shown(EXECUTION_ROW)(page);
-    await assertToken(page, ROW_CHECKBOX, "border-top-color", "--design-border-strong", "list checkbox");
-    await assertReadable(page, [`${EXECUTION_ROW} td`, "[data-test-id='execution-status']"], "n8n executions");
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, ROW_CHECKBOX, "border-top-color", "--design-border-strong", `list checkbox ${mode}`);
+      await assertToken(page, ROW_DIVIDER, "border-bottom-color", "--design-border", `list divider ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertReadable(page, [ROW_DIVIDER, "[data-test-id='execution-status']"], "n8n executions");
+
+    await gotoOnion(page, `${base}/settings/users`);
+    await shown(AVATAR_DISC)(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, AVATAR_DISC, "fill", "--design-frame", `avatar ${mode}`);
+      await assertToken(page, AVATAR_INITIALS, "color", "--design-on-frame", `avatar ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
   });
 
   test("design: a theme picked in the personal settings is respected and mirrored", async ({ page }) => {
@@ -512,6 +556,11 @@ exports.register = function (shared) {
     const surface = () => tokenValue(page, "--design-surface-1", "background-color");
     const lightSurface = await surface();
     await expect(html, "the palette follows the browser preference").not.toHaveAttribute("data-design-theme");
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, THEME_FIELD, "background-color", "--design-surface-1", `theme select ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: "light" });
 
     await pickTheme(page, "Dark");
     await expect(page.locator("body")).toHaveAttribute("data-theme", "dark");
@@ -542,18 +591,21 @@ exports.register = function (shared) {
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
 
     await signIn(page);
-    await seedShowcase(page);
     await gotoOnion(page, `${base}/home/workflows`);
     await shown(WORKFLOW_CARD)(page);
     if (title) await assertTitled(page, "a signed-in page");
     if (logoUrl) {
+      if ((await page.locator(COLLAPSED).count()) > 0) await page.locator(COLLAPSE).click();
+      await expect(page.locator(COLLAPSED)).toHaveCount(0);
       await expect(page.locator(`${LOGO} > svg`).first()).toHaveCSS("visibility", "hidden");
       if (lockupUrl) await assertLockup(page);
       await page.locator(COLLAPSE).click();
-      await expect(page.locator(COLLAPSED_LOGO)).toHaveCSS("background-image", `url("${logoUrl}")`);
-      await expect(page.locator(COLLAPSED_LOGO)).toHaveCSS("background-position", "50% 50%");
+      await expect(page.locator(COLLAPSED)).toHaveCount(1);
+      await expect(page.locator(`${SIDEBAR} ${LOGO}`), "the collapsed sidebar renders no logo").toHaveCount(0);
+      await page.locator(COLLAPSE).click();
+      await expect(page.locator(COLLAPSED)).toHaveCount(0);
       await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);
-      for (const url of [logoUrl, faviconUrl]) {
+      for (const url of [logoUrl, lockupUrl || logoUrl, faviconUrl]) {
         expect(
           await page.evaluate(
             (src) =>
@@ -611,9 +663,14 @@ exports.register = function (shared) {
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
     test.setTimeout(resolveTimeout(2_400_000));
 
-    if (!shared.env.oidcEnabled) await captureDesignGallery(page, signInViews(base));
-
+    const failures = [];
+    if (!shared.env.oidcEnabled) {
+      await captureDesignGallery(page, signInViews(base)).catch((error) => failures.push(error.message));
+    }
     await signIn(page);
-    await captureDesignGallery(page, withSidebarState(signedInViews(base, await seedShowcase(page))));
+    await captureDesignGallery(page, withSidebarState(signedInViews(base, await seedShowcase(page)))).catch((error) =>
+      failures.push(error.message),
+    );
+    expect(failures, failures.join("\n")).toEqual([]);
   });
 };
