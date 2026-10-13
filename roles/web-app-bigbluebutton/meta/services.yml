@@ -271,7 +271,7 @@ bbb-webrtc-recorder:
 # nocheck: dynamic-flag: fixed upstream-compose helper, not group-gated
 dockerize:
   image: ghcr.io/jwilder/dockerize
-  version: "v0.15.1"
+  version: "v0.15.2"
   enabled: false
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer

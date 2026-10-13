@@ -3,8 +3,6 @@
   when: run_once_svc_db_elasticsearch is not defined
   vars:
     application_id: svc-db-elasticsearch
-  environment:
-    ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"
 
 - include_tasks: utils/load/handlers.yml
   vars:
@@ -13,5 +11,3 @@
 - name: "🎬 Initialize dedicated index namespace"
   include_tasks: 01_init.yml
   when: database_init | bool
-  environment:
-    ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"

@@ -66,9 +66,7 @@ class TestCells(unittest.TestCase):
     def test_a_priority_row_the_budget_missed_keeps_its_star(self) -> None:
         rows = plan.cells(_ENTRIES, [_REGULAR])
         status = plan._COLUMNS.index("triggered")
-        self.assertEqual(
-            rows[0][status], to_emoji("priority") + to_emoji("disabled")
-        )
+        self.assertEqual(rows[0][status], to_emoji("priority") + to_emoji("disabled"))
         self.assertEqual(rows[0][plan._COLUMNS.index("chunk")], "")
 
     def test_a_clone_is_named_in_its_own_column(self) -> None:

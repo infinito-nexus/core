@@ -153,19 +153,21 @@ def _existing_issue(repo: str, role: str) -> int | None:
     return None
 
 
-def report(run_id: str, repo: str) -> int:
-    jobs = json.loads(
-        _gh(
-            [
-                "api",
-                "--paginate",
-                f"repos/{repo}/actions/runs/{run_id}/jobs",
-                "--jq",
-                "[.jobs[] | {name, conclusion}]",
-            ]
-        )
-        or "[]"
+def list_jobs(run_id: str, repo: str) -> list[dict]:
+    out = _gh(
+        [
+            "api",
+            "--paginate",
+            f"repos/{repo}/actions/runs/{run_id}/jobs",
+            "--jq",
+            ".jobs[] | {name, conclusion}",
+        ]
     )
+    return [json.loads(line) for line in out.splitlines() if line.strip()]
+
+
+def report(run_id: str, repo: str) -> int:
+    jobs = list_jobs(run_id, repo)
     roles = failed_roles(jobs)
     if not roles:
         print("No failed deploy roles.")

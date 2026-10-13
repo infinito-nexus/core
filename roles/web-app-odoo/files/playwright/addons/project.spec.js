@@ -3,6 +3,8 @@ const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
+test.use(shared.onionOptions);
+
 test("addon project: project module UI renders", async ({ browser }) => {
   skipUnlessAddonEnabled("project");
 

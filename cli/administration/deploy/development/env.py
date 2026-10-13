@@ -37,6 +37,13 @@ def compose_file_args() -> list[str]:
         )
     ):
         out += ["-f", "compose/tools.override.yml"]
+
+    if profile.image_mirror_enabled():
+        from utils.cache.files import PROJECT_ROOT
+
+        from .runner_mirror import write_override
+
+        out += ["-f", write_override(PROJECT_ROOT, out[1::2])]
     return out
 
 

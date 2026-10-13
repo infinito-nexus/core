@@ -1,10 +1,29 @@
 ---
+framework:
+  session:
+    storage_factory_id: infinito.session.storage.factory.php_handler
+    handler_id: infinito.session.handler.php_handler
+
 services:
-  infinito.session.handler.php_ini:
+  infinito.session.handler.php_native:
     class: SessionHandler
 
-  session.handler.legacy_bridge:
+  infinito.session.metadata_bag:
+    class: Symfony\Component\HttpFoundation\Session\Storage\MetadataBag
+    arguments:
+      - "%session.metadata.storage_key%"
+      - "%session.metadata.update_threshold%"
+
+  infinito.session.handler.php_handler:
     class: App\Security\Session\LegacyBridgeSessionHandler
     arguments:
-      - "@infinito.session.handler.php_ini"
+      - "@infinito.session.handler.php_native"
       - "@App\\Engine\\LegacyHandler\\DefaultLegacyHandler"
+
+  infinito.session.storage.factory.php_handler:
+    class: App\Security\Session\LegacyBridgeSessionStorageFactory
+    arguments:
+      - "@App\\Engine\\LegacyHandler\\DefaultLegacyHandler"
+      - "@infinito.session.handler.php_handler"
+      - "@infinito.session.metadata_bag"
+      - "false"

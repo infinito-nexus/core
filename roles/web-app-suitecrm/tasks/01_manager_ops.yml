@@ -22,6 +22,14 @@
   notify:
     - compose-up
 
+- name: "📄 Deploy SuiteCRM session handler wiring"
+  stack_host_copy:
+    src: "session.yaml"
+    dest: "{{ SUITECRM_SESSION_CONFIG_HOST }}"
+    mode: "0444"
+  notify:
+    - compose-up
+
 - name: "🚀 Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:
     src: "{{ SUITECRM_ENTRYPOINT_SCRIPT_SRC }}"

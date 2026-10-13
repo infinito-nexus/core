@@ -3,11 +3,13 @@ const { resolveTimeout } = require("./timeouts");
 
 const { awaitOnionHandoff, decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
+const { onionOptions } = require("./_shared");
 
 require("./test-seaweedfs");
 
 test.use({
-  ignoreHTTPSErrors: true
+  ignoreHTTPSErrors: true,
+  ...onionOptions
 });
 
 const oidcEnabled = isServiceEnabled("sso");

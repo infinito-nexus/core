@@ -179,9 +179,7 @@ class TestContainerExecEnvPassesNoValue(unittest.TestCase):
                     )
                     if is_suppressed_at(lines, line_no, _RULE, mode="same-or-above"):
                         continue
-                    findings.append(
-                        (rel, line_no, f"argv {name}={value.strip()[:52]}")
-                    )
+                    findings.append((rel, line_no, f"argv {name}={value.strip()[:52]}"))
 
         if findings:
             formatted = "\n".join(

@@ -10,6 +10,10 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || ""),
 };
 
+const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)
+  ? { channel: "chromium", serviceWorkers: "block" }
+  : {};
+
 function baseUrl() {
   return env.odooBaseUrl.replace(/\/$/, "");
 }
@@ -152,6 +156,7 @@ async function openModule(page, modulePath) {
 
 module.exports = {
   env,
+  onionOptions,
   baseUrl,
   clickOdooSsoButton,
   loginToOdoo,

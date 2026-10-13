@@ -3,6 +3,8 @@ const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
+test.use(shared.onionOptions);
+
 test("addon stock: Inventory module is installed and serves its warehouse operations action", async ({ browser }) => {
   skipUnlessAddonEnabled("stock");
 

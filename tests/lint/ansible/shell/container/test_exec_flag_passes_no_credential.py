@@ -111,7 +111,7 @@ class TestContainerFlagPassesNoCredential(unittest.TestCase):
                 "of every argv; `curl -K -` is the form "
                 "roles/web-app-stalwart/tasks/jmap_call.yml already uses;\n"
                 "  - forward it as `-e NAME` with the value in the task's "
-                "`environment:`, and reference `\"$NAME\"` inside an `sh -lc` "
+                '`environment:`, and reference `"$NAME"` inside an `sh -lc` '
                 "wrapper so the container's shell expands it, not the host's;\n"
                 "  - add `# nocheck: container-flag-credential -- <reason>` where "
                 "the value provably carries no secret.\n\n"

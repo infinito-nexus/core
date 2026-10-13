@@ -99,9 +99,13 @@ class TestComposeUpRetries(unittest.TestCase):
         },
         clear=False,
     )
+    @patch(
+        "cli.administration.deploy.development.runner_mirror.write_override",
+        return_value="build/compose/runner-mirror.override.yml",
+    )
     @patch("subprocess.run", autospec=True)
     def test_run_skips_cache_override_on_github_runner(
-        self, run_mock: MagicMock
+        self, run_mock: MagicMock, _write_override: MagicMock
     ) -> None:
         compose = self._compose()
 
@@ -129,6 +133,8 @@ class TestComposeUpRetries(unittest.TestCase):
                 "compose.yml",
                 "-f",
                 "compose/tools.override.yml",
+                "-f",
+                "build/compose/runner-mirror.override.yml",
                 "ps",
                 "-q",
                 "infinito",

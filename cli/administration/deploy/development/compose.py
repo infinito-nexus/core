@@ -15,8 +15,11 @@ from .env import compose_file_args
 from .network import detect_outer_network_mtu
 from .proc import run_streaming
 from .profile import Profile
+from .runner_mirror import env_image
 
 CACHE_ROLE_SHELL_DIR = CACHE_ROLE_DIR / "files" / "shell"
+
+INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
 
 
 class Compose:
@@ -132,6 +135,11 @@ class Compose:
     def _generate_package_frontend_certs(self, env: dict[str, str]) -> None:
         """Generate frontend CA + leaf certs before nginx starts."""
         helper = CACHE_ROLE_SHELL_DIR / "certs.sh"
+        if self.profile.image_mirror_enabled():
+            env = {
+                **env,
+                INIT_IMAGE_KEY: env_image(self.repo_root, INIT_IMAGE_KEY),
+            }
         print(">>> Generating package-cache-frontend CA + per-hostname certs")
         subprocess.run(
             [str(helper)],
