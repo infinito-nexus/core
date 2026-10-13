@@ -59,11 +59,17 @@ sso:
     acl:
       blacklist:
         - "{{ lookup('config', 'web-app-yourls', 'server.locations.admin') }}"
-# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    favicon:
+      width: 64
+      height: 64
+    logo:
+      width: 300
+      height: 80
 # nocheck: email
 # nocheck: dynamic-flag
 email:

@@ -3,13 +3,14 @@
 application_id: "web-app-yourls"
 entity_name: "{{ application_id | get_entity_name }}"
 
-YOURLS_USER: "{{ lookup('config', application_id, 'users.administrator.username') }}"
-YOURLS_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+YOURLS_USER: "{{ lookup('users', 'platform_administrator').username }}"
+YOURLS_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 YOURLS_COOKIE_KEY: "{{ lookup('config', application_id, 'secrets.credentials.cookie_key') }}"
 YOURLS_VERSION: "{{ lookup('config', application_id, 'services.yourls.version') }}"
 YOURLS_IMAGE: "{{ lookup('config', application_id, 'services.yourls.image') }}"
 YOURLS_CONTAINER: "{{ lookup('config', application_id, 'services.yourls.name') }}"
 YOURLS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+YOURLS_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 YOURLS_ADMIN_LOCATION: "{{ lookup('config', application_id, 'server.locations.admin') }}"
 YOURLS_LANDINGPAGE_STATUS_CODE: "{{ lookup('config', application_id, 'server.status_codes.default') }}"
 
