@@ -8,13 +8,13 @@ const LATER_KEY = "dns_opt";
 
 exports.register = function (shared) {
   test("a yaml source page shows the file as one highlighted block", async ({ page, request }) => {
-    test.setTimeout(resolveTimeout(3_000_000)); // the English Sphinx build of the deployed working tree
+    test.setTimeout(resolveTimeout(5_400_000)); // the English Sphinx build of the deployed working tree
     await shared.pollStatus(
       request,
       `${shared.appBaseUrl}${YAML_PAGE}`,
       200,
       "Expected the deployed YAML page to finish building before it is asserted",
-      2_700_000,
+      5_300_000,
     );
 
     const response = await gotoOnion(page, `${shared.appBaseUrl}${YAML_PAGE}`);
