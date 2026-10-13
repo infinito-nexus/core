@@ -109,7 +109,7 @@ docker run --rm -it \
       --diff -vv'
 ```
 
-## Other Resources
+## Further Resources
 
 * [Official Pixelfed website](https://pixelfed.org/)
 * [Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)

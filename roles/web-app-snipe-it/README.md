@@ -143,7 +143,7 @@ docker run --rm -it \
       --diff -vv'
 ```
 
-## Other Resources
+## Further Resources
 
 - [Snipe‑IT Official Documentation](https://snipe-it.readme.io/)
 - [Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)

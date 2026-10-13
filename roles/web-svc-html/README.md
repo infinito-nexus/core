@@ -97,7 +97,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
   --diff -vv
 ```
 
-## Learn More
+## Further Resources
 
 - [NGINX Official Website](https://NGINX.org/)
 - [Let's Encrypt](https://letsencrypt.org/)

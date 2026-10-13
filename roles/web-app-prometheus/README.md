@@ -139,7 +139,7 @@ docker run --rm -it \
       --diff -vv'
 ```
 
-## Further resources
+## Further Resources
 
 - [Prometheus Documentation](https://prometheus.io/docs/)
 - [prom/prometheus Docker image](https://hub.docker.com/r/prom/prometheus)

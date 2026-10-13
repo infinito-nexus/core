@@ -128,7 +128,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 | `services.postgres.shared` | `true` | Use the shared PostgreSQL service |
 | `domains.canonical` | `decidim.{{ DOMAIN_PRIMARY }}` | Public domain |
 
-## References
+## Further Resources
 
 - [Decidim documentation](https://docs.decidim.org/)
 - [Decidim Docker image](https://ghcr.io/decidim/decidim)

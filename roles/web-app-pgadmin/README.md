@@ -111,7 +111,7 @@ docker run --rm -it \
       --diff -vv'
 ```
 
-## Other Resources
+## Further Resources
 
 - [pgAdmin Official Homepage](https://www.pgadmin.org/)
 - [pgAdmin Documentation](https://www.pgadmin.org/docs/)
