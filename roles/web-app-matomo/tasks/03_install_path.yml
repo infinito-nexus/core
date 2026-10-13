@@ -78,4 +78,4 @@
   when: matomo_token_value is defined
 
 - name: "🎨 Apply the corporate design of {{ application_id }}"
-  include_tasks: 10_design.yml
+  include_tasks: 09_design.yml
