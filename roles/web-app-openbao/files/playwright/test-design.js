@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -49,6 +49,8 @@ const EDITOR = ".CodeMirror";
 const CODE = `${EDITOR} .CodeMirror-code`;
 const SECRET_ROW = ".info-table-row:visible";
 const NAMESPACE = `${SIDEBAR} .namespace-picker`;
+const INTERNAL_ENGINES = "[data-test-toggle-input='show-internal-engines']";
+const INTERNAL_ENGINES_LABEL = "[data-test-toggle-label='show-internal-engines']";
 const SHOWCASE_FOLDER = "design-showcase";
 const SHOWCASE = {
   [`${SHOWCASE_FOLDER}/database`]: { username: "showcase", password: "dummy-value", host: "db.example.invalid" },
@@ -113,9 +115,38 @@ async function luminanceOf(page, selector) {
     });
 }
 
+/**
+ * Args:
+ *   page: Playwright page that shows the element.
+ *   selector: element whose pseudo-element is measured.
+ *   pseudo: pseudo-element of the first match, e.g. `::before`.
+ *   property: computed property of that pseudo-element.
+ *   token: `--design-*` token the first color of that property must equal.
+ *   label: state the failure message names.
+ */
+async function assertPseudoToken(page, selector, pseudo, property, token, label) {
+  const expected = await tokenValue(page, token, "color");
+  await expect
+    .poll(
+      () =>
+        page
+          .locator(selector)
+          .first()
+          .evaluate(
+            (element, [name, cssProperty]) =>
+              (getComputedStyle(element, name)
+                .getPropertyValue(cssProperty)
+                .match(/rgba?\([^)]*\)/) || [""])[0],
+            [pseudo, property],
+          ),
+      { message: `${label}: ${selector}${pseudo} ${property} must be drawn in ${token}` },
+    )
+    .toBe(expected);
+}
+
 function shown(selector) {
   return async (page) => {
-    await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
+    await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
     await page.waitForLoadState("networkidle");
     await animationsSettled(page);
   };
@@ -138,10 +169,11 @@ async function openSignIn(page, method) {
 async function signIn(page) {
   await openSignIn(page, passwordMount);
   const form = page.locator(SIGN_IN_FORM);
+  await expect(form.locator("#password")).toBeEditable({ timeout: resolveTimeout(10_000) });
   await form.locator("#username").fill(adminUsername);
   await form.locator("#password").fill(adminPassword);
   await form.locator(SUBMIT).click();
-  await expect(page.locator(HOME_LINK)).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(page.locator(HOME_LINK)).toBeVisible({ timeout: resolveTimeout(10_000) });
   await expect(page).toHaveURL(/\/ui\/vault\/secrets/);
 }
 
@@ -326,6 +358,17 @@ function signedInViews() {
   const secrets = `${base}/ui/vault/secrets`;
   return [
     view("secrets-engines", "secrets", ROW),
+    {
+      name: "secrets-engines-internal",
+      url: secrets,
+      prepare: async (page) => {
+        await shown(ROW)(page);
+        await page.locator(INTERNAL_ENGINES_LABEL).click();
+        await expect(page.locator(INTERNAL_ENGINES)).toBeChecked();
+        await page.locator(INTERNAL_ENGINES).blur();
+        await animationsSettled(page);
+      },
+    },
     view("secrets-engine-enable", "settings/mount-secret-backend", HEADING),
     view("kv-list", `secrets/${kvMount}/list`, ROW),
     view("kv-folder", `secrets/${kvMount}/list/${SHOWCASE_FOLDER}/`, ROW),
@@ -479,6 +522,37 @@ test("design: the signed-in interface takes frame, surfaces, primary action and 
   );
 });
 
+test("design: the internal engines toggle takes track, knob, checked state and focus ring from the palette", async ({
+  page,
+}) => {
+  skipUnlessServiceEnabled("design");
+  test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
+  await signIn(page);
+  for (const mode of MODES) {
+    const state = `internal engines toggle ${mode}`;
+    await page.emulateMedia({ colorScheme: mode });
+    await gotoOnion(page, `${base}/ui/vault/secrets`);
+    await shown(ROW)(page);
+    await expect(page.locator(INTERNAL_ENGINES)).not.toBeChecked();
+    await assertPseudoToken(page, INTERNAL_ENGINES_LABEL, "::before", "background-color", "--design-border-strong", state);
+    await assertPseudoToken(page, INTERNAL_ENGINES_LABEL, "::after", "background-color", "--design-surface-2", state);
+    await page.locator(INTERNAL_ENGINES).focus();
+    await assertPseudoToken(page, INTERNAL_ENGINES_LABEL, "::before", "box-shadow", "--design-link", `focused ${state}`);
+    await page.locator(INTERNAL_ENGINES_LABEL).click();
+    await expect(page.locator(INTERNAL_ENGINES)).toBeChecked();
+    await assertPseudoToken(
+      page,
+      INTERNAL_ENGINES_LABEL,
+      "::before",
+      "background-color",
+      "--design-primary",
+      `checked ${state}`,
+    );
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertReadable(page, [`${INTERNAL_ENGINES_LABEL} .has-text-grey`], "openbao internal engines toggle");
+});
+
 test("design: the browser console and the code editor keep surface and text from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
@@ -488,6 +562,15 @@ test("design: the browser console and the code editor keep surface and text from
     await gotoOnion(page, `${base}/ui/vault/policy/acl/administrator`);
     await shown(EDITOR)(page);
     await assertToken(page, EDITOR, "background-color", "--design-surface-3", `code editor ${mode}`);
+    await page.locator(`${CODE} .CodeMirror-line`).first().click();
+    await page.keyboard.press("ControlOrMeta+a");
+    await assertToken(
+      page,
+      `${EDITOR}.CodeMirror-focused .CodeMirror-selected`,
+      "background-color",
+      "--design-surface-active",
+      `selected code ${mode}`,
+    );
     await page.locator(CONSOLE_TOGGLE).click();
     await shown(CONSOLE)(page);
     await assertToken(page, CONSOLE, "background-color", "--design-surface-3", `console ${mode}`);
@@ -530,7 +613,10 @@ test("design: the sign-in page shows the generated logo and the configured title
   }
 });
 
-test("design: the sidebar shows the generated logo and signed-in pages keep the configured title", async ({ page }) => {
+test("design: the sidebar shows the generated logo and signed-in pages keep the configured title", async ({
+  page,
+  request,
+}) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
   test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
@@ -543,6 +629,12 @@ test("design: the sidebar shows the generated logo and signed-in pages keep the 
     await expect(page.locator(HOME_LINK)).toHaveCSS("background-image", `url("${logoUrl}")`);
     await expect(page.locator(`${HOME_LINK} .hs-icon`)).toHaveCSS("visibility", "hidden");
     await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);
+    const logo = await apiGetOnion(request, logoUrl, { timeout: resolveTimeout(30_000) });
+    expect(logo.ok(), `the logo ${logoUrl} must be served`).toBe(true);
+    expect(
+      await logo.text(),
+      "the one logo slot serves the frame-colored side nav and the light sign-in page, so its lockup must carry no text that would need the frame text color",
+    ).not.toMatch(/<text\b/);
   }
 });
 
@@ -553,9 +645,10 @@ test("design: gallery of sign-in, secrets, access, policies, tools and menus", a
   test.setTimeout(resolveTimeout(2_400_000));
 
   await openSignIn(page, "token");
-  await captureDesignGallery(page, signInViews());
+  const signedOutFailure = await captureDesignGallery(page, signInViews()).catch((error) => error);
 
   await seedShowcase(request);
   await signIn(page);
   await captureDesignGallery(page, signedInViews());
+  if (signedOutFailure) throw signedOutFailure;
 });
