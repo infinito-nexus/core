@@ -47,6 +47,7 @@ import yaml
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -168,9 +169,12 @@ def _argv_restart_lines(node: yaml.Node, lines: list[int]) -> None:
         words = [
             item.value for item in value.value if isinstance(item, yaml.ScalarNode)
         ]
-        if len(words) >= 2 and words[0] in {"container", "docker"}:
-            if words[1] == "restart":
-                lines.append(key.start_mark.line + 1)
+        if (
+            len(words) >= 2
+            and words[0] in {"container", "docker"}
+            and words[1] == "restart"
+        ):
+            lines.append(key.start_mark.line + 1)
 
 
 def _include_is_compose_only(tasks: list, target: str) -> bool:
@@ -210,11 +214,12 @@ def _caller_gates_file(path: Path) -> bool:
     role = next((p for p in path.parents if p.parent.name == "roles"), None)
     if role is None:
         return False
-    for other in (role / "tasks").rglob("*.yml"):
-        if other == path:
+    prefix = f"{role / 'tasks'}/"
+    for other in iter_project_files(extensions=(".yml",)):
+        if other == str(path) or not other.startswith(prefix):
             continue
         try:
-            tasks = yaml.safe_load(read_text(str(other)))
+            tasks = load_yaml_any(other)
         except yaml.YAMLError:
             continue
         if isinstance(tasks, list) and _include_is_compose_only(tasks, path.name):
