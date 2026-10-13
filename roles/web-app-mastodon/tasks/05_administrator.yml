@@ -10,11 +10,14 @@
   register: mastodon_unblock
   changed_when: "'Unblocked 0 ' not in mastodon_unblock.stdout"
 - name: 📁 Create admin account via tootctl
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c
-    "bin/tootctl accounts create {{ lookup('users', 'administrator').username }}
-    --email {{ lookup('users', 'administrator').email }}
-    --confirmed --role Owner"
+  ansible.builtin.shell: |
+    set -o pipefail
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c \
+      "bin/tootctl accounts create {{ lookup('users', 'administrator').username }} --email {{ lookup('users', 'administrator').email }} --confirmed --role Owner" 2>&1 \
+      | sed -e '/^New password:/d'
+  args:
+    executable: /bin/bash
   register: tootctl_create
   changed_when: tootctl_create.rc == 0
   failed_when: false
@@ -22,10 +25,35 @@
 - name: 🛑 Refuse a tootctl error other than the account already existing
   ansible.builtin.assert:
     that:
-      - tootctl_create.rc == 0 or 'taken' in tootctl_create.stdout | lower or 'taken' in tootctl_create.stderr | lower
+      - tootctl_create.rc == 0 or 'taken' in tootctl_create.stdout | lower
     fail_msg: >-
       bin/tootctl accounts create exited {{ tootctl_create.rc }} for the administrator
-      account without reporting the name as taken: {{ tootctl_create.stderr }}
+      account without reporting the name as taken: {{ tootctl_create.stdout }}
+- name: 🔑 Converge the administrator password of {{ application_id }}
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "MASTODON_ADMIN_USERNAME={{ lookup('users', 'administrator').username }}"
+      - -e
+      - MASTODON_ADMIN_PASSWORD
+      - "{{ MASTODON_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - bundle
+      - exec
+      - rails
+      - runner
+      - "-"
+    stdin: "{{ lookup('file', 'ruby/admin_password.rb') }}"
+  environment:
+    MASTODON_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+  register: mastodon_admin_password
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: "'PASSWORD_CHANGED' in mastodon_admin_password.stdout"
+  failed_when: >-
+    mastodon_admin_password.rc != 0
+    or ('PASSWORD_CHANGED' not in mastodon_admin_password.stdout and 'PASSWORD_UNCHANGED' not in mastodon_admin_password.stdout)
 - name: 👍 Approve the administrator account in Mastodon
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"

@@ -18,6 +18,7 @@ const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
+const ldapEnabled = process.env.LDAP_SERVICE_ENABLED === "true";
 const brandingUrl = decodeDotenvQuotedValue(process.env.DESIGN_BRANDING_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const iconUrl = decodeDotenvQuotedValue(process.env.DESIGN_ICON_URL || "");
@@ -26,6 +27,7 @@ const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
 const NO_SIGN_IN_PAGE = "with sso on the oic-auth realm sends /login to Keycloak, so Jenkins never renders its own sign-in page";
+const NO_LOCAL_REALM = "with sso or ldap on, casc.yaml selects the oic or ldap realm and holds no local account";
 const USERNAME = "#j_username";
 const PASSWORD = "#j_password";
 const SUBMIT = "button[name='Submit']";
@@ -147,6 +149,23 @@ async function signIn(page) {
     await page.locator(SUBMIT).click();
   }
   await expect(page.locator(HEADER)).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+/**
+ * Args:
+ *   page: signed-in Playwright page on a Jenkins document; the request carries the page's session and crumb.
+ *   script: Groovy source for the script console.
+ */
+async function runGroovy(page, script) {
+  return page.evaluate(async (source) => {
+    const head = document.head.dataset;
+    const response = await fetch("/scriptText", {
+      method: "POST",
+      headers: { [head.crumbHeader]: head.crumbValue, "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ script: source }).toString(),
+    });
+    return { status: response.status, text: (await response.text()).trim() };
+  }, script);
 }
 
 function freestyle(command) {
@@ -368,6 +387,39 @@ test("design: the header and the sign-in page show the generated logo and the co
     await gotoOnion(page, `${base}/login`);
     await shown(USERNAME)(page);
     await expect(page.locator(`${BRANDING} img`)).toHaveCSS("content", `url("${brandingUrl}")`);
+  }
+});
+
+test("administrator: CasC sets the inventory password on the existing local account", async ({ page, browser }) => {
+  test.skip(ssoEnabled || ldapEnabled, NO_LOCAL_REALM);
+  await signIn(page);
+  const scramble = await runGroovy(
+    page,
+    [
+      "def details = hudson.security.HudsonPrivateSecurityRealm.Details",
+      `def user = hudson.model.User.getById(${JSON.stringify(adminUsername)}, false)`,
+      "def saved = user.getProperty(details)",
+      "def scrambled = details.fromPlainPassword(UUID.randomUUID().toString())",
+      "user.addProperty(scrambled)",
+      "try {",
+      "  io.jenkins.plugins.casc.ConfigurationAsCode.get().configure()",
+      "} finally {",
+      "  if (user.getProperty(details).is(scrambled)) {",
+      "    user.addProperty(saved)",
+      "    print('kept')",
+      "  } else {",
+      "    print('reapplied')",
+      "  }",
+      "}",
+    ].join("\n"),
+  );
+  expect(scramble.status, "the script console must accept the administrator").toBe(200);
+  expect(scramble.text, "re-applying casc.yaml must replace a password that differs from the inventory").toBe("reapplied");
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  try {
+    await signIn(await context.newPage());
+  } finally {
+    await context.close();
   }
 });
 
