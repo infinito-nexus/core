@@ -46,9 +46,8 @@ const AVATAR_DISC = ".n8n-avatar svg g > rect";
 const AVATAR_INITIALS = ".n8n-avatar span";
 const CANVAS_NODE = ".vue-flow__node";
 const THEME_SELECT = "[data-test-id='theme-select']";
-const THEME_FIELD = `${THEME_SELECT} .el-input__inner`;
-const SAVE_SETTINGS = "[data-test-id='save-settings-button']";
-const OPTION = ".el-select-dropdown__item:visible";
+const THEME_FIELD = THEME_SELECT;
+const OPTION = "[role='option']:visible";
 const DIALOG = "[role='dialog']:visible";
 const CONFIRM = ".el-message-box__btns .btn--confirm";
 const CANCEL = ".el-message-box__btns .btn--cancel";
@@ -225,11 +224,13 @@ async function rest(page, method, path, payload) {
 
 /**
  * Args:
- *   page: signed-in Playwright page of an owner; the first-run survey n8n lays over the workflow list and the editor gets answered empty when it is still open, the way its only button does, and is left alone when the deployment reports it disabled.
+ *   page: signed-in Playwright page of an owner; the NPS survey drawer is marked as answered, and the first-run survey n8n lays over the workflow list and the editor gets answered empty when it is still open, the way its only button does, and is left alone when the deployment reports it disabled.
  */
 async function skipSurvey(page) {
   const owner = await rest(page, "GET", "/rest/login");
   expect(owner.status, "the session must resolve its user").toBe(200);
+  const nps = await rest(page, "PATCH", "/rest/user-settings/nps-survey", { responded: true, lastShownAt: Date.now() });
+  expect(nps.status, "answering the NPS survey").toBeLessThan(300);
   if (owner.data.personalizationAnswers) return;
   const settings = await rest(page, "GET", "/rest/settings");
   if (settings.data.personalizationSurveyEnabled === false) return;
@@ -460,7 +461,6 @@ exports.register = function (shared) {
   async function pickTheme(page, label) {
     await page.locator(THEME_SELECT).click();
     await page.locator(OPTION, { hasText: label }).click();
-    await page.locator(SAVE_SETTINGS).click();
   }
 
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
