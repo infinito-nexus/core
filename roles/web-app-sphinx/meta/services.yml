@@ -49,6 +49,10 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    sidebar-logo:
+      width: 240
+      height: 64
 # nocheck: email
 # nocheck: dynamic-flag
 email:

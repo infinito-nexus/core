@@ -26,13 +26,6 @@ test("sphinx front page is served under canonical domain with TLS", async ({ pag
 });
 
 test("sphinx returns HTML content under canonical domain", async ({ request }) => {
-  // Initial deploy serves an empty docs root (the docs are populated by a
-  // separate Sphinx-build job, not by the deploy itself), so the front
-  // page resolves to an Index-of listing rather than a Sphinx-rendered
-  // page. Validate only what the deploy MUST guarantee at this stage:
-  // an HTML response under the canonical domain. Theme/chrome assertions
-  // belong in a follow-up suite once a docs-build step is part of the
-  // role contract.
   const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
   expect(response.status(), "Expected sphinx front page status < 400").toBeLessThan(400);
   const contentType = response.headers()["content-type"] || "";
@@ -72,3 +65,5 @@ test("administrator: app → universal logout", async ({ page }) => {
     },
   });
 });
+
+require("./test-design");

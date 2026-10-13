@@ -115,6 +115,8 @@ For more information about Sphinx and its capabilities, please visit the [Sphinx
 
 For detailed Sphinx documentation, see the [Sphinx Documentation](https://www.sphinx-doc.org/en/master/).
 
+The [corporate design review](https://claude.ai/artifact/C5mMe2a7Awo9KiZbRGpMov) shows the documentation site in light, dark, desktop and mobile.
+
 ## Persona contract opt-outs
 
 The role publishes a pre-built static documentation site. [`meta/services.yml`](./meta/services.yml) pins `sso.enabled` and `sso.shared` to `false`, and the role ships no `templates/env.j2`, no `meta/users.yml` and no account provisioning — [`tasks/main.yml`](./tasks/main.yml) only wires the container and proxy stack.
