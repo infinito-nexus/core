@@ -5,13 +5,14 @@
   vars:
     compose_handlers_flush: false
 
-- name: ➕ add config.exs
-  stack_host_template:
-    src: "config.exs.j2"
-    dest: "{{ mobilizon_host_conf_exs_file }}"
-  notify: compose-up
+- name: "🖥️ Configure {{ application_id }} on the stack host"
   when: IS_STACK_HOST | bool
+  block:
+    - name: ➕ add config.exs
+      stack_host_template:
+        src: "config.exs.j2"
+        dest: "{{ mobilizon_host_conf_exs_file }}"
+      notify: compose-up
 
-- name: "🎨 Mobilizon administrator and corporate design"
-  ansible.builtin.include_tasks: 01_design.yml
-  when: IS_STACK_HOST | bool
+    - name: "🎨 Mobilizon administrator and corporate design"
+      ansible.builtin.include_tasks: 01_design.yml
