@@ -1,0 +1,5 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+discovery.type=single-node
+plugins.security.disabled=true
+OPENSEARCH_JAVA_OPTS=-Xms{{ MAGENTO_SEARCH_HEAP_MB }}m -Xmx{{ MAGENTO_SEARCH_HEAP_MB }}m

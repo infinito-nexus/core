@@ -1,0 +1,6 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+discovery.type=single-node
+plugins.security.disabled=true
+bootstrap.memory_lock=true
+OPENSEARCH_JAVA_OPTS=-Xms{{ SHOPWARE_OPENSEARCH_HEAP_MB }}m -Xmx{{ SHOPWARE_OPENSEARCH_HEAP_MB }}m
