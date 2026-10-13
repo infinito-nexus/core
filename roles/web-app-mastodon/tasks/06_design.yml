@@ -1,0 +1,60 @@
+---
+- name: "🔍 Resolve the hosting node + container id of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: mastodon
+    resolve_output_prefix: MASTODON
+    resolve_compose_cid: "{{ MASTODON_CONTAINER_ADDRESS }}"
+
+- name: "🖼️ Render the corporate logo set of {{ application_id }}"
+  when:
+    - MASTODON_DESIGN_ENABLED | bool
+    - lookup('design', application_id).logo is string
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ MASTODON_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the logo slots of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ MASTODON_DESIGN_DIR }}"
+
+    - name: "📥 Read the logo files for the Mastodon branding settings"
+      ansible.builtin.slurp:
+        src: "{{ [MASTODON_DESIGN_DIR, item.value] | path_join }}"
+      loop: "{{ MASTODON_DESIGN_UPLOADS | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      register: mastodon_design_files
+
+- name: "🎨 Converge custom CSS, title and logos of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ MASTODON_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - bundle
+      - exec
+      - rails
+      - runner
+      - "-"
+    stdin: "MASTODON_DESIGN_PAYLOAD = \"{{ mastodon_design_payload | to_json | b64encode }}\"\n{{ lookup('ansible.builtin.file', 'ruby/design.rb') }}"
+  vars:
+    mastodon_design_payload:
+      css: "{{ lookup('ansible.builtin.template', 'custom.css.j2') if MASTODON_DESIGN_ENABLED | bool else '' }}"
+      begin: "{{ MASTODON_CUSTOM_CSS_BEGIN }}"
+      end: "{{ MASTODON_CUSTOM_CSS_END }}"
+      title: "{{ lookup('design', application_id).title if lookup('design', application_id).title is string else '' }}"
+      mark: "{{ MASTODON_DESIGN_UPLOAD_MARK }}"
+      uploads: "{{ dict(mastodon_design_files.results | map(attribute='item.key') | zip(mastodon_design_files.results | map(attribute='content', default=None))) }}"
+  register: mastodon_design
+  changed_when: "'DESIGN_CHANGED' in mastodon_design.stdout"
+  failed_when: >-
+    mastodon_design.rc != 0
+    or ('DESIGN_CHANGED' not in mastodon_design.stdout and 'DESIGN_UNCHANGED' not in mastodon_design.stdout)

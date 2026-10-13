@@ -16,11 +16,26 @@ html[data-design-palette] .emby-collapsible-button {
   border-color: var(--design-border);
   border-color: var(--design-border);
 }
-html[data-design-palette] .skinHeader-withBackground {
-  background-color: var(--design-surface-2);
-}
+html[data-design-palette] .skinHeader-withBackground,
 html[data-design-palette] .skinHeader.semiTransparent {
-  background-color: rgba(var(--design-surface-2-rgb), 0.4);
+  --design-focus: var(--design-on-frame);
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+html[data-design-palette] .skinHeader-withBackground :focus-visible,
+html[data-design-palette] .selectionCommandsPanel :focus-visible {
+  box-shadow: inset 0 0 0 2px var(--design-focus);
+}
+html[data-design-palette] .skinHeader-withBackground .emby-tab-button {
+  color: rgba(var(--design-on-frame-rgb), 0.72);
+}
+html[data-design-palette] .skinHeader-withBackground .emby-tab-button-active,
+html[data-design-palette] .skinHeader-withBackground .emby-tab-button.show-focus:focus,
+html[data-design-palette] .skinHeader-withBackground .emby-tab-button:hover {
+  color: var(--design-on-frame);
+}
+html[data-design-palette] .skinHeader-withBackground .paper-icon-button-light.show-focus:focus {
+  color: var(--design-on-frame);
 }
 html[data-design-palette] .backgroundContainer,
 html[data-design-palette] .dialog,
@@ -37,10 +52,19 @@ html[data-design-palette] .paper-icon-button-light:hover:not(:disabled) {
   background-color: var(--design-surface-hover);
   color: var(--design-link);
 }
+html[data-design-palette] .skinHeader-withBackground .paper-icon-button-light:hover:not(:disabled),
+html[data-design-palette] .skinHeader-withBackground .emby-tab-button:hover {
+  background-color: var(--design-frame-hover);
+  color: var(--design-on-frame);
+}
 }
 html[data-design-palette] .paper-icon-button-light:active:not(:disabled) {
   background-color: var(--design-surface-active);
   color: var(--design-link);
+}
+html[data-design-palette] .skinHeader-withBackground .paper-icon-button-light:active:not(:disabled) {
+  background-color: var(--design-frame-active);
+  color: var(--design-on-frame);
 }
 html[data-design-palette] .paper-icon-button-light.show-focus:focus {
   color: var(--design-link);
@@ -136,6 +160,7 @@ html[data-design-palette] .itemSelectionPanel {
   border-color: var(--design-link);
 }
 html[data-design-palette] .selectionCommandsPanel {
+  --design-focus: var(--design-on-frame);
   background-color: var(--design-frame);
   color: var(--design-on-frame);
 }
@@ -379,18 +404,28 @@ html[data-design-palette] #dialogToc .toc li a:hover {
 html[data-design-palette] * {
   scrollbar-color: var(--design-border-strong) var(--design-surface-2);
 }
-html[data-design-palette] progress,
+html[data-design-palette] progress {
+  background-color: var(--design-surface-3);
+}
 html[data-design-palette] progress::-webkit-progress-bar {
   background-color: var(--design-surface-3);
 }
-html[data-design-palette] progress::-moz-progress-bar,
-html[data-design-palette] progress::-webkit-progress-value,
+html[data-design-palette] progress::-moz-progress-bar {
+  background-color: var(--design-primary);
+}
+html[data-design-palette] progress::-webkit-progress-value {
+  background-color: var(--design-primary);
+}
 html[data-design-palette] progress[aria-valuenow]:before,
 html[data-design-palette] .playbackProgress > div {
   background-color: var(--design-primary);
 }
-html[data-design-palette] .recordingProgressBar::-moz-progress-bar,
-html[data-design-palette] .recordingProgressBar::-webkit-progress-value,
+html[data-design-palette] .recordingProgressBar::-moz-progress-bar {
+  background-color: var(--design-danger);
+}
+html[data-design-palette] .recordingProgressBar::-webkit-progress-value {
+  background-color: var(--design-danger);
+}
 html[data-design-palette] .recordingProgressBar[aria-valuenow]:before {
   background-color: var(--design-danger);
 }

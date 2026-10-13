@@ -46,3 +46,9 @@
         file: 05_administrator.yml
         apply:
           delegate_to: "{{ MASTODON_HOST_NODE }}"
+
+    - name: "🎨 Include the design carriers of '{{ application_id }}'"
+      include_tasks:
+        file: 06_design.yml
+        apply:
+          delegate_to: "{{ MASTODON_HOST_NODE }}"

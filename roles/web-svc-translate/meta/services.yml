@@ -8,6 +8,12 @@ logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: design-off  Reason: translation gateway answering JSON, so there is no HTML surface the shared stylesheet could reach
+design:
+  enabled: false
+  shared: false
 # nocheck: playwright-service-flag — scrape target, covered by web-app-prometheus' own spec
 prometheus:
   bond: 1

@@ -134,3 +134,4 @@ OpenLDAP deploy.
 - [Penpot Official Website](https://penpot.app/)
 - [Penpot Configuration Guide](https://help.penpot.app/technical-guide/configuration/)
 - [Penpot Docker Guide](https://github.com/penpot/penpot/tree/main/docker)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/LCynSv3uxC6VYzimXE4CGx)

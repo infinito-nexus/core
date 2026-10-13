@@ -29,6 +29,10 @@ design:
     brand:
       width: 192
       height: 64
+      frame: true
+    splash:
+      width: 192
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

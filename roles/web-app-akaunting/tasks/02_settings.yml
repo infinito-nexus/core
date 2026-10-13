@@ -1,0 +1,23 @@
+---
+- name: "🔍 Akaunting settings | Resolve the hosting node and container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "akaunting"
+    resolve_output_prefix: AKAUNTING
+    resolve_compose_cid: "{{ AKAUNTING_CONTAINER }}"
+
+- name: "🎨 Akaunting settings | Finish the setup wizard and apply the document color"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  AKAUNTING_LOCAL_CID resolved at delegate_to runtime
+    container exec
+    -e DESIGN_DOCUMENT_COLOR
+    {{ AKAUNTING_LOCAL_CID | quote }}
+    php artisan tinker --execute={{ lookup('file', 'php/settings.php') | quote }}
+  environment:
+    DESIGN_DOCUMENT_COLOR: "{{ AKAUNTING_DOCUMENT_COLOR }}"
+  register: akaunting_settings
+  changed_when: akaunting_settings.stdout_lines | select('search', ' CHANGED$') | list | length > 0
+  failed_when: >-
+    akaunting_settings.rc != 0
+    or 'DONE' not in akaunting_settings.stdout_lines
+  delegate_to: "{{ AKAUNTING_HOST_NODE }}"
+  run_once: true

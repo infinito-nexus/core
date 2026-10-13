@@ -18,6 +18,7 @@ This role deploys FusionDirectory on Docker Compose against the project's centra
 ## Further Resources
 
 - [FusionDirectory Official Website](https://www.fusiondirectory.org/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/6NrqqPZvjikvPNNoJWsSru)
 
 ## Persona contract opt-outs
 

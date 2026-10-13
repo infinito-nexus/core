@@ -21,6 +21,8 @@ test.beforeEach(async ({ page }) => {
   await page.context().clearCookies();
 });
 
+require("./test-design").register();
+
 test("EspoCRM front page is served under canonical domain with TLS", async ({ page }) => {
   const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected EspoCRM response").toBeTruthy();

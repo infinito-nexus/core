@@ -10,6 +10,11 @@
     compose_repository_ref: "{{ AKAUNTING_REF }}"
     compose_handlers_flush: true
 
-- name: "🏗️ Akaunting | First-run install on the stack host"
-  include_tasks: 01_setup.yml
+- name: "🏗️ Akaunting | Install and configure on the stack host"
   when: IS_STACK_HOST | bool
+  block:
+    - name: "🏗️ Akaunting | First-run install"
+      include_tasks: 01_setup.yml
+
+    - name: "🎨 Akaunting | Setup wizard and document color"
+      include_tasks: 02_settings.yml

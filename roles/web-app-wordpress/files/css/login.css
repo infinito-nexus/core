@@ -165,7 +165,9 @@ textarea.readonly,
 textarea[readonly] {
   background-color: var(--design-surface-3);
 }
-::-webkit-input-placeholder,
+::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 ::-moz-placeholder {
   color: var(--design-text-muted);
 }

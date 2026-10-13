@@ -11,7 +11,9 @@
   --tw-shadow-colored: 0 0 transparent;
 }
 input::-moz-placeholder,
-textarea::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 input::placeholder,
 textarea::placeholder {
   color: var(--design-text-muted);
@@ -246,7 +248,9 @@ footer .main-footer__top .editor-content strong {
 .form-defaults input[type=url]:not(.reset-defaults)::-moz-placeholder,
 .form-defaults input[type=week]:not(.reset-defaults)::-moz-placeholder,
 .form-defaults select:not(.reset-defaults)::-moz-placeholder,
-.form-defaults textarea:not(.reset-defaults)::-moz-placeholder,
+.form-defaults textarea:not(.reset-defaults)::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 .form-defaults input[type=date]:not(.reset-defaults)::placeholder,
 .form-defaults input[type=datetime-local]:not(.reset-defaults)::placeholder,
 .form-defaults input[type=email]:not(.reset-defaults)::placeholder,
@@ -309,7 +313,10 @@ footer .main-footer__top .editor-content strong {
 .form-defaults input[type=url]:not(select):-moz-read-only,
 .form-defaults input[type=week]:not(select):-moz-read-only,
 .form-defaults select:not(select):-moz-read-only,
-.form-defaults textarea:not(select):-moz-read-only,
+.form-defaults textarea:not(select):-moz-read-only {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
 .form-defaults input[type=date]:not(select):read-only,
 .form-defaults input[type=datetime-local]:not(select):read-only,
 .form-defaults input[type=email]:not(select):read-only,
@@ -356,7 +363,9 @@ footer .main-footer__top .editor-content strong {
   background-color: var(--design-surface-2);
   color: var(--design-text);
 }
-.input-group::-moz-placeholder,
+.input-group::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 .input-group::placeholder {
   color: var(--design-text-muted);
 }
@@ -772,7 +781,9 @@ footer .main-footer__top .editor-content strong {
 .upload-modal__dropzone [data-filename] progress::-moz-progress-bar {
   background-color: var(--design-success);
 }
-.upload-modal__dropzone [data-filename] [data-template=error]+progress::-webkit-progress-value,
+.upload-modal__dropzone [data-filename] [data-template=error]+progress::-webkit-progress-value {
+  background-color: var(--design-danger);
+}
 .upload-modal__dropzone [data-filename] [data-template=error]+progress::-moz-progress-bar {
   background-color: var(--design-danger);
 }
@@ -2235,7 +2246,9 @@ footer .main-footer__top .participatory-space__container>[id^=html-block] strong
   color: var(--design-text-muted);
   border-color: rgba(var(--design-border-strong-rgb), 0.2);
 }
-:where(body:not(.form-defaults)) .autoComplete_wrapper>input::-moz-placeholder,
+:where(body:not(.form-defaults)) .autoComplete_wrapper>input::-moz-placeholder {
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
 :where(body:not(.form-defaults)) .autoComplete_wrapper>input::placeholder {
   color: rgba(var(--design-text-muted-rgb), 0.5);
 }
@@ -3002,7 +3015,9 @@ footer .main-footer__top .participatory-space__container>[id^=html-block] strong
   background-color: var(--design-surface-2);
   color: var(--design-text);
 }
-:where(body:not(.form-defaults)) .data-picker::-moz-placeholder,
+:where(body:not(.form-defaults)) .data-picker::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 :where(body:not(.form-defaults)) .data-picker::placeholder {
   color: var(--design-text-muted);
 }

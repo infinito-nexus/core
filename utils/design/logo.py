@@ -171,6 +171,7 @@ def render_svg(
     width: int,
     height: int,
     layout: str,
+    dark: tuple[str, str] | None = None,
 ) -> str:
     """Render one lockup as SVG with the logo embedded as PNG.
 
@@ -186,6 +187,8 @@ def render_svg(
         width: Output width.
         height: Output height.
         layout: One of the ``LAYOUT_*`` constants.
+        dark: ``(fill, stroke)`` applied under ``prefers-color-scheme: dark``,
+            or ``None`` to keep one color pair in both modes.
 
     Returns:
         SVG document.
@@ -196,6 +199,10 @@ def render_svg(
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">'
     ]
+    if dark is not None and placed:
+        parts.append(
+            f"<style>@media (prefers-color-scheme: dark){{text{{fill:{dark[0]};stroke:{dark[1]}}}}}</style>"
+        )
     if logo_img is not None:
         scale = min(2.0, _SVG_RASTER_MAX / max(logo_img.width, logo_img.height))
         crisp = _fit(
@@ -245,6 +252,8 @@ def render_assets(
     domain: str,
     fill: str,
     stroke: str,
+    dark_fill: str,
+    dark_stroke: str,
     frame_fill: str,
     frame_stroke: str,
     slots: dict[str, dict],
@@ -255,8 +264,12 @@ def render_assets(
         logo_path: Logo file.
         title: Title text, or ``False`` when titles are disabled.
         domain: Role domain.
-        fill: Text color of a slot on a page or panel.
+        fill: Text color of a slot on a page or panel; the PNG keeps it in
+            both modes.
         stroke: Text outline color of a slot on a page or panel.
+        dark_fill: Text color of a page or panel slot's SVG in dark mode.
+        dark_stroke: Text outline color of a page or panel slot's SVG in dark
+            mode.
         frame_fill: Text color of a slot on brand-colored chrome.
         frame_stroke: Text outline color of a slot on brand-colored chrome.
         slots: ``{name: {"width", "height", "text_only", "frame"}}``.
@@ -282,6 +295,7 @@ def render_assets(
             spec["height"],
             layout,
         )
+        dark = None if spec["frame"] else (dark_fill, dark_stroke)
         assets[f"{name}.png"] = render_png(*args)
-        assets[f"{name}.svg"] = render_svg(*args).encode("utf-8")
+        assets[f"{name}.svg"] = render_svg(*args, dark).encode("utf-8")
     return assets

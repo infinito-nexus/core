@@ -9,6 +9,7 @@ html:root {
   --gray-700: var(--design-neutral-700);
   --gray-800: var(--design-neutral-800);
   --gray-900: var(--design-neutral-900);
+  --gray-950: var(--design-neutral-950);
 
   --neutral: var(--design-surface-2);
   --invert-neutral: var(--design-text);
@@ -32,11 +33,13 @@ html:root {
   --placeholder-color: var(--design-surface-3);
   --skeleton-bg: var(--design-surface-3);
 
-  --surface-white: var(--design-surface-2);
-  --surface-menu-bar: var(--design-surface-1);
+  --surface-base: var(--design-surface-2);
+  --surface-elevation-1: var(--design-surface-2);
+  --surface-elevation-2: var(--design-surface-2);
+  --surface-elevation-3: var(--design-surface-active);
+  --surface-sidebar: var(--design-surface-1);
+  --desk-sidebar-bg: var(--design-surface-1);
   --surface-modal: var(--design-surface-2);
-  --surface-cards: var(--design-surface-2);
-  --surface-selected: var(--design-surface-active);
   --surface-gray-1: var(--design-surface-1);
   --surface-gray-2: var(--design-surface-3);
   --surface-gray-3: var(--design-surface-hover);
@@ -61,6 +64,7 @@ html:root {
   --ink-gray-7: var(--design-text-muted);
   --ink-gray-8: var(--design-text);
   --ink-gray-9: var(--design-text);
+  --ink-base: var(--design-surface-2);
   --ink-white: var(--design-surface-2);
   --ink-blue-link: var(--design-link);
   --icon-stroke: var(--design-text-muted);
@@ -71,15 +75,14 @@ html:root {
   --dark-border-color: var(--design-border-strong);
   --btn-group-border-color: var(--design-border-strong);
   --border-primary: var(--design-primary);
-  --outline-white: var(--design-surface-2);
+  --outline-base: var(--design-surface-2);
+  --outline-elevation-1: var(--design-border);
+  --outline-elevation-2: var(--design-border);
   --outline-gray-1: var(--design-border);
   --outline-gray-2: var(--design-border-strong);
   --outline-gray-3: var(--design-border-strong);
   --outline-gray-4: var(--design-border-strong);
   --outline-gray-5: var(--design-text-muted);
-  --outline-gray-modals: var(--design-border);
-  --sidebar-border-color: var(--design-border);
-  --divider-color: var(--design-border);
 
   --primary: var(--design-link);
   --primary-color: var(--design-primary);
@@ -96,14 +99,14 @@ html:root {
   --switch-bg: var(--design-border-strong);
 
   --folder-icon-background-color: var(--design-surface-3);
-  --sidebar-hover-color: var(--design-surface-hover);
-  --sidebar-active-color: var(--design-surface-active);
   --sidebar-select-color: var(--design-surface-active);
 
   --scrollbar-thumb-color: var(--design-border-strong);
   --scrollbar-track-color: var(--design-surface-3);
 
   --focus-default: 0 0 0 2px var(--design-link);
+  --focus-outline-default: 2px solid var(--design-focus, var(--design-link));
+  --focus-outline-red: 2px solid var(--design-danger);
   --checkbox-focus-shadow: 0 0 0 2px var(--design-link);
 
   --danger: var(--design-danger);
@@ -122,12 +125,16 @@ html:root {
   --error-border: var(--design-danger-border);
   --ink-red-3: var(--design-danger);
   --ink-red-4: var(--design-danger);
+  --ink-red-6: var(--design-danger);
   --ink-green-2: var(--design-success);
   --ink-green-3: var(--design-success);
+  --ink-green-6: var(--design-success);
   --ink-amber-2: var(--design-warning);
   --ink-amber-3: var(--design-warning);
+  --ink-amber-6: var(--design-warning);
   --ink-blue-2: var(--design-info);
   --ink-blue-3: var(--design-info);
+  --ink-blue-6: var(--design-info);
   --surface-red-1: var(--design-danger-subtle);
   --surface-red-2: var(--design-danger-subtle);
   --surface-green-1: var(--design-success-subtle);
@@ -171,11 +178,13 @@ html[data-theme="dark"] {
   --gray-200: var(--design-neutral-800);
   --gray-300: var(--design-neutral-700);
   --gray-400: var(--design-neutral-600);
+  --gray-450: var(--design-neutral-500);
   --gray-500: var(--design-neutral-500);
   --gray-600: var(--design-neutral-400);
   --gray-700: var(--design-neutral-200);
   --gray-800: var(--design-neutral-100);
   --gray-900: var(--design-neutral-50);
+  --gray-950: var(--design-neutral-50);
   --shadow-inset: inset 0 -1px 0 var(--design-border);
 }
 
@@ -207,9 +216,7 @@ html body {
   color: var(--design-text);
 }
 
-html .btn.btn-primary,
-html body .page-card .btn:is(.btn-login, .btn-ldap-login),
-html body .page-card .btn.btn-signup:not(:disabled) {
+html .btn.btn-primary {
   --btn-primary: var(--design-primary);
   --neutral: var(--design-on-primary);
   --icon-fill-bg: var(--design-primary);
@@ -217,9 +224,7 @@ html body .page-card .btn.btn-signup:not(:disabled) {
   color: var(--design-on-primary);
 }
 
-html .btn.btn-primary:hover,
-html body .page-card .btn:is(.btn-login, .btn-ldap-login):is(:hover, :focus),
-html body .page-card .btn.btn-signup:not(:disabled):is(:hover, :focus) {
+html .btn.btn-primary:hover {
   --btn-primary: var(--design-primary-hover);
   background: var(--design-primary-hover);
   color: var(--design-on-primary);
@@ -232,17 +237,40 @@ html[data-theme="dark"] .btn.btn-primary:active {
   --gray-900: var(--design-on-primary);
 }
 
-html body .page-card .btn.btn-login-option {
-  background: var(--design-surface-3);
-  color: var(--design-text);
+html .es-button {
+  --bt-solid-bg: var(--design-primary);
+  --bt-solid-bg-hover: var(--design-primary-hover);
+  --bt-solid-bg-active: var(--design-primary-active);
+  --bt-solid-fg: var(--design-on-primary);
 }
 
-html body .page-card .btn.btn-login-option:hover {
-  background: var(--design-surface-hover);
+html .es-button[data-variant="solid"] {
+  --icon-stroke: currentColor;
 }
 
-html body .page-card.login-content .page-card-body .login-error-banner {
-  background-color: var(--design-danger-subtle);
+html .es-button[data-theme="red"] {
+  --bt-solid-bg: var(--design-danger);
+  --bt-solid-bg-hover: var(--design-danger-hover);
+  --bt-solid-bg-active: var(--design-danger-active);
+  --bt-solid-fg: var(--design-on-danger);
+  --bt-fill-bg: var(--design-danger-subtle);
+  --bt-fill-bg-hover: var(--design-surface-hover);
+  --bt-fill-bg-active: var(--design-surface-active);
+  --bt-fg: var(--design-danger);
+  --bt-border: var(--design-danger-border);
+  --bt-border-hover: var(--design-danger);
+  --bt-outline-bg-active: var(--design-surface-active);
+  --bt-disabled-bg: var(--design-surface-3);
+  --bt-disabled-fg: var(--design-text-muted);
+  --bt-disabled-border: var(--design-border);
+}
+
+html .body-sidebar .standard-sidebar-item:not(.active-sidebar):has(a:not(.section-break)):hover {
+  background-color: var(--design-surface-hover);
+}
+
+html hr {
+  border-top-color: var(--design-border);
 }
 
 html .datatable {

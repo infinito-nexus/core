@@ -98,3 +98,11 @@ GITLAB_MCP_CONTRACT:
   tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
+
+GITLAB_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+GITLAB_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'design'] | path_join }}"
+GITLAB_DESIGN_UPLOADS:
+  - { field: logo, file: logo.png, ext: png }
+  - { field: header_logo, file: header-logo.png, ext: png }
+  - { field: favicon, file: favicon.ico, ext: ico }
+  - { field: pwa_icon, file: icon.png, ext: png }

@@ -95,6 +95,9 @@
 & input[type="number"]::-moz-placeholder,
 & input[type*="date"]::-moz-placeholder,
 & input[type="email"]::-moz-placeholder,
+& textarea::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 & input[type="text"]::-webkit-input-placeholder,
 & input[type="password"]::-webkit-input-placeholder,
 & input[type="url"]::-webkit-input-placeholder,
@@ -103,6 +106,9 @@
 & input[type="number"]::-webkit-input-placeholder,
 & input[type*="date"]::-webkit-input-placeholder,
 & input[type="email"]::-webkit-input-placeholder,
+& textarea::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 & input[type="text"]:-ms-input-placeholder,
 & input[type="password"]:-ms-input-placeholder,
 & input[type="url"]:-ms-input-placeholder,
@@ -111,8 +117,6 @@
 & input[type="number"]:-ms-input-placeholder,
 & input[type*="date"]:-ms-input-placeholder,
 & input[type="email"]:-ms-input-placeholder,
-& textarea::-moz-placeholder,
-& textarea::-webkit-input-placeholder,
 & textarea:-ms-input-placeholder {
   color: var(--design-text-muted);
 }
@@ -967,11 +971,15 @@
 & .fieldset>.field .addon .addbefore::-moz-placeholder,
 & .fieldset>.fields>.field .addon .addbefore::-moz-placeholder,
 & .fieldset>.field .addon .addafter::-moz-placeholder,
-& .fieldset>.fields>.field .addon .addafter::-moz-placeholder,
+& .fieldset>.fields>.field .addon .addafter::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 & .fieldset>.field .addon .addbefore::-webkit-input-placeholder,
 & .fieldset>.fields>.field .addon .addbefore::-webkit-input-placeholder,
 & .fieldset>.field .addon .addafter::-webkit-input-placeholder,
-& .fieldset>.fields>.field .addon .addafter::-webkit-input-placeholder,
+& .fieldset>.fields>.field .addon .addafter::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 & .fieldset>.field .addon .addbefore:-ms-input-placeholder,
 & .fieldset>.fields>.field .addon .addbefore:-ms-input-placeholder,
 & .fieldset>.field .addon .addafter:-ms-input-placeholder,
@@ -2891,11 +2899,19 @@
   color: var(--design-text);
 }
 & .compare.wrapper .counter.qty,
-& .block-search input::-webkit-input-placeholder,
-& .block-search input:-moz-placeholder,
-& .block-search input::-moz-placeholder,
-& .block-search input:-ms-input-placeholder,
 & .block-search .action.search:before {
+  color: var(--design-text-muted);
+}
+& .block-search input::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+& .block-search input:-moz-placeholder {
+  color: var(--design-text-muted);
+}
+& .block-search input::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+& .block-search input:-ms-input-placeholder {
   color: var(--design-text-muted);
 }
 & .block-search .action.search:hover:before {
@@ -2926,9 +2942,13 @@
   border-color: var(--design-border-strong);
 }
 & .page-product-giftcard .product-add-form .field:not(.text) .addon .addbefore::-moz-placeholder,
-& .page-product-giftcard .product-add-form .field:not(.text) .addon .addafter::-moz-placeholder,
+& .page-product-giftcard .product-add-form .field:not(.text) .addon .addafter::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 & .page-product-giftcard .product-add-form .field:not(.text) .addon .addbefore::-webkit-input-placeholder,
-& .page-product-giftcard .product-add-form .field:not(.text) .addon .addafter::-webkit-input-placeholder,
+& .page-product-giftcard .product-add-form .field:not(.text) .addon .addafter::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
 & .page-product-giftcard .product-add-form .field:not(.text) .addon .addbefore:-ms-input-placeholder,
 & .page-product-giftcard .product-add-form .field:not(.text) .addon .addafter:-ms-input-placeholder {
   color: var(--design-text-muted);

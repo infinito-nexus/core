@@ -54,6 +54,7 @@ The field names on the provider record are only discoverable by unpacking the pu
 - [EspoCRM Official Website](https://www.espocrm.com/) 🌍  
 - [EspoCRM Documentation](https://docs.espocrm.com/) 📖  
 - [Infinito.Nexus Project Repository](https://s.infinito.nexus/code) 🔗  
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/NzrEJNhCCr93QdFaj71yhY)
 
 ## Persona contract opt-outs
 

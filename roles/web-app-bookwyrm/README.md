@@ -24,6 +24,7 @@ BookWyrm provides a federated social network for books built on ActivityPub. Eac
 - [BookWyrm Documentation](https://docs.joinbookwyrm.com/)
 - [ActivityPub (Wikipedia)](https://en.wikipedia.org/wiki/ActivityPub)
 - [Fediverse (Wikipedia)](https://en.wikipedia.org/wiki/Fediverse)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/SodpuLDaiTRgmCT44WQyd7)
 
 ## Persona contract opt-outs
 

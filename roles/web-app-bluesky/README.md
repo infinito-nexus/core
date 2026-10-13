@@ -41,3 +41,4 @@ See [Administration.md](./Administration.md) for live container administration t
 - [Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)
 - [Self-hosting Bluesky with Docker and SWAG](https://therobbiedavis.com/selfhosting-bluesky-with-web-app-and-swag/)
 - [pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/9VPZ42hi6acmeZHnyTq3xS)

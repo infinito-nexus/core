@@ -51,6 +51,17 @@
     {{ lookup('container_image', application_id, 'search') }}
     {{ lookup('compose_only', 'container_name', ZAMMAD_SEARCH_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    environment: # nocheck: compose-environment-from-env-file  Elasticsearch-only settings for the search sidecar; the role's single env.j2 is the env_file of the Rails container too, which must not receive discovery.type, path.data or the disk watermarks
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms{{ ZAMMAD_SEARCH_HEAP_MB }}m -Xmx{{ ZAMMAD_SEARCH_HEAP_MB }}m
+      - path.data={{ ZAMMAD_SEARCH_DATA_DIR }}
+      - cluster.routing.allocation.disk.watermark.low={{ ZAMMAD_SEARCH_WATERMARK.low }}
+      - cluster.routing.allocation.disk.watermark.high={{ ZAMMAD_SEARCH_WATERMARK.high }}
+      - cluster.routing.allocation.disk.watermark.flood_stage={{ ZAMMAD_SEARCH_WATERMARK.flood_stage }}
+      - cluster.routing.allocation.disk.watermark.low.max_headroom={{ ZAMMAD_SEARCH_WATERMARK.max_headroom.low }}
+      - cluster.routing.allocation.disk.watermark.high.max_headroom={{ ZAMMAD_SEARCH_WATERMARK.max_headroom.high }}
+      - cluster.routing.allocation.disk.watermark.flood_stage.max_headroom={{ ZAMMAD_SEARCH_WATERMARK.max_headroom.flood_stage }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

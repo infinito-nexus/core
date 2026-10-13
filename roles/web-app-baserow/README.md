@@ -21,6 +21,7 @@ This role deploys Baserow using Docker Compose, integrating key components such 
 
 - [Baserow Homepage](https://baserow.io/)
 - [Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Qr2HLJfTFq9rEMs9HeKE2w)
 
 ## SSO
 

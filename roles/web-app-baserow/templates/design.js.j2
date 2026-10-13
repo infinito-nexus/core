@@ -1,0 +1,17 @@
+{% set design = lookup('design', application_id) %}
+{% if design.logo is string %}
+(function () {
+  function brand() {
+    var icons = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < icons.length; index += 1) {
+      if (icons[index].getAttribute("href") !== {{ design.urls.favicon_ico | to_json }}) {
+        icons[index].setAttribute("type", "image/x-icon");
+        icons[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+      }
+    }
+  }
+  new MutationObserver(brand).observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ["href"] });
+  brand();
+  document.addEventListener("DOMContentLoaded", brand);
+})();
+{% endif %}

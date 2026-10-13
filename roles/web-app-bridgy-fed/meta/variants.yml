@@ -14,9 +14,6 @@
     prometheus:
       enabled: true
       shared: true
-    design:
-      enabled: true
-      shared: true
     tor:
       enabled: true
 - services:
@@ -27,9 +24,6 @@
       enabled: false
       shared: false
     prometheus:
-      enabled: false
-      shared: false
-    design:
       enabled: false
       shared: false
     tor:

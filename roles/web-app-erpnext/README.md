@@ -85,3 +85,4 @@ make compose-exec service=erpnext-backend \
 - [Frappe Framework Documentation](https://docs.frappe.io/)
 - [frappe_docker (upstream container reference)](https://github.com/frappe/frappe_docker)
 - [Frappe Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/XUTNiMVVCT8K3t96cvQjBj)

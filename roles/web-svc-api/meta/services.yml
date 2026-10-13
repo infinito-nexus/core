@@ -19,6 +19,7 @@ matomo:
   shared: false
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: design-off  Reason: serves JSON only, so there is no HTML surface the shared stylesheet could reach
 design:
   enabled: false
   shared: false

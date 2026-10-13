@@ -42,7 +42,9 @@ async function fillManualLogin(page, username, password) {
   const userField = page.locator("#txtManualName, input[name='username'], input[type='text']").first();
   await userField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await userField.fill(username);
-  await page.locator("#txtManualPassword, input[type='password']").first().fill(password);
+  const passwordField = page.locator("#txtManualPassword, input[type='password']").first();
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(30_000) });
+  await passwordField.fill(password);
   await page
     .locator("button[type='submit'], .btnSubmit")
     .first()

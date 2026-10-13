@@ -123,6 +123,16 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    wordmark:
+      width: 237
+      height: 60
+    app-icon:
+      width: 512
+      height: 512
+    thumbnail:
+      width: 1200
+      height: 630
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

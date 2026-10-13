@@ -48,7 +48,14 @@ class TestRenderAssets(unittest.TestCase):
         "wordmark": {"width": 320, "height": 64, "text_only": True, "frame": False},
         "topbar": {"width": 320, "height": 64, "text_only": False, "frame": True},
     }
-    COLORS: ClassVar[tuple] = ("#001f3f", "#ffffff", "#fefefe", "#00152c")
+    COLORS: ClassVar[tuple] = (
+        "#001f3f",
+        "#ffffff",
+        "#7fb2ff",
+        "#0b1220",
+        "#fefefe",
+        "#00152c",
+    )
 
     def test_every_slot_renders_png_and_svg_at_its_size(self) -> None:
         assets = render_assets(
@@ -87,6 +94,20 @@ class TestRenderAssets(unittest.TestCase):
             self.assertIn('fill="#fefefe"', attrs)
             self.assertIn('stroke="#00152c"', attrs)
         self.assertNotEqual(assets["topbar.png"], assets["header.png"])
+
+    def test_page_slots_switch_text_colors_in_dark_mode(self) -> None:
+        assets = render_assets(
+            LOGO, "Gitea", "git.example.org", *self.COLORS, self.SLOTS
+        )
+        dark_rule = (
+            "@media (prefers-color-scheme: dark){text{fill:#7fb2ff;stroke:#0b1220}}"
+        )
+        for name in ("header", "banner", "wordmark"):
+            with self.subTest(slot=name):
+                self.assertIn(dark_rule, assets[f"{name}.svg"].decode("utf-8"))
+        for name in ("topbar", "icon"):
+            with self.subTest(slot=name):
+                self.assertNotIn(b"<style", assets[f"{name}.svg"])
 
     def test_favicon_holds_every_size(self) -> None:
         assets = render_assets(

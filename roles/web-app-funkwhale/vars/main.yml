@@ -8,3 +8,18 @@ FUNKWHALE_STATIC_DIR: "{{ [ FUNKWHALE_DATA_ROOT, 'static' ]  | path_join }}"
 FUNKWHALE_CELERYD_CONCURRENCY: 1
 FUNKWHALE_DOCKER_API_PORT: "{{ lookup('config', application_id, 'services.api.ports.internal.http') }}"
 FUNKWHALE_TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
+FUNKWHALE_API_CONTAINER: "{{ lookup('config', application_id, 'services.api.name') }}"
+
+FUNKWHALE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+FUNKWHALE_DESIGN_LOGO_ENABLED: "{{ FUNKWHALE_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+FUNKWHALE_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+FUNKWHALE_DESIGN_MARK: "/* infinito-design */"
+FUNKWHALE_DESIGN_PREFERENCES:
+  instance__name: "{{ lookup('design', application_id).label }}"
+  ui__theme_primary_color: "{{ FUNKWHALE_DESIGN_PALETTE['--design-primary'] }}"
+  ui__theme_accent_color: "{{ FUNKWHALE_DESIGN_PALETTE['--design-link'] }}"
+  ui__theme_background_color: "{{ FUNKWHALE_DESIGN_PALETTE['--design-neutral-800'] }}"
+  ui__custom_css: "{{ FUNKWHALE_DESIGN_MARK ~ '\n' ~ lookup('template', 'custom.css.j2') }}"
+FUNKWHALE_DESIGN_IMAGES:
+  ui__logo: logo.png
+  instance__banner: banner.png

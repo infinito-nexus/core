@@ -75,5 +75,8 @@
     async_reap_label: "Listmonk settings"
     async_reap_tolerate: []
 
+- name: "🎨 Carry the corporate design in the Listmonk settings"
+  ansible.builtin.include_tasks: 03_design.yml
+
 - name: "🚿 Recreate Listmonk so the settings above are loaded"
   ansible.builtin.meta: flush_handlers

@@ -19,6 +19,7 @@ This role deploys Matomo using Docker, automating the setup of your analytics pl
 ## Further Resources
 
 - [Matomo Official Website](https://matomo.org/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/8ox3o13gTQiCRE9nnvBPCB)
 
 ## Persona contract opt-outs
 

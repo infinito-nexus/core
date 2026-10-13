@@ -50,3 +50,4 @@ Greenlight ships its OpenID Connect strategy with the image and activates it fro
 
 - [BigBlueButton Docker Docs](https://docs.bigbluebutton.org/greenlight/v3/install/)
 - [Networking Fixes & Issues](https://stackoverflow.com/questions/53347951/web-app-network-not-found)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Q7yW5QtrffnuDSQvmRZSXu)

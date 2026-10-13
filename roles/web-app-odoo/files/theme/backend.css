@@ -267,7 +267,9 @@ caption {
   background-color: var(--design-primary);
   border-color: var(--design-primary);
 }
-.form-range:focus::-webkit-slider-thumb,
+.form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px var(--design-primary);
+}
 .form-range:focus::-moz-range-thumb {
   box-shadow: 0 0 0 1px var(--design-primary);
 }
@@ -289,7 +291,9 @@ caption {
 .form-range::-moz-range-track {
   background-color: var(--secondary-bg);
 }
-.form-range:disabled::-webkit-slider-thumb,
+.form-range:disabled::-webkit-slider-thumb {
+  background-color: var(--secondary-color);
+}
 .form-range:disabled::-moz-range-thumb {
   background-color: var(--secondary-color);
 }
@@ -3337,8 +3341,12 @@ select:-moz-focusring {
 select:-moz-focusring > option {
   color: var(--design-text);
 }
-::-webkit-input-placeholder,
-::-moz-placeholder,
+::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+::-moz-placeholder {
+  color: var(--design-text-muted);
+}
 :-ms-input-placeholder {
   color: var(--design-text-muted);
 }
@@ -3490,13 +3498,20 @@ select:-moz-focusring > option {
   background-color: transparent;
   background-image: none;
 }
-.custom-gradient-configurator input::-webkit-slider-thumb,
+.custom-gradient-configurator input::-webkit-slider-thumb {
+  background-color: var(--design-text);
+  border-color: var(--design-text);
+}
 .custom-gradient-configurator input::-moz-range-thumb {
   background-color: var(--design-text);
   border-color: var(--design-text);
 }
-.custom-gradient-configurator input[type=range]:focus-visible::-webkit-slider-thumb,
-.custom-gradient-configurator input[type=range]:focus-visible::-moz-range-thumb,
+.custom-gradient-configurator input[type=range]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px var(--o-color-picker-bg, ) var(--design-surface-2), 0 0 0 3px var(--o-color-picker-active-color, ) var(--design-info);
+}
+.custom-gradient-configurator input[type=range]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 1px var(--o-color-picker-bg, ) var(--design-surface-2), 0 0 0 3px var(--o-color-picker-active-color, ) var(--design-info);
+}
 .custom-gradient-configurator input[type=range]:focus-visible::-ms-thumb {
   box-shadow: 0 0 0 1px var(--o-color-picker-bg, ) var(--design-surface-2), 0 0 0 3px var(--o-color-picker-active-color, ) var(--design-info);
 }
@@ -5216,7 +5231,9 @@ a.o-discuss-mention:disabled {
   background-color: var(--design-primary-active);
   color: var(--design-on-primary);
 }
-.o-Discuss-CallSettings-thresholdInput::-moz-range-track,
+.o-Discuss-CallSettings-thresholdInput::-moz-range-track {
+  background: linear-gradient(to right, var(--design-success) 0%, var(--design-success) var(--volume), var(--secondary-bg) var(--volume), var(--secondary-bg) 100%);
+}
 .o-Discuss-CallSettings-thresholdInput::-webkit-slider-runnable-track {
   background: linear-gradient(to right, var(--design-success) 0%, var(--design-success) var(--volume), var(--secondary-bg) var(--volume), var(--secondary-bg) 100%);
 }

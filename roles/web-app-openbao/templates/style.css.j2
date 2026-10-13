@@ -129,12 +129,14 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 }
 .CodeMirror-selected,
 .CodeMirror-focused .CodeMirror-selected,
-.CodeMirror-line::-moz-selection,
-.CodeMirror-line>span::-moz-selection,
-.CodeMirror-line>span>span::-moz-selection,
 .CodeMirror-line::selection,
 .CodeMirror-line>span::selection,
 .CodeMirror-line>span>span::selection {
+  background-color: var(--design-surface-active);
+}
+.CodeMirror-line::-moz-selection,
+.CodeMirror-line>span::-moz-selection,
+.CodeMirror-line>span>span::-moz-selection {
   background-color: var(--design-surface-active);
 }
 .cm-searching {
@@ -203,10 +205,16 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   border-left-color: var(--design-border-strong);
 }
 .ember-power-select-placeholder,
-.ember-power-select-trigger-multiple-input::-webkit-input-placeholder,
-.ember-power-select-trigger-multiple-input::-moz-placeholder,
-.ember-power-select-trigger-multiple-input::-ms-input-placeholder,
 .ember-power-select-trigger-multiple-input::placeholder {
+  color: var(--design-text-muted);
+}
+.ember-power-select-trigger-multiple-input::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.ember-power-select-trigger-multiple-input::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+.ember-power-select-trigger-multiple-input::-ms-input-placeholder {
   color: var(--design-text-muted);
 }
 .ember-power-select-status-icon {
@@ -998,18 +1006,28 @@ p.chart-subtext {
 .message.is-success .message-title {
   color: var(--design-success);
 }
-.progress,
+.progress {
+  background-color: var(--design-surface-3);
+  -webkit-box-shadow: inset 0 0 0 1px var(--design-border);
+  box-shadow: inset 0 0 0 1px var(--design-border);
+}
 .progress[value]::-webkit-progress-bar {
   background-color: var(--design-surface-3);
   -webkit-box-shadow: inset 0 0 0 1px var(--design-border);
   box-shadow: inset 0 0 0 1px var(--design-border);
 }
-.progress[value]::-webkit-progress-value,
+.progress[value]::-webkit-progress-value {
+  background-color: var(--design-text);
+}
 .progress::-ms-fill {
   background-color: var(--design-text);
 }
-.progress.is-info::-webkit-progress-value,
-.progress.is-info::-moz-progress-bar,
+.progress.is-info::-webkit-progress-value {
+  background-color: var(--design-primary);
+}
+.progress.is-info::-moz-progress-bar {
+  background-color: var(--design-primary);
+}
 .progress.is-info::-ms-fill {
   background-color: var(--design-primary);
 }
@@ -1017,8 +1035,12 @@ p.chart-subtext {
   background-image: -webkit-gradient(linear,left top, right top,color-stop(30%, var(--design-primary)),color-stop(30%, var(--design-surface-3)));
   background-image: linear-gradient(to right,var(--design-primary) 30%,var(--design-surface-3) 30%);
 }
-.progress.is-success::-webkit-progress-value,
-.progress.is-success::-moz-progress-bar,
+.progress.is-success::-webkit-progress-value {
+  background-color: var(--design-success);
+}
+.progress.is-success::-moz-progress-bar {
+  background-color: var(--design-success);
+}
 .progress.is-success::-ms-fill {
   background-color: var(--design-success);
 }
@@ -1317,12 +1339,14 @@ select.has-error-border,
 }
 .cm-s-hashi div.CodeMirror-selected,
 .cm-s-hashi.CodeMirror-focused div.CodeMirror-selected,
-.cm-s-hashi .CodeMirror-line::-moz-selection,
-.cm-s-hashi .CodeMirror-line>span::-moz-selection,
-.cm-s-hashi .CodeMirror-line>span>span::-moz-selection,
 .cm-s-hashi .CodeMirror-line::selection,
 .cm-s-hashi .CodeMirror-line>span::selection,
 .cm-s-hashi .CodeMirror-line>span>span::selection {
+  background-color: var(--design-surface-active);
+}
+.cm-s-hashi .CodeMirror-line::-moz-selection,
+.cm-s-hashi .CodeMirror-line>span::-moz-selection,
+.cm-s-hashi .CodeMirror-line>span>span::-moz-selection {
   background-color: var(--design-surface-active);
 }
 .cm-s-hashi span.cm-string,

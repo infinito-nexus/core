@@ -75595,8 +75595,8 @@ msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/62
 msgstr "[SSH falla con WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
 
 # translated-by: libretranslate
-msgid "[SSL-Tools Mailserver Test](https://de.ssl-tools.net/mailservers/)"
-msgstr "[SSL-Tools Mailserver Test](https://de.ssl-tools.net/mailservers/)"
+msgid "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"
+msgstr "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"
 
 # translated-by: libretranslate
 msgid "[SSO/OIDC plugin](https://github.com/9p4/jellyfin-plugin-sso)"

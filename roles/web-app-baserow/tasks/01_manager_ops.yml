@@ -79,7 +79,7 @@
     BOOTSTRAP_ADMIN_PASSWORD: "{{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD }}"
   register: baserow_bootstrap_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: "'created' in baserow_bootstrap_admin_result.stdout"
+  changed_when: "'BOOTSTRAP_STATE=changed' in baserow_bootstrap_admin_result.stdout"
   failed_when: baserow_bootstrap_admin_result.rc != 0
   timeout: "{{ lookup('timeout', 600) | int }}"
   retries: 60

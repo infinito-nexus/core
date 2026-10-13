@@ -56,6 +56,46 @@ DISCOURSE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabl
 DISCOURSE_OIDC_LOGOUT_REDIRECT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
 DISCOURSE_LOCAL_LOGIN_ENABLED: "{{ lookup('config', application_id, 'services.discourse.local_login_enabled') }}"
 
+DISCOURSE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+DISCOURSE_DESIGN_LOGO_ENABLED: "{{ DISCOURSE_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+DISCOURSE_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+DISCOURSE_DESIGN_MARK: "infinito_design"
+DISCOURSE_DESIGN_SCHEME_LIGHT: "Infinito.Nexus Light"
+DISCOURSE_DESIGN_SCHEME_DARK: "Infinito.Nexus Dark"
+DISCOURSE_DESIGN_COMPONENT: "Infinito.Nexus Design"
+DISCOURSE_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')) }}"
+DISCOURSE_DESIGN_COLOR_TOKENS:
+  primary: "--design-text"
+  secondary: "--design-surface-1"
+  tertiary: "--design-link"
+  quaternary: "--design-primary"
+  header_background: "--design-frame"
+  header_primary: "--design-on-frame"
+  highlight: "--design-warning-subtle"
+  selected: "--design-surface-active"
+  hover: "--design-surface-hover"
+  danger: "--design-danger"
+  success: "--design-success"
+  love: "--design-danger"
+  primary_very_low: "--design-surface-3"
+  primary_low: "--design-border"
+  primary_low_mid: "--design-border-strong"
+  primary_medium: "--design-text-muted"
+  primary_high: "--design-text-muted"
+DISCOURSE_DESIGN_COLORS_LIGHT: "{{ dict(DISCOURSE_DESIGN_COLOR_TOKENS.keys() | zip(DISCOURSE_DESIGN_COLOR_TOKENS.values() | map('extract', DISCOURSE_DESIGN_PALETTE.light)))
+  if DISCOURSE_DESIGN_ENABLED | bool else {} }}"
+DISCOURSE_DESIGN_COLORS_DARK: "{{ dict(DISCOURSE_DESIGN_COLOR_TOKENS.keys() | zip(DISCOURSE_DESIGN_COLOR_TOKENS.values() | map('extract', DISCOURSE_DESIGN_PALETTE.dark)))
+  if DISCOURSE_DESIGN_ENABLED | bool else {} }}"
+DISCOURSE_DESIGN_SCSS: "{{ lookup('file', 'scss/design.scss') if DISCOURSE_DESIGN_ENABLED | bool else '' }}"
+DISCOURSE_DESIGN_TITLE: "{{ lookup('design', application_id).title if DISCOURSE_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else ''
+  }}"
+DISCOURSE_DESIGN_UPLOADS:
+  logo: logo.png
+  logo_small: logo-small.png
+  favicon: favicon.png
+  apple_touch_icon: apple-touch-icon.png
+  large_icon: large-icon.png
+
 DISCOURSE_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 DISCOURSE_TLS_SELFSIGNED: "{{ lookup('tls', application_id, 'mode') == 'self_signed' }}"
 DISCOURSE_TLS_SELFSIGNED_ENABLED: "{{ ( DISCOURSE_TLS_ENABLED | bool ) and ( DISCOURSE_TLS_SELFSIGNED | bool ) }}"

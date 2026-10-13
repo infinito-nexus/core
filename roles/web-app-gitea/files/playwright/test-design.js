@@ -14,6 +14,8 @@ const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating
 const { resolveTimeout } = require("./timeouts");
 
 const SHOWCASE_REPO = "design-showcase";
+const DIVIDER_REPOS = [SHOWCASE_REPO, "design-showcase-list"];
+const LIST_DIVIDER = ".flex-divided-list > .item + .item";
 const UNOFFERED_THEME = "gitea-dark";
 const THEMES = {
   auto: decodeDotenvQuotedValue(process.env.GITEA_THEME_AUTO),
@@ -35,7 +37,9 @@ async function signIn(page, base, username, password) {
     await performKeycloakLogin(page, username, password, env("CANONICAL_DOMAIN"));
     await gotoOnion(page, `${base}/user/login`);
   }
+  await expect(page.locator("#user_name")).toBeEditable({ timeout: resolveTimeout(30_000) });
   await page.locator("#user_name").fill(username);
+  await expect(page.locator("#password")).toBeEditable({ timeout: resolveTimeout(30_000) });
   await page.locator("#password").fill(password);
   await page.locator("#password").press("Enter");
   await page.waitForURL((url) => !url.pathname.startsWith("/user/login"), {
@@ -95,22 +99,34 @@ async function assertTokensFollowTheme(page, lightSurface, label) {
 
 async function seedShowcase(page, base, username, password) {
   const headers = basicAuth(username, password);
-  await page.request.post(`${base}/api/v1/user/repos`, {
-    headers,
-    data: { name: SHOWCASE_REPO, auto_init: true, readme: "Default", description: "Corporate design showcase" },
-    failOnStatusCode: false,
-  });
-  const issues = await page.request.get(`${base}/api/v1/repos/${username}/${SHOWCASE_REPO}/issues?state=all`, {
+  await seedPublicRepos(page, base, username, password);
+  const issues = await apiGetOnion(page.request, `${base}/api/v1/repos/${username}/${SHOWCASE_REPO}/issues?state=all`, {
     headers,
   });
   if ((await issues.json()).length === 0) {
-    await page.request.post(`${base}/api/v1/repos/${username}/${SHOWCASE_REPO}/issues`, {
+    await apiFetchOnion(page.request, `${base}/api/v1/repos/${username}/${SHOWCASE_REPO}/issues`, {
+      method: "POST",
       headers,
       data: {
         title: "Review the corporate design",
         body: "- [ ] Light mode\n- [ ] Dark mode\n- [ ] Mobile layout",
       },
     });
+  }
+}
+
+async function seedPublicRepos(page, base, username, password) {
+  const headers = basicAuth(username, password);
+  for (const name of DIVIDER_REPOS) {
+    const existing = await apiGetOnion(page.request, `${base}/api/v1/repos/${username}/${name}`, { headers });
+    if (existing.status() === 404) {
+      const created = await apiFetchOnion(page.request, `${base}/api/v1/user/repos`, {
+        method: "POST",
+        headers,
+        data: { name, auto_init: true, readme: "Default", private: false, description: "Corporate design showcase" },
+      });
+      expect(created.ok(), `creating the public repository ${name}`).toBe(true);
+    }
   }
 }
 
@@ -153,9 +169,63 @@ exports.register = function () {
     await assertLightAndDark(page, "body", "gitea");
     await assertReadable(
       page,
-      ["body", "#navbar a.item.active", 'input[name="q"]', ".ui.small.icon.button", ".page-footer a"],
+      [
+        "body",
+        "#navbar a.item.active",
+        'input[name="q"]',
+        ".ui.small.icon.button",
+        ".page-footer a",
+        { selector: ".flex-divided-list .item-title a", optional: true },
+      ],
       "gitea",
     );
+  });
+
+  test("design: list dividers take the border token in light and dark mode", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const base = baseUrl();
+    await seedPublicRepos(page, base, env("ADMIN_USERNAME"), env("ADMIN_PASSWORD"));
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, `${base}/explore/repos`);
+      await expect(page.locator(LIST_DIVIDER).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
+      await assertToken(page, LIST_DIVIDER, "border-top-color", "--design-border", `gitea list divider ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: state labels and danger buttons take the status tokens", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const base = baseUrl();
+    const username = env("ADMIN_USERNAME");
+    const password = env("ADMIN_PASSWORD");
+    const issue = `${base}/${username}/${SHOWCASE_REPO}/issues/1`;
+    await signIn(page, base, username, password);
+    await seedShowcase(page, base, username, password);
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, issue);
+      await assertToken(page, ".issue-state-label.green", "background-color", "--design-success", `gitea open issue ${mode}`);
+      await assertToken(page, ".issue-state-label.green", "color", "--design-on-success", `gitea open issue ${mode}`);
+      await gotoOnion(page, `${base}/user/settings/account`);
+      await assertToken(page, ".ui.red.button", "background-color", "--design-danger", `gitea danger button ${mode}`);
+      await assertToken(page, ".ui.red.button", "color", "--design-on-danger", `gitea danger button ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await gotoOnion(page, issue);
+    await assertReadable(page, [".issue-state-label"], "gitea issue state");
+  });
+
+  test("design: the administrator account answers with the declared password", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const username = env("ADMIN_USERNAME");
+    const response = await apiGetOnion(page.request, `${baseUrl()}/api/v1/user`, {
+      headers: basicAuth(username, env("ADMIN_PASSWORD")),
+    });
+    expect(response.status(), "Gitea must accept the administrator password the inventory declares").toBe(200);
+    const account = await response.json();
+    expect(account.login, "the account behind the declared administrator credentials").toBe(username);
+    expect(account.is_admin, "the declared administrator must hold Gitea admin rights").toBe(true);
   });
 
   test("design: the theme a visitor picks overrides the browser preference", async ({ page }) => {
@@ -218,6 +288,9 @@ exports.register = function () {
       await storeTheme(THEMES.auto);
       await gotoOnion(page, `${base}/user/settings/appearance`);
       const lightSurface = await tokenValue(page, "--design-surface-1", "background-color");
+      await assertToken(page, ".ui.primary.button", "background-color", "--design-link", "gitea account auto theme");
+      await assertToken(page, ".ui.primary.button", "color", "--design-surface-2", "gitea account auto theme");
+      await assertReadable(page, [".ui.primary.button"], "gitea account primary action");
 
       await storeTheme(THEMES.dark);
       await gotoOnion(page, `${base}/user/settings/appearance`);
@@ -229,6 +302,7 @@ exports.register = function () {
       ).not.toBe(lightSurface);
       await assertToken(page, "body", "background-color", "--design-surface-1", "gitea account dark theme");
       await assertToken(page, ".ui.primary.button", "background-color", "--design-link", "gitea account dark theme");
+      await assertToken(page, ".ui.primary.button", "color", "--design-surface-2", "gitea account dark theme");
 
       await storeTheme(UNOFFERED_THEME);
       await gotoOnion(page, `${base}/user/settings/appearance`);
@@ -300,8 +374,16 @@ exports.register = function () {
     const base = baseUrl();
     const username = env("ADMIN_USERNAME");
     const password = env("ADMIN_PASSWORD");
+    const failures = [];
+    const capture = async (views) => {
+      try {
+        await captureDesignGallery(page, views);
+      } catch (error) {
+        failures.push(error.message);
+      }
+    };
 
-    await captureDesignGallery(page, [
+    await capture([
       { name: "start", url: `${base}/` },
       { name: "login", url: `${base}/user/login` },
       { name: "explore-repos", url: `${base}/explore/repos` },
@@ -311,7 +393,12 @@ exports.register = function () {
         url: `${base}/explore/repos`,
         prepare: async (view) => {
           await view.locator("#footer-theme-selector").click();
-          await view.locator("#footer-theme-selector .menu > .item").first().waitFor();
+          await expect(view.locator("#footer-theme-selector .menu > .item").first()).toBeVisible({
+            timeout: resolveTimeout(10_000),
+          });
+          await expect(view.locator("#footer-theme-selector .menu.animating")).toHaveCount(0, {
+            timeout: resolveTimeout(10_000),
+          });
         },
       },
     ]);
@@ -320,7 +407,7 @@ exports.register = function () {
     await seedShowcase(page, base, username, password);
     const repo = `${base}/${username}/${SHOWCASE_REPO}`;
 
-    await captureDesignGallery(page, [
+    await capture([
       { name: "dashboard", url: `${base}/` },
       { name: "repo-create", url: `${base}/repo/create` },
       { name: "org-create", url: `${base}/org/create` },
@@ -347,5 +434,6 @@ exports.register = function () {
       { name: "admin-repos", url: `${base}/-/admin/repos` },
       { name: "admin-config", url: `${base}/-/admin/config` },
     ]);
+    expect(failures, failures.join("\n")).toEqual([]);
   });
 };

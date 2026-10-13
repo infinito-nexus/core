@@ -18,10 +18,11 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
   # nocheck: matomo-track
   track: false
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: plain file server; its only HTML is nginx's autoindex listing (templates/proxy.conf.j2)
 design:
-  bond: 1
-  enabled: "{{ 'web-svc-design' in group_names }}"
-  shared: "{{ 'web-svc-design' in group_names }}"
+  enabled: false
+  shared: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

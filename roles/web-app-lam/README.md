@@ -18,6 +18,7 @@ This role deploys LAM in a Docker environment and integrates it with an NGINX re
 ## Further Resources
 
 - [LDAP Account Manager Official Website](https://www.ldap-account-manager.org/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/E9doW8UWynLbGQFEfuhREo)
 
 ## Persona contract opt-outs
 

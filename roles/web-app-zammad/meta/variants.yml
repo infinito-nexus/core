@@ -39,6 +39,12 @@
     seaweedfs:
       enabled: true
       shared: true
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     litellm:
       enabled: false
     tor:
@@ -89,6 +95,12 @@
     seaweedfs:
       enabled: false
       shared: false
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     litellm:
       enabled: false
     tor:
@@ -142,6 +154,12 @@
     seaweedfs:
       enabled: false
       shared: false
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     tor:
       enabled: true
     openwebui:

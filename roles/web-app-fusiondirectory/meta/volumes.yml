@@ -6,3 +6,11 @@ data:
   mounts:
     - service: fusiondirectory
       target: /assets/fusiondirectory
+design_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-fusiondirectory', 'directories.volumes'), 'theme.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: fusiondirectory
+      target: /www/fusiondirectory/html/themes/breezy/theme.css
+      when: "{{ lookup('config', 'web-app-fusiondirectory', 'services.design.enabled') | bool }}"

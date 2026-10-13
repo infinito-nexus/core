@@ -15,6 +15,8 @@ _REQUIRED = (
     "domain",
     "fill",
     "stroke",
+    "dark_fill",
+    "dark_stroke",
     "frame_fill",
     "frame_stroke",
     "slots",
@@ -33,6 +35,8 @@ class ActionModule(StackHostCopyAction):
       domain  role domain
       fill          text color of a slot on a page or panel
       stroke        text outline color of a slot on a page or panel
+      dark_fill     dark-mode text color of a page or panel slot's SVG
+      dark_stroke   dark-mode text outline color of a page or panel slot's SVG
       frame_fill    text color of a slot on brand-colored chrome
       frame_stroke  text outline color of a slot on brand-colored chrome
       slots         {name: {width, height, text_only, frame}}
@@ -59,6 +63,8 @@ class ActionModule(StackHostCopyAction):
                 args["domain"],
                 args["fill"],
                 args["stroke"],
+                args["dark_fill"],
+                args["dark_stroke"],
                 args["frame_fill"],
                 args["frame_stroke"],
                 args["slots"],

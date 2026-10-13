@@ -41,7 +41,10 @@
     - compose-up
   when: >-
     (BLUESKY_WEB_ENABLED | bool
-     and (bluesky_social_app_clone is changed or bluesky_login_broker_copy is changed))
+     and (bluesky_social_app_clone is changed
+          or bluesky_social_app_theme is changed
+          or bluesky_social_app_design_patches is changed
+          or bluesky_login_broker_copy is changed))
     or bluesky_pdsadmin_download is changed
 
 - name: "📂 Re-own the compose handler topics before the flush"

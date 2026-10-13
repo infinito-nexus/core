@@ -1,0 +1,5 @@
+# Todos
+
+- The image pin `v4.6.2` in `meta/services.yml` (`mastodon` and `streaming`) is stale: upstream released `v4.6.9` on the 4.6 line and `v4.7.3` (2026-10-01). A bump to 4.7 may rename the semantic `--color-*` tokens that `templates/custom.css.j2` maps; the design spec catches that. Options: bump to `v4.6.9` now, or to `v4.7.3` together with a check of the token names in `app/javascript/styles/mastodon/theme/`.
+- The persona flows stay blocked with `sso` off because the shared native login fills `ADMIN_USERNAME`, while Mastodon's `/auth/sign_in` only accepts the e-mail. Option: teach the shared native login to fill `ADMIN_EMAIL` into an e-mail field and unblock the administrator persona.
+- `tasks/05_administrator.yml` "Unblock the administrator username" reports changed on every deploy (measured 2026-10-11 in the baseline deploy and four consecutive role syncs; the baseline printed "Unblocked 1 username block(s) for administrator"), so a username block for the administrator is recreated between runs. Options: find what recreates the block and stop it, or make the unblock idempotent by not recreating it.

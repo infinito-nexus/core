@@ -263,10 +263,21 @@ class TestCandidateRoles(unittest.TestCase):
         self._role("web-app-demo", {"demo": {}, "design": self.CONSUMER})
         self.assertEqual(candidate_roles(self.roles_dir), [])
 
-    def test_ui_less_provider_is_skipped(self) -> None:
+    def test_role_that_switches_design_off_is_skipped(self) -> None:
         self._role(
-            "web-svc-cdn", {"cdn": {"lifecycle": "beta"}, "design": self.CONSUMER}
+            "web-svc-cdn", {"cdn": {"lifecycle": "beta"}, "design": {"enabled": False}}
         )
+        self.assertEqual(candidate_roles(self.roles_dir), [])
+
+    def test_templated_design_flag_keeps_the_role(self) -> None:
+        flag = "{{ 'web-svc-design' in group_names }}"
+        self._role(
+            "web-app-demo", {"demo": {"lifecycle": "beta"}, "design": {"enabled": flag}}
+        )
+        self.assertEqual(candidate_roles(self.roles_dir), ["web-app-demo"])
+
+    def test_design_provider_is_skipped(self) -> None:
+        self._role("web-svc-design", {"design": {"lifecycle": "beta"}})
         self.assertEqual(candidate_roles(self.roles_dir), [])
 
     def test_roles_outside_the_ui_categories_are_skipped(self) -> None:

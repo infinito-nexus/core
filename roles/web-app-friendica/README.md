@@ -35,3 +35,4 @@ The LDAP login path is covered by the existing LDAP Playwright spec (requirement
 - [Friendica Installation Documentation](https://wiki.friendi.ca/docs/install)
 - [Friendica GitHub Repository](https://github.com/friendica/docker)
 - [Relevant Issue Tracker](https://github.com/friendica/friendica/issues)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/8fsE8Lxv5EyiMkLs5zweTt)

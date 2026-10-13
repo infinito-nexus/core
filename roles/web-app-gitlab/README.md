@@ -89,6 +89,7 @@ On each version bump of `services.webservice.version`:
 - [GitLab Official Website](https://about.gitlab.com/)
 - [Cloud Native GitLab (CNG) images](https://gitlab.com/gitlab-org/build/CNG)
 - [GitLab Helm charts documentation](https://docs.gitlab.com/charts/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/L8S3xoUNdbT3nqtBi3fn5F)
 
 ## Persona contract opt-outs
 

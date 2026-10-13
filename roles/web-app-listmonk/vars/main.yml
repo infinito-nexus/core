@@ -80,13 +80,6 @@ LISTMONK_SETTINGS:
   - key: "app.lang"
     value: '"{{ HOST_LL }}"'
 
-  - key: "app.logo_url"
-    value: '"{{ service_provider.platform.logo }}"'
-    condition: "{{ service_provider.platform.logo | length > 0 }}"
-
-  - key: "app.site_name"
-    value: '"{{ service_provider.company.titel }} Mailing list"'
-
   - key: "bounce.enabled"
     value: "true"
 
@@ -111,10 +104,6 @@ LISTMONK_SETTINGS:
 
   - key: "app.from_email"
     value: '"{{ service_provider.company.titel }} Newsletter <{{ lookup(''users'', LISTMONK_USER_SEND).email }}>"'
-
-  - key: "app.favicon_url"
-    value: '"{{ service_provider.platform.favicon }}"'
-    condition: "{{ service_provider.platform.favicon | length > 0 }}"
 
   - key: "app.check_updates"
     value: "true"
@@ -153,6 +142,32 @@ LISTMONK_SETTINGS:
   - key: "upload.s3.bucket_type"
     value: '"public"'
     condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+LISTMONK_DESIGN: "{{ lookup('design', application_id) }}"
+LISTMONK_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+LISTMONK_DESIGN_CSS_MARKER: ":root{--infinito-design-carrier:1}"
+LISTMONK_DESIGN_JS_MARKER: "window.infinitoDesignCarrier = 1;"
+LISTMONK_DESIGN_APPEARANCE:
+  - key: "appearance.admin.custom_css"
+    template: "design/admin.css.j2"
+    marker: "{{ LISTMONK_DESIGN_CSS_MARKER }}"
+  - key: "appearance.admin.custom_js"
+    template: "design/admin.js.j2"
+    marker: "{{ LISTMONK_DESIGN_JS_MARKER }}"
+  - key: "appearance.public.custom_css"
+    template: "design/public.css.j2"
+    marker: "{{ LISTMONK_DESIGN_CSS_MARKER }}"
+LISTMONK_DESIGN_BRANDING:
+  - key: "app.logo_url"
+    design: "{{ LISTMONK_DESIGN.urls.header.svg }}"
+    fallback: "{{ service_provider.platform.logo }}"
+  - key: "app.favicon_url"
+    design: "{{ LISTMONK_DESIGN.urls.favicon_ico }}"
+    fallback: "{{ service_provider.platform.favicon }}"
+  - key: "app.site_name"
+    design: "{{ LISTMONK_DESIGN.label }}"
+    fallback: "{{ service_provider.company.titel }} Mailing list"
+
 LISTMONK_MCP_ENABLED: "{{ lookup('config', application_id, 'services.listmonkmcp.enabled') | bool }}"
 LISTMONK_MCP_SERVICE_KEY: "listmonkmcp"
 LISTMONK_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.listmonkmcp.name') }}"

@@ -1083,7 +1083,9 @@ body[class*="task-"] .form-control.is-invalid:focus {
 body[class*="task-"] .form-control::placeholder {
   color: var(--design-text-muted);
 }
-body[class*="task-"] .form-control::-ms-input-placeholder,
+body[class*="task-"] .form-control::-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
 body[class*="task-"] .form-control::-webkit-input-placeholder {
   color: var(--design-text-muted);
 }
@@ -1954,8 +1956,10 @@ html.dark-mode body[class*="task-"] .file-upload .hint,
 html.dark-mode body[class*="task-"] .formcontent .hint,
 html.dark-mode body[class*="task-"] .listing span.secondary,
 html.dark-mode body[class*="task-"] .listing-info,
-html.dark-mode body[class*="task-"] ::-webkit-input-placeholder,
 html.dark-mode body[class*="task-"] ::placeholder {
+  color: var(--design-text-muted);
+}
+html.dark-mode body[class*="task-"] ::-webkit-input-placeholder {
   color: var(--design-text-muted);
 }
 html.dark-mode body[class*="task-"] .popover {

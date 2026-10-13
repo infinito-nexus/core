@@ -1,0 +1,27 @@
+---
+- name: "🎨 Converge the Greenlight brand settings of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - DESIGN_ENABLED
+      - -e
+      - DESIGN_PRIMARY
+      - -e
+      - DESIGN_PRIMARY_LIGHT
+      - -e
+      - DESIGN_LOGO_URL
+      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
+      - bash
+      - -lc
+      - "bundle exec rails runner -"
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/site_design.rb') }}"
+  environment:
+    DESIGN_ENABLED: "{{ BBB_DESIGN_ENABLED | bool | lower }}"
+    DESIGN_PRIMARY: "{{ BBB_DESIGN_PRIMARY }}"
+    DESIGN_PRIMARY_LIGHT: "{{ BBB_DESIGN_PRIMARY_LIGHT }}"
+    DESIGN_LOGO_URL: "{{ BBB_DESIGN_LOGO_URL }}"
+  register: bbb_design_settings
+  changed_when: "'CHANGED' in bbb_design_settings.stdout"

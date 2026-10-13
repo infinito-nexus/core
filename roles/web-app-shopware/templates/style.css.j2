@@ -261,7 +261,9 @@ body {
   background-color: var(--design-primary);
   border-color: var(--design-primary);
 }
-.form-range:focus::-webkit-slider-thumb,
+.form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px var(--design-surface-2), 0 0 0 0.125rem var(--design-surface-2), 0 0 0 0.25rem var(--design-link);
+}
 .form-range:focus::-moz-range-thumb {
   box-shadow: 0 0 0 1px var(--design-surface-2), 0 0 0 0.125rem var(--design-surface-2), 0 0 0 0.25rem var(--design-link);
 }
@@ -283,7 +285,9 @@ body {
 .form-range::-moz-range-track {
   background-color: var(--bs-secondary-bg);
 }
-.form-range:disabled::-webkit-slider-thumb,
+.form-range:disabled::-webkit-slider-thumb {
+  background-color: var(--bs-secondary-color);
+}
 .form-range:disabled::-moz-range-thumb {
   background-color: var(--bs-secondary-color);
 }

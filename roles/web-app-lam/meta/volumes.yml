@@ -1,0 +1,9 @@
+---
+design_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-lam', 'directories.volumes'), '900_infinito.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: lam
+      target: /usr/share/ldap-account-manager/style/900_infinito.css
+      when: "{{ lookup('config', 'web-app-lam', 'services.design.enabled') | bool }}"

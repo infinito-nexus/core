@@ -1,0 +1,60 @@
+---
+- name: "🖼️ Render and read the corporate logo set of {{ application_id }}"
+  when: GITLAB_DESIGN_ENABLED | bool
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ GITLAB_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ GITLAB_DESIGN_DIR }}"
+
+    - name: "📥 Read the logo set for the GitLab appearance"
+      ansible.builtin.slurp:
+        src: "{{ [GITLAB_DESIGN_DIR, item.file] | path_join }}"
+      loop: "{{ GITLAB_DESIGN_UPLOADS }}"
+      loop_control:
+        label: "{{ item.file }}"
+      register: gitlab_design_files
+      when: design_branding.logo is string
+
+- name: "🔍 Resolve the GitLab webservice for the appearance"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ GITLAB_WEBSERVICE_SERVICE_NAME }}"
+    resolve_output_prefix: GITLAB_DESIGN
+    resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
+
+- name: "🏷️ Converge the GitLab appearance"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - GITLAB_DESIGN_TITLE
+      - "{{ GITLAB_DESIGN_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ GITLAB_RAILS_BIN }}"
+      - runner
+      - "-"
+    stdin: |-
+      uploads = {
+      {% if GITLAB_DESIGN_ENABLED | bool %}
+      {% for upload in gitlab_design_files.results | selectattr('content', 'defined') %}
+        {{ upload.item.field }}: [{{ upload.item.ext | to_json }}, {{ upload.content | to_json }}],
+      {% endfor %}
+      {% endif %}
+      }
+      {{ lookup('file', 'ruby/appearance.rb') }}
+  environment:
+    GITLAB_DESIGN_TITLE: "{{ lookup('design', application_id).label if GITLAB_DESIGN_ENABLED | bool else '' }}"
+  register: gitlab_appearance
+  changed_when: "'CHANGED' in gitlab_appearance.stdout"
+  delegate_to: "{{ GITLAB_DESIGN_HOST_NODE }}"
+  run_once: true

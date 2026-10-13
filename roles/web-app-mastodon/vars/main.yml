@@ -22,3 +22,13 @@ MASTODON_HTTP_ONLY_ENABLED: "{{ not (lookup('tls', application_id, 'enabled') | 
 MASTODON_OVERRIDES_DIR: "{{ lookup('container', application_id, 'directories.instance') }}/overrides"
 MASTODON_FORCE_SSL_OVERRIDE_FILE: "{{ MASTODON_OVERRIDES_DIR }}/zzz_disable_force_ssl.rb"
 MASTODON_OIDC_HTTP_DISCOVERY_FILE: "{{ MASTODON_OVERRIDES_DIR }}/00_oidc_http_discovery.rb"
+
+MASTODON_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MASTODON_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+MASTODON_DESIGN_UPLOAD_MARK: "infinito_design_uploads"
+MASTODON_DESIGN_UPLOADS:
+  favicon: app-icon.png
+  app_icon: app-icon.png
+  thumbnail: thumbnail.png
+MASTODON_CUSTOM_CSS_BEGIN: "/* infinito-design:begin */"
+MASTODON_CUSTOM_CSS_END: "/* infinito-design:end */"

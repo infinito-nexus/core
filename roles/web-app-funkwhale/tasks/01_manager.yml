@@ -1,0 +1,126 @@
+---
+- name: "🔍 Resolve {{ application_id }} api hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: api
+    resolve_output_prefix: FUNKWHALE_API
+    resolve_compose_cid: "{{ FUNKWHALE_API_CONTAINER }}"
+
+- name: "🔍 Check the administrator of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - FUNKWHALE_ADMIN_USERNAME
+      - -e
+      - FUNKWHALE_ADMIN_PASSWORD
+      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - funkwhale-manage
+      - shell
+    stdin: "{{ lookup('file', 'python/admin_state.py') }}"
+  environment:
+    FUNKWHALE_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+    FUNKWHALE_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  register: funkwhale_admin_state
+  retries: 30
+  delay: 10
+  until: funkwhale_admin_state.stdout is search('(?m)^FUNKWHALE_ADMIN=(MISSING|DRIFT|OK)$')
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
+  run_once: true
+
+- name: "👤 Create the administrator of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -e
+      - FUNKWHALE_CLI_USER_PASSWORD
+      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - funkwhale-manage
+      - fw
+      - users
+      - create
+      - --superuser
+      - --username
+      - "{{ lookup('users', 'platform_administrator').username }}"
+      - --email
+      - "{{ lookup('users', 'platform_administrator').email }}"
+    expand_argument_vars: false
+  environment:
+    FUNKWHALE_CLI_USER_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  when: funkwhale_admin_state.stdout is search('(?m)^FUNKWHALE_ADMIN=MISSING$')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Converge the administrator password and rights of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -e
+      - FUNKWHALE_CLI_USER_UPDATE_PASSWORD
+      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - funkwhale-manage
+      - fw
+      - users
+      - set
+      - --no-input
+      - --active
+      - --staff
+      - --superuser
+      - "{{ lookup('users', 'platform_administrator').username }}"
+    expand_argument_vars: false
+  environment:
+    FUNKWHALE_CLI_USER_UPDATE_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  when: funkwhale_admin_state.stdout is search('(?m)^FUNKWHALE_ADMIN=DRIFT$')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
+  run_once: true
+
+- name: "📥 Read the corporate logos of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, item.value] | path_join }}"
+  loop: "{{ FUNKWHALE_DESIGN_IMAGES | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: funkwhale_design_images
+  when: FUNKWHALE_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Converge the instance theming of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - FUNKWHALE_DESIGN_STATE
+      - -e
+      - FUNKWHALE_DESIGN_MARK
+      - -e
+      - FUNKWHALE_DESIGN_STRINGS
+      - -e
+      - FUNKWHALE_DESIGN_FILES
+      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - funkwhale-manage
+      - shell
+    stdin: "{{ lookup('file', 'python/design_preferences.py') }}"
+  environment:
+    FUNKWHALE_DESIGN_STATE: "{{ 'present' if FUNKWHALE_DESIGN_ENABLED | bool else 'absent' }}"
+    FUNKWHALE_DESIGN_MARK: "{{ FUNKWHALE_DESIGN_MARK }}"
+    FUNKWHALE_DESIGN_STRINGS: "{{ FUNKWHALE_DESIGN_PREFERENCES | to_json }}"
+    FUNKWHALE_DESIGN_FILES: "{{ funkwhale_design_files | to_json }}"
+  vars:
+    funkwhale_design_files: >-
+      {{ dict(funkwhale_design_images.results | map(attribute='item.key') | zip(funkwhale_design_images.results | map(attribute='content')))
+         if FUNKWHALE_DESIGN_LOGO_ENABLED | bool
+         else dict(FUNKWHALE_DESIGN_IMAGES.keys() | product([''])) }}
+  register: funkwhale_design
+  changed_when: funkwhale_design.stdout is search('(?m)^FUNKWHALE_DESIGN=CHANGED')
+  failed_when: funkwhale_design.stdout is not search('(?m)^FUNKWHALE_DESIGN=(CHANGED|UNCHANGED|FOREIGN)')
+  delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
+  run_once: true

@@ -1,0 +1,500 @@
+{% set design = lookup('design', application_id) %}
+html body {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+html h1,
+html h2,
+html h3,
+html h4,
+html h5,
+html h6,
+html a:link,
+html a:visited {
+  color: var(--design-text);
+}
+html td.listfooter {
+  background-color: var(--design-surface-3);
+  border-top-color: var(--design-border);
+}
+html div.scrollbody {
+  background-color: var(--design-surface-2);
+}
+html a.maintitlebar,
+html div.maintitlebar {
+  border-color: var(--design-surface-1);
+}
+html a.maintitlebar:link,
+html div.maintitlebar:link,
+html a.maintitlebar:visited,
+html div.maintitlebar:visited {
+  color: var(--design-link);
+}
+html a.maintitlebar:hover {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border);
+}
+html div.copynotice {
+  border-color: var(--design-border);
+}
+html hr {
+  background-color: var(--design-border);
+}
+html table.framework td#maincell {
+  background-color: var(--design-surface-1);
+}
+html div.contentboxh {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+html div.contentboxb {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+html .filter div.contentboxb > div {
+  background-color: var(--design-surface-3);
+  border-top-color: var(--design-border);
+}
+html td.tbhead,
+html td.tbrhead {
+  border-bottom-color: var(--design-border);
+}
+html.ltr:root td.tbhead {
+  border-right-color: var(--design-border);
+}
+html.rtl:root td.tbhead {
+  border-left-color: var(--design-border);
+}
+html .separator {
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-surface-2);
+}
+html div.autocomplete {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+html div.autocomplete ul li:hover {
+  background-color: var(--design-surface-hover);
+}
+html div.autocomplete ul li.selected {
+  background-color: var(--design-surface-active);
+}
+html #pulldown {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+html #pulldown ul li.sep,
+html span.informal {
+  color: var(--design-text-muted);
+}
+html #pulldown ul ul {
+  border-top-color: var(--design-border);
+  border-left-color: var(--design-border);
+  border-bottom-color: var(--design-border);
+  border-right-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+html #pulldown ul ul li {
+  border-bottom-color: var(--design-surface-2);
+}
+html #pulldown ul ul li a:hover {
+  background-color: var(--design-surface-hover);
+}
+html span.mark {
+  color: var(--design-danger);
+}
+html .plugtop {
+  color: var(--design-text);
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+html div#header-right {
+  color: var(--design-text);
+}
+html div.setup-header {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+html div.acledition > table {
+  border-color: var(--design-border);
+}
+html div.acledition > table > tbody > tr:nth-child(1) > td {
+  background-color: var(--design-surface-3);
+  border-bottom-color: var(--design-border);
+}
+html div.acledition > table.expand > tbody > tr:nth-child(1) > td {
+  background-color: var(--design-info-subtle);
+}
+html div.acledition > table > tbody > tr:nth-child(3) > td > div > table > tbody > tr > td {
+  border-color: var(--design-border);
+}
+@media (max-width: 640px) {
+html div#header-right a {
+  background-color: var(--design-surface-1);
+}
+}
+html ul.menu > li {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+html ul.menu > li > a {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+html ul.menu ul > li > a,
+html .menuitem a:link,
+html .menuitem a:visited,
+html .iconmenu > a:link,
+html .iconmenu > a:visited {
+  color: var(--design-text);
+}
+html .menuitem.menucurrent {
+  background-color: var(--design-surface-active);
+}
+html .menuitem:hover {
+  background-color: var(--design-surface-hover);
+}
+html h1.menuheader {
+  border-bottom-color: var(--design-border);
+  background-color: var(--design-surface-1);
+}
+html.ltr:root h1.menuheader {
+  border-right-color: var(--design-border);
+}
+html.rtl:root h1.menuheader {
+  border-left-color: var(--design-border);
+}
+html .iconmenu-section {
+  border-top-color: var(--design-border);
+}
+html .iconmenu {
+  border-color: var(--design-surface-2);
+}
+html .iconmenu:hover {
+  border-color: var(--design-border);
+}
+html div.iconmenu:hover {
+  background-color: var(--design-surface-hover);
+}
+html table.listingTable {
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border);
+  border-left-color: var(--design-border);
+}
+html table.listingTable > thead > tr > th {
+  background-color: var(--design-surface-3);
+  border-bottom-color: var(--design-border);
+}
+html.ltr:root table.listingTable > thead > tr > th,
+html.ltr:root table.listingTable > tbody > tr td {
+  border-right-color: var(--design-border);
+}
+html.rtl:root table.listingTable > thead > tr > th,
+html.rtl:root table.listingTable > tbody > tr td {
+  border-left-color: var(--design-border);
+}
+html table.listingTable > tbody > tr:nth-child(odd) {
+  background-color: var(--design-surface-2);
+}
+html table.listingTable > tbody > tr:nth-child(even) {
+  background-color: var(--design-surface-3);
+}
+html table.listingTable > tbody > tr.entry-locked:nth-child(odd),
+html table.listingTable > tbody > tr.entry-locked:nth-child(even) {
+  background-color: var(--design-warning-subtle);
+}
+html table.listingTable > tbody > tr:hover,
+html table.listingTable > tbody > tr.entry-locked:hover {
+  background-color: var(--design-surface-hover);
+}
+html table.listingTable > tbody > tr td {
+  color: var(--design-text);
+  background-color: transparent;
+  background-image: none;
+}
+html table.listingTable > tbody > tr td > a:link,
+html table.listingTable > tbody > tr td > a:visited {
+  color: var(--design-link);
+}
+html div.nlistFooter {
+  background-color: var(--design-surface-3);
+  border-left-color: var(--design-border);
+  border-right-color: var(--design-border);
+  border-bottom-color: var(--design-border);
+}
+html ul.treeList ul {
+  background: url({{ FUSIONDIRECTORY_URL }}/images/lists/vline.png) repeat-y;
+}
+html ul.treeList a:hover {
+  background-color: var(--design-surface-hover);
+}
+html a.treeListSelected {
+  color: var(--design-link);
+  background-color: var(--design-surface-active);
+}
+html a.treeList:hover,
+html a.treeListSelected:hover {
+  background-color: var(--design-surface-hover);
+}
+html ul.treeList li {
+  background: url({{ FUSIONDIRECTORY_URL }}/images/lists/node.png) no-repeat;
+}
+html li.treeListSelected a {
+  color: var(--design-link);
+}
+html ul.treeList li.last,
+html ul.treeList li:last-child {
+  background-color: var(--design-surface-2);
+}
+html div.treeList {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+@media (max-width: 640px) {
+html table.listing-container > tbody > tr > td.filter input[type=submit] {
+  border-color: var(--design-border-strong);
+}
+}
+html table.tabs-header {
+  color: var(--design-link);
+}
+html table.tabs-header > tbody > tr > td > div > a {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+html table.tabs-header > tbody > tr > td > div.tab-active > a {
+  background-color: var(--design-surface-2);
+}
+html table.tabs-header > tbody > tr > td > div.tab-inactive > a,
+html table.tabs-header > tbody > tr > td > div.tab-disabled > a {
+  color: var(--design-text-muted);
+}
+html table.tabs-header > tbody > tr > td > div.tab-border {
+  border-bottom-color: var(--design-border-strong);
+}
+html div.tab-content,
+html .plugin-window {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+html div.pluginfo {
+  border-bottom-color: var(--design-border);
+  background-color: var(--design-surface-3);
+}
+html .plugbottom,
+html .plugin-section {
+  border-color: var(--design-border);
+}
+html p.plugbottom {
+  background-color: var(--design-surface-3);
+}
+html fieldset.plugin-section legend span,
+html .plugin-section > span.legend {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+html.ltr:root .plugin-section > div > table > tbody > tr.nonwritable input:disabled,
+html.rtl:root .plugin-section > div > table > tbody > tr.nonwritable input:disabled,
+html.ltr:root .plugin-section > div > table > tbody > tr.nonwritable select:disabled,
+html.rtl:root .plugin-section > div > table > tbody > tr.nonwritable select:disabled,
+html.ltr:root .plugin-section > div > table > tbody > tr.nonwritable textarea:disabled,
+html.rtl:root .plugin-section > div > table > tbody > tr.nonwritable textarea:disabled {
+  color: var(--design-text);
+}
+html.ltr:root .plugin-section > div > table > tbody > tr.required > td > label::after,
+html.rtl:root .plugin-section > div > table > tbody > tr.required > td > label::after,
+html fieldset.plugin-section.critical legend span:after,
+html .plugin-section.critical > span.legend:after {
+  color: var(--design-danger);
+}
+html fieldset.plugin-section.critical legend span,
+html .plugin-section.critical > span.legend,
+html fieldset.plugin-section.information legend span,
+html .plugin-section.information > span.legend,
+html .plugin-section.critical > div,
+html .plugin-section.information > div {
+  background-color: var(--design-info-subtle);
+}
+@media (max-width: 640px) {
+html .plugbottom input[type=submit],
+html .plugbottom input[type=button] {
+  border-color: var(--design-border-strong);
+}
+}
+html #menucell.setup-navigation li.menuitem.disabled a.navigation-title {
+  color: var(--design-text-muted);
+}
+html #menucell.setup-navigation li.menuitem a.navigation-title,
+html #menucell.setup-navigation li.menuitem a.navigation-info {
+  color: var(--design-text);
+}
+html div.step2-entry-container-info {
+  border-color: var(--design-border);
+}
+html div.step2-failed {
+  color: var(--design-danger);
+}
+html div.step2-warning {
+  color: var(--design-warning);
+}
+html div.step2-successful {
+  color: var(--design-success);
+}
+html div.msgtitle {
+  border-bottom-color: var(--design-border);
+  background-color: var(--design-surface-3);
+}
+html div.msgdialog {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+html .error {
+  border-color: var(--design-danger-border);
+}
+html .notice {
+  border-color: var(--design-border);
+}
+html .success {
+  border-color: var(--design-success-border);
+}
+html .info {
+  border-color: var(--design-info-border);
+}
+html .error {
+  background-color: var(--design-danger-subtle);
+  color: var(--design-danger);
+  border-color: var(--design-danger-border);
+}
+html .error h1,
+html .error h2,
+html .error h3,
+html .error h4,
+html .error h5,
+html .error h6 {
+  color: var(--design-danger);
+}
+html .notice {
+  background-color: var(--design-warning-subtle);
+  color: var(--design-warning);
+  border-color: var(--design-warning-subtle);
+}
+html .notice h1,
+html .notice h2,
+html .notice h3,
+html .notice h4,
+html .notice h5,
+html .notice h6 {
+  color: var(--design-warning);
+}
+html .success {
+  background-color: var(--design-success-subtle);
+  color: var(--design-success);
+  border-color: var(--design-success-border);
+}
+html .success h1,
+html .success h2,
+html .success h3,
+html .success h4,
+html .success h5,
+html .success h6 {
+  color: var(--design-success);
+}
+html .info {
+  background-color: var(--design-info-subtle);
+  color: var(--design-info);
+  border-color: var(--design-info-border);
+}
+html .info h1,
+html .info h2,
+html .info h3,
+html .info h4,
+html .info h5,
+html .info h6 {
+  color: var(--design-text);
+}
+html p.fusiondirectoryLoginWarning {
+  color: var(--design-danger);
+}
+html div#window-div {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+html div#window-titlebar {
+  border-bottom-color: var(--design-border);
+  background-color: var(--design-surface-3);
+}
+html a:link,
+html a:visited {
+  color: var(--design-link);
+}
+html div#window-footer > div:nth-child(1),
+html span.warning,
+html p.warning {
+  color: var(--design-danger);
+}
+html div.copynotice a {
+  color: var(--design-text);
+}
+{% if design.logo %}
+html img#fd-logo {
+  content: url("{{ design.urls.logo.svg }}");
+}
+html div#header-left img#fd-logo {
+  height: 44px;
+  width: auto;
+}
+{% endif %}
+html .menuitem.menucurrent {
+  box-shadow: inset 3px 0 0 var(--design-primary);
+}
+html fieldset {
+  border: 1px solid var(--design-border);
+}
+html div[style*="rgb(170,170,170)"],
+html #pulldown li[style*="#AAA" i] {
+  border-color: var(--design-border) !important;
+}
+html.rtl:root .menuitem.menucurrent {
+  box-shadow: inset -3px 0 0 var(--design-primary);
+}
+html input[type="submit"],
+html input[type="button"],
+html input[type="reset"],
+html button {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+  border: 1px solid var(--design-border-strong);
+  border-radius: var(--design-radius);
+}
+html input[type="submit"]:hover,
+html input[type="button"]:hover,
+html input[type="reset"]:hover,
+html button:hover {
+  background-color: var(--design-surface-hover);
+}
+html input[type="submit"]:active,
+html input[type="button"]:active,
+html input[type="reset"]:active,
+html button:active {
+  background-color: var(--design-surface-active);
+}
+@media (prefers-color-scheme: dark) {
+  html input[type="image"] {
+    background-color: var(--design-text-muted);
+  }
+}
+html #loginform input[name="login"],
+html input[type="submit"][name$="_finish"] {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+  border-color: var(--design-primary);
+}
+html #loginform input[name="login"]:hover,
+html input[type="submit"][name$="_finish"]:hover {
+  background-color: var(--design-primary-hover);
+}
+html #loginform input[name="login"]:active,
+html input[type="submit"][name$="_finish"]:active {
+  background-color: var(--design-primary-active);
+}

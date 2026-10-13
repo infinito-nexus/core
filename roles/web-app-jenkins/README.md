@@ -89,6 +89,7 @@ Plugins are declared in `meta/addons/` under the unified addon contract. `templa
 - [Jenkins oic-auth plugin](https://plugins.jenkins.io/oic-auth/)
 - [Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)
 - [Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/DPv6fGim13i7WdAb98pL1h)
 
 ## Persona contract opt-outs
 

@@ -70,6 +70,9 @@
 - name: "🔧 Setup administrator"
   include_tasks: "../02_administrator.yml"
 
+- name: "🎨 Setup corporate design"
+  include_tasks: "../03_design.yml"
+
 - name: "🔧 Pin search_path on immutable_lower_unaccent in every database"
   ansible.builtin.shell: # nocheck: compose_mode_force role
     cmd: >-
