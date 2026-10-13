@@ -45,4 +45,8 @@
     - IS_STACK_HOST | bool
 
 - name: "📂 Load admin setup procedures for '{{ application_id }}'"
-  include_tasks: 04_admin.yml
+  include_tasks:
+    file: 04_admin.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"

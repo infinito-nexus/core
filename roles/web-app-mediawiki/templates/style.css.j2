@@ -1,237 +1,152 @@
-/* MediaWiki (Vector 2022 + OOUI) color remap via {{ SOFTWARE_NAME }} palette
-   - Keep changes scoped and variable-driven
-   - Prefer variables over hard values
-   - Avoid !important unless an inline style or strong OOUI rule requires it
-*/
+:root,
+html.skin-theme-clientpref-day,
+html.skin-theme-clientpref-night,
+html.skin-theme-clientpref-os {
+  --background-color-base: var(--design-surface-1);
+  --background-color-base-fixed: var(--design-surface-1);
+  --background-color-neutral: var(--design-surface-3);
+  --background-color-neutral-subtle: var(--design-surface-2);
+  --background-color-interactive: var(--design-surface-3);
+  --background-color-interactive--hover: var(--design-surface-hover);
+  --background-color-interactive--active: var(--design-surface-active);
+  --background-color-interactive-subtle: var(--design-surface-2);
+  --background-color-interactive-subtle--hover: var(--design-surface-hover);
+  --background-color-interactive-subtle--active: var(--design-surface-active);
+  --background-color-button-quiet--hover: var(--design-surface-hover);
+  --background-color-button-quiet--active: var(--design-surface-active);
+  --background-color-tab-list-item-framed--hover: var(--design-surface-hover);
+  --background-color-tab-list-item-framed--active: var(--design-surface-active);
+  --background-color-disabled: var(--design-surface-3);
+  --background-color-disabled-subtle: var(--design-surface-2);
+  --background-color-progressive: var(--design-primary);
+  --background-color-progressive--hover: var(--design-primary-hover);
+  --background-color-progressive--active: var(--design-primary-active);
+  --background-color-progressive--focus: var(--design-primary);
+  --background-color-progressive-subtle: var(--design-primary-50);
+  --background-color-progressive-subtle--hover: var(--design-surface-hover);
+  --background-color-progressive-subtle--active: var(--design-surface-active);
+  --background-color-input-binary--checked: var(--design-primary);
+  --background-color-destructive: var(--design-danger);
+  --background-color-destructive--hover: var(--design-danger-hover);
+  --background-color-destructive--active: var(--design-danger-active);
+  --background-color-destructive--focus: var(--design-danger);
+  --background-color-destructive-subtle: var(--design-danger-subtle);
+  --background-color-destructive-subtle--hover: var(--design-surface-hover);
+  --background-color-destructive-subtle--active: var(--design-surface-active);
+  --background-color-error: var(--design-danger);
+  --background-color-error--hover: var(--design-danger-hover);
+  --background-color-error--active: var(--design-danger-active);
+  --background-color-error-subtle: var(--design-danger-subtle);
+  --background-color-error-subtle--hover: var(--design-surface-hover);
+  --background-color-error-subtle--active: var(--design-surface-active);
+  --background-color-warning-subtle: var(--design-warning-subtle);
+  --background-color-success-subtle: var(--design-success-subtle);
+  --background-color-notice-subtle: var(--design-info-subtle);
+  --background-color-content-added: var(--design-info-subtle);
+  --background-color-content-removed: var(--design-warning-subtle);
+  --background-color-target-text: var(--design-warning-subtle);
 
-/* ---------- App-scoped variables (derived from global color scale) ---------- */
-:root {
-  --mw-primary:                var(--design-primary-500);
-  --mw-primary-contrast:       var(--design-surface-2);
-  --mw-secondary:              var(--design-primary-200);
-  --mw-accent:                 var(--design-primary-600);
+  --color-base: var(--design-text);
+  --color-base-fixed: var(--design-text);
+  --color-base--hover: var(--design-text);
+  --color-emphasized: var(--design-text);
+  --color-neutral: var(--design-text-muted);
+  --color-subtle: var(--design-text-muted);
+  --color-base--subtle: var(--design-text-muted);
+  --color-placeholder: var(--design-text-muted);
+  --color-disabled: var(--design-text-muted);
+  --color-disabled-emphasized: var(--design-text-muted);
+  --color-inverted: var(--design-on-primary);
+  --color-inverted-fixed: var(--design-on-primary);
+  --color-progressive: var(--design-link);
+  --color-progressive--hover: var(--design-link);
+  --color-progressive--active: var(--design-link);
+  --color-progressive--focus: var(--design-link);
+  --color-visited: var(--design-link);
+  --color-visited--hover: var(--design-link);
+  --color-visited--active: var(--design-link);
+  --color-destructive: var(--design-danger);
+  --color-destructive--hover: var(--design-danger);
+  --color-destructive--active: var(--design-danger);
+  --color-destructive--focus: var(--design-danger);
+  --color-destructive--visited: var(--design-danger);
+  --color-destructive--visited--hover: var(--design-danger);
+  --color-destructive--visited--active: var(--design-danger);
+  --color-error: var(--design-danger);
+  --color-error--hover: var(--design-danger);
+  --color-error--active: var(--design-danger);
+  --color-warning: var(--design-warning);
+  --color-success: var(--design-success);
+  --color-notice: var(--design-info);
+  --color-content-added: var(--design-success);
+  --color-content-removed: var(--design-danger);
+  --color-icon-error: var(--design-danger);
+  --color-icon-warning: var(--design-warning);
+  --color-icon-success: var(--design-success);
+  --color-icon-notice: var(--design-info);
+  --color-icon-progressive: var(--design-link);
 
-  --mw-surface:                var(--design-primary-100);
-  --mw-surface-variant:        var(--design-primary-200);
-  --mw-surface-muted:          var(--design-primary-100);
-
-  --mw-text:                   var(--design-primary-950);
-  --mw-text-muted:             var(--design-primary-700);
-  --mw-heading:                var(--design-primary-950);
-  --mw-link:                   var(--design-primary-600);
-  --mw-link-hover:             var(--design-primary-500);
-  --mw-link-visited:           var(--design-primary-700);
-
-  --mw-border:                 var(--design-primary-200);
-  --mw-divider:                var(--design-primary-200);
-  --mw-focus:                  rgba(var(--design-primary-500-rgb), .35);
-
-  --mw-success:                var(--bs-success);
-  --mw-warning:                var(--bs-warning);
-  --mw-danger:                 var(--bs-danger);
+  --border-color-base: var(--design-border);
+  --border-color-subtle: var(--design-border);
+  --border-color-muted: var(--design-border);
+  --border-color-divider: var(--design-border);
+  --border-color-disabled: var(--design-border);
+  --border-color-emphasized: var(--design-border-strong);
+  --border-color-interactive: var(--design-border-strong);
+  --border-color-interactive--hover: var(--design-text-muted);
+  --border-color-interactive--active: var(--design-text-muted);
+  --border-color-progressive: var(--design-primary);
+  --border-color-progressive--hover: var(--design-primary-hover);
+  --border-color-progressive--active: var(--design-primary-active);
+  --border-color-progressive--focus: var(--design-focus, var(--design-link));
+  --border-color-destructive: var(--design-danger-border);
+  --border-color-destructive--hover: var(--design-danger-hover);
+  --border-color-destructive--active: var(--design-danger-active);
+  --border-color-destructive--focus: var(--design-focus, var(--design-link));
+  --border-color-error: var(--design-danger-border);
+  --border-color-error--hover: var(--design-danger-hover);
+  --border-color-error--active: var(--design-danger-active);
+  --border-color-warning: var(--design-warning-border);
+  --border-color-warning--hover: var(--design-warning-hover);
+  --border-color-warning--active: var(--design-warning-active);
+  --border-color-success: var(--design-success-border);
+  --border-color-notice: var(--design-info-border);
+  --border-color-content-added: var(--design-info-border);
+  --border-color-content-removed: var(--design-warning-border);
+  --outline-color-progressive--focus: var(--design-focus, var(--design-link));
+  --box-shadow-color-progressive--focus: var(--design-focus, var(--design-link));
+  --box-shadow-color-destructive--focus: var(--design-focus, var(--design-link));
+  --box-shadow-color-progressive--active: var(--design-primary-active);
+  --box-shadow-color-progressive-selected: var(--design-primary);
+  --box-shadow-color-progressive-selected--hover: var(--design-primary-hover);
+  --box-shadow-color-progressive-selected--active: var(--design-primary-active);
+  --accent-color-base: var(--design-primary);
 }
 
-body.skin-vector,
-.skin-vector .mw-page-container {
-  background-color: var(--mw-surface);
-  background-image: linear-gradient(135deg,
-    var(--mw-surface),
-    var(--mw-surface-variant),
-    var(--mw-surface-muted),
-    var(--mw-surface)
-  );
-  color: var(--mw-text);
+.cdx-button--action-destructive,
+.oo-ui-flaggedElement-destructive {
+  --color-inverted: var(--design-on-danger);
+  --color-inverted-fixed: var(--design-on-danger);
 }
 
-.skin-vector .vector-header,
-.skin-vector .vector-header-container,
-.skin-vector .mw-header {
-  background-color: var(--design-primary-300);
-  background-image: linear-gradient(135deg,
-    var(--design-primary-400), var(--design-primary-300), var(--design-primary-300), var(--design-primary-200)
-  );
-  color: var(--design-primary-950);
-  border-bottom: 1px solid var(--mw-divider);
+.oo-ui-flaggedElement-primary.oo-ui-flaggedElement-progressive {
+  --color-progressive--hover: var(--design-primary-hover);
+  --color-progressive--active: var(--design-primary-active);
 }
 
-.skin-vector .mw-logo a,
-.skin-vector .mw-logo svg,
-.skin-vector .vector-header a {
-  color: var(--mw-heading);
-  fill: currentColor;
+.oo-ui-flaggedElement-primary.oo-ui-flaggedElement-destructive {
+  --color-destructive--hover: var(--design-danger-hover);
+  --color-destructive--active: var(--design-danger-active);
 }
 
-.skin-vector .vector-sidebar,
-.skin-vector .mw-portlet,
-.skin-vector .vector-menu-content {
-  background-color: var(--mw-surface-variant);
-  border-color: var(--mw-border);
+textarea {
+  border-color: var(--design-border-strong);
 }
 
-.skin-vector .vector-sidebar .vector-menu-heading,
-.skin-vector .vector-menu-heading {
-  color: var(--mw-heading);
-  border-bottom: 1px solid var(--mw-divider);
+fieldset {
+  border-color: var(--design-border);
 }
 
-.skin-vector .vector-toc,
-.skin-vector .vector-toc .vector-toc-contents {
-  background-color: var(--mw-surface-muted);
-  border: 1px solid var(--mw-border);
-}
-
-.skin-vector .vector-toc .vector-toc-text {
-  color: var(--mw-text);
-}
-
-.skin-vector .mw-content-container,
-.skin-vector .mw-content-ltr,
-.skin-vector .mw-body,
-.skin-vector .mw-parser-output {
-  color: var(--mw-text);
-}
-
-.skin-vector .mw-parser-output h1,
-.skin-vector .mw-parser-output h2,
-.skin-vector .mw-parser-output h3,
-.skin-vector .mw-parser-output h4,
-.skin-vector .mw-parser-output h5,
-.skin-vector .mw-parser-output h6 {
-  color: var(--mw-heading);
-}
-
-.skin-vector .mw-parser-output a { color: var(--mw-link); }
-.skin-vector .mw-parser-output a:visited { color: var(--mw-link-visited); }
-.skin-vector .mw-parser-output a:hover,
-.skin-vector .mw-parser-output a:focus { color: var(--mw-link-hover); }
-
-.skin-vector .vector-search-box input,
-.skin-vector .vector-search-box .vector-search-input {
-  background-color: var(--mw-surface);
-  border: 1px solid var(--mw-border);
-  color: var(--mw-text);
-}
-
-.skin-vector .vector-search-box input:focus {
-  outline: 0;
-  box-shadow: 0 0 0 3px var(--mw-focus);
-  border-color: var(--mw-link);
-}
-
-.mw-ui-button,
-.mw-ui-button:visited {
-  background-color: var(--mw-surface-muted);
-  color: var(--mw-text);
-  border: 1px solid var(--mw-border);
-}
-
-.mw-ui-button:hover,
-.mw-ui-button:focus {
-  background-color: var(--mw-surface-variant);
-  color: var(--mw-text);
-  border-color: var(--mw-link);
-  box-shadow: 0 0 0 3px var(--mw-focus);
-}
-
-.mw-ui-progressive,
-.mw-ui-primary {
-  background-color: var(--mw-primary);
-  color: var(--mw-primary-contrast);
-  border-color: var(--mw-primary);
-}
-
-.mw-ui-progressive:hover,
-.mw-ui-primary:hover {
-  filter: brightness(0.95);
-}
-
-/* OOUI (covers most modern UI widgets) */
-.oo-ui-buttonElement-button {
-  background-color: var(--mw-surface-muted);
-  color: var(--mw-text);
-  border: 1px solid var(--mw-border);
-}
-
-.oo-ui-buttonElement-button:focus-visible {
-  outline: 0;
-  box-shadow: 0 0 0 3px var(--mw-focus);
-  border-color: var(--mw-link);
-}
-
-.oo-ui-flaggedElement-progressive > .oo-ui-buttonElement-button,
-.oo-ui-flaggedElement-primary > .oo-ui-buttonElement-button {
-  background-color: var(--mw-primary);
-  color: var(--mw-primary-contrast);
-  border-color: var(--mw-primary);
-}
-
-.mw-ui-input,
-.oo-ui-inputWidget-input {
-  background-color: var(--mw-surface);
-  color: var(--mw-text);
-  border: 1px solid var(--mw-border);
-}
-
-.oo-ui-inputWidget-input:focus,
-.mw-ui-input:focus {
-  outline: 0;
-  box-shadow: 0 0 0 3px var(--mw-focus);
-  border-color: var(--mw-link);
-}
-
-table.wikitable,
-.mw-parser-output table.infobox,
-.mw-parser-output table.prettytable {
-  background-color: var(--design-surface-2);
-  border: 1px solid var(--mw-border);
-  color: var(--mw-text);
-}
-
-table.wikitable > * > tr > th,
-table.wikitable > * > tr > td {
-  border: 1px solid var(--mw-border);
-}
-
-table.wikitable > * > tr > th {
-  background-color: var(--design-primary-300);
-  background-image: linear-gradient(135deg,
-    var(--design-primary-400), var(--design-primary-300), var(--design-primary-300), var(--design-primary-200)
-  );
-  color: var(--mw-heading);
-}
-
-.mw-notification,
-.mw-message-box,
-.mw-message-box-notice {
-  background-color: var(--mw-surface-muted);
-  border-color: var(--mw-border);
-  color: var(--mw-text);
-}
-
-.mw-message-box-warning {
-  border-left: 4px solid var(--mw-warning);
-}
-
-.mw-message-box-error {
-  border-left: 4px solid var(--mw-danger);
-}
-
-.mw-message-box-success {
-  border-left: 4px solid var(--mw-success);
-}
-
-/* ---------- Footer ---------- */
-.skin-vector .mw-footer {
-  background-color: var(--mw-surface-variant);
-  border-top: 1px solid var(--mw-divider);
-  color: var(--mw-text-muted);
-}
-
-/* ---------- Dark-mode helpers (for browser extensions honoring vars) ---------- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --mw-text:         var(--design-primary-200);
-    --mw-text-muted:   var(--design-primary-300);
-    --mw-heading:      var(--design-primary-100);
-  }
+.mw-prefs-tabs:not(.mw-prefs-tabs-searching) .oo-ui-fieldsetLayout:target > .oo-ui-fieldsetLayout-header > .oo-ui-labelElement-label {
+  outline-color: var(--design-primary-50);
 }

@@ -1,27 +1,41 @@
 ---
-- name: "📁 Create / promote MediaWiki admin user (one-shot)"
-  ansible.builtin.command: >-
-    container run --rm
-    --network {{ MEDIAWIKI_NETWORK_DATABASE }}
-    -u {{ MEDIAWIKI_USER }}
-    -v {{ MEDIAWIKI_VOLUME_IMAGES }}:{{ MEDIAWIKI_HTML_DIR }}/images
-    -v {{ MEDIAWIKI_VOLUME_EXTENSIONS }}:{{ MEDIAWIKI_HTML_DIR }}/extensions
-    -v {{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}:{{ MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH }}:ro
-    -v {{ MEDIAWIKI_LOCAL_MOUNT_DIR }}:{{ MEDIAWIKI_LOCAL_PATH }}:ro
-    {{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}
-    php {{ MEDIAWIKI_HTML_DIR }}/maintenance/run.php createAndPromote
-    --bureaucrat --sysop
-    {{ MEDIAWIKI_ADMINISTRATOR_NAME }}
-    {{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}
-  register: create_admin
-  changed_when: >
-    ('created' in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default('')))) or
-    ('Created' in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
-  failed_when: >
-    create_admin.rc != 0 and
-    ('already exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
-    and
-    ('Account exists' not in ((create_admin.stdout | default('')) ~ (create_admin.stderr | default(''))))
-  run_once: true
-  delegate_to: "{{ STACK_HOST }}"
+- name: "📄 Stage the MediaWiki administrator convergence script"
+  ansible.builtin.copy:
+    src: php/converge_admin.php
+    dest: "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}/converge_admin.php"
+    owner: root
+    group: "{{ MEDIAWIKI_USER_GID }}"
+    mode: "0640"
+
+- name: "👑 Converge the MediaWiki platform administrator"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --network
+      - "{{ MEDIAWIKI_NETWORK_DATABASE }}"
+      - -u
+      - "{{ MEDIAWIKI_USER }}"
+      - -e
+      - MW_ADMIN_NAME
+      - -e
+      - MW_ADMIN_PASSWORD
+      - -v
+      - "{{ MEDIAWIKI_VOLUME_IMAGES }}:{{ MEDIAWIKI_HTML_DIR }}/images"
+      - -v
+      - "{{ MEDIAWIKI_VOLUME_EXTENSIONS }}:{{ MEDIAWIKI_HTML_DIR }}/extensions"
+      - -v
+      - "{{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}:{{ MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH }}:ro"
+      - -v
+      - "{{ MEDIAWIKI_LOCAL_MOUNT_DIR }}:{{ MEDIAWIKI_LOCAL_PATH }}:ro"
+      - "{{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}"
+      - php
+      - "{{ MEDIAWIKI_HTML_DIR }}/maintenance/run.php"
+      - "{{ MEDIAWIKI_LOCAL_PATH }}/converge_admin.php"
+  environment:
+    MW_ADMIN_NAME: "{{ MEDIAWIKI_ADMINISTRATOR_NAME }}"
+    MW_ADMIN_PASSWORD: "{{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}"
+  register: mediawiki_admin_converge
+  changed_when: mediawiki_admin_converge.stdout_lines | intersect(['created', 'changed']) | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
