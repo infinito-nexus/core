@@ -1,0 +1,4 @@
+# Todos
+
+- The `roulette-wheel` container idles at 238.1 MiB of its 265 MiB `mem_limit` (89.9 %, 0 restarts, not OOM-killed, measured with `docker stats` after the baseline deploy): `npm run start` serves the page through `webpack-dev-server` in development mode with `ts-loader`, although the page only loads the production bundle `scripts/bundle.js` that `npm run build` already wrote. Options: serve the built `dist/` statically (a static file server stage in `files/Dockerfile`), or raise `mem_limit` in `meta/services.yml`.
+- The wheel labels and outlines stay black in dark mode: upstream `src/app.ts` draws them on the canvas with `ctx.fillStyle = "black"` and the default black stroke, which no stylesheet reaches, so a label on a dark segment stays below AA (as upstream on `#121212`). Options: an upstream option for the label color, or a design script that wraps `fillText` and `stroke` of the wheel's 2D context and picks `--design-text` per segment luminance.
