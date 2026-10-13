@@ -18,16 +18,10 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
   run_once: true
+  notify: container-recreate
 
-- name: "🔄 Restart the hub so it loads the rewritten auth store"
-  ansible.builtin.command:
-    argv:
-      - container
-      - restart
-      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
-  changed_when: true
-  delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
-  run_once: true
+- name: "🚿 Recreate the hub so it loads the rewritten auth store"
+  ansible.builtin.meta: flush_handlers
 
 - name: "👤 Check the realigned owner password against the restarted hub"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/owner/provision.yml"
