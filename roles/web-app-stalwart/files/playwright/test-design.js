@@ -51,6 +51,12 @@ const WEBUI_ROW = "table tbody tr";
 const WEBUI_MENU = "[role='menu']";
 const WEBUI_DIALOG = "[role='dialog']";
 const WEBUI_SIDEBAR = "aside";
+const WEBUI_SEARCH = "header button:has(kbd), header button[aria-label='Search']";
+const WEBUI_PALETTE = "[role='dialog']:has([cmdk-input])";
+const WEBUI_PALETTE_SELECTED = "[cmdk-item][data-selected='true']";
+const WEBUI_PALETTE_QUERY = "domain";
+const WEBUI_TOOLTIP = "[data-radix-popper-content-wrapper] > *";
+const WEBUI_UPSTREAM_TITLE = "Stalwart WebUI";
 const WEBMAIL_SIGN_IN = `${webmailBaseUrl}/?_task=login`;
 const WEBMAIL_INBOX = `${webmailBaseUrl}/?_task=mail&_mbox=INBOX`;
 const WEBMAIL_USER = "#rcmloginuser";
@@ -58,6 +64,7 @@ const WEBMAIL_PASSWORD = "#rcmloginpwd";
 const WEBMAIL_SUBMIT = "#rcmloginsubmit";
 const WEBMAIL_LOGO = "#logo";
 const WEBMAIL_LIST = "#messagelist";
+const WEBMAIL_FOLDER = "#mailboxlist li.mailbox";
 const WEBMAIL_FRAME = "#layout-menu";
 const WEBMAIL_TASK = "#taskmenu a";
 const WEBMAIL_THEME = "#taskmenu a.theme";
@@ -111,6 +118,34 @@ function shown(selector) {
     await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
     await animationsSettled(page);
   };
+}
+
+function literal(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Args:
+ *   page: Playwright page of the web administration whose document title is checked.
+ *   label: page name the failure messages carry.
+ */
+async function assertBrandedTitle(page, label) {
+  await expect(page, `${label}: the document title must end with the design title`).toHaveTitle(
+    new RegExp(`(^|\\s·\\s)${literal(title)}$`),
+  );
+  expect(await page.title(), `${label}: the upstream name must leave the document title`).not.toContain(WEBUI_UPSTREAM_TITLE);
+}
+
+/**
+ * Args:
+ *   page: Playwright page that shows the web administration; the search control of the top bar opens the command palette.
+ */
+async function webuiPaletteOpened(page) {
+  await page.locator(WEBUI_SEARCH).locator("visible=true").first().click();
+  await shown(`${WEBUI_PALETTE} [cmdk-input]`)(page);
+  await expect(page.locator(WEBUI_PALETTE).first()).toHaveCSS("opacity", "1");
+  await page.locator(`${WEBUI_PALETTE} [cmdk-input]`).pressSequentially(WEBUI_PALETTE_QUERY);
+  await shown(WEBUI_PALETTE_SELECTED)(page);
 }
 
 /**
@@ -327,6 +362,14 @@ function webuiViews() {
       },
     },
     {
+      name: "webui-command-palette",
+      url: WEBUI_ACCOUNTS,
+      prepare: async (page) => {
+        await shown(WEBUI_ROW)(page);
+        await webuiPaletteOpened(page);
+      },
+    },
+    {
       name: "webui-navigation",
       url: WEBUI_ACCOUNTS,
       prepare: async (page) => {
@@ -531,6 +574,51 @@ test("design: the signed-in web administration takes surfaces and text from the 
   await page.emulateMedia({ colorScheme: null });
 });
 
+test("design: the table rows of the web administration are divided by --design-border in both modes", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await followColorScheme(page);
+  await signInWebui(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await gotoOnion(page, WEBUI_ACCOUNTS);
+    await shown(WEBUI_ROW)(page);
+    await expect(page.locator("html")).toHaveAttribute("data-design-theme", mode);
+    await assertToken(page, WEBUI_ROW, "border-bottom-color", "--design-border", `account table row ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+});
+
+test("design: the folder list of the webmail is divided by --design-border in both modes", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await signInWebmail(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await gotoOnion(page, WEBMAIL_INBOX);
+    await shown(WEBMAIL_FOLDER)(page);
+    await expect(page.locator("html")).toHaveClass(mode === "dark" ? /dark-mode/ : /^(?!.*dark-mode)/);
+    await assertToken(page, WEBMAIL_FOLDER, "border-bottom-color", "--design-border", `webmail folder list ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+});
+
+test("design: the command palette of the web administration takes surface, border and text from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await followColorScheme(page);
+  await signInWebui(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await gotoOnion(page, WEBUI_ACCOUNTS);
+    await shown(WEBUI_ROW)(page);
+    await webuiPaletteOpened(page);
+    await assertToken(page, WEBUI_PALETTE, "background-color", "--design-surface-2", `command palette ${mode}`);
+    await assertToken(page, WEBUI_PALETTE, "border-top-color", "--design-border", `command palette ${mode}`);
+    await assertToken(page, `${WEBUI_PALETTE} [cmdk-input]`, "color", "--design-text", `command palette ${mode}`);
+    await assertToken(page, WEBUI_PALETTE_SELECTED, "background-color", "--design-surface-active", `selected palette entry ${mode}`);
+    await assertToken(page, WEBUI_PALETTE_SELECTED, "color", "--design-text", `selected palette entry ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+});
+
 test("design: the theme toggle of the web administration is respected and mirrored", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   await page.emulateMedia({ colorScheme: "light" });
@@ -569,7 +657,7 @@ test("design: the web administration shows the generated lockup and the configur
   await page.setViewportSize({ width: 1440, height: 900 });
   await gotoOnion(page, WEBUI_SIGN_IN);
   await shown(WEBUI_USERNAME)(page);
-  if (title) await expect(page).toHaveTitle(title);
+  if (title) await assertBrandedTitle(page, "sign-in");
   if (logoUrl) {
     const logo = page.locator(WEBUI_LOGO);
     await expect(logo).toHaveCSS("background-image", `url("${lockupUrl || logoUrl}")`);
@@ -592,6 +680,17 @@ test("design: the web administration shows the generated lockup and the configur
         parseFloat(await computed(page, WEBUI_USERNAME, "font-size")),
       );
     }
+  }
+  await signInWebui(page);
+  await gotoOnion(page, WEBUI_ACCOUNTS);
+  await shown(WEBUI_ROW)(page);
+  if (title) await assertBrandedTitle(page, "accounts");
+  if (logoUrl) {
+    await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);
+    await page.locator(WEBUI_LOGO).hover();
+    await shown(WEBUI_TOOLTIP)(page);
+    await assertToken(page, WEBUI_TOOLTIP, "background-color", "--design-primary", "logo tooltip");
+    await assertToken(page, WEBUI_TOOLTIP, "color", "--design-on-primary", "logo tooltip");
   }
 });
 
@@ -697,7 +796,7 @@ test("design: the webmail shows the generated logo and the configured title", as
   test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
   await page.setViewportSize({ width: 1440, height: 900 });
   await signInWebmail(page);
-  if (title) await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  if (title) await expect(page).toHaveTitle(new RegExp(literal(title)));
   if (logoUrl) {
     await expect(page.locator(WEBMAIL_LOGO)).toHaveAttribute("src", logoUrl);
     await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
