@@ -19,9 +19,6 @@ const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
 const ldapEnabled = process.env.LDAP_SERVICE_ENABLED === "true";
-const brandingUrl = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_BRANDING_URL, "DESIGN_BRANDING_URL"));
-const faviconUrl = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL"));
-const iconUrl = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL"));
 const mastheadUrl = decodeDotenvQuotedValue(process.env.DESIGN_MASTHEAD_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
@@ -374,6 +371,8 @@ test("design: the header and the sign-in page show the generated logo and the co
     await expect.poll(() => page.title()).toContain(title);
   }
   if (mastheadUrl) {
+    const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
+    const iconUrl = requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL");
     await expect(page.locator(HEADER_LOGO)).toHaveCSS("content", `url("${mastheadUrl}")`);
     const box = await page.locator(HEADER_LOGO).boundingBox();
     expect(box.width, "the header lockup must be wider than high").toBeGreaterThan(box.height);
@@ -382,6 +381,7 @@ test("design: the header and the sign-in page show the generated logo and the co
     await expect(page.locator(HEADER_LOGO)).toHaveCSS("content", `url("${iconUrl}")`);
   }
   if (!ssoEnabled && mastheadUrl) {
+    const brandingUrl = requireDotenvValue(process.env.DESIGN_BRANDING_URL, "DESIGN_BRANDING_URL");
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.context().clearCookies();
     await gotoOnion(page, `${base}/login`);

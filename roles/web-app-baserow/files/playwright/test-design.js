@@ -28,7 +28,6 @@ const adminEmail = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_
 const adminUsername = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME"));
 const adminPassword = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD"));
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
-const faviconUrl = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL"));
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const symbolUrl = decodeDotenvQuotedValue(process.env.DESIGN_SYMBOL_URL || "");
 const title = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_TITLE, "DESIGN_TITLE"));
@@ -390,6 +389,7 @@ test("design: the API documentation keeps its example column readable", async ({
 test("design: sign-in page and sidebar show the generated logo and the configured title", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl, "logo replacement is disabled for this role");
+  const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
   if (!ssoEnabled) {
     await gotoOnion(page, `${base}/login`);
     await shown(PASSWORD)(page);

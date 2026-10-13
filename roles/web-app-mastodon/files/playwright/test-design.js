@@ -31,7 +31,6 @@ const adminUsername = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADM
 const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const wordmarkUrl = decodeDotenvQuotedValue(process.env.DESIGN_WORDMARK_URL || "");
-const iconUrl = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL"));
 
 const MODES = ["light", "dark"];
 const DESKTOP = { width: 1440, height: 900 };
@@ -346,6 +345,7 @@ test("design: a color scheme picked in the appearance settings is respected and 
 test("design: navigation, auth page, administration and tab show the generated logo and the configured title", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!wordmarkUrl, "logo replacement is disabled for this role");
+  const iconUrl = requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL");
   await page.setViewportSize(DESKTOP);
   await signIn(page);
   const navLogo = page.locator(".navigation-panel__logo svg.logo--wordmark");

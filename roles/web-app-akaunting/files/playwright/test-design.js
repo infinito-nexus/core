@@ -19,7 +19,6 @@ const adminPassword = decodeDotenvQuotedValue(requireDotenvValue(process.env.AKA
 const ssoUsername = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME"));
 const ssoPassword = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD"));
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
-const faviconUrl = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL"));
 const documentColor = decodeDotenvQuotedValue(process.env.DESIGN_DOCUMENT_COLOR || "");
 
 const MODES = ["light", "dark"];
@@ -316,6 +315,7 @@ test("design: a document head painted with the provisioned color follows the pri
 test("design: sign-in page and sidebar show the generated logo and favicon", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl, "logo replacement is disabled for this role");
+  const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
   await openSignIn(page);
   await expect(page.locator(LOGO).first()).toHaveCSS("content", `url("${logoUrl}")`);
   await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
