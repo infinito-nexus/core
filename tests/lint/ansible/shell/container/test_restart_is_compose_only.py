@@ -48,10 +48,12 @@ import yaml
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from . import PROJECT_ROOT
 
 _RULE = "container-restart-compose-only"
+_ROLE_TASKS = f"roles/x/{ROLE_FILE_TASKS_MAIN}"
 _RESTART = re.compile(r"\b(?:container|docker)\s+restart\b")
 _MODE = re.compile(r"\bIS_(?:COMPOSE|SWARM)_MODE\b")
 _COMMENT = re.compile(r"^\s*#")
@@ -313,18 +315,18 @@ class TestGateDetection(unittest.TestCase):
     UNGATED = "- name: restart it\n  ansible.builtin.command: container restart x\n"
 
     def test_a_when_gate_on_the_task_is_accepted(self) -> None:
-        self.assertEqual([], _offenders("roles/x/tasks/main.yml", self.MODE_GATED))
+        self.assertEqual([], _offenders(_ROLE_TASKS, self.MODE_GATED))
 
     def test_a_when_gate_on_an_enclosing_block_is_accepted(self) -> None:
-        self.assertEqual([], _offenders("roles/x/tasks/main.yml", self.BLOCK_GATED))
+        self.assertEqual([], _offenders(_ROLE_TASKS, self.BLOCK_GATED))
 
     def test_a_branch_inside_the_command_is_accepted(self) -> None:
-        self.assertEqual([], _offenders("roles/x/tasks/main.yml", self.INLINE_BRANCH))
+        self.assertEqual([], _offenders(_ROLE_TASKS, self.INLINE_BRANCH))
 
     def test_an_ungated_restart_is_reported(self) -> None:
         self.assertEqual(
-            ["roles/x/tasks/main.yml:2"],
-            _offenders("roles/x/tasks/main.yml", self.UNGATED),
+            [f"{_ROLE_TASKS}:2"],
+            _offenders(_ROLE_TASKS, self.UNGATED),
         )
 
     ARGV_UNGATED = (
@@ -339,12 +341,12 @@ class TestGateDetection(unittest.TestCase):
 
     def test_an_argv_restart_is_reported(self) -> None:
         self.assertEqual(
-            ["roles/x/tasks/main.yml:3"],
-            _offenders("roles/x/tasks/main.yml", self.ARGV_UNGATED),
+            [f"{_ROLE_TASKS}:3"],
+            _offenders(_ROLE_TASKS, self.ARGV_UNGATED),
         )
 
     def test_a_gated_argv_restart_is_accepted(self) -> None:
-        self.assertEqual([], _offenders("roles/x/tasks/main.yml", self.ARGV_GATED))
+        self.assertEqual([], _offenders(_ROLE_TASKS, self.ARGV_GATED))
 
     def test_a_swarm_abort_before_the_include_gates_the_file(self) -> None:
         caller = [
@@ -376,7 +378,7 @@ class TestGateDetection(unittest.TestCase):
         suppressed = self.UNGATED.replace(
             "container restart x", f"container restart x # nocheck: {_RULE} reason"
         )
-        self.assertEqual([], _offenders("roles/x/tasks/main.yml", suppressed))
+        self.assertEqual([], _offenders(_ROLE_TASKS, suppressed))
 
 
 if __name__ == "__main__":
