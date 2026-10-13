@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 
 require("./test-seaweedfs");
+require("./test-design");
 
 
 test.use({ ignoreHTTPSErrors: true });
