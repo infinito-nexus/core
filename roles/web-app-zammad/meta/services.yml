@@ -39,6 +39,17 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 126
+      height: 108
+      frame: true
+    brand:
+      width: 300
+      height: 90
+    apple-touch-icon:
+      width: 180
+      height: 180
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests

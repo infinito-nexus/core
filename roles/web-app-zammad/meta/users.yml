@@ -1,5 +1,4 @@
 ---
-administrator: {}
 helpdesk:
   roles:
     - bot
@@ -20,3 +19,4 @@ mcp-web-app-zammad:
   lastname: MCP
   accounts: []
   description: Account the Zammad MCP token belongs to; a read-only agent rather than the initial administrator
+platform_administrator: {}

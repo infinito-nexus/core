@@ -1,7 +1,15 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const {
+  apiFetchOnion,
+  apiGetOnion,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+  runGuestFlow,
+} = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
@@ -53,6 +61,28 @@ async function signInAsApiBot(page) {
   }
 
   await gotoOnion(page, `${zammadBaseUrl}/`, { waitUntil: "domcontentloaded" });
+}
+
+/**
+ * Args:
+ *   page: Playwright page whose cookie jar receives the Zammad session.
+ *   username: login of a native Zammad account.
+ *   password: its password.
+ *
+ * Returns:
+ *   The response of `POST /api/v1/signin`.
+ */
+async function signInWithZammadPassword(page, username, password) {
+  await page.context().clearCookies();
+  const request = page.context().request;
+  const seed = await apiGetOnion(request, `${zammadBaseUrl}/api/v1/signshow`, { headers: { Accept: "application/json" } });
+  const csrfToken = seed.headers()["csrf-token"];
+  expect(csrfToken, "signshow must hand out a csrf token").toBeTruthy();
+  return apiFetchOnion(request, `${zammadBaseUrl}/api/v1/signin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRF-Token": csrfToken },
+    data: { username, password, fingerprint: "playwright-password" },
+  });
 }
 
 async function signInViaZammadOidc(page, username, password, personaLabel) {
@@ -111,6 +141,7 @@ module.exports = {
     canonicalDomain,
   },
   signInViaZammadOidc,
+  signInWithZammadPassword,
   signInAsApiBot,
   zammadLogout,
   beforeEach,
