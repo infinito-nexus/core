@@ -29,6 +29,19 @@ fact HTTP 404. The guard against it is ``_CONNECTIVITY_CANARIES``: before any
 probing, the suite checks the infrastructure hosts the repository actually
 depends on, and fails outright when they are unreachable. A run that cannot
 reach its subject does not pass; it does not run.
+
+Probing runs ``INFINITO_WORKER_FETCH`` requests wide, and nothing used to stop
+that pool from aiming most of them at one host. A run that put all seven
+``huggingface.co`` model-download URLs in flight together collected six read
+timeouts and one HTTP 404 -- fatal -- while the nine ordinary
+``huggingface.co`` page URLs of the same pass answered normally: the host was
+throttling the prober, not missing a file. ``_MAX_REQUESTS_PER_HOST`` bounds
+how many requests may be in flight against one hostname and leaves total
+parallelism alone. It sits below the seven that provoked that run, and below
+the six connections per host Chrome and Firefox allow, because every probe
+here opens a fresh connection instead of reusing a kept-alive one. The cost is
+paid by whichever host holds the most URLs, which becomes the pass's critical
+path.
 """
 
 from __future__ import annotations
@@ -40,8 +53,10 @@ import random
 import re
 import subprocess
 import sys
+import threading
 import time
 import unittest
+import unittest.mock
 from collections import defaultdict
 from pathlib import Path
 from typing import NamedTuple
@@ -54,6 +69,7 @@ from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_non_ignored_files, read_text
 
 from . import PROJECT_ROOT
+from ._host_gate import host_gate
 
 _REPO_ROOT = PROJECT_ROOT
 _URL_RE = re.compile(r"https?://[^\s<>'\"`\]]+")
@@ -94,6 +110,7 @@ _USER_AGENT = (
     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 )
 _MAX_WORKERS = int(os.environ["INFINITO_WORKER_FETCH"])
+_MAX_REQUESTS_PER_HOST = 4
 _GLOBAL_DEADLINE_SECONDS = 5 * 3600 + 30 * 60
 _PROGRESS_INTERVAL = 50
 
@@ -273,17 +290,18 @@ def _probe_key(url: str) -> str:
 def _probe_url(url: str) -> ProbeOutcome:
     """Probe one URL and classify the result for external-test stability."""
     try:
-        response = requests.get(
-            url,
-            allow_redirects=False,
-            headers={"User-Agent": _USER_AGENT},
-            stream=True,
-            timeout=_REQUEST_TIMEOUT_SECONDS,
-        )
-        try:
-            status = response.status_code
-        finally:
-            response.close()
+        with host_gate(url, _MAX_REQUESTS_PER_HOST):
+            response = requests.get(
+                url,
+                allow_redirects=False,
+                headers={"User-Agent": _USER_AGENT},
+                stream=True,
+                timeout=_REQUEST_TIMEOUT_SECONDS,
+            )
+            try:
+                status = response.status_code
+            finally:
+                response.close()
     except requests.Timeout as exc:
         return ProbeOutcome("unverified", f"Timeout: {exc}")
     except requests.ConnectionError as exc:
@@ -507,6 +525,64 @@ class TestUrlsReachable(unittest.TestCase):
             suffix = "" if count == 1 else f" ({count} occurrences)"
             lines.append(f"  {rel}:{occurrence.line}: {message}{suffix}")
         self.fail("\n".join(lines))
+
+
+class _FakeResponse:
+    """Stand-in for the streamed response ``_probe_url`` reads and closes."""
+
+    status_code = 200
+
+    def close(self) -> None:
+        return
+
+
+class _ConcurrencyRecorder:
+    """``requests.get`` replacement recording the peak in-flight count per host."""
+
+    def __init__(self, hold_seconds: float) -> None:
+        self._hold_seconds = hold_seconds
+        self._lock = threading.Lock()
+        self._in_flight: dict[str, int] = defaultdict(int)
+        self.peak: dict[str, int] = defaultdict(int)
+
+    def __call__(self, url: str, **_kwargs: object) -> _FakeResponse:
+        host = (urlsplit(url).hostname or "").lower()
+        with self._lock:
+            self._in_flight[host] += 1
+            self.peak[host] = max(self.peak[host], self._in_flight[host])
+        time.sleep(self._hold_seconds)
+        with self._lock:
+            self._in_flight[host] -= 1
+        return _FakeResponse()
+
+
+class TestHostConcurrencyCap(unittest.TestCase):
+    """One host absorbs at most ``_MAX_REQUESTS_PER_HOST`` probes at a time."""
+
+    def test_each_host_gets_its_own_capped_budget(self) -> None:
+        hosts = ("cap-probe-one.invalid", "cap-probe-two.invalid")
+        urls = [
+            f"https://{host}/{index}"
+            for host in hosts
+            for index in range(_MAX_REQUESTS_PER_HOST * 3)
+        ]
+        recorder = _ConcurrencyRecorder(hold_seconds=0.05)
+
+        with (
+            unittest.mock.patch.object(requests, "get", recorder),
+            concurrent.futures.ThreadPoolExecutor(len(urls)) as pool,
+        ):
+            outcomes = list(pool.map(_probe_url, urls))
+
+        self.assertEqual({outcome.kind for outcome in outcomes}, {"ok"})
+        for host in hosts:
+            self.assertEqual(
+                recorder.peak[host],
+                _MAX_REQUESTS_PER_HOST,
+                f"{host} peaked at {recorder.peak[host]} simultaneous probes "
+                f"against a cap of {_MAX_REQUESTS_PER_HOST}: above it the gate is"
+                " missing, below it the two hosts are sharing one gate",
+            )
 
 
 if __name__ == "__main__":

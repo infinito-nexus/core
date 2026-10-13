@@ -25,6 +25,8 @@ from typing import NamedTuple
 
 from utils.packages.schema import SOURCE_AUR
 
+from ._host_gate import host_gate
+
 _TIMEOUT = 20
 _MAX_WORKERS = 16
 _USER_AGENT = "infinito-nexus package availability check"
@@ -32,7 +34,6 @@ _PER_HOST_REQUESTS = 2
 _RETRY_ATTEMPTS = 4
 _RETRY_BACKOFF = 1.0
 _RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
-_HOST_LOCKS: dict[str, threading.Semaphore] = {}
 
 DEBIAN_SUITE = "stable"
 UBUNTU_SUITE = "noble"
@@ -83,8 +84,7 @@ def _get(url: str) -> tuple[int, bytes]:
         The HTTP status and body; the body is empty for an error status.
     """
     request = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})  # noqa: S310 - literal http(s) package index URLs only
-    host = urllib.parse.urlsplit(url).hostname or ""
-    with _HOST_LOCKS.setdefault(host, threading.Semaphore(_PER_HOST_REQUESTS)):
+    with host_gate(url, _PER_HOST_REQUESTS):
         for attempt in range(_RETRY_ATTEMPTS):
             try:
                 with urllib.request.urlopen(request, timeout=_TIMEOUT) as response:  # noqa: S310 - literal http(s) package index URLs only
