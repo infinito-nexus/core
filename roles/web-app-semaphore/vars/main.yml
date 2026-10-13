@@ -28,7 +28,7 @@ SEMAPHORE_OIDC_PROVIDERS_JSON: >-
          "client_id":      OIDC.CLIENT.ID,
          "client_secret":  OIDC.CLIENT.SECRET,
          "redirect_url":   (lookup('tls', application_id, 'url.base') | regex_replace('/+$', '')) ~ "/api/auth/oidc/keycloak/redirect",
-         "username_claim": "preferred_username",
+         "username_claim": OIDC.ATTRIBUTES.USERNAME,
          "email_claim":    "email",
          "name_claim":     "name",
          "scopes":         ["openid", "profile", "email"]

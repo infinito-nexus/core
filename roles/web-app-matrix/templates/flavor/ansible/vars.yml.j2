@@ -123,6 +123,7 @@ matrix_synapse_oidc_providers:
     allow_existing_users: true
     user_mapping_provider:
       config:
+        # nocheck: oidc-claim-name-spot  the scalar is !unsafe so Synapse templates it, not Ansible; an OIDC.ATTRIBUTES reference would stay literal
         localpart_template: !unsafe "{% raw %}{{ user.preferred_username }}{% endraw %}"
         display_name_template: !unsafe "{% raw %}{{ user.name }}{% endraw %}"
         email_template: !unsafe "{% raw %}{{ user.email }}{% endraw %}"

@@ -17,7 +17,7 @@ jenkins:
       serverConfiguration:
         wellKnown:
           wellKnownOpenIDConfigurationUrl: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
-      userNameField: "preferred_username"
+      userNameField: "{{ OIDC.ATTRIBUTES.USERNAME }}"
       groupsFieldName: "groups"
       logoutFromOpenidProvider: true
 {% elif JENKINS_LDAP_ENABLED | bool %}
