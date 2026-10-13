@@ -6,3 +6,4 @@ openwebui-api-bot:
   lastname: API Bot
   accounts: []
   description: API-only administrator used to provision MCP tool-server access grants (NOT an OIDC user)
+platform_administrator: {}

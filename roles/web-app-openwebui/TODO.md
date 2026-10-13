@@ -1,0 +1,4 @@
+# Todos
+
+- Self-registration stays open with `sso` and `ldap` off: `GET /api/config` reports `features.enable_signup: true` while an administrator exists, so any visitor can create a `user` account (`DEFAULT_USER_ROLE=user` in `templates/env.j2`). `ENABLE_SIGNUP` keeps its upstream default `true`, and `ENABLE_PERSISTENT_CONFIG=false` reads it again on every start. Options: render `ENABLE_SIGNUP=false` in `templates/env.j2`, or set `DEFAULT_USER_ROLE=pending` so a self-registered account waits for an administrator.
+- `tasks/utils/mcp_grants.yml` passes `OPENWEBUI_API_BOT_USER.password` and the tool server connections with their bearer tokens as `-e NAME=<value>` argv elements of `container exec`, so a `-vv` deploy log prints them; forward each as `-e NAME` plus `environment:` like `tasks/utils/admin.yml` does.

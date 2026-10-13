@@ -141,6 +141,7 @@ docker run --rm -it \
 
 * Open WebUI: [openwebui.com](https://openwebui.com)
 * Ollama: [ollama.com](https://ollama.com)
+* Corporate design review: [screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/VTv2HRQf1bMXVJW4e5WJPY)
 
 ## MCP Client
 
