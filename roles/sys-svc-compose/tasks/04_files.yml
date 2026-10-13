@@ -41,6 +41,19 @@
       skip: true
   register: env_template
 
+- name: "📁 Create (optional) per-service env files for '{{ application_id }}'"
+  stack_host_template:
+    src: "{{ item }}"
+    dest: "{{ lookup('container', application_id, 'directories.env') }}{{ item | basename | regex_replace('\\.j2$', '.env') }}"
+    mode: "0640"
+    force: true
+  notify:
+    - compose-up
+    - compose-build
+  loop: "{{ query('fileglob', (application_id | abs_role_path_by_application_id) ~ '/templates/env/*.j2') }}"
+  loop_control:
+    label: "{{ item | basename }}"
+
 - name: "📁 Create (optional) compose override for '{{ application_id }}'"
   stack_host_template:
     src: "{{ item }}"

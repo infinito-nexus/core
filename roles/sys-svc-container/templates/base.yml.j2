@@ -4,6 +4,9 @@
 {% if docker_compose_env is defined and docker_compose_env != '' %}
     env_file:
       - "{{ docker_compose_env }}"
+{% elif service_name is defined and query('fileglob', (application_id | abs_role_path_by_application_id) ~ '/templates/env/' ~ service_name ~ '.j2') %}
+    env_file:
+      - "{{ lookup('container', application_id, 'directories.env') }}{{ service_name }}.env"
 {% elif application_id | has_env  %}
     env_file:
       - "{{ lookup('container', application_id, 'files.env') }}"
