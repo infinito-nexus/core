@@ -2,7 +2,7 @@
 - name: 🧹 Unblock the administrator username
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i -u root
-    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'administrator').username | quote }}
+    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'platform_administrator').username | quote }}
     {{ MASTODON_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
@@ -14,7 +14,7 @@
     set -o pipefail
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c \
-      "bin/tootctl accounts create {{ lookup('users', 'administrator').username }} --email {{ lookup('users', 'administrator').email }} --confirmed --role Owner" 2>&1 \
+      "bin/tootctl accounts create {{ lookup('users', 'platform_administrator').username }} --email {{ lookup('users', 'platform_administrator').email }} --confirmed --role Owner" 2>&1 \
       | sed -e '/^New password:/d'
   args:
     executable: /bin/bash
@@ -36,7 +36,7 @@
       - exec
       - -i
       - -e
-      - "MASTODON_ADMIN_USERNAME={{ lookup('users', 'administrator').username }}"
+      - "MASTODON_ADMIN_USERNAME={{ lookup('users', 'platform_administrator').username }}"
       - -e
       - MASTODON_ADMIN_PASSWORD
       - "{{ MASTODON_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -47,7 +47,7 @@
       - "-"
     stdin: "{{ lookup('file', 'ruby/admin_password.rb') }}"
   environment:
-    MASTODON_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MASTODON_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   register: mastodon_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'PASSWORD_CHANGED' in mastodon_admin_password.stdout"
@@ -56,7 +56,7 @@
     or ('PASSWORD_CHANGED' not in mastodon_admin_password.stdout and 'PASSWORD_UNCHANGED' not in mastodon_admin_password.stdout)
 - name: 👍 Approve the administrator account in Mastodon
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'platform_administrator').username }} --approve"
   register: tootctl_approve
   changed_when: false
   # rationale: async; approvals run overlapped, reaped below before the login spec
