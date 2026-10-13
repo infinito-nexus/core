@@ -1,0 +1,22 @@
+---
+- name: "⏳ Wait until pgAdmin is healthy before converging its administrator"
+  ansible.builtin.shell:
+    cmd: >-
+      container inspect --type container --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ PGADMIN_CONTAINER_ADDRESS }}
+  register: pgadmin_health
+  until: pgadmin_health.stdout | trim == "healthy"
+  retries: 60
+  delay: 5
+  changed_when: false
+
+- name: "🔑 Converge the pgAdmin administrator account"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ PGADMIN_CONTAINER_ADDRESS }} /venv/bin/python3 -
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/administrator.py') }}"
+  register: pgadmin_administrator
+  changed_when: "'PGADMIN_ADMINISTRATOR=changed' in pgadmin_administrator.stdout"
+  failed_when: >-
+    pgadmin_administrator.rc != 0
+    or pgadmin_administrator.stdout_lines | select('match', '^PGADMIN_ADMINISTRATOR=(changed|ok)$') | list | length != 1
+  timeout: "{{ lookup('timeout', 600) | int }}"
