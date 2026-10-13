@@ -36,8 +36,8 @@
       - rpc
       - "{{ lookup('file', 'elixir/administrator.exs') }}"
     expand_argument_vars: false
-    stdin: "{{ {'email': lookup('users', 'platform_administrator').email, 'password': lookup('users', 'platform_administrator').password, 'username':
-      lookup('users', 'platform_administrator').username} | to_json }}"
+    stdin: "{{ {'email': lookup('users', 'platform_administrator').email, 'password': lookup('users', 'platform_administrator').password, 'username': lookup('users',
+      'platform_administrator').username} | to_json }}"
   register: mobilizon_administrator
   changed_when: "'MOBILIZON_ADMINISTRATOR=changed' in mobilizon_administrator.stdout"
   failed_when: mobilizon_administrator.rc != 0 or 'MOBILIZON_ADMINISTRATOR=' not in mobilizon_administrator.stdout
