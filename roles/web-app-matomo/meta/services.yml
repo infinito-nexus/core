@@ -86,6 +86,13 @@ design:
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: Matomo on {{ DOMAIN_PRIMARY }}
+  slots:
+    logo:
+      width: 300
+      height: 64
+    favicon:
+      width: 256
+      height: 256
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

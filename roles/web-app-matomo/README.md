@@ -85,7 +85,9 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Real-Time Analytics:** Monitor visitor activity and generate detailed insights instantly.
 - **Robust Tracking:** Track user interactions across your website with comprehensive analytics tools.
 - **Privacy-First:** Enjoy a self-hosted solution that prioritizes data ownership and privacy.
-- **Customizable Setup:** Configure database connections, admin credentials, and server settings via environment variables and a TOML configuration file.
+- **Customizable Setup:** Configure database connections, admin credentials, and server settings via environment variables and Matomo's `config/config.ini.php`, which the role patches on every deploy.
+- **Administrator Password:** The superuser password converges to the configured administrator's password on every deploy.
+- **Corporate Design:** The InfinitoDesign theme plugin maps Matomo's theme colors onto the design tokens and ships the logo set; the administrator and the login page follow the browser color scheme. Both are removed when `design` is off.
 - **Scalable Deployment:** Use Docker to ensure your analytics platform can grow with your traffic demands.
 
 ## Quick Setup
@@ -130,6 +132,7 @@ docker run --rm -it \
 ## Further Resources
 
 - [Matomo Official Website](https://matomo.org/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/8ox3o13gTQiCRE9nnvBPCB)
 
 ## Persona contract opt-outs
 

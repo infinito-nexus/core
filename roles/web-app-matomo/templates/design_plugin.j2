@@ -1,0 +1,14 @@
+plugin.json {{ lookup('file', 'design/plugin.json') | b64encode }}
+InfinitoDesign.php {{ lookup('file', 'php/InfinitoDesign.php') | b64encode }}
+stylesheets/theme.less {{ lookup('file', 'design/theme.less') | b64encode }}
+{% for asset in matomo_design_assets.results %}
+{% if asset.item == 'favicon.png' %}
+images/favicon.png {{ asset.content }}
+images/applogo_256.png {{ asset.content }}
+{% elif asset.item == 'logo.png' %}
+images/logo.png {{ asset.content }}
+images/logo-header.png {{ asset.content }}
+{% else %}
+images/{{ asset.item }} {{ asset.content }}
+{% endif %}
+{% endfor %}

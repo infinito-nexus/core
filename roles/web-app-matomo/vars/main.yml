@@ -29,4 +29,10 @@ MATOMO_EXCLUDED_IPS: "{{ lookup('config', application_id, 'services.matomo.exclu
 
 MATOMO_TOKEN_DESCRIPTION: "{{ lookup('config', application_id, 'services.matomo.token.description') }}"
 
+MATOMO_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+MATOMO_DESIGN_THEME: "InfinitoDesign"
+MATOMO_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'design'] | path_join }}"
+MATOMO_DESIGN_ASSETS: ["logo.svg", "logo.png", "favicon.png"]
+MATOMO_DESIGN_THEME_MODE_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
+
 matomo_index_php_url: "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}/index.php"

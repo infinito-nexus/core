@@ -1,0 +1,199 @@
+#root #logo img.default-piwik-logo,
+#loginPage #logo img.default-piwik-logo {
+  width: auto;
+  filter: none;
+}
+
+table.dataTable tr:not(.subDataTableContainer) td {
+  border-color: var(--design-border) !important;
+}
+
+label,
+.input-field > label,
+.form-group label {
+  color: var(--design-text-muted);
+}
+
+.form-group--error label {
+  color: var(--design-danger);
+}
+
+.input-field > input:not(.browser-default):focus:not([readonly]) + label,
+.input-field > textarea:not(.browser-default):focus:not([readonly]) + label {
+  color: var(--design-link);
+}
+
+input:not([type]):not(.browser-default),
+input[type=text]:not(.browser-default),
+input[type=password]:not(.browser-default),
+input[type=email]:not(.browser-default),
+input[type=url]:not(.browser-default),
+input[type=tel]:not(.browser-default),
+input[type=number]:not(.browser-default),
+input[type=search]:not(.browser-default),
+textarea.materialize-textarea,
+.select-wrapper input.select-dropdown {
+  border-bottom-color: var(--design-border-strong);
+}
+
+select.browser-default,
+#multisitesAllWebsitesDashboard select {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+
+.metricEvolution > .positive-evolution,
+.sparklineEvolution-positive,
+#multisitesAllWebsitesDashboard .kpiCardContainer .kpiTrendPositive,
+#multisitesAllWebsitesDashboard .sitesTable .evolutionTrendPositive {
+  color: var(--design-success);
+}
+
+.metricEvolution > .negative-evolution,
+.sparklineEvolution-negative,
+#multisitesAllWebsitesDashboard .kpiCardContainer .kpiTrendNegative,
+#multisitesAllWebsitesDashboard .sitesTable .evolutionTrendNegative {
+  color: var(--design-danger);
+}
+
+#multisitesAllWebsitesDashboard .kpiCardContainer .kpiTrendNeutral .kpiCardEvolutionIcon {
+  color: var(--design-text-muted);
+}
+
+[data-theme-mode]:root .evolutionBadge.evolutionBadge--positive {
+  color: var(--design-success);
+  background-color: var(--design-success-subtle);
+}
+
+[data-theme-mode]:root .evolutionBadge.evolutionBadge--negative {
+  color: var(--design-danger);
+  background-color: var(--design-danger-subtle);
+}
+
+[data-theme-mode]:root .evolutionBadge.evolutionBadge--neutral {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+}
+
+.icon-delete:hover {
+  color: var(--design-danger);
+}
+
+#javascriptDisabled,
+#javascriptDisabled a {
+  color: var(--design-warning);
+}
+
+.datatableHeaderMessage,
+.datatableFooterMessage,
+h6.sparkline-title,
+div.sparkline .metric-group-title,
+.rss-date {
+  color: var(--design-text-muted);
+}
+
+div.sparkline.linked:hover {
+  border-bottom-color: var(--design-border-strong);
+}
+
+tr:hover #token_auth {
+  background: var(--design-surface-hover);
+}
+
+[data-theme-mode]:root .alert,
+[data-theme-mode]:root .alert a,
+[data-theme-mode]:root .system.notification,
+[data-theme-mode]:root .system.notification a,
+[data-theme-mode]:root .system.notification .close {
+  color: var(--design-text) !important;
+}
+
+.alert.alert-success,
+.system.notification.notification-success {
+  border-color: var(--design-success-border);
+  background-color: var(--design-success-subtle);
+}
+
+.alert.alert-success::before,
+.system.notification.notification-success::before {
+  color: var(--design-success);
+}
+
+.alert.alert-info,
+.system.notification.notification-info {
+  border-color: var(--design-info-border);
+  background-color: var(--design-info-subtle);
+}
+
+.alert.alert-info::before,
+.system.notification.notification-info::before {
+  color: var(--design-info);
+}
+
+.alert.alert-warning,
+.system.notification.notification-warning {
+  border-color: var(--design-warning-border);
+  background-color: var(--design-warning-subtle);
+}
+
+.alert.alert-warning::before,
+.system.notification.notification-warning::before {
+  color: var(--design-warning);
+}
+
+.alert.alert-danger,
+.system.notification.notification-danger,
+.system.notification.notification-error {
+  border-color: var(--design-danger-border);
+  background-color: var(--design-danger-subtle);
+}
+
+.alert.alert-danger::before,
+.system.notification.notification-danger::before,
+.system.notification.notification-error::before {
+  color: var(--design-danger);
+}
+
+#periodString strong,
+.segmentationContainer > span > strong,
+.segmentationContainer .submenu ul li:hover {
+  color: var(--design-link);
+}
+
+.segment-element .segment-top h4,
+.segment-element .segment-top h4 a.dropdown,
+.segmentEditorPanel .segmentationContainer .submenu li {
+  color: var(--design-text);
+}
+
+.dataTable td .ratio,
+.admin .pluginsFilter a .counter,
+.siteSelector a.title span.placeholder,
+table.dataTable tr td .icon-outlink,
+div.dataTableVizHtmlTable tr.subDataTable > td > span.label::before,
+div.dataTableVizAllColumns tr.subDataTable > td > span.label::before {
+  color: var(--design-text-muted);
+}
+
+#loginPage .loginLayout__secondary {
+  --design-focus: var(--design-on-frame);
+  background-image: none;
+  background-color: var(--design-frame);
+}
+
+#loginPage .loginWhatsNew {
+  --design-focus: var(--design-link);
+}
+
+#loginPage .message {
+  border-color: var(--design-warning-border);
+  background-color: var(--design-warning-subtle);
+  color: var(--design-text);
+}
+
+#loginPage #nav a,
+#loginPage #piwik a,
+#loginPage .hints {
+  color: var(--design-text-muted);
+}

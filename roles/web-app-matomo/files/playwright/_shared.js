@@ -112,7 +112,9 @@ async function loginAsAdmin(page) {
     .first();
 
   await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(usernameField).toBeEditable({ timeout: resolveTimeout(10_000) });
   await usernameField.fill(adminUsername);
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(10_000) });
   await passwordField.fill(adminPassword);
   await submitButton.click();
 

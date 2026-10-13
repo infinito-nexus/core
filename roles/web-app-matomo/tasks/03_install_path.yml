@@ -68,3 +68,9 @@
 
 - name: "📄 Matomo | Re-render consumer injections after the final compose flush"
   include_tasks: 08_reinject_consumers.yml
+
+- name: "🔑 Converge the administrator password of {{ application_id }}"
+  include_tasks: 09_admin_password.yml
+
+- name: "🎨 Apply the corporate design of {{ application_id }}"
+  include_tasks: 10_design.yml
