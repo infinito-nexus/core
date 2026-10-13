@@ -3,6 +3,8 @@ const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
+test.use(shared.onionOptions);
+
 test("addon crm: CRM module is installed and its pipeline feature renders", async ({ browser }) => {
   skipUnlessAddonEnabled("crm");
 

@@ -1,8 +1,16 @@
 ---
 - name: "🔍 Probe existing overlay network for '{{ network_role_id }}' (swarm scope)"
-  community.docker.docker_network_info: # nocheck: docker-module-uses-container-cli  read-only info module; returns structured network facts the wrapper's raw JSON would need parsed
-    name: "{{ network_role_id | get_entity_name }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - ls
+      - --filter
+      - "name={{ network_role_id | get_entity_name }}"
+      - --format
+      - "{{ '{{json .}}' }}"
   register: sys_svc_compose_overlay_probe
+  changed_when: false
   when: (SWARM_CLUSTER_AVAILABLE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
@@ -11,12 +19,11 @@
   ansible.builtin.fail:
     msg: >-
       Network '{{ network_role_id | get_entity_name }}' exists with driver
-      '{{ sys_svc_compose_overlay_probe.network.Driver | default('unknown') }}' but 'overlay' is required.
+      '{{ lookup('network_driver', sys_svc_compose_overlay_probe, network_role_id) }}' but 'overlay' is required.
       Remove the stale network or revert the networks.local.force_bridge change.
   when:
     - (SWARM_CLUSTER_AVAILABLE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
-    - sys_svc_compose_overlay_probe.exists | default(false) | bool
-    - (sys_svc_compose_overlay_probe.network.Driver | default('')) != 'overlay'
+    - lookup('network_driver', sys_svc_compose_overlay_probe, network_role_id) not in ['', 'overlay']
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
@@ -44,27 +51,34 @@
       - "{{ network_role_id | get_entity_name }}"
   when:
     - (SWARM_CLUSTER_AVAILABLE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
-    - not (sys_svc_compose_overlay_probe.exists | default(false) | bool)
+    - lookup('network_driver', sys_svc_compose_overlay_probe, network_role_id) == ''
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
   changed_when: true
 
 - name: "🔍 Probe existing bridge network for '{{ network_role_id }}' (compose)"
-  community.docker.docker_network_info: # nocheck: docker-module-uses-container-cli  read-only info module; returns structured network facts the wrapper's raw JSON would need parsed
-    name: "{{ network_role_id | get_entity_name }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - ls
+      - --filter
+      - "name={{ network_role_id | get_entity_name }}"
+      - --format
+      - "{{ '{{json .}}' }}"
   register: sys_svc_compose_bridge_probe
+  changed_when: false
   when: (not (SWARM_CLUSTER_AVAILABLE | bool)) or (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
 
 - name: "🛑 Fail on network driver drift for '{{ network_role_id }}' (compose)"
   ansible.builtin.fail:
     msg: >-
       Network '{{ network_role_id | get_entity_name }}' exists with driver
-      '{{ sys_svc_compose_bridge_probe.network.Driver | default('unknown') }}' but 'bridge' is required.
+      '{{ lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) }}' but 'bridge' is required.
       Remove the stale network or revert the networks.local.force_bridge change.
   when:
     - (not (SWARM_CLUSTER_AVAILABLE | bool)) or (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
-    - sys_svc_compose_bridge_probe.exists | default(false) | bool
-    - (sys_svc_compose_bridge_probe.network.Driver | default('')) != 'bridge'
+    - lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) not in ['', 'bridge']
 
 - name: "✅ Ensure docker bridge network for '{{ network_role_id }}' exists (compose)"
   ansible.builtin.command:
@@ -81,5 +95,5 @@
       - "{{ network_role_id | get_entity_name }}"
   when:
     - (not (SWARM_CLUSTER_AVAILABLE | bool)) or (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)
-    - not (sys_svc_compose_bridge_probe.exists | default(false) | bool)
+    - lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) == ''
   changed_when: true

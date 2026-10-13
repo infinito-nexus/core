@@ -8,10 +8,26 @@ import io
 import json
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-n8n/files/python/provision/mcp.py"
+PAGE_SIZE = 10
+WORKFLOW_PAGE_SIZE = 100
+MAX_PAGE_SIZE = 250
+
+
+def paged(items, offset, limit):
+    """Return one page the way n8n slices a listing.
+
+    Args:
+        items: every record the listing holds.
+        offset: index of the first record on the page.
+        limit: requested page size, capped like n8n caps it.
+    """
+    return items[offset : offset + min(limit, MAX_PAGE_SIZE)]
+
 
 ENV = {
     "N8N_BASE": "http://n8n:5678",
@@ -51,6 +67,7 @@ class FakeApi:
         self.deleted_keys = []
         self.logins = 0
         self.minted = 0
+        self.scopes = set()
 
     def __call__(self, path, method="GET", payload=None, api_key=None):
         if path == "/rest/login":
@@ -72,16 +89,35 @@ class FakeApi:
             self.deleted_credentials.append(dead)
             self.credentials = [c for c in self.credentials if c["id"] != dead]
             return 200, {"success": True}
-        if path == "/rest/api-keys" and method == "GET":
-            return 200, {"data": [dict(key) for key in self.keys]}
+        if path.startswith("/rest/api-keys?") and method == "GET":
+            query = parse_qs(urlsplit(path).query)
+            label = query["label"][0].lower()
+            items = [dict(key) for key in self.keys if label in key["label"].lower()]
+            skip = int(query.get("skip", ["0"])[0])
+            take = int(query.get("take", [str(PAGE_SIZE)])[0])
+            return 200, {"data": {"items": paged(items, skip, take)}}
         if path == "/rest/api-keys" and method == "POST":
             self.keys = [{"id": "k1", "label": payload["label"]}]
+            self.scopes = set(payload["scopes"])
             return 200, {"data": {"id": "k1", "rawApiKey": "n8n-raw-key"}}
         if path.startswith("/rest/api-keys/") and method == "DELETE":
             self.deleted_keys.append(path.rsplit("/", 1)[-1])
             return 200, {"success": True}
-        if path == "/api/v1/workflows" and method == "GET":
-            return 200, {"data": [dict(flow) for flow in self.workflows]}
+        if path.split("?")[0] == "/api/v1/workflows" and method == "GET":
+            query = parse_qs(urlsplit(path).query)
+            name = query.get("name", [""])[0]
+            hits = [dict(flow) for flow in self.workflows if name in flow["name"]]
+            cursor = query.get("cursor", [f"0:{WORKFLOW_PAGE_SIZE}"])[0].split(":")
+            offset, limit = (int(cursor[0]), int(cursor[1]))
+            if "limit" in query:
+                limit = int(query["limit"][0])
+            page = paged(hits, offset, limit)
+            following = offset + len(page)
+            more = following < len(hits)
+            return 200, {
+                "data": page,
+                "nextCursor": f"{following}:{limit}" if more else None,
+            }
         if path == "/api/v1/workflows" and method == "POST":
             self.created_workflows.append(payload)
             return 200, dict(payload, id="w1", active=False)
@@ -89,6 +125,8 @@ class FakeApi:
             self.updated_workflows.append(payload)
             return 200, payload
         if path.endswith("/activate") and method == "POST":
+            if "workflow:activate" not in self.scopes:
+                return 403, '{"message":"Forbidden"}'
             self.activated_workflows.append(path.split("/")[-2])
             return 200, {"active": True}
         if path.startswith("/api/v1/workflows/") and method == "DELETE":
@@ -183,6 +221,120 @@ class TestProvisionMcp(unittest.TestCase):
         with patch.object(module, "call", api):
             module.main()
         self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_a_stale_managed_key_behind_a_full_page_is_still_replaced(self) -> None:
+        module = load_script()
+        humans = [{"id": f"h{n}", "label": f"human {n}"} for n in range(PAGE_SIZE)]
+        api = FakeApi(keys=[*humans, {"id": "old", "label": "infinito:mcp"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_an_unknown_listing_shape_names_its_keys_but_never_a_value(self) -> None:
+        module = load_script()
+        api = FakeApi()
+
+        def odd(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/rest/api-keys?"):
+                return 200, {"data": {"secret": "t0ps3cret"}}
+            return api(path, method, payload, api_key)
+
+        with patch.object(module, "call", odd), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertIn("['secret']", str(exit_.exception))
+        self.assertNotIn("t0ps3cret", str(exit_.exception))
+
+    def test_an_unpaged_listing_of_n8n_1_still_finds_the_stale_key(self) -> None:
+        module = load_script()
+        api = FakeApi()
+
+        def unpaged(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/rest/api-keys?"):
+                return 200, {"data": [{"id": "old", "label": "infinito:mcp"}]}
+            return api(path, method, payload, api_key)
+
+        with patch.object(module, "call", unpaged):
+            module.main()
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_a_stale_managed_key_behind_a_full_filtered_page_is_still_replaced(
+        self,
+    ) -> None:
+        module = load_script()
+        near = [
+            {"id": f"n{n}", "label": f"infinito:mcp-copy-{n}"}
+            for n in range(MAX_PAGE_SIZE)
+        ]
+        api = FakeApi(keys=[*near, {"id": "old", "label": "infinito:mcp"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_a_managed_workflow_on_a_later_page_is_updated_not_duplicated(
+        self,
+    ) -> None:
+        module = load_script()
+        near = [
+            {"id": f"n{n}", "name": f"infinito:mcp-server copy {n}"}
+            for n in range(MAX_PAGE_SIZE)
+        ]
+        managed = {"id": "w9", "name": "infinito:mcp-server", "active": True}
+        api = FakeApi(workflows=[*near, managed])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual([], api.created_workflows)
+        self.assertEqual(1, len(api.updated_workflows))
+
+    def test_a_repeated_workflow_cursor_aborts_rather_than_loops(self) -> None:
+        module = load_script()
+        api = FakeApi()
+        listings = []
+
+        def stuck(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/api/v1/workflows?"):
+                listings.append(path)
+                if len(listings) > 3:
+                    raise AssertionError("the workflow listing never ends")
+                return 200, {"data": [], "nextCursor": "same"}
+            return api(path, method, payload, api_key)
+
+        with (
+            patch.object(module, "call", stuck),
+            self.assertRaises(SystemExit) as exit_,
+        ):
+            module.main()
+        self.assertIn("nextCursor repeats", str(exit_.exception))
+
+    def test_a_key_listing_that_ignores_skip_aborts_rather_than_loops(self) -> None:
+        module = load_script()
+        api = FakeApi()
+        full = [
+            {"id": f"n{n}", "label": f"infinito:mcp-copy-{n}"}
+            for n in range(MAX_PAGE_SIZE)
+        ]
+        listings = []
+
+        def frozen(path, method="GET", payload=None, api_key=None):
+            if path.startswith("/rest/api-keys?"):
+                listings.append(path)
+                if len(listings) > 3:
+                    raise AssertionError("the key listing never ends")
+                return 200, {"data": {"items": full}}
+            return api(path, method, payload, api_key)
+
+        with (
+            patch.object(module, "call", frozen),
+            self.assertRaises(SystemExit) as exit_,
+        ):
+            module.main()
+        self.assertIn("repeats", str(exit_.exception))
+
+    def test_a_key_that_only_contains_the_managed_name_is_left_alone(self) -> None:
+        module = load_script()
+        api = FakeApi(keys=[{"id": "near", "label": "infinito:mcp-legacy"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["k1"], api.deleted_keys)
 
     def test_the_run_leaves_no_api_key_behind(self) -> None:
         module = load_script()

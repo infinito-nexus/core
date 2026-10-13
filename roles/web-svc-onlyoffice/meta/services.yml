@@ -33,7 +33,7 @@ onlyoffice:
   enabled: true # nocheck: dynamic-flag
   shared: true
   image: onlyoffice/documentserver
-  version: 9.4.0
+  version: 10.0.0
   name: onlyoffice
   min_storage: 1468MB
   cpus: 2

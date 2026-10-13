@@ -20,7 +20,7 @@ session_config:
   mode: "0444"
   mounts:
     - service: suitecrm
-      target: "{{ ['/var/www/html/extensions', SOFTWARE_DOMAIN | replace('.', '-'), 'config/session.yaml'] | path_join }}"
+      target: "{{ ['/var/www/html/extensions', SOFTWARE_DOMAIN | replace('.', '-'), 'config/packages/session.yaml'] | path_join }}"
 
 ldap_config:
   type: config

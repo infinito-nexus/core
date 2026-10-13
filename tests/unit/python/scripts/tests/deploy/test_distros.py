@@ -29,6 +29,7 @@ STRIPPED = (
     "INFINITO_DISTRO",
     "INFINITO_CI_DISTRO_BUDGET_SECONDS",
     "INFINITO_SWARM_STEP_TIMEOUT_MINUTES",
+    "INFINITO_ENV_LOADED",  # nocheck: env-loader-internal-guard
 )
 
 

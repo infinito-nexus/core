@@ -3,6 +3,8 @@ const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
+test.use(shared.onionOptions);
+
 test("addon account: Accounting/Invoicing module is installed and serves its customer-invoices action", async ({ browser }) => {
   skipUnlessAddonEnabled("account");
 

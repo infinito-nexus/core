@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from cli.meta.ci.report_failures import (
     Failure,
@@ -10,6 +11,7 @@ from cli.meta.ci.report_failures import (
     decisive_excerpt,
     failed_roles,
     issue_body,
+    list_jobs,
 )
 
 
@@ -79,6 +81,19 @@ class TestReportFailures(unittest.TestCase):
             artifact_name("web-app-x", Failure("compose", "0", True, "debian", "zfs")),
             artifact_name("web-app-x", Failure("compose", "0", True, "fedora", "zfs")),
         )
+
+    def test_list_jobs_reads_one_job_per_line_across_pages(self) -> None:
+        pages = (
+            '{"name": "deploy a", "conclusion": "success"}\n'
+            '{"name": "deploy b", "conclusion": "failure"}\n'
+        )
+        with patch("cli.meta.ci.report_failures._gh", return_value=pages):
+            jobs = list_jobs("1", "owner/repo")
+        self.assertEqual([job["name"] for job in jobs], ["deploy a", "deploy b"])
+
+    def test_list_jobs_of_an_empty_listing_is_empty(self) -> None:
+        with patch("cli.meta.ci.report_failures._gh", return_value=""):
+            self.assertEqual(list_jobs("1", "owner/repo"), [])
 
     def test_issue_body_lists_failures_and_run(self) -> None:
         body = issue_body(
