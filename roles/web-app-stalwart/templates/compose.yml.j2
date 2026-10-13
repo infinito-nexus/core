@@ -18,8 +18,6 @@
     {% else %}
     {{ lookup('container_ports', ['stalwart', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
-    environment: # nocheck: compose-environment-from-env-file  this role sets no docker_compose_env, so a single templates/env.j2 would also be the env_file of the webmail and clamav containers, which must not receive the recovery admin credential
-      STALWART_RECOVERY_ADMIN: "{{ STALWART_ADMIN_USER }}:{{ STALWART_ADMIN_PASSWORD }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
@@ -32,15 +30,6 @@
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports', ['webmail', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    environment: # nocheck: compose-environment-from-env-file  roundcube-only keys; this role sets no docker_compose_env, so a single templates/env.j2 would also be the env_file of the stalwart and clamav containers, which must not receive the OIDC client secret
-      ROUNDCUBEMAIL_DEFAULT_HOST: "ssl://stalwart"
-      ROUNDCUBEMAIL_DEFAULT_PORT: "993"
-      ROUNDCUBEMAIL_SMTP_SERVER: "ssl://stalwart"
-      ROUNDCUBEMAIL_SMTP_PORT: "465"
-      ROUNDCUBEMAIL_DB_TYPE: "sqlite"
-      {% if STALWART_SSO_ENABLED | bool %}
-      ROUNDCUBEMAIL_OAUTH_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
-      {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('depends_on', ['stalwart']) }}
     {{ lookup('container_networks') | indent(4) }}
@@ -51,8 +40,6 @@
     {{ lookup('compose_only', 'container_name', STALWART_CONTAINER ~ '_clamav') }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment: # nocheck: compose-environment-from-env-file  clamav daemon-only key; this role sets no docker_compose_env, so a single templates/env.j2 would also be the env_file of the stalwart and webmail containers
-      CLAMAV_NO_MILTERD: "false"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
   {% endif %}
