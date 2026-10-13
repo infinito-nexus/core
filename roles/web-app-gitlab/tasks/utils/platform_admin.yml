@@ -1,0 +1,40 @@
+---
+- name: "🔍 Resolve the node and container id running the GitLab Rails app"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ GITLAB_WEBSERVICE_SERVICE_NAME }}"
+    resolve_output_prefix: GITLAB_RAILS
+    resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
+
+- name: "👤 Ensure the platform administrator holds GitLab admin rights"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - GITLAB_ADMIN_USERNAME
+      - -e
+      - GITLAB_ADMIN_EMAIL
+      - -e
+      - GITLAB_ADMIN_NAME
+      - -e
+      - GITLAB_ADMIN_PASSWORD
+      - "{{ GITLAB_RAILS_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ GITLAB_RAILS_BIN }}"
+      - runner
+      - "-"
+    stdin: "{{ lookup('file', 'ruby/ensure_platform_admin.rb') }}"
+  environment:
+    GITLAB_ADMIN_USERNAME: "{{ GITLAB_ADMIN_USERNAME }}"
+    GITLAB_ADMIN_EMAIL: "{{ GITLAB_ADMIN_EMAIL }}"
+    GITLAB_ADMIN_NAME: "{{ GITLAB_ADMIN_NAME }}"
+    GITLAB_ADMIN_PASSWORD: "{{ GITLAB_ADMIN_PASSWORD }}"
+  register: gitlab_platform_admin
+  changed_when: gitlab_platform_admin.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    gitlab_platform_admin.rc != 0
+    or gitlab_platform_admin.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ GITLAB_RAILS_HOST_NODE }}"
+  run_once: true

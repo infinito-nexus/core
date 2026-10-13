@@ -29,6 +29,10 @@ GITLAB_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 GITLAB_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
 GITLAB_OIDC_REDIRECT_URI: "{{ (GITLAB_URL | regex_replace('/$', '')) ~ '/users/auth/openid_connect/callback' }}"
 
+GITLAB_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+GITLAB_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+GITLAB_ADMIN_NAME: "{{ lookup('users', 'platform_administrator').firstname }} {{ lookup('users', 'platform_administrator').lastname }}"
+GITLAB_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 GITLAB_ROOT_USERNAME: "root"
 GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
