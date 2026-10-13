@@ -39,3 +39,4 @@ Variant matrix lives in [variants.yml](./meta/variants.yml). Service flags and i
 - [Zammad Official Website](https://zammad.org/)
 - [Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)
 - [Zammad GitHub](https://github.com/zammad/zammad)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/U7WFLVC7Qut2pnjLDEzGUr)

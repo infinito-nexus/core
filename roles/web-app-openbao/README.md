@@ -22,7 +22,7 @@ This role deploys OpenBao as an Infinito.Nexus application at `openbao.<domain>`
 
 ## Further Resources
 
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/S5xYpkSN5SZE4JCi8SqiSH)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/HEgvv449zLTgG8a8da9wTG)
 
 ## Developer Notes
 

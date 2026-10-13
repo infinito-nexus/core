@@ -17,7 +17,7 @@ This Docker Compose deployment automates the installation and operation of a Pix
 * **Maintenance & Administration Tools:** Built-in CLI and web-app-based tools to clear caches, manage the database, and monitor application health.
 * **Single Sign-On (SSO) / OpenID Connect (OIDC):** Seamless integration with external identity providers for centralized authentication.
 
-## Other Resources
+## Further Resources
 
 * [Official Pixelfed website](https://pixelfed.org/)
 * [Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)

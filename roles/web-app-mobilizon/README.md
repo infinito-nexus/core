@@ -19,7 +19,8 @@ This role deploys Mobilizon using Docker, automating the setup of your event man
 ## Further Resources
 
 - [Mobilizon Official Website](https://mobilizon.org)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/ES1gkz6jbb9ieuPaaAL27x)
 
 ## Persona contract opt-outs
 
-[`templates/config.exs.j2`](./templates/config.exs.j2) wires Keycloak as the only login provider this role configures, and [`tasks/main.yml`](./tasks/main.yml) creates no Mobilizon account; `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` ([`templates/env.j2`](./templates/env.j2)) additionally closes the database login whenever LDAP is on. In the `services.sso.enabled: false` matrix variants neither persona has credentials, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline assertions run unconditionally.
+[`templates/config.exs.j2`](./templates/config.exs.j2) wires Keycloak as the only login provider this role configures, and the only Mobilizon account the role creates is the platform administrator in [`tasks/01_design.yml`](./tasks/01_design.yml), which the design spec signs in as; `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` ([`templates/env.j2`](./templates/env.j2)) additionally closes the database login whenever LDAP is on. In the `services.sso.enabled: false` matrix variants biber has no account and the shared persona flow types `ADMIN_USERNAME` where Mobilizon's form takes the e-mail, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline assertions run unconditionally.

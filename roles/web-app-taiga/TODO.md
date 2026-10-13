@@ -1,0 +1,6 @@
+# To-dos
+
+- `tasks/01_administrator.yml` lines 24 and 42 pass `DJANGO_SUPERUSER_PASSWORD={{ TAIGA_SUPERUSER_PASSWORD | quote }}` as an argument of `container exec`, so a deploy at `-vv` with `MASK_CREDENTIALS_IN_LOGS` off prints the administrator password in the task's `cmd`. Options: forward it as `-e DJANGO_SUPERUSER_PASSWORD` without a value plus the task's `environment:`, or pipe the shell snippet on stdin.
+- `templates/env.j2` lines 33 to 41 set the fixed RabbitMQ login `taiga`/`taiga` and the Erlang cookie `secret-erlang-cookie` for both brokers. Options: generate both through `meta/secrets.yml` and read them in `env.j2`.
+- `meta/services.yml` pins `taiga-back` and `taiga-front` to `latest` (measured on 2026-10-11: front build `v-1778767629306`, release 6.10.3) while `taiga-events` is pinned to 6.10.0 and `taiga-protected` to 6.10.1. A new upstream release changes the front build path and possibly selectors between two runs. Options: pin back and front to the 6.10.x tags.
+- `tasks/02_manager_ops.yml` "copy taiga gateway config" renders into the cloned `taiga-docker` checkout, which `sys-svc-compose` "Pull docker repository" resets on every deploy, so the task reports changed and notifies `compose-up` on every run (measured 2026-10-11 in two consecutive role syncs). Options: render the gateway config outside the checkout and mount it.

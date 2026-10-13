@@ -11,3 +11,7 @@
     dest: "{{ mobilizon_host_conf_exs_file }}"
   notify: compose-up
   when: IS_STACK_HOST | bool
+
+- name: "🎨 Mobilizon administrator and corporate design"
+  ansible.builtin.include_tasks: 01_design.yml
+  when: IS_STACK_HOST | bool

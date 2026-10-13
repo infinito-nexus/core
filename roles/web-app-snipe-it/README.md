@@ -39,7 +39,7 @@ This Docker deployment uses Ansible automation to set up Snipe‑IT along with n
 - **Redis Caching:**  
   Improve application performance with built‑in Redis caching support.
 
-## Other Resources
+## Further Resources
 
 - [Snipe‑IT Official Documentation](https://snipe-it.readme.io/)
 - [Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)

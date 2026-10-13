@@ -58,6 +58,11 @@ The plugin is built into the custom `taiga-front` image and pip-installed into t
 
 ---
 
+## Further Resources
+
+- [Taiga Official Website](https://taiga.io/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/66q38ho491WQw9deB3T3rD)
+
 ## Persona contract opt-outs
 
 Taiga redirects `/` to the public `/discover` showcase, which renders a bare Login link but not the OIDC entry point; only `/login` binds the SSO directive (see the note in [`files/playwright/_shared.js`](./files/playwright/_shared.js)). The shared personas always enter at the site root, so they can never reach Taiga's SSO button.

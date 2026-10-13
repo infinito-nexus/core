@@ -24,6 +24,4 @@
   failed_when: >-
     mediawiki_admin_realign.rc != 0
     or mediawiki_admin_realign.stdout is search('\[FAIL\]')
-  run_once: true
-  delegate_to: "{{ STACK_HOST }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -123,3 +123,21 @@ if (!function_exists('infinito_sso_enabled')) {
         yourls_add_filter('shunt_is_valid_user', 'infinito_sso_shunt');
     }
 }
+
+if (!function_exists('infinito_design_title')) {
+    function infinito_design_title($title) {
+        $brand = trim((string) getenv('DESIGN_TITLE'));
+        if ($brand === '' || strpos((string) $title, $brand) !== false) {
+            return $title;
+        }
+        return $title . ' | ' . $brand;
+    }
+
+    function infinito_design_favicon($url) {
+        $icon = trim((string) getenv('DESIGN_FAVICON_URL'));
+        return $icon === '' ? $url : $icon;
+    }
+
+    yourls_add_filter('html_title', 'infinito_design_title');
+    yourls_add_filter('get_favicon_url', 'infinito_design_favicon');
+}

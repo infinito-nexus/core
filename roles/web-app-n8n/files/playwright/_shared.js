@@ -73,6 +73,7 @@ async function performN8nLoginForm(page, email, password) {
   await emailInput.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 
   await emailInput.fill(email);
+  await expect(passwordInput).toBeEditable({ timeout: resolveTimeout(10_000) });
   await passwordInput.fill(password);
   await page.getByRole("button", { name: /sign in/i }).click({ timeout: resolveTimeout(30_000) });
 

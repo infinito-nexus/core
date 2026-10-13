@@ -5,6 +5,16 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 PRETIX_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 PRETIX_HOSTNAME: "{{ container_hostname }}"
 
+PRETIX_NATIVE_ADMIN_EMAIL: "{{ '' if PRETIX_OIDC_ENABLED | bool else lookup('users', 'platform_administrator').email }}"
+
+PRETIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+PRETIX_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+PRETIX_DESIGN_COLORS:
+  primary_color: "{{ PRETIX_DESIGN_PALETTE['--design-primary'] }}"
+  theme_color_success: "{{ PRETIX_DESIGN_PALETTE['--design-success'] }}"
+  theme_color_danger: "{{ PRETIX_DESIGN_PALETTE['--design-danger'] }}"
+  theme_color_background: "{{ PRETIX_DESIGN_PALETTE['--design-surface-1'] }}"
+
 PRETIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 PRETIX_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
 PRETIX_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
@@ -17,6 +27,8 @@ PRETIX_OIDC_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
 PRETIX_OIDC_JWKS_URL: "{{ OIDC.CLIENT.CERTS }}"
 PRETIX_OIDC_SCOPES: "openid,email,profile"
 PRETIX_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+PRETIX_OIDC_STAFF_SCOPE: "{{ RBAC.GROUP.CLAIM }}"
+PRETIX_OIDC_STAFF_VALUE: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 PRETIX_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.pretix-oidc.version') }}"
 
 PRETIX_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"

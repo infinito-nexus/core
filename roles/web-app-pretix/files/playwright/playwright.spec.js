@@ -13,6 +13,7 @@ const {
 test.use({ ignoreHTTPSErrors: true });
 
 require("./test-mcp-guest").register();
+require("./test-design");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");

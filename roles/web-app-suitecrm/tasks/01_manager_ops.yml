@@ -6,14 +6,6 @@
   notify:
     - compose-up
 
-- name: "🚀 Deploy the Symfony session handler override"
-  copy:
-    src: session.yaml
-    dest: "{{ SUITECRM_SESSION_CONFIG_HOST }}"
-    mode: "0444"
-  notify:
-    - compose-up
-
 - name: "📄 Render SuiteCRM LDAP mapping"
   stack_host_template:
     src: "ldap.yaml.j2"
@@ -66,16 +58,6 @@
     suitecrm_admin_password_realign.rc != 0
     or suitecrm_admin_password_realign.stdout is search('\[FAIL\]')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "🧹 Rebuild the Symfony container when the session handler override is newer"
-  shell: >
-    container exec --user {{ SUITECRM_WEB_USER }} {{ SUITECRM_CONTAINER_ADDRESS }}
-    sh -c 'cd {{ SUITECRM_APP_DIR }}
-    && if [ -f cache/prod/App_KernelProdContainer.php ]
-    && [ {{ SUITECRM_SESSION_CONFIG_DOCKER }} -nt cache/prod/App_KernelProdContainer.php ];
-    then php bin/console cache:clear --no-warmup && php bin/console cache:warmup && echo CONTAINER_REBUILT; fi'
-  register: suitecrm_session_container
-  changed_when: "'CONTAINER_REBUILT' in suitecrm_session_container.stdout"
 
 - name: "🔎 List SuiteCRM log paths the web user cannot write"
   shell: >

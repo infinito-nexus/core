@@ -45,6 +45,9 @@ OPENWEBUI_MCP_GROUP_IDS: "{{ (lookup('users', OPENWEBUI_MCP_GROUP_OWNER, {}) | d
 OPENWEBUI_MCP_MEMBERS: "{{ lookup('users') | mcp_group_members(OPENWEBUI_MCP_SERVERS, 'mcp-reader') }}"
 OPENWEBUI_INTERNAL_HTTP_PORT: "{{ lookup('config', application_id, 'services.openwebui.ports.internal.http') }}"
 OPENWEBUI_API_BOT_USER: "{{ lookup('users', 'openwebui-api-bot') }}"
+OPENWEBUI_ADMIN_USER: "{{ lookup('users', 'platform_administrator') }}"
+OPENWEBUI_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+OPENWEBUI_CUSTOM_CSS_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'custom.css'] | path_join }}"
 
 OPENWEBUI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 OPENWEBUI_OIDC_REDIRECT_URL: "{{ [OPENWEBUI_URL,'/oauth/oidc/callback'] | url_join }}"

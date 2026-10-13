@@ -168,12 +168,12 @@ Set `INFINITO_MAIL_PRODUCTION_HOST` to the server's public FQDN (in CI, a GitHub
 
 The same variable points [`sys-ctl-mtn-cert-deploy`](../sys-ctl-mtn-cert-deploy/)'s remote check at `:465` and `:993`, so the live TLS chain and its remaining validity are verified alongside. A misconfigured production server therefore fails the deploy instead of surfacing as an outage.
 
-## Further Reading
+## Further Resources
 
 - [Stalwart documentation](https://stalw.art/docs)
 - [`sys-svc-mail`](../sys-svc-mail/) — how applications send mail
 - [`plugins/lookup/email.py`](../../plugins/lookup/email.py) — the email abstraction
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/4XeSBSBGjtCGgkgwVok3ct)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/FzjQ2ZyfFbvctv2YaPTgLK)
 
 > **Note:** Stalwart's JMAP object schema is version-sensitive. Pin
 > `services.stalwart.version`; the provisioning payloads in `tasks/` were

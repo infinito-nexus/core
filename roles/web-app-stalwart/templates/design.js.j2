@@ -26,9 +26,12 @@
   mirror();
 {% if design.title is string %}
   function brandTitle() {
-    var wanted = {{ design.title | to_json }};
-    if (document.title !== wanted) {
-      document.title = wanted;
+    var title = {{ design.title | to_json }};
+    var next = document.title === "Portal" ? title : document.title.replace(/(^|\s·\s)Stalwart WebUI$/, function (match, prefix) {
+      return prefix + title;
+    });
+    if (next !== document.title) {
+      document.title = next;
     }
   }
   new MutationObserver(brandTitle).observe(document.head, { childList: true, subtree: true, characterData: true });
@@ -37,12 +40,12 @@
 {% endif %}
 {% if design.logo is string %}
   function brandIcon() {
-    var wanted = {{ design.urls.favicon_ico | to_json }};
+    var href = {{ design.urls.favicon_ico | to_json }};
     var icons = document.querySelectorAll("link[rel~='icon']");
     for (var index = 0; index < icons.length; index += 1) {
-      if (icons[index].getAttribute("href") !== wanted) {
+      if (icons[index].getAttribute("href") !== href) {
         icons[index].setAttribute("type", "image/x-icon");
-        icons[index].setAttribute("href", wanted);
+        icons[index].setAttribute("href", href);
       }
     }
   }

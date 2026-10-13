@@ -58,6 +58,11 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
+  slots:
+    logo:
+      width: 165
+      height: 28
 # nocheck: email
 # nocheck: dynamic-flag
 email:

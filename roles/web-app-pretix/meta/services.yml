@@ -69,7 +69,7 @@ pretix:
     no_stop_required: true
   cpus: "2.0"
   mem_reservation: 1.5g
-  mem_limit: 2g
+  mem_limit: 3g
   pids_limit: 1024
   ports:
     local:
@@ -82,12 +82,19 @@ pretix:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
-# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: "{{ DOMAIN_PRIMARY | upper }} Tickets"
+  slots:
+    logo:
+      width: 128
+      height: 128
+      frame: true
+    logo-wide:
+      width: 320
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

@@ -72,6 +72,29 @@
   register: zammad_api_bot_apply
   changed_when: false
 
+- name: "👑 ensure the platform administrator in Zammad while sso is off"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e ADMIN_LOGIN -e ADMIN_EMAIL -e ADMIN_FIRSTNAME -e ADMIN_LASTNAME -e ADMIN_PASSWORD \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'ruby/apply/administrator.rb') }}"
+  environment:
+    ADMIN_LOGIN: "{{ ZAMMAD_ADMINISTRATOR.username }}"
+    ADMIN_EMAIL: "{{ ZAMMAD_ADMINISTRATOR.email }}"
+    ADMIN_FIRSTNAME: "{{ ZAMMAD_ADMINISTRATOR.firstname }}"
+    ADMIN_LASTNAME: "{{ ZAMMAD_ADMINISTRATOR.lastname }}"
+    ADMIN_PASSWORD: "{{ ZAMMAD_ADMINISTRATOR.password }}"
+  register: zammad_administrator_apply
+  changed_when: "'administrator: changed' in zammad_administrator_apply.stdout"
+  when: not (ZAMMAD_OIDC_ENABLED | bool)
+
+- name: "🎨 Converge the corporate design of {{ application_id }}"
+  ansible.builtin.include_tasks: 02_design.yml
+
 - name: "🔑 ensure the read-only MCP agent and its API token in Zammad"
   ansible.builtin.shell:
     cmd: |

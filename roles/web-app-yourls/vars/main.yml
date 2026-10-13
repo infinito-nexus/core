@@ -10,6 +10,7 @@ YOURLS_VERSION: "{{ lookup('config', application_id, 'services.yourls.version') 
 YOURLS_IMAGE: "{{ lookup('config', application_id, 'services.yourls.image') }}"
 YOURLS_CONTAINER: "{{ lookup('config', application_id, 'services.yourls.name') }}"
 YOURLS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+YOURLS_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 YOURLS_ADMIN_LOCATION: "{{ lookup('config', application_id, 'server.locations.admin') }}"
 YOURLS_LANDINGPAGE_STATUS_CODE: "{{ lookup('config', application_id, 'server.status_codes.default') }}"
 

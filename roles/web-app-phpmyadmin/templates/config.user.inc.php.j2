@@ -1,0 +1,10 @@
+<?php
+{% set design = lookup('design', application_id) %}
+$cfg['ThemeDefault'] = '{{ PHPMYADMIN_THEME_NAME }}';
+{% if design.title is string %}
+{% set title = design.title | replace('\\', '\\\\') | replace("'", "\\'") %}
+$cfg['TitleDefault'] = '@HTTP_HOST@ | {{ title }}';
+$cfg['TitleServer'] = '@HTTP_HOST@ / @VSERVER@ | {{ title }}';
+$cfg['TitleDatabase'] = '@HTTP_HOST@ / @VSERVER@ / @DATABASE@ | {{ title }}';
+$cfg['TitleTable'] = '@HTTP_HOST@ / @VSERVER@ / @DATABASE@ / @TABLE@ | {{ title }}';
+{% endif %}

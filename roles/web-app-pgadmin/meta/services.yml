@@ -69,6 +69,15 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 96
+      height: 30
+      frame: true
+    login-logo:
+      width: 96
+      height: 40
+      frame: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

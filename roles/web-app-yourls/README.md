@@ -29,6 +29,7 @@ This containerized YOURLS solution is built on robust Docker Compose and Ansible
 
 - [YOURLS Official Website](https://yourls.org/)
 - [YOURLS GitHub Repository](https://github.com/YOURLS/YOURLS)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/T2ntCqsaAupkTweX8wiAmz)
 
 ## Persona contract opt-outs
 

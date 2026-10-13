@@ -29,12 +29,25 @@ ZAMMAD_SEARCH_DATA_DIR: "{{ [lookup('volume', application_id, 'zammad_search').t
 
 ZAMMAD_DB_POOL: 50
 
+ZAMMAD_ADMINISTRATOR: "{{ lookup('users', 'platform_administrator') }}"
 ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
 ZAMMAD_WIZARD_BYPASS_USER: "{{ lookup('users', 'zammad-wizard-bypass-admin') }}"
 ZAMMAD_API_BOT_PASSWORD: "{{ ZAMMAD_API_BOT_USER.password }}"
 ZAMMAD_WIZARD_BYPASS_PASSWORD: "{{ ZAMMAD_WIZARD_BYPASS_USER.password }}"
 ZAMMAD_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.initial_admin_password') }}"
 ZAMMAD_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'secrets.credentials.secret_key_base') }}"
+
+ZAMMAD_PRODUCT_NAME: "{{ SOFTWARE_NAME }} Helpdesk"
+ZAMMAD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+ZAMMAD_DESIGN_LOGO_ENABLED: "{{ ZAMMAD_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+ZAMMAD_DESIGN_TITLE: "{{ lookup('design', application_id).title if ZAMMAD_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+ZAMMAD_DESIGN_DEFAULT_NAMES:
+  - "Zammad Helpdesk"
+  - "{{ ZAMMAD_PRODUCT_NAME }}"
+ZAMMAD_DESIGN_BRAND_FILE: "{{ [lookup('design', application_id).dest, 'brand.svg'] | path_join }}"
+ZAMMAD_DESIGN_BRAND_URL: "{{ lookup('design', application_id).urls.brand.svg if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
+ZAMMAD_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.svg if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
+ZAMMAD_DESIGN_FAVICON_URL: "{{ lookup('design', application_id).urls.favicon_ico if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
 
 ZAMMAD_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ZAMMAD_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"

@@ -15,7 +15,7 @@ This role deploys Prometheus as part of the Infinito.Nexus stack using Docker Co
 - **SSO authentication:** Access is protected by Keycloak via oauth2-proxy.
 - **Universal logout:** Integrated session termination across the stack.
 
-## Further resources
+## Further Resources
 
 - [Prometheus Documentation](https://prometheus.io/docs/)
 - [prom/prometheus Docker image](https://hub.docker.com/r/prom/prometheus)

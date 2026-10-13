@@ -1,0 +1,44 @@
+body {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+footer p {
+  color: var(--design-text-muted);
+}
+.add-item-button,
+.remove-all-items-button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+  border-color: var(--design-border-strong);
+  box-shadow:
+    0 0.7rem 0 -0.1rem var(--design-primary-active),
+    0 0.75rem 0 -0.05rem var(--design-border-strong);
+}
+.add-item-button:hover,
+.remove-all-items-button:hover {
+  background-color: var(--design-primary-hover);
+  box-shadow:
+    0 0.5rem 0 -0.1rem var(--design-primary-active),
+    0 0.55rem 0 -0.05rem var(--design-border-strong);
+}
+.add-item-button:active,
+.remove-all-items-button:active {
+  background-color: var(--design-primary-active);
+  box-shadow:
+    0 0.1rem 0 -0.1rem var(--design-primary-active),
+    0 0.15rem 0 -0.05rem var(--design-border-strong);
+}
+.add-item-button[data-design-busy],
+.remove-all-items-button[data-design-busy] {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.menu-item {
+  box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--design-surface-1) 40%, transparent);
+}
+.menu-item + .menu-item {
+  border-top: 1px solid var(--design-border);
+}
+.item-delete {
+  filter: brightness(0) invert(var(--design-invert));
+}

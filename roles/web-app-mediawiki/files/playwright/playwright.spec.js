@@ -25,6 +25,8 @@ test.beforeEach(async ({ page }) => {
   await page.context().clearCookies();
 });
 
+require("./test-design");
+
 test("MediaWiki front page is served under canonical domain with TLS", async ({ page }) => {
   const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected MediaWiki response").toBeTruthy();

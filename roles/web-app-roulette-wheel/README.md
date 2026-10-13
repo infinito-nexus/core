@@ -19,6 +19,7 @@ This role deploys and configures the Roulette Wheel application using Docker Com
 
 - [Roulette Wheel on GitHub](https://github.com/p-wojt/roulette-wheel)
 - [Stack Overflow: Invalid Host Header with Webpack Dev Server](https://stackoverflow.com/questions/43619644/i-am-getting-an-invalid-host-header-message-when-connecting-to-webpack-dev-ser)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/6XqA2MfkSQYF3Cp6Hc9EXR)
 
 ## Persona contract opt-outs
 

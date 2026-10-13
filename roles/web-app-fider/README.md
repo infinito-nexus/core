@@ -38,7 +38,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 | `domains.canonical` | `fider.{{ DOMAIN_PRIMARY }}` | Public domain |
 | `server.status_codes.default` | `[200, 301, 302, 405]` | Expected HTTP codes for health check (405 because Fider returns 405 on HEAD requests to `/`) |
 
-## Further resources
+## Further Resources
 
 - [Fider GitHub](https://github.com/getfider/fider)
 - [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/GBZy3tjQUB7Uw6JtAmpeQR)

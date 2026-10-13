@@ -55,6 +55,7 @@ The wiring block sits behind a `file_exists` guard on `extensions/VisualEditorPl
 
 - [MediaWiki Official Website](https://www.mediawiki.org/)
 - [MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/KCD9GhgsLXY4kFwxQeSLUs)
 
 ## Swarm + NFS pilot
 
@@ -91,7 +92,7 @@ The block sits behind a `file_exists` guard on `extensions/AWS/vendor/autoload.p
 
 ## Persona contract opt-outs
 
-This role declares `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The wiki's bureaucrat and sysop is a local account created by `maintenance/run.php createAndPromote` in `tasks/04_admin.yml` with `MEDIAWIKI_ADMINISTRATOR_PASSWORD` — the role-local `credentials.administrator_password`, not the Keycloak secret the persona helper carries in `ADMIN_PASSWORD`. `$wgPluggableAuth_EnableLocalLogin` is false, so no native form accepts that password anyway, and `$wgOpenIDConnect_UseEmailNameAsUserName` lands the Keycloak identity on a separate, e-mail-named wiki account that holds no sysop rights. The path back is a deploy step that promotes the OIDC-provisioned administrator account to sysop.
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The wiki's bureaucrat and sysop is a local account created by `maintenance/run.php createAndPromote` in `tasks/04_admin.yml` with `MEDIAWIKI_ADMINISTRATOR_PASSWORD` — the role-local `credentials.administrator_password`, not the Keycloak secret the persona helper carries in `ADMIN_PASSWORD`. With `sso` on, `$wgPluggableAuth_EnableLocalLogin` is false, so no native form accepts that password anyway, and `files/shell/realign_admin_password.sh` deliberately sends none while no local password provider is loaded; `$wgOpenIDConnect_UseEmailNameAsUserName` lands the Keycloak identity on a separate, e-mail-named wiki account that holds no sysop rights. The path back is a deploy step that promotes the OIDC-provisioned administrator account to sysop.
 
 Biber is blocked by `$wgPluggableAuth_EnableAutoLogin`, which this role sets to true in `vars/main.yml`: every anonymous request is bounced straight back into the identity provider, so the verified unauthenticated landing after in-app logout that the persona contract demands can never be observed here. The path back to the generic personas is either auto-login off, or a deploy step that promotes the OIDC-provisioned administrator account to sysop.
 

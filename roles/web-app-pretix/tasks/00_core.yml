@@ -16,6 +16,12 @@
   vars:
     compose_handlers_flush: true
 
+- name: "👤 Converge the platform administrator of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/administrator.yml
+
+- name: "🎨 Converge the corporate shop colors of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/design.yml
+
 - name: "🔌 Serve MCP from {{ application_id }}"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: PRETIX_MCP_ENABLED | bool

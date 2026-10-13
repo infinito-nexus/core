@@ -33,6 +33,7 @@ The `oidc` plugin (`pretix-oidc`, pinned to `2.3.1`) is pip-installed at image b
 - [Pretix Official Website](https://pretix.eu/)  
 - [Pretix Documentation](https://docs.pretix.eu/en/latest/)  
 - [Pretix GitHub Repository](https://github.com/pretix/pretix)  
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/8HHv9RvVMLWbdhBW1k6hQ3)
 
 ## Persona contract opt-outs
 

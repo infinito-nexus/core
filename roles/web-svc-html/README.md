@@ -27,7 +27,7 @@ The NGINX Static HTML Server role provides a simple and efficient method to publ
 - **Highly Portable:** Works out-of-the-box with minimal variables.
 - **Local Time Support:** Properly displays directory listing timestamps when needed.
 
-## Learn More
+## Further Resources
 
 - [NGINX Official Website](https://NGINX.org/)
 - [Let's Encrypt](https://letsencrypt.org/)

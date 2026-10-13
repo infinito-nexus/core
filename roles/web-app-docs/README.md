@@ -60,6 +60,7 @@ Delete `sites/<version>` inside the `docs_sites` volume to rebuild a version on 
 
 - [Sphinx Official Website](https://www.sphinx-doc.org/)
 - [Awesome Sphinx Theme](https://sphinxawesome.xyz/)
+- [Corporate design review: the documentation site in light, dark, desktop and mobile](https://claude.ai/artifact/C5mMe2a7Awo9KiZbRGpMov)
 
 ## Persona contract opt-outs
 

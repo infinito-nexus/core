@@ -11,8 +11,24 @@
   vars:
     compose_repository_pull: false
 
+- name: "🎨 Render the in-house custom.css of {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "custom.css.j2"
+        dest: "{{ OPENWEBUI_CUSTOM_CSS_HOST }}"
+        mode: "0644"
+  when: OPENWEBUI_DESIGN_ENABLED | bool
+
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
+
+- name: "👤 Converge the native administrator of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/admin.yml
+  when:
+    - not (OPENWEBUI_OIDC_ENABLED | bool)
+    - not (OPENWEBUI_LDAP_ENABLED | bool)
 
 - name: "🔌 Provision MCP tool-server access grants"
   ansible.builtin.include_tasks: utils/mcp.yml

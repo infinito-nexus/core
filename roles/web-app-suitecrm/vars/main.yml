@@ -10,8 +10,6 @@ SUITECRM_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password 
 
 SUITECRM_WELL_SOFTWARE_NAME: "{{ SOFTWARE_DOMAIN | replace('.', '-') }}"
 SUITECRM_PHP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'php.ini'] | path_join }}"
-SUITECRM_SESSION_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'session.yaml'] | path_join }}"
-SUITECRM_SESSION_CONFIG_DOCKER: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/packages/session.yaml'] | path_join }}"
 
 SUITECRM_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SUITECRM_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
@@ -37,6 +35,7 @@ SUITECRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if SUITECRM_OIDC_ONION_
 
 SUITECRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SUITECRM_LDAP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ldap.yaml'] | path_join }}"
+SUITECRM_SESSION_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'session.yaml'] | path_join }}"
 SUITECRM_LDAP_EXTENSION_DIR: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
 
 SUITECRM_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint.sh"

@@ -2,3 +2,28 @@
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
+
+- name: "🎨 Render the in-house theme of {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "theme/theme.json.j2"
+        dest: "{{ [PHPMYADMIN_THEME_HOST, 'theme.json'] | path_join }}"
+        mode: "0644"
+      - src: "theme/theme.css.j2"
+        dest: "{{ [PHPMYADMIN_THEME_HOST, 'css', 'theme.css'] | path_join }}"
+        mode: "0644"
+      - src: "theme/theme.rtl.css.j2"
+        dest: "{{ [PHPMYADMIN_THEME_HOST, 'css', 'theme.rtl.css'] | path_join }}"
+        mode: "0644"
+      - src: "theme/design.css.j2"
+        dest: "{{ [PHPMYADMIN_THEME_HOST, 'css', 'design.css'] | path_join }}"
+        mode: "0644"
+      - src: "theme/jquery-ui.css.j2"
+        dest: "{{ [PHPMYADMIN_THEME_HOST, 'jquery', 'jquery-ui.css'] | path_join }}"
+        mode: "0644"
+  when: PHPMYADMIN_DESIGN_ENABLED | bool
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers

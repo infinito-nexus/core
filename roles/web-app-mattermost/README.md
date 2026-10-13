@@ -110,7 +110,7 @@ The partner-side credential stays operator-supplied: each hook prints the `confi
 
 The named volumes `plugins` and `client-plugins` declared in `meta/volumes.yml` are node-local derived copies that every replica extracts for itself from the image's prepackaged bundles; an uploaded bundle persists in the file store, not in them.
 
-## References
+## Further Resources
 
 - [Mattermost Docker Install](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)
 - [Mattermost Configuration Settings](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)

@@ -1,0 +1,36 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: OPENWEBUI
+    resolve_compose_cid: "{{ OPENWEBUI_CONTAINER }}"
+
+- name: "👤 Create the administrator or converge its password and role"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - OPENWEBUI_ADMIN_EMAIL
+      - -e
+      - OPENWEBUI_ADMIN_NAME
+      - -e
+      - OPENWEBUI_ADMIN_PASSWORD
+      - "{{ OPENWEBUI_LOCAL_CID }}" # nocheck: container-exec-resolver  OPENWEBUI_LOCAL_CID comes from resolve_host_cid.yml above
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'python/administrator.py') }}"
+  environment:
+    OPENWEBUI_ADMIN_EMAIL: "{{ OPENWEBUI_ADMIN_USER.email }}"
+    OPENWEBUI_ADMIN_NAME: "{{ OPENWEBUI_ADMIN_USER.username }}"
+    OPENWEBUI_ADMIN_PASSWORD: "{{ OPENWEBUI_ADMIN_USER.password }}"
+  register: openwebui_admin
+  retries: 30
+  delay: 10
+  until: openwebui_admin.rc == 0
+  changed_when: openwebui_admin.stdout is search('(?m)^CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ OPENWEBUI_HOST_NODE }}"
+  run_once: true

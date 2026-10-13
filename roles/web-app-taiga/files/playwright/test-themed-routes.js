@@ -5,7 +5,7 @@ const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("taiga themed routes stay aligned across stable routes", async ({ page }) => {
-    const session = await shared.loginToTaiga(page);
+    const session = await shared.loginToTaigaForVariant(page);
 
     const cssEnabled = isServiceEnabled("design");
 
@@ -13,18 +13,17 @@ exports.register = function (shared) {
       {
         url: session.discoverUrl,
         ready: page.getByRole("heading", { name: /discover projects/i }),
-        surface: page.locator(".discover-header form"),
-        field: page.locator(".discover-header input[type='text']"),
+        surfaces: [[".discover-header", "--design-surface-3"]],
       },
       {
         url: session.projectsUrl,
         ready: page.getByRole("heading", { name: /my projects/i }),
-        surface: page.locator(".project-list-wrapper .project-list-title, .project-list-title, .title-bar"),
+        surfaces: [],
       },
       {
         url: session.userSettingsUrl,
         ready: page.getByRole("heading", { name: /user settings/i }),
-        surface: page.locator(".menu-secondary"),
+        surfaces: [[".menu-secondary", "--design-surface-2"]],
       },
     ];
 
@@ -36,33 +35,10 @@ exports.register = function (shared) {
         continue;
       }
 
-      await shared.expectGradientBackground(
-        page.locator("div.master"),
-        `Expected the Taiga master background to stay themed on ${routeCheck.url}`,
-      );
-
-      if (routeCheck.surface) {
-        await shared.expectGradientBackground(
-          routeCheck.surface,
-          `Expected the primary Taiga surface to stay themed on ${routeCheck.url}`,
-        );
-      }
-
-      if (routeCheck.field) {
-        await shared.expectGradientBackground(
-          routeCheck.field,
-          `Expected the Taiga input surface to stay themed on ${routeCheck.url}`,
-        );
-      }
-
-      if (routeCheck.action) {
-        await shared.expectGradientBackground(
-          routeCheck.action,
-          `Expected the main Taiga action button to stay themed on ${routeCheck.url}`,
-        );
+      await shared.expectTokenSurface(page, "nav.navbar", "--design-frame", `Taiga navbar on ${routeCheck.url}`);
+      for (const [selector, token] of routeCheck.surfaces) {
+        await shared.expectTokenSurface(page, selector, token, `Taiga surface ${selector} on ${routeCheck.url}`);
       }
     }
-
-    await shared.logoutFromTaiga(page, session);
   });
 };

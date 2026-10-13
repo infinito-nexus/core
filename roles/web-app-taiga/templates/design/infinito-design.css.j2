@@ -1,0 +1,6264 @@
+{% set design = lookup('design', application_id) %}
+body {
+  --ck-color-base-background: var(--design-surface-2);
+  --ck-color-base-foreground: var(--design-surface-3);
+  --ck-color-base-border: var(--design-border-strong);
+  --ck-color-base-text: var(--design-text);
+  --ck-color-text: var(--design-text);
+  --ck-color-focus-border: var(--design-link);
+  --ck-color-toolbar-background: var(--design-surface-3);
+  --ck-color-toolbar-border: var(--design-border);
+  --ck-color-button-default-hover-background: var(--design-surface-hover);
+  --ck-color-button-default-active-background: var(--design-surface-active);
+  --ck-color-button-on-background: var(--design-surface-active);
+  --ck-color-button-on-hover-background: var(--design-surface-hover);
+  --ck-color-button-on-color: var(--design-text);
+  --ck-color-panel-background: var(--design-surface-2);
+  --ck-color-panel-border: var(--design-border);
+  --ck-color-dropdown-panel-background: var(--design-surface-2);
+  --ck-color-dropdown-panel-border: var(--design-border);
+  --ck-color-input-background: var(--design-surface-2);
+  --ck-color-input-border: var(--design-border-strong);
+  --ck-color-input-text: var(--design-text);
+  --ck-color-list-background: var(--design-surface-2);
+  --ck-color-list-button-hover-background: var(--design-surface-hover);
+  --ck-color-list-button-on-background: var(--design-primary);
+  --ck-color-list-button-on-text: var(--design-on-primary);
+  --ck-color-link-default: var(--design-link);
+  --ck-color-mention-background: var(--design-info-subtle);
+  --ck-color-mention-text: var(--design-info);
+  --ck-color-tooltip-background: var(--design-text);
+  --ck-color-tooltip-text: var(--design-surface-1);
+}
+.introjs-overlay {
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+  background-image: none;
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+  background-image: none;
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+  background-image: none;
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+  background-image: none;
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+  background-image: none;
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+  background-image: none;
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+}
+.introjs-disableInteraction {
+  background-color: var(--design-surface-1);
+}
+.introjs-helperLayer {
+  background-color: var(--design-surface-1);
+  background-color: rgba(var(--design-surface-1-rgb), 0.9);
+  border-color: var(--design-border-strong);
+  border-color: rgba(var(--design-border-strong-rgb), 0.5);
+  box-shadow: var(--design-shadow-3);
+}
+.introjs-tooltipReferenceLayer {
+  background-color: transparent;
+}
+.introjs-helperNumberLayer {
+  color: var(--design-on-danger);
+  text-shadow: none;
+  background-color: var(--design-danger);
+  background-image: none;
+  background-color: var(--design-danger);
+  background-image: none;
+  background-color: var(--design-danger);
+  background-image: none;
+  background-color: var(--design-danger);
+  background-image: none;
+  background-color: var(--design-danger);
+  background-image: none;
+  background-color: var(--design-danger);
+  background-image: none;
+  background-color: var(--design-danger);
+  border-color: var(--design-surface-1);
+  box-shadow: var(--design-shadow-2);
+}
+.introjs-arrow {
+  border-color: transparent;
+}
+.introjs-arrow.top,
+.introjs-arrow.top-right,
+.introjs-arrow.top-middle {
+  border-bottom-color: var(--design-surface-1);
+}
+.introjs-arrow.right,
+.introjs-arrow.right-bottom {
+  border-left-color: var(--design-surface-1);
+}
+.introjs-arrow.bottom,
+.introjs-arrow.bottom-right,
+.introjs-arrow.bottom-middle {
+  border-top-color: var(--design-surface-1);
+}
+.introjs-arrow.left,
+.introjs-arrow.left-bottom {
+  border-right-color: var(--design-surface-1);
+}
+.introjs-tooltip {
+  background-color: var(--design-surface-1);
+  box-shadow: var(--design-shadow-3);
+}
+.introjs-button {
+  border-color: var(--design-border);
+  text-shadow: none;
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+  background-image: none;
+  background-color: var(--design-surface-3);
+  background-image: none;
+  background-color: var(--design-surface-3);
+  background-image: none;
+  background-color: var(--design-surface-3);
+  background-image: none;
+  background-color: var(--design-surface-3);
+}
+.introjs-button:hover {
+  border-color: var(--design-border-strong);
+  box-shadow: var(--design-shadow-1);
+}
+.introjs-button:active {
+  background-image: none;
+  background-color: var(--design-surface-active);
+  background-image: none;
+  background-color: var(--design-surface-active);
+  background-image: none;
+  background-color: var(--design-surface-active);
+  background-image: none;
+  background-color: var(--design-surface-active);
+}
+.introjs-button:focus {
+  background-image: none;
+  background-color: var(--design-surface-3);
+  background-image: none;
+  background-color: var(--design-surface-3);
+  background-image: none;
+  background-color: var(--design-surface-3);
+  background-image: none;
+  background-color: var(--design-surface-3);
+}
+.introjs-skipbutton {
+  color: var(--design-text-muted);
+}
+.introjs-prevbutton.introjs-fullbutton {
+  border-color: var(--design-border);
+}
+.introjs-disabled {
+  color: var(--design-text-muted);
+  border-color: var(--design-border);
+  box-shadow: none;
+  background-color: var(--design-surface-3);
+  background-image: none;
+}
+.introjs-disabled:focus {
+  color: var(--design-text-muted);
+  border-color: var(--design-link);
+  background-color: var(--design-surface-3);
+}
+.introjs-disabled:hover {
+  color: var(--design-text-muted);
+  border-color: var(--design-border);
+  background-color: var(--design-surface-hover);
+}
+.introjs-bullets ul li a,
+.introjs-bullets ul li a:hover,
+.introjs-bullets ul li a.active {
+  background-color: var(--design-border-strong);
+}
+.introjs-progress {
+  background-color: var(--design-surface-3);
+}
+.introjs-progressbar {
+  background-color: var(--design-info);
+}
+.introjs-hint {
+  background: 0 0;
+}
+.introjs-hint:hover>.introjs-hint-pulse {
+  border-color: rgba(var(--design-border-strong-rgb), 0.57);
+}
+.introjs-hint-pulse {
+  border-color: rgba(var(--design-border-strong-rgb), 0.27);
+  background-color: rgba(var(--design-text-muted-rgb), 0.24);
+}
+.introjs-hint-dot {
+  border-color: rgba(var(--design-border-strong-rgb), 0.36);
+  background: 0 0;
+}
+.awesomplete>ul {
+  background-color: var(--design-surface-1);
+}
+.awesomplete>ul {
+  background-color: rgba(var(--design-surface-1-rgb), 0.9);
+  background-image: none;
+  background-color: var(--design-surface-1);
+  border-color: rgba(var(--design-border-strong-rgb), 0.3);
+  box-shadow: var(--design-shadow-1);
+}
+.awesomplete>ul:before {
+  background-color: var(--design-surface-1);
+}
+.awesomplete>ul>li:hover {
+  background-color: var(--design-info-border);
+  color: var(--design-text);
+}
+.awesomplete>ul>li[aria-selected=true] {
+  background-color: var(--design-primary-active);
+  color: var(--design-on-primary);
+}
+.awesomplete mark {
+  background-color: var(--design-warning);
+}
+.awesomplete li:hover mark {
+  background-color: var(--design-warning-hover);
+}
+.awesomplete li[aria-selected=true] mark {
+  background-color: var(--design-success-active);
+  color: inherit;
+}
+.dropdown-menu {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-1);
+}
+.dropdown-menu li {
+  border-top-color: var(--design-border);
+}
+.dropdown-menu .active {
+  background-color: var(--design-info-active);
+  color: var(--design-on-info);
+}
+.dropdown-menu li:hover {
+  background-color: var(--design-info-hover);
+  color: var(--design-on-info);
+}
+.dropdown-menu .active>a,
+.dropdown-menu .active>a:hover {
+  color: var(--design-on-primary);
+}
+mark {
+  background-color: var(--design-warning);
+  color: var(--design-on-warning);
+}
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit;
+}
+fieldset {
+  border-color: var(--design-border-strong);
+}
+.pika-single {
+  color: var(--design-text);
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border-strong);
+  border-bottom-color: var(--design-border-strong);
+}
+.pika-single.is-bound {
+  box-shadow: var(--design-shadow-3);
+}
+.pika-label {
+  background-color: var(--design-surface-1);
+}
+.pika-next,
+.pika-prev {
+  background-color: transparent;
+}
+.pika-prev {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAUklEQVR42u3VMQoAIBADQf8Pgj+OD9hG2CtONJB2ymQkKe0HbwAP0xucDiQWARITIDEBEnMgMQ8S8+AqBIl6kKgHiXqQqAeJepBo/z38J/U0uAHlaBkBl9I4GwAAAABJRU5ErkJggg==);
+}
+.pika-next {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAU0lEQVR42u3VOwoAMAgE0dwfAnNjU26bYkBCFGwfiL9VVWoO+BJ4Gf3gtsEKKoFBNTCoCAYVwaAiGNQGMUHMkjGbgjk2mIONuXo0nC8XnCf1JXgArVIZAQh5TKYAAAAASUVORK5CYII=);
+}
+.pika-table th {
+  color: var(--design-text-muted);
+}
+.pika-button {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+}
+.is-today .pika-button {
+  color: var(--design-link);
+}
+.is-selected .pika-button {
+  color: var(--design-on-primary);
+  background-color: var(--design-info-border);
+  box-shadow: inset 0 1px 3px var(--design-link);
+}
+.is-disabled .pika-button {
+  color: var(--design-text-muted);
+}
+.pika-button:hover {
+  color: var(--design-on-warning) !important;
+  background-color: var(--design-warning-hover) !important;
+}
+.hljs {
+  background-color: var(--design-surface-3);
+}
+.hljs-keyword,
+.hljs-link,
+.hljs-literal,
+.hljs-section,
+.hljs-selector-tag {
+  color: var(--design-info);
+}
+.hljs-function .hljs-keyword {
+  color: var(--design-danger);
+}
+.hljs,
+.hljs-subst {
+  color: var(--design-text);
+}
+.hljs-addition,
+.hljs-attribute,
+.hljs-bullet,
+.hljs-name,
+.hljs-string,
+.hljs-symbol,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-title,
+.hljs-type,
+.hljs-variable {
+  color: var(--design-warning);
+}
+.hljs-comment,
+.hljs-deletion,
+.hljs-meta,
+.hljs-quote,
+.menu-secondary li .active a {
+  color: var(--design-link);
+}
+:focus,
+.discover-header input[type=text]:focus {
+  outline-color: var(--design-link);
+}
+.menu-secondary {
+  background-color: var(--design-surface-2);
+}
+.menu-secondary .settings-nav {
+  background-color: var(--design-surface-3);
+}
+.menu-secondary li {
+  background-color: var(--design-surface-2);
+}
+.menu-secondary li .active,
+.menu-secondary li .active:hover {
+  background-color: var(--design-surface-1);
+}
+.menu-secondary li .active:hover a {
+  color: var(--design-text-muted);
+}
+.menu-tertiary {
+  background-color: var(--design-surface-3);
+  border-right-color: var(--design-border-strong);
+}
+.menu-tertiary ul li a {
+  color: var(--design-text);
+}
+.menu-tertiary ul li:hover,
+.menu-tertiary ul li:hover a {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.menu-tertiary ul li.active {
+  background-color: var(--design-primary);
+}
+.menu-tertiary ul li.active a {
+  background-color: var(--design-surface-3);
+  color: var(--design-link);
+}
+.menu-tertiary ul li.active a:hover,
+.menu-tertiary ul li.active a:hover a {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--design-text);
+}
+h1 {
+  color: var(--design-link);
+}
+h1 .date {
+  color: var(--design-text);
+}
+hr {
+  border-color: var(--design-border-strong);
+}
+a,
+a:visited {
+  color: var(--design-link);
+}
+a:hover,
+a:visited:hover,
+a.secondary,
+a.secondary:visited {
+  color: var(--design-text);
+}
+a.secondary:hover,
+a.secondary:visited:hover {
+  color: var(--design-link);
+}
+.pika-single .pika-title {
+  color: var(--design-text);
+}
+.pika-single .is-selected .pika-button {
+  background-color: var(--design-success);
+  box-shadow: inset 0 1px 3px var(--design-success);
+}
+.pika-single .is-today .pika-button {
+  color: var(--design-success);
+}
+.pika-single .is-today.is-selected button {
+  color: var(--design-on-primary);
+}
+.pika-single .pika-button:hover {
+  background-color: var(--design-success) !important;
+  box-shadow: inset 0 1px 3px var(--design-success) !important;
+}
+div.awesomplete>ul {
+  background-color: rgba(var(--design-text-rgb), 0.95);
+  color: var(--design-surface-1);
+}
+div.awesomplete>ul::before {
+  background-color: rgba(var(--design-text-rgb), 0.95);
+}
+div.awesomplete>ul>li:hover,
+div.awesomplete mark,
+div.awesomplete li:hover mark {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+input[type=date],
+input[type=email],
+input[type=number],
+input[type=password],
+input[type=search],
+input[type=text],
+input[type=url],
+select,
+textarea {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+input[type=date]::-webkit-input-placeholder,
+input[type=email]::-webkit-input-placeholder,
+input[type=number]::-webkit-input-placeholder,
+input[type=password]::-webkit-input-placeholder,
+input[type=search]::-webkit-input-placeholder,
+input[type=text]::-webkit-input-placeholder,
+input[type=url]::-webkit-input-placeholder,
+select::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+input[type=date]::-moz-placeholder,
+input[type=email]::-moz-placeholder,
+input[type=number]::-moz-placeholder,
+input[type=password]::-moz-placeholder,
+input[type=search]::-moz-placeholder,
+input[type=text]::-moz-placeholder,
+input[type=url]::-moz-placeholder,
+select::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+input[type=date]:-moz-placeholder,
+input[type=email]:-moz-placeholder,
+input[type=number]:-moz-placeholder,
+input[type=password]:-moz-placeholder,
+input[type=search]:-moz-placeholder,
+input[type=text]:-moz-placeholder,
+input[type=url]:-moz-placeholder,
+select:-moz-placeholder,
+textarea:-moz-placeholder {
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+input[type=date]:-ms-input-placeholder,
+input[type=email]:-ms-input-placeholder,
+input[type=number]:-ms-input-placeholder,
+input[type=password]:-ms-input-placeholder,
+input[type=search]:-ms-input-placeholder,
+input[type=text]:-ms-input-placeholder,
+input[type=url]:-ms-input-placeholder,
+select:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+input[type=date]:focus,
+input[type=email]:focus,
+input[type=number]:focus,
+input[type=password]:focus,
+input[type=search]:focus,
+input[type=text]:focus,
+input[type=url]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--design-link);
+}
+input[type=date].checksley-error,
+input[type=email].checksley-error,
+input[type=number].checksley-error,
+input[type=password].checksley-error,
+input[type=search].checksley-error,
+input[type=text].checksley-error,
+input[type=url].checksley-error,
+select.checksley-error,
+textarea.checksley-error {
+  border-color: rgba(var(--design-danger-border-rgb), 0.25);
+}
+input[type=date].checksley-error:focus,
+input[type=email].checksley-error:focus,
+input[type=number].checksley-error:focus,
+input[type=password].checksley-error:focus,
+input[type=search].checksley-error:focus,
+input[type=text].checksley-error:focus,
+input[type=url].checksley-error:focus,
+select.checksley-error:focus,
+textarea.checksley-error:focus {
+  border-color: var(--design-link);
+}
+.capslock .icon-capslock {
+  fill: var(--design-text-muted);
+}
+.custom-checkbox {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+}
+.custom-checkbox label::after {
+  background-color: var(--design-primary);
+}
+.error-text {
+  color: var(--design-danger);
+}
+.admin-membership .header-message {
+  background-color: var(--design-warning-subtle);
+}
+.admin-membership .header-message .no-more-membership,
+.admin-membership .header-message .no-more-membership p {
+  color: var(--design-text);
+}
+.admin-membership .limit-users-warning {
+  color: var(--design-success);
+}
+.add-tag-container {
+  background-color: var(--design-surface-3);
+}
+.add-tag-container input[type=text] {
+  background-color: var(--design-surface-1);
+}
+.tags-table .table-tags-editor input[type=text] {
+  border-bottom-color: transparent;
+}
+.tags-table .table-tags-editor input[type=text]:focus {
+  border-bottom-color: var(--design-link);
+}
+.tags-table .color-filter:hover input {
+  border-bottom-color: var(--design-border);
+}
+.tags-table .mix-tags .popover {
+  background-color: var(--design-text);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-surface-1);
+}
+.tags-table .mix-tags .popover:hover {
+  color: var(--design-text-muted);
+}
+.tags-table .mix-tags .popover li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.tags-table .mix-tags .popover li:hover a {
+  color: var(--design-text-muted);
+}
+.tags-table .mix-tags .popover.horizontal a.active,
+.tags-table .mix-tags .popover.horizontal .point {
+  color: var(--design-on-primary);
+}
+.tags-table .mix-tags .popover a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.tags-table .mix-tags .popover .point,
+.tags-table .mix-tags .popover .priority,
+.tags-table .mix-tags .popover .role,
+.tags-table .mix-tags .popover .severity,
+.tags-table .mix-tags .popover .status,
+.tags-table .mix-tags .popover .type {
+  color: var(--design-on-primary);
+}
+.tags-table .mix-tags .popover::before {
+  background-color: var(--design-text);
+}
+.tags-table .mixing-tags-from,
+.tags-table .mixing-tags-to {
+  background-color: var(--design-success-subtle);
+}
+.tags-table .mixing-help-text {
+  color: var(--design-text);
+}
+.admin-attributes .admin-attributes-section .checksley-error-list li {
+  background-color: rgba(var(--design-danger-rgb), 0.7);
+}
+.admin-attributes .admin-attributes-section .admin-tags-section-wrapper-empty,
+.admin-roles p {
+  color: var(--design-text-muted);
+}
+.project-values-title {
+  background-color: var(--design-surface-3);
+}
+.admin-swimlanes-manager .empty {
+  color: var(--design-text);
+}
+.admin-swimlanes-manager .tooltip {
+  background-color: var(--design-text);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-surface-1);
+}
+.admin-swimlanes-manager .tooltip::before {
+  background-color: var(--design-text);
+}
+.admin-swimlanes-manager .admin-swimlane-item {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+.admin-swimlanes-manager .admin-swimlane-item .admin-swimlane-item-drag {
+  fill: var(--design-link);
+}
+.admin-swimlanes-manager .admin-swimlane-item .delete-swimlane[disabled] .icon,
+.admin-swimlanes-manager .admin-swimlane-item .delete-swimlane[disabled]:hover .icon {
+  fill: var(--design-text-muted);
+}
+.admin-swimlanes-manager .admin-swimlane-item .delete-swimlane:hover .icon {
+  fill: var(--design-danger);
+}
+.admin-swimlanes-manager .btn-default-swimlane {
+  background: 0 0;
+}
+.admin-swimlanes-manager .btn-default-swimlane:hover .btn-default-swimlane-icon .icon {
+  fill: rgba(var(--design-warning-rgb), 0.25);
+  stroke: var(--design-warning);
+}
+.admin-swimlanes-manager .btn-default-swimlane .btn-default-swimlane-icon .icon {
+  stroke: var(--design-text-muted);
+}
+.admin-swimlanes-manager .btn-default-swimlane .btn-default-swimlane-icon.default .icon {
+  fill: rgba(var(--design-warning-rgb), 0.25);
+  stroke: rgba(var(--design-warning-rgb), 0.25);
+}
+.admin-wip-manager .admin-swimlane-title {
+  background-color: var(--design-surface-1);
+  border-bottom-color: var(--design-surface-1);
+  box-shadow: 4px 4px 4px rgba(var(--design-link-rgb), 0.5);
+}
+.admin-wip-manager .admin-swimlane-title.folded {
+  border-bottom-color: var(--design-border);
+}
+.admin-wip-manager .admin-swimlane-title.folded tg-svg {
+  fill: var(--design-text-muted);
+}
+.admin-wip-manager .admin-swimlane-title.folded .title-name {
+  color: var(--design-text-muted);
+}
+.admin-wip-manager .admin-swimlane-title:hover tg-svg {
+  fill: var(--design-text);
+}
+.admin-wip-manager .admin-swimlane-title:hover .title-name {
+  color: var(--design-text);
+}
+.admin-wip-manager .admin-swimlane-title tg-svg {
+  fill: var(--design-link);
+}
+.admin-wip-manager .admin-swimlane-title .title-name {
+  color: var(--design-link);
+}
+.auth,
+.backlog-filter,
+.backlog-top {
+  background-color: var(--design-surface-1);
+}
+.auth .white-link,
+.auth .white-link:visited {
+  color: var(--design-text);
+}
+.auth .checksley-error-list {
+  color: var(--design-danger);
+}
+.auth .logo,
+.auth .tagline,
+.auth .login-text,
+.auth .register-text,
+.auth .login-text a,
+.auth .register-text a {
+  color: var(--design-text);
+}
+.auth .login-text a:hover,
+.auth .register-text a:hover {
+  color: var(--design-link);
+}
+.auth .button {
+  color: var(--design-on-primary);
+}
+.auth a:hover {
+  color: var(--design-link);
+}
+.moustache {
+  fill: rgba(var(--design-success-rgb), 0.9);
+  stroke: var(--design-success);
+}
+.moustache:hover {
+  fill: rgba(var(--design-success-rgb), 0.9);
+}
+.backlog-filter tg-filter {
+  border-color: var(--design-border);
+}
+.backlog-menu {
+  color: var(--design-text);
+}
+.backlog-stories-number {
+  color: var(--design-text-muted);
+}
+.backlog-stories-number.squared {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.multiple-drag-mirror.us-item-row {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-primary);
+}
+.empty-backlog .no-match {
+  color: var(--design-text);
+}
+.empty-backlog .no-match-help {
+  color: var(--design-text-muted);
+}
+.invitation-main {
+  background-color: var(--design-surface-1);
+}
+.invitation-main .avatar .person-name,
+.invitation-main .invitation-text {
+  color: var(--design-text);
+}
+.invitation-main .invitation-form .forgot-pass {
+  color: var(--design-text-muted);
+}
+.invitation-main .invitation-form .forgot-pass:hover {
+  color: var(--design-text);
+}
+.invitation-main .invitation-form .checksley-error-list {
+  color: var(--design-danger);
+}
+.invitation-main .login-form .form-header,
+.invitation-main .register-form .form-header,
+.invitation-main .register-text,
+.invitation-main .register-text a,
+.invitation-main .button-auth,
+.invitation-main .contrib-plugins-wrapper label {
+  color: var(--design-text);
+}
+.invitation-main .button-blackish:hover {
+  background-color: var(--design-success);
+}
+.invitation-main .login-form {
+  border-right-color: rgba(var(--design-border-strong-rgb), 0.3);
+}
+.issue-container .filters-bar,
+.issue-header,
+.kanban.swimlane .kanban-header,
+.kanban-header {
+  background-color: var(--design-surface-1);
+}
+.issue-container .filters-bar tg-filter,
+.kanban-filter tg-filter {
+  border-color: var(--design-border);
+}
+.issue-header .button-filter,
+.kanban-header .button-filter {
+  color: var(--design-link);
+}
+.issue-header .button-filter svg,
+.kanban-header .button-filter svg {
+  fill: var(--design-link);
+}
+.error-main .error-container,
+.error-main h1 {
+  color: var(--design-on-primary);
+}
+.error-main a {
+  color: var(--design-success);
+}
+.rtl .main-nav li:hover .helper,
+.rtl .main-nav .backlog-sprints-menu {
+  background-image: none;
+  background-color: var(--design-text);
+}
+.rtl blockquote {
+  border-right-color: var(--design-border);
+}
+.rtl .project-csv .option-wrapper {
+  border-left-color: var(--design-border-strong);
+}
+.taskboard .graphics-container .burndown-help-info .title {
+  color: var(--design-text-muted);
+}
+.taskboard .graphics-container .burndown-help-info tg-svg {
+  fill: var(--design-text-muted);
+}
+.taskboard .graphics-container .burndown-help-info .tooltip {
+  background-color: var(--design-text);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-surface-1);
+}
+.taskboard .graphics-container .burndown-help-info .tooltip::before {
+  background-color: var(--design-text);
+}
+.taskboard .graphics-container .burndown-help-info:hover .title,
+.taskboard h1 .date,
+.taskboard h1 .date span {
+  color: var(--design-text);
+}
+.taskboard .graphics-container .burndown-help-info:hover tg-svg {
+  fill: var(--design-text);
+}
+.taskboard-header {
+  background-color: var(--design-surface-1);
+}
+.taskboard-header .button-filter,
+.team h2 span:last-child {
+  color: var(--design-link);
+}
+.taskboard-header .button-filter svg {
+  fill: var(--design-link);
+}
+.taskboard-filter tg-filter {
+  border-color: var(--design-border);
+}
+.detail {
+  background-color: var(--design-surface-3);
+}
+.detail .detail-content,
+.detail .detail-header-container {
+  background-color: var(--design-surface-1);
+}
+.duty-content:hover .view-description .editable,
+.duty-content .view-description .edit {
+  background-color: var(--design-surface-3);
+}
+.duty-content:hover .view-description .no-description {
+  color: var(--design-text);
+}
+.duty-content .no-description {
+  color: var(--design-text-muted);
+}
+.duty-content .edit {
+  fill: var(--design-text-muted);
+}
+.avatar img {
+  border-color: var(--design-surface-1);
+}
+.basic-table .row {
+  border-bottom-color: var(--design-border);
+}
+.btn-big,
+.btn-board,
+.btn-filter,
+.btn-icon,
+.btn-small {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-big:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.btn-big[variant=destructive]:disabled {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-big[variant=primary]:hover,
+.btn-big[variant=secondary]:hover,
+.btn-board:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.btn-board[variant=destructive]:disabled {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-board[variant=primary]:hover,
+.btn-board[variant=secondary]:hover,
+.btn-filter:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.btn-filter[variant=destructive]:disabled {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-filter[variant=primary]:hover,
+.btn-filter[variant=secondary]:hover,
+.btn-icon:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.btn-icon[variant=destructive]:disabled {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-icon[variant=primary]:hover,
+.btn-icon[variant=secondary]:hover,
+.btn-small:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.btn-small[variant=destructive]:disabled {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-small[variant=primary]:hover,
+.btn-small[variant=secondary]:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.btn-big:disabled,
+.btn-big[variant=destructive]:disabled,
+.btn-big[variant=primary]:disabled,
+.btn-big[variant=secondary]:disabled,
+.btn-board:disabled,
+.btn-board[variant=destructive]:disabled,
+.btn-board[variant=primary]:disabled,
+.btn-board[variant=secondary]:disabled,
+.btn-filter:disabled,
+.btn-filter[variant=destructive]:disabled,
+.btn-filter[variant=primary]:disabled,
+.btn-filter[variant=secondary]:disabled,
+.btn-icon:disabled,
+.btn-icon[variant=destructive]:disabled,
+.btn-icon[variant=primary]:disabled,
+.btn-icon[variant=secondary]:disabled,
+.btn-small:disabled,
+.btn-small[variant=destructive]:disabled,
+.btn-small[variant=primary]:disabled,
+.btn-small[variant=secondary]:disabled {
+  background-color: var(--design-surface-3);
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+.btn-small[variant=primary] {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-small[variant=secondary] {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.btn-small[variant=destructive] {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+.btn-icon[variant=primary] {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.btn-icon[variant=secondary] {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.btn-icon[variant=destructive] {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+.btn-link {
+  background: 0 0;
+  color: var(--design-text-muted);
+}
+.btn-link[variant=icon] {
+  color: var(--design-link);
+}
+.btn-link[variant=icon]:hover {
+  color: var(--design-text-muted);
+}
+.btn-link[variant=icon]:hover>tg-svg,
+.form-button .icon,
+.filter-button svg {
+  fill: var(--design-link);
+}
+.btn-form {
+  background: 0 0;
+  color: var(--design-link);
+}
+.btn-form:hover {
+  background-color: var(--design-surface-3);
+}
+.btn-filter {
+  background-color: var(--design-surface-2);
+  color: var(--design-link);
+}
+.btn-filter.active,
+.btn-filter:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-link);
+}
+.btn-filter .selected-filters {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+.btn-board {
+  background-color: transparent;
+  color: var(--design-text-muted);
+}
+.btn-board:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-link);
+}
+.btn-board[variant=blocked]:hover {
+  background-color: var(--design-danger-subtle);
+  color: var(--design-text);
+}
+.button,
+.button-auth,
+.button-blackish,
+.button-gray,
+.button-gray-light,
+.button-green,
+.button-primary,
+.button-red,
+.button-red-light,
+.button-secondary,
+.button-tribe,
+.filter-button,
+.form-button,
+.icon-button-primary,
+.menu-button,
+.trans-button {
+  background: 0 0;
+  color: var(--design-text);
+}
+.button-auth[disabled],
+.button-blackish[disabled],
+.button-gray-light[disabled],
+.button-gray[disabled],
+.button-green[disabled],
+.button-primary[disabled],
+.button-red-light[disabled],
+.button-red[disabled],
+.button-secondary[disabled],
+.button-tribe[disabled],
+.button.disabled,
+.button[disabled],
+.disabled.button-auth,
+.disabled.button-blackish,
+.disabled.button-gray,
+.disabled.button-gray-light,
+.disabled.button-green,
+.disabled.button-primary,
+.disabled.button-red,
+.disabled.button-red-light,
+.disabled.button-secondary,
+.disabled.button-tribe,
+.disabled.filter-button,
+.disabled.form-button,
+.disabled.icon-button-primary,
+.disabled.menu-button,
+.disabled.trans-button,
+.filter-button[disabled],
+.form-button[disabled],
+.icon-button-primary[disabled],
+.menu-button[disabled],
+.trans-button[disabled] {
+  background-color: var(--design-surface-3);
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+.button-auth[disabled]:hover,
+.button-blackish[disabled]:hover,
+.button-gray-light[disabled]:hover,
+.button-gray[disabled]:hover,
+.button-green[disabled]:hover,
+.button-primary[disabled]:hover,
+.button-red-light[disabled]:hover,
+.button-red[disabled]:hover,
+.button-secondary[disabled]:hover,
+.button-tribe[disabled]:hover,
+.button.disabled:hover,
+.button[disabled]:hover,
+.disabled.button-auth:hover,
+.disabled.button-blackish:hover,
+.disabled.button-gray-light:hover,
+.disabled.button-gray:hover,
+.disabled.button-green:hover,
+.disabled.button-primary:hover,
+.disabled.button-red-light:hover,
+.disabled.button-red:hover,
+.disabled.button-secondary:hover,
+.disabled.button-tribe:hover,
+.disabled.filter-button:hover,
+.disabled.form-button:hover,
+.disabled.icon-button-primary:hover,
+.disabled.menu-button:hover,
+.disabled.trans-button:hover,
+.filter-button[disabled]:hover,
+.form-button[disabled]:hover,
+.icon-button-primary[disabled]:hover,
+.menu-button[disabled]:hover,
+.trans-button[disabled]:hover {
+  background-color: var(--design-surface-3);
+}
+.button-green {
+  background-color: var(--design-success);
+}
+.button-green.active {
+  background-color: var(--design-success-active);
+}
+.button-green:hover,
+.button-green:visited:hover {
+  background-color: var(--design-success-hover);
+}
+.button-gray,
+.button-gray.active,
+.button-gray:hover,
+.button-gray:visited:hover {
+  background-color: var(--design-text-muted);
+}
+.button-gray-light,
+.button-gray-light.active,
+.button-gray-light:hover,
+.button-gray-light:visited:hover {
+  background-color: var(--design-border-strong);
+}
+.button-red {
+  background-color: var(--design-danger);
+}
+.button-red-light {
+  background-color: var(--design-danger-subtle);
+}
+.button-red-red-light.active,
+.button-red-red-light:hover,
+.button-red-red-light:visited:hover,
+.button-red.active,
+.button-red:hover,
+.button-red:visited:hover {
+  background-color: var(--design-danger-border);
+}
+.trans-button {
+  background-color: var(--design-surface-2);
+}
+.trans-button .icon,
+.trans-button span,
+.trans-button:visited,
+.menu-button {
+  color: var(--design-text);
+}
+.menu-button:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.menu-button:visited,
+.menu-button span {
+  color: var(--design-text);
+}
+.button-blackish,
+.button-blackish:hover {
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+}
+.button-auth {
+  background-color: var(--design-text-muted);
+}
+.button-auth .icon,
+.button-auth img {
+  color: var(--design-on-primary);
+}
+.button-auth:hover {
+  background-color: var(--design-text);
+}
+.button-tribe {
+  background-color: var(--design-info);
+}
+.button-tribe.active {
+  background-color: var(--design-info-active);
+  color: var(--design-on-info);
+}
+.button-tribe:hover {
+  background-color: var(--design-info-hover);
+  color: var(--design-on-info);
+}
+.tribe-more-info {
+  color: var(--design-success);
+}
+.button-group {
+  background-color: var(--design-surface-2);
+  border-bottom-color: var(--design-link);
+}
+.button-group input:checked+label {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-link);
+  border-bottom-color: var(--design-surface-1);
+  color: var(--design-link);
+}
+.button-group input+label {
+  color: var(--design-text-muted);
+}
+.button-group input+label:hover {
+  color: var(--design-link);
+}
+.button-check input:checked+label {
+  background-color: var(--design-primary);
+}
+.button-check label {
+  background-color: var(--design-border-strong);
+  color: var(--design-on-primary);
+}
+.button-check label:hover {
+  background-color: var(--design-text-muted);
+}
+.button-primary {
+  background-color: var(--design-primary);
+}
+.button-primary:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.button-secondary {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.icon-button-primary {
+  background-color: var(--design-primary);
+}
+.icon-button-primary span {
+  color: var(--design-text);
+}
+.form-button {
+  background: 0 0;
+}
+.form-button:hover {
+  background-color: var(--design-surface-3);
+}
+.filter-button {
+  background-color: var(--design-surface-2);
+  color: var(--design-link);
+}
+.filter-button .text {
+  color: currentColor;
+}
+.filter-button.active,
+.filter-button:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-link);
+}
+.filter-button .selected-filters {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+.card-placeholder:not(.not-found) .title,
+.card-placeholder:not(.not-found) p,
+.card-placeholder.not-found {
+  color: var(--design-text-muted);
+}
+.card-placeholder:not(.not-found) .placeholder-board-card {
+  background-color: var(--design-surface-1);
+  box-shadow: 4px 4px 8px rgba(var(--design-link-rgb), 0.5);
+}
+.card-placeholder:not(.not-found) .placeholder-board-text,
+.card-placeholder:not(.not-found) .placeholder-board-text.small,
+.card-placeholder:not(.not-found) .placeholder-board-text.big,
+.card-placeholder:not(.not-found) .placeholder-board-avatar {
+  background-color: var(--design-surface-3);
+}
+.card-placeholder:not(.not-found) .placeholder-board-user {
+  background-color: var(--design-surface-2);
+}
+.card-placeholder:not(.not-found) .placeholder-board-last-text {
+  background-color: var(--design-surface-3);
+}
+.card-placeholder.not-found .title {
+  color: var(--design-text);
+}
+.check {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+.check.active div {
+  background-color: var(--design-primary);
+}
+.check.active div::before,
+.check div::before {
+  background-color: var(--design-surface-1);
+}
+.check input:checked+div {
+  background-color: var(--design-primary);
+}
+.check input:checked+div::before {
+  background-color: var(--design-surface-1);
+}
+.ticket-created-by .created-by .created-date,
+.ticket-created-by .created-by .created-title {
+  color: var(--design-text-muted);
+}
+.ticket-created-by .created-by .created-title {
+  color: var(--design-link);
+}
+.doom-line {
+  background-color: var(--design-info);
+}
+.doom-line span {
+  color: var(--design-on-primary);
+}
+.wysiwyg-help {
+  background-color: var(--design-surface-3);
+}
+.drag-drop-help,
+.empty-filter .title,
+.empty-large .title,
+.empty-small .title {
+  color: var(--design-text-muted);
+}
+.help-button:hover .icon,
+.help-markdown:hover .icon {
+  fill: var(--design-success);
+}
+.help-button .icon,
+.help-markdown .icon {
+  fill: var(--design-text-muted);
+}
+.empty-filter a,
+.empty-large a,
+.empty-small a {
+  color: var(--design-link);
+}
+.ticket-estimation .ticket-role-points {
+  background-color: var(--design-surface-2);
+  color: var(--design-text-muted);
+}
+.ticket-estimation .ticket-role-points:last-child {
+  background-color: var(--design-surface-3);
+}
+.ticket-estimation .ticket-role-points .points {
+  color: var(--design-text);
+}
+.ticket-estimation .popover {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.ticket-estimation .popover:hover {
+  color: var(--design-text-muted);
+}
+.ticket-estimation .popover li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.ticket-estimation .popover li:hover a {
+  color: var(--design-text-muted);
+}
+.ticket-estimation .popover.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.ticket-estimation .popover.horizontal .point {
+  color: var(--design-link);
+}
+.ticket-estimation .popover a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.ticket-estimation .popover .point,
+.ticket-estimation .popover .priority,
+.ticket-estimation .popover .role,
+.ticket-estimation .popover .severity,
+.ticket-estimation .popover .status,
+.ticket-estimation .popover .type {
+  color: var(--design-link);
+}
+.ticket-estimation .popover::before {
+  background-color: var(--design-surface-1);
+}
+.ticket-estimation .popover.fix {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.ticket-estimation .popover.fix:hover {
+  color: var(--design-text-muted);
+}
+.ticket-estimation .popover.fix li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.ticket-estimation .popover.fix li:hover a {
+  color: var(--design-text-muted);
+}
+.ticket-estimation .popover.fix.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.ticket-estimation .popover.fix.horizontal .point {
+  color: var(--design-link);
+}
+.ticket-estimation .popover.fix a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.ticket-estimation .popover.fix .point,
+.ticket-estimation .popover.fix .priority,
+.ticket-estimation .popover.fix .role,
+.ticket-estimation .popover.fix .severity,
+.ticket-estimation .popover.fix .status,
+.ticket-estimation .popover.fix .type {
+  color: var(--design-link);
+}
+.ticket-estimation .popover.fix::before {
+  background-color: var(--design-surface-1);
+}
+.history-tabs {
+  background-color: var(--design-surface-3);
+}
+.history-tabs a:hover {
+  color: var(--design-success);
+}
+.history-tabs .history-tab {
+  color: var(--design-text-muted);
+}
+.history-tabs .history-tab.active {
+  border-bottom-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+.history-tabs .order-comments {
+  color: var(--design-text);
+}
+.level {
+  background-color: var(--design-text-muted);
+}
+.list-itemtype-project,
+.list-itemtype-ticket,
+.list-itemtype-user {
+  border-bottom-color: var(--design-border);
+}
+.list-itemtype-project .list-itemtype-track,
+.list-itemtype-project .list-itemtype-track-likers.active,
+.list-itemtype-project .list-itemtype-track-watchers.active {
+  color: var(--design-link);
+}
+.list-itemtype-project .icon {
+  fill: var(--design-link);
+}
+.list-itemtype-project .list-itemtype-data-title {
+  color: var(--design-text);
+}
+.list-itemtype-project .icon {
+  fill: var(--design-text);
+  stroke: var(--design-text);
+}
+.list-itemtype-project .list-itemtype-project-data-wrapper .icon-private {
+  fill: var(--design-text-muted);
+}
+.list-itemtype-ticket .list-itemtype-track,
+.list-itemtype-ticket .list-itemtype-track-likers.active,
+.list-itemtype-ticket .list-itemtype-track-watchers.active {
+  color: var(--design-link);
+}
+.list-itemtype-ticket .icon,
+.list-itemtype-user .icon {
+  fill: var(--design-link);
+}
+.list-itemtype-ticket .list-itemtype-data-title {
+  color: var(--design-text);
+}
+.list-itemtype-ticket .ticket-type,
+.list-itemtype-ticket .ticket-project {
+  color: var(--design-text-muted);
+}
+.list-itemtype-ticket .ticket-id {
+  color: var(--design-link);
+}
+.list-itemtype-ticket .ticket-blocked {
+  color: var(--design-danger);
+}
+.list-itemtype-user .list-itemtype-track,
+.list-itemtype-user .list-itemtype-track-likers.active,
+.list-itemtype-user .list-itemtype-track-watchers.active {
+  color: var(--design-link);
+}
+.list-itemtype-user .list-itemtype-data-title {
+  color: var(--design-text);
+}
+.loader {
+  background-color: var(--design-surface-1);
+}
+.loader p {
+  color: var(--design-text-muted);
+}
+.loader.active {
+  background-color: rgba(var(--design-surface-1-rgb), 0.95);
+}
+.loading-bar .item {
+  background-color: var(--design-text-muted);
+}
+.loading-bar .item-1 {
+  background-color: var(--design-success);
+}
+.loading-bar .item-2,
+.loading-bar .item-3 {
+  background-color: var(--design-warning);
+}
+.loading-bar .item-4 {
+  background-color: var(--design-danger);
+}
+.loading-bar .item-5 {
+  background-color: var(--design-primary);
+}
+.look-for-people {
+  fill: var(--design-text-muted);
+}
+.notification-message-success {
+  background-color: rgba(var(--design-success-rgb), 0.95);
+  box-shadow: var(--design-shadow-3);
+}
+.notification-message-success .warning,
+.notification-message-error .warning,
+.notification-message {
+  color: var(--design-on-primary);
+}
+.notification-message-error {
+  background-color: rgba(var(--design-danger-rgb), 0.9);
+}
+.notification-message-error .icon-error,
+.notification-message-error .icon-close,
+.notification-light .close svg {
+  fill: var(--design-on-primary);
+}
+.notification-light {
+  background-color: rgba(var(--design-text-muted-rgb), 0.95);
+  color: var(--design-surface-1);
+}
+.notification-light .warning {
+  color: var(--design-on-primary);
+}
+.notification-message-light-error {
+  background-color: rgba(var(--design-danger-rgb), 0.8);
+}
+.paginator .active span,
+.paginator .dots span,
+.paginator a {
+  background-color: var(--design-surface-3);
+  color: var(--design-link);
+}
+.paginator tg-svg {
+  fill: var(--design-link);
+}
+.paginator a:hover {
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.paginator a:hover tg-svg {
+  fill: var(--design-on-primary);
+}
+.paginator .active span {
+  background-color: var(--design-surface-2);
+  color: var(--design-text-muted);
+}
+.paginator .dots span {
+  background-color: var(--design-surface-1);
+  color: var(--design-text-muted);
+}
+.settings-nav {
+  background-color: var(--design-surface-2);
+}
+.settings-nav .active,
+.settings-nav .active:hover {
+  background-color: var(--design-surface-1);
+}
+.settings-nav .active a {
+  color: var(--design-link);
+}
+.settings-nav .active:hover a {
+  color: var(--design-text-muted);
+}
+.summary {
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+.summary .data .number {
+  color: var(--design-on-frame);
+}
+.summary .stats:hover .graph,
+.summary .stats:hover svg,
+.summary .stats.active .graph,
+.summary .stats.active svg {
+  fill: var(--design-on-frame);
+}
+.summary .stats svg {
+  fill: var(--design-on-frame);
+  stroke: var(--design-on-frame);
+}
+.summary .stats .graph {
+  fill: var(--design-on-frame);
+}
+.summary-progress-bar {
+  background-color: var(--design-surface-1);
+}
+.summary-progress-bar .current-progress {
+  background-color: var(--design-primary);
+}
+.summary-progress-bar .defined-points {
+  background-color: var(--design-danger-subtle);
+}
+.summary-progress-bar .project-points-progress {
+  background-color: var(--design-surface-1);
+}
+.summary-progress-bar .closed-points-progress {
+  background-color: var(--design-primary);
+}
+.large-summary .summary-stats.summary-completed-points,
+.large-summary .summary-stats.summary-move-unfinished {
+  border-right-color: var(--design-border-strong);
+}
+.large-summary .summary-stats.summary-completed-points+.summary-stats,
+.large-summary .summary-stats.summary-move-unfinished+.summary-stats {
+  border-left-color: var(--design-border-strong);
+}
+.large-summary .icon {
+  fill: currentColor;
+}
+.large-summary .icon.icon-stats,
+.large-summary .icon.icon-stats:hover,
+.large-summary .icon.icon-stats.active,
+.large-summary .icon.icon-stats.active:hover {
+  color: var(--design-success);
+}
+.large-summary a:hover .icon {
+  fill: var(--design-success);
+  stroke: var(--design-success);
+}
+.large-summary .toggle-points-per-role {
+  color: var(--design-on-primary);
+}
+.empty-burndown {
+  background-color: var(--design-surface-2);
+}
+.empty-burndown svg,
+.track-button.active .icon {
+  fill: var(--design-link);
+}
+.empty-burndown .title {
+  color: var(--design-link);
+}
+.track-button.active .track-inner,
+.track-button.active .track-button-counter {
+  background-color: var(--design-surface-active);
+}
+.track-inner,
+.track-button-counter {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.track-icon {
+  fill: var(--design-text);
+}
+.contact-team {
+  background-color: var(--design-surface-3);
+}
+.watch-options {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+}
+.watch-options a {
+  border-bottom-color: rgba(var(--design-border-strong-rgb), 0.3);
+  color: var(--design-text-muted);
+}
+.watch-options a.active,
+.watch-options a:hover {
+  color: var(--design-link);
+}
+.watch-options .watch-check svg {
+  fill: var(--design-link);
+}
+.lb-user-list .user-list-item,
+.custom-fields-table .table-header {
+  border-bottom-color: var(--design-border);
+}
+.lb-user-list .user-list-item.selected,
+.lb-user-list .user-list-item:hover,
+.lb-user-list .user-list-item.is-active {
+  background-color: var(--design-success-subtle);
+}
+.lb-user-list .user-list-name {
+  color: var(--design-text);
+}
+.lb-user-list .user-list-name .users {
+  color: var(--design-text-muted);
+}
+.lb-user-list .remove-selected {
+  fill: var(--design-text);
+}
+.lb-user-list .remove-selected:hover {
+  fill: var(--design-danger);
+}
+.admin-common .admin-subtitle,
+.admin-common .total {
+  color: var(--design-text);
+}
+.admin-common.admin-roles .total {
+  background-color: var(--design-surface-2);
+}
+.custom-fields-table .table-body .row:hover {
+  background-color: rgba(var(--design-success-rgb), 0.05);
+}
+.custom-fields-table .single-custom-field,
+.custom-fields-table .custom-field-extra {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text-muted);
+}
+.custom-fields-table .icon-draggable,
+.custom-fields-table .custom-options svg {
+  fill: var(--design-text-muted);
+}
+.custom-fields-table .custom-options svg:hover {
+  fill: var(--design-success);
+}
+.custom-fields-table .custom-options svg.icon-trash {
+  fill: var(--design-danger);
+}
+.custom-fields-table .custom-options svg.icon-check-empty,
+.custom-fields-table .custom-options svg.icon-close {
+  fill: var(--design-link);
+}
+.custom-fields-table .custom-extra-actions a {
+  color: var(--design-link);
+}
+.admin-functionalities .module {
+  border-bottom-color: var(--design-border);
+}
+.admin-functionalities .module.active .module-icon .icon {
+  fill: var(--design-text);
+  stroke: var(--design-text);
+}
+.admin-functionalities .module.active .module-name {
+  color: var(--design-text);
+}
+.admin-functionalities .module-icon .icon {
+  fill: var(--design-text-muted);
+  stroke: var(--design-text-muted);
+}
+.admin-functionalities .module-name,
+.admin-functionalities .module-desc,
+.admin-membership-table .avatar .data {
+  color: var(--design-text-muted);
+}
+.admin-functionalities .module-desc-options .icon,
+.admin-functionalities .videoconference-attributes .icon {
+  fill: var(--design-text-muted);
+}
+.admin-functionalities .module-desc-options .icon:hover,
+.admin-functionalities .videoconference-attributes .icon:hover {
+  fill: var(--design-success);
+}
+.admin-membership-table .avatar .pending {
+  color: var(--design-danger);
+}
+.admin-membership-table .active {
+  background-color: var(--design-surface-3);
+}
+.admin-membership-table .resend {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.admin-membership-table .delete {
+  fill: var(--design-text-muted);
+}
+.admin-membership-table .delete:hover {
+  fill: var(--design-danger);
+}
+.admin-membership-table .pending {
+  color: var(--design-danger);
+}
+.admin-menu li {
+  border-bottom-color: var(--design-border-strong);
+}
+.admin-menu li:hover {
+  background-color: var(--design-surface-1);
+}
+.admin-menu li:hover a,
+.admin-menu a {
+  color: var(--design-text-muted);
+}
+.admin-project-export-result h3 {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.admin-project-export-result p {
+  color: var(--design-text-muted);
+}
+.project-details .loading-overlay.active {
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+}
+.project-details .use-default-image:hover,
+.project-details .delete-project:hover {
+  color: var(--design-danger);
+}
+.project-details .get-feedback,
+.project-details .looking-for-people {
+  border-bottom-color: var(--design-border);
+}
+.project-details .looking-for-people {
+  border-top-color: var(--design-border);
+}
+.project-details .get-feedback-inner svg,
+.project-details .looking-for-people-selector svg,
+.project-details .private-or-public svg {
+  fill: var(--design-text-muted);
+}
+.project-details .private-or-public {
+  color: var(--design-text-muted);
+}
+.project-privacy-settings label {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.project-privacy-settings label:hover {
+  background-color: rgba(var(--design-primary-hover-rgb), 0.4);
+  color: var(--design-text);
+}
+.project-privacy-settings label:hover svg,
+.project-privacy-settings label svg {
+  fill: var(--design-text);
+}
+.project-privacy-settings .privacy-project:checked+label {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.project-privacy-settings .privacy-project:checked+label svg {
+  fill: var(--design-on-primary);
+}
+.project-privacy-settings .privacy-project[disabled]+label,
+.project-privacy-settings .privacy-project[disabled]+label:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+tg-admin-project-restrictions .setting-project-warning {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-danger-border);
+}
+tg-admin-project-restrictions .icon-alert {
+  fill: var(--design-danger);
+}
+tg-admin-project-restrictions p a,
+.admin-project-profile-owner-actions a,
+.admin-project-profile-owner-actions a:hover {
+  color: var(--design-link);
+}
+.admin-project-profile-owner-actions {
+  border-top-color: var(--design-border);
+}
+.admin-project-profile-owner-actions .owner-info-title {
+  color: var(--design-text-muted);
+}
+.admin-project-profile-owner-actions .request .limit-message,
+.admin-roles .role-name {
+  color: var(--design-text);
+}
+.admin-roles .icon:hover {
+  fill: var(--design-success);
+}
+.admin-roles .icon-edit,
+.admin-roles .icon-save,
+.admin-webhooks .webhook-options svg {
+  fill: var(--design-text-muted);
+}
+.admin-roles .edit-role {
+  background-color: var(--design-surface-3);
+}
+.admin-roles .edit-role input {
+  background-color: var(--design-surface-1);
+}
+.admin-roles .any-computable-role {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+.admin-submenu li,
+.admin-webhooks .table-header {
+  border-bottom-color: var(--design-border-strong);
+}
+.admin-submenu .button-gray:hover {
+  background-color: var(--design-text);
+}
+.admin-webhooks .table-body .webhook-service,
+.admin-webhooks .webhook-url span {
+  color: var(--design-text-muted);
+}
+.admin-webhooks .single-webhook-wrapper,
+.admin-webhooks .history-single-wrapper,
+.admin-contrib fieldset {
+  border-bottom-color: var(--design-border);
+}
+.admin-webhooks .webhook-url a {
+  color: var(--design-link);
+}
+.admin-webhooks .webhook-options svg:hover {
+  fill: var(--design-success);
+}
+.admin-webhooks .history-single:hover {
+  background-color: var(--design-success-subtle);
+}
+.admin-webhooks .history-response-icon {
+  background-color: var(--design-text-muted);
+}
+.admin-webhooks .history-response-icon.history-success {
+  background-color: var(--design-success);
+}
+.admin-webhooks .history-response-icon.history-error {
+  background-color: var(--design-danger);
+}
+.admin-webhooks .history-single-request-header span:first-child,
+.admin-webhooks .history-single-response-header span:first-child,
+.admin-webhooks .history-single-request-header a,
+.admin-webhooks .history-single-response-header a {
+  color: var(--design-text-muted);
+}
+.admin-webhooks .history-single-request-header a:hover,
+.admin-webhooks .history-single-response-header a:hover {
+  color: var(--design-success);
+}
+.admin-webhooks .history-single-request-body .response-container,
+.admin-webhooks .history-single-response-body .response-container {
+  background-color: var(--design-surface-3);
+}
+.admin-webhooks .history-single-request-body span,
+.admin-webhooks .history-single-response-body span {
+  color: var(--design-text-muted);
+}
+.admin-contrib .select-input-text .option-wrapper,
+.project-csv .option-wrapper {
+  border-color: var(--design-border-strong);
+}
+.default-values a {
+  color: var(--design-on-primary);
+}
+.project-csv .csv-regenerate-field .icon:not(.icon-clipboard) {
+  fill: currentColor;
+}
+.project-values-row,
+.project-values-header {
+  border-bottom-color: var(--design-border);
+}
+.project-values-row .icon {
+  fill: var(--design-text-muted);
+}
+.project-values-row .icon:hover {
+  fill: var(--design-text);
+}
+.project-values-body .project-values-row:hover {
+  background-color: var(--design-surface-1);
+}
+.project-values-settings svg.icon-trash {
+  fill: var(--design-danger);
+}
+.admin-third-parties .select-input-text .option-wrapper {
+  border-color: var(--design-border);
+}
+.cancel-account p {
+  color: var(--design-text);
+}
+.change-email-form p,
+.verify-email-form p,
+.change-password-text {
+  color: var(--design-on-primary);
+}
+.forgot-form-container .forgot-text,
+.login-form-container a,
+.login-form-container .forgot-pass,
+.login-form-container .forgot-pass:hover,
+.register-form-container .register-text-top {
+  color: var(--design-text);
+}
+.backlog-table-body .backlog-table-title .draggable-us-row tg-svg svg,
+.backlog-table-body .row .draggable-us-row tg-svg svg,
+.backlog-table-header .backlog-table-title .draggable-us-row tg-svg svg,
+.backlog-table-header .row .draggable-us-row tg-svg svg,
+.backlog-table-body .points .icon,
+.backlog-table-body>.status .icon,
+.backlog-table-header .points .icon,
+.backlog-table-header>.status .icon {
+  fill: var(--design-link);
+}
+.backlog-table-body .pop-status,
+.backlog-table-header .pop-status {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.backlog-table-body .pop-status:hover,
+.backlog-table-header .pop-status:hover {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-status li:hover,
+.backlog-table-header .pop-status li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-status li:hover a,
+.backlog-table-header .pop-status li:hover a {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-status.horizontal a.active,
+.backlog-table-header .pop-status.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-status.horizontal .point,
+.backlog-table-header .pop-status.horizontal .point {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-status a.active,
+.backlog-table-header .pop-status a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-status .point,
+.backlog-table-header .pop-status .point,
+.backlog-table-body .pop-status .priority,
+.backlog-table-body .pop-status .role,
+.backlog-table-body .pop-status .severity,
+.backlog-table-body .pop-status .status,
+.backlog-table-body .pop-status .type,
+.backlog-table-header .pop-status .priority,
+.backlog-table-header .pop-status .role,
+.backlog-table-header .pop-status .severity,
+.backlog-table-header .pop-status .status,
+.backlog-table-header .pop-status .type {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-status::before,
+.backlog-table-header .pop-status::before {
+  background-color: var(--design-surface-1);
+}
+.backlog-table-body .pop-role,
+.backlog-table-header .pop-role {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.backlog-table-body .pop-role:hover,
+.backlog-table-header .pop-role:hover {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-role li:hover,
+.backlog-table-header .pop-role li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-role li:hover a,
+.backlog-table-header .pop-role li:hover a {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-role.horizontal a.active,
+.backlog-table-header .pop-role.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-role.horizontal .point,
+.backlog-table-header .pop-role.horizontal .point {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-role a.active,
+.backlog-table-header .pop-role a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-role .point,
+.backlog-table-header .pop-role .point,
+.backlog-table-body .pop-role .priority,
+.backlog-table-body .pop-role .role,
+.backlog-table-body .pop-role .severity,
+.backlog-table-body .pop-role .status,
+.backlog-table-body .pop-role .type,
+.backlog-table-header .pop-role .priority,
+.backlog-table-header .pop-role .role,
+.backlog-table-header .pop-role .severity,
+.backlog-table-header .pop-role .status,
+.backlog-table-header .pop-role .type {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-role::before,
+.backlog-table-header .pop-role::before {
+  background-color: var(--design-surface-1);
+}
+.backlog-table-body .pop-points,
+.backlog-table-header .pop-points {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.backlog-table-body .pop-points:hover,
+.backlog-table-header .pop-points:hover {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-points li:hover,
+.backlog-table-header .pop-points li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-points li:hover a,
+.backlog-table-header .pop-points li:hover a {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-points.horizontal a.active,
+.backlog-table-header .pop-points.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-points.horizontal .point,
+.backlog-table-header .pop-points.horizontal .point {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-points a.active,
+.backlog-table-header .pop-points a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-points .point,
+.backlog-table-header .pop-points .point,
+.backlog-table-body .pop-points .priority,
+.backlog-table-body .pop-points .role,
+.backlog-table-body .pop-points .severity,
+.backlog-table-body .pop-points .status,
+.backlog-table-body .pop-points .type,
+.backlog-table-header .pop-points .priority,
+.backlog-table-header .pop-points .role,
+.backlog-table-header .pop-points .severity,
+.backlog-table-header .pop-points .status,
+.backlog-table-header .pop-points .type {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-points::before,
+.backlog-table-header .pop-points::before {
+  background-color: var(--design-surface-1);
+}
+.backlog-table-body .pop-points-open,
+.backlog-table-header .pop-points-open {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.backlog-table-body .pop-points-open:hover,
+.backlog-table-header .pop-points-open:hover {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-points-open li:hover,
+.backlog-table-header .pop-points-open li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-points-open li:hover a,
+.backlog-table-header .pop-points-open li:hover a {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .pop-points-open.horizontal a.active,
+.backlog-table-header .pop-points-open.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-points-open.horizontal .point,
+.backlog-table-header .pop-points-open.horizontal .point {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-points-open a.active,
+.backlog-table-header .pop-points-open a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.backlog-table-body .pop-points-open .point,
+.backlog-table-header .pop-points-open .point,
+.backlog-table-body .pop-points-open .priority,
+.backlog-table-body .pop-points-open .role,
+.backlog-table-body .pop-points-open .severity,
+.backlog-table-body .pop-points-open .status,
+.backlog-table-body .pop-points-open .type,
+.backlog-table-header .pop-points-open .priority,
+.backlog-table-header .pop-points-open .role,
+.backlog-table-header .pop-points-open .severity,
+.backlog-table-header .pop-points-open .status,
+.backlog-table-header .pop-points-open .type {
+  color: var(--design-link);
+}
+.backlog-table-body .pop-points-open::before,
+.backlog-table-header .pop-points-open::before,
+.backlog-table-header {
+  background-color: var(--design-surface-1);
+}
+.backlog-table-header .backlog-table-title>div {
+  color: var(--design-text-muted);
+}
+.backlog-table-header .points .popover-open .header-points,
+.backlog-table-header .points:hover .header-points {
+  color: var(--design-text);
+}
+.backlog-table-header .points .popover-open .icon,
+.backlog-table-header .points:hover .icon {
+  fill: var(--design-text);
+}
+.backlog-table-header .header-points {
+  color: var(--design-link);
+}
+.backlog-table-body .us-item-row.gu-transit {
+  background-color: var(--design-surface-1);
+  border-top-color: var(--design-primary);
+}
+.forecasting-add-sprint {
+  background-color: var(--design-surface-3);
+}
+.forecasting-add-sprint .forecasting-text,
+.backlog-table-body .row .points .not-clickable:hover,
+.multiple-drag-mirror .row .points .not-clickable:hover {
+  color: var(--design-text);
+}
+.backlog-table-body.forecasted-stories,
+.multiple-drag-mirror.forecasted-stories {
+  border-color: var(--design-border);
+}
+.backlog-table-body .row,
+.multiple-drag-mirror .row {
+  background-color: var(--design-surface-2);
+  border-color: transparent;
+}
+.backlog-table-body .row:hover:not(.blocked),
+.multiple-drag-mirror .row:hover:not(.blocked) {
+  background-color: var(--design-surface-3);
+}
+.backlog-table-body .row.gu-mirror,
+.multiple-drag-mirror .row.gu-mirror {
+  background-color: var(--design-surface-1);
+  box-shadow: var(--design-shadow-3);
+}
+.backlog-table-body .row .icon-arrow-down,
+.multiple-drag-mirror .row .icon-arrow-down {
+  fill: var(--design-text-muted);
+}
+.backlog-table-body .gu-transit,
+.multiple-drag-mirror .gu-transit {
+  background-color: var(--design-surface-2);
+}
+.backlog-table-body .sortable-placeholder,
+.multiple-drag-mirror .sortable-placeholder {
+  background-color: var(--design-surface-3);
+}
+.backlog-table-body input:checked,
+.multiple-drag-mirror input:checked {
+  color: var(--design-success);
+}
+.backlog-table-body .user-story-link:hover .user-story-name,
+.multiple-drag-mirror .user-story-link:hover .user-story-name,
+.backlog-table-body .user-story-number,
+.multiple-drag-mirror .user-story-number {
+  color: var(--design-link);
+}
+.backlog-table-body .user-story-name,
+.multiple-drag-mirror .user-story-name {
+  color: var(--design-text);
+}
+.backlog-table-body .blocked,
+.multiple-drag-mirror .blocked {
+  background-color: var(--design-danger-subtle);
+}
+.backlog-table-body .blocked .user-story-link,
+.backlog-table-body .blocked .user-story-name,
+.multiple-drag-mirror .blocked .user-story-link,
+.multiple-drag-mirror .blocked .user-story-name {
+  color: var(--design-text) !important;
+}
+.backlog-table-body .blocked .user-story-link:hover,
+.backlog-table-body .blocked .user-story-name:hover,
+.multiple-drag-mirror .blocked .user-story-link:hover,
+.multiple-drag-mirror .blocked .user-story-name:hover {
+  color: var(--design-text);
+}
+.backlog-table-body .blocked .us-option-popup-button.popover-open,
+.backlog-table-body .blocked .us-option-popup-button:hover,
+.multiple-drag-mirror .blocked .us-option-popup-button.popover-open,
+.multiple-drag-mirror .blocked .us-option-popup-button:hover {
+  background-image: none;
+  background-color: var(--design-danger-subtle);
+}
+.backlog-table-body .us-points,
+.multiple-drag-mirror .us-points {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.backlog-table-body .us-option-popup,
+.multiple-drag-mirror .us-option-popup {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.backlog-table-body .us-option-popup:hover,
+.multiple-drag-mirror .us-option-popup:hover {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .us-option-popup li:hover,
+.multiple-drag-mirror .us-option-popup li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.backlog-table-body .us-option-popup li:hover a,
+.multiple-drag-mirror .us-option-popup li:hover a {
+  color: var(--design-text-muted);
+}
+.backlog-table-body .us-option-popup.horizontal a.active,
+.multiple-drag-mirror .us-option-popup.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.backlog-table-body .us-option-popup.horizontal .point,
+.multiple-drag-mirror .us-option-popup.horizontal .point {
+  color: var(--design-link);
+}
+.backlog-table-body .us-option-popup a.active,
+.multiple-drag-mirror .us-option-popup a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.backlog-table-body .us-option-popup .point,
+.multiple-drag-mirror .us-option-popup .point,
+.backlog-table-body .us-option-popup .priority,
+.backlog-table-body .us-option-popup .role,
+.backlog-table-body .us-option-popup .severity,
+.backlog-table-body .us-option-popup .status,
+.backlog-table-body .us-option-popup .type,
+.multiple-drag-mirror .us-option-popup .priority,
+.multiple-drag-mirror .us-option-popup .role,
+.multiple-drag-mirror .us-option-popup .severity,
+.multiple-drag-mirror .us-option-popup .status,
+.multiple-drag-mirror .us-option-popup .type {
+  color: var(--design-link);
+}
+.backlog-table-body .us-option-popup::before,
+.multiple-drag-mirror .us-option-popup::before {
+  background-color: var(--design-surface-1);
+}
+.backlog-table-body .us-option-popup button,
+.multiple-drag-mirror .us-option-popup button {
+  background: 0 0;
+  color: var(--design-link);
+}
+.backlog-table-body .us-option-popup button:hover,
+.multiple-drag-mirror .us-option-popup button:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.backlog-table-body .us-option-popup button svg,
+.multiple-drag-mirror .us-option-popup button svg,
+.backlog-table-body .us-option-popup-button svg,
+.multiple-drag-mirror .us-option-popup-button svg {
+  fill: var(--design-link);
+}
+.backlog-table-body .us-option-popup-button,
+.multiple-drag-mirror .us-option-popup-button {
+  background: 0 0;
+}
+.backlog-table-body .us-option-popup-button.popover-open,
+.backlog-table-body .us-option-popup-button:hover,
+.multiple-drag-mirror .us-option-popup-button.popover-open,
+.multiple-drag-mirror .us-option-popup-button:hover {
+  background-color: var(--design-surface-3);
+}
+.sprints h1 {
+  color: var(--design-text);
+}
+.sprints .add-sprint svg {
+  fill: var(--design-text-muted);
+}
+.sprints .filter-closed-sprints:hover tg-svg {
+  fill: var(--design-text);
+}
+.sprints .filter-closed-sprints tg-svg,
+.sprints .sprint .sprint-summary svg {
+  fill: var(--design-link);
+}
+.sprints .sprint .sprint-summary:hover .edit-sprint {
+  background-color: rgba(var(--design-surface-1-rgb), 0.8);
+}
+.sprints .sprint .sprint-date {
+  color: var(--design-text-muted);
+}
+.sprints .compact-sprint svg.icon {
+  fill: var(--design-text-muted);
+}
+.sprints .compact-sprint:hover .icon {
+  fill: var(--design-success);
+}
+.sprints .sprint-progress-bar {
+  background-color: var(--design-surface-1);
+  box-shadow: inset -2px 1px 3px rgba(var(--design-text-rgb), 0.12);
+}
+.sprints .sprint-progress-bar .current-progress {
+  background-color: var(--design-primary);
+  box-shadow: var(--design-shadow-2);
+}
+.sprints .sprint-progress-bar .current-progress.full {
+  background-color: var(--design-text);
+}
+.sprints .sprint-table .sprint-empty {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-primary);
+  color: var(--design-text-muted);
+}
+.sprints .sprint-table .row {
+  background-color: var(--design-surface-2);
+  border-bottom-color: var(--design-border);
+}
+.sprints .sprint-table .row:hover {
+  background-color: rgba(var(--design-text-muted-rgb), 0.2);
+}
+.sprints .sprint-table .row:hover .us-name-text {
+  color: var(--design-link);
+}
+.sprints .sprint-table .row:hover .us-ref-text,
+.sprints .sprint-table .row .us-name-text {
+  color: var(--design-text);
+}
+.sprints .sprint-table .row.ui-sortable-helper {
+  background-color: var(--design-surface-1);
+  box-shadow: var(--design-shadow-3);
+}
+.sprints .sprint-table .row .points-container {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.sprints .sprint-table .row.blockedRow:hover {
+  background-color: var(--design-surface-2);
+}
+.sprints .sprint-table .row.blockedRow .us-ref-text,
+.sprints .sprint-table .row.blockedRow .us-name-text {
+  color: var(--design-danger);
+}
+.sprints .sprint-table .row.closedRow:hover {
+  background-color: var(--design-surface-1);
+}
+.sprints .sprint-table .row.closedRow .us-ref-text {
+  color: var(--design-link);
+}
+.sprints .sprint-table .gu-transit {
+  background-color: var(--design-border-strong);
+}
+.sprints .sprint-table .column-points.closed {
+  color: var(--design-text-muted);
+}
+.sprints .sprint-table .column-points.blocked {
+  color: var(--design-danger);
+}
+.sprint-closed .description,
+.sprint-closed .number {
+  color: var(--design-text-muted);
+}
+.sprint-closed .sprint-progress-bar .current-progress {
+  background-color: var(--design-primary);
+}
+.sprint-closed .button-gray {
+  background-color: var(--design-text-muted);
+}
+.sprints-empty a {
+  color: var(--design-success);
+}
+.taskboard-table .task-colum-name {
+  background-color: var(--design-surface-2);
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.taskboard-table .task-colum-name:first-child {
+  background-color: var(--design-surface-1);
+}
+.taskboard-table-header tg-svg {
+  fill: var(--design-text-muted);
+  stroke: var(--design-text-muted);
+}
+.taskboard-table-header .btn-board:hover svg {
+  fill: var(--design-link);
+}
+.taskboard-table-body .taskboard-table-inner {
+  border-bottom-color: var(--design-primary);
+}
+.taskboard-table-body .taskboard-column.target-drop {
+  background-color: var(--design-surface-3);
+}
+.taskboard-table-body .column-fold .card,
+.taskboard-table-body .row-fold .card {
+  background-color: transparent;
+}
+.taskboard-table-body .column-fold .taskboard-row-title-box,
+.taskboard-table-body .row-fold .taskboard-row-title-box {
+  background-color: var(--design-surface-2);
+}
+.taskboard-table-body .column-fold .taskboard-row-title-box .us-subject,
+.taskboard-table-body .row-fold .taskboard-row-title-box .us-subject,
+.taskboard-table-body .row-fold .taskboard-row-title-box a:hover.us-ref {
+  color: var(--design-text);
+}
+.taskboard-table-body .row-fold .taskboard-row-title-box a:hover.us-subject {
+  color: var(--design-link);
+}
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box {
+  background-color: var(--design-danger-subtle);
+}
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box a .us-ref,
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box a .us-subject {
+  color: var(--design-text);
+}
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box a:hover .us-ref,
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box a:hover .us-subject {
+  color: var(--design-link);
+}
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box .folding-actions:hover,
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box .btn-board:hover {
+  background-image: none;
+  background-color: var(--design-danger-subtle);
+}
+.taskboard-table-body .taskboard-row.blocked .taskboard-row-title-box .btn-board:hover svg {
+  fill: var(--design-text);
+}
+.taskboard-cards-box {
+  background-color: var(--design-surface-2);
+}
+.taskboard-row-title-box a:hover .us-ref {
+  color: var(--design-text);
+}
+.taskboard-row-title-box a:hover .us-subject,
+.taskboard-row-title-box .us-ref {
+  color: var(--design-link);
+}
+.taskboard-row-title-box .us-subject {
+  color: var(--design-text);
+}
+.taskboard-row-title-box .us-data .card-lock svg {
+  fill: var(--design-danger);
+}
+.taskboard-row-title-box .points-value {
+  background-color: var(--design-surface-3);
+}
+.taskboard-row-title-box .points-value .not-estimated {
+  color: var(--design-text-muted);
+}
+.taskboard-row-title-box tg-svg svg {
+  fill: var(--design-text-muted);
+}
+.taskboard-row-title-box .folding-actions {
+  background-color: var(--design-surface-2);
+}
+.taskboard-row-title-box .folding-actions:hover {
+  background-color: var(--design-surface-3);
+}
+.taskboard-row-title-box .folding-actions:hover svg,
+.taskboard-row-title-box .add-new-task tg-svg:hover svg,
+.colors-table .row.new-value .icon-check-empty,
+.colors-table .row.new-value .icon-close {
+  fill: var(--design-link);
+}
+.taskboard-row-title-box .add-new-task tg-svg {
+  color: var(--design-link);
+}
+.category-config {
+  border-bottom-color: var(--design-border-strong);
+}
+.category-config:first-child {
+  border-top-color: var(--design-border-strong);
+}
+.category-config .count {
+  color: var(--design-text-muted);
+}
+.category-config .category-items {
+  background-color: var(--design-surface-2);
+}
+.category-config .category-item,
+.colors-table .table-header {
+  border-bottom-color: var(--design-border);
+}
+.colors-table .table-header .row:hover {
+  background: 0 0;
+}
+.colors-table .row:hover {
+  background-color: var(--design-success-subtle);
+}
+.colors-table .before-after-selector input+label {
+  background-color: rgba(var(--design-surface-3-rgb), 0.7);
+}
+.colors-table .before-after-selector input+label:hover {
+  background-color: var(--design-success-subtle);
+}
+.colors-table .before-after-selector .before-after-selector-single.checked label {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.colors-table .before-after-selector .before-after-selector-single:not(.checked) label:hover {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+.colors-table .current-color {
+  background-color: var(--design-surface-3);
+}
+.colors-table .icon {
+  fill: var(--design-text-muted);
+}
+.colors-table .icon:hover {
+  fill: var(--design-success);
+}
+.colors-table .icon.icon-check,
+.colors-table .icon.icon-search {
+  fill: var(--design-link);
+}
+.colors-table .icon.icon-trash {
+  fill: var(--design-danger);
+}
+.colors-table .gu-mirror {
+  background-color: var(--design-surface-1);
+}
+.contrib-plugins-wrapper label {
+  color: var(--design-text);
+}
+.duty-custom-fields .custom-fields-header {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.duty-custom-fields .custom-field-options svg {
+  fill: var(--design-text-muted);
+}
+.duty-custom-fields .custom-field-options svg:hover {
+  fill: var(--design-success);
+}
+.duty-custom-fields .custom-field-data .custom-field-description {
+  color: var(--design-text-muted);
+}
+.duty-custom-fields .read-mode .ck.ck-editor__main>.ck-editor__editable,
+.duty-custom-fields .read-mode .markdown {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+}
+.custom-fields-body .custom-field-single {
+  border-bottom-color: var(--design-border);
+}
+.blocked .external-reference,
+.blocked .external-reference a {
+  color: var(--design-on-primary);
+}
+.blocked .external-reference a:hover {
+  color: var(--design-danger);
+}
+.external-reference {
+  color: var(--design-text-muted);
+}
+.external-reference a {
+  border-left-color: var(--design-border-strong);
+}
+.external-reference a:hover {
+  color: var(--design-success);
+}
+.lightbox {
+  background-color: rgba(var(--design-surface-1-rgb), 0.95);
+}
+.lightbox .close {
+  fill: var(--design-text-muted);
+}
+.lightbox .close:hover {
+  fill: var(--design-danger);
+}
+.lightbox .lb-icon svg,
+.lightbox-generic-form .attachment-delete svg {
+  fill: var(--design-text-muted);
+}
+.lightbox-generic-form .existing-or-new-selector input:checked+label {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+.lightbox-generic-form .existing-or-new-selector input:checked+label:hover {
+  background-color: var(--design-success);
+}
+.lightbox-generic-form .existing-or-new-selector input+label {
+  background-color: rgba(var(--design-surface-3-rgb), 0.7);
+}
+.lightbox-generic-form .existing-or-new-selector input+label:hover {
+  background-color: var(--design-success-subtle);
+}
+.lightbox-generic-form .settings fieldset:hover {
+  color: var(--design-on-primary);
+}
+.lightbox-generic-form .settings .iocaine:hover,
+.lightbox-generic-form .settings .requirement:hover {
+  background-color: var(--design-success);
+  border-color: var(--design-link);
+}
+.lightbox-generic-form .settings .blocked:hover {
+  background-color: var(--design-danger-subtle);
+  border-color: var(--design-danger-border);
+}
+.lightbox-generic-form .settings .client-requirement input:checked+label,
+.lightbox-generic-form .settings .iocaine-flag input:checked+label,
+.lightbox-generic-form .settings .team-requirement input:checked+label {
+  background-color: var(--design-primary);
+  border-color: var(--design-link);
+  color: var(--design-on-primary);
+}
+.lightbox-generic-form .settings .blocking-flag input:checked+label {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger-border);
+  color: var(--design-on-danger);
+}
+.lightbox-generic-form .attachment-delete:hover svg {
+  fill: var(--design-danger);
+}
+.lightbox-generic-bulk .label {
+  color: var(--design-text);
+}
+.lightbox-generic-bulk .bulk-status-selector {
+  color: var(--design-on-primary);
+}
+.lightbox-generic-bulk .bulk-status-selector.active {
+  border-color: var(--design-border-strong);
+}
+.lightbox-generic-bulk .bulk-status-selector .icon,
+.lightbox-sprint-add-edit .delete-sprint .icon,
+.lightbox-sprint-add-edit .delete-sprint:hover .icon {
+  fill: currentColor;
+}
+.lightbox-generic-bulk .bulk-status-option-wrapper {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: 4px 4px 8px rgba(var(--design-link-rgb), 0.5);
+}
+.lightbox-generic-bulk .bulk-status-option {
+  background: 0 0;
+  color: var(--design-link);
+}
+.lightbox-generic-bulk .bulk-status-option:hover {
+  background-color: var(--design-surface-3);
+}
+.lightbox-generic-bulk .bulk-status-option.selected,
+.lightbox-sprint-add-edit .last-sprint-name {
+  color: var(--design-text-muted);
+}
+.lightbox-sprint-add-edit .delete-sprint {
+  color: var(--design-link);
+}
+.lightbox-sprint-add-edit .delete-sprint:hover {
+  color: var(--design-danger);
+}
+.lightbox-generic-loading .progress-bar-wrapper {
+  background-color: var(--design-surface-active);
+}
+.lightbox-generic-loading .progress-bar-wrapper .bar {
+  background-color: var(--design-success);
+}
+.lightbox-generic-loading .progress-bar-wrapper .progress {
+  background-color: var(--design-surface-active);
+  color: var(--design-text-muted);
+}
+.lightbox-select-user .user-list-single.selected,
+.lightbox-select-user .user-list-single:hover {
+  background-color: rgba(var(--design-success-border-rgb), 0.3);
+}
+.lightbox-select-user .add-comment .icon-close {
+  fill: var(--design-text-muted);
+}
+.lightbox-select-user .add-comment .icon-close:hover {
+  fill: var(--design-danger);
+}
+.lightbox-select-user .add-comment a,
+.lightbox-import-error .description a {
+  color: var(--design-link);
+}
+.lightbox-leave-project-warning .icon {
+  fill: var(--design-text-muted);
+}
+.lightbox-leave-project-warning .btn-big {
+  color: var(--design-text);
+}
+.lightbox-leave-project-warning .btn-big:hover {
+  color: var(--design-on-primary);
+}
+.lightbox-set-due-date .suggestion {
+  background-color: rgba(var(--design-border-strong-rgb), 0.2);
+  color: var(--design-text-muted);
+}
+.lightbox-set-due-date .suggestion.clickable.active,
+.lightbox-set-due-date .suggestion.clickable:hover {
+  background-color: rgba(var(--design-success-rgb), 0.9);
+  color: var(--design-on-success);
+}
+.lightbox-set-due-date .delete-due-date {
+  color: var(--design-text-muted);
+}
+.lightbox-set-due-date .delete-due-date .icon,
+.lightbox-set-due-date .delete-due-date:hover .icon {
+  fill: currentColor;
+}
+.lightbox-set-due-date .delete-due-date:hover {
+  color: var(--design-danger);
+}
+.lightbox-create-edit label {
+  color: var(--design-link);
+}
+.lightbox-create-edit .status-dropdown {
+  color: var(--design-on-primary);
+}
+.lightbox-create-edit .status-dropdown svg {
+  fill: var(--design-on-primary);
+}
+.lightbox-create-edit .user-list .user-list-item.counter {
+  background-color: var(--design-border-strong);
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .tg-add-assigned .add-assigned {
+  fill: var(--design-text-muted);
+}
+.lightbox-create-edit .tg-add-assigned .add-assigned:hover {
+  fill: var(--design-danger);
+}
+.lightbox-create-edit .tg-add-assigned span {
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-status {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.lightbox-create-edit .pop-status:hover {
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-status li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-status li:hover a {
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-status.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.lightbox-create-edit .pop-status.horizontal .point {
+  color: var(--design-link);
+}
+.lightbox-create-edit .pop-status a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.lightbox-create-edit .pop-status .point,
+.lightbox-create-edit .pop-status .priority,
+.lightbox-create-edit .pop-status .role,
+.lightbox-create-edit .pop-status .severity,
+.lightbox-create-edit .pop-status .status,
+.lightbox-create-edit .pop-status .type {
+  color: var(--design-link);
+}
+.lightbox-create-edit .pop-status::before {
+  background-color: var(--design-surface-1);
+}
+.lightbox-create-edit .pop-users {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.lightbox-create-edit .pop-users:hover {
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-users li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-users li:hover a {
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-users.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.lightbox-create-edit .pop-users.horizontal .point {
+  color: var(--design-link);
+}
+.lightbox-create-edit .pop-users a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.lightbox-create-edit .pop-users .point,
+.lightbox-create-edit .pop-users .priority,
+.lightbox-create-edit .pop-users .role,
+.lightbox-create-edit .pop-users .severity,
+.lightbox-create-edit .pop-users .status,
+.lightbox-create-edit .pop-users .type {
+  color: var(--design-link);
+}
+.lightbox-create-edit .pop-users::before {
+  background-color: var(--design-surface-1);
+}
+.lightbox-create-edit .pop-users li {
+  border-bottom-color: var(--design-border-strong);
+}
+.lightbox-create-edit .pop-users .user-list-single.selected,
+.lightbox-create-edit .pop-users .user-list-single:hover {
+  background-color: var(--design-surface-3);
+}
+.lightbox-create-edit .pop-users .user-list-single.selected .user-list-name {
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-users .user-list-single.selected tg-svg {
+  fill: var(--design-text-muted);
+}
+.lightbox-create-edit .pop-users .user-list-single:hover .user-list-name {
+  color: var(--design-link);
+}
+.lightbox-create-edit .pop-users .user-list-single:hover tg-svg {
+  fill: var(--design-link);
+}
+.lightbox-create-edit .pop-users .user-list-single .user-list-name,
+.lightbox-create-edit .creation-position .label,
+.lightbox-create-edit .swimlane-select .label,
+.lightbox-generic-bulk .creation-position .label,
+.lightbox-generic-bulk .swimlane-select .label {
+  color: var(--design-text);
+}
+.lightbox-create-edit .pop-users .show-more {
+  border-top-color: var(--design-border-strong);
+}
+.lightbox-create-edit .creation-position label,
+.lightbox-generic-bulk .creation-position label {
+  color: var(--design-text-muted);
+}
+.lightbox-create-edit .creation-position input[type=radio]:checked~.radio-label,
+.lightbox-generic-bulk .creation-position input[type=radio]:checked~.radio-label {
+  color: var(--design-link);
+}
+.lightbox-create-edit .creation-position .radio-control,
+.lightbox-generic-bulk .creation-position .radio-control {
+  border-color: var(--design-border);
+}
+.lightbox-create-edit .creation-position .radio-control::before,
+.lightbox-generic-bulk .creation-position .radio-control::before {
+  background-color: var(--design-primary);
+}
+.ticket-detail-settings .lightbox-assign-sprint-to-issue svg {
+  fill: initial;
+}
+.ticket-detail-settings .lightbox-assign-sprint-to-issue fieldset label {
+  background: 0 0;
+}
+.lightbox-relate-to-epic .related-with-selector input:checked+label {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+.lightbox-relate-to-epic .related-with-selector input:checked+label:hover {
+  background-color: var(--design-success);
+}
+.lightbox-relate-to-epic .related-with-selector input+label {
+  background-color: rgba(var(--design-surface-3-rgb), 0.7);
+}
+.lightbox-relate-to-epic .related-with-selector input+label:hover {
+  background-color: var(--design-success-subtle);
+}
+.lightbox-relate-to-epic .new-epic-options input:checked+label {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+  fill: var(--design-on-success);
+}
+.lightbox-relate-to-epic .new-epic-options input+label {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.lightbox-relate-to-epic .new-epic-options input+label:hover {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+  fill: var(--design-on-success);
+}
+.lightbox-feedback label,
+.lightbox-feedback .can-also h3,
+.lightbox-feedback .can-also .text {
+  color: var(--design-text);
+}
+.lightbox-feedback .can-also {
+  background-color: var(--design-surface-2);
+}
+tg-project-menu {
+  background-color: var(--design-text);
+}
+.global-popover {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.global-popover:hover {
+  color: var(--design-text-muted);
+}
+.global-popover li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.global-popover li:hover a {
+  color: var(--design-text-muted);
+}
+.global-popover.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.global-popover.horizontal .point {
+  color: var(--design-link);
+}
+.global-popover a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.global-popover .point,
+.global-popover .priority,
+.global-popover .role,
+.global-popover .severity,
+.global-popover .status,
+.global-popover .type {
+  color: var(--design-link);
+}
+.global-popover::before {
+  background-color: var(--design-surface-1);
+}
+.global-popover button {
+  background: 0 0;
+  color: var(--design-link);
+}
+.global-popover button:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.global-popover button svg {
+  fill: var(--design-link);
+}
+.related-tasks-header {
+  background-color: var(--design-surface-3);
+}
+.related-tasks-header .related-tasks-title,
+.related-tasks-body .task-name .task-name-subject,
+.related-tasks-body .status .not-clickable:hover {
+  color: var(--design-text);
+}
+.related-tasks-body .row {
+  border-bottom-color: var(--design-border);
+}
+.related-tasks-body .single-related-task:hover {
+  background-color: var(--design-success-border);
+}
+.related-tasks-body .single-related-task:hover.blocked .icon-drag {
+  fill: rgba(var(--design-danger-rgb), 0.25);
+}
+.related-tasks-body .single-related-task .icon-drag {
+  fill: var(--design-link);
+}
+.related-tasks-body .iocaine {
+  background-color: var(--design-success-subtle);
+  border-left-color: var(--design-success-border);
+}
+.related-tasks-body .status .icon {
+  fill: currentColor;
+}
+.related-tasks-body .closed,
+.related-tasks-body .closed:hover {
+  border-left-color: var(--design-border);
+  color: var(--design-text);
+}
+.related-tasks-body .closed svg {
+  fill: var(--design-text);
+  stroke: 0;
+}
+.related-tasks-body .closed:hover svg {
+  fill: var(--design-text);
+}
+.related-tasks-body .closed .icon-draggable,
+.related-tasks-body .closed:hover .icon-draggable,
+.related-tasks-body .blocked .icon-draggable,
+.related-tasks-body .blocked:hover .icon-draggable {
+  fill: var(--design-text-muted);
+}
+.related-tasks-body .closed .task-name a,
+.related-tasks-body .closed:hover .task-name a {
+  color: var(--design-text);
+}
+.related-tasks-body .pop-status {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.related-tasks-body .pop-status:hover {
+  color: var(--design-text-muted);
+}
+.related-tasks-body .pop-status li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.related-tasks-body .pop-status li:hover a {
+  color: var(--design-text-muted);
+}
+.related-tasks-body .pop-status.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.related-tasks-body .pop-status.horizontal .point {
+  color: var(--design-link);
+}
+.related-tasks-body .pop-status a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.related-tasks-body .pop-status .point,
+.related-tasks-body .pop-status .priority,
+.related-tasks-body .pop-status .role,
+.related-tasks-body .pop-status .severity,
+.related-tasks-body .pop-status .status,
+.related-tasks-body .pop-status .type {
+  color: var(--design-link);
+}
+.related-tasks-body .pop-status::before {
+  background-color: var(--design-surface-1);
+}
+.related-tasks-body .blocked,
+.related-tasks-body .blocked:hover {
+  background-color: var(--design-danger-subtle);
+  border-left-color: rgba(var(--design-danger-border-rgb), 0.25);
+}
+.related-tasks-body .blocked .task-name-ref,
+.related-tasks-body .blocked .task-name-subject,
+.related-tasks-body .blocked:hover .task-name-ref,
+.related-tasks-body .blocked:hover .task-name-subject {
+  color: var(--design-danger);
+}
+.related-tasks-body .task-settings svg {
+  fill: var(--design-text-muted);
+  stroke: none;
+}
+.related-tasks-body .task-settings svg:hover {
+  fill: var(--design-text-muted);
+}
+.related-tasks-body .delete-task:hover .icon-edit,
+.related-tasks-body .edit-task:hover .icon-edit,
+.related-tasks-body .save-task:hover .icon-edit,
+.related-tasks-body .delete-task:hover .icon-save,
+.related-tasks-body .edit-task:hover .icon-save,
+.related-tasks-body .save-task:hover .icon-save {
+  fill: var(--design-link);
+}
+.related-tasks-body .delete-task:hover .icon-trash,
+.related-tasks-body .edit-task:hover .icon-trash,
+.related-tasks-body .save-task:hover .icon-trash {
+  fill: var(--design-danger);
+}
+.related-tasks-body .task-assignedto .icon {
+  fill: var(--design-text-muted);
+}
+.ticket-header .detail-status .icon-arrow-down {
+  fill: currentColor;
+}
+.ticket-header .detail-status-inner>span {
+  color: var(--design-on-primary);
+}
+.ticket-header .pop-status {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.ticket-header .pop-status:hover {
+  color: var(--design-text-muted);
+}
+.ticket-header .pop-status li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.ticket-header .pop-status li:hover a {
+  color: var(--design-text-muted);
+}
+.ticket-header .pop-status.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.ticket-header .pop-status.horizontal .point {
+  color: var(--design-link);
+}
+.ticket-header .pop-status a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.ticket-header .pop-status .point,
+.ticket-header .pop-status .priority,
+.ticket-header .pop-status .role,
+.ticket-header .pop-status .severity,
+.ticket-header .pop-status .status,
+.ticket-header .pop-status .type {
+  color: var(--design-link);
+}
+.ticket-header .pop-status::before {
+  background-color: var(--design-surface-1);
+}
+.ticket-data,
+.ticket-status .type-data {
+  background-color: var(--design-surface-2);
+}
+.ticket-section:not(:last-child) {
+  border-bottom-color: var(--design-border-strong);
+}
+.ticket-status .level-name {
+  color: var(--design-text-muted);
+}
+.ticket-status .type-data .level-data {
+  color: var(--design-text);
+}
+.ticket-status .type-data .level-name {
+  color: var(--design-text-muted);
+}
+.ticket-status .type-data .popover {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.ticket-status .type-data .popover:hover {
+  color: var(--design-text-muted);
+}
+.ticket-status .type-data .popover li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.ticket-status .type-data .popover li:hover a {
+  color: var(--design-text-muted);
+}
+.ticket-status .type-data .popover.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.ticket-status .type-data .popover.horizontal .point {
+  color: var(--design-link);
+}
+.ticket-status .type-data .popover a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.ticket-status .type-data .popover .point,
+.ticket-status .type-data .popover .priority,
+.ticket-status .type-data .popover .role,
+.ticket-status .type-data .popover .severity,
+.ticket-status .type-data .popover .status,
+.ticket-status .type-data .popover .type {
+  color: var(--design-link);
+}
+.ticket-status .type-data .popover::before {
+  background-color: var(--design-surface-1);
+}
+.ticket-status .severity-data {
+  background-color: var(--design-surface-2);
+}
+.ticket-status .severity-data .level-data {
+  color: var(--design-text);
+}
+.ticket-status .severity-data .level-name {
+  color: var(--design-text-muted);
+}
+.ticket-status .severity-data .popover {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.ticket-status .severity-data .popover:hover {
+  color: var(--design-text-muted);
+}
+.ticket-status .severity-data .popover li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.ticket-status .severity-data .popover li:hover a {
+  color: var(--design-text-muted);
+}
+.ticket-status .severity-data .popover.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.ticket-status .severity-data .popover.horizontal .point {
+  color: var(--design-link);
+}
+.ticket-status .severity-data .popover a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.ticket-status .severity-data .popover .point,
+.ticket-status .severity-data .popover .priority,
+.ticket-status .severity-data .popover .role,
+.ticket-status .severity-data .popover .severity,
+.ticket-status .severity-data .popover .status,
+.ticket-status .severity-data .popover .type {
+  color: var(--design-link);
+}
+.ticket-status .severity-data .popover::before {
+  background-color: var(--design-surface-1);
+}
+.ticket-status .priority-data {
+  background-color: var(--design-surface-2);
+}
+.ticket-status .priority-data .level-data {
+  color: var(--design-text);
+}
+.ticket-status .priority-data .level-name {
+  color: var(--design-text-muted);
+}
+.ticket-status .priority-data .popover {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.ticket-status .priority-data .popover:hover {
+  color: var(--design-text-muted);
+}
+.ticket-status .priority-data .popover li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.ticket-status .priority-data .popover li:hover a {
+  color: var(--design-text-muted);
+}
+.ticket-status .priority-data .popover.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.ticket-status .priority-data .popover.horizontal .point {
+  color: var(--design-link);
+}
+.ticket-status .priority-data .popover a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.ticket-status .priority-data .popover .point,
+.ticket-status .priority-data .popover .priority,
+.ticket-status .priority-data .popover .role,
+.ticket-status .priority-data .popover .severity,
+.ticket-status .priority-data .popover .status,
+.ticket-status .priority-data .popover .type {
+  color: var(--design-link);
+}
+.ticket-status .priority-data .popover::before {
+  background-color: var(--design-surface-1);
+}
+.ticket-section-label {
+  color: var(--design-text);
+}
+.ticket-section-unfold svg,
+.ticket-section-unfold:hover svg,
+.ticket-section-unfold.active svg,
+.ticket-section-unfold.active:hover svg {
+  fill: var(--design-text-muted);
+}
+.ticket-user-list .iocaine-symbol svg {
+  background-color: var(--design-text-muted);
+  fill: var(--design-surface-1);
+}
+.ticket-user-list .user-list-single:hover:not(.read-only) {
+  background-color: rgba(var(--design-surface-1-rgb), 0.4);
+}
+.ticket-user-list .user-list-single:hover:not(.read-only) .user-list-name {
+  color: var(--design-link);
+}
+.ticket-user-list .user-list-single .read-only,
+.ticket-user-list .user-list-single.read-only .user-list-name {
+  color: var(--design-text-muted);
+}
+.ticket-user-list .user-list-single:not(.read-only) .user-list-name a {
+  color: var(--design-link);
+}
+.ticket-user-list .remove-user {
+  fill: var(--design-text-muted);
+}
+.ticket-user-list .remove-user:hover {
+  fill: var(--design-danger);
+}
+.ticket-users-actions .ticket-users-action {
+  background-color: var(--design-surface-1);
+  color: var(--design-text-muted);
+}
+.ticket-users-actions .ticket-users-action svg {
+  fill: var(--design-text-muted);
+}
+.ticket-users-actions .ticket-users-action:hover {
+  color: var(--design-success);
+}
+.ticket-users-actions .ticket-users-action:hover svg {
+  fill: var(--design-success);
+}
+.ticket-detail-settings [class^=btn-]:not(.select-option):not(.show-closed) {
+  background-color: var(--design-surface-3);
+  color: var(--design-link);
+}
+.ticket-detail-settings [class^=btn-]:not(.select-option):not(.show-closed):hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.ticket-detail-settings [class^=btn-]:not(.select-option):not(.show-closed).disabled,
+.ticket-detail-settings [class^=btn-]:not(.select-option):not(.show-closed):disabled {
+  background-color: var(--design-surface-3);
+  color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+.ticket-detail-settings [class^=btn-]:not(.select-option):not(.show-closed).active,
+.ticket-detail-settings [class^=btn-]:not(.select-option):not(.show-closed).assign-issue-button.button-set {
+  background-color: var(--design-text-muted);
+  color: var(--design-surface-1);
+}
+.ticket-detail-settings [class^=btn-]:not(.select-option):not(.show-closed).item-unblock,
+.ticket-detail-settings [class^=btn-].item-unblock,
+.ticket-detail-settings [class^=btn-].item-unblock:hover {
+  background-color: var(--design-danger);
+}
+.ticket-detail-settings [class^=btn-].item-unblock svg {
+  fill: var(--design-on-primary);
+}
+.introjs-overlay {
+  background-image: none;
+  background-color: rgba(var(--design-surface-1-rgb), 0.2);
+  background-color: var(--design-surface-3);
+}
+.introjs-helperLayer {
+  border-color: rgba(var(--design-success-border-rgb), 0.8);
+}
+.introjs-helperLayer,
+.introjs-tooltip {
+  box-shadow: var(--design-shadow-2);
+}
+.introjs-bullets ul li a.active {
+  background-color: var(--design-success);
+}
+.introjs-button {
+  background-color: var(--design-success);
+  background-image: none;
+  color: var(--design-on-success);
+  text-shadow: none;
+}
+.introjs-button:focus,
+.introjs-button:hover {
+  background: 0 0;
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+}
+.introjs-button.introjs-disabled {
+  background-color: var(--design-surface-3);
+  background-color: none;
+  color: var(--design-on-primary);
+}
+.single-project .intro-title .icon-private {
+  fill: var(--design-text);
+}
+.single-project .project-name,
+.single-project .track-container .list-itemtype-track,
+.single-project .track-container .list-itemtype-track-likers.active,
+.single-project .track-container .list-itemtype-track-watchers.active,
+.single-project .looking-for-people a {
+  color: var(--design-link);
+}
+.single-project .track-container .list-itemtype-track-likers.active .icon,
+.single-project .track-container .list-itemtype-track-watchers.active .icon {
+  fill: currentcolor;
+}
+.single-project .track-container .icon {
+  fill: var(--design-link);
+}
+.single-project .title {
+  background-color: var(--design-surface-3);
+}
+.single-project .involved-team .icon-badge {
+  background-color: var(--design-surface-1);
+  fill: var(--design-link);
+}
+.kanban-table-header {
+  background-color: var(--design-surface-1);
+}
+.kanban-table-header .task-colum-name {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.kanban-table-header .task-colum-name .title .name {
+  color: var(--design-text);
+}
+.kanban-table-body .taskboard-column.target-drop {
+  background-color: var(--design-surface-3);
+}
+.kanban-table-body .taskboard-column.target-drop .ammount {
+  background-color: var(--design-surface-1);
+}
+.kanban-table-body .taskboard-column .kanban-column-intro {
+  color: var(--design-text-muted);
+}
+.kanban-table-body .taskboard-column .kanban-column-intro.active {
+  color: var(--design-text);
+}
+.kanban-table-body .taskboard-column .kanban-wip-limit span {
+  background-color: var(--design-surface-3);
+  color: var(--design-danger);
+}
+.kanban-table-body .taskboard-column .kanban-wip-limit.one-left,
+.kanban-table-body .taskboard-column .kanban-wip-limit.reached {
+  border-top-color: var(--design-danger-border);
+}
+.kanban-table-body .taskboard-column .kanban-wip-limit.exceeded {
+  border-bottom-color: var(--design-danger-border);
+  border-top-color: var(--design-danger-border);
+}
+.kanban-table-body .kanban-uses-box {
+  background-color: var(--design-surface-3);
+}
+.kanban-table-body .kanban-task-selected.card:not(.gu-transit-multi) {
+  box-shadow: 0 0 0 1px var(--design-success), var(--design-shadow-2);
+}
+.card-transit-multi {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+.card-transit-multi .fake-img,
+.card-transit-multi .fake-text {
+  background-color: var(--design-border-strong);
+}
+.placeholder-collapsed .text-holder {
+  color: var(--design-text);
+}
+.placeholder-collapsed .ammount,
+.placeholder-collapsed .archived,
+.kanban-swimlane-title.folded .title-name {
+  color: var(--design-text-muted);
+}
+.kanban-swimlane-title {
+  background-color: var(--design-surface-1);
+  border-color: transparent;
+  border-bottom-color: var(--design-surface-1);
+}
+.kanban-swimlane-title.folded {
+  border-bottom-color: var(--design-border);
+}
+.kanban-swimlane-title.folded tg-svg {
+  fill: var(--design-text-muted);
+}
+.kanban-swimlane-title.folded.pending-to-open {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-primary);
+}
+.kanban-swimlane-title:hover .fold-action,
+.kanban-swimlane-title:hover .unfold-action {
+  fill: var(--design-text);
+}
+.kanban-swimlane-title:hover .title-name {
+  color: var(--design-text);
+}
+.kanban-swimlane-title .fold-action,
+.kanban-swimlane-title .unfold-action {
+  fill: var(--design-link);
+}
+.kanban-swimlane-title .title-name {
+  color: var(--design-link);
+}
+.kanban-swimlane-title .unclassified-us-info tg-svg {
+  fill: var(--design-text-muted);
+}
+.kanban-swimlane-title .unclassified-us-info:hover tg-svg {
+  fill: var(--design-text);
+}
+.kanban-swimlane-title .unclassified-us-info .tooltip {
+  background-color: var(--design-text);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-surface-1);
+}
+.kanban-swimlane-title .unclassified-us-info .tooltip::before {
+  background-color: var(--design-text);
+}
+.kanban-swimlane-title .default-swimlane .default-swimlane-icon .icon {
+  fill: rgba(var(--design-warning-rgb), 0.25);
+  stroke: rgba(var(--design-warning-rgb), 0.25);
+}
+.kanban-swimlane-title .default-swimlane .default-text {
+  color: var(--design-text-muted);
+}
+.kanban-task-counter {
+  background-color: var(--design-surface-3);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-text-muted);
+}
+.kanban-swimlane .kanban-table-inner::before {
+  box-shadow: inset 0 4px 8px rgba(var(--design-link-rgb), 0.5);
+}
+.kanban-swimlane-add {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-primary);
+}
+.kanban-swimlane-add span {
+  color: var(--design-text-muted);
+}
+.kanban-swimlane-add .add-action {
+  fill: var(--design-text-muted);
+}
+.kanban-swimlane-add:hover {
+  background-color: var(--design-surface-3);
+}
+.kanban-swimlane-add:hover span {
+  color: var(--design-link);
+}
+.kanban-swimlane-add:hover .add-action {
+  border-color: var(--design-link);
+  fill: var(--design-link);
+}
+.search-filter,
+.search-result-table {
+  border-top-color: var(--design-border);
+}
+.search-filter a {
+  background-color: var(--design-surface-1);
+  color: var(--design-text-muted);
+}
+.search-filter a.active {
+  border-left-color: var(--design-border);
+  border-right-color: var(--design-border);
+  color: var(--design-text);
+}
+.search-filter a.active .icon {
+  fill: var(--design-link);
+}
+.search-filter .icon {
+  fill: currentColor;
+}
+.search-in {
+  -webkit-border-end: 1px solid var(--design-text-muted);
+  border-inline-end: 1px solid var(--design-border);
+}
+.search-in .icon-search {
+  fill: var(--design-text-muted);
+}
+.search-result-table .row .ref {
+  color: var(--design-link);
+}
+.search-result-table .user-story-name a {
+  color: var(--design-text);
+}
+.search-result-table .table-main,
+.menu-secondary .team-filters li {
+  border-bottom-color: var(--design-border);
+}
+.menu-secondary .team-filters li .icon {
+  fill: var(--design-text);
+}
+.menu-secondary .team-filters li:hover,
+.menu-secondary .team-filters li.active,
+.menu-secondary .team-filters li.active:hover {
+  background-color: var(--design-surface-1);
+}
+.menu-secondary .team-filters li:hover a {
+  color: var(--design-text-muted);
+}
+.menu-secondary .team-filters li.active a {
+  color: var(--design-link);
+}
+.menu-secondary .team-filters li.active .icon {
+  fill: var(--design-link);
+}
+.menu-secondary .team-filters li.active:hover a,
+.menu-secondary .team-filters a,
+.table-team .attribute .points {
+  color: var(--design-text-muted);
+}
+.menu-secondary .team-filters li.active:hover .icon {
+  fill: var(--design-text-muted);
+}
+.menu-secondary .team-filters a.active .icon,
+.menu-secondary .team-filters a:hover .icon {
+  fill: currentColor;
+}
+.table-team .attribute .icon {
+  fill: var(--design-text);
+}
+.table-team .attribute .top {
+  fill: var(--design-link);
+}
+.table-team .leave-project,
+.table-team .leave-project:hover {
+  color: var(--design-danger);
+}
+.table-team .leave-project .icon {
+  fill: currentColor;
+}
+.table-team .leave-project:hover .icon {
+  color: currentColor;
+}
+.table-team .hero .row {
+  border-bottom-color: var(--design-surface-2);
+  border-top-color: var(--design-surface-2);
+}
+.table-team .avatar .position {
+  color: var(--design-text-muted);
+}
+.table-team .tooltip {
+  background-color: var(--design-text);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-surface-1);
+}
+.table-team .tooltip::before {
+  background-color: var(--design-text);
+}
+.table-team .icon-badge {
+  fill: var(--design-link);
+  stroke: var(--design-link);
+}
+.policy-table .policy-table-row {
+  border-bottom-color: var(--design-border);
+}
+.policy-table .policy-table-header {
+  border-bottom-color: var(--design-border-strong);
+}
+.project-settings-table .project-settings-table-row {
+  border-bottom-color: var(--design-border);
+}
+.project-settings-table .project-settings-table-header {
+  border-bottom-color: var(--design-border-strong);
+}
+.user-change-password .button-green {
+  color: var(--design-on-primary);
+}
+.user-profile .loading-overlay.active {
+  background-color: rgba(var(--design-surface-3-rgb), 0.8);
+}
+.user-profile .use-default-image:hover {
+  color: var(--design-danger);
+}
+.wiki-nav {
+  background-color: var(--design-surface-2);
+}
+.wiki-nav .title {
+  color: var(--design-text);
+}
+.wiki-nav .wiki-link-container.wiki-all-links {
+  border-top-color: var(--design-border-strong);
+}
+.wiki-nav input[type=text] {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.wiki-nav input[type=text]::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+.wiki-nav input[type=text]::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+.wiki-nav input[type=text]:-moz-placeholder {
+  color: var(--design-text-muted);
+}
+.wiki-nav input[type=text]:-ms-input-placeholder {
+  color: var(--design-text-muted);
+}
+.menu-secondary .wiki-link {
+  border-bottom-color: var(--design-border);
+}
+.menu-secondary .wiki-link:hover,
+.menu-secondary .wiki-link.active,
+.menu-secondary .wiki-link.active:hover {
+  background-color: var(--design-surface-1);
+}
+.menu-secondary .wiki-link:hover a,
+.menu-secondary .wiki-link a {
+  color: var(--design-text-muted);
+}
+.menu-secondary .wiki-link.active a {
+  color: var(--design-link);
+}
+.menu-secondary .wiki-link.active:hover a {
+  color: var(--design-text-muted);
+}
+.menu-secondary .wiki-link .dragger {
+  fill: var(--design-text-muted);
+}
+.menu-secondary .wiki-link .remove-wiki-page:hover .icon {
+  fill: var(--design-danger);
+}
+.wiki-summary.summary {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.wiki-summary .remove {
+  fill: var(--design-text-muted);
+}
+.wiki-summary .remove:hover,
+.attachment-gallery .icon-delete svg {
+  fill: var(--design-danger);
+}
+.attachment-gallery.deprecated .attachment-name {
+  color: var(--design-text-muted);
+}
+.attachment-gallery .icon-delete:hover svg {
+  color: var(--design-danger);
+}
+.attachment-simple.attachment-dragover .attachments-empty,
+.attachment-full.attachment-dragover .attachments-empty {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-link);
+}
+.attachment-list .single-attachment {
+  border-bottom-color: var(--design-surface-2);
+}
+.attachment-list .single-attachment.deprecated,
+.attachment-list .single-attachment.deprecated .attachment-name a,
+.attachment-list .single-attachment.deprecated span {
+  color: var(--design-text-muted);
+}
+.attachment-list .attachment-comments span,
+.attachment-list .editable-attachment-comment span,
+.attachment-list .attachment-size span {
+  color: var(--design-text);
+}
+.attachment-list .attachment-settings svg {
+  fill: var(--design-text-muted);
+}
+.attachment-list .attachment-settings .icon-edit:hover,
+.attachment-list .attachment-settings .icon-save:hover {
+  fill: var(--design-link);
+}
+.attachment-list .attachment-settings .icon-close:hover,
+.attachment-list .attachment-settings .icon-trash:hover {
+  fill: var(--design-danger);
+}
+.attachment-list .editable-attachment-deprecated span,
+.attachment-list .editable-attachment-deprecated input:checked+span {
+  color: var(--design-text-muted);
+}
+.attachment-list progress {
+  background-color: var(--design-surface-3);
+}
+.attachment-list progress::-moz-progress-bar {
+  background-color: var(--design-primary);
+}
+.attachment-list progress::-webkit-progress-bar {
+  background-color: var(--design-primary);
+}
+.attachments .gu-transit {
+  background-color: var(--design-surface-3);
+}
+.attachments .gu-mirror form {
+  background-color: var(--design-surface-1);
+  box-shadow: var(--design-shadow-3);
+}
+.attachments-header {
+  background-color: var(--design-surface-3);
+}
+.attachments-header .attachments-title {
+  color: var(--design-text);
+}
+.attachments-header .view-gallery.is-active svg,
+.attachments-header .view-gallery:hover svg,
+.attachments-header .view-list.is-active svg,
+.attachments-header .view-list:hover svg {
+  fill: var(--design-link);
+}
+.attachments-header .view-gallery svg,
+.attachments-header .view-list svg,
+.single-attachment .attachment-name svg {
+  fill: var(--design-text);
+}
+.attachments-header .size-info {
+  color: var(--design-text-muted);
+}
+.attachments-empty {
+  border-color: var(--design-border);
+  color: var(--design-text-muted);
+}
+.single-attachment {
+  background-color: var(--design-surface-1);
+}
+.single-attachment .attachment-size {
+  color: var(--design-text);
+}
+.more-attachments {
+  border-bottom-color: var(--design-border-strong);
+}
+.more-attachments span {
+  color: var(--design-text-muted);
+}
+.more-attachments .more-attachments-num {
+  color: var(--design-link);
+}
+.attachment-preview .attachment-preview-container svg {
+  fill: var(--design-text-muted);
+}
+.attachment-preview .attachment-preview-container svg:hover {
+  fill: var(--design-success);
+}
+tg-animated-counter .wip-amount .current {
+  color: var(--design-success);
+}
+tg-animated-counter .wip-amount.limit-over .current {
+  color: var(--design-danger);
+}
+.belong-to-epic-title {
+  color: var(--design-text);
+}
+.belong-to-epic-label {
+  background-color: var(--design-text-muted);
+  color: var(--design-surface-1);
+}
+.belong-to-epic-pill {
+  background-color: var(--design-surface-1);
+}
+.board-zoom .board-zoom-title {
+  color: var(--design-link);
+}
+.zoom-radio .checkmark {
+  background-color: var(--design-surface-3);
+}
+.zoom-radio input:checked~.checkmark {
+  background-color: var(--design-primary);
+}
+.zoom-radio:hover .checkmark {
+  background-color: var(--design-primary-hover);
+}
+.zoom-radio span {
+  color: var(--design-on-primary);
+}
+.card {
+  background-color: var(--design-surface-1);
+  box-shadow: 4px 4px 8px rgba(var(--design-link-rgb), 0.5);
+}
+.card.gu-mirror {
+  border-color: var(--design-primary);
+}
+.card:hover {
+  box-shadow: var(--design-shadow-2);
+}
+.card-inner {
+  background-color: var(--design-surface-1);
+}
+.card-inner.type-task .card-iocaine svg {
+  fill: var(--design-info);
+}
+.card-inner.card-blocked {
+  background-color: var(--design-danger-subtle);
+  border-color: var(--design-danger-border);
+}
+.card-inner.card-blocked .card-estimation,
+.card-inner.card-blocked .card-owner-name,
+.card-inner.card-blocked .card-title a {
+  color: var(--design-text);
+}
+.card-inner.card-blocked .card-task a.blocked-task {
+  color: var(--design-danger);
+}
+.card-inner.card-blocked .card-owner-actions {
+  background-color: rgba(var(--design-danger-subtle-rgb), 0.9);
+}
+.card-inner.card-blocked .card-owner-actions a:hover {
+  color: var(--design-on-primary);
+}
+.card-inner.card-blocked .card-tasks ul {
+  background-color: var(--design-danger-subtle);
+  border-color: var(--design-danger-subtle);
+}
+.card-inner.card-blocked .card-unfold svg {
+  fill: var(--design-text-muted);
+}
+.card-inner.card-blocked .card-unfold:hover svg,
+.card-actions button svg,
+.card-actions .card-option-popup button svg {
+  fill: var(--design-link);
+}
+.card-inner.card-blocked .btn-form:not(.card-delete):hover,
+.card-inner.card-blocked .btn-link[variant=icon]:hover {
+  color: var(--design-text);
+}
+.card-tags .card-tag {
+  color: var(--design-on-primary);
+}
+.card-epic .epic-name {
+  color: var(--design-text);
+}
+.card-epic:hover .epic-name {
+  color: var(--design-link);
+}
+.card-assigned-to .card-not-assigned-title {
+  color: var(--design-text-muted);
+}
+.card-assigned-to .extra-assigned {
+  background-color: var(--design-surface-2);
+  color: var(--design-text-muted);
+}
+.card-assigned-to .extra-assigned,
+.card-assigned-to img {
+  border-color: var(--design-surface-1);
+}
+.card-assigned-to.is_iocaine .card-user-avatar img {
+  border-color: var(--design-info);
+}
+.card-actions button.popover-open,
+.card-actions button:hover {
+  background-color: var(--design-surface-3);
+}
+.card-actions .card-option-popup {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.card-actions .card-option-popup:hover {
+  color: var(--design-text-muted);
+}
+.card-actions .card-option-popup li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.card-actions .card-option-popup li:hover a {
+  color: var(--design-text-muted);
+}
+.card-actions .card-option-popup.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.card-actions .card-option-popup.horizontal .point {
+  color: var(--design-link);
+}
+.card-actions .card-option-popup a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.card-actions .card-option-popup .point,
+.card-actions .card-option-popup .priority,
+.card-actions .card-option-popup .role,
+.card-actions .card-option-popup .severity,
+.card-actions .card-option-popup .status,
+.card-actions .card-option-popup .type {
+  color: var(--design-link);
+}
+.card-actions .card-option-popup::before {
+  background-color: var(--design-surface-1);
+}
+.card-actions .card-option-popup button {
+  background: 0 0;
+  color: var(--design-link);
+}
+.card-actions .card-option-popup button:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.btn-link[variant=icon].card-assigned-to-action:hover,
+.card-data .card-estimation {
+  background-color: var(--design-surface-3);
+}
+.btn-form.card-delete:hover {
+  color: var(--design-danger);
+}
+.card-title .card-ref {
+  color: var(--design-link);
+}
+.card-title .card-subject,
+.card-title a:hover .card-ref {
+  color: var(--design-text);
+}
+.card-title a:hover .card-subject {
+  color: var(--design-link);
+}
+.card-data,
+.card-statistics,
+.card-statistics .statistic {
+  color: var(--design-text-muted);
+}
+.card-data .card-lock svg {
+  fill: var(--design-danger);
+}
+.card-statistics .icon {
+  fill: var(--design-text-muted);
+}
+.card-statistics .card-completed-tasks {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+.card-statistics .card-completed-tasks.completed {
+  color: var(--design-success);
+}
+.card-unfold:hover svg {
+  fill: var(--design-link);
+}
+.card-unfold svg {
+  fill: var(--design-text-muted);
+}
+.card-tasks ul {
+  background-color: var(--design-surface-2);
+  border-bottom-color: var(--design-border);
+}
+.card-task .card-task-ref {
+  color: var(--design-link);
+}
+.card-task a .card-task-subject {
+  color: var(--design-text);
+}
+.card-task a.blocked-task {
+  color: var(--design-danger);
+}
+.card-task a.closed-task {
+  color: var(--design-text-muted);
+}
+.card-task a:hover,
+.detail-ref,
+.detail-header .detail-header-line a,
+.detail-header .relate-to-epic .relate-to-epic-button {
+  color: var(--design-link);
+}
+.card-slideshow svg {
+  fill: var(--design-link);
+}
+.card-slideshow .slideshow-left,
+.card-slideshow .slideshow-right {
+  background-color: rgba(var(--design-surface-1-rgb), 0.3);
+}
+.card-slideshow .slideshow-left:hover,
+.card-slideshow .slideshow-right:hover {
+  background-color: var(--design-text);
+}
+.color-selector .tag-color {
+  border-color: var(--design-border-strong);
+}
+.color-selector .tag-color.empty-color {
+  background-color: var(--design-border-strong);
+}
+.color-selector-dropdown {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+}
+.color-selector-dropdown-list .empty-color {
+  background-color: var(--design-border-strong);
+}
+.custom-color-selector .display-custom-color-wrapper {
+  background-color: var(--design-surface-3);
+}
+.custom-color-selector .display-custom-color.empty-color {
+  background-color: var(--design-border-strong);
+}
+.detail-nav svg {
+  fill: currentColor;
+}
+.detail-header .detail-project .section-name,
+.detail-title-wrapper .detail-title-text,
+.detail-title-wrapper .detail-subject,
+.detail-project {
+  color: var(--design-text);
+}
+.edit-title-wrapper .edit-title-input {
+  background-color: var(--design-surface-1);
+}
+.edit-title-wrapper .edit-title-button {
+  background: 0 0;
+}
+.edit-title-wrapper .edit-title-button:hover {
+  fill: var(--design-success);
+}
+.detail-project .section-name {
+  color: var(--design-text-muted);
+}
+.block-desc-container {
+  background-color: var(--design-danger);
+}
+.block-desc-container .blocked-sign tg-svg {
+  fill: var(--design-on-primary);
+}
+.block-desc-container .block-description p,
+.block-desc-container .block-description-title,
+.due-date-button.date-set,
+.due-date-button.text-button,
+.due-date-button.text-button.not-set:hover,
+.due-date-button.text-button.not-set {
+  color: var(--design-on-primary);
+}
+.due-date-button,
+.due-date-button.closed,
+.due-date-button.text-button.closed:hover {
+  background-color: var(--design-surface-3);
+}
+.due-date-button.due-set {
+  background-color: var(--design-primary);
+}
+.due-date-button.text-button.due-set:hover {
+  background-color: var(--design-primary-hover);
+}
+.due-date-button.due-soon,
+.due-date-button.text-button.due-soon:hover,
+.due-date-button.past-due,
+.due-date-button.text-button.past-due:hover {
+  background-color: var(--design-danger-subtle);
+}
+.date-picker-popover {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border-strong);
+}
+.date-picker-popover-footer svg {
+  fill: var(--design-text-muted);
+}
+.date-picker-popover-footer a:hover svg {
+  fill: var(--design-danger);
+}
+tg-filter {
+  background-color: var(--design-surface-2);
+}
+.custom-filters {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.custom-filters-header .number {
+  color: var(--design-text-muted);
+}
+.custom-filters-header .add-custom-filter {
+  color: var(--design-link);
+}
+.custom-filters-header .add-custom-filter[disabled] {
+  color: rgba(var(--design-link-rgb), 0.5);
+}
+.single-filter {
+  background-color: var(--design-surface-2);
+  border-left-color: transparent;
+  color: var(--design-text);
+}
+.single-filter.single-filter-type-general:hover {
+  background-color: var(--design-surface-1);
+}
+.single-filter.single-filter-type-tag {
+  background-color: var(--design-text-muted);
+  color: var(--design-surface-1);
+}
+.single-filter .user-pic {
+  border-color: var(--design-surface-1);
+}
+.single-filter .number {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.single-filter.single-filter-type-custom {
+  background: 0 0;
+}
+.single-filter.single-filter-type-custom .name {
+  background: 0 0;
+  color: var(--design-link);
+}
+.single-filter.single-filter-type-custom .remove-filter {
+  background: 0 0;
+}
+.single-filter.single-filter-type-custom .remove-filter svg {
+  fill: var(--design-link);
+}
+.single-filter.single-filter-type-custom.active,
+.single-filter.single-filter-type-custom:hover {
+  background-color: var(--design-surface-3);
+}
+.filters-included {
+  background-color: rgba(var(--design-success-rgb), 0.1);
+}
+.filters-included .filters-title {
+  color: var(--design-success);
+}
+.filters-excluded {
+  background-color: rgba(var(--design-danger-rgb), 0.06);
+}
+.filters-excluded .filters-title {
+  color: var(--design-danger);
+}
+.filters-applied {
+  border-bottom-color: var(--design-border);
+}
+.filters-applied .single-applied-filter {
+  background-color: var(--design-surface-1);
+  box-shadow: var(--design-shadow-1);
+}
+.filters-applied .single-applied-filter .remove-filter svg {
+  fill: var(--design-text-muted);
+}
+.filters-applied .single-applied-filter .remove-filter:hover svg {
+  fill: var(--design-danger);
+}
+.filters-advanced .filter-mode {
+  color: var(--design-text);
+}
+.filters-advanced .radio-mark {
+  border-color: var(--design-border);
+}
+.filters-advanced .radio-mark-inner {
+  background-color: var(--design-primary);
+}
+.filters-cats li:not(.active):last-child {
+  border-bottom-color: var(--design-border);
+}
+.filters-cat-single {
+  background: 0 0;
+  border-color: var(--design-border);
+  color: var(--design-text-muted);
+}
+.filters-cat-single:focus {
+  border-color: var(--design-link);
+}
+.filters-cat-single.selected {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.filters-cat-single .icon,
+tg-input-search tg-svg svg {
+  fill: var(--design-link);
+}
+.in-taskboard {
+  background-color: var(--design-surface-3);
+}
+.in-taskboard.empty {
+  background-color: var(--design-surface-2);
+}
+.in-taskboard .sprint-issues-title {
+  -webkit-border-end: 1px solid var(--design-text-muted);
+  border-inline-end: 1px solid var(--design-border-strong);
+}
+.in-taskboard .sprint-issues-title .icon {
+  fill: var(--design-text-muted);
+}
+.in-taskboard .sprint-issues-title-txt {
+  color: var(--design-text-muted);
+}
+.issues-table .tooltip {
+  background-color: var(--design-text);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-surface-1);
+}
+.issues-table .tooltip::before {
+  background-color: var(--design-text);
+}
+.issues-table .title [data-fieldname] {
+  color: var(--design-text-muted);
+}
+.issues-table .title [data-fieldname]:hover {
+  color: var(--design-link);
+}
+.issues-table .title .icon-arrow-up .arrow-up,
+.issues-table .title .icon-arrow-down .arrow-down {
+  fill: var(--design-link);
+}
+.issues-table .title .arrow-down,
+.issues-table .title .arrow-up {
+  fill: var(--design-text-muted);
+}
+.issues-table .row:not(.title) {
+  background-color: var(--design-surface-2);
+  color: var(--design-text-muted);
+}
+.issues-table .row:not(.title):hover {
+  background-color: var(--design-surface-3);
+}
+.issues-table .row:not(.title).is-blocked {
+  background-color: var(--design-danger-subtle);
+}
+.issues-table .row:not(.title).is-blocked .blocked-text {
+  color: var(--design-text);
+}
+.issues-table .row:not(.title) .attachments-field .icon,
+.issues-table .row:not(.title) .votes-field .icon {
+  fill: currentColor;
+}
+.issues-table .row:not(.title) .votes-field {
+  color: var(--design-text-muted);
+}
+.issues-table .row:not(.title) .issue-status tg-svg {
+  fill: var(--design-text);
+}
+.issues-table .row:not(.title) .issue-assignedto:hover .avatar img {
+  border-color: var(--design-primary);
+}
+.issues-table .row:not(.title) .issue-assignedto:hover .icon {
+  fill: var(--design-text-muted);
+}
+.issues-table .level-field .first-letter {
+  color: transparent;
+}
+.issues-table .level-field .first-letter::first-letter {
+  color: var(--design-text-muted);
+}
+.issues-table .subject:hover .issue-ref {
+  color: var(--design-text);
+}
+.issues-table .subject:hover .issue-subject,
+.issues-table .subject .issue-ref {
+  color: var(--design-link);
+}
+.issues-table .subject .issue-subject {
+  color: var(--design-text);
+}
+.issues-table .subject .blocked .icon,
+.issues-table .subject .due-date .icon {
+  fill: var(--design-danger);
+}
+.issues-table .assigned-field .icon,
+.issues-table .options-field .icon {
+  fill: var(--design-link);
+}
+.issues-table .options-field .options-button {
+  background: 0 0;
+}
+.issues-table .options-field .options-button.active {
+  background-color: var(--design-surface-3);
+}
+.issues-table .options-field .options-button.active .icon {
+  fill: var(--design-text);
+}
+.issues-table .pop-status {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.issues-table .pop-status:hover {
+  color: var(--design-text-muted);
+}
+.issues-table .pop-status li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.issues-table .pop-status li:hover a {
+  color: var(--design-text-muted);
+}
+.issues-table .pop-status.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.issues-table .pop-status.horizontal .point {
+  color: var(--design-link);
+}
+.issues-table .pop-status a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.issues-table .pop-status .point,
+.issues-table .pop-status .priority,
+.issues-table .pop-status .role,
+.issues-table .pop-status .severity,
+.issues-table .pop-status .status,
+.issues-table .pop-status .type {
+  color: var(--design-link);
+}
+.issues-table .pop-status::before {
+  background-color: var(--design-surface-1);
+}
+.issues-table .options {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: 4px 4px 8px rgba(var(--design-link-rgb), 0.5);
+}
+.issues-table .option {
+  background: 0 0;
+  color: var(--design-link);
+}
+.issues-table .option:hover {
+  background-color: var(--design-surface-3);
+}
+.lb-select-user-form .lb-select-user-list.is-active {
+  background-color: var(--design-success-subtle);
+}
+.lb-select-user-link-back,
+.lb-select-user-link-back:hover {
+  color: var(--design-success);
+}
+.live-announcement {
+  background-color: var(--design-primary);
+}
+.live-announcement-inner .title,
+.live-announcement-inner .warning {
+  color: var(--design-text);
+}
+.live-announcement-inner .warning a {
+  color: var(--design-link);
+}
+.live-announcement-inner .warning a:hover {
+  color: var(--design-text);
+}
+.live-announcement-inner .close svg {
+  fill: var(--design-link);
+}
+.live-announcement-inner .close svg:hover {
+  fill: var(--design-text);
+}
+.move-to-sprint-button {
+  color: var(--design-on-primary);
+}
+.move-to-sprint-button:not(.disabled):hover {
+  color: var(--design-success);
+}
+.move-to-sprint-button.disabled:hover {
+  color: var(--design-on-primary);
+}
+.project-archived-banner {
+  background-color: var(--design-danger-subtle);
+  border-bottom-color: var(--design-danger-subtle);
+}
+.project-archived-banner .archived-banner-icon svg {
+  fill: var(--design-danger);
+}
+.project-archived-banner .archived-banner-message {
+  color: var(--design-danger);
+}
+.search-list .show-closed {
+  color: var(--design-link);
+}
+.search-list .show-closed svg,
+.search-list .show-closed :hover svg {
+  fill: currentColor;
+}
+.search-list .show-closed :hover {
+  color: var(--design-text-muted);
+}
+.search-list ul {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+}
+.search-list .choice {
+  color: var(--design-text);
+}
+.search-list .choice.selected {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.search-list .choice.selected .info {
+  color: var(--design-on-primary);
+}
+.search-list .choice[disabled],
+.search-list .choice[disabled] .info,
+.search-list .choice ng-include .info {
+  color: var(--design-text-muted);
+}
+tg-swimlane-selector .select {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+tg-swimlane-selector .select tg-svg {
+  fill: var(--design-link);
+}
+tg-swimlane-selector .select.active {
+  border-color: var(--design-link);
+}
+tg-swimlane-selector .options {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: 4px 4px 8px rgba(var(--design-link-rgb), 0.5);
+}
+tg-swimlane-selector .option {
+  background: 0 0;
+  color: var(--design-link);
+}
+tg-swimlane-selector .option:hover {
+  background-color: var(--design-surface-3);
+}
+tg-swimlane-selector .option.selected {
+  color: var(--design-text-muted);
+}
+.add-tag-input input {
+  border-color: var(--design-border-strong);
+}
+.add-tag-input .save {
+  fill: var(--design-text);
+}
+.add-tag-input .save:hover {
+  fill: var(--design-success);
+}
+.add-tag-input .tags-dropdown {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border-strong);
+  box-shadow: var(--design-shadow-1);
+}
+.add-tag-input li.selected,
+.add-tag-input li:hover {
+  background-color: var(--design-surface-1);
+}
+.add-tag-button {
+  color: var(--design-link);
+}
+.add-tag-button:hover {
+  background-color: var(--design-surface-3);
+}
+.add-tag-button tg-svg {
+  fill: var(--design-link);
+}
+.tag {
+  background-color: var(--design-border-strong);
+  color: var(--design-on-primary);
+}
+.tag .icon-close {
+  fill: var(--design-on-primary);
+}
+.loader .tip-color-1 p {
+  color: var(--design-info);
+}
+.loader .tip-color-1 svg {
+  fill: var(--design-info);
+  stroke: var(--design-info);
+}
+.loader .tip-color-2 p,
+.loader .tip-color-3 p {
+  color: var(--design-link);
+}
+.loader .tip-color-2 svg,
+.loader .tip-color-3 svg {
+  fill: var(--design-link);
+  stroke: var(--design-link);
+}
+.loader .tip-color-4 p {
+  color: var(--design-success);
+}
+.loader .tip-color-4 svg {
+  fill: var(--design-success);
+  stroke: var(--design-success);
+}
+.loader .tip-color-5 p {
+  color: var(--design-danger);
+}
+.loader .tip-color-5 svg {
+  fill: var(--design-danger);
+  stroke: var(--design-danger);
+}
+.tip p.title {
+  color: var(--design-text);
+}
+.tribe-linked .tribe-linked-inner:hover {
+  background-color: var(--design-surface-1);
+}
+.tribe-linked.is-active {
+  background-color: var(--design-surface-1);
+  box-shadow: var(--design-shadow-2);
+}
+.tribe-linked.is-active svg,
+.tribe-linked.is-active svg:hover {
+  fill: var(--design-danger);
+}
+.tribe-linked.is-active .gig-title {
+  color: var(--design-info);
+}
+.tribe-linked.is-active .delete-link {
+  color: var(--design-success);
+}
+.upvote-btn a {
+  background-color: var(--design-surface-active);
+}
+.upvote-btn a:hover {
+  background-color: var(--design-border-strong);
+}
+.upvote-btn a.voted {
+  background-color: var(--design-success-border);
+}
+.upvote-btn a.voted:hover {
+  background-color: var(--design-danger-subtle);
+}
+.upvote-btn a.voted:hover svg {
+  fill: var(--design-on-primary);
+}
+.upvote-btn svg,
+tg-wip-limit-selector .wip-limit-status-data .form-button .icon {
+  fill: var(--design-text-muted);
+}
+tg-wip-limit-selector .wip-limit-status {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+tg-wip-limit-selector .wip-number,
+tg-wysiwyg .mode-editor span {
+  color: var(--design-text-muted);
+}
+tg-wip-limit-selector .wip-limit-status-data .form-button:hover .icon {
+  fill: var(--design-link);
+}
+tg-wip-limit-selector .wip-limit-status-form-input {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-link);
+}
+tg-wysiwyg .edit-mode .ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused,
+tg-wysiwyg .edit-mode .markdown.ck-focused {
+  border-color: var(--design-border-strong);
+}
+.wysiwyg h1,
+.wysiwyg h2,
+.wysiwyg h3,
+.wysiwyg h4,
+.wysiwyg h5,
+.wysiwyg h6,
+tg-html-editor .ck-content h1,
+tg-html-editor .ck-content h2,
+tg-html-editor .ck-content h3,
+tg-html-editor .ck-content h4,
+tg-html-editor .ck-content h5,
+tg-html-editor .ck-content h6,
+.wysiwyg li,
+tg-html-editor .ck-content li,
+.wysiwyg p,
+tg-html-editor .ck-content p,
+.wysiwyg strong,
+tg-html-editor .ck-content strong,
+.wysiwyg a,
+tg-html-editor .ck-content a,
+.wysiwyg a strong,
+tg-html-editor .ck-content a strong {
+  color: var(--design-text);
+}
+.wysiwyg a[href],
+tg-html-editor .ck-content a[href] {
+  color: var(--design-link);
+}
+.wysiwyg blockquote,
+tg-html-editor .ck-content blockquote {
+  border-left-color: var(--design-primary);
+  color: var(--design-text-muted);
+}
+.wysiwyg p>code,
+tg-html-editor .ck-content p>code {
+  background-color: var(--design-surface-3);
+}
+.wysiwyg .mention,
+tg-html-editor .ck-content .mention {
+  color: var(--design-link);
+}
+.wysiwyg .ck-horizontal-line hr,
+.wysiwyg hr,
+tg-html-editor .ck-content .ck-horizontal-line hr,
+tg-html-editor .ck-content hr {
+  background-color: var(--design-primary);
+}
+.wysiwyg .table table,
+.wysiwyg table,
+tg-html-editor .ck-content .table table,
+tg-html-editor .ck-content table,
+.wysiwyg .table table td,
+.wysiwyg .table table th,
+.wysiwyg table td,
+.wysiwyg table th,
+tg-html-editor .ck-content .table table td,
+tg-html-editor .ck-content .table table th,
+tg-html-editor .ck-content table td,
+tg-html-editor .ck-content table th {
+  border-color: var(--design-border);
+}
+.wysiwyg .table table td,
+.wysiwyg table td,
+tg-html-editor .ck-content .table table td,
+tg-html-editor .ck-content table td {
+  color: var(--design-text-muted);
+}
+.wysiwyg .table table th,
+.wysiwyg table th,
+tg-html-editor .ck-content .table table th,
+tg-html-editor .ck-content table th {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.wysiwyg .placeholder,
+tg-html-editor .ck-content .placeholder {
+  color: var(--design-text-muted);
+}
+.ck-body-wrapper .ck.ck-link-actions .ck-button.ck-link-actions__preview .ck-button__label {
+  color: var(--design-link);
+}
+.discover-header {
+  background-color: var(--design-surface-3);
+}
+.discover-header .project-number {
+  color: var(--design-text);
+}
+.discover-header input[type=text] {
+  background-color: var(--design-surface-1);
+}
+.discover-header input[type=text]:-webkit-autofill {
+  background-color: rgba(var(--design-success-rgb), 0.5);
+}
+.discover-header .search-button {
+  fill: var(--design-text-muted);
+}
+.discover-header .search-button:hover {
+  fill: var(--design-success);
+}
+.discover-results-header svg {
+  fill: var(--design-text-muted);
+}
+.filter-discover-search .discover-search-filter.active {
+  color: var(--design-link);
+}
+.filter-discover-search .discover-search-filter.active svg {
+  fill: var(--design-link);
+}
+.discover-search-subfilter {
+  background-color: var(--design-surface-3);
+}
+.discover-search-subfilter:after,
+.discover-search-subfilter:before {
+  border-color: rgba(var(--design-border-rgb), 0);
+  border-bottom-color: var(--design-border);
+}
+.discover-search-subfilter .results,
+.discover-search-subfilter .results:hover {
+  color: var(--design-danger);
+}
+.discover-search-subfilter .filter-list a:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.discover-search-subfilter .filter-list a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.featured-projects .title,
+.featured-project .project-card-description,
+.featured-project .statistic {
+  color: var(--design-text);
+}
+.featured-project {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+}
+.featured-project .project-card-statistics svg,
+.featured-project .statistic.active svg {
+  fill: currentColor;
+}
+.featured-project .statistic.active {
+  color: var(--design-text-muted);
+}
+.featured-project .project-card-header .icon-badge {
+  fill: var(--design-link);
+}
+.featured-project .project-card-name a,
+.highlighted .title {
+  color: var(--design-text);
+}
+.highlighted .header svg,
+.highlighted .title-wrapper svg,
+.highlighted .empty-highlighted-project svg {
+  fill: var(--design-text-muted);
+}
+.highlighted .empty-highlighted-project {
+  border-color: var(--design-border);
+}
+.highlighted .empty-highlighted-project span {
+  color: var(--design-text-muted);
+}
+.filter-highlighted .current-filter:hover svg {
+  fill: currentColor;
+}
+.filter-highlighted .filter-list {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.filter-highlighted .filter-list:hover {
+  color: var(--design-text-muted);
+}
+.filter-highlighted .filter-list li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.filter-highlighted .filter-list li:hover a {
+  color: var(--design-text-muted);
+}
+.filter-highlighted .filter-list.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.filter-highlighted .filter-list.horizontal .point {
+  color: var(--design-link);
+}
+.filter-highlighted .filter-list a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.filter-highlighted .filter-list .point,
+.filter-highlighted .filter-list .priority,
+.filter-highlighted .filter-list .role,
+.filter-highlighted .filter-list .severity,
+.filter-highlighted .filter-list .status,
+.filter-highlighted .filter-list .type {
+  color: var(--design-link);
+}
+.filter-highlighted .filter-list::before {
+  background-color: var(--design-surface-1);
+}
+.highlighted-project {
+  border-bottom-color: var(--design-border);
+}
+.highlighted-project .project-title a {
+  color: var(--design-text);
+}
+.highlighted-project .project-title a:hover {
+  color: var(--design-success);
+}
+.highlighted-project .project-description,
+.highlighted-project .statistic {
+  color: var(--design-text-muted);
+}
+.highlighted-project .project-statistics svg {
+  fill: var(--design-text-muted);
+}
+.highlighted-project .statistic.active {
+  color: var(--design-link);
+}
+.highlighted-project .statistic.active svg {
+  fill: var(--design-link);
+}
+.discover-search .searchbox-filters label {
+  color: var(--design-text-muted);
+}
+.discover-search .searchbox-filters label.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.discover-search .searchbox-filters label:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.discover-results .list-itemtype-project {
+  border-bottom-color: var(--design-border-strong);
+}
+.discover-results .project-statistics svg {
+  fill: var(--design-text-muted);
+}
+.discover-results .statistic {
+  color: var(--design-text-muted);
+}
+.discover-results .statistic svg {
+  fill: var(--design-text-muted);
+  stroke: var(--design-text-muted);
+}
+.discover-results .statistic.active {
+  color: var(--design-link);
+}
+.discover-results .statistic.active svg,
+.epic-row .icon-drag {
+  fill: var(--design-link);
+}
+.lightbox-create-epic .settings fieldset:hover {
+  color: var(--design-on-primary);
+}
+.lightbox-create-epic .settings input:checked+label {
+  background-color: var(--design-primary);
+  border-color: var(--design-link);
+  color: var(--design-on-primary);
+}
+.lightbox-create-epic .settings input:checked+.blocked {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger-border);
+  color: var(--design-on-danger);
+}
+.lightbox-create-epic label {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+.lightbox-create-epic label:hover {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-link);
+  color: var(--design-on-primary);
+}
+.lightbox-create-epic label.blocked:hover {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger-border);
+}
+.epic-row {
+  background-color: var(--design-surface-2);
+}
+.epic-row.unfold,
+.epic-row:hover {
+  background-color: var(--design-surface-3);
+}
+.epic-row.is-blocked {
+  background-color: var(--design-danger-subtle);
+}
+.epic-row.is-closed .name a {
+  color: var(--design-text-muted);
+}
+.epic-row .name a:hover .ref,
+.epic-row .name a:hover .subject {
+  color: var(--design-link);
+}
+.epic-row .name .subject {
+  color: var(--design-text);
+}
+.epic-row .epic-pill {
+  background-color: var(--design-text-muted);
+  color: var(--design-surface-1);
+}
+.epic-row .status-holder button {
+  background: 0 0;
+}
+.epic-row .icon-arrow-down {
+  fill: var(--design-text-muted);
+}
+.epic-row .progress-bar {
+  background-color: var(--design-surface-1);
+}
+.epic-row .progress-status {
+  background-color: var(--design-primary);
+}
+.epic-row .is-unassigned {
+  color: var(--design-text-muted);
+}
+.epic-row .epic-statuses {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-2);
+  color: var(--design-link);
+}
+.epic-row .epic-statuses:hover {
+  color: var(--design-text-muted);
+}
+.epic-row .epic-statuses li:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.epic-row .epic-statuses li:hover a {
+  color: var(--design-text-muted);
+}
+.epic-row .epic-statuses.horizontal a.active {
+  color: var(--design-on-primary);
+}
+.epic-row .epic-statuses.horizontal .point {
+  color: var(--design-link);
+}
+.epic-row .epic-statuses a.active {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.epic-row .epic-statuses .point,
+.epic-row .epic-statuses .priority,
+.epic-row .epic-statuses .role,
+.epic-row .epic-statuses .severity,
+.epic-row .epic-statuses .status,
+.epic-row .epic-statuses .type {
+  color: var(--design-link);
+}
+.epic-row .epic-statuses::before {
+  background-color: var(--design-surface-1);
+}
+.empty-epics a {
+  color: var(--design-success);
+}
+.epics-table-header>div {
+  color: var(--design-text-muted);
+}
+.epics-table-option-button {
+  background: 0 0;
+}
+.epics-table-dropdown {
+  background-color: var(--design-surface-1);
+  border-bottom-color: rgba(var(--design-border-strong-rgb), 0.1);
+  border-left-color: rgba(var(--design-border-strong-rgb), 0.1);
+  border-right-color: rgba(var(--design-border-strong-rgb), 0.1);
+  box-shadow: var(--design-shadow-1);
+}
+.epics-table-dropdown .fieldset {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text-muted);
+}
+.story-row {
+  background-color: var(--design-surface-1);
+}
+.story-row:hover {
+  background-color: var(--design-surface-2);
+}
+.story-row.is-blocked {
+  background-color: var(--design-danger-subtle);
+}
+.story-row.is-blocked a,
+.story-row.is-blocked div,
+.story-row.is-blocked span {
+  color: var(--design-on-primary);
+}
+.story-row.is-blocked svg {
+  fill: var(--design-on-primary);
+  stroke: var(--design-on-primary);
+}
+.story-row.is-closed .name {
+  color: var(--design-text-muted);
+}
+.story-row .name a:hover .ref,
+.story-row .name a:hover .subject {
+  color: var(--design-link);
+}
+.story-row .name .subject {
+  color: var(--design-text);
+}
+.story-row .progress-bar {
+  background-color: var(--design-surface-2);
+}
+.story-row .progress-status {
+  background-color: var(--design-primary);
+}
+.lightbox-create-related-user-stories .new-user-story-options input:checked+label {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+  fill: var(--design-on-success);
+}
+.lightbox-create-related-user-stories .new-user-story-options input+label {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+.lightbox-create-related-user-stories .new-user-story-options input+label:hover {
+  background-color: var(--design-success);
+  color: var(--design-on-success);
+  fill: var(--design-on-success);
+}
+.related-userstories-header {
+  background-color: var(--design-surface-3);
+}
+.related-userstories-header .related-userstories-title {
+  color: var(--design-text);
+}
+.related-userstories-body .row.blocked {
+  background-color: var(--design-danger-subtle);
+}
+tg-related-userstory-row {
+  border-bottom-color: var(--design-border);
+}
+tg-related-userstory-row.sortable:hover {
+  background-color: var(--design-success-subtle);
+}
+tg-related-userstory-row.sortable .icon-drag,
+tg-related-userstory-row .closed a,
+tg-related-userstory-row .closed svg,
+tg-related-userstory-row .userstory-settings svg,
+tg-related-userstory-row .userstory-settings svg:hover {
+  fill: var(--design-text-muted);
+}
+tg-related-userstory-row .closed {
+  border-left-color: var(--design-border);
+  color: var(--design-text-muted);
+}
+tg-related-userstory-row .closed .userstory-name a {
+  color: var(--design-text-muted);
+}
+tg-related-userstory-row .blocked {
+  background-color: var(--design-danger-subtle);
+  border-left-color: var(--design-danger-border);
+}
+tg-related-userstory-row .delete-userstory:hover .icon-trash {
+  fill: var(--design-danger);
+}
+tg-related-userstory-row .related-text .related-ref {
+  color: var(--design-link);
+}
+tg-related-userstory-row .related-text .related-subject,
+tg-related-userstory-row .related-text:hover .related-ref {
+  color: var(--design-text);
+}
+tg-related-userstory-row .related-text:hover .related-subject,
+.comment .comment-creator {
+  color: var(--design-link);
+}
+.external-app-wrapper .user-card {
+  background-color: var(--design-warning-subtle);
+  border-color: var(--design-warning-subtle);
+}
+.comments .read-mode {
+  border-color: var(--design-border-strong);
+}
+.comment .comment-wrapper,
+.comment .deleted-comment-wrapper,
+.entry .entry-wrapper,
+.activity,
+.watching .duty-single,
+.working-on .duty-single {
+  border-bottom-color: var(--design-border);
+}
+.comment .comment-date {
+  color: var(--design-text-muted);
+}
+.comment .comment-edited {
+  background-color: var(--design-surface-3);
+}
+.comment .comment-edited a {
+  color: var(--design-success);
+  fill: var(--design-success);
+}
+.comment .comment-options .icon-edit,
+.comment .comment-options .icon-edit:hover,
+.comment .comment-options .icon-close {
+  fill: var(--design-text-muted);
+}
+.comment .comment-options .icon-close:hover,
+.comment .comment-options .icon-trash,
+.comment .comment-options .icon-trash:hover {
+  fill: var(--design-danger);
+}
+.comment .deleted-comment-main {
+  color: var(--design-text-muted);
+}
+.comment .toggle-deleted-comment,
+.comment .restore-comment:hover {
+  color: var(--design-success);
+  fill: var(--design-success);
+}
+.entry .entry-creator {
+  color: var(--design-success);
+}
+.entry .entry-date {
+  color: var(--design-text-muted);
+}
+.entry .display-full-entry {
+  fill: var(--design-success);
+}
+.entry .entry-text.blurry::after {
+  background-image: none;
+  background-color: var(--design-surface-1);
+}
+.activity-diff .key {
+  background-color: var(--design-surface-3);
+}
+.activity-diff .icon-arrow-right {
+  fill: var(--design-text-muted);
+}
+.activity-diff .diff-status-wrapper ins {
+  background-color: rgba(var(--design-success-border-rgb), 0.3);
+}
+.activity-diff .diff-status-wrapper del {
+  background-color: rgba(var(--design-danger-subtle-rgb), 0.3);
+}
+.activity .activity-creator {
+  color: var(--design-success);
+}
+.activity .activity-date {
+  color: var(--design-text-muted);
+}
+.watching .duty-single:hover,
+.working-on .duty-single:hover {
+  background-color: var(--design-surface-2);
+}
+.watching .duty-single>a.blocked,
+.working-on .duty-single>a.blocked {
+  background-color: var(--design-danger-subtle);
+  color: var(--design-danger);
+}
+.watching .button-hide svg,
+.working-on .button-hide svg {
+  fill: var(--design-text);
+}
+.home-wrapper .toggle-hidden {
+  border-top-color: var(--design-border-strong);
+}
+.home-wrapper .title-bar {
+  background-color: var(--design-surface-3);
+}
+.home-project {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+}
+.home-project .project-card-description,
+.home-project .statistic {
+  color: var(--design-text);
+}
+.home-project .project-card-statistics svg,
+.home-project .statistic.active svg {
+  fill: currentColor;
+}
+.home-project .statistic.active {
+  color: var(--design-text-muted);
+}
+.home-project .project-card-header .icon-badge {
+  fill: var(--design-link);
+}
+.home-project .project-card-name a {
+  color: var(--design-text);
+}
+.home-project:hover {
+  border-color: rgba(var(--design-success-border-rgb), 0.2);
+  box-shadow: var(--design-shadow-2);
+}
+.home-project.blocked-project,
+.home-project.blocked-project:hover {
+  border-color: var(--design-border);
+}
+.projects-empty svg {
+  fill: var(--design-text-muted);
+}
+.empty-ticket:not(:last-child),
+.invite-members-form .invite-members-single {
+  border-bottom-color: var(--design-border);
+}
+.empty-ticket .avatar {
+  background-color: var(--design-surface-active);
+}
+.empty-ticket .line {
+  background-color: var(--design-surface-3);
+}
+.invite-members-form {
+  border-top-color: var(--design-border);
+}
+.invite-members-form .invite-members-single-remove {
+  color: var(--design-danger);
+}
+.invite-members-form .invite-members-single-new .icon-add {
+  fill: var(--design-text);
+}
+.invite-members-form .invite-members-single-new:hover .icon-add {
+  fill: var(--design-success);
+}
+.add-member-suggest .add-member-suggest-filter-hint {
+  color: var(--design-text-muted);
+}
+.add-member-suggest .add-member-suggest-filter-addmail {
+  background-color: var(--design-text-muted);
+}
+.add-member-suggest .add-member-suggest-filter-addmail:hover {
+  background-color: var(--design-text);
+}
+.add-member-suggest .add-member-suggest-filter-addmail svg {
+  fill: var(--design-on-primary);
+}
+.add-member-suggest .add-member-suggest-single {
+  background-color: var(--design-surface-1);
+  border-bottom-color: var(--design-border);
+}
+.add-member-suggest .add-member-suggest-single:hover {
+  background-color: var(--design-success-subtle);
+}
+.dropdown-project-list .icon-slash {
+  stroke: var(--design-danger);
+}
+.dropdown-project-list .dropdown-project-list-ul {
+  border-bottom-color: var(--design-primary);
+}
+.dropdown-project-list .dropdown-project-list-link.active,
+.dropdown-project-list .dropdown-project-list-link:hover {
+  background-color: var(--design-surface-3);
+  color: var(--design-link);
+}
+.dropdown-project-list .navbar-dropdown:after,
+.dropdown-project-list .navbar-dropdown:before {
+  border-color: rgba(var(--design-surface-2-rgb), 0);
+  border-bottom-color: var(--design-surface-2);
+}
+.dropdown-project-list .see-more-projects-btn {
+  color: var(--design-link);
+}
+.dropdown-project-list .create-project-btn span {
+  color: var(--design-text);
+}
+.dropdown-project-list .create-project-btn svg {
+  fill: var(--design-text);
+  stroke: var(--design-text);
+}
+.dropdown-project-list .create-project-btn:hover span {
+  color: var(--design-on-primary);
+}
+.dropdown-project-list .create-project-btn:hover svg {
+  fill: var(--design-on-primary);
+  stroke: var(--design-on-primary);
+}
+.dropdown-project-list .dropdown-project-list-desc {
+  color: var(--design-text);
+}
+.dropdown-project-list:hover .dropdown-project-list-projects,
+.dropdown-project-list.active .dropdown-project-list-projects {
+  background-color: var(--design-surface-3);
+}
+.dropdown-project-list:hover .dropdown-project-list-projects span {
+  color: var(--design-text-muted);
+}
+.dropdown-project-list:hover .dropdown-project-list-projects .icon-folder {
+  fill: var(--design-text-muted);
+}
+.dropdown-project-list.active .dropdown-project-list-projects span,
+.dropdown-project-list-projects span {
+  color: var(--design-link);
+}
+.dropdown-project-list.active .dropdown-project-list-projects .icon-folder,
+.dropdown-project-list-projects .icon-folder svg {
+  fill: var(--design-link);
+}
+.dropdown-project-list-projects .empty-projects {
+  background-color: var(--design-danger);
+}
+.navbar {
+  background-color: var(--design-frame);
+}
+.navbar .nav-left .logo svg,
+.navbar .nav-right .active svg,
+.navbar .nav-right>.topnav-dropdown-wrapper:hover>a svg,
+.navbar .nav-right>a:hover svg,
+.navbar .nav-right svg,
+.navbar .nav-right [tg-dropdown-notifications] svg,
+.navbar .nav-right [tg-dropdown-notifications]:hover svg,
+.navbar [tg-dropdown-user]:hover .chevron svg {
+  fill: var(--design-on-frame);
+}
+.navbar [tg-dropdown-user]:hover .user-avatar img {
+  border-color: var(--design-on-frame);
+}
+.navbar [tg-dropdown-user] .dropdown-user-profile {
+  border-bottom-color: var(--design-border);
+}
+.navbar [tg-dropdown-user] .dropdown-user-data .full-name {
+  color: var(--design-text);
+}
+.navbar [tg-dropdown-user] .email {
+  color: var(--design-text-muted);
+}
+.navbar [tg-dropdown-user] .dropdown-user-inner {
+  border-left-color: var(--design-surface-2);
+}
+.navbar [tg-dropdown-user] .user-profile-option:last-child {
+  border-top-color: var(--design-border);
+}
+.navbar .user-avatar img {
+  border-color: var(--design-on-frame);
+}
+.navbar-dropdown {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-2);
+}
+.navbar-dropdown.dropdown-user ul:after,
+.navbar-dropdown.dropdown-user ul:before {
+  border-color: rgba(var(--design-surface-2-rgb), 0);
+  border-bottom-color: var(--design-surface-2);
+}
+.navbar-dropdown .plugin:hover .new {
+  color: var(--design-text);
+}
+.navbar-dropdown .plugin .new {
+  background-color: var(--design-danger-subtle);
+}
+.topnav-dropdown-wrapper .counter {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+.topnav-dropdown-wrapper .navbar-dropdown-notifications {
+  background-color: var(--design-surface-2);
+  box-shadow: var(--design-shadow-1);
+}
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .empty,
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .header {
+  color: var(--design-text-muted);
+}
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .header:after,
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .header:before {
+  border-color: rgba(var(--design-border-rgb), 0);
+  border-bottom-color: var(--design-border);
+}
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .action.disabled {
+  color: var(--design-text);
+}
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .action:not(.disabled) {
+  color: var(--design-link);
+}
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .action:not(.disabled):hover {
+  color: var(--design-text);
+}
+.topnav-dropdown-wrapper .navbar-dropdown-notifications .notifications-bottom {
+  border-top-color: var(--design-border);
+}
+.nav-bar-support ul:after,
+.nav-bar-support ul:before {
+  border-color: rgba(var(--design-surface-2-rgb), 0);
+  border-bottom-color: var(--design-surface-2);
+}
+.notifications-page .header {
+  background-color: var(--design-surface-2);
+}
+.notifications-page .title,
+.notifications-page .action {
+  color: var(--design-link);
+}
+.notifications-page .action.disabled {
+  color: var(--design-text);
+}
+.notifications-page .notifications-list .entry.new {
+  background-color: var(--design-success-subtle);
+}
+.notifications-page .notifications-list .entry .entry-project {
+  color: var(--design-text-muted);
+}
+.notifications-list .entry,
+.notifications-list .entry a.project-link,
+.notifications-list .entry a.user-link {
+  color: var(--design-text);
+}
+.notifications-list .entry.new {
+  background-color: var(--design-surface-1);
+}
+.notifications-list .entry.new .entry-date::after {
+  background-color: var(--design-danger);
+}
+.profile-favs {
+  border-top-color: var(--design-border);
+}
+.profile-filter {
+  background-color: var(--design-surface-3);
+}
+.profile-filter .searchbox .icon-search,
+.profile .empty-tab svg,
+.profile-bar .flag path {
+  fill: var(--design-text-muted);
+}
+.profile-filter .searchbox input {
+  border-bottom-color: transparent;
+}
+.profile-filter .searchbox input:focus {
+  border-bottom-color: var(--design-link);
+}
+.profile-filter .filters a {
+  color: var(--design-text-muted);
+}
+.profile-filter .filters a.active,
+.profile-filter .filters a:hover {
+  color: var(--design-text);
+}
+.profile .empty-tab p {
+  color: var(--design-text-muted);
+}
+.profile-bar .profile-edition {
+  background-color: rgba(var(--design-text-rgb), 0.4);
+  color: var(--design-on-primary);
+}
+.profile-bar .profile-edition:hover {
+  background-color: rgba(var(--design-text-rgb), 0.8);
+}
+.profile-bar .flag:hover path {
+  fill: var(--design-danger);
+}
+.profile-bar h2,
+.profile-bar .username,
+.profile-bar .location {
+  color: var(--design-text-muted);
+}
+.profile-bar .location path {
+  fill: var(--design-text-muted);
+}
+.profile-bar .profile-stats {
+  border-bottom-color: var(--design-border);
+  border-top-color: var(--design-border);
+  color: var(--design-text-muted);
+}
+.profile-contacts,
+.profile-content-tabs,
+.import-project-asana-form-selector li:first-child {
+  border-top-color: var(--design-border);
+}
+.profile-content-tabs .tab,
+.profile-content-tabs .tab.active,
+.profile-content-tabs .tab:hover {
+  color: var(--design-text-muted);
+}
+.profile-content-tabs .tab.active {
+  background-color: var(--design-surface-1);
+  border-left-color: var(--design-border);
+  border-right-color: var(--design-border);
+}
+.profile-content-tabs .icon {
+  fill: var(--design-text);
+  stroke: var(--design-text);
+}
+.profile-sidebar h4 {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+.profile-sidebar p {
+  color: var(--design-text-muted);
+}
+.lightbox-contact-project-name {
+  color: var(--design-link);
+}
+.import-project-asana-form .create-project-check .title {
+  color: var(--design-text);
+}
+.import-project-asana-form label {
+  color: var(--design-text-muted);
+}
+.import-project-asana-form input+label {
+  color: var(--design-text);
+}
+.import-project-asana-form input+label .icon {
+  fill: var(--design-text);
+}
+.import-project-asana-form-title-wrapper .icon {
+  fill: var(--design-link);
+  stroke: var(--design-success);
+}
+.import-project-asana-form-description,
+.import-project-asana-form-limit,
+.import-project-asana-form-import-type input:disabled+label,
+.import-project-asana-form-import-type input:disabled+label .icon,
+.import-project-asana-form-privacity input:disabled+label,
+.import-project-asana-form-privacity input:disabled+label .icon {
+  color: var(--design-text-muted);
+}
+.import-project-asana-form-import-type label,
+.import-project-asana-form-import-type label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-asana-form-import-type input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-asana-form-import-type label,
+.import-project-asana-form-privacity label,
+.import-project-asana-form-privacity label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-asana-form-privacity input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-asana-form-privacity input:checked+label {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.import-project-asana-form-privacity input:checked+label .icon {
+  fill: var(--design-on-primary);
+}
+.import-project-asana-form-privacity .icon {
+  fill: var(--design-on-primary);
+  stroke: var(--design-on-primary);
+}
+.import-project-asana-form-selector a {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.import-project-asana-form-selector a:hover,
+.import-project-asana-form-action-back,
+.import-project-asana-form-action-cancel {
+  color: currentColor;
+}
+.import-project-asana-form-selector li:hover {
+  background-color: var(--design-surface-active);
+}
+.import-project-asana-form-selector-question:hover svg {
+  fill: var(--design-success);
+}
+.import-project-asana-form-selector-question svg {
+  fill: var(--design-text);
+}
+.import-project-asana-form-action-back:hover,
+.import-project-asana-form-action-cancel:hover {
+  color: var(--design-success);
+}
+.import-project-asana-form-warning {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-danger-border);
+}
+.import-project-asana-form-warning .icon-alert {
+  fill: var(--design-danger);
+}
+.import-project-asana-form-warning p a {
+  color: var(--design-link);
+}
+.create-project-asana-import-type fieldset {
+  background-color: var(--design-surface-1);
+  border-right-color: var(--design-border);
+}
+.create-project-asana-import-type input:checked+label {
+  background-color: var(--design-success-subtle);
+}
+.create-project-asana-import-type label {
+  background-color: var(--design-surface-1);
+}
+.create-project-asana-import-type label:hover {
+  background-color: var(--design-success-subtle);
+}
+.create-project .create-project-check .title {
+  color: var(--design-text);
+}
+.create-project label {
+  color: var(--design-text-muted);
+}
+.create-project input+label {
+  color: var(--design-text);
+}
+.create-project input+label .icon {
+  fill: var(--design-text);
+}
+.create-project-title-wrapper .icon {
+  fill: var(--design-link);
+  stroke: var(--design-success);
+}
+.create-project-description,
+.create-project-limit,
+.create-project-import-type input:disabled+label,
+.create-project-import-type input:disabled+label .icon,
+.create-project-privacity input:disabled+label,
+.create-project-privacity input:disabled+label .icon {
+  color: var(--design-text-muted);
+}
+.create-project-import-type label,
+.create-project-import-type label:hover {
+  background-color: var(--design-surface-3);
+}
+.create-project-import-type input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.create-project-import-type label,
+.create-project-privacity label,
+.create-project-privacity label:hover {
+  background-color: var(--design-surface-3);
+}
+.create-project-privacity input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.create-project-privacity input:checked+label {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.create-project-privacity input:checked+label .icon {
+  fill: var(--design-on-primary);
+}
+.create-project-privacity .icon {
+  fill: var(--design-on-primary);
+  stroke: var(--design-on-primary);
+}
+.create-project-selector a {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.create-project-selector a:hover,
+.create-project-action-back,
+.create-project-action-cancel {
+  color: currentColor;
+}
+.create-project-selector li:hover {
+  background-color: var(--design-surface-active);
+}
+.create-project-selector li:first-child {
+  border-top-color: var(--design-border);
+}
+.create-project-selector-question:hover svg {
+  fill: var(--design-success);
+}
+.create-project-selector-question svg {
+  fill: var(--design-text);
+}
+.create-project-action-back:hover,
+.create-project-action-cancel:hover {
+  color: var(--design-success);
+}
+.create-project-warning {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-danger-border);
+}
+.create-project-warning .icon-alert {
+  fill: var(--design-danger);
+}
+.create-project-warning p a,
+.import-project-members .import-project-members-choose {
+  color: var(--design-link);
+}
+.import-project-members .import-project-members-match-true svg {
+  fill: var(--design-link);
+}
+.import-project-members .import-project-members-match-false svg,
+.import-project-members .import-project-members-delete svg {
+  fill: var(--design-danger);
+}
+.import-project-github-form .create-project-check .title {
+  color: var(--design-text);
+}
+.import-project-github-form label {
+  color: var(--design-text-muted);
+}
+.import-project-github-form input+label {
+  color: var(--design-text);
+}
+.import-project-github-form input+label .icon {
+  fill: var(--design-text);
+}
+.import-project-github-form-title-wrapper .icon {
+  fill: var(--design-link);
+  stroke: var(--design-success);
+}
+.import-project-github-form-description,
+.import-project-github-form-limit,
+.import-project-github-form-import-type input:disabled+label,
+.import-project-github-form-import-type input:disabled+label .icon,
+.import-project-github-form-privacity input:disabled+label,
+.import-project-github-form-privacity input:disabled+label .icon {
+  color: var(--design-text-muted);
+}
+.import-project-github-form-import-type label,
+.import-project-github-form-import-type label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-github-form-import-type input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-github-form-import-type label,
+.import-project-github-form-privacity label,
+.import-project-github-form-privacity label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-github-form-privacity input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-github-form-privacity input:checked+label {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.import-project-github-form-privacity input:checked+label .icon {
+  fill: var(--design-on-primary);
+}
+.import-project-github-form-privacity .icon {
+  fill: var(--design-on-primary);
+  stroke: var(--design-on-primary);
+}
+.import-project-github-form-selector a {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.import-project-github-form-selector a:hover,
+.import-project-github-form-action-back,
+.import-project-github-form-action-cancel {
+  color: currentColor;
+}
+.import-project-github-form-selector li:hover {
+  background-color: var(--design-surface-active);
+}
+.import-project-github-form-selector li:first-child {
+  border-top-color: var(--design-border);
+}
+.import-project-github-form-selector-question:hover svg {
+  fill: var(--design-success);
+}
+.import-project-github-form-selector-question svg {
+  fill: var(--design-text);
+}
+.import-project-github-form-action-back:hover,
+.import-project-github-form-action-cancel:hover {
+  color: var(--design-success);
+}
+.import-project-github-form-warning {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-danger-border);
+}
+.import-project-github-form-warning .icon-alert,
+.import-project-members-delete svg {
+  fill: var(--design-danger);
+}
+.import-project-github-form-warning p a,
+.create-project-github-import-type input:checked+label .create-project-github-import-type-name {
+  color: var(--design-link);
+}
+.create-project-github-import-type fieldset,
+.create-project-github-import-type label {
+  background-color: var(--design-surface-1);
+}
+.create-project-github-import-type label:hover {
+  background-color: var(--design-success-subtle);
+}
+.import-project-members-row {
+  border-bottom-color: var(--design-border);
+  border-top-color: var(--design-border);
+}
+.import-project-members .avatar.empty {
+  background-color: var(--design-surface-3);
+}
+.import-project-members-delete {
+  background: 0 0;
+}
+.import-project-members-match {
+  color: var(--design-text-muted);
+}
+.import-project-members-match button {
+  background-color: var(--design-surface-1);
+}
+.import-project-members-match-true {
+  border-color: var(--design-success-border);
+}
+.import-project-members-match-true:hover {
+  background-color: var(--design-success-subtle);
+}
+.import-project-members-match-true svg {
+  fill: var(--design-success);
+}
+.import-project-members-match-false {
+  border-color: var(--design-danger-border);
+}
+.import-project-members-match-false:hover {
+  background-color: rgba(var(--design-danger-rgb), 0.3);
+}
+.import-project-members-match-false svg {
+  fill: var(--design-danger);
+}
+.import-project-members-choose,
+.import-project-members-choose:hover {
+  color: var(--design-success);
+}
+.import-project-selector .import-project-selector-filter,
+.import-project-selector .import-project-selector-filter input {
+  background-color: var(--design-surface-3);
+}
+.import-project-selector .import-project-selector-filter svg {
+  fill: var(--design-text-muted);
+}
+.import-project-selector .import-project-selector-title {
+  border-bottom-color: var(--design-border);
+}
+.import-project-selector .import-project-selector-title:hover {
+  background-color: var(--design-success-subtle);
+}
+.import-project-from-site {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.import-project-from-site:hover {
+  background-color: var(--design-surface-active);
+}
+.import-project-from-site:first-child,
+.import-project-jira-form-selector li:first-child {
+  border-top-color: var(--design-border);
+}
+.import-project-description a {
+  color: var(--design-link);
+}
+.import-project-button {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.create-project-invite-avatar:hover,
+.create-project-invite-avatar.disabled:hover {
+  background-color: var(--design-border-strong);
+}
+.create-project-invite-avatar.disabled:hover::after,
+.create-project-invite-avatar.disabled:hover::before {
+  background-color: var(--design-text-muted);
+}
+.import-project-jira-form .create-project-check .title {
+  color: var(--design-text);
+}
+.import-project-jira-form label {
+  color: var(--design-text-muted);
+}
+.import-project-jira-form input+label {
+  color: var(--design-text);
+}
+.import-project-jira-form input+label .icon {
+  fill: var(--design-text);
+}
+.import-project-jira-form-title-wrapper .icon {
+  fill: var(--design-link);
+  stroke: var(--design-success);
+}
+.import-project-jira-form-description,
+.import-project-jira-form-limit,
+.import-project-jira-form-import-type input:disabled+label,
+.import-project-jira-form-import-type input:disabled+label .icon,
+.import-project-jira-form-privacity input:disabled+label,
+.import-project-jira-form-privacity input:disabled+label .icon {
+  color: var(--design-text-muted);
+}
+.import-project-jira-form-import-type label,
+.import-project-jira-form-import-type label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-jira-form-import-type input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-jira-form-import-type label,
+.import-project-jira-form-privacity label,
+.import-project-jira-form-privacity label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-jira-form-privacity input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-jira-form-privacity input:checked+label {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.import-project-jira-form-privacity input:checked+label .icon {
+  fill: var(--design-on-primary);
+}
+.import-project-jira-form-privacity .icon {
+  fill: var(--design-on-primary);
+  stroke: var(--design-on-primary);
+}
+.import-project-jira-form-selector a {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.import-project-jira-form-selector a:hover,
+.import-project-jira-form-action-back,
+.import-project-jira-form-action-cancel {
+  color: currentColor;
+}
+.import-project-jira-form-selector li:hover {
+  background-color: var(--design-surface-active);
+}
+.import-project-jira-form-selector-question:hover svg {
+  fill: var(--design-success);
+}
+.import-project-jira-form-selector-question svg {
+  fill: var(--design-text);
+}
+.import-project-jira-form-action-back:hover,
+.import-project-jira-form-action-cancel:hover {
+  color: var(--design-success);
+}
+.import-project-jira-form-warning {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-danger-border);
+}
+.import-project-jira-form-warning .icon-alert {
+  fill: var(--design-danger);
+}
+.import-project-jira-form-warning p a {
+  color: var(--design-link);
+}
+.create-project-type-issues-subform-radiogr input:checked+svg {
+  fill: rgba(var(--design-success-rgb), 0.6);
+  stroke: rgba(var(--design-success-rgb), 0.1);
+}
+.create-project-type-issues-subform-radiogr svg {
+  fill: var(--design-text-muted);
+  stroke: var(--design-text-muted);
+}
+.newsletter-email .subscribed,
+.newsletter-email .subscribed:hover {
+  background-color: var(--design-surface-2);
+}
+.newsletter-email .subscribed span,
+.newsletter-email label,
+.newsletter-email p {
+  color: var(--design-text);
+}
+.newsletter-email .check-sub {
+  fill: var(--design-success);
+}
+.newsletter-email .text-container,
+.newsletter-email .text-container .italic {
+  color: var(--design-text-muted);
+}
+tg-select-import-user-lightbox .candidate-user .user-list-avatar {
+  background-color: var(--design-danger);
+}
+tg-select-import-user-lightbox .error {
+  color: var(--design-danger);
+}
+tg-select-import-user-lightbox .search-user-mode:hover {
+  color: var(--design-success);
+}
+.import-project-trello-form .create-project-check .title {
+  color: var(--design-text);
+}
+.import-project-trello-form label {
+  color: var(--design-text-muted);
+}
+.import-project-trello-form input+label {
+  color: var(--design-text);
+}
+.import-project-trello-form input+label .icon {
+  fill: var(--design-text);
+}
+.import-project-trello-form-title-wrapper .icon {
+  fill: var(--design-link);
+  stroke: var(--design-success);
+}
+.import-project-trello-form-description,
+.import-project-trello-form-limit,
+.import-project-trello-form-import-type input:disabled+label,
+.import-project-trello-form-import-type input:disabled+label .icon,
+.import-project-trello-form-privacity input:disabled+label,
+.import-project-trello-form-privacity input:disabled+label .icon {
+  color: var(--design-text-muted);
+}
+.import-project-trello-form-import-type label,
+.import-project-trello-form-import-type label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-trello-form-import-type input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-trello-form-import-type label,
+.import-project-trello-form-privacity label,
+.import-project-trello-form-privacity label:hover {
+  background-color: var(--design-surface-3);
+}
+.import-project-trello-form-privacity input:checked+label {
+  background-color: var(--design-surface-active);
+}
+.import-project-trello-form-privacity input:checked+label {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.import-project-trello-form-privacity input:checked+label .icon {
+  fill: var(--design-on-primary);
+}
+.import-project-trello-form-privacity .icon {
+  fill: var(--design-on-primary);
+  stroke: var(--design-on-primary);
+}
+.import-project-trello-form-selector a {
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+.import-project-trello-form-selector a:hover,
+.import-project-trello-form-action-back,
+.import-project-trello-form-action-cancel {
+  color: currentColor;
+}
+.import-project-trello-form-selector li:hover {
+  background-color: var(--design-surface-active);
+}
+.import-project-trello-form-selector li:first-child {
+  border-top-color: var(--design-border);
+}
+.import-project-trello-form-selector-question:hover svg {
+  fill: var(--design-success);
+}
+.import-project-trello-form-selector-question svg {
+  fill: var(--design-text);
+}
+.import-project-trello-form-action-back:hover,
+.import-project-trello-form-action-cancel:hover {
+  color: var(--design-success);
+}
+.import-project-trello-form-warning {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-danger-border);
+}
+.import-project-trello-form-warning .icon-alert {
+  fill: var(--design-danger);
+}
+.import-project-trello-form-warning p a {
+  color: var(--design-link);
+}
+.warning-users-import-lightbox .actions .button-trans {
+  color: var(--design-text);
+}
+.profile-projects {
+  border-top-color: var(--design-border);
+}
+.profile-projects .list-itemtype-project .icon-blocked-project {
+  fill: var(--design-on-primary);
+  stroke: var(--design-danger);
+}
+.project-list-wrapper .project-list-title {
+  background-color: var(--design-surface-3);
+}
+.project-list-wrapper .project-list-title h1 {
+  color: var(--design-link);
+}
+.project-list-wrapper .icon-badge {
+  fill: var(--design-success);
+  stroke: var(--design-success);
+}
+.project-list-wrapper .import-project-button:hover .icon-upload {
+  fill: var(--design-success);
+}
+.project-list-wrapper .import-project-button .icon-upload {
+  fill: var(--design-on-primary);
+}
+.project-list-wrapper .help-area {
+  color: var(--design-text-muted);
+}
+.project-list-wrapper .list-itemtype-project {
+  background-color: rgba(var(--design-surface-1-rgb), 0.6);
+}
+.project-list-wrapper .list-itemtype-project:hover {
+  background-color: var(--design-success-subtle);
+}
+.project-list-wrapper .list-itemtype-project.archived-project {
+  background-color: var(--design-danger-subtle);
+}
+.project-list-wrapper .drag svg {
+  fill: var(--design-text-muted);
+}
+.project-list-wrapper .gu-transit {
+  background-color: var(--design-surface-3);
+}
+.project-list-wrapper .gu-mirror {
+  background-color: var(--design-surface-1);
+}
+.transfer-project-detail {
+  border-bottom-color: var(--design-border);
+  border-top-color: var(--design-border);
+}
+.transfer-project-statistics .transfer-project-members,
+.transfer-project-statistics .transfer-project-private {
+  color: var(--design-text);
+}
+.transfer-project-statistics svg,
+.transfer-project-comment-header .icon-close {
+  fill: var(--design-text);
+}
+.transfer-project-comment-link {
+  color: var(--design-link);
+}
+.transfer-project-comment-header .icon-close:hover {
+  fill: var(--design-danger);
+}
+.profile-timeline {
+  border-top-color: var(--design-border);
+}
+.profile-timeline .activity-item {
+  border-bottom-color: var(--design-border);
+}
+.profile-timeline .activity-item .username:first-child,
+.profile-timeline .activity-item a:first-child,
+.profile-timeline .activity-item .activity-info,
+.profile-timeline .activity-item .activity-date,
+.profile-timeline .activity-member-view p {
+  color: var(--design-text-muted);
+}
+.profile-timeline .single-attachment .icon {
+  fill: var(--design-text);
+}
+.navbar {
+  --design-focus: var(--design-on-frame);
+}
+
+.navbar .navbar-dropdown,
+.topnav-dropdown-wrapper .navbar-dropdown-notifications {
+  --design-focus: var(--design-link);
+}
+
+:focus {
+  outline-color: var(--design-focus, var(--design-link));
+}
+
+.navbar .nav-left > a,
+.navbar .nav-right > a,
+.navbar .nav-right > .topnav-dropdown-wrapper > a,
+.navbar .dropdown-project-list > a,
+.navbar .dropdown-user-navbar > a,
+.navbar .dropdown-user-navbar > button {
+  color: var(--design-on-frame);
+}
+
+.navbar .nav-right > a:hover,
+.navbar .nav-right > .topnav-dropdown-wrapper:hover > a,
+.navbar .dropdown-project-list > a:hover,
+.navbar [tg-dropdown-user]:hover {
+  background-color: var(--design-frame-hover);
+  color: var(--design-on-frame);
+}
+
+.discover-header {
+  background-image: none;
+}
+
+tg-project-menu {
+  background-color: var(--design-frame);
+}
+
+tg-legacy-loader {
+  --color-black800: var(--design-frame);
+  --color-black900: var(--design-frame-active);
+  --color-gray400: var(--design-on-frame);
+  --color-white: var(--design-on-frame);
+  --color-solid-primary: var(--design-on-frame);
+  --color-link-primary: var(--design-on-frame);
+  --design-focus: var(--design-on-frame);
+}
+{% if design.logo is string %}
+
+.navbar .nav-left .logo {
+  background: url("{{ design.urls.logo.svg }}") center / 2.2rem 2.2rem no-repeat;
+}
+
+.auth .logo-svg {
+  background: url("{{ design.urls['logo-auth'].svg }}") center / 8rem 8rem no-repeat;
+}
+
+.navbar .nav-left .logo svg,
+.auth .logo-svg svg {
+  visibility: hidden;
+}
+{% endif %}

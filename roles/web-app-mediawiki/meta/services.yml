@@ -85,6 +85,14 @@ design:
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
   title: Wiki on {{ DOMAIN_PRIMARY | upper }}
+  slots:
+    icon:
+      width: 100
+      height: 100
+    wordmark:
+      width: 320
+      height: 64
+      text_only: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

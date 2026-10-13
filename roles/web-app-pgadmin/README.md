@@ -27,10 +27,11 @@ This Docker Compose deployment uses Ansible automation to launch pgAdmin togethe
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
 
-## Other Resources
+## Further Resources
 
 - [pgAdmin Official Homepage](https://www.pgadmin.org/)
 - [pgAdmin Documentation](https://www.pgadmin.org/docs/)
+- [Corporate design review: screenshots in light, dark and desktop](https://claude.ai/artifact/QvGNAugdfpWe5Ed7SqeDRX)
 
 ## Persona contract opt-outs
 

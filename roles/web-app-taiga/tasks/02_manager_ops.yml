@@ -39,6 +39,18 @@
     dest: "{{ TAIGA_FRONTEND_CONF_PATH }}"
   notify: compose-up
 
+- name: "🎨 render the design plugin of the Taiga front"
+  stack_host_template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: "design/infinito-design.json.j2", dest: "{{ TAIGA_DESIGN_PLUGIN_MANIFEST_PATH }}" }
+    - { src: "design/infinito-design.css.j2", dest: "{{ TAIGA_DESIGN_PLUGIN_CSS_PATH }}" }
+  loop_control:
+    label: "{{ item.src }}"
+  when: TAIGA_DESIGN_ENABLED | bool
+  notify: compose-up
+
 - name: "🚿 Flush Taiga handlers"
   meta: flush_handlers
 

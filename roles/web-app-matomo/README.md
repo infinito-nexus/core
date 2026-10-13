@@ -13,7 +13,9 @@ This role deploys Matomo using Docker, automating the setup of your analytics pl
 - **Real-Time Analytics:** Monitor visitor activity and generate detailed insights instantly.
 - **Robust Tracking:** Track user interactions across your website with comprehensive analytics tools.
 - **Privacy-First:** Enjoy a self-hosted solution that prioritizes data ownership and privacy.
-- **Customizable Setup:** Configure database connections, admin credentials, and server settings via environment variables and a TOML configuration file.
+- **Customizable Setup:** Configure database connections, admin credentials, and server settings via environment variables and Matomo's `config/config.ini.php`, which the role patches on every deploy.
+- **Administrator Password:** The superuser password converges to the configured administrator's password on every deploy.
+- **Corporate Design:** The InfinitoDesign theme plugin maps Matomo's theme colors onto the design tokens and ships the logo set; the administrator and the login page follow the browser color scheme. Both are removed when `design` is off.
 - **Scalable Deployment:** Use Docker to ensure your analytics platform can grow with your traffic demands.
 
 ## Further Resources

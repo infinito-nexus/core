@@ -213,6 +213,7 @@ async function signInViaNativePassword(page, email, password, personaLabel) {
     passwordField,
     `${personaLabel}: native sign-in password field must be visible`
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(30_000) });
 
   await emailField.fill(email);
   await passwordField.fill(password);
@@ -249,6 +250,7 @@ async function signInViaLdap(page, username, password, personaLabel) {
     passwordField,
     `${personaLabel}: LDAP password field must be visible on the auth page`
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(30_000) });
 
   await usernameField.fill(username);
   await passwordField.fill(password);
