@@ -1,0 +1,17 @@
+{% set design = lookup('design', application_id) %}
+{% if design.logo is string %}
+(function () {
+  var favicon = {{ design.urls.favicon_ico | to_json }};
+  function brandIcon() {
+    var icons = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < icons.length; index += 1) {
+      if (icons[index].getAttribute("href") !== favicon) {
+        icons[index].setAttribute("href", favicon);
+      }
+    }
+  }
+  new MutationObserver(brandIcon).observe(document.head || document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["href"] });
+  brandIcon();
+  document.addEventListener("DOMContentLoaded", brandIcon);
+})();
+{% endif %}
