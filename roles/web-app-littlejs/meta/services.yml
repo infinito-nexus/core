@@ -47,7 +47,7 @@ littlejs:
   repository: https://github.com/KilledByAPixel/LittleJS.git
   ref: main
   image: nginx
-  version: 1.31.6-alpine
+  version: 1.31.7-alpine
   custom: true
   ports:
     local:
