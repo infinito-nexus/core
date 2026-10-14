@@ -25,7 +25,7 @@ const LOGO_URL = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const SSO_ENABLED = process.env.SSO_SERVICE_ENABLED === "true";
 const DESIGN_ENABLED = process.env.DESIGN_SERVICE_ENABLED === "true";
 const KEYCLOAK = /\/protocol\/openid-connect\//;
-const SIGNED_IN = 'a.lam-menu-entry[href$="/templates/logout.php"]';
+const SIGNED_IN = '#lam-topnav a.lam-menu-entry[href$="/templates/lists/list.php?type=user"]';
 const LOGIN_BUTTON = 'button[name="checklogin"]';
 const INHOUSE_SHEET = 'link[href$="/style/900_infinito.css"]';
 
