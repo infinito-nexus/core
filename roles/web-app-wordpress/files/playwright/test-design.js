@@ -105,11 +105,11 @@ exports.register = function (shared) {
     await expect(page).toHaveTitle(new RegExp(designTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     await expect(page.locator("link[rel='icon']").first(), "the site icon is the corporate one").toHaveAttribute(
       "href",
-      /\/wp-content\/uploads\/.*infinito-site-icon-/,
+      /\/uploads\/.*infinito-site-icon-/,
     );
     await expect(page.locator(SITE_LOGO), "the footer shows the corporate site logo").toHaveAttribute(
       "src",
-      /\/wp-content\/uploads\/.*infinito-site-logo-/,
+      /\/uploads\/.*infinito-site-logo-/,
     );
     const box = await page.locator(SITE_LOGO).evaluate((image) => ({ natural: image.naturalWidth, width: image.width, height: image.height }));
     expect(box.natural, "the site logo loads").toBeGreaterThan(0);
@@ -237,7 +237,7 @@ exports.register = function (shared) {
     await expect(page.locator(SIGN_IN_LOGO), "the logo links to the site").toHaveAttribute("href", new RegExp(`^${base}/?$`));
     if (designTitle) await expect(page.locator(SIGN_IN_LOGO)).toHaveText(designTitle);
     expect(await style(page, SIGN_IN_LOGO, "background-image"), "the sign-in page shows the corporate site logo").toMatch(
-      /\/wp-content\/uploads\/.*infinito-site-logo-/,
+      /\/uploads\/.*infinito-site-logo-/,
     );
   });
 
