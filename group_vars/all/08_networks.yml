@@ -1,4 +1,6 @@
 ---
+# clearnet | tor | multi; empty derives multi when svc-net-tor is deployed, else clearnet.
+NETWORK_MODE: ""
 NETWORK_IPV6_ENABLED: false
 NETWORK_PUBLIC_DNS_RESOLVERS:
   - 1.1.1.1 # nocheck: hardcoded-dns-resolver

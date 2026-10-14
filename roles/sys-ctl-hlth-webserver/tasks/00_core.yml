@@ -32,10 +32,9 @@
     system_service_tpl_environment: "{{ CA_TRUST_SYSTEMD_ENV_SELFSIGNED }}"
     system_service_tpl_exec_start: >
       {{ system_service_script_exec }}
-      --web-protocol {{ lookup('tls', DOMAIN_PRIMARY, 'protocols.web') }}
-      --expectations '{{ lookup('applications') | web_health_expectations(www_enabled=WWW_REDIRECT_ENABLED | bool, group_names=lookup('deployment').deployed, primary_domain=DOMAIN_PRIMARY,
-      node_onion=lookup('config', 'svc-net-tor', 'services.tor.node', '')) | to_json
-      }}'
+      --targets '{{ lookup('applications') | web_health_expectations(www_enabled=WWW_REDIRECT_ENABLED | bool, group_names=lookup('deployment').deployed, primary_domain=DOMAIN_PRIMARY,
+      node_onion=lookup('config', 'svc-net-tor', 'services.tor.node', ''), served_domains=lookup('domains'))
+      | web_health_targets(lookup('applications'), lookup('domains'), TLS_ENABLED) | to_json }}'
     system_service_force_flush_final: true
 
 - include_tasks: utils/once/flag.yml

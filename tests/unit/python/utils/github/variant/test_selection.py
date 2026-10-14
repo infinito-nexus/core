@@ -19,7 +19,7 @@ class TestParseAscii(unittest.TestCase):
     def test_every_axis_is_read(self) -> None:
         self.assertEqual(
             selection.parse("web-app-a#0,2@swarm+tor%debian/zfs"),
-            selection.Pin("web-app-a", (0, 2), "swarm", True, "debian", "zfs"),
+            selection.Pin("web-app-a", (0, 2), "swarm", "tor", "debian", "zfs"),
         )
 
     def test_the_distro_and_filesystem_are_optional_like_the_rest(self) -> None:
@@ -44,8 +44,12 @@ class TestParseAscii(unittest.TestCase):
         token = "web-app-a#0,2@swarm+tor%debian/zfs"
         self.assertEqual(selection.describe(selection.parse(token)), token)
 
-    def test_clearnet_is_the_other_onion_state(self) -> None:
-        self.assertFalse(selection.parse("web-app-a@compose+clearnet").tor)
+    def test_every_network_word_pins_its_network_mode(self) -> None:
+        for word in ("clearnet", "tor", "multi"):
+            with self.subTest(word=word):
+                self.assertEqual(
+                    selection.parse(f"web-app-a@compose+{word}").network, word
+                )
 
     def test_a_role_id_ending_in_tor_is_not_read_as_an_axis(self) -> None:
         self.assertEqual(selection.parse("svc-net-tor"), selection.Pin("svc-net-tor"))
@@ -54,7 +58,7 @@ class TestParseAscii(unittest.TestCase):
         with self.assertRaises(SystemExit):
             selection.parse("web-app-a@swrm")
 
-    def test_an_unknown_onion_state_aborts(self) -> None:
+    def test_an_unknown_network_mode_aborts(self) -> None:
         with self.assertRaises(SystemExit):
             selection.parse("web-app-a+onion")
 
@@ -64,17 +68,21 @@ class TestParseAscii(unittest.TestCase):
 
 
 class TestParseLabel(unittest.TestCase):
-    def _label(self, mode: str, tor: str) -> str:
-        return f"{to_emoji(mode)}{to_emoji(tor)}web-app-a#2"
+    def _label(self, mode: str, network: str) -> str:
+        return f"{to_emoji(mode)}{to_emoji(network)}web-app-a#2"
 
-    def test_the_glyphs_carry_mode_and_onion(self) -> None:
+    def test_the_glyphs_carry_mode_and_network_mode(self) -> None:
         self.assertEqual(
             selection.parse(self._label("swarm", "tor")),
-            selection.Pin("web-app-a", (2,), "swarm", True),
+            selection.Pin("web-app-a", (2,), "swarm", "tor"),
         )
 
-    def test_the_clearnet_glyph_pins_the_clearnet_state(self) -> None:
-        self.assertFalse(selection.parse(self._label("compose", "clearnet")).tor)
+    def test_every_network_glyph_pins_its_network_mode(self) -> None:
+        for word in ("clearnet", "tor", "multi"):
+            with self.subTest(word=word):
+                self.assertEqual(
+                    selection.parse(self._label("compose", word)).network, word
+                )
 
     def test_the_priority_star_is_not_part_of_the_name(self) -> None:
         pasted = f"{self._label('compose', 'tor')} {to_emoji('priority')}"
@@ -93,7 +101,7 @@ class TestParseLabel(unittest.TestCase):
         )
         self.assertEqual(
             selection.parse(pasted),
-            selection.Pin("web-app-a", (2,), "swarm", True, "fedora", "btrfs"),
+            selection.Pin("web-app-a", (2,), "swarm", "tor", "fedora", "btrfs"),
         )
 
     def test_a_title_pasted_with_its_caller_path_aborts_rather_than_guessing(
@@ -136,11 +144,11 @@ class TestApply(unittest.TestCase):
     def test_the_pinned_axes_ride_along_on_the_row(self) -> None:
         kept = selection.apply(_ROWS, selection.parse_list("web-app-a#0@swarm+tor"))
         self.assertEqual(kept[0]["pin_mode"], "swarm")
-        self.assertTrue(kept[0]["pin_tor"])
+        self.assertEqual(kept[0]["pin_network"], "tor")
 
     def test_an_unpinned_row_carries_open_axes(self) -> None:
         kept = selection.apply(_ROWS, selection.parse_list("web-app-b"))
-        self.assertEqual([kept[0]["pin_mode"], kept[0]["pin_tor"]], [None, None])
+        self.assertEqual([kept[0]["pin_mode"], kept[0]["pin_network"]], [None, None])
         self.assertEqual(
             [kept[0]["pin_distro"], kept[0]["pin_filesystem"]], [None, None]
         )
@@ -162,9 +170,18 @@ class TestApply(unittest.TestCase):
             selection.parse_list("web-app-a#0@compose+tor web-app-a#0@swarm+tor"),
         )
         self.assertEqual(
-            [(row["variant"], row["pin_mode"], row["pin_tor"]) for row in kept],
-            [(0, "compose", True), (0, "swarm", True)],
+            [(row["variant"], row["pin_mode"], row["pin_network"]) for row in kept],
+            [(0, "compose", "tor"), (0, "swarm", "tor")],
         )
+
+    def test_one_variant_that_failed_in_two_network_modes_comes_back_twice(
+        self,
+    ) -> None:
+        kept = selection.apply(
+            _ROWS,
+            selection.parse_list("web-app-a#0@swarm+tor web-app-a#0@swarm+multi"),
+        )
+        self.assertEqual([row["pin_network"] for row in kept], ["tor", "multi"])
 
     def test_the_same_narrowing_written_twice_stays_one_deploy(self) -> None:
         kept = selection.apply(

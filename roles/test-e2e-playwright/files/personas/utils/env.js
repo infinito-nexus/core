@@ -7,7 +7,7 @@
 
 const { test } = require("@playwright/test");
 const { isServiceEnabled } = require("../../service-gating");
-const { resolveTimeout } = require("../../timeouts");
+const { isOnionTarget, resolveTimeout } = require("../../timeouts");
 const { installCspHeaderRecorder } = require("./csp");
 
 function decodeDotenvQuoted(value) {
@@ -29,9 +29,9 @@ function readEnv(name) {
   return decodeDotenvQuoted(process.env[name] || "");
 }
 
-/** True when the role under test is served over a `.onion` (Tor) canonical domain. */
+/** True when the role under test is served over a `.onion` (Tor) domain. */
 function isOnionCanonical() {
-  return /\.onion$/i.test(readEnv("CANONICAL_DOMAIN").trim());
+  return isOnionTarget();
 }
 
 /**

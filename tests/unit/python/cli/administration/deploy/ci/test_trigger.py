@@ -206,7 +206,7 @@ class TestTriggerMain(unittest.TestCase):
             "apps": f"web-app-{name}",
             "variant": "0",
             "mode": "compose",
-            "tor": "false",
+            "network": "clearnet",
             "distro": DISTROS[0],
             "filesystem": FILESYSTEMS[0],
             "priority": "false",

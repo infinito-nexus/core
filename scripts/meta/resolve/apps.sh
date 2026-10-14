@@ -15,7 +15,7 @@ set -euo pipefail
 #   INFINITO_MODES                 'auto' or a subset of 'host compose swarm'
 #   INFINITO_WHITELIST             optional space-separated app ids to keep
 #   INFINITO_PRIORITY              optional space-separated app ids to lead
-#   INFINITO_TOR                   auto|enforced|exclusive|disabled
+#   INFINITO_NETWORK               auto|clearnet|tor|multi
 #   INFINITO_DISTROS               distro pool the rows are spread over; empty: all
 #   INFINITO_DOCKER_FILESYSTEM_ALLOWED  filesystem pool; empty: all
 #   INFINITO_LIFECYCLES            lifecycle envelope for discovery
@@ -66,7 +66,7 @@ matrix_json="$(
 		--whitelist "${INFINITO_WHITELIST}" \
 		--priority "${INFINITO_PRIORITY}" \
 		--lifecycles "${INFINITO_LIFECYCLES}" \
-		--tor "${INFINITO_TOR}" \
+		--network "${INFINITO_NETWORK}" \
 		--distros "${INFINITO_DISTROS}" \
 		--filesystem "${INFINITO_DOCKER_FILESYSTEM_ALLOWED}"
 )"

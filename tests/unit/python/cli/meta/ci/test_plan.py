@@ -11,6 +11,7 @@ def _entry(
     variant: str,
     mode: str,
     *,
+    network: str = "clearnet",
     priority: bool = False,
     identifier: str = "0",
     covered: str = "0",
@@ -21,7 +22,7 @@ def _entry(
         "apps": app,
         "variant": variant,
         "mode": mode,
-        "tor": "true" if variant == "0" else "false",
+        "network": network,
         "disable": "",
         "priority": "true" if priority else "false",
         "instructions": instructions,
@@ -34,9 +35,11 @@ def _entry(
     }
 
 
-_PRIORITY = [_entry("web-app-a", "0", "compose", priority=True, identifier="3")]
+_PRIORITY = [
+    _entry("web-app-a", "0", "compose", network="tor", priority=True, identifier="3")
+]
 _REGULAR = [
-    _entry("web-app-b", "0", "swarm", identifier="5"),
+    _entry("web-app-b", "0", "swarm", network="multi", identifier="5"),
     _entry("web-app-b", "1", "compose", identifier="9"),
 ]
 _CUT = [_entry("web-app-c", "0", "compose", identifier="11", covered="5")]
@@ -118,11 +121,19 @@ class TestCells(unittest.TestCase):
         rows = plan.cells(entries, [_PRIORITY, _REGULAR])
         self.assertEqual([row[identifier] for row in rows], ["1", "2", "3", "4", "5"])
 
-    def test_the_tor_state_is_rendered_as_its_glyph(self) -> None:
+    def test_the_network_mode_is_rendered_as_its_glyph(self) -> None:
         rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
-        tor = plan._COLUMNS.index("tor")
-        self.assertEqual(rows[0][tor], to_emoji("tor"))
-        self.assertEqual(rows[2][tor], to_emoji("clearnet"))
+        network = plan._COLUMNS.index("network")
+        self.assertEqual(rows[0][network], to_emoji("tor"))
+        self.assertEqual(rows[1][network], to_emoji("multi"))
+        self.assertEqual(rows[2][network], to_emoji("clearnet"))
+
+    def test_each_network_mode_of_one_row_reports_its_own_chunk(self) -> None:
+        tor = _entry("web-app-a", "0", "compose", network="tor", priority=True)
+        multi = _entry("web-app-a", "0", "compose", network="multi", priority=True)
+        rows = plan.cells([tor, multi], [[tor]])
+        chunk = plan._COLUMNS.index("chunk")
+        self.assertEqual([row[chunk] for row in rows], ["0", ""])
 
     def test_every_row_carries_its_own_distro_and_filesystem_glyph(self) -> None:
         rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
@@ -142,6 +153,10 @@ class TestRender(unittest.TestCase):
         self.assertEqual(out.count("\n|---"), 1)
         self.assertIn(f"{to_emoji('chunk')} Chunk", out)
         self.assertIn("web-app-a", out)
+
+    def test_the_network_column_is_headed_by_the_multi_glyph(self) -> None:
+        out = plan.render_markdown("sweep 0", self._rows())
+        self.assertIn(f"{to_emoji('multi')} Network", out)
 
     def test_markdown_keeps_one_line_per_row(self) -> None:
         out = plan.render_markdown("sweep 0", self._rows())

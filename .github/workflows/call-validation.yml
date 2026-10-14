@@ -37,8 +37,8 @@ on:
         required: false
         type: string
         default: "auto"
-      tor:
-        description: "🧅 Tor axis of the run; decides whether a pinned onion state is reachable."
+      network:
+        description: "🌈 Network axis of the run; decides whether a pinned network mode is reachable."
         required: false
         type: string
         default: "auto"
@@ -139,7 +139,7 @@ jobs:
           INPUT_WHITELIST: ${{ inputs.whitelist }}
           INPUT_PRIORITY: ${{ inputs.priority }}
           INPUT_MODE: ${{ inputs.mode }}
-          INPUT_TOR: ${{ inputs.tor }}
+          INPUT_NETWORK: ${{ inputs.network }}
           INPUT_DISTROS: ${{ inputs.distros }}
           INPUT_FILESYSTEM: ${{ inputs.filesystem }}
           INPUT_LIFECYCLES: ${{ inputs.lifecycles }}

@@ -2,7 +2,7 @@
 
 Usage:
   python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]
-      [--whitelist "..."] [--priority "..."] [--lifecycles "..."] [--tor auto]
+      [--whitelist "..."] [--priority "..."] [--lifecycles "..."] [--network auto]
       [--distros "..."] [--filesystem "..."]
 
 This is the pipeline the deploy jobs discover through, and the single place
@@ -15,7 +15,7 @@ the run's shape is decided:
    Concatenated, they are the sweep's ordered candidate list. Both lists are
    selection tokens (:mod:`utils.github.variant.selection`): what a token pins
    narrows the row, what it leaves open the line decides as it always did.
-2. Every row is assigned its deploy mode, tor state, distro and filesystem by
+2. Every row is assigned its deploy mode, network mode, distro and filesystem by
    its position in that list (:mod:`utils.github.variant.axes`).
 3. The list is cut into serial chunks with a hard boundary at the
    priority/regular seam (:mod:`cli.meta.ci.chunks`), sized by the run's job
@@ -35,7 +35,7 @@ import sys
 
 from cli.meta.ci import chunks, query, slots
 from utils.cache.applications import get_variants
-from utils.github.variant import axes, instructions, pools, selection, tor
+from utils.github.variant import axes, instructions, network, pools, selection
 from utils.roles.display import display_names
 
 DROPPED = ("priority", "id", "covered", "clone")
@@ -88,7 +88,7 @@ def entries_of(
     priority: str,
     lifecycles: str,
     sweep: int,
-    tor_mode: str,
+    network_input: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
 ) -> list[dict[str, str]]:
@@ -101,7 +101,7 @@ def entries_of(
             lifecycles=lifecycles,
         ),
         sweep=sweep,
-        tor_mode=tor_mode,
+        network_input=network_input,
         distros=distros,
         filesystems=filesystems,
         variants_per_app=get_variants(),
@@ -183,7 +183,7 @@ def build_sweep(
     priority: str,
     lifecycles: str,
     sweep: int,
-    tor_mode: str,
+    network_input: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
     offset: int = 0,
@@ -196,7 +196,7 @@ def build_sweep(
             priority=priority,
             lifecycles=lifecycles,
             sweep=sweep,
-            tor_mode=tor_mode,
+            network_input=network_input,
             distros=distros,
             filesystems=filesystems,
         ),
@@ -214,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--whitelist", default="")
     parser.add_argument("--priority", default="")
     parser.add_argument("--lifecycles", default="")
-    parser.add_argument("--tor", default=None)
+    parser.add_argument("--network", default=None)
     parser.add_argument("--distros", default="")
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--offset", default=None)
@@ -231,7 +231,7 @@ def main(argv: list[str] | None = None) -> int:
         priority=codec.decode_list(args.priority),
         lifecycles=args.lifecycles,
         sweep=sweep,
-        tor_mode=tor.resolve_tor_mode(args.tor),
+        network_input=network.resolve_network_input(args.network),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
         offset=resolve_offset(args.offset),

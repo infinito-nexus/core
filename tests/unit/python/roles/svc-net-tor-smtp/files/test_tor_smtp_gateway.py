@@ -16,6 +16,8 @@ import types
 import unittest
 import unittest.mock as mock
 
+from utils.domains.default_primary import default_domain_primary
+
 from . import PROJECT_ROOT
 
 MODULE = (
@@ -104,7 +106,7 @@ class TestRcptGate(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(env.rcpt_tos, ["biber@abc.onion"])
 
     async def test_a_clearnet_recipient_is_refused(self):
-        reply, env = await self._rcpt("biber@infinito.test")
+        reply, env = await self._rcpt(f"biber@{default_domain_primary()}")
         self.assertTrue(reply.startswith("550"))
         self.assertEqual(env.rcpt_tos, [])
 

@@ -11,8 +11,11 @@ from ansible.errors import AnsibleError
 from plugins.lookup.users import LookupModule, _reset_cache_for_tests
 from utils.cache import base as runtime_data_base
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.paths import FILE_TOKENS
 from utils.roles.mapping import ROLE_FILE_META_USERS
+
+DOMAIN = default_domain_primary()
 
 
 def _write_users(base_dir: Path, role_name: str, users: dict) -> None:
@@ -190,11 +193,11 @@ class TestUsersLookup(unittest.TestCase):
 
         result = self.lookup.run(
             ["sld"],
-            variables={"domain": "auth.infinito.test"},
+            variables={"domain": f"auth.{DOMAIN}"},
             roles_dir=str(self._tmp / "roles"),
         )[0]
 
-        self.assertEqual(result["username"], "infinito")
+        self.assertEqual(result["username"], DOMAIN.split(".", maxsplit=1)[0])
 
     def test_materializes_sld_from_env_backed_domain_primary(self) -> None:
         _write_users(

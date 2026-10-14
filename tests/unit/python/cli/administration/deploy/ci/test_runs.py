@@ -431,16 +431,16 @@ class TestConfigFromTitle(unittest.TestCase):
         with self.assertRaises(SystemExit):
             runs.untriggered_priority("web-app-a 网络应用·Funkwha...", {})
 
-    def test_the_tor_mode_is_carried_over_from_the_job_log(self) -> None:
+    def test_the_network_mode_is_carried_over_from_the_job_log(self) -> None:
         title = render({"mode": "swarm"})
         self.assertEqual(
-            runs.config_from_run(title, {"tor": "exclusive"})["tor"], "exclusive"
+            runs.config_from_run(title, {"network": "tor"})["network"], "tor"
         )
 
-    def test_a_run_whose_log_records_no_tor_mode_carries_none(self) -> None:
+    def test_a_run_whose_log_records_no_network_mode_carries_none(self) -> None:
         title = render({"mode": "swarm"})
-        self.assertNotIn("tor", runs.config_from_run(title, {}))
-        self.assertNotIn("tor", runs.config_from_run(title))
+        self.assertNotIn("network", runs.config_from_run(title, {}))
+        self.assertNotIn("network", runs.config_from_run(title))
 
     def _suite_job(self, suite: str, conclusion: str) -> dict:
         return {

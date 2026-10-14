@@ -1,0 +1,8 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: OpenSearch Dashboards (Kibana-derived) bootstraps via inline <script> tags injected by its plugin loader; blocking inline scripts breaks the dashboard shell before it can render.
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: OpenSearch Dashboards' bundled AngularJS runtime and Vega/Timelion visualization expressions evaluate code dynamically at runtime; blocking eval breaks those code paths, same as every other Kibana/OpenSearch-Dashboards-family role in this repo (e.g. web-app-checkmk).
+whitelist:
+  worker-src:
+    - "blob:"

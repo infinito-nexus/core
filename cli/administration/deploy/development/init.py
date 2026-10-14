@@ -170,6 +170,7 @@ def handler(args: argparse.Namespace) -> int:
             extra_vars=extra_vars,
             services_disabled=services_disabled,
             active_variants=round_variants,
+            network_mode=os.environ.get("network", ""),
         )
         build_dev_inventory(compose, spec)
 

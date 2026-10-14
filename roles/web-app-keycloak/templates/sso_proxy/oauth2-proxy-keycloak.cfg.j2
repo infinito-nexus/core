@@ -6,7 +6,7 @@ upstreams               =   "http://{{ ((sso_proxy_application_id | get_entity_n
 {% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
 {% set _domain_list = lookup('domains', sso_proxy_application_id) | domain_strings %}
 {% set _has_onion = _tor_node != '' and (_domain_list | select('search', _tor_node) | list | length > 0) %}
-{% set _clearnet_domains = _domain_list | reject('search', '\.onion$') | list %}
+{% set _clearnet_domains = _domain_list | in_network('clearnet') %}
 {% set _has_clearnet = _clearnet_domains | length > 0 %}
 {% if _has_clearnet %}
 cookie_domains          =   ["{{ _clearnet_domains | common_dns_suffix }}", "{{ lookup('domain', 'web-app-keycloak') }}"]

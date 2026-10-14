@@ -3,6 +3,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from utils.domains.default_primary import default_domain_primary
+
+DOMAIN = default_domain_primary()
+
 
 def load_module_from_path(mod_name: str, path: str):
     """Dynamically load a module from a filesystem path."""
@@ -559,92 +563,128 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
 
     ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
 
-    def _tor_app(self, canonical=None, status_codes=None, **tor):
+    def _app_a(self, canonical=None, status_codes=None, aliases=None):
         returns = {
             ("app-a", "domains.canonical"): (
-                ["a.infinito.test"] if canonical is None else canonical
+                [f"a.{DOMAIN}"] if canonical is None else canonical
             ),
         }
         if status_codes is not None:
             returns[("app-a", "server.status_codes")] = status_codes
+        if aliases is not None:
+            returns[("app-a", "domains.aliases")] = aliases
         self._configure_returns(returns)
-        return {"app-a": {"services": {"tor": {"enabled": True, **tor}}}}
+        return {"app-a": {}}
 
-    def test_onion_exclusive_replaces_clearnet(self):
-        apps = self._tor_app(exclusive=True)
-        out = self.mod.web_health_expectations(
+    def _served(self, apps, served):
+        return self.mod.web_health_expectations(
             apps,
-            group_names=["app-a"],
-            primary_domain="infinito.test",
+            group_names=list(apps),
+            primary_domain=DOMAIN,
             node_onion=self.ONION,
+            served_domains=served,
         )
+
+    def test_served_tor_only_replaces_clearnet(self):
+        out = self._served(self._app_a(), {"app-a": [f"a.{self.ONION}"]})
         self.assertEqual(out, {f"a.{self.ONION}": [200, 302, 301]})
 
-    def test_onion_dual_adds_onion_alongside_clearnet(self):
-        apps = self._tor_app(exclusive=False)
-        out = self.mod.web_health_expectations(
-            apps,
-            group_names=["app-a"],
-            primary_domain="infinito.test",
-            node_onion=self.ONION,
-        )
+    def test_served_multi_lists_both_networks(self):
+        out = self._served(self._app_a(), {"app-a": [f"a.{DOMAIN}", f"a.{self.ONION}"]})
         self.assertEqual(
             out,
             {
-                "a.infinito.test": [200, 302, 301],
+                f"a.{DOMAIN}": [200, 302, 301],
                 f"a.{self.ONION}": [200, 302, 301],
             },
         )
 
-    def test_onion_inherits_clearnet_status_codes(self):
-        apps = self._tor_app(
-            canonical={"default": ["a.infinito.test"]},
-            status_codes={"default": [301, 200]},
-            exclusive=True,
+    def test_served_onion_inherits_clearnet_status_codes(self):
+        out = self._served(
+            self._app_a(
+                canonical={"default": [f"a.{DOMAIN}"]},
+                status_codes={"default": [301, 200]},
+            ),
+            {
+                "app-a": {
+                    "default": f"a.{DOMAIN}",
+                    "default_onion": f"a.{self.ONION}",
+                }
+            },
         )
-        out = self.mod.web_health_expectations(
-            apps,
-            group_names=["app-a"],
-            primary_domain="infinito.test",
-            node_onion=self.ONION,
+        self.assertEqual(
+            out, {f"a.{DOMAIN}": [301, 200], f"a.{self.ONION}": [301, 200]}
         )
-        self.assertEqual(out, {f"a.{self.ONION}": [301, 200]})
 
-    def test_onion_disabled_app_stays_clearnet(self):
-        self._configure_returns({("app-a", "domains.canonical"): ["a.infinito.test"]})
-        apps = {"app-a": {"services": {"tor": {"enabled": False}}}}
-        out = self.mod.web_health_expectations(
-            apps,
-            group_names=["app-a"],
-            primary_domain="infinito.test",
-            node_onion=self.ONION,
+    def test_aliases_survive_the_served_view(self):
+        out = self._served(
+            self._app_a(aliases=[f"old.{DOMAIN}"]), {"app-a": [f"a.{self.ONION}"]}
         )
-        self.assertEqual(out, {"a.infinito.test": [200, 302, 301]})
+        self.assertEqual(
+            out,
+            {f"a.{self.ONION}": [200, 302, 301], f"old.{DOMAIN}": [301]},
+        )
 
-    def test_onion_skipped_without_node_onion(self):
-        apps = self._tor_app(exclusive=True)
+    def test_app_missing_from_served_keeps_declared_domains(self):
+        out = self._served(self._app_a(), {})
+        self.assertEqual(out, {f"a.{DOMAIN}": [200, 302, 301]})
+
+    def test_www_is_added_for_clearnet_only(self):
+        apps = self._app_a()
         out = self.mod.web_health_expectations(
             apps,
+            www_enabled=True,
             group_names=["app-a"],
-            primary_domain="infinito.test",
-            node_onion="",
+            primary_domain=DOMAIN,
+            node_onion=self.ONION,
+            served_domains={"app-a": [f"a.{DOMAIN}", f"a.{self.ONION}"]},
         )
-        self.assertEqual(out, {"a.infinito.test": [200, 302, 301]})
+        self.assertIn(f"www.a.{DOMAIN}", out)
+        self.assertNotIn(f"www.a.{self.ONION}", out)
+
+    def test_targets_use_the_per_domain_scheme_and_network_timeout(self):
+        served = {"app-a": [f"a.{DOMAIN}", f"a.{self.ONION}"]}
+        targets = self.mod.web_health_targets(
+            {f"a.{DOMAIN}": [200], f"a.{self.ONION}": [200]},
+            {"app-a": {}},
+            served,
+            True,
+        )
+        self.assertEqual(
+            targets[f"a.{DOMAIN}"],
+            {"codes": [200], "scheme": "https", "timeout": 10},
+        )
+        self.assertEqual(
+            targets[f"a.{self.ONION}"],
+            {"codes": [200], "scheme": "http", "timeout": 30},
+        )
+
+    def test_targets_follow_an_app_tls_override(self):
+        targets = self.mod.web_health_targets(
+            {f"a.{DOMAIN}": [200]},
+            {"app-a": {"server": {"tls": {"enabled": False}}}},
+            {"app-a": [f"a.{DOMAIN}"]},
+            True,
+        )
+        self.assertEqual(targets[f"a.{DOMAIN}"]["scheme"], "http")
+
+    def test_targets_of_an_unknown_domain_use_the_global_default(self):
+        targets = self.mod.web_health_targets(
+            {"elsewhere.example": [301]}, {}, {}, True
+        )
+        self.assertEqual(targets["elsewhere.example"]["scheme"], "https")
 
     # --------- Reverse-proxy bare apex gating ---------
 
-    def _proxy_apex_app(self, **tor):
-        self._configure_returns(
-            {("svc-prx-openresty", "domains.canonical"): ["infinito.test"]}
-        )
-        services = {"tor": {"enabled": True, **tor}} if tor else {}
-        return {"svc-prx-openresty": {"services": services}}
+    def _proxy_apex_app(self):
+        self._configure_returns({("svc-prx-openresty", "domains.canonical"): [DOMAIN]})
+        return {"svc-prx-openresty": {}}
 
     def test_apex_dropped_when_rdr_domains_not_deployed(self):
         out = self.mod.web_health_expectations(
             self._proxy_apex_app(),
             group_names=["svc-prx-openresty"],
-            primary_domain="infinito.test",
+            primary_domain=DOMAIN,
         )
         self.assertEqual(out, {})
 
@@ -652,16 +692,17 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         out = self.mod.web_health_expectations(
             self._proxy_apex_app(),
             group_names=["svc-prx-openresty", "web-opt-rdr-domains"],
-            primary_domain="infinito.test",
+            primary_domain=DOMAIN,
         )
-        self.assertEqual(out, {"infinito.test": [200, 302, 301]})
+        self.assertEqual(out, {DOMAIN: [200, 302, 301]})
 
     def test_onion_apex_dropped_when_rdr_domains_not_deployed(self):
         out = self.mod.web_health_expectations(
-            self._proxy_apex_app(exclusive=True),
+            self._proxy_apex_app(),
             group_names=["svc-prx-openresty"],
-            primary_domain="infinito.test",
+            primary_domain=DOMAIN,
             node_onion=self.ONION,
+            served_domains={"svc-prx-openresty": [DOMAIN, self.ONION]},
         )
         self.assertEqual(out, {})
 

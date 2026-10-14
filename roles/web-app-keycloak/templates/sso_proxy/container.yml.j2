@@ -23,7 +23,7 @@
           - node.role == manager
 {% endif %}
     {{ lookup('container_extra_hosts', extra_hosts=(
-         [] if lookup('domain', 'web-app-keycloak').endswith('.onion')
+         [] if (lookup('domain', 'web-app-keycloak') | network_of) == 'tor'
          else [lookup('domain', 'web-app-keycloak') ~ ':host-gateway']
        )) | indent(4) }}
     # nocheck: container-healthcheck-literal  per-consumer sidecar partial rendered for the consuming role's application_id, so the declaration has no single meta/services.yml to live in

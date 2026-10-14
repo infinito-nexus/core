@@ -21,11 +21,13 @@ from plugins.lookup.applications import (
 )
 from plugins.lookup.objstore_consumers import LookupModule as ObjstoreConsumersLookup
 from utils.cache.files import read_text
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
+DOMAIN = default_domain_primary()
 PROVIDER = "web-app-seaweedfs"
 DECLARED_CONSUMER = "web-app-matrix"
 OVERRIDE_CONSUMER = "web-app-hugo"
@@ -42,8 +44,8 @@ def _variables(applications: dict, group_names: list[str]) -> dict:
     return {
         "applications": applications,
         "users": {},
-        "DOMAIN_PRIMARY": "infinito.test",
-        "SYSTEM_EMAIL_DOMAIN": "infinito.test",
+        "DOMAIN_PRIMARY": DOMAIN,
+        "SYSTEM_EMAIL_DOMAIN": DOMAIN,
         "DIR_COMPOSITIONS": "/opt/compose/",
         "group_names": list(group_names),
     }

@@ -17,11 +17,12 @@ The value searched for is read from ``default.env`` at test time, so this rule
 follows the SPOT rather than repeating it.
 
 Scope: every git-tracked file except ``default.env`` itself, ``.md``
-documentation, and three places where a concrete host is the point rather than a
-copy -- the test trees (``tests/`` and ``scripts/tests/``) whose fixtures assert
-against a named host, and ``inventories/``, where declaring the real values is
-what an inventory is for. Gitignored build output is skipped too: a generated
-``.env`` carries the value because it correctly derived it.
+documentation, and ``inventories/``, where declaring the real values is what an
+inventory is for. Tests derive the domain like everything else, so their
+fixtures follow the SPOT when it changes: Python through
+``default_domain_primary()``, JavaScript unit tests through
+``tests/unit/javascript/utils/domain.js``. Gitignored build output is skipped
+too: a generated ``.env`` carries the value because it correctly derived it.
 
 Per-line opt-out: ``# nocheck: hardcoded-primary-domain`` on the offending line
 or the immediately preceding non-empty line, with a reason. Legitimate cases are
@@ -43,7 +44,7 @@ from . import PROJECT_ROOT
 _RULE = "hardcoded-primary-domain"
 _SPOT_FILE = "default.env"
 _SPOT_KEY = "INFINITO_DOMAIN"
-_SKIP_DIRS = (".claude/", "build/", "inventories/", "scripts/tests/")
+_SKIP_DIRS = (".claude/", "build/", "inventories/")
 
 
 def _spot_domain() -> str:
@@ -64,7 +65,7 @@ def _is_scan_target(rel_path: str) -> bool:
 
 def _collect_findings(domain: str) -> list[tuple[str, int, str]]:
     findings: list[tuple[str, int, str]] = []
-    for path_str in iter_non_ignored_files(exclude_tests=True):
+    for path_str in iter_non_ignored_files():
         rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
         if not _is_scan_target(rel):
             continue
@@ -85,6 +86,24 @@ def _collect_findings(domain: str) -> list[tuple[str, int, str]]:
 
 
 class TestNoHardcodedPrimaryDomain(unittest.TestCase):
+    def test_code_and_tests_alike_must_derive_the_domain(self) -> None:
+        for rel in (
+            "roles/web-app-x/files/playwright/spec.js",
+            "roles/web-app-x/files/python/script.py",
+            "scripts/tests/workspace/utils/common.sh",
+            "scripts/system/tls/trust/wsl2.sh",
+            "plugins/lookup/x.py",
+            "cli/meta/x.py",
+            "tests/unit/javascript/roles/x/network.test.js",
+            "tests/lint/x.py",
+            "tests/integration/x.sh",
+        ):
+            with self.subTest(rel=rel):
+                self.assertTrue(_is_scan_target(rel), f"{rel} must be scanned")
+        for rel in ("default.env", "docs/x.md", "inventories/x/host_vars/a.yml"):
+            with self.subTest(rel=rel):
+                self.assertFalse(_is_scan_target(rel), f"{rel} may name the domain")
+
     def test_primary_domain_is_derived_not_written_out(self) -> None:
         domain = _spot_domain()
         self.assertTrue(domain, f"{_SPOT_KEY} is empty in {_SPOT_FILE}")
@@ -102,6 +121,7 @@ class TestNoHardcodedPrimaryDomain(unittest.TestCase):
             "a second copy is one nobody updates.\n\n"
             "  Ansible:  DOMAIN_PRIMARY\n"
             "  Python:   utils.domains.default_primary.default_domain_primary()\n"
+            "  JS tests: tests/unit/javascript/utils/domain.js\n"
             "  shell:    the generated .env\n\n"
             f"Affected:\n{formatted}\n\n"
             f"Per-line opt-out: `# nocheck: {_RULE}` with a reason."

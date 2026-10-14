@@ -1,7 +1,7 @@
 """Turn a run's deploy jobs back into selection tokens.
 
 A deploy job title carries the whole row it deployed -- role, variant, mode,
-onion state, distro, filesystem -- and :mod:`utils.github.variant.selection`
+network mode, distro, filesystem -- and :mod:`utils.github.variant.selection`
 is the grammar that writes it back down.
 
 The filesystem is the one axis a token built here leaves out. The title states
@@ -32,10 +32,10 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
     """The selection tokens that reproduce exactly what did not pass.
 
     A role aggregated to its id loses what actually broke: the retrigger then
-    redeploys every variant of it, in whatever mode and onion state the sweep
+    redeploys every variant of it, in whatever mode and network mode the sweep
     rotation happens to pick, and the combination that failed may not be among
     them. Each failed job therefore contributes its own
-    ``role#variant@mode+tor`` token (:mod:`utils.github.variant.selection`), so
+    ``role#variant@mode+network`` token (:mod:`utils.github.variant.selection`), so
     the priority line replays that job and nothing else.
 
     Every mode is read; there is no scope to narrow to. A run that failed in
@@ -61,7 +61,7 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
                     app,
                     tuple(int(part) for part in label.variant.split(",") if part),
                     label.mode,
-                    label.tor,
+                    label.network,
                     label.distro or None,
                 )
             )
@@ -107,7 +107,7 @@ def row_identity(entry: Mapping[str, Any]) -> str:
 def proven_rows(jobs: list[dict]) -> set[str]:
     """The rows the source run proved, as ``role#variant``, axes dropped.
 
-    Mode, onion state, distro and filesystem are assigned by the rotation over
+    Mode, network mode, distro and filesystem are assigned by the rotation over
     the sweep number, and a retrigger is a new run with a new number
     (``call-orchestrator.yml`` falls back to ``github.run_number``). Comparing
     the full deploy tokens therefore compares two different sweeps: measured

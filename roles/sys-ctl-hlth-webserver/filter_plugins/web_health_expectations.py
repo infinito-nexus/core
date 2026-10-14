@@ -2,8 +2,12 @@ import sys
 from collections.abc import Mapping
 from pathlib import Path
 
+from ansible.errors import AnsibleError
+
+from utils.networks.reachability import CLEARNET, network, network_of, sibling_domain
 from utils.roles.applications.config import get
 from utils.roles.applications.status_codes import DEFAULT_OK, codes_by_key
+from utils.tls_common import resolve_enabled, resolve_term
 
 # nocheck: project-root-import
 _BASE_DIR = str(Path(__file__).resolve().parents[3])
@@ -84,33 +88,36 @@ def _normalize_selection(group_names):
     return sel
 
 
-def _apply_onion_deploy_view(per_app, applications, primary_domain, node_onion):
-    """Rewrite each app's expectation domains to what the current deploy serves:
-    for a ``services.tor.enabled`` app the onion domains replace (``exclusive``)
-    or accompany (dual) the clearnet ones, reusing ``_inject_onion_domains`` and
-    letting each onion domain inherit its clearnet source's status codes."""
-    node = str(node_onion or "").strip()
-    primary = str(primary_domain or "").strip()
-    if not node or not primary:
+def _apply_served_view(per_app, served_domains, primary_domain, node_onion):
+    """Rewrite each app's canonical expectations to the domains the node serves.
+
+    Args:
+        per_app: expected codes per canonical domain, per application.
+        served_domains: ``lookup('domains')`` of this host.
+        primary_domain: the node's ``DOMAIN_PRIMARY``.
+        node_onion: the node onion address, empty without Tor.
+
+    A served domain inherits the codes of its clearnet sibling; an app the
+    map does not list keeps its declared domains.
+    """
+    if not isinstance(served_domains, Mapping):
         return
-
-    from utils.cache.domains import _inject_onion_domains, _onion_of
-
-    clearnet_lists = {app: list(exp.keys()) for app, exp in per_app.items()}
-    served = _inject_onion_domains(clearnet_lists, applications, primary, node)
-
+    primary = str(primary_domain or "").strip()
+    node = str(node_onion or "").strip()
     for app_id, exp in per_app.items():
-        onion_codes = {}
-        for d, codes in exp.items():
-            o = _onion_of(str(d), primary, node)
-            if o:
-                onion_codes[o] = codes
-        served_list = served.get(app_id, list(exp.keys()))
-        per_app[app_id] = {
-            s: (exp[s] if s in exp else onion_codes[s])
-            for s in served_list
-            if s in exp or s in onion_codes
-        }
+        served = _to_list(served_domains.get(app_id), allow_mapping=True)
+        if not served:
+            continue
+        view = {}
+        for domain in served:
+            source = (
+                domain
+                if domain in exp
+                else sibling_domain(domain, CLEARNET, primary, node)
+            )
+            if source in exp:
+                view[domain] = exp[source]
+        per_app[app_id] = view
 
 
 def web_health_expectations(
@@ -120,6 +127,7 @@ def web_health_expectations(
     redirect_maps=None,
     primary_domain=None,
     node_onion=None,
+    served_domains=None,
 ):
     """Produce a **flat mapping**: domain -> [expected_status_codes].
 
@@ -134,10 +142,9 @@ def web_health_expectations(
       - No legacy fallbacks (ignore 'home'/'landingpage').
       - `redirect_maps`: force <source> -> [301] and override app-derived entries.
       - If `www_enabled`: add and/or force www.* -> [301] for all domains.
-      - Deploy-aware onion view: when `primary_domain` and `node_onion` are set
-        (svc-net-tor deployed), each `services.tor.enabled` app's clearnet
-        domains are swapped (exclusive) or extended (dual) with their onion
-        domains, so the probe checks exactly what the current deploy serves.
+      - Served view: with `served_domains` (the host's `lookup('domains')`)
+        every app's canonical domains become the ones the node serves, each
+        inheriting the codes of its clearnet sibling via `node_onion`.
     """
     if not isinstance(applications, Mapping):
         return {}
@@ -145,6 +152,7 @@ def web_health_expectations(
     selection = _normalize_selection(group_names)
 
     per_app = {}
+    per_alias = {}
 
     for app_id in applications:
         if app_id not in selection:
@@ -192,33 +200,30 @@ def web_health_expectations(
                 codes = sc_map.get("default")
                 app_exp[d] = list(codes) if codes else list(DEFAULT_OK)
 
-        for d in aliases:
-            if d:
-                app_exp[d] = [301]
-
         per_app[app_id] = app_exp
+        per_alias[app_id] = {d: [301] for d in aliases if d}
 
     primary = str(primary_domain or "").strip()
     if primary and "web-opt-rdr-domains" not in selection:
         for app_exp in per_app.values():
             app_exp.pop(primary, None)
 
-    _apply_onion_deploy_view(per_app, applications, primary_domain, node_onion)
+    _apply_served_view(per_app, served_domains, primary_domain, node_onion)
 
     expectations = {}
-    for app_exp in per_app.values():
+    for app_id, app_exp in per_app.items():
         expectations.update(app_exp)
+        expectations.update(per_alias[app_id])
 
     for src in _extract_redirect_sources(redirect_maps):
         expectations[src] = [301]
 
     if www_enabled:
-        node = str(node_onion or "").strip()
         add = {}
         for d in expectations:
             if d.startswith("www."):
                 continue
-            if node and d.endswith(node):
+            if network_of(d) != CLEARNET:
                 continue
             add[f"www.{d}"] = [301]
         expectations.update(add)
@@ -229,8 +234,45 @@ def web_health_expectations(
     return {k: expectations[k] for k in sorted(expectations.keys())}
 
 
+def web_health_targets(expectations, applications, served_domains, tls_enabled):
+    """Attach the probe scheme and timeout to every expected domain.
+
+    Args:
+        expectations: output of ``web_health_expectations``.
+        applications: merged applications tree.
+        served_domains: ``lookup('domains')`` of this host.
+        tls_enabled: ``TLS_ENABLED``.
+
+    Returns:
+        ``{domain: {"codes": [...], "scheme": "http"|"https", "timeout": s}}``;
+        the scheme follows the same per-domain resolution as ``lookup('tls')``
+        and the timeout comes from the domain's network.
+    """
+    targets = {}
+    for domain, codes in (expectations or {}).items():
+        try:
+            app_id, resolved = resolve_term(
+                domain,
+                domains=served_domains or {},
+                applications=applications or {},
+                forced_mode="domain",
+                err_prefix="web_health_targets",
+            )
+            app = (applications or {}).get(app_id) or {}
+        except AnsibleError:
+            resolved, app = domain, {}
+        enabled = resolve_enabled(app, bool(tls_enabled), primary_domain=resolved)
+        targets[domain] = {
+            "codes": list(codes),
+            "scheme": "https" if enabled else "http",
+            "timeout": network(network_of(domain)).probe_timeout,
+        }
+    return targets
+
+
 class FilterModule:
     def filters(self):
         return {
             "web_health_expectations": web_health_expectations,
+            "web_health_targets": web_health_targets,
         }

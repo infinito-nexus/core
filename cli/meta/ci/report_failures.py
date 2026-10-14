@@ -11,6 +11,7 @@ from typing import NamedTuple
 
 from utils.cache.files import read_text
 from utils.github.variant import axes
+from utils.networks.reachability import CLEARNET
 from utils.roles.display import display_names
 
 _DECISIVE_FILES = ("error-context.md", "meta.txt", "containers.txt")
@@ -24,7 +25,7 @@ class Failure(NamedTuple):
 
     mode: str
     variant: str
-    tor: bool
+    network: str
     distro: str
     filesystem: str
 
@@ -32,7 +33,7 @@ class Failure(NamedTuple):
 def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
     """Map role -> [:class:`Failure`] for every failed deploy job.
 
-    A deploy job is titled ``<mode glyph><tor glyph><distro glyph><filesystem
+    A deploy job is titled ``<mode glyph><network glyph><distro glyph><filesystem
     glyph><display name> <variant>`` with an optional trailing ⭐ for a
     priority row. The middle is resolved through the display-name codec rather
     than matched as a raw role id: job names carry display names, so a regex
@@ -54,7 +55,7 @@ def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
             Failure(
                 label.mode,
                 label.variant.replace(",", "-"),
-                label.tor,
+                label.network,
                 label.distro,
                 label.filesystem,
             )
@@ -73,7 +74,7 @@ def artifact_name(role: str, failure: Failure) -> str:
         failure.mode,
         role,
         failure.variant,
-        failure.tor,
+        failure.network,
         failure.distro,
         failure.filesystem,
     )
@@ -104,7 +105,7 @@ def issue_body(
     rows = "\n".join(
         f"- `{failure.mode}`"
         + (f" variant `{failure.variant}`" if failure.variant else "")
-        + (" behind the onion" if failure.tor else "")
+        + (f" on a `{failure.network}` node" if failure.network != CLEARNET else "")
         + (f" on `{failure.distro}`" if failure.distro else "")
         + (f"/`{failure.filesystem}`" if failure.filesystem else "")
         + f" — artifact `{artifact_name(role, failure)}`"

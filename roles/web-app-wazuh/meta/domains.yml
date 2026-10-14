@@ -1,0 +1,4 @@
+---
+canonical:
+  - wazuh.{{ DOMAIN_PRIMARY }}
+aliases: []

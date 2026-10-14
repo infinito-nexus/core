@@ -84,6 +84,13 @@ class TestCertPlanLookup(unittest.TestCase):
         )
         self.assertEqual(out["domains"]["san"], ["a.example"])
 
+    def test_sans_leave_out_networks_without_tls(self):
+        v = dict(self.vars)
+        v["domains"] = dict(self.domains)
+        v["domains"]["web-app-a"] = ["a.example", "a.abc.onion"]
+        out = self.lookup.run(["web-app-a"], variables=v, mode="app")[0]
+        self.assertEqual(out["domains"]["san"], ["a.example"])
+
     def test_letsencrypt_plan_uses_cert_name_override(self):
         v = dict(self.vars)
         v["applications"] = dict(self.applications)

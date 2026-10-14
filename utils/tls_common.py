@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+import threading
 from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 
 from utils.domains.application_domain_index import resolve_app_id_for_domain
+from utils.networks.reachability import TOR, is_network, network, network_of
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -262,17 +264,60 @@ def resolve_term(
 
 
 def is_onion_domain(domain: Any) -> bool:
-    """True if the domain is a Tor v3 ``.onion`` address."""
-    return norm_domain(domain).endswith(".onion")
+    """True if the domain belongs to the Tor network."""
+    return is_network(domain, TOR)
 
 
 def resolve_enabled(
     app: dict, enabled_default: bool, *, primary_domain: str = ""
 ) -> bool:
-    if is_onion_domain(primary_domain):
+    if not network(network_of(primary_domain)).tls:
         return False
     override = get_path(app, "server.tls.enabled", None)
     return enabled_default if override is None else bool(override)
+
+
+def issuer_applications() -> tuple[str, ...]:
+    """Applications that publish one URL to every consumer: the SSO provider,
+    whose issuer every client pins."""
+    from utils import PROJECT_ROOT
+    from utils.roles.applications.services.registry import (
+        build_service_registry_from_roles_dir,
+    )
+
+    entry = build_service_registry_from_roles_dir(PROJECT_ROOT / "roles").get("sso")
+    role = (entry or {}).get("role")
+    return (role,) if role else ()
+
+
+_VHOST_GUARD = threading.local()
+
+
+def _vhost_domain(variables: dict | None, templar: Any) -> str:
+    raw = (variables or {}).get("domain")
+    if not isinstance(raw, str) or not raw.strip():
+        return ""
+    if "{{" in raw or "{%" in raw:
+        if templar is None or getattr(_VHOST_GUARD, "active", False):
+            return ""
+        _VHOST_GUARD.active = True
+        try:
+            raw = templar.template(raw)
+        finally:
+            _VHOST_GUARD.active = False
+    return norm_domain(raw)
+
+
+def _consumer_network(
+    domains: dict, consumer_id: str, variables: dict | None, templar: Any
+) -> str | None:
+    consumer_domains = [norm_domain(d) for d in iter_domains(domains.get(consumer_id))]
+    if not consumer_domains:
+        return None
+    vhost = _vhost_domain(variables, templar)
+    if vhost in consumer_domains:
+        return network_of(vhost)
+    return network_of(consumer_domains[0])
 
 
 def align_domain_to_consumer(
@@ -284,26 +329,33 @@ def align_domain_to_consumer(
     variables: dict | None = None,
     templar: Any = None,
 ) -> str:
-    """Family-align a cross-app reference: when a clearnet-primary consumer
-    resolves an onion-primary target, return the target's first clearnet
-    domain from the merged map; keep ``primary_domain`` whenever the consumer
-    is unknown/onion, the target is clearnet, or no clearnet sibling exists.
+    """Return the target's domain in the network its consumer is served on.
+
+    Args:
+        domains: the host's merged domain map.
+        app_id: the target application.
+        primary_domain: the target's canonical domain.
+        consumer: consuming application; empty reads ``variables['application_id']``.
+        variables: lookup scope; its ``domain`` names the vhost being rendered.
+        templar: renders templated ``application_id`` and ``domain`` values.
+
+    Returns:
+        The target's first domain in the consumer's network, which is the
+        network of the vhost being rendered when that vhost belongs to the
+        consumer, else the network of the consumer's primary domain.
+        ``primary_domain`` when the target is the SSO provider, the consumer
+        is unknown, or the target has no domain in that network.
     """
-    if not is_onion_domain(primary_domain):
+    if app_id in issuer_applications():
         return primary_domain
     raw = consumer or (variables or {}).get("application_id", "")
     if templar is not None and isinstance(raw, str) and raw:
         raw = templar.template(raw)
-    consumer_id = as_str(raw)
-    if not consumer_id or consumer_id == app_id or consumer_id not in domains:
-        return primary_domain
-    consumer_primary = resolve_primary_domain_from_app(
-        domains, consumer_id, err_prefix="tls_common"
-    )
-    if is_onion_domain(consumer_primary):
+    wanted = _consumer_network(domains, as_str(raw), variables, templar)
+    if wanted is None or network_of(primary_domain) == wanted:
         return primary_domain
     for candidate in iter_domains(domains.get(app_id)):
-        if not is_onion_domain(candidate):
+        if network_of(candidate) == wanted:
             return candidate
     return primary_domain
 

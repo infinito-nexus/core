@@ -11,6 +11,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from utils.networks.reachability import (
+    CLEARNET,
+    NODE_MODES,
+    TOR,
+    allowed_networks,
+    effective_networks,
+    network,
+    resolve_node_mode,
+    sibling_domain,
+)
+
 from .base import (
     _RENDER_GUARD,
     _cache_key,
@@ -80,116 +91,147 @@ def _resolved_flag(
     return _as_bool(value)
 
 
-def _onion_of(domain: str, primary: str, node_onion: str) -> str | None:
-    """Return ``domain`` with the clearnet ``primary`` suffix swapped for the
-    node onion, or None when the domain is not under ``primary``."""
-    if domain == primary:
-        return node_onion
-    suffix = "." + primary
-    if domain.endswith(suffix):
-        return domain[: -len(primary)] + node_onion
-    return None
+def _render_plain(raw: Any, name: str) -> Any:
+    from utils.templating.ansible import render_ansible_strict
+
+    if isinstance(raw, str) and ("{{" in raw or "{%" in raw):
+        return render_ansible_strict(
+            templar=None,
+            raw=raw,
+            var_name=name,
+            err_prefix="get_merged_domains",
+            variables={},
+        )
+    return raw
 
 
-def _inject_onion_domains(
+def node_onion_of(apps: Any, variables: Any) -> str:
+    """Return the node onion address when this host runs ``svc-net-tor``.
+
+    Args:
+        apps: merged applications tree.
+        variables: host variables carrying ``group_names``.
+
+    Returns:
+        The address from ``svc-net-tor``'s ``services.tor.node``, or ``""``
+        when the provider is not deployed on this host.
+    """
+    if network(TOR).provider not in ((variables or {}).get("group_names") or []):
+        return ""
+    node_raw = (
+        ((apps.get(network(TOR).provider) or {}).get("services") or {}).get("tor") or {}
+    ).get("node")
+    return str(_render_plain(node_raw or "", "services.tor.node") or "").strip()
+
+
+def node_network_mode(variables: Any, node_onion: str) -> str:
+    """Return the resolved ``NETWORK_MODE`` of this host.
+
+    Args:
+        variables: host variables carrying ``NETWORK_MODE``.
+        node_onion: the node onion address, empty without Tor.
+    """
+    return resolve_node_mode(
+        _render_plain((variables or {}).get("NETWORK_MODE") or "", "NETWORK_MODE"),
+        tor_provided=bool(node_onion),
+    )
+
+
+def _serve_list(
+    domains: list[Any], networks: tuple[str, ...], primary: str, node_onion: str
+) -> list[Any]:
+    if TOR not in networks:
+        return list(domains)
+    onion = [
+        sibling
+        for d in domains
+        if (sibling := sibling_domain(str(d), TOR, primary, node_onion))
+    ]
+    if CLEARNET not in networks:
+        return onion or list(domains)
+    return list(domains) + [o for o in onion if o not in domains]
+
+
+def _serve_dict(
+    domains: dict[str, Any], networks: tuple[str, ...], primary: str, node_onion: str
+) -> dict[str, Any]:
+    if TOR not in networks:
+        return dict(domains)
+    if CLEARNET not in networks:
+        return {
+            key: (sibling_domain(str(value), TOR, primary, node_onion) or value)
+            for key, value in domains.items()
+        }
+    label = network(TOR).label
+    siblings: dict[str, Any] = {}
+    for key, value in domains.items():
+        sibling = sibling_domain(str(value), TOR, primary, node_onion)
+        if sibling and sibling != value:
+            siblings[f"{key}_{label}"] = sibling
+    return {**domains, **siblings}
+
+
+def _inject_network_siblings(
     merged: dict[str, Any],
     apps: dict[str, Any],
     primary: str,
     node_onion: str,
+    node_mode: str,
     *,
+    deployed: Any = (),
     templar: Any = None,
     variables: Any = None,
 ) -> dict[str, Any]:
-    """Add ``<sub>.<node-onion>`` domains for apps opting into onion routing.
+    """Serve every application on the networks it resolves to on this node.
 
-    Driven by ``services.tor`` per app: ``enabled`` gates it (consumer-owned,
-    no provider fallback — an app without a tor block opts out). ``exclusive``
-    replaces the clearnet domain (onion only), ``primary`` puts the onion
-    first; both resolve consumer-override -> ``svc-net-tor`` provider default
-    via :func:`resolve_service_config`.
+    Args:
+        merged: canonical domains per application.
+        apps: merged applications tree.
+        primary: the node's ``DOMAIN_PRIMARY``.
+        node_onion: the node onion address, empty on a node without Tor.
+        node_mode: the resolved ``NETWORK_MODE``.
+        deployed: application ids deployed on this host; only their mismatch
+            fails, the rest keep their domains.
+        templar: templar rendering the ``services.tor.enabled`` flags.
+        variables: scope those flags resolve against.
+
+    Returns:
+        Domains per application with the canonical network first. A role
+        without a ``tor`` service keeps its domains on every node.
+
+    Raises:
+        ValueError: a deployed role allows none of the node's networks.
     """
-    from utils.roles.applications.services.config import resolve_service_config
-    from utils.roles.applications.services.registry import (
-        build_service_registry_from_applications,
-    )
-
-    registry = build_service_registry_from_applications(apps)
-
-    def _flag(value: Any, app: str, name: str) -> bool:
-        return _resolved_flag(
-            value,
+    out: dict[str, Any] = {}
+    for app, domains in merged.items():
+        config = apps.get(app) or {}
+        tor = (config.get("services") or {}).get("tor")
+        if not isinstance(domains, (list, dict)) or not isinstance(tor, dict):
+            out[app] = domains
+            continue
+        tor_enabled = TOR in NODE_MODES[node_mode] and _resolved_flag(
+            tor.get("enabled"),
             app=app,
-            name=name,
+            name="enabled",
             templar=templar,
             variables=variables,
             apps=apps,
         )
-
-    out: dict[str, Any] = {}
-    for app, domains in merged.items():
-        tor = ((apps.get(app) or {}).get("services") or {}).get("tor") or {}
-        if not isinstance(domains, (list, dict)) or not _flag(
-            tor.get("enabled"), app, "enabled"
-        ):
+        allowed, single_mode = allowed_networks(
+            config, tor_enabled=tor_enabled, app=app
+        )
+        try:
+            networks = effective_networks(node_mode, allowed, single_mode, app=app)
+        except ValueError:
+            if app in deployed:
+                raise
             out[app] = domains
             continue
-        exclusive = _flag(
-            resolve_service_config(
-                apps, app, "tor", "exclusive", default=False, service_registry=registry
-            ),
-            app,
-            "exclusive",
-        )
-        is_primary = _flag(
-            resolve_service_config(
-                apps, app, "tor", "primary", default=False, service_registry=registry
-            ),
-            app,
-            "primary",
-        )
         if isinstance(domains, dict):
-            out[app] = _inject_onion_into_dict(
-                domains, primary, node_onion, exclusive, is_primary
-            )
-            continue
-        onion = [o for d in domains if (o := _onion_of(str(d), primary, node_onion))]
-        if exclusive:
-            out[app] = onion or domains
-        elif is_primary:
-            out[app] = onion + [d for d in domains if d not in onion]
+            out[app] = _serve_dict(domains, networks, primary, node_onion)
         else:
-            out[app] = list(domains) + [o for o in onion if o not in domains]
+            out[app] = _serve_list(domains, networks, primary, node_onion)
     return out
-
-
-def _inject_onion_into_dict(
-    domains: dict[str, Any],
-    primary: str,
-    node_onion: str,
-    exclusive: bool,
-    is_primary: bool,
-) -> dict[str, Any]:
-    """Onionize a named-canonical dict (``{key: domain}``) while keeping every
-    value a plain string, so ``get_primary_domain`` still returns a string.
-
-    ``exclusive`` swaps each value for its onion; otherwise the onion domains
-    are added under ``<key>_onion`` siblings (before the clearnet keys when
-    ``primary`` is set) so ``generate_all_domains`` emits an onion vhost per
-    named canonical without changing which value is primary.
-    """
-    if exclusive:
-        return {
-            key: (_onion_of(str(value), primary, node_onion) or value)
-            for key, value in domains.items()
-        }
-    onion_pairs: dict[str, Any] = {}
-    for key, value in domains.items():
-        onion = _onion_of(str(value), primary, node_onion)
-        if onion and onion != value:
-            onion_pairs[f"{key}_onion"] = onion
-    if is_primary:
-        return {**onion_pairs, **domains}
-    return {**domains, **onion_pairs}
 
 
 def get_merged_domains(
@@ -240,20 +282,7 @@ def get_merged_domains(
             "must be set in variables."
         )
 
-    from utils.templating.ansible import render_ansible_strict
-
-    def _render_raw(raw: Any, name: str) -> Any:
-        if isinstance(raw, str) and ("{{" in raw or "{%" in raw):
-            return render_ansible_strict(
-                templar=None,
-                raw=raw,
-                var_name=name,
-                err_prefix="get_merged_domains",
-                variables={},
-            )
-        return raw
-
-    primary_domain = _render_raw(primary_domain, "DOMAIN_PRIMARY")
+    primary_domain = _render_plain(primary_domain, "DOMAIN_PRIMARY")
 
     apps = get_merged_applications(
         variables=variables,
@@ -264,20 +293,18 @@ def get_merged_domains(
     filter_instance = _CanonicalDomainsFilter()
     merged = filter_instance.canonical_domains_map(apps, primary_domain)
 
-    node_raw = (
-        ((apps.get("svc-net-tor") or {}).get("services") or {}).get("tor") or {}
-    ).get("node")
-    node_onion = str(_render_raw(node_raw or "", "services.tor.node") or "").strip()
-    group_names = variables.get("group_names") or []
-    if node_onion and "svc-net-tor" in group_names:
-        merged = _inject_onion_domains(
-            merged,
-            apps,
-            str(primary_domain),
-            node_onion,
-            templar=templar,
-            variables=variables,
-        )
+    node_onion = node_onion_of(apps, variables)
+    node_mode = node_network_mode(variables, node_onion)
+    merged = _inject_network_siblings(
+        merged,
+        apps,
+        str(primary_domain),
+        node_onion,
+        node_mode,
+        deployed=variables.get("group_names") or [],
+        templar=templar,
+        variables=variables,
+    )
 
     _MERGED_DOMAINS_CACHE[cache_key] = merged
     return merged

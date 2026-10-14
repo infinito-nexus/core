@@ -7,7 +7,7 @@
 #   INPUT_WHITELIST   whitelist value of the run ('' = nothing to check)
 #   INPUT_PRIORITY    priority line of the run ('' = nothing to check)
 #   INPUT_MODE        deploy modes the run draws from
-#   INPUT_TOR         tor axis of the run
+#   INPUT_NETWORK     network axis of the run
 #   INPUT_DISTROS     distro pool of the run ('' = every declared distro)
 #   INPUT_FILESYSTEM  filesystem pool of the run ('' = every declared kind)
 #   INPUT_LIFECYCLES  lifecycle envelope of the run
@@ -25,7 +25,7 @@ source scripts/meta/env/load.sh
 	--whitelist "${INPUT_WHITELIST:-}" \
 	--priority "${INPUT_PRIORITY:-}" \
 	--modes "${INPUT_MODE:-auto}" \
-	--tor "${INPUT_TOR:-auto}" \
+	--network "${INPUT_NETWORK:-auto}" \
 	--distros "${INPUT_DISTROS:-}" \
 	--filesystem "${INPUT_FILESYSTEM:-}" \
 	--lifecycles "${INPUT_LIFECYCLES:-}"

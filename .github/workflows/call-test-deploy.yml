@@ -13,7 +13,7 @@ on:
         required: true
         type: string
       sweep:
-        description: "Sweep number driving the mode and tor rotation and the regular-line offset."
+        description: "Sweep number driving the mode and network rotation and the regular-line offset."
         required: true
         type: string
       offset:
@@ -56,7 +56,7 @@ on:
         required: false
         type: string
         default: ""
-      tor:
+      network:
         required: false
         type: string
         default: auto
@@ -78,7 +78,7 @@ on:
         type: string
         default: "0"
       sweep:
-        description: "🔁 Sweep number driving the mode/tor rotation and the regular-line offset."
+        description: "🔁 Sweep number driving the mode/network rotation and the regular-line offset."
         required: false
         type: string
         default: "0"
@@ -107,12 +107,12 @@ on:
         required: false
         type: string
         default: ""
-      tor:
-        description: "🧅 Tor axis; see .github/workflows/README.md for what each value does"
+      network:
+        description: "🌈 Network axis; see .github/workflows/README.md for what each value does"
         required: false
         type: choice
         default: auto
-        options: [auto, enforced, exclusive, disabled]
+        options: [auto, clearnet, tor, multi]
       disable:
         description: "🚫 Provider keys removed from the test inventory (comma-separated)"
         required: false
@@ -192,7 +192,7 @@ jobs:
           INFINITO_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
           INFINITO_PRIORITY: ${{ inputs.priority }}
           INFINITO_MODES: ${{ inputs.modes }}
-          INFINITO_TOR: ${{ inputs.tor }}
+          INFINITO_NETWORK: ${{ inputs.network }}
           INFINITO_CI_SWEEP: ${{ inputs.sweep }}
           INFINITO_CI_CHUNK: ${{ inputs.index }}
           INFINITO_CI_OFFSET: ${{ inputs.offset }}
@@ -210,7 +210,7 @@ jobs:
           PLAN_PRIORITY: ${{ inputs.priority }}
           PLAN_MODES: ${{ inputs.modes }}
           PLAN_LIFECYCLES: ${{ inputs.lifecycles }}
-          PLAN_TOR: ${{ inputs.tor }}
+          PLAN_NETWORK: ${{ inputs.network }}
           PLAN_OFFSET: ${{ inputs.offset }}
         run: |
           source scripts/meta/env/load.sh
@@ -221,7 +221,7 @@ jobs:
             --priority "${PLAN_PRIORITY}" \
             --modes "${PLAN_MODES}" \
             --lifecycles "${PLAN_LIFECYCLES}" \
-            --tor "${PLAN_TOR}" \
+            --network "${PLAN_NETWORK}" \
             --offset "${PLAN_OFFSET}" \
             >> "$GITHUB_STEP_SUMMARY"
 
@@ -235,7 +235,7 @@ jobs:
     # TODO: verify in a CI deploy that a cancel drops queued jobs from this
     # group and that an identical row of a second run queues behind it.
     concurrency:
-      group: "infinito-deploy-${{ matrix.mode }}-${{ matrix.tor }}-${{ matrix.distro }}-${{ matrix.filesystem }}-${{ matrix.apps }}#${{ matrix.variant }}"
+      group: "infinito-deploy-${{ matrix.mode }}-${{ matrix.network }}-${{ matrix.distro }}-${{ matrix.filesystem }}-${{ matrix.apps }}#${{ matrix.variant }}"
       cancel-in-progress: false
       queue: max
 
@@ -328,6 +328,7 @@ jobs:
         env:
           variant: ${{ matrix.variant }}
           disable: ${{ matrix.disable || inputs.disable }}
+          network: ${{ matrix.network }}
         run: ./scripts/tests/deploy/distros.sh "${{ env.SCRIPTS }}/00_one.sh" 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: 🚀 Deploy app
@@ -338,6 +339,7 @@ jobs:
           apps: ${{ matrix.apps }}
           variant: ${{ matrix.variant }}
           disable: ${{ matrix.disable || inputs.disable }}
+          network: ${{ matrix.network }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
         run: ./scripts/tests/deploy/ci/all.sh 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 

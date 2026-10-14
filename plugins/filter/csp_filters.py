@@ -5,25 +5,43 @@ import re
 from ansible.errors import AnsibleFilterError
 
 from utils.domains.primary_domain import get_domain
+from utils.networks.reachability import TOR, network, network_of
 from utils.roles.applications.config import get
-from utils.tls_common import align_domain_to_consumer, is_onion_domain
+from utils.tls_common import align_domain_to_consumer, iter_domains, resolve_enabled
 
-_ONION_PLAINTEXT = {"https": "http", "wss": "ws"}
-_ONION_SCHEME = re.compile(r"^(https|wss)(?=://)")
+_PLAINTEXT = {"https": "http", "wss": "ws"}
+_TLS_SCHEME = re.compile(r"^(https|wss)(?=://)")
 
 
-def _aligned_url(domains, application_id, target_id, protocol):
-    """Provider URL for CSP tokens, family-aligned to the consuming app.
+def _aligned_url(applications, domains, application_id, target_id, protocol, vhost):
+    """Provider URL for CSP tokens, aligned to the vhost the header belongs to.
 
-    The scheme follows the ALIGNED host, not the consumer: onion targets are
-    plaintext-only (http), so a clearnet consumer falling back to an onion-only
-    provider gets a token that matches what the asset injection actually loads.
+    Args:
+        applications: merged applications tree.
+        domains: the host's merged domain map.
+        application_id: the consuming application.
+        target_id: the provider application.
+        protocol: scheme a provider on a TLS network answers on.
+        vhost: the vhost the header is rendered for; empty aligns to the
+            consumer's primary domain.
+
+    Returns:
+        ``<scheme>://<host>`` with the host in the vhost's network and the
+        scheme of that host, so the token matches what the page loads.
     """
     domain = align_domain_to_consumer(
-        domains, target_id, get_domain(domains, target_id), consumer=application_id
+        domains,
+        target_id,
+        get_domain(domains, target_id),
+        consumer=application_id,
+        variables={"domain": vhost} if vhost else None,
     )
-    scheme = "http" if is_onion_domain(domain) else protocol
-    return f"{scheme}://{domain}"
+    enabled = resolve_enabled(
+        (applications or {}).get(target_id) or {},
+        protocol == "https",
+        primary_domain=domain,
+    )
+    return f"{'https' if enabled else 'http'}://{domain}"
 
 
 def _dedup_preserve(seq):
@@ -209,9 +227,23 @@ class FilterModule:
         extra_whitelist=None,
         extra_hashes=None,
         domain_primary=None,
+        vhost_domain=None,
     ):
         """
         Builds the Content-Security-Policy header value dynamically based on application settings.
+
+        Args:
+            applications: merged applications tree.
+            application_id: the application the header protects.
+            domains: the host's merged domain map.
+            web_protocol: scheme providers on a TLS network answer on.
+            extra_whitelist: extra sources per directive.
+            extra_hashes: extra inline snippets per directive.
+            domain_primary: the node's ``DOMAIN_PRIMARY``.
+            vhost_domain: the vhost the header is rendered for. Provider
+                sources follow its network; on a tor vhost, whitelist sources
+                under ``domain_primary`` move to the node onion. The SSO
+                issuer keeps its one URL.
 
         Key points:
           - CSP3-aware: supports base/elem/attr for styles and scripts.
@@ -256,6 +288,17 @@ class FilterModule:
 
             tokens_by_dir = {}
             explicit_flags_by_dir = {}
+            fixed_tokens = set()
+
+            def provider(target_id):
+                return _aligned_url(
+                    applications,
+                    domains,
+                    application_id,
+                    target_id,
+                    web_protocol,
+                    vhost_domain,
+                )
 
             for directive in directives:
                 explicit_flags = get(
@@ -278,11 +321,7 @@ class FilterModule:
                     "style-src-elem",
                     "style-src",
                 ):
-                    tokens.append(
-                        _aligned_url(
-                            domains, application_id, "web-svc-cdn", web_protocol
-                        )
-                    )
+                    tokens.append(provider("web-svc-cdn"))
 
                 if directive in (
                     "script-src-elem",
@@ -292,30 +331,18 @@ class FilterModule:
                     "font-src",
                     "media-src",
                 ) and self.is_feature_enabled(applications, "tor", application_id):
-                    tokens.append(
-                        _aligned_url(
-                            domains, application_id, "web-svc-mirror", web_protocol
-                        )
-                    )
+                    tokens.append(provider("web-svc-mirror"))
 
                 if directive in (
                     "script-src-elem",
                     "connect-src",
                 ) and self.is_feature_enabled(applications, "matomo", application_id):
-                    tokens.append(
-                        _aligned_url(
-                            domains, application_id, "web-app-matomo", web_protocol
-                        )
-                    )
+                    tokens.append(provider("web-app-matomo"))
 
                 if directive == "connect-src" and self.is_feature_enabled(
                     applications, "simpleicons", application_id
                 ):
-                    tokens.append(
-                        _aligned_url(
-                            domains, application_id, "web-svc-simpleicons", web_protocol
-                        )
-                    )
+                    tokens.append(provider("web-svc-simpleicons"))
 
                 if self.is_feature_enabled(
                     applications, "recaptcha", application_id
@@ -334,22 +361,22 @@ class FilterModule:
                     if self.is_feature_enabled(
                         applications, "dashboard", application_id
                     ):
-                        domain = domains.get("web-app-dashboard")[0]
-                        tokens.append(f"{domain}")
-                    if self.is_feature_enabled(applications, "logout", application_id):
                         tokens.append(
-                            _aligned_url(
-                                domains, application_id, "web-svc-logout", web_protocol
-                            )
-                        )
-                        tokens.append(
-                            _aligned_url(
+                            align_domain_to_consumer(
                                 domains,
-                                application_id,
-                                "web-app-keycloak",
-                                web_protocol,
+                                "web-app-dashboard",
+                                get_domain(domains, "web-app-dashboard"),
+                                consumer=application_id,
+                                variables={"domain": vhost_domain}
+                                if vhost_domain
+                                else None,
                             )
                         )
+                    if self.is_feature_enabled(applications, "logout", application_id):
+                        tokens.append(provider("web-svc-logout"))
+                        issuer = provider("web-app-keycloak")
+                        fixed_tokens.add(issuer)
+                        tokens.append(issuer)
 
                 if directive in (
                     "script-src-attr",
@@ -406,38 +433,28 @@ class FilterModule:
             merge_family("style-src", "style-src-elem", "style-src-attr")
             merge_family("script-src", "script-src-elem", "script-src-attr")
 
-            _svc_tor = (applications or {}).get("svc-net-tor")
-            node_onion = ""
-            if isinstance(_svc_tor, dict):
-                node_onion = ((_svc_tor.get("services") or {}).get("tor") or {}).get(
+            _tor_provider = (applications or {}).get(network(TOR).provider)
+            node = ""
+            if isinstance(_tor_provider, dict):
+                node = ((_tor_provider.get("services") or {}).get("tor") or {}).get(
                     "node"
                 ) or ""
-            if node_onion and domain_primary and domain_primary != node_onion:
-                app_domains = [str(d) for d in (domains.get(application_id) or [])]
-                app_has_onion = any(node_onion in d for d in app_domains)
-                app_has_clearnet = any(domain_primary in d for d in app_domains)
-                if app_has_onion:
-                    for directive in list(tokens_by_dir.keys()):
-                        toks = tokens_by_dir[directive]
-                        if app_has_clearnet:
-                            siblings = [
-                                _ONION_SCHEME.sub(
-                                    lambda m: _ONION_PLAINTEXT[m.group(1)],
-                                    t.replace(domain_primary, node_onion),
-                                )
-                                for t in toks
-                                if domain_primary in t
-                            ]
-                            tokens_by_dir[directive] = _dedup_preserve(toks + siblings)
-                        else:
-                            tokens_by_dir[directive] = _dedup_preserve(
-                                [
-                                    t.replace(domain_primary, node_onion)
-                                    if domain_primary in t
-                                    else t
-                                    for t in toks
-                                ]
+            served_on = network_of(
+                vhost_domain or next(iter_domains(domains.get(application_id)), "")
+            )
+            if node and domain_primary and served_on == TOR:
+                for directive in list(tokens_by_dir.keys()):
+                    tokens_by_dir[directive] = _dedup_preserve(
+                        [
+                            _TLS_SCHEME.sub(
+                                lambda m: _PLAINTEXT[m.group(1)],
+                                t.replace(domain_primary, node),
                             )
+                            if domain_primary in t and t not in fixed_tokens
+                            else t
+                            for t in tokens_by_dir[directive]
+                        ]
+                    )
 
             for directive, toks in list(tokens_by_dir.items()):
                 tokens_by_dir[directive] = _sort_tokens(toks)

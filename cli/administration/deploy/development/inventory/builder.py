@@ -73,6 +73,8 @@ def build_dev_inventory(compose: Compose, spec: DevInventorySpec) -> None:
     extra_env: dict[str, str] = {}
     if spec.services_disabled:
         extra_env["disable"] = spec.services_disabled
+    if spec.network_mode:
+        extra_env["network"] = spec.network_mode
 
     compose.exec(
         cmd,

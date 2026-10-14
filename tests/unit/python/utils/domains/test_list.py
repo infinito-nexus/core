@@ -7,6 +7,7 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import (
     ROLE_FILE_META_DOMAINS,
     ROLE_FILE_META_SERVER,
@@ -14,6 +15,7 @@ from utils.roles.mapping import (
 )
 
 domain_list = importlib.import_module("utils.domains.list")
+DOMAIN = default_domain_primary()
 
 
 class TestDomainList(unittest.TestCase):
@@ -74,16 +76,16 @@ class TestDomainList(unittest.TestCase):
             )
 
             with patch.object(domain_list, "ROLES_DIR", roles_dir):
-                domains = domain_list.list_application_domains("infinito.test")
+                domains = domain_list.list_application_domains(DOMAIN)
 
             self.assertEqual(
                 domains,
                 sorted(
                     [
-                        "api.s3.infinito.test",
-                        "console.s3.infinito.test",
-                        "dashboard.infinito.test",
-                        "test.infinito.test",
+                        f"api.s3.{DOMAIN}",
+                        f"console.s3.{DOMAIN}",
+                        f"dashboard.{DOMAIN}",
+                        f"test.{DOMAIN}",
                     ]
                 ),
             )
@@ -109,7 +111,7 @@ class TestDomainList(unittest.TestCase):
 
             with patch.object(domain_list, "ROLES_DIR", roles_dir):
                 domains = domain_list.list_application_domains(
-                    "infinito.test",
+                    DOMAIN,
                     include_aliases=True,
                     include_www=True,
                 )
@@ -117,10 +119,10 @@ class TestDomainList(unittest.TestCase):
             self.assertEqual(
                 domains,
                 [
-                    "dashboard.infinito.test",
-                    "test.infinito.test",
-                    "www.dashboard.infinito.test",
-                    "www.test.infinito.test",
+                    f"dashboard.{DOMAIN}",
+                    f"test.{DOMAIN}",
+                    f"www.dashboard.{DOMAIN}",
+                    f"www.test.{DOMAIN}",
                 ],
             )
 
@@ -130,9 +132,9 @@ class TestDomainList(unittest.TestCase):
             roles_dir.mkdir()
 
             with patch.object(domain_list, "ROLES_DIR", roles_dir):
-                domains = domain_list.list_application_domains("infinito.test")
+                domains = domain_list.list_application_domains(DOMAIN)
 
-            self.assertEqual(domains, ["test.infinito.test"])
+            self.assertEqual(domains, [f"test.{DOMAIN}"])
 
     def test_list_application_domains_raises_on_collisions(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -154,7 +156,7 @@ class TestDomainList(unittest.TestCase):
                 patch.object(domain_list, "ROLES_DIR", roles_dir),
                 self.assertRaises(AnsibleError),
             ):
-                domain_list.list_application_domains("infinito.test")
+                domain_list.list_application_domains(DOMAIN)
 
 
 if __name__ == "__main__":

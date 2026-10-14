@@ -20,8 +20,9 @@ from utils.github.variant.axes import (
     DISTROS,
     FILESYSTEMS,
     LOCAL_GLYPH,
-    TOR_DEPLOY_MODES,
 )
+from utils.github.variant.network import NETWORK_DEPLOY_MODES
+from utils.networks.reachability import CLEARNET
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
@@ -56,21 +57,17 @@ def row_label(
     app: str,
     variant: str = "",
     *,
-    tor: bool = False,
+    network: str = CLEARNET,
     priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
 ) -> str:
-    """The ``matrix.label`` axes assigns to one row: mode glyph, tor glyph on
-    the modes that carry the onion axis, distro and filesystem glyphs, display
-    name, and the priority star."""
+    """The ``matrix.label`` axes assigns to one row: mode glyph, network glyph
+    on the modes that carry the network axis, distro and filesystem glyphs,
+    display name, and the priority star."""
     deploy_mode = _MODE_NAMES[mode]
     glyphs = to_emoji(deploy_mode)
-    glyphs += (
-        to_emoji("tor" if tor else "clearnet")
-        if deploy_mode in TOR_DEPLOY_MODES
-        else LOCAL_GLYPH
-    )
+    glyphs += to_emoji(network) if deploy_mode in NETWORK_DEPLOY_MODES else LOCAL_GLYPH
     glyphs += to_emoji(distro) + to_emoji(filesystem)
     label = f"{glyphs}{display_names().encode(app, variant)}"
     return f"{label} {to_emoji('priority')}" if priority else label
@@ -81,7 +78,7 @@ def deploy_job_name(
     app: str,
     variant: str = "",
     *,
-    tor: bool = False,
+    network: str = CLEARNET,
     priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
@@ -94,7 +91,7 @@ def deploy_job_name(
         mode: ``'docker'`` (compose), ``'swarm'`` or ``'host'``.
         app: role id, e.g. ``'web-app-matomo'``.
         variant: the row's variant index, e.g. ``'0'`` (``''`` = none).
-        tor: whether the row deploys behind the node onion.
+        network: the node network mode the row deploys in.
         priority: whether the row belongs to the priority line.
         distro: the distribution the row was assigned.
         filesystem: the docker data-root kind the row was assigned.
@@ -107,7 +104,7 @@ def deploy_job_name(
             mode,
             app,
             variant,
-            tor=tor,
+            network=network,
             priority=priority,
             distro=distro,
             filesystem=filesystem,

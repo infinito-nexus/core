@@ -6,7 +6,7 @@ Runs a [Tor](https://www.torproject.org/) daemon on the node and publishes a Tor
 
 ## Overview
 
-When `svc-net-tor` is deployed, the node's `DOMAIN_PRIMARY` is the minted `.onion` address, so the whole stack (web vhosts, Keycloak SSO, LDAP, CA) resolves onion domains consistently. The Tor daemon runs as a host-network compose sidecar and maps one hidden service to the host OpenResty (`HiddenServicePort 80 -> 127.0.0.1:80`); per-app subdomains (`<app>.<node>.onion`) are routed by the `Host` header. TLS is off on the onion side (onion v3 already provides transport encryption + server authentication); apps still receive `X-Forwarded-Proto: https` because `.onion` is a browser Secure Context.
+When `svc-net-tor` is deployed, the node runs in the `multi` network mode by default: every role with a Tor bond keeps its clearnet domains and gains one `<sub>.<node>.onion` sibling per domain, each served by its own vhost. `NETWORK_MODE: tor` serves those roles on onion only (see [network_modes.md](../../docs/contributing/design/network_modes.md)). The Tor daemon runs as a host-network compose sidecar and maps one hidden service to the host OpenResty (`HiddenServicePort 80 -> 127.0.0.1:80`); per-app subdomains (`<app>.<node>.onion`) are routed by the `Host` header. Onion vhosts serve plain HTTP (onion v3 already provides transport encryption and server authentication), so apps behind them receive `X-Forwarded-Proto: http`.
 
 The onion key is minted offline during inventory build (`cli.administration.inventory.onion`) and stored in the inventory, so the address is stable across redeploys and restorable from a backup.
 

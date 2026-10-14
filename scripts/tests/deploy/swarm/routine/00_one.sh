@@ -20,6 +20,7 @@ set -euo pipefail
 #   variant                             optional matrix variant pin
 #   disable                             optional provider keys to render disabled,
 #                                       minus SWARM_REQUIRED_SERVICES
+#   network                             optional node NETWORK_MODE of the row
 #
 # Exports:
 #   MGR/WRK1/WRK2/NFS_SERVER/BACKUP_NODE and their *_IP peers, from the topology SPOT
@@ -174,6 +175,7 @@ if [ "$(id -u)" -ne 0 ]; then
 		"NFS_IP=${NFS_IP}"
 		"variant=${variant:-}"
 		"disable=${disable:-}"
+		"network=${network:-}"
 		"${matrix_cmd[@]}"
 	)
 fi

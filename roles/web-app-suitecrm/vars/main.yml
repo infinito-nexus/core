@@ -27,7 +27,7 @@ SUITECRM_WEB_GROUP: www-data
 SUITECRM_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_saml') }}"
 SUITECRM_SAML_IDP_DESCRIPTOR_URL: "{{ [OIDC.CLIENT.ISSUER_URL, 'protocol/saml/descriptor'] | path_join }}"
 SUITECRM_SAML_SP_ENTITY_ID: "{{ [SUITECRM_URL, 'saml/metadata'] | path_join }}"
-SUITECRM_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+SUITECRM_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 SUITECRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if SUITECRM_OIDC_ONION_ISSUER | bool else '' }}"
 
 SUITECRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"

@@ -1,5 +1,5 @@
 name: "🕹️ Manual"
-run-name: "🕹️ ${{ inputs.chunk_gate && '🛑 ' || '' }}${{ inputs.offset != '0' && inputs.offset != '' && format('⏩{0} ', inputs.offset) || '' }}${{ inputs.workspace != 'auto' && format('🧑‍💻{0} ', inputs.workspace == 'true' && '是' || '否') || '' }}${{ inputs.tor != 'auto' && format('{0} ', inputs.tor == 'disabled' && '🌐' || inputs.tor == 'enforced' && '🧅强制' || '🧅独占') || '' }}${{ inputs.filesystem != '' && format('🗄️{0} ', inputs.filesystem) || '' }}${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}${{ inputs.lifecycles != '' && format('♻️{0} ', inputs.lifecycles) || '' }}${{ inputs.mode != 'auto' && format('🚀{0} ', inputs.mode) || '' }}${{ inputs.priority != '' && format('⭐{0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯{0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
+run-name: "🕹️ ${{ inputs.chunk_gate && '🛑 ' || '' }}${{ inputs.offset != '0' && inputs.offset != '' && format('⏩{0} ', inputs.offset) || '' }}${{ inputs.workspace != 'auto' && format('🧑‍💻{0} ', inputs.workspace == 'true' && '是' || '否') || '' }}${{ inputs.network != 'auto' && format('{0} ', inputs.network == 'clearnet' && '🌐' || inputs.network == 'tor' && '🧅' || '🌈') || '' }}${{ inputs.filesystem != '' && format('🗄️{0} ', inputs.filesystem) || '' }}${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}${{ inputs.lifecycles != '' && format('♻️{0} ', inputs.lifecycles) || '' }}${{ inputs.mode != 'auto' && format('🚀{0} ', inputs.mode) || '' }}${{ inputs.priority != '' && format('⭐{0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯{0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
@@ -43,16 +43,16 @@ on:
         required: false
         default: ""
         type: string
-      tor:
-        description: "🧅 Tor axis for swarm and compose; the four values are in the README"
+      network:
+        description: "🌈 Node network mode for swarm and compose; the four values are in the README"
         required: false
         default: "auto"
         type: choice
         options:
           - "auto"
-          - "enforced"
-          - "exclusive"
-          - "disabled"
+          - "clearnet"
+          - "tor"
+          - "multi"
       offset:
         description: "⏩ Where chunk 0 starts: a row count, or a token like web-app-x#2"
         required: false
@@ -69,7 +69,7 @@ on:
         default: true
         type: boolean
       sweep:
-        description: "🔁 Sweep number driving the mode and tor rotation. Empty: the run number"
+        description: "🔁 Sweep number driving the mode and network rotation. Empty: the run number"
         required: false
         default: ""
         type: string
@@ -117,5 +117,5 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       workspace: ${{ inputs.workspace }}
       workspace_track: ${{ inputs.workspace_track }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
     secrets: inherit

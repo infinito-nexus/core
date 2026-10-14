@@ -1,3 +1,3 @@
 lua_need_request_body on;
 
-body_filter_by_lua_file {{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}.lua;
+body_filter_by_lua_file {{ lookup('nginx', 'directories.configuration.lua') }}{{ domain }}.lua;

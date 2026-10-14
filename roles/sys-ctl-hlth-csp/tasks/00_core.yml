@@ -43,12 +43,8 @@
       {{
         [
           system_service_script_exec,
-          '--nginx-config-dir=' ~ (
-            [
-              lookup('nginx','directories.configuration.servers'),
-              lookup('tls', DOMAIN_PRIMARY, 'protocols.web')
-            ] | path_join
-          ),
+          '--nginx-config-dir=' ~ lookup('nginx','directories.configuration.servers'),
+          '--proxy-suffix=' ~ ('tor' | network_suffix),
           '--image=' ~ HEALTH_CSP_IMAGE,
           '--short',
           (HEALTH_CSP_ALWAYS_PULL | bool) | ternary('--always-pull', ''),

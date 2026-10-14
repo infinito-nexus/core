@@ -21,7 +21,10 @@ from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
+
+DOMAIN = default_domain_primary()
 
 
 def _write(path: Path, content: str) -> None:
@@ -310,10 +313,10 @@ class TestMaterializeBuiltinUserAliases(unittest.TestCase):
         }
         out = cache_users._materialize_builtin_user_aliases(
             users,
-            variables={"DOMAIN_PRIMARY": "infinito.test"},
+            variables={"DOMAIN_PRIMARY": DOMAIN},
             templar=None,
         )
-        self.assertEqual(out["sld"]["username"], "infinito")
+        self.assertEqual(out["sld"]["username"], DOMAIN.split(".", maxsplit=1)[0])
 
 
 class TestGetUserDefaults(unittest.TestCase):

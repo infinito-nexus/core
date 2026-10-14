@@ -42,23 +42,6 @@ against those runs say so inline.
   not code. Until then the per-consumer fixes stand: SOCKS proxy for libcurl
   clients. peertube is no longer among them - it is a clearnet-only role.
 
-- **dual-family providers** — the one real remaining design gap. On a CI onion
-  node, tor-enabled providers (e.g. mastodon) are onion-exclusive: their domain
-  list contains only the `.onion` canonical, no clearnet sibling. The
-  family-alignment resolver (`utils/tls_common.py:align_domain_to_consumer`,
-  wired into `plugins/lookup/tls.py`) correctly bails in that case, so a
-  clearnet-pinned consumer still receives an onion URL it can neither resolve
-  nor reach. First hard evidence: `web-app-fediwall` variant 2 (tor=false)
-  renders `microblog.<onion>` into `wall-config.json.servers`; the clearnet
-  browser (no SOCKS) times out waiting for mastodon wall items
-  (`test-walls-surface-posts.js:24`, deterministic across retries). The same
-  class is expected to keep `web-app-bigbluebutton`, `web-app-nextcloud`,
-  `web-app-opentalk` and `web-app-jitsi` red (clearnet-pinned apps whose peer
-  refs — OIDC/cdn/matomo/logout — resolve onion-primary). Fix direction:
-  providers must publish BOTH families (clearnet sibling alongside the onion
-  canonical) so the resolver has something to align to; includes re-applying
-  the deferred `KC_HOSTNAME` onion-gate for Keycloak that was dropped from the
-  earlier bundle because it is only needed once dual-family exists.
 - **joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the
   `?fallback=local` emergency hatch: local Joomla admin form login must reach
   the control panel). Root cause UNCONFIRMED. It is independent of the fixed

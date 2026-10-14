@@ -7,12 +7,12 @@ neither is visible in a green run:
 * **Every dispatch input travels.** An input the source run set and the
   retrigger drops silently falls back to the workflow default, so the rerun
   deploys under a configuration nobody chose -- a swarm-only run coming back as
-  a full rotation, a tor-enforced run coming back on the clearnet. The carried
+  a full rotation, a tor-only run coming back on the clearnet. The carried
   set is therefore derived from the workflow itself, and this test walks the
   same declaration: adding an input to the form without teaching the trigger
   fails here rather than in a run three hours later.
 * **The priority line names what actually failed.** Aggregated to a role id, a
-  retrigger redeploys whichever variant/mode/onion combination the rotation
+  retrigger redeploys whichever variant/mode/network combination the rotation
   picks next, which need not be the one that broke. Each failed job comes back
   as its own selection token instead.
 """
@@ -41,7 +41,7 @@ _VALUES = {
     "lifecycles": "stable",
     "mode": "swarm",
     "filesystem": "btrfs",
-    "tor": "enforced",
+    "network": "tor",
     "offset": "40",
     "chunk_size": "25",
     "chunk_gate": "false",
@@ -54,7 +54,7 @@ dropped one shows up as a missing key rather than as a coincidence."""
 
 _JOBS = [
     {
-        "name": deploy_job_name("swarm", "web-app-x", "0", tor=True),
+        "name": deploy_job_name("swarm", "web-app-x", "0", network="multi"),
         "status": "completed",
         "conclusion": "failure",
     },
@@ -123,9 +123,9 @@ class TestCarriedInputs(unittest.TestCase):
 
     def test_an_input_the_source_left_on_its_default_is_not_invented(self) -> None:
         _whitelist, _priority, config = _dispatch(
-            ["--failed", "--run", _RUN_URL], {"tor": "exclusive"}
+            ["--failed", "--run", _RUN_URL], {"network": "clearnet"}
         )
-        self.assertEqual(config.get("tor"), "exclusive")
+        self.assertEqual(config.get("network"), "clearnet")
         self.assertNotIn("mode", config)
 
 
@@ -134,7 +134,7 @@ class TestRecomputedSelection(unittest.TestCase):
         _whitelist, priority, _config = _dispatch(
             ["--failed", "--run", _RUN_URL], {"priority": ""}
         )
-        self.assertEqual(priority, f"web-app-x#0@swarm+tor%{DISTROS[0]}")
+        self.assertEqual(priority, f"web-app-x#0@swarm+multi%{DISTROS[0]}")
 
     def test_a_green_selection_of_the_same_run_is_left_alone(self) -> None:
         _whitelist, priority, _config = _dispatch(

@@ -1,0 +1,19 @@
+---
+- name: "▶️ Run securityadmin.sh inside the indexer container"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -e JAVA_HOME=/usr/share/wazuh-indexer/jdk {{ WAZUH_INDEXER_CONTAINER_ADDRESS }}
+      /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh
+      -cd {{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/
+      -icl
+      -key {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin-key.pem
+      -cert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin.pem
+      -cacert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/root-ca.pem
+      -nhnv
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_securityadmin
+  changed_when: "'Done with success' in wazuh_securityadmin.stdout"
+  failed_when: wazuh_securityadmin.rc != 0 or 'Done with success' not in wazuh_securityadmin.stdout
+  retries: 10
+  delay: 10
+  until: wazuh_securityadmin.rc == 0

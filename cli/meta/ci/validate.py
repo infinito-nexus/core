@@ -2,7 +2,7 @@
 
 Usage:
   python -m cli.meta.ci.validate [--whitelist "..."] [--priority "..."]
-      [--modes auto] [--tor auto] [--distros "..."] [--filesystem "..."]
+      [--modes auto] [--network auto] [--distros "..."] [--filesystem "..."]
       [--lifecycles "..."]
 
 A selection token names a row that has to exist *on this branch*
@@ -14,12 +14,12 @@ here instead, and the exit code gates the run.
 
 What makes a token bad, in the order this checks it:
 
-* it does not parse, or names a mode or onion state that does not exist;
+* it does not parse, or names a mode or network mode that does not exist;
 * it pins a variant the role does not declare (any more): the usual case is a
   list carried over from an older run whose variants have since been renumbered;
-* it pins a mode the row cannot take, an onion state the row, the mode or the
-  run's own tor axis rules out, or a distro or filesystem the run's own pool
-  does not hold.
+* it pins a mode the row cannot take, a network mode the row, the mode or the
+  run's own network axis rules out, or a distro or filesystem the run's own
+  pool does not hold.
 
 A token naming a role the discovery query does not return at all is reported
 too, but as a warning, whether or not it pins axes: the diff-derived whitelist
@@ -36,7 +36,7 @@ import sys
 
 from cli.meta.ci import query
 from utils.cache.applications import get_variants
-from utils.github.variant import axes, pools, selection, tor
+from utils.github.variant import axes, network, pools, selection
 from utils.roles.display import display_names
 
 
@@ -44,7 +44,7 @@ def problems(
     tokens: str,
     *,
     modes: tuple[str, ...],
-    tor_mode: str,
+    network_input: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
     lifecycles: str,
@@ -62,7 +62,7 @@ def problems(
     Args:
         tokens: the raw ``whitelist``/``priority`` value.
         modes: the run's selected deploy modes.
-        tor_mode: the run's tor axis.
+        network_input: the run's network axis.
         distros: the distro pool the run draws from.
         filesystems: the filesystem pool the run draws from.
         lifecycles: the run's lifecycle envelope.
@@ -75,12 +75,13 @@ def problems(
     if not pins:
         return [], []
 
-    rows = {
-        (row["name"], row["variant"]): query.row_modes(row, modes)
+    discovered = {
+        (row["name"], row["variant"]): row
         for row in query.discover_rows(
             modes, whitelist=selection.names(pins), lifecycles=lifecycles
         )
     }
+    rows = {key: query.row_modes(row, modes) for key, row in discovered.items()}
     discovered_apps = {app for app, _variant in rows}
     declared = get_variants()
     errors: list[str] = []
@@ -114,11 +115,16 @@ def problems(
                     "" if variant is None else str(variant),
                     offered,
                     pin_mode=pin.mode,
-                    pin_tor=pin.tor,
+                    pin_network=pin.network,
                     pin_distro=pin.distro,
                     pin_filesystem=pin.filesystem,
-                    capable=tor.tor_capable(pin.app, variant, declared),
-                    tor_mode=tor_mode,
+                    states=network.row_states(
+                        pin.app,
+                        variant,
+                        declared,
+                        pulls_tor=network.row_pulls_tor(discovered[(pin.app, variant)]),
+                    ),
+                    network_input=network_input,
                     distros=distros,
                     filesystems=filesystems,
                 )
@@ -134,14 +140,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--whitelist", default="")
     parser.add_argument("--priority", default="")
     parser.add_argument("--modes", default=query.ALL_MODES)
-    parser.add_argument("--tor", default=None)
+    parser.add_argument("--network", default=None)
     parser.add_argument("--distros", default="")
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--lifecycles", default="")
     args = parser.parse_args(argv)
 
     modes = query.resolve_modes(args.modes)
-    tor_mode = tor.resolve_tor_mode(args.tor)
+    network_input = network.resolve_network_input(args.network)
     distros = pools.resolve_distros(args.distros)
     filesystems = pools.resolve_filesystems(args.filesystem)
 
@@ -151,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
         found, warned = problems(
             tokens,
             modes=modes,
-            tor_mode=tor_mode,
+            network_input=network_input,
             distros=distros,
             filesystems=filesystems,
             lifecycles=args.lifecycles,

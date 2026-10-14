@@ -1,9 +1,8 @@
-# ===== Content Security Policy: only for documents and workers (no locations needed) =====
+{% set _network = domain | network_of %}
+{% set _onion = namespace(host='') %}
+{% for _sibling in lookup('network_siblings', domain) if (_sibling | network_of) == 'tor' %}{% set _onion.host = _sibling %}{% endfor %}
+set $csp "{{ lookup('applications') | build_csp_header(application_id, lookup('domains'), ('https' if TLS_ENABLED | bool else 'http'), (webserver_csp_whitelist_extra_by_app | default({})).get(application_id, {}), (webserver_csp_hashes_extra_by_app | default({})).get(application_id, {}), DOMAIN_PRIMARY, domain) | replace('\"','\\\"') }}";
 
-# 1) Define your CSP once (Jinja: escape double quotes to be safe)
-set $csp "{{ lookup('applications') | build_csp_header(application_id, lookup('domains'), lookup('tls', application_id, 'protocols.web'), (webserver_csp_whitelist_extra_by_app | default({})).get(application_id, {}), (webserver_csp_hashes_extra_by_app | default({})).get(application_id, {}), DOMAIN_PRIMARY) | replace('\"','\\\"') }}";
-
-# 2) Send CSP ONLY for document responses; also for workers via Sec-Fetch-Dest
 header_filter_by_lua_block {
     local ct   = ngx.header.content_type or ngx.header["Content-Type"] or ""
     local dest = ngx.var.http_sec_fetch_dest or ""
@@ -19,14 +18,16 @@ header_filter_by_lua_block {
         ngx.header["Content-Security-Policy-Report-Only"] = nil
     end
 
-    -- If you'll modify the body later, drop Content-Length on HTML
     if is_html then
         ngx.ctx.is_html = true
         ngx.header.content_length = nil
+{% if _network == 'clearnet' and _onion.host %}
+        ngx.header["Onion-Location"] = "{{ lookup('tls', _onion.host, 'url.base') | regex_replace('/+$', '') }}" .. ngx.var.request_uri
+{% endif %}
     else
         ngx.ctx.is_html = false
-{% if (lookup('config', application_id, 'services.tor.enabled', False) | bool) and (lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY)) %}
-        if lct:find("^text/css") and (ngx.var.http_host or ""):sub(-6) == ".onion" then
+{% if _network == 'tor' and (lookup('config', application_id, 'services.tor.enabled', False) | bool) and (lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY)) %}
+        if lct:find("^text/css") then
             ngx.ctx.is_css = true
             ngx.header.content_length = nil
         end

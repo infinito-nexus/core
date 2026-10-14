@@ -1,5 +1,6 @@
 from ansible.errors import AnsibleError, AnsibleFilterError
 
+from utils.networks.reachability import TOR, network
 from utils.roles.applications.config import get
 from utils.tls_common import is_onion_domain, resolve_primary_domain_from_app
 
@@ -80,7 +81,8 @@ class FilterModule:
                         v
                         for k, v in domains_entry.items()
                         if str(k) not in disabled
-                        and str(k).removesuffix("_onion") not in disabled
+                        and str(k).removesuffix(f"_{network(TOR).label}")
+                        not in disabled
                     ]
                 elif isinstance(domains_entry, list):
                     flattened = domains_entry

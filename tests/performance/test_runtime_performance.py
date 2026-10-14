@@ -33,10 +33,12 @@ from plugins.lookup.domains import (
 from plugins.lookup.domains import (
     _reset_cache_for_tests as _reset_domains_cache,
 )
+from utils.domains.default_primary import default_domain_primary
 
 from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
+DOMAIN = default_domain_primary()
 
 
 def _simulate_ansible_variables(
@@ -52,8 +54,8 @@ def _simulate_ansible_variables(
     return {
         "applications": shared_applications,
         "users": shared_users,
-        "DOMAIN_PRIMARY": "infinito.test",
-        "SYSTEM_EMAIL_DOMAIN": "infinito.test",
+        "DOMAIN_PRIMARY": DOMAIN,
+        "SYSTEM_EMAIL_DOMAIN": DOMAIN,
         "group_names": [],
     }
 

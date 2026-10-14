@@ -7,7 +7,7 @@
 #   INPUT_WHITELIST  caller-provided whitelist (space-separated), as role ids
 #                    or as the display names utils.roles.display renders. A
 #                    token may pin deploy axes onto the role
-#                    (`#variant`, `@mode`, `+tor`, see
+#                    (`#variant`, `@mode`, `+network`, see
 #                    utils.github.variant.selection); the pins are passed
 #                    through untouched, and only the name in front of them is
 #                    the directory this checks for.

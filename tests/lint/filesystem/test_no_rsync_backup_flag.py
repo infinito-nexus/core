@@ -102,7 +102,9 @@ def _scan_targets() -> list[Path]:
     return [
         PROJECT_ROOT / rel
         for rel in _git_ls_files()
-        if rel.endswith(_SCANNED_SUFFIXES) and rel != _SELF_REL
+        if rel.endswith(_SCANNED_SUFFIXES)
+        and rel != _SELF_REL
+        and (PROJECT_ROOT / rel).exists()
     ]
 
 

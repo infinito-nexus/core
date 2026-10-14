@@ -14,8 +14,10 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
+from utils.domains.default_primary import default_domain_primary
 
 SAMPLER = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "ci" / "dns53-sampler.sh"
+DOMAIN = default_domain_primary()
 
 HEADER = (
     "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when "
@@ -107,8 +109,8 @@ class ZoneProbeNameTests(unittest.TestCase):
 
     def test_the_owned_zone_becomes_a_probe_name(self):
         self.assertEqual(
-            self._zone("no-resolv\naddress=/infinito.test/192.168.244.10\n"),
-            "rescue-probe.infinito.test",
+            self._zone(f"no-resolv\naddress=/{DOMAIN}/192.168.244.10\n"),
+            f"rescue-probe.{DOMAIN}",
         )
 
     def test_a_config_without_a_zone_yields_nothing(self):

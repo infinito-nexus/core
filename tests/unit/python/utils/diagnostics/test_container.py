@@ -14,11 +14,13 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from utils.domains.default_primary import default_domain_primary
 from utils.paths import read_group_path
 
 from . import PROJECT_ROOT
 
 RESCUE = PROJECT_ROOT / "utils" / "diagnostics" / "container.py"
+DOMAIN = default_domain_primary()
 _ENV = mock.patch.dict(
     os.environ,
     {"INFINITO_DNS53_SAMPLER_LOG": read_group_path("FILE_DNS53_SAMPLER_LOG")},
@@ -70,8 +72,8 @@ class InZoneProbeTests(unittest.TestCase):
     def test_a_zone_in_the_main_file_still_wins(self):
         with tempfile.TemporaryDirectory() as tmp:
             main = Path(tmp) / "dnsmasq.conf"
-            main.write_text("address=/infinito.test/192.0.2.1\n", encoding="utf-8")
-            self.assertEqual(self._zone(main), "infinito.test")
+            main.write_text(f"address=/{DOMAIN}/192.0.2.1\n", encoding="utf-8")
+            self.assertEqual(self._zone(main), DOMAIN)
 
     def test_a_config_without_a_zone_yields_nothing(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -23,12 +23,12 @@ on:
         type: string
         default: "auto"
       priority:
-        description: "Optional space-separated app ids for the priority line: sorted to the head of the list and cut into chunks of their own, so every priority row is deployed before the first regular one starts. Priority rows skip the sweep rotation and run every combination they can take (each variant, each offered mode, Tor and clearnet)."
+        description: "Optional space-separated app ids for the priority line: sorted to the head of the list and cut into chunks of their own, so every priority row is deployed before the first regular one starts. Priority rows skip the sweep rotation and run every combination they can take (each variant, each offered mode, each network mode)."
         required: false
         type: string
         default: ""
       sweep:
-        description: "Sweep number driving the mode and tor rotation. Empty: the run number."
+        description: "Sweep number driving the mode and network rotation. Empty: the run number."
         required: false
         type: string
         default: ""
@@ -77,8 +77,8 @@ on:
         required: false
         type: string
         default: "rotate"
-      tor:
-        description: "Tor axis of the deploy matrix: 'auto' rotates the onion over the tor-capable rows, 'enforced' onions all of them, 'exclusive' also drops the rows that cannot, 'disabled' onions none."
+      network:
+        description: "Network axis of the deploy matrix: 'auto' rotates every row over the node network modes its role can be served in; 'clearnet', 'tor' or 'multi' keeps only the rows that can take that mode."
         required: false
         type: string
         default: "auto"
@@ -101,7 +101,7 @@ jobs:
       whitelist: ${{ inputs.whitelist }}
       priority: ${{ inputs.priority }}
       mode: ${{ inputs.mode }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
       distros: ${{ inputs.distros }}
       filesystem: ${{ inputs.filesystem }}
       lifecycles: ${{ inputs.lifecycles }}
@@ -186,7 +186,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
 
   test-deploy-chunk-1:
     name: 🧱 Chunk 1
@@ -218,7 +218,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
 
   test-deploy-chunk-2:
     name: 🧱 Chunk 2
@@ -252,7 +252,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
 
   test-deploy-chunk-3:
     name: 🧱 Chunk 3
@@ -288,7 +288,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
 
   test-runner-smoke:
     needs:

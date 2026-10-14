@@ -13,11 +13,14 @@ import textwrap
 import unittest
 from pathlib import Path
 
+from utils.domains.default_primary import default_domain_primary
+
 from . import PROJECT_ROOT
 
 HELPER_PATH = str(
     PROJECT_ROOT / "roles" / "test-e2e-playwright" / "files" / "timeouts.js"
 )
+DOMAIN = default_domain_primary()
 
 
 def _have_node():
@@ -60,7 +63,7 @@ class TestTimeoutsHelper(unittest.TestCase):
     def test_clearnet_default_factor_is_identity(self):
         out = self._run(
             "t.resolveTimeout(60000)",
-            {"CANONICAL_DOMAIN": '"x.infinito.test"'},
+            {"CANONICAL_DOMAIN": f'"x.{DOMAIN}"'},
         )
         self.assertIn("RESULT:60000", out)
 
@@ -75,7 +78,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         out = self._run(
             "t.resolveTimeout(60000)",
             {
-                "CANONICAL_DOMAIN": "x.infinito.test",
+                "CANONICAL_DOMAIN": f"x.{DOMAIN}",
                 "PLAYWRIGHT_TIMEOUT_FACTOR": "2",
             },
         )
@@ -96,7 +99,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         out = self._run(
             "t.resolveTimeout(60000)",
             {
-                "CANONICAL_DOMAIN": "x.infinito.test",
+                "CANONICAL_DOMAIN": f"x.{DOMAIN}",
                 "PLAYWRIGHT_TIMEOUT_FACTOR": "0",
             },
         )
@@ -113,7 +116,23 @@ class TestTimeoutsHelper(unittest.TestCase):
         )
         self.assertIn(
             "RESULT:false",
-            self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.test"'}),
+            self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": f'"x.{DOMAIN}"'}),
+        )
+
+    def test_is_onion_target_reads_app_base_url_first(self):
+        self.assertIn(
+            "RESULT:true",
+            self._run("t.isOnionTarget()", {"APP_BASE_URL": '"https://x.abc.onion/"'}),
+        )
+        self.assertIn(
+            "RESULT:false",
+            self._run(
+                "t.isOnionTarget()",
+                {
+                    "APP_BASE_URL": f'"https://x.{DOMAIN}/"',
+                    "CANONICAL_DOMAIN": '"x.abc.onion"',
+                },
+            ),
         )
 
 

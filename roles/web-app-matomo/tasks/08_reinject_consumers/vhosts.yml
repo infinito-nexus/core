@@ -1,0 +1,11 @@
+---
+- name: "📄 Matomo | Re-render injection on every vhost of one web-svc consumer"
+  ansible.builtin.include_role:
+    name: sys-front-inj-all
+  vars:
+    application_id: "{{ matomo_inj_dir.matomo_inj_consumer.id }}"
+    domain: "{{ matomo_inj_vhost }}"
+    matomo_token_override: "{{ matomo_token_value }}"
+  loop: "{{ lookup('network_siblings', lookup('domain', matomo_inj_dir.matomo_inj_consumer.id)) }}"
+  loop_control:
+    loop_var: matomo_inj_vhost

@@ -33,7 +33,7 @@ def mark(
     """Hand one entry per role the replay, and give its label the 📖.
 
     Only the first entry of the chosen variant: a priority row runs every mode
-    and onion state it offers, and replaying the same README block in each of
+    and network mode it offers, and replaying the same README block in each of
     them proves nothing the first replay did not. The glyph goes between the
     variant number and the ⭐ of a priority row, with no space between the two:
     they are one marker block, not two axes.

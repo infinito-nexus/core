@@ -1,5 +1,7 @@
 from ansible.errors import AnsibleFilterError
 
+from utils.networks.reachability import TOR, network_of
+
 
 class FilterModule:
     def filters(self):
@@ -63,9 +65,7 @@ class FilterModule:
                 flat.extend(www_variants)
 
             unique_domains = sorted(set(flat))
-            onion_count = sum(
-                1 for d in unique_domains if str(d).lower().endswith(".onion")
-            )
+            onion_count = sum(1 for d in unique_domains if network_of(d) == TOR)
             clearnet_count = len(unique_domains) - onion_count
             onion_seconds = (
                 per_domain_seconds
