@@ -46,13 +46,14 @@
       - "-"
     stdin: "MASTODON_DESIGN_PAYLOAD = \"{{ mastodon_design_payload | to_json | b64encode }}\"\n{{ lookup('ansible.builtin.file', 'ruby/design.rb') }}"
   vars:
+    mastodon_design_slurped: "{{ mastodon_design_files.results | selectattr('content', 'defined') | list }}"
     mastodon_design_payload:
       css: "{{ lookup('ansible.builtin.template', 'custom.css.j2') if MASTODON_DESIGN_ENABLED | bool else '' }}"
       begin: "{{ MASTODON_CUSTOM_CSS_BEGIN }}"
       end: "{{ MASTODON_CUSTOM_CSS_END }}"
       title: "{{ lookup('design', application_id).title if lookup('design', application_id).title is string else '' }}"
       mark: "{{ MASTODON_DESIGN_UPLOAD_MARK }}"
-      uploads: "{{ dict(mastodon_design_files.results | map(attribute='item.key') | zip(mastodon_design_files.results | map(attribute='content', default=None))) }}"
+      uploads: "{{ dict(mastodon_design_slurped | map(attribute='item.key') | zip(mastodon_design_slurped | map(attribute='content'))) }}"
   register: mastodon_design
   changed_when: "'DESIGN_CHANGED' in mastodon_design.stdout"
   failed_when: >-
