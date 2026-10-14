@@ -40,18 +40,20 @@ module.exports = {
   n8n: {
     ready: [
       async function ({ app }, config) {
-        const headerName = process.env.N8N_FORWARD_AUTH_HEADER;
-        if (!headerName) {
-          this.logger?.info('N8N_FORWARD_AUTH_HEADER not set; SSO middleware disabled.');
-          return;
-        }
-
-        this.logger?.info(`SSO middleware initializing with header: ${headerName}`);
-
         const { createRequire } = require('module');
         const { dirname, resolve } = require('path');
         const { randomBytes } = require('crypto');
         const n8nRequire = createRequire(require.resolve('n8n'));
+        const logger = n8nRequire('@n8n/di').Container.get(n8nRequire('@n8n/backend-common').Logger);
+
+        const headerName = process.env.N8N_FORWARD_AUTH_HEADER;
+        if (!headerName) {
+          logger.info('N8N_FORWARD_AUTH_HEADER not set; SSO middleware disabled.');
+          return;
+        }
+
+        logger.info(`SSO middleware initializing with header: ${headerName}`);
+
         const Layer = createRequire(n8nRequire.resolve('express'))('router/lib/layer');
         const { hash } = n8nRequire('bcryptjs');
         const { issueCookie } = require(resolve(dirname(require.resolve('n8n')), 'auth/jwt'));
@@ -92,16 +94,16 @@ module.exports = {
                   const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
                   firstName = payload.given_name || '';
                   lastName = payload.family_name || '';
-                  this.logger?.debug(`Extracted from access token: firstName="${firstName}", lastName="${lastName}"`);
+                  logger.debug(`Extracted from access token: firstName="${firstName}", lastName="${lastName}"`);
                 }
               } catch (e) {
-                this.logger?.debug(`Failed to decode access token: ${e.message}`);
+                logger.debug(`Failed to decode access token: ${e.message}`);
               }
             }
 
             // If the forward-auth header with email is missing — do nothing
             if (!emailHeader) {
-              this.logger?.debug(`No ${headerName} header found, skipping SSO auto-login`);
+              logger.debug(`No ${headerName} header found, skipping SSO auto-login`);
               return next();
             }
 
@@ -110,11 +112,11 @@ module.exports = {
             const userLastName = Array.isArray(lastName) ? lastName[0] : String(lastName).trim();
 
             if (!userEmail) {
-              this.logger?.debug(`Empty ${headerName} header, skipping SSO auto-login`);
+              logger.debug(`Empty ${headerName} header, skipping SSO auto-login`);
               return next();
             }
 
-            this.logger?.info(`SSO auto-login attempt for email: ${userEmail}`);
+            logger.info(`SSO auto-login attempt for email: ${userEmail}`);
 
             let user = await UserRepo.findOne({
               where: { email: userEmail },
@@ -135,7 +137,7 @@ module.exports = {
               const created = await UserRepo.createUserWithProject(userData);
               user = created.user;
 
-              this.logger?.info(`Created new user: ${userEmail} (${userFirstName} ${userLastName}) via SSO`);
+              logger.info(`Created new user: ${userEmail} (${userFirstName} ${userLastName}) via SSO`);
             } else {
               let changed = false;
               if (userFirstName && user.firstName !== userFirstName) {
@@ -148,14 +150,14 @@ module.exports = {
               }
               if (changed) {
                 await UserRepo.save(user);
-                this.logger?.info(`Updated user: ${userEmail} (${userFirstName} ${userLastName}) via SSO`);
+                logger.info(`Updated user: ${userEmail} (${userFirstName} ${userLastName}) via SSO`);
               } else {
-                this.logger?.info(`Existing user logged in: ${userEmail} via SSO`);
+                logger.info(`Existing user logged in: ${userEmail} via SSO`);
               }
             }
 
             if (!user.role) {
-              this.logger?.error(`User ${userEmail} has no valid role; cannot issue cookie.`);
+              logger.error(`User ${userEmail} has no valid role; cannot issue cookie.`);
               res.statusCode = 401;
               res.end(`User ${userEmail} has no valid role. Ask admin to assign a role.`);
               return;
@@ -168,14 +170,14 @@ module.exports = {
 
             return next();
           } catch (error) {
-            this.logger?.error(`SSO middleware error: ${error.message}`);
+            logger.error(`SSO middleware error: ${error.message}`);
             return next(error);
           }
         });
 
         // Insert our middleware right after cookieParser
         stack.splice(idx + 1, 0, layer);
-        this.logger?.info('SSO middleware initialized successfully');
+        logger.info('SSO middleware initialized successfully');
       }
     ]
   }

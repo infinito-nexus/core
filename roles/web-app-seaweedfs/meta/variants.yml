@@ -4,8 +4,8 @@
       enabled: true
       shared: true
     sso:
-      enabled: true
-      shared: true
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
     logout:
       enabled: "{{ 'svc-net-tor' not in group_names }}"
       shared: "{{ 'svc-net-tor' not in group_names }}"

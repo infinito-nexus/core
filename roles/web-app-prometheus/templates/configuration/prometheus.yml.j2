@@ -43,6 +43,7 @@ scrape_configs:
 
 {% set canonical_map = lookup('domains') %}
 {% set probed_roles = lookup('roles_with_service', 'prometheus') | map(attribute='id') | list %}
+{% set private_ca_unverifiable = not lookup('ca_injected', application_id) %}
   - job_name: "blackbox-healthz"
     metrics_path: /probe
     params:
@@ -59,6 +60,9 @@ scrape_configs:
 {% endfor %}
         labels:
           app: "{{ _application_id }}"
+{% if private_ca_unverifiable and lookup('tls', _application_id, 'mode') == 'self_signed' %}
+          __param_module: http_ready_private_ca
+{% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}

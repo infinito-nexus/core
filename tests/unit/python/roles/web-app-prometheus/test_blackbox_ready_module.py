@@ -10,7 +10,9 @@ from utils.cache.yaml import load_yaml_str
 TEMPLATE_DIR = PROJECT_ROOT / "roles/web-app-prometheus/templates/configuration"
 
 
-def ready_module(*, tls_mode: str, prometheus_tls: bool, ca_injected: bool) -> dict:
+def ready_module(
+    *, name: str, tls_mode: str, prometheus_tls: bool, ca_injected: bool
+) -> dict:
     def lookup(name, *terms):
         if name == "tls" and terms[1] == "enabled":
             return prometheus_tls
@@ -29,33 +31,55 @@ def ready_module(*, tls_mode: str, prometheus_tls: bool, ca_injected: bool) -> d
         application_id="web-app-prometheus",
         TLS_MODE=tls_mode,
     )
-    return load_yaml_str(rendered)["modules"]["http_ready"]["http"]
+    return load_yaml_str(rendered)["modules"][name]["http"]
 
 
 class TestBlackboxReadyModule(unittest.TestCase):
     def test_an_http_target_passes_while_prometheus_itself_uses_tls(self):
         module = ready_module(
-            tls_mode="letsencrypt", prometheus_tls=True, ca_injected=False
+            name="http_ready",
+            tls_mode="letsencrypt",
+            prometheus_tls=True,
+            ca_injected=False,
         )
         self.assertIs(module["fail_if_not_ssl"], False)
 
     def test_certificates_are_verified_while_prometheus_itself_has_no_tls(self):
         module = ready_module(
-            tls_mode="letsencrypt", prometheus_tls=False, ca_injected=False
+            name="http_ready",
+            tls_mode="letsencrypt",
+            prometheus_tls=False,
+            ca_injected=False,
         )
         self.assertIs(module["tls_config"]["insecure_skip_verify"], False)
 
     def test_certificates_are_verified_once_the_private_ca_is_mounted(self):
         module = ready_module(
-            tls_mode="self_signed", prometheus_tls=True, ca_injected=True
+            name="http_ready",
+            tls_mode="self_signed",
+            prometheus_tls=True,
+            ca_injected=True,
         )
         self.assertIs(module["tls_config"]["insecure_skip_verify"], False)
 
-    def test_verification_is_skipped_only_without_the_private_ca(self):
+    def test_certificates_are_verified_even_without_the_private_ca(self):
         module = ready_module(
-            tls_mode="self_signed", prometheus_tls=False, ca_injected=False
+            name="http_ready",
+            tls_mode="self_signed",
+            prometheus_tls=False,
+            ca_injected=False,
+        )
+        self.assertIs(module["tls_config"]["insecure_skip_verify"], False)
+
+    def test_only_the_private_ca_module_skips_verification(self):
+        module = ready_module(
+            name="http_ready_private_ca",
+            tls_mode="self_signed",
+            prometheus_tls=False,
+            ca_injected=False,
         )
         self.assertIs(module["tls_config"]["insecure_skip_verify"], True)
+        self.assertIs(module["fail_if_not_ssl"], False)
 
 
 if __name__ == "__main__":
