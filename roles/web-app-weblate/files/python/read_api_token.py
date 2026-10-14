@@ -1,3 +1,5 @@
+# nocheck: mirrored-unit-test - imports weblate.auth.models at module level and runs
+# inside `weblate shell`; the models are not importable outside the Weblate image
 """Print the API token Weblate issued to its administrator.
 
 The token lives in Weblate's own database and only its management shell can

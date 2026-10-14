@@ -1,3 +1,5 @@
+# nocheck: mirrored-unit-test - imports weblate.auth.models at module level and runs
+# inside `weblate shell`; the models are not importable outside the Weblate image
 """Give the superuser Weblate bootstrapped the platform administrator's name.
 
 Upstream's entrypoint calls ``createadmin`` without ``--username``, so the
