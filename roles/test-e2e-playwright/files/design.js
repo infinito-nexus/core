@@ -116,16 +116,18 @@ async function tokenValue(page, token, property) {
 
 async function assertToken(page, selector, property, token, label) {
   const expected = await tokenValue(page, token, property);
-  await expect
-    .poll(
-      () =>
-        page
-          .locator(selector)
-          .first()
-          .evaluate((element, cssProperty) => getComputedStyle(element).getPropertyValue(cssProperty), property),
-      { message: `${label}: ${selector} ${property} must equal ${token}` },
-    )
-    .toBe(expected);
+  const read = () =>
+    page
+      .locator(selector)
+      .first()
+      .evaluate((element, cssProperty) => getComputedStyle(element).getPropertyValue(cssProperty), property);
+  try {
+    await expect.poll(read, { message: `${label}: ${selector} ${property} must equal ${token}` }).toBe(expected);
+  } catch (error) {
+    throw new Error(`${label}: ${selector} ${property} is ${await read()}, expected ${token} = ${expected}`, {
+      cause: error,
+    });
+  }
 }
 
 async function assertDesignTokens(page, label) {
