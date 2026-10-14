@@ -116,17 +116,19 @@ async function tokenValue(page, token, property) {
 
 async function assertToken(page, selector, property, token, label) {
   const expected = await tokenValue(page, token, property);
-  const read = () =>
-    page
+  let actual = "";
+  const read = async () => {
+    actual = await page
       .locator(selector)
       .first()
       .evaluate((element, cssProperty) => getComputedStyle(element).getPropertyValue(cssProperty), property);
+    return actual;
+  };
   try {
     await expect.poll(read, { message: `${label}: ${selector} ${property} must equal ${token}` }).toBe(expected);
   } catch (error) {
-    throw new Error(`${label}: ${selector} ${property} is ${await read()}, expected ${token} = ${expected}`, {
-      cause: error,
-    });
+    const seen = actual || `no element matched ${selector}`;
+    throw new Error(`${label}: ${selector} ${property} is ${seen}, expected ${token} = ${expected}`, { cause: error });
   }
 }
 
