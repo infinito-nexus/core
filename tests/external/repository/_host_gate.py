@@ -1,11 +1,16 @@
 """One concurrency gate per host, shared by the probe suites in this package.
 
-Both suites fan a thread pool out over many URLs at once, and both have
-been throttled by a host that answered every one of those requests fine on
-its own: archlinux.org refused connections under 22 parallel package
-probes, and huggingface.co read-timed-out on seven simultaneous model
-downloads. The gate bounds how many requests may be in flight against one
-hostname and leaves total parallelism alone.
+Both suites fan a thread pool out over many URLs at once, and one host has
+been measured refusing connections under that load while answering each
+request fine on its own: archlinux.org, under 22 parallel package probes.
+The gate bounds how many requests may be in flight against one hostname
+and leaves total parallelism alone.
+
+That measurement is the only one. An earlier version of this file also
+named huggingface.co, which was wrong: those requests never left the
+runner, because `huggingface.co` is pinned in the test container's
+`/etc/hosts` to the local package cache. Do not add a host here without a
+reproduction that shows the host itself refusing.
 
 The limit belongs to the caller, not to this module: a package index
 tolerates less than a general web host, and the URL prober opens a fresh

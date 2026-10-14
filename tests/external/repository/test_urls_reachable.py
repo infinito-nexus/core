@@ -30,18 +30,22 @@ probing, the suite checks the infrastructure hosts the repository actually
 depends on, and fails outright when they are unreachable. A run that cannot
 reach its subject does not pass; it does not run.
 
-Probing runs ``INFINITO_WORKER_FETCH`` requests wide, and nothing used to stop
-that pool from aiming most of them at one host. A run that put all seven
-``huggingface.co`` model-download URLs in flight together collected six read
-timeouts and one HTTP 404 -- fatal -- while the nine ordinary
-``huggingface.co`` page URLs of the same pass answered normally: the host was
-throttling the prober, not missing a file. ``_MAX_REQUESTS_PER_HOST`` bounds
-how many requests may be in flight against one hostname and leaves total
-parallelism alone. It sits below the seven that provoked that run, and below
-the six connections per host Chrome and Firefox allow, because every probe
-here opens a fresh connection instead of reusing a kept-alive one. The cost is
-paid by whichever host holds the most URLs, which becomes the pass's critical
-path.
+Probing runs ``INFINITO_WORKER_FETCH`` requests wide, and nothing stops that
+pool from aiming most of them at one host, so ``_MAX_REQUESTS_PER_HOST``
+bounds how many requests may be in flight against one hostname and leaves
+total parallelism alone. It sits below the six connections per host Chrome
+and Firefox allow, because every probe here opens a fresh connection instead
+of reusing a kept-alive one. The cost is paid by whichever host holds the
+most URLs, which becomes the pass's critical path.
+
+What this suite measures is not always the upstream. Inside the test
+container the package cache pins many of these hosts in ``/etc/hosts``, so a
+probe reaches a local Nexus proxy that answers in the upstream's name. Run
+38482429514 failed on a ``huggingface.co`` model URL reported as HTTP 404
+while the file was live: the proxy had rejected it for having no detectable
+MIME type. Both false negatives and false positives are possible for a pinned
+host, and ``test_apt_ubuntu_mirrors._pinned_hosts`` is the existing way to
+tell which ones those are.
 """
 
 from __future__ import annotations
