@@ -133,22 +133,32 @@ ensure_proxy_repo() { ensure_repo "$1" proxy "$2" "$3"; }
 # with `404 Remote Auto Blocked` for the whole block window, so a single
 # upstream hiccup fails every concurrent job instead of just the request
 # that hit it.
+#
+# strictContentTypeValidation stays off for raw proxies: a raw proxy serves
+# arbitrary binaries, and Nexus answers 404 for any asset whose MIME type it
+# cannot determine. A `.gguf` model has no mapping, so strict validation
+# turns every such fetch into a dead URL.
 ensure_all_proxies() {
-	local storage='"storage":{"blobStoreName":"default","strictContentTypeValidation":true},"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":false}'
+	local common='"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":false}'
 
-	local record name flavor url distribution depth content_max_age content extra
+	local record name flavor url distribution depth content_max_age content extra strict storage
 
 	for record in ${INFINITO_CACHE_UPSTREAMS//,/ }; do
 		IFS='|' read -r name flavor url distribution depth content_max_age <<<"${record}"
 		content="${content_max_age:-${CACHE_CONTENT_MAX_AGE_MIN}}"
+		strict=true
 		case "${flavor}" in
 		apt) extra=',"apt":{"distribution":"'"${distribution}"'","flat":false}' ;;
 		yum) extra=',"yum":{"repodataDepth":'"${depth}"'}' ;;
-		raw) extra=',"raw":{"contentDisposition":"ATTACHMENT"}' ;;
+		raw)
+			extra=',"raw":{"contentDisposition":"ATTACHMENT"}'
+			strict=false
+			;;
 		*) extra='' ;;
 		esac
+		storage='"storage":{"blobStoreName":"default","strictContentTypeValidation":'"${strict}"'}'
 		ensure_proxy_repo "${flavor}" "${name}" \
-			'{"name":"'"${name}"'","online":true,'"${storage}"',"proxy":{"remoteUrl":"'"${url}"'","contentMaxAge":'"${content}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'}'"${extra}"'}'
+			'{"name":"'"${name}"'","online":true,'"${storage}"','"${common}"',"proxy":{"remoteUrl":"'"${url}"'","contentMaxAge":'"${content}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'}'"${extra}"'}'
 	done
 }
 
