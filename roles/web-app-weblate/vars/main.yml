@@ -13,9 +13,9 @@ WEBLATE_SITE_TITLE: "{{ lookup('config', application_id, 'services.weblate.site_
 
 WEBLATE_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
-WEBLATE_ADMIN_USERNAME: admin
+WEBLATE_ADMIN_BOOTSTRAP_USERNAME: admin
+WEBLATE_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 WEBLATE_TOKEN_MIN_LENGTH: 40
-WEBLATE_TOKEN_QUERY: "from weblate.auth.models import User; print(User.objects.get(username='{{ WEBLATE_ADMIN_USERNAME }}').auth_token.key)"
 
 WEBLATE_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"
 WEBLATE_DATABASE_USER: "{{ lookup('database', application_id, 'username') }}"

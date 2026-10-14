@@ -6,17 +6,37 @@
     resolve_output_prefix: WEBLATE
     resolve_compose_cid: "{{ WEBLATE_CONTAINER }}"
 
+- name: "👤 Let the platform administrator own the superuser Weblate bootstrapped"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  only Weblate's own management shell can reach its user table
+    cmd: >
+      container exec -i
+      -e WEBLATE_ADMIN_BOOTSTRAP_USERNAME -e WEBLATE_ADMIN_USERNAME -e WEBLATE_OIDC_ENABLED
+      {{ WEBLATE_LOCAL_CID | quote }}
+      weblate shell
+    stdin: "{{ lookup('file', 'python/adopt_admin.py') }}"
+  environment:
+    WEBLATE_ADMIN_BOOTSTRAP_USERNAME: "{{ WEBLATE_ADMIN_BOOTSTRAP_USERNAME }}"
+    WEBLATE_ADMIN_USERNAME: "{{ WEBLATE_ADMIN_USERNAME }}"
+    WEBLATE_OIDC_ENABLED: "{{ WEBLATE_OIDC_ENABLED | bool | lower }}"
+  register: weblate_admin_adopt
+  retries: 30
+  delay: 10
+  until: weblate_admin_adopt.rc == 0
+  changed_when: "'ADOPTED=1' in weblate_admin_adopt.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ WEBLATE_HOST_NODE }}"
+  run_once: true
+
 - name: "🔑 Read the API token Weblate issued to its administrator"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - "{{ WEBLATE_LOCAL_CID }}" # nocheck: container-exec-resolver  the token lives in Weblate's own database and only its management shell prints it
-      - weblate
-      - shell
-      - -c
-      - "{{ WEBLATE_TOKEN_QUERY }}"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  the token lives in Weblate's own database and only its management shell prints it
+    cmd: >
+      container exec -i
+      -e WEBLATE_ADMIN_USERNAME
+      {{ WEBLATE_LOCAL_CID | quote }}
+      weblate shell
+    stdin: "{{ lookup('file', 'python/read_api_token.py') }}"
+  environment:
+    WEBLATE_ADMIN_USERNAME: "{{ WEBLATE_ADMIN_USERNAME }}"
   register: weblate_api_token
   retries: 30
   delay: 10
