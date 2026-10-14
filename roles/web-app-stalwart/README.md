@@ -120,6 +120,10 @@ account (or the Keycloak SSO token when SSO is enabled).
   (`templates/jmap/*.json.j2`).
 - **Under SSO, trusted internal networks relay without SMTP AUTH** — the
   no-reply bot has no password once the auth directory is OIDC.
+- **Address bans expire after `services.stalwart.ban_period_seconds`** (one
+  hour by default). Without a period Stalwart keeps a ban forever, and the
+  reverse proxy, the published ports, Tor and the swarm ingress hand many
+  clients one address.
 
 ## Features
 

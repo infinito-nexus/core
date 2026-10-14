@@ -70,6 +70,13 @@ STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.platform_adminis
 
 STALWART_TRUSTED_NETWORKS: "{{ NETWORK_TRUSTED_PROXY_CIDRS }}"
 
+STALWART_BAN_PERIOD_MS: "{{ (lookup('config', application_id, 'services.stalwart.ban_period_seconds') | int) * 1000 }}"
+STALWART_BAN_PERIODS:
+  authBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+  abuseBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+  loiterBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+  scanBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+
 STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
 
 STALWART_IMPORT_MAILU: "{{ lookup('config', application_id, 'services.stalwart.migration.import_mailu') | bool }}"

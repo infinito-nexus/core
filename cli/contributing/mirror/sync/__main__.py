@@ -53,8 +53,8 @@ def _throttle_before_next_copy(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Mirror every role-declared image and every image the CI runner "
-            "pulls itself to the configured GHCR registry, "
+            "Mirror every image a non-eol role declares and every image the "
+            "CI runner pulls itself to the configured GHCR registry, "
             "optionally throttled and optionally skipping already-mirrored "
             "tags."
         ),

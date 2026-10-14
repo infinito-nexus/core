@@ -32,7 +32,7 @@ Example: `ghcr.io/kevinveenbirkenbach/infinito-nexus-core/mirror/docker.io/nextc
 
 ### Image Discovery 🔍
 
-`utils/docker/image/discovery.py` discovers all role images via `iter_role_images()`. See [origin.md](origin.md) for the declaration format and supported registries.
+`utils/docker/image/discovery.py` discovers the role images via `iter_role_images()`. It leaves out every role whose lifecycle is `eol` (`is_maintained()` in `utils/update/base.py`), so neither the mirror nor `mirrors.yml` covers those images. See [origin.md](origin.md) for the declaration format and supported registries.
 
 ### GHCRProvider 🐳
 

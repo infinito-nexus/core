@@ -23,8 +23,8 @@ def _validate_positive_int(value: str) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Wait until every role-declared image and every image the CI runner "
-            "pulls itself has been mirrored to the "
+            "Wait until every image a non-eol role declares and every image "
+            "the CI runner pulls itself has been mirrored to the "
             "configured GHCR registry. Used on fork pull_request runs that depend "
             "on a pull_request_target mirror job populating the destination first."
         ),

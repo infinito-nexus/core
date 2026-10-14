@@ -1,0 +1,34 @@
+---
+- name: "📖 Read Stalwart's ban settings"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Security/get', {'ids': ['singleton']}, 'c0']]} | to_json }}
+
+- name: "🔍 Resolve Stalwart's current ban periods"
+  ansible.builtin.set_fact:
+    stalwart_ban_periods_current: >-
+      {{ stalwart_jmap.methodResponses[0][1].list[0]
+         | dict2items | selectattr('key', 'in', STALWART_BAN_PERIODS) | items2dict }}
+
+- name: "⏱️ Let Stalwart's address bans expire"
+  when: stalwart_ban_periods_current != STALWART_BAN_PERIODS
+  block:
+    - name: "🔧 Set Stalwart's ban periods"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:Security/set',
+                {'update': {'singleton': STALWART_BAN_PERIODS}},
+                'c0']]} | to_json }}
+
+    - name: "🔄 Reload Stalwart's settings"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:Action/set',
+                {'create': {'a': {'@type': 'ReloadSettings'}}},
+                'c0']]} | to_json }}

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from utils.cache.yaml import load_yaml_any as _load_yaml_cached
 from utils.docker.image.pin import pull_reference
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.update.base import is_maintained
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -219,18 +220,22 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     function is the only enumeration the mirror sees and a tag it never emits
     can never be mirrored.
 
-    An ``eol`` role is left out entirely. It is outside the lifecycle envelope
-    ``default.env`` tests, so no deploy can reach its images, and a retired
-    role's upstream is free to withdraw them: MinIO's quay tags answer 401 to
-    anonymous pulls and exist nowhere else, which failed the mirror job on
-    every run while nothing could have consumed the result.
+    Two kinds of role are left out. One the updaters do not maintain
+    (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits
+    outside the lifecycle envelope ``default.env`` tests, so no deploy can reach
+    its images, and its upstream is free to withdraw them. MinIO's quay tags
+    answer 401 to anonymous pulls and exist nowhere else, which failed the
+    mirror job on every run while nothing could have consumed the result.
 
     See docs/contributing/artefact/image.md for the full format reference.
     """
-    roles_dir = repo_root / "roles"
+    roles_dir = (repo_root / "roles").resolve()
 
     for services_file in roles_dir.glob(f"**/{ROLE_FILE_META_SERVICES}"):
         role_name = services_file.parent.parent.name
+        if not is_maintained(roles_dir, role_name):
+            continue
+
         services = load_yaml(services_file)
 
         if not isinstance(services, dict):

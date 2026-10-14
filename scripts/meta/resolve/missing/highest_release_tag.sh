@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# The backfill stops below v9.0.2: v9.0.1 cannot build its image from its own
+# tree (`infinito: command not found`, fixed by c680be12ea in v9.0.2), and
+# v9.0.0 has the same Dockerfile, Makefile and scripts/docker.
+oldest_buildable_tag="v9.0.2"
+
 : "${OWNER:?Missing OWNER}"
 : "${REGISTRY:?Missing REGISTRY}"
 : "${REPO_PREFIX:?Missing REPO_PREFIX}"
@@ -48,6 +53,9 @@ fi
 
 for ((i = ${#tags[@]} - 1; i >= 0; i--)); do
 	tag="${tags[$i]}"
+	if [[ "$(printf '%s\n' "${tag}" "${oldest_buildable_tag}" | sort -V | head -n 1)" != "${oldest_buildable_tag}" ]]; then
+		exit 0
+	fi
 	tag_missing="false"
 
 	for distro in ${INFINITO_DISTROS}; do

@@ -28,6 +28,9 @@
 - name: "🔧 Point Stalwart's file tracer at a writable directory"
   include_tasks: tracing.yml
 
+- name: "⏱️ Let Stalwart's address bans expire"
+  include_tasks: security.yml
+
 - name: "⚙️ Provision the Stalwart WebUI (WebAdmin) bundle"
   include_tasks: 02_webadmin.yml
 

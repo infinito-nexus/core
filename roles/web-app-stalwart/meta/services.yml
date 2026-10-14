@@ -55,6 +55,7 @@ stalwart:
     project_hard_restart: true
   migration:
     import_mailu: false
+  ban_period_seconds: 3600
   # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"

@@ -8,6 +8,7 @@ const gatewayModel = decodeDotenvQuotedValue(process.env.N8N_LITELLM_MODEL);
 
 const CREDENTIAL_TYPE = "openAiApi";
 const PROBE_WORKFLOW = "infinito:litellm-probe";
+const TRIGGER_NODE = "Start";
 const REQUEST_NODE = "Gateway";
 const PROMPT = "Reply with exactly the word: pong";
 const FINAL_STATUSES = new Set(["success", "error", "crashed", "canceled"]);
@@ -158,7 +159,7 @@ function probeWorkflow(credentialId, endpoint) {
     nodes: [
       {
         id: "infinito-litellm-start",
-        name: "Start",
+        name: TRIGGER_NODE,
         type: "n8n-nodes-base.manualTrigger",
         typeVersion: 1,
         position: [0, 0],
@@ -188,7 +189,7 @@ function probeWorkflow(credentialId, endpoint) {
         credentials: { [CREDENTIAL_TYPE]: { id: credentialId, name: credentialName } },
       },
     ],
-    connections: { Start: { main: [[{ node: REQUEST_NODE, type: "main", index: 0 }]] } },
+    connections: { [TRIGGER_NODE]: { main: [[{ node: REQUEST_NODE, type: "main", index: 0 }]] } },
   };
 }
 
@@ -286,7 +287,7 @@ exports.register = function (shared) {
 
     try {
       const run = await rest("POST", `/rest/workflows/${workflowId}/run`, {
-        workflowData: { ...workflow, id: workflowId },
+        triggerToStartFrom: { name: TRIGGER_NODE },
       });
       expect(
         run.status,

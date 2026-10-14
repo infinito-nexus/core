@@ -34,11 +34,29 @@ class TestStampLogic(unittest.TestCase):
             with (
                 mock.patch.object(cli, "PROJECT_ROOT", root),
                 mock.patch.object(cli.shutil, "which", return_value="/usr/bin/x"),
+                mock.patch.object(
+                    cli.mermaid_cli, "browser_installed", return_value=True
+                ),
                 mock.patch.object(cli, "_install_all") as inst,
             ):
                 rc = cli.main([])
             self.assertEqual(rc, 0)
             inst.assert_not_called()
+
+    def test_missing_mermaid_browser_invalidates_stamp(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = _make_repo_root(tmp, stamp_age_offset=60.0)
+            with (
+                mock.patch.object(cli, "PROJECT_ROOT", root),
+                mock.patch.object(cli.shutil, "which", return_value="/usr/bin/x"),
+                mock.patch.object(
+                    cli.mermaid_cli, "browser_installed", return_value=False
+                ),
+                mock.patch.object(cli, "_install_all") as inst,
+            ):
+                rc = cli.main([])
+            self.assertEqual(rc, 0)
+            inst.assert_called_once()
 
     def test_missing_tool_invalidates_stamp(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -81,15 +99,29 @@ class TestStampLogic(unittest.TestCase):
             self.assertTrue((root / cli._STAMP).exists())
 
     def test_force_drops_stamp(self) -> None:
-        with TemporaryDirectory() as tmp:
+        with TemporaryDirectory() as tmp, TemporaryDirectory() as cache:
             root = _make_repo_root(tmp, stamp_age_offset=60.0)
             with (
+                mock.patch.dict(os.environ, {"PUPPETEER_CACHE_DIR": cache}),
                 mock.patch.object(cli, "PROJECT_ROOT", root),
                 mock.patch.object(cli, "_install_all") as inst,
             ):
                 rc = cli.main(["--force"])
             self.assertEqual(rc, 0)
             inst.assert_called_once()
+
+    def test_force_drops_the_mermaid_browser(self) -> None:
+        with TemporaryDirectory() as tmp, TemporaryDirectory() as cache:
+            root = _make_repo_root(tmp, stamp_age_offset=60.0)
+            browser = Path(cache) / "chrome-headless-shell" / "linux-1"
+            browser.mkdir(parents=True)
+            with (
+                mock.patch.dict(os.environ, {"PUPPETEER_CACHE_DIR": cache}),
+                mock.patch.object(cli, "PROJECT_ROOT", root),
+                mock.patch.object(cli, "_install_all"),
+            ):
+                cli.main(["--force"])
+            self.assertFalse(browser.exists())
 
 
 class TestGroupDispatch(unittest.TestCase):

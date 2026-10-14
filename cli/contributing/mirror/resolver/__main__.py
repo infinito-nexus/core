@@ -12,8 +12,9 @@ from utils.docker.image.discovery import iter_role_images
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Emit the mirrors.yml mapping that redirects every role-declared "
-            "image (applications.*.services.*) to its GHCR mirror URI."
+            "Emit the mirrors.yml mapping that redirects every image a "
+            "non-eol role declares (applications.*.services.*) to its GHCR "
+            "mirror URI."
         ),
     )
     parser.add_argument("--repo-root", default=".")

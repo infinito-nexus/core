@@ -20,27 +20,6 @@ if ! command -v mmdc >/dev/null 2>&1; then
 	exit 127
 fi
 
-# Limitation: install-lint skips the puppeteer browser download so it stays
-# sandbox-safe; mermaid-cli (puppeteer-core) bundles none, so provision the
-# matching chrome-headless-shell here. --install-deps also pulls chrome's shared
-# libs (libnspr4, libnss3, ...) on root Linux. Idempotent; needs network + unzip.
-if command -v apt-get >/dev/null 2>&1; then
-	apt-get -o DPkg::Lock::Timeout=600 update >/dev/null 2>&1 ||
-		echo "Warning: apt-get update failed; chrome's shared libs may stay unresolved." >&2
-fi
-
-provision_browser() {
-	timeout 900 npx --yes puppeteer browsers install chrome-headless-shell --install-deps 2>&1
-}
-
-if ! deps_output="$(provision_browser)"; then
-	rm -rf "${PUPPETEER_CACHE_DIR:-${HOME}/.cache/puppeteer}/chrome-headless-shell"
-	if ! deps_output="$(provision_browser)"; then
-		printf 'Warning: chrome-headless-shell provisioning failed; mermaid rendering may fail:\n%s\n' \
-			"${deps_output}" >&2
-	fi
-fi
-
 workdir="$(mktemp -d)"
 trap 'rm -rf "${workdir}"' EXIT
 
@@ -52,6 +31,15 @@ mapfile -t md_files < <(grep -rlF --include='*.md' '```mermaid' . 2>/dev/null | 
 if [[ ${#md_files[@]} -eq 0 ]]; then
 	echo "No Markdown files contain a mermaid block; nothing to render."
 	exit 0
+fi
+
+printf '%s\n' 'flowchart LR' '  a --> b' >"${workdir}/preflight.mmd"
+if ! mmdc --puppeteerConfigFile "${puppeteer_cfg}" -i "${workdir}/preflight.mmd" \
+	-o "${workdir}/preflight.svg" >"${workdir}/preflight.log" 2>&1; then
+	printf "mmdc cannot render a minimal diagram, so none of the %d Markdown file(s) was checked. 'make install-lint-force' provisions its browser:\n" \
+		"${#md_files[@]}" >&2
+	sed 's/^/    /' "${workdir}/preflight.log" >&2
+	exit 1
 fi
 
 : "${INFINITO_WORKER_CPU:?INFINITO_WORKER_CPU must be set (provided by default.env via the env loader)}"
