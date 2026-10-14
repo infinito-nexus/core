@@ -60,6 +60,8 @@ STALWART_IP4_PUBLIC: "{{ DOCKER_PUBLIC_BIND_HOST }}"
 STALWART_ACTIVE_PROVIDER: "{{ lookup('mail_provider') == application_id }}"
 
 STALWART_ADMIN_USER: "{{ lookup('users', 'stalwartadmin').username }}"
+STALWART_ADMIN_GROUP_NAME: administrators
+STALWART_ADMIN_GROUP_PATH: "/{{ lookup('rbac_group_path', application_id='web-app-stalwart', role='administrator') }}"
 STALWART_ADMIN_PASSWORD: "{{ lookup('users', 'stalwartadmin').password }}"
 
 STALWART_USERS: "{{ lookup('stalwart_users') }}"

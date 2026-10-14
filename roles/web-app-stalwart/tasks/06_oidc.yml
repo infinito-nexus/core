@@ -35,6 +35,12 @@
     stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/clear_audience.json.j2') }}"
   when: stalwart_oidc_dir_id | length > 0
 
+- name: "👥 Let the OIDC directory read the RBAC groups the token carries"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/set_claim_groups.json.j2') }}"
+  when: stalwart_oidc_dir_id | length > 0
+
 - name: "📖 List Stalwart built-in roles"
   include_tasks: jmap_call.yml
   vars:
@@ -65,6 +71,42 @@
         true} }}"
       defaultAdminRoleIds: "{{ {stalwart_role_admin: true} | combine({stalwart_role_user: true}) if stalwart_role_admin | length > 0 else {stalwart_role_user: true}
         }}"
+
+- name: "📁 Create the group that carries System Administrator to its OIDC members"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_tolerate_rejected: true
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Account/set', {'create': {'g': {
+            '@type': 'Group',
+            'name': STALWART_ADMIN_GROUP_NAME,
+            'domainId': stalwart_domain_id,
+            'description': 'Keycloak ' ~ STALWART_ADMIN_GROUP_PATH,
+            'externalId': STALWART_ADMIN_GROUP_PATH,
+            'roles': {'@type': 'Custom', 'roleIds': {stalwart_role_admin: true}}
+          }}}, 'c0']]} | to_json }}
+  when: stalwart_role_admin | length > 0
+
+- name: "🔍 Resolve the group id when it already existed"
+  ansible.builtin.set_fact:
+    stalwart_admin_group_id: >-
+      {{ ((stalwart_jmap.methodResponses[0][1].notCreated | default({}))
+          .get('g', {}).get('objectId', {}) or {}).get('id', '') }}
+  when: stalwart_role_admin | length > 0
+
+- name: "🔄 Keep the existing group's external id and role in step"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Account/set', {'update': {stalwart_admin_group_id: {
+            'externalId': STALWART_ADMIN_GROUP_PATH,
+            'roles': {'@type': 'Custom', 'roleIds': {stalwart_role_admin: true}}
+          }}}, 'c0']]} | to_json }}
+  when:
+    - stalwart_role_admin | length > 0
+    - stalwart_admin_group_id | length > 0
 
 - name: "📖 Read the Stalwart authentication singleton"
   include_tasks: jmap_call.yml
