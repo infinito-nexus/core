@@ -49,6 +49,7 @@ install_engine() {
 	if ! command -v docker >/dev/null 2>&1 || ! command -v dockerd >/dev/null 2>&1; then
 		if command -v apt-get >/dev/null 2>&1; then
 			apt_install docker.io
+			command -v docker >/dev/null 2>&1 || apt_install docker-cli
 		elif command -v dnf >/dev/null 2>&1; then
 			dnf install -y --allowerasing docker
 			dnf clean all
@@ -59,6 +60,11 @@ install_engine() {
 			echo "no supported package manager to install a container engine with" >&2
 			exit 1
 		fi
+	fi
+
+	if ! command -v docker >/dev/null 2>&1; then
+		echo "the container engine install left no docker client on PATH" >&2
+		exit 1
 	fi
 
 	systemctl enable docker.service
