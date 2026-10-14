@@ -44,29 +44,38 @@ async function signInViaOidc(page) {
     .toContain(discourseBaseUrl);
 }
 
-async function readSiteSettings(page) {
+async function readAdminPlugins(page) {
   const result = await page.evaluate(async (base) => {
-    const res = await fetch(`${base}/admin/site_settings.json`, {
+    const res = await fetch(`${base}/admin/plugins.json`, {
       headers: { Accept: "application/json" },
       credentials: "include",
     });
     if (!res.ok) return { ok: false, status: res.status };
     const body = await res.json();
-    return { ok: true, settings: (body && body.site_settings) || [] };
+    return { ok: true, plugins: (body && body.plugins) || [] };
   }, discourseBaseUrl);
 
   expect(
     result.ok,
-    `expected /admin/site_settings.json to be reachable as admin (status ${result.status})`,
+    `expected /admin/plugins.json to be reachable as admin (status ${result.status})`,
   ).toBe(true);
 
-  return result.settings;
+  return result.plugins;
 }
 
-function settingValue(settings, name, why) {
-  const found = settings.find((s) => s && s.setting === name);
-  expect(found, why).toBeTruthy();
-  return String(found.value);
+function pluginName(plugin) {
+  return String((plugin && (plugin.name || plugin.id)) || "").toLowerCase();
+}
+
+async function readMetricsSurface(page) {
+  return await page.evaluate(async (base) => {
+    const res = await fetch(`${base}/metrics`, {
+      headers: { Accept: "text/plain" },
+      credentials: "include",
+    });
+    if (!res.ok) return `status ${res.status}`;
+    return (await res.text()).slice(0, 4096);
+  }, discourseBaseUrl);
 }
 
 test("discourse-prometheus: the exporter plugin is installed and its scrape collector is addressable", async ({ page }) => {
@@ -88,31 +97,26 @@ test("discourse-prometheus: the exporter plugin is installed and its scrape coll
       { timeout: resolveTimeout(60_000) },
     );
 
-    const settings = await readSiteSettings(page);
+    const plugins = await readAdminPlugins(page);
 
-    const collectorPort = settingValue(
-      settings,
-      "prometheus_collector_port",
-      "prometheus_collector_port site setting must exist (discourse-prometheus plugin compiled into the image)",
-    ).trim();
-
+    const exporter = plugins.find((p) => pluginName(p) === "discourse-prometheus");
     expect(
-      collectorPort,
-      "prometheus_collector_port must be a numeric TCP port; without it the Prometheus partner has nothing to scrape",
-    ).toMatch(/^[0-9]+$/);
-    expect(
-      Number(collectorPort),
-      "prometheus_collector_port must be a valid TCP port",
-    ).toBeGreaterThan(0);
+      exporter,
+      "discourse-prometheus must be listed in /admin/plugins.json (proves the upstream plugin was cloned into the image and registered)",
+    ).toBeTruthy();
 
     expect(
-      settingValue(
-        settings,
-        "prometheus_trusted_ip_allowlist_regex",
-        "prometheus_trusted_ip_allowlist_regex site setting must exist so the metrics surface can be opened to the Prometheus partner only",
-      ),
-      "the allowlist setting must be a string the plugin can match scrape sources against",
-    ).not.toBeNull();
+      exporter.enabled,
+      "discourse-prometheus must be enabled on the running instance",
+    ).toBe(true);
+
+    await expect
+      .poll(() => readMetricsSurface(page), {
+        timeout: resolveTimeout(60_000),
+        message:
+          "the /metrics middleware the plugin installs must serve Prometheus exposition to an admin session; a status line instead of exposition means 404 when the plugin is not loaded and 5xx when the collector demon is not listening on prometheus_collector_port",
+      })
+      .toMatch(/^#\s*(HELP|TYPE)\s/m);
   } finally {
     await page.context().clearCookies().catch(() => {});
   }

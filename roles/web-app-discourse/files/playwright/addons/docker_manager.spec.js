@@ -44,10 +44,6 @@ async function signInViaOidc(page) {
     .toContain(discourseBaseUrl);
 }
 
-function pluginName(plugin) {
-  return String((plugin && (plugin.name || plugin.id)) || "").toLowerCase();
-}
-
 test("docker_manager: the docker_manager plugin is installed and registered on the Discourse instance", async ({ page }) => {
   skipUnlessAddonEnabled("docker_manager");
   skipUnlessServiceEnabled("sso");
@@ -66,36 +62,8 @@ test("docker_manager: the docker_manager plugin is installed and registered on t
       { timeout: resolveTimeout(60_000) },
     );
 
-    const plugins = await page.evaluate(async (base) => {
+    const adminApi = await page.evaluate(async (base) => {
       const res = await fetch(`${base}/admin/plugins.json`, {
-        headers: { Accept: "application/json" },
-        credentials: "include",
-      });
-      if (!res.ok) return { ok: false, status: res.status };
-      const body = await res.json();
-      return { ok: true, plugins: (body && body.plugins) || [] };
-    }, discourseBaseUrl);
-
-    expect(
-      plugins.ok,
-      `expected /admin/plugins.json to be reachable as admin (status ${plugins.status})`,
-    ).toBe(true);
-
-    const dockerManager = plugins.plugins.find(
-      (p) => pluginName(p) === "docker_manager" || pluginName(p) === "discourse-docker-manager",
-    );
-    expect(
-      dockerManager,
-      "the docker_manager plugin must be present in /admin/plugins.json (proves the upstream plugin was cloned and registered; when docker_manager is enabled but absent the install failed — the test MUST fail here, not skip)",
-    ).toBeTruthy();
-
-    expect(
-      dockerManager.enabled,
-      "the docker_manager plugin must be enabled on the running instance",
-    ).toBe(true);
-
-    const upgradeResponse = await page.evaluate(async (base) => {
-      const res = await fetch(`${base}/admin/upgrade.json`, {
         headers: { Accept: "application/json" },
         credentials: "include",
       });
@@ -103,8 +71,28 @@ test("docker_manager: the docker_manager plugin is installed and registered on t
     }, discourseBaseUrl);
 
     expect(
-      upgradeResponse.ok,
-      `the docker_manager upgrade surface (/admin/upgrade.json) the plugin owns must be served (status ${upgradeResponse.status})`,
+      adminApi.ok,
+      `expected /admin/plugins.json to be reachable as admin (status ${adminApi.status})`,
+    ).toBe(true);
+
+    const progress = await page.evaluate(async (base) => {
+      const res = await fetch(`${base}/admin/docker/progress`, {
+        headers: { Accept: "application/json" },
+        credentials: "include",
+      });
+      if (!res.ok) return { ok: false, status: res.status };
+      const body = await res.json();
+      return { ok: true, hasProgress: !!(body && body.progress) };
+    }, discourseBaseUrl);
+
+    expect(
+      progress.ok,
+      `/admin/docker/progress is routed by the docker_manager engine alone, so a non-2xx status proves the upstream plugin was not cloned and registered; when docker_manager is enabled but its routes are absent the install failed and the test MUST fail here, not skip (status ${progress.status})`,
+    ).toBe(true);
+
+    expect(
+      progress.hasProgress,
+      "the upgrade surface the docker_manager plugin owns must answer with its progress payload",
     ).toBe(true);
   } finally {
     await page.context().clearCookies().catch(() => {});
