@@ -44,8 +44,13 @@ for app in "${_apps[@]}"; do
 				disable="${disable:-}" 2>&1 | tee "$log"
 			;;
 		swarm)
+			network=""
+			if "${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist "${app}#0@swarm+multi" >/dev/null 2>&1; then
+				network="multi"
+			fi
+			echo "==> roundtrip: ${app} [swarm] network=${network:-rotation}"
 			ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest \
-				make -C "$_repo_root" swarm-zombie app="$app" \
+				make -C "$_repo_root" swarm-zombie app="$app" network="$network" \
 				disable="${disable:-}" 2>&1 | tee "$log"
 			marker="==> swarm drill complete: app=${app}"
 			grep -qF "${marker}" "$log" || {
