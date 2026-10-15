@@ -17,9 +17,6 @@ config:
     - fileslibreofficeedit
   plugin_configuration:
     - appid: "onlyoffice"
-      configkey: "DocumentServerUrl"
-      configvalue: "{{ NEXTCLOUD_ONLYOFFICE_URL }}"
-    - appid: "onlyoffice"
       configkey: "DocumentServerInternalUrl"
       configvalue: "{{ NEXTCLOUD_ONLYOFFICE_URL }}"
     - appid: "onlyoffice"
@@ -34,3 +31,6 @@ config:
     - appid: "onlyoffice"
       configkey: "verify_peer_off"
       configvalue: "false"
+    - appid: "onlyoffice"
+      configkey: "DocumentServerUrl"
+      configvalue: "{{ NEXTCLOUD_ONLYOFFICE_URL }}"
