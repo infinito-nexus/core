@@ -138,7 +138,7 @@ Four Playwright scenarios are tested:
 
 ## Further Resources
 
-- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/2Drasms4VQUcxL7CNnTt36)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/5fUNgLQPtGZPUmCWCNBuhv)
 
 ## Credits
 

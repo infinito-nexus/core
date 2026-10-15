@@ -43,6 +43,9 @@ const PICKER_SEARCH = ".select2-search--dropdown .select2-search__field";
 const FILE_INPUT = "input[type='file']";
 const QUIET_SPOT = ".main-footer";
 const SHOWCASE = "design-showcase";
+const THEME_SETTING = "[id='webserver.interface.theme']";
+const SAVE_SETTINGS = ".save-button";
+const THEME_LINKS = "link[rel='stylesheet'][href*='style/themes/']";
 
 const base = normalizeBaseUrl(process.env.PIHOLE_BASE_URL || "");
 const issuer = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL || "");
@@ -178,21 +181,29 @@ async function focusStop(page) {
   }, FRAME);
 }
 
-async function pinTheme(page, name) {
-  await page.unroute("**/admin/groups");
-  if (!name) return;
-  await page.route("**/admin/groups", async (route) => {
-    const response = await route.fetch();
-    let replaced = false;
-    const body = (await response.text())
-      .replace(/<link[^>]+style\/themes\/[^>]+>/g, () => {
-        if (replaced) return "";
-        replaced = true;
-        return `<link rel="stylesheet" href="/admin/style/themes/${name}.css">`;
-      })
-      .replace('<body class="default-auto ', `<body class="${name} `);
-    await route.fulfill({ response, body });
-  });
+/**
+ * Args:
+ *   page: Playwright page signed in to Pi-hole.
+ *   name: theme to store through Settings, "Web interface / API" (webserver.interface.theme).
+ */
+async function chooseTheme(page, name) {
+  await open(page, "settings/api", THEME_SETTING);
+  const setting = page.locator(THEME_SETTING);
+  await expect(setting.locator(`option[value='${name}']`)).toHaveCount(1, { timeout: resolveTimeout(30_000) });
+  await expect(setting, "no environment variable may pin the theme").toBeEnabled();
+  await setting.selectOption(name);
+  const reloaded = page.waitForEvent("load", { timeout: resolveTimeout(60_000) });
+  reloaded.catch(() => {});
+  const [saved] = await Promise.all([
+    page.waitForResponse(
+      (response) => new URL(response.url()).pathname.endsWith("/api/config") && response.request().method() === "PATCH",
+      { timeout: resolveTimeout(30_000) },
+    ),
+    page.locator(SAVE_SETTINGS).first().click(),
+  ]);
+  expect(saved.ok(), `Pi-hole must store the theme ${name}`).toBe(true);
+  await reloaded;
+  await expect(page.locator("body")).toHaveClass(new RegExp(`(^|\\s)${name}(\\s|$)`));
 }
 
 async function seedShowcase(page) {
@@ -265,7 +276,7 @@ function signedInViews() {
     view("settings-system", "settings/system", ".content .box"),
     view("settings-dns", "settings/dns", ".content .box-title"),
     view("settings-dhcp", "settings/dhcp", "#DHCPLeasesTable"),
-    view("settings-web-interface", "settings/api", "[id='webserver.interface.theme']"),
+    view("settings-web-interface", "settings/api", THEME_SETTING),
     view("settings-privacy", "settings/privacy", ".content .box"),
     view("settings-teleporter", "settings/teleporter", "#GETTeleporter"),
     view("settings-dns-records", "settings/dnsrecords", "#hosts-Table"),
@@ -557,7 +568,9 @@ exports.register = function () {
     }
   });
 
-  test("design: a pinned theme drives the palette and a foreign theme keeps its own colors", async ({ page }) => {
+  test("design: Pi-hole's theme setting drives the palette and a foreign theme keeps its own colors", async ({
+    page,
+  }) => {
     skipUnlessServiceEnabled("design");
     await signedIn(page, async () => {
       await page
@@ -565,40 +578,51 @@ exports.register = function () {
         .grantPermissions(["local-network-access"])
         .catch(() => {});
       const root = page.locator("html");
-      await page.emulateMedia({ colorScheme: "light" });
-      await open(page, "groups", PRIMARY_ACTION);
-      await expect(root, "without a pinned theme the palette follows the browser").not.toHaveAttribute(
-        "data-design-theme",
-        /.+/,
-      );
-      const light = await tokenValue(page, "--design-surface-2", "background-color");
+      try {
+        await page.emulateMedia({ colorScheme: "light" });
+        await open(page, "groups", PRIMARY_ACTION);
+        await expect(root, "while the theme follows the browser no mode is pinned").not.toHaveAttribute(
+          "data-design-theme",
+          /.+/,
+        );
+        const light = await tokenValue(page, "--design-surface-2", "background-color");
 
-      await pinTheme(page, "default-dark");
-      await open(page, "groups", PRIMARY_ACTION);
-      await expect(root).toHaveAttribute("data-design-theme", "dark");
-      await assertToken(page, PANEL, "background-color", "--design-surface-2", "pinned dark theme");
-      expect(await tokenValue(page, "--design-surface-2", "background-color"), "the dark palette must differ").not.toBe(
-        light,
-      );
+        await chooseTheme(page, "default-dark");
+        await open(page, "groups", PRIMARY_ACTION);
+        await expect(page.locator(THEME_LINKS)).toHaveCount(1);
+        await expect(root).toHaveAttribute("data-design-theme", "dark");
+        await assertToken(page, PANEL, "background-color", "--design-surface-2", "Pi-hole midnight");
+        expect(
+          await tokenValue(page, "--design-surface-2", "background-color"),
+          "the dark palette must differ",
+        ).not.toBe(light);
 
-      await page.emulateMedia({ colorScheme: "dark" });
-      await pinTheme(page, "default-light");
-      await open(page, "groups", PRIMARY_ACTION);
-      await expect(root).toHaveAttribute("data-design-theme", "light");
-      await assertToken(page, PANEL, "background-color", "--design-surface-2", "pinned light theme");
-      expect(await tokenValue(page, "--design-surface-2", "background-color")).toBe(light);
+        await page.emulateMedia({ colorScheme: "dark" });
+        await chooseTheme(page, "default-light");
+        await open(page, "groups", PRIMARY_ACTION);
+        await expect(root).toHaveAttribute("data-design-theme", "light");
+        await assertToken(page, PANEL, "background-color", "--design-surface-2", "Pi-hole day");
+        expect(await tokenValue(page, "--design-surface-2", "background-color")).toBe(light);
 
-      await pinTheme(page, "high-contrast");
-      await open(page, "groups", PRIMARY_ACTION);
-      const frame = await tokenValue(page, "--design-frame", "background-color");
-      await expect(page.locator(NAVBAR), "a theme outside the default family keeps its own top bar").not.toHaveCSS(
-        "background-color",
-        frame,
-      );
-      await pinTheme(page, null);
-      await page.emulateMedia({ colorScheme: null });
-      await gotoOnion(page, admin(""));
-      await shellReady(page);
+        await chooseTheme(page, "high-contrast");
+        await open(page, "groups", PRIMARY_ACTION);
+        const frame = await tokenValue(page, "--design-frame", "background-color");
+        await expect(page.locator(NAVBAR), "a theme outside the default family keeps its own top bar").not.toHaveCSS(
+          "background-color",
+          frame,
+        );
+      } finally {
+        await page.emulateMedia({ colorScheme: null });
+        await chooseTheme(page, "default-auto").catch(async () => {
+          const restored = await api(page, "PATCH", "/config", {
+            config: { webserver: { interface: { theme: "default-auto" } } },
+          });
+          expect(restored.ok(), "the API must restore the theme that follows the browser").toBe(true);
+        });
+      }
+      await open(page, "", "#queryOverTimeChart");
+      await expect(page.locator("body")).toHaveClass(/(^|\s)default-auto(\s|$)/);
+      await expect(page.locator(THEME_LINKS)).toHaveCount(2);
     });
   });
 
