@@ -234,7 +234,7 @@ exports.register = function () {
     for (const [url, ready] of [
       [`${base}/`, homeReady],
       [gameUrl(liveGame), gameReady],
-      [noteUrl("mate", 7), noteReady],
+      [noteUrl("live", 10), noteReady],
     ]) {
       await gotoOnion(page, url);
       await ready(page);

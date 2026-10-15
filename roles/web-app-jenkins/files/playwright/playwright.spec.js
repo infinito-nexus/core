@@ -32,9 +32,14 @@ test("OIDC: oic-auth plugin redirects unauthenticated visitors through Keycloak 
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
+  const landing = await gotoOnion(page, `${expectedBase}/`);
+  expect(
+    landing.status(),
+    "the oic realm must serve the dashboard once the callback returns; 4xx or 5xx means the session never authenticated",
+  ).toBeLessThan(400);
   await expect(
-    page.locator(`a[href$='/user/${adminUsername}']`).first(),
-    "Expected the Jenkins dashboard to name the authenticated user; a gateway error page satisfies the URL alone",
+    page.locator("#root-action-UserAction").first(),
+    "Expected the header user menu, which Jenkins renders only while a user is current; a gateway error page and an anonymous session both lack it",
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 

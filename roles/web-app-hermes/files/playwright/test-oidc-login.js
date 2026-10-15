@@ -41,6 +41,7 @@ exports.register = function () {
       })
       .toContain(canonicalDomain);
     if (isServiceEnabled("webui")) {
+      await gotoOnion(page, `${baseUrl}/`);
       await expect(
         page.locator("form.provider-form, a.provider-btn").first(),
         "Expected the dashboard's own sign-in surface behind the proxy, not a gateway error page",

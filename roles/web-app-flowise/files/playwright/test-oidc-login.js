@@ -37,7 +37,7 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
     })
     .toContain(expectedBaseUrl);
   await expect(
-    page.locator("main h1, form button[type='submit']").first(),
-    "Expected the Flowise app or its own sign-in form behind the proxy, not a gateway error page",
+    page.locator("main h1, form .MuiOutlinedInput-root input[name='password']").first(),
+    "Expected the Flowise app shell or its own sign-in form behind the proxy, not a gateway or oauth2-proxy error page",
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

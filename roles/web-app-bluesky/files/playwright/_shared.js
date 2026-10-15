@@ -54,6 +54,10 @@ async function loginThroughBroker(page) {
     .toMatch(new RegExp(`^${expectedBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/(?!oauth2/)`));
 
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
+  await expect(
+    page.locator("#root"),
+    "the handoff must land on the social-app shell bskyweb renders, not on a proxy or broker error document",
+  ).toHaveCount(1, { timeout: resolveTimeout(60_000) });
   await brokerAccessJwt(page);
 }
 
