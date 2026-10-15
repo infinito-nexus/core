@@ -17,6 +17,10 @@ function moodle_env_bool(string $name): bool {
     return filter_var(moodle_env($name), FILTER_VALIDATE_BOOLEAN);
 }
 
+function moodle_env_lines(string $name): string {
+    return implode(PHP_EOL, preg_split('/[\s,]+/', moodle_env($name), -1, PREG_SPLIT_NO_EMPTY));
+}
+
 unset($CFG);
 global $CFG;
 $CFG = new stdClass();
@@ -44,6 +48,9 @@ $CFG->routerconfigured     = true;
 
 $CFG->reverseproxy = moodle_env_bool('MOODLE_REVERSEPROXY');
 $CFG->sslproxy     = moodle_env_bool('MOODLE_SSLPROXY');
+
+$CFG->curlsecurityblockedhosts = moodle_env_lines('MOODLE_EGRESS_BLOCKED_HOSTS');
+$CFG->curlsecurityallowedport  = moodle_env_lines('MOODLE_EGRESS_ALLOWED_PORTS');
 
 $_moodle_internal_host = moodle_env('MOODLE_INTERNAL_HOST');
 if (explode(':', $_SERVER['HTTP_HOST'] ?? '', 2)[0] === $_moodle_internal_host) {

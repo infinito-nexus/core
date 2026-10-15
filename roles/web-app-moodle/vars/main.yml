@@ -80,16 +80,11 @@ MOODLE_EGRESS_BLOCKED_HOSTS:
   - "localhost"
   - "169.254.169.254"
   - "0000::1"
-MOODLE_EGRESS_ALLOWED_PORTS:
+MOODLE_EGRESS_WEB_PORTS:
   - "80"
   - "443"
-MOODLE_EGRESS_NEWLINE: "\n"
-MOODLE_EGRESS_SETTINGS:
-  - name: curlsecurityblockedhosts
-    value: "{{ MOODLE_EGRESS_BLOCKED_HOSTS | join(MOODLE_EGRESS_NEWLINE) }}"
-  - name: curlsecurityallowedport
-    value: "{{ (MOODLE_EGRESS_ALLOWED_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else [])) | join(MOODLE_EGRESS_NEWLINE)
-      }}"
+MOODLE_EGRESS_ALLOWED_PORTS: "{{ (MOODLE_EGRESS_WEB_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else []))
+  | join(',') }}"
 
 MOODLE_OBJECTFS_ENABLED: "{{ lookup('config', application_id, 'services.seaweedfs.enabled') }}"
 MOODLE_OBJECTFS_PLUGIN_COMMIT: "{{ lookup('config', application_id, 'addons.tool_objectfs.version') }}"
