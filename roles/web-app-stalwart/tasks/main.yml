@@ -4,11 +4,20 @@
   vars:
     application_id: "web-app-stalwart"
 
-- include_tasks: 11_oidc_restart.yml
+- name: "📥 Run the work deferred to the service-loader post-load flush"
   when:
     - run_once_web_app_stalwart is defined
-    - stalwart_oidc_restart_pending | default(false) | bool
     - not (service_loader_preloading | default(false) | bool)
     - IS_STACK_HOST | bool
-  vars:
-    application_id: "web-app-stalwart"
+  block:
+    - name: "🗑️ Drop the retired app passwords"
+      include_tasks: 04_manage_user/app_password_drop.yml
+      when: stalwart_app_password_stale | length > 0
+      vars:
+        application_id: "web-app-stalwart"
+
+    - name: "🔄 Restart Stalwart to activate the OIDC directory"
+      include_tasks: 11_oidc_restart.yml
+      when: stalwart_oidc_restart_pending | default(false) | bool
+      vars:
+        application_id: "web-app-stalwart"
