@@ -66,8 +66,16 @@
       - bash
       - -c
       - |
+        fails=0
+        ok=0
         while true; do
-          php {{ MOODLE_CLI_DIR }}/cron.php >/proc/1/fd/1 2>/proc/1/fd/2 || true
+          if php {{ MOODLE_CLI_DIR }}/cron.php >/proc/1/fd/1 2>/proc/1/fd/2; then
+            ok=1
+            fails=0
+          else
+            fails=$$((fails + 1))
+            test "$$ok" -eq 0 || test "$$fails" -lt {{ MOODLE_CRON_FAILURE_LIMIT }} || exit 1
+          fi
           sleep 60
         done
     {{ lookup('compose_restart') }}
