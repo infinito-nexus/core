@@ -19,5 +19,5 @@
   when: not (mattermost_addon_runnable | bool)
 
 - name: "🧩 Mattermost | Provision {{ mattermost_addon.key }} where its backend can run"
-  ansible.builtin.include_tasks: addon_runnable.yml
+  ansible.builtin.include_tasks: addon/runnable.yml
   when: mattermost_addon_runnable | bool

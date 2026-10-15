@@ -1,6 +1,6 @@
 ---
 - name: "📦 Mattermost | Provision the upstream {{ mattermost_addon.key }} plugin"
-  ansible.builtin.include_tasks: addon_upstream.yml
+  ansible.builtin.include_tasks: upstream.yml
   when: mattermost_addon.value.source == 'upstream'
 
 - name: "⚙️ Mattermost | Apply the {{ mattermost_addon.key }} plugin settings"
