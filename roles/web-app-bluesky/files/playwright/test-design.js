@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
+const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
