@@ -14,18 +14,14 @@ GROUP = "/roles/web-app-hermes/agent-user"
 
 class FakeKeycloak(access.Keycloak):
     def __init__(self, users, groups):
-        super().__init__(
-            "https://auth", "realm", "admin", "pw", cache_seconds=60, timeout=5
-        )
+        super().__init__("https://auth", "realm", "admin", "pw", timeout=5)
         self.users = users
         self.groups = groups
-        self.lookups = 0
 
     def _admin_token(self):
         return "token"
 
     def _get(self, path, query):
-        self.lookups += 1
         if path == "/users":
             return self.users.get(query["email"], [])
         user_id = path.split("/")[2]
@@ -46,12 +42,17 @@ class TestAllows(unittest.TestCase):
         self.assertFalse(keycloak.allows("", GROUP))
         self.assertFalse(keycloak.allows("nobody@x", GROUP))
 
-    def test_an_answer_is_reused_within_the_cache_window(self):
+    def test_a_grant_between_two_checks_is_seen_by_the_second(self):
+        keycloak = FakeKeycloak({"a@x": [{"id": "1"}]}, {"1": []})
+        self.assertFalse(keycloak.allows("a@x", GROUP))
+        keycloak.groups["1"] = [GROUP]
+        self.assertTrue(keycloak.allows("a@x", GROUP))
+
+    def test_a_revocation_between_two_checks_is_seen_by_the_second(self):
         keycloak = FakeKeycloak({"a@x": [{"id": "1"}]}, {"1": [GROUP]})
-        keycloak.allows("a@x", GROUP)
-        lookups = keycloak.lookups
-        keycloak.allows("a@x", GROUP)
-        self.assertEqual(keycloak.lookups, lookups)
+        self.assertTrue(keycloak.allows("a@x", GROUP))
+        keycloak.groups["1"] = []
+        self.assertFalse(keycloak.allows("a@x", GROUP))
 
 
 if __name__ == "__main__":

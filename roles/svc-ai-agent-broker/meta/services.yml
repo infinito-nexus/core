@@ -34,7 +34,6 @@ agent-broker:
     idle_minutes: 30
     max_running: 20
     start_timeout: 900
-    access_cache_seconds: 60
   run_after:
     - svc-ai-litellm
   guide_companions:

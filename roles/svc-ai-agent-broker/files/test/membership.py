@@ -20,7 +20,6 @@ keycloak = Keycloak(
     os.environ["KEYCLOAK_REALM"],
     os.environ["KEYCLOAK_ADMIN_USERNAME"],
     os.environ["KEYCLOAK_ADMIN_PASSWORD"],
-    0,
     60,
 )
 users = keycloak._get("/users", {"username": os.environ["MEMBER"], "exact": "true"})

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import threading
 import time
 import urllib.error
 import urllib.parse
@@ -19,21 +18,17 @@ class Keycloak:
         realm: realm holding the platform users.
         username: master-realm administrator.
         password: its password.
-        cache_seconds: how long a membership answer is reused.
         timeout: seconds per HTTP call.
     """
 
-    def __init__(self, base_url, realm, username, password, cache_seconds, timeout):
+    def __init__(self, base_url, realm, username, password, timeout):
         self.base_url = base_url.rstrip("/")
         self.realm = realm
         self.username = username
         self.password = password
-        self.cache_seconds = cache_seconds
         self.timeout = timeout
         self._token = ""
         self._token_expiry = 0.0
-        self._cache = {}
-        self._lock = threading.Lock()
 
     def _request(self, method, url, data=None, headers=None):
         request = urllib.request.Request(url, data=data, method=method)  # noqa: S310 - https:// base fixed by KEYCLOAK_URL
@@ -81,24 +76,16 @@ class Keycloak:
         return body
 
     def groups_of(self, email):
-        key = email.lower()
-        with self._lock:
-            cached = self._cache.get(key)
-            if cached and time.monotonic() - cached[0] < self.cache_seconds:
-                return cached[1]
-            users = self._get("/users", {"email": key, "exact": "true"})
-            if len(users) != 1:
-                groups = frozenset()
-            else:
-                groups = frozenset(
-                    group["path"]
-                    for group in self._get(
-                        f"/users/{users[0]['id']}/groups",
-                        {"briefRepresentation": "true", "max": "1000"},
-                    )
-                )
-            self._cache[key] = (time.monotonic(), groups)
-            return groups
+        users = self._get("/users", {"email": email.lower(), "exact": "true"})
+        if len(users) != 1:
+            return frozenset()
+        return frozenset(
+            group["path"]
+            for group in self._get(
+                f"/users/{users[0]['id']}/groups",
+                {"briefRepresentation": "true", "max": "1000"},
+            )
+        )
 
     def allows(self, email, group_path):
         return bool(email) and group_path in self.groups_of(email)

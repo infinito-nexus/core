@@ -162,7 +162,6 @@ done
 kc_membership "${USER_A_NAME}" PUT "${AGENT_GROUP_PATH}" || fail "could not grant ${USER_A_NAME} ${AGENT_GROUP_PATH}"
 kc_membership "${USER_B_NAME}" PUT "${AGENT_GROUP_PATH}" || fail "could not grant ${USER_B_NAME} ${AGENT_GROUP_PATH}"
 kc_membership "${USER_A_NAME}" PUT "${AGENT_OPENCLAW_GROUP_PATH}" || fail "could not grant ${USER_A_NAME} ${AGENT_OPENCLAW_GROUP_PATH}"
-sleep 65
 
 since="$(date +%s)"
 output="$(probe "${BROKER_KEY}" "${OWNER_A}" "${USER_A_EMAIL}" hermes)"

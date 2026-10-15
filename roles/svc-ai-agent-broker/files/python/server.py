@@ -18,7 +18,6 @@ Environment:
     KEYCLOAK_REALM:           realm of the platform users.
     KEYCLOAK_ADMIN_USERNAME:  master-realm administrator.
     KEYCLOAK_ADMIN_PASSWORD:  its password.
-    ACCESS_CACHE_SECONDS:     reuse window of a membership answer.
     IDLE_STOP:                ``true`` stops idle agents.
     IDLE_MINUTES:             idle time before a stop.
     MAX_RUNNING:              bound on concurrently running agents.
@@ -84,7 +83,6 @@ ACCESS = Keycloak(
     ENV["KEYCLOAK_REALM"],
     ENV["KEYCLOAK_ADMIN_USERNAME"],
     ENV["KEYCLOAK_ADMIN_PASSWORD"],
-    cache_seconds=int(ENV["ACCESS_CACHE_SECONDS"]),
     timeout=15,
 )
 

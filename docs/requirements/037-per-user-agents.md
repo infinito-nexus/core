@@ -18,7 +18,7 @@ As a platform user with agent access, I want Open WebUI to start my own Hermes o
 
 1. Open WebUI sends `POST /v1/chat/completions` with `model: hermes` or `model: openclaw` to the broker, authenticated with the broker key and carrying the `X-OpenWebUI-User-*` headers (`ENABLE_FORWARD_USER_INFO_HEADERS=true`).
 2. The broker rejects any request whose bearer is not the broker key, and any request without a user id header.
-3. The broker resolves the caller's groups from Keycloak and refuses with HTTP 403 when the caller is not in the `agent-user` group of the requested platform.
+3. The broker resolves the caller's groups from Keycloak on every completion and refuses with HTTP 403 when the caller is not in the `agent-user` group of the requested platform.
 4. The broker looks up the caller's agent for that platform by name. When none exists it creates one; when it is stopped it starts it; it then waits until the agent answers its health endpoint.
 5. The broker forwards the request to the agent with the agent's own bearer key and streams the answer back unchanged.
 6. `GET /v1/models` lists both platforms; Open WebUI shows each only to its group through model access grants.
@@ -49,7 +49,6 @@ With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTROL=fals
 | `idle_minutes` | idle time before a stop |
 | `max_running` | upper bound of concurrently running agents; a request beyond it gets HTTP 503 |
 | `start_timeout` | seconds an agent gets to answer its health endpoint |
-| `access_cache_seconds` | how long a Keycloak membership answer is reused |
 
 A stopped agent is started again on the next request with its volume re-attached. An agent serving a request is never stopped, and the idle time is re-read under the agent's lock before the stop. When a caller has lost the `agent-user` group, the broker refuses the request and stops that caller's running agent.
 
