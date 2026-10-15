@@ -3,6 +3,8 @@ const { gotoOnion, normalizeUrl, readEnv, runGuestFlow } = require("./personas")
 const { crossNetworkLeaks } = require("./personas/utils/network");
 const { resolveTimeout } = require("./timeouts");
 
+test.use({ ignoreHTTPSErrors: true });
+
 const SETTLE_MS = 15_000;
 
 test.describe("network isolation", () => {
