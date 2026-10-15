@@ -35,6 +35,8 @@ MEDIAWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabl
 MEDIAWIKI_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 MEDIAWIKI_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 MEDIAWIKI_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
+MEDIAWIKI_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+MEDIAWIKI_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if MEDIAWIKI_OIDC_ONION_ISSUER | bool else '' }}"
 MEDIAWIKI_OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
 MEDIAWIKI_OIDC_AUTOLOGIN: true
 MEDIAWIKI_OIDC_LOCALLOGIN: false

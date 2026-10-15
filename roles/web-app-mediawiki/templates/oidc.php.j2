@@ -27,6 +27,9 @@ if ( file_exists( $pa ) && file_exists( $oidc ) ) {
                 'clientID'     => '{{ MEDIAWIKI_OIDC_CLIENT_ID }}',
                 'clientsecret' => '{{ MEDIAWIKI_OIDC_CLIENT_SECRET }}',
                 'scope'        => [ 'openid', 'profile', 'email' ],
+{% if MEDIAWIKI_OIDC_SOCKS_PROXY | length > 0 %}
+                'proxy'        => '{{ MEDIAWIKI_OIDC_SOCKS_PROXY }}',
+{% endif %}
             ],
         ],
     ];
