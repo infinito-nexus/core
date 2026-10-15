@@ -40,6 +40,10 @@ docs:
   build:
     sphinx_process_mb: 3072
     sphinx_overhead_mb: 2048
+  sphinx:
+    project: "{{ SOFTWARE_NAME }}"
+    copyright: "2025, {{ INVENTOR }}"
+    author: "{{ INVENTOR }}"
   i18n:
     preload_languages:
       - "{{ HOST_LL }}"

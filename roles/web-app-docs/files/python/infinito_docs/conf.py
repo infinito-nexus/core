@@ -20,9 +20,9 @@ CONF_DIR = Path(__file__).resolve().parent
 templates_path = [str(CONF_DIR / "templates")]
 html_static_path = [str(CONF_DIR / "assets")]
 
-project = "Infinito.Nexus - Cyber Master Infrastructure Solution"
-copyright = "2025, Kevin Veen-Birkenbach"  # noqa: A001
-author = "Kevin Veen-Birkenbach"
+project = os.environ["DOCS_SPHINX_PROJECT"]
+copyright = os.environ["DOCS_SPHINX_COPYRIGHT"]  # noqa: A001
+author = os.environ["DOCS_SPHINX_AUTHOR"]
 
 _design_title = os.environ.get("DOCS_DESIGN_TITLE", "").strip()
 if _design_title:

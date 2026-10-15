@@ -3,7 +3,7 @@
 defaults_service_provider:
   type: "legal" # Accepted Values: natural, legal
   company:
-    titel: "{{ SOFTWARE_NAME }} by Kevin Veen-Birkenbach"
+    titel: "{{ SOFTWARE_NAME }} by {{ INVENTOR }}"
     slogan: "{{ SOFTWARE_NAME }} — Empowering a Sovereign Digital Future."
     address:
       street: "Binary Avenue 01"
