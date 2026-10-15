@@ -53,7 +53,7 @@ A role is checked when its frontend and, where present, its backend are styled, 
 Two base commits changed many roles after their last run: `6c2de017f8` split vendor selector lists in role stylesheets, so rules Chromium used to drop now apply, and `63f3631567` changed the colors of the generated logo lockups. Merges of `main` also bumped app images after some runs. A role whose open reason is only such a later change needs one more green run of its complete spec on its final state.
 
 - [x] web-app-akaunting
-- [ ] web-app-baserow: image bump to 2.4.1 from `main` came after the last run.
+- [x] web-app-baserow
 - [ ] web-app-bigbluebutton: title not set through Greenlight (the spec asserts the literal upstream name); the meeting client keeps the upstream design; `vars/main.yml` rewritten after the last full run.
 - [x] web-app-bluesky
 - [ ] web-app-bookwyrm: no green complete run on the final state; the last one failed the SeaweedFS avatar upload test.
@@ -63,7 +63,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-decidim: `style.css.j2` changed by `6c2de017f8` after the last run.
 - [x] web-app-discourse
 - [x] web-app-erpnext
-- [ ] web-app-espocrm: the news panel on the Administration page is a third-party document from `s.espocrm.com` that gets the role's theme sheet without the tokens and renders off-palette (an opaque white block in dark mode); by operator decision of 2026-10-15 EspoCRM's own `adminPanelIframeDisabled` switches it off; not implemented yet. The image bump to 10.0.10 from `main` came after the last run.
+- [x] web-app-espocrm
 - [ ] web-app-fediwall: literal colors in `templates/index.html.j2:18-27`; title not set through the wall config's native title.
 - [ ] web-app-fider: the logo does not reach Fider while the object store is enabled.
 - [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
@@ -74,7 +74,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-gitlab: final state never ran (the design-only commit removed the administrator provisioning); `/admin` is checked for HTTP 200 only.
 - [x] web-app-hermes
 - [ ] web-app-homeassistant: `vars/main.yml` changed after the last role sync that deployed the role.
-- [ ] web-app-hugo: logo and title applied by `design.js` and CSS instead of Hugo's own build.
+- [x] web-app-hugo
 - [ ] web-app-jellyfin: final state never ran (`branding.css.j2` split by `6c2de017f8`, spec and administrator password changed).
 - [ ] web-app-jenkins: `test-design.js` restored after the last complete run; no run on the restored file.
 - [ ] web-app-jitsi: `style.css.j2` changed twice after the last green run.
@@ -84,19 +84,19 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-lam: title neither set nor asserted; spec and `playwright.env.j2` rewritten after the last run.
 - [ ] web-app-listmonk: administrator tasks, env, SQL and spec rewritten after the last run.
 - [ ] web-app-litellm: logo swapped by CSS `content` instead of LiteLLM's `logo_url` setting.
-- [ ] web-app-littlejs: image bump to nginx 1.31.7-alpine from `main` came after the last run.
+- [x] web-app-littlejs
 - [ ] web-app-magento: literal `darkgrey` at `style.css.j2:5513` and `:5554`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [ ] web-app-mastodon: switch to the platform administrator not deployed.
 - [ ] web-app-matomo: Matomo's own `themeMode` preference is not exercised (the spec flips the DOM); the administration is not asserted.
 - [ ] web-app-matrix: `vars/main.yml` rewritten after the last complete run.
 - [ ] web-app-mattermost: about 50 literal RGB fallbacks inside `var()` in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [ ] web-app-mediawiki: switch to the platform administrator not deployed.
-- [ ] web-app-mini-qr: the scanner view keeps upstream colors; the PWA manifest keeps the upstream name and theme color.
+- [x] web-app-mini-qr
 - [x] web-app-mobilizon
 - [ ] web-app-moodle: `test-design.js` rewritten after the last complete run; page-slot lockup changed by `63f3631567`.
 - [x] web-app-n8n
-- [ ] web-app-nextcloud: Nextcloud's theme picker and the admin settings are not asserted, the visible logo is not checked; final state never ran.
-- [ ] web-app-odoo: literal colors in `files/theme/backend.css` and `frontend.css`, among them the invalid focus ring `box-shadow` at `backend.css:2203`; final state not exercised.
+- [x] web-app-nextcloud
+- [x] web-app-odoo
 - [x] web-app-openbao
 - [ ] web-app-openclaw: `test-design.js` rewritten after the last complete run.
 - [ ] web-app-opencloud: `tasks/main.yml` restructured after the last deploy with design on.
@@ -108,7 +108,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-pgadmin: switch to the platform administrator not deployed.
 - [x] web-app-phpmyadmin
 - [x] web-app-pihole
-- [ ] web-app-pixelfed: literal SVG colors in `style.css.j2`; final state not exercised.
+- [x] web-app-pixelfed
 - [ ] web-app-postmarks: the server HTML and the Atom feeds keep the title `Postmarks`, because Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode; `design.js` sets the browser title (upstream option in `roles/web-app-postmarks/TODO.md`).
 - [ ] web-app-pretix: administrator and stylesheet rework not deployed.
 - [ ] web-app-prometheus: merges of `main` changed spec, services, volumes and tasks after the last run; literal colors in the logout button of `javascript.js.j2`.
@@ -117,7 +117,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-semaphore
 - [ ] web-app-shopware: literal colors (`gold`, SVG fills) in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [ ] web-app-snipe-it: the complete spec never ran green on the final `test-design.js`.
-- [ ] web-app-socialhome: image bump to 2026.10.14 from `main` came after the last run.
+- [x] web-app-socialhome
 - [ ] web-app-sphinx: title neither set nor asserted.
 - [ ] web-app-stalwart: under `sso` the web administration specs need the administrator group grant of `feature/store-i18n` (`199f2a6d41`); no green run on the merged state yet.
 - [ ] web-app-suitecrm: visible title not asserted; literal SVG fills in `files/style.css`; the session rework from `main` never ran with the design.

@@ -9,13 +9,16 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const SETTINGS_KEY = "hugoDocsUserSettings";
 const TOGGLE = "#theme-toggle:visible";
 const HEADER_LINK = "body > header a.font-semibold";
+const BRAND = "body > header > div:first-child > a";
+const HERO_LOGO = "img[alt='Hugo Logo']";
+const FOOTER_LOGO = "body > footer img[alt='Hugo Logo']";
 const DRAWER = "body > div.bg-blue-950";
 const SEARCH_INPUT = "[aria-label='Search docs'] input[type='search']";
 const SEARCH_RESULT = "[aria-label='Search docs'] ul[role='list'] a";
@@ -43,21 +46,63 @@ function designLogoUrl() {
   return decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL);
 }
 
-function designSymbolUrl() {
-  return decodeDotenvQuotedValue(process.env.DESIGN_SYMBOL_URL);
+function designLogoFrameUrl() {
+  return decodeDotenvQuotedValue(process.env.DESIGN_LOGO_FRAME_URL);
 }
 
-async function imageSize(page, url) {
-  return page.evaluate(
-    (source) =>
-      new Promise((resolve) => {
-        const image = new Image();
-        image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
-        image.onerror = () => resolve({ width: 0, height: 0 });
-        image.src = source;
-      }),
-    url,
-  );
+function designFavicon16Url() {
+  return decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_16_URL);
+}
+
+function designFaviconIcoUrl() {
+  return decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_ICO_URL);
+}
+
+function designTouchIconUrl() {
+  return decodeDotenvQuotedValue(process.env.DESIGN_TOUCH_ICON_URL);
+}
+
+async function servedBytes(page, url) {
+  const response = await apiGetOnion(page.request, url, { timeout: resolveTimeout(30_000) });
+  expect(response.ok(), `hugo: ${url} must be served`).toBe(true);
+  return response.body();
+}
+
+async function assertBuiltFile(page, url, generated, label) {
+  expect(new URL(url).origin, `hugo: ${label} must come from the site itself`).toBe(new URL(baseUrl()).origin);
+  const served = await servedBytes(page, url);
+  const expected = await servedBytes(page, generated);
+  expect(served.equals(expected), `hugo: ${label} must be the generated file`).toBe(true);
+}
+
+async function assertBuiltImage(page, selector, generated, label) {
+  const image = page.locator(selector).first();
+  await image.scrollIntoViewIfNeeded({ timeout: resolveTimeout(10_000) });
+  await expect(image, `hugo: ${label} is shown`).toBeVisible({ timeout: resolveTimeout(10_000) });
+  await expect
+    .poll(() => image.evaluate((element) => element.complete && element.naturalWidth > 0), {
+      message: `hugo: ${label} must load`,
+      timeout: resolveTimeout(10_000),
+    })
+    .toBe(true);
+  await assertBuiltFile(page, await image.evaluate((element) => element.currentSrc), generated, label);
+  const box = await image.boundingBox();
+  expect(box.width, `hugo: ${label} keeps the wide box of its slot`).toBeGreaterThan(box.height * 1.5);
+}
+
+async function cssColor(page, value) {
+  return page.evaluate((color) => {
+    const probe = document.createElement("span");
+    probe.style.color = color;
+    document.body.appendChild(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return resolved;
+  }, value);
+}
+
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function freshSettings(page) {
@@ -179,21 +224,6 @@ async function assertScrolledHeader(page) {
   await page.locator("body > footer").scrollIntoViewIfNeeded({ timeout: resolveTimeout(10_000) });
   await expect(page.locator("body > header")).toHaveClass(/bg-blue-950\/80/);
   await assertToken(page, "body > header", "background-color", "--design-frame", "hugo scrolled header");
-}
-
-async function assertWordmark(page) {
-  const brand = page.locator("body > header > div:first-child > a");
-  const wordmark = await brand.evaluate((link) => {
-    const text = getComputedStyle(link, "::after");
-    return { symbol: getComputedStyle(link).backgroundImage, content: text.content, color: text.color };
-  });
-  expect(wordmark.symbol, "hugo: the header brand shows the symbol").toContain(designSymbolUrl());
-  expect(wordmark.content, "hugo: the header brand spells the design title").toBe(JSON.stringify(designTitle()));
-  expect(wordmark.color, "hugo: the header wordmark takes the frame text tone").toBe(
-    await tokenValue(page, "--design-on-frame", "color"),
-  );
-  const box = await brand.boundingBox();
-  expect(box.width, "hugo: the header brand box must be wider than high").toBeGreaterThan(box.height * 1.5);
 }
 
 function at(selector, then) {
@@ -382,32 +412,62 @@ exports.register = function () {
     await assertScrolledHeader(page);
   });
 
-  test("design: logo, favicon and title are the configured ones", async ({ page }) => {
+  test("design: the build carries the configured title", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(!designLogoUrl() || !designTitle(), "logo or title replacement is switched off");
+    const title = designTitle();
+    test.skip(!title, "title replacement is switched off");
     await freshSettings(page);
-    await open(page, "/", "img[alt='Hugo Logo']");
-    await expect.poll(() => page.title()).toContain(designTitle());
-    await expect
-      .poll(() => page.evaluate(() => Array.from(document.querySelectorAll("link[rel~='icon']"), (link) => link.href)))
-      .toEqual([designFaviconUrl(), designFaviconUrl()]);
-    const hero = page.locator("img[alt='Hugo Logo']").first();
-    expect(await hero.evaluate((image) => getComputedStyle(image).content)).toContain(designLogoUrl());
-    const lockup = await imageSize(page, designLogoUrl());
-    expect(lockup.width, "hugo: the hero lockup must load and be wider than high").toBeGreaterThan(lockup.height);
-    const symbol = await imageSize(page, designSymbolUrl());
-    expect(symbol.width, "hugo: the symbol must load").toBeGreaterThan(0);
-    expect((await imageSize(page, designFaviconUrl())).width, "hugo: the favicon must load").toBeGreaterThan(0);
+    for (const [path, selector] of [
+      ["/", HERO_LOGO],
+      ["/getting-started/quick-start/", "#article h1"],
+    ]) {
+      await open(page, path, selector);
+      await expect(page.locator("head > title"), `hugo: one title element on ${path}`).toHaveCount(1);
+      await expect(page, `hugo: the tab title of ${path} ends with the design title`).toHaveTitle(
+        new RegExp(`\\|\\s*${escapeRegExp(title)}$`),
+      );
+      await expect(page.locator(BRAND), `hugo: the header brand of ${path} spells the design title`).toHaveText(title);
+    }
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await expect.poll(() => darkClass(page)).toBe(mode === "dark");
+      await assertToken(page, BRAND, "color", "--design-on-frame", `hugo brand ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
 
-    await assertWordmark(page);
-
-    const footer = page.locator("body > footer img[alt='Hugo Logo']");
-    expect(await footer.evaluate((image) => getComputedStyle(image).content)).toContain(designSymbolUrl());
-    const footerBox = await footer.boundingBox();
-    expect(Math.abs(footerBox.width - footerBox.height), "hugo: the footer symbol sits in a square box").toBeLessThan(1);
-
-    await open(page, "/getting-started/quick-start/", "#article h1");
-    await expect.poll(() => page.title()).toContain(designTitle());
+  test("design: the build carries the generated logos and icons", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    test.skip(!designLogoUrl(), "logo replacement is switched off");
+    await freshSettings(page);
+    for (const size of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(size);
+      await open(page, "/", HERO_LOGO);
+      await assertBuiltImage(page, HERO_LOGO, designLogoUrl(), `hero logo at ${size.width} px`);
+      await assertBuiltImage(page, FOOTER_LOGO, designLogoFrameUrl(), `footer logo at ${size.width} px`);
+    }
+    for (const [selector, generated] of [
+      ["link[rel='icon'][sizes='32x32']", designFaviconUrl()],
+      ["link[rel='icon'][sizes='16x16']", designFavicon16Url()],
+      ["link[rel='apple-touch-icon']", designTouchIconUrl()],
+    ]) {
+      const href = await page.locator(selector).first().evaluate((link) => link.href);
+      await assertBuiltFile(page, href, generated, selector);
+    }
+    await assertBuiltFile(page, `${baseUrl()}/favicon.ico`, designFaviconIcoUrl(), "favicon.ico");
+    await expect(page.locator("link[rel='mask-icon']"), "hugo: upstream's pinned tab icon is gone").toHaveCount(0);
+    await page.emulateMedia({ colorScheme: "light" });
+    const onFrame = await tokenValue(page, "--design-on-frame", "color");
+    const svg = (await servedBytes(page, `${baseUrl()}/images/design-logo-frame.svg`)).toString();
+    const fills = [...svg.matchAll(/<text[^>]*\sfill="([^"]+)"/g)].map((match) => match[1]);
+    expect(fills.length, "hugo: the footer lockup carries the title").toBeGreaterThan(0);
+    for (const fill of fills) {
+      expect(await cssColor(page, fill), "hugo: the footer lockup renders its text in --design-on-frame").toBe(onFrame);
+    }
+    await page.emulateMedia({ colorScheme: null });
   });
 
   test("design: gallery of the documentation site", async ({ page }) => {

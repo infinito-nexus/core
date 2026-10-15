@@ -1,0 +1,31 @@
+{% set design = lookup('design', application_id) %}
+{% if design.logo is string %}
+{% set icons = [
+  {'src': design.urls['pwa-192'].png, 'sizes': '192x192', 'type': 'image/png'},
+  {'src': design.urls['pwa-512'].png, 'sizes': '512x512', 'type': 'image/png'}
+] %}
+{% else %}
+{% set icons = [
+  {'src': 'app_icons/web/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
+  {'src': 'app_icons/web/icon-192-maskable.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'maskable'},
+  {'src': 'app_icons/web/icon-512.png', 'sizes': '512x512', 'type': 'image/png'},
+  {'src': 'app_icons/web/icon-512-maskable.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'}
+] %}
+{% endif %}
+{{ {
+  'name': design.label,
+  'short_name': design.label,
+  'description': 'A minimal QR code generator and scanner',
+  'start_url': '/',
+  'display': 'standalone',
+  'background_color': MINI_QR_DESIGN_PALETTE['--design-surface-1'],
+  'theme_color': MINI_QR_DESIGN_PALETTE['--design-surface-1'],
+  'lang': 'en',
+  'scope': '/',
+  'orientation': 'portrait',
+  'icons': icons,
+  'screenshots': [
+    {'src': 'app_icons/web/screenshot-narrow.png', 'sizes': '3510x7596', 'type': 'image/png', 'form_factor': 'narrow'},
+    {'src': 'app_icons/web/screenshot-wide.png', 'sizes': '7596x3510', 'type': 'image/png', 'form_factor': 'wide'}
+  ]
+} | to_nice_json }}

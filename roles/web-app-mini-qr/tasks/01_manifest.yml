@@ -1,0 +1,14 @@
+---
+- name: "🎨 Render the web manifest of {{ application_id }}"
+  stack_host_template:
+    src: manifest.webmanifest.j2
+    dest: "{{ MINI_QR_MANIFEST_FILE }}"
+    mode: "0444"
+  notify: compose-up
+  when: MINI_QR_DESIGN_ENABLED | bool
+
+- name: "🧹 Remove the web manifest of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ MINI_QR_MANIFEST_FILE }}"
+    state: absent
+  when: not MINI_QR_DESIGN_ENABLED | bool

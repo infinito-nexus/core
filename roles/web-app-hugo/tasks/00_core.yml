@@ -13,9 +13,16 @@
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
     compose_repository_url: "{{ HUGO_SOURCE_REPO }}"
     compose_repository_pull: true
     compose_repository_ref: "{{ HUGO_SOURCE_REF }}"
+
+- name: "🎨 Stage the corporate design for the Hugo build of '{{ application_id }}'"
+  include_tasks: 01_design.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
 - include_tasks: utils/once/flag.yml

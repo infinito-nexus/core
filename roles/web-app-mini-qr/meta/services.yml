@@ -56,6 +56,12 @@ design:
     logo:
       width: 200
       height: 48
+    pwa-192:
+      width: 192
+      height: 192
+    pwa-512:
+      width: 512
+      height: 512
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

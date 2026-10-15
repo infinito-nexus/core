@@ -1,4 +1,3 @@
-{% set design = lookup('design', application_id) %}
 {% if 'gohugoio/hugoDocs' in lookup('config', application_id, 'services.hugo.source_repository') %}
 :root,
 body > header [role="dialog"] {
@@ -123,37 +122,6 @@ button[aria-label="Search"]:focus-visible,
 #theme-toggle:focus {
   box-shadow: none;
 }
-
-{% if design.logo is string %}
-body > header > div:first-child > a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding-left: 40px;
-  background: url("{{ design.urls['apple-touch-icon'].svg }}") left center / 32px 32px no-repeat;
-}
-
-img[src$="hugo-logo-wide.svg"] {
-  content: url("{{ design.urls.logo.svg }}");
-}
-
-body > footer img[src$="hugo-logo-wide.svg"] {
-  content: url("{{ design.urls['apple-touch-icon'].svg }}");
-  width: 3.5rem;
-  aspect-ratio: 1;
-}
-{% endif %}
-{% if design.title is string %}
-
-body > header > div:first-child > a {
-  font-size: 0;
-}
-
-body > header > div:first-child > a::after {
-  content: {{ design.title | to_json(ensure_ascii=False) }};
-  font-size: 1.25rem;
-}
-{% endif %}
 
 .bg-blue-600 {
   --color-white: var(--design-on-primary);

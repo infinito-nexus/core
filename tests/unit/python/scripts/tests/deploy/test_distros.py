@@ -20,6 +20,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.distros import pkgmgr_image
 from utils.env.parser import parse_static_env
 
 LOOP = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "distros.sh"
@@ -75,6 +76,19 @@ class TestDistrosLoop(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(sorted(record.split()), sorted(DISTROS.split()))
+
+    def test_every_distro_runs_with_a_parent_image_of_its_own(self) -> None:
+        proc, record = self._run(
+            DISTROS,
+            'echo "${INFINITO_DISTRO} ${INFINITO_PARENT_IMAGE}'
+            ' ${INFINITO_PARENT_IMAGE_OWNER} ${INFINITO_PARENT_IMAGE_TAG}" >> "${RECORD}"',
+            INFINITO_CI_DISTRO_BUDGET_SECONDS="600",
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        rows = [line.split() for line in record.splitlines()]
+        self.assertEqual(sorted(row[0] for row in rows), sorted(DISTROS.split()))
+        for distro, image, owner, tag in rows:
+            self.assertEqual(image, pkgmgr_image(distro, owner=owner, tag=tag))
 
     def test_the_command_inherits_the_env_layer(self) -> None:
         proc, record = self._run(

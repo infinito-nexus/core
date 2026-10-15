@@ -9,7 +9,13 @@ import cli.meta.env.__main__ as env_main
 
 
 class TestDotenvHostOwned(unittest.TestCase):
-    def _run(self, *, dotenv_exists: bool, host_owned: str | None) -> tuple[int, bool]:
+    def _run(
+        self,
+        *,
+        dotenv_exists: bool,
+        host_owned: str | None,
+        argv: list[str] | None = None,
+    ) -> tuple[int, bool]:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "default.env").write_text("INFINITO_DISTRO=debian\n")
@@ -28,7 +34,7 @@ class TestDotenvHostOwned(unittest.TestCase):
                 patch.object(env_main, "write_dotenv") as write_dotenv,
             ):
                 build_env.return_value.values = {}
-                rc = env_main.main()
+                rc = env_main.main(argv)
             return rc, write_dotenv.called
 
     def test_a_host_owned_dotenv_is_kept(self) -> None:
@@ -39,6 +45,16 @@ class TestDotenvHostOwned(unittest.TestCase):
 
     def test_without_the_marker_the_dotenv_is_regenerated(self) -> None:
         self.assertEqual(self._run(dotenv_exists=True, host_owned=None), (0, True))
+
+    def test_an_explicit_output_is_written_even_when_host_owned(self) -> None:
+        self.assertEqual(
+            self._run(
+                dotenv_exists=True,
+                host_owned="true",
+                argv=["--output", "/nonexistent/distro.env"],
+            ),
+            (0, True),
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover
