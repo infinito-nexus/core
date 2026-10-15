@@ -35,7 +35,10 @@ const SETTINGS_NAV = ".settings-nav";
 const ADMIN_HEADER = ".main-content .header.bg-primary";
 const ADMIN_TOPBAR = "nav.navbar-top";
 const ADMIN_LOGO = ".sidenav .navbar-brand-img";
+const ADMIN_SELECT = "select#limitSelect.custom-select";
 const MODAL = ".modal-content .ui-menu";
+const ROLE_SHEET = "link[href*='/roles/web-app-pixelfed/'][href*='style.css']";
+const COLOR_PROPERTY = /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule|(?:-webkit-)?mask(?:-image)?)$/;
 const THEME_KEY = "pf_m2s.color-scheme";
 const CUSTOM_CSS_BEGIN = "/* infinito-design:begin */";
 const SHOWCASE = "Design showcase #designshowcase";
@@ -191,6 +194,73 @@ exports.register = function (shared) {
     await assertDesignTokens(page, "pixelfed");
   });
 
+  test("design: the role stylesheet sets every color through a token, inside SVG images too", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await gotoOnion(page, `${base}/`);
+    const sheet = await page.locator(ROLE_SHEET).first().getAttribute("href");
+    const css = await (await apiGetOnion(page.request, sheet)).text();
+    const offenders = await page.evaluate(
+      ([source, property]) => {
+        const colorProperty = new RegExp(property);
+        const keyword = (word) =>
+          /^[a-z]+$/i.test(word) && !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) && CSS.supports("color", word);
+        const paint = /(?:fill|stroke|stop-color|flood-color)\s*[=:]\s*["']?\s*(?!none\b|currentcolor\b|url\()[#\w(]/i;
+        const decode = (header, data) => {
+          if (/;base64$/i.test(header)) return atob(data);
+          try {
+            return decodeURIComponent(data);
+          } catch {
+            return data;
+          }
+        };
+        const found = [];
+        for (const [, , header, data] of source.matchAll(/url\(\s*(["'])data:image\/svg\+xml([^,]*),(.*?)\1\s*\)/gi)) {
+          const hit = decode(header, data).match(paint);
+          if (hit) found.push(`svg ${hit[0]}`);
+        }
+        for (const [, name, value] of source.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+          if (!colorProperty.test(name)) continue;
+          if (/^(?:-webkit-)?(?:background|mask)-image$/.test(name) && /^var\(--design-[\w-]+\)$/.test(value.trim())) {
+            found.push(`${name}: ${value.trim()}`);
+            continue;
+          }
+          if (value.includes("url(")) continue;
+          const literal =
+            /#[0-9a-f]{3,8}\b/i.test(value) ||
+            /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(value) ||
+            value.split(/[\s,()]+/).some(keyword);
+          if (literal) found.push(`${name}: ${value.trim()}`);
+        }
+        return found;
+      },
+      [css, COLOR_PROPERTY.source],
+    );
+    expect(offenders, "every color of the role stylesheet comes from a --design-* token").toEqual([]);
+  });
+
+  test("design: a checked checkbox draws its mark in the on-primary color", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page, shared);
+    await gotoOnion(page, `${base}/settings/privacy`);
+    const box = page.locator("#show_profile_follower_count");
+    await expect(box).toBeAttached({ timeout: resolveTimeout(10_000) });
+    await box.evaluate((input) => {
+      input.checked = true;
+    });
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      const expected = await tokenValue(page, "--design-on-primary", "background-color");
+      const mark = await page.locator("#show_profile_follower_count ~ .custom-control-label").evaluate((label) => {
+        const style = getComputedStyle(label, "::after");
+        return { color: style.backgroundColor, image: style.backgroundImage, mask: style.maskImage || style.webkitMaskImage };
+      });
+      expect(mark.color, `check mark color ${mode}`).toBe(expected);
+      expect(mark.image, `upstream's white mark is gone ${mode}`).toBe("none");
+      expect(mark.mask, `check mark shape ${mode}`).toContain("data:image/svg+xml");
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
+
   test("design: the sign-in page takes surface, card, primary action and text from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     test.skip(shared.env.oidcEnabled, "with sso the sign-in form belongs to the identity provider");
@@ -231,7 +301,7 @@ exports.register = function (shared) {
     await signIn(page, shared);
     const blocks = await page.locator("head style").evaluateAll((styles, begin) => styles.filter((style) => style.textContent.includes(begin)).length, CUSTOM_CSS_BEGIN);
     expect(blocks, "exactly one role block renders through uikit.custom.css").toBe(1);
-    const sheet = await page.locator("link[href*='/roles/web-app-pixelfed/'][href*='style.css']").first().getAttribute("href");
+    const sheet = await page.locator(ROLE_SHEET).first().getAttribute("href");
     const css = await (await apiGetOnion(page.request, sheet)).text();
     expect(css, "the SPA variables belong to the in-house custom CSS").not.toMatch(/--(body-bg|card-bg|nav-bg)\s*:/);
   });
@@ -349,6 +419,57 @@ exports.register = function (shared) {
     await assertReadable(page, [cell], "pixelfed admin users");
   });
 
+  test("design: the admin select arrow takes the select's text color instead of upstream's literal", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page, shared);
+    await gotoOnion(page, `${base}/i/admin/users/list`);
+    const select = page.locator(ADMIN_SELECT);
+    await expect(select).toBeVisible({ timeout: resolveTimeout(10_000) });
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      const drawn = await select.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return { image: style.backgroundImage, appearance: style.appearance };
+      });
+      expect(drawn.image, `upstream's literal arrow image is gone ${mode}`).toBe("none");
+      expect(drawn.appearance, `the browser draws the arrow in the select's text color ${mode}`).not.toBe("none");
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertReadable(page, [ADMIN_SELECT], "pixelfed admin select");
+  });
+
+  test("design: the admin hashtags page keeps its header labels, table header and search field on the palette", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page, shared);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoOnion(page, `${base}/i/admin/hashtags/home`);
+    const label = `${ADMIN_HEADER} .header-body .row .mb-3 > :first-child`;
+    const clearCache = `${ADMIN_HEADER} .btn-outline-white`;
+    const tableHeader = ".main-content .table .thead-dark th";
+    const search = ".main-content .autocomplete-input";
+    await shown(tableHeader)(page);
+    await shown(search)(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, label, "color", "--design-on-frame", `admin header label ${mode}`);
+      await assertToken(page, clearCache, "color", "--design-on-frame", `admin header outline button ${mode}`);
+      await assertToken(page, clearCache, "border-top-color", "--design-on-frame", `admin header outline button border ${mode}`);
+      await assertToken(page, tableHeader, "background-color", "--design-surface-3", `hashtag table header ${mode}`);
+      await assertToken(page, tableHeader, "color", "--design-text-muted", `hashtag table header text ${mode}`);
+      await assertToken(page, search, "background-color", "--design-surface-2", `hashtag search field ${mode}`);
+      await assertToken(page, search, "color", "--design-text", `hashtag search text ${mode}`);
+      const muted = await tokenValue(page, "--design-text-muted", "background-color");
+      const icon = await page.locator(search).evaluate((input) => ({
+        image: getComputedStyle(input).backgroundImage,
+        color: getComputedStyle(input.closest(".autocomplete"), "::before").backgroundColor,
+      }));
+      expect(icon.image, `upstream's literal search icon is gone ${mode}`).toBe("none");
+      expect(icon.color, `the search icon takes the muted text color ${mode}`).toBe(muted);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertReadable(page, [label, clearCache, tableHeader], "pixelfed admin hashtags");
+  });
+
   test("design: a theme picked in the Appearance dialog is respected and mirrored", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await page.emulateMedia({ colorScheme: "light" });
@@ -391,7 +512,7 @@ exports.register = function (shared) {
   test("design: every image the role stylesheet references is served", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await gotoOnion(page, `${base}/`);
-    const sheet = await page.locator("link[href*='/roles/web-app-pixelfed/'][href*='style.css']").first().getAttribute("href");
+    const sheet = await page.locator(ROLE_SHEET).first().getAttribute("href");
     const css = await (await apiGetOnion(page.request, sheet)).text();
     const targets = [...new Set([...css.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)].map((match) => match[1]))]
       .filter((target) => !target.startsWith("data:"))
