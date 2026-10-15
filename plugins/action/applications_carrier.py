@@ -10,14 +10,12 @@ instead of rendering::
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
       applications_carrier: {}
 
-``tasks/stages/01_constructor.yml`` parks two of them. The stage-wide one
-sits after the token store so the embedded user records already carry the
-loaded tokens, and after the ``add_host`` tasks because 114 roles gate
-services on ``group_names`` and the payload bakes those in. The
-merge block opens an earlier, block-scoped one and drops it again at the
-block's end, because ``merged_applications_cache_key`` reads neither
-``group_names`` nor the token file: a carrier left standing across either
-would be served unchanged where a fresh render belongs::
+``tasks/stages/01_constructor.yml`` parks three of them: a block-scoped one
+for the merge block, which it drops again at the block's end, one after the
+``add_host`` tasks for the swarm bootstrap roles, parked only when
+``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names`` and the
+tokens file's path, mtime and size, so a carrier whose groups or tokens no
+longer match is rejected and the reader renders afresh::
 
     - name: 🧊 Drop the merge-block carrier so later stages re-render
       applications_carrier:

@@ -52,6 +52,10 @@
 - name: "📍 Place the shared services and the proxy on their hosts"
   ansible.builtin.include_tasks: ./tasks/utils/constructor/placement.yml
 
+- name: 🧊 Render the applications SPOT once for the bootstrap section
+  applications_carrier: {}
+  when: DEPLOYMENT_MODE == 'swarm'
+
 - name: "🥾 Bootstrap svc-swarm-node"
   ansible.builtin.include_role:
     name: svc-swarm-node
