@@ -1,4 +1,5 @@
 {% set design = lookup('design', application_id) %}
+{% set design_origin = '^[a-z][a-z0-9+.-]*://[^/]+' %}
 :root,
 .dark {
   --background: var(--design-surface-2);
@@ -93,7 +94,7 @@ html:has(> body > .card > #login-form) .alert.success {
 }
 {% if design.logo is string %}
 svg[viewBox="95 84 500 90"] {
-  background: url("{{ design.urls.brand.svg if design.title is string else design.urls.icon.svg }}") left center / contain no-repeat;
+  background: url("{{ (design.urls.brand.svg if design.title is string else design.urls.icon.svg) | regex_replace(design_origin, '') }}") left center / contain no-repeat;
 }
 svg[viewBox="95 84 500 90"] > *,
 html:has(> body > .card > #login-form) svg.default-logo > * {
@@ -106,7 +107,7 @@ html:has(> body > .card > #login-form) svg.default-logo > * {
   }
 }
 html:has(> body > .card > #login-form) svg.default-logo {
-  background: url("{{ design.urls.brand.svg if design.title is string else design.urls.icon.svg }}") center / auto 33% no-repeat;
+  background: url("{{ (design.urls.brand.svg if design.title is string else design.urls.icon.svg) | regex_replace(design_origin, '') }}") center / auto 33% no-repeat;
 }
 {% endif %}
 body[class*="task-"] {
@@ -2206,7 +2207,7 @@ html:has(> body[class*="task-"]) {
 html:not([lang]) > body {
   background-color: var(--design-surface-2);
 {% if design.logo is string %}
-  background-image: url("{{ design.urls.icon.svg }}");
+  background-image: url("{{ design.urls.icon.svg | regex_replace(design_origin, '') }}");
 {% endif %}
 }
 html:not([lang]):not(.dark-mode) > body:before {
