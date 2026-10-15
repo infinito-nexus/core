@@ -32,6 +32,7 @@ phpmyadmin:
   ports:
     local:
       sso: 16481
+      sso_onion: 16541
       http: 8034
     internal:
       http: 80

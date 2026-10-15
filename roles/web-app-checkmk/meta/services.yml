@@ -82,6 +82,7 @@ checkmk:
     local:
       http: 8087
       sso: 16509
+      sso_onion: 16524
       agent: 8500
     onion:
       # nocheck: onion-flag  the monitoring server dials its agents, so nothing connects inward here, and the agent speaks no authentication of its own

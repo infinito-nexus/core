@@ -59,6 +59,7 @@ akaunting:
     local:
       http: 8025
       sso: 16499
+      sso_onion: 16520
     internal:
       http: 80
   run_after:

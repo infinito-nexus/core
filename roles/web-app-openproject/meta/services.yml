@@ -141,6 +141,7 @@ openproject:
   ports:
     local:
       sso: 16483
+      sso_onion: 16537
       http: 8023
     internal:
       http: 80

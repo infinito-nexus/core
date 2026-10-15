@@ -89,6 +89,32 @@ class SsoLookupTests(unittest.TestCase):
             )
             return lk.run(terms, variables={"applications": applications})
 
+    def test_proxy_instances_follow_the_app_domains_and_keycloak_config_file(self):
+        applications = {
+            **_apps(enabled=True, flavor="oauth2"),
+            "web-app-keycloak": {
+                "services": {"sso_proxy": {"configuration_file": "proxy.cfg"}}
+            },
+        }
+        domains = {"web-app-x": ["x.example.org", "x." + "a" * 56 + ".onion"]}
+        lk = self.mod.LookupModule()
+        lk._loader = mock.MagicMock()
+        with mock.patch.object(self.mod, "lookup_loader") as loader_mock:
+            loader_mock.get.side_effect = lambda name, **_k: mock.MagicMock(
+                run=lambda *_a, **_kw: [domains if name == "domains" else applications]
+            )
+            result = lk.run(
+                ["web-app-x", "proxy_instances"],
+                variables={"applications": applications},
+            )
+        self.assertEqual(
+            [(i["service"], i["port_key"], i["config_file"]) for i in result[0]],
+            [
+                ("sso-proxy", "sso", "proxy.cfg"),
+                ("sso-proxy-onion", "sso_onion", "proxy-onion.cfg"),
+            ],
+        )
+
     def test_zero_terms_raises(self):
         with self.assertRaises(AnsibleError):
             self._run(_apps(), [])

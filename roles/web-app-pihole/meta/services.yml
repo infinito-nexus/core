@@ -75,6 +75,7 @@ pihole:
     local:
       http: 8078
       sso: 16508
+      sso_onion: 16542
   run_after:
     - web-app-keycloak
   lifecycle: beta

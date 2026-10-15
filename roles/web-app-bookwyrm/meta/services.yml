@@ -70,6 +70,7 @@ bookwyrm:
     local:
       http: 8049
       sso: 16498
+      sso_onion: 16523
     internal:
       http: 8000
   run_after:

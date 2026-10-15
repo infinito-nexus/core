@@ -55,6 +55,7 @@ postmarks:
     local:
       http: 8075
       sso: 16494
+      sso_onion: 16543
     internal:
       http: 3000
   lifecycle: beta

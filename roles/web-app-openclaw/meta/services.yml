@@ -25,6 +25,7 @@ openclaw:
     local:
       http: 8090
       sso: 16511
+      sso_onion: 16536
     internal:
       http: 18789
   lifecycle: beta

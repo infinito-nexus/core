@@ -61,6 +61,7 @@ jitsi:
     local:
       http: 8084
       sso: 16505
+      sso_onion: 16531
     public:
       media: 10000
     internal:

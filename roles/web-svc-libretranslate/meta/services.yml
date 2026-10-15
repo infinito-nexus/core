@@ -24,6 +24,7 @@ libretranslate:
     local:
       http: 8045
       sso: 16493
+      sso_onion: 16548
     internal:
       http: 5000
   proxy:

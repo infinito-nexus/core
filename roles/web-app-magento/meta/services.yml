@@ -115,6 +115,7 @@ magento:
   ports:
     local:
       sso: 16504
+      sso_onion: 16534
       http: 8052
     internal:
       http: 8000

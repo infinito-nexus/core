@@ -22,8 +22,12 @@
 - name: "🧹 Heal oauth2-proxy cfg bind-mount (if it became a directory in a prior deploy)"
   ansible.builtin.script: "{{ role_path }}/files/shell/heal_sso_proxy_cfg.sh"
   environment:
-    SSO_PROXY_CFG_PATH: "{{ BLUESKY_SSO_PROXY_CFG_PATH }}"
-    SSO_PROXY_CONTAINER: "{{ BLUESKY_SSO_PROXY_CONTAINER }}"
+    SSO_PROXY_CFG_PATH: "{{ [lookup('container', application_id, 'directories.volumes'), sso_proxy_instance.config_file] | path_join }}"
+    SSO_PROXY_CONTAINER: "{{ (application_id | get_entity_name) ~ '-' ~ sso_proxy_instance.service }}"
+  loop: "{{ lookup('sso', application_id, 'proxy_instances') }}"
+  loop_control:
+    loop_var: sso_proxy_instance
+    label: "{{ sso_proxy_instance.service }}"
   changed_when: false
 
 - name: "📂 include sys-stk-backend role"

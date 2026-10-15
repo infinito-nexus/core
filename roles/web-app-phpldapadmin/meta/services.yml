@@ -29,6 +29,7 @@ phpldapadmin:
   ports:
     local:
       sso: 16486
+      sso_onion: 16540
       http: 8037
     internal:
       http: 8080

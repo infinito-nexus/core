@@ -26,6 +26,7 @@ hermes:
     local:
       http: 8092
       sso: 16512
+      sso_onion: 16530
     internal:
       http: 8642
   lifecycle: beta

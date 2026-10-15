@@ -73,6 +73,7 @@ gitea:
       ssh: 22
     local:
       sso: 16488
+      sso_onion: 16529
       http: 8002
     public:
       ssh: 2201

@@ -18,6 +18,7 @@ pgadmin:
   ports:
     local:
       sso: 16485
+      sso_onion: 16539
       http: 8016
     internal:
       http: 80
