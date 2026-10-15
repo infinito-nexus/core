@@ -1,0 +1,50 @@
+SuiteCRM 8.10.2 tightened User::hasSaveAccess() from `return true` to
+`return is_admin($current_user)` for a record without an id, and
+restrictAdminOnlyFields() now forces `status = Inactive` on such a record
+(release commit 6c7ce002a). CreateUser::create() runs while the browser is
+still anonymous, because it is the LDAP and SAML auto-create path
+(AppLdapUserProvider::createUser, AppSamlUserFactory::createUser, both via
+UserHandler::createExternalAuthUser), so every first login of a directory
+account ends in `RuntimeException: Not authorized`, HTTP 500 on POST /login
+and no session after a SAML assertion. v8.10.1 and earlier exempted a new
+record from both guards; upstream has no release and no hotfix carrying a fix.
+
+\CreateUser is reachable only from that provisioning stack and from the
+installer, so the admin context is raised here instead of relaxing the guards,
+which keeps them closed for every request-driven save.
+
+Generated with `diff -u` against the v8.10.2 tarball and applied with `-F0`, so
+the build fails instead of letting GNU patch's default fuzz factor land the
+hunk somewhere upstream moved it to.
+
+--- a/public/legacy/include/portability/User/CreateUser.php
++++ b/public/legacy/include/portability/User/CreateUser.php
+@@ -68,6 +68,8 @@
+      */
+     public function create(string $name, array $fields): ?SugarBean
+     {
++        global $current_user;
++
+         $user = BeanFactory::newBean('Users');
+         $user->user_name = $name;
+
+@@ -77,7 +79,18 @@
+             $user->$key = $value;
+         }
+
+-        $user->save();
++        $callerUser = $current_user;
++
++        if (!is_admin($current_user)) {
++            $current_user = BeanFactory::newBean('Users');
++            $current_user->is_admin = 1;
++        }
++
++        try {
++            $user->save();
++        } finally {
++            $current_user = $callerUser;
++        }
+
+         if (empty($user)) {
+             return null;

@@ -30,6 +30,14 @@
     - compose-up
     - compose-build
 
+- name: "🚀 Deploy '{{ SUITECRM_EXTERNAL_AUTH_PATCH_HOST_ABS }}'"
+  copy:
+    src: "{{ SUITECRM_EXTERNAL_AUTH_PATCH_SRC }}"
+    dest: "{{ SUITECRM_EXTERNAL_AUTH_PATCH_HOST_ABS }}"
+  notify:
+    - compose-up
+    - compose-build
+
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers
 
