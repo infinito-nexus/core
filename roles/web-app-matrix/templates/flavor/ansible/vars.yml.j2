@@ -167,6 +167,7 @@ matrix_bridge_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | string
 {% endfor %}
 {% endfor %}
 {% if MATRIX_BRIDGE.hookshot %}
+matrix_bridge_hookshot_container_url: localhost
 matrix_bridge_hookshot_gitlab_enabled: {{ MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED | string | lower }}
 matrix_bridge_hookshot_jira_enabled: {{ MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED | string | lower }}
 matrix_bridge_hookshot_generic_enabled: {{ MATRIX_ADDON_HOOKSHOT_WEBHOOKS_ENABLED | string | lower }}
