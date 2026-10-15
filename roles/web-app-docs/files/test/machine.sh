@@ -91,11 +91,13 @@ echo "=== Machine: ${MACHINE_BASE_IMAGE} ==="
 sweep_dead_machines
 trap cleanup EXIT
 machine up -d --build --pull always
+echo "=== Machine base digest: $(docker image inspect "${MACHINE_BASE_IMAGE}" --format '{{index .RepoDigests 0}}' 2>/dev/null || echo unresolved) ==="
 await_systemd
 await_engine
 
 echo "=== Preparing it for Infinito.Nexus (${PREPARE}) ==="
 in_machine bash "${PREPARE}"
 
+echo "=== Replay image: $(grep -oE '(ghcr|docker)\.io/[^ "]+' "${BLOCK}" | head -1 || true) ==="
 echo "=== Replaying the instructions in that machine ==="
 machine exec -T -w "${workdir}" machine bash -e -s <"${BLOCK}"
