@@ -91,7 +91,7 @@ echo "=== Machine: ${MACHINE_BASE_IMAGE} ==="
 sweep_dead_machines
 trap cleanup EXIT
 machine up -d --build --pull always
-echo "=== Machine base digest: $(docker image inspect "${MACHINE_BASE_IMAGE}" --format '{{index .RepoDigests 0}}' 2>/dev/null || echo unresolved) ==="
+echo "=== Machine base digest: $(container image inspect "${MACHINE_BASE_IMAGE}" --format '{{index .RepoDigests 0}}' 2>/dev/null || echo unresolved) ==="
 await_systemd
 await_engine
 
