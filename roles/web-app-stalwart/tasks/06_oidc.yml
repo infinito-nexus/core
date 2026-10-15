@@ -3,6 +3,9 @@
 # external directory (no fallback), so SSO switches all interactive auth to OIDC
 # and disables password login — see the role README for the full rationale.
 # JMAP request bodies live in templates/jmap/*.json.j2.
+# Stalwart resolves a claimGroups value as the address '<value>@<usernameDomain>'
+# and never reads externalId, so a group under any other name is silently
+# recreated by Stalwart with the default role.
 
 - name: "📖 List existing Stalwart directories"
   include_tasks: jmap_call.yml
@@ -84,20 +87,21 @@
           {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
               'methodCalls': [['x:Account/set', {'create': {'g': {
                 '@type': 'Group',
-                'name': STALWART_ADMIN_GROUP_NAME,
+                'name': STALWART_ADMIN_GROUP_PATH,
                 'domainId': stalwart_domain_id,
                 'description': 'Keycloak ' ~ STALWART_ADMIN_GROUP_PATH,
                 'externalId': STALWART_ADMIN_GROUP_PATH,
                 'roles': {'@type': 'Custom', 'roleIds': {stalwart_role_admin: true}}
               }}}, 'c0']]} | to_json }}
 
-    - name: "🔍 Resolve the group id when it already existed"
+    - name: "🔍 Resolve the group id, created now or on an earlier run"
       ansible.builtin.set_fact:
         stalwart_admin_group_id: >-
-          {{ ((stalwart_jmap.methodResponses[0][1].notCreated | default({}))
-              .get('g', {}).get('objectId', {}) or {}).get('id', '') }}
+          {{ (stalwart_jmap.methodResponses[0][1].created | default({})).get('g', {}).get('id', '')
+             or ((stalwart_jmap.methodResponses[0][1].notCreated | default({}))
+                 .get('g', {}).get('objectId', {}) or {}).get('id', '') }}
 
-    - name: "🔄 Keep the existing group's external id and role in step"
+    - name: "🔄 Keep the group's external id and role in step"
       include_tasks: jmap_call.yml
       vars:
         stalwart_jmap_body: >-
@@ -106,7 +110,6 @@
                 'externalId': STALWART_ADMIN_GROUP_PATH,
                 'roles': {'@type': 'Custom', 'roleIds': {stalwart_role_admin: true}}
               }}}, 'c0']]} | to_json }}
-      when: stalwart_admin_group_id | length > 0
 
 - name: "📖 Read the Stalwart authentication singleton"
   include_tasks: jmap_call.yml
