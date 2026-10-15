@@ -115,6 +115,7 @@ design:
     brand:
       width: 300
       height: 65
+      frame: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — captcha backend, infrastructural
 recaptcha:
