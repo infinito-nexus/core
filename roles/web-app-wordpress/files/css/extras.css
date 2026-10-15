@@ -255,20 +255,24 @@
   background-color: rgba(var(--design-text-muted-rgb), 0.9);
 }
 .uploader-window {
-  background-color: rgba(var(--wp-admin-theme-color--rgb,56,88,233),.9);
+  background-color: rgba(var(--design-frame-rgb),.9);
 }
 .uploader-window-content,
-.wp-editor-wrap .uploader-editor-content,
 .uploader-window .media-progress-bar {
-  border-color: var(--design-surface-2);
+  border-color: var(--design-on-frame);
+}
+.wp-editor-wrap .uploader-editor-content {
+  border-color: var(--design-surface-1);
 }
 .uploader-window .uploader-editor-title,
-.uploader-window h1,
+.uploader-window h1 {
+  color: var(--design-on-frame);
+}
 .wp-editor-wrap .uploader-editor .uploader-editor-title {
-  color: var(--design-on-primary);
+  color: var(--design-surface-1);
 }
 .uploader-window .media-progress-bar div {
-  background-color: var(--design-surface-2);
+  background-color: var(--design-on-frame);
 }
 .uploader-inline .has-upload-message .upload-instructions {
   color: var(--design-text);

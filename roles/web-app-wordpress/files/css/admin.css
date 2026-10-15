@@ -1464,6 +1464,16 @@ ul#adminmenu>li.current>a.current:after {
 .welcome-panel-header-wrap {
   background-color: var(--design-frame);
 }
+.welcome-panel-header-image > svg > g > path:first-child,
+.welcome-panel-column > svg rect {
+  fill: var(--design-frame);
+}
+.welcome-panel-header-image stop {
+  stop-color: var(--design-on-frame);
+}
+.welcome-panel-column > svg path {
+  fill: var(--design-on-frame);
+}
 .welcome-panel .welcome-panel-column-container {
   background-color: var(--design-surface-2);
   border-color: var(--design-border);
@@ -3194,7 +3204,7 @@ button.reset.remove-site-icon:hover {
 }
 .wp-core-ui .button.hover,
 .wp-core-ui .button:hover {
-  background: rgba(var(--wp-admin-theme-color--rgb,56,88,233),.04);
+  background: rgba(var(--wp-admin-theme-color--rgb,var(--design-link-rgb)),.04);
   border-color: var(--wp-admin-theme-color-darker-20,var(--design-link));
   color: var(--wp-admin-theme-color-darker-20,var(--design-link));
 }
@@ -3222,14 +3232,14 @@ button.reset.remove-site-icon:hover {
   box-shadow: none;
 }
 .wp-core-ui .button:active {
-  background: rgba(var(--wp-admin-theme-color--rgb,56,88,233),.08);
+  background: rgba(var(--wp-admin-theme-color--rgb,var(--design-link-rgb)),.08);
   border-color: var(--wp-admin-theme-color-darker-20,var(--design-link));
   color: var(--wp-admin-theme-color-darker-20,var(--design-link));
   box-shadow: none;
 }
 .wp-core-ui .button.active,
 .wp-core-ui .button.active:hover {
-  background-color: rgba(var(--wp-admin-theme-color--rgb,56,88,233),.08);
+  background-color: rgba(var(--wp-admin-theme-color--rgb,var(--design-link-rgb)),.08);
   color: var(--wp-admin-theme-color-darker-20,var(--design-link));
   border-color: var(--wp-admin-theme-color,var(--design-link));
   box-shadow: inset 0 2px 6px -2px var(--wp-admin-theme-color-darker-20);

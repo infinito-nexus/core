@@ -23,6 +23,8 @@ const SCHEME_SHEET = "/wp-content/infinito-design/admin.css";
 const LATE_SHEETS = ["/wp-content/infinito-design/extras.css", "/wp-content/infinito-design/editor.css"];
 const SITE_BAR_SHEET = "/wp-content/infinito-design/admin-bar.css";
 const SIGN_IN_SHEET = "/wp-content/infinito-design/login.css";
+const COLOR_PROPERTY =
+  /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule|(?:-webkit-)?mask(?:-image)?)$/;
 const SITE_TITLE = "header .wp-block-site-title a";
 const SITE_LOGO = "footer .wp-block-site-logo img";
 const POST_TITLE = ".wp-block-post-title";
@@ -41,6 +43,12 @@ const ADMIN_PRIMARY = "#submit.button-primary";
 const LIST_TABLE = ".wp-list-table";
 const LIST_ROW = ".wp-list-table tbody tr";
 const EDITOR_CANVAS = "iframe[name='editor-canvas']";
+const WELCOME_ARTWORK = ".welcome-panel-header-image > svg > g > path:first-child";
+const WELCOME_LINES = ".welcome-panel-header-image stop";
+const WELCOME_TILE = ".welcome-panel-column > svg rect";
+const WELCOME_ICON = ".welcome-panel-column > svg path";
+const UPLOADER_WINDOW = ".uploader-window";
+const UPLOADER_TITLE = ".uploader-window .uploader-editor-title";
 
 function style(page, selector, property, pseudo) {
   return page
@@ -59,6 +67,16 @@ async function inEachMode(page, check) {
 
 async function shown(page, selector) {
   await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
+}
+
+async function openDropOverlay(page) {
+  await page.evaluate(() => document.body.dispatchEvent(new DragEvent("dragover", { bubbles: true, dataTransfer: new DataTransfer() })));
+  await expect(page.locator(UPLOADER_TITLE), "dragging a file over the media grid opens the drop overlay").toBeVisible({
+    timeout: resolveTimeout(10_000),
+  });
+  await expect
+    .poll(() => style(page, UPLOADER_WINDOW, "opacity"), { message: "the drop overlay ends its fade-in", timeout: resolveTimeout(10_000) })
+    .toBe("1");
 }
 
 exports.register = function (shared) {
@@ -189,6 +207,22 @@ exports.register = function (shared) {
     });
   });
 
+  test("design: the dashboard welcome panel paints its artwork and icon tiles in the frame colors", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await page.setViewportSize(DESKTOP);
+    await shared.wpAdminLogin(page);
+    await gotoOnion(page, `${base}/wp-admin/index.php`);
+    await expect(page.locator(WELCOME_TILE).first(), "the dashboard renders the welcome panel").toBeAttached({
+      timeout: resolveTimeout(10_000),
+    });
+    await inEachMode(page, async (mode) => {
+      await assertToken(page, WELCOME_ARTWORK, "fill", "--design-frame", `welcome artwork ${mode}`);
+      await assertToken(page, WELCOME_LINES, "stop-color", "--design-on-frame", `welcome artwork lines ${mode}`);
+      await assertToken(page, WELCOME_TILE, "fill", "--design-frame", `welcome icon tile ${mode}`);
+      await assertToken(page, WELCOME_ICON, "fill", "--design-on-frame", `welcome icon ${mode}`);
+    });
+  });
+
   test("design: every focus stop inside the admin menu draws its indicator in the frame text color", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await page.setViewportSize(DESKTOP);
@@ -283,6 +317,74 @@ exports.register = function (shared) {
     expect(references, "the corporate stylesheets reference images").toBeGreaterThan(0);
   });
 
+  test("design: no literal color in the corporate stylesheets", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const offenders = [];
+    for (const path of [SCHEME_SHEET, ...LATE_SHEETS, SITE_BAR_SHEET, SIGN_IN_SHEET]) {
+      const response = await apiGetOnion(page.request, `${base}${path}?probe=${Date.now()}`);
+      expect(response.status(), `${path} is served`).toBe(200);
+      const found = await page.evaluate(
+        ([source, property]) => {
+          const colorProperty = new RegExp(property);
+          const keyword = (word) =>
+            /^[a-z]+$/i.test(word) &&
+            !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) &&
+            CSS.supports("color", word);
+          const literal = (value) =>
+            /#[0-9a-f]{3,8}\b/i.test(value) ||
+            /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(value) ||
+            /var\(--[\w-]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*\)/.test(value) ||
+            value.split(/[\s,()]+/).some(keyword);
+          const unforced = source.replace(
+            /@media\s*\(\s*forced-colors\s*:\s*active\s*\)\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/gi,
+            "",
+          );
+          const hits = [];
+          const images =
+            /url\(\s*(?:"(data:image\/svg\+xml[^"]*)"|'(data:image\/svg\+xml[^']*)'|(data:image\/svg\+xml[^)]*))\s*\)/gi;
+          for (const match of unforced.matchAll(images)) {
+            const uri = match[1] || match[2] || match[3];
+            const svg = uri.includes(";base64,")
+              ? atob(uri.slice(uri.indexOf(";base64,") + 8))
+              : decodeURIComponent(uri.slice(uri.indexOf(",") + 1));
+            for (const [, attribute, value] of svg.matchAll(/\b(fill|stroke|stop-color|flood-color)\s*[=:]\s*["']?([^"';\s>)]+)/gi)) {
+              if (literal(value)) hits.push(`svg ${attribute}=${value}`);
+            }
+          }
+          const declarations = unforced.replace(/url\((?:[^()"']|"[^"]*"|'[^']*')*\)/gi, "url()");
+          for (const [, name, value] of declarations.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+            if (colorProperty.test(name) && literal(value)) hits.push(`${name}: ${value.trim()}`);
+          }
+          return hits;
+        },
+        [await response.text(), COLOR_PROPERTY.source],
+      );
+      offenders.push(...found.map((entry) => `${path}: ${entry}`));
+    }
+    expect(offenders, "every color of the corporate stylesheets comes from a --design-* token").toEqual([]);
+  });
+
+  test("design: the media drop overlay pairs its title with the frame it paints", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await page.setViewportSize(DESKTOP);
+    await shared.wpAdminLogin(page);
+    await openAdmin(page, "upload.php?mode=grid", ".attachments-browser");
+    await openDropOverlay(page);
+    await assertReadable(page, [UPLOADER_TITLE], "media drop overlay");
+    await inEachMode(page, async (mode) => {
+      const frame = await page.evaluate(() => {
+        const probe = document.createElement("span");
+        probe.style.backgroundColor = "rgba(var(--design-frame-rgb), 0.9)";
+        document.body.appendChild(probe);
+        const value = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return value;
+      });
+      expect(await style(page, UPLOADER_WINDOW, "background-color"), `the drop overlay paints --design-frame in ${mode} mode`).toBe(frame);
+      await assertToken(page, UPLOADER_TITLE, "color", "--design-on-frame", `drop overlay title ${mode}`);
+    });
+  });
+
   const view = (name, url, selector, extra) => ({
     name,
     url,
@@ -346,8 +448,21 @@ exports.register = function (shared) {
     await expect(page.frameLocator(EDITOR_CANVAS).locator(POST_TITLE).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
   }
 
+  async function dashboardSettled(page) {
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const root = document.querySelector("#activitypub-stats-widget-root");
+            return !root || (root.childElementCount > 0 && !root.querySelector(".activitypub-stats-loading"));
+          }),
+        { message: "the Fediverse statistics widget finishes loading", timeout: resolveTimeout(10_000) },
+      )
+      .toBe(true);
+  }
+
   const adminViews = (post) => [
-    admin("admin-dashboard", "index.php", "#dashboard-widgets-wrap"),
+    admin("admin-dashboard", "index.php", "#dashboard-widgets-wrap", dashboardSettled),
     admin("admin-posts", "edit.php", LIST_ROW),
     admin("admin-posts-quick-edit", "edit.php?view=quick-edit", LIST_ROW, async (page) => {
       await page.locator("#the-list button.editinline").first().dispatchEvent("click");
@@ -357,6 +472,7 @@ exports.register = function (shared) {
       await page.frameLocator(EDITOR_CANVAS).locator(".editor-styles-wrapper").waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
     }),
     admin("admin-media", "upload.php?mode=list", LIST_TABLE),
+    admin("admin-media-drop", "upload.php?mode=grid", ".attachments-browser", openDropOverlay),
     admin("admin-pages", "edit.php?post_type=page", LIST_ROW),
     admin("admin-comments", "edit-comments.php", "#the-comment-list"),
     admin("admin-categories", "edit-tags.php?taxonomy=category", "#addtag"),
@@ -376,6 +492,7 @@ exports.register = function (shared) {
     admin("admin-settings-permalinks", "options-permalink.php", "#permalink_structure"),
     admin("admin-settings-privacy", "options-privacy.php", ".privacy-settings-header"),
     admin("admin-menu-open", "index.php?view=menu", ADMIN_BAR, async (page) => {
+      await dashboardSettled(page);
       if (page.viewportSize().width < 783) {
         await page.locator("#wp-admin-bar-menu-toggle a").click();
         await shown(page, "#wpwrap.wp-responsive-open");
