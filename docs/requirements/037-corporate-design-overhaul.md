@@ -95,8 +95,8 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-mobilizon
 - [ ] web-app-moodle: `test-design.js` rewritten after the last complete run; page-slot lockup changed by `63f3631567`.
 - [x] web-app-n8n
-- [ ] web-app-nextcloud: Nextcloud's theme picker and the admin settings are not asserted, the visible logo is not checked; final state never ran.
-- [ ] web-app-odoo: literal colors in `files/theme/backend.css` and `frontend.css`, among them the invalid focus ring `box-shadow` at `backend.css:2203`; final state not exercised.
+- [x] web-app-nextcloud
+- [x] web-app-odoo
 - [x] web-app-openbao
 - [ ] web-app-openclaw: `test-design.js` rewritten after the last complete run.
 - [ ] web-app-opencloud: `tasks/main.yml` restructured after the last deploy with design on.
