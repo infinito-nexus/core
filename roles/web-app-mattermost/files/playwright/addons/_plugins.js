@@ -1,9 +1,18 @@
-const { expect } = require("@playwright/test");
+const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
-const { performKeycloakLoginForm } = require("../personas");
+const { performKeycloakLoginForm, decodeDotenvQuotedValue } = require("../personas");
 const shared = require("../_shared");
 
 const SESSION_HEADERS = { "X-Requested-With": "XMLHttpRequest" };
+
+function skipUnlessAddonArchitecture(addonId, architectures) {
+  const architecture = decodeDotenvQuotedValue(process.env.MATTERMOST_ARCHITECTURE || "");
+  test.skip(
+    !architectures.includes(architecture),
+    `meta/addons/${addonId}.yml declares architectures: [${architectures.join(", ")}] and this node runs ` +
+      `${architecture || "an unmapped architecture"}, so tasks/utils/addon.yml installed nothing to assert against`,
+  );
+}
 
 async function activePluginIds(page) {
   const baseUrl = shared.expectedMattermostBaseUrl();
@@ -32,4 +41,4 @@ async function activePluginIds(page) {
   return (body.active || []).map((manifest) => manifest.id);
 }
 
-module.exports = { activePluginIds };
+module.exports = { activePluginIds, skipUnlessAddonArchitecture };

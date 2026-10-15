@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { activePluginIds } = require("./_plugins");
+const { activePluginIds, skipUnlessAddonArchitecture } = require("./_plugins");
 
 const PLUGIN_ID = "jitsi";
 
@@ -11,6 +11,7 @@ test.use({ ignoreHTTPSErrors: true });
 test("addon mattermost-plugin-jitsi: the Jitsi plugin is installed and active", async ({ page }) => {
   skipUnlessAddonEnabled("mattermost-plugin-jitsi");
   skipUnlessServiceEnabled("sso");
+  skipUnlessAddonArchitecture("mattermost-plugin-jitsi", ["amd64"]);
   test.setTimeout(resolveTimeout(240_000));
 
   const active = await activePluginIds(page);
