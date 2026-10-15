@@ -82,6 +82,20 @@
   delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
   run_once: true
 
+- name: "🗂️ Collect the static files of the {{ application_id }} Django admin"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - funkwhale-manage
+      - collectstatic
+      - --noinput
+  register: funkwhale_collectstatic
+  changed_when: funkwhale_collectstatic.stdout is search('(?m)^[1-9][0-9]* static files? copied')
+  delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
+  run_once: true
+
 - name: "📥 Read the corporate logos of {{ application_id }}"
   ansible.builtin.slurp:
     src: "{{ [lookup('design', application_id).dest, item.value] | path_join }}"

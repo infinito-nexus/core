@@ -47,6 +47,12 @@ const POPOVER = ".funkwhale.popover";
 const USER_MENU = "aside header nav button.color-default-solid.shape-circle";
 const ADMIN_MENU = "aside header nav button.color-default-ghost.shape-circle";
 const SHOWCASE = "Design showcase";
+const SIDEBAR_SECTION_HEADING = "aside [class*='_section-heading_']";
+const ADMIN = `${base}/api/admin`;
+const ADMIN_READY = "#header #site-name";
+const ADMIN_CHANGELIST = "#result_list";
+const ADMIN_LOGIN_FORM = "#login-form";
+const ADMIN_TOGGLE = "#branding button.theme-toggle";
 
 /**
  * Args:
@@ -139,6 +145,41 @@ function shown(selector) {
   };
 }
 
+/**
+ * Args:
+ *   page: Playwright page signed in to Funkwhale; it ends on the Django admin path, signed in to the admin through its own form when the session does not reach it.
+ *   path: path below /api/admin/.
+ */
+async function openAdmin(page, path) {
+  await gotoOnion(page, `${ADMIN}/${path}`);
+  if (new URL(page.url()).pathname.startsWith("/api/admin/login/")) {
+    const username = page.locator("#id_username");
+    await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
+    const password = page.locator("#id_password");
+    await expect(password).toBeEditable({ timeout: resolveTimeout(10_000) });
+    await username.fill(adminUsername);
+    await password.fill(adminPassword);
+    await password.press("Enter");
+    await expect.poll(() => new URL(page.url()).pathname, { timeout: resolveTimeout(30_000) }).not.toMatch(/^\/api\/admin\/login\//);
+  }
+  await shown(ADMIN_READY)(page);
+}
+
+/**
+ * Args:
+ *   page: Playwright page on a Funkwhale view whose user menu is closed.
+ *   label: the English label of the theme entry in the "Change theme" submenu.
+ */
+async function pickTheme(page, label) {
+  await page.locator(USER_MENU).first().click();
+  const submenu = page.locator(`${POPOVER} .popover-item.submenu`, { hasText: "Change theme" }).first();
+  await expect(submenu).toBeVisible({ timeout: resolveTimeout(10_000) });
+  await submenu.click();
+  const item = page.locator(`${POPOVER} button.popover-item`, { hasText: new RegExp(`^\\s*${label}\\s*$`) }).first();
+  await expect(item).toBeVisible({ timeout: resolveTimeout(10_000) });
+  await item.click();
+}
+
 function opened(trigger) {
   return async (page) => {
     await shown(trigger)(page);
@@ -229,22 +270,178 @@ exports.register = function () {
     await gotoOnion(page, `${base}/library/playlists`);
     await shown(PRIMARY_BUTTON)(page);
     await assertLightAndDark(page, MAIN, "funkwhale content");
-    await assertReadable(page, [HEADING, PRIMARY_BUTTON, { selector: SIDEBAR_LINK, optional: true }], "funkwhale shell");
+    await assertReadable(
+      page,
+      [HEADING, PRIMARY_BUTTON, { selector: SIDEBAR_LINK, optional: true }, { selector: SIDEBAR_SECTION_HEADING, optional: true }],
+      "funkwhale shell",
+    );
+    await gotoOnion(page, `${base}/manage/settings`);
+    await shown("main h2")(page);
+    await assertLightAndDark(page, MAIN, "funkwhale instance settings");
+    await assertReadable(page, ["main h1", "main h2", "main label", { selector: "main [class*='_helptext_']", optional: true }], "funkwhale instance settings");
+    await gotoOnion(page, `${base}/manage/users/users`);
+    await shown(DIVIDER)(page);
+    await assertLightAndDark(page, MAIN, "funkwhale user administration");
+    await assertReadable(
+      page,
+      ["main nav[class*='_tablist_'] a", `${DIVIDER} > *`, "main section[class*='_table_'] > :not([class*='_table-header_'])"],
+      "funkwhale user administration",
+    );
   });
 
-  test("design: a theme picked in Funkwhale is mirrored onto the palette", async ({ page }) => {
+  test("design: a theme picked in Funkwhale's user menu is mirrored onto the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
+    const body = page.locator("body");
+    const root = page.locator("html");
     await page.emulateMedia({ colorScheme: "light" });
     await gotoOnion(page, `${base}/about`);
     await shown(MAIN)(page);
     const lightSurface = await tokenValue(page, "--design-surface-1", "background-color");
-    await page.evaluate(() => localStorage.setItem("vueuse-color-scheme", "dark"));
-    await gotoOnion(page, `${base}/about`);
-    await shown(MAIN)(page);
-    await expect(page.locator("body")).toHaveClass(/theme-dark/);
-    await expect(page.locator("html")).toHaveAttribute("data-design-theme", "dark");
-    expect(await tokenValue(page, "--design-surface-1", "background-color"), "a dark theme picked in Funkwhale switches the tokens").not.toBe(lightSurface);
+    await pickTheme(page, "Dark");
+    await expect(body).toHaveClass(/theme-dark/);
+    await expect(root).toHaveAttribute("data-design-theme", "dark");
+    const darkSurface = await tokenValue(page, "--design-surface-1", "background-color");
+    expect(darkSurface, "a dark theme picked in Funkwhale switches the tokens").not.toBe(lightSurface);
     await assertToken(page, MAIN, "background-color", "--design-surface-1", "content in the picked dark theme");
+    await gotoOnion(page, page.url());
+    await shown(MAIN)(page);
+    await expect(body, "Funkwhale keeps the picked theme across a reload").toHaveClass(/theme-dark/);
+    await expect(root).toHaveAttribute("data-design-theme", "dark");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await pickTheme(page, "Light");
+    await expect(body).toHaveClass(/theme-light/);
+    await expect(root).toHaveAttribute("data-design-theme", "light");
+    await expect
+      .poll(() => tokenValue(page, "--design-surface-1", "background-color"), { message: "a light theme picked in Funkwhale overrides a dark browser" })
+      .toBe(lightSurface);
+    await gotoOnion(page, page.url());
+    await shown(MAIN)(page);
+    await pickTheme(page, "Browser default");
+    await expect(body, "the browser default follows a dark browser").toHaveClass(/theme-dark/);
+    await expect.poll(() => tokenValue(page, "--design-surface-1", "background-color")).toBe(darkSurface);
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(body, "the browser default follows a light browser").toHaveClass(/theme-light/);
+    await expect(root).toHaveAttribute("data-design-theme", "light");
+    await expect.poll(() => tokenValue(page, "--design-surface-1", "background-color")).toBe(lightSurface);
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: the loading screen takes its colors from the palette", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const origin = new URL(base).origin;
+    await page.route("**/*", (route) =>
+      route.request().resourceType() === "script" && new URL(route.request().url()).origin === origin ? route.abort() : route.continue(),
+    );
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, `${base}/about`);
+      await shown("#fake-sidebar")(page);
+      await assertToken(page, "#fake-sidebar", "background-color", "--design-surface-3", `loader sidebar ${mode}`);
+      await assertToken(page, "#orange-square", "background-color", "--design-primary", `loader mark ${mode}`);
+      await assertToken(page, "#fake-content", "background-color", "--design-surface-1", `loader content ${mode}`);
+      await assertToken(page, "#fake-content", "color", "--design-text", `loader text ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertLightAndDark(page, "#fake-content h1", "loader");
+    await assertReadable(page, ["#fake-content h1"], "loader heading");
+  });
+
+  test("design: the Django admin loads its own stylesheet and theme script", async ({ page }) => {
+    for (const [asset, type] of [
+      ["admin/css/base.css", /^text\/css/],
+      ["admin/js/theme.js", /javascript/],
+    ]) {
+      const response = await apiGetOnion(page.request, `${base}/staticfiles/${asset}`);
+      expect(response.status(), `${asset} is served`).toBe(200);
+      expect(response.headers()["content-type"], `${asset} is not the single-page fallback`).toMatch(type);
+    }
+  });
+
+  test("design: the Django admin takes header, page, buttons and dividers from the palette in light and dark mode", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page);
+    await openAdmin(page, "users/user/");
+    await shown(ADMIN_CHANGELIST)(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, "#header", "background-color", "--design-frame", `admin header ${mode}`);
+      await assertToken(page, "#site-name a", "color", "--design-on-frame", `admin site name ${mode}`);
+      await assertToken(page, "body", "background-color", "--design-surface-1", `admin page ${mode}`);
+      await assertToken(page, "body", "color", "--design-text", `admin text ${mode}`);
+      await assertToken(page, `${ADMIN_CHANGELIST} thead th`, "background-color", "--design-surface-2", `admin table head ${mode}`);
+      await assertToken(page, `${ADMIN_CHANGELIST} tbody td`, "border-bottom-color", "--design-border", `admin row divider ${mode}`);
+      await assertToken(page, ".object-tools a", "background-color", "--design-frame", `admin object tool ${mode}`);
+      await assertToken(page, ".object-tools a", "color", "--design-on-frame", `admin object tool text ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertLightAndDark(page, "#content", "django admin content");
+    await assertReadable(
+      page,
+      ["#content h1", `${ADMIN_CHANGELIST} thead th`, `${ADMIN_CHANGELIST} tbody td`, `${ADMIN_CHANGELIST} tbody a`, ".breadcrumbs", "#site-name a", "#user-tools"],
+      "django admin",
+    );
+    const onFrame = await tokenValue(page, "--design-on-frame", "outline-color");
+    await page.evaluate(() => document.activeElement && document.activeElement.blur());
+    const stops = [];
+    for (let step = 0; step < 12; step += 1) {
+      await page.keyboard.press("Tab");
+      const stop = await page.evaluate(() => {
+        const element = document.activeElement;
+        if (!element || !element.closest("#header")) return null;
+        const style = getComputedStyle(element);
+        return { name: `${element.tagName.toLowerCase()} ${element.textContent.trim().slice(0, 24)}`, color: style.outlineColor, style: style.outlineStyle };
+      });
+      if (stop) stops.push(stop);
+    }
+    expect(stops.length, "the Tab walk reaches the admin header").toBeGreaterThan(1);
+    for (const stop of stops) {
+      expect(stop.style, `${stop.name} draws a focus indicator`).not.toBe("none");
+      expect(stop.color, `${stop.name} draws its focus indicator in --design-on-frame`).toBe(onFrame);
+    }
+    if (title) {
+      await expect(page.locator("#site-name a"), "the admin header carries the configured title").toHaveText(title);
+      const suffix = ` | ${title}`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      await expect.poll(() => page.title(), { message: "the admin document title ends with the configured title" }).toMatch(new RegExp(`${suffix}$`));
+    }
+  });
+
+  test("design: the Django admin theme toggle is mirrored onto the palette", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const root = page.locator("html");
+    const toggle = page.locator(ADMIN_TOGGLE);
+    const submit = `${ADMIN_LOGIN_FORM} input[type='submit']`;
+    await page.emulateMedia({ colorScheme: "light" });
+    await gotoOnion(page, `${ADMIN}/login/`);
+    await shown(ADMIN_LOGIN_FORM)(page);
+    await page.waitForLoadState("load");
+    await expect(root).toHaveAttribute("data-theme", "auto");
+    await assertToken(page, submit, "background-color", "--design-primary", "admin sign-in button");
+    await assertToken(page, submit, "color", "--design-on-primary", "admin sign-in button text");
+    const lightSurface = await tokenValue(page, "--design-surface-1", "background-color");
+    await toggle.click();
+    await expect(root).toHaveAttribute("data-theme", "dark");
+    await expect(root).toHaveAttribute("data-design-theme", "dark");
+    const darkSurface = await tokenValue(page, "--design-surface-1", "background-color");
+    expect(darkSurface, "a dark theme picked in the admin switches the tokens").not.toBe(lightSurface);
+    await assertToken(page, "body", "background-color", "--design-surface-2", "admin sign-in backdrop in the picked dark theme");
+    await assertToken(page, "#container", "background-color", "--design-surface-1", "admin sign-in card in the picked dark theme");
+    await assertToken(page, submit, "color", "--design-on-primary", "admin sign-in button text in the picked dark theme");
+    await gotoOnion(page, page.url());
+    await shown(ADMIN_LOGIN_FORM)(page);
+    await page.waitForLoadState("load");
+    await expect(root, "the admin keeps the picked theme across a reload").toHaveAttribute("data-design-theme", "dark");
+    await toggle.click();
+    await expect(root).toHaveAttribute("data-theme", "light");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(root).toHaveAttribute("data-design-theme", "light");
+    expect(await tokenValue(page, "--design-surface-1", "background-color"), "a light theme picked in the admin overrides a dark browser").toBe(lightSurface);
+    await page.emulateMedia({ colorScheme: "light" });
+    await toggle.click();
+    await expect(root).toHaveAttribute("data-theme", "auto");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect.poll(() => root.getAttribute("data-design-theme"), { message: "the admin's auto theme hands the mode back to the browser" }).toBeNull();
+    expect(await tokenValue(page, "--design-surface-1", "background-color")).toBe(darkSurface);
+    await page.emulateMedia({ colorScheme: null });
   });
 
   test("design: logo, favicon and title are the configured ones", async ({ page }) => {
@@ -298,6 +495,7 @@ exports.register = function () {
       { name: "about", url: `${base}/about`, prepare: shown(HEADING) },
       { name: "password-reset", url: `${base}/auth/password/reset`, prepare: shown(HEADING) },
       { name: "signup", url: `${base}/signup`, prepare: shown(HEADING) },
+      { name: "django-admin-login", url: `${ADMIN}/login/`, prepare: shown(ADMIN_LOGIN_FORM) },
     ];
     if (isServiceEnabled("sso")) return views;
     return [
@@ -338,6 +536,31 @@ exports.register = function () {
       view("moderation-reports", "/manage/moderation/reports"),
       { name: "user-menu", url: `${base}/library`, prepare: opened(USER_MENU) },
       { name: "admin-menu", url: `${base}/library`, prepare: opened(ADMIN_MENU) },
+      {
+        name: "theme-menu",
+        url: `${base}/library`,
+        prepare: async (page) => {
+          await opened(USER_MENU)(page);
+          await page.locator(`${POPOVER} .popover-item.submenu`, { hasText: "Change theme" }).first().click();
+          await expect(page.locator(`${POPOVER} button.popover-item`, { hasText: /^\s*Dark\s*$/ }).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
+          await expect
+            .poll(
+              () =>
+                page.evaluate(
+                  (selector) =>
+                    [...document.querySelectorAll(selector)].flatMap((panel) => panel.getAnimations({ subtree: true })).filter((animation) => animation.playState === "running")
+                      .length,
+                  POPOVER,
+                ),
+              {
+              timeout: resolveTimeout(10_000),
+            })
+            .toBe(0);
+        },
+      },
+      { name: "django-admin", url: `${ADMIN}/`, prepare: shown("#content h1") },
+      { name: "django-admin-users", url: `${ADMIN}/users/user/`, prepare: shown(ADMIN_CHANGELIST) },
+      { name: "django-admin-preferences", url: `${ADMIN}/dynamic_preferences/globalpreferencemodel/`, prepare: shown("#content h1") },
     ];
   }
 
@@ -355,6 +578,9 @@ exports.register = function () {
     await visitor.close();
     await signIn(page);
     const playlistUuid = await seedShowcase(page);
+    const me = await api(page, "GET", "/api/v2/users/me/");
+    expect(me.status, "the administrator holds a session").toBe(200);
+    await openAdmin(page, "");
     try {
       await captureDesignGallery(page, signedInViews(playlistUuid));
     } catch (error) {
