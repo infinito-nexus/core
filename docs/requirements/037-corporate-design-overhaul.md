@@ -73,7 +73,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-gitea
 - [ ] web-app-gitlab: final state never ran (the design-only commit removed the administrator provisioning); `/admin` is checked for HTTP 200 only.
 - [x] web-app-hermes
-- [ ] web-app-homeassistant: `vars/main.yml` changed after the last role sync that deployed the role.
+- [x] web-app-homeassistant
 - [x] web-app-hugo
 - [x] web-app-jellyfin
 - [x] web-app-jenkins
@@ -86,24 +86,24 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-litellm: logo swapped by CSS `content` instead of LiteLLM's `logo_url` setting.
 - [x] web-app-littlejs
 - [ ] web-app-magento: literal `darkgrey` at `style.css.j2:5513` and `:5554`; `style.css.j2` changed by `6c2de017f8` after the last run.
-- [ ] web-app-mastodon: switch to the platform administrator not deployed.
+- [x] web-app-mastodon
 - [ ] web-app-matomo: Matomo's own `themeMode` preference is not exercised (the spec flips the DOM); the administration is not asserted.
-- [ ] web-app-matrix: `vars/main.yml` rewritten after the last complete run.
+- [x] web-app-matrix
 - [ ] web-app-mattermost: about 50 literal RGB fallbacks inside `var()` in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [x] web-app-mediawiki
 - [x] web-app-mini-qr
 - [x] web-app-mobilizon
-- [ ] web-app-moodle: `test-design.js` rewritten after the last complete run; page-slot lockup changed by `63f3631567`.
+- [x] web-app-moodle
 - [x] web-app-n8n
 - [x] web-app-nextcloud
 - [x] web-app-odoo
 - [x] web-app-openbao
-- [ ] web-app-openclaw: `test-design.js` rewritten after the last complete run.
-- [ ] web-app-opencloud: `tasks/main.yml` restructured after the last deploy with design on.
+- [x] web-app-openclaw
+- [x] web-app-opencloud
 - [x] web-app-openproject
 - [ ] web-app-opentalk: the conference room is not covered; the native theme setting is half exercised; the title check cannot fail; logo lockup changed by `63f3631567`.
 - [ ] web-app-openwebui: logo and title stay Open WebUI's own because clause 4 of its license allows replacing the branding only up to 50 users, with written permission or under an enterprise license (operator decision, see `roles/web-app-openwebui/TODO.md`).
-- [ ] web-app-peertube: `tasks/design/apply.yml` rewritten after the last green run.
+- [x] web-app-peertube
 - [x] web-app-penpot
 - [x] web-app-pgadmin
 - [x] web-app-phpmyadmin
@@ -116,7 +116,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-seaweedfs
 - [x] web-app-semaphore
 - [ ] web-app-shopware: literal colors (`gold`, SVG fills) in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
-- [ ] web-app-snipe-it: the complete spec never ran green on the final `test-design.js`.
+- [x] web-app-snipe-it
 - [x] web-app-socialhome
 - [x] web-app-sphinx
 - [ ] web-app-stalwart: under `sso` the web administration specs need the administrator group grant of `feature/store-i18n` (`199f2a6d41`); no green run on the merged state yet.
@@ -125,7 +125,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-wordpress
 - [x] web-app-xwiki
 - [x] web-app-yourls
-- [ ] web-app-zammad: switch to the platform administrator and the move of the watermark defaults not deployed.
+- [x] web-app-zammad
 - [x] web-svc-html
 - [x] web-svc-libretranslate
 - [x] web-svc-logout
