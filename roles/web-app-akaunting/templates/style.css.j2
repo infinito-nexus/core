@@ -29,6 +29,12 @@
   background-color: rgba(var(--design-surface-2-rgb), 0);
   color: var(--design-text-muted);
 }
+.dz-preview .text-gray-300 {
+  color: var(--design-text-muted);
+}
+.group:hover .group-hover\:bg-gray-100 {
+  background-color: var(--design-surface-hover);
+}
 *,
 :after,
 :before,
@@ -499,8 +505,8 @@ input[type=file]::file-selector-button:hover {
 .shadow-2xl,
 .shadow-lg,
 .shadow-sm {
-  -webkit-box-shadow: var(--tw-ring-offset-shadow,0 0 ) transparent, var(--tw-ring-shadow,0 0 ) transparent, var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow,0 0 ) transparent, var(--tw-ring-shadow,0 0 ) transparent, var(--tw-shadow);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow,0 0 transparent), var(--tw-ring-shadow,0 0 transparent), var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow,0 0 transparent), var(--tw-ring-shadow,0 0 transparent), var(--tw-shadow);
 }
 .shadow-2xl,
 .shadow-lg {
@@ -511,8 +517,8 @@ input[type=file]::file-selector-button:hover {
 }
 .shadow-xl {
   --tw-shadow: var(--design-shadow-3);
-  -webkit-box-shadow: var(--tw-ring-offset-shadow,0 0 ) transparent, var(--tw-ring-shadow,0 0 ) transparent, var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow,0 0 ) transparent, var(--tw-ring-shadow,0 0 ) transparent, var(--tw-shadow);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow,0 0 transparent), var(--tw-ring-shadow,0 0 transparent), var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow,0 0 transparent), var(--tw-ring-shadow,0 0 transparent), var(--tw-shadow);
 }
 table thead a {
   --tw-gradient-to: var(--design-text) var(--tw-gradient-to-position);
@@ -920,6 +926,42 @@ body,
 #app[style*="login-bg"] {
   background-image: none !important;
   background-color: var(--design-surface-1);
+}
+
+.bg-yellow-50 {
+  background-color: var(--design-warning-subtle);
+}
+
+.bg-gray-300 {
+  background-color: var(--design-border);
+}
+
+.print-template p {
+  color: var(--design-text);
+}
+
+.print-template .text {
+  color: var(--design-text-muted);
+}
+
+.print-template .border-top-1 {
+  border-top-color: var(--design-border);
+}
+
+.print-template .border-bottom-1 {
+  border-bottom-color: var(--design-border);
+}
+
+.print-template .border-bottom-dashed-black {
+  border-bottom-color: var(--design-border-strong);
+}
+
+.print-template td[style*="#55588B" i],
+.print-template td[style*="#55588B" i] *,
+.print-template td[style*="rgb(85, 88, 139)"],
+.print-template td[style*="rgb(85, 88, 139)"] * {
+  background-color: var(--design-primary) !important;
+  color: var(--design-on-primary) !important;
 }
 {% if design.logo is string %}
 

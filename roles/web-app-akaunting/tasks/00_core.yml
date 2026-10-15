@@ -16,5 +16,5 @@
     - name: "🏗️ Akaunting | First-run install"
       include_tasks: 01_setup.yml
 
-    - name: "🎨 Akaunting | Setup wizard and document color"
+    - name: "🎨 Akaunting | Setup wizard, document color, title and logo"
       include_tasks: 02_settings.yml

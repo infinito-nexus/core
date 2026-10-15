@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -21,9 +21,11 @@ const ssoPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const documentColor = decodeDotenvQuotedValue(process.env.DESIGN_DOCUMENT_COLOR || "");
+const documentLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_DOCUMENT_LOGO_URL || "");
 
 const MODES = ["light", "dark"];
 const DESKTOP = { width: 1440, height: 900 };
+const MOBILE = { width: 390, height: 844 };
 const SIGN_IN_FORM = "form#auth";
 const EMAIL = `${SIGN_IN_FORM} input[name="email"]`;
 const PASSWORD = `${SIGN_IN_FORM} input[name="password"]`;
@@ -33,10 +35,20 @@ const HEADER = "#header h1";
 const RAIL = ".js-menu .bg-lilac-900";
 const RAIL_ICON = `${RAIL} .menu-button .material-icons-outlined, ${RAIL} .menu-button .material-icons`;
 const SIDEBAR = "nav.menu-list.js-main-menu";
+const COMPANY_LABEL = "#sidenav-main button[data-dropdown-toggle='dropdown-menu-company'] span.w-28";
+const MOBILE_COMPANY_LABEL = ".container.xl\\:hidden span.ltr\\:ml-2";
 const LOGO = "img[src*='akaunting-logo-green.svg']";
 const ROW = "table tbody tr";
 const SAVE = "form#setting button[type='submit']";
+const NOTICE = "form#setting .bg-yellow-50";
+const BALANCE_TRACK = "#app .h-3.rounded-md.bg-gray-300";
+const RECEIPT = ".print-template";
+const RECEIPT_AMOUNT = `${RECEIPT} td[style*='rgb(85, 88, 139)']`;
 const SHOWCASE = "Showcase Customer";
+const LOGO_DROPZONE = "form#setting .dropzone.dz-clickable";
+const LOGO_FILE = `${LOGO_DROPZONE} .dz-preview span.text-sm`;
+const DOCUMENT_LOGO_FILE = "infinito-design-logo.png";
+const LOGO_REMOVE = `${LOGO_DROPZONE} .dz-preview button span.text-gray-300`;
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -157,6 +169,41 @@ async function cssColor(page, value) {
     probe.remove();
     return color;
   }, value);
+}
+
+/**
+ * Args:
+ *   page: Playwright page whose CSP admits data: images.
+ *   first: image URL or data URI.
+ *   second: image URL or data URI.
+ *
+ * Returns:
+ *   Mean absolute channel difference (0 to 255) of both images drawn onto white at 32 x 32 pixels.
+ */
+async function imageDistance(page, first, second) {
+  return page.evaluate(async (sources) => {
+    const pixels = await Promise.all(
+      sources.map(
+        (source) =>
+          new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => {
+              const canvas = document.createElement("canvas");
+              canvas.width = 32;
+              canvas.height = 32;
+              const context = canvas.getContext("2d");
+              context.fillStyle = "#ffffff";
+              context.fillRect(0, 0, 32, 32);
+              context.drawImage(image, 0, 0, 32, 32);
+              resolve(Array.from(context.getImageData(0, 0, 32, 32).data));
+            };
+            image.onerror = () => reject(new Error(`the image ${String(source).slice(0, 40)} does not decode`));
+            image.src = source;
+          }),
+      ),
+    );
+    return pixels[0].reduce((sum, value, index) => sum + Math.abs(value - pixels[1][index]), 0) / pixels[0].length;
+  }, [first, second]);
 }
 
 test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
@@ -328,7 +375,138 @@ test("design: sign-in page and sidebar show the generated logo and favicon", asy
   const box = await sidebarLogo.boundingBox();
   expect(box && Math.round(box.width), "the sidebar keeps its square logo box").toBe(box && Math.round(box.height));
   await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
-  await expect(page).toHaveTitle(/ - .+$/);
+});
+
+test("design: the page title, the company setting and the company labels carry the configured title", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+  test.skip(!title, "title replacement is disabled for this role");
+  const label = title.length > 22 ? `${title.slice(0, 22).trimEnd()}...` : title;
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  await gotoOnion(page, `${base}/1/settings/company`);
+  await shown(SAVE)(page);
+  await expect(page).toHaveTitle(new RegExp(` - ${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
+  await expect(page.locator("form#setting input[name='name']")).toHaveValue(title);
+  await expect(page.locator(COMPANY_LABEL).first()).toHaveText(label);
+  await page.setViewportSize(MOBILE);
+  await shown(MOBILE_COMPANY_LABEL)(page);
+  await expect(page.locator(MOBILE_COMPANY_LABEL).first()).toHaveText(label);
+});
+
+test("design: menus and controls keep their elevation from the shadow tokens", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  await gotoOnion(page, `${base}/1/common/items`);
+  await shown(ROW)(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    for (const [selector, token] of [
+      ["#dropdown-menu-company", "--design-shadow-3"],
+      [".shadow-sm", "--design-shadow-1"],
+    ]) {
+      const expected = await tokenValue(page, token, "box-shadow");
+      const actual = await page
+        .locator(selector)
+        .first()
+        .evaluate((element) => getComputedStyle(element).boxShadow);
+      expect(actual, `elevation of ${selector} in ${mode} mode`).toContain(expected);
+    }
+  }
+  await page.emulateMedia({ colorScheme: null });
+});
+
+test("design: the company settings notice takes the warning tint in both modes", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  await gotoOnion(page, `${base}/1/settings/company`);
+  await shown(NOTICE)(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, NOTICE, "background-color", "--design-warning-subtle", `company notice ${mode}`);
+    await assertToken(page, `${NOTICE} p`, "color", "--design-warning", `company notice text ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertReadable(page, [`${NOTICE} p`], "akaunting company notice");
+});
+
+test("design: the dashboard balance bars take a neutral track from the palette in both modes", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  await gotoOnion(page, `${base}/1`);
+  await shown(BALANCE_TRACK)(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, BALANCE_TRACK, "background-color", "--design-border", `balance track ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+});
+
+test("design: the receipt takes text, dividers and its amount bar from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  const seed = await seedShowcase(page);
+  await gotoOnion(page, `${base}/1/banking/transactions/${seed.income}`);
+  await shown(RECEIPT_AMOUNT)(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, RECEIPT_AMOUNT, "background-color", "--design-primary", `receipt amount ${mode}`);
+    await assertToken(page, `${RECEIPT_AMOUNT} span`, "color", "--design-on-primary", `receipt amount text ${mode}`);
+    await assertToken(page, `${RECEIPT} td.text`, "color", "--design-text-muted", `receipt company ${mode}`);
+    await assertToken(page, `${RECEIPT} td.text p`, "color", "--design-text", `receipt company e-mail ${mode}`);
+    await assertToken(page, `${RECEIPT} .border-bottom-1`, "border-bottom-color", "--design-border", `receipt divider ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertReadable(page, [`${RECEIPT_AMOUNT} span`, `${RECEIPT} td.text`, `${RECEIPT} td.text p`], "akaunting receipt");
+});
+
+test("design: receipts show the generated logo that the deploy attached as company logo", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  test.skip(!documentLogoUrl, "logo replacement is disabled for this role");
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  await gotoOnion(page, `${base}/1/settings/company`);
+  await shown(LOGO_DROPZONE)(page);
+  const file = page.locator(LOGO_FILE).first();
+  const name = (await file.count()) ? (await file.textContent()).trim() : "";
+  test.skip(name !== "" && name !== DOCUMENT_LOGO_FILE, `a user-uploaded company logo (${name}) replaces the generated one`);
+  const generated = await apiGetOnion(page.request, documentLogoUrl);
+  expect(generated.ok(), `the generated document logo answers ${generated.status()}`).toBe(true);
+  const expected = await generated.body();
+  const seed = await seedShowcase(page);
+  await gotoOnion(page, `${base}/1/banking/transactions/${seed.income}`);
+  await shown(RECEIPT_AMOUNT)(page);
+  const receiptLogo = page.locator(`${RECEIPT} img`).first();
+  const box = await receiptLogo.boundingBox();
+  expect(box && Math.round(box.width), "the receipt keeps its square logo box").toBe(box && Math.round(box.height));
+  const distance = await imageDistance(page, await receiptLogo.getAttribute("src"), `data:image/png;base64,${expected.toString("base64")}`);
+  expect(distance, "mean channel distance between the receipt logo and the generated document logo").toBeLessThan(4);
+  await gotoOnion(page, `${base}/1/settings/company`);
+  await shown(LOGO_DROPZONE)(page);
+  await expect(page.locator(LOGO_FILE).first()).toHaveText(DOCUMENT_LOGO_FILE);
+  const stored = await apiGetOnion(page.request, await page.locator(`${LOGO_DROPZONE} img.dz-preview-img`).first().getAttribute("src"));
+  expect(Buffer.compare(await stored.body(), expected), "company.logo holds the generated document logo byte for byte").toBe(0);
+});
+
+test("design: the company logo preview draws its delete control from the palette in both modes", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  await gotoOnion(page, `${base}/1/settings/company`);
+  await shown(LOGO_DROPZONE)(page);
+  test.skip((await page.locator(LOGO_REMOVE).count()) === 0, "the company has no logo to preview");
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, LOGO_REMOVE, "color", "--design-text-muted", `logo delete control ${mode}`);
+    await page.locator(LOGO_REMOVE).first().hover();
+    await assertToken(page, LOGO_REMOVE, "background-color", "--design-surface-hover", `hovered logo delete control ${mode}`);
+    await page.mouse.move(0, 0);
+  }
+  await page.emulateMedia({ colorScheme: null });
 });
 
 function signInViews() {

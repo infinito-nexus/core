@@ -6,18 +6,46 @@
     resolve_output_prefix: AKAUNTING
     resolve_compose_cid: "{{ AKAUNTING_CONTAINER }}"
 
-- name: "🎨 Akaunting settings | Finish the setup wizard and apply the document color"
+- name: "🎨 Akaunting settings | Finish the setup wizard, apply document color and title"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  AKAUNTING_LOCAL_CID resolved at delegate_to runtime
     container exec
     -e DESIGN_DOCUMENT_COLOR
+    -e DESIGN_TITLE
+    -e COMPANY_NAME_DEFAULT
     {{ AKAUNTING_LOCAL_CID | quote }}
     php artisan tinker --execute={{ lookup('file', 'php/settings.php') | quote }}
   environment:
     DESIGN_DOCUMENT_COLOR: "{{ AKAUNTING_DOCUMENT_COLOR }}"
+    DESIGN_TITLE: "{{ AKAUNTING_DESIGN_TITLE }}"
+    COMPANY_NAME_DEFAULT: "{{ AKAUNTING_COMPANY_NAME }}"
   register: akaunting_settings
   changed_when: akaunting_settings.stdout_lines | select('search', ' CHANGED$') | list | length > 0
   failed_when: >-
     akaunting_settings.rc != 0
     or 'DONE' not in akaunting_settings.stdout_lines
+  delegate_to: "{{ AKAUNTING_HOST_NODE }}"
+  run_once: true
+
+- name: "📥 Akaunting settings | Read the generated document logo"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, 'document.png'] | path_join }}"
+  register: akaunting_document_logo
+  when: AKAUNTING_DESIGN_LOGO_ENABLED | bool
+
+- name: "🖼️ Akaunting settings | Attach the generated document logo as company logo"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  AKAUNTING_LOCAL_CID resolved at delegate_to runtime
+    container exec
+    --user www-data
+    -e HOME=/tmp
+    -e DESIGN_LOGO_PNG
+    {{ AKAUNTING_LOCAL_CID | quote }}
+    php artisan tinker --execute={{ lookup('file', 'php/logo.php') | quote }}
+  environment:
+    DESIGN_LOGO_PNG: "{{ akaunting_document_logo.content if AKAUNTING_DESIGN_LOGO_ENABLED | bool else '' }}"
+  register: akaunting_logo
+  changed_when: akaunting_logo.stdout_lines | select('search', ' CHANGED$') | list | length > 0
+  failed_when: >-
+    akaunting_logo.rc != 0
+    or 'DONE' not in akaunting_logo.stdout_lines
   delegate_to: "{{ AKAUNTING_HOST_NODE }}"
   run_once: true
