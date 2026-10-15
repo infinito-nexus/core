@@ -54,7 +54,7 @@
 
 - name: 🧊 Render the applications SPOT once for the bootstrap section
   applications_carrier: {}
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🥾 Bootstrap svc-swarm-node"
   ansible.builtin.include_role:
