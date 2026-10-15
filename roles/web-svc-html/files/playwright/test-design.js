@@ -19,6 +19,9 @@ const MOBILE = { width: 390, height: 844 };
 const GUTTER = 16;
 const AAA = 7;
 const FORBIDDEN = 403;
+const NOT_FOUND = 404;
+const MISSING_PAGE = "/design-missing-page";
+const ICON = "link[rel~='icon']";
 const HEADING = "h1";
 const TEXT = [HEADING, "h2", "p", "strong"];
 const MAIL_LINK = "a[href^='mailto:']";
@@ -41,6 +44,32 @@ function imprintTitle() {
 
 function skipWithoutImprint() {
   test.skip(!imprintUrl(), "IMPRINT_URL is empty: web-svc-legal is not deployed");
+}
+
+function designTitle() {
+  return decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+}
+
+function designFaviconUrl() {
+  return decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
+}
+
+function skipWithoutBranding() {
+  test.skip(!designTitle() || !designFaviconUrl(), "logo or title replacement is switched off");
+}
+
+async function assertBranding(page, label) {
+  const suffix = ` | ${designTitle()}`;
+  await expect
+    .poll(() => page.title(), { message: `${label}: the tab title ends with the title of the vhost` })
+    .toMatch(new RegExp(`${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
+  await expect
+    .poll(
+      () => page.evaluate((selector) => new URL(document.querySelector(selector)?.href || "about:blank").pathname, ICON),
+      { message: `${label}: the tab icon is the corporate favicon` },
+    )
+    .toBe(new URL(designFaviconUrl()).pathname);
+  await expect(page.locator("body img, body svg"), `${label}: the documents of the vhost render no logo of their own`).toHaveCount(0);
 }
 
 async function open(page, url) {
@@ -94,8 +123,11 @@ async function textColumn(page) {
 }
 
 function views() {
-  const error = { name: "error-403", url: `${base()}/` };
-  if (!imprintUrl()) return [error];
+  const errors = [
+    { name: "error-403", url: `${base()}/` },
+    { name: "error-404", url: `${base()}${MISSING_PAGE}` },
+  ];
+  if (!imprintUrl()) return errors;
   const imprint = (name, prepare) => ({
     name,
     url: imprintUrl(),
@@ -109,7 +141,7 @@ function views() {
     imprint("imprint-end", (page) => page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))),
     imprint("imprint-link-focus", (page) => page.keyboard.press("Tab")),
     imprint("imprint-link-hover", (page) => page.locator(WEB_LINK).hover({ timeout: resolveTimeout(10_000) })),
-    error,
+    ...errors,
   ];
 }
 
@@ -141,6 +173,24 @@ exports.register = function () {
       await page.emulateMedia({ colorScheme: null });
       await assertLightAndDark(page, "body", "html 403");
       await assertReadable(page, [HEADING, SERVER_LINE], "html 403", AAA);
+    });
+
+    test("design: the root and the 404 page carry the title of the vhost and the corporate favicon", async ({ page }) => {
+      skipUnlessServiceEnabled("design");
+      skipWithoutBranding();
+      const root = await open(page, `${base()}/`);
+      await assertBranding(page, "html root");
+      if (root.status() === FORBIDDEN) {
+        await expect.poll(() => page.title()).toBe(`403 Forbidden | ${designTitle()}`);
+      }
+      const missing = await open(page, `${base()}${MISSING_PAGE}`);
+      expect(missing.status(), `html: ${MISSING_PAGE} must answer the 404 page`).toBe(NOT_FOUND);
+      await assertBranding(page, "html 404");
+      await expect.poll(() => page.title()).toBe(`404 Not Found | ${designTitle()}`);
+      const icon = await apiGetOnion(page.request, designFaviconUrl(), { timeout: resolveTimeout(30_000) });
+      expect(`${icon.status()} ${icon.headers()["content-type"] || ""}`, "html: the corporate favicon is served as an image").toMatch(
+        /^200 image\//,
+      );
     });
 
     test("design: the injection reaches the imprint", async ({ page, request }) => {
@@ -223,16 +273,18 @@ exports.register = function () {
       ).toBeLessThanOrEqual(1);
     });
 
-    test("design: the imprint carries the title of its role", async ({ page }) => {
+    test("design: the imprint keeps its heading and carries the title of the vhost and the corporate favicon", async ({ page }) => {
       skipUnlessServiceEnabled("design");
       skipWithoutImprint();
+      skipWithoutBranding();
       await open(page, imprintUrl());
       expect(imprintTitle(), "IMPRINT_TITLE must be set").toBeTruthy();
-      await expect.poll(() => page.title()).toBe(imprintTitle());
       await expect(page.locator(HEADING)).toHaveText(imprintTitle());
+      await assertBranding(page, "html imprint");
+      await expect.poll(() => page.title()).toBe(`${imprintTitle()} | ${designTitle()}`);
     });
 
-    test("design: gallery of the imprint and the 403 page of the proxy", async ({ page }) => {
+    test("design: gallery of the imprint and the error pages of the proxy", async ({ page }) => {
       skipUnlessServiceEnabled("design");
       test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
       test.setTimeout(resolveTimeout(600_000));
