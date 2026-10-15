@@ -103,7 +103,7 @@ bridge's `config.yaml` and the matching Synapse `registration.yaml` from the sam
 | `hookshot-feeds` | `bridge` | disabled | RSS, no partner role |
 | `jitsi` | `module` | follows `services.jitsi.enabled` | `jitsi` |
 | `baibot` | `addon` | follows `services.matrix.plugins.chatgpt` | `litellm` |
-| `synapse-usage-exporter` | `addon` | follows `services.prometheus.enabled` | `prometheus` |
+| `synapse-usage-exporter` | `addon` | follows `services.prometheus.enabled`, and only on `amd64` | `prometheus` |
 
 The compose flavor derives `MATRIX_BRIDGES` from the enabled bridge addons'
 `config:` blocks that declare a `bridge_name`; the enabled/disabled split is
@@ -149,6 +149,9 @@ both flavors: the compose flavor renders `matrix-chatgpt-bot`, the ansible
 flavor enables `baibot`. Both reach the model through `svc-ai-litellm` with the
 role's `litellm_api_key`, and MDAD creates the `baibot` account itself from
 `matrix_user_creator_users_auto`, so no account provisioning step is needed.
+That account creation runs only under the `ensure-matrix-users-created` tag,
+which `services.matrix.playbook_tags` carries between `setup-all` and `start`;
+drop it and baibot starts without an account to log in to.
 
 `synapse-usage-exporter` turns Synapse's metrics listener on and publishes it on
 the `matrix-mdad` container's own interface. The outer Prometheus joins this
@@ -156,6 +159,13 @@ role's docker network and scrapes the DiD container by name, which is why
 `services.prometheus.native_metrics` resolves its `service_key` and `port` per
 flavor: `synapse:9000` for the in-repo compose stack, `matrix:9100` for the
 MDAD stack where the homeserver runs one docker layer deeper.
+
+The addon declares `architectures: [amd64]` in
+[`meta/addons/synapse-usage-exporter.yml`](./meta/addons/synapse-usage-exporter.yml),
+which states what MDAD's unconditional source build cannot produce on arm64.
+`MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED` intersects that list with
+`STACK_HOST`'s architecture, so an arm64 round deploys the rest of the stack
+and hands MDAD `matrix_synapse_usage_exporter_enabled: false`.
 
 ## Conferencing
 

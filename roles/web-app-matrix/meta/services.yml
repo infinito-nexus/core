@@ -157,7 +157,7 @@ matrix:
     base_version: 3.13-slim
     docker_cli_image: docker
     docker_cli_version: 28.0.4-cli
-  playbook_tags: setup-all,start
+  playbook_tags: setup-all,ensure-matrix-users-created,start
   server_name: "{{ DOMAIN_PRIMARY }}"
   plugins:
     appservice_irc: false
