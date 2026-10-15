@@ -61,15 +61,26 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      const link = interactivePage
-        .getByRole("link", { name: /^(settings|users|roles|maintenance|logs)$/i })
-        .first();
-      await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
-      await link.click({ timeout: resolveTimeout(30_000) });
-      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-      await expect(interactivePage).toHaveURL(/\/admin\//, {
+      const menu = interactivePage.locator(".b-sidebar .menu-list");
+      const settingsGroup = menu.locator("li > a[data-cy='settings']");
+      await expect(
+        settingsGroup,
+        "the administration sidebar offers the admin-only settings group",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await settingsGroup.click({ timeout: resolveTimeout(30_000) });
+      const logsEntry = menu.locator("ul a[data-cy='logs']");
+      await expect(
+        logsEntry,
+        "clicking the settings group expands its entries",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await logsEntry.click({ timeout: resolveTimeout(30_000) });
+      await expect(interactivePage).toHaveURL(/\/admin\/settings\/logs(?:[?#]|$)/, {
         timeout: resolveTimeout(30_000),
       });
+      await expect(
+        interactivePage.locator(".log-view .lines .line").first(),
+        "the administrator reads the server log the application serves to administrators only",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
     },
   });
 });
