@@ -22,7 +22,10 @@ _REQUIRED_ENV = {
     "DOCS_SPHINX_AUTHOR": "Kevin Veen-Birkenbach",
 }
 
-with patch.object(sys, "argv", ["sphinx-build"]), patch.dict("os.environ", _REQUIRED_ENV):
+with (
+    patch.object(sys, "argv", ["sphinx-build"]),
+    patch.dict("os.environ", _REQUIRED_ENV),
+):
     conf = importlib.import_module("infinito_docs.conf")
 
 
