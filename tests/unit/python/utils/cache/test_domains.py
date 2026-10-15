@@ -310,6 +310,24 @@ class TestNodeNetworkMode(unittest.TestCase):
             "n.onion",
         )
 
+    def test_a_swarm_node_is_served_by_the_tor_of_its_cluster(self):
+        apps = {"svc-net-tor": {"services": {"tor": {"node": "n.onion"}}}}
+        groups = {"svc-swarm-node": ["mgr", "wrk"], "svc-net-tor": ["mgr"]}
+        self.assertEqual(
+            cache_domains.node_onion_of(
+                apps, {"group_names": ["svc-swarm-node"], "groups": groups}
+            ),
+            "n.onion",
+        )
+
+    def test_a_compose_host_ignores_tor_on_other_hosts(self):
+        apps = {"svc-net-tor": {"services": {"tor": {"node": "n.onion"}}}}
+        groups = {"svc-swarm-node": ["solo"], "svc-net-tor": ["other"]}
+        self.assertEqual(
+            cache_domains.node_onion_of(apps, {"group_names": [], "groups": groups}),
+            "",
+        )
+
     def test_empty_mode_derives_from_the_node_onion(self):
         self.assertEqual(cache_domains.node_network_mode({}, "n.onion"), "multi")
         self.assertEqual(cache_domains.node_network_mode({}, ""), "clearnet")

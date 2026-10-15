@@ -20,6 +20,7 @@ from utils.networks.reachability import (
     network,
     resolve_node_mode,
     sibling_domain,
+    tor_serves_host,
 )
 
 from .base import (
@@ -106,17 +107,17 @@ def _render_plain(raw: Any, name: str) -> Any:
 
 
 def node_onion_of(apps: Any, variables: Any) -> str:
-    """Return the node onion address when this host runs ``svc-net-tor``.
+    """Return the node onion address when ``svc-net-tor`` serves this host.
 
     Args:
         apps: merged applications tree.
-        variables: host variables carrying ``group_names``.
+        variables: host variables carrying ``group_names`` and ``groups``.
 
     Returns:
         The address from ``svc-net-tor``'s ``services.tor.node``, or ``""``
-        when the provider is not deployed on this host.
+        when :func:`tor_serves_host` is false.
     """
-    if network(TOR).provider not in ((variables or {}).get("group_names") or []):
+    if not tor_serves_host(variables):
         return ""
     node_raw = (
         ((apps.get(network(TOR).provider) or {}).get("services") or {}).get("tor") or {}

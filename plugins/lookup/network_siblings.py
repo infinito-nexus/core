@@ -8,7 +8,13 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.networks.reachability import NETWORKS, TOR, network, sibling_domain
+from utils.networks.reachability import (
+    NETWORKS,
+    TOR,
+    network,
+    sibling_domain,
+    tor_serves_host,
+)
 from utils.tls_common import iter_domains, norm_domain
 
 
@@ -67,6 +73,6 @@ class LookupModule(LookupBase):
             primary = templar.template(primary)
         provider = network(TOR).provider
         node = ""
-        if provider in (variables.get("group_names") or []):
+        if tor_serves_host(variables):
             node = str(_run("config", provider, "services.tor.node", "") or "").strip()
         return [served_siblings(str(terms[0]), _run("domains"), str(primary), node)]

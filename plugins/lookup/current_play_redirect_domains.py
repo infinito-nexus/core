@@ -10,6 +10,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.merge.mapping import merge_mapping
 from utils.domains.list import render_domain_value
+from utils.networks.reachability import tor_serves_host
 from utils.roles.entity.name import get_entity_name
 
 
@@ -123,7 +124,7 @@ class LookupModule(LookupBase):
          non-empty result triggers ``sys-stk-front-base`` to auto-load
          ``web-opt-rdr-domains`` so openresty has an SNI match for
          DOMAIN_PRIMARY even when no app claims it. On onion nodes
-         (``svc-net-tor`` in ``group_names`` with a provisioned
+         (``svc-net-tor`` serving the host with a provisioned
          ``services.tor.node``) the bare node-onion apex is scheduled as an
          additional source targeting the same ``DOMAIN_HOMEPAGE``, which is
          already family-correct there (onion-injected domain lookup); both
@@ -148,10 +149,10 @@ class LookupModule(LookupBase):
         return result[0] if result else None
 
     def _node_onion(self, vars_: Mapping[str, Any]) -> str:
-        """Return the node onion address when this host is an onion node
-        (``svc-net-tor`` in ``group_names`` with a provisioned
-        ``services.tor.node`` in the ``applications`` override), else ``""``."""
-        if "svc-net-tor" not in (vars_.get("group_names") or []):
+        """Return the node onion address when ``svc-net-tor`` serves this host
+        (:func:`utils.networks.reachability.tor_serves_host`) with a provisioned
+        ``services.tor.node`` in the ``applications`` override, else ``""``."""
+        if not tor_serves_host(vars_):
             return ""
         apps = vars_.get("applications")
         svc_tor = apps.get("svc-net-tor") if isinstance(apps, Mapping) else None

@@ -41,6 +41,8 @@ CLEARNET = "clearnet"
 TOR = "tor"
 MULTI = "multi"
 
+_SWARM_NODE_GROUP = "svc-swarm-node"
+
 NETWORKS: dict[str, Network] = {
     CLEARNET: Network(CLEARNET, "clearnet", None, None, True, False, 10),
     TOR: Network(TOR, "onion", "svc-net-tor", ".onion", False, True, 30),
@@ -133,6 +135,24 @@ def sibling_domain(domain: Any, target: str, primary: str, node: str) -> str | N
     if onion and host.endswith("." + onion):
         return host[: -len(onion)] + base
     return None
+
+
+def tor_serves_host(variables: Any) -> bool:
+    """Whether the Tor provider serves this host.
+
+    Args:
+        variables: host variables carrying ``group_names`` and ``groups``.
+
+    Returns:
+        True when the provider runs on this host or, in a swarm, anywhere in
+        the cluster this host belongs to.
+    """
+    provider = network(TOR).provider
+    variables = variables or {}
+    if provider in (variables.get("group_names") or []):
+        return True
+    groups = variables.get("groups") or {}
+    return len(groups.get(_SWARM_NODE_GROUP) or []) > 1 and bool(groups.get(provider))
 
 
 def resolve_node_mode(raw: Any, *, tor_provided: bool) -> str:
