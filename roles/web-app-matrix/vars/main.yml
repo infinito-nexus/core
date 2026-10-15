@@ -101,7 +101,8 @@ MATRIX_ADDON_BAIBOT_ENABLED: "{{ lookup('config', application_id, 'addons.baibot
 MATRIX_ADDON_BAIBOT_LOCALPART: "{{ lookup('config', application_id, 'addons.baibot.config.user_localpart') }}"
 MATRIX_ADDON_BAIBOT_PASSWORD: "{{ lookup('config', application_id, 'addons.baibot.config.user_password') }}"
 MATRIX_ADDON_BAIBOT_AGENT_ID: "{{ lookup('config', application_id, 'addons.baibot.config.agent_id') }}"
-MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED: "{{ lookup('config', application_id, 'addons.synapse-usage-exporter.enabled') | bool }}"
+MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED: "{{ (lookup('config', application_id, 'addons.synapse-usage-exporter.enabled') | bool) and (HOST_ARCHITECTURE_BY_KERNEL[hostvars[STACK_HOST].ansible_facts['architecture']]
+  in lookup('config', application_id, 'addons.synapse-usage-exporter.architectures')) }}"
 
 MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-gitlab.enabled') | bool }}"
 MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-jira.enabled') | bool }}"

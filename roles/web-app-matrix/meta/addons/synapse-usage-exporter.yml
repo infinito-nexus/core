@@ -1,5 +1,7 @@
 ---
 enabled: "{{ lookup('config', 'web-app-matrix', 'services.prometheus.enabled') | bool }}"
+architectures:
+  - amd64
 required: false
 mechanism: addon
 source: upstream
