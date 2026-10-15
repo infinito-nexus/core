@@ -15,6 +15,10 @@ _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
 if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
+from infinito_docs.identity import docs_sphinx_identity  # noqa: E402
+
+DOCS_SPHINX_IDENTITY = docs_sphinx_identity(PROJECT_ROOT)
+
 i18n = importlib.import_module("infinito_docs.i18n")
 
 
@@ -35,7 +39,10 @@ class TestExtract(unittest.TestCase):
             (images / "favicon.ico").write_bytes(b"")
             output = Path(tmp) / "docs.pot"
 
-            with patch.object(i18n, "generate_commands", lambda src: []):
+            with (
+                patch.object(i18n, "generate_commands", lambda src: []),
+                patch.dict("os.environ", DOCS_SPHINX_IDENTITY),
+            ):
                 i18n.extract(src, output, 1)
 
             with output.open("rb") as handle:

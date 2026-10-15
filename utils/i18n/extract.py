@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -18,6 +19,25 @@ MENU_FILE = Path("roles") / "web-app-dashboard" / "vars" / "menu_categories.yml"
 LOGOUT_FILE = Path("roles") / "web-app-keycloak" / "files" / "logout_i18n.yml"
 DOCS_TOOLING = Path("roles") / "web-app-docs" / "files" / "python"
 CATEGORY_FIELDS = ("title", "description")
+
+
+def _docs_sphinx_identity(root: Path, tooling: Path) -> dict[str, str]:
+    """The Sphinx identity the documentation role configures.
+
+    Args:
+        root: repository root.
+        tooling: directory holding the ``infinito_docs`` package.
+
+    Returns:
+        The rendered ``services.docs.sphinx`` mapping, read through the
+        package that ships with the role so the values stay in services.yml.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "_infinito_docs_identity", tooling / "infinito_docs" / "identity.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.docs_sphinx_identity(root)
 
 
 def role_context(role: str) -> str:
@@ -168,6 +188,7 @@ def docs_template(root: Path, jobs: int):
         tooling = root / DOCS_TOOLING
         env = {
             **os.environ,
+            **_docs_sphinx_identity(root, tooling),
             "PYTHONPATH": os.pathsep.join([str(tooling), str(root)]),
         }
         subprocess.run(
