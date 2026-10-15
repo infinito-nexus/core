@@ -48,8 +48,7 @@ front_nginx_conf:
   mounts:
     - service: front
       target: /etc/nginx/templates/default.conf.template
-      when: "{{ (lookup('config', 'web-app-funkwhale', 'services.seaweedfs.enabled', false) | bool) or
-        (lookup('config', 'web-app-funkwhale', 'services.minio.enabled', false) | bool) }}"
+      when: "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
 
 design_admin_template:
   type: config
