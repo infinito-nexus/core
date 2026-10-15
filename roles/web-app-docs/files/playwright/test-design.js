@@ -11,6 +11,7 @@ const {
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { pollStatus } = require("./_shared");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
@@ -30,15 +31,40 @@ const INLINE_CODE = `${MAIN} code:not(pre code)`;
 const COPY = `${MAIN} div.highlight button.copy`;
 const ICON = "header a img[alt='Logo']:not(.hidden)";
 const SIDEBAR_LOGO = ".sidebar-logo img";
-const README = "/README.html";
-const ROLE_README = "/roles/web-app-listmonk/README.html";
-const CURRENT_PAGE = "/CODE_OF_CONDUCT.html#our-pledge";
-const GUIDE = "/docs/Docker.html";
+const SITE = "/deployed";
+const HOME = `${SITE}/`;
+const README = `${SITE}/README.html`;
+const ROLE_README = `${SITE}/roles/web-app-listmonk/README.html`;
+const CURRENT_PAGE = `${SITE}/CODE_OF_CONDUCT.html#our-pledge`;
+const GUIDE = `${SITE}/docs/contributing/environment/setup.html`;
 const NOT_FOUND = "/design-gallery-missing.html";
 const STORE_KEY = "_x_darkMode";
 const READY = 10_000;
+const BUILD = 5_300_000;
+const BUILD_TIMEOUT = 5_400_000;
 
 test.use({ ignoreHTTPSErrors: true });
+
+let deployedSite = null;
+
+/**
+ * Args:
+ *   page: Playwright page whose request context polls the deployed site.
+ *
+ * Returns:
+ *   The shared poll, resolved once the deployed version serves its Sphinx
+ *   site instead of its build placeholder.
+ */
+function deployedSiteBuilt(page) {
+  deployedSite ??= pollStatus(
+    page.request,
+    `${base}${HOME}`,
+    200,
+    "Expected the Sphinx site of the deployed working tree to be built",
+    BUILD,
+  );
+  return deployedSite;
+}
 
 /**
  * Args:
@@ -94,10 +120,15 @@ async function expectSchemeFollowed(page) {
 /**
  * Args:
  *   page: Playwright page that opens the site path and waits for its content.
- *   path: site path to open.
+ *   path: site path to open, including the version segment.
  */
 async function open(page, path) {
+  await deployedSiteBuilt(page);
   await gotoOnion(page, `${base}${path}`);
+  expect(
+    new URL(page.url()).pathname,
+    `Expected ${path} itself; a path the version has no file for answers with a redirect to its index`,
+  ).toBe(path.split("#")[0]);
   await shown(page, MAIN);
 }
 
@@ -141,29 +172,29 @@ function views() {
     },
   });
   return [
-    view("home", "/"),
-    state("home-switch", "/", async (page) => {
+    view("home", HOME),
+    state("home-switch", HOME, async (page) => {
       const dark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
       await page.locator(SWITCH).click({ timeout: resolveTimeout(READY) });
       await expect(page.locator("html")).toHaveAttribute("data-design-theme", dark ? "light" : "dark");
     }),
-    view("readme", README, CODE),
-    view("changelog", "/CHANGELOG.html"),
+    view("readme", README),
+    view("changelog", `${SITE}/CHANGELOG.html`),
     view("guide", GUIDE, CODE),
-    view("architecture", "/docs/ARCHITECTURE.html"),
-    view("roles-index", "/roles/index.html"),
-    view("glossary", "/roles/ansible_role_glosar.html"),
+    view("architecture", `${SITE}/docs/architecture/central-engines.html`),
+    view("roles-index", `${SITE}/roles/index.html`),
+    view("glossary", `${SITE}/roles/ansible_role_glosar.html`),
     view("role-readme", ROLE_README, BREADCRUMBS),
-    view("role-vars", "/roles/web-app-listmonk/vars/main.html"),
-    view("group-vars", "/group_vars/all/15_design.html"),
-    view("yaml-index", "/generated/yaml_index.html"),
-    view("api-package", "/generated/modules/cli.html"),
-    view("api-module", "/generated/modules/cli.create.role.html"),
-    view("module-index", "/py-modindex.html"),
-    view("genindex", "/genindex.html"),
-    view("search", "/search.html", SEARCH),
-    view("search-results", "/search.html?q=listmonk", "#search-results li"),
-    state("search-focus", "/", (page) => page.locator(SEARCH).focus()),
+    view("role-vars", `${SITE}/roles/web-app-listmonk/vars/main.html`),
+    view("group-vars", `${SITE}/group_vars/all/02_tls.html`),
+    view("yaml-index", `${SITE}/generated/yaml_index.html`),
+    view("api-package", `${SITE}/generated/modules/cli.html`),
+    view("api-module", `${SITE}/generated/modules/cli.core.html`),
+    view("module-index", `${SITE}/py-modindex.html`),
+    view("genindex", `${SITE}/genindex.html`),
+    view("search", `${SITE}/search.html`, SEARCH),
+    view("search-results", `${SITE}/search.html?q=listmonk`, "#search-results li"),
+    state("search-focus", HOME, (page) => page.locator(SEARCH).focus()),
     state("code-copy-hover", GUIDE, async (page) => {
       await page.locator(`${MAIN} div.highlight`).first().hover();
       await page.locator(COPY).first().hover();
@@ -175,18 +206,18 @@ function views() {
       await openSidebar(page);
       await shown(page, `${SIDEBAR} a.current`);
     }),
-    state("sidebar-expanded", "/", async (page) => {
+    state("sidebar-expanded", HOME, async (page) => {
       await openSidebar(page);
       const item = page.locator(`${SIDEBAR} .full-index li[x-data*='expanded: false']`).first();
       await item.locator(".toggle-button").first().dispatchEvent("click");
       await expect(item.locator("ul").first()).toBeVisible({ timeout: resolveTimeout(READY) });
     }),
-    state("nav-focus", "/", async (page) => {
+    state("nav-focus", HOME, async (page) => {
       await openSidebar(page);
       await page.locator(SIDEBAR_LINK).first().focus();
       await page.keyboard.press("Tab");
     }),
-    state("mobile-drawer", "/", openSidebar),
+    state("mobile-drawer", HOME, openSidebar),
     state("header-scrolled", GUIDE, (page) => page.evaluate(() => window.scrollTo(0, 600))),
     { name: "not-found", url: `${base}${NOT_FOUND}`, prepare: (page) => shown(page, "body") },
   ];
@@ -194,7 +225,8 @@ function views() {
 
 test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  await open(page, "/");
+  test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
+  await open(page, HOME);
   await assertDesignTokens(page, "sphinx");
 });
 
@@ -208,18 +240,19 @@ test("design: a page without the theme switch follows the browser scheme", async
 
 test("design: pages take surface, text, link and dividers from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
   await followScheme(page);
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
-    await open(page, GUIDE);
-    await expectSchemeFollowed(page);
-    await assertToken(page, INLINE_CODE, "background-color", "--design-surface-3", `inline code ${mode}`);
-    await assertToken(page, INLINE_CODE, "color", "--design-text", `inline code text ${mode}`);
     await open(page, README);
     await expectSchemeFollowed(page);
     await assertToken(page, "body", "background-color", "--design-surface-1", `page ${mode}`);
     await assertToken(page, "body", "color", "--design-text", `text ${mode}`);
     await assertToken(page, HEADER, "border-bottom-color", "--design-border", `header divider ${mode}`);
+    await open(page, GUIDE);
+    await expectSchemeFollowed(page);
+    await assertToken(page, INLINE_CODE, "background-color", "--design-surface-3", `inline code ${mode}`);
+    await assertToken(page, INLINE_CODE, "color", "--design-text", `inline code text ${mode}`);
     await assertToken(page, `${MAIN} pre`, "border-top-color", "--design-border", `code block divider ${mode}`);
     await assertToken(page, CONTENT_LINK, "color", "--design-link", `content link ${mode}`);
   }
@@ -234,9 +267,10 @@ test("design: pages take surface, text, link and dividers from the palette", asy
 
 test("design: the native switch drives the palette and the design theme attribute", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
   await followScheme(page);
   await page.emulateMedia({ colorScheme: "light" });
-  await open(page, "/");
+  await open(page, HOME);
   await expectSchemeFollowed(page);
   const light = await bodyBackground(page);
   await expect(page.locator(SWITCH)).toBeVisible({ timeout: resolveTimeout(READY) });
@@ -251,8 +285,9 @@ test("design: the native switch drives the palette and the design theme attribut
 
 test("design: a stored dark choice wins over a light browser and reaches the design theme on load", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
   await page.emulateMedia({ colorScheme: "light" });
-  await open(page, "/");
+  await open(page, HOME);
   await page.locator(SWITCH).click();
   await expect(page.locator("html")).toHaveAttribute("data-design-theme", "dark");
   await open(page, ROLE_README);
@@ -263,6 +298,7 @@ test("design: a stored dark choice wins over a light browser and reaches the des
 
 test("design: the selected sidebar entry and the search field keep readable palette states", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
   await followScheme(page);
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
@@ -284,6 +320,7 @@ test("design: the selected sidebar entry and the search field keep readable pale
 
 test("design: the role stylesheet keeps the breadcrumb navigation visible", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
   await open(page, ROLE_README);
   await expect(page.locator(BREADCRUMBS)).toBeVisible({ timeout: resolveTimeout(READY) });
   await expect(page.locator(SWITCH)).toBeVisible({ timeout: resolveTimeout(READY) });
@@ -292,10 +329,11 @@ test("design: the role stylesheet keeps the breadcrumb navigation visible", asyn
 test("design: logo, icon and favicon come from the design lookup", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl, "logo replacement is disabled for this role");
+  test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
   const iconUrl = requireDotenvValue(process.env.DESIGN_ICON_URL, "DESIGN_ICON_URL");
   const faviconUrl = requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL");
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, "/");
+  await open(page, HOME);
   await expect(page.locator(SIDEBAR_LOGO)).toHaveCSS("content", `url("${logoUrl}")`);
   const logo = await page.locator(SIDEBAR_LOGO).boundingBox();
   expect(logo.width, "the sidebar logo is a wide lockup").toBeGreaterThan(logo.height * 2);
@@ -327,5 +365,6 @@ test("design: gallery of index, guides, role pages, generated pages, search, sid
   test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
   test.setTimeout(resolveTimeout(1_800_000));
   await followScheme(page);
+  await deployedSiteBuilt(page);
   await captureDesignGallery(page, views());
 });
