@@ -1,0 +1,4 @@
+FROM {{ SPHINX_IMAGE }}:{{ SPHINX_VERSION }}
+{% if SPHINX_DESIGN_TITLE | length > 0 %}
+RUN sphinx-build -M html "${INFINITO_SRC_DIR}" "${SPHINX_OUTPUT_DIR}" -c "${SPHINX_EXEC_DIR}src/infinito_docs" -D html_title={{ SPHINX_DESIGN_TITLE | quote }}
+{% endif %}

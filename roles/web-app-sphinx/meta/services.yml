@@ -26,6 +26,7 @@ sphinx:
       enabled: true
   image: ghcr.io/kevinveenbirkenbach/infinito-sphinx
   version: v1.0.70
+  custom: true
   min_storage: 1931MB
   backup:
     no_stop_required: true
