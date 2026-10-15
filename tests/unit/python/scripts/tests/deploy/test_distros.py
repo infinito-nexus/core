@@ -20,7 +20,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.distros import pkgmgr_image
+from utils.distros import base_image
 from utils.env.parser import parse_static_env
 
 LOOP = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "distros.sh"
@@ -88,7 +88,7 @@ class TestDistrosLoop(unittest.TestCase):
         rows = [line.split() for line in record.splitlines()]
         self.assertEqual(sorted(row[0] for row in rows), sorted(DISTROS.split()))
         for distro, image, owner, tag in rows:
-            self.assertEqual(image, pkgmgr_image(distro, owner=owner, tag=tag))
+            self.assertEqual(image, base_image(distro, owner=owner, tag=tag))
 
     def test_the_command_inherits_the_env_layer(self) -> None:
         proc, record = self._run(
