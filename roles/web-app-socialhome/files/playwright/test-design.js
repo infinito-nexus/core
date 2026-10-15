@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const fs = require("node:fs");
 const { test, expect } = require("@playwright/test");
 
 const {
@@ -37,11 +38,16 @@ const THEME_OPTION = ".sh-theme-option";
 const ADMIN_TAB = ".sh-admin-tabs [role='tab']";
 const MOBILE_MORE = ".sh-mobile-tab--more";
 const DRAWER_OPEN = ".sh-mobile-drawer--open";
-const PACE_MS = 4_000;
-const SPACE_PACE_MS = 10_000;
+const ME_LIMIT = 60;
+const ME_WINDOW_MS = 60_000;
+const ME_LOAD = 8;
+const ME_FILE = "/volume/socialhome-api-me-calls";
+const TOKEN_FILE = "/volume/socialhome-admin-token";
+const MEMBER = "design-member";
+const MEMBER_DIVIDER = ".sh-admin-table tbody tr:not(:last-child) td";
+const SEARCH_MARK = ".sh-search-page .sh-snippet mark";
 
 let token = null;
-let lastLoad = 0;
 
 /**
  * Args:
@@ -54,6 +60,7 @@ let lastLoad = 0;
  *   The Playwright API response.
  */
 async function call(page, method, path, data) {
+  if (path.startsWith("/api/me")) noteMeCall();
   return apiFetchOnion(page.request, `${base}${path}`, {
     method,
     headers: { authorization: `Bearer ${token}` },
@@ -79,20 +86,82 @@ async function list(page, path, key) {
 
 /**
  * Args:
- *   page: Playwright page that ends signed in as the administrator. Social Home allows five sign-ins per 15 minutes for every client behind the proxy, so the first call fetches one token per worker and later calls reuse it.
+ *   page: Playwright page whose request context checks the kept token.
+ *
+ * Returns:
+ *   The administrator token kept in the staging volume while Social Home still accepts it, otherwise null.
+ */
+async function keptToken(page) {
+  if (!fs.existsSync(TOKEN_FILE)) return null;
+  const kept = fs.readFileSync(TOKEN_FILE, "utf8").trim();
+  noteMeCall();
+  const response = await apiGetOnion(page.request, `${base}/api/me`, { headers: { authorization: `Bearer ${kept}` } });
+  return response.ok() ? kept : null;
+}
+
+/**
+ * Args:
+ *   page: Playwright page that ends signed in as the administrator. Social Home allows five sign-ins per 15 minutes for every client behind the proxy, and Playwright starts a new worker after every failed test, so the token is kept in the staging volume and every worker and later run reuses it while the app accepts it.
  */
 async function signIn(page) {
+  await meRoom();
   if (!token) {
-    const response = await apiFetchOnion(page.request, `${base}/api/auth/token`, {
-      method: "POST",
-      data: { username: adminUsername, password: adminPassword },
-    });
-    expect(response.status(), "the administrator must get a token").toBe(200);
-    token = (await response.json()).token;
+    token = await keptToken(page);
+    if (!token) {
+      const response = await apiFetchOnion(page.request, `${base}/api/auth/token`, {
+        method: "POST",
+        data: { username: adminUsername, password: adminPassword },
+      });
+      expect(response.status(), "the administrator must get a token").toBe(200);
+      token = (await response.json()).token;
+      fs.writeFileSync(TOKEN_FILE, token, { mode: 0o600 });
+    }
     const onboarded = await call(page, "POST", "/api/me/onboarding-complete");
     expect(onboarded.status(), "the first-run onboarding must be cleared").toBeLessThan(300);
   }
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/api/me")) noteMeCall();
+  });
   await page.addInitScript((value) => window.localStorage.setItem("sh_token", value), token);
+}
+
+/**
+ * Returns:
+ *   The times of the /api/me requests of the last minute, kept in the staging volume for every worker and later run.
+ */
+function meCalls() {
+  if (!fs.existsSync(ME_FILE)) return [];
+  const since = Date.now() - ME_WINDOW_MS;
+  return fs.readFileSync(ME_FILE, "utf8").split("\n").map(Number).filter((stamp) => stamp > since);
+}
+
+function noteMeCall() {
+  fs.writeFileSync(ME_FILE, [...meCalls(), Date.now()].join("\n"));
+}
+
+/**
+ * Returns:
+ *   Once the /api/me requests of the last minute leave room for one more page load: Social Home allows every user 60 requests per minute and path prefix there, and a page load spends up to four.
+ */
+async function meRoom() {
+  for (;;) {
+    const calls = meCalls();
+    if (calls.length + ME_LOAD <= ME_LIMIT) return;
+    await new Promise((resolve) => setTimeout(resolve, calls[0] + ME_WINDOW_MS - Date.now() + 100));
+  }
+}
+
+/**
+ * Args:
+ *   page: signed-in Playwright page.
+ *   url: address to open once /api/me leaves room for the page load.
+ *
+ * Returns:
+ *   The navigation response.
+ */
+async function visit(page, url) {
+  await meRoom();
+  return gotoOnion(page, url);
 }
 
 /**
@@ -125,11 +194,7 @@ async function seedShowcase(page) {
   };
   const spaceId = await showcaseSpace(page);
 
-  const posts = await list(page, "/api/feed", "posts");
-  if (!posts.some((post) => String(post.content || "").includes(SHOWCASE))) {
-    await created("/api/feed/posts", { type: "text", content: `${SHOWCASE}: dinner at seven, bring the salad.` });
-    await created("/api/feed/posts", { type: "text", content: `${SHOWCASE}: the bike is fixed.` });
-  }
+  await seedPosts(page);
   const spacePosts = await list(page, `/api/spaces/${spaceId}/feed`, "posts");
   if (!spacePosts.some((post) => String(post.content || "").includes(SHOWCASE))) {
     await created(`/api/spaces/${spaceId}/posts`, { type: "text", content: `${SHOWCASE}: welcome to the space.` });
@@ -164,14 +229,35 @@ async function seedShowcase(page) {
     await created("/api/pages", { title: SHOWCASE, content: "# House rules\n\n- Shoes off\n- Lights out at eleven" });
   }
 
+  await seedMember(page);
+  return spaceId;
+}
+
+/**
+ * Args:
+ *   page: signed-in Playwright page; two household posts named after the showcase get created when none is there, so a search for the showcase finds them.
+ */
+async function seedPosts(page) {
+  const posts = await list(page, "/api/feed", "posts");
+  if (posts.some((post) => String(post.content || "").includes(SHOWCASE))) return;
+  for (const content of [`${SHOWCASE}: dinner at seven, bring the salad.`, `${SHOWCASE}: the bike is fixed.`]) {
+    const response = await call(page, "POST", "/api/feed/posts", { type: "text", content });
+    expect(response.status(), "seeding /api/feed/posts").toBeLessThan(300);
+  }
+}
+
+/**
+ * Args:
+ *   page: signed-in Playwright page; the household member named after the showcase gets created when it is missing, so the member table holds a row above the last one.
+ */
+async function seedMember(page) {
   const member = await call(page, "POST", "/api/admin/users", {
-    username: "design-member",
+    username: MEMBER,
     password: crypto.randomBytes(18).toString("base64url"),
     display_name: "Design Member",
     is_admin: false,
   });
   expect([200, 201, 409], "seeding the household member").toContain(member.status());
-  return spaceId;
 }
 
 function shown(selector) {
@@ -242,16 +328,13 @@ function signedOutViews() {
 /**
  * Args:
  *   prepare: the view's own preparation.
- *   pace: milliseconds to keep after the previous view. Social Home allows every user 60 API requests per minute and path prefix; a signed-in page load spends three of them on /api/me, a space page several more on /api/spaces.
  *
  * Returns:
- *   The preparation, started no earlier than `pace` after the previous one.
+ *   The preparation, started once /api/me leaves room for the page load of the next capture.
  */
-function paced(prepare, pace) {
+function paced(prepare) {
   return async (page) => {
-    const wait = lastLoad + pace - Date.now();
-    if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
-    lastLoad = Date.now();
+    await meRoom();
     await prepare(page);
   };
 }
@@ -297,16 +380,34 @@ function signedInViews(spaceId) {
     { name: "admin-settings", url: `${base}/admin`, prepare: adminTab(7, ".sh-admin-section") },
     view("connections", "/connections", ".sh-connections"),
     { name: "navigation", url: `${base}/feed`, prepare: navigation },
-  ].map((entry) => ({ ...entry, prepare: paced(entry.prepare, entry.url.includes("/spaces") ? SPACE_PACE_MS : PACE_MS) }));
+  ].map((entry) => ({ ...entry, prepare: paced(entry.prepare) }));
 }
 
 exports.register = function () {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await signIn(page);
-    await gotoOnion(page, `${base}/feed`);
+    await visit(page, `${base}/feed`);
     await shown(TOPBAR)(page);
     await assertDesignTokens(page, "Social Home");
+  });
+
+  test("design: a new worker reuses the kept administrator token instead of signing in again", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page);
+    const newestSignIn = async () => {
+      const response = await call(page, "GET", "/api/admin/auth-audit");
+      expect(response.status(), "reading the sign-in audit").toBe(200);
+      const stamps = ((await response.json()).events || [])
+        .filter((row) => row.event_type === "login_success")
+        .map((row) => String(row.created_at))
+        .sort();
+      return `${stamps.length}@${stamps[stamps.length - 1]}`;
+    };
+    const before = await newestSignIn();
+    token = null;
+    await signIn(page);
+    expect(await newestSignIn(), "a new worker must not spend one of the five sign-ins per 15 minutes").toBe(before);
   });
 
   test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {
@@ -334,7 +435,7 @@ exports.register = function () {
     await signIn(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/feed`);
+      await visit(page, `${base}/feed`);
       await shown(COMPOSER)(page);
       await assertToken(page, "body", "background-color", "--design-surface-1", `shell ${mode}`);
       await assertToken(page, TOPBAR, "background-color", "--design-surface-2", `shell ${mode}`);
@@ -350,11 +451,26 @@ exports.register = function () {
   test("design: the member table separates its rows with the border token", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await signIn(page);
+    await seedMember(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/admin`);
-      await shown(".sh-admin-table td")(page);
-      await assertToken(page, ".sh-admin-table td", "border-bottom-color", "--design-border", `member rows ${mode}`);
+      await visit(page, `${base}/admin`);
+      await shown(MEMBER_DIVIDER)(page);
+      await assertToken(page, MEMBER_DIVIDER, "border-bottom-color", "--design-border", `member rows ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: a search hit is highlighted with the state surface instead of the browser's yellow", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page);
+    await seedPosts(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await visit(page, `${base}/search?q=${encodeURIComponent(SHOWCASE)}`);
+      await shown(SEARCH_MARK)(page);
+      await assertToken(page, SEARCH_MARK, "background-color", "--design-surface-active", `search hit ${mode}`);
+      await assertToken(page, SEARCH_MARK, "color", "--design-text", `search hit ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
   });
@@ -365,7 +481,7 @@ exports.register = function () {
     await signIn(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/feed`);
+      await visit(page, `${base}/feed`);
       const current = `${DESKTOP_NAV} a[aria-current='page']`;
       await shown(current)(page);
       await assertToken(page, current, "background-color", "--design-surface-active", `current entry ${mode}`);
@@ -382,7 +498,7 @@ exports.register = function () {
     skipUnlessServiceEnabled("design");
     await page.emulateMedia({ colorScheme: "light" });
     await signIn(page);
-    await gotoOnion(page, `${base}/settings`);
+    await visit(page, `${base}/settings`);
     await tab("#sh-settings-tab-appearance", THEME_OPTION)(page);
     const html = page.locator("html");
     const surface = () => tokenValue(page, "--design-surface-1", "background-color");
@@ -395,7 +511,7 @@ exports.register = function () {
     expect(await surface(), "a dark theme picked in Social Home must switch the tokens").not.toBe(lightSurface);
     await assertToken(page, "body", "background-color", "--design-surface-1", "dark theme picked in Social Home");
 
-    await gotoOnion(page, page.url());
+    await visit(page, page.url());
     await shown(TOPBAR)(page);
     await expect(html, "the picked theme must survive a reload").toHaveAttribute("data-design-theme", "dark");
 
@@ -417,7 +533,7 @@ exports.register = function () {
     const html = page.locator("html");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/spaces/${spaceId}`);
+      await visit(page, `${base}/spaces/${spaceId}`);
       await expect(html, "the space theme must be applied").toHaveAttribute("data-space-theme", spaceId);
       await expect(html, "the household primary must be the one the role wrote").toHaveAttribute("data-design-household-primary", "");
       expect(await primaryInBody(page), `space primary ${mode}`).toBe(await tokenValue(page, "--design-primary", "color"));
@@ -430,7 +546,7 @@ exports.register = function () {
     test.skip(!sidebarLogoUrl && !title, "logo and title replacement are disabled for this role");
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
-    await gotoOnion(page, `${base}/settings`);
+    await visit(page, `${base}/settings`);
     await shown(TOPBAR_TITLE)(page);
     if (title) {
       await expect
@@ -472,6 +588,7 @@ exports.register = function () {
     await captureDesignGallery(page, signedOutViews()).catch((error) => failures.push(error.message));
     await signIn(page);
     const spaceId = await seedShowcase(page);
+    await meRoom();
     await captureDesignGallery(page, signedInViews(spaceId)).catch((error) => failures.push(error.message));
     expect(failures, failures.join("\n")).toEqual([]);
   });
