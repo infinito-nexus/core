@@ -31,6 +31,7 @@ class TestMoodleEntrypoint(unittest.TestCase):
         self.source = self.root / "source"
         self.code = self.root / "code"
         self.stage = self.code / ".bootstrap.stage"
+        self.sentinel = self.code / ".bootstrap.done"
         self.bin_dir = self.root / "bin"
         self.bin_dir.mkdir()
         self.real_cp = shutil.which("cp")
@@ -45,6 +46,7 @@ class TestMoodleEntrypoint(unittest.TestCase):
             MOODLE_LOCAL_CACHE_DIR=str(self.root / "localcache"),
             MOODLE_SOURCE_DIR=str(self.source),
             MOODLE_BOOTSTRAP_STAGE=str(self.stage),
+            MOODLE_BOOTSTRAP_SENTINEL=str(self.sentinel),
             MOODLE_RUNTIME_USER=pwd.getpwuid(os.getuid()).pw_name,
             MOODLE_VERSION_FILE="public/version.php",
         )

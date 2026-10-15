@@ -17,11 +17,11 @@ set -euo pipefail
 : "${MOODLE_LOCAL_CACHE_DIR:?required}"
 : "${MOODLE_SOURCE_DIR:?required}"
 : "${MOODLE_BOOTSTRAP_STAGE:?required}"
+: "${MOODLE_BOOTSTRAP_SENTINEL:?required}"
 : "${MOODLE_RUNTIME_USER:?required}"
 : "${MOODLE_VERSION_FILE:?required}"
 : "${MOODLE_RELEASE:?required}"
 
-MOODLE_BOOTSTRAP_SENTINEL="${MOODLE_CODE_DIR}/.bootstrap.done"
 MOODLE_BOOTSTRAP_LOCK="${MOODLE_CODE_DIR}/.bootstrap.lock"
 
 mkdir -p "${MOODLE_DATA_DIR}"
