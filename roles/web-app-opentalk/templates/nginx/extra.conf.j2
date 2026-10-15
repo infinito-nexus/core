@@ -1,10 +1,6 @@
-# Routes additional OpenTalk endpoints alongside the web frontend.
-# The default location (handled by the front proxy) forwards to the
-# frontend container at {{ OPENTALK_FRONTEND_HTTP_PORT }}; the controller
-# REST API and LiveKit signalling need explicit upstream rules.
-
+{% set opentalk_controller_backend = lookup('proxy_pass', application_id, 'controller', 'http', tail='plain', local_port=OPENTALK_CTRL_HTTP_PORT, internal_port=OPENTALK_CTRL_INTERNAL_PORT) %}
 location /v1/ {
-    proxy_pass http://127.0.0.1:{{ OPENTALK_CTRL_HTTP_PORT }};
+    {{ opentalk_controller_backend }}
     proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
@@ -16,7 +12,7 @@ location /v1/ {
 }
 
 location /signaling {
-    proxy_pass http://127.0.0.1:{{ OPENTALK_CTRL_HTTP_PORT }};
+    {{ opentalk_controller_backend }}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";

@@ -16,7 +16,6 @@ OPENTALK_CTRL_SERVICE_API_KEY_ID: "controller"
 OPENTALK_CTRL_SERVICE_API_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.service_api_secret') }}"
 
 OPENTALK_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.opentalk.name') }}"
-OPENTALK_FRONTEND_HTTP_PORT: "{{ lookup('config', application_id, 'services.opentalk.ports.local.http') }}"
 
 OPENTALK_LIVEKIT_CONTAINER: "{{ lookup('config', application_id, 'services.livekit.name') }}"
 OPENTALK_LIVEKIT_HTTP_PORT: "{{ lookup('config', application_id, 'services.livekit.ports.internal.http') }}"
