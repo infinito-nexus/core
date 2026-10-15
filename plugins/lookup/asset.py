@@ -10,14 +10,14 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.role_path_by_app_id import abs_role_path_by_application_id
 from utils.cache.files import read_text
-from utils.tls_common import is_onion_domain
 
 _JSDELIVR = "https://cdn.jsdelivr.net"
 
 
 def resolve_host(variables, loader, templar) -> str:
-    """The asset host for the current deployment: the internal CDN origin
-    when web-svc-cdn is deployed with flavor internal, else jsdelivr."""
+    """The asset host for the current deployment: the internal CDN origin in
+    the network of the vhost being rendered when web-svc-cdn is deployed with
+    flavor internal, else jsdelivr."""
     if "web-svc-cdn" not in (variables.get("group_names") or []):
         return _JSDELIVR
     flavor = lookup_loader.get("config", loader=loader, templar=templar).run(
@@ -25,11 +25,10 @@ def resolve_host(variables, loader, templar) -> str:
     )[0]
     if str(flavor).strip().lower() != "internal":
         return _JSDELIVR
-    domain = lookup_loader.get("domain", loader=loader, templar=templar).run(
-        ["web-svc-cdn"], variables=variables
+    base = lookup_loader.get("tls", loader=loader, templar=templar).run(
+        ["web-svc-cdn", "url.base"], variables=variables
     )[0]
-    scheme = "http" if is_onion_domain(domain) else "https"
-    return f"{scheme}://{domain}"
+    return str(base).rstrip("/")
 
 
 class LookupModule(LookupBase):
