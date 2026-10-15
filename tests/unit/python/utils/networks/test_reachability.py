@@ -10,6 +10,7 @@ from utils.networks.reachability import (
     MULTI,
     TOR,
     allowed_networks,
+    browser_proxy_bypass,
     effective_networks,
     is_network,
     network,
@@ -25,6 +26,22 @@ DOMAIN = default_domain_primary()
 
 def _cfg(**reachability) -> dict:
     return {"networks": {"reachability": reachability}} if reachability else {}
+
+
+class TestBrowserProxyBypass(unittest.TestCase):
+    HOSTS = (f"auth.{DOMAIN}", f"cdn.{DOMAIN}.", DOMAIN, f"cdn.{ONION}", "")
+
+    def test_an_onion_probe_on_a_multi_node_reaches_the_clearnet_hosts_directly(self):
+        self.assertEqual(
+            browser_proxy_bypass(TOR, MULTI, self.HOSTS),
+            sorted([f"auth.{DOMAIN}", f"cdn.{DOMAIN}", DOMAIN]),
+        )
+
+    def test_a_tor_only_node_sends_nothing_around_the_proxy(self):
+        self.assertEqual(browser_proxy_bypass(TOR, TOR, self.HOSTS), [])
+
+    def test_a_probe_without_a_proxy_bypasses_nothing(self):
+        self.assertEqual(browser_proxy_bypass(CLEARNET, MULTI, self.HOSTS), [])
 
 
 class TestNetworkOf(unittest.TestCase):

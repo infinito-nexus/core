@@ -11,6 +11,7 @@ from plugins.filter.network_of import in_network, network_of, network_suffixes
 from plugins.lookup.network_siblings import served_siblings
 from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
+from utils.networks.reachability import browser_proxy_bypass
 
 from . import PROJECT_ROOT
 
@@ -35,12 +36,14 @@ def render(pass_domain: str) -> str:
         urlsplit=lambda url, part: getattr(urlsplit(url), part),
     )
 
-    def lookup(name, term, template_vars=None):
+    def lookup(name, term, *extra, template_vars=None):
         if name == "template":
             return (
                 f'APP_BASE_URL="https://{template_vars["domain"]}/"\n'
                 f'CANONICAL_DOMAIN="{CLEARNET[1]}"\n'
             )
+        if name == "browser_proxy_bypass":
+            return browser_proxy_bypass(term, "multi", [*CLEARNET, *TOR, *extra])
         return served_siblings(term, {"web-app-minio": CLEARNET + TOR}, PRIMARY, NODE)
 
     return env.from_string(task["ansible.builtin.copy"]["content"]).render(
@@ -50,6 +53,7 @@ def render(pass_domain: str) -> str:
         _playwright_passes=[CLEARNET[0], TOR[0]],
         TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS={},
         OIDC={"URL": f"https://auth.{PRIMARY}/realms/main"},
+        DOMAIN_PRIMARY=PRIMARY,
         DEPLOYMENT_MODE="compose",
     )
 
@@ -59,6 +63,13 @@ class TestEnvCanonicalDomain(unittest.TestCase):
         rendered = render(TOR[0])
         self.assertIn(f'APP_BASE_URL="https://{TOR[0]}/"\n', rendered)
         self.assertIn(f'CANONICAL_DOMAIN="{TOR[1]}"\n', rendered)
+
+    def test_onion_pick_bypasses_the_proxy_for_the_issuer_and_the_clearnet_node(self):
+        self.assertIn(
+            f"PLAYWRIGHT_PROXY_BYPASS=api.s3.{PRIMARY},auth.{PRIMARY},console.s3.{PRIMARY}\n",
+            render(TOR[0]),
+        )
+        self.assertNotIn("PLAYWRIGHT_PROXY_BYPASS", render(CLEARNET[0]))
 
     def test_canonical_network_pick_keeps_the_rendered_env(self):
         self.assertTrue(

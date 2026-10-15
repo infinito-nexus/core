@@ -26,6 +26,10 @@
       PLAYWRIGHT_NETWORK_LEAK={{ (_playwright_passes | length > 1) | string | lower }}
       PLAYWRIGHT_NETWORK_SUFFIXES={{ _playwright_passes | map('network_of') | network_suffixes | to_json }}
       PLAYWRIGHT_NETWORK_ALLOWED_HOSTS={{ OIDC.URL | urlsplit('hostname') }}
+      {% set _bypass = lookup('browser_proxy_bypass', _playwright_pass_domain | network_of, OIDC.URL | urlsplit('hostname')) %}
+      {% if _bypass %}
+      PLAYWRIGHT_PROXY_BYPASS={{ _bypass | join(',') }}
+      {% endif %}
   vars:
     application_id: "{{ application_id }}"
     domains: "{{ lookup('domains') }}"
@@ -81,11 +85,6 @@
         + ['-e', 'INFINITO_PLAYWRIGHT_KEEP=' ~ test_e2e_playwright_keep]
         + ['-e', 'INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS=' ~ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS]
         + ['-e', 'PLAYWRIGHT_PROXY=' ~ TEST_E2E_PLAYWRIGHT_PROXY]
-        + (
-            ['-e', 'PLAYWRIGHT_PROXY_BYPASS=' ~ (OIDC.URL | urlsplit('hostname'))]
-            if (OIDC.URL | urlsplit('hostname') | network_of) != (_playwright_pass_domain | network_of)
-            else []
-          )
         + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
         + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
         + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]

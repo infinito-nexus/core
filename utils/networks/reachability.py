@@ -184,6 +184,27 @@ def resolve_node_mode(raw: Any, *, tor_provided: bool) -> str:
     return value
 
 
+def browser_proxy_bypass(probe: str, node_mode: str, hosts: Any) -> list[str]:
+    """Hosts a browser probing a page of ``probe`` reaches without its proxy.
+
+    Args:
+        probe: network of the page the browser probes.
+        node_mode: the node's resolved ``NETWORK_MODE``.
+        hosts: candidate hosts, e.g. the deployed applications' domains and the
+            SSO issuer.
+
+    Returns:
+        The sorted, unique candidates whose network needs no browser proxy and
+        is served by the node; empty when ``probe`` needs no proxy itself.
+    """
+    if not network(probe).browser_proxy:
+        return []
+    direct = {name for name in NODE_MODES[node_mode] if not network(name).browser_proxy}
+    return sorted(
+        {host for host in map(_host, hosts) if host and network_of(host) in direct}
+    )
+
+
 def role_reachability(
     app_config: Any, *, app: str = ""
 ) -> tuple[tuple[str, ...], bool]:
