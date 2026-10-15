@@ -16,7 +16,13 @@ _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
 if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
-with patch.object(sys, "argv", ["sphinx-build"]):
+_REQUIRED_ENV = {
+    "DOCS_SPHINX_PROJECT": "Infinito.Nexus",
+    "DOCS_SPHINX_COPYRIGHT": "2025, Kevin Veen-Birkenbach",
+    "DOCS_SPHINX_AUTHOR": "Kevin Veen-Birkenbach",
+}
+
+with patch.object(sys, "argv", ["sphinx-build"]), patch.dict("os.environ", _REQUIRED_ENV):
     conf = importlib.import_module("infinito_docs.conf")
 
 
@@ -64,7 +70,7 @@ class TestConf(unittest.TestCase):
         )
 
     def test_built_version_comes_from_the_environment(self) -> None:
-        with patch.dict("os.environ", {"DOCS_VERSION": "v1.2.3"}):
+        with patch.dict("os.environ", {**_REQUIRED_ENV, "DOCS_VERSION": "v1.2.3"}):
             reloaded = importlib.reload(conf)
         self.assertEqual(reloaded.html_context, {"docs_version": "v1.2.3"})
         self.assertIn("versions.html", reloaded.html_sidebars["**"])
