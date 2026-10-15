@@ -118,15 +118,15 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-shopware: literal colors (`gold`, SVG fills) in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [ ] web-app-snipe-it: the complete spec never ran green on the final `test-design.js`.
 - [x] web-app-socialhome
-- [ ] web-app-sphinx: title neither set nor asserted.
+- [x] web-app-sphinx
 - [ ] web-app-stalwart: under `sso` the web administration specs need the administrator group grant of `feature/store-i18n` (`199f2a6d41`); no green run on the merged state yet.
 - [ ] web-app-suitecrm: visible title not asserted; literal SVG fills in `files/style.css`; the session rework from `main` never ran with the design.
-- [ ] web-app-taiga: title neither set nor asserted; `meta/volumes.yml` changed after the last green run.
-- [ ] web-app-wordpress: literal RGB fallbacks in `admin.css` and `extras.css`; the stylesheets changed by `6c2de017f8` after the last run.
+- [x] web-app-taiga
+- [x] web-app-wordpress
 - [x] web-app-xwiki
 - [ ] web-app-yourls: switch to the platform administrator not deployed.
 - [ ] web-app-zammad: switch to the platform administrator and the move of the watermark defaults not deployed.
-- [ ] web-svc-html: logo neither set nor asserted; the title test checks another role's page.
+- [x] web-svc-html
 - [x] web-svc-libretranslate
 - [x] web-svc-logout
 
