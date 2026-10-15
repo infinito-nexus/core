@@ -27,6 +27,7 @@ async function erpnextLogout(page) {
 // (local DB lookup first, LDAP fallback when LDAP Settings is enabled).
 async function signInViaErpnextLocal(page, username, password, personaLabel) {
   await gotoOnion(page, `${erpnextBaseUrl}/login`);
+  await expect(page.locator("input#login_password")).toBeEditable({ timeout: resolveTimeout(30_000) });
   await page.fill("input#login_email", username);
   await page.fill("input#login_password", password);
   await Promise.all([

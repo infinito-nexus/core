@@ -35,6 +35,7 @@ def wanted_settings():
     wanted = {}
     if DESIGN_TITLE:
         wanted["Website Settings::app_name"] = DESIGN_TITLE
+        wanted["Website Settings::title_prefix"] = DESIGN_TITLE
     if DESIGN_LOGO_URL:
         wanted["Website Settings::app_logo"] = DESIGN_LOGO_URL
         wanted["Website Settings::splash_image"] = DESIGN_LOGO_URL
