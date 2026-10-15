@@ -565,10 +565,14 @@ caption {
   color: var(--design-on-primary);
 }
 .carousel-control-prev-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+  background-image: none;
+  background-color: currentcolor;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e") center / 100% 100% no-repeat;
 }
 .carousel-control-next-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-image: none;
+  background-color: currentcolor;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") center / 100% 100% no-repeat;
 }
 .carousel-indicators [data-bs-target] {
   background-color: var(--design-surface-2);
@@ -752,7 +756,7 @@ caption {
   border-color: var(--design-primary);
 }
 .btn:focus-visible {
-  box-shadow: var(--btn-focus-box-shadow, 0 0 0 0.25rem ) var(--design-border);
+  box-shadow: var(--btn-focus-box-shadow, 0 0 0 0.25rem rgba(var(--design-link-rgb), 0.5));
 }
 .btn {
   --btn-focus-box-shadow: 0 0 0 0.125rem var(--design-primary), 0 0 0 0.25rem rgba(var(--design-link-rgb), 0.5);
@@ -2055,7 +2059,7 @@ button.text-900.active {
   color: var(--design-on-primary);
 }
 .o_nested_sortable_placeholder {
-  background-color: deepskyblue;
+  background-color: var(--design-info);
 }
 .o_nested_sortable_placeholder_realsize {
   outline-color: var(--design-border-strong);
@@ -2200,7 +2204,7 @@ body.o_is_superuser .o_menu_systray {
 }
 .o_search_panel_category_value_header:focus-visible,
 .o_search_panel_filter_value:focus-visible {
-  box-shadow: var(--SearchPanelHeader-focus, 0 0 0 0.125rem , 0 0 0 0.25rem rgba(113, 99, 158, 0.5)) var(--design-primary);
+  box-shadow: var(--SearchPanelHeader-focus, 0 0 0 0.125rem var(--design-primary), 0 0 0 0.25rem rgba(var(--design-link-rgb), 0.5));
 }
 .o_search_panel_category_value .o_toggle_fold {
   color: var(--design-text-muted);
@@ -2764,7 +2768,7 @@ body.o_is_superuser .o_menu_systray {
 .o_kanban_renderer .o_kanban_group.o_kanban_group_show_purple {
   --KanbanGroup-background: var(--design-surface-3);
   outline-color: var(--design-surface-2);
-  box-shadow: inset 2px 0 0 purple, inset -2px 0 0 purple;
+  box-shadow: inset 2px 0 0 var(--design-info), inset -2px 0 0 var(--design-info);
 }
 .o-dropdown--kanban-record-menu .container div[class*="col-"] > div:not(.o_kanban_card_manage_title) > a,
 .o-dropdown--kanban-record-menu .o_container_small div[class*="col-"] > div:not(.o_kanban_card_manage_title) > a {
@@ -3329,7 +3333,7 @@ button.bg-dark-light:focus {
   color: var(--design-text-muted);
 }
 select {
-  background: transparent url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'><polygon fill='%23212529' points='3.5 4 7 0 0 0'/></svg>") no-repeat right center;
+  background: linear-gradient(to bottom left, currentcolor 50%, transparent 50%) right 3.5px center / 3.5px 4px no-repeat, transparent linear-gradient(to bottom right, currentcolor 50%, transparent 50%) right 0 center / 3.5px 4px no-repeat;
   color: var(--design-text);
 }
 select > option {
@@ -3361,10 +3365,10 @@ select:-moz-focusring > option {
   color: var(--design-warning) !important;
 }
 .ace_editor .ace_code {
-  color: fuchsia !important;
+  color: var(--design-info) !important;
 }
 .ace_editor.ace-monokai .ace_qweb {
-  color: lightblue !important;
+  color: var(--design-info) !important;
 }
 .ace_editor.ace-monokai .ace_code {
   color: var(--design-info) !important;
@@ -3507,13 +3511,13 @@ select:-moz-focusring > option {
   border-color: var(--design-text);
 }
 .custom-gradient-configurator input[type=range]:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 1px var(--o-color-picker-bg, ) var(--design-surface-2), 0 0 0 3px var(--o-color-picker-active-color, ) var(--design-info);
+  box-shadow: 0 0 0 1px var(--o-color-picker-bg, var(--design-surface-2)), 0 0 0 3px var(--o-color-picker-active-color, var(--design-info));
 }
 .custom-gradient-configurator input[type=range]:focus-visible::-moz-range-thumb {
-  box-shadow: 0 0 0 1px var(--o-color-picker-bg, ) var(--design-surface-2), 0 0 0 3px var(--o-color-picker-active-color, ) var(--design-info);
+  box-shadow: 0 0 0 1px var(--o-color-picker-bg, var(--design-surface-2)), 0 0 0 3px var(--o-color-picker-active-color, var(--design-info));
 }
 .custom-gradient-configurator input[type=range]:focus-visible::-ms-thumb {
-  box-shadow: 0 0 0 1px var(--o-color-picker-bg, ) var(--design-surface-2), 0 0 0 3px var(--o-color-picker-active-color, ) var(--design-info);
+  box-shadow: 0 0 0 1px var(--o-color-picker-bg, var(--design-surface-2)), 0 0 0 3px var(--o-color-picker-active-color, var(--design-info));
 }
 .custom-gradient-configurator input[type=checkbox] {
   border-color: var(--design-border-strong);
@@ -3683,7 +3687,9 @@ figcaption {
   color: var(--design-text-muted);
 }
 .o_embed_whiteboard_icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='%23212529'%3E%3Cpath d='M460-420h200v-80H460v80Zm-60 60v-200h320v200H400ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Z'/%3E%3C/svg%3E");
+  background-image: none;
+  background-color: var(--design-text);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px'%3E%3Cpath d='M460-420h200v-80H460v80Zm-60 60v-200h320v200H400ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .o_syntax_highlighting textarea.o_prism_source,
 .text-gradient u:not(font[style*="-webkit-text-fill-color"] u),
@@ -3730,7 +3736,7 @@ pre {
   color: var(--design-text);
 }
 .o_stars [data-icon="star"].oi-filled {
-  color: gold;
+  color: var(--design-warning);
 }
 img.shadow {
   box-shadow: var(--design-shadow-2);
@@ -5374,7 +5380,7 @@ a.o-discuss-mention:disabled {
   border-color: var(--design-border-strong);
 }
 .o_show_selection_caret {
-  background: transparent url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'><polygon fill='%23212529' points='3.5 4 7 0 0 0'/></svg>") no-repeat right center;
+  background: linear-gradient(to bottom left, currentcolor 50%, transparent 50%) right 3.5px center / 3.5px 4px no-repeat, transparent linear-gradient(to bottom right, currentcolor 50%, transparent 50%) right 0 center / 3.5px 4px no-repeat;
 }
 .o_account_dashboard_kpi_card {
   border-color: var(--design-border);
@@ -6105,7 +6111,7 @@ option.css_not_available {
 }
 .o_stock_forecasted_page .o_priority.o_priority_star[data-icon="star"]:hover,
 .o_stock_forecasted_page .o_priority.o_priority_star[data-icon="star"].oi-filled {
-  color: gold;
+  color: var(--design-warning);
 }
 .o_stock_forecasted_page .o_priority.o_priority_star[data-icon="star"].oi-filled:hover {
   color: var(--design-text-muted);

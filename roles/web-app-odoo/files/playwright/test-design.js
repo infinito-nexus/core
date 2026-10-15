@@ -50,6 +50,33 @@ const MENU = ".o-overlay-container .o-dropdown--menu";
 const DIALOG = ".o-overlay-container .modal-dialog .modal-content";
 const SHOWCASE = "Design showcase";
 
+/**
+ * Args:
+ *   source: text of a theme sheet.
+ *
+ * Returns:
+ *   One entry per declaration that sets a color without a --design-* token, carries a colored inline SVG, or appends a token after a var() fallback.
+ */
+function themeSheetOffenders(source) {
+  const keyword = /^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i;
+  const found = [];
+  for (const [, name, value] of source.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+    let plain = value;
+    for (const url of value.match(/url\((?:[^()"']|"[^"]*"|'[^']*')*\)/g) || []) {
+      if (/(?:fill|stroke)=(?:'|%27|")(?:%23|#)[0-9a-f]{3,8}/i.test(url)) found.push(`${name}: color inside an inline SVG`);
+      plain = plain.replace(url, "url()");
+    }
+    if (/#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(plain)) found.push(`${name}: ${value.trim()}`);
+    if (/var\(--[\w-]+,(?:[^()]|\([^()]*\))*\)\s+(?:var|rgba)\(--design-/.test(plain)) {
+      found.push(`${name}: token outside the var() fallback in ${value.trim()}`);
+    }
+    for (const word of plain.split(/[\s,()/]+/)) {
+      if (/^[a-z]+$/i.test(word) && !keyword.test(word) && CSS.supports("color", word)) found.push(`${name}: ${word}`);
+    }
+  }
+  return found;
+}
+
 exports.register = function (shared) {
   const base = shared.baseUrl();
 
@@ -255,6 +282,17 @@ exports.register = function (shared) {
           await page.locator(`${FORM_SHEET} input.o_input`).first().focus();
         },
       },
+      {
+        name: "contacts-button-focus",
+        url: `${base}/odoo/contacts`,
+        prepare: async (page) => {
+          await shown(LIST_OR_KANBAN)(page);
+          const button = page.locator(`${PRIMARY_ACTION}:visible`).first();
+          await expect(button).toBeVisible({ timeout: resolveTimeout(10_000) });
+          await page.keyboard.press("Shift");
+          await button.focus();
+        },
+      },
       { name: "contact-action-menu", url: contact, prepare: openActionMenu },
       {
         name: "contact-delete-dialog",
@@ -347,6 +385,54 @@ exports.register = function (shared) {
     await assertBundle(page, "web.assets_frontend", "web.assets_frontend", "--body-bg: var(--design-surface-2)");
     await signedIn(browser, async (admin) => {
       await assertBundle(admin, "web.assets_web", "web.assets_backend", "--body-bg: var(--design-surface-1)");
+    });
+  });
+
+  test("design: the theme sheets carry no literal color and no broken focus ring", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openLogin(page);
+    const offenders = [];
+    for (const bundle of ["web.assets_backend", "web.assets_frontend"]) {
+      const served = await apiGetOnion(page.request, `${base}${THEME_URL}/${bundle}.css`);
+      expect(served.status(), `${bundle}: the app serves the theme sheet of the design`).toBe(200);
+      const found = await page.evaluate(themeSheetOffenders, await served.text());
+      offenders.push(...found.map((entry) => `${bundle}: ${entry}`));
+    }
+    expect(offenders, "every color of the theme sheets comes from a --design-* token").toEqual([]);
+  });
+
+  test("design: a keyboard focused search panel entry and button draw their focus ring from the palette", async ({
+    browser,
+  }) => {
+    skipUnlessServiceEnabled("design");
+    test.setTimeout(resolveTimeout(300_000));
+    await signedIn(browser, async (page) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      const ringOf = async (selector, label) => {
+        const target = page.locator(selector).first();
+        await page.keyboard.press("Shift");
+        await target.focus();
+        expect(await target.evaluate((element) => element.matches(":focus-visible")), `${label} is focused by the keyboard`).toBe(
+          true,
+        );
+        return target.evaluate(async (element) => {
+          await Promise.all(element.getAnimations().map((animation) => animation.finished));
+          return getComputedStyle(element).boxShadow;
+        });
+      };
+      const link = (await tokenValue(page, "--design-link", "color")).match(/\d+/g).slice(0, 3).join(", ");
+      const header = `${ACTION} .o_search_panel_category_value_header:visible`;
+      await openBackend(page, "apps", header);
+      const panel = await ringOf(header, "search panel entry");
+      expect(panel, "the search panel entry draws a focus ring").not.toBe("none");
+      expect(panel, "the inner ring of the search panel entry takes --design-primary").toContain(
+        await tokenValue(page, "--design-primary", "color"),
+      );
+      expect(panel, "the outer ring of the search panel entry takes --design-link at half opacity").toContain(`rgba(${link}, 0.5)`);
+      await openBackend(page, "contacts", PRIMARY_ACTION);
+      expect(await ringOf(PRIMARY_ACTION, "primary action"), "a focused button draws its ring in --design-link").toContain(
+        `rgba(${link}, 0.5)`,
+      );
     });
   });
 

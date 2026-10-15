@@ -640,10 +640,14 @@ fieldset.o_wysiwyg_loader .btn {
   color: var(--design-on-primary);
 }
 .carousel-control-prev-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFF'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+  background-image: none;
+  background-color: currentcolor;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e") center / 100% 100% no-repeat;
 }
 .carousel-control-next-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFF'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-image: none;
+  background-color: currentcolor;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") center / 100% 100% no-repeat;
 }
 .carousel-indicators [data-bs-target] {
   background-color: var(--design-surface-2);
@@ -881,7 +885,7 @@ fieldset.o_wysiwyg_loader .btn {
   border-color: var(--design-primary);
 }
 .btn:focus-visible {
-  box-shadow: var(--btn-focus-box-shadow, 0 0 0 0.25rem ) var(--design-border);
+  box-shadow: var(--btn-focus-box-shadow, 0 0 0 0.25rem rgba(var(--design-link-rgb), 0.5));
 }
 .bg-100 {
   --background-color: var(--design-surface-1);
@@ -2048,7 +2052,7 @@ body.o_is_superuser .o_menu_systray {
   color: var(--design-on-primary);
 }
 .o_nested_sortable_placeholder {
-  background-color: deepskyblue;
+  background-color: var(--design-info);
 }
 .o_nested_sortable_placeholder_realsize {
   outline-color: var(--design-border-strong);
