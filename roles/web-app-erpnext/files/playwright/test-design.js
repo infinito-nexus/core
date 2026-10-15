@@ -23,11 +23,13 @@ function toHex(rgb) {
 const MODES = ["light", "dark"];
 const THEME_LINK = 'link[rel="stylesheet"][href*="infinito-design.css"]';
 const FAVICON = "link[rel~='icon']";
-const LOGIN_CARD = ".for-login .page-card";
-const LOGIN_EMAIL = "#login_email";
-const LOGIN_SUBMIT = ".for-login .page-card-actions button[type='submit']";
-const LOGIN_LOGO = ".for-login img.app-logo";
-const LOGIN_ERROR = ".for-login .login-error-banner";
+const LOGIN_SECTION = "section.for-login";
+const LOGIN_CARD = `${LOGIN_SECTION} .page-card`;
+const LOGIN_EMAIL = `${LOGIN_SECTION} #login_email`;
+const LOGIN_PASSWORD = `${LOGIN_SECTION} #login_password`;
+const LOGIN_SUBMIT = `${LOGIN_SECTION} .page-card-actions button[type='submit']`;
+const LOGIN_LOGO = `${LOGIN_SECTION} img.app-logo`;
+const LOGIN_ERROR = `${LOGIN_SECTION} .login-error-banner`;
 const LOGIN_ERROR_ICON = `${LOGIN_ERROR} > svg`;
 const LOGIN_ERROR_TITLE = `${LOGIN_ERROR} .es-alert__title`;
 const FOLDER_TILE = ".desktop-container .folder-icon";
@@ -214,7 +216,7 @@ exports.register = function (shared) {
   async function failedSignIn(page) {
     await shown(LOGIN_EMAIL)(page);
     await page.locator(LOGIN_EMAIL).fill("design-showcase-unknown");
-    await page.locator("#login_password").fill("not-a-real-password");
+    await page.locator(LOGIN_PASSWORD).fill("not-a-real-password");
     await page.locator(LOGIN_SUBMIT).click();
     await shown(LOGIN_ERROR)(page);
   }
