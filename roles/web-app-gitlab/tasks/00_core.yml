@@ -40,5 +40,8 @@
   include_tasks: utils/mcp.yml
   when: GITLAB_MCP_ENABLED | bool
 
+- name: "🔎 Wait for the GitLab services the MCP flush recreated"
+  include_tasks: 02_wait.yml
+
 - name: "🎨 Converge the GitLab appearance"
   include_tasks: 03_design.yml

@@ -24,11 +24,6 @@
       register: gitlab_design_files
       when: design_branding.logo is string
 
-- name: "🔎 Wait until the GitLab webservice is healthy"
-  ansible.builtin.include_tasks: 02_wait/wait_one.yml
-  vars:
-    wait_container: "{{ GITLAB_WEBSERVICE_SERVICE_NAME }}"
-
 - name: "🔍 Resolve the GitLab webservice for the appearance"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:

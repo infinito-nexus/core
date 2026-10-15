@@ -180,6 +180,17 @@ shell_secret:
       target: /srv/gitlab-secrets/.gitlab_shell_secret
     - service: gitaly
       target: /etc/gitaly/.gitlab_shell_secret
+shell_path_secret:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets', '.gitlab_shell_secret'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webservice
+      target: &rails_shell_path_secret_target /home/git/gitlab-shell/.gitlab_shell_secret
+    - service: sidekiq
+      target: *rails_shell_path_secret_target
+    - service: migrations
+      target: *rails_shell_path_secret_target
 workhorse_secret:
   type: secret
   source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets', '.gitlab_workhorse_secret'] | path_join }}"
