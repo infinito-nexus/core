@@ -182,6 +182,36 @@ a:active {
   --tw-prose-invert-th-borders: var(--design-border-strong);
   --tw-prose-invert-td-borders: var(--design-border);
 }
+#app .camera-scanner .scanner-container {
+  background-color: var(--design-surface-3);
+  box-shadow: var(--design-shadow-1);
+}
+#app .camera-scanner .scanner-container button {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+#app .camera-scanner .scanner-container button:hover {
+  background-color: var(--design-surface-hover);
+}
+#app .camera-scanner .button {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+#app .camera-scanner .button:hover:not(:disabled) {
+  background-color: var(--design-surface-hover);
+}
+#app .camera-scanner .button:active:not(:disabled) {
+  background-color: var(--design-surface-active);
+}
+#app #qr-shaded-region {
+  border-color: rgba(var(--design-frame-rgb), 0.48) !important;
+}
+#app #qr-shaded-region > div[style*="rgb(255, 255, 255)"] {
+  background-color: var(--design-on-frame) !important;
+}
+#app #qr-shaded-region > div[style*="rgb(90, 193, 56)"] {
+  background-color: var(--design-success) !important;
+}
 {% if design.logo is string %}
 #app h1 {
   width: 200px;

@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 
-const { test, expect } = require("@playwright/test");
+const { chromium, test, expect } = require("@playwright/test");
 
 const {
   assertDesignTokens,
@@ -33,6 +33,11 @@ const POPOVER = "[cmdk-input-wrapper] input";
 const CSV_INPUT = "input[type='file'][accept='.csv,.txt']";
 const IMAGE_INPUT = "input[type='file'][accept='image/*']";
 const ROLE_SHEET = "link[rel='stylesheet'][href*='web-app-mini-qr'][href*='style.css']";
+const SCANNER = ".camera-scanner .scanner-container";
+const CLOSE_SCANNER = ".camera-scanner button[aria-label='Close scanner']";
+const CANCEL_SCANNER = ".camera-scanner > .button";
+const SCAN_FRAME = "#qr-shaded-region";
+const FAKE_CAMERA = ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"];
 const SAMPLE = "https://example.org/design";
 const BLANK_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
@@ -173,6 +178,38 @@ async function toScan(page) {
   await page.locator(".capture-controls").waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
 }
 
+async function openCamera(page) {
+  await toScan(page);
+  await page.getByRole("button", { name: "Scan with Camera" }).click({ timeout: resolveTimeout(10_000) });
+  await page.locator(".camera-scanner .scanner-container").waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
+}
+
+async function streamCamera(page) {
+  await openCamera(page);
+  await page.locator(CLOSE_SCANNER).waitFor({ state: "visible", timeout: resolveTimeout(10_000) });
+  await page.locator(SCAN_FRAME).waitFor({ state: "attached", timeout: resolveTimeout(10_000) });
+  await quiet(page);
+}
+
+async function withCamera(run) {
+  const browser = await chromium.launch({ args: FAKE_CAMERA });
+  try {
+    const context = await browser.newContext({ ignoreHTTPSErrors: true, permissions: ["camera"], serviceWorkers: "block" });
+    context.setDefaultTimeout(resolveTimeout(30_000));
+    await run(await context.newPage());
+  } finally {
+    await browser.close();
+  }
+}
+
+function hex(color) {
+  return `#${color
+    .match(/\d+/g)
+    .slice(0, 3)
+    .map((value) => Number(value).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
 async function openChangelog(page) {
   await openTools(page);
   await page.locator("button[aria-label='View changelog']:visible").click({ timeout: resolveTimeout(10_000) });
@@ -293,6 +330,7 @@ function views() {
       await page.locator(IMAGE_INPUT).setInputFiles({ name: "blank.png", mimeType: "image/png", buffer: BLANK_PNG });
       await page.locator(".capture-controls p.text-red-500").waitFor({ state: "visible", timeout: resolveTimeout(20_000) });
     }),
+    view("scan-camera", streamCamera),
     view("header-tools", async (page) => {
       await openTools(page);
       await hover(TOGGLE)(page);
@@ -488,13 +526,94 @@ exports.register = function () {
       expect(lockup, "mini-qr: the lockup must load").toBeGreaterThan(0);
     });
 
-    test("design: gallery of the generator and the scanner", async ({ page }) => {
+    test("design: the web manifest carries the configured name, logo and light page color", async ({ page }) => {
       skipUnlessServiceEnabled("design");
-      test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
-      test.setTimeout(resolveTimeout(1_800_000));
       await fresh(page);
-      await captureDesignGallery(page, views());
+      await page.emulateMedia({ colorScheme: "light" });
+      await open(page);
+      const href = await page.locator("link[rel='manifest']").getAttribute("href");
+      const address = new URL(href, page.url()).href;
+      const response = await apiGetOnion(page.request, address, { timeout: resolveTimeout(30_000) });
+      expect(response.status(), "mini-qr: the web manifest must be served").toBe(200);
+      const manifest = await response.json();
+      const surface = hex(await tokenValue(page, "--design-surface-1", "background-color"));
+      expect(manifest.theme_color.toLowerCase(), "mini-qr: theme color is the light page surface").toBe(surface);
+      expect(manifest.background_color.toLowerCase(), "mini-qr: background color is the light page surface").toBe(surface);
+      if (designTitle()) {
+        expect(manifest.name, "mini-qr: manifest name").toBe(designTitle());
+        expect(manifest.short_name, "mini-qr: manifest short name").toBe(designTitle());
+      }
+      if (designLogoUrl()) {
+        const folder = new URL(".", designLogoUrl()).href;
+        expect(manifest.icons.length, "mini-qr: the manifest must carry icons").toBeGreaterThan(1);
+        for (const icon of manifest.icons) {
+          const source = new URL(icon.src, address).href;
+          expect(source.startsWith(folder), `mini-qr: manifest icon ${icon.sizes} comes from the design`).toBe(true);
+          const image = await apiGetOnion(page.request, source, { timeout: resolveTimeout(30_000) });
+          expect(image.status(), `mini-qr: manifest icon ${icon.sizes} must be served`).toBe(200);
+          expect(image.headers()["content-type"], `mini-qr: manifest icon ${icon.sizes} is a PNG`).toContain("image/png");
+        }
+      }
+      await page.emulateMedia({ colorScheme: null });
     });
 
+    test("design: the camera scanner without a camera takes the palette in both modes", async ({ page }) => {
+      skipUnlessServiceEnabled("design");
+      await fresh(page);
+      await open(page);
+      await openCamera(page);
+      await expect(page.locator(".camera-scanner .error-message")).toBeVisible({ timeout: resolveTimeout(10_000) });
+      for (const mode of ["light", "dark"]) {
+        await page.emulateMedia({ colorScheme: mode });
+        await expect.poll(() => darkClass(page)).toBe(mode === "dark");
+        await assertToken(page, SCANNER, "background-color", "--design-surface-3", `mini-qr scanner ${mode}`);
+        await assertToken(page, ".camera-scanner .error-message", "color", "--design-danger", `mini-qr scanner ${mode}`);
+      }
+      await page.emulateMedia({ colorScheme: null });
+      await assertLightAndDark(page, SCANNER, "mini-qr scanner");
+      await assertReadable(page, [".camera-scanner .error-message", "button[aria-label='Switch to Scan Mode']"], "mini-qr scanner");
+    });
+
+    test("design: the streaming scanner takes controls and scan frame from the palette", async ({ browserName }) => {
+      skipUnlessServiceEnabled("design");
+      test.skip(browserName !== "chromium", "the fake camera is a Chromium switch");
+      test.skip(new URL(baseUrl()).hostname.endsWith(".onion"), "the camera browser runs without the onion proxy");
+      await withCamera(async (page) => {
+        await fresh(page);
+        await open(page);
+        await streamCamera(page);
+        for (const mode of ["light", "dark"]) {
+          const label = `mini-qr camera ${mode}`;
+          await page.emulateMedia({ colorScheme: mode });
+          await expect.poll(() => darkClass(page)).toBe(mode === "dark");
+          await assertToken(page, CLOSE_SCANNER, "background-color", "--design-surface-2", label);
+          await assertToken(page, CLOSE_SCANNER, "color", "--design-text", label);
+          await assertToken(page, CANCEL_SCANNER, "background-color", "--design-surface-3", label);
+          await assertToken(page, CANCEL_SCANNER, "color", "--design-text", label);
+          const scrim = await page.evaluate(() => {
+            const probe = document.createElement("span");
+            probe.style.color = "rgba(var(--design-frame-rgb), 0.48)";
+            document.body.appendChild(probe);
+            const value = getComputedStyle(probe).color;
+            probe.remove();
+            return value;
+          });
+          await expect(page.locator(SCAN_FRAME), `${label}: scan frame scrim`).toHaveCSS("border-top-color", scrim);
+        }
+        await page.emulateMedia({ colorScheme: null });
+        await assertReadable(page, [CANCEL_SCANNER], "mini-qr camera");
+      });
+    });
+
+    test("design: gallery of the generator and the scanner", async ({ browserName }) => {
+      skipUnlessServiceEnabled("design");
+      test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
+      test.skip(browserName !== "chromium", "the fake camera is a Chromium switch");
+      test.setTimeout(resolveTimeout(1_800_000));
+      await withCamera(async (page) => {
+        await fresh(page);
+        await captureDesignGallery(page, views());
+      });
+    });
   });
 };

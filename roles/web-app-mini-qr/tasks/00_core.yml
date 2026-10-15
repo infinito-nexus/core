@@ -3,7 +3,14 @@
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
     compose_repository_pull: false
+
+- name: "🎨 Web manifest of {{ application_id }}"
+  include_tasks: 01_manifest.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
 - include_tasks: utils/once/flag.yml

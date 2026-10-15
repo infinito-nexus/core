@@ -5,3 +5,6 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 # Helper variables
 MINI_QR_CONTAINER: "{{ entity_name }}"
+MINI_QR_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MINI_QR_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+MINI_QR_MANIFEST_FILE: "{{ [ lookup('container', application_id, 'directories.config'), 'manifest.webmanifest' ] | path_join }}"
