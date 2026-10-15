@@ -260,6 +260,28 @@ exports.register = function (shared) {
     }
   });
 
+  test("design: Taiga's page titles carry the configured title", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+    test.skip(!title, "title replacement is disabled for this role");
+    const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const suffix = new RegExp(` - ${escaped}$`);
+    for (const [path, selector] of [
+      ["/discover", ".discover-header"],
+      ["/login", ".auth .logo-svg"],
+    ]) {
+      await gotoOnion(page, `${base()}${path}`);
+      await ready(page, selector);
+      await expect(page, `${path} names the platform with the design title`).toHaveTitle(suffix, { timeout: resolveTimeout(10_000) });
+      const providers = await page.evaluate(() => window.getDecorators().map((entry) => entry.provider));
+      expect(providers, `${path}: the design plugin decorates the title service`).toContain("tgAppMetaService");
+    }
+    await shared.loginToTaigaForVariant(page);
+    await gotoOnion(page, `${base()}/projects/`);
+    await ready(page, "div.master h1");
+    await expect(page, "My projects names the platform with the design title").toHaveTitle(suffix, { timeout: resolveTimeout(10_000) });
+  });
+
   test("design: navbar focus stops draw their indicator in the frame text color", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await shared.loginToTaigaForVariant(page);
