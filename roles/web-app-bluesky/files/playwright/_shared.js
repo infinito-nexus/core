@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { brokerAccessJwt } = require("./_appview");
 const {
   decodeDotenvQuotedValue,
   gotoOnion,
@@ -53,7 +54,7 @@ async function loginThroughBroker(page) {
     .toMatch(new RegExp(`^${expectedBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/(?!oauth2/)`));
 
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await brokerAccessJwt(page);
 }
 
 module.exports = {

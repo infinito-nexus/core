@@ -231,9 +231,13 @@ exports.register = function () {
     skipUnlessServiceEnabled("design");
     requireShowcase();
     test.skip(!faviconUrl && !title, "logo and title replacement are disabled for this role");
-    for (const url of [`${base}/`, gameUrl(liveGame), noteUrl("mate", 7)]) {
+    for (const [url, ready] of [
+      [`${base}/`, homeReady],
+      [gameUrl(liveGame), gameReady],
+      [noteUrl("mate", 7), noteReady],
+    ]) {
       await gotoOnion(page, url);
-      await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(10_000) });
+      await ready(page);
       if (title) {
         await expect.poll(() => page.title(), { message: `${url} carries the configured title` }).toContain(title);
       }

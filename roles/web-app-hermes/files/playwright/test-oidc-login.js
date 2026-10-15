@@ -1,7 +1,8 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
+  apiGetOnion,
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
   performKeycloakLoginForm,
@@ -39,6 +40,15 @@ exports.register = function () {
         message: `expected redirect back to the Hermes agent at ${baseUrl}`,
       })
       .toContain(canonicalDomain);
-    await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+    if (isServiceEnabled("webui")) {
+      await expect(
+        page.locator("form.provider-form, a.provider-btn").first(),
+        "Expected the dashboard's own sign-in surface behind the proxy, not a gateway error page",
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
+      return;
+    }
+    const health = await apiGetOnion(page.request, `${baseUrl}/health`, { timeout: resolveTimeout(30_000) });
+    expect(health.status(), "Expected the agent behind the proxy to answer, not a gateway error page").toBe(200);
+    expect((await health.json()).status, "Expected /health to report an ok status").toBe("ok");
   });
 };

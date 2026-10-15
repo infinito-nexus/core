@@ -36,5 +36,8 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
       message: `expected redirect back to Flowise at ${expectedBaseUrl}`
     })
     .toContain(expectedBaseUrl);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("main h1, form button[type='submit']").first(),
+    "Expected the Flowise app or its own sign-in form behind the proxy, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

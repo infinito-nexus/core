@@ -40,5 +40,8 @@ test("OIDC: oauth2-proxy redirects visitors through Keycloak onto the gateway", 
       message: `expected redirect back to the OpenClaw gateway at ${baseUrl}`,
     })
     .toContain(canonicalDomain);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("openclaw-app"),
+    "Expected the Control UI behind the proxy, not a gateway error page",
+  ).toBeAttached({ timeout: resolveTimeout(60_000) });
 });

@@ -123,14 +123,20 @@ async function oidcLogin(page, username, password) {
 test("homepage loads and shows Decidim", async ({ page }) => {
   await gotoOnion(page, baseUrl);
   await expect(page).not.toHaveTitle("");
-  await expect(page.locator("body")).toBeVisible();
+  await expect(
+    page.locator("#main-bar"),
+    "Expected the Decidim header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 // Scenario II: Admin local login and logout
 test("admin can log in and out", async ({ page }) => {
   await login(page, adminEmail, adminPassword);
   await expect(page).not.toHaveURL(/sign_in/);
-  await expect(page.locator("body")).toBeVisible();
+  await expect(
+    page.locator("#main-bar"),
+    "Expected the Decidim header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
@@ -141,7 +147,10 @@ test("biber can log in via OIDC and log out", async ({ page }) => {
   const result = await oidcLogin(page, biberUsername, biberPassword);
   if (result === null) { test.skip(); return; }
   await expect(page).not.toHaveURL(/sign_in/);
-  await expect(page.locator("body")).toBeVisible();
+  await expect(
+    page.locator("#main-bar"),
+    "Expected the Decidim header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);

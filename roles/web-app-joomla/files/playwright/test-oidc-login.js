@@ -49,8 +49,8 @@ test("OIDC: native plg_system_keycloak redirects unauthenticated visitors to Key
     })
     .toContain(expectedJoomlaBaseUrl);
 
-  // Joomla front-end renders after the OIDC handshake. RBAC mapping
-  // gave the administrator persona Super Users (id 8), so the
-  // administrator landing nav link is visible to logged-in users.
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("header.container-header"),
+    "Expected the Joomla front-end template to render after the handshake, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

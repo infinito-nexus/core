@@ -29,7 +29,10 @@ test("OIDC: oauth2-proxy + trusted-header SSO sign the visitor into BookWyrm (va
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("main .tabs"),
+    "Expected BookWyrm's signed-in feed home, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   await gotoOnion(page, `${expectedBase}/preferences/profile`, { waitUntil: "domcontentloaded" });
   await expect(

@@ -32,7 +32,10 @@ test("OIDC: oic-auth plugin redirects unauthenticated visitors through Keycloak 
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator(`a[href$='/user/${adminUsername}']`).first(),
+    "Expected the Jenkins dashboard to name the authenticated user; a gateway error page satisfies the URL alone",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1)", async ({ page }) => {
