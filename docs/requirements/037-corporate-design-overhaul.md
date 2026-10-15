@@ -16,7 +16,7 @@ These choices are settled at requirement creation time and bound the implementat
 6. **Dark mode.** An app's native theme toggle wins. Without one, the design follows `prefers-color-scheme`. No theme toggle is injected.
 7. **Logo and title override semantics.** `design.logo` defaults to `assets/img/logo.png`, `design.title` defaults to `true`, which resolves to the role title (README H1). Set in `web-svc-design`, a value applies to every role. Set in a role's own `design:` entry, it applies to that role only. `false` or `0` disables the replacement for that scope. The legacy keys `title`, `titel`, `sitename` and `site_name` are migrated, the hardcoded titles in `web-app-joomla` and `web-app-pretix` are removed, and `web-app-decidim` and `web-app-socialhome` read the resolved title instead of `defaults_*`.
 8. **Logo generator.** An SVG template renders the lockup, Pillow rasterises PNG and ICO variants. The variant is computed from the target slot format: square slot shows the logo only, wide slot shows logo and title, very wide or two-line slot adds the domain, text-only slot shows the title only. The background stays transparent. The text uses palette colors with an outline so it stands out on light and dark surfaces; the SVG of a slot on a page or panel switches to the dark palette colors under `prefers-color-scheme: dark`. A slot declared with `frame: true` sits on brand-colored chrome and takes the frame text color with a frame-colored outline.
-9. **Branch and stack.** One branch `feature/designer` and one draft PR, opened once the base is approved. Exactly one compose stack runs at a time. Base changes land as base commits on the same branch. Role changes stay under `roles/<role>/` and are committed per role after approval.
+9. **Branch and stack.** One branch `feature/designer`. It has no draft PR of its own: it reaches `main` through the draft PR of `feature/store-i18n`, which merges it round by round (changed by operator decision on 2026-10-13 and recorded in that PR). Exactly one compose stack runs at a time. Base changes land as base commits on the same branch. Role changes stay under `roles/<role>/` and are committed per role after approval.
 10. **Verification.** Every change passes `make quality-high` and a minimal compose deploy against the running stack: `make compose-deploy apps=<role> variant=0 disable=<every disableable service except design>` (default `initialize` mode, no teardown, single pass, no `full_cycle`). CSS and branding iterations run without a redeploy through `make design-sync app=<role> variant=0` (re-renders shared CSS, role `style.css` and the generated logo assets). A changed `design.js`, task, template or `meta/` file runs through `make compose-role-sync role=<role> variant=0`, which re-runs only the app role against the running stack and renders the CSP hash in the vhost with it. A role pass runs `make test` and the lint targets of the file types it touched after its last edit, and closes with a role sync and the complete role spec; a pass that changed provisioning runs that role sync twice, and the second run reports no change for the tasks it added. `make quality-high` runs once per two or three role passes, at every merge of the main branch and before a role is committed. Each role is also asserted with one further base color, blue `#001f3f`, through `base=` on the sync targets. Swarm verification is out of scope.
 11. **Review gallery.** Each role gets its own private Artifact with at least 20 views, each captured in light and dark mode and in a desktop (1440×900) and a mobile (390×844) viewport, so at least 80 screenshots of the designed state per role. The views favour detail-rich surfaces: settings, administration, forms, lists and detail pages, logged in where the app has accounts, with idempotently seeded showcase content where a list or detail page would otherwise be empty. `make design-gallery app=<role>` captures them in one spec run and copies them to `/tmp/design-gallery/<role>/`. A comparison with the app before the design is captured on request only: `before=true` adds every view with every injected snippet stripped from the document (the body filter wraps its injections in `<!--infinito-inj-->` markers). The operator approves or rejects by comment.
 12. **Frontend and backend.** Every role is styled and tested on its frontend and, where the app has one, on its separate backend (admin surface such as `wp-admin`, the Shopware or Magento admin, the Joomla administrator). A role with a backend shows backend views in its gallery in addition to the frontend views, and its Playwright spec covers both surfaces.
@@ -30,8 +30,8 @@ These choices are settled at requirement creation time and bound the implementat
 - [x] `group_vars/all/13_design.yml` no longer exists and the design configuration resolves from `roles/web-svc-design/meta/services.yml`, overridable per inventory.
 - [x] No `roles/*/meta/services.yml` declares a `css:` key.
 - [x] A role with `design` enabled, `javascript` disabled and a `templates/design.js.j2` receives the injected CSS and its design script, and no functional script.
-- [ ] A role with `design` disabled and `javascript` enabled receives its functional script and no injected CSS or design script. Open: no deploy of such a role is on record.
-- [ ] A minimal deploy with `disable=design` injects neither the shared CSS nor a design script. Open: no minimal deploy with `disable=design` is on record.
+- [x] A role with `design` disabled and `javascript` enabled receives its functional script and no injected CSS or design script.
+- [x] A minimal deploy with `disable=design` injects neither the shared CSS nor a design script.
 - [x] `colorscheme_generator` is no longer a dependency and the OKLCH lookup plugin produces the full token set.
 - [x] A unit test proves AA contrast for text and UI tokens and AAA contrast for body text in light and dark mode across the base colors `#001f3f`, `#FFA500`, `#FFFF00`, `#00FF00`, `#808080` and `#FF00FF`.
 - [x] An invalid `design.colors.base` fails the deploy with an error naming the value.
@@ -44,7 +44,7 @@ These choices are settled at requirement creation time and bound the implementat
 - [x] `web-app-joomla` and `web-app-pretix` carry no hardcoded site title.
 - [ ] `web-app-decidim` and `web-app-socialhome` honour an inventory title override. Open: no deploy with an inventory title override is on record, and Socialhome takes the title on its first boot only (`roles/web-app-socialhome/TODO.md`).
 - [x] The base gallery on `web-app-dashboard`, `web-app-gitea` and `web-app-nextcloud` is approved by the operator.
-- [ ] The draft PR from `feature/designer` is open and linked below. Open: by operator decision `feature/designer` reaches `main` through the draft PR of `feature/store-i18n` instead of a PR of its own; the merge of `feature/designer` into `feature/store-i18n` is in progress.
+- [ ] `feature/designer` reaches `main` through the draft PR of `feature/store-i18n` linked below, which merges it round by round. Open: the final designer state is not yet pushed into that PR.
 
 ### Roles
 
@@ -52,25 +52,25 @@ A role is checked when its frontend and, where present, its backend are styled, 
 
 Two base commits changed many roles after their last run: `6c2de017f8` split vendor selector lists in role stylesheets, so rules Chromium used to drop now apply, and `63f3631567` changed the colors of the generated logo lockups. Merges of `main` also bumped app images after some runs. A role whose open reason is only such a later change needs one more green run of its complete spec on its final state.
 
-- [ ] web-app-akaunting: title not set from the design (company name stays literal) and not asserted; `style.css.j2` changed by `6c2de017f8` after the last run.
-- [ ] web-app-baserow: literal RGB fallback at `style.css.j2:1918`; title neither set nor asserted against the configured value.
+- [x] web-app-akaunting
+- [ ] web-app-baserow: image bump to 2.4.1 from `main` came after the last run.
 - [ ] web-app-bigbluebutton: title not set through Greenlight (the spec asserts the literal upstream name); the meeting client keeps the upstream design; `vars/main.yml` rewritten after the last full run.
-- [ ] web-app-bluesky: title never set; the spec compares it with the upstream default.
+- [x] web-app-bluesky
 - [ ] web-app-bookwyrm: no green complete run on the final state; the last one failed the SeaweedFS avatar upload test.
 - [ ] web-app-checkmk: `theme.css.j2` changed by `6c2de017f8` after the last run.
 - [x] web-app-chess
 - [x] web-app-dashboard
 - [ ] web-app-decidim: `style.css.j2` changed by `6c2de017f8` after the last run.
 - [x] web-app-discourse
-- [ ] web-app-erpnext: visible title not asserted (only the raw `/desk` HTML); logo lockup changed by `63f3631567` after the last run.
-- [ ] web-app-espocrm: the Administration is captured by the gallery only, no assertion runs on it.
+- [x] web-app-erpnext
+- [ ] web-app-espocrm: the news panel on the Administration page is a third-party document from `s.espocrm.com` that gets the role's theme sheet without the tokens and renders off-palette (an opaque white block in dark mode); by operator decision of 2026-10-15 EspoCRM's own `adminPanelIframeDisabled` switches it off; not implemented yet. The image bump to 10.0.10 from `main` came after the last run.
 - [ ] web-app-fediwall: literal colors in `templates/index.html.j2:18-27`; title not set through the wall config's native title.
 - [ ] web-app-fider: the logo does not reach Fider while the object store is enabled.
 - [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
-- [ ] web-app-friendica: frontend and backend gaps recorded in the gallery remain; the `/admin` pages get a visibility check only.
-- [ ] web-app-funkwhale: the Django admin is not covered; `/manage` has no contrast or mode assertion; the native switch is set through `localStorage` only; the loader keeps upstream colors.
+- [x] web-app-friendica
+- [x] web-app-funkwhale
 - [ ] web-app-fusiondirectory: title neither set nor asserted.
-- [ ] web-app-gitea: visible logo not asserted, only the bytes of the served file.
+- [x] web-app-gitea
 - [ ] web-app-gitlab: final state never ran (the design-only commit removed the administrator provisioning); `/admin` is checked for HTTP 200 only.
 - [x] web-app-hermes
 - [ ] web-app-homeassistant: `vars/main.yml` changed after the last role sync that deployed the role.
@@ -78,13 +78,13 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-jellyfin: final state never ran (`branding.css.j2` split by `6c2de017f8`, spec and administrator password changed).
 - [ ] web-app-jenkins: `test-design.js` restored after the last complete run; no run on the restored file.
 - [ ] web-app-jitsi: `style.css.j2` changed twice after the last green run.
-- [ ] web-app-joomla: the backend editor (TinyMCE 7) keeps its upstream design; the `admin-login` lockup changed by `63f3631567` after the last run.
-- [ ] web-app-keycloak: `tasks/utils/theme.yml` (`63f3631567`) and the image bump to 26.8.1 came after the last run; literal color fallbacks in `logout-panel.js` and `javascript.js.j2`.
+- [x] web-app-joomla
+- [x] web-app-keycloak
 - [ ] web-app-kix: `test-design.js` changed after the last green run.
 - [ ] web-app-lam: title neither set nor asserted; spec and `playwright.env.j2` rewritten after the last run.
 - [ ] web-app-listmonk: administrator tasks, env, SQL and spec rewritten after the last run.
 - [ ] web-app-litellm: logo swapped by CSS `content` instead of LiteLLM's `logo_url` setting.
-- [ ] web-app-littlejs: title appended by `design.js` instead of the launcher template, which keeps a literal title.
+- [ ] web-app-littlejs: image bump to nginx 1.31.7-alpine from `main` came after the last run.
 - [ ] web-app-magento: literal `darkgrey` at `style.css.j2:5513` and `:5554`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [ ] web-app-mastodon: switch to the platform administrator not deployed.
 - [ ] web-app-matomo: Matomo's own `themeMode` preference is not exercised (the spec flips the DOM); the administration is not asserted.
@@ -92,9 +92,9 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-mattermost: about 50 literal RGB fallbacks inside `var()` in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [ ] web-app-mediawiki: switch to the platform administrator not deployed.
 - [ ] web-app-mini-qr: the scanner view keeps upstream colors; the PWA manifest keeps the upstream name and theme color.
-- [ ] web-app-mobilizon: literal colors at `style.css.j2:1373`, `:1631` and `:2316`; switch to the platform administrator not deployed.
+- [x] web-app-mobilizon
 - [ ] web-app-moodle: `test-design.js` rewritten after the last complete run; page-slot lockup changed by `63f3631567`.
-- [ ] web-app-n8n: image bump to 2.44.0 and provisioning rewrite from `main` came after the last complete run.
+- [x] web-app-n8n
 - [ ] web-app-nextcloud: Nextcloud's theme picker and the admin settings are not asserted, the visible logo is not checked; final state never ran.
 - [ ] web-app-odoo: literal colors in `files/theme/backend.css` and `frontend.css`, among them the invalid focus ring `box-shadow` at `backend.css:2203`; final state not exercised.
 - [x] web-app-openbao
@@ -102,24 +102,24 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-opencloud: `tasks/main.yml` restructured after the last deploy with design on.
 - [x] web-app-openproject
 - [ ] web-app-opentalk: the conference room is not covered; the native theme setting is half exercised; the title check cannot fail; logo lockup changed by `63f3631567`.
-- [ ] web-app-openwebui: logo and title switched off (license clause, operator decision open); switch to the platform administrator not deployed.
+- [ ] web-app-openwebui: logo and title stay Open WebUI's own because clause 4 of its license allows replacing the branding only up to 50 users, with written permission or under an enterprise license (operator decision, see `roles/web-app-openwebui/TODO.md`).
 - [ ] web-app-peertube: `tasks/design/apply.yml` rewritten after the last green run.
 - [ ] web-app-penpot: images bumped by `main` after the last run.
 - [ ] web-app-pgadmin: switch to the platform administrator not deployed.
-- [ ] web-app-phpmyadmin: literal named colors in `templates/theme/design.css.j2`; phpMyAdmin's theme chooser is not exercised.
-- [ ] web-app-pihole: a test was added after the last complete run; Pi-hole's own theme setting is only simulated.
+- [x] web-app-phpmyadmin
+- [x] web-app-pihole
 - [ ] web-app-pixelfed: literal SVG colors in `style.css.j2`; final state not exercised.
-- [ ] web-app-postmarks: title written by `design.js` although Postmarks has `site_name`; the `/admin` pages are not asserted; the title check cannot fail.
+- [ ] web-app-postmarks: the server HTML and the Atom feeds keep the title `Postmarks`, because Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode; `design.js` sets the browser title (upstream option in `roles/web-app-postmarks/TODO.md`).
 - [ ] web-app-pretix: administrator and stylesheet rework not deployed.
 - [ ] web-app-prometheus: merges of `main` changed spec, services, volumes and tasks after the last run; literal colors in the logout button of `javascript.js.j2`.
-- [ ] web-app-roulette-wheel: the wheel labels stay below AA on dark segments in dark mode, and no test asserts their contrast.
+- [x] web-app-roulette-wheel
 - [x] web-app-seaweedfs
-- [ ] web-app-semaphore: the admin users page is not asserted; code backgrounds keep Vuetify's tint.
+- [x] web-app-semaphore
 - [ ] web-app-shopware: literal colors (`gold`, SVG fills) in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
 - [ ] web-app-snipe-it: the complete spec never ran green on the final `test-design.js`.
-- [ ] web-app-socialhome: image bump to 2026.10.11 from `main` came after the last run.
+- [ ] web-app-socialhome: image bump to 2026.10.14 from `main` came after the last run.
 - [ ] web-app-sphinx: title neither set nor asserted.
-- [ ] web-app-stalwart: `style.css.j2` changed by `6c2de017f8` and the image bump to v0.16.26 came after the last run.
+- [ ] web-app-stalwart: under `sso` the web administration specs need the administrator group grant of `feature/store-i18n` (`199f2a6d41`); no green run on the merged state yet.
 - [ ] web-app-suitecrm: visible title not asserted; literal SVG fills in `files/style.css`; the session rework from `main` never ran with the design.
 - [ ] web-app-taiga: title neither set nor asserted; `meta/volumes.yml` changed after the last green run.
 - [ ] web-app-wordpress: literal RGB fallbacks in `admin.css` and `extras.css`; the stylesheets changed by `6c2de017f8` after the last run.
@@ -127,7 +127,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-yourls: switch to the platform administrator not deployed.
 - [ ] web-app-zammad: switch to the platform administrator and the move of the watermark defaults not deployed.
 - [ ] web-svc-html: logo neither set nor asserted; the title test checks another role's page.
-- [ ] web-svc-libretranslate: literal colors (`gold`, SVG fill) in `style.css.j2`.
+- [x] web-svc-libretranslate
 - [x] web-svc-logout
 
 ## Cross-linking
