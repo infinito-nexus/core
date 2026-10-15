@@ -23,6 +23,8 @@ const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const MODES = ["light", "dark"];
 const FOCUS_WALK_LIMIT = 40;
 const SETUP_STEP_LIMIT = 12;
+const REROUTE_PATIENCE_MS = 10_000;
+const BOOT_PATIENCE_MS = 20_000;
 const SIGN_IN = ".login-dialog";
 const SIGN_IN_HEADER = `${SIGN_IN} .dialog-header`;
 const SIGN_IN_LOGO = `${SIGN_IN_HEADER} #kix-logo img`;
@@ -38,12 +40,13 @@ const SHELL = ".app-wrapper";
 const CONTENT = ".content-wrapper";
 const TICKETS = `${CONTENT} .ticket-dashboard`;
 const SETUP_STEPS = `${CONTENT} .setup-steps`;
-const SETUP_OPEN_STEP = `${SETUP_STEPS} .step.active`;
+const SETUP_STEP = `${SETUP_STEPS} .step`;
+const SETUP_PENDING_STEP = `${SETUP_STEP}:not(.completed):not(.skipped)`;
 const WIDGET_HEADER = `${CONTENT} .content-widget > .widget-header`;
 const WIDGET_BODY = `${CONTENT} .content-widget > .widget-content`;
 const TABLE = `${CONTENT} .table-container > .kix-table`;
 const HEAD_CELL = `${TABLE} > thead th`;
-const CELL = `${TABLE} > tbody tr:not(.toggle-row):not(.spacer-rows) > td`;
+const CELL = `${TABLE} > tbody tr:not(.toggle-row):not(.spacer-rows):not(.empty-row) > td`;
 const FILTER = `${CONTENT} input[placeholder]`;
 const CONSOLE_OUTPUT = `${CONTENT} .console textarea.console-output`;
 const CALENDAR_HEAD = `${CONTENT} .calendar-container > div:first-of-type`;
@@ -114,22 +117,18 @@ exports.register = function (shared) {
    *   page: signed-in Playwright page; ends with every step of the setup assistant skipped, so the app opens the view a URL names.
    */
   async function skipSetupAssistant(page) {
-    await gotoOnion(page, `${base}/tickets`);
-    await expect(page.locator(`${SETUP_STEPS}, ${TICKETS}`).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
-    if (await page.locator(SETUP_STEPS).isVisible()) {
-      await expect(page.locator(SETUP_OPEN_STEP)).toBeVisible({ timeout: resolveTimeout(30_000) });
-    }
-    for (let step = 0; step < SETUP_STEP_LIMIT && (await page.locator(SETUP_OPEN_STEP).isVisible()); step += 1) {
-      const open = await page.locator(SETUP_OPEN_STEP).innerText();
+    await openView(page, "/admin?moduleId=setup-assistant", SETUP_STEP);
+    for (let step = 0; step < SETUP_STEP_LIMIT && (await page.locator(SETUP_PENDING_STEP).count()) > 0; step += 1) {
+      const pending = await page.locator(SETUP_PENDING_STEP).count();
       await page.locator(`${CONTENT} button.kix-button.form-button`, { hasText: /skip/i }).click();
       await expect
-        .poll(
-          async () =>
-            !(await page.locator(SETUP_OPEN_STEP).isVisible()) || (await page.locator(SETUP_OPEN_STEP).innerText()) !== open,
-          { timeout: resolveTimeout(30_000), message: `the setup step ${open} must close after it was skipped` },
-        )
-        .toBe(true);
+        .poll(() => page.locator(SETUP_PENDING_STEP).count(), {
+          timeout: resolveTimeout(30_000),
+          message: `a skipped setup step must leave fewer than the ${pending} open ones`,
+        })
+        .toBeLessThan(pending);
     }
+    await expect(page.locator(SETUP_PENDING_STEP), "every setup step must be completed or skipped").toHaveCount(0);
   }
 
   /**
@@ -153,7 +152,57 @@ exports.register = function (shared) {
    */
   async function openView(page, path, ready) {
     await gotoOnion(page, `${base}${path}`);
-    await shown(ready)(page);
+    await reached(path, ready)(page);
+  }
+
+  /**
+   * A full load that routes into a context the app registers late, the administration among them, falls back to the
+   * first open tab or Home, so a load that landed elsewhere is routed again inside the loaded app until the view shows,
+   * through a popstate that carries a state because the app ignores one without. Chromium at times fails the large app
+   * bundle out of its HTTP cache (net::ERR_FAILED, the request never sent), which leaves the app on its loading screen,
+   * so a load that shows no app header after a while is reloaded.
+   *
+   * Args:
+   *   path: route of the view below the base URL.
+   *   ready: selector that is visible once the view rendered.
+   *   reroute: whether a load that landed elsewhere is routed again; false keeps a replaced view a failure.
+   *
+   * Returns:
+   *   A step that ends on the view with its animations settled.
+   */
+  function reached(path, ready, reroute = true) {
+    const requested = new URL(path, base).pathname;
+    return async (page) => {
+      let loaded = Date.now();
+      let rerouted = 0;
+      await expect
+        .poll(
+          async () => {
+            if (!(await page.locator(HEADER).isVisible())) {
+              if (Date.now() - loaded > BOOT_PATIENCE_MS) {
+                await page.reload();
+                loaded = Date.now();
+                rerouted = 0;
+              }
+              return false;
+            }
+            const here = new URL(page.url()).pathname === requested;
+            if (here && (await page.locator(ready).first().isVisible())) return true;
+            if (reroute && (!here || (rerouted && Date.now() - rerouted > REROUTE_PATIENCE_MS))) {
+              rerouted = Date.now();
+              await page.evaluate((target) => {
+                const state = { route: target };
+                history.pushState(state, "", target);
+                dispatchEvent(new PopStateEvent("popstate", { state }));
+              }, path);
+            }
+            return false;
+          },
+          { timeout: resolveTimeout(60_000), message: `${path} must open the view that shows ${ready}` },
+        )
+        .toBe(true);
+      await animationsSettled(page);
+    };
   }
 
   /**
@@ -199,7 +248,7 @@ exports.register = function (shared) {
   }
 
   function signedInViews() {
-    const view = (name, path, selector) => ({ name, url: `${base}${path}`, prepare: shown(selector) });
+    const view = (name, path, selector) => ({ name, url: `${base}${path}`, prepare: reached(path, selector) });
     return [
       view("home", "/home", `${CONTENT} .dashboard.home .widget-header`),
       view("tickets", "/tickets", `${TICKETS} .kix-table`),
@@ -281,7 +330,8 @@ exports.register = function (shared) {
       ["/tickets", TICKETS],
       ["/home", `${CONTENT} .dashboard.home`],
     ]) {
-      await openView(page, path, ready);
+      await gotoOnion(page, `${base}${path}`);
+      await reached(path, ready, false)(page);
       expect(new URL(page.url()).pathname, `${path} must stay the open view`).toBe(path);
     }
   });
