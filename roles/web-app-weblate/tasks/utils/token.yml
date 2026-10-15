@@ -75,8 +75,17 @@
   ansible.builtin.set_fact:
     weblate_translate_enabled: "{{ WEBLATE_TRANSLATE_ENABLED }}"
 
+- name: "🔍 Look for a deployed translation gateway to reconcile"
+  ansible.builtin.stat:
+    path: "{{ lookup('container', 'web-svc-translate', 'directories.instance') }}"
+  register: weblate_translate_instance
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
 - name: "♻️ Re-render the translation gateway against the stored token"
-  when: weblate_translate_enabled | bool
+  when:
+    - weblate_translate_enabled | bool
+    - weblate_translate_instance.stat.exists
   block:
     - name: "🛑 Refuse a store the gateway's own lookup cannot read back"
       ansible.builtin.assert:
