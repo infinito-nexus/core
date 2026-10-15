@@ -283,6 +283,10 @@ exports.register = function () {
     const searchField = '#main .admin-search-container input[data-name="quick-search"]';
     const search = page.locator(searchField);
     await openSignedIn(page, "Admin", panel);
+    await expect(
+      page.locator("#main .admin-right-column iframe"),
+      "adminPanelIframeDisabled keeps the third-party news panel of s.espocrm.com off the Administration",
+    ).toHaveCount(0);
     await search.blur();
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
@@ -382,22 +386,7 @@ exports.register = function () {
         readyView("stream", `${base}/#Stream`, "#main .list-container, #main .no-data"),
         readyView("preferences", `${base}/#Preferences/edit/${userId}`, "#main .record .edit"),
         readyView("user-detail", `${base}/#User/view/${userId}`, "#main .record .detail"),
-        {
-          name: "admin-index",
-          url: `${base}/#Admin`,
-          prepare: async (current) => {
-            await expect(current.locator("#main .admin-tables-container table.table-admin-panel").first()).toBeVisible({
-              timeout: resolveTimeout(10_000),
-            });
-            const iframe = "#main .admin-right-column iframe";
-            if ((await current.locator(iframe).count()) > 0) {
-              await expect(current.frameLocator(iframe).locator("body")).not.toBeEmpty({ timeout: resolveTimeout(10_000) });
-              const frame = await (await current.locator(iframe).elementHandle()).contentFrame();
-              await frame.waitForLoadState("load", { timeout: resolveTimeout(10_000) });
-              await frame.evaluate(() => document.fonts.ready.then(() => true));
-            }
-          },
-        },
+        readyView("admin-index", `${base}/#Admin`, "#main .admin-tables-container table.table-admin-panel"),
         readyView("admin-settings", `${base}/#Admin/settings`, "#main .record .edit"),
         readyView("admin-user-interface", `${base}/#Admin/userInterface`, "#main .record .edit"),
         readyView("admin-users", `${base}/#User`, "#main .list-container table tbody tr"),
