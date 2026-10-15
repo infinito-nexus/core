@@ -69,7 +69,7 @@
         fails=0
         ok=0
         while true; do
-          if php {{ MOODLE_CLI_DIR }}/cron.php >/proc/1/fd/1 2>/proc/1/fd/2; then
+          if php {{ MOODLE_CLI_DIR }}/cron.php; then
             ok=1
             fails=0
           else
