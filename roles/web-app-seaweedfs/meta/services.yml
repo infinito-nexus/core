@@ -12,6 +12,8 @@ frontend:
   domains:
     - filer
     - master
+# nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force this consumer on a tor node.
+# nocheck: bond-baseline  same reason: variant 0 must not pin this consumer on.
 sso:
   bond: 1
   enabled: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"

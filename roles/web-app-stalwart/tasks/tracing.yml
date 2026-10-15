@@ -6,11 +6,17 @@
       {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
           'methodCalls': [['x:Tracer/get', {'ids': none}, 'c0']]} | to_json }}
 
-- name: "🔍 Resolve the file tracer"
+- name: "🔍 Resolve the file tracer and the ban tracer"
   ansible.builtin.set_fact:
     stalwart_log_tracers: >-
       {{ stalwart_jmap.methodResponses[0][1].list
          | selectattr('@type', 'equalto', 'Log')
+         | list }}
+    stalwart_ban_tracers: >-
+      {{ stalwart_jmap.methodResponses[0][1].list
+         | selectattr('@type', 'equalto', 'Stdout')
+         | selectattr('eventsPolicy', 'equalto', 'include')
+         | selectattr('events', 'superset', STALWART_BAN_TRACER.events | list)
          | list }}
 
 - name: "🔧 Point the file tracer at a directory that exists"
@@ -22,3 +28,11 @@
             {'update': {stalwart_log_tracers[0].id: {'path': STALWART_LOG_DIR}}},
             'c0']]} | to_json }}
   when: stalwart_log_tracers | length > 0
+
+- name: "📣 Print bans and failed logins on the container output"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Tracer/set', {'create': {'t': STALWART_BAN_TRACER}}, 'c0']]} | to_json }}
+  when: stalwart_ban_tracers | length == 0

@@ -12,6 +12,17 @@ container_port: "{{ lookup('config', application_id, 'services.stalwart.ports.in
 STALWART_LOCAL_BASE_URL: "http://localhost:{{ container_port }}"
 STALWART_JMAP_URL: "{{ STALWART_LOCAL_BASE_URL }}/jmap/"
 STALWART_LOG_DIR: "{{ lookup('volume', application_id, 'data').target }}"
+STALWART_BAN_TRACER:
+  "@type": "Stdout"
+  buffered: false
+  level: "debug"
+  eventsPolicy: "include"
+  events:
+    "security.authentication-ban": true
+    "security.abuse-ban": true
+    "security.scan-ban": true
+    "security.loiter-ban": true
+    "auth.failed": true
 STALWART_JMAP_APPLICATION_GET: >-
   {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
       'methodCalls': [['x:Application/get', {'ids': none}, 'c0']]} | to_json }}
@@ -65,7 +76,17 @@ STALWART_USERS: "{{ lookup('stalwart_users') }}"
 
 STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
 
-STALWART_TRUSTED_NETWORKS: "{{ NETWORK_TRUSTED_PROXY_CIDRS }}"
+STALWART_BOT_APP_PASSWORD_DESCRIPTION: "Infinito.Nexus submission"
+STALWART_BOT_APP_PASSWORD_RETIRED_DESCRIPTION: "Infinito.Nexus submission, retired"
+stalwart_app_password_stale: {}
+STALWART_RELAY_RULE: "!is_empty(authenticated_as)"
+
+STALWART_BAN_PERIOD_MS: "{{ (lookup('config', application_id, 'services.stalwart.ban_period_seconds') | int) * 1000 }}"
+STALWART_BAN_PERIODS:
+  authBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+  abuseBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+  loiterBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+  scanBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
 
 STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
 

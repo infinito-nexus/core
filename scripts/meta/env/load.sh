@@ -7,6 +7,9 @@
 # re-entry from generator subshells (BASH_ENV would otherwise recurse).
 # PYTHON/PATH are re-resolved on every source so a venv created mid-chain wins;
 # caller-set values are snapshotted and restored after the bulk .env source.
+# INFINITO_CONTAINER, INFINITO_PARENT_IMAGE and INFINITO_IMAGE derive from the
+# distro: a caller INFINITO_DISTRO other than the one `.env` was generated for
+# loads a set generated for that distro instead, and `.env` stays untouched.
 
 # zsh cannot run this loader's bash-isms (BASH_SOURCE, ${!indirect}, assoc-array
 # key expansion). When sourced from zsh, delegate to bash and import the
@@ -44,7 +47,7 @@ if [[ -n "${VENV:-}" && -d "${VENV%/}/bin" ]]; then
 fi
 
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
-if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" ]]; then # nocheck: env-loader-internal-guard
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
 	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
 	return 0
 fi
@@ -53,11 +56,23 @@ if [[ "${INFINITO_ENV_GENERATING:-}" == "1" ]]; then # nocheck: env-loader-inter
 	return 0
 fi
 
-if [[ ! -f "${_infinito_env_dotenv}" ]]; then
+if [[ -n "${INFINITO_ENV_LOADED_DISTRO:-}" && "${INFINITO_ENV_LOADED_DISTRO}" != "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
+	unset INFINITO_CONTAINER INFINITO_PARENT_IMAGE INFINITO_IMAGE
+fi
+
+_infinito_env_source="${_infinito_env_dotenv}"
+_infinito_env_scratch=""
+_infinito_env_distro="${INFINITO_DISTRO:-}"
+if [[ -f "${_infinito_env_dotenv}" && -n "${_infinito_env_distro}" && "${_infinito_env_distro}" != "$(sed -n 's/^INFINITO_DISTRO=//p' "${_infinito_env_dotenv}")" ]]; then
+	_infinito_env_scratch="$(mktemp -d)"
+	_infinito_env_source="${_infinito_env_scratch}/env"
+fi
+
+if [[ ! -f "${_infinito_env_source}" ]]; then
 	(
 		cd "${_infinito_env_repo_root}" || exit 1
 		export INFINITO_ENV_GENERATING=1
-		"${PYTHON}" -m cli.meta.env
+		"${PYTHON}" -m cli.meta.env --output "${_infinito_env_source}"
 	) >&2
 fi
 
@@ -73,13 +88,18 @@ while IFS= read -r _infinito_env_line; do
 	if [[ -n "${!_infinito_env_key:-}" ]]; then
 		_infinito_env_preserved["${_infinito_env_key}"]="${!_infinito_env_key}"
 	fi
-done <"${_infinito_env_dotenv}"
+done <"${_infinito_env_source}"
 unset _infinito_env_line _infinito_env_key
 
 set -a
 # shellcheck disable=SC1090
-source "${_infinito_env_dotenv}"
+source "${_infinito_env_source}"
 set +a
+
+if [[ -n "${_infinito_env_scratch}" ]]; then
+	rm -rf "${_infinito_env_scratch}"
+fi
+unset _infinito_env_source _infinito_env_scratch _infinito_env_distro
 
 for _infinito_env_key in "${!_infinito_env_preserved[@]}"; do
 	declare -gx "${_infinito_env_key}=${_infinito_env_preserved[${_infinito_env_key}]}"
@@ -100,4 +120,5 @@ fi
 export INFINITO_ENV_LOADED="1"
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
 export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"
+export INFINITO_ENV_LOADED_DISTRO="${INFINITO_DISTRO:-}"
 unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime

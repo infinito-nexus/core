@@ -16,7 +16,7 @@ open. From 2026-12-28 it deliberately fails with a reminder to delete it.
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import unittest
 
 from utils.cache.yaml import load_yaml_any
@@ -25,12 +25,12 @@ from utils.roles.mapping import ROLE_FILE_META_SERVER
 from . import PROJECT_ROOT
 
 _SPLIT_FIELDS: tuple[str, ...] = ("csp", "domains", "networks")
-_SUNSET = datetime.date(2026, 12, 28)
+_SUNSET = dt.date(2026, 12, 28)
 
 
 class TestServerMetaNoSplitFields(unittest.TestCase):
     def test_server_yml_has_no_split_fields(self) -> None:
-        if datetime.datetime.now(tz=datetime.UTC).date() >= _SUNSET:
+        if dt.datetime.now(tz=dt.UTC).date() >= _SUNSET:
             self.fail(
                 "Migration guard expired (>= 2026-12-28): the meta/server.yml "
                 "-> csp/domains/networks.yml split is long merged. DELETE this "

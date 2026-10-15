@@ -86,28 +86,13 @@
     stalwart_jmap_body: "{{ lookup('template', 'jmap/authentication/update.json.j2') }}"
   when: stalwart_auth_exists | bool
 
-- name: "⚙️ Build the trusted-network relay expression"
-  ansible.builtin.set_fact:
-    stalwart_relay_expr: >-
-      !is_empty(authenticated_as){% for net in STALWART_TRUSTED_NETWORKS %} || remote_ip == '{{ net }}'{% endfor %}
-
 - name: "📖 Read the RCPT stage singleton"
   include_tasks: jmap_call.yml
   vars:
     stalwart_jmap_body: "{{ lookup('template', 'jmap/rcpt/get.json.j2') }}"
 
-- name: "🔧 Record whether the RCPT stage singleton exists"
-  ansible.builtin.set_fact:
-    stalwart_rcpt_exists: "{{ (stalwart_jmap.methodResponses[0][1].list | length) > 0 }}"
-
-- name: "📁 Create the RCPT stage with trusted-network relay"
-  include_tasks: jmap_call.yml
-  vars:
-    stalwart_jmap_body: "{{ lookup('template', 'jmap/rcpt/create.json.j2') }}"
-  when: not (stalwart_rcpt_exists | bool)
-
-- name: "🔄 Update the RCPT stage with trusted-network relay"
+- name: "🔒 Restrict relaying to authenticated sessions"
   include_tasks: jmap_call.yml
   vars:
     stalwart_jmap_body: "{{ lookup('template', 'jmap/rcpt/update.json.j2') }}"
-  when: stalwart_rcpt_exists | bool
+  when: (stalwart_jmap.methodResponses[0][1].list | length) > 0

@@ -20,8 +20,8 @@ BLUESKY_WEB_IMAGE_CUSTOM: "bluesky_web_custom"
 
 BLUESKY_VIEW_ENABLED: "{{ lookup('config', application_id, 'services.view.enabled') }}"
 BLUESKY_VIEW_DOMAIN_LOCAL: "{{ lookup('domains', application_id).view }}"
-BLUESKY_VIEW_DOMAIN_FINAL: "{{ BLUESKY_VIEW_DOMAIN_LOCAL if BLUESKY_VIEW_ENABLED else 'api.bsky.app' }}"
-BLUESKY_VIEW_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
+BLUESKY_VIEW_DOMAIN_FINAL: "{{ BLUESKY_VIEW_DOMAIN_LOCAL if BLUESKY_VIEW_ENABLED | bool else 'api.bsky.app' }}"
+BLUESKY_VIEW_URL: "{{ lookup('tls', application_id, 'protocols.web') if BLUESKY_VIEW_ENABLED | bool else 'https' }}://{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
 BLUESKY_VIEW_DID: "did:web:{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
 BLUESKY_VIEW_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.view.ports.local.http') }}"
 

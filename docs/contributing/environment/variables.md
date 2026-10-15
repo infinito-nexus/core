@@ -27,6 +27,7 @@ Already-set env vars take precedence over `default.env` defaults.
 - [`env/`](../../../utils/env/) (under `utils/`) holds the parser, runtime helpers, writer, and one handler module per dynamically-computed variable under [`handlers/`](../../../utils/env/handlers/).
 - [`env/`](../../../cli/meta/env/) (under `cli/meta/`) provides the CLI entry point invoked as `python -m cli.meta.env`.
 - [`load.sh`](../../../scripts/meta/env/load.sh) is the shell loader; it sources `.env` and auto-generates it on a cold clone.
+  When the exported `INFINITO_DISTRO` differs from the one `.env` was generated for, it loads a set generated for that distro through `python -m cli.meta.env --output <file>` and leaves `.env` as it is.
 
 ## Variables NOT in `default.env`
 
