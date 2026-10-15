@@ -8,7 +8,7 @@ const SESSION_HEADERS = { "X-Requested-With": "XMLHttpRequest" };
 function skipUnlessAddonArchitecture(addonId, architectures) {
   const architecture = decodeDotenvQuotedValue(process.env.MATTERMOST_ARCHITECTURE || "");
   test.skip(
-    !architectures.includes(architecture),
+    !architecture || !architectures.includes(architecture),
     `meta/addons/${addonId}.yml declares architectures: [${architectures.join(", ")}] and this node runs ` +
       `${architecture || "an unmapped architecture"}, so tasks/utils/addon.yml installed nothing to assert against`,
   );

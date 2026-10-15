@@ -8,14 +8,21 @@
   check_mode: true
   register: bluesky_social_app_probe
 
-- name: 🔎 Find a corporate ALF theme left in the checkout
+- name: 🔎 Find design sources the configuration no longer wants in the checkout
   ansible.builtin.find:
-    paths: "{{ BLUESKY_ALF_THEMES_PATH | dirname }}"
-    patterns: "{{ BLUESKY_ALF_THEMES_PATH | basename }}"
-    contains: "DESIGN_THEMES"
+    paths:
+      - "{{ BLUESKY_ALF_THEMES_PATH | dirname }}"
+      - "{{ BLUESKY_HEADINGS_PATH | dirname }}"
+      - "{{ BLUESKY_LOGOTYPE_PATH | dirname }}"
+    patterns:
+      - "{{ BLUESKY_ALF_THEMES_PATH | basename }}"
+      - "{{ BLUESKY_HEADINGS_PATH | basename }}"
+      - "{{ BLUESKY_LOGOTYPE_PATH | basename }}"
+    contains: "{{ BLUESKY_DESIGN_MARKERS_UNWANTED | join('|') }}"
+    read_whole_file: true
   register: bluesky_social_app_theme_left
   when:
-    - not (BLUESKY_DESIGN_ENABLED | bool)
+    - BLUESKY_DESIGN_MARKERS_UNWANTED | length > 0
     - bluesky_social_app_probe is not changed
 
 - name: ⬇️ clone social app repository
@@ -68,3 +75,31 @@
       loop_control:
         label: "{{ item.path }}"
       register: bluesky_social_app_design_patches
+
+- name: 🏷️ Carry the corporate title into the social app build context
+  when: BLUESKY_DESIGN_TITLE_ENABLED | bool
+  block:
+    - name: 🏷️ Render the corporate screen title module
+      stack_host_template:
+        src: headings.ts.j2
+        dest: "{{ BLUESKY_HEADINGS_PATH }}"
+        mode: "0644"
+      register: bluesky_social_app_title_module
+
+    - name: 🏷️ Write the corporate title into the server-rendered page templates
+      ansible.builtin.replace:
+        path: "{{ [BLUESKY_SOCIAL_APP_DIR, item.path] | path_join }}"
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop: "{{ BLUESKY_DESIGN_TITLE_PATCHES }}"
+      loop_control:
+        label: "{{ item.path }}"
+      register: bluesky_social_app_title_patches
+
+    - name: 🏷️ Render the corporate wordmark component
+      stack_host_template:
+        src: logotype.tsx.j2
+        dest: "{{ BLUESKY_LOGOTYPE_PATH }}"
+        mode: "0644"
+      register: bluesky_social_app_logotype
+      when: BLUESKY_DESIGN_LOGOTYPE_ENABLED | bool

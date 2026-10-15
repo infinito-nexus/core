@@ -21,8 +21,8 @@ exports.register = function (shared) {
       "broker bypass: the front-proxy MUST NOT route through the login-broker when oauth2 is disabled",
     ).toBe(false);
     expect(
-      /<title>\s*Bluesky\s*<\/title>/i.test(landingBody),
-      "broker bypass: the front-proxy MUST route to the stock social-app (expected '<title>Bluesky</title>' in the landing body)",
+      /<meta name="generator" content="bskyweb">/.test(landingBody),
+      "broker bypass: the front-proxy MUST route to the stock social-app (expected the bskyweb generator meta in the landing body)",
     ).toBe(true);
 
     const apiContext = await playwright.request.newContext({ ignoreHTTPSErrors: true });

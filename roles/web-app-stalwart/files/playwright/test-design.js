@@ -51,12 +51,21 @@ const WEBUI_ROW = "table tbody tr";
 const WEBUI_MENU = "[role='menu']";
 const WEBUI_DIALOG = "[role='dialog']";
 const WEBUI_SIDEBAR = "aside";
+const WEBUI_MANAGEMENT_ENTRY = "Directory";
 const WEBUI_SEARCH = "header button:has(kbd), header button[aria-label='Search']";
 const WEBUI_PALETTE = "[role='dialog']:has([cmdk-input])";
 const WEBUI_PALETTE_SELECTED = "[cmdk-item][data-selected='true']";
 const WEBUI_PALETTE_QUERY = "domain";
 const WEBUI_TOOLTIP = "[data-radix-popper-content-wrapper] > *";
 const WEBUI_UPSTREAM_TITLE = "Stalwart WebUI";
+const PASSWORD_STEP_PATH = "/login";
+const PASSWORD_STEP_FORM = "#login-form";
+const PASSWORD_STEP_CARD = "body > .card";
+const PASSWORD_STEP_PASSWORD = "#password";
+const PASSWORD_STEP_SUBMIT = "#submit-btn";
+const PASSWORD_STEP_LOGO = "svg.default-logo";
+const PASSWORD_STEP_ALERT = "#alert";
+const ROLE_STYLESHEET = "link[rel='stylesheet'][href*='/roles/web-app-stalwart/']";
 const WEBMAIL_SIGN_IN = `${webmailBaseUrl}/?_task=login`;
 const WEBMAIL_INBOX = `${webmailBaseUrl}/?_task=mail&_mbox=INBOX`;
 const WEBMAIL_USER = "#rcmloginuser";
@@ -70,6 +79,7 @@ const WEBMAIL_TASK = "#taskmenu a";
 const WEBMAIL_THEME = "#taskmenu a.theme";
 const WEBMAIL_PHONE_MENU = "a.task-menu-button";
 const WEBMAIL_COLOR_MODE = "colorMode";
+const WEBMAIL_UPLOAD = ".file-upload.droptarget";
 const FOCUS_WALK_LIMIT = 30;
 const SHOWCASE = [
   {
@@ -173,8 +183,9 @@ async function signInWebui(page) {
     await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedOidcAuthUrl);
     await performKeycloakLoginForm(page, adminUsername, adminPassword);
   } else {
-    await page.locator("#password").fill(stalwartAdminPassword);
-    await page.locator("#submit-btn").click();
+    await expect(page.locator(PASSWORD_STEP_PASSWORD)).toBeEditable({ timeout: resolveTimeout(30_000) });
+    await page.locator(PASSWORD_STEP_PASSWORD).fill(stalwartAdminPassword);
+    await page.locator(PASSWORD_STEP_SUBMIT).click();
   }
   await expect(page.locator(WEBUI_USER_MENU)).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
@@ -194,6 +205,63 @@ async function signInWebmail(page) {
     await page.locator(WEBMAIL_SUBMIT).click();
   }
   await expect(page.locator(WEBMAIL_LIST)).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+/**
+ * Args:
+ *   page: Playwright page that ends on the password step Stalwart renders itself behind Continue of the web administration sign-in.
+ */
+async function openPasswordStep(page) {
+  await gotoOnion(page, WEBUI_SIGN_IN);
+  await shown(WEBUI_USERNAME)(page);
+  await page.locator(WEBUI_USERNAME).fill(stalwartAdminUsername);
+  await page.locator(WEBUI_CONTINUE).click();
+  await shown(PASSWORD_STEP_PASSWORD)(page);
+}
+
+/**
+ * Args:
+ *   page: Playwright page that walks to the password step in light and dark mode and measures it. Stalwart sends that step gzip-encoded whatever the request accepts, so the step also proves that the front proxy injects into a compressed body.
+ */
+async function assertPasswordStep(page) {
+  await followColorScheme(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await openPasswordStep(page);
+    await expect(page.locator(ROLE_STYLESHEET), "the front proxy must inject the role stylesheet into the gzip-encoded password step").toHaveCount(1);
+    const label = `password step ${mode}`;
+    await assertToken(page, "body", "background-color", "--design-surface-1", label);
+    await assertToken(page, "body", "color", "--design-text", label);
+    await assertToken(page, PASSWORD_STEP_CARD, "background-color", "--design-surface-2", label);
+    await assertToken(page, PASSWORD_STEP_CARD, "border-top-color", "--design-border", label);
+    await assertToken(page, `${PASSWORD_STEP_FORM} ${WEBUI_USERNAME}`, "background-color", "--design-surface-2", label);
+    await assertToken(page, `${PASSWORD_STEP_FORM} ${WEBUI_USERNAME}`, "border-top-color", "--design-border-strong", label);
+    await assertToken(page, `${PASSWORD_STEP_FORM} label`, "color", "--design-text-muted", label);
+    await assertToken(page, PASSWORD_STEP_SUBMIT, "background-color", "--design-primary", label);
+    await assertToken(page, PASSWORD_STEP_SUBMIT, "color", "--design-on-primary", label);
+    await page.locator(PASSWORD_STEP_SUBMIT).hover();
+    await assertToken(page, PASSWORD_STEP_SUBMIT, "background-color", "--design-primary-hover", `hovered ${label}`);
+    if (logoUrl) {
+      await expect(page.locator(PASSWORD_STEP_LOGO)).toHaveCSS("background-image", `url("${lockupUrl || logoUrl}")`);
+      await expect(page.locator(`${PASSWORD_STEP_LOGO} path`).first()).toHaveCSS("visibility", "hidden");
+    }
+  }
+  await page.evaluate((key) => window.localStorage.removeItem(key), WEBUI_STORE);
+  await gotoOnion(page, page.url());
+  await shown(PASSWORD_STEP_PASSWORD)(page);
+  await page.emulateMedia({ colorScheme: null });
+  await assertLightAndDark(page, PASSWORD_STEP_CARD, "password step");
+  await assertReadable(
+    page,
+    [`${PASSWORD_STEP_CARD} h1`, `${PASSWORD_STEP_CARD} .sub`, `${PASSWORD_STEP_FORM} label`, `${PASSWORD_STEP_FORM} ${WEBUI_USERNAME}`, PASSWORD_STEP_SUBMIT],
+    "password step",
+  );
+  await gotoOnion(page, `${appBaseUrl}${PASSWORD_STEP_PATH}`);
+  await shown(PASSWORD_STEP_ALERT)(page);
+  await assertToken(page, PASSWORD_STEP_ALERT, "color", "--design-danger", "password step notice");
+  await assertToken(page, PASSWORD_STEP_ALERT, "background-color", "--design-danger-subtle", "password step notice");
+  await assertToken(page, PASSWORD_STEP_ALERT, "border-top-color", "--design-danger-border", "password step notice");
+  await assertReadable(page, [PASSWORD_STEP_ALERT], "password step notice");
 }
 
 /**
@@ -252,7 +320,7 @@ async function seedShowcase(request) {
  *   page: Playwright page that shows the web administration; a hidden sidebar gets opened.
  */
 async function webuiSidebarOpened(page) {
-  const entry = page.getByRole("button", { name: "Directory", exact: true });
+  const entry = page.getByRole("button", { name: WEBUI_MANAGEMENT_ENTRY, exact: true });
   if (!(await entry.isVisible())) {
     await page.locator("header button").first().click();
     await expect(entry).toBeVisible();
@@ -296,7 +364,7 @@ function signedOutViews() {
         await shown(WEBUI_USERNAME)(page);
         await page.locator(WEBUI_USERNAME).fill(stalwartAdminUsername);
         await page.locator(WEBUI_CONTINUE).click();
-        await shown("#password")(page);
+        await shown(PASSWORD_STEP_PASSWORD)(page);
       },
     },
     { name: "webmail-sign-in", url: WEBMAIL_SIGN_IN, prepare: shown(WEBMAIL_SUBMIT) },
@@ -548,6 +616,12 @@ test("design: the web administration sign-in takes surface, primary action and t
   await assertReadable(page, [WEBUI_USERNAME, WEBUI_CONTINUE, { selector: "form p", optional: true }], "stalwart sign-in");
 });
 
+test("design: the password step behind Continue takes page, card, fields, primary action and logo from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  test.skip(safeIsEnabled("sso"), "with sso Continue hands the password step to the identity provider");
+  await assertPasswordStep(page);
+});
+
 test("design: the signed-in web administration takes surfaces and text from the palette in both themes", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   await followColorScheme(page);
@@ -572,6 +646,21 @@ test("design: the signed-in web administration takes surfaces and text from the 
     await assertToken(page, unselected, "background-color", "--design-surface-hover", `hovered sidebar entry ${mode}`);
   }
   await page.emulateMedia({ colorScheme: null });
+});
+
+test("design: the administrator signed in to the web administration is offered its management area", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signInWebui(page);
+  await gotoOnion(page, WEBUI_ACCOUNTS);
+  await expect(
+    page.getByRole("button", { name: WEBUI_MANAGEMENT_ENTRY, exact: true }),
+    "the signed-in administrator must hold the administrator role of the mail server",
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await shown(WEBUI_ROW)(page);
+  expect(new URL(page.url()).pathname, "the accounts list must not hand the administrator over to the account settings").toBe(
+    new URL(WEBUI_ACCOUNTS).pathname,
+  );
 });
 
 test("design: the table rows of the web administration are divided by --design-border in both modes", async ({ page }) => {
@@ -722,6 +811,14 @@ test("design: the webmail takes frame, surfaces, primary action and text from th
     await assertToken(page, "button.btn-primary", "background-color", "--design-primary", `primary action ${mode}`);
     await assertToken(page, "button.btn-primary", "color", "--design-on-primary", `primary action ${mode}`);
     await assertToken(page, "#compose-subject", "border-top-color", "--design-border-strong", `form field ${mode}`);
+    const uploadHint = await page.locator(WEBMAIL_UPLOAD).evaluate((element) => {
+      const style = getComputedStyle(element, "::after");
+      return { color: style.backgroundColor, blend: style.mixBlendMode };
+    });
+    expect(uploadHint, `the upload icon of the compose form takes --design-border ${mode}`).toEqual({
+      color: await tokenValue(page, "--design-border", "background-color"),
+      blend: "normal",
+    });
   }
   await page.emulateMedia({ colorScheme: null });
   await gotoOnion(page, WEBMAIL_INBOX);

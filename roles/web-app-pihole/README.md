@@ -52,3 +52,7 @@ Four Playwright scenarios are tested:
 2. Admin can log in via SSO and access the dashboard
 3. Biber (non-admin) is denied access
 4. Admin can log out via the logout button
+
+## Further Resources
+
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/5fUNgLQPtGZPUmCWCNBuhv)

@@ -50,6 +50,9 @@ const DOCS_LOGO = `${SWAGGER} .topbar a.link img`;
 const DOCS_LOGO_WIDTH_AT_390 = 131;
 const DOCS_LOGO_TOLERANCE = 12;
 const EMPTY_FORM = "/?lang=en&source=en&target=de";
+const ROLE_SHEET = "link[href*='/roles/web-svc-libretranslate/'][href*='style.css']";
+const COLOR_PROPERTY =
+  /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule|(?:-webkit-)?mask(?:-image)?)$/;
 
 function base() {
   return decodeDotenvQuotedValue(process.env.LIBRETRANSLATE_BASE_URL).replace(/\/$/, "");
@@ -425,10 +428,7 @@ exports.register = function () {
     skipUnlessServiceEnabled("design");
     await fresh(page);
     await openApp(page);
-    const sheet = await page
-      .locator("link[href*='/roles/web-svc-libretranslate/'][href*='style.css']")
-      .first()
-      .getAttribute("href");
+    const sheet = await page.locator(ROLE_SHEET).first().getAttribute("href");
     const css = await (await apiGetOnion(page.request, sheet)).text();
     const targets = [...new Set([...css.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)].map((match) => match[1]))]
       .filter((target) => !target.startsWith("data:"))
@@ -441,6 +441,128 @@ exports.register = function () {
         `${target} must be served as an image; a relative url() resolves against the stylesheet on the CDN`,
       ).toMatch(/^200 image\//);
     }
+  });
+
+  test("design: no literal color in the role stylesheet, also inside its SVG images", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await fresh(page);
+    await openApp(page);
+    const sheet = await page.locator(ROLE_SHEET).first().getAttribute("href");
+    const css = await (await apiGetOnion(page.request, sheet)).text();
+    const offenders = await page.evaluate(
+      ([source, property]) => {
+        const colorProperty = new RegExp(property);
+        const keyword = (word) =>
+          /^[a-z]+$/i.test(word) &&
+          !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) &&
+          CSS.supports("color", word);
+        const literal = (value) =>
+          /#[0-9a-f]{3,8}\b/i.test(value) ||
+          /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(value) ||
+          /var\(--[\w-]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*\)/.test(value) ||
+          value.split(/[\s,()]+/).some(keyword);
+        const unforced = source.replace(
+          /@media\s*\(\s*forced-colors\s*:\s*active\s*\)\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/gi,
+          "",
+        );
+        const hits = [];
+        const images =
+          /url\(\s*(?:"(data:image\/svg\+xml[^"]*)"|'(data:image\/svg\+xml[^']*)'|(data:image\/svg\+xml[^)]*))\s*\)/gi;
+        for (const match of unforced.matchAll(images)) {
+          const uri = match[1] || match[2] || match[3];
+          const svg = uri.includes(";base64,")
+            ? atob(uri.slice(uri.indexOf(";base64,") + 8))
+            : decodeURIComponent(uri.slice(uri.indexOf(",") + 1));
+          for (const [, attribute, value] of svg.matchAll(
+            /\b(fill|stroke|stop-color|flood-color)\s*[=:]\s*["']?([^"';\s>)]+)/gi,
+          )) {
+            if (literal(value)) hits.push(`svg ${attribute}=${value}`);
+          }
+        }
+        const declarations = unforced.replace(/url\((?:[^()"']|"[^"]*"|'[^']*')*\)/gi, "url()");
+        for (const [, name, value] of declarations.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+          if (colorProperty.test(name) && literal(value)) hits.push(`${name}: ${value.trim()}`);
+        }
+        return hits;
+      },
+      [css, COLOR_PROPERTY.source],
+    );
+    expect(
+      offenders,
+      "every color of the role stylesheet, also inside its SVG images, comes from a --design-* token",
+    ).toEqual([]);
+  });
+
+  test("design: copy buttons and model toggles keep their image in the tone the role sets", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await fresh(page);
+    await openDocs(page);
+    await page.route("**/languages", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(LANGUAGES) }),
+    );
+    await execute(page, "get");
+    const models = page.locator(`${SWAGGER} section.models`);
+    await models.scrollIntoViewIfNeeded({ timeout: resolveTimeout(10_000) });
+    await models.locator("button.model-box-control").first().click({ timeout: resolveTimeout(10_000) });
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      const icons = await page.evaluate(() => {
+        const read = (selector, pseudo) =>
+          [...document.querySelectorAll(selector)].map((element) => {
+            const style = getComputedStyle(element, pseudo);
+            return { svg: style.backgroundImage.startsWith('url("data:image/svg+xml'), filter: style.filter };
+          });
+        return {
+          invert: Number(getComputedStyle(document.documentElement).getPropertyValue("--design-invert")),
+          copy: read(".swagger-ui .copy-to-clipboard button", null),
+          toggle: read(".swagger-ui .model-toggle", "::after"),
+        };
+      });
+      const label = `libretranslate docs ${mode}`;
+      expect(icons.copy.length, `${label}: the response must show a copy button`).toBeGreaterThan(0);
+      expect(icons.toggle.length, `${label}: the models must show a toggle`).toBeGreaterThan(0);
+      for (const copy of icons.copy) {
+        expect(copy, `${label}: a copy button must keep its image, drawn against --design-text-muted`).toEqual({
+          svg: true,
+          filter: `brightness(0) invert(${1 - icons.invert})`,
+        });
+      }
+      for (const toggle of icons.toggle) {
+        expect(toggle, `${label}: a model toggle must keep its image, drawn in the text tone`).toEqual({
+          svg: true,
+          filter: `brightness(0) invert(${icons.invert})`,
+        });
+      }
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: a focused operation summary draws its ring in the focus token", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await fresh(page);
+    await openDocs(page);
+    await expandOperation(page, "post");
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      const ring = await page.evaluate(() => {
+        const active = document.activeElement;
+        const probe = document.createElement("span");
+        probe.style.color = "var(--design-focus, var(--design-link))";
+        active.appendChild(probe);
+        const expected = getComputedStyle(probe).color;
+        probe.remove();
+        const style = getComputedStyle(active);
+        return {
+          control: active.classList.contains("opblock-summary-control"),
+          ring: `${style.outlineStyle} ${style.outlineColor}`,
+          expected: `solid ${expected}`,
+        };
+      });
+      const label = `libretranslate docs ${mode}`;
+      expect(ring.control, `${label}: the click must leave the focus on the summary control`).toBe(true);
+      expect(ring.ring, `${label}: the focus ring must be solid and use --design-focus`).toBe(ring.expected);
+    }
+    await page.emulateMedia({ colorScheme: null });
   });
 
   test("design: the theme switch drives the tokens", async ({ page }) => {

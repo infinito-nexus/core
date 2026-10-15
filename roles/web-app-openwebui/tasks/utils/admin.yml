@@ -13,6 +13,8 @@
       - exec
       - -i
       - -e
+      - ENABLE_DB_MIGRATIONS=false
+      - -e
       - OPENWEBUI_ADMIN_EMAIL
       - -e
       - OPENWEBUI_ADMIN_NAME

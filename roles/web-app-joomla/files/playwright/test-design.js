@@ -65,6 +65,14 @@ const ADMIN_USER_MENU = ".header-profile .dropdown-menu.show";
 const ADMIN_SCHEME_SWITCH = "button[data-color-scheme-switch]";
 const TOUR = ".shepherd-element";
 const TOUR_CLOSE = ".shepherd-cancel-icon";
+const EDITOR = ".tox-tinymce";
+const EDITOR_TOOLBAR = ".tox .tox-toolbar__primary";
+const EDITOR_BUTTON = ".tox .tox-tbtn";
+const EDITOR_MENU_BUTTON = ".tox .tox-mbtn";
+const EDITOR_STATUSBAR = ".tox .tox-statusbar";
+const EDITOR_MENU = ".tox .tox-menu";
+const EDITOR_FRAME = "iframe.tox-edit-area__iframe";
+const ARTICLE_FORM = "option=com_content&view=article&layout=edit";
 
 /**
  * Args:
@@ -149,6 +157,51 @@ async function signInToSite(page) {
     await page.locator(SITE_SUBMIT).first().click(ACTION);
   }
   await shown(page, "main .com-users-profile, main .com-users-logout");
+}
+
+/**
+ * Args:
+ *   page: Playwright page on a form with a TinyMCE field; returns once the toolbar shows and the content document holds its body.
+ */
+async function editorReady(page) {
+  await shown(page, EDITOR);
+  await page.locator(EDITOR).first().scrollIntoViewIfNeeded(ACTION);
+  await shown(page, EDITOR_TOOLBAR);
+  await expect
+    .poll(
+      () =>
+        page
+          .locator(EDITOR_FRAME)
+          .first()
+          .evaluate((frame) => frame.contentDocument?.readyState === "complete" && Boolean(frame.contentDocument.body?.classList.contains("mce-content-body"))),
+      ACTION,
+    )
+    .toBe(true);
+}
+
+/**
+ * Args:
+ *   page: Playwright page with a ready editor.
+ *   property: CSS property of the editor's content body.
+ * Returns: the computed value.
+ */
+async function editorBody(page, property) {
+  return page
+    .locator(EDITOR_FRAME)
+    .first()
+    .evaluate((frame, name) => frame.contentWindow.getComputedStyle(frame.contentDocument.body).getPropertyValue(name), property);
+}
+
+/**
+ * Args:
+ *   page: Playwright page with a ready editor; returns once the menu of the menu bar entry labelled `label` is open and done animating.
+ *   label: pattern of the menu bar entry.
+ */
+async function openEditorMenu(page, label) {
+  await page.locator(EDITOR_MENU_BUTTON).filter({ hasText: label }).first().click(ACTION);
+  const menu = page.locator(`${EDITOR_MENU}:visible`).first();
+  await expect(menu).toBeVisible(ACTION);
+  await expect(menu).toHaveCSS("opacity", "1", ACTION);
 }
 
 test.use({ ignoreHTTPSErrors: true });
@@ -239,6 +292,92 @@ test("design: search tools, selects and tabs of the administrator follow the pal
   await assertReadable(page, [ADMIN_TAB_CURRENT, ADMIN_STATUS_SELECT, `${ADMIN_CONTENT} label`], "joomla administrator form");
 });
 
+test("design: the article editor takes frame, toolbar, menus and content from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signInToAdministrator(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await gotoOnion(page, admin(ARTICLE_FORM));
+    await shown(page, "#jform_title");
+    await schemeApplied(page);
+    await editorReady(page);
+    await assertToken(page, EDITOR, "border-top-color", "--design-border-strong", `editor ${mode}`);
+    await assertToken(page, EDITOR_TOOLBAR, "background-color", "--design-surface-2", `editor toolbar ${mode}`);
+    await expect(page.locator(EDITOR_TOOLBAR).first(), `the toolbar separator gradient must be gone in ${mode} mode`).toHaveCSS("background-image", "none");
+    await assertToken(page, EDITOR_BUTTON, "color", "--design-text", `editor button ${mode}`);
+    await assertToken(page, `${EDITOR_BUTTON} svg`, "fill", "--design-text", `editor icon ${mode}`);
+    await assertToken(page, EDITOR_MENU_BUTTON, "color", "--design-text", `editor menu bar ${mode}`);
+    await assertToken(page, ".tox .tox-promotion", "background-color", "--design-surface-2", `editor menu bar end ${mode}`);
+    await assertToken(page, EDITOR_STATUSBAR, "background-color", "--design-surface-2", `editor status bar ${mode}`);
+    await assertToken(page, EDITOR_STATUSBAR, "color", "--design-text-muted", `editor status bar ${mode}`);
+    expect(await editorBody(page, "background-color"), `editor content ${mode}`).toBe(await tokenValue(page, "--design-surface-2", "background-color"));
+    expect(await editorBody(page, "color"), `editor text ${mode}`).toBe(await tokenValue(page, "--design-text", "color"));
+    await openEditorMenu(page, /insert/i);
+    await assertToken(page, `${EDITOR_MENU}:visible`, "background-color", "--design-surface-2", `editor menu ${mode}`);
+    await assertToken(page, `${EDITOR_MENU}:visible .tox-collection__item-label`, "color", "--design-text", `editor menu entry ${mode}`);
+    await page.keyboard.press("Escape");
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertReadable(page, [EDITOR_BUTTON, EDITOR_MENU_BUTTON, { selector: `${EDITOR_STATUSBAR} .tox-statusbar__path-item`, optional: true }], "joomla editor");
+});
+
+test("design: the site submission form takes tabs, labels and the editor from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signInToSite(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await gotoOnion(page, site("option=com_content&view=form&layout=edit"));
+    await shown(page, "main form#adminForm");
+    await editorReady(page);
+    await assertToken(page, "main joomla-tab > joomla-tab-element[active]", "background-color", "--design-surface-2", `tab panel ${mode}`);
+    await assertToken(page, "main joomla-tab > joomla-tab-element[active]", "border-top-color", "--design-border", `tab panel boundary ${mode}`);
+    await assertToken(page, "main joomla-tab div[role='tablist']", "background-color", "--design-surface-3", `tab list ${mode}`);
+    await assertToken(page, "main joomla-tab button[role='tab'][aria-selected='true']", "color", "--design-text", `current tab ${mode}`);
+    await assertToken(page, "main joomla-tab-element[active] label", "color", "--design-text", `form label ${mode}`);
+    await assertToken(page, EDITOR_TOOLBAR, "background-color", "--design-surface-2", `site editor toolbar ${mode}`);
+    expect(await editorBody(page, "background-color"), `site editor content ${mode}`).toBe(await tokenValue(page, "--design-surface-2", "background-color"));
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertLightAndDark(page, "main joomla-tab-element[active] label", "joomla site form");
+  await assertReadable(page, ["main joomla-tab-element[active] label", "main joomla-tab button[role='tab']", EDITOR_MENU_BUTTON], "joomla site form");
+});
+
+test("design: the editor follows the scheme picked in the administrator over the browser preference", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await page.emulateMedia({ colorScheme: "light" });
+  await signInToAdministrator(page);
+  await gotoOnion(page, admin(ARTICLE_FORM));
+  await editorReady(page);
+  const light = await editorBody(page, "background-color");
+  const flip = async (scheme) => {
+    await gotoOnion(page, admin(""));
+    await shown(page, `body.com_cpanel ${ADMIN_CONTENT}`);
+    await page.locator(`${ADMIN_USER_TOGGLE}:visible`).first().click(ACTION);
+    await shown(page, ADMIN_USER_MENU);
+    await page.locator(`${ADMIN_SCHEME_SWITCH}:visible`).first().click(ACTION);
+    await expect(page.locator("html")).toHaveAttribute("data-design-theme", scheme);
+  };
+  await flip("dark");
+  try {
+    await gotoOnion(page, admin(ARTICLE_FORM));
+    await editorReady(page);
+    await expect(page.locator("html")).toHaveAttribute("data-design-theme", "dark");
+    await expect
+      .poll(() => page.locator(EDITOR_FRAME).first().evaluate((frame) => frame.contentDocument.documentElement.getAttribute("data-design-theme")), ACTION)
+      .toBe("dark");
+    await expect.poll(() => editorBody(page, "background-color"), ACTION).not.toBe(light);
+    expect(await editorBody(page, "background-color"), "editor content in the picked scheme").toBe(await tokenValue(page, "--design-surface-2", "background-color"));
+    expect(await editorBody(page, "color"), "editor text in the picked scheme").toBe(await tokenValue(page, "--design-text", "color"));
+    await assertToken(page, EDITOR_TOOLBAR, "background-color", "--design-surface-2", "editor toolbar in the picked scheme");
+    await assertToken(page, EDITOR_BUTTON, "color", "--design-text", "editor button in the picked scheme");
+  } finally {
+    await flip("light");
+  }
+});
+
 test("design: the administrator sign-in page takes card, labels and the primary action from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   await page.setViewportSize(DESKTOP);
@@ -252,9 +391,10 @@ test("design: the administrator sign-in page takes card, labels and the primary 
     await assertToken(page, ADMIN_SUBMIT, "color", "--design-on-primary", `primary action ${mode}`);
     await assertToken(page, ADMIN_SIDEBAR, "background-color", "--design-frame", `brand panel ${mode}`);
     await assertToken(page, `${ADMIN_SIDEBAR} .h1`, "color", "--design-on-frame", `site name ${mode}`);
+    await assertToken(page, `${ADMIN_SIDEBAR} .h2`, "color", "--design-on-frame", `sign-in subtitle ${mode}`);
   }
   await page.emulateMedia({ colorScheme: null });
-  await assertReadable(page, [`${ADMIN_FORM} label`, ADMIN_SUBMIT, `${ADMIN_SIDEBAR} .h1`], "joomla administrator sign-in");
+  await assertReadable(page, [`${ADMIN_FORM} label`, ADMIN_SUBMIT, `${ADMIN_SIDEBAR} .h1`, `${ADMIN_SIDEBAR} .h2`], "joomla administrator sign-in");
 });
 
 test("design: the template style parameters carry the light palette", async ({ page }) => {
@@ -366,6 +506,30 @@ test("design: logos, favicon and title are the corporate ones on both surfaces",
   await shown(page, ADMIN_SUBMIT);
   await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   await expect(page.locator(".login .main-brand img, .login img").first()).toHaveAttribute("src", /images\/infinito-design\/admin-login\.svg/);
+  const loginLogo = page.locator(".login .main-brand img").first();
+  await expect(loginLogo).toBeVisible(ACTION);
+  await expect(loginLogo, "the sign-in lockup must load").toHaveJSProperty("complete", true);
+  expect(await loginLogo.evaluate((image) => image.naturalWidth), "the sign-in lockup must decode").toBeGreaterThan(0);
+  const loginBox = await loginLogo.boundingBox();
+  expect(loginBox.width, "the sign-in lockup must be wider than high").toBeGreaterThan(loginBox.height * 1.5);
+  const raw = (token) => page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim().toLowerCase(), token);
+  const scheme = {};
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await schemeApplied(page);
+    scheme[mode] = { link: await raw("--design-link"), surface: await raw("--design-surface-1") };
+  }
+  await page.emulateMedia({ colorScheme: null });
+  const loginResponse = await apiGetOnion(request, `${base}/images/infinito-design/admin-login.svg`, { ignoreHTTPSErrors: true });
+  expect(loginResponse.status(), "admin-login.svg must be served").toBe(200);
+  const loginSvg = (await loginResponse.text()).toLowerCase();
+  const loginTexts = [...loginSvg.matchAll(/<text[^>]*>/g)].map((match) => match[0]);
+  expect(loginTexts.length, "admin-login.svg must carry the title").toBeGreaterThan(0);
+  for (const text of loginTexts) {
+    expect(/\sfill="([^"]+)"/.exec(text)[1], "admin-login.svg must render its text in --design-link").toBe(scheme.light.link);
+    expect(/\sstroke="([^"]+)"/.exec(text)[1], "admin-login.svg must outline its text in --design-surface-1").toBe(scheme.light.surface);
+  }
+  expect(loginSvg, "admin-login.svg must switch its text to the dark palette").toContain(`text{fill:${scheme.dark.link};stroke:${scheme.dark.surface}}`);
   await expect(page.locator(`${ADMIN_SIDEBAR} .h1`)).toHaveText(title);
   await expect(page.locator("head link[rel='icon']")).toHaveAttribute("href", /templates\/administrator\/atum\/images\/joomla-favicon\.svg/);
 
@@ -469,7 +633,7 @@ const visitorViews = (articleId) => [
 const memberViews = () => [
   view("site-profile", site("option=com_users&view=profile"), "main .com-users-profile"),
   view("site-profile-edit", site("option=com_users&view=profile&layout=edit"), "main form#member-profile"),
-  view("site-article-submit", site("option=com_content&view=form&layout=edit"), "main form#adminForm"),
+  view("site-article-submit", site("option=com_content&view=form&layout=edit"), "main form#adminForm", editorReady),
 ];
 
 const administratorViews = () => [
@@ -480,7 +644,11 @@ const administratorViews = () => [
     await expect(page.locator(ADMIN_USER_MENU).first()).toHaveCSS("opacity", "1");
   }),
   administratorView("admin-articles", "option=com_content&view=articles&filter[search]=", ADMIN_LIST_ROW),
-  administratorView("admin-article-new", "option=com_content&view=article&layout=edit", "#jform_title"),
+  administratorView("admin-article-new", ARTICLE_FORM, "#jform_title", editorReady),
+  administratorView("admin-article-editor-menu", ARTICLE_FORM, "#jform_title", async (page) => {
+    await editorReady(page);
+    await openEditorMenu(page, /insert/i);
+  }),
   administratorView("admin-categories", "option=com_categories&view=categories&extension=com_content&filter[search]=", ADMIN_LIST_ROW),
   administratorView("admin-users", "option=com_users&view=users", ADMIN_LIST_ROW),
   administratorView("admin-user-new", "option=com_users&view=user&layout=edit", "#jform_name"),

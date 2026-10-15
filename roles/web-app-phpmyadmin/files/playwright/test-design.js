@@ -24,7 +24,15 @@ const RESULTS = ".table_results";
 const RESULT_CELL = ".table_results tbody td.data";
 const PRIMARY = `${MAIN} .btn-primary >> visible=true`;
 const CARD = `${MAIN} .card >> visible=true`;
+const BADGE = `${MAIN} .badge`;
+const SUCCESS = `${MAIN} .alert-success`;
 const THEME_CSS = "link[href*='themes/infinito/css/theme']";
+const THEME_SELECT = "#themeSelect";
+const THEME_SELECT_ITEM = "#li_select_theme";
+const THEME_SET = /route=(?:%2F|\/)themes(?:%2F|\/)set/;
+const BASE_THEME = "pmahomme";
+const COLOR_PROPERTY =
+  /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule)$/;
 const SHOWCASE = "design_showcase";
 const MOBILE_WIDTH = 768;
 
@@ -96,6 +104,52 @@ function shown(ready) {
     await setNavigation(page, page.viewportSize().width < MOBILE_WIDTH);
     await expect(page.locator(ready).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
   };
+}
+
+/**
+ * Args:
+ *   page: Playwright page on the phpMyAdmin home view.
+ *   theme: theme id to pick in the chooser of the card "Appearance settings".
+ */
+async function pickTheme(page, theme) {
+  const select = page.locator(THEME_SELECT);
+  await expect(select).toBeVisible({ timeout: resolveTimeout(10_000) });
+  const [posted] = await Promise.all([
+    page.waitForResponse((response) => THEME_SET.test(response.url()) && response.request().method() === "POST", {
+      timeout: resolveTimeout(30_000),
+    }),
+    select.selectOption(theme),
+  ]);
+  expect(posted.status(), `the chooser stores ${theme}`).toBeLessThan(400);
+  await page.waitForLoadState("load");
+  await expect(page.locator(THEME_SELECT)).toHaveValue(theme, { timeout: resolveTimeout(30_000) });
+}
+
+/**
+ * Args:
+ *   source: text of a stylesheet.
+ *   property: source of a regular expression that matches the color-bearing property names.
+ *
+ * Returns the declarations whose value carries a hex value, a numeric color function or a color keyword.
+ */
+function literalColors([source, property]) {
+  const colorProperty = new RegExp(property);
+  const keyword = (word) =>
+    /^[a-z]+$/i.test(word) &&
+    !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) &&
+    CSS.supports("color", word);
+  const found = [];
+  for (const [, name, value] of source.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+    if (!colorProperty.test(name) || value.includes("url(")) continue;
+    if (
+      /#[0-9a-f]{3,8}\b/i.test(value) ||
+      /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(value) ||
+      value.split(/[\s,()]+/).some(keyword)
+    ) {
+      found.push(`${name}: ${value.trim()}`);
+    }
+  }
+  return found;
 }
 
 function views() {
@@ -171,6 +225,60 @@ exports.register = function () {
       expect((await apiGetOnion(page.request, url)).ok(), `${url} is served`).toBe(true);
     }
     expect(errors, "the home page raises no page error").toEqual([]);
+  });
+
+  test("design: the theme stylesheet sets every color through a token", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await open(page, "/", "#maincontainer");
+    const themeUrl = new URL(await page.locator(THEME_CSS).getAttribute("href"), page.url());
+    const response = await apiGetOnion(page.request, new URL("design.css", themeUrl).toString());
+    expect(response.ok(), "the role theme serves design.css").toBe(true);
+    const offenders = await page.evaluate(literalColors, [await response.text(), COLOR_PROPERTY.source]);
+    expect(offenders, "every color of the theme stylesheet comes from a --design-* token").toEqual([]);
+  });
+
+  test("design: phpMyAdmin's theme chooser starts on the role theme, another theme keeps its own colors, and the role theme returns", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await open(page, "/", "#maincontainer");
+    await expect(page.locator(THEME_SELECT)).toHaveValue("infinito");
+    await expect(page.locator("html"), "the role theme follows the browser color scheme").not.toHaveAttribute("data-design-theme", /.+/);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, NAV, "background-color", "--design-surface-2", `role theme ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+
+    await pickTheme(page, BASE_THEME);
+    await expect(page.locator(`link[href*='themes/${BASE_THEME}/css/theme']`)).toHaveCount(1);
+    await expect(page.locator(THEME_CSS)).toHaveCount(0);
+    await expect(page.locator(NAV), "the picked theme draws its own navigation").toHaveCSS("background-image", /linear-gradient/);
+    await assertReadable(page, [`${THEME_SELECT_ITEM} label`], `${BASE_THEME} appearance card`);
+    await expect(page.locator("html"), "a light theme of phpMyAdmin keeps the tokens light").toHaveAttribute("data-design-theme", "light");
+
+    await pickTheme(page, "infinito");
+    await expect(page.locator(THEME_CSS)).toHaveCount(1);
+    await expect(page.locator("html")).not.toHaveAttribute("data-design-theme", /.+/);
+    await expect(page.locator(NAV)).toHaveCSS("background-image", "none");
+    await assertToken(page, NAV, "background-color", "--design-surface-2", "role theme picked again");
+  });
+
+  test("design: the badges of the collation list are readable in both modes", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await open(page, "/server/collations", BADGE);
+    await assertReadable(page, [BADGE], "phpmyadmin collation badge");
+  });
+
+  test("design: a success message takes the success tint and border in both modes", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await ensureShowcase(page);
+    await open(page, `/sql&db=${encodeURIComponent(db)}&table=${SHOWCASE}&pos=0`, SUCCESS);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, SUCCESS, "background-color", "--design-success-subtle", `success message ${mode}`);
+      await assertToken(page, SUCCESS, "border-top-color", "--design-success-border", `success message border ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertReadable(page, [SUCCESS], "phpmyadmin success message");
   });
 
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {

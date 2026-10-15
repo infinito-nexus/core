@@ -318,7 +318,7 @@ li.CodeMirror-hint-active {
   --bs-dark-text-emphasis: var(--design-text-muted);
   --bs-primary-bg-subtle: var(--design-surface-3);
   --bs-secondary-bg-subtle: var(--design-surface-3);
-  --bs-success-bg-subtle: var(--design-success-border);
+  --bs-success-bg-subtle: var(--design-success-subtle);
   --bs-info-bg-subtle: var(--design-info-subtle);
   --bs-warning-bg-subtle: var(--design-warning-subtle);
   --bs-danger-bg-subtle: var(--design-danger-subtle);
@@ -647,17 +647,17 @@ caption {
   --bs-btn-disabled-border-color: var(--design-border);
 }
 .btn-success {
-  --bs-btn-color: var(--design-on-primary);
+  --bs-btn-color: var(--design-on-success);
   --bs-btn-bg: var(--design-success);
   --bs-btn-border-color: var(--design-success);
-  --bs-btn-hover-color: var(--design-on-primary);
-  --bs-btn-hover-bg: var(--design-success);
-  --bs-btn-hover-border-color: var(--design-success);
-  --bs-btn-active-color: var(--design-on-primary);
-  --bs-btn-active-bg: var(--design-success);
-  --bs-btn-active-border-color: var(--design-success);
+  --bs-btn-hover-color: var(--design-on-success);
+  --bs-btn-hover-bg: var(--design-success-hover);
+  --bs-btn-hover-border-color: var(--design-success-hover);
+  --bs-btn-active-color: var(--design-on-success);
+  --bs-btn-active-bg: var(--design-success-active);
+  --bs-btn-active-border-color: var(--design-success-active);
   --bs-btn-active-shadow: inset 0 3px 5px rgba(var(--design-text-rgb), 0.12);
-  --bs-btn-disabled-color: var(--design-on-primary);
+  --bs-btn-disabled-color: var(--design-on-success);
   --bs-btn-disabled-bg: var(--design-success);
   --bs-btn-disabled-border-color: var(--design-success);
 }
@@ -692,17 +692,17 @@ caption {
   --bs-btn-disabled-border-color: var(--design-warning);
 }
 .btn-danger {
-  --bs-btn-color: var(--design-on-primary);
+  --bs-btn-color: var(--design-on-danger);
   --bs-btn-bg: var(--design-danger);
   --bs-btn-border-color: var(--design-danger);
-  --bs-btn-hover-color: var(--design-on-primary);
-  --bs-btn-hover-bg: var(--design-danger);
-  --bs-btn-hover-border-color: var(--design-danger);
-  --bs-btn-active-color: var(--design-on-primary);
-  --bs-btn-active-bg: var(--design-danger);
-  --bs-btn-active-border-color: var(--design-danger);
+  --bs-btn-hover-color: var(--design-on-danger);
+  --bs-btn-hover-bg: var(--design-danger-hover);
+  --bs-btn-hover-border-color: var(--design-danger-hover);
+  --bs-btn-active-color: var(--design-on-danger);
+  --bs-btn-active-bg: var(--design-danger-active);
+  --bs-btn-active-border-color: var(--design-danger-active);
   --bs-btn-active-shadow: inset 0 3px 5px rgba(var(--design-text-rgb), 0.12);
-  --bs-btn-disabled-color: var(--design-on-primary);
+  --bs-btn-disabled-color: var(--design-on-danger);
   --bs-btn-disabled-bg: var(--design-danger);
   --bs-btn-disabled-border-color: var(--design-danger);
 }
@@ -753,10 +753,10 @@ caption {
 .btn-outline-success {
   --bs-btn-color: var(--design-success);
   --bs-btn-border-color: var(--design-success);
-  --bs-btn-hover-color: var(--design-on-primary);
+  --bs-btn-hover-color: var(--design-on-success);
   --bs-btn-hover-bg: var(--design-success);
   --bs-btn-hover-border-color: var(--design-success);
-  --bs-btn-active-color: var(--design-on-primary);
+  --bs-btn-active-color: var(--design-on-success);
   --bs-btn-active-bg: var(--design-success);
   --bs-btn-active-border-color: var(--design-success);
   --bs-btn-active-shadow: inset 0 3px 5px rgba(var(--design-text-rgb), 0.12);
@@ -792,10 +792,10 @@ caption {
 .btn-outline-danger {
   --bs-btn-color: var(--design-danger);
   --bs-btn-border-color: var(--design-danger);
-  --bs-btn-hover-color: var(--design-on-primary);
+  --bs-btn-hover-color: var(--design-on-danger);
   --bs-btn-hover-bg: var(--design-danger);
   --bs-btn-hover-border-color: var(--design-danger);
-  --bs-btn-active-color: var(--design-on-primary);
+  --bs-btn-active-color: var(--design-on-danger);
   --bs-btn-active-bg: var(--design-danger);
   --bs-btn-active-border-color: var(--design-danger);
   --bs-btn-active-shadow: inset 0 3px 5px rgba(var(--design-text-rgb), 0.12);
@@ -1090,14 +1090,14 @@ caption {
   color: var(--design-text) !important;
 }
 .text-bg-success {
-  color: var(--design-on-primary) !important;
+  color: var(--design-on-success) !important;
 }
 .text-bg-info,
 .text-bg-warning {
   color: var(--design-text) !important;
 }
 .text-bg-danger {
-  color: var(--design-on-primary) !important;
+  color: var(--design-on-danger) !important;
 }
 .text-bg-light {
   color: var(--design-text) !important;
@@ -1357,12 +1357,12 @@ td.null {
 }
 .confirmation {
   color: var(--design-text);
-  background-color: pink;
+  background-color: var(--design-danger-subtle);
 }
 .error {
   border-color: currentcolor !important;
   color: var(--design-text);
-  background: pink;
+  background: var(--design-danger-subtle);
 }
 .tblcomment {
   color: var(--design-link);
@@ -1800,20 +1800,21 @@ table.show_create td,
   border-color: var(--design-border-strong);
 }
 meter[value="1"]::-webkit-meter-optimum-value {
-  background: linear-gradient(var(--design-surface-2) 3%, var(--design-danger) 5%, transparent 10%, var(--design-danger));
+  background: var(--design-danger);
 }
 meter[value="2"]::-webkit-meter-optimum-value,
 meter[value="3"]::-webkit-meter-optimum-value {
-  background: linear-gradient(var(--design-surface-2) 3%, var(--design-warning) 5%, transparent 10%, var(--design-warning));
+  background: var(--design-warning);
 }
 #tooltip_editor {
   background-color: var(--design-surface-2);
 }
 #selection_box {
-  background-color: skyblue;
+  background-color: var(--design-info);
 }
 .bg-secondary {
   color: var(--design-text);
+  background-color: var(--design-surface-active) !important;
 }
 #gis_data_editor {
   background-color: var(--design-surface-3);
@@ -2081,7 +2082,7 @@ span.cm-variable {
   color: var(--design-text);
 }
 span.cm-comment {
-  color: olive;
+  color: var(--design-warning);
 }
 span.cm-mysql-string {
   color: var(--design-success);
@@ -2105,7 +2106,7 @@ span.cm-separator {
   color: var(--design-info);
 }
 span.cm-number {
-  color: teal;
+  color: var(--design-success);
 }
 .autocomplete-column-hint {
   color: var(--design-text-muted);
@@ -2787,7 +2788,7 @@ h2,
   color: var(--design-text);
   background-color: var(--design-info-subtle);
   background-image: none;
-  border-color: var(--design-info-subtle);
+  border-color: var(--design-info-border);
 }
 .alert-primary h1,
 .alert-primary .h1 {
@@ -2795,17 +2796,17 @@ h2,
 }
 .alert-success {
   color: var(--design-text);
-  background-color: var(--design-warning-border);
+  background-color: var(--design-success-subtle);
   background-image: none;
-  border-color: var(--design-success);
+  border-color: var(--design-success-border);
 }
 .alert-success h1,
 .alert-success .h1 {
-  border-color: lime;
+  border-color: var(--design-success);
 }
 .alert-danger {
   color: var(--design-text);
-  background-color: pink;
+  background-color: var(--design-danger-subtle);
   background-image: none;
   border-color: var(--design-border-strong);
 }

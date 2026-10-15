@@ -42,6 +42,10 @@ const PERSONAL_DETAILS = "app.bsky.actor.defs#personalDetailsPref";
 const SHOWCASE_BIRTH_DATE = "1990-01-01T00:00:00.000Z";
 const APP_PASSWORD_NAME = "design-showcase";
 
+function htmlText(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/{/g, "&#123;");
+}
+
 function storagePayload(account) {
   const entry = { ...account, active: true };
   return {
@@ -306,11 +310,28 @@ exports.register = function (shared) {
   test("design: logo, favicon and title are the configured ones", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     const symbolUrl = decodeDotenvQuotedValue(process.env.DESIGN_SYMBOL_URL || "");
-    const faviconUrl = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_FAVICON_URL, "DESIGN_FAVICON_URL"));
-    const title = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_TITLE, "DESIGN_TITLE"));
+    const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+    test.skip(!symbolUrl && !title, "logo and title replacement are disabled for this role");
+    expect(faviconUrl, "DESIGN_FAVICON_URL must accompany a configured logo").toBeTruthy();
     await signIn(page, shared);
-    await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-    test.skip(!symbolUrl, "the logo replacement is disabled for this role");
+    if (title) {
+      const separator = String.fromCharCode(0x2014);
+      await expect(page, "the screen title ends with the configured title").toHaveTitle(
+        new RegExp(`^(\\(\\S+\\) )?[^${separator}]+ ${separator} ${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`),
+      );
+      await expect(page.locator('meta[name="application-name"]')).toHaveAttribute("content", title);
+      await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", title);
+      for (const path of ["/", "/settings"]) {
+        const response = await apiFetchOnion(page.request, `${shared.env.baseUrl}${path}`, { method: "GET" });
+        expect(response.status(), `the ${path} document is served`).toBe(200);
+        expect((await response.text()).match(/<title>([^<]*)<\/title>/)?.[1], `the server-rendered ${path} title`).toBe(htmlText(title));
+      }
+      const missing = await apiFetchOnion(page.request, `${shared.env.baseUrl}/design/title/probe/missing`, { method: "GET" });
+      expect(missing.status(), "an unknown route renders the error page").toBe(404);
+      expect((await missing.text()).match(/<title>([^<]*)<\/title>/)?.[1], "the error page title").toBe(`Error 404 - ${htmlText(title)}`);
+    }
+    if (!symbolUrl) return;
     await expect(page.locator('link[rel~="icon"]').first()).toHaveAttribute("href", faviconUrl);
     const logo = page.locator('svg[viewBox="0 0 64 57"]').first();
     await logo.waitFor({ timeout: resolveTimeout(30_000) });
@@ -324,6 +345,49 @@ exports.register = function (shared) {
     ).toBe("rgba(0, 0, 0, 0)");
     const served = await apiFetchOnion(page.request, symbolUrl, { method: "GET" });
     expect(served.status(), "the generated symbol is served").toBe(200);
+  });
+
+  test("design: the visitor splash shows the configured title as its wordmark", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    test.skip(isServiceEnabled("sso"), "the oauth2 gate hands every visitor a session, so the splash never renders");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+    const logotypeUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGOTYPE_URL || "");
+    test.skip(!logotypeUrl, "logo or title replacement is disabled for this role");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoOnion(page, `${shared.env.baseUrl}/settings`);
+    const wordmark = page.locator('[data-testid="noSessionView"] svg[viewBox="0 0 64 17"]').first();
+    await wordmark.waitFor({ timeout: resolveTimeout(30_000) });
+    await expect(wordmark.locator("path"), "the upstream wordmark path is gone").toHaveCount(0);
+    await expect(wordmark.locator("image")).toHaveAttribute("href", logotypeUrl);
+    await expect(wordmark, "the wordmark is named after the configured title").toHaveAttribute("aria-label", title);
+    const box = await wordmark.boundingBox();
+    expect(box.width, "the wordmark keeps its wide box").toBeGreaterThan(box.height * 3);
+    const served = await apiFetchOnion(page.request, logotypeUrl, { method: "GET" });
+    expect(served.status(), "the generated wordmark is served").toBe(200);
+    const xml = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    expect(await served.text(), "the wordmark carries the configured title").toContain(`>${xml}</text>`);
+  });
+
+  test("design: the SSO handoff page takes the configured title and the design tokens", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    test.skip(!isServiceEnabled("sso"), "the login broker renders its handoff page only behind the oauth2 gate");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+    test.skip(!title, "the title replacement is disabled for this role");
+    await signIn(page, shared);
+    await page.context().clearCookies({ name: "bsky_handoff_done" });
+    const response = await apiFetchOnion(page.request, `${shared.env.baseUrl}/`, { method: "GET" });
+    expect(response.status(), "the broker answers with its handoff page").toBe(200);
+    const body = await response.text();
+    expect(body.includes('localStorage.setItem("BSKY_STORAGE"'), "the response is the broker handoff page").toBe(true);
+    expect(body.match(/<title>([^<]*)<\/title>/)?.[1], "the handoff title carries the configured title").toBe(`${htmlText(title)} SSO handoff`);
+    const style = body.match(/<style>body\{([^<]*)\}<\/style>/)?.[1] || "";
+    expect(style, "the handoff page paints its surface with --design-surface-1").toContain("background:var(--design-surface-1)");
+    expect(style, "the handoff page writes its text with --design-text").toContain("color:var(--design-text)");
+    expect(style.match(/#[0-9a-f]{3,8}\b|rgba?\(/gi), "the handoff page paints no literal color").toBeNull();
+    expect(
+      body.includes("<!--infinito-inj-->") && /\/_shared\/css\/default\.css/.test(body),
+      "the front proxy injects the shared sheet into the handoff page",
+    ).toBe(true);
   });
 
   test("design: the default avatar takes --design-primary and --design-on-primary", async ({ page }) => {

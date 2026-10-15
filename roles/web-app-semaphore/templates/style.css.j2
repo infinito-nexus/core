@@ -278,6 +278,9 @@ html {{ app }} .white {
   border-color: var(--design-{{ token }}-border) !important;
 }
 {% endfor %}
+html {{ app }}{{ theme }} code {
+  background-color: var(--design-surface-3);
+}
 {{ app }} .CodeMirror,
 {{ app }} .CodeMirror-gutters {
   background: var(--design-surface-3);

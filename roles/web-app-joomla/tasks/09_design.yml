@@ -62,6 +62,21 @@
   failed_when: joomla_design_styles.rc != 0 or (joomla_design_styles.stdout | trim) not in ['changed', 'ok']
   delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
+- name: "📝 Converge the editor skin and content stylesheets of {{ application_id }}"
+  ansible.builtin.shell: >
+    container exec -i
+    --user {{ JOOMLA_WEB_USER | quote }}
+    -e J_ROOT={{ JOOMLA_DESIGN_ROOT | quote }}
+    -e J_DESIGN_ENABLED={{ JOOMLA_DESIGN_ENABLED | bool | ternary('1', '0') }}
+    -e J_TINYMCE={{ JOOMLA_DESIGN_TINYMCE | to_json | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }} php --
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/php/tinymce_options.php') }}"
+  register: joomla_design_tinymce
+  changed_when: (joomla_design_tinymce.stdout | trim) == "changed"
+  failed_when: joomla_design_tinymce.rc != 0 or (joomla_design_tinymce.stdout | trim) not in ['changed', 'ok']
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
 - name: "🏷️ Keep the site name of {{ application_id }} on the corporate title"
   when: JOOMLA_DESIGN_ENABLED | bool
   block:
@@ -91,6 +106,6 @@
     --user {{ JOOMLA_WEB_USER | quote }}
     {{ JOOMLA_LOCAL_CID | quote }}
     php {{ JOOMLA_CLI_FILE | quote }} cache:clean
-  when: joomla_design_styles is changed
+  when: joomla_design_styles is changed or joomla_design_tinymce is changed
   changed_when: true
   delegate_to: "{{ JOOMLA_HOST_NODE }}"

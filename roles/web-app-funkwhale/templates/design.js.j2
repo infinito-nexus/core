@@ -3,10 +3,13 @@
   var root = document.documentElement;
   function mirror() {
     var body = document.body;
+    var admin = root.getAttribute("data-theme");
     if (body && body.classList.contains("theme-dark")) {
       root.setAttribute("data-design-theme", "dark");
     } else if (body && body.classList.contains("theme-light")) {
       root.setAttribute("data-design-theme", "light");
+    } else if (admin === "dark" || admin === "light") {
+      root.setAttribute("data-design-theme", admin);
     } else {
       root.removeAttribute("data-design-theme");
     }
@@ -15,6 +18,8 @@
     new MutationObserver(mirror).observe(document.body, { attributes: true, attributeFilter: ["class"] });
     mirror();
   }
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+  mirror();
   if (document.body) {
     watchBody();
   } else {

@@ -12,9 +12,13 @@ const {
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
-const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
-const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
-const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+function toHex(rgb) {
+  return `#${rgb
+    .match(/\d+/g)
+    .slice(0, 3)
+    .map((part) => Number(part).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
 
 const MODES = ["light", "dark"];
 const THEME_LINK = 'link[rel="stylesheet"][href*="infinito-design.css"]';
@@ -80,6 +84,18 @@ exports.register = function (shared) {
 
   /**
    * Args:
+   *   page: signed-in Playwright page on a booted desk.
+   *   theme: desk theme the account stores, `Automatic`, `Light` or `Dark`.
+   */
+  async function switchTheme(page, theme) {
+    await page.evaluate(
+      (choice) => window.frappe.xcall("frappe.core.doctype.user.user.switch_theme", { theme: choice }),
+      theme,
+    );
+  }
+
+  /**
+   * Args:
    *   page: Playwright page that ends signed in as the native Administrator, the break-glass account every variant keeps, on a desk that links the theme file and whose theme follows the browser.
    */
   async function signIn(page) {
@@ -98,9 +114,7 @@ exports.register = function (shared) {
       )
       .toBe(1);
     await deskBooted(page);
-    await page.evaluate(() =>
-      window.frappe.xcall("frappe.core.doctype.user.user.switch_theme", { theme: "Automatic" }),
-    );
+    await switchTheme(page, "Automatic");
   }
 
   /**
@@ -178,9 +192,10 @@ exports.register = function (shared) {
    * Args:
    *   page: Playwright page that shows the logo.
    *   selector: selector of the logo image.
+   *   logoUrl: URL of the generated lockup the image must load.
    *   label: place the failure messages name.
    */
-  async function assertLockup(page, selector, label) {
+  async function assertLockup(page, selector, logoUrl, label) {
     const image = page.locator(selector).first();
     await expect(image).toHaveAttribute("src", logoUrl);
     await expect
@@ -264,6 +279,23 @@ exports.register = function (shared) {
           await deskBooted(page);
           await shown(LIST_ROW)(page);
           await themeDialogOpened(page);
+        },
+      },
+    ];
+  }
+
+  function chosenThemeViews() {
+    return [
+      {
+        name: "desktop-theme-dark",
+        url: `${base}/desk`,
+        prepare: async (page) => {
+          await deskBooted(page);
+          await switchTheme(page, "Dark");
+          await gotoOnion(page, page.url());
+          await deskBooted(page);
+          await expect(page.locator("html")).toHaveAttribute("data-design-theme", "dark");
+          await shown(DESKTOP_READY)(page);
         },
       },
     ];
@@ -437,12 +469,17 @@ exports.register = function (shared) {
     await pickTheme(page, THEME_DARK);
     await expect(root).toHaveAttribute("data-theme", "dark");
     await expect(root).toHaveAttribute("data-design-theme", "dark");
+    await expect(root, "the chosen dark theme hands images such as the lockup the dark color scheme").toHaveCSS(
+      "color-scheme",
+      "dark",
+    );
     await assertToken(page, "body", "background-color", "--design-surface-2", "switched to dark");
     await assertToken(page, THEME_CARD, "background-color", "--design-surface-2", "theme tile dark");
     expect(await tokenValue(page, "--design-surface-2", "color"), "the dark palette must differ").not.toBe(light);
     await pickTheme(page, THEME_LIGHT);
     await expect(root).toHaveAttribute("data-theme", "light");
     await expect(root).toHaveAttribute("data-design-theme", "light");
+    await expect(root).toHaveCSS("color-scheme", "light");
     expect(await tokenValue(page, "--design-surface-2", "color")).toBe(light);
     await pickTheme(page, THEME_AUTO);
     await expect(root).toHaveAttribute("data-theme", "light");
@@ -451,19 +488,50 @@ exports.register = function (shared) {
 
   test("design: sign-in page and desktop show the generated lockup, favicon and title", async ({ page }) => {
     shared.skipUnlessServiceEnabled("design");
+    const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
+    const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
     test.setTimeout(resolveTimeout(240_000));
     await openLogin(page);
+    if (title) {
+      const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      await expect(page, "the browser shows the configured title on the sign-in page").toHaveTitle(
+        new RegExp(`^${escaped} - `),
+      );
+    }
     if (logoUrl) {
-      await assertLockup(page, LOGIN_LOGO, "sign-in");
+      await assertLockup(page, LOGIN_LOGO, logoUrl, "sign-in");
       expect(faviconUrl, "DESIGN_FAVICON_URL must accompany a configured logo").toBeTruthy();
       await expect(page.locator(FAVICON).first()).toHaveAttribute("href", faviconUrl);
+      const lockup = await (await apiGetOnion(page.request, logoUrl)).text();
+      if (title) {
+        const xml = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        expect(lockup, "the visible lockup carries the configured title").toContain(`>${xml}</text>`);
+      }
+      const colors = {};
+      for (const mode of MODES) {
+        await page.emulateMedia({ colorScheme: mode });
+        await openLogin(page);
+        colors[mode] = {
+          fill: toHex(await tokenValue(page, "--design-link", "color")),
+          stroke: toHex(await tokenValue(page, "--design-surface-1", "color")),
+        };
+      }
+      await page.emulateMedia({ colorScheme: null });
+      const svg = lockup.toLowerCase();
+      expect(svg, "the lockup text takes --design-link on --design-surface-1 in light mode").toContain(
+        `fill="${colors.light.fill}" stroke="${colors.light.stroke}"`,
+      );
+      expect(svg, "the lockup text takes --design-link on --design-surface-1 in dark mode").toContain(
+        `text{fill:${colors.dark.fill};stroke:${colors.dark.stroke}}`,
+      );
     }
     await signIn(page);
     await gotoOnion(page, `${base}/desk`);
     await shown(DESKTOP_READY)(page);
     if (logoUrl) {
-      await assertLockup(page, DESKTOP_LOGO, "desktop");
+      await assertLockup(page, DESKTOP_LOGO, logoUrl, "desktop");
       await expect(page.locator(FAVICON).first()).toHaveAttribute("href", faviconUrl);
     }
     if (title) {
@@ -489,6 +557,13 @@ exports.register = function (shared) {
     } catch (error) {
       failures.push(error.message);
     }
+    try {
+      await captureDesignGallery(page, chosenThemeViews());
+    } catch (error) {
+      failures.push(error.message);
+    }
+    await openDesk(page, "user", LIST_ROW);
+    await switchTheme(page, "Automatic");
     expect(failures, failures.join("\n")).toEqual([]);
   });
 

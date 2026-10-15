@@ -44,6 +44,9 @@
      and (bluesky_social_app_clone is changed
           or bluesky_social_app_theme is changed
           or bluesky_social_app_design_patches is changed
+          or bluesky_social_app_title_module is changed
+          or bluesky_social_app_title_patches is changed
+          or bluesky_social_app_logotype is changed
           or bluesky_login_broker_copy is changed))
     or bluesky_pdsadmin_download is changed
 

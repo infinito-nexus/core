@@ -425,7 +425,7 @@ exports.register = function (shared) {
     const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE);
     test.skip(
       !logoUrl && !title,
-      "Open WebUI LICENSE clause 4 forbids replacing its name and logo above 50 users without an enterprise license, so the role keeps both until the operator decides",
+      "Open WebUI LICENSE clause 4 forbids replacing its name and logo above 50 users without an enterprise license, so the role keeps both by operator decision",
     );
 
     await openSignIn(page, base);

@@ -33,7 +33,6 @@ const logoutUrl = `${base}/realms/${realm}/protocol/openid-connect/logout`;
 
 const MODES = ["light", "dark"];
 const INJECTED = /<!--infinito-inj-->[\s\S]*?<!--\/infinito-inj-->/g;
-const DARK_MODE_SCRIPT = /<script type="module" async blocking="render">[\s\S]*?<\/script>/;
 const UNKNOWN_USERNAME = "design-gallery-visitor";
 const SIGN_IN_SUBMIT = "#kc-login";
 const SIGN_IN_USERNAME = "#username";
@@ -77,8 +76,14 @@ const USER_SEARCH_ALL = "*";
 const TABLE_LINK = `${TABLE_ROW} a`;
 const TABLE_HEAD = `${TABLE} thead th`;
 const TABLE_HEAD_ROW = `${TABLE} thead`;
+const SWITCH = ".pf-v5-c-switch";
 const SWITCH_ON = ".pf-v5-c-switch__input:checked ~ .pf-v5-c-switch__toggle";
+const DARK_MODE_SWITCH = "[data-testid='attributes.darkMode']";
+const THEMES_SAVE = "[data-testid='themes-tab-save']";
+const LOGIN_THEME = "#kc-login-theme";
+const SAVED = ".pf-v5-c-alert.pf-m-success";
 const NOTICE = ".pf-v5-c-banner.pf-m-gold";
+const PROVIDER_DIVIDER = ".pf-v5-c-page__main hr";
 const BUSY = ".pf-v5-c-spinner, .pf-v5-c-skeleton";
 const LOGOUT_PANEL = "#infinito-logout-status";
 const LOGOUT_PANEL_LINE = `${LOGOUT_PANEL} > p`;
@@ -88,7 +93,7 @@ const LOGOUT_PANEL_LINE = `${LOGOUT_PANEL} > p`;
  *   page: Playwright page whose loading indicators must be gone and whose finite animations must have ended.
  */
 async function settled(page) {
-  await expect(page.locator(BUSY), "every loading indicator must be gone").toHaveCount(0, { timeout: resolveTimeout(30_000) });
+  await expect(page.locator(BUSY), "every loading indicator must be gone").toHaveCount(0, { timeout: resolveTimeout(10_000) });
   await expect
     .poll(
       () =>
@@ -117,7 +122,7 @@ async function settled(page) {
  *   selector: element that must be visible before the page counts as settled.
  */
 async function shown(page, selector) {
-  await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
   await settled(page);
 }
 
@@ -138,7 +143,7 @@ async function searchAllUsers(page) {
  *   panel: dialog or menu that must have finished opening.
  */
 async function opened(page, panel) {
-  await expect(page.locator(panel).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect(page.locator(panel).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
   await expect(page.locator(panel).first()).toHaveCSS("opacity", "1");
   await settled(page);
 }
@@ -254,6 +259,7 @@ async function assertLockup(page, url, box, label) {
     await colorOf(page, / fill="([^"]+)"/.exec(source)[1]),
     `${label}: the title of the lockup must be painted in the on-color of the frame it sits on`,
   ).toBe(await colorOf(page, "var(--design-on-frame)"));
+  expect(source.includes("prefers-color-scheme"), `${label}: the lockup sits on the frame in both modes and must not recolor its title for dark mode`).toBe(false);
   await assertLoads(page, url);
 }
 
@@ -459,6 +465,10 @@ exports.register = function () {
       await assertToken(page, NOTICE, "background-color", "--design-warning", `notice ${mode}`);
       await assertToken(page, NOTICE, "color", "--design-on-warning", `notice ${mode}`);
 
+      await gotoOnion(page, consoleRoute(`divider-${mode}`, "/identity-providers"));
+      await shown(page, PROVIDER_DIVIDER);
+      await assertToken(page, PROVIDER_DIVIDER, "border-top-color", "--design-border", `provider list divider ${mode}`);
+
       await gotoOnion(page, consoleRoute(`dialog-${mode}`, "/realm-settings/events"));
       await shown(page, "[data-testid='rs-events-tab']");
       await page.locator("[data-testid='rs-events-tab']").click();
@@ -521,23 +531,40 @@ exports.register = function () {
     skipUnlessServiceEnabled("design");
     expect(darkClass, "DESIGN_DARK_CLASS must be set once design is enabled; an empty one builds a regex that matches every class").toBeTruthy();
     const html = page.locator("html");
+    const switchInput = page.locator(DARK_MODE_SWITCH);
+    const setDarkMode = async (on) => {
+      await gotoOnion(page, consoleRoute(`dark-mode-${on}`, "/realm-settings/themes"));
+      await shown(page, THEMES_SAVE);
+      await expect(page.locator(LOGIN_THEME), "the themes form must hold the stored realm, not its defaults").toContainText(theme);
+      if ((await switchInput.isChecked()) === on) return;
+      await page.locator(SWITCH, { has: switchInput }).click();
+      await expect(switchInput).toBeChecked({ checked: on });
+      await page.locator(THEMES_SAVE).click();
+      await expect(page.locator(SAVED).first(), "Keycloak must confirm the saved realm").toBeVisible({ timeout: resolveTimeout(10_000) });
+    };
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await signInToConsole(page);
+    let light;
+    try {
+      await setDarkMode(false);
+      await page.emulateMedia({ colorScheme: "dark" });
+      await gotoOnion(page, signInUrl);
+      await shown(page, SIGN_IN_SUBMIT);
+      await expect(page.locator("meta[name='color-scheme']"), "a realm with dark mode switched off must offer the light scheme only").toHaveAttribute("content", "light");
+      await expect(html, "a realm with dark mode switched off must pin the tokens to light").toHaveAttribute("data-design-theme", "light");
+      await expect(html, "a realm with dark mode switched off must not mark Keycloak's dark mode").not.toHaveClass(new RegExp(darkClass));
+      await assertToken(page, CARD, "background-color", "--design-surface-2", "card with the realm's dark mode off");
+      light = await tokenValue(page, "--design-surface-2", "background-color");
+    } finally {
+      await page.emulateMedia({ colorScheme: null });
+      await setDarkMode(true);
+    }
     await page.emulateMedia({ colorScheme: "dark" });
     await gotoOnion(page, signInUrl);
     await shown(page, SIGN_IN_SUBMIT);
     await expect(html, "Keycloak must mark its own dark mode with the class of the corporate theme").toHaveClass(new RegExp(darkClass));
     await expect(html, "a realm that follows the browser must leave the tokens to the browser preference").not.toHaveAttribute("data-design-theme");
-    const dark = await tokenValue(page, "--design-surface-2", "background-color");
-
-    await page.route(/\/protocol\/openid-connect\/auth/, async (route) => {
-      const response = await route.fetch();
-      const body = (await response.text()).replace('content="light dark"', 'content="light"').replace(DARK_MODE_SCRIPT, "");
-      await route.fulfill({ response, body });
-    });
-    await gotoOnion(page, signInUrl);
-    await shown(page, SIGN_IN_SUBMIT);
-    await expect(html, "a realm with dark mode switched off must pin the tokens to light").toHaveAttribute("data-design-theme", "light");
-    expect(await tokenValue(page, "--design-surface-2", "background-color"), "the tokens must stay light although the browser prefers dark").not.toBe(dark);
-    await assertToken(page, CARD, "background-color", "--design-surface-2", "card with dark mode switched off");
+    expect(await tokenValue(page, "--design-surface-2", "background-color"), "the tokens must follow the browser once the switch is on again").not.toBe(light);
   });
 
   test("design: a page without the injected palette keeps Keycloak's own colors", async ({ page }) => {

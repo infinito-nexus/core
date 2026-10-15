@@ -58,11 +58,45 @@
 .focus\:bg-accent:focus {
   background-color: var(--design-surface-hover);
 }
+html:has(> body > .card > #login-form) {
+  --bg: var(--design-surface-1);
+  --card: var(--design-surface-2);
+  --border: var(--design-border);
+  --text: var(--design-text);
+  --muted: var(--design-text-muted);
+  --accent: var(--design-primary);
+  --accent-fg: var(--design-on-primary);
+  --info: var(--design-link);
+  --success: var(--design-success);
+  --input-bg: var(--design-surface-2);
+}
+html:has(> body > .card > #login-form) .field {
+  --border: var(--design-border-strong);
+}
+html:has(> body > .card > #login-form) .btn:hover:not([disabled]) {
+  opacity: 1;
+  background-color: var(--design-primary-hover);
+}
+html:has(> body > .card > #login-form) .btn:active:not([disabled]) {
+  opacity: 1;
+  background-color: var(--design-primary-active);
+}
+html:has(> body > .card > #login-form) .alert {
+  color: var(--design-danger);
+  background-color: var(--design-danger-subtle);
+  border-color: var(--design-danger-border);
+}
+html:has(> body > .card > #login-form) .alert.success {
+  color: var(--design-success);
+  background-color: var(--design-success-subtle);
+  border-color: var(--design-success-border);
+}
 {% if design.logo is string %}
 svg[viewBox="95 84 500 90"] {
   background: url("{{ design.urls.brand.svg if design.title is string else design.urls.icon.svg }}") left center / contain no-repeat;
 }
-svg[viewBox="95 84 500 90"] > * {
+svg[viewBox="95 84 500 90"] > *,
+html:has(> body > .card > #login-form) svg.default-logo > * {
   visibility: hidden;
 }
 @media (min-width: 768px) {
@@ -70,6 +104,9 @@ svg[viewBox="95 84 500 90"] > * {
     width: 13rem;
     background-size: auto 125%;
   }
+}
+html:has(> body > .card > #login-form) svg.default-logo {
+  background: url("{{ design.urls.brand.svg if design.title is string else design.urls.icon.svg }}") center / auto 33% no-repeat;
 }
 {% endif %}
 body[class*="task-"] {
@@ -2318,4 +2355,13 @@ body[class*="task-"] .ui.alert.boxconfirmation {
 }
 body[class*="task-"] .ui.alert.boxwarning {
   background-color: var(--design-warning-subtle);
+}
+body[class*="task-"] .file-upload.droptarget:after {
+  content: "";
+  aspect-ratio: 960 / 560;
+  background-color: var(--design-border);
+  mask: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20960%20560%22%3E%0A%3Cpath%20d%3D%22M690%20245c0%209.2-3.5%2017.9-10.1%2024.9l-175%20175c-6.6%206.6-15.3%2010.1-24.9%2010.1-9.2%200-18.4-3.5-24.9-10.1l-175-175c-6.6-7-10.1-15.8-10.1-24.9%200-4.4.9-9.2%202.6-13.6C277.9%20218.3%20291%20210%20305%20210h87.5V35c0-19.2%2015.8-35%2035-35h105c19.2%200%2035%2015.8%2035%2035v175H655c14%200%2027.1%208.3%2032.4%2021.4%201.7%204.4%202.6%209.2%202.6%2013.6zm0%20245H270V350h-70v140c0%2038.5%2031.5%2070%2070%2070h420c38.5%200%2070-31.5%2070-70V350h-70v140z%22%2F%3E%0A%3C%2Fsvg%3E%0A") center / contain no-repeat;
+}
+html.dark-mode body[class*="task-"] .file-upload:after {
+  mix-blend-mode: normal;
 }

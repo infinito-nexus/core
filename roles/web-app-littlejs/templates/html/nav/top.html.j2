@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center" href="/">
 {% if LITTLEJS_DESIGN_LOGO_ENABLED | bool %}
-      <img src="{{ lookup('design', application_id).urls.logo.svg }}" alt="{{ LITTLEJS_HEADLINE }}" width="200" height="40">
+      <img src="{{ lookup('design', application_id).urls.logo.svg }}" alt="{{ lookup('design', application_id).label | e }}" width="200" height="40">
 {% else %}
       <i class="fa-solid fa-gamepad me-2"></i>
       <span>{{ LITTLEJS_HEADLINE }}</span>

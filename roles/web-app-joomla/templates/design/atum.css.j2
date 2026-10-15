@@ -367,7 +367,9 @@ html:root[data-color-scheme="dark"] {
 .header-item-content button,
 .header-item-icon > *,
 .view-login .h1,
+.view-login .sidebar-wrapper .h2,
 .task-logout .h1,
+.task-logout .sidebar-wrapper .h2,
 .view-login .sidebar-wrapper .card-header {
   color: var(--design-on-frame);
 }
@@ -599,3 +601,5 @@ joomla-alert {
 .btn-close {
   filter: brightness(0) invert(var(--design-invert));
 }
+
+{% include 'design/tinymce.css.j2' %}

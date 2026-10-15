@@ -93,6 +93,9 @@ design:
     logo:
       width: 64
       height: 64
+    document:
+      width: 128
+      height: 128
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

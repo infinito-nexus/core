@@ -316,23 +316,51 @@ exports.register = function () {
     }
   });
 
-  test("design: Gitea serves the generated logo and the configured title", async ({ page }) => {
+  test("design: the navigation and the start page render the generated logo and the configured title", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL);
     const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE);
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
     const base = baseUrl();
-
+    let generated = "";
     if (logoUrl) {
-      const served = await apiGetOnion(page.request, `${base}/assets/img/logo.svg`);
-      const generated = await apiGetOnion(page.request, logoUrl);
-      expect(served.ok(), "Gitea serves a logo").toBe(true);
-      expect(generated.ok(), "the generated logo is published on the CDN").toBe(true);
-      expect(await served.text(), "Gitea must serve the generated corporate logo").toBe(await generated.text());
+      const published = await apiGetOnion(page.request, logoUrl);
+      expect(published.ok(), "the generated logo is published on the CDN").toBe(true);
+      generated = await published.text();
     }
-    if (title) {
+    for (const size of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(size);
       await gotoOnion(page, `${base}/`);
-      await expect(page).toHaveTitle(title);
+      if (logoUrl) {
+        for (const selector of ["#navbar-logo img", ".page-content.home img.logo"]) {
+          const logo = page.locator(selector).first();
+          await expect(logo, `${selector} at ${size.width} px`).toBeVisible({ timeout: resolveTimeout(10_000) });
+          await expect
+            .poll(() => logo.evaluate((image) => image.complete && image.naturalWidth > 0), {
+              message: `${selector} at ${size.width} px must finish loading its image`,
+              timeout: resolveTimeout(10_000),
+            })
+            .toBe(true);
+          const box = await logo.boundingBox();
+          expect(
+            Math.abs(box.width - box.height),
+            `${selector} at ${size.width} px keeps the square box of its slot`,
+          ).toBeLessThan(2);
+          const served = await apiGetOnion(page.request, await logo.evaluate((image) => image.currentSrc));
+          expect(served.ok(), `${selector} source is served`).toBe(true);
+          expect(await served.text(), `${selector} must render the generated corporate logo`).toBe(generated);
+        }
+      }
+      if (title) {
+        await expect(page, `the document title at ${size.width} px`).toHaveTitle(title);
+        await expect(
+          page.locator(".page-content.home .hero h1.title"),
+          `the start page heading at ${size.width} px`,
+        ).toHaveText(title);
+      }
     }
   });
 

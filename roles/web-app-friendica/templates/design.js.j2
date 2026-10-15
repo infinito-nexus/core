@@ -1,6 +1,7 @@
 (function () {
   var provisioned = {{ FRIENDICA_DESIGN_PALETTE['--design-surface-1'] | to_json }};
   var selector = 'link[href*="view/theme/frio/style.pcss"]';
+  var fills = ["--design-primary", "--design-info", "--design-success", "--design-warning", "--design-danger", "--design-primary-300", "--design-primary-700", "--design-neutral-500"];
 
   function normalize(value) {
     var probe = document.createElement("span");
@@ -32,6 +33,52 @@
     return null;
   }
 
+  function token(name) {
+    return normalize("var(" + name + ")");
+  }
+
+  function repeat(value, length) {
+    var list = [];
+    for (var i = 0; i < length; i += 1) list.push(value);
+    return list;
+  }
+
+  function paint(chart, colors, border, hover) {
+    var dataset = chart.data.datasets[0];
+    dataset.backgroundColor = colors;
+    dataset.hoverBackgroundColor = repeat(hover, colors.length);
+    dataset.borderColor = repeat(border, colors.length);
+    dataset.hoverBorderColor = repeat(border, colors.length);
+    chart.update(0);
+  }
+
+  function recolor() {
+    var registry = window.Chart && window.Chart.instances;
+    if (!registry) return;
+    var palette = fills.map(token);
+    var border = token("--design-surface-2");
+    var hover = token("--design-primary-active");
+    Object.keys(registry).forEach(function (key) {
+      var chart = registry[key];
+      var canvas = chart.canvas;
+      if (!canvas || !chart.data.datasets[0]) return;
+      if (canvas.id === "FederationChart") {
+        var data = chart.data.datasets[0].data;
+        var colors = [];
+        var used = 0;
+        for (var i = 0; i < data.length; i += 1) {
+          colors.push(palette[used % palette.length]);
+          if (data[i] > 0) used += 1;
+        }
+        paint(chart, colors, border, hover);
+        return;
+      }
+      if (!canvas.classList.contains("federation-network-graph")) return;
+      var position = Array.prototype.indexOf.call(document.querySelectorAll("canvas.federation-network-graph"), canvas);
+      paint(chart, repeat(palette[position % palette.length], chart.data.datasets[0].data.length), border, hover);
+    });
+  }
+
   function mirror() {
     var link = document.querySelector(selector);
     if (!link || !link.sheet) return;
@@ -40,12 +87,15 @@
     var root = document.documentElement;
     if (normalize(background) === normalize(provisioned)) {
       root.removeAttribute("data-design-theme");
-      return;
+    } else {
+      root.setAttribute("data-design-theme", lightness(normalize(background)) < 0.5 ? "dark" : "light");
     }
-    root.setAttribute("data-design-theme", lightness(normalize(background)) < 0.5 ? "dark" : "light");
+    recolor();
   }
 
   function start() {
+    recolor();
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", recolor);
     var link = document.querySelector(selector);
     if (link && !link.sheet) {
       link.addEventListener("load", mirror, { once: true });
