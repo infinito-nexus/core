@@ -42,7 +42,7 @@ These choices are settled at requirement creation time and bound the implementat
 - [x] A unit test proves the logo and title precedence: global value, per-role override, and `false`/`0` disabling.
 - [x] No `roles/*/meta/services.yml` declares a site title as `title`, `titel`, `sitename`, `site_name` or `site_titel` on its primary entity; every site title lives in the role's `design` entry and is read through `lookup('design', application_id)`.
 - [x] `web-app-joomla` and `web-app-pretix` carry no hardcoded site title.
-- [ ] `web-app-decidim` and `web-app-socialhome` honour an inventory title override. Open: no deploy with an inventory title override is on record, and Socialhome takes the title on its first boot only (`roles/web-app-socialhome/TODO.md`).
+- [ ] `web-app-decidim` and `web-app-socialhome` honour an inventory title override. Decidim renames an existing organization to an inventory title and back. Open: Socialhome takes the title on its first boot only (`roles/web-app-socialhome/TODO.md`).
 - [x] The base gallery on `web-app-dashboard`, `web-app-gitea` and `web-app-nextcloud` is approved by the operator.
 - [ ] `feature/designer` reaches `main` through the draft PR of `feature/store-i18n` linked below, which merges it round by round. Open: the final designer state is not yet pushed into that PR.
 
@@ -60,7 +60,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-checkmk
 - [x] web-app-chess
 - [x] web-app-dashboard
-- [ ] web-app-decidim: `style.css.j2` changed by `6c2de017f8` after the last run.
+- [x] web-app-decidim
 - [x] web-app-discourse
 - [x] web-app-erpnext
 - [x] web-app-espocrm
@@ -75,14 +75,14 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-hermes
 - [ ] web-app-homeassistant: `vars/main.yml` changed after the last role sync that deployed the role.
 - [x] web-app-hugo
-- [ ] web-app-jellyfin: final state never ran (`branding.css.j2` split by `6c2de017f8`, spec and administrator password changed).
-- [ ] web-app-jenkins: `test-design.js` restored after the last complete run; no run on the restored file.
+- [x] web-app-jellyfin
+- [x] web-app-jenkins
 - [x] web-app-jitsi
 - [x] web-app-joomla
 - [x] web-app-keycloak
-- [ ] web-app-kix: `test-design.js` changed after the last green run.
+- [x] web-app-kix
 - [ ] web-app-lam: title neither set nor asserted; spec and `playwright.env.j2` rewritten after the last run.
-- [ ] web-app-listmonk: administrator tasks, env, SQL and spec rewritten after the last run.
+- [x] web-app-listmonk
 - [ ] web-app-litellm: logo swapped by CSS `content` instead of LiteLLM's `logo_url` setting.
 - [x] web-app-littlejs
 - [ ] web-app-magento: literal `darkgrey` at `style.css.j2:5513` and `:5554`; `style.css.j2` changed by `6c2de017f8` after the last run.
@@ -90,7 +90,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-matomo: Matomo's own `themeMode` preference is not exercised (the spec flips the DOM); the administration is not asserted.
 - [ ] web-app-matrix: `vars/main.yml` rewritten after the last complete run.
 - [ ] web-app-mattermost: about 50 literal RGB fallbacks inside `var()` in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
-- [ ] web-app-mediawiki: switch to the platform administrator not deployed.
+- [x] web-app-mediawiki
 - [x] web-app-mini-qr
 - [x] web-app-mobilizon
 - [ ] web-app-moodle: `test-design.js` rewritten after the last complete run; page-slot lockup changed by `63f3631567`.
@@ -104,13 +104,13 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-opentalk: the conference room is not covered; the native theme setting is half exercised; the title check cannot fail; logo lockup changed by `63f3631567`.
 - [ ] web-app-openwebui: logo and title stay Open WebUI's own because clause 4 of its license allows replacing the branding only up to 50 users, with written permission or under an enterprise license (operator decision, see `roles/web-app-openwebui/TODO.md`).
 - [ ] web-app-peertube: `tasks/design/apply.yml` rewritten after the last green run.
-- [ ] web-app-penpot: images bumped by `main` after the last run.
-- [ ] web-app-pgadmin: switch to the platform administrator not deployed.
+- [x] web-app-penpot
+- [x] web-app-pgadmin
 - [x] web-app-phpmyadmin
 - [x] web-app-pihole
 - [x] web-app-pixelfed
 - [ ] web-app-postmarks: the server HTML and the Atom feeds keep the title `Postmarks`, because Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode; `design.js` sets the browser title (upstream option in `roles/web-app-postmarks/TODO.md`).
-- [ ] web-app-pretix: administrator and stylesheet rework not deployed.
+- [x] web-app-pretix
 - [ ] web-app-prometheus: merges of `main` changed spec, services, volumes and tasks after the last run; literal colors in the logout button of `javascript.js.j2`.
 - [x] web-app-roulette-wheel
 - [x] web-app-seaweedfs
@@ -124,7 +124,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-taiga
 - [x] web-app-wordpress
 - [x] web-app-xwiki
-- [ ] web-app-yourls: switch to the platform administrator not deployed.
+- [x] web-app-yourls
 - [ ] web-app-zammad: switch to the platform administrator and the move of the watermark defaults not deployed.
 - [x] web-svc-html
 - [x] web-svc-libretranslate
