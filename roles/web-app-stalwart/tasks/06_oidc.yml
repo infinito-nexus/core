@@ -3,9 +3,6 @@
 # external directory (no fallback), so SSO switches all interactive auth to OIDC
 # and disables password login — see the role README for the full rationale.
 # JMAP request bodies live in templates/jmap/*.json.j2.
-# Stalwart resolves a claimGroups value as the address '<value>@<usernameDomain>'
-# and never reads externalId, so a group under any other name is silently
-# recreated by Stalwart with the default role.
 
 - name: "📖 List existing Stalwart directories"
   include_tasks: jmap_call.yml
@@ -76,9 +73,8 @@
       defaultAdminRoleIds: "{{ {stalwart_role_admin: true} | combine({stalwart_role_user: true}) if stalwart_role_admin | length > 0 else {stalwart_role_user: true}
         }}"
 
-- name: "👑 Grant System Administrator through the Keycloak group"
-  ansible.builtin.include_tasks: admin_group.yml
-  when: stalwart_role_admin | length > 0
+- name: "👑 Grant System Administrator to the mail server's administrator accounts"
+  ansible.builtin.include_tasks: admin_role.yml
 
 - name: "📖 Read the Stalwart authentication singleton"
   include_tasks: jmap_call.yml
