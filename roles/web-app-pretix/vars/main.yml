@@ -30,6 +30,9 @@ PRETIX_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 PRETIX_OIDC_STAFF_SCOPE: "{{ RBAC.GROUP.CLAIM }}"
 PRETIX_OIDC_STAFF_VALUE: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 PRETIX_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.pretix-oidc.version') }}"
+PRETIX_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+PRETIX_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if PRETIX_OIDC_ONION_ISSUER | bool else '' }}"
+PRETIX_OIDC_PROXY_EXCLUDED_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [PRETIX_MCP_UPSTREAM_HOST] }}"
 
 PRETIX_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 PRETIX_REDIS_CACHE_DB: 1

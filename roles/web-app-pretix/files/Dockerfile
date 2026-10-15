@@ -67,7 +67,7 @@ RUN pip3 install -U \
     rm -rf ~/.cache/pip
 
 ARG PRETIX_OIDC_PLUGIN_VERSION
-RUN pip3 install --no-cache-dir "pretix-oidc==${PRETIX_OIDC_PLUGIN_VERSION}" && \
+RUN pip3 install --no-cache-dir "pretix-oidc==${PRETIX_OIDC_PLUGIN_VERSION}" PySocks && \
     rm -rf ~/.cache/pip
 
 RUN chmod +x /usr/local/bin/pretix && \
