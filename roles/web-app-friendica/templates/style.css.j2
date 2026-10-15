@@ -4519,6 +4519,94 @@ nav.navbar .navbar-brand {
   color: var(--design-on-{{ status }});
 }
 {% endfor %}
+#offcanvasUsermenu {
+  background-color: var(--design-frame);
+  border-left-color: var(--design-frame-active);
+}
+#offcanvasUsermenu li.divider {
+  background-color: var(--design-frame-active);
+}
+#offcanvasUsermenu li.divider hr {
+  border-top-color: var(--design-frame-active);
+}
+#adminpage input#id_maximagesize:valid {
+  background-color: var(--design-success-subtle);
+}
+#adminpage input#id_maximagesize:invalid {
+  background-color: var(--design-danger-subtle);
+}
+.fancybox-bg {
+  background-color: var(--design-frame);
+}
+.fancybox-infobar,
+.fancybox-button,
+.fancybox-button:visited,
+.fancybox-button:link {
+  color: var(--design-on-frame);
+}
+.fancybox-button {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+}
+.fancybox-button:hover,
+.fancybox-button:focus {
+  background-color: var(--design-frame-hover);
+  color: var(--design-on-frame);
+}
+.fancybox-button[disabled],
+.fancybox-button[disabled]:hover {
+  background-color: rgba(var(--design-frame-rgb), 0.6);
+  color: rgba(var(--design-on-frame-rgb), 0.6);
+}
+.fancybox-close-small,
+.fancybox-close-small:hover {
+  color: var(--design-on-frame);
+}
+@media all and (max-height: 576px) {
+  .fancybox-slide--image .fancybox-close-small {
+    background-color: var(--design-frame-active);
+    color: var(--design-on-frame);
+  }
+}
+.fancybox-progress {
+  background-color: var(--design-primary);
+}
+.fancybox-caption {
+  background-image: linear-gradient(to top, rgba(var(--design-frame-rgb), 0.85) 0%, rgba(var(--design-frame-rgb), 0.3) 50%, rgba(var(--design-frame-rgb), 0.15) 65%, rgba(var(--design-frame-rgb), 0.075) 75.5%, rgba(var(--design-frame-rgb), 0.037) 82.85%, rgba(var(--design-frame-rgb), 0.019) 88%, rgba(var(--design-frame-rgb), 0) 100%);
+  color: var(--design-on-frame);
+}
+.fancybox-caption a,
+.fancybox-caption a:link,
+.fancybox-caption a:visited,
+.fancybox-caption a:hover {
+  color: var(--design-on-frame);
+}
+.fancybox-loading {
+  border-color: var(--design-frame-active);
+  border-bottom-color: var(--design-on-frame);
+}
+.fancybox-thumbs {
+  background-color: var(--design-frame-active);
+}
+.fancybox-thumbs__list a {
+  background-color: rgba(var(--design-on-frame-rgb), 0.1);
+}
+.fancybox-thumbs__list a::before {
+  border-color: var(--design-primary);
+}
+.fancybox-thumbs-y .fancybox-thumbs__list::-webkit-scrollbar-track {
+  background-color: var(--design-frame);
+}
+.fancybox-thumbs-y .fancybox-thumbs__list::-webkit-scrollbar-thumb {
+  background-color: var(--design-on-frame);
+}
+.fancybox-content,
+.fancybox-slide--iframe .fancybox-content,
+.fancybox-error {
+  background-color: var(--design-surface-2);
+}
+.fancybox-error p {
+  color: var(--design-text);
+}
 {% if design.logo is string %}
 header #banner #logo-img,
 .navbar-brand #logo-img {
