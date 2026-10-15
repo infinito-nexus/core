@@ -280,6 +280,20 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             ],
         )
 
+    def test_onion_apex_kept_for_a_clearnet_homepage_the_template_maps_to_its_sibling(
+        self,
+    ):
+        lm = self._make_lookup()
+        variables = self._onion_variables(DOMAIN_HOMEPAGE=f"dashboard.{DOMAIN}")
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertIn(
+            {"source": "abcdefonion.onion", "target": f"dashboard.{DOMAIN}"},
+            result,
+        )
+
     def test_onion_apex_absent_without_svc_net_tor_group(self):
         lm = self._make_lookup()
         variables = self._onion_variables(group_names=["web-app-dashboard"])
