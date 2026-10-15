@@ -30,7 +30,6 @@ const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const symbolUrl = decodeDotenvQuotedValue(process.env.DESIGN_SYMBOL_URL || "");
-const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
 const SIGN_IN_FORM = ".auth__wrapper form";
@@ -44,6 +43,10 @@ const GRID_ROW = ".grid-view__left .grid-view__row";
 const GRID_HEAD = ".grid-view__head";
 const OPEN_CONTEXT = ".context:not(.visibility-hidden):visible";
 const SHOWCASE = { workspace: "Design showcase", database: "Showcase", table: "Projects" };
+const TABLE_LINK = `.tree__sub-link:has-text('${SHOWCASE.table}')`;
+const ROLE_STYLESHEET = "link[rel='stylesheet'][href*='/roles/web-app-baserow/']";
+const ADMIN_CHART = ".admin-dashboard__box canvas";
+const ADMIN_TOTALS = ".admin-dashboard__box:has-text('Total users')";
 const NO_SSO = "with SSO the sign-in form sits behind the identity provider";
 
 test.use({ ignoreHTTPSErrors: true });
@@ -195,6 +198,29 @@ async function prepareWorkspace(page) {
   return ids;
 }
 
+/**
+ * Args:
+ *   page: signed-in Playwright page.
+ *   ids: showcase ids from `prepareWorkspace`.
+ *   title: configured title the document title must end with, alone or after " | ", on a server-rendered page and after a client-side route change.
+ */
+async function assertTitledRoutes(page, ids, title) {
+  const suffix = new RegExp(`(^|\\| )${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+  await gotoOnion(page, `${base}/all-workspaces`);
+  await shown(".all-workspaces")(page);
+  await expect(page, "the title of a server-rendered page").toHaveTitle(suffix, { timeout: resolveTimeout(10_000) });
+  await gotoOnion(page, `${base}/workspace/${ids.workspace}`);
+  await shown(TREE_LINK)(page);
+  await hydrated(page);
+  if (!(await page.locator(TABLE_LINK).first().isVisible())) {
+    await page.locator(SIDEBAR).getByText(SHOWCASE.database, { exact: true }).first().click();
+  }
+  await shown(TABLE_LINK)(page);
+  await page.locator(TABLE_LINK).first().click();
+  await expect(page).toHaveURL(new RegExp(`/table/${ids.table}(/|$)`), { timeout: resolveTimeout(10_000) });
+  await expect(page, "the title after a client-side route change").toHaveTitle(suffix, { timeout: resolveTimeout(10_000) });
+}
+
 function loaded(selector) {
   return async (page) => {
     await shown(selector)(page);
@@ -276,6 +302,7 @@ function signedInViews(ids) {
       name: "sidebar-hover",
       url: table,
       prepare: async (page) => {
+        await shown(GRID_ROW)(page);
         await shown(TREE_LINK)(page);
         await page.locator(TREE_LINK).last().hover();
       },
@@ -284,7 +311,15 @@ function signedInViews(ids) {
     { name: "create-new", url: `${base}/workspace/${ids.workspace}`, prepare: opened(".dashboard__header", ".sidebar__new") },
     { name: "row-expanded", url: `${table}/${ids.view}/row/${ids.row}`, prepare: shown(".modal__box") },
     view("workspace-members", `/workspace/${ids.workspace}/settings/members`, ".data-table__table"),
-    view("admin-dashboard", "/admin/dashboard", ".admin-dashboard__box"),
+    {
+      name: "admin-dashboard",
+      url: `${base}/admin/dashboard`,
+      prepare: async (page) => {
+        await loaded(".admin-dashboard__box")(page);
+        await expect(page.locator(ADMIN_TOTALS).first()).toContainText(/\d/, { useInnerText: true, timeout: resolveTimeout(10_000) });
+        await shown(ADMIN_CHART)(page);
+      },
+    },
     view("admin-users", "/admin/users", ".data-table__table"),
     view("admin-workspaces", "/admin/workspaces", ".data-table__table"),
     view("admin-settings", "/admin/settings", ".admin-settings__item"),
@@ -386,7 +421,25 @@ test("design: the API documentation keeps its example column readable", async ({
   await page.emulateMedia({ colorScheme: null });
 });
 
-test("design: sign-in page and sidebar show the generated logo and the configured title", async ({ page }) => {
+test("design: the role stylesheet gives no var() a literal color as fallback", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await signIn(page);
+  const href = await page.locator(ROLE_STYLESHEET).first().getAttribute("href");
+  const response = await apiGetOnion(page.request, href, { timeout: resolveTimeout(30_000) });
+  expect(response.status(), `${href} must be served`).toBe(200);
+  const fallbacks = (await response.text()).match(/var\(--[a-z0-9-]+,\s*(?:[0-9#]|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\()/gi);
+  expect(fallbacks || [], "literal var() fallbacks in the role stylesheet").toEqual([]);
+});
+
+test("design: the document title carries the configured title on every route", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+  test.skip(!title, "title replacement is disabled for this role");
+  await signIn(page);
+  await assertTitledRoutes(page, await prepareWorkspace(page), title);
+});
+
+test("design: sign-in page and sidebar show the generated logo", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl, "logo replacement is disabled for this role");
   if (!ssoEnabled) {
@@ -399,7 +452,6 @@ test("design: sign-in page and sidebar show the generated logo and the configure
   await signIn(page);
   await gotoOnion(page, `${base}/all-workspaces`);
   await shown(".all-workspaces")(page);
-  await expect(page).toHaveTitle(new RegExp(`${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
   const sidebarLogo = page.locator(".sidebar__logo .logo > img");
   await expect(sidebarLogo).toHaveCSS("content", `url("${logoUrl}")`);
   const box = await sidebarLogo.boundingBox();
