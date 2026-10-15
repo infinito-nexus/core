@@ -112,6 +112,7 @@ class LookupModule(LookupBase):
                 "credentialed_url": "",
                 "public_domain": "",
                 "public_bucket": "",
+                "public_endpoint": "",
                 "public_url": "",
                 "reach_host": "127.0.0.1",
             }
@@ -236,6 +237,7 @@ class LookupModule(LookupBase):
             if resolve_enabled(provider_app, bool(vars_.get("TLS_ENABLED", True)))
             else "http"
         )
+        public_endpoint = f"{scheme}://{public_domain}" if public_domain else ""
         public_url = f"{scheme}://{public_bucket}" if public_bucket else ""
 
         resolved = {
@@ -262,6 +264,7 @@ class LookupModule(LookupBase):
             "credentialed_url": credentialed_url,
             "public_domain": public_domain,
             "public_bucket": public_bucket,
+            "public_endpoint": public_endpoint,
             "public_url": public_url,
             "reach_host": "127.0.0.1",
         }

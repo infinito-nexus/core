@@ -5,6 +5,16 @@
   vars:
     webserver_extra_configuration: "client_max_body_size 512M;"
 
+- name: "🧱 Render the front nginx override of {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "nginx.conf.j2"
+        dest: "{{ FUNKWHALE_FRONT_NGINX_HOST }}"
+        mode: "0444"
+  when: FUNKWHALE_OBJSTORE_ENABLED | bool
+
 - name: "🎨 Render the Django admin template of {{ application_id }}"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

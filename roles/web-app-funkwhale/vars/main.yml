@@ -10,6 +10,9 @@ FUNKWHALE_DOCKER_API_PORT: "{{ lookup('config', application_id, 'services.api.po
 FUNKWHALE_TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
 FUNKWHALE_API_CONTAINER: "{{ lookup('config', application_id, 'services.api.name') }}"
 
+FUNKWHALE_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+FUNKWHALE_FRONT_NGINX_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'nginx.conf'] | path_join }}"
+
 FUNKWHALE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 FUNKWHALE_DESIGN_LOGO_ENABLED: "{{ FUNKWHALE_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
 FUNKWHALE_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"

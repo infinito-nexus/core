@@ -1,7 +1,9 @@
 ---
-# nocheck: tor-contract — object-storage backend; consumed server-side over the
-# internal network (matrix S3 media etc.), never a Tor-browser surface, so it
-# rides no node onion. The browser consoles live in web-app-seaweedfs.
+# nocheck: tor-contract — an onion vhost is not servable for this role: the
+# node hidden service publishes http only (svc-prx-openresty
+# ports.onion.https is false) while sys-front-tls/templates/nginx_ssl_header.j2
+# keys listen/ssl on application_id rather than on the rendered domain, so the
+# onion vhost would listen on 443 while Tor forwards only 80.
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
   healthcheck:

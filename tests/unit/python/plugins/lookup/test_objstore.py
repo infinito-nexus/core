@@ -104,6 +104,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["url"], "")
         self.assertEqual(out["public_domain"], "")
         self.assertEqual(out["public_bucket"], "")
+        self.assertEqual(out["public_endpoint"], "")
         self.assertEqual(out["public_url"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
@@ -139,12 +140,35 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["url"], "http://seaweedfs-central:8334")
         self.assertEqual(out["public_domain"], "api.seaweedfs.s3.example.com")
         self.assertEqual(out["public_bucket"], "api.seaweedfs.s3.example.com/foo")
+        self.assertEqual(out["public_endpoint"], "https://api.seaweedfs.s3.example.com")
         self.assertEqual(out["public_url"], "https://api.seaweedfs.s3.example.com/foo")
 
         self.assertEqual(
             self._run(["web-app-foo", "url"], applications)[0],
             "http://seaweedfs-central:8334",
         )
+
+    def test_named_canonical_siblings_do_not_win_over_the_api(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"minio": {"enabled": True, "shared": True}},
+                "secrets": {"credentials": {"objstore_secret_key": "sk"}},
+            },
+            "web-app-minio": {
+                "services": {"minio": {"name": "minio-central"}},
+                "domains": {
+                    "canonical": {
+                        "console": "console.minio.s3.example.com",
+                        "api": "api.minio.s3.example.com",
+                    }
+                },
+            },
+        }
+
+        out = self._run(["web-app-foo"], applications)[0]
+
+        self.assertEqual(out["public_domain"], "api.minio.s3.example.com")
+        self.assertEqual(out["public_endpoint"], "https://api.minio.s3.example.com")
 
     def test_credentialed_url_percent_encodes_both_halves(self):
         applications = {
