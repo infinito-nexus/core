@@ -293,7 +293,7 @@ p.popular-tags,
 table.widefat {
   background-color: var(--design-surface-2);
 }
-body {
+body.admin-color-infinito {
   background-color: var(--design-surface-1);
   color: var(--design-text);
 }
@@ -3320,7 +3320,7 @@ input[type=checkbox]:checked,
 input[type=radio]:checked {
   border-color: var(--wp-admin-theme-color);
 }
-body {
+body.admin-color-infinito {
   background-color: var(--design-surface-1);
 }
 a,
