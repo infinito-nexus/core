@@ -1,4 +1,18 @@
 ---
+- name: 📖 Read PID 1 process name
+  ansible.builtin.slurp:
+    src: /proc/1/comm
+  register: pid1_comm
+
+- name: 🛑 Fail if PID1 is not systemd
+  ansible.builtin.assert:
+    that:
+      - pid1_comm.content | b64decode | trim == "systemd"
+    fail_msg: >-
+      PID 1 is {{ pid1_comm.content | b64decode | trim }}, not systemd. docker-ce ships
+      only a systemd unit, so the package install below notifies a handler that would
+      fail with "Could not find the requested service docker.service".
+
 - name: 🔧 Setup Docker repository on Debian and Ubuntu
   include_tasks: 00_core/debian.yml
   when: ansible_facts['distribution'] in ['Debian', 'Ubuntu']
