@@ -21,13 +21,17 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         lm._loader = None
         return lm
 
-    def _patch_lookups(self, *, deployed=None, current_play_apps=None):
+    def _patch_lookups(self, *, deployed=None, current_play_apps=None, siblings=None):
         def _get(name, *args, **kwargs):
             plugin = MagicMock()
             if name == "deployment":
                 plugin.run.return_value = [{"deployed": list(deployed or [])}]
             elif name == "applications_current_play":
                 plugin.run.return_value = [current_play_apps or {}]
+            elif name == "network_siblings":
+                plugin.run.side_effect = lambda terms, **_kw: [
+                    (siblings or {}).get(terms[0], [terms[0]])
+                ]
             else:
                 plugin.run.return_value = [None]
             return plugin
@@ -286,13 +290,29 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         lm = self._make_lookup()
         variables = self._onion_variables(DOMAIN_HOMEPAGE=f"dashboard.{DOMAIN}")
         with self._patch_lookups(
-            deployed=["web-opt-rdr-domains"], current_play_apps={}
+            deployed=["web-opt-rdr-domains"],
+            current_play_apps={},
+            siblings={
+                f"dashboard.{DOMAIN}": [
+                    f"dashboard.{DOMAIN}",
+                    "dashboard.abcdefonion.onion",
+                ]
+            },
         ):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertIn(
             {"source": "abcdefonion.onion", "target": f"dashboard.{DOMAIN}"},
             result,
         )
+
+    def test_onion_apex_absent_for_a_clearnet_homepage_without_an_onion_sibling(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables(DOMAIN_HOMEPAGE=f"dashboard.{DOMAIN}")
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertNotIn("abcdefonion.onion", [m["source"] for m in result])
 
     def test_onion_apex_absent_without_svc_net_tor_group(self):
         lm = self._make_lookup()
@@ -363,7 +383,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(
             result,
-            [{"source": "infinito.test", "target": "infinito.nexus"}],
+            [{"source": DOMAIN, "target": "infinito.nexus"}],
         )
 
     def test_onion_apex_node_value_templated(self):

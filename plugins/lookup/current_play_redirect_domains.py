@@ -10,7 +10,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.merge.mapping import merge_mapping
 from utils.domains.list import render_domain_value
-from utils.networks.reachability import tor_serves_host
+from utils.networks.reachability import TOR, network_of, tor_serves_host
 from utils.roles.entity.name import get_entity_name
 
 
@@ -127,9 +127,10 @@ class LookupModule(LookupBase):
          (``svc-net-tor`` serving the host with a provisioned
          ``services.tor.node``) the bare node-onion apex is scheduled as an
          additional source targeting the same ``DOMAIN_HOMEPAGE`` when that
-         is an onion host; a clearnet ``DOMAIN_HOMEPAGE`` (no dashboard
-         deployed) gets no onion apex entry, so an onion vhost never
-         redirects to clearnet. Both entries require ``web-opt-rdr-domains`` in
+         is an onion host or has an onion sibling this node serves, which
+         the redirect template sends the apex to; a homepage without one
+         gets no onion apex entry, so an onion vhost never redirects to
+         clearnet. Both entries require ``web-opt-rdr-domains`` in
          ``lookup('deployment').deployed`` so isolated CI variants do not
          schedule a redirect whose target is not served.
       3. per-app alias-to-canonical mappings from
@@ -163,6 +164,24 @@ class LookupModule(LookupBase):
         tor = services.get("tor") if isinstance(services, Mapping) else None
         node = tor.get("node") if isinstance(tor, Mapping) else None
         return self._resolve_str(node).strip()
+
+    def _reachable_on_onion(self, domain: str, vars_: Mapping[str, Any]) -> bool:
+        """Whether ``domain`` is an onion host or has an onion sibling this
+        node serves.
+
+        Args:
+            domain: the redirect target.
+            vars_: host variables the ``network_siblings`` lookup reads.
+        """
+        if network_of(domain) == TOR:
+            return True
+        plugin = lookup_loader.get(
+            "network_siblings",
+            loader=getattr(self, "_loader", None),
+            templar=getattr(self, "_templar", None),
+        )
+        siblings = plugin.run([domain], variables=dict(vars_))[0] if plugin else None
+        return any(network_of(sibling) == TOR for sibling in siblings or [])
 
     def _resolve_str(self, value: Any) -> str:
         """Template a possibly Jinja-tagged inventory value through
@@ -214,7 +233,7 @@ class LookupModule(LookupBase):
                 if (
                     node_onion
                     and node_onion != domain_homepage
-                    and domain_homepage.endswith(".onion")
+                    and self._reachable_on_onion(domain_homepage, vars_)
                 ):
                     primary_redirects.append(
                         {"source": node_onion, "target": domain_homepage}
