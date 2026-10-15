@@ -30,6 +30,67 @@ end
 local whole = table.concat(ngx.ctx.buf)
 ngx.ctx.buf = nil
 
+if ngx.ctx.gunzip and whole ~= "" then
+    local gunzip = package.loaded.infinito_gunzip
+    if not gunzip then
+        local ffi = require("ffi")
+        ffi.cdef([[
+            typedef struct {
+                const unsigned char *next_in;
+                unsigned int avail_in;
+                unsigned long total_in;
+                unsigned char *next_out;
+                unsigned int avail_out;
+                unsigned long total_out;
+                const char *msg;
+                void *state;
+                void *zalloc;
+                void *zfree;
+                void *opaque;
+                int data_type;
+                unsigned long adler;
+                unsigned long reserved;
+            } infinito_z_stream;
+            const char *zlibVersion(void);
+            int inflateInit2_(infinito_z_stream *strm, int windowBits, const char *version, int stream_size);
+            int inflate(infinito_z_stream *strm, int flush);
+            int inflateEnd(infinito_z_stream *strm);
+        ]])
+        local zlib = ffi.load("libz.so.1")
+        gunzip = function(data)
+            local stream = ffi.new("infinito_z_stream")
+            if zlib.inflateInit2_(stream, 47, zlib.zlibVersion(), ffi.sizeof(stream)) ~= 0 then
+                return nil, "inflateInit2_ failed"
+            end
+            local size = 65536
+            local buffer = ffi.new("unsigned char[?]", size)
+            local parts = {}
+            stream.next_in = ffi.cast("const unsigned char *", data)
+            stream.avail_in = #data
+            local status
+            repeat
+                stream.next_out = buffer
+                stream.avail_out = size
+                status = zlib.inflate(stream, 0)
+                if status ~= 0 and status ~= 1 then
+                    zlib.inflateEnd(stream)
+                    return nil, "inflate returned " .. status
+                end
+                parts[#parts + 1] = ffi.string(buffer, size - stream.avail_out)
+            until status == 1
+            zlib.inflateEnd(stream)
+            return table.concat(parts)
+        end
+        package.loaded.infinito_gunzip = gunzip
+    end
+    local plain, err = gunzip(whole)
+    if plain then
+        whole = plain
+    else
+        ngx.log(ngx.ERR, "gunzip of the upstream markup failed: ", err)
+    end
+end
+
 {% set _mirror_tor_enabled = lookup('config', application_id, 'services.tor.enabled', False) | bool %}
 {% if _mirror_tor_enabled %}
 {% set _mirror_origins = lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY) %}
