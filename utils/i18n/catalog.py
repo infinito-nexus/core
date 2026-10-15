@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import io
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -30,7 +30,7 @@ MACHINE_TRANSLATION = f"translated-by: {ENGINE}"
 REFUSAL_PREFIX = "translation-refused:"
 REJECTED_PREFIX = "translation-rejected:"
 TRANSLATION_REFUSED = f"{REFUSAL_PREFIX} {ENGINE} damaged-span"
-STAMP = datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC)
+STAMP = dt.datetime(2026, 1, 1, tzinfo=dt.UTC)
 CONTACT = f"{SOFTWARE_AUTHOR} <{SOFTWARE_EMAIL}>"
 HEADER = f"""\
 # Translations template for PROJECT.
