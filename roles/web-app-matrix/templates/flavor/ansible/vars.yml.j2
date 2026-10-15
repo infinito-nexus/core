@@ -51,6 +51,7 @@ matrix_synapse_database_database: "{{ MATRIX_POSTGRES_DATABASE }}"
 matrix_homeserver_container_network: host
 matrix_addons_container_network: host
 matrix_synapse_container_network: host
+matrix_homeserver_container_client_api_endpoint: "localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
 matrix_client_element_container_network: host
 coturn_container_network: host
 jitsi_web_container_network: host
