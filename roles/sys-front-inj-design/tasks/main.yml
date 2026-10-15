@@ -18,13 +18,15 @@
 
 - name: "🚀 Deploy per-app '{{ app_style_src }}' to '{{ css_app_dst }}'"
   when: app_style_present | bool
-  copy:
+  stack_host_copy:
     content: "{{ app_style_css }}"
     dest: "{{ css_app_dst }}"
     mode: "0644"
 
 - name: "🧹 Remove the per-app stylesheet '{{ css_app_dst }}' a role no longer ships"
-  when: not (app_style_present | bool)
+  when:
+    - not (app_style_present | bool)
+    - IS_STACK_HOST | bool
   ansible.builtin.file:
     path: "{{ css_app_dst }}"
     state: absent
