@@ -334,6 +334,21 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             [{"source": "infinito.test", "target": "abcdefonion.onion"}],
         )
 
+    def test_onion_apex_absent_when_homepage_is_clearnet(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables(
+            DOMAIN_HOMEPAGE="infinito.nexus",
+            group_names=["svc-net-tor"],
+        )
+        with self._patch_lookups(
+            deployed=["web-opt-rdr-domains"], current_play_apps={}
+        ):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [{"source": "infinito.test", "target": "infinito.nexus"}],
+        )
+
     def test_onion_apex_node_value_templated(self):
         class _ResolvingTemplar:
             def __init__(self, mapping):

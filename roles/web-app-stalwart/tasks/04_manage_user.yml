@@ -46,4 +46,14 @@
     sys_token_store_user_key: "{{ stalwart_user_key }}"
     sys_token_store_app: "{{ application_id }}"
     sys_token_store_token: "{{ stalwart_user_secret }}"
-  when: "'bot' in stalwart_user_roles"
+  when:
+    - "'bot' in stalwart_user_roles"
+    - not (STALWART_SSO_ENABLED | bool)
+
+- name: "🔑 Keep an app password for bot '{{ stalwart_user_name }}' under SSO"
+  include_tasks: 04_manage_user/app_password.yml
+  vars:
+    stalwart_jmap_act_as: "{{ stalwart_user_name }}@{{ STALWART_DOMAIN }}"
+  when:
+    - "'bot' in stalwart_user_roles"
+    - STALWART_SSO_ENABLED | bool

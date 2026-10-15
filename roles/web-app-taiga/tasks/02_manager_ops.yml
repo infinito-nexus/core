@@ -46,6 +46,7 @@
   loop:
     - { src: "design/infinito-design.json.j2", dest: "{{ TAIGA_DESIGN_PLUGIN_MANIFEST_PATH }}" }
     - { src: "design/infinito-design.css.j2", dest: "{{ TAIGA_DESIGN_PLUGIN_CSS_PATH }}" }
+    - { src: "design/infinito-design.js.j2", dest: "{{ TAIGA_DESIGN_PLUGIN_JS_PATH }}" }
   loop_control:
     label: "{{ item.src }}"
   when: TAIGA_DESIGN_ENABLED | bool

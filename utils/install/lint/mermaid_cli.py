@@ -1,7 +1,8 @@
 """Install @mermaid-js/mermaid-cli (mmdc) and the chrome-headless-shell it renders with.
 
 mmdc comes from npm with ``PUPPETEER_SKIP_DOWNLOAD`` set; the browser is
-provisioned through puppeteer afterwards, as root with its shared libraries
+provisioned afterwards through the puppeteer that npm installed next to mmdc,
+at the revision its puppeteer-core pins, as root with its shared libraries
 (``--install-deps``). ``unzip`` is ensured first because puppeteer extracts the
 browser with it. A failed install warns instead of aborting ``install-lint``, so
 sandboxes without npm or browser access still get the rest of the lint
@@ -12,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -36,12 +38,59 @@ def browser_cache() -> Path:
     return Path(base) / BROWSER
 
 
+def _mmdc_puppeteer() -> Path | None:
+    mmdc = shutil.which("mmdc")
+    if mmdc is None:
+        return None
+    for parent in Path(mmdc).resolve().parents:
+        puppeteer = parent / "node_modules" / "puppeteer"
+        if puppeteer.is_dir():
+            return puppeteer
+    return None
+
+
+def _puppeteer_core(puppeteer: Path) -> Path | None:
+    for base in (puppeteer, *puppeteer.parents):
+        if base.name == "node_modules":
+            continue
+        core = base / "node_modules" / "puppeteer-core"
+        if core.is_dir():
+            return core
+    return None
+
+
+def browser_revision() -> str | None:
+    puppeteer = _mmdc_puppeteer()
+    if puppeteer is None:
+        return None
+    core = _puppeteer_core(puppeteer)
+    if core is None:
+        return None
+    revisions = core / "lib" / "puppeteer" / "revisions.js"
+    try:
+        text = revisions.read_text(encoding="utf-8")  # nocheck: cache-read  npm prefix
+    except OSError:
+        return None
+    match = re.search(rf"'{BROWSER}':\s*'([^']+)'", text)
+    return match.group(1) if match else None
+
+
 def browser_installed() -> bool:
-    return any(path.is_file() for path in browser_cache().glob(f"*/*/{BROWSER}"))
+    revision = browser_revision()
+    if revision is None:
+        return False
+    return any(
+        path.is_file() for path in browser_cache().glob(f"*-{revision}/*/{BROWSER}")
+    )
 
 
-def _provision_browser() -> subprocess.CompletedProcess[str]:
-    argv = ["npx", "--yes", "puppeteer", "browsers", "install", BROWSER]
+def _provision_browser(puppeteer: Path) -> subprocess.CompletedProcess[str]:
+    argv = [
+        str(puppeteer.parent / ".bin" / "puppeteer"),
+        "browsers",
+        "install",
+        BROWSER,
+    ]
     if os.geteuid() == 0:
         argv.append("--install-deps")
     env = {k: v for k, v in os.environ.items() if k != "PUPPETEER_SKIP_DOWNLOAD"}
@@ -58,12 +107,19 @@ def _provision_browser() -> subprocess.CompletedProcess[str]:
 def _ensure_browser() -> None:
     if browser_installed():
         return
-    log(f"Provisioning {BROWSER} for mmdc via puppeteer.")
+    puppeteer = _mmdc_puppeteer()
+    if puppeteer is None:
+        warn(f"{BROWSER} provisioning skipped: no puppeteer next to mmdc")
+        return
+    log(f"Provisioning {BROWSER} for mmdc via its own puppeteer.")
     try:
-        done = _provision_browser()
+        done = _provision_browser(puppeteer)
         if done.returncode != 0:
-            shutil.rmtree(browser_cache(), ignore_errors=True)
-            done = _provision_browser()
+            revision = browser_revision()
+            if revision is not None:
+                for partial in browser_cache().glob(f"*-{revision}"):
+                    shutil.rmtree(partial, ignore_errors=True)
+            done = _provision_browser(puppeteer)
     except (OSError, subprocess.TimeoutExpired) as exc:
         warn(f"{BROWSER} provisioning skipped (optional lint tool): {exc}")
         return

@@ -60,6 +60,14 @@ design-plugin-css:
     - service: front
       target: /usr/share/nginx/html/plugins/infinito-design/infinito-design.css
       when: "{{ lookup('config', 'web-app-taiga', 'services.design.enabled') | bool }}"
+design-plugin-js:
+  type: config
+  source: "{{ [lookup('container', 'web-app-taiga', 'directories.config'), 'infinito-design.js'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: front
+      target: /usr/share/nginx/html/plugins/infinito-design/infinito-design.js
+      when: "{{ lookup('config', 'web-app-taiga', 'services.design.enabled') | bool }}"
 config-append:
   type: bind
   source: "{{ [lookup('container', 'web-app-taiga', 'directories.config'), 'taiga-config.append.py'] | path_join }}"

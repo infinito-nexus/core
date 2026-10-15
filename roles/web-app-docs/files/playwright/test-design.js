@@ -15,6 +15,7 @@ const { pollStatus } = require("./_shared");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
+const designTitle = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
 const MAIN = "main";
@@ -356,6 +357,23 @@ test("design: logo, icon and favicon come from the design lookup", async ({ page
       `the page must be allowed to load ${url}`,
     ).toBe(true);
   }
+});
+
+test("design: the documentation renders the configured title in the tab, header, breadcrumbs and drawer", async ({
+  page,
+}) => {
+  skipUnlessServiceEnabled("design");
+  test.skip(!designTitle, "title replacement is disabled for this role");
+  const escaped = designTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, ROLE_README);
+  await expect(page).toHaveTitle(new RegExp(`\\| ${escaped}$`));
+  await expect(page.locator("header a > span.font-bold")).toHaveText(designTitle);
+  await expect(page.locator(`${BREADCRUMBS} > a:first-child > span`)).toHaveText(designTitle);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "/");
+  await openSidebar(page);
+  await expect(page.locator(`${SIDEBAR} > a > span.font-bold`)).toHaveText(designTitle);
 });
 
 test("design: gallery of index, guides, role pages, generated pages, search, sidebar and switch states", async ({

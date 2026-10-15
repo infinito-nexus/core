@@ -125,9 +125,10 @@ class LookupModule(LookupBase):
          DOMAIN_PRIMARY even when no app claims it. On onion nodes
          (``svc-net-tor`` in ``group_names`` with a provisioned
          ``services.tor.node``) the bare node-onion apex is scheduled as an
-         additional source targeting the same ``DOMAIN_HOMEPAGE``, which is
-         already family-correct there (onion-injected domain lookup); both
-         entries require ``web-opt-rdr-domains`` in
+         additional source targeting the same ``DOMAIN_HOMEPAGE`` when that
+         is an onion host; a clearnet ``DOMAIN_HOMEPAGE`` (no dashboard
+         deployed) gets no onion apex entry, so an onion vhost never
+         redirects to clearnet. Both entries require ``web-opt-rdr-domains`` in
          ``lookup('deployment').deployed`` so isolated CI variants do not
          schedule a redirect whose target is not served.
       3. per-app alias-to-canonical mappings from
@@ -209,7 +210,11 @@ class LookupModule(LookupBase):
                     primary_redirects.append(
                         {"source": domain_primary, "target": domain_homepage}
                     )
-                if node_onion and node_onion != domain_homepage:
+                if (
+                    node_onion
+                    and node_onion != domain_homepage
+                    and domain_homepage.endswith(".onion")
+                ):
                     primary_redirects.append(
                         {"source": node_onion, "target": domain_homepage}
                     )
