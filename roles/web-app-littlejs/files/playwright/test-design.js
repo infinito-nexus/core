@@ -67,6 +67,16 @@ async function forgetBrowserChoices(page) {
   });
 }
 
+/**
+ * Args:
+ *   page: Playwright page whose request context fetches the document.
+ *   url: document URL; the title is read from the HTML the server sends, before any script runs.
+ */
+async function servedTitle(page, url) {
+  const html = await (await apiGetOnion(page.request, url)).text();
+  return page.evaluate((source) => new DOMParser().parseFromString(source, "text/html").title, html);
+}
+
 async function launcherReady(page) {
   await expect(page.locator(CARD).first()).toBeVisible({ timeout: resolveTimeout(20_000) });
   await expect(page.locator(BRAND)).toBeVisible({ timeout: resolveTimeout(20_000) });
@@ -295,11 +305,15 @@ exports.register = function () {
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
     await openLauncher(page);
     if (title) {
-      expect(await page.title(), "the launcher title must carry the configured title").toContain(title);
+      await expect(page, "the launcher title is the configured title").toHaveTitle(title);
+      expect(await servedTitle(page, launcher), "the launcher template renders the configured title").toBe(title);
     }
     if (logoUrl) {
       const lockup = page.locator(`${BRAND} img`);
       await expect(lockup).toHaveAttribute("src", logoUrl);
+      if (title) {
+        await expect(lockup, "the lockup is named by the configured title").toHaveAttribute("alt", title);
+      }
       await expect
         .poll(() => lockup.evaluate((image) => image.complete && image.naturalWidth > 0), {
           message: "the lockup must load",
@@ -314,8 +328,16 @@ exports.register = function () {
       const svg = (await served.text()).toLowerCase();
       expect(svg, "the lockup carries the title as text").toContain("<text");
       expect(svg, "the lockup text on the frame").toContain(`fill="${onFrame}"`);
-      await gotoOnion(page, short("shapes.js"));
+    }
+    await gotoOnion(page, short("shapes.js"));
+    if (logoUrl) {
       await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
+    }
+    if (title) {
+      await expect(page, "the runner title is the configured title").toHaveTitle(title);
+      expect(await servedTitle(page, short("shapes.js")), "the runner template renders the configured title").toBe(
+        title,
+      );
     }
   });
 
@@ -363,7 +385,10 @@ exports.register = function () {
       await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
     }
     if (title) {
-      expect(await page.title()).toContain(title);
+      const upstream = await servedTitle(page, browser());
+      await expect(page, "the example browser adds the configured title to its own").toHaveTitle(
+        upstream.includes(title) ? upstream : `${upstream} | ${title}`,
+      );
     }
   });
 
