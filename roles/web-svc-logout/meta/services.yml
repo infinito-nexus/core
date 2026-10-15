@@ -22,8 +22,10 @@ logout:
   ports:
     local:
       http: 8048
+      http_onion: 16561
     internal:
       http: 8000
+      http_onion: 8000
   proxy:
     service_key: logout
   lifecycle: beta

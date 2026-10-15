@@ -1,6 +1,8 @@
 import importlib.util
 import unittest
 
+from utils.networks.reachability import network_of
+
 from . import PROJECT_ROOT
 
 DOMAIN_FILTERS_PATH = str(
@@ -123,6 +125,23 @@ class TestLogoutDomainsFilter(unittest.TestCase):
             "app1": ["app.abc.onion", "app.example"],
         }
         result = self.filter_fn(applications, list(applications), domains=domains)
+        self.assertEqual(set(result), {"logout.abc.onion", "app.abc.onion"})
+
+    def test_explicit_network_sweeps_only_that_network(self):
+        applications = {
+            "web-svc-logout": {"services": {"logout": {"enabled": True}}},
+            "app1": {"services": {"logout": {"enabled": True}}},
+        }
+        domains = {
+            "web-svc-logout": ["logout.example", "logout.abc.onion"],
+            "app1": ["app.example", "app.abc.onion"],
+        }
+        result = self.filter_fn(
+            applications,
+            list(applications),
+            domains=domains,
+            network_name=network_of("logout.abc.onion"),
+        )
         self.assertEqual(set(result), {"logout.abc.onion", "app.abc.onion"})
 
     def test_disabled_entity_keys_excluded(self):
