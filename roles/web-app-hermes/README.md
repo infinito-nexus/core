@@ -13,7 +13,7 @@ This role deploys Hermes Agent in gateway mode as a Docker service, published be
 - **OpenAI-compatible gateway:** The container starts the agent with the `gateway` command and answers OpenAI-style `/v1` requests on its own subdomain.
 - **Bearer-key API server:** The API server is gated by a generated `API_SERVER_KEY`, and calls to `/v1/models` without that key are rejected.
 - **Optional web dashboard:** With `services.webui.enabled` set, the dashboard runs inside the agent container and is published on the subdomain root. It is off by default. See [Web dashboard](#web-dashboard).
-- **Dashboard sign-in:** With Keycloak deployed, the OAuth2 proxy admits the administrator and MCP groups and the dashboard signs them in through OIDC. Without Keycloak the dashboard offers a password form backed by a generated credential of this role.
+- **Dashboard sign-in:** The dashboard carries a password form backed by a generated credential of this role in every deployment, because it refuses to bind to a non-loopback address while no auth provider is registered. With Keycloak deployed, the OAuth2 proxy admits the administrator and MCP groups in front of it, and an HTTPS realm adds an OIDC button beside the form.
 - **Corporate design:** With the design service deployed, the dashboard and its sign-in page render the corporate palette, logo and title in light and dark mode.
 - **Isolating runtime:** The compose service is pinned to Kata Containers when hardware virtualization and the Kata shim are present, and to gVisor otherwise.
 - **Gateway-routed models:** With the LiteLLM Gateway deployed, the agent's model base URL points at that gateway and authenticates with a per-consumer virtual key.
@@ -55,10 +55,13 @@ The Playwright tests that need the dashboard run only while `WEBUI_SERVICE_ENABL
 
 ### Sign-in
 
-| Deployment | Sign-in |
-| --- | --- |
-| Keycloak deployed | `HERMES_DASHBOARD_OIDC_ISSUER` and `HERMES_DASHBOARD_OIDC_CLIENT_ID` point the dashboard at the realm |
-| Keycloak absent | `HERMES_DASHBOARD_BASIC_AUTH_USERNAME` carries the administrator username, `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD` the generated credential `secrets.credentials.webui_password` of this role |
+`HERMES_DASHBOARD_BASIC_AUTH_USERNAME` carries the administrator username and `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD` the generated credential `secrets.credentials.webui_password` of this role. Both are rendered in every deployment: the dashboard refuses to bind to a non-loopback address while no auth provider is registered, and without them the container port never listens.
+
+| Deployment | In front of the dashboard | Dashboard sign-in page |
+| --- | --- | --- |
+| Keycloak deployed, HTTPS realm | OAuth2 proxy, administrator and MCP groups only | Password form plus the OIDC button from `HERMES_DASHBOARD_OIDC_ISSUER` and `HERMES_DASHBOARD_OIDC_CLIENT_ID` |
+| Keycloak deployed, plaintext `.onion` realm | OAuth2 proxy, administrator and MCP groups only | Password form; the dashboard's OIDC provider takes an HTTPS issuer only, so the role renders no OIDC variables |
+| Keycloak absent | Nothing | Password form |
 
 Read the password from the inventory at `applications.web-app-hermes.secrets.credentials.webui_password`. The platform administrator password is not part of the agent container environment.
 

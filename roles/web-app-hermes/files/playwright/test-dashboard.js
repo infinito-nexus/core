@@ -44,7 +44,6 @@ exports.register = function (shared) {
 
   test("administrator: the dashboard refuses the password of the platform administrator", async ({ page }) => {
     skipUnlessServiceEnabled("webui");
-    skipUnlessServiceDisabled("sso");
     await shared.openSignIn(page);
     const form = page.locator("form.provider-form");
     await form.locator("input[name='username']").fill(shared.env.adminUsername);
