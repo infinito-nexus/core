@@ -23,7 +23,7 @@ async function loginWithPassword(request, matrixBaseUrl, username, password) {
   });
   expect(
     response.status(),
-    `biber must obtain a client-server access token by password; the deploy provisions the account, ` +
+    `${username} must obtain a client-server access token by password; the deploy provisions the account, ` +
       `so a 403 here means the password in the Playwright env no longer matches Synapse. ` +
       `HTTP ${response.status()}: ${(await response.text().catch(() => "")).slice(0, 300)}`,
   ).toBe(200);
@@ -42,7 +42,9 @@ async function botNotices(request, matrixBaseUrl, token, roomId, botUserId) {
     .map((event) => String((event.content && event.content.body) || ""));
 }
 
-test("hookshot-feeds addon: biber subscribes a room to an RSS feed and hookshot confirms", async ({ request }) => {
+test("hookshot-feeds addon: the administrator subscribes a room to an RSS feed and hookshot confirms", async ({
+  request,
+}) => {
   skipUnlessAddonEnabled("hookshot-feeds");
   skipUnlessServiceEnabled("gitlab");
   test.skip(
@@ -61,15 +63,15 @@ test("hookshot-feeds addon: biber subscribes a room to an RSS feed and hookshot 
   const matrixBaseUrl = (shared.env.matrixBaseUrl || "").replace(/\/$/, "");
   const matrixServerName = shared.env.matrixServerName;
   const gitlabBaseUrl = (decodeDotenvQuotedValue(process.env.GITLAB_BASE_URL) || "").replace(/\/$/, "");
-  const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
-  const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+  const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
+  const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
   expect(matrixBaseUrl, "MATRIX_BASE_URL must be set").toBeTruthy();
   expect(gitlabBaseUrl, "GITLAB_BASE_URL must be set while the gitlab service is enabled").toBeTruthy();
-  expect(biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
+  expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
 
   const botUserId = `@${HOOKSHOT_BOT_LOCALPART}:${matrixServerName}`;
   const feedUrl = `${gitlabBaseUrl}${FEED_PATH}`;
-  const token = await loginWithPassword(request, matrixBaseUrl, biberUsername, biberPassword);
+  const token = await loginWithPassword(request, matrixBaseUrl, adminUsername, adminPassword);
   const auth = { Authorization: `Bearer ${token}` };
 
   const createResponse = await request.post(`${matrixBaseUrl}/_matrix/client/v3/createRoom`, {
