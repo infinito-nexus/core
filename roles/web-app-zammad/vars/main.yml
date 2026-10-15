@@ -52,6 +52,8 @@ ZAMMAD_TELEGRAM_HELPER_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}telegram_helper.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
 
 ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_http_discovery.rb"
+ZAMMAD_NETWORK_ORIGINS_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_network_origins.rb"
+ZAMMAD_NETWORK_BASE_URLS: "{{ lookup('network_urls', lookup('tls', application_id, 'url.base')) }}"
 ZAMMAD_OIDC_GROUP_ROLE_MAP:
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
   "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"

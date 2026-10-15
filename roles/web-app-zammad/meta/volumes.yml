@@ -40,6 +40,13 @@ zammad_omniauth_init:
       target: *opt_zammad_config_initializers_zz_omniauth_allow_get_rb_target
     - service: railsserver
       target: *opt_zammad_config_initializers_zz_omniauth_allow_get_rb_target
+zammad_network_origins:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'zz_network_origins.rb'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: railsserver
+      target: /opt/zammad/config/initializers/zz_network_origins.rb
 zammad_telegram_helper:
   type: bind
   source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'telegram_helper.rb'] | path_join }}"
