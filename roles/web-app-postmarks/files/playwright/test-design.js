@@ -42,6 +42,7 @@ const SAVE = ".edit-bookmark button[type='submit']";
 const TAG_ENTRY = "#tagEntry";
 const CHIP = "#taggedList .tagged";
 const SIGNED_IN = ".header .menu a[href='/admin']";
+const ADMIN_SUBNAV = ".admin-links";
 const FOOTER_ICONS = [".btn--feed img", ".btn--github img"];
 const SHOWCASE_TAG = "designshowcase";
 const SEED = Array.from({ length: 12 }, (_, index) => `design-showcase-${String(index + 1).padStart(2, "0")}`);
@@ -189,6 +190,36 @@ exports.register = function () {
     await assertReadable(page, [`${EDIT_FORM} label`, SAVE, "#bookmark_url"], "postmarks form");
   });
 
+  test("design: the owner area takes subnav, fields and actions from the palette", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page);
+    for (const [path, control] of [
+      ["/admin", "button.btn[data-copy]"],
+      ["/admin/bookmarks", "#multiadd_urls"],
+      ["/admin/data", "form[action='/admin/reset'] button[type='submit']"],
+    ]) {
+      await gotoOnion(page, `${base}${path}`);
+      await shown(`${ADMIN_SUBNAV} a`)(page);
+      await shown(control)(page);
+      for (const mode of MODES) {
+        await page.emulateMedia({ colorScheme: mode });
+        await page.mouse.move(0, 0);
+        await assertToken(page, "body", "background-color", "--design-surface-1", `${path} page ${mode}`);
+        await assertToken(page, ADMIN_SUBNAV, "color", "--design-text-muted", `${path} current entry ${mode}`);
+        await assertToken(page, `${ADMIN_SUBNAV} a`, "color", "--design-text-muted", `${path} subnav link ${mode}`);
+        await assertToken(page, control, "background-color", "--design-surface-2", `${path} control ${mode}`);
+        await assertToken(page, control, "border-top-color", "--design-border-strong", `${path} control border ${mode}`);
+        await assertToken(page, control, "color", "--design-text", `${path} control text ${mode}`);
+      }
+      await page.emulateMedia({ colorScheme: null });
+      await assertLightAndDark(page, ".content", `postmarks ${path}`);
+      await assertReadable(page, [`${ADMIN_SUBNAV} li`, `${ADMIN_SUBNAV} a`, control, ".content h3"], `postmarks ${path}`);
+    }
+    await gotoOnion(page, `${base}/admin/followers`);
+    await shown(".content h3")(page);
+    await assertReadable(page, [`${ADMIN_SUBNAV} a`, ".content h3", ".content p"], "postmarks followers");
+  });
+
   test("design: tag operations and the empty search take the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await signIn(page);
@@ -327,11 +358,11 @@ exports.register = function () {
         },
       },
       { name: "bookmark-popup", url: `${base}/bookmark/popup`, prepare: shown(EDIT_FORM) },
-      { name: "admin-bookmarklet", url: `${base}/admin`, prepare: shown(".admin-links") },
+      { name: "admin-bookmarklet", url: `${base}/admin`, prepare: shown(ADMIN_SUBNAV) },
       { name: "admin-import", url: `${base}/admin/bookmarks`, prepare: shown("#multiadd_urls") },
-      { name: "admin-followers", url: `${base}/admin/followers`, prepare: shown(".admin-links") },
-      { name: "admin-following", url: `${base}/admin/following`, prepare: shown(".admin-links") },
-      { name: "admin-data", url: `${base}/admin/data`, prepare: shown(".admin-links") },
+      { name: "admin-followers", url: `${base}/admin/followers`, prepare: shown(ADMIN_SUBNAV) },
+      { name: "admin-following", url: `${base}/admin/following`, prepare: shown(ADMIN_SUBNAV) },
+      { name: "admin-data", url: `${base}/admin/data`, prepare: shown(ADMIN_SUBNAV) },
       { name: "network", url: `${base}/network`, prepare: shown(".content h1") },
     ];
   }
