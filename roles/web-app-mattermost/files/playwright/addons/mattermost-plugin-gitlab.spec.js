@@ -17,6 +17,6 @@ test("addon mattermost-plugin-gitlab: the GitLab plugin is installed and active"
 
   expect(
     active,
-    `${PLUGIN_ID} must be among the active plugins; its absence means the marketplace install in tasks/utils/addon.yml was skipped or refused and the GitLab surface never loaded`,
+    `${PLUGIN_ID} must be among the active plugins; mmctl exits 0 for the install and the enable even when the server then refuses to activate the pinned release on this server version`,
   ).toContain(PLUGIN_ID);
 });

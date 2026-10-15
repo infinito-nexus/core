@@ -92,7 +92,9 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 
 ## Addons
 
-`meta/addons/` declares the curated upstream plugins. `tasks/04_addons.yml` loops the entries whose `enabled` resolves true, installs each `config.plugin_id` through `mmctl plugin marketplace install`, enables it and then runs the per-addon hook in `tasks/addons/`. Every entry is `required: false`, so a refused install emits a warning and the deploy continues.
+`meta/addons/` declares the curated upstream plugins. `tasks/04_addons.yml` loops the entries whose `enabled` resolves true and hands each to `tasks/utils/addon.yml`, which drops the entries this node's architecture cannot run and passes the rest to `tasks/utils/addon/runnable.yml`. An entry with a `config.archive` is installed by `tasks/utils/addon/upstream.yml` through `mmctl plugin install-url --force`; one without it falls back to `mmctl plugin marketplace install`. The entry is then enabled and its per-addon hook in `tasks/addons/` runs. Every entry is `required: false`, so a refused install emits a warning and the deploy continues.
+
+`mmctl plugin enable` only writes `PluginSettings.PluginStates` and exits 0; the server activates the bundle afterwards and logs an activation refusal instead of returning it. A `config.archive` must therefore point at a release whose `plugin.json` carries a `min_server_version` the deployed `services.mattermost.ref` satisfies, otherwise the deploy stays green and the plugin never appears in `/api/v4/plugins` under `active`.
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
