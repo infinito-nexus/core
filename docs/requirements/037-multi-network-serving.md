@@ -105,15 +105,18 @@ Verified on the PR 414 worktree; build on these.
 - [ ] Every cross-app URL rendered for a vhost (CDN, CSS, Matomo, logout, dashboard iframe origin, simpleicons, mirror) uses the provider domain of that vhost's network, in both directions.
 - [ ] Injected snippets and their CSP hashes are rendered per vhost, so the clearnet and the onion vhost of one app serve their own correct snippets.
 - [ ] The CDN-only runtime rewrite in `body_filter.lua.j2` is removed.
+- [ ] An application that renders network-bound URLs into one config (the dashboard) runs one instance per network, each with the config and CDN scripts of its network.
 - [ ] The CSP header is built per vhost domain and lists only sources of that vhost's network plus the single SSO issuer.
 - [ ] Redirect vhosts (aliases, `www`, node-onion apex) redirect inside the source's network, so source and target share one scheme.
 
 ### SSO
 
-- [ ] In `multi` mode Keycloak serves both vhosts and publishes the single issuer `https://auth.<clearnet>/realms/<realm>` for requests on either vhost.
+- [ ] In `multi` mode Keycloak's onion vhost answers every browser path with a 302 to the same path on the single issuer `https://auth.<clearnet>`, keeps its health locations, and the issuer sends no `Onion-Location`.
+- [ ] The issuer's `frame-ancestors` admits the pages of every network the node serves, so an onion app can embed the issuer's session iframes.
 - [ ] In `tor` mode Keycloak keeps its onion issuer, and in `clearnet` mode its clearnet issuer.
 - [ ] A `multi` SSO app completes an OIDC login on its clearnet vhost (Playwright).
 - [ ] Keycloak redirect URIs and web origins include both siblings of every SSO consumer, each with its own scheme.
+- [ ] An oauth2-proxy-gated role runs one proxy instance per network it is served on, so a login started on either sibling returns to that sibling and sets its session cookie there.
 
 ### Checks
 
