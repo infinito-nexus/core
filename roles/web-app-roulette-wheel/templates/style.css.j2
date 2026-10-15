@@ -1,3 +1,4 @@
+{% set base = lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') %}
 body {
   background-color: var(--design-surface-1);
   color: var(--design-text);
@@ -41,4 +42,19 @@ footer p {
 }
 .item-delete {
   filter: brightness(0) invert(var(--design-invert));
+}
+{% for fill in ['frame', 'info', 'warning', 'danger', 'success', 'primary', 'frame-hover', 'info-hover', 'warning-hover', 'danger-hover', 'success-hover', 'primary-hover', 'frame-active', 'info-active', 'warning-active', 'danger-active'] %}
+.menu-item[data-design-fill="{{ fill }}"] {
+  box-shadow: inset 0 0 0 100vmax var(--design-{{ fill }});
+  color: var(--design-on-{{ fill | regex_replace('-(hover|active)$', '') }});
+}
+{% endfor %}
+.menu-item[data-design-fill] .item-delete {
+  box-sizing: content-box;
+  width: 0;
+  height: 0;
+  padding: 0.5rem;
+  background-color: currentcolor;
+  filter: none;
+  mask: url("{{ base }}/static/close.png") center / contain no-repeat;
 }
