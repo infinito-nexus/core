@@ -12,7 +12,7 @@ Usage:
 from __future__ import annotations
 
 import contextlib
-import datetime
+import datetime as dt
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -29,12 +29,12 @@ _STATUS_EMOJI: dict[str, str] = {
 }
 
 
-def _to_iso_z(dt: datetime.datetime) -> str:
-    """Format ``dt`` as ``YYYY-MM-DDTHH:MM:SSZ`` (UTC, second precision)."""
-    return dt.astimezone(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+def _to_iso_z(moment: dt.datetime) -> str:
+    """Format ``moment`` as ``YYYY-MM-DDTHH:MM:SSZ`` (UTC, second precision)."""
+    return moment.astimezone(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _parse_iso_timestamp(value: str | None) -> datetime.datetime | None:
+def _parse_iso_timestamp(value: str | None) -> dt.datetime | None:
     """Parse a JUnit ``timestamp`` attribute. Treat tz-naive values as UTC.
 
     Returns ``None`` when the value is empty or unparseable so callers
@@ -43,17 +43,17 @@ def _parse_iso_timestamp(value: str | None) -> datetime.datetime | None:
     if not value:
         return None
     try:
-        dt = datetime.datetime.fromisoformat(value)
+        moment = dt.datetime.fromisoformat(value)
     except ValueError:
         return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=datetime.UTC)
-    return dt
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=dt.UTC)
+    return moment
 
 
-def _file_mtime_utc(path: Path) -> datetime.datetime:
+def _file_mtime_utc(path: Path) -> dt.datetime:
     """Last-modified time of *path* as a UTC ``datetime``."""
-    return datetime.datetime.fromtimestamp(path.stat().st_mtime, tz=datetime.UTC)
+    return dt.datetime.fromtimestamp(path.stat().st_mtime, tz=dt.UTC)
 
 
 def _format_duration(seconds: float) -> str:
@@ -153,7 +153,7 @@ def _summarize_file(path: Path) -> dict | None:
         base_records = _extract_records(cases)
         offset_seconds = 0.0
         for name, status, msg, duration in base_records:
-            case_start = suite_ts + datetime.timedelta(seconds=offset_seconds)
+            case_start = suite_ts + dt.timedelta(seconds=offset_seconds)
             enriched.append((_to_iso_z(case_start), name, status, msg, duration))
             offset_seconds += duration
     if not enriched:

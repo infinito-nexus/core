@@ -3,7 +3,7 @@
 # subprocess calls against an attached backup device; every branch it has is a return
 # code from the host, so the assertions would only restate the mocks
 
-import datetime
+import datetime as dt
 import glob
 import os
 import subprocess
@@ -42,8 +42,7 @@ def main():
     print(f"previous versions path: {previous_version_path}")
 
     current_version_path = str(
-        Path(versions_path)
-        / datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d%H%M%S")
+        Path(versions_path) / dt.datetime.now(tz=dt.UTC).strftime("%Y%m%d%H%M%S")
     )
     print(f"current versions path: {current_version_path}")
 

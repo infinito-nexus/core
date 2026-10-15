@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import subprocess
 import sys
 
@@ -51,7 +51,7 @@ def get_current_period(current_time, color_times):
     """
     sorted_periods = sorted(color_times.items())
     for i, (period_start_str, _colors) in enumerate(sorted_periods):
-        period_start_time = datetime.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
+        period_start_time = dt.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
             period_start_str, "%H:%M"
         ).time()
         if current_time <= period_start_time:
@@ -71,15 +71,15 @@ def calculate_transition_ratio(current_time, start_time, end_time):
     Returns:
     float: The transition ratio between 0 and 1.
     """
-    today = datetime.datetime.now().date()  # noqa: DTZ005  user's local "today" for time-of-day color picking
+    today = dt.datetime.now().date()  # noqa: DTZ005  user's local "today" for time-of-day color picking
 
-    start_timestamp = datetime.datetime.combine(today, start_time).timestamp()
-    end_timestamp = datetime.datetime.combine(today, end_time).timestamp()
+    start_timestamp = dt.datetime.combine(today, start_time).timestamp()
+    end_timestamp = dt.datetime.combine(today, end_time).timestamp()
 
     if start_timestamp == end_timestamp:
         return 0
 
-    current_timestamp = datetime.datetime.combine(today, current_time).timestamp()
+    current_timestamp = dt.datetime.combine(today, current_time).timestamp()
 
     transition_duration = end_timestamp - start_timestamp
     time_since_start = current_timestamp - start_timestamp
@@ -117,12 +117,12 @@ def main(vendor_and_product_id):
         "04:00": ("990000", "5bc0eb"),
     }
 
-    current_time = datetime.datetime.now().time()  # noqa: DTZ005  user's local time-of-day for color picking
+    current_time = dt.datetime.now().time()  # noqa: DTZ005  user's local time-of-day for color picking
     start_color, end_color = get_current_period(current_time, color_times)
 
     sorted_times = sorted(color_times.keys())
     for time_str in [*sorted_times, sorted_times[0]]:
-        next_start_time_obj = datetime.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
+        next_start_time_obj = dt.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
             time_str, "%H:%M"
         ).time()
         if current_time < next_start_time_obj:
@@ -133,7 +133,7 @@ def main(vendor_and_product_id):
         for time, colors in color_times.items()
         if colors == (start_color, end_color)
     )
-    current_period_start_time_obj = datetime.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
+    current_period_start_time_obj = dt.datetime.strptime(  # noqa: DTZ007  HH:MM is local time-of-day; no timezone applies
         current_period_start_time_str, "%H:%M"
     ).time()
 

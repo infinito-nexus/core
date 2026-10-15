@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import datetime
+import datetime as dt
 import importlib.util
 from unittest import TestCase, main
 
@@ -70,19 +70,19 @@ class CalculateColorTests(TestCase):
 class GetCurrentPeriodTests(TestCase):
     def test_a_time_inside_a_period_returns_that_period_colors(self):
         self.assertEqual(
-            SCRIPT.get_current_period(datetime.time(12, 0), COLOR_TIMES),
+            SCRIPT.get_current_period(dt.time(12, 0), COLOR_TIMES),
             ("ff0000", "00ff00"),
         )
 
     def test_a_time_before_the_first_period_wraps_to_the_last(self):
         self.assertEqual(
-            SCRIPT.get_current_period(datetime.time(3, 0), COLOR_TIMES),
+            SCRIPT.get_current_period(dt.time(3, 0), COLOR_TIMES),
             ("0000ff", "ff0000"),
         )
 
     def test_a_time_after_the_last_period_returns_the_first(self):
         self.assertEqual(
-            SCRIPT.get_current_period(datetime.time(23, 0), COLOR_TIMES),
+            SCRIPT.get_current_period(dt.time(23, 0), COLOR_TIMES),
             ("ff0000", "00ff00"),
         )
 
@@ -91,7 +91,7 @@ class CalculateTransitionRatioTests(TestCase):
     def test_the_start_of_a_window_is_ratio_zero(self):
         self.assertEqual(
             SCRIPT.calculate_transition_ratio(
-                datetime.time(6, 0), datetime.time(6, 0), datetime.time(12, 0)
+                dt.time(6, 0), dt.time(6, 0), dt.time(12, 0)
             ),
             0,
         )
@@ -99,7 +99,7 @@ class CalculateTransitionRatioTests(TestCase):
     def test_the_end_of_a_window_is_ratio_one(self):
         self.assertEqual(
             SCRIPT.calculate_transition_ratio(
-                datetime.time(12, 0), datetime.time(6, 0), datetime.time(12, 0)
+                dt.time(12, 0), dt.time(6, 0), dt.time(12, 0)
             ),
             1,
         )
@@ -107,7 +107,7 @@ class CalculateTransitionRatioTests(TestCase):
     def test_the_middle_of_a_window_is_ratio_one_half(self):
         self.assertEqual(
             SCRIPT.calculate_transition_ratio(
-                datetime.time(9, 0), datetime.time(6, 0), datetime.time(12, 0)
+                dt.time(9, 0), dt.time(6, 0), dt.time(12, 0)
             ),
             0.5,
         )
@@ -115,7 +115,7 @@ class CalculateTransitionRatioTests(TestCase):
     def test_a_zero_length_window_returns_zero_instead_of_dividing_by_it(self):
         self.assertEqual(
             SCRIPT.calculate_transition_ratio(
-                datetime.time(6, 0), datetime.time(6, 0), datetime.time(6, 0)
+                dt.time(6, 0), dt.time(6, 0), dt.time(6, 0)
             ),
             0,
         )

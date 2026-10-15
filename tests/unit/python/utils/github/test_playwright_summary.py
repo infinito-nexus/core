@@ -10,7 +10,7 @@ directories / no junit files / unparseable junit files.
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import io
 import os
 import unittest
@@ -56,9 +56,7 @@ def _write(path: Path, content: str) -> Path:
 class TestToIsoZ(unittest.TestCase):
     def test_utc_datetime_formats_with_z_suffix(self) -> None:
         self.assertEqual(
-            ps._to_iso_z(
-                datetime.datetime(2026, 5, 17, 12, 34, 56, tzinfo=datetime.UTC)
-            ),
+            ps._to_iso_z(dt.datetime(2026, 5, 17, 12, 34, 56, tzinfo=dt.UTC)),
             "2026-05-17T12:34:56Z",
         )
 
@@ -263,9 +261,7 @@ class TestSummarizeFile(unittest.TestCase):
                 Path(tmp) / "web-app-foo" / "playwright-junit.xml",
                 no_timestamp_fixture,
             )
-            target = datetime.datetime(
-                2025, 5, 17, 5, 34, 56, tzinfo=datetime.UTC
-            ).timestamp()
+            target = dt.datetime(2025, 5, 17, 5, 34, 56, tzinfo=dt.UTC).timestamp()
             os.utime(xml_path, (target, target))
             summary = ps._summarize_file(xml_path)
         assert summary is not None
