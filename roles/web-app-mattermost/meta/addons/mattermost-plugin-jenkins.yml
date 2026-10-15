@@ -19,4 +19,6 @@ update:
 config:
   plugin_id: jenkins
   archive: https://github.com/mattermost-community/mattermost-plugin-jenkins/releases/download/v1.1.0/jenkins-1.1.0.tar.gz
-  partner_url: "{{ lookup('tls', 'web-app-jenkins', 'url.base') }}"
+  partner_url: &jenkins_partner_url "{{ lookup('tls', 'web-app-jenkins', 'url.base') }}"
+  settings:
+    jenkinsurl: *jenkins_partner_url
