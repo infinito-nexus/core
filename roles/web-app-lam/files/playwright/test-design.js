@@ -25,6 +25,7 @@ const LOGO_URL = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const SSO_ENABLED = process.env.SSO_SERVICE_ENABLED === "true";
 const DESIGN_ENABLED = process.env.DESIGN_SERVICE_ENABLED === "true";
 const KEYCLOAK = /\/protocol\/openid-connect\//;
+const SSO_HOP = /\/protocol\/openid-connect\/|\/login-actions\/|\/oauth2\//;
 const SIGNED_IN = '#lam-topnav a.lam-menu-entry[href$="/templates/lists/list.php?type=user"]';
 const LOGIN_BUTTON = 'button[name="checklogin"]';
 const INHOUSE_SHEET = 'link[href$="/style/900_infinito.css"]';
@@ -40,8 +41,9 @@ async function restMouse(page) {
 async function passSsoGate(page) {
   if (!SSO_ENABLED || !KEYCLOAK.test(page.url())) return;
   await performKeycloakLoginForm(page, ADMIN_USERNAME, ADMIN_PASSWORD);
-  await expect(page, "LAM must be reached after the SSO hop").not.toHaveURL(KEYCLOAK, {
+  await page.waitForURL((url) => !SSO_HOP.test(String(url)), {
     timeout: resolveTimeout(60_000),
+    waitUntil: "domcontentloaded",
   });
 }
 
