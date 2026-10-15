@@ -56,6 +56,10 @@ _ALLOWED_EXCEPTIONS: dict[str, str] = {
         "uses the OPENTALK_URL constant — the canonical surface is a "
         "sub-path the generic tls/url.base lookup cannot express"
     ),
+    "web-app-keycloak": (
+        "uses the pass domain — the SSO issuer's url.base is pinned to the "
+        "issuer, so it cannot name the network sibling under test"
+    ),
 }
 
 
