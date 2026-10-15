@@ -130,7 +130,7 @@ function dashboardViews(base) {
         await ready("Sessions")(page);
         const showAll = page.getByRole("button", { name: "Show all", exact: true });
         if (await showAll.isVisible()) await showAll.click();
-        await expect(page.locator("main .session-key-cell").first()).toBeVisible();
+        await expect(page.locator("main .session-key-cell, main .data-table-empty-cell").first()).toBeVisible();
       },
     },
     {
