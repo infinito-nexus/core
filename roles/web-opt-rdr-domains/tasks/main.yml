@@ -12,4 +12,4 @@
   vars:
     domain: "{{ item.source }}"
     target: "{{ item.target }}"
-  loop: "{{ redirect_domain_mappings }}"
+  loop: "{{ lookup('network_redirects', redirect_domain_mappings) }}"
