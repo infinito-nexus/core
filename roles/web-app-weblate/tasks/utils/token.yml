@@ -71,8 +71,12 @@
     sys_token_store_token: "{{ WEBLATE_ISSUED_TOKEN }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🧊 Freeze the translate gate before the reconcile re-binds application_id"
+  ansible.builtin.set_fact:
+    weblate_translate_enabled: "{{ WEBLATE_TRANSLATE_ENABLED }}"
+
 - name: "♻️ Re-render the translation gateway against the stored token"
-  when: WEBLATE_TRANSLATE_ENABLED | bool
+  when: weblate_translate_enabled | bool
   block:
     - name: "🛑 Refuse a store the gateway's own lookup cannot read back"
       ansible.builtin.assert:
