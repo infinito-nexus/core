@@ -1,4 +1,3 @@
-{% set design = lookup('design', application_id) %}
 (function () {
   var root = document.documentElement;
   function chosenScheme() {
@@ -34,30 +33,4 @@
     true
   );
   mirror();
-{% if design.title is string or design.logo is string %}
-  function brand() {
-{% if design.title is string %}
-    var title = {{ design.title | to_json }};
-    if (document.title.indexOf(title) === -1) {
-      document.title = document.title ? document.title + " | " + title : title;
-    }
-{% endif %}
-{% if design.logo is string %}
-    var icons = document.querySelectorAll("link[rel~='icon']");
-    for (var index = 0; index < icons.length; index += 1) {
-      icons[index].setAttribute("href", {{ design.urls.favicon.png | to_json }});
-    }
-    var touch = document.querySelector("link[rel='apple-touch-icon']");
-    if (touch) {
-      touch.setAttribute("href", {{ design.urls['apple-touch-icon'].png | to_json }});
-    }
-    var mask = document.querySelector("link[rel='mask-icon']");
-    if (mask) {
-      mask.parentNode.removeChild(mask);
-    }
-{% endif %}
-  }
-  document.addEventListener("DOMContentLoaded", brand);
-  brand();
-{% endif %}
 })();
