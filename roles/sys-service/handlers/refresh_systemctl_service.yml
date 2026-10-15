@@ -53,5 +53,6 @@
       Unable to start service {{ system_service_name }}. See shared service diagnostics above.
   when:
     - not (system_service_suppress_flush | bool)
-    - (systemd_set_state.failed | default(false) | bool) or (system_service_result.stdout | default('') | trim) not in ['success', ''] or
-      (system_service_exec_status.stdout | default('') | trim) not in ['0', '']
+    - (systemd_set_state.failed | default(false) | bool) or (system_service_state != omit and (
+      (system_service_result.stdout | default('') | trim) not in ['success', ''] or
+      (system_service_exec_status.stdout | default('') | trim) not in ['0', '']))

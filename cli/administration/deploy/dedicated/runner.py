@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import json
 import os
 import subprocess
@@ -33,7 +33,7 @@ def run_ansible_playbook(
     ansible_args: list[str] | None = None,
 ) -> None:
     """Run ansible-playbook with the given parameters and execution modes."""
-    start_time = datetime.datetime.now(tz=datetime.UTC)
+    start_time = dt.datetime.now(tz=dt.UTC)
     print(f"\n▶️ Script started at: {start_time.isoformat()}\n", flush=True)
 
     if modes.get("MODE_CLEANUP", False):
@@ -146,6 +146,6 @@ def run_ansible_playbook(
             )
             sys.exit(2)
 
-    end_time = datetime.datetime.now(tz=datetime.UTC)
+    end_time = dt.datetime.now(tz=dt.UTC)
     print(f"\n✅ Script ended at: {end_time.isoformat()}\n")
     print(f"⏱️ Total execution time: {end_time - start_time}\n")

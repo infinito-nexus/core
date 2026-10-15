@@ -1,7 +1,9 @@
 const { expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { resolveTimeout } = require("./timeouts");
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   normalizeBaseUrl,
   performKeycloakLoginForm,
   runAdminFlow,
@@ -23,6 +25,36 @@ async function beforeEach({ page }) {
   await page.context().clearCookies();
 }
 
+async function loginThroughBroker(page) {
+  expect(adminUsername, "ADMIN_USERNAME must be set when OIDC is enabled").toBeTruthy();
+  expect(adminPassword, "ADMIN_PASSWORD must be set when OIDC is enabled").toBeTruthy();
+  expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set when OIDC is enabled").toBeTruthy();
+
+  const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
+  const expectedBaseUrl = baseUrl.replace(/\/$/, "");
+
+  await gotoOnion(page, `${expectedBaseUrl}/`);
+
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(60_000),
+      message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
+    })
+    .toContain(expectedOidcAuthUrl);
+
+  await performKeycloakLoginForm(page, adminUsername, adminPassword);
+
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(90_000),
+      message: `expected post-OIDC URL to land on Bluesky outside /oauth2/* (got: ${page.url()})`,
+    })
+    .toMatch(new RegExp(`^${expectedBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/(?!oauth2/)`));
+
+  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
 module.exports = {
   env: {
     baseUrl,
@@ -34,6 +66,7 @@ module.exports = {
     pdsBaseUrl,
   },
   skipUnlessServiceEnabled,
+  loginThroughBroker,
   performKeycloakLoginForm,
   runAdminFlow,
   runBiberFlow,
