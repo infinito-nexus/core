@@ -76,3 +76,12 @@
     role_templates:
       - src: "fpm-pool.conf.j2"
         dest: "{{ NEXTCLOUD_HOST_FPM_POOL_PATH }}"
+
+- name: "📄 Render the Talk signaling backend list for every network (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/web-app-nextcloud/files/shell/talk-network-backends.sh') }}"
+        dest: "{{ NEXTCLOUD_HOST_TALK_BACKENDS_PATH }}"
+  when: NEXTCLOUD_HPB_SIGNALING_ENABLED | bool

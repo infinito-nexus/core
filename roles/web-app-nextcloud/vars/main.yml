@@ -10,7 +10,6 @@ database_password: "{{ lookup('config', application_id, 'secrets.credentials.dat
 NEXTCLOUD_DOMAIN: "{{ lookup('domain',application_id) }}"
 NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
-NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
 NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
 
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
@@ -30,6 +29,8 @@ NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 NEXTCLOUD_HOST_CONF_ADD_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'infinito' ] | path_join }}"
 NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
 NEXTCLOUD_HOST_FPM_POOL_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'fpm-pool.conf' ] | path_join }}"
+NEXTCLOUD_HOST_TALK_BACKENDS_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'talk-network-backends.sh' ] | path_join }}"
+NEXTCLOUD_TALK_BACKENDS_SCRIPT: "{{ lookup('volume', application_id, 'talk_network_backends').target }}"
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 
