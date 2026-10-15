@@ -28,10 +28,10 @@ test("addon email_channel: an Email::Account channel is provisioned against the 
   ).toBe(200);
 
   const payload = await response.json();
-  const channelIds = payload.channel_ids || [];
+  const accountChannelIds = payload.account_channel_ids || [];
   expect(
-    channelIds.length,
-    "Zammad must carry at least one email channel; an empty list means files/ruby/apply/email_channel.rb never ran, so no mail is fetched or sent through the partner mail server",
+    accountChannelIds.length,
+    "Zammad must carry at least one email channel; an empty account_channel_ids means files/ruby/apply/email_channel.rb never ran, so no mail is fetched or sent through the partner mail server",
   ).toBeGreaterThan(0);
 
   const channels = Object.values((payload.assets || {}).Channel || {});
