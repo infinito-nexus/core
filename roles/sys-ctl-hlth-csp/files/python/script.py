@@ -203,6 +203,9 @@ def build_docker_cmd(
     proxy: str = "",
     timeout_ms: int = 0,
     accept_status: list[str] | None = None,
+    proxy_bypass: str = "",
+    confine_to: str = "",
+    confine_allow: list[str] | None = None,
 ) -> list[str]:
     cmd = ["container", "run", "--rm"]
 
@@ -220,6 +223,14 @@ def build_docker_cmd(
 
     if proxy:
         cmd.extend(["--proxy", proxy])
+        if proxy_bypass:
+            cmd.extend(["--proxy-bypass", proxy_bypass])
+
+    if confine_to:
+        cmd.extend(["--confine-to", confine_to])
+        if confine_allow:
+            cmd.append("--confine-allow")
+            cmd.extend(confine_allow)
 
     if timeout_ms:
         cmd.extend(["--timeout", str(timeout_ms)])
@@ -232,7 +243,7 @@ def build_docker_cmd(
         cmd.append("--accept-status")
         cmd.extend(accept_status)
 
-    if ignore_network_blocks_from or accept_status:
+    if ignore_network_blocks_from or accept_status or (confine_to and confine_allow):
         cmd.append("--")
 
     cmd.extend(urls)
@@ -249,6 +260,9 @@ def run_checker(
     proxy: str = "",
     timeout_ms: int = 0,
     accept_status: list[str] | None = None,
+    proxy_bypass: str = "",
+    confine_to: str = "",
+    confine_allow: list[str] | None = None,
 ) -> int:
     """
     Runs the CSP checker container and returns its exit code.
@@ -266,6 +280,9 @@ def run_checker(
         proxy=proxy,
         timeout_ms=timeout_ms,
         accept_status=accept_status,
+        proxy_bypass=proxy_bypass,
+        confine_to=confine_to,
+        confine_allow=confine_allow,
     )
 
     try:
@@ -360,6 +377,24 @@ def main() -> None:
             "skipped — the checker cannot resolve them over plain DNS."
         ),
     )
+    parser.add_argument(
+        "--tor-proxy-bypass",
+        default="",
+        help=(
+            "Hosts the .onion batch reaches directly instead of through "
+            "--tor-proxy, as a Chromium proxy bypass list (e.g. "
+            ".example.org,auth.example.org)."
+        ),
+    )
+    parser.add_argument(
+        "--tor-confine-allow",
+        default="",
+        help=(
+            "Comma-separated hosts a .onion target may end on outside "
+            "--proxy-suffix, e.g. the SSO issuer; every other final host "
+            "outside the suffix fails the target."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -408,10 +443,24 @@ def main() -> None:
         print("No domains left to check after applying --skip-domain.")
         sys.exit(0)
 
+    clearnet_batch = {
+        "proxy": "",
+        "timeout_ms": 0,
+        "proxy_bypass": "",
+        "confine_to": "",
+        "confine_allow": [],
+    }
+    onion_batch = {
+        "proxy": args.tor_proxy,
+        "timeout_ms": args.onion_timeout,
+        "proxy_bypass": args.tor_proxy_bypass,
+        "confine_to": proxy_suffix,
+        "confine_allow": [host for host in args.tor_confine_allow.split(",") if host],
+    }
     rc = 0
-    for batch_domains, batch_proxy, batch_timeout in (
-        (clearnet_domains, "", 0),
-        (onion_domains, args.tor_proxy, args.onion_timeout),
+    for batch_domains, batch in (
+        (clearnet_domains, clearnet_batch),
+        (onion_domains, onion_batch),
     ):
         if not batch_domains:
             continue
@@ -426,9 +475,8 @@ def main() -> None:
             ignore_network_blocks_from=list(args.ignore_network_blocks_from or []),
             always_pull=bool(args.always_pull),
             use_host_network=not bool(args.no_host_network),
-            proxy=batch_proxy,
-            timeout_ms=batch_timeout,
             accept_status=accept_status,
+            **batch,
         )
         rc = rc or batch_rc
     sys.exit(rc)

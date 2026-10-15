@@ -201,8 +201,44 @@ class TestBuildDockerCmdProxy(unittest.TestCase):
             urls=["https://a.example/"],
             short_mode=True,
             ignore_network_blocks_from=[],
+            proxy_bypass=".example.org",
         )
         self.assertNotIn("--proxy", cmd)
+        self.assertNotIn("--proxy-bypass", cmd)
+
+    def test_bypass_arg_follows_the_proxy(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["http://a.onion/"],
+            short_mode=True,
+            ignore_network_blocks_from=["cdn.example"],
+            proxy="socks5://127.0.0.1:9050",
+            proxy_bypass=".example.org,auth.example.org",
+        )
+        idx = cmd.index("--proxy-bypass")
+        self.assertEqual(cmd[idx + 1], ".example.org,auth.example.org")
+        self.assertLess(idx, cmd.index("--"))
+
+    def test_the_allowance_list_is_closed_before_the_urls(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["http://a.onion/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+            confine_to=".onion",
+            confine_allow=["auth.example.org"],
+        )
+        self.assertEqual(
+            cmd[cmd.index("--confine-to") :],
+            [
+                "--confine-to",
+                ".onion",
+                "--confine-allow",
+                "auth.example.org",
+                "--",
+                "http://a.onion/",
+            ],
+        )
 
 
 class TestBuildDockerCmdTimeout(unittest.TestCase):
@@ -278,6 +314,50 @@ class TestMainTimesOutOnionsOnly(unittest.TestCase):
         }
         self.assertEqual(budgets["http://auth.abc123.onion/"], 100000)
         self.assertEqual(budgets[f"http://auth.{DOMAIN}/"], 0)
+
+    @patch("script.run_checker")
+    @patch("script.build_urls_from_nginx_confs")
+    @patch("script.collect_vhosts")
+    def test_the_onion_batch_alone_bypasses_the_proxy_for_listed_hosts(
+        self,
+        mock_collect: MagicMock,
+        mock_build_urls: MagicMock,
+        mock_run_checker: MagicMock,
+    ) -> None:
+        mock_collect.return_value = _vhosts(f"auth.{DOMAIN}", "auth.abc123.onion")
+        mock_build_urls.side_effect = lambda _vhosts, domains: [
+            f"http://{d}/" for d in domains
+        ]
+        mock_run_checker.return_value = 0
+
+        with (
+            patch.object(
+                script.sys,
+                "argv",
+                _argv(
+                    "--tor-proxy",
+                    "socks5://127.0.0.1:9050",
+                    "--tor-proxy-bypass",
+                    f".{DOMAIN}",
+                    "--tor-confine-allow",
+                    f"auth.{DOMAIN}",
+                ),
+            ),
+            self.assertRaises(SystemExit),
+        ):
+            script.main()
+
+        batches = {
+            call.kwargs["urls"][0]: call.kwargs
+            for call in mock_run_checker.call_args_list
+        }
+        onion = batches["http://auth.abc123.onion/"]
+        clearnet = batches[f"http://auth.{DOMAIN}/"]
+        self.assertEqual(onion["proxy_bypass"], f".{DOMAIN}")
+        self.assertEqual(onion["confine_to"], ".onion")
+        self.assertEqual(onion["confine_allow"], [f"auth.{DOMAIN}"])
+        self.assertEqual(clearnet["proxy_bypass"], "")
+        self.assertEqual(clearnet["confine_to"], "")
 
 
 class TestDetectSchemeFromConf(unittest.TestCase):

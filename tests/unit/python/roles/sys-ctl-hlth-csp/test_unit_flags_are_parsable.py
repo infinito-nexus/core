@@ -17,6 +17,8 @@ _VALUE = {
     "--proxy-suffix": ".onion",
     "--image": "img",
     "--tor-proxy": "socks5://127.0.0.1:9050",
+    "--tor-proxy-bypass": ".example.org",
+    "--tor-confine-allow": "auth.example.org",
     "--onion-timeout": "1000",
 }
 _LIST_VALUE = {

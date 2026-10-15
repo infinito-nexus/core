@@ -62,7 +62,9 @@
           ),
           (lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0) | ternary(
             '--tor-proxy=socks5://' ~ lookup('tor_socks')
-            ~ ' --onion-timeout=' ~ HEALTH_CSP_ONION_TIMEOUT_MS,
+            ~ ' --onion-timeout=' ~ HEALTH_CSP_ONION_TIMEOUT_MS
+            ~ ' --tor-proxy-bypass=' ~ (HEALTH_CSP_TOR_PROXY_BYPASS | join(','))
+            ~ ' --tor-confine-allow=' ~ (HEALTH_CSP_TOR_CONFINE_ALLOW | join(',')),
             ''
           )
         ]
