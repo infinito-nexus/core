@@ -48,6 +48,12 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     sso:
       start: 16480
       end: 16519
+    sso_onion:
+      start: 16520
+      end: 16559
+    http_onion:
+      start: 16560
+      end: 16599
     mariadb:
       start: 3306
       end: 3306
