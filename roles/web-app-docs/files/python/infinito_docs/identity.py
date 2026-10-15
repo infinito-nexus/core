@@ -13,8 +13,9 @@ from pathlib import Path
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
-SERVICES_FILE = Path("roles") / "web-app-docs" / "meta" / "services.yml"
+ROLE = "web-app-docs"
 GENERAL_FILE = Path("group_vars") / "all" / "00_general.yml"
 
 
@@ -29,7 +30,8 @@ def docs_sphinx_identity(root: Path) -> dict[str, str]:
         "DOCS_SPHINX_AUTHOR": ...}``, with the group variables the configured
         values reference substituted.
     """
-    services = load_yaml_str((root / SERVICES_FILE).read_text(encoding="utf-8"))
+    services_file = root / "roles" / ROLE / ROLE_FILE_META_SERVICES
+    services = load_yaml_str(services_file.read_text(encoding="utf-8"))
     general = load_yaml_str((root / GENERAL_FILE).read_text(encoding="utf-8"))
     context = {key: value for key, value in general.items() if isinstance(value, str)}
     environment = Environment(
