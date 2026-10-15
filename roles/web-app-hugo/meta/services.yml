@@ -44,7 +44,7 @@ hugo:
   version: 1.31-alpine
   custom: true
   builder_image: ghcr.io/gohugoio/hugo
-  builder_version: v0.167.0
+  builder_version: v0.168.0
   source_repository: https://github.com/gohugoio/hugoDocs.git
   source_version: v0.165.0
   update:

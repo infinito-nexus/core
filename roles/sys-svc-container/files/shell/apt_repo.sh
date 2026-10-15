@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-KEYRING_DIR="/etc/apt/keyrings"
-LEGACY_KEY_PATH="${KEYRING_DIR}/docker.gpg"
-KEY_PATH="${KEYRING_DIR}/docker.asc"
+KEY_PATH="/etc/apt/keyrings/docker.asc"
 
 usage() {
   cat >&2 <<'EOF'
 Usage:
-  apt_repo.sh install-key <distro-id>
+  apt_repo.sh install-key <distro-id> [keyring-path]
   apt_repo.sh sanitize-sources <distro-id> [keep-canonical: 0|1] [keyring-path]
   apt_repo.sh ensure-key-and-sanitize <distro-id> [keep-canonical: 0|1] [keyring-path]
 
@@ -62,33 +60,39 @@ PY
 
 install_key() {
   local distro_id="$1"
+  local key_path="$2"
+  local keyring_dir=""
   local changed=0
   local tmp=""
 
-  if [[ ! -d "${KEYRING_DIR}" ]]; then
+  keyring_dir="$(dirname "${key_path}")"
+  if [[ ! -d "${keyring_dir}" ]]; then
     changed=1
-  elif [[ "$(stat -c '%a' "${KEYRING_DIR}" 2>/dev/null || true)" != "755" ]]; then
+  elif [[ "$(stat -c '%a' "${keyring_dir}" 2>/dev/null || true)" != "755" ]]; then
     changed=1
   fi
-  run_privileged install -m 0755 -d "${KEYRING_DIR}"
+  run_privileged install -m 0755 -d "${keyring_dir}"
 
-  if [[ -e "${LEGACY_KEY_PATH}" ]]; then
-    run_privileged rm -f "${LEGACY_KEY_PATH}"
+  if [[ -e "${keyring_dir}/docker.gpg" ]]; then
+    run_privileged rm -f "${keyring_dir}/docker.gpg"
     changed=1
   fi
 
   tmp="$(mktemp)"
   trap 'rm -f "${tmp:-}"' EXIT
   if ! download_file "https://download.docker.com/linux/${distro_id}/gpg" "${tmp}" || [[ ! -s "${tmp}" ]]; then
-    echo "[ERROR] Failed to download the Docker GPG key from https://download.docker.com/linux/${distro_id}/gpg." >&2
-    return 1
+    if [[ ! -s "${key_path}" ]]; then
+      echo "[ERROR] Failed to download the Docker GPG key from https://download.docker.com/linux/${distro_id}/gpg." >&2
+      return 1
+    fi
+    echo "[WARN] Failed to refresh the Docker GPG key from https://download.docker.com/linux/${distro_id}/gpg; keeping ${key_path}." >&2
+  elif [[ ! -f "${key_path}" ]] || ! cmp -s "${tmp}" "${key_path}"; then
+    run_privileged install -m 0644 "${tmp}" "${key_path}"
+    changed=1
   fi
 
-  if [[ ! -f "${KEY_PATH}" ]] || ! cmp -s "${tmp}" "${KEY_PATH}"; then
-    run_privileged install -m 0644 "${tmp}" "${KEY_PATH}"
-    changed=1
-  elif [[ "$(stat -c '%a' "${KEY_PATH}" 2>/dev/null || true)" != "644" ]]; then
-    run_privileged chmod 0644 "${KEY_PATH}"
+  if [[ "$(stat -c '%a' "${key_path}" 2>/dev/null || true)" != "644" ]]; then
+    run_privileged chmod 0644 "${key_path}"
     changed=1
   fi
 
@@ -175,7 +179,7 @@ ensure_key_and_sanitize() {
   local changed=0
   local output=""
 
-  output="$(install_key "${distro_id}")"
+  output="$(install_key "${distro_id}" "${expected_keyring}")"
   if [[ "${output}" == *"changed=1"* ]]; then
     changed=1
   fi
@@ -197,7 +201,7 @@ case "${ACTION}" in
       usage
       exit 2
     fi
-    install_key "${DISTRO_ID}"
+    install_key "${DISTRO_ID}" "${3:-${KEY_PATH}}"
     ;;
   sanitize-sources)
     DISTRO_ID="${2:-}"

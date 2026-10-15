@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from utils.cache.yaml import load_yaml_any as _load_yaml_cached
 from utils.docker.image.pin import pull_reference
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.update.base import is_maintained
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -191,14 +192,18 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     """
     Yield all ImageRef entries discovered across all roles in *repo_root*.
 
-    Source: roles/**/meta/services.yml → <entity>.{image,version}.
+    Source: roles/**/meta/services.yml → <entity>.{image,version}. Roles the
+    updaters do not maintain (``is_maintained``) are left out.
 
     See docs/contributing/artefact/image.md for the full format reference.
     """
-    roles_dir = repo_root / "roles"
+    roles_dir = (repo_root / "roles").resolve()
 
     for services_file in roles_dir.glob(f"**/{ROLE_FILE_META_SERVICES}"):
         role_name = services_file.parent.parent.name
+        if not is_maintained(roles_dir, role_name):
+            continue
+
         services = load_yaml(services_file)
 
         if not isinstance(services, dict):
