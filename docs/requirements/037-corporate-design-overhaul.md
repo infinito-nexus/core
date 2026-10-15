@@ -57,7 +57,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-bigbluebutton: title not set through Greenlight (the spec asserts the literal upstream name); the meeting client keeps the upstream design; `vars/main.yml` rewritten after the last full run.
 - [x] web-app-bluesky
 - [ ] web-app-bookwyrm: no green complete run on the final state; the last one failed the SeaweedFS avatar upload test.
-- [ ] web-app-checkmk: `theme.css.j2` changed by `6c2de017f8` after the last run.
+- [x] web-app-checkmk
 - [x] web-app-chess
 - [x] web-app-dashboard
 - [ ] web-app-decidim: `style.css.j2` changed by `6c2de017f8` after the last run.
@@ -77,7 +77,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-hugo
 - [ ] web-app-jellyfin: final state never ran (`branding.css.j2` split by `6c2de017f8`, spec and administrator password changed).
 - [ ] web-app-jenkins: `test-design.js` restored after the last complete run; no run on the restored file.
-- [ ] web-app-jitsi: `style.css.j2` changed twice after the last green run.
+- [x] web-app-jitsi
 - [x] web-app-joomla
 - [x] web-app-keycloak
 - [ ] web-app-kix: `test-design.js` changed after the last green run.
