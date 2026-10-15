@@ -51,3 +51,5 @@
   loop: "{{ front_proxy_vhost_domains }}"
   loop_control:
     loop_var: front_proxy_domain
+  vars:
+    domain: "{{ front_proxy_domain }}"
