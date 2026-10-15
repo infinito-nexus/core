@@ -74,6 +74,41 @@ class TestCspOnionMirror(unittest.TestCase):
         self.assertIn("https://cdn." + PRIMARY, self._tokens(header, "connect-src"))
         self.assertNotIn(".onion", header)
 
+    def test_issuer_clearnet_vhost_admits_the_node_onion_as_frame_ancestor(self):
+        apps = copy.deepcopy(self.apps)
+        apps["web-app-keycloak"] = {
+            "csp": {"whitelist": {"frame-ancestors": ["https://*." + PRIMARY]}}
+        }
+        domains = {
+            **self.domains,
+            "web-app-keycloak": ["auth." + PRIMARY, "auth." + NODE],
+        }
+        header = self.filter.build_csp_header(
+            apps,
+            "web-app-keycloak",
+            domains,
+            "https",
+            domain_primary=PRIMARY,
+            vhost_domain="auth." + PRIMARY,
+        )
+        ancestors = self._tokens(header, "frame-ancestors")
+        self.assertIn("https://*." + PRIMARY, ancestors)
+        self.assertIn("http://*." + NODE, ancestors)
+        self.assertIn("https://cdn." + PRIMARY, self._tokens(header, "connect-src"))
+
+    def test_onion_vhost_keeps_the_issuer_source_on_its_one_url(self):
+        apps = copy.deepcopy(self.apps)
+        apps["app1"]["csp"]["whitelist"]["connect-src"] = ["auth." + PRIMARY]
+        domains = {
+            **self.domains,
+            "web-app-keycloak": ["auth." + PRIMARY, "auth." + NODE],
+        }
+        connect = self._tokens(
+            self._header("app1." + NODE, domains=domains, apps=apps), "connect-src"
+        )
+        self.assertIn("auth." + PRIMARY, connect)
+        self.assertNotIn("auth." + NODE, connect)
+
     def test_no_translation_without_node(self):
         apps = copy.deepcopy(self.apps)
         del apps["svc-net-tor"]

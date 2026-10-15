@@ -7,10 +7,16 @@ from ansible.errors import AnsibleFilterError
 from utils.domains.primary_domain import get_domain
 from utils.networks.reachability import TOR, network, network_of
 from utils.roles.applications.config import get
-from utils.tls_common import align_domain_to_consumer, iter_domains, resolve_enabled
+from utils.tls_common import (
+    align_domain_to_consumer,
+    issuer_applications,
+    iter_domains,
+    resolve_enabled,
+)
 
 _PLAINTEXT = {"https": "http", "wss": "ws"}
 _TLS_SCHEME = re.compile(r"^(https|wss)(?=://)")
+_URL_SCHEME = re.compile(r"^[a-z][a-z0-9+.-]*://")
 
 
 def _aligned_url(applications, domains, application_id, target_id, protocol, vhost):
@@ -243,7 +249,9 @@ class FilterModule:
             vhost_domain: the vhost the header is rendered for. Provider
                 sources follow its network; on a tor vhost, whitelist sources
                 under ``domain_primary`` move to the node onion. The SSO
-                issuer keeps its one URL.
+                issuer keeps its one URL, and on its clearnet vhost its
+                frame-ancestors also admit those sources on the node onion,
+                because pages of every network embed it.
 
         Key points:
           - CSP3-aware: supports base/elem/attr for styles and scripts.
@@ -288,7 +296,6 @@ class FilterModule:
 
             tokens_by_dir = {}
             explicit_flags_by_dir = {}
-            fixed_tokens = set()
 
             def provider(target_id):
                 return _aligned_url(
@@ -374,9 +381,7 @@ class FilterModule:
                         )
                     if self.is_feature_enabled(applications, "logout", application_id):
                         tokens.append(provider("web-svc-logout"))
-                        issuer = provider("web-app-keycloak")
-                        fixed_tokens.add(issuer)
-                        tokens.append(issuer)
+                        tokens.append(provider("web-app-keycloak"))
 
                 if directive in (
                     "script-src-attr",
@@ -442,19 +447,36 @@ class FilterModule:
             served_on = network_of(
                 vhost_domain or next(iter_domains(domains.get(application_id)), "")
             )
+
+            issuer_hosts = {
+                get_domain(domains, app)
+                for app in issuer_applications()
+                if app in (domains or {})
+            }
+
+            def translatable(token):
+                host = _URL_SCHEME.sub("", token).split("/", 1)[0]
+                return domain_primary in token and host not in issuer_hosts
+
+            def to_node(token):
+                return _TLS_SCHEME.sub(
+                    lambda m: _PLAINTEXT[m.group(1)],
+                    token.replace(domain_primary, node),
+                )
+
             if node and domain_primary and served_on == TOR:
                 for directive in list(tokens_by_dir.keys()):
                     tokens_by_dir[directive] = _dedup_preserve(
                         [
-                            _TLS_SCHEME.sub(
-                                lambda m: _PLAINTEXT[m.group(1)],
-                                t.replace(domain_primary, node),
-                            )
-                            if domain_primary in t and t not in fixed_tokens
-                            else t
+                            to_node(t) if translatable(t) else t
                             for t in tokens_by_dir[directive]
                         ]
                     )
+            elif node and domain_primary and application_id in issuer_applications():
+                ancestors = tokens_by_dir["frame-ancestors"]
+                tokens_by_dir["frame-ancestors"] = _dedup_preserve(
+                    ancestors + [to_node(t) for t in ancestors if translatable(t)]
+                )
 
             for directive, toks in list(tokens_by_dir.items()):
                 tokens_by_dir[directive] = _sort_tokens(toks)
