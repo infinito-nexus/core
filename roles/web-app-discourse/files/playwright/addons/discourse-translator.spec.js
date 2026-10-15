@@ -2,48 +2,14 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const {
-  normalizeBaseUrl,
-  decodeDotenvQuotedValue,
-  performKeycloakLoginForm,
-  requireDotenvValue,
-  gotoOnion,
-} = require("../personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, requireDotenvValue } = require("../personas");
+const { signInAsAdmin } = require("../sign-in");
 
 test.use({ ignoreHTTPSErrors: true });
 
-const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const discourseBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.DISCOURSE_BASE_URL, "DISCOURSE_BASE_URL"));
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const expectedEndpoint = decodeDotenvQuotedValue(process.env.DISCOURSE_TRANSLATE_ENDPOINT);
 const expectedProvider = decodeDotenvQuotedValue(process.env.DISCOURSE_TRANSLATE_PROVIDER);
-
-async function signInViaOidc(page) {
-  await gotoOnion(page, `${discourseBaseUrl}/`);
-  const oidcSignIn = page
-    .locator("a, button")
-    .filter({ hasText: /sign\s*in\s+with\s+oidc|sign\s*in\s+with\s+sso|single\s+sign[-\s]*on|log\s*in/i })
-    .first();
-  if ((await oidcSignIn.count().catch(() => 0)) > 0) {
-    await oidcSignIn.click();
-  } else {
-    await gotoOnion(page, `${discourseBaseUrl}/auth/oidc`).catch(() => {});
-  }
-  await expect
-    .poll(() => page.url(), {
-      timeout: resolveTimeout(60_000),
-      message: `expected redirect to Keycloak OIDC auth (${oidcIssuerUrl})`,
-    })
-    .toContain(`${oidcIssuerUrl}/protocol/openid-connect/auth`);
-  await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  await expect
-    .poll(() => page.url(), {
-      timeout: resolveTimeout(60_000),
-      message: `expected redirect back to discourse at ${discourseBaseUrl}`,
-    })
-    .toContain(discourseBaseUrl);
-}
 
 function settingValue(settings, name) {
   const found = settings.find((entry) => entry && entry.setting === name);
@@ -60,7 +26,7 @@ test("discourse-translator: posts are translated through the in-cluster gateway"
   expect(expectedProvider, "DISCOURSE_TRANSLATE_PROVIDER must be set").toBeTruthy();
 
   await page.context().clearCookies();
-  await signInViaOidc(page);
+  await signInAsAdmin(page);
 
   const settings = await page.evaluate(async (base) => {
     const res = await fetch(`${base}/admin/site_settings.json`, {

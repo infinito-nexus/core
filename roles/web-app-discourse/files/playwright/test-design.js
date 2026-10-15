@@ -9,8 +9,9 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { signInAsAdmin } = require("./sign-in");
 const { resolveTimeout } = require("./timeouts");
 
 const READY_MS = 10_000;
@@ -45,37 +46,6 @@ async function settled(page, selector) {
 async function openLatest(page) {
   await gotoOnion(page, `${baseUrl()}/latest`);
   await ready(page, ".topic-list-item");
-}
-
-async function signIn(page) {
-  const base = baseUrl();
-  if (isServiceEnabled("sso")) {
-    const issuer = normalizeBaseUrl(env("OIDC_ISSUER_URL"));
-    await gotoOnion(page, `${base}/`);
-    await page
-      .locator("a, button")
-      .filter({ hasText: /log\s*in|sign\s*in/i })
-      .first()
-      .click({ timeout: resolveTimeout(30_000) });
-    await expect
-      .poll(() => page.url(), { timeout: resolveTimeout(60_000) })
-      .toContain(`${issuer}/protocol/openid-connect/auth`);
-    await performKeycloakLoginForm(page, env("ADMIN_USERNAME"), env("ADMIN_PASSWORD"));
-    await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(base);
-    await gotoOnion(page, `${base}/latest`);
-  } else {
-    await gotoOnion(page, `${base}/login`);
-    const name = page.locator("#login-account-name");
-    const password = page.locator("#login-account-password");
-    await expect(name).toBeEditable({ timeout: resolveTimeout(READY_MS) });
-    await name.fill(env("ADMIN_USERNAME"));
-    await expect(password).toBeEditable({ timeout: resolveTimeout(READY_MS) });
-    await password.fill(env("ADMIN_PASSWORD"));
-    await password.press("Enter");
-  }
-  await expect(page.locator(".header-dropdown-toggle.current-user")).toBeVisible({
-    timeout: resolveTimeout(30_000),
-  });
 }
 
 async function seedShowcase(page) {
@@ -228,7 +198,7 @@ exports.register = function () {
 
   test("design: primary action, dividers and header focus follow the tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await signIn(page);
+    await signInAsAdmin(page);
     await gotoOnion(page, `${baseUrl()}/latest`);
     await ready(page, "#create-topic");
     for (const mode of ["light", "dark"]) {
@@ -266,7 +236,7 @@ exports.register = function () {
 
   test("design: the admin sidebar marks the active entry from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await signIn(page);
+    await signInAsAdmin(page);
     await gotoOnion(page, `${baseUrl()}/admin`);
     const active = ".admin-panel .sidebar-section-link.active";
     await ready(page, active);
@@ -286,7 +256,7 @@ exports.register = function () {
     page.on("request", (request) => {
       if (request.url().includes("/mini-profiler-resources/")) profiled.push(new URL(request.url()).pathname);
     });
-    await signIn(page);
+    await signInAsAdmin(page);
     await gotoOnion(page, `${baseUrl()}/admin`);
     await ready(page, "#main-outlet .admin-contents.dashboard");
     await expect(page.locator(".profiler-results")).toHaveCount(0);
@@ -378,7 +348,7 @@ exports.register = function () {
       { name: "login", url: `${base}/login`, prepare: (v) => ready(v, "#login-account-name") },
       { name: "signup", url: `${base}/signup`, prepare: (v) => ready(v, "body.signup-page input:visible") },
     ]).catch((error) => failures.push(error.message));
-    await signIn(page);
+    await signInAsAdmin(page);
     const topicId = await seedShowcase(page);
     const views = signedInViews(base, env("ADMIN_USERNAME"), topicId).map((view) => ({
       name: view.name,
