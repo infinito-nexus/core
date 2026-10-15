@@ -8,6 +8,7 @@ MOODLE_DATA_DIR: "{{ lookup('volume', 'web-app-moodle', 'data').target }}"
 MOODLE_LOCAL_CACHE_DIR: "{{ lookup('volume', application_id, 'localcache').mounts[0].target }}"
 MOODLE_SOURCE_DIR: "/opt/moodle-source"
 MOODLE_ENTRYPOINT_PATH: "/usr/local/bin/moodle-entrypoint.sh"
+MOODLE_BOOTSTRAP_STAGE: "{{ [MOODLE_CODE_DIR, '.bootstrap.stage'] | path_join }}"
 
 MOODLE_BUILD_DIR: "build"
 MOODLE_BUILD_FILES:
