@@ -6,9 +6,9 @@
 // Rendered even without SSO (the bind source must exist); the body self-gates.
 {% if STALWART_SSO_ENABLED | bool %}
 
-{% if STALWART_WEBMAIL_BASE_URL.startswith('https://') %}
-$_SERVER['HTTPS'] = 'on';
-{% endif %}
+if (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
 
 $config['oauth_provider'] = 'generic';
 $config['oauth_provider_name'] = '{{ OIDC.BUTTON_TEXT }}';
