@@ -42,6 +42,8 @@ const PRIMARY_ACTION = ".v-toolbar .v-btn.primary";
 const EDITOR = ".CodeMirror";
 const NAV_ICON = ".v-app-bar__nav-icon";
 const OUTLINED_CHIP = `${DIALOG} .v-chip.v-chip--outlined.green`;
+const USER_EDIT = `${TABLE} .v-btn--icon:has(.mdi-pencil)`;
+const CODE_CHIP = `${TABLE} code`;
 const SHOWCASE = "Design Showcase";
 
 exports.register = function (shared) {
@@ -396,6 +398,7 @@ exports.register = function (shared) {
       view("team", `${scope}/team`, TABLE_CELL),
       view("project-new", `${base}/project/new`, '[data-testid="newProject-name"]'),
       view("users", `${base}/users`, TABLE_CELL),
+      opened("user-edit", `${base}/users`, TABLE_CELL, USER_EDIT, `${DIALOG} input`),
       view("runners", `${base}/runners`, TOOLBAR_TITLE),
       view("api-tokens", `${base}/tokens`, TOOLBAR_TITLE),
       {
@@ -561,6 +564,59 @@ exports.register = function (shared) {
       await menuOpened(page, USER_MENU);
       await assertToken(page, `${MENU} hr.v-divider`, "border-top-color", "--design-border", `menu divider ${mode}`);
     }
+  });
+
+  test("design: the administration's user list and user dialog take surfaces, text, primary action and dividers from the palette", async ({
+    page,
+  }) => {
+    shared.skipUnlessServiceEnabled("design");
+    test.setTimeout(resolveTimeout(180_000));
+    await signIn(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, `${base}/users`);
+      await shown(TABLE_CELL)(page);
+      await assertToken(page, APP, "background-color", "--design-surface-1", `users ${mode}`);
+      await assertToken(page, TOOLBAR_TITLE, "color", "--design-text", `users ${mode}`);
+      await assertToken(page, PRIMARY_ACTION, "background-color", "--design-primary", `new user ${mode}`);
+      await assertToken(page, PRIMARY_ACTION, "color", "--design-on-primary", `new user ${mode}`);
+      await assertToken(page, TABLE_CELL, "color", "--design-text", `user list ${mode}`);
+      await assertToken(page, TABLE_HEAD, "border-bottom-color", "--design-border", `user list head divider ${mode}`);
+      await assertToken(page, CONTENT_DIVIDER, "border-top-color", "--design-border", `users page divider ${mode}`);
+      await assertToken(page, `${TABLE} .mdi-checkbox-marked`, "color", "--design-text-muted", `admin flag ${mode}`);
+      await page.locator(USER_EDIT).first().click();
+      await shown(`${DIALOG} input`)(page);
+      await assertToken(page, `${DIALOG} .v-card`, "background-color", "--design-surface-2", `user dialog ${mode}`);
+      await assertToken(
+        page,
+        `${DIALOG} .v-input__slot fieldset`,
+        "border-top-color",
+        "--design-border-strong",
+        `user dialog field ${mode}`,
+      );
+      await assertToken(page, '[data-testid="editDialog-save"]', "color", "--design-link", `user dialog save ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await gotoOnion(page, `${base}/users`);
+    await shown(TABLE_CELL)(page);
+    await assertLightAndDark(page, TABLE_CELL, "semaphore users");
+    await assertReadable(page, [TOOLBAR_TITLE, TABLE_HEAD, TABLE_CELL, PRIMARY_ACTION], "semaphore users");
+  });
+
+  test("design: code chips take the inset surface instead of Vuetify's tint in both modes", async ({ page }) => {
+    shared.skipUnlessServiceEnabled("design");
+    test.setTimeout(resolveTimeout(180_000));
+    await signIn(page);
+    const { project } = await seedShowcase(page);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, `${base}/project/${project}/keys`);
+      await shown(CODE_CHIP)(page);
+      await assertToken(page, CODE_CHIP, "background-color", "--design-surface-3", `key type chip ${mode}`);
+      await assertToken(page, CODE_CHIP, "color", "--design-text", `key type chip ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertReadable(page, [CODE_CHIP], "semaphore code chip");
   });
 
   test("design: literal colors of hints, placeholders, neutral buttons and inset tables come from the palette", async ({
