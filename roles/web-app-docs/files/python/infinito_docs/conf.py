@@ -24,6 +24,10 @@ project = "Infinito.Nexus - Cyber Master Infrastructure Solution"
 copyright = "2025, Kevin Veen-Birkenbach"  # noqa: A001
 author = "Kevin Veen-Birkenbach"
 
+_design_title = os.environ.get("DOCS_DESIGN_TITLE", "").strip()
+if _design_title:
+    html_title = _design_title
+
 lexers["jinja"] = DjangoLexer()
 lexers["j2"] = DjangoLexer()
 
