@@ -274,6 +274,57 @@ exports.register = function () {
     }
   });
 
+  test("design: the Administration takes surfaces, text, dividers and the primary action from the palette", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await page.setViewportSize(WIDE_VIEWPORT);
+    await signIn(page);
+    const panel = "#main .admin-tables-container table.table-admin-panel";
+    const row = `${panel} tr.admin-content-row`;
+    const searchField = '#main .admin-search-container input[data-name="quick-search"]';
+    const search = page.locator(searchField);
+    await openSignedIn(page, "Admin", panel);
+    await search.blur();
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      const label = `espocrm administration ${mode}`;
+      await assertToken(page, "#navbar .navbar", "background-color", "--design-frame", label);
+      await assertToken(page, panel, "background-color", "--design-surface-2", label);
+      await assertToken(page, panel, "border-top-color", "--design-border", label);
+      await assertToken(page, `${row} + tr.admin-content-row > td`, "border-top-color", "--design-border", label);
+      await assertToken(page, `${row} > td:first-child a`, "color", "--design-text", label);
+      await assertToken(page, `${row} > td:nth-child(2)`, "color", "--design-text-muted", label);
+      await assertToken(page, searchField, "background-color", "--design-surface-2", label);
+      await assertToken(page, searchField, "border-top-color", "--design-border-strong", label);
+      await search.focus();
+      await assertToken(page, searchField, "border-top-color", "--design-link", `${label} focused search`);
+      await search.blur();
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertLightAndDark(page, panel, "espocrm administration");
+    await assertReadable(
+      page,
+      ["#main .page-header h3", "#main .admin-content-section > h4", `${row} > td:first-child a`, `${row} > td:nth-child(2)`],
+      "espocrm administration",
+    );
+
+    const save = '#main .record .edit .detail-button-container button[data-action="save"]';
+    await openSignedIn(page, "Admin/settings", save);
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      const label = `espocrm system settings ${mode}`;
+      await assertToken(page, save, "background-color", "--design-primary", label);
+      await assertToken(page, save, "color", "--design-on-primary", label);
+      await page.locator(save).hover();
+      await assertToken(page, save, "background-color", "--design-primary-hover", `${label} hovered save`);
+      await assertToken(page, save, "color", "--design-on-primary", `${label} hovered save`);
+      await page.mouse.move(0, 0);
+      await assertToken(page, "#main .record .edit input.form-control:visible", "border-top-color", "--design-border-strong", label);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertLightAndDark(page, "#main .record .edit .panel", "espocrm system settings");
+    await assertReadable(page, [save, "#main .record .edit .panel .control-label"], "espocrm system settings");
+  });
+
   test("design: gallery of login, CRM and administration views", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
@@ -331,7 +382,22 @@ exports.register = function () {
         readyView("stream", `${base}/#Stream`, "#main .list-container, #main .no-data"),
         readyView("preferences", `${base}/#Preferences/edit/${userId}`, "#main .record .edit"),
         readyView("user-detail", `${base}/#User/view/${userId}`, "#main .record .detail"),
-        readyView("admin-index", `${base}/#Admin`, "#main .admin-content, #main .admin-tables"),
+        {
+          name: "admin-index",
+          url: `${base}/#Admin`,
+          prepare: async (current) => {
+            await expect(current.locator("#main .admin-tables-container table.table-admin-panel").first()).toBeVisible({
+              timeout: resolveTimeout(10_000),
+            });
+            const iframe = "#main .admin-right-column iframe";
+            if ((await current.locator(iframe).count()) > 0) {
+              await expect(current.frameLocator(iframe).locator("body")).not.toBeEmpty({ timeout: resolveTimeout(10_000) });
+              const frame = await (await current.locator(iframe).elementHandle()).contentFrame();
+              await frame.waitForLoadState("load", { timeout: resolveTimeout(10_000) });
+              await frame.evaluate(() => document.fonts.ready.then(() => true));
+            }
+          },
+        },
         readyView("admin-settings", `${base}/#Admin/settings`, "#main .record .edit"),
         readyView("admin-user-interface", `${base}/#Admin/userInterface`, "#main .record .edit"),
         readyView("admin-users", `${base}/#User`, "#main .list-container table tbody tr"),
