@@ -118,7 +118,7 @@ declared and dormant. `hookshot-gitlab` and `hookshot-jira` select which
 ansible flavor configures, on top of the `services.matrix.plugins.hookshot`
 knob that decides whether MDAD deploys the bridge at all. `jitsi` writes
 [Element's](https://github.com/element-hq/element-web/blob/develop/docs/jitsi.md)
-`jitsi.preferredDomain` so conference widgets open on the co-deployed
+`jitsi.preferred_domain` so conference widgets open on the co-deployed
 `web-app-jitsi` instance: the compose flavor writes it into
 `element.config.json`, the ansible flavor overrides MDAD's
 `matrix_client_element_jitsi_preferred_domain` and the matching `.well-known`

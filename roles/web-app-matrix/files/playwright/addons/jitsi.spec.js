@@ -32,14 +32,14 @@ test("jitsi addon: Element advertises the co-deployed Jitsi deployment as its pr
   }
 
   expect(
-    config.jitsi && config.jitsi.preferredDomain,
-    `Element /config.json must carry jitsi.preferredDomain while the jitsi addon is enabled; without it every ` +
+    config.jitsi && config.jitsi.preferred_domain,
+    `Element /config.json must carry jitsi.preferred_domain while the jitsi addon is enabled; without it every ` +
       `conference widget falls back to the public meet.jit.si instead of the co-deployed web-app-jitsi. ` +
       `Got keys: ${Object.keys(config).join(", ")}`,
   ).toBeTruthy();
 
   expect(
-    config.jitsi.preferredDomain,
+    config.jitsi.preferred_domain,
     `Element must point at the co-deployed Jitsi domain, not a third-party instance`,
   ).toBe(preferredDomain);
 });
