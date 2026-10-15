@@ -110,6 +110,10 @@ design:
     symbol:
       width: 92
       height: 82
+    logotype:
+      width: 161
+      height: 43
+      text_only: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

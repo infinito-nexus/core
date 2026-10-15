@@ -51,6 +51,7 @@
       PDS_ADMIN_PASSWORD: "{{ BLUESKY_ADMIN_PASSWORD | replace('$', '$$') }}"
       BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ BLUESKY_BRIDGE_ENCRYPTION_KEY }}"
       INSECURE_TLS: "{{ MODE_DEBUG | string | lower }}"
+      SITE_TITLE: {{ lookup('design', application_id).label | replace('$', '$$') | to_json }}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O-", "http://127.0.0.1:{{ BLUESKY_BROKER_INTERNAL_PORT }}/healthz"]
       interval: 2m
