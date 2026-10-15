@@ -14,13 +14,11 @@
     - "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'config', 'nginx-custom'] | path_join }}"
     - "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'transcripts'] | path_join }}"
 
-- name: "🎬 stage prosody LDAP authentication override (mod_auth_ldap2)"
-  stack_host_template:
-    src: prosody-ldap.cfg.lua.j2
-    dest: "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d/ldap.cfg.lua"
-    mode: "0644"
+- name: "🧹 Remove the prosody LDAP override that has no module in the image"
+  ansible.builtin.file:
+    path: "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d/ldap.cfg.lua"
+    state: absent
   notify: compose-up
-  when: JITSI_LDAP_ENABLED
 
 - name: "🎨 Converge the corporate design of {{ application_id }}"
   ansible.builtin.include_tasks: 02_design.yml
