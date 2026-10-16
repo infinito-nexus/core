@@ -48,13 +48,19 @@ ERPNEXT_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
 ERPNEXT_MAIL: "{{ lookup('email', application_id) if ERPNEXT_EMAIL_ENABLED else {} }}"
 
-ERPNEXT_OIDC_GROUP_ROLE_MAP:
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator":
+ERPNEXT_OIDC_ROLE_GRANTS:
+  administrator:
     - "System Manager"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/manager":
+  manager:
     - "Sales User"
     - "Purchase User"
     - "Stock User"
     - "Accounts User"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/customer":
+  customer:
     - "Customer"
+ERPNEXT_OIDC_GROUP_ROLE_MAP: >-
+  {{ {
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ERPNEXT_OIDC_ROLE_GRANTS.administrator,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='manager'): ERPNEXT_OIDC_ROLE_GRANTS.manager,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ERPNEXT_OIDC_ROLE_GRANTS.customer,
+     } }}

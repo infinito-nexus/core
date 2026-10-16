@@ -44,17 +44,29 @@ _RULE = "jinja-mapping-key"
 _SCANNED_DIRS = ("meta", "vars")
 
 
-def _key_nodes(node: yaml.Node):
-    """Yield every scalar node that stands as a mapping key below *node*."""
+def _key_nodes(node: yaml.Node, seen: set[int] | None = None):
+    """Yield every scalar node that stands as a mapping key below *node*.
+
+    Args:
+        node: the composed YAML node to walk.
+        seen: ids of the nodes already walked. An alias makes the same node
+            reachable twice and a self-referencing anchor makes the graph
+            cyclic, which would otherwise recurse until RecursionError, a
+            crash yaml.YAMLError does not cover.
+    """
+    seen = set() if seen is None else seen
+    if id(node) in seen:
+        return
+    seen.add(id(node))
     if isinstance(node, yaml.MappingNode):
         for key_node, value_node in node.value:
             if isinstance(key_node, yaml.ScalarNode):
                 yield key_node
-            yield from _key_nodes(key_node)
-            yield from _key_nodes(value_node)
+            yield from _key_nodes(key_node, seen)
+            yield from _key_nodes(value_node, seen)
     elif isinstance(node, yaml.SequenceNode):
         for item in node.value:
-            yield from _key_nodes(item)
+            yield from _key_nodes(item, seen)
 
 
 def jinja_mapping_keys() -> list[str]:
@@ -82,7 +94,7 @@ def jinja_mapping_keys() -> list[str]:
                 if is_suppressed_at(lines, number, _RULE):
                     continue
                 findings.append(f"{rel}:{number}: {lines[number - 1].strip()[:80]}")
-    return sorted(findings)
+    return sorted(set(findings))
 
 
 class TestNoJinjaInMappingKeys(unittest.TestCase):
