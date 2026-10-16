@@ -11,6 +11,7 @@ JITSI_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ JITSI_WE
 JITSI_PROSODY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ JITSI_PROSODY_SERVICE ~ '.name') }}"
 JITSI_JICOFO_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ JITSI_JICOFO_SERVICE ~ '.name') }}"
 JITSI_JVB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ JITSI_JVB_SERVICE ~ '.name') }}"
+JITSI_PROSODY_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, JITSI_PROSODY_SERVICE) }}"
 
 JITSI_JVB_MEDIA_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.public.media') }}"
 

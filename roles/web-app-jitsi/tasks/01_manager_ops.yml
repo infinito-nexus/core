@@ -25,3 +25,43 @@
 
 - name: "🚿 flush handlers so Jitsi containers start with rendered env"
   meta: flush_handlers
+
+- name: "⏳ Wait until the prosody container of {{ application_id }} is healthy"
+  shell: >
+    container inspect --type container --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ JITSI_PROSODY_CONTAINER_ADDRESS }}
+  register: jitsi_prosody_health
+  changed_when: false
+  until: jitsi_prosody_health.stdout.strip() == "healthy"
+  retries: 60
+  delay: 5
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔑 Realign the prosody service accounts with the declared passwords"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e JITSI_REALIGN_AUTH_DOMAIN
+      -e JITSI_REALIGN_FOCUS_PASSWORD
+      -e JITSI_REALIGN_JVB_PASSWORD
+      -e JITSI_REALIGN_JIGASI_PASSWORD
+      -e JITSI_REALIGN_JIBRI_PASSWORD
+      {{ JITSI_PROSODY_CONTAINER_ADDRESS }} sh -s
+    stdin: "{{ lookup('file', 'shell/realign_accounts.sh') }}"
+  environment:
+    JITSI_REALIGN_AUTH_DOMAIN: "{{ JITSI_XMPP_AUTH_DOMAIN }}"
+    JITSI_REALIGN_FOCUS_PASSWORD: "{{ JITSI_JICOFO_AUTH_PASSWORD }}"
+    JITSI_REALIGN_JVB_PASSWORD: "{{ JITSI_JVB_AUTH_PASSWORD }}"
+    JITSI_REALIGN_JIGASI_PASSWORD: "{{ JITSI_JIGASI_XMPP_PASSWORD }}"
+    JITSI_REALIGN_JIBRI_PASSWORD: "{{ JITSI_JIBRI_XMPP_PASSWORD }}"
+  register: jitsi_prosody_realign
+  until: jitsi_prosody_realign is succeeded
+  retries: 10
+  delay: 6
+  changed_when: jitsi_prosody_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    jitsi_prosody_realign.rc != 0
+    or jitsi_prosody_realign.stderr is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
