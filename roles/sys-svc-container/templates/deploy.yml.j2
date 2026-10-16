@@ -8,7 +8,10 @@
     deploy:
       {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
 {% set _constraints = [] %}
-{% if application_id in lookup('roles_with_placement', 'manager') %}
+{% set _placement = ((lookup('applications') | resource_filter(application_id, 'placement', service_name | default(''), '')) or '') | trim %}
+{% if _placement %}
+{% set _ = _constraints.append('node.role == ' ~ _placement) %}
+{% elif application_id in lookup('roles_with_placement', 'manager') %}
 {% set _ = _constraints.append('node.role == manager') %}
 {% endif %}
 {% set _arch = lookup('applications') | resource_filter(application_id, 'platform_arch', service_name | default(''), '') %}

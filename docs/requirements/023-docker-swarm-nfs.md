@@ -61,6 +61,7 @@ The implementation MUST keep a clean abstraction line between the render backend
 ### Docker volume integration
 
 - [x] NFS-backing is derived from the role's placement, not declared per volume. An unpinned role's volumes MUST be rendered onto the shared export; a role pinned with `placement: manager` MUST keep its volumes node-local. A volume whose payload cannot tolerate NFS semantics opts out with `nfs: false` plus a justification.
+- [x] Role placement is read from the role's primary `meta/services.yml` entry, and only that entry drives the volume derivation above. A `placement` on any other service entry pins that one service and nothing else: it leaves the role unpinned, so the role's volumes stay NFS-backed and every volume the pinned service owns MUST carry its own `nfs: false`. `web-app-gitlab` (`gitaly`) and `svc-cache-package` (`frontend`) are the roles that use this form.
 - [x] A role that runs no RDBMS of its own MUST NOT keep read-write state on an NFS-backed volume unless the payload is share-safe: pair `nfs: false` with a single replica or a manager pin, or externalise the state into a database.
 - [x] When a service runs with `DEPLOYMENT_MODE: swarm` AND `storage.backend: nfs` AND the role is not pinned, each of its volumes MUST be rendered with the NFS driver block:
 
@@ -74,7 +75,8 @@ The implementation MUST keep a clean abstraction line between the render backend
         device: ":{{ storage.nfs.export_base }}/{{ app_volume_name }}"
   ```
 
-- [x] When a service runs with `DEPLOYMENT_MODE: swarm`, ALL its volumes MUST opt into NFS AND `storage.backend: nfs`; otherwise the service's role group should not contain multiple hosts. Mixing local-only volumes into a multi-host role under v1 is a configuration error: either route the role through compose (single host in group) or migrate the volume to NFS. The placement-constraint fallback used in earlier drafts is dropped in favour of free task placement (option 2b from the design brainstorm).
+- [x] When a service runs with `DEPLOYMENT_MODE: swarm`, ALL its volumes MUST opt into NFS AND `storage.backend: nfs`; otherwise the service's role group should not contain multiple hosts. Mixing local-only volumes into a multi-host role is a configuration error unless each local-only volume carries `nfs: false` AND every service mounting it carries a per-service `placement`, so the task cannot be scheduled away from the node holding the data. The placement-constraint fallback used in earlier drafts is dropped in favour of free task placement (option 2b from the design brainstorm).
+- [x] A per-service `placement` does NOT make the role single-node, so a drain or reschedule drill still applies to its unpinned services. Any gate that skips such a drill MUST read the primary entry rather than matching `placement:` anywhere in the file.
 - [x] When a service runs with `DEPLOYMENT_MODE: compose`, the volume block remains identical to today (local docker volumes, no `driver_opts`); the per-volume `nfs` flag is ignored under compose.
 
 ### Docker network integration

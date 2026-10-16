@@ -70,7 +70,9 @@ The role provisions new GitLab instances. Volumes, secrets and backups of a pre-
 
 ## Gitaly data locality
 
-The `gitlab_repositories` volume is declared `nfs: false`, so in swarm mode it stays a plain node-local volume instead of being rewritten to the shared NFS backend. Gitaly is pinned to a single replica. When a swarm reschedule moves the gitaly task to another node, the repositories stay on the previous node's local volume; move the volume data manually before rescheduling gitaly.
+The `gitlab_repositories` volume is declared `nfs: false`, so in swarm mode it stays a plain node-local volume instead of being rewritten to the shared NFS backend. Gitaly is pinned to a single replica and, through `placement: manager` on its own `meta/services.yml` entry, to the manager node. The pin is per service: `gitlab_uploads`, `gitlab_shared` and `gitlab_builds` keep their NFS backing, and the remaining services stay schedulable anywhere.
+
+Without the node pin a reschedule moves the gitaly task to an empty node-local volume and every repository is gone, while the database still lists the projects. A config-object rotation is enough to trigger that reschedule, so every deploy pass carries the risk, not only a node failure.
 
 ## Upgrades
 
