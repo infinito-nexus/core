@@ -244,6 +244,24 @@ exports.register = function () {
     expect(response.headers()["content-type"] || "").toContain("svg");
   });
 
+  test("design: LAM's pages and header carry the configured title", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+    test.skip(!title, "the title replacement is disabled for this role");
+    const lead = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await open(page, "login.php", LOGIN_BUTTON);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator("div.lam-header-left > a > span.hide-on-mobile")).toHaveText(new RegExp(`^${lead} - \\S+$`));
+    await openSignedIn(page, "lists/list.php?type=user", "table.accountlist tbody tr");
+    await expect(page).toHaveTitle(new RegExp(`^${lead} \\(.+\\)$`));
+    const version = page.locator("div.lam-header-left > a > span.hide-on-mobile-and-tablet");
+    await expect(version).toBeVisible();
+    await expect(version).toHaveText(new RegExp(`^${lead} - \\S+$`));
+    await configSignIn(page, "config/conflogin.php", "config/confmain.php", "form");
+    await expect(page).toHaveTitle(new RegExp(`^${lead}( |$)`));
+  });
+
   test("design: signed-in list rows, dividers and controls follow the tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await openSignedIn(page, "lists/list.php?type=user", "table.accountlist tbody tr");
