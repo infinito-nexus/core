@@ -56,7 +56,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-baserow
 - [ ] web-app-bigbluebutton: title not set through Greenlight (the spec asserts the literal upstream name); the meeting client keeps the upstream design; `vars/main.yml` rewritten after the last full run.
 - [x] web-app-bluesky
-- [ ] web-app-bookwyrm: no green complete run on the final state; the last one failed the SeaweedFS avatar upload test.
+- [x] web-app-bookwyrm
 - [x] web-app-checkmk
 - [x] web-app-chess
 - [x] web-app-dashboard
@@ -65,7 +65,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-erpnext
 - [x] web-app-espocrm
 - [x] web-app-fediwall
-- [ ] web-app-fider: the logo does not reach Fider while the object store is enabled.
+- [x] web-app-fider
 - [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
 - [x] web-app-friendica
 - [x] web-app-funkwhale
