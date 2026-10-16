@@ -39,6 +39,10 @@ litellm_settings:
 {% if LITELLM_ROUTER_ALIAS %}
   callbacks: ["router_hook.instance"]
 {% endif %}
+{% if LITELLM_UI_LOGO_URL | length > 0 %}
+  ui_theme_config:
+    logo_url: {{ LITELLM_UI_LOGO_URL | to_json }}
+{% endif %}
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY

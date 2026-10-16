@@ -14,12 +14,16 @@ instead of rendering::
 for the merge block, which it drops again at the block's end, one after the
 ``add_host`` tasks for the swarm bootstrap roles, parked only when
 ``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names`` and the
-tokens file's path, mtime and size, so a carrier whose groups or tokens no
+tokens file's path and content digest, so a carrier whose groups or tokens no
 longer match is rejected and the reader renders afresh::
 
     - name: 🧊 Drop the merge-block carrier so later stages re-render
       applications_carrier:
         clear: true
+
+``tasks/utils/setup/role.yml`` parks one after every role and
+``roles/sys-token-store/tasks/write.yml`` one after every persisted token;
+where the key still matches they serve the carried payload without rendering.
 
 The result is masked by the action itself: the fact is the whole rendered
 tree, about 0.4 MB with every application's credentials, and printing it at
@@ -39,7 +43,7 @@ from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import lookup_loader
 
-from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, revalidate_tokens_file
 
 
 class ActionModule(ActionBase):
@@ -64,6 +68,7 @@ class ActionModule(ActionBase):
             )
             return result
 
+        revalidate_tokens_file(task_vars)
         lookup = lookup_loader.get(
             "applications", loader=self._loader, templar=self._templar
         )

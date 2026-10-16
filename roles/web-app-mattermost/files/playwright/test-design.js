@@ -49,6 +49,9 @@ const FIRST_RUN = [
   ["onboarding_task_list", "onboarding_task_list_show", "false"],
   ["onboarding_task_list", "onboarding_task_list_open", "false"],
 ];
+const ROLE_SHEET = "link[href*='/roles/web-app-mattermost/'][href*='style.css']";
+const COLOR_PROPERTY =
+  /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule)$/;
 
 function shown(selector) {
   return async (page) => {
@@ -305,6 +308,35 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("design");
     await openSignIn(page);
     await assertDesignTokens(page, "Mattermost");
+  });
+
+  test("design: the role stylesheet sets every color through a token", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await openSignIn(page);
+    const sheet = await page.locator(ROLE_SHEET).first().evaluate((link) => link.href);
+    const css = await (await apiGetOnion(page.request, sheet)).text();
+    const offenders = await page.evaluate(
+      ([source, property]) => {
+        const colorProperty = new RegExp(property);
+        const keyword = (word) =>
+          /^[a-z]+$/i.test(word) &&
+          !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) &&
+          CSS.supports("color", word);
+        const found = [];
+        for (const [, name, value] of source.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+          if (!colorProperty.test(name) || value.includes("url(")) continue;
+          const literal =
+            /#[0-9a-f]{3,8}\b/i.test(value) ||
+            /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(value) ||
+            /var\(--[\w-]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*\)/.test(value) ||
+            value.split(/[\s,()]+/).some(keyword);
+          if (literal) found.push(`${name}: ${value.trim()}`);
+        }
+        return found;
+      },
+      [css, COLOR_PROPERTY.source],
+    );
+    expect(offenders, "every color of the role stylesheet comes from a --design-* token").toEqual([]);
   });
 
   test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {

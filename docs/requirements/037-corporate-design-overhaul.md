@@ -64,7 +64,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-discourse
 - [x] web-app-erpnext
 - [x] web-app-espocrm
-- [ ] web-app-fediwall: literal colors in `templates/index.html.j2:18-27`; title not set through the wall config's native title.
+- [x] web-app-fediwall
 - [ ] web-app-fider: the logo does not reach Fider while the object store is enabled.
 - [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
 - [x] web-app-friendica
@@ -83,13 +83,13 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-kix
 - [ ] web-app-lam: title neither set nor asserted; spec and `playwright.env.j2` rewritten after the last run.
 - [x] web-app-listmonk
-- [ ] web-app-litellm: logo swapped by CSS `content` instead of LiteLLM's `logo_url` setting.
+- [x] web-app-litellm
 - [x] web-app-littlejs
-- [ ] web-app-magento: literal `darkgrey` at `style.css.j2:5513` and `:5554`; `style.css.j2` changed by `6c2de017f8` after the last run.
+- [x] web-app-magento
 - [x] web-app-mastodon
-- [ ] web-app-matomo: Matomo's own `themeMode` preference is not exercised (the spec flips the DOM); the administration is not asserted.
+- [x] web-app-matomo
 - [x] web-app-matrix
-- [ ] web-app-mattermost: about 50 literal RGB fallbacks inside `var()` in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
+- [x] web-app-mattermost
 - [x] web-app-mediawiki
 - [x] web-app-mini-qr
 - [x] web-app-mobilizon
@@ -111,11 +111,11 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-pixelfed
 - [ ] web-app-postmarks: the server HTML and the Atom feeds keep the title `Postmarks`, because Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode; `design.js` sets the browser title (upstream option in `roles/web-app-postmarks/TODO.md`).
 - [x] web-app-pretix
-- [ ] web-app-prometheus: merges of `main` changed spec, services, volumes and tasks after the last run; literal colors in the logout button of `javascript.js.j2`.
+- [x] web-app-prometheus
 - [x] web-app-roulette-wheel
 - [x] web-app-seaweedfs
 - [x] web-app-semaphore
-- [ ] web-app-shopware: literal colors (`gold`, SVG fills) in `style.css.j2`; `style.css.j2` changed by `6c2de017f8` after the last run.
+- [x] web-app-shopware
 - [x] web-app-snipe-it
 - [x] web-app-socialhome
 - [x] web-app-sphinx

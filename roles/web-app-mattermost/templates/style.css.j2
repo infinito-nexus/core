@@ -7336,15 +7336,15 @@ html:not([data-design-app-theme="custom"]) .table-editor__row-remove {
   color: rgba(var(--center-channel-color-rgb), 0.56);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__rowChip--allow {
-  background: rgba(var(--online-indicator-rgb, 6, 167, 125), 0.16);
+  background: rgba(var(--online-indicator-rgb, var(--design-success-rgb)), 0.16);
   color: var(--online-indicator, var(--design-success));
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__rowChip--allow-saved {
-  background: rgba(var(--online-indicator-rgb, 6, 167, 125), 0.12);
+  background: rgba(var(--online-indicator-rgb, var(--design-success-rgb)), 0.12);
   color: var(--online-indicator, var(--design-success));
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__rowChip--deny {
-  background: rgba(var(--error-text-color-rgb, 210, 75, 78), 0.16);
+  background: rgba(var(--error-text-color-rgb, var(--design-danger-rgb)), 0.16);
   color: var(--error-text);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__rowChip--pending {
@@ -7356,7 +7356,7 @@ html:not([data-design-app-theme="custom"]) .SimulateAccessModal__rowChip--not-ap
   color: rgba(var(--center-channel-color-rgb), 0.72);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__rowChip--mixed {
-  background: rgba(var(--away-indicator-rgb, 255, 188, 66), 0.18);
+  background: rgba(var(--away-indicator-rgb, var(--design-warning-rgb)), 0.18);
   color: var(--away-indicator, var(--design-warning));
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__rowChipIcon {
@@ -7410,11 +7410,11 @@ html:not([data-design-app-theme="custom"]) .SimulateAccessModal__detailsPolicies
   color: rgba(var(--center-channel-color-rgb), 0.72);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__detailsPolicyOutcome--allow {
-  background: rgba(var(--online-indicator-rgb, 6, 167, 125), 0.16);
+  background: rgba(var(--online-indicator-rgb, var(--design-success-rgb)), 0.16);
   color: var(--online-indicator, var(--design-success));
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__detailsPolicyOutcome--deny {
-  background: rgba(var(--error-text-color-rgb, 210, 75, 78), 0.16);
+  background: rgba(var(--error-text-color-rgb, var(--design-danger-rgb)), 0.16);
   color: var(--error-text, var(--design-danger));
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__detailsPolicyBadge {
@@ -7454,15 +7454,15 @@ html:not([data-design-app-theme="custom"]) .SimulateAccessModal__traceNode {
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__traceNode--true {
   border-left-color: var(--online-indicator, var(--design-success));
-  background: rgba(var(--online-indicator-rgb, 6, 167, 125), 0.06);
+  background: rgba(var(--online-indicator-rgb, var(--design-success-rgb)), 0.06);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__traceNode--false {
   border-left-color: var(--error-text, var(--design-danger));
-  background: rgba(var(--error-text-color-rgb, 210, 75, 78), 0.06);
+  background: rgba(var(--error-text-color-rgb, var(--design-danger-rgb)), 0.06);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__traceNode--error {
   border-left-color: var(--away-indicator, var(--design-warning));
-  background: rgba(var(--away-indicator-rgb, 255, 188, 66), 0.08);
+  background: rgba(var(--away-indicator-rgb, var(--design-warning-rgb)), 0.08);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__traceIcon--true {
   color: var(--online-indicator, var(--design-success));
@@ -7576,11 +7576,11 @@ html:not([data-design-app-theme="custom"]) .SimulateAccessModal__empty {
   color: rgba(var(--center-channel-color-rgb), 0.56);
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__empty--error {
-  background: rgba(var(--error-text-color-rgb, 210, 75, 78), 0.04);
+  background: rgba(var(--error-text-color-rgb, var(--design-danger-rgb)), 0.04);
   color: var(--error-text, var(--design-danger));
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__simulateError {
-  background: rgba(var(--error-text-color-rgb, 210, 75, 78), 0.08);
+  background: rgba(var(--error-text-color-rgb, var(--design-danger-rgb)), 0.08);
   color: var(--error-text, var(--design-danger));
 }
 html:not([data-design-app-theme="custom"]) .SimulateAccessModal__table th,
@@ -7759,24 +7759,24 @@ html:not([data-design-app-theme="custom"]) .Help {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__header {
-  border-bottom: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border-bottom: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
 }
 html:not([data-design-app-theme="custom"]) .Help__header h1 {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__content>p {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.8);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.8);
 }
 html:not([data-design-app-theme="custom"]) .Help__section h2,
 html:not([data-design-app-theme="custom"]) .Help__section h3 {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__section p {
-  color: var(--center-channel-color-rgb, 61, 60, 64);
+  color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__section ul li,
 html:not([data-design-app-theme="custom"]) .Help__section ol li {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.9);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.9);
 }
 html:not([data-design-app-theme="custom"]) .Help__section a,
 html:not([data-design-app-theme="custom"]) .Help__table td a {
@@ -7784,32 +7784,32 @@ html:not([data-design-app-theme="custom"]) .Help__table td a {
 }
 html:not([data-design-app-theme="custom"]) .Help__table th,
 html:not([data-design-app-theme="custom"]) .Help__table td {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
 }
 html:not([data-design-app-theme="custom"]) .Help__code-block,
 html:not([data-design-app-theme="custom"]) .Help__code-preview {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
-  background: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.04);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
+  background: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.04);
 }
 html:not([data-design-app-theme="custom"]) .Help__code-block code {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__code-line-number {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.4);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.4);
 }
 html:not([data-design-app-theme="custom"]) .Help__code-keyword {
   color: var(--design-info);
 }
 html:not([data-design-app-theme="custom"]) .Help__inline-code {
-  background: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.08);
+  background: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.08);
 }
 html:not([data-design-app-theme="custom"]) .Help__hr,
 html:not([data-design-app-theme="custom"]) .Help__learn-more {
-  border-top: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border-top: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
 }
 html:not([data-design-app-theme="custom"]) .Help__blockquote {
-  border-left: 4px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.2);
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.7);
+  border-left: 4px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.2);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.7);
 }
 html:not([data-design-app-theme="custom"]) .Help__badge {
   background-color: var(--design-text);
@@ -7825,8 +7825,8 @@ html:not([data-design-app-theme="custom"]) .Help__learn-more ul li a {
   color: var(--button-bg, var(--design-link));
 }
 html:not([data-design-app-theme="custom"]) .Help__example-box {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.12);
-  background: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.02);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.12);
+  background: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.02);
 }
 html:not([data-design-app-theme="custom"]) .Help__example-content p {
   color: var(--center-channel-color, var(--design-text));
@@ -7839,25 +7839,25 @@ html:not([data-design-app-theme="custom"]) .Help__example-name {
 }
 html:not([data-design-app-theme="custom"]) .Help__example-time,
 html:not([data-design-app-theme="custom"]) .Help__commands-header {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.6);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.6);
 }
 html:not([data-design-app-theme="custom"]) .Help__commands-example {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
   background-color: var(--design-surface-2);
   box-shadow: var(--design-shadow-2);
 }
 html:not([data-design-app-theme="custom"]) .Help__commands-list {
-  border-top: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.08);
+  border-top: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.08);
 }
 html:not([data-design-app-theme="custom"]) .Help__command-icon {
   background-color: rgba(var(--design-text-rgb), 0.08);
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.7);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.7);
 }
 html:not([data-design-app-theme="custom"]) .Help__command-name {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__command-desc {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.6);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.6);
 }
 html:not([data-design-app-theme="custom"]) .userSettingDesktopHeader .userSettingDesktopHeaderInfo svg.circular-border {
   background: rgba(var(--button-bg-rgb), 0.12);
@@ -8311,24 +8311,24 @@ html:not([data-design-app-theme="custom"]) .Help {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__header {
-  border-bottom: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border-bottom: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
 }
 html:not([data-design-app-theme="custom"]) .Help__header h1 {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__content>p {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.8);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.8);
 }
 html:not([data-design-app-theme="custom"]) .Help__section h2,
 html:not([data-design-app-theme="custom"]) .Help__section h3 {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__section p {
-  color: var(--center-channel-color-rgb, 61, 60, 64);
+  color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__section ul li,
 html:not([data-design-app-theme="custom"]) .Help__section ol li {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.9);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.9);
 }
 html:not([data-design-app-theme="custom"]) .Help__section a,
 html:not([data-design-app-theme="custom"]) .Help__table td a {
@@ -8336,32 +8336,32 @@ html:not([data-design-app-theme="custom"]) .Help__table td a {
 }
 html:not([data-design-app-theme="custom"]) .Help__table th,
 html:not([data-design-app-theme="custom"]) .Help__table td {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
 }
 html:not([data-design-app-theme="custom"]) .Help__code-block,
 html:not([data-design-app-theme="custom"]) .Help__code-preview {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
-  background: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.04);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
+  background: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.04);
 }
 html:not([data-design-app-theme="custom"]) .Help__code-block code {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__code-line-number {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.4);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.4);
 }
 html:not([data-design-app-theme="custom"]) .Help__code-keyword {
   color: var(--design-info);
 }
 html:not([data-design-app-theme="custom"]) .Help__inline-code {
-  background: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.08);
+  background: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.08);
 }
 html:not([data-design-app-theme="custom"]) .Help__hr,
 html:not([data-design-app-theme="custom"]) .Help__learn-more {
-  border-top: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border-top: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
 }
 html:not([data-design-app-theme="custom"]) .Help__blockquote {
-  border-left: 4px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.2);
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.7);
+  border-left: 4px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.2);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.7);
 }
 html:not([data-design-app-theme="custom"]) .Help__badge {
   background-color: var(--design-text);
@@ -8377,8 +8377,8 @@ html:not([data-design-app-theme="custom"]) .Help__learn-more ul li a {
   color: var(--button-bg, var(--design-link));
 }
 html:not([data-design-app-theme="custom"]) .Help__example-box {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.12);
-  background: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.02);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.12);
+  background: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.02);
 }
 html:not([data-design-app-theme="custom"]) .Help__example-content p {
   color: var(--center-channel-color, var(--design-text));
@@ -8391,25 +8391,25 @@ html:not([data-design-app-theme="custom"]) .Help__example-name {
 }
 html:not([data-design-app-theme="custom"]) .Help__example-time,
 html:not([data-design-app-theme="custom"]) .Help__commands-header {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.6);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.6);
 }
 html:not([data-design-app-theme="custom"]) .Help__commands-example {
-  border: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.16);
+  border: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.16);
   background-color: var(--design-surface-2);
   box-shadow: var(--design-shadow-2);
 }
 html:not([data-design-app-theme="custom"]) .Help__commands-list {
-  border-top: 1px solid rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.08);
+  border-top: 1px solid rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.08);
 }
 html:not([data-design-app-theme="custom"]) .Help__command-icon {
   background-color: rgba(var(--design-text-rgb), 0.08);
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.7);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.7);
 }
 html:not([data-design-app-theme="custom"]) .Help__command-name {
   color: var(--center-channel-color, var(--design-text));
 }
 html:not([data-design-app-theme="custom"]) .Help__command-desc {
-  color: rgba(var(--center-channel-color-rgb, 61, 60, 64), 0.6);
+  color: rgba(var(--center-channel-color-rgb, var(--design-text-rgb)), 0.6);
 }
 html:not([data-design-app-theme="custom"]) .DesktopAuthToken__main {
   color: var(--sidebar-header-bg);
@@ -8643,7 +8643,7 @@ html:not([data-design-app-theme="custom"]) .ChannelSettingsModal__permissionsPol
   color: var(--button-bg);
 }
 html:not([data-design-app-theme="custom"]) .ChannelSettingsModal__permissionsPolicyError {
-  background-color: rgba(var(--error-text-color-rgb, 210, 75, 78), 0.08);
+  background-color: rgba(var(--error-text-color-rgb, var(--design-danger-rgb)), 0.08);
   color: var(--error-text);
 }
 html:not([data-design-app-theme="custom"]) .ChannelSettingsModal__infoTabTitle {

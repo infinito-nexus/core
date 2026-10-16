@@ -7,11 +7,12 @@ const {
   assertToken,
   captureDesignGallery,
   galleryEnabled,
+  tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
-const { appBaseUrl, loginAsAdmin, matomoApiToken } = require("./_shared");
+const { adminUsername, appBaseUrl, loginAsAdmin, matomoApiToken } = require("./_shared");
 
 const THEME = "InfinitoDesign";
 const MODES = ["light", "dark"];
@@ -23,6 +24,14 @@ const BUSY = ".widgetLoading:visible, .loadingPiwik:visible, .sparklineLoadingSk
 const USER = "#login_form_login";
 const SUBMIT = "#login_form_submit";
 const SHOWCASE_VISITS = 20;
+const SETTINGS_FORM = "#userSettingsTable";
+const SETTINGS_SAVE = `${SETTINGS_FORM} .matomo-save-button input.btn`;
+const USERS_TABLE = "#manageUsersTable";
+const USER_CELL = `${USERS_TABLE} tbody td#userLogin`;
+const ADD_USER = ".usersManager .btn.add-new-user";
+const ADMIN_MENU = "#secondNavBar.Menu--admin";
+const ADMIN_ENTRY = `${ADMIN_MENU} .navbar > li > ul > li.active > a.item`;
+const ADD_REPORT = ".tableActionBar #add-report";
 
 function base() {
   return appBaseUrl.replace(/\/$/, "");
@@ -138,10 +147,119 @@ test("design: the login page and the administrator follow the browser color sche
   await signIn(page);
   await gotoOnion(page, homeUrl());
   await expect(page.locator("html"), "the administrator must follow the browser").toHaveAttribute("data-theme-mode", "auto");
-  await page.evaluate(() => document.documentElement.setAttribute("data-theme-mode", "dark"));
-  await expect(page.locator("html"), "a dark Matomo theme mode must reach the design tokens").toHaveAttribute("data-design-theme", "dark");
-  await page.evaluate(() => document.documentElement.setAttribute("data-theme-mode", "auto"));
-  await expect(page.locator("html")).not.toHaveAttribute("data-design-theme", /.+/);
+});
+
+/**
+ * Args:
+ *   page: Playwright page on Matomo's personal settings; picks a theme mode through the form and saves it.
+ *   mode: "light", "dark" or "auto".
+ */
+async function pickThemeMode(page, mode) {
+  await shown(page, SETTINGS_FORM);
+  await page
+    .locator(`${SETTINGS_FORM} label`)
+    .filter({ has: page.locator(`input[name="themeMode"][value="${mode}"]`) })
+    .click();
+  await page.locator(SETTINGS_SAVE).click();
+  await expect(page.locator("html"), `saving the personal settings applies the ${mode} theme mode`).toHaveAttribute(
+    "data-theme-mode",
+    mode,
+    { timeout: resolveTimeout(15_000) },
+  );
+}
+
+test("design: Matomo's own theme setting drives the palette", async ({ page, request }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  const html = page.locator("html");
+  const surface = () => tokenValue(page, "--design-surface-1", "background-color");
+  await signIn(page);
+  try {
+    for (const [browser, picked] of [
+      ["light", "dark"],
+      ["dark", "light"],
+    ]) {
+      await page.emulateMedia({ colorScheme: browser });
+      await gotoOnion(page, adminUrl("UsersManager", "userSettings"));
+      await shown(page, SETTINGS_FORM);
+      await expect(html, "the administrator starts on the provisioned auto mode").toHaveAttribute("data-theme-mode", "auto");
+      const followed = await surface();
+      await pickThemeMode(page, picked);
+      await expect(html).toHaveAttribute("data-design-theme", picked);
+      await expect
+        .poll(surface, { message: `a ${picked} Matomo theme in a ${browser} browser must switch the tokens` })
+        .not.toBe(followed);
+      await assertToken(page, SETTINGS_SAVE, "background-color", "--design-primary", `save button, ${picked} theme`);
+      await assertToken(page, SETTINGS_SAVE, "color", "--design-on-primary", `save button, ${picked} theme`);
+      await gotoOnion(page, homeUrl());
+      await expect(html, "the theme mode is stored with the account").toHaveAttribute("data-theme-mode", picked);
+      await expect(html).toHaveAttribute("data-design-theme", picked);
+      await gotoOnion(page, adminUrl("UsersManager", "userSettings"));
+      await pickThemeMode(page, "auto");
+      await expect(html).not.toHaveAttribute("data-design-theme", /.+/);
+    }
+  } finally {
+    await page.emulateMedia({ colorScheme: null });
+    await apiFetchOnion(request, `${base()}/index.php`, {
+      method: "POST",
+      form: {
+        module: "API",
+        method: "UsersManager.setUserPreference",
+        format: "json",
+        userLogin: adminUsername,
+        preferenceName: "themeMode",
+        preferenceValue: "auto",
+        token_auth: matomoApiToken,
+      },
+    });
+  }
+});
+
+test("design: the administration takes menu, tables, cards and primary actions from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await page.setViewportSize(DESKTOP);
+  await signIn(page);
+  await gotoOnion(page, adminUrl("UsersManager", "index"));
+  await shown(page, USER_CELL);
+  await assertDesignTokens(page, "matomo administration");
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, "body", "background-color", "--design-surface-1", `admin page ${mode}`);
+    await assertToken(page, ADMIN_MENU, "background-color", "--design-surface-2", `admin menu ${mode}`);
+    await assertToken(page, ADMIN_ENTRY, "color", "--design-link", `active admin entry ${mode}`);
+    await assertToken(page, ADMIN_ENTRY, "background-color", "--design-surface-hover", `active admin entry ${mode}`);
+    await assertToken(page, `${USERS_TABLE} thead th`, "background-color", "--design-surface-1", `user table head ${mode}`);
+    await assertToken(page, `${USERS_TABLE} thead th`, "color", "--design-text", `user table head ${mode}`);
+    await assertToken(page, USER_CELL, "background-color", "--design-surface-2", `user row ${mode}`);
+    await assertToken(page, USER_CELL, "color", "--design-text", `user row ${mode}`);
+    await assertToken(page, USER_CELL, "border-bottom-color", "--design-border", `user row divider ${mode}`);
+    await assertToken(page, ADD_USER, "background-color", "--design-primary", `add user ${mode}`);
+    await assertToken(page, ADD_USER, "color", "--design-on-primary", `add user ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertLightAndDark(page, USER_CELL, "matomo users");
+  await assertReadable(
+    page,
+    [
+      `${USERS_TABLE} thead th.first`,
+      USER_CELL,
+      ADD_USER,
+      ADMIN_ENTRY,
+      { selector: `${ADMIN_MENU} .navbar > li.active > a.item`, optional: true },
+    ],
+    "matomo users",
+  );
+
+  await gotoOnion(page, adminUrl("ScheduledReports", "index"));
+  await shown(page, ADD_REPORT);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, "#entityEditContainer", "background-color", "--design-surface-2", `report card ${mode}`);
+    await assertToken(page, ADD_REPORT, "background-color", "--design-primary", `create report ${mode}`);
+    await assertToken(page, ADD_REPORT, "color", "--design-on-primary", `create report ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertReadable(page, [ADD_REPORT, "#entityEditContainer .card-title"], "matomo email reports");
 });
 
 test("design: reports take surfaces, dividers and text from the palette", async ({ page, request }) => {

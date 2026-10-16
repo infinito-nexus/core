@@ -13,6 +13,7 @@ const {
 } = require("./design");
 const {
   apiFetchOnion,
+  apiGetOnion,
   decodeDotenvQuotedValue,
   gotoOnion,
   normalizeBaseUrl,
@@ -52,6 +53,9 @@ const THEME_FIELDS = [
   ["sw-color-danger", "--design-danger"],
 ];
 const INJECTED_SHEET = /\/_shared\/css\/|\/style\.css(\?|$)/;
+const ROLE_SHEET = "link[href*='/roles/web-app-shopware/'][href*='style.css']";
+const COLOR_PROPERTY =
+  /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule)$/;
 
 async function adminApi(request, token, method, path, data) {
   const response = await apiFetchOnion(request, `${base}${path}`, {
@@ -540,6 +544,45 @@ test("design: the storefront shows the configured logo, favicon and shop name", 
     designLogoUrl.replace(/logo\.svg$/, "favicon.png"),
   );
   expect(await page.title(), "the page title carries the shop name of the design").toContain(designTitle);
+});
+
+test("design: the role stylesheet sets every color through a token, also inside its SVG images", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await openStorefront(page, "/account/login", "form.login-form");
+  const sheet = await page.locator(ROLE_SHEET).first().evaluate((link) => link.href);
+  const css = await (await apiGetOnion(page.request, sheet)).text();
+  const offenders = await page.evaluate(
+    ([source, property]) => {
+      const colorProperty = new RegExp(property);
+      const keyword = (word) =>
+        /^[a-z]+$/i.test(word) &&
+        !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) &&
+        CSS.supports("color", word);
+      const literal = (value) =>
+        /#[0-9a-f]{3,8}\b/i.test(value) ||
+        /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(value) ||
+        value.split(/[\s,()]+/).some(keyword);
+      const found = [];
+      const images =
+        /url\(\s*(?:"(data:image\/svg\+xml[^"]*)"|'(data:image\/svg\+xml[^']*)'|(data:image\/svg\+xml[^)]*))\s*\)/gi;
+      for (const match of source.matchAll(images)) {
+        const uri = match[1] || match[2] || match[3];
+        const svg = uri.includes(";base64,")
+          ? atob(uri.slice(uri.indexOf(";base64,") + 8))
+          : decodeURIComponent(uri.slice(uri.indexOf(",") + 1));
+        for (const [, attribute, value] of svg.matchAll(/\b(fill|stroke|stop-color|flood-color)\s*[=:]\s*["']?([^"';\s>)]+)/gi)) {
+          if (literal(value)) found.push(`svg ${attribute}=${value}`);
+        }
+      }
+      const declarations = source.replace(/url\((?:[^()"']|"[^"]*"|'[^']*')*\)/gi, "url()");
+      for (const [, name, value] of declarations.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+        if (colorProperty.test(name) && literal(value)) found.push(`${name}: ${value.trim()}`);
+      }
+      return found;
+    },
+    [css, COLOR_PROPERTY.source],
+  );
+  expect(offenders, "every color of the role stylesheet, also inside its SVG images, comes from a --design-* token").toEqual([]);
 });
 
 test("design: the administration maps its tokens and keeps the menu on the frame", async ({ page, request }) => {

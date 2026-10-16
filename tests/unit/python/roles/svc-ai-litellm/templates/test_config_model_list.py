@@ -74,6 +74,7 @@ def render(
     remote_models=REMOTE_MODELS,
     router_alias="",
     measured_speed=None,
+    logo_url="",
 ):
     """The rendered config as a parsed mapping.
 
@@ -86,6 +87,7 @@ def render(
             is what every case that predates the router expects.
         measured_speed: alias -> tokens per second from the last deploy's
             measurement; empty means nothing has been measured yet.
+        logo_url: LITELLM_UI_LOGO_URL; empty while the admin UI shows no corporate logo.
     """
     env = Environment(
         undefined=StrictUndefined,
@@ -108,6 +110,7 @@ def render(
         + [MOCK["provider"]],
         LITELLM_ROUTER_ALIAS=router_alias,
         LITELLM_MEASURED_SPEED=measured_speed or {},
+        LITELLM_UI_LOGO_URL=logo_url,
     )
     return yaml.safe_load(
         rendered
@@ -181,6 +184,17 @@ class TestBothBackends(unittest.TestCase):
         self.assertEqual(
             published[LMSTUDIO_ONLY["alias"]]["api_base"], f"{LMSTUDIO_URL}/v1"
         )
+
+
+class TestUiTheme(unittest.TestCase):
+    def test_a_logo_url_reaches_the_ui_theme_config(self) -> None:
+        url = "https://cdn.example/roles/web-app-litellm/latest/img/design/logo.svg"
+        settings = render(logo_url=url)["litellm_settings"]
+        self.assertEqual(settings["ui_theme_config"], {"logo_url": url})
+        self.assertTrue(settings["drop_params"])
+
+    def test_without_a_logo_url_the_ui_theme_config_is_absent(self) -> None:
+        self.assertNotIn("ui_theme_config", render()["litellm_settings"])
 
 
 class TestNoBackend(unittest.TestCase):

@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 from .base import (
     _cache_key,
     _resolve_roles_dir,
+    _revalidate_tokens_file,
     _stable_variables_signature,
     _tokens_file_signature,
 )
@@ -42,7 +43,7 @@ def merged_applications_cache_key(
 
     Returns:
         ``(resolved roles dir, stable variables signature extended by the
-        tokens file's path, mtime and size)``.
+        tokens file's path and content digest)``.
     """
     from .users import _resolve_tokens_file
 
@@ -51,6 +52,17 @@ def merged_applications_cache_key(
         _cache_key(_resolve_roles_dir(roles_dir=roles_dir)),
         (*_stable_variables_signature(variables), *(str(part) for part in tokens)),
     )
+
+
+def revalidate_tokens_file(variables: Mapping[str, Any] | None) -> None:
+    """Refresh an NFS client's attributes of the tokens file before a carrier is keyed.
+
+    Args:
+        variables: The play's variable scope the tokens file resolves from.
+    """
+    from .users import _resolve_tokens_file
+
+    _revalidate_tokens_file(_resolve_tokens_file(variables))
 
 
 def _carried_applications(

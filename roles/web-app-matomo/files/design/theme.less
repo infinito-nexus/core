@@ -201,3 +201,12 @@ div.dataTableVizAllColumns tr.subDataTable > td > span.label::before {
 #loginPage .hints {
   color: var(--design-text-muted);
 }
+
+[data-theme-mode]:root table.entityTable tbody tr td {
+  border-bottom-color: var(--design-border) !important;
+}
+
+[data-theme-mode]:root .tableActionBar button:first-child:not(:disabled):not([disabled]),
+[data-theme-mode]:root .tableActionBar a:first-child {
+  color: var(--design-on-primary);
+}
