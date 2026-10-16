@@ -62,10 +62,16 @@ ZAMMAD_TELEGRAM_HELPER_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}telegram_helper.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
 
 ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_http_discovery.rb"
-ZAMMAD_OIDC_GROUP_ROLE_MAP:
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/customer": "Customer"
+ZAMMAD_OIDC_ROLE_GRANTS:
+  administrator: ["Admin", "Agent"]
+  agent: ["Agent"]
+  customer: ["Customer"]
+ZAMMAD_OIDC_GROUP_ROLE_MAP: >-
+  {{ {
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ZAMMAD_OIDC_ROLE_GRANTS.administrator,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='agent'): ZAMMAD_OIDC_ROLE_GRANTS.agent,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ZAMMAD_OIDC_ROLE_GRANTS.customer,
+     } }}
 
 ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"

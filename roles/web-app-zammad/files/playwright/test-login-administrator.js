@@ -32,6 +32,16 @@ exports.register = function (shared) {
 
     await expect(page.locator("body")).toContainText(/dashboard|ticket|overview|zammad/i, { timeout: resolveTimeout(60_000) });
 
+    const me = await apiGetOnion(page.context().request, `${shared.env.zammadBaseUrl}/api/v1/users/me?expand=true`, {
+      headers: { Accept: "application/json" },
+    });
+    expect(me.ok(), `users/me answered ${me.status()}`).toBe(true);
+    const account = await me.json();
+    expect(
+      account.roles,
+      "the administrator group of the identity provider must map onto Admin and Agent; without it the account keeps Zammad's signup role, every admin surface stays shut and the only symptom is a design test timing out on an empty table",
+    ).toEqual(expect.arrayContaining(["Admin", "Agent"]));
+
     await shared.zammadLogout(page);
   });
 };

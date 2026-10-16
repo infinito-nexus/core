@@ -5,18 +5,17 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_RBAC, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles/web-app-zammad"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
+RBAC = ROLE / ROLE_FILE_META_RBAC
 NATIVE = ROLE / "files/ruby/apply/administrator.rb"
-CORE = ROLE / "tasks/00_core.yml"
 TEMPLATE = ROLE / "templates/zz/oidc/group_role_mapping.rb.j2"
 GRANTS_KEY = "ZAMMAD_OIDC_ROLE_GRANTS"
 MAP_KEY = "ZAMMAD_OIDC_GROUP_ROLE_MAP"
 ADMIN_ROLE = "administrator"
-INITIALIZER = "zz/oidc/group_role_mapping.rb.j2"
-RECREATE = "container-recreate"
+MACHINE_ROLES = {"mcp"}
 
 
 def native_administrator_roles() -> list[str]:
@@ -37,17 +36,8 @@ def role_vars() -> dict:
     return load_yaml_str(read_text(str(VARS)))
 
 
-def staged_initializer() -> dict:
-    """Find the staging entry that renders the OIDC group-to-role initializer.
-
-    Returns:
-        The ``role_templates`` entry whose ``src`` is the initializer template.
-    """
-    for task in load_yaml_str(read_text(str(CORE))):
-        for entry in (task.get("vars") or {}).get("role_templates") or []:
-            if entry.get("src") == INITIALIZER:
-                return entry
-    raise AssertionError(f"{CORE} no longer stages {INITIALIZER}")
+def declared_rbac_roles() -> set[str]:
+    return set(load_yaml_str(read_text(str(RBAC)))["roles"])
 
 
 class TestOidcGroupRoleMap(unittest.TestCase):
@@ -76,6 +66,15 @@ class TestOidcGroupRoleMap(unittest.TestCase):
             "text, matches no group Keycloak sends, and every account that signs in "
             "through the identity provider falls back to Customer",
         )
+        self.assertRegex(
+            expression,
+            r"(?s)\A\{\{.*\}\}\Z",
+            f"{VARS}: {MAP_KEY} must be the bare expression, with no character outside "
+            "'{{' and '}}'. One stray leading or trailing space makes native templating "
+            "hand over the Python repr of the mapping as a string; the Ruby side then "
+            "indexes a String, String#[] answers with the matching substring instead of "
+            "nil, no role resolves and the whole mapping becomes a silent no-op",
+        )
         for role in variables[GRANTS_KEY]:
             self.assertIn(
                 f"role='{role}'",
@@ -84,15 +83,17 @@ class TestOidcGroupRoleMap(unittest.TestCase):
                 f"never resolves its path, while {GRANTS_KEY} declares roles for it",
             )
 
-    def test_restaging_the_initializer_recreates_the_rails_tasks(self) -> None:
-        self.assertIn(
-            RECREATE,
-            staged_initializer().get("notify") or [],
-            f"{CORE}: staging {INITIALIZER} must notify '{RECREATE}'. A Rails "
-            "initializer binds its patches at boot, and the default 'compose-up' "
-            "redeploys a swarm service only when its spec changed, which a "
-            "bind-mounted file is not, so an existing stack would keep granting the "
-            "roles of the initializer it booted with",
+    def test_every_rbac_role_a_person_can_hold_has_a_grant(self) -> None:
+        self.assertEqual(
+            declared_rbac_roles() - MACHINE_ROLES,
+            set(role_vars()[GRANTS_KEY]),
+            f"{RBAC} declares the RBAC roles this application hands out, and every one of "
+            f"them that a person can hold needs a grant in {GRANTS_KEY}. An RBAC role "
+            "without a grant maps to nothing, falls through to the Customer default and "
+            f"demotes that account on every sign-in. {sorted(MACHINE_ROLES)} is excluded "
+            "because the MCP agent is a password account converged by "
+            "files/ruby/apply/mcp_bot.rb, never an account that arrives through the "
+            "identity provider",
         )
 
     def test_a_patch_target_that_disappeared_stops_the_boot(self) -> None:
@@ -108,6 +109,33 @@ class TestOidcGroupRoleMap(unittest.TestCase):
         self.assertIn("Authorization.respond_to?(method_name)", source, reason)
         self.assertIn("raise ", source, reason)
         self.assertNotIn("User.respond_to?", source, reason)
+
+    def test_an_unresolvable_grant_never_silently_downgrades(self) -> None:
+        source = read_text(str(TEMPLATE))
+        reason = (
+            "Role.where without an active filter, or without checking that every mapped name "
+            "resolved, hands back a subset: rename or deactivate Admin in the Zammad UI and "
+            "the administrator is set to Agent alone, after which the idempotence guard "
+            "reports the roles as already correct and never self-heals. A map that rendered "
+            "as a String rather than a Hash is the same class of silent no-op, because "
+            "String#[] answers with a substring instead of nil"
+        )
+        self.assertIn("Role.where(active: true,", source, reason)
+        self.assertIn("missing.any?", source, reason)
+        self.assertIn("is_a?(Hash)", source, reason)
+
+    def test_a_refused_role_write_does_not_break_the_sign_in(self) -> None:
+        source = read_text(str(TEMPLATE))
+        self.assertIn(
+            "rescue StandardError",
+            source,
+            "Zammad guards its roles association (app/models/concerns/has_roles.rb:10-13): "
+            "before_remove runs last_admin_check_by_role and before_add runs "
+            "validate_agent_limit_by_role and validate_roles, each of which raises. The "
+            "mapping runs inside SessionsController#create_omniauth, so an unrescued raise "
+            "answers the sign-in with 500 and locks the account out instead of leaving it "
+            "on the roles it already has",
+        )
 
 
 if __name__ == "__main__":

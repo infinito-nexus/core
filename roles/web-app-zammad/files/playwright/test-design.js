@@ -54,6 +54,14 @@ exports.register = function (shared) {
 
   /**
    * Args:
+   *   page: Playwright page showing the dashboard, the only view that starts the clue tour, and only for an agent.
+   */
+  async function dropClues(page) {
+    await page.evaluate((clues) => document.querySelectorAll(clues).forEach((element) => element.remove()), CLUES);
+  }
+
+  /**
+   * Args:
    *   hash: route of the legacy interface.
    *   view: name that makes the document URL unique, so opening it loads a fresh document instead of changing the hash of the current one.
    *
@@ -223,7 +231,7 @@ exports.register = function (shared) {
         await shown(MENU_ITEM)(page);
         await skipIntro(page, url);
         await shown(ready)(page);
-        await page.evaluate((clues) => document.querySelectorAll(clues).forEach((element) => element.remove()), CLUES);
+        await dropClues(page);
         if (after) await after(page);
       },
     };
@@ -310,6 +318,7 @@ exports.register = function (shared) {
       await page.mouse.move(900, 600);
       await gotoOnion(page, legacyUrl("dashboard", `dashboard-${mode}`));
       await shown(MENU_SELECTED)(page);
+      await dropClues(page);
       await assertToken(page, MENU_SELECTED, "background-color", "--design-frame-active", `selected entry ${mode}`);
       await assertToken(page, MENU_SELECTED, "color", "--design-on-frame", `selected entry ${mode}`);
       await gotoOnion(page, legacyUrl("manage/users", `users-${mode}`));
@@ -336,6 +345,7 @@ exports.register = function (shared) {
     await page.mouse.move(900, 600);
     await gotoOnion(page, legacyUrl("dashboard", "dashboard"));
     await shown(MENU_SELECTED)(page);
+    await dropClues(page);
     await assertReadable(page, [MENU_ITEM, { selector: MENU_SELECTED, optional: true }], "zammad navigation");
     await gotoOnion(page, legacyUrl("manage/users", "users"));
     await shown(TABLE_CELL)(page);
