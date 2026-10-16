@@ -2,10 +2,11 @@
 role README convention defined in
 ``docs/contributing/artefact/files/role/readme_md.md``.
 
-A committed role README holds only the prose a human writes. The Cosmos
-diagram, the Quick Setup block and the Credits block are derived from role
+A committed role README holds only the prose a human writes. The Architecture
+links, the Quick Setup block and the Credits block are derived from role
 metadata and are written into the scratch checkout by the documentation
-build, so they MUST NOT be committed.
+build, together with the ARCHITECTURE.md sub-page they point at, so none of
+them MUST be committed.
 
 Enforced (hard fail) rules
 ==========================
@@ -20,10 +21,11 @@ Enforced (hard fail) rules
    ``cli.build.docs.readme.schema`` reads it.
 3. **Section order.** Those required H2s MUST appear in the template order
    (extra H2s MAY be interleaved between them).
-4. **No generated sections.** ``## Cosmos``, ``## Quick Setup`` and
+4. **No generated sections.** ``## Architecture``, ``## Quick Setup`` and
    ``## Credits`` are produced by the documentation build from
-   ``meta/services.yml``, ``categories.yml`` and ``galaxy_info.author``.
-   A committed copy goes stale silently, so it is a hard fail.
+   ``meta/services.yml``, ``meta/volumes.yml``, ``categories.yml`` and
+   ``galaxy_info.author``. A committed copy goes stale silently, so it is a
+   hard fail.
 
 Soft / fuzzy rules from ``readme_md.md`` (sentence-case headings,
 "H1 must be the human-readable software name", "Description must link the

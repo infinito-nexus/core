@@ -32,6 +32,7 @@ from cli.build.docs.readme.generate import MANAGED_SECTIONS
 from cli.build.docs.readme.sections import h2_titles
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_ARCHITECTURE
 
 _RULE = "managed-section-committed"
 _ROLES_DIR = PROJECT_ROOT / "roles"
@@ -86,6 +87,21 @@ class TestManagedSectionsNotCommitted(unittest.TestCase):
                 "\n\nFix: delete the section; the build re-emits it from role "
                 f"metadata.\n\nOffending headings:\n{formatted}"
             )
+
+    def test_no_role_commits_the_architecture_sub_page(self) -> None:
+        committed = sorted(
+            page.relative_to(PROJECT_ROOT).as_posix()
+            for page in _ROLES_DIR.glob(f"*/{ROLE_FILE_ARCHITECTURE}")
+        )
+        self.assertEqual(
+            [],
+            committed,
+            f"{ROLE_FILE_ARCHITECTURE} is derived from meta/services.yml and "
+            "meta/volumes.yml by the documentation build, the same rule the "
+            "managed README sections follow. A committed copy goes stale the "
+            "moment either file changes.\n\nFix: delete it; the build writes "
+            f"it into its own checkout.\n\nCommitted: {committed}",
+        )
 
     def test_the_template_emits_every_managed_section(self) -> None:
         emitted = set(h2_titles(schema.render_full()))

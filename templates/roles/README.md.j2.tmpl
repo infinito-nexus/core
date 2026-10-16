@@ -23,7 +23,7 @@
                                    (invokable roles only; forbidden otherwise).
     application_author_url         The author's social profile, derived from the
                                    address .mailmap folds their commits into.
-    cosmos_intro                   Sentence above the Cosmos diagram.
+    architecture_intro             Sentence above the Architecture links.
     application_use_cases          Paragraph for the optional Use Cases section.
     application_developer_notes    List of {file, description} local-doc links.
     application_further_resources  List of {label, url} external links.
@@ -38,15 +38,16 @@
 
 {{ application_overview }}
 
-## Cosmos
+## Architecture
 
-{{ cosmos_intro | default('The diagram places ' ~ application_name ~ ' in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).') }}
+{{ architecture_intro | default('[ARCHITECTURE.md](ARCHITECTURE.md) draws ' ~ application_name ~ ' from its own metadata: the containers it runs under compose, what changes under swarm, how each volume is backed, and every role it depends on or is depended upon by.') }}
 
-```mermaid
-{{ cosmos_mermaid }}
-```
-
-{{ cosmos_legend | default('') }}
+| Section | Drawn from |
+| --- | --- |
+| [Compose](ARCHITECTURE.md#compose-) | `meta/services.yml` |
+| [Swarm](ARCHITECTURE.md#swarm-) | `meta/services.yml` replicas and placement |
+| [Volumes](ARCHITECTURE.md#volumes) | `meta/volumes.yml` against the NFS decision chain |
+| [Dependencies](ARCHITECTURE.md#dependencies) | `meta/services.yml` and `meta/main.yml` of every role |
 
 ## Features
 

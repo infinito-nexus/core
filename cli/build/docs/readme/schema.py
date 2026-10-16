@@ -29,7 +29,6 @@ _REQUIRED_CTX: dict = {
     "application_overview": "This role deploys the example application.",
     "application_features": [{"name": "Example", "description": "An example feature."}],
     "application_author": "Kevin Veen-Birkenbach",
-    "cosmos_mermaid": 'flowchart LR\n    a["a"] --> b["b"]',
     "software_repository": SOFTWARE_REPOSITORY,
     "application_deploy_image": "ghcr.io/example/core/debian:latest",
 }
@@ -37,10 +36,14 @@ _REQUIRED_CTX: dict = {
 _OPTIONAL_CTX: dict = {
     "application_invokable": True,
     "application_author_url": "https://social.infinito.nexus/profile/kevinveenbirkenbach/profile",
-    "cosmos_intro": "Example cosmos intro.",
+    "architecture_intro": "Example architecture intro.",
     "application_use_cases": "Example use case.",
-    "application_developer_notes": [{"file": "Administration.md", "description": "notes."}],
-    "application_further_resources": [{"label": "Example", "url": "https://example.com/"}],
+    "application_developer_notes": [
+        {"file": "Administration.md", "description": "notes."}
+    ],
+    "application_further_resources": [
+        {"label": "Example", "url": "https://example.com/"}
+    ],
 }
 
 
