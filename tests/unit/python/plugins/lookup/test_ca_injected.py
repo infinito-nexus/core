@@ -2,8 +2,8 @@
 
 Pins the predicate that decides whether the self-signed root CA is bind-mounted
 into an application's containers. Anything reading the mounted file must agree
-with the handler gate that creates the mount, so all three terms are pinned
-here, including their short-circuit order.
+with the handler gate that creates the mount, so every term is pinned here,
+including their short-circuit order.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ from ansible.errors import AnsibleError
 from . import PROJECT_ROOT
 
 MODULE = "lookup_ca_injected"
+ISSUER = "web-app-keycloak"
 
 
 def _load_lookup():
@@ -34,14 +35,6 @@ class _DummyTemplar:
         return value
 
 
-class _StubLookup:
-    def __init__(self, result):
-        self._result = result
-
-    def run(self, args, variables=None):
-        return [self._result]
-
-
 class TestCaInjectedLookup(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -55,7 +48,9 @@ class TestCaInjectedLookup(unittest.TestCase):
         mode,
         app="web-app-moodle",
         services=None,
-        tls_mode="self_signed",
+        peer_enabled=True,
+        peer_mode="self_signed",
+        issuers=(ISSUER,),
     ):
         calls: list[tuple[str, list]] = []
 
@@ -66,16 +61,22 @@ class TestCaInjectedLookup(unittest.TestCase):
                     return [services or {}]
                 if name == "domains":
                     return [domains]
-                return [enabled if args[1] == "enabled" else mode]
+                if args[0] == app:
+                    return [enabled if args[1] == "enabled" else mode]
+                if isinstance(peer_mode, Exception) and args[1] == "mode":
+                    raise peer_mode
+                return [peer_enabled if args[1] == "enabled" else peer_mode]
 
             return mock.Mock(run=run)
 
         plugin = self.mod.LookupModule()
         plugin._loader = None
         plugin._templar = _DummyTemplar()
-        with mock.patch.object(self.mod.lookup_loader, "get", side_effect=fake_get):
-            variables = {} if tls_mode is None else {"TLS_MODE": tls_mode}
-            result = plugin.run([app], variables=variables)
+        with (
+            mock.patch.object(self.mod.lookup_loader, "get", side_effect=fake_get),
+            mock.patch.object(self.mod, "issuer_applications", return_value=issuers),
+        ):
+            result = plugin.run([app], variables={})
         return result[0], calls
 
     def test_a_self_signed_app_with_a_domain_gets_the_ca(self):
@@ -95,19 +96,20 @@ class TestCaInjectedLookup(unittest.TestCase):
         self.assertIs(verdict, False)
 
     def test_tls_disabled_does_not_get_the_ca(self):
-        verdict, _ = self._resolve(
+        verdict, calls = self._resolve(
             domains={"web-app-moodle": "moodle.example"},
             enabled=False,
             mode="self_signed",
         )
         self.assertIs(verdict, False)
+        self.assertEqual([name for name, _ in calls], ["domains", "tls", "config"])
 
     def test_an_app_without_a_domain_never_asks_about_tls(self):
         verdict, calls = self._resolve(domains={}, enabled=True, mode="self_signed")
         self.assertIs(verdict, False)
         self.assertEqual([name for name, _ in calls], ["domains", "config"])
 
-    def test_a_domainless_ca_client_gets_the_ca_on_the_deployment_mode(self):
+    def test_a_domainless_ca_client_gets_the_ca_from_a_self_signed_issuer(self):
         verdict, calls = self._resolve(
             domains={},
             enabled=True,
@@ -121,36 +123,106 @@ class TestCaInjectedLookup(unittest.TestCase):
             "of its own, and without the CA every outbound call fails the "
             "handshake",
         )
-        self.assertEqual([name for name, _ in calls], ["domains", "config"])
+        self.assertEqual(
+            calls,
+            [
+                ("domains", []),
+                ("config", ["web-app-moodle", "services", {}]),
+                ("tls", [ISSUER, "enabled"]),
+                ("tls", [ISSUER, "mode"]),
+            ],
+        )
 
-    def test_a_ca_client_with_a_domain_follows_its_own_tls_mode(self):
+    def test_a_ca_client_with_a_domain_never_answers_on_the_deployment_mode(self):
         verdict, calls = self._resolve(
             domains={"web-app-moodle": "moodle.example"},
             enabled=True,
             mode="letsencrypt",
             services={"agent-broker": {"ca_client": True}},
-            tls_mode="self_signed",
+            peer_mode="letsencrypt",
         )
         self.assertIs(
             verdict,
             False,
             "an app that has a domain is served over its own resolved mode, which "
-            "may override the deployment default; the ca_client shortcut must not "
-            "answer for it on the global TLS_MODE",
+            "may override the deployment default; the ca_client answer comes from "
+            "the issuer's resolved mode, never from the global TLS_MODE",
         )
-        self.assertEqual([name for name, _ in calls], ["domains", "tls", "tls"])
+        self.assertEqual(
+            [name for name, _ in calls],
+            ["domains", "tls", "tls", "config", "tls", "tls"],
+        )
 
-    def test_a_ca_client_gets_nothing_when_the_ca_is_not_self_signed(self):
+    def test_a_ca_client_with_its_own_letsencrypt_still_trusts_a_self_signed_issuer(
+        self,
+    ):
+        verdict, _ = self._resolve(
+            domains={"web-app-matrix": "matrix.example"},
+            enabled=True,
+            mode="letsencrypt",
+            app="web-app-matrix",
+            services={"matrix": {"ca_client": True}},
+        )
+        self.assertIs(
+            verdict,
+            True,
+            "a client served over its own letsencrypt certificate still calls the "
+            "issuer, whose per-app override may be self-signed",
+        )
+
+    def test_an_onion_only_ca_client_gets_the_ca_from_a_self_signed_issuer(self):
+        verdict, _ = self._resolve(
+            domains={"web-app-matrix": "matrix.example.onion"},
+            enabled=False,
+            mode="off",
+            app="web-app-matrix",
+            services={"matrix": {"ca_client": True}},
+        )
+        self.assertIs(
+            verdict,
+            True,
+            "an onion-only role has no TLS of its own but still calls the "
+            "self-signed clearnet issuer",
+        )
+
+    def test_a_ca_client_gets_nothing_when_the_issuer_serves_no_tls(self):
+        verdict, _ = self._resolve(
+            domains={"web-app-matrix": "matrix.example.onion"},
+            enabled=False,
+            mode="off",
+            app="web-app-matrix",
+            services={"matrix": {"ca_client": True}},
+            peer_enabled=False,
+            peer_mode="off",
+        )
+        self.assertIs(
+            verdict,
+            False,
+            "on a tor-only node the issuer is served over plain http, so there is "
+            "no self-signed endpoint to trust",
+        )
+
+    def test_a_ca_client_gets_nothing_when_the_issuer_is_not_self_signed(self):
         verdict, _ = self._resolve(
             domains={},
             enabled=True,
             mode="self_signed",
             services={"agent-broker": {"ca_client": True}},
-            tls_mode="letsencrypt",
+            peer_mode="letsencrypt",
         )
         self.assertIs(verdict, False)
 
-    def test_a_ca_client_refuses_an_absent_tls_mode(self):
+    def test_a_ca_client_without_an_issuer_gets_nothing(self):
+        verdict, _ = self._resolve(
+            domains={},
+            enabled=True,
+            mode="self_signed",
+            services={"agent-broker": {"ca_client": True}},
+            issuers=(),
+        )
+        self.assertIs(verdict, False)
+
+    def test_a_ca_client_keeps_the_refusal_of_an_unresolvable_issuer_mode(self):
         with self.assertRaises(
             AnsibleError,
             msg="a missing mode read as 'not self signed' withholds the CA in "
@@ -161,7 +233,7 @@ class TestCaInjectedLookup(unittest.TestCase):
                 enabled=True,
                 mode="self_signed",
                 services={"agent-broker": {"ca_client": True}},
-                tls_mode=None,
+                peer_mode=AnsibleError("tls: required variable 'TLS_MODE' is missing"),
             )
 
     def test_the_term_is_required(self):

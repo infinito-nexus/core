@@ -12,7 +12,7 @@
 #
 # Optional kwargs:
 # - include_ca (bool, default True):
-#     - True  -> normal behavior (append CA override when enabled+self_signed)
+#     - True  -> normal behavior (append CA override when lookup('ca_injected') is true)
 #     - False -> do NOT append CA override (used during CA-inject bootstrap)
 #
 # IMPORTANT (your requested change):

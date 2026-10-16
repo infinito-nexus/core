@@ -125,6 +125,7 @@ matrix:
   bond: 1
   enabled: true # nocheck: dynamic-flag — matrix always needs a database
   shared: true
+  ca_client: true
   name: matrix
   # nocheck: default-placement-manager  inner docker-in-docker storage; node-local in swarm
   placement: manager
