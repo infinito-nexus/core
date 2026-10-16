@@ -2,10 +2,23 @@ import re
 import unittest
 from typing import ClassVar
 
+from jinja2 import (
+    ChoiceLoader,
+    DictLoader,
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    select_autoescape,
+)
+
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
+from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
+
+_UNSET = object()
 
 
 class TestDockerComposeTemplates(unittest.TestCase):
@@ -78,6 +91,68 @@ class TestDockerComposeTemplates(unittest.TestCase):
                         idx_net,
                         f"{template_path}: '{self.BASE_INCLUDE}' must come before '{self.NET_INCLUDE}'",
                     )
+
+
+class TestServiceBaseJournaldTag(unittest.TestCase):
+    SERVICE_BASE = "roles/sys-svc-container/templates/base.yml.j2"
+    APPLICATION_ID = "web-app-pixelfed"
+    MODES = ("compose", "swarm")
+
+    def _render_logging(self, mode, wazuh_enabled):
+        env = Environment(
+            loader=ChoiceLoader(
+                [
+                    DictLoader(
+                        {
+                            "roles/sys-svc-container/templates/resource.yml.j2": "",
+                            "roles/sys-svc-container/templates/deploy.yml.j2": "",
+                        }
+                    ),
+                    FileSystemLoader(str(PROJECT_ROOT)),
+                ]
+            ),
+            trim_blocks=True,
+            lstrip_blocks=False,
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(),
+        )
+        env.filters["has_env"] = lambda _app: False
+        env.filters["get_entity_name"] = get_entity_name
+
+        def _lookup(name, *args):
+            if name == "compose_restart":
+                return "restart: unless-stopped"
+            if name == "config":
+                self.assertEqual(
+                    args[:2], (self.APPLICATION_ID, "services.wazuh.enabled")
+                )
+                return args[2] if wazuh_enabled is _UNSET else wazuh_enabled
+            raise AssertionError(f"unexpected lookup: {name}")
+
+        env.globals["lookup"] = _lookup
+        rendered = env.get_template(self.SERVICE_BASE).render(
+            application_id=self.APPLICATION_ID,
+            DEPLOYMENT_MODE=mode,
+            DOCKER_RESTART_POLICY="unless-stopped",
+        )
+        service = load_yaml_str(f"svc:\n{rendered}")["svc"]
+        return service["logging"]
+
+    def test_logging_is_plain_journald_without_wazuh_opt_in(self):
+        for mode in self.MODES:
+            for flag in (_UNSET, False):
+                with self.subTest(mode=mode, wazuh_enabled=flag):
+                    self.assertEqual(
+                        self._render_logging(mode, flag), {"driver": "journald"}
+                    )
+
+    def test_wazuh_opt_in_tags_journald_with_entity_name(self):
+        for mode in self.MODES:
+            with self.subTest(mode=mode):
+                self.assertEqual(
+                    self._render_logging(mode, True),
+                    {"driver": "journald", "options": {"tag": "pixelfed"}},
+                )
 
 
 if __name__ == "__main__":

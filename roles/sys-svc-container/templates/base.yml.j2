@@ -10,6 +10,10 @@
 {% endif %}
     logging:
       driver: journald
+{% if lookup('config', application_id, 'services.wazuh.enabled', False) %}
+      options:
+        tag: "{{ application_id | get_entity_name }}"
+{% endif %}
 {% if DEPLOYMENT_MODE == 'compose' %}
 {% filter indent(4, True) %}
 {% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
