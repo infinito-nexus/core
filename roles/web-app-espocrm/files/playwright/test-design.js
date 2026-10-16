@@ -54,6 +54,12 @@ async function signIn(page) {
         decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
       );
     }
+    await expect
+      .poll(() => page.evaluate(() => Object.keys(localStorage).some((name) => /user-auth$/.test(name))), {
+        timeout: resolveTimeout(60_000),
+        message: "the OIDC callback must mint a session before the opener navigates away",
+      })
+      .toBe(true);
     await gotoOnion(page, `${base}/`);
   } else {
     const password = page.locator("#field-password");

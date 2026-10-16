@@ -335,12 +335,22 @@ test("design: GitLab shows the generated logos and the configured title", async 
   test.skip(!logoEnabled, "the logo replacement is disabled for this role");
   const logo = page.locator("img.js-portrait-logo-detection");
   await expect(logo).toHaveAttribute("src", /\/uploads\/-\/system\/appearance\//);
-  expect(await logo.evaluate((image) => image.naturalWidth), "the sign-in logo must load").toBeGreaterThan(0);
+  await expect
+    .poll(() => logo.evaluate((image) => image.complete && image.naturalWidth > 0), {
+      timeout: resolveTimeout(30_000),
+      message: "the sign-in logo must load",
+    })
+    .toBe(true);
   await expect(page.locator("link#favicon")).toHaveAttribute("href", /\/uploads\/-\/system\/appearance\//);
   await signIn(page);
   const header = page.locator(`${TOPBAR} [data-testid='brand-header-custom-logo']`);
   await expect(header).toBeVisible({ timeout: resolveTimeout(10_000) });
-  expect(await header.evaluate((image) => image.naturalWidth), "the top bar logo must load").toBeGreaterThan(0);
+  await expect
+    .poll(() => header.evaluate((image) => image.complete && image.naturalWidth > 0), {
+      timeout: resolveTimeout(30_000),
+      message: "the top bar logo must load",
+    })
+    .toBe(true);
 });
 
 test("design: root signs in natively and reaches the admin area", async ({ page }) => {
