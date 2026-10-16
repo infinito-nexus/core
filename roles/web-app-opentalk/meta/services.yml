@@ -61,7 +61,7 @@ opentalk:
       enabled: true
     swarm:
       enabled: true
-  # nocheck: default-placement-manager  embedded rabbitmq engine state; node-local in swarm
+  # nocheck: default-placement-manager  role-wide, not frontend-specific: rabbit's mnesia store and the embedded seaweedfs/database/redis engines are NFS-hostile, livekit publishes no port and is proxied over the manager's loopback with a fixed media range, and 01_manager_ops.yml bootstraps the bucket through `container exec` from the stack host
   placement: manager
   name: opentalk
   image: registry.opencode.de/opentalk/web-frontend

@@ -144,7 +144,7 @@ matrix:
   enabled: true # nocheck: dynamic-flag — matrix always needs a database
   shared: true
   name: matrix
-  # nocheck: default-placement-manager  inner docker-in-docker storage; node-local in swarm
+  # nocheck: default-placement-manager  load-bearing only in the compose flavor, where synapse's /data holds the federation signing key and media store, 01_docker.yml provisions that volume with an undelegated chown and reaches the container through `container exec` under IS_STACK_HOST; the ansible flavor sets compose_mode_force to compose, so no deploy block is rendered at all
   placement: manager
   flavor: ansible
   upstream:
