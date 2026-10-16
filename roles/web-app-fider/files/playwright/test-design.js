@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { clickFiderSsoButton } = require("./_shared");
@@ -17,8 +17,6 @@ const { clickFiderSsoButton } = require("./_shared");
 const base = decodeDotenvQuotedValue(process.env.FIDER_BASE_URL || "").replace(/\/$/, "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
-const logoEnabled = process.env.DESIGN_LOGO_ENABLED === "true";
 
 const MODES = ["light", "dark"];
 const READY_MS = 60_000;
@@ -270,14 +268,18 @@ exports.register = function () {
     });
 
     test("design: the board carries the configured title", async ({ page }) => {
+      const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+      test.skip(!title, "title replacement is disabled for this role");
       await openHome(page);
-      expect(title, "DESIGN_TITLE must be set in the Playwright env file").toBeTruthy();
       await expect(page).toHaveTitle(title);
       await expect(page.locator(`${BRAND} h1`)).toHaveText(title);
     });
 
-    test("design: logo and favicon are the configured ones", async ({ page }) => {
-      test.skip(!logoEnabled, "the role places the logo in the database blob store only; with the object store enabled the tenant keeps its own logo");
+    test("design: logo and favicon are the configured ones", async ({ page, request }) => {
+      test.skip(process.env.DESIGN_LOGO_ENABLED !== "true", "logo replacement is disabled for this role");
+      const image = await apiGetOnion(request, `${base}/static/images/logos/infinito-design-logo.png?size=100`);
+      expect(image.status(), "the logo blob is served from the active blob store").toBe(200);
+      expect(image.headers()["content-type"]).toBe("image/png");
       await openHome(page);
       const logo = page.locator(`${BRAND} img`);
       await expect(logo).toBeVisible();
@@ -288,6 +290,10 @@ exports.register = function () {
       const brandBox = await page.locator(BRAND).boundingBox();
       expect(brandBox.width, "logo and title form a wide brand").toBeGreaterThan(brandBox.height);
       await expect(page.locator("link[rel='icon']").first()).toHaveAttribute("href", LOGO_FAVICON);
+      await page.locator(PRIMARY).first().click();
+      await modalOpened(page);
+      await expect(page.locator(`${MODAL} img`).first()).toHaveAttribute("src", LOGO_IMAGE);
+      await expect(page.locator(`${MODAL} img[src*='login.fider.io']`)).toHaveCount(0);
     });
 
     test("design: the board follows the browser until the switch is used, then the switch wins", async ({ page }) => {
