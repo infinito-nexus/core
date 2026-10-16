@@ -146,7 +146,7 @@ The role self-validates via the scripts in `files/test/`, discovered and run by 
 
 In short: `local.sh` proves the runner can build and deploy entirely on its own hardware; `external.sh` proves it can receive real jobs from GitHub.
 
-## Architecture
+## Runner Topology
 
 Every runner instance is an ephemeral container that mounts its host's docker
 socket (DooD). For each CI job it starts a fresh Infinito DinD container with
