@@ -21,8 +21,7 @@ const iconUrl = decodeDotenvQuotedValue(process.env.DESIGN_ICON_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
-const NO_SIGN_IN_PAGE = "with sso on PluggableAuth logs every visitor in through Keycloak and local login is off";
-const NO_VISITOR = "with sso on PluggableAuth signs every visitor in, so no anonymous page exists";
+const NO_SIGN_IN_PAGE = "with sso on local login is off, so Special:UserLogin hands straight to Keycloak and the wiki serves no sign-in page";
 const SHOWCASE = "Design_showcase";
 const CONTENT = "#mw-content-text .mw-parser-output";
 const HEADER = ".vector-header";
@@ -89,7 +88,7 @@ async function signedInName(page_) {
  */
 async function signIn(page_) {
   if (ssoEnabled) {
-    await gotoOnion(page_, `${base}/`);
+    await gotoOnion(page_, page("Special:UserLogin"));
     await performKeycloakLoginForm(page_, adminUsername, adminPassword);
     await gotoOnion(page_, page("Main_Page"));
   } else {
@@ -222,7 +221,6 @@ test("design: corporate tokens apply in light and dark mode", async ({ page: pag
 
 test("design: a new visitor follows the browser preference", async ({ page: page_ }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(ssoEnabled, NO_VISITOR);
   await gotoOnion(page_, page("Main_Page"));
   await shown(CONTENT)(page_);
   await expect(page_.locator("html")).toHaveClass(/skin-theme-clientpref-os/);
