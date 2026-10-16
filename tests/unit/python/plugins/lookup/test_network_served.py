@@ -30,13 +30,22 @@ class TestNetworkServedLookup(unittest.TestCase):
     def test_a_named_role_must_be_deployed(self):
         lookup = served_mod.LookupModule()
         variables = {"group_names": ["svc-net-tor", "web-app-keycloak"]}
-        self.assertTrue(lookup.run(["clearnet", "web-app-keycloak"], variables=variables)[0])
-        self.assertFalse(lookup.run(["clearnet", "web-app-dashboard"], variables=variables)[0])
+        self.assertTrue(
+            lookup.run(["clearnet", "web-app-keycloak"], variables=variables)[0]
+        )
+        self.assertFalse(
+            lookup.run(["clearnet", "web-app-dashboard"], variables=variables)[0]
+        )
 
     def test_a_deployed_role_on_a_tor_only_node_stays_off(self):
         lookup = served_mod.LookupModule()
-        variables = {"group_names": ["svc-net-tor", "web-app-keycloak"], "NETWORK_MODE": "tor"}
-        self.assertFalse(lookup.run(["clearnet", "web-app-keycloak"], variables=variables)[0])
+        variables = {
+            "group_names": ["svc-net-tor", "web-app-keycloak"],
+            "NETWORK_MODE": "tor",
+        }
+        self.assertFalse(
+            lookup.run(["clearnet", "web-app-keycloak"], variables=variables)[0]
+        )
 
     def test_a_mode_the_node_cannot_serve_fails_loudly(self):
         with self.assertRaises(AnsibleError):

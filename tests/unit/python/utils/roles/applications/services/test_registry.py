@@ -367,7 +367,9 @@ class TestExplicitTruth(unittest.TestCase):
         for token in GATED_LOOKUPS:
             name = token.split("'")[1]
             with self.subTest(lookup=name):
-                self.assertTrue((PROJECT_ROOT / "plugins" / "lookup" / f"{name}.py").is_file())
+                self.assertTrue(
+                    (PROJECT_ROOT / "plugins" / "lookup" / f"{name}.py").is_file()
+                )
 
     def test_an_unregistered_jinja_expression_does_not_resolve(self):
         self.assertFalse(
