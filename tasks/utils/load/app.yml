@@ -15,3 +15,6 @@
     domain: "{{ lookup('domain', load_app_id) }}"
   when:
     - groups[load_app_id] is not defined or inventory_hostname in groups[load_app_id]
+
+- name: "🧊 Carry the applications SPOT past nested {{ load_app_id }}"
+  applications_carrier: {}

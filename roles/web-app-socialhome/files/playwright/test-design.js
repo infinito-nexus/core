@@ -570,6 +570,12 @@ exports.register = function () {
       }
       await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
     }
+    if (title) {
+      const config = await apiGetOnion(page.request, `${base}/api/instance/config`);
+      expect((await config.json()).instance_name, "the household carries the configured title").toBe(title);
+      await visit(page, `${base}/feed`);
+      await expect(page.locator(TOPBAR_TITLE), "the feed is named after the household").toHaveText(title);
+    }
   });
 
   test("design: the sign-in page shows the generated logo", async ({ page }) => {

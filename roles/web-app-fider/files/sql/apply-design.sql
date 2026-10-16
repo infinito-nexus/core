@@ -1,4 +1,4 @@
--- Args: title (empty keeps the name), bootstrap_name (the name the role bootstrapped the tenant with), css, logo_key, logo_base64 (empty keeps the logo).
+-- Args: title (empty keeps the name), bootstrap_name (the name the role bootstrapped the tenant with), css, logo_key, logo_base64 (non-empty writes the logo into the blobs table), logo_stored (non-empty when the logo is in the active blob store).
 -- Returns one row: the number of rows that changed.
 WITH tenant AS (
     SELECT id FROM tenants ORDER BY id LIMIT 1
@@ -18,7 +18,7 @@ WITH tenant AS (
                 THEN %(title)s ELSE tenants.name END AS name,
            CASE WHEN tenants.custom_css = '' OR position('--infinito-design-carrier' IN tenants.custom_css) > 0
                 THEN %(css)s ELSE tenants.custom_css END AS custom_css,
-           CASE WHEN %(logo_base64)s <> '' AND COALESCE(tenants.logo_bkey, '') = ''
+           CASE WHEN %(logo_stored)s <> '' AND COALESCE(tenants.logo_bkey, '') = ''
                 THEN %(logo_key)s ELSE tenants.logo_bkey END AS logo_bkey
     FROM tenants
     JOIN tenant ON tenant.id = tenants.id

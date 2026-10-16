@@ -22,5 +22,5 @@
     - name: "🔐 Complete the standalone first-boot setup for '{{ application_id }}'"
       include_tasks: 01_setup.yml
 
-    - name: "🎨 Converge the household theme for '{{ application_id }}'"
+    - name: "🎨 Converge the household theme and name for '{{ application_id }}'"
       include_tasks: 02_design.yml

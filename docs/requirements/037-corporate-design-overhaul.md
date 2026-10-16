@@ -42,7 +42,7 @@ These choices are settled at requirement creation time and bound the implementat
 - [x] A unit test proves the logo and title precedence: global value, per-role override, and `false`/`0` disabling.
 - [x] No `roles/*/meta/services.yml` declares a site title as `title`, `titel`, `sitename`, `site_name` or `site_titel` on its primary entity; every site title lives in the role's `design` entry and is read through `lookup('design', application_id)`.
 - [x] `web-app-joomla` and `web-app-pretix` carry no hardcoded site title.
-- [ ] `web-app-decidim` and `web-app-socialhome` honour an inventory title override. Decidim renames an existing organization to an inventory title and back. Open: Socialhome takes the title on its first boot only (`roles/web-app-socialhome/TODO.md`).
+- [x] `web-app-decidim` and `web-app-socialhome` honour an inventory title override. Decidim renames an existing organization and Socialhome an existing household to an inventory title and back.
 - [x] The base gallery on `web-app-dashboard`, `web-app-gitea` and `web-app-nextcloud` is approved by the operator.
 - [ ] `feature/designer` reaches `main` through the draft PR of `feature/store-i18n` linked below, which merges it round by round. Open: the final designer state is not yet pushed into that PR.
 
@@ -56,7 +56,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-baserow
 - [ ] web-app-bigbluebutton: title not set through Greenlight (the spec asserts the literal upstream name); the meeting client keeps the upstream design; `vars/main.yml` rewritten after the last full run.
 - [x] web-app-bluesky
-- [ ] web-app-bookwyrm: no green complete run on the final state; the last one failed the SeaweedFS avatar upload test.
+- [x] web-app-bookwyrm
 - [x] web-app-checkmk
 - [x] web-app-chess
 - [x] web-app-dashboard
@@ -65,7 +65,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-erpnext
 - [x] web-app-espocrm
 - [x] web-app-fediwall
-- [ ] web-app-fider: the logo does not reach Fider while the object store is enabled.
+- [x] web-app-fider
 - [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
 - [x] web-app-friendica
 - [x] web-app-funkwhale
