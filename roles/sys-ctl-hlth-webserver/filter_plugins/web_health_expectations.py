@@ -7,10 +7,8 @@ from utils.roles.applications.status_codes import DEFAULT_OK, codes_by_key
 
 # nocheck: project-root-import
 _BASE_DIR = str(Path(__file__).resolve().parents[3])
-_MODULE_UTILS_DIR = str(Path(_BASE_DIR) / "utils")
-for _p in (_BASE_DIR, _MODULE_UTILS_DIR):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+if _BASE_DIR not in sys.path:
+    sys.path.insert(0, _BASE_DIR)
 
 
 def _to_list(x, *, allow_mapping: bool = True):
