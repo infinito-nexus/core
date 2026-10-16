@@ -31,7 +31,8 @@ AGENT_BROKER_PLATFORMS_DECLARED:
     port: "{{ lookup('config', 'web-app-hermes', 'services.hermes.ports.internal.http') }}"
     health: /health
     data: "{{ lookup('volume', 'web-app-hermes', 'hermes_data').target }}"
-    config_path: "{{ lookup('volume', 'web-app-hermes', 'hermes_config').target }}"
+    # hermes_config mounts the seed at /opt/seed, which only the web-app-hermes container has; an agent gets its own volume at the data target, so its config has to be written there
+    config_path: "{{ [lookup('volume', 'web-app-hermes', 'hermes_data').target, 'config.yaml'] | path_join }}"
     command: ["gateway"]
     user: ""
     key_env: API_SERVER_KEY
