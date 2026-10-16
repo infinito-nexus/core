@@ -9,7 +9,7 @@
  *   app_dir: application root inside the container
  *   enabled: bool, false removes what an earlier run wrote
  *   css:     legacy theme override for custom/themes/suite8/css/Dawn/style.css
- *   title:   system name; empty leaves the setting alone
+ *   title:   system name of the legacy settings (config table) and of the shell tab ($sugar_config through the Configurator); empty leaves both alone
  *   logo:    Base64 PNG for custom/themes/default/images/company_logo.png; empty leaves the logo alone
  *   favicon: Base64 ICO for the shell and the legacy favicon; empty leaves both alone
  *
@@ -26,6 +26,7 @@ chdir($payload['app_dir'] . '/public/legacy');
 $_SERVER['PHP_SELF'] = 'design.php';
 define('sugarEntry', true);
 require_once 'include/entryPoint.php';
+require_once 'modules/Configurator/Configurator.php';
 
 $changed = false;
 $markFile = 'custom/themes/.infinito-design.json';
@@ -130,9 +131,21 @@ $title = $enabled ? (string) ($payload['title'] ?? '') : '';
 $administration = BeanFactory::newBean('Administration');
 $administration->retrieveSettings('system');
 $name = (string) ($administration->settings['system_name'] ?? '');
+$shellName = (string) ($sugar_config['system_name'] ?? '');
+
+$saveShellName = static function (string $value) use (&$changed): void {
+    $configurator = new Configurator();
+    $configurator->config['system_name'] = $value;
+    $configurator->handleOverride();
+    $changed = true;
+};
+
 if ($title !== '') {
     if (!array_key_exists('title_before', $mark)) {
         $mark['title_before'] = $name;
+    }
+    if (!array_key_exists('shell_title_before', $mark)) {
+        $mark['shell_title_before'] = $shellName;
     }
     if ($name === $mark['title_before'] || $name === ($mark['title'] ?? null)) {
         if ($name !== $title) {
@@ -141,12 +154,21 @@ if ($title !== '') {
         }
         $mark['title'] = $title;
     }
+    if ($shellName === $mark['shell_title_before'] || $shellName === ($mark['shell_title'] ?? null)) {
+        if ($shellName !== $title) {
+            $saveShellName($title);
+        }
+        $mark['shell_title'] = $title;
+    }
 } else {
     if (isset($mark['title']) && $name === $mark['title']) {
         $administration->saveSetting('system', 'name', (string) $mark['title_before']);
         $changed = true;
     }
-    unset($mark['title'], $mark['title_before']);
+    if (isset($mark['shell_title']) && $shellName === $mark['shell_title']) {
+        $saveShellName((string) $mark['shell_title_before']);
+    }
+    unset($mark['title'], $mark['title_before'], $mark['shell_title'], $mark['shell_title_before']);
 }
 
 if (isset($touched['css'])) {
