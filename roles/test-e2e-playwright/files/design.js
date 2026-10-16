@@ -204,6 +204,10 @@ async function assertLightAndDark(page, selector, label) {
 
 async function assertReadable(page, selectors, label, min = 4.5) {
   const entries = selectors.map((entry) => (typeof entry === "string" ? { selector: entry } : entry));
+  expect(
+    entries.some((entry) => entry.optional !== true),
+    `${label}: an all-optional selector list can measure nothing and asserts nothing`,
+  ).toBe(true);
   await page.addStyleTag({ content: FREEZE_CSS });
   let measured = 0;
   for (const mode of MODES) {

@@ -65,13 +65,16 @@ exports.register = function (shared) {
     await assertReadable(
       page,
       [
-        "header.header h1",
-        ".navbar .nav-link",
-        ".card .card-title",
-        ".card .card-text",
-        ".card .btn",
-        ".footer a",
-      ].map((selector) => ({ selector, optional: true })),
+        "header.header",
+        ...[
+          "header.header h1",
+          ".navbar .nav-link",
+          ".card .card-title",
+          ".card .card-text",
+          ".card .btn",
+          ".footer a",
+        ].map((selector) => ({ selector, optional: true })),
+      ],
       "dashboard",
     );
   });

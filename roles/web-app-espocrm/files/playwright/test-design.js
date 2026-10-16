@@ -166,7 +166,13 @@ exports.register = function () {
     await assertLightAndDark(page, "#login .panel-body", "espocrm login");
     await assertReadable(
       page,
-      ["#login label", "#field-userName", "#btn-login", "#sign-in"].map((selector) => ({ selector, optional: true })),
+      [
+        "#login .panel-body",
+        ...["#login label", "#field-userName", "#btn-login", "#sign-in"].map((selector) => ({
+          selector,
+          optional: true,
+        })),
+      ],
       "espocrm login",
     );
   });

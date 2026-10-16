@@ -191,6 +191,7 @@ test("design: evolution badges, trends and native selects take status and surfac
   await assertReadable(
     page,
     [
+      ".evolutionBadge",
       { selector: ".evolutionBadge--positive", optional: true },
       { selector: ".evolutionBadge--negative", optional: true },
       { selector: ".evolutionBadge--neutral", optional: true },
@@ -212,8 +213,11 @@ test("design: evolution badges, trends and native selects take status and surfac
   await assertReadable(
     page,
     [
+      // At 0% KPICard renders kpiTrendNeutral and SitesTableSite leaves its evolution cell unclassed.
+      "#multisitesAllWebsitesDashboard .kpiCardEvolutionTrend",
       { selector: ".kpiTrendPositive", optional: true },
       { selector: ".kpiTrendNegative", optional: true },
+      { selector: ".kpiTrendNeutral", optional: true },
       { selector: ".evolutionTrendPositive", optional: true },
       { selector: ".evolutionTrendNegative", optional: true },
     ],
