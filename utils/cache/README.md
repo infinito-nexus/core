@@ -26,7 +26,7 @@ The layers are orthogonal: `yaml.py` caches "this file's parsed root", the `appl
 
 Both layers are process-wide in-process caches. They intentionally do NOT track on-disk file mtimes; CLI tools are short-lived and the assumption "the on-disk file does not change while my process runs" holds. The single exception is `utils.cache.yaml.dump_yaml`, which writes through and evicts the cached entry for the path it just wrote so a tool that edits a file mid-run sees the new content on the next read.
 
-Inside a play the process boundary is the task: Ansible forks a fresh worker per task, so `_MERGED_APPLICATIONS_CACHE` starts empty in every worker. `get_merged_applications` therefore also accepts the play-scoped carrier fact `_INFINITO_APPLICATIONS_RENDERED` (payload plus cache key, parked by the constructor stage and again after every role and every persisted token) and serves it when the key matches. See [applications.md](../../docs/contributing/artefact/files/plugins/lookup/applications.md) for the contract.
+Inside a play the process boundary is the task: Ansible forks a fresh worker per task, so `_MERGED_APPLICATIONS_CACHE` starts empty in every worker. `get_merged_applications` therefore also accepts the play-scoped carrier fact `_INFINITO_APPLICATIONS_RENDERED` (payload plus cache key, parked by the constructor stage and again after every role, every nested application load and every persisted token) and serves it when the key matches. See [applications.md](../../docs/contributing/artefact/files/plugins/lookup/applications.md) for the contract.
 
 ## Test-Only Helpers 🧪
 
