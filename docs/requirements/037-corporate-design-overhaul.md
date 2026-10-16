@@ -69,7 +69,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
 - [x] web-app-friendica
 - [x] web-app-funkwhale
-- [ ] web-app-fusiondirectory: title neither set nor asserted.
+- [x] web-app-fusiondirectory
 - [x] web-app-gitea
 - [ ] web-app-gitlab: final state never ran (the design-only commit removed the administrator provisioning); `/admin` is checked for HTTP 200 only.
 - [x] web-app-hermes
@@ -81,7 +81,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-joomla
 - [x] web-app-keycloak
 - [x] web-app-kix
-- [ ] web-app-lam: title neither set nor asserted; spec and `playwright.env.j2` rewritten after the last run.
+- [x] web-app-lam
 - [x] web-app-listmonk
 - [x] web-app-litellm
 - [x] web-app-littlejs
