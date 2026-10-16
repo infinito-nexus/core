@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { adminPassword, adminUsername, baseUrl, ssoLoginAndAssertDashboard } = require("./_shared");
@@ -18,7 +18,6 @@ test.use({ ignoreHTTPSErrors: true });
 
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
-const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
 const BASE = baseUrl.replace(/\/+$/, "");
@@ -37,6 +36,15 @@ const ERROR_TITLE = "#root .MuiTypography-h5";
 const LOBBY = '[data-testid="selfTest"]';
 const EMPTY_ENTRY = `${MAIN} [data-testid="empty-entry"]`;
 const SHOWCASE = ["Design Showcase Weekly", "Design Showcase Review"];
+const JOIN = 'button[form="join-form"][type="submit"]';
+const HANGUP = '[data-testid="toolbarEndCallButton"]';
+const MORE_BUTTON = '[data-testid="toolbarMenuButton"]';
+const MORE_MENU = '[data-testid="moreMenu"]:has(.MuiAvatar-root) .MuiPaper-root';
+const ROOM_SIDEBAR = `aside:has(> div > aside ${HANGUP})`;
+const TOOLBAR_BUTTON = `aside:has(> div > ${HANGUP}) .MuiIconButton-root:not(${HANGUP})`;
+const MODERATION_STRIP = "aside > .MuiTabs-vertical > .MuiTabs-scroller";
+const PANEL_TABS = 'aside [role="tabpanel"] .MuiTabs-root:not(.MuiTabs-vertical)';
+const HEADER_TILE = "header > div > * > .MuiStack-root";
 
 /**
  * Args:
@@ -136,6 +144,19 @@ async function seedShowcase(page) {
 
 /**
  * Args:
+ *   page: signed-in Playwright page that joins the meeting room of `event` from its lobby.
+ *   event: showcase event with its `room.id`.
+ */
+async function joinRoom(page, event) {
+  await gotoOnion(page, `${BASE}/room/${event.room.id}`);
+  await shown(LOBBY)(page);
+  await page.locator(JOIN).click();
+  await expect(page.locator(HANGUP)).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await animationsSettled(page);
+}
+
+/**
+ * Args:
  *   page: Playwright page on a dashboard route; a navigation the viewport collapses gets opened.
  */
 async function navigationOpened(page) {
@@ -225,6 +246,28 @@ function signedInViews([first, second]) {
         await animationsSettled(page);
       },
     },
+    {
+      name: "room",
+      url: `${BASE}/room/${first.room.id}`,
+      prepare: async (page) => {
+        await shown(LOBBY)(page);
+        await page.locator(JOIN).click();
+        await shown(HANGUP)(page);
+        await page.mouse.move(1, 1);
+      },
+    },
+    {
+      name: "room-more-menu",
+      url: `${BASE}/room/${first.room.id}`,
+      prepare: async (page) => {
+        await shown(LOBBY)(page);
+        await page.locator(JOIN).click();
+        await shown(HANGUP)(page);
+        await page.locator(MORE_BUTTON).click();
+        await shown(MORE_MENU)(page);
+        await page.mouse.move(1, 1);
+      },
+    },
   ];
 }
 
@@ -308,42 +351,126 @@ test("design: every focus stop inside the frame draws its indicator in the frame
   }
 });
 
-test("design: the native theme setting drives the palette", async ({ page }) => {
+test("design: the dashboard and conference theme settings drive the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.setTimeout(resolveTimeout(180_000));
+  test.setTimeout(resolveTimeout(300_000));
+  const root = page.locator("html");
+  const save = async (dashboard, conference) => {
+    await gotoOnion(page, `${BASE}/dashboard/settings/general`);
+    await shown(SETTINGS_FORM)(page);
+    for (const [label, field, value] of [
+      ["Dashboard theme", "dashboard-theme", dashboard],
+      ["Conference theme", "conference-theme", conference],
+    ]) {
+      await page.getByRole("combobox", { name: new RegExp(`^${label}`) }).click();
+      await page.locator(`${MENU} [role="option"][data-value="${value}"]`).click();
+      await expect(page.locator(`${SETTINGS_FORM} input[name="${field}"]`)).toHaveValue(value);
+    }
+    const stored = page.waitForResponse(
+      (response) => new URL(response.url()).pathname === "/v1/users/me" && response.request().method() === "PATCH",
+      { timeout: resolveTimeout(30_000) },
+    );
+    await page.locator(`${SETTINGS_FORM} button[type="submit"]`).click();
+    expect((await stored).status(), "the settings form stores both themes").toBeLessThan(300);
+  };
   await page.emulateMedia({ colorScheme: "light" });
   await signIn(page);
-  const root = page.locator("html");
-  const light = await tokenValue(page, "--design-surface-1", "color");
+  const [event] = await seedShowcase(page);
   try {
-    await api(page, "PATCH", "/users/me", { dashboard_theme: "dark" });
+    await save("dark", "light");
     await gotoOnion(page, `${BASE}/dashboard/settings/general`);
     await shown(SETTINGS_FORM)(page);
-    await expect(root).toHaveAttribute("data-design-theme", "dark");
-    expect(await tokenValue(page, "--design-surface-1", "color"), "the dark palette must differ").not.toBe(light);
-    await assertToken(page, MAIN, "color", "--design-text", "switched to dark");
-    await api(page, "PATCH", "/users/me", { dashboard_theme: "system" });
-    await gotoOnion(page, `${BASE}/dashboard/settings/general`);
-    await shown(SETTINGS_FORM)(page);
-    await expect(root).not.toHaveAttribute("data-design-theme", /.+/);
-    expect(await tokenValue(page, "--design-surface-1", "color")).toBe(light);
+    await expect(root, "a dark dashboard theme pins the palette to dark").toHaveAttribute("data-design-theme", "dark");
+    await assertToken(page, MAIN, "color", "--design-text", "dashboard on its dark theme");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await gotoOnion(page, `${BASE}/room/${event.room.id}`);
+    await shown(LOBBY)(page);
+    await expect(root, "a light conference theme pins the lobby to light").toHaveAttribute("data-design-theme", "light");
+    await assertToken(page, `${LOBBY} > div`, "background-color", "--design-surface-2", "lobby on its light theme");
+    await save("system", "system");
+    await gotoOnion(page, `${BASE}/room/${event.room.id}`);
+    await shown(LOBBY)(page);
+    await expect(root, "system leaves the palette to the browser").not.toHaveAttribute("data-design-theme", /.+/);
   } finally {
+    await page.emulateMedia({ colorScheme: null });
     await api(page, "PATCH", "/users/me", { dashboard_theme: "system", conference_theme: "system" });
   }
 });
 
+test("design: the lobby and the conference room take surfaces, text and the leave action from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  test.setTimeout(resolveTimeout(300_000));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signIn(page);
+  const [event] = await seedShowcase(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await gotoOnion(page, `${BASE}/room/${event.room.id}`);
+    await shown(LOBBY)(page);
+    await assertToken(page, `${LOBBY} > div`, "background-color", "--design-surface-2", `lobby panel ${mode}`);
+    await assertToken(page, `${LOBBY} > div`, "color", "--design-text", `lobby panel ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertReadable(page, [`${LOBBY} .MuiTypography-root`, JOIN], "opentalk lobby");
+  await joinRoom(page, event);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, ROOM_SIDEBAR, "background-color", "--design-surface-2", `room sidebar ${mode}`);
+    await assertToken(page, ROOM_SIDEBAR, "color", "--design-text", `room sidebar ${mode}`);
+    await assertToken(page, TOOLBAR_BUTTON, "background-color", "--design-surface-1", `toolbar button ${mode}`);
+    await assertToken(page, `${TOOLBAR_BUTTON} svg`, "fill", "--design-text", `toolbar icon ${mode}`);
+    await assertToken(page, HANGUP, "background-color", "--design-danger", `leave action ${mode}`);
+    await assertToken(page, `${HANGUP} svg`, "fill", "--design-on-danger", `leave action ${mode}`);
+    await assertToken(page, MODERATION_STRIP, "background-color", "--design-surface-3", `moderation strip ${mode}`);
+    await assertToken(page, PANEL_TABS, "background-color", "--design-surface-3", `panel tabs ${mode}`);
+    await assertToken(page, HEADER_TILE, "background-color", "--design-surface-2", `header tile ${mode}`);
+    await assertToken(page, HEADER_TILE, "color", "--design-text", `header tile ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertLightAndDark(page, ROOM_SIDEBAR, "opentalk room");
+  await assertReadable(page, ["header .MuiTypography-root", { selector: `${ROOM_SIDEBAR} .MuiTypography-root`, optional: true }], "opentalk room");
+  await page.locator(MORE_BUTTON).click();
+  await shown(MORE_MENU)(page);
+  await page.mouse.move(1, 1);
+  await assertToken(page, MORE_MENU, "background-color", "--design-surface-2", "more menu");
+  await assertToken(page, MORE_BUTTON, "background-color", "--design-primary", "more button while its menu is open");
+});
+
 test("design: the dashboard shows the generated logo and the configured title", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
   test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
   await signIn(page);
   if (title) {
-    await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    await expect(page).toHaveTitle(new RegExp(` in ${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
   }
   if (logoUrl) {
     await expect(page.locator(`${MAIN} ${LOGO}`)).toHaveCSS("background-image", `url("${logoUrl}")`);
     await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
     const box = await page.locator(`${MAIN} ${LOGO}`).boundingBox();
     expect(box.width, "the logo box of the dashboard is wider than high").toBeGreaterThan(box.height * 1.5);
+    const svg = await (await apiGetOnion(page.request, logoUrl)).text();
+    const dark = svg.match(/@media \(prefers-color-scheme: dark\)\{text\{fill:(#[0-9a-fA-F]{3,8});/);
+    const light = svg.match(/<text[^>]*\sfill="(#[0-9a-fA-F]{3,8})"/);
+    expect(dark, "the lockup carries a dark rule for its title").not.toBeNull();
+    expect(light, "the lockup title has a light fill").not.toBeNull();
+    const resolve = (hex) =>
+      page.evaluate((color) => {
+        const probe = document.createElement("span");
+        probe.style.color = color;
+        document.body.append(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      }, hex);
+    for (const [mode, fill] of [
+      ["light", light[1]],
+      ["dark", dark[1]],
+    ]) {
+      await page.emulateMedia({ colorScheme: mode });
+      expect(await resolve(fill), `lockup title fill ${mode}`).toBe(await tokenValue(page, "--design-link", "color"));
+    }
+    await page.emulateMedia({ colorScheme: null });
   }
 });
 
