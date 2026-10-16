@@ -5,7 +5,6 @@ APP_DIR="/var/www/html"
 CONFIG_PHP="$APP_DIR/config/config.php"
 OCC="$APP_DIR/occ"
 INIT_LOCK="$APP_DIR/nextcloud-init-sync.lock"
-IMAGE_VERSION_PHP="/usr/src/nextcloud/version.php"
 
 slot="${TASK_SLOT:-1}"
 case "$slot" in
@@ -14,7 +13,6 @@ esac
 
 if [ "$slot" -ne 1 ]; then
   app_user="${NEXTCLOUD_INIT_GATE_USER:?NEXTCLOUD_INIT_GATE_USER env missing}"
-  image_version="$(php -r "require '$IMAGE_VERSION_PHP'; echo implode('.', \$OC_Version);")"
 
   while true; do
     status=''
@@ -26,13 +24,12 @@ if [ "$slot" -ne 1 ]; then
     case "$status" in *"- installed: true"*) ;; *) ready=0 ;; esac
     case "$status" in *"- maintenance: false"*) ;; *) ready=0 ;; esac
     case "$status" in *"- needsDbUpgrade: false"*) ;; *) ready=0 ;; esac
-    case "$status" in *"- version: $image_version"*) ;; *) ready=0 ;; esac
 
     if [ "$ready" -eq 1 ]; then
       break
     fi
 
-    echo "Task slot ${slot}: waiting for slot 1 to finish Nextcloud init..."
+    echo "Task slot ${slot}: waiting for a consistent Nextcloud installation..."
     sleep 10
   done
 fi
