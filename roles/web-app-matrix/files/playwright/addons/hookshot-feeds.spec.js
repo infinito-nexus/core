@@ -9,7 +9,11 @@ test.use({ ignoreHTTPSErrors: true });
 
 const HOOKSHOT_BOT_LOCALPART = "hookshot";
 
-const FEED_PATH = "/explore/projects.atom";
+// GitLab has no Atom route for /explore/projects: Explore::ProjectsController#index is `def index; end`
+// and only #topic answers atom, so that URL 404s. A user activity feed is the one the deploy guarantees.
+const FEED_SUFFIX = ".atom";
+
+const BOT_MODERATOR_POWER_LEVEL = 50;
 
 async function loginWithPassword(request, matrixBaseUrl, username, password) {
   const response = await request.post(`${matrixBaseUrl}/_matrix/client/v3/login`, {
@@ -70,7 +74,19 @@ test("hookshot-feeds addon: the administrator subscribes a room to an RSS feed a
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
 
   const botUserId = `@${HOOKSHOT_BOT_LOCALPART}:${matrixServerName}`;
-  const feedUrl = `${gitlabBaseUrl}${FEED_PATH}`;
+  const feedUrl = `${gitlabBaseUrl}/${encodeURIComponent(adminUsername)}${FEED_SUFFIX}`;
+
+  const feedResponse = await request.get(feedUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
+  expect(
+    feedResponse.status(),
+    `${feedUrl} must be an anonymously readable feed before hookshot is asked to bridge it; hookshot fetches the ` +
+      `URL to validate it and reports "Could not read feed from URL" for anything else`,
+  ).toBe(200);
+  expect(
+    feedResponse.headers()["content-type"] || "",
+    `${feedUrl} must answer as Atom; an HTML body means the route fell through to a page and no feed parser accepts it`,
+  ).toContain("atom+xml");
+
   const token = await loginWithPassword(request, matrixBaseUrl, adminUsername, adminPassword);
   const auth = { Authorization: `Bearer ${token}` };
 
@@ -102,6 +118,35 @@ test("hookshot-feeds addon: the administrator subscribes a room to an RSS feed a
       },
     )
     .toBe(true);
+
+  const powerLevelsUrl = `${matrixBaseUrl}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/state/m.room.power_levels/`;
+  const powerLevelsResponse = await request.get(powerLevelsUrl, {
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+    headers: auth,
+  });
+  expect(
+    powerLevelsResponse.status(),
+    `reading the probe room power levels must succeed: ${(await powerLevelsResponse.text().catch(() => "")).slice(0, 300)}`,
+  ).toBe(200);
+  const powerLevels = await powerLevelsResponse.json();
+
+  const promoteResponse = await request.put(powerLevelsUrl, {
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+    headers: auth,
+    data: {
+      ...powerLevels,
+      users: { ...(powerLevels.users || {}), [botUserId]: BOT_MODERATOR_POWER_LEVEL },
+    },
+  });
+  expect(
+    promoteResponse.status(),
+    `${botUserId} must be promoted to power level ${BOT_MODERATOR_POWER_LEVEL}: hookshot writes its connection as a ` +
+      `room state event and refuses the command with "I do not have permission to set up a bridge in this room" while ` +
+      `the invited bot still sits below the room's state_default. ` +
+      `${(await promoteResponse.text().catch(() => "")).slice(0, 300)}`,
+  ).toBe(200);
 
   const sendResponse = await request.put(
     `${matrixBaseUrl}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${encodeURIComponent(`feed-probe-${process.pid}`)}`,

@@ -172,6 +172,12 @@ matrix_bridge_hookshot_gitlab_enabled: {{ MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED |
 matrix_bridge_hookshot_jira_enabled: {{ MATRIX_ADDON_HOOKSHOT_JIRA_ENABLED | string | lower }}
 matrix_bridge_hookshot_generic_enabled: {{ MATRIX_ADDON_HOOKSHOT_WEBHOOKS_ENABLED | string | lower }}
 matrix_bridge_hookshot_feeds_enabled: {{ MATRIX_ADDON_HOOKSHOT_FEEDS_ENABLED | string | lower }}
+{% if MATRIX_CA_INJECTED | bool %}
+matrix_bridge_hookshot_container_extra_arguments:
+  - "--mount type=bind,src={{ CA_TRUST.bundle_host }},dst={{ MATRIX_CA_MOUNT_PATH }},ro"
+  - "-e SSL_CERT_FILE={{ MATRIX_CA_MOUNT_PATH }}"
+  - "-e NODE_EXTRA_CA_CERTS={{ MATRIX_CA_MOUNT_PATH }}"
+{% endif %}
 {% endif %}
 
 matrix_bot_baibot_enabled: {{ MATRIX_ADDON_BAIBOT_ENABLED | string | lower }}
