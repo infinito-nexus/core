@@ -1,5 +1,9 @@
 # TODO
 
+## Filer page scripts under the CSP
+
+The filer page runs its own inline script (it defines `reportProgress` for the upload progress bar) and inline event handlers, but `meta/csp.yml` grants neither `script-src-elem` nor `script-src-attr`. They run only because `build_csp_header` (`plugins/filter/csp_filters.py`) adds `'unsafe-inline'` to both directives whenever the `logout` service is enabled. With `logout` disabled the browser refuses them ("Executing inline script violates ... script-src-elem", "Executing inline event handler violates ... script-src-attr"), the upload progress never renders, and the design spec "the upload progress bar is the primary fill and carries its on-color" fails. Options: grant the filer's script needs in `meta/csp.yml` (flags for both directives, or hashes of the upstream snippets per pinned version), or let the filer page carry its own policy.
+
 ## Object-store (S3) consumer integration — roles not yet wired
 
 SeaweedFS is the shared S3 object store. A role becomes a consumer by declaring a
