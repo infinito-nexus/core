@@ -64,6 +64,8 @@ MOODLE_CRON_FAILURE_LIMIT: 3
 
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+MOODLE_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+MOODLE_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if MOODLE_OIDC_ONION_ISSUER | bool else '' }}"
 
 MOODLE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 MOODLE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
@@ -85,6 +87,8 @@ MOODLE_EGRESS_WEB_PORTS:
   - "443"
 MOODLE_EGRESS_ALLOWED_PORTS: "{{ (MOODLE_EGRESS_WEB_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else []))
   | join(',') }}"
+MOODLE_PROXY_EXCLUDED_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [MOODLE_MCP_SERVICE_KEY] + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('hostname')]
+  if MOODLE_LITELLM_ENABLED | bool else []) }}"
 
 MOODLE_OBJECTFS_ENABLED: "{{ lookup('config', application_id, 'services.seaweedfs.enabled') }}"
 MOODLE_OBJECTFS_PLUGIN_COMMIT: "{{ lookup('config', application_id, 'addons.tool_objectfs.version') }}"
