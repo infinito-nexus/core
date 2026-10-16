@@ -103,7 +103,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
   --diff -vv
 ```
 {% else -%}
-Run the published image to provision the inventory and deploy {{ application_name }} to a managed server (the mounted volume persists the inventory):
+Run the published image to provision the inventory and deploy {{ application_name }} to a managed server over SSH. The image logs in as `root`, so the server must accept root over a public key, and the two key variables are the two halves of one key pair: the private half authenticates the deploy, and the public half is what the deploy keeps authorized for `root` and installs for the administrator account. Naming a public half that does not belong to the private one locks the running deploy out at its next reconnect.
 
 ```bash
 APP={{ application_deploy_ids }}
@@ -114,9 +114,13 @@ DNS="<your-clearnet-resolver>"
 {% endif -%}
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
+SSH_PRIVATE_KEY="<your-ssh-private-key-file>"
+WORKDIR="$HOME/.infinito.nexus"
 
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
+mkdir -p "$WORKDIR/inventories"
+docker run --rm \
+  -v "$WORKDIR/inventories:/etc/infinito.nexus/inventories" \
+  -v "$SSH_PRIVATE_KEY:/run/secrets/deploy_key:ro" \
   -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" {% if application_needs_clearnet_resolver %}-e DNS="$DNS" {% endif %}-e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   {{ application_deploy_image }} bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
@@ -124,11 +128,14 @@ docker run --rm -it \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}\"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}\"users\": {\"root\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}, \"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
+      -u root --private-key /run/secrets/deploy_key \
       --diff -vv'
 ```
+
+The inventory under `$WORKDIR` is written by the container as `root`, including the vault password at `inventories/production/.password`. Run `sudo chown -R "$USER" "$WORKDIR"` afterwards to read it.
 {% endif -%}
 {% endif -%}
 {% if application_developer_notes is defined %}

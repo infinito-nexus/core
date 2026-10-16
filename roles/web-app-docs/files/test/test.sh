@@ -18,8 +18,6 @@ set -euo pipefail
 : "${DOCS_TEST_TIMEOUT:?}"
 : "${DOCS_TEST_DOMAIN:?}"
 
-DUMMY_KEY="ssh-ed25519 AAAA_TEST_DUMMY_KEY docs-guide@infinito"
-
 if [ "${DOCS_TEST_MODE}" != "compose" ]; then
 	echo "SKIP: the published instructions describe a compose deployment;"
 	echo "      this stack runs ${DOCS_TEST_MODE}."
@@ -28,6 +26,10 @@ fi
 
 STAGE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BLOCK="${STAGE}/block.sh"
+
+export DOCS_TEST_WORK="${STAGE}/work"
+mkdir -p "${DOCS_TEST_WORK}"
+REPLAY_KEY="${DOCS_TEST_WORK}/docs-guide-${DOCS_TEST_ROLE}-key"
 
 echo "=== Reading the published instructions for ${DOCS_TEST_ROLE} ==="
 python3 "${STAGE}/extract.py" "${DOCS_TEST_BASE_URL}" "${DOCS_TEST_ROLE}" \
@@ -41,11 +43,14 @@ fi
 echo "=== Checking they parse as bash ==="
 bash -n "${BLOCK}"
 
-sed -i "s#<your-ssh-public-key>#${DUMMY_KEY}#g" "${BLOCK}"
+rm -f "${REPLAY_KEY}" "${REPLAY_KEY}.pub"
+ssh-keygen -q -t ed25519 -N "" -C "docs-guide@infinito" -f "${REPLAY_KEY}"
+
+sed -i "s#<your-ssh-public-key>#$(cat "${REPLAY_KEY}.pub")#g" "${BLOCK}"
+sed -i "s#<your-ssh-private-key-file>#${REPLAY_KEY}#g" "${BLOCK}"
 sed -i "s#<your-domain>#${DOCS_TEST_DOMAIN}#g" "${BLOCK}"
 sed -i "s#<your-clearnet-resolver>#${DOCS_TEST_DNS:-}#g" "${BLOCK}"
 sed -i "s#^HOST=.*#HOST=localhost#" "${BLOCK}"
-sed -i "s#--rm -it #--rm #" "${BLOCK}"
 
 if grep -q '<your-' "${BLOCK}"; then
 	echo "ERROR: the instructions carry a placeholder this test does not fill:" >&2

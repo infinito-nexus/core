@@ -7,12 +7,14 @@
 # Env (test.env):
 #   DOCS_TEST_ROLE       role under replay, names the compose project
 #   DOCS_TEST_SRC_DIR    repository checkout, mounted into the machine
+#   DOCS_TEST_WORK       work directory, mounted at the same path on both sides
 
 set -euo pipefail
 
 BLOCK="${1:?}"
 : "${DOCS_TEST_ROLE:?}"
 : "${DOCS_TEST_SRC_DIR:?}"
+: "${DOCS_TEST_WORK:?}"
 
 STAGE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_PREFIX="docs-guide-"
@@ -20,9 +22,6 @@ PROJECT="${PROJECT_PREFIX}${DOCS_TEST_ROLE}"
 PREPARE="scripts/tests/workspace/base/01_install.sh"
 SYSTEMD_TRIES=40
 SYSTEMD_DELAY=3
-
-export DOCS_TEST_WORK="${STAGE}/work"
-mkdir -p "${DOCS_TEST_WORK}"
 
 machine() {
 	docker compose --project-directory "${STAGE}" -p "${PROJECT}" "$@"
