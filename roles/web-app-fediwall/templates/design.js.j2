@@ -14,20 +14,6 @@
   new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["data-bs-theme"] });
   prefersDark.addEventListener("change", mirror);
   mirror();
-{% if design.title is string %}
-  var title = {{ design.title | to_json }};
-  function brandTitle() {
-    var current = document.title;
-    if (current.indexOf(title) === -1) {
-      document.title = current ? current + " - " + title : title;
-    }
-  }
-  var titleElement = document.querySelector("title");
-  if (titleElement) {
-    new MutationObserver(brandTitle).observe(titleElement, { childList: true, characterData: true, subtree: true });
-    brandTitle();
-  }
-{% endif %}
 {% if design.logo is string %}
   var icons = {
     "image/png": {{ design.urls.favicon.png | to_json }},

@@ -15,6 +15,8 @@ FEDIWALL_UPSTREAM_VERSION: "{{ lookup('config', application_id, 'services.' ~ en
 FEDIWALL_UPSTREAM_TARBALL_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upstream.tarball_url') }}"
 
 FEDIWALL_WALLS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.walls') }}"
+FEDIWALL_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+FEDIWALL_DESIGN_TITLE: "{{ lookup('design', application_id).title if FEDIWALL_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
 
 FEDIWALL_BUILD_DIR_REL: "build"
 FEDIWALL_BUILD_DIR_ABS: "{{ [ lookup('container', application_id, 'directories.instance'), FEDIWALL_BUILD_DIR_REL ] | path_join }}"

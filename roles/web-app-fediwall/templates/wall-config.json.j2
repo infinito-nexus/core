@@ -23,7 +23,7 @@
   "limit": {{ wall.config.limit | to_json }},
   "interval": {{ wall.config.interval | to_json }},
 
-  "title": {{ wall.config.title | to_json }},
+  "title": {{ ([wall.config.title, FEDIWALL_DESIGN_TITLE] | select | unique | join(' - ')) | to_json }},
   "theme": {{ wall.config.theme | to_json }},
   "showInfobar": {{ wall.config.showInfobar | to_json }},
   "showText": {{ wall.config.showText | to_json }},

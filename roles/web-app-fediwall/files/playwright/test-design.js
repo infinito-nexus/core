@@ -9,16 +9,12 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
-const faviconIcoUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
-const faviconPngUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_PNG_URL || "");
-const faviconSvgUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_SVG_URL || "");
-
 const MODES = ["light", "dark"];
+const INJECTED_SNIPPETS = /<!--infinito-inj-->[\s\S]*?<!--\/infinito-inj-->/g;
 const SOURCE = "social.example";
 const QUIET_SOURCE = "quiet.example";
 const BROKEN_SOURCE = "down.example";
@@ -347,43 +343,49 @@ exports.register = function (shared) {
     await page.emulateMedia({ colorScheme: null });
   });
 
-  test("design: the wall shows the generated icons and the configured title", async ({ page }) => {
+  test("design: the wall takes the configured title through its own configuration", async ({ page, request }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(!faviconIcoUrl && !title, "logo and title replacement are disabled for this role");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+    test.skip(!title, "title replacement is disabled for this role");
+    const response = await apiGetOnion(request, `${wall}wall-config.json`);
+    expect(response.ok(), "the wall configuration must be served").toBe(true);
+    const configured = (await response.json()).title;
+    expect(configured.split(" - "), "the wall configuration carries the design title").toContain(title);
     await openWall(page);
-    if (title) {
-      await expect
-        .poll(async () => (await page.title()).split(title).length - 1, {
-          message: "the title of the wall must carry the configured title exactly once",
-        })
-        .toBe(1);
-    }
-    if (faviconIcoUrl) {
-      const icons = [
-        ["image/png", faviconPngUrl],
-        ["image/svg+xml", faviconSvgUrl],
-        ["image/vnd.microsoft.icon", faviconIcoUrl],
-      ];
-      for (const [type, url] of icons) {
-        await expect(page.locator(`link[rel~='icon'][type='${type}']`)).toHaveAttribute("href", url);
-        expect(
-          await page.evaluate(
-            (src) =>
-              new Promise((resolve) => {
-                const image = new Image();
-                image.onload = () => resolve(image.naturalWidth > 0);
-                image.onerror = () => resolve(false);
-                image.src = src;
-              }),
-            url,
-          ),
-          `the page must be allowed to load ${url}`,
-        ).toBe(true);
-      }
+    await expect(page).toHaveTitle(configured);
+    await openDialog(page, "appearance");
+    await expect(page.locator(TITLE_FIELD)).toHaveValue(configured);
+  });
+
+  test("design: the wall shows the generated icons", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const faviconIcoUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
+    test.skip(!faviconIcoUrl, "logo replacement is disabled for this role");
+    const icons = [
+      ["image/png", decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_PNG_URL || "")],
+      ["image/svg+xml", decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_SVG_URL || "")],
+      ["image/vnd.microsoft.icon", faviconIcoUrl],
+    ];
+    await openWall(page);
+    for (const [type, url] of icons) {
+      await expect(page.locator(`link[rel~='icon'][type='${type}']`)).toHaveAttribute("href", url);
+      expect(
+        await page.evaluate(
+          (src) =>
+            new Promise((resolve) => {
+              const image = new Image();
+              image.onload = () => resolve(image.naturalWidth > 0);
+              image.onerror = () => resolve(false);
+              image.src = src;
+            }),
+          url,
+        ),
+        `the page must be allowed to load ${url}`,
+      ).toBe(true);
     }
   });
 
-  test("design: the wall list takes its colors from the palette", async ({ page }) => {
+  test("design: the wall list takes its colors from the palette", async ({ page, request }) => {
     skipUnlessServiceEnabled("design");
     test.skip(shared.env.wallSlugs.length < 2, "a single wall is redirected to instead of listed");
     await gotoOnion(page, `${shared.env.appBaseUrl}/`);
@@ -398,6 +400,22 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertReadable(page, ["h1", WALL_LINK], "fediwall wall list");
+    const raw = (await (await apiGetOnion(request, `${shared.env.appBaseUrl}/`)).text()).replace(INJECTED_SNIPPETS, "");
+    const styles = [...raw.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]).join("\n");
+    const literals = await page.evaluate((css) => {
+      const keyword = (word) =>
+        /^[a-z]+$/i.test(word) &&
+        !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) &&
+        CSS.supports("color", word);
+      const found = [];
+      for (const [, name, value] of css.matchAll(/(?:^|[{;])\s*([a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+        if (/#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(/i.test(value) || value.split(/[\s,()]+/).some(keyword)) {
+          found.push(`${name}: ${value.trim()}`);
+        }
+      }
+      return found;
+    }, styles);
+    expect(literals, "the wall list page itself sets no color; the palette arrives through the injected layer").toEqual([]);
   });
 
   function galleryViews() {
