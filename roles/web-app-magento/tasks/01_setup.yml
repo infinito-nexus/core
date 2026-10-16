@@ -84,6 +84,21 @@
   register: magento_db_password_realign
   changed_when: "'You saved the new configuration' in magento_db_password_realign.stdout"
 
+- name: "🗂️ Index on save, so catalog changes reach the storefront without a cron"
+  ansible.builtin.shell: >-
+    container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
+    bash -lc "cd {{ MAGENTO_ROOT }} && bin/magento indexer:set-mode realtime"
+  register: magento_indexer_mode
+  changed_when: "'was changed from' in magento_indexer_mode.stdout"
+
+- name: "🗂️ Rebuild the indexes the schedule left behind"
+  ansible.builtin.shell: >-
+    container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
+    bash -lc "cd {{ MAGENTO_ROOT }} && bin/magento indexer:reindex"
+  register: magento_indexer_reindex
+  changed_when: "'rebuilt successfully' in magento_indexer_reindex.stdout"
+  when: magento_indexer_mode is changed
+
 - name: "📤 Stage Magento's remote-storage configurator into the volume"
   ansible.builtin.copy:
     src: php/remote-storage.php
