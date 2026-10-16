@@ -4,10 +4,10 @@
 # Installs systemd into whatever it runs in: the Dockerfile beside it RUNs it
 # in a build stage, never run it on a host.
 #
-# No container engine here: a machine that already carries the distribution's
-# engine kills sys-svc-container's docker.service restart with "failed to load
-# listeners: no sockets found via socket activation". engine.sh adds one at
-# replay time for the blocks that need it before any deploy.
+# No container engine here: the replayed deploy installs docker-ce itself, and a
+# target that already carries the distribution's engine kills that deploy's
+# docker.service restart with "failed to load listeners: no sockets found via
+# socket activation".
 
 set -e
 

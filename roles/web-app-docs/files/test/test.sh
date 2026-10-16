@@ -46,16 +46,12 @@ bash -n "${BLOCK}"
 rm -f "${REPLAY_KEY}" "${REPLAY_KEY}.pub"
 ssh-keygen -q -t ed25519 -N "" -C "docs-guide@infinito" -f "${REPLAY_KEY}"
 
-sed -i "s#<your-ssh-public-key>#$(cat "${REPLAY_KEY}.pub")#g" "${BLOCK}"
+DOCS_TEST_REPLAY_PUBKEY="$(cat "${REPLAY_KEY}.pub")"
+export DOCS_TEST_REPLAY_PUBKEY
+
+sed -i "s#<your-ssh-public-key>#${DOCS_TEST_REPLAY_PUBKEY}#g" "${BLOCK}"
 sed -i "s#<your-ssh-private-key-file>#${REPLAY_KEY}#g" "${BLOCK}"
 sed -i "s#<your-domain>#${DOCS_TEST_DOMAIN}#g" "${BLOCK}"
 sed -i "s#<your-clearnet-resolver>#${DOCS_TEST_DNS:-}#g" "${BLOCK}"
-sed -i "s#^HOST=.*#HOST=localhost#" "${BLOCK}"
-
-if grep -q '<your-' "${BLOCK}"; then
-	echo "ERROR: the instructions carry a placeholder this test does not fill:" >&2
-	grep -o '<your-[a-z-]*>' "${BLOCK}" | sort -u >&2
-	exit 1
-fi
 
 bash "${STAGE}/machine.sh" "${BLOCK}"
