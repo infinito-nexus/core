@@ -86,6 +86,13 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
+      - name: "📥 Resolve the workspace distro"
+        shell: bash
+        run: |
+          set -euo pipefail
+          distro="$(python3 -m cli.meta.ci.dev_runtime distro --image "${DEV_RUNTIME_IMAGE}")"
+          echo "INFINITO_DISTRO=${distro}" >> "$GITHUB_ENV"
+
       - name: "📥 Load the rescue paths into job env"
         shell: bash
         run: |
@@ -96,13 +103,6 @@ jobs:
             grep '^INFINITO_DNS53_SAMPLER_LOG=' .env
             echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')-${{ matrix.track }}"
           } >> "$GITHUB_ENV"
-
-      - name: "📥 Resolve the workspace distro"
-        shell: bash
-        run: |
-          set -euo pipefail
-          distro="$(python3 -m cli.meta.ci.dev_runtime distro --image "${DEV_RUNTIME_IMAGE}")"
-          echo "INFINITO_DISTRO=${distro}" >> "$GITHUB_ENV"
 
       - name: ▶️ Run workspace routine
         shell: bash
