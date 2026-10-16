@@ -48,10 +48,15 @@ async function passSsoGate(page) {
 }
 
 async function open(page, path, selector) {
-  await gotoOnion(page, `${LAM}/${path}`);
+  const url = `${LAM}/${path}`;
+  await gotoOnion(page, url);
   if (SSO_ENABLED && KEYCLOAK.test(page.url())) {
     await passSsoGate(page);
-    await gotoOnion(page, `${LAM}/${path}`);
+    await page.waitForURL((landed) => String(landed).startsWith(`${LAM}/`), {
+      timeout: resolveTimeout(60_000),
+      waitUntil: "domcontentloaded",
+    });
+    if (page.url() !== url) await gotoOnion(page, url);
   }
   await ready(page, selector);
 }
