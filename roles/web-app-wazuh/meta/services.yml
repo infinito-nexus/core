@@ -81,9 +81,14 @@ manager:
     no_stop_required: false
   ports:
     internal:
-      agent_events: 1514
+      agent: 1514
       agent_registration: 1515
       api: 55000
+    local:
+      agent: 8501
+    onion:
+      # nocheck: onion-flag  agents reach the manager on the stack host itself, and an onion forward would open the event intake to anyone holding the onion address
+      agent: false
 indexer:
   healthcheck:
     test:

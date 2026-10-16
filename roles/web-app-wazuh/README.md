@@ -9,7 +9,8 @@
 This role deploys the single-node Wazuh stack (`wazuh.manager`, `wazuh.indexer`, `wazuh.dashboard`) with Docker Compose or Docker Swarm.
 A one-shot `wazuh-certs-generator` job creates the internal TLS material before the manager and the indexer start.
 The indexer is the stack's own datastore and holds the OpenSearch security configuration, so the role needs no shared database.
-Agent enrollment is not part of this role: the agent ports are declared in [services.yml](./meta/services.yml) but not published.
+The manager's agent event port is published on `DOCKER_BIND_HOST` only. The enrollment service (`1515`) is disabled and stays unpublished, because agents are pre-registered through the manager API.
+The manager writes raw events to `archives.json` (`logall_json`) in development and CI only; archive indexing into `wazuh-archives-*` stays at the Wazuh default (off) everywhere.
 The manager's vulnerability detection data (`/var/ossec/queue/vd`, volume `wazuh_manager_vd`) is deliberately not backed up.
 The manager downloads it again after a restore, which can take a long time.
 This matters once agents are enrolled.

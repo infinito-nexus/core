@@ -46,6 +46,9 @@ WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearc
 
 WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
 
+# Raw archive (logall_json) off outside development is the proposed default; Kevin still has to confirm this policy value.
+WAZUH_RAW_ARCHIVE: "{{ (ENVIRONMENT | lower) == 'development' }}"
+
 WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
 
 WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"

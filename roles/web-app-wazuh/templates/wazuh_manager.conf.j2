@@ -3,7 +3,7 @@
     <jsonout_output>yes</jsonout_output>
     <alerts_log>yes</alerts_log>
     <logall>no</logall>
-    <logall_json>no</logall_json>
+    <logall_json>{{ 'yes' if WAZUH_RAW_ARCHIVE | bool else 'no' }}</logall_json>
     <email_notification>no</email_notification>
     <agents_disconnection_time>10m</agents_disconnection_time>
     <agents_disconnection_alert_time>0</agents_disconnection_alert_time>
@@ -20,7 +20,7 @@
 
   <remote>
     <connection>secure</connection>
-    <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent_events') }}</port>
+    <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent') }}</port>
     <protocol>tcp</protocol>
     <queue_size>131072</queue_size>
   </remote>
@@ -215,7 +215,7 @@
   </rule_test>
 
   <auth>
-    <disabled>no</disabled>
+    <disabled>yes</disabled>
     <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent_registration') }}</port>
     <use_source_ip>no</use_source_ip>
     <purge>yes</purge>
