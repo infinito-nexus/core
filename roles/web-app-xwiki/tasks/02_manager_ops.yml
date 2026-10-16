@@ -56,6 +56,13 @@
 - name: 📂 Load setup procedures for extensions
   include_tasks: 04_extensions.yml
 
+- name: "🫙 XWIKI | Move the blob store to the bucket now the extension exists"
+  include_tasks: utils/flush_config.yml
+  vars:
+    xwiki_oidc_enabled_switch: false
+    xwiki_ldap_enabled_switch: false
+    xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"
+
 - name: "✅ XWIKI | Ensure Main.WebHome exists"
   include_tasks: 05_main_webhome.yml
 
