@@ -18,7 +18,7 @@ The `applications` lookup is the ONLY supported runtime entry point for merged a
 | `lookup('applications')` | Full merged mapping keyed by `application_id`. |
 | `lookup('applications', '<application_id>')` | Merged entry for that application. Raises when missing. |
 | `lookup('applications', '<application_id>', default_value)` | Merged entry, or `default_value` when the entry is missing. |
-| `lookup('applications', carrier=True)` | `{"key": [...], "applications": {...}}`: the full mapping plus the cache key it is valid under. Reserved for the constructor's carrier task (see below). |
+| `lookup('applications', carrier=True)` | `{"key": [...], "applications": {...}}`: the full mapping plus the cache key it is valid under. Reserved for the `applications_carrier` action (see below). |
 
 ## Data Sources 📚
 
@@ -33,9 +33,12 @@ No other source is consulted.
 
 Ansible forks a fresh worker process for every task. The in-process cache inside `get_merged_applications` therefore never survives from one task to the next, and every task that touches the lookup would render the full tree again (about 16 to 23 seconds per task on a CI runner, measured on the workspace jobs).
 
-The constructor stage renders once through the [applications_carrier](../../../../../../plugins/action/applications_carrier.py) action and parks the result together with its cache key in the host fact `_INFINITO_APPLICATIONS_RENDERED` (the action calls `lookup('applications', carrier=True)`). Every later worker inherits that fact at fork time; `get_merged_applications` serves it whenever the key still matches and renders only when it does not (a changed `applications`, `users`, `DOMAIN_PRIMARY` or `SYSTEM_EMAIL_DOMAIN`).
+The constructor stage renders once through the [applications_carrier](../../../../../../plugins/action/applications_carrier.py) action and parks the result together with its cache key in the host fact `_INFINITO_APPLICATIONS_RENDERED` (the action calls `lookup('applications', carrier=True)`). Every later worker inherits that fact at fork time; `get_merged_applications` serves it whenever the key still matches and renders only when it does not (a changed `applications`, `users`, `DOMAIN_PRIMARY`, `SYSTEM_EMAIL_DOMAIN` or `group_names`, or a changed path or content of the tokens file).
 
-- The task sits in `tasks/stages/01_constructor.yml` after the `networks`, `design` and `service_provider` merges, after the `add_host` placements and after the token store, so the payload renders with the same `group_names`, `groups` and user records a role would see. Moving it earlier bakes stale values into the play.
+- The stage-wide task sits in `tasks/stages/01_constructor.yml` after the `networks`, `design` and `service_provider` merges, after the `add_host` placements and after the token store, so the payload renders with the same `group_names`, `groups` and user records a role would see. Moving it earlier bakes stale values into the play.
+- The carrier is parked again after every role in `tasks/utils/setup/role.yml`, after every nested application load in `tasks/utils/load/app.yml`, and after every persisted token in `roles/sys-token-store/tasks/write.yml`. The first two run on every host of the include, also on hosts the loaded role skips. A re-park whose key still matches serves the carried payload without rendering.
+- The action renders with `application_id` removed from its variables, so the carried tree holds the play-scope result of every consumer-aligned `lookup('tls', ...)`, whichever role parks it.
+- The tokens file enters the key as the SHA-256 of its content, memoised per inode, mtime and size, so a touch keeps the key. The carrier action opens the file before it computes the key, so an NFS client keys on revalidated attributes.
 - The action masks its own result: the fact is the whole rendered tree with every application's credentials, so it never reaches a log regardless of `MASK_CREDENTIALS_IN_LOGS`.
 - User records inside the payload are the token store's state at render time. Readers of tokens captured later in the play MUST go through `lookup('users', ...)` or `lookup('config', <app>, 'users.<key>...')`, both of which read the users cache fresh.
 - The carrier is private to the lookup. Consumers MUST NOT read `_INFINITO_APPLICATIONS_RENDERED`; they keep going through `lookup('applications')`, which is what makes the carrier transparent.

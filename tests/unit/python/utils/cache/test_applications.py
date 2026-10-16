@@ -389,6 +389,24 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
                 merged["web-app-foo"]["services"]["foo"]["image"], "override"
             )
 
+    def test_a_changed_tokens_file_rejects_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            tokens = Path(tmp) / "tokens.yml"
+            tokens.write_text("{}\n", encoding="utf-8")
+            variables = self._variables()
+            variables["FILE_TOKENS"] = str(tokens)
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            variables[APPLICATIONS_RENDERED_FACT] = {
+                "key": [key[0], list(key[1])],
+                "applications": {"web-app-foo": {"carried": True}},
+            }
+            tokens.write_text("users: {}\n", encoding="utf-8")
+            merged = cache_apps.get_merged_applications(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertNotIn("carried", merged["web-app-foo"])
+
     def test_malformed_carrier_is_ignored(self):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_roles(Path(tmp))

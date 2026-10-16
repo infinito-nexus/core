@@ -14,6 +14,8 @@
   ansible.builtin.file:
     path: "{{ FILE_TOKENS }}"
     state: touch
+    modification_time: preserve
+    access_time: preserve
     owner: "{{ SYS_TOKEN_STORE_OWNER }}"
     group: "{{ SYS_TOKEN_STORE_GROUP }}"
     mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"

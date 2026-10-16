@@ -1,1 +1,15 @@
 ---
+- name: "⏱️ Set the deadline for the document server check"
+  set_fact:
+    nextcloud_onlyoffice_check_deadline: "{{ now(utc=true).timestamp() + (lookup('timeout', 300) | int) }}"
+
+- name: "🔎 Check the document server round trip and reset onlyoffice's settings_error"
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} onlyoffice:documentserver --check
+  register: nextcloud_onlyoffice_check
+  until: >-
+    nextcloud_onlyoffice_check.rc == 0
+    or now(utc=true).timestamp() > nextcloud_onlyoffice_check_deadline | float
+  retries: 30
+  delay: 10
+  changed_when: false

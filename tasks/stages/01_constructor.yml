@@ -161,6 +161,10 @@
   run_once: true
   changed_when: false
 
+- name: 🧊 Render the applications SPOT once for the bootstrap section
+  applications_carrier: {}
+  when: DEPLOYMENT_MODE == 'swarm'
+
 - name: "🥾 Bootstrap svc-swarm-node"
   ansible.builtin.include_role:
     name: svc-swarm-node

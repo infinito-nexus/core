@@ -10,18 +10,21 @@ instead of rendering::
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
       applications_carrier: {}
 
-``tasks/stages/01_constructor.yml`` parks two of them. The stage-wide one
-sits after the token store so the embedded user records already carry the
-loaded tokens, and after the ``add_host`` tasks because 114 roles gate
-services on ``group_names`` and the payload bakes those in. The
-merge block opens an earlier, block-scoped one and drops it again at the
-block's end, because ``merged_applications_cache_key`` reads neither
-``group_names`` nor the token file: a carrier left standing across either
-would be served unchanged where a fresh render belongs::
+``tasks/stages/01_constructor.yml`` parks three of them: a block-scoped one
+for the merge block, which it drops again at the block's end, one after the
+``add_host`` tasks for the swarm bootstrap roles, parked only when
+``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names`` and the
+tokens file's path and content digest, so a carrier whose groups or tokens no
+longer match is rejected and the reader renders afresh::
 
     - name: 🧊 Drop the merge-block carrier so later stages re-render
       applications_carrier:
         clear: true
+
+``tasks/utils/setup/role.yml`` parks one after every role,
+``tasks/utils/load/app.yml`` one after every nested application load and
+``roles/sys-token-store/tasks/write.yml`` one after every persisted token;
+where the key still matches they serve the carried payload without rendering.
 
 The result is masked by the action itself: the fact is the whole rendered
 tree, about 0.4 MB with every application's credentials, and printing it at
@@ -41,7 +44,7 @@ from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import lookup_loader
 
-from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, revalidate_tokens_file
 
 
 class ActionModule(ActionBase):
@@ -66,10 +69,18 @@ class ActionModule(ActionBase):
             )
             return result
 
-        lookup = lookup_loader.get(
-            "applications", loader=self._loader, templar=self._templar
-        )
-        carrier = lookup.run([], variables=task_vars, carrier=True)[0]
+        revalidate_tokens_file(task_vars)
+        render_vars = dict(task_vars)
+        render_vars.pop("application_id", None)
+        previous = self._templar.available_variables
+        self._templar.available_variables = render_vars
+        try:
+            lookup = lookup_loader.get(
+                "applications", loader=self._loader, templar=self._templar
+            )
+            carrier = lookup.run([], variables=render_vars, carrier=True)[0]
+        finally:
+            self._templar.available_variables = previous
 
         result.update(
             changed=False,

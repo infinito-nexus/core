@@ -41,5 +41,11 @@ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, '
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
 SUITECRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 
+SUITECRM_EXTERNAL_AUTH_PATCH_FILE: "external-auth-user-create.patch"
+SUITECRM_EXTERNAL_AUTH_PATCH_SRC: "patch/{{ SUITECRM_EXTERNAL_AUTH_PATCH_FILE }}"
+SUITECRM_EXTERNAL_AUTH_PATCH_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), SUITECRM_EXTERNAL_AUTH_PATCH_FILE ] | path_join }}"
+SUITECRM_EXTERNAL_AUTH_PATCH_HOST_REL: "volumes/{{ SUITECRM_EXTERNAL_AUTH_PATCH_FILE }}"
+SUITECRM_EXTERNAL_AUTH_PATCH_DOCKER: "{{ [ '/tmp/', SUITECRM_EXTERNAL_AUTH_PATCH_FILE ] | path_join }}"
+
 SUITECRM_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"
 SUITECRM_PHP_MEMORY_LIMIT: "{{ lookup('service_memory_mb', application_id, entity_name, 0.25) }}M"

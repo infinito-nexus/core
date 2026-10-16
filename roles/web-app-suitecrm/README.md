@@ -142,6 +142,14 @@ docker run --rm -it \
   the Tor SOCKS proxy whenever the issuer is an onion, because a `.onion` issuer is
   unresolvable directly. `/auth` stays reachable as the local break-glass login.
 
+- **Auto-created accounts** reach `User::save()` through SuiteCRM's own `CreateUser`
+  while the request is still anonymous. Since 8.10.2 that save answers
+  `RuntimeException: Not authorized` and forces `status = Inactive`, so
+  `files/patch/external-auth-user-create.patch` makes the stored system user the current
+  user around the save and restores the caller's afterwards.
+  [`files/Dockerfile`](./files/Dockerfile) applies it with `patch -F0` on the unpacked
+  release; the image build fails once the hunk stops matching.
+
 ## Persona contract opt-outs
 
 [`templates/env.j2`](./templates/env.j2) seeds only the administrator into SuiteCRM (`SUITECRM_ADMIN_USERNAME` / `SUITECRM_ADMIN_PASSWORD`); `biber` reaches the app through SuiteCRM's own SAML login against Keycloak, where `SAML_AUTO_CREATE` mints the account on first assertion. In the `services.sso.enabled: false` matrix variants there is no SAML entry point and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` for the generic persona journeys (the LDAP spec still signs `biber` in from the directory). The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant.

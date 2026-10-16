@@ -6,3 +6,6 @@
 
 - name: "🚿 flush handlers after {{ role_entry.app }}"
   ansible.builtin.meta: flush_handlers
+
+- name: "🧊 Carry the applications SPOT past {{ role_entry.app }}"
+  applications_carrier: {}

@@ -11,7 +11,7 @@ funkwhale:
   # nocheck: default-placement-manager  embedded typesense index; node-local in swarm
   placement: manager
   image: funkwhale/front
-  version: 2.0.11
+  version: 2.0.12
   min_storage: 224MB
   ports:
     internal:
@@ -37,7 +37,7 @@ api:
     flavor: curl
     path: api/v1/instance/nodeinfo/2.0
   image: funkwhale/api
-  version: 2.0.11
+  version: 2.0.12
   min_storage: 588MB
   ports:
     internal:

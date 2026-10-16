@@ -894,7 +894,7 @@ test-unit-python: install
 	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
 
 .PHONY: test-unit-ruby
-# Run the Ruby unit test suite (minitest, stdlib).
+# Run the Ruby unit test suite (minitest).
 test-unit-ruby:
 	@INFINITO_TEST_TYPE="unit-ruby" \
 	bash scripts/tests/code/wrapper.sh scripts/tests/unit/ruby.sh

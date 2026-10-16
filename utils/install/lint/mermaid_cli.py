@@ -2,34 +2,38 @@
 
 mmdc comes from npm with ``PUPPETEER_SKIP_DOWNLOAD`` set; the browser is
 provisioned afterwards through the puppeteer that npm installed next to mmdc,
-at the revision its puppeteer-core pins, as root with its shared libraries
-(``--install-deps``). ``unzip`` is ensured first because puppeteer extracts the
-browser with it. A failed install warns instead of aborting ``install-lint``, so
-sandboxes without npm or browser access still get the rest of the lint
-toolchain.
+at the revision its puppeteer-core pins. ``unzip`` is ensured first because
+puppeteer extracts the browser with it. Puppeteer installs the browser's
+shared libraries only through apt-get (``--install-deps``); on dnf, yum and
+pacman the libraries ``ldd`` reports missing are installed by soname. Every
+failure aborts ``install-lint``.
 """
 
 from __future__ import annotations
 
-import contextlib
 import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from utils.install.npm import npm_install_global
-from utils.install.primitives import log, warn, which
-from utils.install.system_pkg import install_command_via_pkg
+from utils.install.primitives import log, run_privileged, which
+from utils.install.system_pkg import detect_package_manager, install_command_via_pkg
 
 BROWSER = "chrome-headless-shell"
 PROVISION_TIMEOUT_S = 900
 
+_INSTALL_ARGV = {
+    "dnf": ["dnf", "-y", "install"],
+    "yum": ["yum", "-y", "install"],
+    "pacman": ["pacman", "-Syu", "--noconfirm", "--needed"],
+}
+
 
 def _ensure_unzip() -> None:
-    if which("unzip"):
-        return
-    with contextlib.suppress(Exception):
+    if not which("unzip"):
         install_command_via_pkg("unzip")
 
 
@@ -75,13 +79,40 @@ def browser_revision() -> str | None:
     return match.group(1) if match else None
 
 
-def browser_installed() -> bool:
+def browser_executable() -> Path | None:
     revision = browser_revision()
     if revision is None:
-        return False
-    return any(
-        path.is_file() for path in browser_cache().glob(f"*-{revision}/*/{BROWSER}")
+        return None
+    return next(
+        (
+            path
+            for path in browser_cache().glob(f"*-{revision}/*/{BROWSER}")
+            if path.is_file()
+        ),
+        None,
     )
+
+
+def missing_libraries(executable: Path) -> list[str]:
+    """Return the shared libraries the dynamic loader cannot resolve.
+
+    Args:
+        executable: the browser binary.
+
+    Returns:
+        Sorted sonames ``ldd`` reports as ``not found``.
+    """
+    done = subprocess.run(
+        ["ldd", str(executable)], capture_output=True, text=True, check=False
+    )
+    return sorted(
+        {line.split()[0] for line in done.stdout.splitlines() if "=> not found" in line}
+    )
+
+
+def browser_installed() -> bool:
+    executable = browser_executable()
+    return executable is not None and not missing_libraries(executable)
 
 
 def _provision_browser(puppeteer: Path) -> subprocess.CompletedProcess[str]:
@@ -91,7 +122,7 @@ def _provision_browser(puppeteer: Path) -> subprocess.CompletedProcess[str]:
         "install",
         BROWSER,
     ]
-    if os.geteuid() == 0:
+    if os.geteuid() == 0 and which("apt-get"):
         argv.append("--install-deps")
     env = {k: v for k, v in os.environ.items() if k != "PUPPETEER_SKIP_DOWNLOAD"}
     return subprocess.run(
@@ -104,30 +135,85 @@ def _provision_browser(puppeteer: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def _ensure_browser() -> None:
-    if browser_installed():
-        return
+def _download_browser() -> None:
     puppeteer = _mmdc_puppeteer()
     if puppeteer is None:
-        warn(f"{BROWSER} provisioning skipped: no puppeteer next to mmdc")
-        return
+        raise RuntimeError(f"Cannot provision {BROWSER}: no puppeteer next to mmdc.")
     log(f"Provisioning {BROWSER} for mmdc via its own puppeteer.")
-    try:
-        done = _provision_browser(puppeteer)
-        if done.returncode != 0:
-            revision = browser_revision()
-            if revision is not None:
-                for partial in browser_cache().glob(f"*-{revision}"):
-                    shutil.rmtree(partial, ignore_errors=True)
-            done = _provision_browser(puppeteer)
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        warn(f"{BROWSER} provisioning skipped (optional lint tool): {exc}")
-        return
+    done = _provision_browser(puppeteer)
     if done.returncode != 0:
-        warn(
-            f"{BROWSER} provisioning failed (optional lint tool):\n"
-            f"{done.stdout}{done.stderr}"
+        revision = browser_revision()
+        if revision is not None:
+            for partial in browser_cache().glob(f"*-{revision}"):
+                shutil.rmtree(partial, ignore_errors=True)
+        done = _provision_browser(puppeteer)
+    if done.returncode != 0:
+        raise RuntimeError(
+            f"{BROWSER} provisioning failed:\n{done.stdout}{done.stderr}"
         )
+
+
+def _library_packages(manager: str, sonames: list[str]) -> list[str]:
+    """Map sonames to what the package manager installs them by.
+
+    Args:
+        manager: the detected package manager.
+        sonames: libraries the browser cannot resolve.
+
+    Returns:
+        Install arguments for ``manager``.
+
+    Raises:
+        RuntimeError: the manager cannot install by soname.
+    """
+    if manager in ("dnf", "yum"):
+        suffix = "()(64bit)" if sys.maxsize > 2**32 else ""
+        return [f"{soname}{suffix}" for soname in sonames]
+    if manager == "pacman":
+        run_privileged(["pacman", "-Fy"])
+        packages: set[str] = set()
+        for soname in sonames:
+            found = subprocess.run(
+                ["pacman", "-Fq", f"usr/lib/{soname}"],
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout.split()
+            if found:
+                packages.add(found[0].rsplit("/", 1)[-1])
+        return sorted(packages)
+    raise RuntimeError(
+        f"{BROWSER} lacks {', '.join(sonames)} and {manager} cannot install "
+        f"libraries by soname; on apt-get they come from --install-deps, which "
+        f"needs root."
+    )
+
+
+def _ensure_browser_libraries(executable: Path) -> None:
+    missing = missing_libraries(executable)
+    if not missing:
+        return
+    manager = detect_package_manager()
+    packages = _library_packages(manager, missing)
+    log(f"Installing {BROWSER} libraries via {manager}: {', '.join(packages)}")
+    if packages:
+        run_privileged([*_INSTALL_ARGV[manager], *packages])
+    missing = missing_libraries(executable)
+    if missing:
+        raise RuntimeError(
+            f"{BROWSER} still lacks {', '.join(missing)} after installing "
+            f"{packages} via {manager}."
+        )
+
+
+def _ensure_browser() -> None:
+    executable = browser_executable()
+    if executable is None:
+        _download_browser()
+        executable = browser_executable()
+        if executable is None:
+            raise RuntimeError(f"{BROWSER} is still missing after provisioning.")
+    _ensure_browser_libraries(executable)
 
 
 def ensure() -> None:
@@ -135,12 +221,9 @@ def ensure() -> None:
     if not which("mmdc"):
         log("Missing command 'mmdc'. Installing @mermaid-js/mermaid-cli via npm.")
         os.environ["PUPPETEER_SKIP_DOWNLOAD"] = "1"
-        try:
-            npm_install_global("@mermaid-js/mermaid-cli")
-        except Exception as exc:  # noqa: BLE001 - best-effort optional lint tool
-            warn(f"mermaid-cli install skipped (optional lint tool): {exc}")
-            return
+        npm_install_global("@mermaid-js/mermaid-cli")
         if not which("mmdc"):
-            warn("Command 'mmdc' is still unavailable after installation.")
-            return
+            raise RuntimeError(
+                "Command 'mmdc' is still unavailable after installation."
+            )
     _ensure_browser()

@@ -13,7 +13,13 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
-from .base import _cache_key, _resolve_roles_dir, _stable_variables_signature
+from .base import (
+    _cache_key,
+    _resolve_roles_dir,
+    _revalidate_tokens_file,
+    _stable_variables_signature,
+    _tokens_file_signature,
+)
 
 if TYPE_CHECKING:
     import os
@@ -30,17 +36,33 @@ def merged_applications_cache_key(
 
     Args:
         variables: The play's variable scope. Only the subset that
-            `_stable_variables_signature` reads influences the key.
+            `_stable_variables_signature` reads, and the tokens file it
+            resolves to, influence the key.
         roles_dir: Roles tree the payload is built from; defaults to the
             repository's `roles/`.
 
     Returns:
-        ``(resolved roles dir, stable variables signature)``.
+        ``(resolved roles dir, stable variables signature extended by the
+        tokens file's path and content digest)``.
     """
+    from .users import _resolve_tokens_file
+
+    tokens = _tokens_file_signature(_resolve_tokens_file(variables))
     return (
         _cache_key(_resolve_roles_dir(roles_dir=roles_dir)),
-        _stable_variables_signature(variables),
+        (*_stable_variables_signature(variables), *(str(part) for part in tokens)),
     )
+
+
+def revalidate_tokens_file(variables: Mapping[str, Any] | None) -> None:
+    """Refresh an NFS client's attributes of the tokens file before a carrier is keyed.
+
+    Args:
+        variables: The play's variable scope the tokens file resolves from.
+    """
+    from .users import _resolve_tokens_file
+
+    _revalidate_tokens_file(_resolve_tokens_file(variables))
 
 
 def _carried_applications(

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 #
-# Runs the Ruby unit suite through minitest, which ships with Ruby itself.
+# Runs the Ruby unit suite through minitest, which scripts/install/ruby.sh provisions.
 
 set -euo pipefail
 
