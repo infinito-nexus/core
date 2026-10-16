@@ -20,15 +20,20 @@ zone_probe_name() {
 	printf 'rescue-probe.%s' "${zone}"
 }
 
+uptime_ms() {
+	read -r up _ </proc/uptime
+	printf '%s' "$((${up%.*}${up#*.} * 10))"
+}
+
 answer_once() {
 	name="${1}"
-	start="$(date -u '+%s%3N')"
+	start="$(uptime_ms)"
 	if timeout 3 getent ahosts "${name}" >/dev/null 2>&1; then
 		verdict=ok
 	else
 		verdict=fail
 	fi
-	printf ' %s=%s/%sms' "${name}" "${verdict}" "$(($(date -u '+%s%3N') - start))"
+	printf ' %s=%s/%sms' "${name}" "${verdict}" "$(($(uptime_ms) - start))"
 }
 
 [ "${DNS53_SAMPLER_LIB:-}" = "1" ] && return 0
