@@ -28,6 +28,9 @@ const SIGN_IN_BUTTON = `${SIGN_IN_FORM} button.action.login`;
 const HEADER_PANEL = ".page-header .panel.wrapper";
 const INJECTED_SHEET = /\/_shared\/css\/|\/roles\/web-app-magento\//;
 const ROLE_SHEET = "link[href*='/roles/web-app-magento/'][href*='style.css']";
+const COLOR_PROPERTY =
+  /^(?:[a-z-]*-)?color$|^(?:background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule)$/;
+const NO_COLOR = /^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i;
 const CACHE_GRID = "#cache_grid_table";
 const TREE_SELECTION = ".jstree-default .jstree-clicked";
 
@@ -195,6 +198,32 @@ test("design: every image the role stylesheet references is served", async ({ pa
       `${target} must be served as an image; a relative url() resolves against the stylesheet on the CDN`,
     ).toMatch(/^200 image\//);
   }
+});
+
+test("design: the role stylesheet sets every color through a token", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await openShop(page, "/", ".page-footer");
+  const sheet = await page.locator(ROLE_SHEET).first().evaluate((link) => link.href);
+  const css = await (await apiGetOnion(page.request, sheet)).text();
+  const offenders = await page.evaluate(
+    ([source, property, keyword]) => {
+      const colorProperty = new RegExp(property);
+      const noColor = new RegExp(keyword, "i");
+      const found = [];
+      for (const [, name, value] of source.matchAll(/(?:^|[{;])\s*([a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+        if (!colorProperty.test(name) || value.includes("var(--design-") || value.includes("url(")) continue;
+        const literal =
+          /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(/i.test(value) ||
+          value
+            .split(/[\s,()]+/)
+            .some((word) => /^[a-z]+$/i.test(word) && !noColor.test(word) && CSS.supports("color", word));
+        if (literal) found.push(`${name}: ${value.trim()}`);
+      }
+      return found;
+    },
+    [css, COLOR_PROPERTY.source, NO_COLOR.source],
+  );
+  expect(offenders, "every color of the role stylesheet comes from a --design-* token").toEqual([]);
 });
 
 test("design: focus stops inside the storefront header panel draw in the frame text color", async ({ page }) => {
