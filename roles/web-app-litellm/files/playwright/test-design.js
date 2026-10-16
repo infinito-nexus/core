@@ -375,13 +375,28 @@ exports.register = function (shared) {
     await shared.signIn(page);
     if (title) await expect(page).toHaveTitle(title);
     if (logoUrl) {
-      await expect(page.locator(shared.SHELL)).toHaveCSS("content", `url("${logoUrl}")`);
+      const settings = await (await apiGetOnion(page.request, `${base}/get/ui_theme_settings`)).json();
+      expect(settings.values.logo_url, "LiteLLM's own logo_url setting must carry the corporate lockup").toBe(logoUrl);
+      const brand = page.locator(shared.SHELL);
+      await expect(brand, "the navbar must take its logo from the setting").toHaveAttribute("src", logoUrl);
+      await expect(brand, "no stylesheet may swap the navbar logo").toHaveCSS("content", "normal");
+      await expect
+        .poll(() => brand.evaluate((image) => image.complete && image.naturalWidth > 0), { message: "the lockup must load" })
+        .toBe(true);
+      const box = await brand.boundingBox();
+      expect(box.width, "the wide lockup must carry the title next to the symbol").toBeGreaterThan(2 * box.height);
       for (const icon of await page.locator("link[rel~='icon']").all()) {
         await expect(icon).toHaveAttribute("href", faviconUrl);
       }
       for (const url of [logoUrl, faviconUrl]) {
         expect((await apiGetOnion(page.request, url)).ok(), `${url} is published on the CDN`).toBe(true);
       }
+      await gotoOnion(page, `${base}/ui/?page=ui-theme`);
+      await ready(page);
+      await expect(
+        page.locator("input[placeholder='https://example.com/logo.png']"),
+        "the UI theme page must show the configured logo URL",
+      ).toHaveValue(logoUrl);
     }
   });
 

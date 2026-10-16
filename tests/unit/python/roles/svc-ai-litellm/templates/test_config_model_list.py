@@ -9,6 +9,7 @@ template is rendered here rather than read.
 
 from __future__ import annotations
 
+import json
 import unittest
 
 import yaml
@@ -64,19 +65,21 @@ def _remote(keys):
     ]
 
 
-def render(*, ollama=(), lmstudio=(), keys=None):
+def render(*, ollama=(), lmstudio=(), keys=None, logo_url=""):
     """The rendered config as a parsed mapping.
 
     Args:
         ollama: preload entries svc-ai-ollama declares; empty means not deployed.
         lmstudio: preload entries svc-ai-lmstudio declares; empty means not deployed.
         keys: env-name -> provider key for the remote backends.
+        logo_url: LITELLM_UI_LOGO_URL; empty while the admin UI shows no corporate logo.
     """
     env = Environment(
         undefined=StrictUndefined,
         autoescape=select_autoescape(default_for_string=False),
     )
     env.filters["bool"] = _ansible_bool
+    env.filters["to_json"] = json.dumps
     rendered = env.from_string(read_text(str(TEMPLATE))).render(
         LITELLM_OLLAMA_BACKEND=str(bool(ollama)),
         LITELLM_LMSTUDIO_BACKEND=str(bool(lmstudio)),
@@ -86,6 +89,7 @@ def render(*, ollama=(), lmstudio=(), keys=None):
         LITELLM_MAX_OUTPUT_TOKENS=512,
         LITELLM_UPSTREAM_TIMEOUT=60,
         LITELLM_REMOTE_BACKENDS=_remote(keys or {}),
+        LITELLM_UI_LOGO_URL=logo_url,
     )
     return yaml.safe_load(
         rendered
@@ -138,6 +142,17 @@ class TestBothBackends(unittest.TestCase):
         self.assertEqual(
             published[LMSTUDIO_ONLY["alias"]]["api_base"], f"{LMSTUDIO_URL}/v1"
         )
+
+
+class TestUiTheme(unittest.TestCase):
+    def test_a_logo_url_reaches_the_ui_theme_config(self) -> None:
+        url = "https://cdn.example/roles/web-app-litellm/latest/img/design/logo.svg"
+        settings = render(logo_url=url)["litellm_settings"]
+        self.assertEqual(settings["ui_theme_config"], {"logo_url": url})
+        self.assertTrue(settings["drop_params"])
+
+    def test_without_a_logo_url_the_ui_theme_config_is_absent(self) -> None:
+        self.assertNotIn("ui_theme_config", render()["litellm_settings"])
 
 
 class TestNoBackend(unittest.TestCase):

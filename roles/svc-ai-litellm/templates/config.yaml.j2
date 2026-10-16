@@ -33,6 +33,10 @@ model_list:{{ ' []' if not has_backend else '' }}
 
 litellm_settings:
   drop_params: true
+{% if LITELLM_UI_LOGO_URL | length > 0 %}
+  ui_theme_config:
+    logo_url: {{ LITELLM_UI_LOGO_URL | to_json }}
+{% endif %}
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
