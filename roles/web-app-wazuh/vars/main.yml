@@ -2,6 +2,8 @@
 application_id: "web-app-wazuh"
 
 WAZUH_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.manager.name') }}"
+WAZUH_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'manager') }}"
+WAZUH_API_URL: "https://localhost:{{ lookup('config', application_id, 'services.manager.ports.internal.api') }}"
 
 WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
 WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
@@ -66,6 +68,15 @@ WAZUH_WUI_USERNAME: "{{ lookup('users', 'web-app-wazuh-api').username }}"
 WAZUH_WUI_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.wazuh_wui_password') }}"
 
 WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.manager_cluster_key') }}"
+
+WAZUH_AUTHD_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.authd_password') }}"
+WAZUH_AUTHD_PASS_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'authd.pass' ] | path_join }}"
+
+# Dev and CI inventories name their only host "localhost", which says nothing in the dashboard; DOMAIN_PRIMARY names that host instead.
+WAZUH_AGENTS:
+  - id: "001"
+    name: "{{ DOMAIN_PRIMARY if inventory_hostname in ['localhost', '127.0.0.1'] else inventory_hostname }}"
+    key: "{{ lookup('config', application_id, 'secrets.credentials.agent_key') }}"
 
 WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"

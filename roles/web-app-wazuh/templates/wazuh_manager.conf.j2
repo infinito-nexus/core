@@ -215,11 +215,11 @@
   </rule_test>
 
   <auth>
-    <disabled>yes</disabled>
+    <disabled>no</disabled>
     <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent_registration') }}</port>
     <use_source_ip>no</use_source_ip>
     <purge>yes</purge>
-    <use_password>no</use_password>
+    <use_password>yes</use_password>
     <ciphers>HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH</ciphers>
     <ssl_verify_host>no</ssl_verify_host>
     <ssl_manager_cert>etc/sslmanager.cert</ssl_manager_cert>

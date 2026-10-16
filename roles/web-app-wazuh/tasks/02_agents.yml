@@ -1,0 +1,63 @@
+---
+- name: "🔑 Authenticate to the Wazuh manager API"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      sh -c '{{ 30 | curl }} -k -u "$API_USERNAME:$API_PASSWORD" -X POST "{{ WAZUH_API_URL }}/security/user/authenticate?raw=true"'
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_api_token
+  changed_when: false
+  retries: 30
+  delay: 10
+  until: wazuh_api_token.rc == 0 and wazuh_api_token.stdout.startswith('ey')
+
+- name: "🔍 Read the registered key of each Wazuh agent"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      {{ 30 | curl }} -k -H "Authorization: Bearer {{ wazuh_api_token.stdout }}"
+      "{{ WAZUH_API_URL }}/agents/{{ item.id }}/key"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ WAZUH_AGENTS }}"
+  loop_control:
+    label: "{{ item.id }}"
+  register: wazuh_agent_keys
+  changed_when: false
+
+- name: "🧮 Select the Wazuh agents whose registration differs"
+  ansible.builtin.set_fact:
+    wazuh_agent_changes: "{{ WAZUH_AGENTS | wazuh_agent_changes(wazuh_agent_keys.results) }}"
+
+- name: "🗑️ Remove Wazuh agents registered with a different name or key"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      {{ 30 | curl(retries=0) }} -k -H "Authorization: Bearer {{ wazuh_api_token.stdout }}"
+      -X DELETE "{{ WAZUH_API_URL }}/agents?agents_list={{ item.id }}&status=all&older_than=0s&purge=true"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ wazuh_agent_changes | selectattr('action', 'equalto', 'replace') | list }}"
+  loop_control:
+    label: "{{ item.id }}"
+  register: wazuh_agent_delete
+  changed_when: true
+  failed_when: >-
+    wazuh_agent_delete.rc != 0 or
+    (wazuh_agent_delete.stdout | from_json).data.total_affected_items != 1
+
+- name: "➕ Register Wazuh agents with their vault key"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      {{ 30 | curl(retries=0) }} -k -H "Authorization: Bearer {{ wazuh_api_token.stdout }}"
+      -H "Content-Type: application/json"
+      -X POST "{{ WAZUH_API_URL }}/agents/insert" --data-binary @-
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+    stdin: "{{ {'id': item.id, 'name': item.name, 'key': item.key, 'ip': 'any'} | to_json }}"
+  loop: "{{ wazuh_agent_changes }}"
+  loop_control:
+    label: "{{ item.id }}"
+  register: wazuh_agent_insert
+  changed_when: true
+  failed_when: >-
+    wazuh_agent_insert.rc != 0 or
+    (wazuh_agent_insert.stdout | from_json).error != 0

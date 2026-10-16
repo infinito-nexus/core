@@ -48,6 +48,14 @@
     label: "{{ item.src }}"
   notify: compose-up
 
+- name: "🔐 Render the Wazuh enrollment password file"
+  stack_host_template:
+    src: authd.pass.j2
+    dest: "{{ WAZUH_AUTHD_PASS_HOST }}"
+    mode: "0600"
+  notify: compose-up
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "📋 Copy static Wazuh indexer roles.yml"
   ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
     src: roles.yml
@@ -106,6 +114,16 @@
 
 - name: "🔄 Apply Wazuh indexer security config via securityadmin.sh"
   include_tasks: 01_securityadmin.yml
+
+- name: "🪪 Show the Wazuh agents to pre-register (id: name)"
+  ansible.builtin.debug:
+    msg: "{{ WAZUH_AGENTS | map(attribute='id') | zip(WAZUH_AGENTS | map(attribute='name')) | map('join', ': ') | list }}"
+
+- name: "🛂 Pre-register the Wazuh agents"
+  include_tasks:
+    file: 02_agents.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "✅ Confirm indexer admin credentials are live post-securityadmin.sh"
   uri_retry:

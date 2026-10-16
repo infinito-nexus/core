@@ -120,6 +120,14 @@ wazuh_manager_conf:
   mounts:
     - service: manager
       target: /wazuh-config-mount/etc/ossec.conf
+# Exception: the image copies /wazuh-config-mount into /var/ossec with a plain `cp -r` at start: a new file lands root:root with this mode, an existing one keeps its own. wazuh-authd runs as root, so root-only read is enough.
+wazuh_authd_pass:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'authd.pass' ] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: manager
+      target: /wazuh-config-mount/etc/authd.pass
 wazuh_indexer_yml:
   type: config
   source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'wazuh.indexer.yml' ] | path_join }}"
