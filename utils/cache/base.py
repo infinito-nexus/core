@@ -16,10 +16,12 @@ only when actually invoked.
 from __future__ import annotations
 
 import copy
+import hashlib
+import os
 import threading
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from plugins.filter.merge.with_defaults import (
     merge_with_defaults,  # noqa: F401  re-exported
@@ -28,8 +30,7 @@ from utils.paths import FILE_TOKENS
 
 from . import PROJECT_ROOT, ROLES_DIR  # noqa: F401
 
-if TYPE_CHECKING:
-    import os
+_TOKENS_DIGESTS: dict[tuple, str] = {}
 
 try:
     from ansible.parsing.vault import EncryptedString as _AnsibleEncryptedString
@@ -125,18 +126,46 @@ def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
     )
 
 
-def _tokens_file_signature(path: Path) -> tuple:
-    """Return a cheap stat-based signature for the tokens file.
+def _stat_identity(st: os.stat_result) -> tuple:
+    return (st.st_ino, st.st_mtime_ns, st.st_size)
 
-    The merged-users cache must invalidate whenever sys-token-store persists a
-    new token — otherwise downstream `lookup('users', ...)` returns stale tokens
-    within the same play. stat() is cheap and captures in-place writes.
+
+def _tokens_file_signature(path: Path) -> tuple:
+    """Return ``(path, sha256 of the content)`` for the tokens file.
+
+    Args:
+        path: the tokens file.
+
+    Returns:
+        ``(str(path), "")`` when the file cannot be read.
     """
     try:
-        st = path.stat()
-    except (FileNotFoundError, OSError):
-        return (str(path), 0, 0)
-    return (str(path), st.st_mtime_ns, st.st_size)
+        identity = (str(path), *_stat_identity(path.stat()))
+    except OSError:
+        return (str(path), "")
+    digest = _TOKENS_DIGESTS.get(identity)
+    if digest is None:
+        try:
+            with path.open("rb") as handle:
+                identity = (str(path), *_stat_identity(os.fstat(handle.fileno())))
+                digest = hashlib.sha256(handle.read()).hexdigest()
+        except OSError:
+            return (str(path), "")
+        _TOKENS_DIGESTS[identity] = digest
+    return (str(path), digest)
+
+
+def _revalidate_tokens_file(path: Path) -> None:
+    """Open and close the tokens file so an NFS client refreshes its attributes.
+
+    Args:
+        path: the tokens file.
+    """
+    try:
+        with path.open("rb"):
+            pass
+    except OSError:
+        return
 
 
 def _deep_merge(base: Any, override: Any) -> Any:
@@ -287,5 +316,5 @@ def _render_with_templar(
 
 
 def _reset() -> None:
-    """No-op kept so the `data._reset_cache_for_tests` facade can call every
-    domain module uniformly. This module owns no cache."""
+    """Clear the tokens-file digest memo."""
+    _TOKENS_DIGESTS.clear()

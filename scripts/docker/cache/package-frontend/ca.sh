@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
 # Install the frontend CA into the runner's trust store. Idempotent.
 # See docs/contributing/environment/cache.md.
+# Param: CA_ROOT  prefix for every absolute path below; empty in production.
 set -eu
 
-CA_SRC="/opt/package-frontend-ca.crt"
+CA_ROOT="${CA_ROOT:-}"
+CA_SRC="${CA_ROOT}/opt/package-frontend-ca.crt"
+CA_NAME="infinito-package-frontend.crt"
 
 if command -v update-ca-certificates >/dev/null 2>&1; then
-	CA_DST="/usr/local/share/ca-certificates/infinito-package-frontend.crt"
+	CA_DSTS=("${CA_ROOT}/usr/local/share/ca-certificates/${CA_NAME}")
 	CA_REBUILD=(update-ca-certificates)
 elif command -v update-ca-trust >/dev/null 2>&1; then
-	CA_DST="/etc/ca-certificates/trust-source/anchors/infinito-package-frontend.crt"
+	# Exception: Arch and the RedHat family both run update-ca-trust but read different anchor dirs, and with-ca-trust.sh creates both dirs on both families, so the anchor goes into each instead of a probed one.
+	CA_DSTS=(
+		"${CA_ROOT}/etc/pki/ca-trust/source/anchors/${CA_NAME}"
+		"${CA_ROOT}/etc/ca-certificates/trust-source/anchors/${CA_NAME}"
+	)
 	CA_REBUILD=(update-ca-trust extract)
 else
 	echo "[package-frontend-ca] no supported CA trust tool" >&2
@@ -21,11 +28,18 @@ if [ ! -s "${CA_SRC}" ]; then
 	exit 0
 fi
 
-if cmp -s "${CA_SRC}" "${CA_DST}" 2>/dev/null; then
+changed=0
+for dst in "${CA_DSTS[@]}"; do
+	if ! cmp -s "${CA_SRC}" "${dst}" 2>/dev/null; then
+		install -d -m 0755 "$(dirname "${dst}")"
+		install -m 0644 "${CA_SRC}" "${dst}"
+		changed=1
+	fi
+done
+
+if [ "${changed}" -eq 0 ]; then
 	exit 0
 fi
 
-install -d -m 0755 "$(dirname "${CA_DST}")"
-install -m 0644 "${CA_SRC}" "${CA_DST}"
 "${CA_REBUILD[@]}" >/dev/null 2>&1
-echo "[package-frontend-ca] installed ${CA_DST}" >&2
+echo "[package-frontend-ca] installed ${CA_DSTS[*]}" >&2

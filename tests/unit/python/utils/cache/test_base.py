@@ -10,9 +10,11 @@ files; this file pins the contract of base itself.
 
 from __future__ import annotations
 
+import os
 import tempfile
 import textwrap
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests, base
@@ -153,11 +155,13 @@ class TestStableVariablesSignature(unittest.TestCase):
 
 
 class TestTokensFileSignature(unittest.TestCase):
-    def test_missing_file_returns_zeroed_signature(self):
+    def setUp(self):
+        base._reset()
+
+    def test_missing_file_returns_an_empty_digest(self):
         with tempfile.TemporaryDirectory() as tmp:
-            sig = base._tokens_file_signature(Path(tmp) / "absent.yml")
-            self.assertEqual(sig[1], 0)
-            self.assertEqual(sig[2], 0)
+            path = Path(tmp) / "absent.yml"
+            self.assertEqual(base._tokens_file_signature(path), (str(path), ""))
 
     def test_signature_changes_when_file_changes(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -167,6 +171,37 @@ class TestTokensFileSignature(unittest.TestCase):
             path.write_text("a: 1\nb: 2\n", encoding="utf-8")
             sig_after = base._tokens_file_signature(path)
             self.assertNotEqual(sig_before, sig_after)
+
+    def test_a_touch_keeps_the_signature(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "tokens.yml"
+            path.write_text("a: 1\n", encoding="utf-8")
+            sig_before = base._tokens_file_signature(path)
+            later = path.stat().st_mtime_ns + 5_000_000_000
+            os.utime(path, ns=(later, later))
+            self.assertEqual(base._tokens_file_signature(path), sig_before)
+
+    def test_an_unchanged_stat_serves_the_digest_without_reading(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "tokens.yml"
+            path.write_text("a: 1\n", encoding="utf-8")
+            sig_before = base._tokens_file_signature(path)
+            with mock.patch.object(Path, "open", side_effect=AssertionError):
+                self.assertEqual(base._tokens_file_signature(path), sig_before)
+
+
+class TestRevalidateTokensFile(unittest.TestCase):
+    def test_opens_the_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "tokens.yml"
+            path.write_text("a: 1\n", encoding="utf-8")
+            with mock.patch.object(Path, "open", wraps=path.open) as opened:
+                base._revalidate_tokens_file(path)
+            opened.assert_called_once_with("rb")
+
+    def test_a_missing_file_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base._revalidate_tokens_file(Path(tmp) / "absent.yml")
 
 
 class TestRenderWithTemplar(unittest.TestCase):

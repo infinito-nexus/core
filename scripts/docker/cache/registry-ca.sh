@@ -19,25 +19,24 @@
 #   * Debian/Ubuntu: /usr/local/share/ca-certificates (name must end in .crt),
 #     rebuilt by `update-ca-certificates`.
 #   * Arch and Fedora/CentOS both rebuild with `update-ca-trust extract` but
-#     read different anchor dirs -- Arch has no /etc/pki, the RedHat family
-#     has no /etc/ca-certificates -- so the dir is probed, not assumed.
+#     read different anchor dirs, and with-ca-trust.sh creates both dirs on
+#     both families, so the anchor goes into each.
+# Param: CA_ROOT  prefix for every absolute path below; empty in production.
 set -eu
 
-CA_DIR="/opt/registry-cache-ca"
+CA_ROOT="${CA_ROOT:-}"
+CA_DIR="${CA_ROOT}/opt/registry-cache-ca"
 CA_SRC="${CA_DIR}/ca.crt"
+CA_NAME="infinito-registry-cache.crt"
 
 if command -v update-ca-certificates >/dev/null 2>&1; then
-	CA_DST="/usr/local/share/ca-certificates/infinito-registry-cache.crt"
+	CA_DSTS=("${CA_ROOT}/usr/local/share/ca-certificates/${CA_NAME}")
 	CA_REBUILD=(update-ca-certificates)
 elif command -v update-ca-trust >/dev/null 2>&1; then
-	if [ -d /etc/pki/ca-trust/source/anchors ]; then
-		CA_DST="/etc/pki/ca-trust/source/anchors/infinito-registry-cache.crt"
-	elif [ -d /etc/ca-certificates/trust-source/anchors ]; then
-		CA_DST="/etc/ca-certificates/trust-source/anchors/infinito-registry-cache.crt"
-	else
-		echo "[registry-cache-ca] update-ca-trust present but no known anchor dir (/etc/pki/ca-trust/source/anchors, /etc/ca-certificates/trust-source/anchors)" >&2
-		exit 1
-	fi
+	CA_DSTS=(
+		"${CA_ROOT}/etc/pki/ca-trust/source/anchors/${CA_NAME}"
+		"${CA_ROOT}/etc/ca-certificates/trust-source/anchors/${CA_NAME}"
+	)
 	CA_REBUILD=(update-ca-trust extract)
 else
 	echo "[registry-cache-ca] no supported CA trust tool (update-ca-certificates or update-ca-trust)" >&2
@@ -56,11 +55,18 @@ if [ ! -s "${CA_SRC}" ]; then
 	exit 1
 fi
 
-if cmp -s "${CA_SRC}" "${CA_DST}" 2>/dev/null; then
+changed=0
+for dst in "${CA_DSTS[@]}"; do
+	if ! cmp -s "${CA_SRC}" "${dst}" 2>/dev/null; then
+		install -d -m 0755 "$(dirname "${dst}")"
+		install -m 0644 "${CA_SRC}" "${dst}"
+		changed=1
+	fi
+done
+
+if [ "${changed}" -eq 0 ]; then
 	exit 0
 fi
 
-install -d -m 0755 "$(dirname "${CA_DST}")"
-install -m 0644 "${CA_SRC}" "${CA_DST}"
 "${CA_REBUILD[@]}" >/dev/null
-echo "[registry-cache-ca] installed ${CA_DST}" >&2
+echo "[registry-cache-ca] installed ${CA_DSTS[*]}" >&2

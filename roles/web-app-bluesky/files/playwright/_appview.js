@@ -56,10 +56,13 @@ async function restorePreferences(request, pdsBaseUrl, accessJwt, preferences) {
   }).then((response) => {
     if (response.status() !== 200) throw new Error(`putPreferences answered ${response.status()}`);
   });
+  let timer;
   const deadline = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error("putPreferences timed out")), resolveTimeout(45_000));
+    timer = setTimeout(() => reject(new Error("putPreferences timed out")), resolveTimeout(45_000));
   });
-  await Promise.race([restore, deadline]).catch((err) => console.warn(`bluesky: preferences not restored: ${err.message}`));
+  await Promise.race([restore, deadline])
+    .catch((err) => console.warn(`bluesky: preferences not restored: ${err.message}`))
+    .finally(() => clearTimeout(timer));
 }
 
 function collectAppViewResponses(page) {

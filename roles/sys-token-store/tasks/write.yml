@@ -51,6 +51,7 @@
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   become: true
+  register: sys_token_store_persisted
 
 - name: "🪞 Mirror the store onto the controller, where every users lookup reads"
   ansible.builtin.copy:
@@ -63,3 +64,8 @@
   delegate_to: localhost
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: sys_token_store_mirrored
+
+- name: 🧊 Re-render the applications SPOT the new token invalidated
+  applications_carrier: {}
+  when: sys_token_store_persisted is changed or sys_token_store_mirrored is changed
