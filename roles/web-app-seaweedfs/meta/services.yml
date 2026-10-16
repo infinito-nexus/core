@@ -3,21 +3,21 @@
 # internal network (matrix S3 media etc.), never a Tor-browser surface, so it
 # rides no node onion.
 # nocheck: dynamic-flag — role-local browser UI, never consumed by other roles; shared stays literal.
-# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force the frontend on a tor node.
+# nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force the frontend on a tor-only node.
 # nocheck: bond-baseline — same reason: variant 0 must not pin the frontend on.
 frontend:
   bond: 1
-  enabled: "{{ 'svc-net-tor' not in group_names }}"
+  enabled: "{{ lookup('network_served', 'clearnet') }}"
   shared: false
   domains:
     - filer
     - master
-# nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force this consumer on a tor node.
+# nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force this consumer on a tor-only node.
 # nocheck: bond-baseline  same reason: variant 0 must not pin this consumer on.
 sso:
   bond: 1
-  enabled: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-app-keycloak') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-app-keycloak') }}"
   flavor: oauth2
   oauth2:
     origin:
@@ -29,24 +29,24 @@ sso:
 ldap:
   enabled: false
   shared: false
-# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force this consumer on a tor node.
+# nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force this consumer on a tor-only node.
 # nocheck: bond-baseline — same reason: variant 0 must not pin this consumer on.
 logout:
   bond: 1
-  enabled: "{{ ('web-svc-logout' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-svc-logout' in group_names) and ('svc-net-tor' not in group_names) }}"
-# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force this consumer on a tor node.
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-svc-logout') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-svc-logout') }}"
+# nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force this consumer on a tor-only node.
 # nocheck: bond-baseline — same reason: variant 0 must not pin this consumer on.
 dashboard:
   bond: 1
-  enabled: "{{ ('web-app-dashboard' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-app-dashboard' in group_names) and ('svc-net-tor' not in group_names) }}"
-# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force this consumer on a tor node.
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-app-dashboard') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-app-dashboard') }}"
+# nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force this consumer on a tor-only node.
 # nocheck: bond-baseline — same reason: variant 0 must not pin this consumer on.
 prometheus:
   bond: 1
-  enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-app-prometheus') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-app-prometheus') }}"
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
   healthcheck:
