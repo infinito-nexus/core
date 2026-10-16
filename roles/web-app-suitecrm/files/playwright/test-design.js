@@ -408,7 +408,7 @@ exports.register = function () {
             if (/;base64$/i.test(header)) return atob(data);
             try {
               return decodeURIComponent(data);
-            } catch (error) {
+            } catch {
               return data;
             }
           };
