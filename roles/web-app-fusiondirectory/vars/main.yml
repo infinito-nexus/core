@@ -6,3 +6,6 @@ FUSIONDIRECTORY_CONTAINER: "{{ lookup('config', application_id, 'services.fusion
 FUSIONDIRECTORY_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 FUSIONDIRECTORY_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
 FUSIONDIRECTORY_THEME_CSS_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'theme.css'] | path_join }}"
+FUSIONDIRECTORY_DESIGN_TITLE: "{{ lookup('design', application_id).title if (FUSIONDIRECTORY_DESIGN_ENABLED | bool and lookup('design', application_id).title is string)
+  else '' }}"
+FUSIONDIRECTORY_HEADERS_TPL_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'headers.tpl'] | path_join }}"
