@@ -57,6 +57,10 @@ const SHELL_NAV_LINK = `${SHELL_NAVBAR} li.top-nav .nav-link`;
 const SHELL_ROW_LINK = `${SHELL_TABLE} scrm-field a.field-link`;
 const SHELL_FOOTER = "scrm-footer-ui .footer";
 const SHELL_LIST_LOADED = `${SHELL_TABLE} a.field-link, ${SHELL_TABLE} :text("No results found")`;
+const ROLE_SHEET = "link[href*='/roles/web-app-suitecrm/'][href*='style.css']";
+const LEGACY_OVERRIDE = "legacy/custom/themes/suite8/css/Dawn/style.css";
+const COLOR_PROPERTY =
+  /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule|(?:-webkit-)?mask(?:-image)?)$/;
 
 exports.register = function () {
   const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
@@ -355,7 +359,9 @@ exports.register = function () {
     await signIn(page);
     if (title) {
       await open(page, "module=Configurator&action=EditView", "input[name='system_name']");
-      await expect(page.locator("input[name='system_name']"), "the system name the shell shows as title").toHaveValue(title);
+      await expect(page.locator("input[name='system_name']"), "the system name of the legacy pages").toHaveValue(title);
+      await openShell(page, "/accounts", SHELL_TABLE);
+      await expect(page, "the shell tab shows the configured system name").toHaveTitle(title, { timeout: resolveTimeout(10_000) });
     }
     if (logoUrl) {
       expect(faviconUrl, "DESIGN_FAVICON_URL is written whenever the logo is").toBeTruthy();
@@ -379,6 +385,53 @@ exports.register = function () {
       const icon = await page.locator("link[rel~='icon']").first().getAttribute("href");
       const legacyIcon = await apiGetOnion(page.request, new URL(icon, page.url()).toString());
       expect(Buffer.compare(await legacyIcon.body(), favicon), "the legacy favicon is the generated icon").toBe(0);
+    }
+  });
+
+  test("design: the role stylesheets set every color through a token, inside SVG images too", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page);
+    await openShell(page, "/accounts", SHELL_TABLE);
+    const sheets = [await page.locator(ROLE_SHEET).first().getAttribute("href"), `${base}/${LEGACY_OVERRIDE}`];
+    for (const sheet of sheets) {
+      const response = await apiGetOnion(page.request, new URL(sheet, page.url()).toString());
+      expect(response.status(), `${sheet} is served`).toBe(200);
+      const offenders = await page.evaluate(
+        ([source, property]) => {
+          const colorProperty = new RegExp(property);
+          const keyword = (word) =>
+            /^[a-z]+$/i.test(word) &&
+            !/^(?:transparent|currentcolor|inherit|initial|unset|revert|none)$/i.test(word) &&
+            CSS.supports("color", word);
+          const paint = /(?:fill|stroke|stop-color|flood-color)\s*[=:]\s*["']?\s*(?!none\b|currentcolor\b|url\()[#\w(]/i;
+          const decode = (header, data) => {
+            if (/;base64$/i.test(header)) return atob(data);
+            try {
+              return decodeURIComponent(data);
+            } catch (error) {
+              return data;
+            }
+          };
+          const found = [];
+          for (const [, , header, data] of source.matchAll(/url\(\s*(["'])data:image\/svg\+xml([^,]*),(.*?)\1\s*\)/gi)) {
+            const hit = decode(header, data).match(paint);
+            if (hit) found.push(`svg ${hit[0]}`);
+          }
+          for (const [, name, value] of source.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
+            if (!colorProperty.test(name) || value.includes("url(")) continue;
+            if (
+              /#[0-9a-f]{3,8}\b/i.test(value) ||
+              /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(\s*[\d.]/i.test(value) ||
+              value.split(/[\s,()]+/).some(keyword)
+            ) {
+              found.push(`${name}: ${value.trim()}`);
+            }
+          }
+          return found;
+        },
+        [await response.text(), COLOR_PROPERTY.source],
+      );
+      expect(offenders, `${sheet}: every color comes from a --design-* token`).toEqual([]);
     }
   });
 

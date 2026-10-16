@@ -312,6 +312,68 @@ body,
   background-color: var(--design-surface-2);
   color: var(--design-text);
 }
+
+div:has(> div > aside aside [data-testid="toolbarEndCallButton"]) {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+aside:has(> div > aside [data-testid="toolbarEndCallButton"]) {
+  --design-focus: var(--design-link);
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+  box-shadow: var(--design-shadow-2);
+}
+aside:has(> div > [data-testid="toolbarEndCallButton"]) .MuiIconButton-root:not([data-testid="toolbarEndCallButton"]) {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+aside:has(> div > [data-testid="toolbarEndCallButton"]) .MuiIconButton-root:not([data-testid="toolbarEndCallButton"]) svg {
+  fill: var(--design-text);
+}
+aside:has(> div > [data-testid="toolbarEndCallButton"]) .MuiIconButton-root:not([data-testid="toolbarEndCallButton"]):hover,
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarAudioButton"]:has([data-testid="toolbarAudioButtonOn"]),
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarVideoButton"]:is([aria-label^="Turn Off Video"], [aria-label^="Kamera deaktivieren"]),
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarShareScreenButton"]:is([aria-label^="Turn Off Screen Share"], [aria-label^="Bildschirm nicht mehr teilen"]),
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarHandraiseButton"]:is([aria-label^="Lower Your Hand"], [aria-label^="Hand runternehmen"]),
+body:has([data-testid="moreMenu"] .MuiAvatar-root) aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarMenuButton"] {
+  background-color: var(--design-primary);
+}
+aside:has(> div > [data-testid="toolbarEndCallButton"]) .MuiIconButton-root:not([data-testid="toolbarEndCallButton"]):hover svg,
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarAudioButton"]:has([data-testid="toolbarAudioButtonOn"]) svg,
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarVideoButton"]:is([aria-label^="Turn Off Video"], [aria-label^="Kamera deaktivieren"]) svg,
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarShareScreenButton"]:is([aria-label^="Turn Off Screen Share"], [aria-label^="Bildschirm nicht mehr teilen"]) svg,
+aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarHandraiseButton"]:is([aria-label^="Lower Your Hand"], [aria-label^="Hand runternehmen"]) svg,
+body:has([data-testid="moreMenu"] .MuiAvatar-root) aside:has(> div > [data-testid="toolbarEndCallButton"]) [data-testid="toolbarMenuButton"] svg {
+  fill: var(--design-on-primary);
+}
+[data-testid="toolbarEndCallButton"] {
+  background-color: var(--design-danger);
+}
+[data-testid="toolbarEndCallButton"] svg {
+  fill: var(--design-on-danger);
+}
+[data-testid="toolbarEndCallButton"]:hover {
+  background-color: var(--design-danger-hover);
+}
+aside:has(> .MuiTabs-vertical) {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+aside > .MuiTabs-vertical,
+aside > .MuiTabs-vertical > .MuiTabs-scroller,
+aside [role="tabpanel"] .MuiTabs-root:not(.MuiTabs-vertical) {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+body:has([data-testid="toolbarEndCallButton"]) header > div > * > .MuiStack-root,
+body:has([data-testid="toolbarEndCallButton"]) header > div > .MuiStack-root:not(:has(> .MuiStack-root)) {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+body:has([data-testid="toolbarEndCallButton"]) header > div > * > .MuiStack-root svg,
+body:has([data-testid="toolbarEndCallButton"]) header > div > .MuiStack-root:not(:has(> .MuiStack-root)) svg {
+  fill: var(--design-text);
+}
 {% if design.logo is string %}
 
 svg[viewBox="0 0 206.392 45.061"] {

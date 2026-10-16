@@ -101,7 +101,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-openclaw
 - [x] web-app-opencloud
 - [x] web-app-openproject
-- [ ] web-app-opentalk: the conference room is not covered; the native theme setting is half exercised; the title check cannot fail; logo lockup changed by `63f3631567`.
+- [x] web-app-opentalk
 - [ ] web-app-openwebui: logo and title stay Open WebUI's own because clause 4 of its license allows replacing the branding only up to 50 users, with written permission or under an enterprise license (operator decision, see `roles/web-app-openwebui/TODO.md`).
 - [x] web-app-peertube
 - [x] web-app-penpot
@@ -120,7 +120,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-socialhome
 - [x] web-app-sphinx
 - [ ] web-app-stalwart: under `sso` the web administration specs need the administrator group grant of `feature/store-i18n` (`199f2a6d41`); no green run on the merged state yet.
-- [ ] web-app-suitecrm: visible title not asserted; literal SVG fills in `files/style.css`; the session rework from `main` never ran with the design.
+- [x] web-app-suitecrm
 - [x] web-app-taiga
 - [x] web-app-wordpress
 - [x] web-app-xwiki
