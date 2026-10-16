@@ -234,7 +234,10 @@ exports.register = function (shared) {
           `the ${platform} agent must answer through the broker (HTTP ${chat.status()}: ${await refusalDetail(chat)})`,
         ).toBeTruthy();
         const content = ((await chat.json())?.choices?.[0]?.message?.content ?? "").trim();
-        expect(content, `the ${platform} agent must return an answer through the broker`).not.toBe("");
+        expect(
+          content,
+          `the ${platform} agent must relay a model answer, not a gateway notice (got: ${content.slice(0, 120)})`,
+        ).toMatch(/pong/i);
       }
     } finally {
       await setAgentGroups(shared.env.biberUsername, false);
