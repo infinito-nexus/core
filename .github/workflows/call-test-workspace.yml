@@ -13,6 +13,11 @@ on:
       workspace_track:
         type: string
         default: rotate
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: false
+      DOCKERHUB_TOKEN:
+        required: false
 
 permissions:
   contents: read
@@ -60,6 +65,8 @@ jobs:
 
     env:
       DEV_RUNTIME_IMAGE: ${{ matrix.image }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       INFINITO_WORKSPACE_TRACKS: base ${{ matrix.track }}
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
@@ -85,6 +92,13 @@ jobs:
 
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
+
+      - name: 🔑 Login to Docker Hub (optional)
+        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
 
       - name: "📥 Resolve the workspace distro"
         shell: bash
