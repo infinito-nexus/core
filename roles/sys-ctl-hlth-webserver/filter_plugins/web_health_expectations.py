@@ -4,7 +4,13 @@ from pathlib import Path
 
 from ansible.errors import AnsibleError
 
-from utils.networks.reachability import CLEARNET, network, network_of, sibling_domain
+from utils.networks.reachability import (
+    CLEARNET,
+    network,
+    network_of,
+    role_handover,
+    sibling_domain,
+)
 from utils.roles.applications.config import get
 from utils.roles.applications.status_codes import DEFAULT_OK, codes_by_key
 from utils.tls_common import resolve_enabled, resolve_term
@@ -144,7 +150,9 @@ def web_health_expectations(
       - If `www_enabled`: add and/or force www.* -> [301] for all domains.
       - Served view: with `served_domains` (the host's `lookup('domains')`)
         every app's canonical domains become the ones the node serves, each
-        inheriting the codes of its clearnet sibling via `node_onion`.
+        inheriting the codes of its clearnet sibling via `node_onion`; the
+        siblings of a `reachability.handover` app outside its canonical
+        network expect [302].
     """
     if not isinstance(applications, Mapping):
         return {}
@@ -209,6 +217,13 @@ def web_health_expectations(
             app_exp.pop(primary, None)
 
     _apply_served_view(per_app, served_domains, primary_domain, node_onion)
+
+    for app_id, app_exp in per_app.items():
+        names = list(app_exp)
+        networks = get(applications, app_id, "networks", strict=False, default={})
+        if names and role_handover({"networks": networks}, app=app_id):
+            canonical = network_of(names[0])
+            app_exp.update({d: [302] for d in names if network_of(d) != canonical})
 
     expectations = {}
     for app_id, app_exp in per_app.items():

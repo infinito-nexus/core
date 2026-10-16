@@ -23,6 +23,11 @@ server
     return 302 {{ OIDC.URL }}$request_uri;
   }
 
+  {% elif lookup('config', application_id, 'networks.reachability.handover', False) and (domain | network_of) != (lookup('domain', application_id) | network_of) %}
+  location / {
+    return 302 {{ lookup('tls', lookup('domain', application_id), 'url.base') | regex_replace('/+$', '') }}$request_uri;
+  }
+
   {% elif lookup('sso', application_id, 'is_proxy_gated') %}
     {% set acl = lookup('sso', application_id, 'oauth2_acl') %}
 

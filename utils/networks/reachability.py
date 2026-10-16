@@ -243,6 +243,27 @@ def role_reachability(
     return tuple(dict.fromkeys(modes)), single
 
 
+def role_handover(app_config: Any, *, app: str = "") -> bool:
+    """Read ``networks.reachability.handover`` of one application.
+
+    Args:
+        app_config: the application's merged config.
+        app: application id, for error messages.
+
+    Returns:
+        The declared flag; False when absent.
+
+    Raises:
+        TypeError: ``handover`` is not a boolean.
+    """
+    networks = app_config.get("networks") if isinstance(app_config, Mapping) else None
+    reach = networks.get("reachability") if isinstance(networks, Mapping) else None
+    handover = reach.get("handover", False) if isinstance(reach, Mapping) else False
+    if not isinstance(handover, bool):
+        raise TypeError(f"{app}: networks.reachability.handover must be a boolean")
+    return handover
+
+
 def allowed_networks(
     app_config: Any, *, tor_enabled: bool, app: str = ""
 ) -> tuple[tuple[str, ...], bool]:

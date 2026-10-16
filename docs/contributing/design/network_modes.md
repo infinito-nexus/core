@@ -35,11 +35,13 @@ A node runs in one `NETWORK_MODE`:
 reachability:
   modes: [clearnet, tor]
   single_mode: true # nocheck: network-reachability  <why the role answers under one domain only>
+  handover: true # nocheck: network-reachability  <why the role answers under its canonical URL only>
 ```
 
 - `modes` lists networks from the registry. An empty list or no key means every network. `multi` is a node mode, not a list value.
 - `single_mode: true` serves the role on `tor` when the node runs Tor and on `clearnet` otherwise, never on both.
-- `single_mode: true` and a `modes` list below every network each carry `# nocheck: network-reachability` plus a reason on or directly above their line ([suppression.md](../actions/testing/suppression.md)).
+- `handover: true` keeps every network sibling, but each sibling outside the canonical network answers `302` to the same path on the canonical URL and advertises no `Onion-Location`. The webserver health check expects that `302`, the CSP crawl skips those siblings and Playwright tests only the canonical domain.
+- `single_mode: true`, `handover: true` and a `modes` list below every network each carry `# nocheck: network-reachability` plus a reason on or directly above their line ([suppression.md](../actions/testing/suppression.md)).
 
 [test_network_reachability.py](../../../tests/lint/ansible/roles/meta/test_network_reachability.py) enforces the schema and the marker. `meta/services.yml` keeps only the Tor service bond (`bond`, `enabled`, `shared`).
 

@@ -16,6 +16,7 @@ from utils.networks.reachability import (
     network,
     network_of,
     resolve_node_mode,
+    role_handover,
     role_reachability,
     sibling_domain,
 )
@@ -129,6 +130,14 @@ class TestRoleReachability(unittest.TestCase):
     def test_single_mode_must_be_boolean(self) -> None:
         with self.assertRaises(TypeError):
             role_reachability(_cfg(single_mode="yes"))
+
+    def test_handover_defaults_to_false(self) -> None:
+        self.assertFalse(role_handover({}))
+        self.assertTrue(role_handover(_cfg(handover=True)))
+
+    def test_handover_must_be_boolean(self) -> None:
+        with self.assertRaises(TypeError):
+            role_handover(_cfg(handover="yes"))
 
     def test_tor_disabled_role_loses_tor(self) -> None:
         self.assertEqual(allowed_networks({}, tor_enabled=False), ((CLEARNET,), False))

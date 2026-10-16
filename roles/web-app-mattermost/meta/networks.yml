@@ -6,3 +6,5 @@ overlay:
   topology: shared_net
   consumer:
     kind: mcp_client
+reachability:
+  handover: true # nocheck: network-reachability  Mattermost builds every OAuth callback from its one SiteURL

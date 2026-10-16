@@ -2,11 +2,13 @@
 
 ``meta/networks.yml`` ``reachability`` decides which networks a role is served
 on: ``modes`` lists them (empty or absent means every network) and
-``single_mode`` keeps the role under one domain. The Tor service entry in
+``single_mode`` keeps the role under one domain and ``handover`` sends every
+non-canonical sibling to the canonical URL. The Tor service entry in
 ``meta/services.yml`` stays the dependency edge only, so ``exclusive`` and
 ``primary`` there would be a second source for the same decision.
 
-A ``single_mode: true`` or a ``modes`` list below every network carries
+A ``single_mode: true``, a ``handover: true`` or a ``modes`` list below every
+network carries
 ``# nocheck: network-reachability`` plus a reason, on or directly above that
 line, so the next reader learns why the role is not served everywhere before
 widening it.
@@ -20,14 +22,14 @@ import unittest
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.networks.reachability import NETWORKS, role_reachability
+from utils.networks.reachability import NETWORKS, role_handover, role_reachability
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 RETIRED_TOR_KEYS = ("exclusive", "primary")
-REACHABILITY_KEYS = frozenset({"modes", "single_mode"})
+REACHABILITY_KEYS = frozenset({"handover", "modes", "single_mode"})
 _RULE = "network-reachability"
 _MIN_REASON_CHARS = 10
 
@@ -83,6 +85,7 @@ class TestNetworkReachability(unittest.TestCase):
                 modes, single_mode = role_reachability(
                     {"networks": networks}, app=role_dir.name
                 )
+                handover = role_handover({"networks": networks}, app=role_dir.name)
             except (TypeError, ValueError) as exc:
                 problems.append(str(exc))
                 continue
@@ -93,7 +96,11 @@ class TestNetworkReachability(unittest.TestCase):
             )
             lines = read_text(str(path)).splitlines()
             restricted = bool(modes) and set(modes) != set(NETWORKS)
-            for key, narrows in (("single_mode", single_mode), ("modes", restricted)):
+            for key, narrows in (
+                ("single_mode", single_mode),
+                ("modes", restricted),
+                ("handover", handover),
+            ):
                 if not narrows:
                     continue
                 line_no = _reachability_key_line(lines, key)

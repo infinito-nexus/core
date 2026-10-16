@@ -168,7 +168,9 @@
   ansible.builtin.set_fact:
     _playwright_network_picks: >-
       {{ _playwright_network_picks
-         | combine({application_id: lookup('network_siblings', lookup('domain', application_id)) | random}) }}
+         | combine({application_id: lookup('domain', application_id)
+                   if lookup('config', application_id, 'networks.reachability.handover', False)
+                   else lookup('network_siblings', lookup('domain', application_id)) | random}) }}
   when: application_id not in _playwright_network_picks
 
 - name: 🌈 Run Playwright on the picked network

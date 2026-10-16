@@ -563,7 +563,7 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
 
     ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
 
-    def _app_a(self, canonical=None, status_codes=None, aliases=None):
+    def _app_a(self, canonical=None, status_codes=None, aliases=None, networks=None):
         returns = {
             ("app-a", "domains.canonical"): (
                 [f"a.{DOMAIN}"] if canonical is None else canonical
@@ -573,6 +573,8 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
             returns[("app-a", "server.status_codes")] = status_codes
         if aliases is not None:
             returns[("app-a", "domains.aliases")] = aliases
+        if networks is not None:
+            returns[("app-a", "networks")] = networks
         self._configure_returns(returns)
         return {"app-a": {}}
 
@@ -624,6 +626,14 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
             out,
             {f"a.{self.ONION}": [200, 302, 301], f"old.{DOMAIN}": [301]},
         )
+
+    def test_handover_siblings_outside_the_canonical_network_expect_302(self):
+        apps = self._app_a(
+            status_codes={"default": [200, 301]},
+            networks={"reachability": {"handover": True}},
+        )
+        out = self._served(apps, {"app-a": [f"a.{DOMAIN}", f"a.{self.ONION}"]})
+        self.assertEqual(out, {f"a.{DOMAIN}": [200, 301], f"a.{self.ONION}": [302]})
 
     def test_app_missing_from_served_keeps_declared_domains(self):
         out = self._served(self._app_a(), {})
