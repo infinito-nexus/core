@@ -8,6 +8,7 @@ clients whose remote end is :53, other ports, or the embedded Docker DNS.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 import unittest
@@ -59,7 +60,7 @@ class SamplerTickTests(unittest.TestCase):
 
 
 class AnswerProbeTests(unittest.TestCase):
-    def _answer(self, name: str) -> str:
+    def _answer(self, name: str, env: dict[str, str] | None = None) -> str:
         proc = subprocess.run(
             [
                 "sh",
@@ -72,11 +73,22 @@ class AnswerProbeTests(unittest.TestCase):
             capture_output=True,
             text=True,
             check=True,
+            env=env,
         )
         return proc.stdout
 
     def test_a_resolvable_name_is_reported_ok_with_its_latency(self):
         self.assertRegex(self._answer("localhost"), r"^ localhost=ok/\d+ms$")
+
+    def test_the_latency_does_not_depend_on_the_date_implementation(self):
+        with tempfile.TemporaryDirectory() as stub_dir:
+            stub = Path(stub_dir) / "date"
+            stub.write_text("#!/bin/sh\necho 1792150731%3N\n", encoding="utf-8")
+            stub.chmod(0o755)
+            env = {**os.environ, "PATH": f"{stub_dir}{os.pathsep}{os.environ['PATH']}"}
+            self.assertRegex(
+                self._answer("localhost", env=env), r"^ localhost=ok/\d+ms$"
+            )
 
     def test_an_unresolvable_name_is_reported_fail_not_skipped(self):
         self.assertRegex(
