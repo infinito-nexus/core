@@ -3,7 +3,7 @@
   include_role:
     name: sys-stk-full
 
-- name: "🎨 Render the in-house theme.css of {{ application_id }}"
+- name: "🎨 Render the in-house theme.css and headers.tpl of {{ application_id }}"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
   vars:
@@ -11,6 +11,10 @@
       - src: "theme.css.j2"
         dest: "{{ FUSIONDIRECTORY_THEME_CSS_HOST }}"
         mode: "0644"
+      - src: "headers.tpl.j2"
+        dest: "{{ FUSIONDIRECTORY_HEADERS_TPL_HOST }}"
+        mode: "0644"
+        condition: "{{ FUSIONDIRECTORY_DESIGN_TITLE | length > 0 }}"
   when: FUSIONDIRECTORY_DESIGN_ENABLED | bool
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"

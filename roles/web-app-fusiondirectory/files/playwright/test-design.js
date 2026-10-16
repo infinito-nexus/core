@@ -112,7 +112,8 @@ function galleryViews() {
     },
   });
   const openRow = (text) => async (p) => {
-    await p.locator(`${LIST_CELL} > a`, { hasText: text }).first().click();
+    const row = p.locator("table.listingTable > tbody > tr", { has: p.locator("td", { hasText: text }) }).first();
+    await row.locator("td > a").first().click();
     await ready(p, "table.tabs-header");
   };
   const create = (entry, field) => async (p) => {
@@ -259,7 +260,24 @@ exports.register = function () {
     expect(await header.evaluate((img) => getComputedStyle(img).content)).toContain(logo);
     const headerBox = await header.boundingBox();
     expect(headerBox.width, "the header lockup must be wider than high").toBeGreaterThan(headerBox.height * 2);
-    await expect(page).toHaveTitle(/FusionDirectory/);
+  });
+
+  test("design: the login page and the signed-in frame carry the configured title", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+    test.skip(!title, "the title replacement is disabled");
+    const pattern = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const lead = new RegExp(`^${pattern} - .+`);
+    await openLogin(page);
+    await expect(page).toHaveTitle(lead);
+    await signIn(page);
+    await expect(page).toHaveTitle(lead);
+    const logo = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
+    if (logo) {
+      const lockup = await (await apiGetOnion(page.request, logo)).text();
+      const xml = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      expect(lockup, "the visible lockup carries the configured title").toContain(xml);
+    }
   });
 
   test("design: every image the theme sheet references is served", async ({ page }) => {
