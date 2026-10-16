@@ -320,8 +320,11 @@ exports.register = function () {
   test("design: the selected navigation entry and the status tags keep readable palette states", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await signIn(page);
-    await gotoOnion(page, `${base}/admin/campaigns/1`);
-    await shown("section.campaign form")(page);
+    const menu = page.locator(".b-sidebar .menu-list");
+    await menu.locator("li > a[data-cy='campaigns']").click({ timeout: resolveTimeout(30_000) });
+    await menu.locator("ul a[data-cy='all-campaigns']").click({ timeout: resolveTimeout(30_000) });
+    await expect(page).toHaveURL(/\/admin\/campaigns(?:[?#]|$)/, { timeout: resolveTimeout(30_000) });
+    await shown(ROW)(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       for (const entry of [SELECTED_NAV, SELECTED_GROUP]) {
