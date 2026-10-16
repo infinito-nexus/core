@@ -432,14 +432,19 @@ def resolve_credential(
     server: Mapping[str, Any],
     users: Mapping[str, Any],
     role_credentials: Mapping[str, Any],
-) -> tuple[str, str]:
-    """Return the provider's declared secret and the owner it belongs to.
+) -> tuple[str, str, str]:
+    """Return the provider's secret, the owner it belongs to and its login.
 
     Args:
         server: a discovered ``direction=server`` entry.
         users: the merged users mapping, carrying each principal's tokens.
         role_credentials: the provider role's own ``secrets.credentials``
             mapping, which is where every other consumer addresses them.
+
+    The owner is the users-dict key the token store writes under; the login is
+    the name the principal answers to on the wire. They diverge as soon as the
+    account declares a ``username`` of its own, so a caller that presents the
+    key as a username authenticates as nobody.
 
     Returns an empty token when the declaration is incomplete or the principal
     holds nothing; the caller turns that into ``credential_missing``.
@@ -448,16 +453,21 @@ def resolve_credential(
     owner = str(credential.get("owner") or "").strip()
     source = str(credential.get("source") or "").strip()
     key = str(credential.get("key") or "").strip()
+    principal = users.get(owner)
+    login = (
+        str(principal.get("username") or "").strip()
+        if isinstance(principal, dict)
+        else ""
+    ) or owner
     if not owner or not source or not key or owner == MCP_FORBIDDEN_CREDENTIAL_OWNER:
-        return "", owner
+        return "", owner, login
 
     if source == MCP_SOURCE_TOKEN_STORE:
-        principal = users.get(owner)
         tokens = principal.get("tokens") if isinstance(principal, dict) else None
         value = (tokens or {}).get(key) if isinstance(tokens, dict) else None
-        return str(value or "").strip(), owner
+        return str(value or "").strip(), owner, login
 
     if source == MCP_SOURCE_CREDENTIALS:
-        return str(role_credentials.get(key) or "").strip(), owner
+        return str(role_credentials.get(key) or "").strip(), owner, login
 
-    return "", owner
+    return "", owner, login
