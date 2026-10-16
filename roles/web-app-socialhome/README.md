@@ -16,6 +16,7 @@ A rendered `socialhome.toml` is mounted alongside the environment file. It carri
 
 - **Single Container:** No database server, no cache, no worker, no object store. SQLite in one volume.
 - **Headless Provisioning:** The administrator is seeded from the role's credential and the first-boot wizard is completed over the API, so no manual click-through is required.
+- **Rotation Convergence:** `SH_ADMIN_PASSWORD` seeds the administrator on first boot only, so a rotated credential never reaches a household that already has one. Every deploy therefore realigns the stored hash in place: `files/python/realign_admin_password.py` runs inside the container, resolves the database through the application's own `Config.from_env()` and rewrites `platform_users.password_hash` with the application's own scrypt helper when the declared password no longer verifies.
 - **Federation Ready:** The rendered `socialhome.toml` publishes the instance's external URL, which is what QR pairing hands to peer households.
 - **Own STUN/TURN:** When `web-svc-coturn` is part of the deployment, WebRTC uses it with time-limited HMAC credentials instead of a third-party STUN server.
 - **No Outbound Surprises:** The upstream app catalog fetch to github.com is disabled. Without `web-svc-coturn` the app still falls back to its built-in Google STUN server, since suppressing the variable entirely would leave WebRTC with none at all.

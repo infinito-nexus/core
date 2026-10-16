@@ -12,6 +12,7 @@ SOCIALHOME_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').passwor
 
 SOCIALHOME_CONFIG_FILE: "{{ lookup('volume', 'web-app-socialhome', 'config').target }}"
 SOCIALHOME_CONFIG_HOST_FILE: "{{ [lookup('container', application_id, 'directories.volumes'), 'socialhome.toml'] | path_join }}"
+SOCIALHOME_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
 SOCIALHOME_MAX_STORAGE_BYTES: 4294967296
 

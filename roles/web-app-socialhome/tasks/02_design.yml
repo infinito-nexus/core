@@ -17,6 +17,7 @@
           username: "{{ SOCIALHOME_ADMIN_USERNAME }}"
           password: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
         status_code: 200
+      retries: 0
       register: socialhome_theme_token
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
