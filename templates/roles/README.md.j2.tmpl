@@ -128,7 +128,7 @@ docker run --rm \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}\"users\": {\"root\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}, \"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"SYS_SVC_SSHD_PERMIT_ROOT_LOGIN\": \"prohibit-password\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}\"users\": {\"root\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}, \"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       -u root --private-key /run/secrets/deploy_key \

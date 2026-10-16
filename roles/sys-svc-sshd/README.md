@@ -13,6 +13,8 @@ This Ansible role configures the OpenSSH daemon (`sshd`) by deploying a template
 
 Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) enables password authentication when explicitly required by controlled environments such as local E2E test targets.
 
+Key variable: `SYS_SVC_SSHD_PERMIT_ROOT_LOGIN` (default: `"no"`) sets `PermitRootLogin`. A first deploy onto a fresh server arrives over root, because the inventory vaults a random become password before `user-administrator` exists, so that deploy passes `"prohibit-password"` through its `--vars` JSON.
+
 ## Features
 
 - **Templated Configuration:** Delivers a Jinja2-based `sshd_config` with variables for debug logging, PAM support, and password-auth overrides.
