@@ -1,0 +1,34 @@
+---
+- name: "♻️ MOBILIZON | Restart to reload the converged settings (compose)"
+  ansible.builtin.command: container restart {{ mobilizon_container }}
+  changed_when: true
+  when: IS_COMPOSE_MODE
+
+- name: "♻️ MOBILIZON | Roll every replica to reload the converged settings (swarm)"
+  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'mobilizon') }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  when: IS_SWARM_MODE
+
+- name: "🔍 MOBILIZON | Re-resolve hosting node + container id after the restart"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: mobilizon
+    resolve_output_prefix: MOBILIZON
+    resolve_compose_cid: "{{ mobilizon_container }}"
+
+- name: "⏳ MOBILIZON | Wait until the restarted node answers rpc"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ MOBILIZON_LOCAL_CID }}" # nocheck: container-exec-resolver  MOBILIZON_LOCAL_CID resolved at delegate_to runtime
+      - /bin/mobilizon
+      - rpc
+      - IO.puts(:ok)
+  register: mobilizon_rpc_after_restart
+  changed_when: false
+  retries: 60
+  delay: 10
+  until: mobilizon_rpc_after_restart.rc == 0
+  delegate_to: "{{ MOBILIZON_HOST_NODE }}"

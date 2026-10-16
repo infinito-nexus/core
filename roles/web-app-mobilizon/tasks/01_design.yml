@@ -60,3 +60,7 @@
   changed_when: "'MOBILIZON_DESIGN=changed' in mobilizon_design.stdout"
   failed_when: mobilizon_design.rc != 0 or 'MOBILIZON_DESIGN=' not in mobilizon_design.stdout
   delegate_to: "{{ MOBILIZON_HOST_NODE }}"
+
+- name: "♻️ MOBILIZON | Reload the converged settings in every replica"
+  ansible.builtin.include_tasks: 02_reload_design.yml
+  when: mobilizon_design.changed
