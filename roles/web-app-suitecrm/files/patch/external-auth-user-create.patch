@@ -13,6 +13,25 @@ record from both guards; upstream has no release and no hotfix carrying a fix.
 installer, so the admin context is raised here instead of relaxing the guards,
 which keeps them closed for every request-driven save.
 
+The raised context is the stored system user, never a fresh in-memory bean
+carrying `is_admin = 1`. User::verify_data() compares `$this->id ==
+$current_user->id`, which is `'' == ''` between two unsaved beans, so a
+deployment holding a single administrator takes the last-admin branch for the
+very account it is creating. That branch reads the legacy `$mod_strings`, which
+this request never loads, so an LDAP login ends in `ErrorException: Trying to
+access array offset on value of type null` at modules/Users/User.php:1678 and
+HTTP 500 on POST /login, while a SAML assertion redirects to
+`index.php?action=Error&module=Users` and leaves no session.
+
+`$current_user` is assigned before `getSystemUser()` runs, not from its return
+value. User::retrieve() calls loadPreferences() after it has filled the bean,
+and both UserPreference::loadPreferences() and reloadPreferences() dereference
+`$current_user->id` unguarded, so retrieving while the caller's anonymous
+`$current_user` is still in place would raise `Attempt to read property "id" on
+null` and answer HTTP 500 again. Assigning first makes the global the very bean
+being filled, so those reads see an object throughout and the only session key
+written is the system user's own.
+
 Generated with `diff -u` against the v8.10.2 tarball and applied with `-F0`, so
 the build fails instead of letting GNU patch's default fuzz factor land the
 hunk somewhere upstream moved it to.
@@ -37,7 +56,7 @@ hunk somewhere upstream moved it to.
 +
 +        if (!is_admin($current_user)) {
 +            $current_user = BeanFactory::newBean('Users');
-+            $current_user->is_admin = 1;
++            $current_user->getSystemUser();
 +        }
 +
 +        try {

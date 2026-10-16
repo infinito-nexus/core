@@ -69,10 +69,10 @@ Role-level extensions are declared in `meta/addons/`, one file per addon:
 - **Auto-created accounts** reach `User::save()` through SuiteCRM's own `CreateUser`
   while the request is still anonymous. Since 8.10.2 that save answers
   `RuntimeException: Not authorized` and forces `status = Inactive`, so
-  `files/patch/external-auth-user-create.patch` raises an admin context around the save
-  and restores the caller's afterwards. [`files/Dockerfile`](./files/Dockerfile) applies
-  it with `patch -F0` on the unpacked release; the image build fails once the hunk stops
-  matching.
+  `files/patch/external-auth-user-create.patch` makes the stored system user the current
+  user around the save and restores the caller's afterwards.
+  [`files/Dockerfile`](./files/Dockerfile) applies it with `patch -F0` on the unpacked
+  release; the image build fails once the hunk stops matching.
 
 ## Persona contract opt-outs
 
