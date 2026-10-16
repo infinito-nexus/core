@@ -76,6 +76,10 @@ await_engine() {
 	return 1
 }
 
+nests_a_container() {
+	grep -qE '^docker run ' "${BLOCK}"
+}
+
 if grep -q '^git clone ' "${BLOCK}"; then
 	echo "=== Dropping the clone; ${DOCS_TEST_SRC_DIR} is the tree under test ==="
 	sed -i -E '/^git clone /d; /^cd core$/d' "${BLOCK}"
@@ -93,11 +97,16 @@ trap cleanup EXIT
 machine up -d --build --pull always
 echo "=== Machine base digest: $(container image inspect "${MACHINE_BASE_IMAGE}" --format '{{index .RepoDigests 0}}' 2>/dev/null || echo unresolved) ==="
 await_systemd
-await_engine
+
+if nests_a_container; then
+	echo "=== Giving it the engine the block's own docker run needs ==="
+	machine exec -T machine sh -s <"${STAGE}/engine.sh"
+	await_engine
+fi
 
 echo "=== Preparing it for Infinito.Nexus (${PREPARE}) ==="
 in_machine bash "${PREPARE}"
 
-echo "=== Replay image: $(grep -oE '(ghcr|docker)\.io/[^ "]+' "${BLOCK}" | head -1 || true) ==="
+echo "=== Replay image: $(sed -nE 's#^[[:space:]]*([^[:space:]]+) bash -c .*#\1#p' "${BLOCK}" | head -1 || true) ==="
 echo "=== Replaying the instructions in that machine ==="
 machine exec -T -w "${workdir}" machine bash -e -s <"${BLOCK}"

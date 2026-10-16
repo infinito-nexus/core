@@ -1,12 +1,13 @@
 #!/bin/sh
 # shellcheck shell=sh
 #
-# Installs systemd and a container engine into whatever it runs in: the
-# Dockerfile beside it RUNs it in a build stage, never run it on a host.
+# Installs systemd into whatever it runs in: the Dockerfile beside it RUNs it
+# in a build stage, never run it on a host.
 #
-# The engine is not optional. The published instructions end in `docker run`,
-# and the machine replaying them carries no host socket, so without a daemon
-# of its own every replay dies on `dial unix /var/run/docker.sock`.
+# No container engine here: a machine that already carries the distribution's
+# engine kills sys-svc-container's docker.service restart with "failed to load
+# listeners: no sockets found via socket activation". engine.sh adds one at
+# replay time for the blocks that need it before any deploy.
 
 set -e
 
@@ -45,31 +46,5 @@ install_init() {
 	[ -e /sbin/init ] || ln -sf /lib/systemd/systemd /sbin/init
 }
 
-install_engine() {
-	if ! command -v docker >/dev/null 2>&1 || ! command -v dockerd >/dev/null 2>&1; then
-		if command -v apt-get >/dev/null 2>&1; then
-			apt_install docker.io
-			command -v docker >/dev/null 2>&1 || apt_install docker-cli
-		elif command -v dnf >/dev/null 2>&1; then
-			dnf install -y --allowerasing docker
-			dnf clean all
-		elif command -v pacman >/dev/null 2>&1; then
-			pacman -Sy --noconfirm --needed docker
-			rm -rf /var/cache/pacman/pkg/*
-		else
-			echo "no supported package manager to install a container engine with" >&2
-			exit 1
-		fi
-	fi
-
-	if ! command -v docker >/dev/null 2>&1; then
-		echo "the container engine install left no docker client on PATH" >&2
-		exit 1
-	fi
-
-	systemctl enable docker.service
-}
-
 install_init
-install_engine
 mask_units_that_escape_the_container
