@@ -1,1 +1,46 @@
 ---
+- name: "✅ Assert the translation endpoint of '{{ application_id }}' stays in-cluster"
+  ansible.builtin.assert:
+    that:
+      - (MEDIAWIKI_TRANSLATE_URL | urlsplit('scheme')) == 'http'
+      - "'.' not in (MEDIAWIKI_TRANSLATE_URL | urlsplit('hostname'))"
+      - (MEDIAWIKI_TRANSLATE_URL | urlsplit('port') | int) == (lookup('config', 'web-svc-translate', 'services.translate.ports.internal.http') | int)
+    fail_msg: >-
+      {{ application_id }} would send page text to
+      '{{ MEDIAWIKI_TRANSLATE_URL }}'. Only the container-network gateway is
+      allowed: plain http, an undotted service name (the dns-search suffix turns
+      a dotted host into the public FQDN and routes it through the ingress), and
+      the gateway's internal port
+      {{ lookup('config', 'web-svc-translate', 'services.translate.ports.internal.http') }}
+      rather than its published one.
+
+- name: "🔎 MEDIAWIKI | Read back the configured machine translation service"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - --user
+      - "{{ MEDIAWIKI_USER }}"
+      - "{{ MEDIAWIKI_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ [MEDIAWIKI_HTML_DIR, 'maintenance', 'run.php'] | path_join }}"
+      - getConfiguration
+      - --format=json
+      - --settings=wgMachineTranslationServiceConfig
+  register: mediawiki_translation_configuration
+  changed_when: false
+  run_once: true
+  delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
+
+- name: "🛑 Refuse a MediaWiki translation backend that is not the in-cluster engine"
+  ansible.builtin.assert:
+    that:
+      - (mediawiki_translation_configuration.stdout | from_json).wgMachineTranslationServiceConfig.type == MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.type
+      - (mediawiki_translation_configuration.stdout | from_json).wgMachineTranslationServiceConfig.url == MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.url
+    fail_msg: >-
+      MachineTranslation still resolves
+      '{{ (mediawiki_translation_configuration.stdout | from_json).wgMachineTranslationServiceConfig.type }}'
+      to '{{ (mediawiki_translation_configuration.stdout | from_json).wgMachineTranslationServiceConfig.url }}'
+      instead of {{ MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.type }} on
+      {{ MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.url }}, so page text would leave
+      the deployment for the extension's upstream default host.

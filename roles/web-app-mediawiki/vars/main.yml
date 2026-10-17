@@ -59,6 +59,14 @@ MEDIAWIKI_LITELLM_CONNECTION:
   secret: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
 MEDIAWIKI_LITELLM_HTTP_TIMEOUT: 120
 
+MEDIAWIKI_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.translate.enabled') | bool }}"
+# nocheck: literal-protocol-lookup  the gateway is reached on the container network, which speaks plaintext
+MEDIAWIKI_TRANSLATE_URL: "http://{{ lookup('config', 'web-svc-translate', 'services.translate.name') }}:{{ lookup('config', 'web-svc-translate',
+  'services.translate.ports.internal.http') }}"
+MEDIAWIKI_TRANSLATE_SERVICE_CONFIG:
+  type: LibreTranslate
+  url: "{{ MEDIAWIKI_TRANSLATE_URL }}"
+
 MEDIAWIKI_EXT_BRANCH: "REL{{ (MEDIAWIKI_VERSION | string).split('.')[:2] | join('_') }}"
 MEDIAWIKI_EXT_CFG_BASE: "{{ [ MEDIAWIKI_CONFIG_DIR, 'mwext', MEDIAWIKI_EXT_BRANCH ] | path_join }}"
 MEDIAWIKI_EXT_HELPER_DIR: "{{ [ MEDIAWIKI_EXT_CFG_BASE, 'helpers' ] | path_join }}"
@@ -66,6 +74,7 @@ MEDIAWIKI_EXT_ENABLED: "{{ lookup('config', application_id, 'addons') | dict2ite
 MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK:
   - AIEditingAssistant
   - AWS
+  - MachineTranslation
   - OpenIDConnect
   - PluggableAuth
   - VisualEditor

@@ -28,7 +28,7 @@ This role ships its OIDC login stack, its AI editing stack, its object-store bac
 | AIEditingAssistant | extension | enabled when `services.litellm.enabled` | `litellm` |
 | AWS | extension | enabled when `services.seaweedfs.enabled` | `seaweedfs` |
 | DiscourseSsoConsumer | extension | off; no release is compatible with the PluggableAuth this image carries | `discourse` |
-| MachineTranslation | extension | enabled when `services.libretranslate.enabled` | `libretranslate` |
+| MachineTranslation | extension | enabled when `services.translate.enabled` | `translate` |
 | PeerTubeEmbed | extension | off; no public archive resolves for this extension | `peertube` |
 
 The three partner-bridging addons are `required: false`: they install with their partner and stay out of a deployment that does not carry it. `templates/LocalSettings.php.j2` loads every staged addon that no dedicated block already loads, each behind a `file_exists` guard so a failed stage leaves the wiki up rather than fatal; `MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK` lists the names a dedicated block already loads, which the generic loop then skips. `files/playwright/addons/<id>.spec.js` asserts the loaded state and `files/playwright/test-partner-extensions.js` asserts the absent-partner branch.
@@ -49,7 +49,17 @@ With `services.litellm.enabled`, `templates/LocalSettings.php.j2` loads `VisualE
 
 The wiring block sits behind a `file_exists` guard on `extensions/VisualEditorPlus/vendor/autoload.php`, because `LocalSettings.php` is rendered before the extensions are installed and `VisualEditorPlus` fatals until its composer step has run.
 
-[`tasks/utils/ai_gateway.yml`](tasks/utils/ai_gateway.yml) runs after `update.php`. It includes the shared gateway consumer contract, then reads both globals back out of the running container with `maintenance/run.php getConfiguration --format=json` and asserts the provider, the base URL and the model, so an unconfigured surface cannot reach a green deploy.
+[`tasks/addons/AIEditingAssistant.yml`](tasks/addons/AIEditingAssistant.yml) runs after `update.php`. It includes the shared gateway consumer contract, then reads both globals back out of the running container with `maintenance/run.php getConfiguration --format=json` and asserts the provider, the base URL and the model, so an unconfigured surface cannot reach a green deploy.
+
+## Machine translation
+
+With `services.translate.enabled`, `templates/LocalSettings.php.j2` loads `MachineTranslation` in its own block and sets `$wgMachineTranslationServiceConfig` to `MEDIAWIKI_TRANSLATE_SERVICE_CONFIG`: `type` is `LibreTranslate` and `url` is `MEDIAWIKI_TRANSLATE_URL`, the container-network endpoint `http://<translate service name>:<internal port>` resolved from `web-svc-translate`. The gateway speaks LibreTranslate's shapes, so the extension's own `/languages` and `/translate` suffixes reach it unchanged, and it routes onward to whichever backend serves the pair. Leaving the global unset ships the value from the extension's own `extension.json`, `https://trans.zillyhuhn.com`, and every page the extension translates goes to that third-party host.
+
+The gateway reports only what its backends catalogue, and its chat backend declares none, so `/languages` lists the dedicated engines' coverage rather than every language the gateway can reach. The extension gates on that list, so a language served only by the chat fallback is not offered in the wiki today.
+
+Because the block loads the extension, `MachineTranslation` is listed in `MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK` and the generic loop skips it.
+
+[`tasks/addons/MachineTranslation.yml`](tasks/addons/MachineTranslation.yml) asserts the endpoint shape before the container is touched (plain `http`, an undotted service name, the engine's internal rather than published port), then reads the global back out of the running container with `maintenance/run.php getConfiguration --format=json` and asserts `type` and `url`, so an extension that fell back to its upstream default cannot reach a green deploy.
 
 ## Further Resources
 

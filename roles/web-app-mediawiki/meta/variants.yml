@@ -3,7 +3,7 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 #
 # nocheck: sso-variant-tor — variant 1 exists so peertube, which is clearnet-only,
-# has a round of its own. It carries nothing else; libretranslate moved to
+# has a round of its own. It carries nothing else; translate moved to
 # variant 2, which keeps the onion, so the MachineTranslation extension is now
 # proven over it. Variant 0 pairs the onion with SSO.
 
@@ -22,7 +22,7 @@
     email:
       enabled: true
       shared: true
-    libretranslate:
+    translate:
       enabled: false
       shared: false
     peertube:
@@ -65,7 +65,7 @@
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    libretranslate:
+    translate:
       enabled: false
       shared: false
     peertube:
@@ -109,7 +109,7 @@
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    libretranslate:
+    translate:
       enabled: true
       shared: true
     peertube:

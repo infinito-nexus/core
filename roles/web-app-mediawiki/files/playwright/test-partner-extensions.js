@@ -44,15 +44,15 @@ test("discourse: no DiscourseSsoConsumer is loaded while the Discourse partner i
   ).not.toContain("DiscourseSsoConsumer");
 });
 
-test("libretranslate: no MachineTranslation is loaded while the LibreTranslate partner is absent", async ({
+test("translate: no MachineTranslation is loaded while the translation gateway is absent", async ({
   request,
 }) => {
-  test.skip(isServiceEnabled("libretranslate"), "LIBRETRANSLATE_SERVICE_ENABLED=true");
+  test.skip(isServiceEnabled("translate"), "TRANSLATE_SERVICE_ENABLED=true");
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
 
   expect(
     await loadedExtensions(request),
-    "MachineTranslation is loaded without a LibreTranslate partner: the wiki would offer a " +
+    "MachineTranslation is loaded without the translation gateway: the wiki would offer a " +
       "translation surface whose backend does not exist",
   ).not.toContain("MachineTranslation");
 });

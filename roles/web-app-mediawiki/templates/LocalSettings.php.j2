@@ -172,6 +172,16 @@ if ( file_exists( "$IP/extensions/VisualEditorPlus/vendor/autoload.php" )
 }
 {% endif %}
 
+{% if MEDIAWIKI_TRANSLATE_ENABLED | bool %}
+if ( file_exists( "$IP/extensions/MachineTranslation/extension.json" ) ) {
+	wfLoadExtension( 'MachineTranslation' );
+	$wgMachineTranslationServiceConfig = [
+		'type' => '{{ MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.type }}',
+		'url' => '{{ MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.url }}',
+	];
+}
+{% endif %}
+
 {% if MEDIAWIKI_OBJSTORE_ENABLED | bool %}
 if ( file_exists( "$IP/extensions/AWS/vendor/autoload.php" ) ) {
 	wfLoadExtension( 'AWS' );

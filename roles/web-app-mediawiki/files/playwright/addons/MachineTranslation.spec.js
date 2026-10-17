@@ -9,20 +9,20 @@ test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const partnerBaseUrl = normalizeBaseUrl(
-  decodeDotenvQuotedValue(process.env.LIBRETRANSLATE_BASE_URL || ""),
+  decodeDotenvQuotedValue(process.env.TRANSLATE_BASE_URL || ""),
 );
 
 test("MachineTranslation: the extension is loaded and bound to a partner host distinct from the wiki", async ({
   request,
 }) => {
   skipUnlessAddonEnabled("MachineTranslation");
-  skipUnlessServiceEnabled("libretranslate");
+  skipUnlessServiceEnabled("translate");
   test.setTimeout(resolveTimeout(120_000));
 
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(
     partnerBaseUrl,
-    "LIBRETRANSLATE_BASE_URL must resolve to the deployed LibreTranslate partner once services.libretranslate.enabled is true",
+    "TRANSLATE_BASE_URL must resolve to the deployed translation gateway once services.translate.enabled is true",
   ).toBeTruthy();
   expect(
     new URL(partnerBaseUrl).host,

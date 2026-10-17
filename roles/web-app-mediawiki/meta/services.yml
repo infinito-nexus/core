@@ -25,10 +25,10 @@ discourse:
   bond: 0.5
   enabled: "{{ 'web-app-discourse' in group_names }}"
   shared: "{{ 'web-app-discourse' in group_names }}"
-libretranslate:
+translate:
   bond: 0.5
-  enabled: "{{ 'web-svc-libretranslate' in group_names }}"
-  shared: "{{ 'web-svc-libretranslate' in group_names }}"
+  enabled: "{{ 'web-svc-translate' in group_names }}"
+  shared: "{{ 'web-svc-translate' in group_names }}"
 peertube:
   bond: 0.5
   enabled: "{{ 'web-app-peertube' in group_names }}"
