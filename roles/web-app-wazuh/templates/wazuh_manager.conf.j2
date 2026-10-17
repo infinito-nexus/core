@@ -205,6 +205,8 @@
     <list>etc/lists/malicious-ioc/malware-hashes</list>
     <decoder_dir>etc/decoders</decoder_dir>
     <rule_dir>etc/rules</rule_dir>
+    <decoder_dir>{{ [ WAZUH_RULESET_DIR_CONTAINER | regex_replace('^/var/ossec/', ''), 'decoders' ] | path_join }}</decoder_dir>
+    <rule_dir>{{ [ WAZUH_RULESET_DIR_CONTAINER | regex_replace('^/var/ossec/', ''), 'rules' ] | path_join }}</rule_dir>
   </ruleset>
 
   <rule_test>

@@ -72,6 +72,12 @@ WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.man
 WAZUH_AUTHD_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.authd_password') }}"
 WAZUH_AUTHD_PASS_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'authd.pass' ] | path_join }}"
 
+WAZUH_RULESET_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'ruleset' ] | path_join }}"
+WAZUH_RULESET_PREVIOUS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'ruleset.previous' ] | path_join }}"
+WAZUH_RULESET_DIR_CONTAINER: "{{ lookup('volume', application_id, 'manager_ruleset').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_RULESET_KINDS: ["decoders", "rules"]
+WAZUH_RULESET_FILES: "{{ lookup('wazuh_ruleset') }}"
+
 # Dev and CI inventories name their only host "localhost", which says nothing in the dashboard; DOMAIN_PRIMARY names that host instead.
 WAZUH_AGENTS:
   - id: "001"

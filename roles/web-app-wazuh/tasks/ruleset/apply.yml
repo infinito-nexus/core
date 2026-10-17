@@ -1,0 +1,61 @@
+---
+- name: "📋 Copy the rule files of the opted-in roles"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (03_ruleset.yml is included with `when: IS_STACK_HOST | bool`)
+    src: "{{ item.src }}"
+    dest: "{{ [ WAZUH_RULESET_DIR_HOST, item.kind, item.name ] | path_join }}"
+    mode: "0644"
+  loop: "{{ WAZUH_RULESET_FILES }}"
+  loop_control:
+    label: "{{ item.kind }}/{{ item.name }}"
+  register: wazuh_ruleset_copy
+
+- name: "🔍 Find the files in the ruleset directories"
+  ansible.builtin.find:
+    paths: "{{ WAZUH_RULESET_KINDS | map('regex_replace', '^', WAZUH_RULESET_DIR_HOST ~ '/') | list }}"
+    file_type: any
+    hidden: true
+  register: wazuh_ruleset_found
+
+- name: "🗑️ Remove the rule files of roles that no longer opt in"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ wazuh_ruleset_found.files | map(attribute='path') | difference(wazuh_ruleset_copy.results | map(attribute='dest')) }}"
+  register: wazuh_ruleset_stale
+
+- name: "🔐 Check that the wazuh user can read the whole ruleset"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -u wazuh {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      find {{ WAZUH_RULESET_DIR_CONTAINER }} ! -readable
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_ruleset_readable
+  changed_when: false
+  failed_when: wazuh_ruleset_readable.rc != 0 or wazuh_ruleset_readable.stdout | length > 0
+
+- name: "🧪 Test the full ruleset with wazuh-analysisd -t"
+  ansible.builtin.shell:
+    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-analysisd -t 2>&1"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_ruleset_test
+  changed_when: false
+
+- name: "🔄 Restart the Wazuh manager to load the new ruleset"
+  ansible.builtin.shell:
+    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-control restart 2>&1"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  when: wazuh_ruleset_copy is changed or wazuh_ruleset_stale is changed
+  register: wazuh_ruleset_restart
+  changed_when: true
+
+- name: "⏳ Wait for wazuh-analysisd to run again"
+  ansible.builtin.shell:
+    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-control status"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  when: wazuh_ruleset_restart is changed
+  register: wazuh_ruleset_status
+  until: "'wazuh-analysisd is running' in wazuh_ruleset_status.stdout"
+  retries: 30
+  delay: 5
+  changed_when: false
+  failed_when: "'wazuh-analysisd is running' not in wazuh_ruleset_status.stdout"

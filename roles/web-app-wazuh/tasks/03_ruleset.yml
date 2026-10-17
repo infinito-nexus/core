@@ -1,0 +1,45 @@
+---
+- name: "🧹 Remove a ruleset snapshot left by an aborted run"
+  ansible.builtin.file:
+    path: "{{ WAZUH_RULESET_PREVIOUS_DIR_HOST }}"
+    state: absent
+
+- name: "📸 Snapshot the active ruleset"
+  ansible.builtin.command:
+    argv: [cp, -a, "{{ WAZUH_RULESET_DIR_HOST }}", "{{ WAZUH_RULESET_PREVIOUS_DIR_HOST }}"]
+  changed_when: false
+
+- name: "📜 Apply and test the ruleset, roll back on failure"
+  block:
+    - name: "📜 Apply, test and load the ruleset"
+      include_tasks: ruleset/apply.yml
+
+  rescue:
+    - name: "↩️ Restore the previous ruleset in place" # nocheck: rescue-rollback the rescue restores the previous ruleset and then fails the deploy on purpose
+      ansible.builtin.shell:
+        cmd: >-
+          find {{ WAZUH_RULESET_DIR_HOST | quote }} -mindepth 2 -delete &&
+          cp -a {{ (WAZUH_RULESET_PREVIOUS_DIR_HOST ~ '/.') | quote }} {{ (WAZUH_RULESET_DIR_HOST ~ '/') | quote }}
+      changed_when: true
+
+    - name: "🔄 Restart the Wazuh manager onto the restored ruleset"
+      ansible.builtin.shell:
+        cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-control restart 2>&1"
+        chdir: "{{ WAZUH_INSTANCE_DIR }}"
+      when: wazuh_ruleset_restart is defined and wazuh_ruleset_restart is changed
+      changed_when: true
+
+    - name: "🛑 Fail after the ruleset rollback"
+      ansible.builtin.fail:
+        msg: >-
+          The Wazuh custom ruleset was rolled back to the previous files, because
+          '{{ ansible_failed_task.name }}' failed:
+          {{ ansible_failed_result.stdout if 'stdout' in ansible_failed_result else ansible_failed_result.msg }}
+          Files of this run: {{ WAZUH_RULESET_FILES | map(attribute='src') | list }}
+
+  always:
+    - name: "🧹 Remove the ruleset snapshot"
+      ansible.builtin.file:
+        path: "{{ WAZUH_RULESET_PREVIOUS_DIR_HOST }}"
+        state: absent
+      changed_when: false

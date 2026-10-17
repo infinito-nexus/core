@@ -16,6 +16,14 @@ The manager's vulnerability detection data (`/var/ossec/queue/vd`, volume `wazuh
 The manager downloads it again after a restore, which can take a long time.
 This matters once agents are enrolled.
 
+## Custom ruleset
+
+Every role in the inventory that enables the `wazuh` service may ship `files/wazuh/decoders.xml` and `files/wazuh/rules.xml`; both are optional.
+The deploy copies them as `<entity>_decoders.xml` and `<entity>_rules.xml` into `ruleset/decoders` and `ruleset/rules` under the instance directory, deletes files of roles that no longer opt in, and mounts that directory read-only at `/var/ossec/infinito`, which `ossec.conf` loads through its own `<decoder_dir>` and `<rule_dir>`.
+The mount sits outside every path the image seeds or overwrites at start, so the deploy alone decides which files are active; the default ruleset and `etc/rules/local_rules.xml` stay untouched.
+Before the manager restarts, the deploy checks that the `wazuh` user can read every file and runs `wazuh-analysisd -t`. If either fails, the previous files are restored, the manager keeps running on its loaded ruleset, and the deploy fails with the test output.
+If a step fails after the manager has already restarted onto the new files, the previous files are restored, the manager is restarted again onto them, and the deploy fails.
+
 ## Cosmos
 
 The diagram places Wazuh in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).

@@ -214,6 +214,15 @@ manager_filebeat_key_pem:
   mounts:
     - service: manager
       target: /etc/ssl/filebeat.key
+# Exception: a directory bind outside every path the image seeds or overwrites at start (PERMANENT_DATA, PERMANENT_DATA_EXCP, /wazuh-config-mount), so Ansible alone decides which rule files exist.
+manager_ruleset:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'ruleset' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: manager
+      target: /var/ossec/infinito
 # nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack; placement: manager guarantees the bind source exists on the scheduled node.
 root_ca_pem:
   type: bind

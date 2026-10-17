@@ -13,6 +13,13 @@
     state: directory
     mode: "0755"
 
+- name: "📁 Ensure the custom ruleset directories exist for the manager bind mount"
+  ansible.builtin.file:
+    path: "{{ [ WAZUH_RULESET_DIR_HOST, item ] | path_join }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ [''] + WAZUH_RULESET_KINDS }}"
+
 - name: "📄 Render node topology for wazuh-certs-generator"
   stack_host_template:
     src: certs.yml.j2
@@ -124,6 +131,10 @@
     file: 02_agents.yml
     apply:
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📜 Deploy the custom ruleset of the opted-in roles"
+  include_tasks: 03_ruleset.yml
+  when: IS_STACK_HOST | bool
 
 - name: "✅ Confirm indexer admin credentials are live post-securityadmin.sh"
   uri_retry:
