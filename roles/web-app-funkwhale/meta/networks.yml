@@ -1,3 +1,5 @@
 ---
 local:
   subnet: 192.168.15.0/24
+reachability:
+  handover: true # nocheck: network-reachability  Funkwhale federates and builds every actor, media and CSRF origin from its one FUNKWHALE_HOSTNAME, so an onion login is refused with 403
