@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect, request: apiRequest } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
@@ -17,7 +17,7 @@ function settingValue(settings, name) {
   return String(found.value);
 }
 
-test("discourse-translator: posts are translated through the in-cluster gateway", async ({ page, request }) => {
+test("discourse-translator: posts are translated through the in-cluster gateway", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-translator");
   skipUnlessServiceEnabled("translate");
   test.setTimeout(resolveTimeout(180_000));
@@ -46,10 +46,15 @@ test("discourse-translator: posts are translated through the in-cluster gateway"
     "the translator must post to the deployed gateway",
   ).toBe(expectedEndpoint);
 
-  const catalogue = await request.get(`${expectedEndpoint}/languages`, {
-    failOnStatusCode: false,
-    timeout: resolveTimeout(120_000),
-  });
-  expect(catalogue.status(), `expected the configured endpoint (${expectedEndpoint}/languages) to answer`).toBe(200);
-  expect(Array.isArray(await catalogue.json()), "expected a language catalogue from the gateway").toBe(true);
+  const direct = await apiRequest.newContext({ ignoreHTTPSErrors: true });
+  try {
+    const catalogue = await direct.get(`${expectedEndpoint}/languages`, {
+      failOnStatusCode: false,
+      timeout: resolveTimeout(120_000),
+    });
+    expect(catalogue.status(), `expected the configured endpoint (${expectedEndpoint}/languages) to answer`).toBe(200);
+    expect(Array.isArray(await catalogue.json()), "expected a language catalogue from the gateway").toBe(true);
+  } finally {
+    await direct.dispose();
+  }
 });
