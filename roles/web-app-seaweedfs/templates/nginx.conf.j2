@@ -30,5 +30,12 @@ server {
 server {
     listen 80 default_server;
     server_name _;
-    return 404;
+
+    location = /{{ SEAWEEDFS_CONSOLE_HEALTH_PATH }} {
+        return 200 "ok\n";
+    }
+
+    location / {
+        return 404;
+    }
 }

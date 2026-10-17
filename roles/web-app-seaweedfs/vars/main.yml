@@ -10,6 +10,7 @@ SEAWEEDFS_ENGINE_MASTER_PORT: "{{ lookup('config', SEAWEEDFS_ENGINE_ID, 'service
 
 SEAWEEDFS_CONSOLE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 SEAWEEDFS_SSO_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.local.sso') }}"
+SEAWEEDFS_CONSOLE_HEALTH_PATH: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.healthcheck.path') }}"
 
 SEAWEEDFS_FILER_DOMAIN: "{{ lookup('domains', application_id).filer }}"
 SEAWEEDFS_MASTER_DOMAIN: "{{ lookup('domains', application_id).master }}"

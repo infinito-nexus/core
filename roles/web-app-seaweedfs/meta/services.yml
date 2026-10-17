@@ -83,6 +83,7 @@ seaweedfs-console:
       http: 80
   healthcheck:
     flavor: http
+    path: healthz
   min_storage: 128MB
   cpus: "0.2"
   mem_reservation: 64m
