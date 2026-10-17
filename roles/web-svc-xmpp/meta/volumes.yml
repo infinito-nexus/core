@@ -1,4 +1,13 @@
 ---
+home:
+  type: volume
+  name: ejabberd_home
+  backup: false
+  # nocheck: nfs-false-data-loss  Reason: carries only what the image seeds into /opt/ejabberd - the bin symlink, the ejabberd-contrib sources and the erlang cookie ejabberdctl regenerates; every path holding deployment state is a child volume of its own, and a fresh node reseeds this one from the image
+  nfs: false
+  mounts:
+    - service: ejabberd
+      target: /opt/ejabberd
 data:
   type: volume
   name: ejabberd_data
