@@ -235,6 +235,10 @@ inventory. The endpoint is then not provisioned, the sidecar is not deployed,
 and `BASEROW_EXTRA_PUBLIC_URLS` drops the MCP origin, so the image's Caddy layer
 stops routing `/mcp/*`.
 
+## Networks
+
+Baserow's Caddy layer answers only the hosts named in `BASEROW_PUBLIC_URL` and `BASEROW_EXTRA_PUBLIC_URLS`; any other host is treated as a published builder domain and gets `404`. The role therefore lists every network sibling of the canonical URL (for example the onion host in `multi` mode) in `BASEROW_EXTRA_PUBLIC_URLS`. `BASEROW_PUBLIC_URL` stays the canonical clearnet URL that Baserow writes into emails.
+
 ## Security: SECRET_KEY
 
 Baserow requires Django `SECRET_KEY` for correct backend operation (e.g., JWT, sessions).
