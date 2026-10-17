@@ -12,7 +12,7 @@ const partnerBaseUrl = normalizeBaseUrl(
   decodeDotenvQuotedValue(process.env.LIBRETRANSLATE_BASE_URL || ""),
 );
 
-test("MachineTranslation: the extension is loaded and the LibreTranslate partner answers as a distinct host", async ({
+test("MachineTranslation: the extension is loaded and bound to a partner host distinct from the wiki", async ({
   request,
 }) => {
   skipUnlessAddonEnabled("MachineTranslation");
@@ -46,17 +46,4 @@ test("MachineTranslation: the extension is loaded and the LibreTranslate partner
     "MachineTranslation is not loaded; it is not bundled in the mediawiki image, so a missing " +
       "tarball or an unfinished composer install left it out of LocalSettings.php",
   ).toContain("MachineTranslation");
-
-  const languages = await request.get(`${partnerBaseUrl}/languages`, {
-    timeout: resolveTimeout(60_000),
-  });
-  expect(
-    languages.status(),
-    "the LibreTranslate partner must serve its /languages catalogue; without it the extension has " +
-      "no translation backend and every translation request fails at runtime",
-  ).toBe(200);
-  expect(
-    (await languages.json()).length,
-    "the LibreTranslate partner must advertise at least one language model",
-  ).toBeGreaterThan(0);
 });

@@ -40,7 +40,8 @@ DISCOURSE_LITELLM_HOST: "{{ LITELLM_OPENAI_BASE_LOCAL_URL | urlsplit('hostname')
 DISCOURSE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
 DISCOURSE_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.translate.enabled') | bool }}"
 DISCOURSE_TRANSLATE_PROVIDER: "{{ lookup('config', application_id, 'addons.discourse-translator.config.provider') }}"
-DISCOURSE_TRANSLATE_ENDPOINT: "{{ lookup('tls', 'web-svc-translate', 'url.base') | regex_replace('/+$', '') }}"
+DISCOURSE_TRANSLATE_NETWORK: "{{ 'web-svc-translate' | entity_name }}"
+DISCOURSE_TRANSLATE_ENDPOINT: "http://{{ 'web-svc-translate' | entity_name }}:{{ lookup('config', 'web-svc-translate', 'services.translate.ports.internal.http') }}"
 DISCOURSE_TRANSLATE_HOST: "{{ DISCOURSE_TRANSLATE_ENDPOINT | urlsplit('hostname') }}"
 
 DISCOURSE_MERMAID_ENABLED: "{{ lookup('config', application_id, 'addons.discourse-mermaid.enabled') | bool }}"

@@ -163,6 +163,9 @@ docker_args:
 {% if DISCOURSE_LITELLM_ENABLED | bool %}
   - --network={{ DISCOURSE_LITELLM_NETWORK }}
 {% endif %}
+{% if DISCOURSE_TRANSLATE_ENABLED | bool %}
+  - --network={{ DISCOURSE_TRANSLATE_NETWORK }}
+{% endif %}
 {% for extra_host in lookup('container_extra_hosts', entries_only=True, wantlist=True) %}
   - --add-host={{ extra_host }}
 {% endfor %}
