@@ -44,6 +44,8 @@
     prometheus:
       enabled: false
       shared: false
+    redis:
+      shared: false
 
     design:
       enabled: false
