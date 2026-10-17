@@ -57,7 +57,7 @@ recover.py <backups>/<machine-hash>/backup-secrets-to-local/<generation>/files [
 
 The script first starts the role's deployed backup unit (a fresh
 differential generation of the live material), then mirrors each present
-subtree back to its fixed system path (`rsync -a --delete`): `secrets`
+subtree back to its fixed system path (`rsync -aHAX --delete`): `secrets`
 into `/var/lib/infinito/secrets`, `ca` into `/etc/<domain>/ca`, `acme`
 into `/etc/letsencrypt`, `certbot` into `/etc/certbot`. `--no-safety-backup`
 skips the pre-recover unit run. The `node` subtree (ssh host keys +
