@@ -261,15 +261,15 @@ Rules:
 ### Per-role migration
 
 - [ ] [web-app-friendica](../../roles/web-app-friendica/) declares `ldapauth` in `meta/addons/` with `bridges: [ldap]`; the `ldap` and `sso` service blocks remain in `meta/services.yml`; [tasks/03_addons.yml](../../roles/web-app-friendica/tasks/03_addons.yml) reads the addon list from the new path; deploy behaviour is unchanged.
-- [ ] [web-app-odoo](../../roles/web-app-odoo/) declares its `core` and `optional` modules in `meta/addons/` using `mechanism: module`, `required: true` for core modules, and the `group` label; the install path reads the new path.
+- [x] [web-app-odoo](../../roles/web-app-odoo/) declares its `core` and `optional` modules in `meta/addons/` using `mechanism: module`, `required: true` for core modules, and the `group` label; the install path reads the new path.
 - [x] [web-app-nextcloud](../../roles/web-app-nextcloud/) declares each plugin in `meta/addons/`; `sociallogin` bridges `sso` and `user_ldap` bridges `ldap`, both present in `meta/services.yml`; each plugin's full runtime config from `vars/plugins/` is absorbed into its addon `config:` block and the superseded `vars/plugins/*.yml` files are deleted; the install/enable/configure tasks read the addon `config:` payload; deploy behaviour is unchanged.
-- [ ] [web-app-wordpress](../../roles/web-app-wordpress/) declares its `plugin` and `mu_plugin` entries in `meta/addons/`; the OIDC plugin bridges `sso` and `wp-discourse` bridges the Discourse service.
-- [ ] [web-app-mediawiki](../../roles/web-app-mediawiki/) declares `PluggableAuth` and `OpenIDConnect` in `meta/addons/` with `mechanism: extension`; `OpenIDConnect` bridges `sso`.
+- [x] [web-app-wordpress](../../roles/web-app-wordpress/) declares its `plugin` and `mu_plugin` entries in `meta/addons/`; the OIDC plugin bridges `sso` and `wp-discourse` bridges the Discourse service.
+- [x] [web-app-mediawiki](../../roles/web-app-mediawiki/) declares `PluggableAuth` and `OpenIDConnect` in `meta/addons/` with `mechanism: extension`; `OpenIDConnect` bridges `sso`.
 - [ ] [web-app-xwiki](../../roles/web-app-xwiki/) declares its three plugins in `meta/addons/`, preserving `version` pins; bridges `sso`, `ldap`, and `matomo` resolve to service blocks.
-- [ ] [web-app-joomla](../../roles/web-app-joomla/) declares `plg_system_keycloak` in `meta/addons/` with `mechanism: plugin`, `source: built`, and `bridges: [sso]`.
-- [ ] [web-app-matrix](../../roles/web-app-matrix/) declares each mautrix network bridge in `meta/addons/` with `mechanism: bridge`, `required: false`, `enabled: false` by default, and its DB credential referenced from `meta/secrets.yml`; `vars/bridges.yml` is absorbed and deleted.
-- [ ] [web-app-discourse](../../roles/web-app-discourse/) declares its plugins in `meta/addons/` with `mechanism: plugin`; `discourse-ldap-auth` carries `bridges: [ldap]` resolving to the `ldap` service block, while `docker_manager`, `discourse-activity-pub`, and `discourse-akismet` carry no `bridges`.
-- [ ] [web-app-pretix](../../roles/web-app-pretix/) declares its `oidc` plugin in `meta/addons/` with `mechanism: plugin`, the `2.3.1` pin preserved as a string `version`, and `bridges: [sso]`.
+- [x] [web-app-joomla](../../roles/web-app-joomla/) declares `plg_system_keycloak` in `meta/addons/` with `mechanism: plugin`, `source: built`, and `bridges: [sso]`.
+- [x] [web-app-matrix](../../roles/web-app-matrix/) declares each mautrix network bridge in `meta/addons/` with `mechanism: bridge`, `required: false`, `enabled: false` by default, and its DB credential referenced from `meta/secrets.yml`; `vars/bridges.yml` is absorbed and deleted.
+- [x] [web-app-discourse](../../roles/web-app-discourse/) declares its plugins in `meta/addons/` with `mechanism: plugin`; `discourse-ldap-auth` carries `bridges: [ldap]` resolving to the `ldap` service block, while `docker_manager`, `discourse-activity-pub`, and `discourse-akismet` carry no `bridges`.
+- [x] [web-app-pretix](../../roles/web-app-pretix/) declares its `oidc` plugin in `meta/addons/` with `mechanism: plugin`, the `2.3.1` pin preserved as a string `version`, and `bridges: [sso]`.
 - [ ] [web-app-mattermost](../../roles/web-app-mattermost/) declares its plugins in `meta/addons/` with `mechanism: plugin`; the plugin volumes remain in `meta/volumes.yml`.
 - [x] [desk-chromium](../../roles/desk-chromium/) and [desk-firefox](../../roles/desk-firefox/) declare their browser extensions in `meta/addons/` with `mechanism: extension`, no `bridges`, and ship NO Playwright specs (desktop roles have no web surface; the lint forbids specs under `desk-*`).
 - [x] [desk-gnome](../../roles/desk-gnome/) declares its gnome-shell extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
@@ -297,7 +297,7 @@ Rules:
 - [x] The supported catalog adapters are documented and bounded so broad marketplaces do not produce unreviewable warning noise.
 - [ ] The scheduled update workflow opens or refreshes an update pull request when addon versions can be bumped or when relevant new addon entries can be added.
 - [ ] Update automation adds newly discovered addons with `enabled: false`, `required: false`, complete `update` metadata, and no credentials.
-- [ ] Update automation preserves existing enablement, bridge, required, and credential-related fields when bumping addon versions.
+- [x] Update automation preserves existing enablement, bridge, required, and credential-related fields when bumping addon versions.
 
 ### Tests
 
