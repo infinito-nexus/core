@@ -59,6 +59,18 @@
   delay: 5
   until: zammad_rails_ready.rc == 0
 
+- name: "⏳ wait for the current Zammad init task to complete"
+  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/job_state.sh') }}"
+  environment:
+    JOB: "{{ lookup('container_service', application_id, ZAMMAD_INIT_SERVICE) }}"
+  register: zammad_init_state
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: zammad_init_state.rc != 1
+  failed_when: zammad_init_state.rc != 0
+  when: DEPLOYMENT_MODE == 'swarm'
+
 - name: "▶️ process auto_wizard.json if Zammad setup wizard incomplete (idempotent)"
   ansible.builtin.shell: |
     set -euo pipefail
