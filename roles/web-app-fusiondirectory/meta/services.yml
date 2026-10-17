@@ -50,6 +50,8 @@ fusiondirectory:
       enabled: true
   image: nfrastack/fusiondirectory
   version: "1.5"
+  # nocheck: single-replica  PHP stores its sessions in container-local files and the 1.5 image carries no redis or memcached extension to move them to a shared store; lifting this pin needs the image rebuilt on upstream's php8 release, see TODO.md
+  replicas: 1
   name: fusiondirectory
   ports:
     local:
