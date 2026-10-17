@@ -1,11 +1,14 @@
 """Converge the pgAdmin administrator account on every deploy.
 
-Args:
-    PGADMIN_DEFAULT_EMAIL: login e-mail of the administrator (container env).
-    PGADMIN_DEFAULT_PASSWORD: password the account must accept (container env).
+Usage:
+    Piped into the ``/venv/bin/python3 -`` of the running pgAdmin container.
 
-Prints ``PGADMIN_ADMINISTRATOR=changed`` when it created or repaired the
-account and ``PGADMIN_ADMINISTRATOR=ok`` when the account already matched.
+Args:
+    PGADMIN_ADMIN_EMAIL: login e-mail of the administrator (container env).
+    PGADMIN_ADMIN_PASSWORD: password the account must accept (container env).
+
+Exit: 0 with ``[CHANGED]`` or ``[UNCHANGED]`` on stdout, 1 with ``[FAIL]``
+on stderr.
 """
 
 import os
@@ -41,7 +44,8 @@ def converge(email: str, password: str) -> str:
             }
         )
         if not created:
-            sys.exit(f"creating the administrator failed: {message}")
+            print(f"[FAIL] creating the administrator failed: {message}", file=sys.stderr)
+            raise SystemExit(1)
         return "changed"
     secret = normalise_password(password)
     drift = (
@@ -66,12 +70,22 @@ def main() -> None:
     import config
     from pgadmin import create_app
 
+    email = os.environ.get("PGADMIN_ADMIN_EMAIL", "")
+    password = os.environ.get("PGADMIN_ADMIN_PASSWORD", "")
+    if not email or not password:
+        print(
+            "[FAIL] PGADMIN_ADMIN_EMAIL or PGADMIN_ADMIN_PASSWORD is empty.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
     app = create_app(config.APP_NAME + "-cli")
     with app.test_request_context():
-        state = converge(
-            os.environ["PGADMIN_DEFAULT_EMAIL"], os.environ["PGADMIN_DEFAULT_PASSWORD"]
-        )
-    print(f"PGADMIN_ADMINISTRATOR={state}")
+        state = converge(email, password)
+    if state == "changed":
+        print("[CHANGED] the pgAdmin administrator was realigned with the declared state")
+    else:
+        print("[UNCHANGED] the pgAdmin administrator already matches the declared state")
 
 
 if __name__ == "__main__":

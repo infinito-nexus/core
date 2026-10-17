@@ -15,8 +15,8 @@
     cmd: >-
       container exec -i
       -e PGADMIN_ADMIN_EMAIL -e PGADMIN_ADMIN_PASSWORD
-      {{ PGADMIN_CONTAINER_ADDRESS }} sh -s
-    stdin: "{{ lookup('file', 'shell/realign_admin_password.sh') }}"
+      {{ PGADMIN_CONTAINER_ADDRESS }} /venv/bin/python3 -
+    stdin: "{{ lookup('file', 'python/realign_admin_password.py') }}"
   environment:
     PGADMIN_ADMIN_EMAIL: "{{ PGADMIN_ADMIN_EMAIL }}"
     PGADMIN_ADMIN_PASSWORD: "{{ PGADMIN_ADMIN_PASSWORD }}"

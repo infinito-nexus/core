@@ -7,13 +7,15 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-pgadmin/files/python/administrator.py"
+SCRIPT_PATH = (
+    PROJECT_ROOT / "roles/web-app-pgadmin/files/python/realign_admin_password.py"
+)
 EMAIL = "administrator@example.org"
 PASSWORD = "p$ssw0rd-from-the-users-spot"
 
 
 def load_script() -> object:
-    spec = importlib.util.spec_from_file_location("administrator", SCRIPT_PATH)
+    spec = importlib.util.spec_from_file_location("realign_admin_password", SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
