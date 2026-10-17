@@ -1,4 +1,5 @@
 import importlib.util
+import os
 import sys
 import tempfile
 import unittest
@@ -61,6 +62,28 @@ class TestComposePull(unittest.TestCase):
         self.assertEqual(out, "step 3/4\n")
         self.assertIn(f"timed out after {self.m.RUN_TIMEOUT_SECONDS}s", err)
         self.assertIn("pulling", err)
+
+    def test_run_streamed_outlives_a_deadline_while_it_keeps_talking(self) -> None:
+        chatty = "import time\nfor step in range(15):\n    print(step, flush=True)\n    time.sleep(0.2)\n"
+
+        with patch.object(self.m, "RUN_SILENCE_SECONDS", 1.0):
+            rc, out, _err = self.m.run_streamed(
+                [sys.executable, "-c", chatty], cwd=Path("/"), env=dict(os.environ)
+            )
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(out.split()[-1], "14")
+
+    def test_run_streamed_kills_a_command_that_falls_silent(self) -> None:
+        with patch.object(self.m, "RUN_SILENCE_SECONDS", 0.5):
+            rc, _out, err = self.m.run_streamed(
+                [sys.executable, "-c", "import time; time.sleep(60)"],
+                cwd=Path("/"),
+                env=dict(os.environ),
+            )
+
+        self.assertEqual(rc, self.m.TIMEOUT_RC)
+        self.assertIn("said nothing for 0.5s", err)
 
     def test_base_compose_cmd_delegates_to_wrapper(self) -> None:
         cmd = self.m.base_compose_cmd(project="p", cwd=Path("/x"))
@@ -208,6 +231,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=True),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
                 patch.object(self.m, "run_or_fail", side_effect=fake_run_or_fail),
             ):
@@ -267,6 +291,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=True),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
                 patch.object(self.m, "run_or_fail", side_effect=fake_run_or_fail),
             ):
@@ -314,6 +339,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=False),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
             ):
                 rc = self.m.main()
@@ -362,6 +388,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=False),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
             ):
                 rc = self.m.main()

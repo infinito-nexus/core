@@ -5,11 +5,14 @@ import argparse
 import os
 import subprocess
 import sys
+import threading
+import time
 from pathlib import Path
 
 import yaml
 
 RUN_TIMEOUT_SECONDS = 3600
+RUN_SILENCE_SECONDS = 3600
 TIMEOUT_RC = 124
 
 
@@ -45,6 +48,71 @@ def run_cmd(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str
             + f"\ntimed out after {RUN_TIMEOUT_SECONDS}s: {' '.join(cmd)}\n",
         )
     return p.returncode, p.stdout or "", p.stderr or ""
+
+
+def run_streamed(
+    cmd: list[str], *, cwd: Path, env: dict[str, str]
+) -> tuple[int, str, str]:
+    """Run a long command, bounded by silence rather than by total runtime.
+
+    A pull of a large image set legitimately outlives any fixed deadline while
+    it is still making progress, so the deadline here measures the gap between
+    two lines instead. Both streams are read by their own thread so they stay
+    separated the way ``run_cmd`` keeps them.
+
+    Args:
+        cmd: the command to run.
+        cwd: working directory.
+        env: environment for the child.
+
+    Returns:
+        Exit code, stdout, stderr. A command that says nothing for
+        ``RUN_SILENCE_SECONDS`` returns ``TIMEOUT_RC`` with what it had
+        written by then.
+    """
+    streams: dict[str, list[str]] = {"out": [], "err": []}
+    spoke = [time.monotonic()]
+    ended = threading.Event()
+
+    def drain(handle, key: str) -> None:
+        for line in handle:
+            spoke[0] = time.monotonic()
+            streams[key].append(line)
+
+    with subprocess.Popen(
+        cmd,
+        cwd=str(cwd),
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ) as process:
+        readers = [
+            threading.Thread(target=drain, args=(process.stdout, "out"), daemon=True),
+            threading.Thread(target=drain, args=(process.stderr, "err"), daemon=True),
+        ]
+        for reader in readers:
+            reader.start()
+        silenced = False
+        while any(reader.is_alive() for reader in readers):
+            quiet = RUN_SILENCE_SECONDS - (time.monotonic() - spoke[0])
+            if quiet <= 0:
+                silenced = True
+                process.kill()
+                break
+            ended.wait(min(quiet, 1.0))
+        for reader in readers:
+            reader.join()
+
+    out = "".join(streams["out"])
+    err = "".join(streams["err"])
+    if silenced:
+        return (
+            TIMEOUT_RC,
+            out,
+            err + f"\nsaid nothing for {RUN_SILENCE_SECONDS}s: {' '.join(cmd)}\n",
+        )
+    return process.returncode, out, err
 
 
 def _print_streams(out: str, err: str, *, to_stderr: bool) -> None:
@@ -186,7 +254,7 @@ def main() -> int:
     ):
         build_pull_cmd = [*base_cmd, "build", "--pull"]
         print(f">>> {' '.join(build_pull_cmd)}", file=sys.stderr)
-        rc, out, err = run_cmd(build_pull_cmd, cwd=cwd, env=env)
+        rc, out, err = run_streamed(build_pull_cmd, cwd=cwd, env=env)
         _print_streams(out, err, to_stderr=True)
         if rc != 0:
             run_or_fail(
@@ -216,7 +284,7 @@ def main() -> int:
         pull_cmd.extend(targets)
 
     print(f">>> {' '.join(pull_cmd)}", file=sys.stderr)
-    rc, out, err = run_cmd(pull_cmd, cwd=cwd, env=env)
+    rc, out, err = run_streamed(pull_cmd, cwd=cwd, env=env)
     _print_streams(out, err, to_stderr=True)
 
     if rc != 0:
