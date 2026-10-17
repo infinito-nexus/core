@@ -28,6 +28,8 @@ Both layers are process-wide in-process caches. They intentionally do NOT track 
 
 Inside a play the process boundary is the task: Ansible forks a fresh worker per task, so `_MERGED_APPLICATIONS_CACHE` starts empty in every worker. `get_merged_applications` therefore also accepts the play-scoped carrier fact `_INFINITO_APPLICATIONS_RENDERED` (payload plus cache key, parked by the constructor stage and again after every role, every nested application load and every persisted token) and serves it when the key matches. See [applications.md](../../docs/contributing/artefact/files/plugins/lookup/applications.md) for the contract.
 
+While one render runs, the re-entry guard also holds that render's unrendered view and its cache key. A nested `get_merged_applications` call from a lookup inside a role template (`config`, `tls`, `domain`, ...) with the same key returns that view instead of copying and merging the role defaults again. The view is shared by every nested call of the render, so callers MUST NOT mutate it. The guard drops it when the render ends.
+
 ## Test-Only Helpers 🧪
 
 Each module owns a private `_reset()` that clears its own cache dicts. The package-level `utils.cache._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Unit tests that exercise the cached paths MUST call it in `setUp` to guarantee clean state across test cases.

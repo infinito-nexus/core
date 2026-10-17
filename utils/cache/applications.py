@@ -406,14 +406,22 @@ def get_merged_applications(
         _MERGED_APPLICATIONS_CACHE[cache_key] = carried
         return carried
 
+    guarded = getattr(_RENDER_GUARD, "applications", False)
+    if guarded:
+        unrendered = getattr(_RENDER_GUARD, "unrendered_applications", None)
+        if unrendered is not None and unrendered[0] == cache_key:
+            return unrendered[1]
+
     defaults = get_application_defaults(roles_dir=resolved_roles_dir)
 
     overrides = _resolve_override_mapping(variables, "applications", templar=templar)
 
     merged = merge_with_defaults(defaults, overrides)
 
-    if getattr(_RENDER_GUARD, "applications", False):
+    if guarded:
         return merged
+
+    _RENDER_GUARD.unrendered_applications = (cache_key, copy.deepcopy(merged))
 
     for app_cfg in merged.values():
         if isinstance(app_cfg, dict):
@@ -435,6 +443,7 @@ def get_merged_applications(
         )
     finally:
         _RENDER_GUARD.applications = False
+        _RENDER_GUARD.unrendered_applications = None
 
     for app_id in rendered:
         raw_volumes = get_canonical_volumes(app_id)
