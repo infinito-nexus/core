@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tarfile
 import threading
+import time
 
 from infinito_docs.catalogs import translated_languages
 from infinito_docs.commands import generate_commands, progress_of
@@ -23,13 +24,29 @@ LATEST = "latest"
 DEPLOYED = "deployed"
 LOG_TAIL = 40
 QUEUE_SEPARATOR = ":"
-RUN_TIMEOUT_SECONDS = 3600
+RUN_SILENCE_SECONDS = 3600
 
 
 def write_json(path, payload):
     staging = path.with_name(f".{path.name}.{os.getpid()}.{threading.get_ident()}")
     staging.write_text(json.dumps(payload), encoding="utf-8")
     staging.replace(path)
+
+
+def kill_when_silent(process, spoke, ended):
+    """Kill ``process`` once it has gone ``RUN_SILENCE_SECONDS`` without a line.
+
+    Args:
+        process: the running build command.
+        spoke: one-element list holding the monotonic time of its last line.
+        ended: set once the caller has read its output to the end.
+    """
+    while not ended.is_set():
+        quiet = RUN_SILENCE_SECONDS - (time.monotonic() - spoke[0])
+        if quiet <= 0:
+            process.kill()
+            return
+        ended.wait(quiet)
 
 
 class Builder:
@@ -65,17 +82,23 @@ class Builder:
             stderr=subprocess.STDOUT,
             text=True,
         ) as process:
-            watchdog = threading.Timer(RUN_TIMEOUT_SECONDS, process.kill)
+            spoke = [time.monotonic()]
+            ended = threading.Event()
+            watchdog = threading.Thread(
+                target=kill_when_silent, args=(process, spoke, ended), daemon=True
+            )
             watchdog.start()
             try:
                 for line in process.stdout:
+                    spoke[0] = time.monotonic()
                     progress = progress_of(line, state["progress"])
                     self._append_log(state, line.rstrip())
                     if progress != state["progress"]:
                         state["progress"] = progress
                         self._save_state(version, **state)
             finally:
-                watchdog.cancel()
+                ended.set()
+                watchdog.join()
         if process.returncode:
             raise subprocess.CalledProcessError(process.returncode, command)
 

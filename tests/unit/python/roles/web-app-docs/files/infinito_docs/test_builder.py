@@ -16,6 +16,13 @@ from utils.cache.files import read_text
 
 from .test_library import LibraryFixture, _commit, builder, library
 
+CHATTY = """
+import time
+for step in range(10):
+    print(step, flush=True)
+    time.sleep(0.1)
+"""
+
 
 class TestBuilder(LibraryFixture, unittest.TestCase):
     def test_a_run_that_emits_nothing_is_killed_at_the_deadline(self) -> None:
@@ -23,12 +30,23 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
         command = [sys.executable, "-c", "import time; time.sleep(60)"]
 
         with (
-            patch.object(builder, "RUN_TIMEOUT_SECONDS", 0.2),
+            patch.object(builder, "RUN_SILENCE_SECONDS", 0.2),
             self.assertRaises(subprocess.CalledProcessError),
         ):
             self.library._run(
                 "latest", state, command, dict(os.environ), str(self.data)
             )
+
+    def test_a_run_that_keeps_emitting_outlives_the_deadline(self) -> None:
+        state: dict = {"log": [], "progress": 0}
+        command = [sys.executable, "-c", CHATTY]
+
+        with patch.object(builder, "RUN_SILENCE_SECONDS", 0.3):
+            self.library._run(
+                "latest", state, command, dict(os.environ), str(self.data)
+            )
+
+        self.assertEqual(state["log"][-1], "9")
 
     def test_latest_is_built_from_the_last_commit(self) -> None:
         self.library.build("latest")
