@@ -17,6 +17,27 @@ UNAVAILABLE = 503
 BATCH_CONCURRENCY = 8
 
 
+async def _payload(request: Request) -> dict:
+    """Return the request body, whether it arrived as JSON or as a form.
+
+    discourse-translator posts ``application/x-www-form-urlencoded``, which
+    ``json()`` answers with a 500, and repeats ``q`` for a batch, which a
+    plain ``dict(form)`` would silently cut to its last value.
+
+    Args:
+        request: the incoming request.
+    """
+    media = request.headers.get("content-type", "").partition(";")[0].strip()
+    if media != "application/x-www-form-urlencoded":
+        return await request.json()
+    form = await request.form()
+    body = dict(form)
+    repeated = form.getlist("q")
+    if len(repeated) > 1:
+        body["q"] = repeated
+    return body
+
+
 def create_app(gateway, engines, *, detector=None):
     """The ASGI application serving the LibreTranslate API over *gateway*.
 
@@ -61,7 +82,7 @@ def create_app(gateway, engines, *, detector=None):
 
     @app.post("/translate")
     async def translate(request: Request) -> JSONResponse:
-        body = await request.json()
+        body = await _payload(request)
         text = body.get("q")
         target = body.get("target")
         if not text or not target:
@@ -105,7 +126,7 @@ def create_app(gateway, engines, *, detector=None):
 
     @app.post("/detect")
     async def detect(request: Request) -> JSONResponse:
-        body = await request.json()
+        body = await _payload(request)
         text = body.get("q")
         if not text:
             return JSONResponse(

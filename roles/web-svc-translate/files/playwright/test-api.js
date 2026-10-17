@@ -25,6 +25,21 @@ exports.register = function (shared) {
     expect((await response.json()).error, "Expected an error, never the source text").toBeTruthy();
   });
 
+  test("a form-encoded request is answered like a JSON one", async ({ request }) => {
+    const response = await request.post(shared.url("/translate"), {
+      form: { q: "House", source: "en", target: "de", format: "text" },
+      failOnStatusCode: false,
+      timeout: resolveTimeout(120_000),
+    });
+
+    expect(
+      response.status(),
+      "discourse-translator and every other LibreTranslate client post a form, " +
+        "so a gateway that only parses JSON breaks them",
+    ).toBe(200);
+    expect(typeof (await response.json()).translatedText, "Expected a translatedText string").toBe("string");
+  });
+
   test("languages answers a catalogue", async ({ request }) => {
     const response = await request.get(shared.url("/languages"), {
       failOnStatusCode: false,
