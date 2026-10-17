@@ -19,6 +19,7 @@ const SAVE = "button:text-is('Save')";
 const DIVIDER = "main [class~='border-border']";
 const SIDEBAR_LOGO = "#app-sidebar > div:first-child > div:first-child > span:last-child";
 const CORPORATE_THEME = /Corporate design/;
+const CORPORATE_THEME_NAME = "corporate";
 const TERMINAL_PAINTED_BYTES = 8_000;
 const TERMINAL_STARTUP_MS = 15_000;
 const SHOWCASE_JOB = "Design showcase";
@@ -163,6 +164,27 @@ async function chooseTheme(page, name) {
 
 /**
  * Args:
+ *   page: signed-in dashboard page whose theme switcher was just used.
+ *   baseUrl: dashboard origin.
+ *   name: theme name the gateway must report before the context may close.
+ */
+async function awaitPersistedTheme(page, baseUrl, name) {
+  await expect
+    .poll(
+      async () => {
+        const response = await apiGetOnion(page.request, `${baseUrl}/api/config?profile=default`);
+        return response.ok() ? (await response.json()).dashboard.theme : response.status();
+      },
+      {
+        message: "the gateway must persist the theme; every later browser context reads it from config.yaml",
+        timeout: resolveTimeout(60_000),
+      },
+    )
+    .toBe(name);
+}
+
+/**
+ * Args:
  *   page: signed-in dashboard page that loads the kanban plugin stylesheet.
  *
  * Returns:
@@ -300,6 +322,7 @@ exports.register = function (shared) {
     await chooseTheme(page, CORPORATE_THEME);
     await expect(html).not.toHaveAttribute("data-design-theme");
     await assertToken(page, SHELL, "background-color", "--design-surface-1", "corporate theme chosen again");
+    await awaitPersistedTheme(page, shared.env.baseUrl, CORPORATE_THEME_NAME);
   });
 
   test("design: the dashboard shows the generated logo and the configured title", async ({ page }) => {
