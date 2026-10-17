@@ -46,6 +46,7 @@ const SHELL_FRAME = ".classic-view-container iframe";
 const SHELL_TABLE = ".list-view scrm-table";
 const SHELL_RECORD = ".record-view";
 const SHELL_ADMIN_CARD = ".admin-view scrm-admin-card";
+const PLACEHOLDER_PROBE = "#infinito-placeholder-probe";
 const SHELL_USER_TOGGLE = ".global-links .dropdown-toggle";
 const SHELL_USER_MENU = ".dropdown-menu.global-links-dropdown";
 const SHELL_MODULE = `${SHELL_NAVBAR} li.top-nav.dropdown`;
@@ -57,6 +58,7 @@ const SHELL_NAV_LINK = `${SHELL_NAVBAR} li.top-nav .nav-link`;
 const SHELL_ROW_LINK = `${SHELL_TABLE} scrm-field a.field-link`;
 const SHELL_FOOTER = "scrm-footer-ui .footer";
 const SHELL_LIST_LOADED = `${SHELL_TABLE} a.field-link, ${SHELL_TABLE} :text("No results found")`;
+const SHELL_LIST_SKELETON = `${SHELL_TABLE} scrm-table-body-skeleton`;
 const ROLE_SHEET = "link[href*='/roles/web-app-suitecrm/'][href*='style.css']";
 const LEGACY_OVERRIDE = "legacy/custom/themes/suite8/css/Dawn/style.css";
 const COLOR_PROPERTY =
@@ -143,8 +145,30 @@ exports.register = function () {
       .toBe(true);
   }
 
+  /**
+   * Args:
+   *   page: Playwright page on a shell list; returns once its rows have stayed rendered without a reload placeholder for a second.
+   */
+  async function listSettled(page) {
+    let stableSince = 0;
+    await expect
+      .poll(
+        async () => {
+          const loaded = (await page.locator(SHELL_LIST_SKELETON).count()) === 0 && (await page.locator(SHELL_LIST_LOADED).first().isVisible());
+          if (!loaded) {
+            stableSince = 0;
+            return false;
+          }
+          stableSince = stableSince || Date.now();
+          return Date.now() - stableSince >= 1_000;
+        },
+        { intervals: [100], timeout: resolveTimeout(15_000), message: "the shell list must stay loaded for a second" },
+      )
+      .toBe(true);
+  }
+
   async function openUserMenu(page) {
-    await shown(SHELL_TABLE)(page);
+    await listSettled(page);
     if (!(await page.locator(SHELL_USER_MENU).first().isVisible())) {
       await page.locator(`${SHELL_USER_TOGGLE}:visible`).first().click();
     }
@@ -197,6 +221,28 @@ exports.register = function () {
     await openShell(page, "/accounts", SHELL_ROW_LINK);
     await assertLightAndDark(page, SHELL_ROW_LINK, "shell list");
     await assertReadable(page, [SHELL_ROW_LINK, `${SHELL_TABLE} th`], "shell list");
+  });
+
+  test("design: loading placeholders of lists, uploads and the editor toolbar take the palette", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page);
+    await openShell(page, "/accounts", SHELL_TABLE);
+    await page.evaluate(() => {
+      const probe = document.createElement("div");
+      probe.id = "infinito-placeholder-probe";
+      probe.innerHTML =
+        '<table class="list-view-table"><tbody><tr><td><div class="box-loading">x</div></td></tr></tbody></table>' +
+        '<div class="uploaded-file-name box-loading">x</div>' +
+        '<div class="squire-editor"><div class="squire-editor-toolbar box-loading">x</div></div>';
+      document.body.appendChild(probe);
+    });
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, `${PLACEHOLDER_PROBE} .list-view-table .box-loading`, "background-color", "--design-surface-active", `list placeholder ${mode}`);
+      await assertToken(page, `${PLACEHOLDER_PROBE} .uploaded-file-name.box-loading`, "background-color", "--design-border-strong", `upload placeholder ${mode}`);
+      await assertToken(page, `${PLACEHOLDER_PROBE} .squire-editor-toolbar.box-loading`, "background-color", "--design-surface-3", `editor toolbar placeholder ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
   });
 
   test("design: the shell administration overview takes surfaces and text from the palette", async ({ page }) => {
@@ -407,7 +453,7 @@ exports.register = function () {
             if (/;base64$/i.test(header)) return atob(data);
             try {
               return decodeURIComponent(data);
-            } catch (error) {
+            } catch {
               return data;
             }
           };
@@ -445,10 +491,10 @@ exports.register = function () {
     const shellView = (name, hash, ready) => ({ name, url: `${base}/${hash}`, prepare: shown(ready) });
     await captureDesignGallery(page, [
       { name: "shell-home", url: `${base}/#/home`, prepare: shellHome },
-      shellView("shell-accounts-list", "#/accounts", SHELL_TABLE),
+      { name: "shell-accounts-list", url: `${base}/#/accounts`, prepare: listSettled },
       shellView("shell-accounts-record", record, SHELL_RECORD),
       shellView("shell-accounts-create", "#/accounts/edit", SHELL_RECORD),
-      shellView("shell-contacts-list", "#/contacts", SHELL_LIST_LOADED),
+      { name: "shell-contacts-list", url: `${base}/#/contacts`, prepare: listSettled },
       shellView("shell-administration", "#/administration", SHELL_ADMIN_CARD),
       { name: "shell-module-menu-open", url: `${base}/?view=module-menu#/accounts`, prepare: openModuleMenu },
       { name: "shell-user-menu-open", url: `${base}/?view=user-menu#/accounts`, prepare: openUserMenu },
