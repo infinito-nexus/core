@@ -25,3 +25,16 @@
     DESIGN_LOGO_URL: "{{ BBB_DESIGN_LOGO_URL }}"
   register: bbb_design_settings
   changed_when: "'CHANGED' in bbb_design_settings.stdout"
+
+- name: "🎨 Publish the meeting client stylesheet of {{ application_id }}"
+  stack_host_template:
+    src: meeting.css.j2
+    dest: "{{ BBB_MEETING_STYLE_HOST }}"
+    mode: "0644"
+  when: BBB_DESIGN_ENABLED | bool
+
+- name: "🧹 Remove the meeting client stylesheet of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ BBB_MEETING_STYLE_HOST }}"
+    state: absent
+  when: not (BBB_DESIGN_ENABLED | bool)

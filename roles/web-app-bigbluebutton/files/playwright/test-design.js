@@ -35,6 +35,14 @@ const NEW_ROOM = "button.btn-brand.ms-auto";
 const ADMIN = "#admin-panel";
 const USERS_ROW = "#manage-users-table tbody tr";
 const SHOWCASE = "Design Showcase";
+const MEETING_NAVBAR = "#Navbar";
+const MEETING_ACTIONS = "#ActionsBar";
+const MEETING_TITLE = "#presentationTitle";
+const MEETING_USERS = "[data-test='userListContainer']";
+const MEETING_INPUT = "#message-input";
+const MEETING_LEAVE = "[data-test='leaveMeetingDropdown']";
+const MEETING_AUDIO_MODAL = "[data-test='audioModal']";
+const MEETING_AUDIO_CLOSE = "[data-test='closeModal']";
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -108,6 +116,56 @@ async function seedShowcase(page) {
     return { room: room.friendly_id, user: session.data.id };
   }, SHOWCASE);
 }
+
+/**
+ * Args:
+ *   page: Playwright page signed in as the administrator; starts or joins the showcase room meeting and closes the audio dialog.
+ *   room: friendly id of the showcase room.
+ */
+async function joinMeeting(page, room) {
+  await gotoOnion(page, `${base}/rooms/${room}`);
+  await page.getByRole("button", { name: /(start|join) meeting/i }).first().click({ timeout: resolveTimeout(20_000) });
+  await page.waitForURL(/html5client/, { timeout: resolveTimeout(60_000) });
+  await shown(MEETING_USERS)(page);
+  const close = page.locator(MEETING_AUDIO_CLOSE).first();
+  await close.waitFor({ state: "visible", timeout: resolveTimeout(15_000) });
+  await close.click();
+  await expect(page.locator(MEETING_AUDIO_MODAL)).toHaveCount(0, { timeout: resolveTimeout(10_000) });
+  const details = page.getByText("Session Details", { exact: true });
+  const appeared = await details.waitFor({ state: "visible", timeout: resolveTimeout(5_000) }).then(
+    () => true,
+    () => false,
+  );
+  if (appeared) await page.keyboard.press("Escape");
+  await expect(details).toBeHidden({ timeout: resolveTimeout(10_000) });
+}
+
+test("design: the meeting client takes frame, panels, primary action, title and text from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  skipUnreachable();
+  test.setTimeout(resolveTimeout(240_000));
+  await signIn(page);
+  await joinMeeting(page, (await seedShowcase(page)).room);
+  await expect(page.locator("link[rel='stylesheet'][href*='/meeting.css']")).toHaveCount(1);
+  const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+  if (title) {
+    await expect.poll(async () => (await page.title()).startsWith(`${title} - `), { message: "the meeting title starts with the configured title" }).toBe(true);
+  }
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, "body", "background-color", "--design-frame", `meeting stage ${mode}`);
+    await assertToken(page, MEETING_NAVBAR, "background-color", "--design-frame", `meeting header ${mode}`);
+    await assertToken(page, MEETING_ACTIONS, "background-color", "--design-frame", `meeting actions bar ${mode}`);
+    await assertToken(page, MEETING_TITLE, "color", "--design-on-frame", `presentation title ${mode}`);
+    await assertToken(page, MEETING_USERS, "background-color", "--design-surface-2", `user list ${mode}`);
+    await assertToken(page, MEETING_USERS, "color", "--design-text", `user list text ${mode}`);
+    await assertToken(page, MEETING_INPUT, "background-color", "--design-surface-2", `chat input ${mode}`);
+    await assertToken(page, MEETING_LEAVE, "background-color", "--design-danger", `leave button ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertLightAndDark(page, MEETING_USERS, "meeting user list");
+  await assertReadable(page, [MEETING_USERS, MEETING_INPUT, MEETING_TITLE, MEETING_LEAVE], "meeting client");
+});
 
 test("design: the administrator signs in with the account the role provisions", async ({ page }) => {
   skipUnlessServiceEnabled("design");
@@ -246,14 +304,28 @@ test("design: admin tables use the border token as divider in both modes", async
   await assertReadable(page, [`${USERS_ROW} td`, "#admin-sidebar .nav-link"], "bigbluebutton admin users");
 });
 
-test("design: the favicon and the title are the configured ones", async ({ page }) => {
+test("design: the favicon is the configured one", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   skipUnreachable();
   test.skip(!faviconUrl, "logo replacement is disabled for this role");
   await gotoOnion(page, `${base}/`);
   await shown(HERO)(page);
   await expect(page.locator("link[rel~='icon']").first()).toHaveAttribute("href", faviconUrl);
-  await expect(page).toHaveTitle("BigBlueButton");
+});
+
+test("design: Greenlight pages carry the configured title", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  skipUnreachable();
+  const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+  test.skip(!title, "title replacement is disabled for this role");
+  await gotoOnion(page, `${base}/`);
+  await shown(HERO)(page);
+  await expect(page).toHaveTitle(title);
+  await signIn(page);
+  await expect(page).toHaveTitle(title);
+  await gotoOnion(page, `${base}/admin/users`);
+  await shown(USERS_ROW)(page);
+  await expect(page).toHaveTitle(title);
 });
 
 /**
@@ -388,6 +460,14 @@ function galleryViews(seed) {
     visitor("sign-in", "/signin", EMAIL),
     visitor("sign-up", "/signup", ".card input[type=email]"),
     visitor("room-join", `/rooms/${seed.room}/join`, ".card input"),
+    {
+      name: "meeting",
+      url: `${base}/rooms/${seed.room}`,
+      prepare: async (page) => {
+        await signedInAt(page, `${base}/rooms/${seed.room}`);
+        await joinMeeting(page, seed.room);
+      },
+    },
   ];
 }
 
