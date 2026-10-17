@@ -4,11 +4,16 @@ application_id: "web-app-bluesky"
 BLUESKY_SOCIAL_APP_DIR: "{{ [ lookup('container', application_id, 'directories.services'), 'social-app' ] | path_join  }}"
 BLUESKY_SOCIAL_APP_REPOSITORY: "{{ lookup('config', application_id, 'services.view.repository') }}"
 BLUESKY_SOCIAL_APP_REF: "{{ lookup('config', application_id, 'services.view.ref') }}"
-BLUESKY_GEOLOCATION_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/geolocation/index.tsx' ] | path_join }}"
+BLUESKY_ENV_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/env/common.ts' ] | path_join }}"
 BLUESKY_SOCIAL_APP_DOCKERFILE: "{{ [ BLUESKY_SOCIAL_APP_DIR,'Dockerfile' ] | path_join }}"
 BLUESKY_ALF_THEMES_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR, 'src/alf/themes.ts' ] | path_join }}"
 BLUESKY_HEADINGS_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR, 'src/lib/strings/headings.ts' ] | path_join }}"
 BLUESKY_LOGOTYPE_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR, 'src/view/icons/Logotype.tsx' ] | path_join }}"
+BLUESKY_SAME_ORIGIN_URL_PATCHES:
+  - regexp: "^export const GEOLOCATION_PROD_URL = .*$"
+    replace: "export const GEOLOCATION_PROD_URL = ''"
+  - regexp: "^export const APP_CONFIG_PROD_URL = .*$"
+    replace: "export const APP_CONFIG_PROD_URL = ''"
 BLUESKY_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
 BLUESKY_DESIGN_TITLE_ENABLED: "{{ (BLUESKY_DESIGN_ENABLED | bool) and lookup('design', application_id).title is string }}"
 BLUESKY_DESIGN_LOGOTYPE_ENABLED: "{{ (BLUESKY_DESIGN_TITLE_ENABLED | bool) and lookup('design', application_id).logo is string }}"
@@ -129,7 +134,12 @@ BLUESKY_ADMIN_HANDLE: "kc-{{ lookup('users', 'platform_administrator').username 
 BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_API_PORT }}"
 
 BLUESKY_FRONT_PROXY_CONTENT: "{{ lookup('template', 'extra_locations.conf.j2') }}"
-BLUESKY_CONFIG_UPSTREAM_URL: "{{ lookup('config', application_id, 'server.config_upstream_url') }}"
+BLUESKY_FRONT_PROXY_TIMEOUT: 5s
+BLUESKY_FRONT_PROXY_ENDPOINTS:
+  - path: /config
+    upstream: "{{ lookup('config', application_id, 'server.config_upstream_url') }}"
+  - path: /geolocation
+    upstream: "{{ lookup('config', application_id, 'server.geolocation_upstream_url') }}"
 
 BLUESKY_BROKER_BUILD_CONTEXT: "{{ [ lookup('container', application_id, 'directories.services'), 'login-broker' ] | path_join }}"
 BLUESKY_BROKER_SRC_DIR: "{{ role_path }}/files/login-broker"

@@ -36,17 +36,32 @@
     bluesky_social_app_probe is changed
     or (bluesky_social_app_theme_left is not skipped and bluesky_social_app_theme_left.matched > 0)
 
-- name: 💪 Force BAPP_CONFIG_URL to same-origin /config
+- name: 💪 Force the boot-time config URLs to the same origin
   ansible.builtin.replace:
-    path: "{{ BLUESKY_GEOLOCATION_PATH }}"
-    regexp: "^\\s*const\\s+BAPP_CONFIG_URL\\s*=\\s*.*$"
-    replace: "const BAPP_CONFIG_URL = '/config'"
+    path: "{{ BLUESKY_ENV_PATH }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop: "{{ BLUESKY_SAME_ORIGIN_URL_PATCHES }}"
+  loop_control:
+    label: "{{ item.replace }}"
 
-- name: 💪 Force IPCC_URL to same-origin /ipcc
-  ansible.builtin.replace:
-    path: "{{ BLUESKY_GEOLOCATION_PATH }}"
-    regexp: "^\\s*const\\s+IPCC_URL\\s*=\\s*.*$"
-    replace: "const IPCC_URL = '/ipcc'"
+- name: 🔎 Read the patched env module back
+  ansible.builtin.slurp:
+    src: "{{ BLUESKY_ENV_PATH }}"
+  register: bluesky_env_module
+
+- name: ✅ Require every boot-time config URL to be same-origin
+  ansible.builtin.assert:
+    that: item.replace in (bluesky_env_module.content | b64decode).splitlines()
+    fail_msg: >-
+      {{ BLUESKY_ENV_PATH }} still carries an absolute boot-time config URL
+      because upstream moved or renamed the constant. social-app renders
+      nothing until that fetch settles, so every visitor whose browser cannot
+      reach the public Bluesky hosts (a Tor client without an exit, for
+      instance) is left staring at the splash.
+  loop: "{{ BLUESKY_SAME_ORIGIN_URL_PATCHES }}"
+  loop_control:
+    label: "{{ item.replace }}"
 
 - name: 💪 Force GOARCH to the architecture the bskyweb build targets
   ansible.builtin.replace:
