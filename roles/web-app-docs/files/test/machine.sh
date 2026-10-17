@@ -69,7 +69,8 @@ await_systemd() {
 
 target_address() {
 	container inspect --type container "$(machine ps -q machine)" \
-		--format '{{.NetworkSettings.IPAddress}}'
+		--format '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' |
+		awk '{print $1}'
 }
 
 await_ssh() {
