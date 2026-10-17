@@ -3506,6 +3506,12 @@
 :root:has(app-root) .squire-editor .squire-editor-toolbar.box-loading {
   background-color: var(--design-surface-3) !important;
 }
+:root:has(app-root) .ngx-charts .gridline-path {
+  stroke: var(--design-border);
+}
+:root:has(app-root) .ngx-charts text {
+  fill: var(--design-text-muted);
+}
 :root:has(app-root) .record-content-skeleton .tab-content .col-form-label-sm {
   background-color: var(--design-primary);
 }

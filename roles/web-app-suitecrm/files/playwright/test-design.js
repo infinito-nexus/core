@@ -47,6 +47,8 @@ const SHELL_TABLE = ".list-view scrm-table";
 const SHELL_RECORD = ".record-view";
 const SHELL_ADMIN_CARD = ".admin-view scrm-admin-card";
 const PLACEHOLDER_PROBE = "#infinito-placeholder-probe";
+const CHART_GRIDLINE = ".ngx-charts .gridline-path";
+const CHART_TICK = ".ngx-charts g.tick text";
 const SHELL_USER_TOGGLE = ".global-links .dropdown-toggle";
 const SHELL_USER_MENU = ".dropdown-menu.global-links-dropdown";
 const SHELL_MODULE = `${SHELL_NAVBAR} li.top-nav.dropdown`;
@@ -241,6 +243,18 @@ exports.register = function () {
       await assertToken(page, `${PLACEHOLDER_PROBE} .list-view-table .box-loading`, "background-color", "--design-surface-active", `list placeholder ${mode}`);
       await assertToken(page, `${PLACEHOLDER_PROBE} .uploaded-file-name.box-loading`, "background-color", "--design-border-strong", `upload placeholder ${mode}`);
       await assertToken(page, `${PLACEHOLDER_PROBE} .squire-editor-toolbar.box-loading`, "background-color", "--design-surface-3", `editor toolbar placeholder ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: the list insight charts draw grid lines and axis labels from the palette", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await signIn(page);
+    await openShell(page, "/accounts", CHART_TICK);
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertToken(page, CHART_GRIDLINE, "stroke", "--design-border", `chart grid line ${mode}`);
+      await assertToken(page, CHART_TICK, "fill", "--design-text-muted", `chart axis label ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
   });
