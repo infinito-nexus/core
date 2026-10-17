@@ -12,7 +12,6 @@ whitelist:
     - https://events.bsky.app
     - https://*.workers.bsky.app # nocheck: url
     - https://statsigapi.net # nocheck: url
-    - https://ip.bsky.app # nocheck: url
     - https://video.bsky.app
     - https://bsky.app
     - wss://bsky.network
