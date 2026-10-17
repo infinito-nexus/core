@@ -2,13 +2,11 @@
 # Wait for the seeder's migrations, then exec the app entrypoint.
 #
 # Swarm ignores depends_on, so web and worker would start while the seeder is
-# still migrating and die on ActiveRecord::PendingMigrationError. The gate is
-# read-only -- it never migrates, so concurrent replicas cannot race.
+# still migrating and die on ActiveRecord::PendingMigrationError.
 #
-# The wait is bounded on purpose. `db:abort_if_pending_migrations` exits 1 both
-# for pending migrations and for an unreachable database (measured against
-# openproject/openproject:17), so an unbounded loop would spin forever whenever
-# the database is down. Past the deadline the entrypoint starts regardless,
+# The wait is bounded on purpose. The probe fails both for pending migrations
+# and for an unreachable database, so an unbounded loop would spin forever
+# whenever the database is down. Past the deadline the entrypoint starts regardless,
 # which is exactly today's behaviour: the worst case stays the crash loop that
 # already exists, never a service that refuses to come up.
 #
@@ -26,9 +24,15 @@ shift 2
 	exit 2
 }
 
+schema_is_current() {
+	local status
+	status=$(bundle exec rails db:migrate:status 2>/dev/null) || return 1
+	! grep -q -E '^[[:space:]]*down[[:space:]]' <<<"$status"
+}
+
 deadline=$(($(date +%s) + deadline_seconds))
 while [ "$(date +%s)" -lt "$deadline" ]; do
-	if bundle exec rails db:abort_if_pending_migrations >/dev/null 2>&1; then
+	if schema_is_current; then
 		echo "await_migrations: schema is current, starting $1"
 		exec "$@"
 	fi
