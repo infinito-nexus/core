@@ -23,10 +23,11 @@ test("addon auth_oauth: the login page offers the partner Keycloak provider", as
   expect(login.status(), "Odoo must serve its login page").toBeLessThan(400);
 
   const body = await login.text();
+  const redirectUri = encodeURIComponent(`${base}/auth_oauth/signin`);
   expect(
     body,
-    "the login page must carry an /auth_oauth/signin redirect uri; its absence means the auth_oauth module is not installed or no OAuth provider row is active, so Keycloak cannot be used to sign in",
-  ).toContain("/auth_oauth/signin");
+    `the login page must carry the ${base}/auth_oauth/signin redirect uri, which the provider link holds percent-encoded as redirect_uri=${redirectUri}; its absence means the auth_oauth module is not installed or no OAuth provider row is active, so Keycloak cannot be used to sign in`,
+  ).toContain(`redirect_uri=${redirectUri}`);
   expect(
     body,
     `the provider entry must point at the partner Keycloak authorization endpoint ${issuerUrl}/protocol/openid-connect/auth, which proves the auth.oauth.provider row tasks/05_oidc.yml writes carries this deployment's issuer and client id rather than Odoo's shipped default provider`,

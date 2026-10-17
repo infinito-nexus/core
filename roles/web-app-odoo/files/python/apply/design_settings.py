@@ -74,7 +74,9 @@ def converge_field(state, record, field, wanted, default):
         record: recordset of one record.
         field: field name.
         wanted: value to write; empty to put the upstream default back.
-        default: upstream default of the field.
+        default: upstream default of the field, in the form ``read`` returns
+            and ``write`` takes: content bytes for a binary field, text for
+            any other field.
 
     Returns:
         True when the field was written. A value that is neither the upstream
@@ -280,8 +282,20 @@ icon = ""
 if website:
     results += [
         converge_field(state, website, "name", title, DEFAULT_WEBSITE_NAME),
-        converge_field(state, website, "logo", logo, website._default_logo()),
-        converge_field(state, website, "favicon", favicon, website._default_favicon()),
+        converge_field(
+            state,
+            website,
+            "logo",
+            logo,
+            base64.b64decode(website._default_logo(), validate=True),
+        ),
+        converge_field(
+            state,
+            website,
+            "favicon",
+            favicon,
+            base64.b64decode(website._default_favicon(), validate=True),
+        ),
     ]
     if favicon:
         icon = f"/web/image/website/{website.id}/favicon?unique={digest(favicon)}"
