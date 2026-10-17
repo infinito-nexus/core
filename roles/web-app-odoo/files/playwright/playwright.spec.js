@@ -80,7 +80,7 @@ async function isOdooAuthenticated(locator) {
 }
 
 async function logOutThroughTheUserMenu(page) {
-  await page.locator("button.o_user_menu").first().click({ timeout: resolveTimeout(30_000) });
+  await page.locator("button.o_user_menu, .o_user_menu button").first().click({ timeout: resolveTimeout(30_000) });
   await page.locator('[data-menu="logout"]').first().click({ timeout: resolveTimeout(30_000) });
 }
 

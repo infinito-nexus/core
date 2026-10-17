@@ -2213,6 +2213,7 @@ body.o_is_superuser .o_menu_systray {
   color: var(--SearchPanelHeader-hover-fold-color, var(--design-text));
 }
 .o_searchview {
+  --SearchBar-background-color: var(--design-surface-2);
   background-color: var(--SearchBar-background-color);
   border: var(--border-width) solid var(--border-color);
 }
