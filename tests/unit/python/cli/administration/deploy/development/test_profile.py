@@ -16,6 +16,7 @@ _BLANK_CI_ENV = {
     "INFINITO_GIT_COMMON_DIR": "",
     "INFINITO_CACHE_NETWORK": "",
     "INFINITO_CACHE_STACK": "",
+    "INFINITO_GHCR_MIRROR": "",
 }
 
 
@@ -110,6 +111,31 @@ class TestProfileDeclaredCapabilities(unittest.TestCase):
         self.assertFalse(p.cache_stack_enabled())
         self.assertTrue(p.image_mirror_enabled())
         self.assertTrue(p.docker_root_ephemeral())
+
+    @patch.dict(
+        os.environ,
+        {**_BLANK_CI_ENV, "INFINITO_GHCR_MIRROR": "true"},
+        clear=False,
+    )
+    def test_a_mirror_declaration_changes_nothing_but_the_mirror(self) -> None:
+        p = Profile()
+        self.assertTrue(p.image_mirror_enabled())
+        self.assertFalse(p.runs_on_github())
+        self.assertFalse(p.is_ci())
+        self.assertTrue(p.cache_stack_enabled())
+        self.assertFalse(p.docker_root_ephemeral())
+
+    @patch.dict(
+        os.environ,
+        {
+            **_BLANK_CI_ENV,
+            "INFINITO_RUNNING_ON_GITHUB": "true",
+            "INFINITO_GHCR_MIRROR": "false",
+        },
+        clear=False,
+    )
+    def test_a_declared_false_turns_the_mirror_off_on_github(self) -> None:
+        self.assertFalse(Profile().image_mirror_enabled())
 
 
 class TestProfileInstance(unittest.TestCase):
