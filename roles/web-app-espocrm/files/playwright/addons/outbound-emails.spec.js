@@ -70,11 +70,11 @@ test("addon outbound-emails: EspoCRM sends through the deployed Mailu SMTP host"
   }
 
   await expect
-    .poll(() => page.url(), {
+    .poll(() => page.evaluate(() => Object.keys(localStorage).some((name) => /user-auth$/.test(name))), {
       timeout: resolveTimeout(120_000),
-      message: "expected the EspoCRM login to land back on the application",
+      message: "the login must mint an EspoCRM session before the admin route is opened",
     })
-    .toContain(expectedBase);
+    .toBe(true);
 
   await gotoOnion(page, `${expectedBase}/#Admin/outboundEmails`, { waitUntil: "domcontentloaded" });
   await page.reload({ waitUntil: "domcontentloaded" });

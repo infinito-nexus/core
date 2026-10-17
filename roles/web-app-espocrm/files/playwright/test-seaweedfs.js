@@ -77,11 +77,11 @@ test("seaweedfs: an uploaded EspoCRM attachment is stored in the SeaweedFS bucke
       }
 
       await expect
-        .poll(() => appPage.url(), {
+        .poll(() => appPage.evaluate(() => Object.keys(localStorage).some((name) => /user-auth$/.test(name))), {
           timeout: resolveTimeout(120_000),
-          message: "expected the EspoCRM login to land back on the application",
+          message: "the login must mint an EspoCRM session before the admin route is opened",
         })
-        .toContain(expectedBase);
+        .toBe(true);
 
       await appPage.goto(`${expectedBase}/#Admin/userInterface`, { waitUntil: "domcontentloaded" });
       await appPage.reload({ waitUntil: "domcontentloaded" });

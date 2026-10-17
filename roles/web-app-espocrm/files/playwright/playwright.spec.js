@@ -60,11 +60,11 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      await interactivePage.locator("#nav-menu-dropdown").click({ timeout: resolveTimeout(30_000) });
-      const link = interactivePage.getByRole("link", { name: /^administration$/i }).first();
-      await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
-      await link.click({ timeout: resolveTimeout(30_000) });
-      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await gotoOnion(interactivePage, `${appBaseUrl}/#Admin`);
+      await expect(
+        interactivePage.locator("#main .admin-tables-container table.table-admin-panel").first(),
+        "the administration panel renders only for an EspoCRM administrator",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
       await expect(interactivePage).toHaveURL(/#Admin/, {
         timeout: resolveTimeout(30_000),
       });
