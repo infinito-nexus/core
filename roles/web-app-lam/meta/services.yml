@@ -16,6 +16,16 @@ matomo:
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
+# nocheck: playwright-service-flag — session store behind every request, no Playwright surface of its own
+redis:
+  bond: 1
+  backup:
+    disabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
+  cpus: "0.25"
+  mem_reservation: 128m
+
 lam:
   modes:
     compose:
@@ -28,6 +38,7 @@ lam:
   provides: lam
   image: ghcr.io/ldapaccountmanager/lam
   version: "9.7"
+  custom: true
   min_storage: 345MB
   ports:
     local:
