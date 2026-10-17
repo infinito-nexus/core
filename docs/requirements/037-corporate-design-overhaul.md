@@ -119,7 +119,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-snipe-it
 - [x] web-app-socialhome
 - [x] web-app-sphinx
-- [ ] web-app-stalwart: under `sso` the web administration specs need the administrator group grant of `feature/store-i18n` (`199f2a6d41`); no green run on the merged state yet.
+- [ ] web-app-stalwart: handed over to `feature/store-i18n`. Under `sso` the web administration specs need its administrator group grant (`199f2a6d41`), which `feature/designer` does not carry, so `feature/store-i18n` ticks this item after a green run of the stalwart spec with `design`, `sso` and `email` on its merged state.
 - [x] web-app-suitecrm
 - [x] web-app-taiga
 - [x] web-app-wordpress
