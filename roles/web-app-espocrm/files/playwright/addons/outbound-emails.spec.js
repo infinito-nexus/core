@@ -17,6 +17,7 @@ test.use({ ignoreHTTPSErrors: true });
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const smtpHost = decodeDotenvQuotedValue(process.env.EMAIL_SMTP_HOST || "");
+const smtpPort = decodeDotenvQuotedValue(process.env.EMAIL_SMTP_PORT || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
@@ -28,6 +29,11 @@ test("addon outbound-emails: EspoCRM sends through the deployed Mailu SMTP host"
 
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(smtpHost, "EMAIL_SMTP_HOST must be set when the email service is on").toBeTruthy();
+  expect(smtpPort, "EMAIL_SMTP_PORT must be set when the email service is on").toBeTruthy();
+  expect(
+    Number.isInteger(Number(smtpPort)) && Number(smtpPort) > 0,
+    "EMAIL_SMTP_PORT must be a port number when the email service is on",
+  ).toBe(true);
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
 
   const expectedBase = appBaseUrl.replace(/\/$/, "");
@@ -76,23 +82,92 @@ test("addon outbound-emails: EspoCRM sends through the deployed Mailu SMTP host"
     "the login must mint an EspoCRM session before the admin route is opened",
   );
 
-  await gotoOnion(page, `${expectedBase}/#Admin/outboundEmails`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedBase}/#Admin/groupEmailAccounts`, { waitUntil: "domcontentloaded" });
   await page.reload({ waitUntil: "domcontentloaded" });
 
-  const smtpServerField = page.locator("[data-name='smtpServer'], input[name='smtpServer']").first();
   await expect(
-    smtpServerField,
-    "the Outbound Emails admin panel must render the SMTP server field; without it the login " +
-      "did not reach an administrator surface and the assertion below would prove nothing",
+    page.locator("[data-scope='InboundEmail'] tr.list-row").first(),
+    "the Group Email Accounts admin page must list at least one account; an empty list or an " +
+      "access-denied page means the login did not reach an administrator surface and the " +
+      "assertions below would prove nothing",
   ).toBeAttached({ timeout: resolveTimeout(120_000) });
 
-  const rendered =
-    (await smtpServerField.inputValue().catch(() => null)) ??
-    (await smtpServerField.innerText().catch(() => ""));
+  const probe = await page.evaluate(async () => {
+    const key = Object.keys(localStorage).find((name) => /user-auth$/.test(name));
+    const token = key ? localStorage.getItem(key) : null;
+    if (!token) {
+      return { token: false };
+    }
+    const response = await fetch("api/v1/InboundEmail?maxSize=200", {
+      headers: {
+        "Espo-Authorization": token,
+        "Espo-Authorization-By-Token": "true",
+      },
+    });
+    if (!response.ok) {
+      return { token: true, httpStatus: response.status };
+    }
+    const payload = await response.json();
+    const record = (payload.list || []).find((entry) => entry.isSystem === true);
+    return {
+      token: true,
+      httpStatus: response.status,
+      account: record
+        ? {
+            status: record.status,
+            useSmtp: record.useSmtp,
+            smtpHost: record.smtpHost,
+            smtpPort: record.smtpPort,
+            smtpAuth: record.smtpAuth,
+          }
+        : null,
+    };
+  });
 
   expect(
-    rendered,
-    `EspoCRM's outbound mailer must carry the deployed Mailu host (${smtpHost}); another value ` +
-      "means ESPOCRM_CONFIG_SMTP_SERVER never reached the app's own config",
-  ).toContain(smtpHost);
+    probe.token,
+    "the authenticated session must leave EspoCRM's auth token in localStorage for the API read",
+  ).toBe(true);
+
+  expect(
+    probe.httpStatus,
+    "InboundEmail is an admin-only scope, so anything but 200 means the session that reached " +
+      "the admin page is not an administrator's",
+  ).toBe(200);
+
+  expect(
+    probe.account,
+    "EspoCRM must hold a group email account it reports as the system one; isSystem is true " +
+      "only for the record whose address is outboundEmailFromAddress, which is exactly the row " +
+      "Sender::applyGlobal resolves through SendingAccountProvider::getSystem() since 9.1; " +
+      "config.smtpServer is no longer read on send",
+  ).not.toBeNull();
+
+  expect(
+    probe.account.status,
+    "the system group email account must be Active; getSystem() filters on that status",
+  ).toBe("Active");
+
+  expect(
+    probe.account.useSmtp,
+    "the system group email account must have SMTP enabled; getSystem() filters on that flag",
+  ).toBe(true);
+
+  expect(
+    probe.account.smtpHost,
+    `the system group email account must carry the deployed mail host (${smtpHost}); another ` +
+      "value means the role never provisioned it from the deployed mail service",
+  ).toBe(smtpHost);
+
+  expect(
+    probe.account.smtpPort,
+    `the system group email account must carry the deployed submission port (${smtpPort}); a ` +
+      'null port makes getSmtpParams() throw NoSmtp("Empty port.") on every send',
+  ).toBe(Number(smtpPort));
+
+  expect(
+    probe.account.smtpAuth,
+    "the system group email account must authenticate; the deployed mail service rejects an " +
+      "unauthenticated submission",
+  ).toBe(true);
 });
