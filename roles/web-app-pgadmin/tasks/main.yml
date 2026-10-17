@@ -7,6 +7,9 @@
   include_tasks: configuration.yml
   when: PGADMIN_SERVER_MODE | bool
 
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
 - name: "🖥️ pgAdmin stack-host post-deploy (administrator realign)"
   include_tasks: manager_ops.yml
   when: IS_STACK_HOST | bool
