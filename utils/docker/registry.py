@@ -190,7 +190,7 @@ def _cache_path(kind: str, *parts: str) -> Path:
     return _CACHE_ROOT / kind / digest[:2] / f"{digest}.json"
 
 
-def _cache_read(kind: str, *parts: str):
+def cache_read(kind: str, *parts: str):
     try:
         return json.loads(
             _cache_path(kind, *parts).read_text()  # nocheck: cache-read
@@ -199,7 +199,7 @@ def _cache_read(kind: str, *parts: str):
         return None
 
 
-def _cache_write(kind: str, value, *parts: str) -> None:
+def cache_write(kind: str, value, *parts: str) -> None:
     """Persist a *positive* probe result; indeterminate answers are never stored."""
     path = _cache_path(kind, *parts)
     try:
@@ -209,7 +209,7 @@ def _cache_write(kind: str, value, *parts: str) -> None:
         return
 
 
-def _probe_order(image: str) -> list[str]:
+def probe_order(image: str) -> list[str]:
     """Return *image* addressed at the mirror first, upstream second."""
     mirrored = mirror_image(image)
     if mirrored is None or mirrored == image:
@@ -217,7 +217,7 @@ def _probe_order(image: str) -> list[str]:
     return [mirrored, image]
 
 
-def _platform_digest(manifests: list, os_name: str, architecture: str) -> str | None:
+def platform_digest(manifests: list, os_name: str, architecture: str) -> str | None:
     for entry in manifests:
         if not isinstance(entry, dict):
             continue
@@ -252,13 +252,13 @@ def manifest_transfer_size(
     upstream registry only for images the mirror does not carry. Measured sizes
     are cached on disk (see :func:`_cache_dir`).
     """
-    cached = _cache_read("size", image, reference, os_name, architecture)
+    cached = cache_read("size", image, reference, os_name, architecture)
     if isinstance(cached, int):
         return cached
-    for candidate in _probe_order(image):
+    for candidate in probe_order(image):
         size = _transfer_size_at(candidate, reference, os_name, architecture)
         if size is not None:
-            _cache_write("size", size, image, reference, os_name, architecture)
+            cache_write("size", size, image, reference, os_name, architecture)
             return size
     return None
 
@@ -271,7 +271,7 @@ def _transfer_size_at(
         return None
     manifests = doc.get("manifests")
     if isinstance(manifests, list) and manifests:
-        digest = _platform_digest(manifests, os_name, architecture)
+        digest = platform_digest(manifests, os_name, architecture)
         if digest is None:
             return None
         doc = fetch_manifest(image, digest)
@@ -288,7 +288,7 @@ def _transfer_size_at(
     return total
 
 
-def _fetch_blob(image: str, digest: str) -> dict | None:
+def fetch_blob(image: str, digest: str) -> dict | None:
     """Return a parsed JSON blob of *image*, or None on any failure."""
     resolved = _resolve(image)
     if resolved is None:
@@ -306,88 +306,6 @@ def _fetch_blob(image: str, digest: str) -> dict | None:
     except (json.JSONDecodeError, UnicodeDecodeError):
         return None
     return parsed if isinstance(parsed, dict) else None
-
-
-def _healthcheck_at(
-    image: str, reference: str, os_name: str, architecture: str
-) -> dict | None:
-    doc = fetch_manifest(image, reference)
-    if doc is None:
-        return None
-    manifests = doc.get("manifests")
-    if isinstance(manifests, list) and manifests:
-        digest = _platform_digest(manifests, os_name, architecture)
-        if digest is None:
-            return None
-        doc = fetch_manifest(image, digest)
-        if doc is None or doc.get("manifests"):
-            return None
-    config_digest = (doc.get("config") or {}).get("digest")
-    if not isinstance(config_digest, str) or not config_digest:
-        return None
-    blob = _fetch_blob(image, config_digest)
-    if blob is None:
-        return None
-    return (blob.get("config") or {}).get("Healthcheck") or {}
-
-
-def image_healthcheck(
-    image: str,
-    reference: str,
-    *,
-    os_name: str = "linux",
-    architecture: str = "amd64",
-) -> dict | None:
-    """Return the ``HEALTHCHECK`` baked into ``image:reference``.
-
-    Args:
-        image: image name, with or without registry host.
-        reference: tag or digest.
-        os_name: platform to resolve a multi-arch index to.
-        architecture: platform to resolve a multi-arch index to.
-
-    Returns:
-        The image's healthcheck config, ``{}`` when the image definitively
-        declares none, and ``None`` when the answer is indeterminate - an
-        unresolvable name, a network error, an auth wall, a rate limit, or an
-        index without a matching platform. A caller must not read ``{}`` and
-        ``None`` as the same thing: only the former is evidence.
-
-    Reads from the mirror first and falls back to the upstream registry only
-    for images the mirror does not carry, so a full sweep does not spend the
-    upstream's rate limit. Determinate answers are cached on disk.
-    """
-    return image_healthcheck_probed(
-        image, reference, os_name=os_name, architecture=architecture
-    )[0]
-
-
-def image_healthcheck_probed(
-    image: str,
-    reference: str,
-    *,
-    os_name: str = "linux",
-    architecture: str = "amd64",
-) -> tuple[dict | None, str]:
-    """:func:`image_healthcheck` plus which address answered.
-
-    Returns:
-        ``(healthcheck, source)`` where source is ``cache``, ``mirror``,
-        ``upstream`` or ``none``. Reading upstream is the documented fallback
-        for images the mirror does not carry; a caller that sweeps many images
-        can use the counts to tell a fallback from a mirror that stopped
-        working.
-    """
-    cached = _cache_read("healthcheck", image, reference, os_name, architecture)
-    if isinstance(cached, dict):
-        return cached, "cache"
-    mirrored = mirror_image(image)
-    for candidate in _probe_order(image):
-        found = _healthcheck_at(candidate, reference, os_name, architecture)
-        if found is not None:
-            _cache_write("healthcheck", found, image, reference, os_name, architecture)
-            return found, "mirror" if candidate == mirrored else "upstream"
-    return None, "none"
 
 
 def _platforms_at(image: str, reference: str) -> set[str] | None:
@@ -409,7 +327,7 @@ def _platforms_at(image: str, reference: str) -> set[str] | None:
     config_digest = (doc.get("config") or {}).get("digest")
     if not isinstance(config_digest, str) or not config_digest:
         return None
-    blob = _fetch_blob(image, config_digest)
+    blob = fetch_blob(image, config_digest)
     if blob is None:
         return None
     os_name, architecture = blob.get("os"), blob.get("architecture")
@@ -456,14 +374,14 @@ def manifest_platforms_probed(
     Determinate answers are cached on disk, so a rerun spends nothing on a pin
     that did not move.
     """
-    cached = _cache_read("platforms", image, reference)
+    cached = cache_read("platforms", image, reference)
     if isinstance(cached, list):
         return set(cached), "cache"
     mirrored = mirror_image(image)
-    for candidate in _probe_order(image):
+    for candidate in probe_order(image):
         found = _platforms_at(candidate, reference)
         if found is not None:
-            _cache_write("platforms", sorted(found), image, reference)
+            cache_write("platforms", sorted(found), image, reference)
             return found, "mirror" if candidate == mirrored else "upstream"
     return None, "none"
 
@@ -478,7 +396,7 @@ def manifest_exists(image: str, reference: str) -> bool | None:
     it exists to prove the declared pin is still pullable from where the deploy
     pulls it, which a mirrored copy cannot answer for.
     """
-    if _cache_read("exists", image, reference) is True:
+    if cache_read("exists", image, reference) is True:
         return True
     resolved = _resolve(image)
     if resolved is None:
@@ -490,7 +408,7 @@ def manifest_exists(image: str, reference: str) -> bool | None:
         return None
     status = result[0]
     if status == 200:
-        _cache_write("exists", True, image, reference)
+        cache_write("exists", True, image, reference)
         return True
     if status == 404:
         return False

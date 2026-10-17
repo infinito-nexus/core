@@ -1,4 +1,4 @@
-"""image_healthcheck must separate "declares none" from "could not tell".
+"""A config-blob read must separate "declares none" from "could not tell".
 
 A sweep that reads an indeterminate answer as an absent probe reports every
 image as a gap the moment the network hiccups.
@@ -14,6 +14,7 @@ import unittest.mock as mock
 from pathlib import Path
 
 from utils.docker import registry
+from utils.docker.image import config
 
 MANIFEST = {"config": {"digest": "sha256:cfg"}, "layers": [{"size": 1}]}
 INDEX = {
@@ -22,6 +23,7 @@ INDEX = {
     ]
 }
 PROBE = {"Test": ["CMD-SHELL", "dig @127.0.0.1 || exit 1"]}
+VOLUMES = {"/opt/ejabberd": {}}
 
 
 class _Isolated:
@@ -36,12 +38,12 @@ class _Isolated:
             patcher.start()
             self.addCleanup(patcher.stop)
 
-    def serve(self, manifest, config):
-        """Answer manifest requests with *manifest* and blob requests with *config*."""
+    def serve(self, manifest, blob):
+        """Answer manifest requests with *manifest* and blob requests with *blob*."""
 
         def _request(url, repo, method, accept):
             if "/blobs/" in url:
-                return (200, {}, json.dumps(config).encode()) if config else None
+                return (200, {}, json.dumps(blob).encode()) if blob else None
             return (200, {}, json.dumps(manifest).encode()) if manifest else None
 
         return mock.patch.object(registry, "_request", side_effect=_request)
@@ -50,15 +52,15 @@ class _Isolated:
 class TestImageHealthcheck(_Isolated, unittest.TestCase):
     def test_a_declared_probe_comes_back(self) -> None:
         with self.serve(MANIFEST, {"config": {"Healthcheck": PROBE}}):
-            self.assertEqual(registry.image_healthcheck("redis", "alpine"), PROBE)
+            self.assertEqual(config.image_healthcheck("redis", "alpine"), PROBE)
 
     def test_an_image_without_one_answers_with_an_empty_mapping(self) -> None:
         with self.serve(MANIFEST, {"config": {}}):
-            self.assertEqual(registry.image_healthcheck("redis", "alpine"), {})
+            self.assertEqual(config.image_healthcheck("redis", "alpine"), {})
 
     def test_an_unreachable_registry_is_indeterminate_not_absent(self) -> None:
         with mock.patch.object(registry, "_request", return_value=None):
-            self.assertIsNone(registry.image_healthcheck("redis", "alpine"))
+            self.assertIsNone(config.image_healthcheck("redis", "alpine"))
 
     def test_a_multi_platform_index_is_resolved_to_the_platform(self) -> None:
         seen = []
@@ -75,15 +77,15 @@ class TestImageHealthcheck(_Isolated, unittest.TestCase):
             return (200, {}, json.dumps(body).encode())
 
         with mock.patch.object(registry, "_request", side_effect=_request):
-            self.assertEqual(registry.image_healthcheck("redis", "alpine"), PROBE)
+            self.assertEqual(config.image_healthcheck("redis", "alpine"), PROBE)
         self.assertTrue(any("sha256%3Aamd" in url for url in seen))
 
     def test_an_index_without_the_platform_is_indeterminate(self) -> None:
         with (
             self.serve(INDEX, {"config": {}}),
-            mock.patch.object(registry, "_platform_digest", return_value=None),
+            mock.patch.object(config, "platform_digest", return_value=None),
         ):
-            self.assertIsNone(registry.image_healthcheck("redis", "alpine"))
+            self.assertIsNone(config.image_healthcheck("redis", "alpine"))
 
     def test_a_determinate_answer_is_cached(self) -> None:
         calls = []
@@ -95,27 +97,46 @@ class TestImageHealthcheck(_Isolated, unittest.TestCase):
             return (200, {}, json.dumps(MANIFEST).encode())
 
         with mock.patch.object(registry, "_request", side_effect=_request):
-            registry.image_healthcheck("redis", "alpine")
+            config.image_healthcheck("redis", "alpine")
             before = len(calls)
-            registry.image_healthcheck("redis", "alpine")
+            config.image_healthcheck("redis", "alpine")
         self.assertEqual(len(calls), before, "the second read must come from cache")
+
+
+class TestImageVolumes(_Isolated, unittest.TestCase):
+    def test_declared_paths_come_back(self) -> None:
+        with self.serve(MANIFEST, {"config": {"Volumes": VOLUMES}}):
+            self.assertEqual(config.image_volumes("ejabberd", "26.09"), VOLUMES)
+
+    def test_an_image_without_any_answers_with_an_empty_mapping(self) -> None:
+        with self.serve(MANIFEST, {"config": {}}):
+            self.assertEqual(config.image_volumes("ejabberd", "26.09"), {})
+
+    def test_an_unreachable_registry_is_indeterminate_not_absent(self) -> None:
+        with mock.patch.object(registry, "_request", return_value=None):
+            self.assertIsNone(config.image_volumes("ejabberd", "26.09"))
+
+    def test_the_two_sections_do_not_share_a_cache_entry(self) -> None:
+        with self.serve(MANIFEST, {"config": {"Volumes": VOLUMES}}):
+            self.assertEqual(config.image_volumes("ejabberd", "26.09"), VOLUMES)
+            self.assertEqual(config.image_healthcheck("ejabberd", "26.09"), {})
 
 
 class TestProbeSource(_Isolated, unittest.TestCase):
     def test_the_source_says_where_the_answer_came_from(self) -> None:
         with self.serve(MANIFEST, {"config": {}}):
-            _found, source = registry.image_healthcheck_probed("redis", "alpine")
+            _found, source = config.image_healthcheck_probed("redis", "alpine")
         self.assertEqual(source, "upstream")
 
     def test_a_cached_answer_says_so(self) -> None:
         with self.serve(MANIFEST, {"config": {}}):
-            registry.image_healthcheck_probed("redis", "alpine")
-            _found, source = registry.image_healthcheck_probed("redis", "alpine")
+            config.image_healthcheck_probed("redis", "alpine")
+            _found, source = config.image_healthcheck_probed("redis", "alpine")
         self.assertEqual(source, "cache")
 
     def test_an_unreachable_registry_reports_none(self) -> None:
         with mock.patch.object(registry, "_request", return_value=None):
-            found, source = registry.image_healthcheck_probed("redis", "alpine")
+            found, source = config.image_healthcheck_probed("redis", "alpine")
         self.assertIsNone(found)
         self.assertEqual(source, "none")
 
