@@ -69,12 +69,14 @@ async function signIn(page, shared) {
   await endUserTour(page);
 }
 
+// A cold Boost dashboard fetches 105 ESM modules serially, one Tor round trip
+// each, and clears the block skeletons only afterwards.
 async function pageReady(page) {
   await endUserTour(page);
   await expect(page.locator(`${PRIMARY_NAVIGATION}:not(.observed):visible`)).toHaveCount(0, {
-    timeout: resolveTimeout(10_000),
+    timeout: resolveTimeout(60_000),
   });
-  await expect(page.locator(".bg-pulse-grey:visible")).toHaveCount(0, { timeout: resolveTimeout(10_000) });
+  await expect(page.locator(".bg-pulse-grey:visible")).toHaveCount(0, { timeout: resolveTimeout(60_000) });
 }
 
 async function openSignedIn(page, shared, path, selector) {
