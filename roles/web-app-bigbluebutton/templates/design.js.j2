@@ -1,8 +1,14 @@
 {% set design = lookup('design', application_id) %}
-{% if design.logo is string %}
+{% if design.logo is string or design.title is string %}
 (function () {
+{% if design.logo is string %}
   var favicon = {{ design.urls.favicon_ico | to_json }};
-  function icon() {
+{% endif %}
+{% if design.title is string %}
+  var title = {{ design.title | to_json }};
+{% endif %}
+  function brand() {
+{% if design.logo is string %}
     var link = document.querySelector("link[rel~='icon']");
     if (!link) {
       link = document.createElement("link");
@@ -13,8 +19,15 @@
       link.setAttribute("type", "image/x-icon");
       link.setAttribute("href", favicon);
     }
+{% endif %}
+{% if design.title is string %}
+    if (document.title === "BigBlueButton" && title !== "BigBlueButton") document.title = title;
+{% endif %}
   }
-  if (document.head) icon();
-  document.addEventListener("DOMContentLoaded", icon);
+  if (document.head) {
+    brand();
+    new MutationObserver(brand).observe(document.head, { childList: true, subtree: true, characterData: true });
+  }
+  document.addEventListener("DOMContentLoaded", brand);
 })();
 {% endif %}

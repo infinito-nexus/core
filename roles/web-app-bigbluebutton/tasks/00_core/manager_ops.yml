@@ -52,6 +52,13 @@
     mode: "0555"
   notify: compose-up
 
+- name: "🎨 Render the meeting client settings of '{{ application_id }}'"
+  stack_host_template:
+    src: bbb-html5.yml.j2
+    dest: "{{ BBB_HTML5_SETTINGS_HOST }}"
+    mode: "0444"
+  notify: compose-up
+
 - name: 📁 Create symbolic link from .env file to target location
   file:
     src: "{{ BBB_ENV_FILE_ORIGINE }}"

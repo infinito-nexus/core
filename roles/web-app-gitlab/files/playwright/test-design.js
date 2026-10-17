@@ -31,6 +31,11 @@ const GROUP = "design-showcase";
 const PROJECT = `${GROUP}/showcase`;
 const PREFERENCES = "/-/profile/preferences";
 const ROOT_USERNAME = "root";
+const ADMIN_HEADING = ".admin-dashboard h2";
+const ADMIN_CARD = ".admin-dashboard .crud-body";
+const ADMIN_CARD_TITLE = ".admin-dashboard [data-testid='crud-title']";
+const ADMIN_DIVIDER = ".admin-dashboard .crud-body p.gl-border-b";
+const ADMIN_NEW_USER = "main a.btn-confirm[href$='/admin/users/new']";
 
 let session = null;
 
@@ -360,6 +365,38 @@ test("design: root signs in natively and reaches the admin area", async ({ page 
   expect(response.status(), "the admin area answers root").toBe(200);
   await expect(page).toHaveURL(/\/admin$/);
   await expect(page.locator(`${TOPBAR} [data-testid='user-menu-toggle']`)).toBeVisible({ timeout: resolveTimeout(10_000) });
+});
+
+test("design: the admin area takes frame, panel, cards, dividers and primary action from the palette", async ({ page }) => {
+  skipUnlessServiceEnabled("design");
+  await signIn(page);
+  await gotoOnion(page, `${base}/admin`);
+  await shown(ADMIN_HEADING)(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, "body", "background-color", "--design-frame", `admin chrome ${mode}`);
+    await assertToken(page, PANEL, "background-color", "--design-surface-2", `admin panel ${mode}`);
+    await assertToken(page, ADMIN_CARD, "background-color", "--design-surface-2", `admin card ${mode}`);
+    await assertToken(page, ADMIN_CARD_TITLE, "color", "--design-text", `admin card title ${mode}`);
+    await assertToken(page, ADMIN_DIVIDER, "border-bottom-color", "--design-border", `admin divider ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertLightAndDark(page, ADMIN_CARD, "GitLab admin card");
+  await assertReadable(
+    page,
+    [ADMIN_HEADING, ADMIN_CARD_TITLE, `${ADMIN_CARD} a`, ADMIN_DIVIDER, { selector: `${ADMIN_CARD} .gl-text-subtle`, optional: true }],
+    "GitLab admin dashboard",
+  );
+
+  await gotoOnion(page, `${base}/admin/users`);
+  await shown(ADMIN_NEW_USER)(page);
+  for (const mode of MODES) {
+    await page.emulateMedia({ colorScheme: mode });
+    await assertToken(page, ADMIN_NEW_USER, "background-color", "--design-primary", `admin users ${mode}`);
+    await assertToken(page, ADMIN_NEW_USER, "color", "--design-on-primary", `admin users ${mode}`);
+  }
+  await page.emulateMedia({ colorScheme: null });
+  await assertReadable(page, [ADMIN_NEW_USER, "main h1"], "GitLab admin users");
 });
 
 test("design: gallery of sign-in, project, issues, merge requests, settings, admin and menus", async ({ page }) => {

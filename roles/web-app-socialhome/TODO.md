@@ -8,14 +8,6 @@ host, deliberately: the first CI round is its first execution. Everything below 
 
 Open items that only a live run can settle:
 
-- `index.html` ships an inline pre-paint theme bootstrap, and the rendered header is
-  `script-src-elem 'self' https://cdn.…` with no hash, so it is blocked and the first paint
-  flashes the wrong theme. Pinning `csp.hashes.script-src-elem` fixes it but has to be re-pinned
-  on every image bump; the flash is the cheaper trade until the theme matters.
-- `meta/csp.yml` whitelists `blob:` on `script-src` for the audio worklet the DM composer builds
-  with `URL.createObjectURL`; worklet modules load under `script-src`, not `worker-src`. The
-  bundle registers no service worker and constructs no `Worker`. Whether the Preact bundle also
-  needs `unsafe-inline` for style attributes is unknown until a browser reports violations.
 - The published image is multi-arch, but only `linux/amd64` has been exercised.
 - `Dockerfile.sh` exposes 8124 for aiolibdatachannel signalling beside 8099. Nothing listens on
   it at rest, so only 8099 is published; whether it binds lazily during a call is untested.

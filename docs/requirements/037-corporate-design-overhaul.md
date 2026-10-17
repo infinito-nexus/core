@@ -54,7 +54,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 
 - [x] web-app-akaunting
 - [x] web-app-baserow
-- [ ] web-app-bigbluebutton: title not set through Greenlight (the spec asserts the literal upstream name); the meeting client keeps the upstream design; `vars/main.yml` rewritten after the last full run.
+- [x] web-app-bigbluebutton
 - [x] web-app-bluesky
 - [x] web-app-bookwyrm
 - [x] web-app-checkmk
@@ -66,12 +66,12 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-espocrm
 - [x] web-app-fediwall
 - [x] web-app-fider
-- [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
+- [x] web-app-flowise
 - [x] web-app-friendica
 - [x] web-app-funkwhale
 - [x] web-app-fusiondirectory
 - [x] web-app-gitea
-- [ ] web-app-gitlab: final state never ran (the design-only commit removed the administrator provisioning); `/admin` is checked for HTTP 200 only.
+- [x] web-app-gitlab
 - [x] web-app-hermes
 - [x] web-app-homeassistant
 - [x] web-app-hugo
@@ -119,7 +119,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-snipe-it
 - [x] web-app-socialhome
 - [x] web-app-sphinx
-- [ ] web-app-stalwart: under `sso` the web administration specs need the administrator group grant of `feature/store-i18n` (`199f2a6d41`); no green run on the merged state yet.
+- [ ] web-app-stalwart: handed over to `feature/store-i18n`. Under `sso` the web administration specs need its administrator group grant (`199f2a6d41`), which `feature/designer` does not carry, so `feature/store-i18n` ticks this item after a green run of the stalwart spec with `design`, `sso` and `email` on its merged state.
 - [x] web-app-suitecrm
 - [x] web-app-taiga
 - [x] web-app-wordpress

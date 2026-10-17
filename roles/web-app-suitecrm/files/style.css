@@ -3496,6 +3496,22 @@
 :root:has(app-root) .box-loading:after {
   background: linear-gradient(90deg,rgba(var(--design-surface-2-rgb), 0),rgba(var(--design-surface-2-rgb), 0.5),rgba(var(--design-surface-2-rgb), 0));
 }
+:root:has(app-root) .list-view-table .box-loading {
+  background-color: var(--design-surface-active);
+}
+:root:has(app-root) .uploaded-file-name.box-loading,
+:root:has(app-root) .image-field-container .uploaded-file .uploaded-file-info-container .uploaded-file-info .uploaded-file-size.box-loading {
+  background-color: var(--design-border-strong);
+}
+:root:has(app-root) .squire-editor .squire-editor-toolbar.box-loading {
+  background-color: var(--design-surface-3) !important;
+}
+:root:has(app-root) .ngx-charts .gridline-path {
+  stroke: var(--design-border);
+}
+:root:has(app-root) .ngx-charts text {
+  fill: var(--design-text-muted);
+}
 :root:has(app-root) .record-content-skeleton .tab-content .col-form-label-sm {
   background-color: var(--design-primary);
 }

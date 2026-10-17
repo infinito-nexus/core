@@ -55,5 +55,9 @@ BBB_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enable
 BBB_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
 BBB_DESIGN_PRIMARY: "{{ BBB_DESIGN_PALETTE['--design-primary'] if BBB_DESIGN_ENABLED | bool else '' }}"
 BBB_DESIGN_PRIMARY_LIGHT: "{{ BBB_DESIGN_PALETTE['--design-primary-100'] if BBB_DESIGN_ENABLED | bool else '' }}"
+BBB_HTML5_SETTINGS_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'bbb-html5.yml'] | path_join }}"
+BBB_MEETING_STYLE_HOST: "{{ [lookup('cdn', application_id).role.release.css, 'meeting.css'] | path_join }}"
+BBB_MEETING_STYLE_URL: "{{ [lookup('cdn', application_id).urls.role.release.css, 'meeting.css', lookup('local_mtime_qs', [role_path, 'templates', 'meeting.css.j2']
+  | path_join)] | url_join }}"
 BBB_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.png if (BBB_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string) else ''
   }}"

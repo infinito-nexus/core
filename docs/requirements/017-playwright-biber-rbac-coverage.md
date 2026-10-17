@@ -45,7 +45,7 @@ rather than role by role.
   `"{{ '<role>' in group_names }}"` form per
   [test_dynamic_flags.py](../../tests/integration/roles/meta/services/test_dynamic_flags.py))
   MUST include at least one `biber`-driven scenario.
-- [ ] The biber scenario MUST follow the `biber: <flow>` naming convention from 019 Rule 3, enforced by [test_naming.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_naming.py).
+- [x] The biber scenario MUST follow the `biber: <flow>` naming convention from 019 Rule 3, enforced by [test_naming.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_naming.py).
   A role that legitimately cannot run a biber journey opts out via `PERSONA_BIBER_BLOCKED=true` in `templates/playwright.env.j2` per 019 Rule 11.
 - [ ] The biber scenario MUST gate on the same service flags that the
   matching admin scenario uses (typically `oidc`, `ldap`, or both),
@@ -76,7 +76,7 @@ rather than role by role.
   lint MUST stay green: any declared `BIBER_*` key MUST be consumed
   by the role's spec or by a shared helper under
   `roles/test-e2e-playwright/files/`.
-- [ ] Roles that legitimately do not exercise an authenticated UI
+- [x] Roles that legitimately do not exercise an authenticated UI
   (static content, pure backend services, identity providers tested
   separately) MUST NOT declare `BIBER_*` env keys. The env file is
   the registry; declaring without consuming is the failure mode this
@@ -118,7 +118,7 @@ commit message why the role is exempt and removing it from this list.
   the realm-side flow; this requirement does NOT touch it. Audit the
   spec only to confirm no drift from
   [004](README.md#archive).
-- [ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/):
+- [x] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/):
   LDAP admin UI; biber as a *managed* user appears in the directory
   view, but the role's own login is admin-only. Audit and document.
 

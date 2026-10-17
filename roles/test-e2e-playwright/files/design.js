@@ -9,12 +9,14 @@
  * - `assertToken(page, selector, property, token, label)`: the computed
  *   `property` of the first `selector` match equals the value of `token`.
  * - `assertLightAndDark(page, selector, label)`: the surface behind the first
- *   `selector` match is darker in dark mode than in light mode.
+ *   visible `selector` match is darker in dark mode than in light mode; the
+ *   match is awaited up to `SETTLE_TIMEOUT_MS` per mode.
  * - `assertReadable(page, selectors, label, min)`: each element's text color
  *   reaches `min` contrast against its effective background in light and dark
  *   mode, measured with CSS transitions switched off. A selector is a string
- *   or `{ selector, optional: true }`; one that matches nothing visible fails
- *   unless it is optional, and at least one element must be measured.
+ *   or `{ selector, optional: true }`; a required one is awaited up to
+ *   `SETTLE_TIMEOUT_MS` and fails when nothing visible matches, an optional
+ *   one is measured once, and at least one element must be measured.
  * - `galleryEnabled()`: true when `INFINITO_PLAYWRIGHT_KEEP=true`.
  * - `captureDesignGallery(page, views)`: per view, color mode and viewport one
  *   screenshot with the injected CSS/JS (`/reports/design/after/`), named
@@ -177,6 +179,23 @@ async function measure(page, selector) {
   }, selector);
 }
 
+/**
+ * Args:
+ *   page: Playwright page.
+ *   selector: CSS selector whose first visible match is measured.
+ *   message: failure message when no visible match appears within `SETTLE_TIMEOUT_MS`.
+ *
+ * Returns:
+ *   The `measure` sample of that match.
+ */
+async function measureShown(page, selector, message) {
+  let sample = null;
+  await expect
+    .poll(async () => (sample = await measure(page, selector)), { message, timeout: resolveTimeout(SETTLE_TIMEOUT_MS) })
+    .not.toBeNull();
+  return sample;
+}
+
 function luminance([r, g, b]) {
   const lin = (c) => {
     const s = c / 255;
@@ -191,8 +210,7 @@ async function assertLightAndDark(page, selector, label) {
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await settle(page);
-    const sample = await measure(page, selector);
-    expect(sample, `${label}: '${selector}' matches nothing visible in ${mode} mode`).not.toBeNull();
+    const sample = await measureShown(page, selector, `${label}: '${selector}' matches nothing visible in ${mode} mode`);
     seen[mode] = luminance(sample.background);
   }
   await page.emulateMedia({ colorScheme: null });
@@ -214,11 +232,11 @@ async function assertReadable(page, selectors, label, min = 4.5) {
     await page.emulateMedia({ colorScheme: mode });
     await settle(page);
     for (const { selector, optional } of entries) {
-      const sample = await measure(page, selector);
-      if (sample === null) {
-        expect(optional === true, `${label}: '${selector}' matches nothing visible in ${mode} mode`).toBe(true);
-        continue;
-      }
+      const sample =
+        optional === true
+          ? await measure(page, selector)
+          : await measureShown(page, selector, `${label}: '${selector}' matches nothing visible in ${mode} mode`);
+      if (sample === null) continue;
       measured += 1;
       const [fg, bg] = [luminance(sample.color), luminance(sample.background)];
       const ratio = (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
