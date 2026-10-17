@@ -9,7 +9,7 @@
 
 - name: "🚀 Deploy '{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}'"
   copy:
-    src: "php/{{ ESPOCRM_SCRIPT_SEED_FILE }}"
+    src: "php/seed/config.php"
     dest: "{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}"
   notify:
     - compose-up
@@ -99,7 +99,7 @@
     cmd: |
       # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }} php
-    stdin: "{{ lookup('file', 'php/seed_group_email_account.php') }}"
+    stdin: "{{ lookup('file', 'php/seed/group_email_account.php') }}"
   register: espocrm_group_email_account
   changed_when: espocrm_group_email_account.stdout is search('\[CHANGED\]')
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
