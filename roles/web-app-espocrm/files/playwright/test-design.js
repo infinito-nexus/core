@@ -12,6 +12,7 @@ const {
 const { apiGetOnion, clickOidcLoginLink, decodeDotenvQuotedValue, gotoOnion, performKeycloakLogin } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { awaitSession } = require("./_shared");
 
 const SEED_PREFIX = "Design showcase";
 const WIDE_VIEWPORT = { width: 1440, height: 900 };
@@ -54,12 +55,11 @@ async function signIn(page) {
         decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
       );
     }
-    await expect
-      .poll(() => page.evaluate(() => Object.keys(localStorage).some((name) => /user-auth$/.test(name))), {
-        timeout: resolveTimeout(60_000),
-        message: "the OIDC callback must mint a session before the opener navigates away",
-      })
-      .toBe(true);
+    await awaitSession(
+      page,
+      resolveTimeout(60_000),
+      "the OIDC callback must mint a session before the opener navigates away",
+    );
     await gotoOnion(page, `${base}/`);
   } else {
     const password = page.locator("#field-password");

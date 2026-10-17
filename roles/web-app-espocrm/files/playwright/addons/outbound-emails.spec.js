@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
+const { awaitSession } = require("../_shared");
 const {
   clickOidcLoginLink,
   decodeDotenvQuotedValue,
@@ -69,12 +70,11 @@ test("addon outbound-emails: EspoCRM sends through the deployed Mailu SMTP host"
     await passwordField.press("Enter");
   }
 
-  await expect
-    .poll(() => page.evaluate(() => Object.keys(localStorage).some((name) => /user-auth$/.test(name))), {
-      timeout: resolveTimeout(120_000),
-      message: "the login must mint an EspoCRM session before the admin route is opened",
-    })
-    .toBe(true);
+  await awaitSession(
+    page,
+    resolveTimeout(120_000),
+    "the login must mint an EspoCRM session before the admin route is opened",
+  );
 
   await gotoOnion(page, `${expectedBase}/#Admin/outboundEmails`, { waitUntil: "domcontentloaded" });
   await page.reload({ waitUntil: "domcontentloaded" });

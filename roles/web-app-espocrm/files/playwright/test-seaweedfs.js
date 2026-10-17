@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { awaitSession } = require("./_shared");
 const {
   runSeaweedfsStorageCheck,
   performKeycloakLogin,
@@ -76,12 +77,11 @@ test("seaweedfs: an uploaded EspoCRM attachment is stored in the SeaweedFS bucke
         await passwordField.press("Enter");
       }
 
-      await expect
-        .poll(() => appPage.evaluate(() => Object.keys(localStorage).some((name) => /user-auth$/.test(name))), {
-          timeout: resolveTimeout(120_000),
-          message: "the login must mint an EspoCRM session before the admin route is opened",
-        })
-        .toBe(true);
+      await awaitSession(
+        appPage,
+        resolveTimeout(120_000),
+        "the login must mint an EspoCRM session before the admin route is opened",
+      );
 
       await appPage.goto(`${expectedBase}/#Admin/userInterface`, { waitUntil: "domcontentloaded" });
       await appPage.reload({ waitUntil: "domcontentloaded" });
