@@ -8,10 +8,16 @@ because an unsatisfied `:?` guard inside one of them aborts the whole stack.
 from __future__ import annotations
 
 import os
+import re
 import unittest
 from unittest.mock import patch
 
-from cli.administration.deploy.development.env import compose_file_args
+from cli.administration.deploy.development.env import (
+    TOOLS_LANE_KEYS,
+    compose_file_args,
+)
+from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 
 _LOCAL_PRIMARY = {
     "GITHUB_ACTIONS": "",
@@ -25,6 +31,8 @@ _LOCAL_PRIMARY = {
     "INFINITO_GPU_COUNT": "0",
     "INFINITO_TOOLS_LIBRETRANSLATE_PORT": "8097",
     "INFINITO_TOOLS_MODELS_HOST_PATH": "/var/cache/infinito/core/cache/models",
+    "INFINITO_TOOLS_S1_PORT": "8096",
+    "INFINITO_TOOLS_TRANSLATE_PORT": "8101",
 }
 
 _WORKTREE = {
@@ -157,6 +165,34 @@ class TestComposeFileArgs(unittest.TestCase):
     )
     def test_the_models_path_gates_the_tools_lane_too(self) -> None:
         self.assertNotIn("compose/tools.override.yml", compose_file_args())
+
+
+class TestToolsLaneGateCoversItsGuards(unittest.TestCase):
+    def test_every_guard_the_override_adds_is_gated(self) -> None:
+        """A `:?` guard the gate does not know aborts every compose call.
+
+        The guards compose.yml already carries are satisfied for any stack
+        that runs at all, so only the ones the lane's override adds on top
+        can fire against an .env that predates them. INFINITO_IMAGE is the
+        one exception: the deploy CLI injects it into the process
+        environment and it never reaches .env, so gating on it would drop
+        the lane permanently.
+        """
+        guards = re.compile(r"\$\{([A-Z_][A-Z0-9_]*):\?")
+        shared = set(guards.findall(read_text(PROJECT_ROOT / "compose.yml")))
+        override = set(
+            guards.findall(read_text(PROJECT_ROOT / "compose" / "tools.override.yml"))
+        )
+        added = override - shared - {"INFINITO_IMAGE"}
+        self.assertEqual(
+            sorted(added - set(TOOLS_LANE_KEYS)),
+            [],
+            "compose/tools.override.yml guards these variables, and "
+            "compose_file_args layers the file in without checking them, so "
+            "an .env written before they existed aborts every compose "
+            "command instead of only dropping the lane. Add them to "
+            "TOOLS_LANE_KEYS.",
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -40,6 +40,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 TEMPLATE = Path("inventories") / "development" / "tools.yml.j2"
 RENDERED = Path("inventories") / "development" / "tools.rendered.yml"
+ADDRESS = Path("inventories") / "development" / "tools.address"
 API_KEY = "toolsLaneTestKeyNotASecret0000000000"
 LIBRETRANSLATE_ROLE = "svc-ai-libretranslate-engine"
 S1_ROLE = "svc-ai-s1"
@@ -59,6 +60,68 @@ def models_dir() -> str:
     return (os.environ.get(KEY) or "").strip() or default()
 
 
+def lane_ip(root: Path) -> str:
+    """Return the runner's address inside the stack's own subnet, or ''.
+
+    Must run on the host: it asks this machine's docker daemon, which the
+    stack's containers cannot reach.
+
+    The runner answers to several addresses, one per network it was ever
+    brought up on, and only the one inside ``INFINITO_SUBNET`` is the network
+    the rest of the stack sits on.
+
+    Args:
+        root: repository root.
+    """
+    import ipaddress
+    import json
+
+    from utils.i18n.libretranslate import environment, lane_container
+
+    env = environment(root)
+    found = subprocess.run(
+        [
+            "docker",
+            "inspect",
+            lane_container(env),
+            "--format",
+            "{{json .NetworkSettings.Networks}}",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if found.returncode != 0:
+        return ""
+    try:
+        subnet = ipaddress.ip_network(env["INFINITO_SUBNET"])
+        networks = json.loads(found.stdout)
+    except (KeyError, ValueError):
+        return ""
+    for entry in networks.values():
+        address = (entry or {}).get("IPAddress") or ""
+        if address and ipaddress.ip_address(address) in subnet:
+            return address
+    return ""
+
+
+def lane_address(root: Path) -> str:
+    """Return the address the stack's containers reach the lane on.
+
+    Args:
+        root: repository root.
+    """
+    path = root / ADDRESS
+    if not path.is_file():
+        return LANE_SERVICE
+    return (
+        path.read_text(  # nocheck: cache-read - every lane bring-up rewrites this file and utils.cache.files.read_text is an lru_cache without mtime invalidation
+            encoding="utf-8"
+        ).strip()
+        or LANE_SERVICE
+    )
+
+
 def lane_url(root: Path, role: str, service_key: str) -> str:
     """Return the URL a container of the compose stack reaches a lane service on.
 
@@ -66,9 +129,13 @@ def lane_url(root: Path, role: str, service_key: str) -> str:
     runner container. The inventory pins ``DOCKER_BIND_HOST=0.0.0.0`` so
     their ports are open on the runner's own interface, which the group_vars
     default would not do (see ``inventories/development/tools.yml.j2``). The
-    runner and the rest of the stack share the compose network, which makes
-    the runner's service name the address to use. The host instead reaches
-    only the ports the runner republishes through ``compose/tools.override.yml``.
+    host instead reaches only the ports the runner republishes through
+    ``compose/tools.override.yml``.
+
+    The address is the runner's numeric one, written by the bring-up. The
+    stack's containers resolve names through its CoreDNS, which never learns
+    a compose service name, so ``tools`` answered nowhere inside them and
+    every check that asked the lane from there skipped itself instead.
 
     Args:
         root: repository root.
@@ -76,11 +143,11 @@ def lane_url(root: Path, role: str, service_key: str) -> str:
         service_key: key under ``meta/services.yml``.
 
     Returns:
-        ``http://<lane service>:<local http port>``.
+        ``http://<lane address>:<local http port>``.
     """
     services = load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)
     port = services[service_key]["ports"]["local"]["http"]
-    return f"http://{LANE_SERVICE}:{port}"
+    return f"http://{lane_address(root)}:{port}"
 
 
 def host_url(root: Path, role: str, service_key: str) -> str:
@@ -132,27 +199,31 @@ def _base_subtag(code: str) -> str:
     return code.split("-", 1)[0].strip().lower()
 
 
-def serving(root: Path, load_only: list[str]) -> bool:
-    """Return whether the lane's engine already carries everything asked of it.
+def serving(root: Path, load_only: list[str], roles: tuple[str, ...]) -> bool:
+    """Return whether every lane role asked for already answers.
 
-    Reachability alone is not enough: the engine answers as soon as it has
-    booted, with whatever subset of models it found, and a run that then waits
-    for the rest waits forever. The language set it reports is compared
+    Reachability alone is not enough for the engine: it answers as soon as it
+    has booted, with whatever subset of models it found, and a run that then
+    waits for the rest waits forever. The language set it reports is compared
     against what the lane pins.
 
-    Only the engine is judged. It is the one lane service the runner
-    republishes to the host, and the expensive one: a deploy reinstalls its
-    whole model selection and restarts it. The lane is deployed as a unit, so
-    an engine that carries the full selection is one the deploy already
-    finished. A sibling that is down anyway reports itself, because each check
-    states which address failed to answer.
+    Judging the engine alone made ``make test-oracle`` vacuous: ``make i18n``
+    deploys the engine on its own, so a lane whose engine served counted as up
+    while System One was down, and the oracle suite skipped itself to a green
+    exit. Every role the caller names is probed, which is why the runner
+    republishes System One's port too.
 
     Args:
         root: repository root.
         load_only: the language codes the lane pins.
+        roles: the application ids the caller wants running.
     """
     import json
 
+    if S1_ROLE in roles and _answers(f"{host_url(root, S1_ROLE, 's1')}/health") is None:
+        return False
+    if LIBRETRANSLATE_ROLE not in roles:
+        return True
     body = _answers(
         f"{host_url(root, LIBRETRANSLATE_ROLE, 'libretranslate-engine')}/languages"
     )
@@ -212,6 +283,10 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
     answers, not a lane that was just rebuilt, so one that already answers
     with everything asked of it is left alone.
 
+    Either way the runner's address is written down, because a container of
+    the stack cannot ask docker for it and the runner takes a new one on
+    every restart.
+
     Args:
         root: repository root.
         roles: application ids to deploy.
@@ -222,10 +297,11 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
     """
     from utils.i18n.libretranslate import baked_languages, deploy, deploying
 
-    if serving(root, baked_languages(root)):
+    if serving(root, baked_languages(root), roles):
         print(
             f"tools lane already serves {', '.join(roles)}; not deploying", flush=True
         )
+        _remember_address(root)
         return
 
     if deploying(root):
@@ -236,14 +312,25 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
         )
     print(f"tools lane deploying {', '.join(roles)}", flush=True)
     deploy(root, roles=roles)
+    _remember_address(root)
+
+
+def _remember_address(root: Path) -> None:
+    """Write the runner's address where a container of the stack reads it."""
+    address = lane_ip(root)
+    if address:
+        (root / ADDRESS).write_text(f"{address}\n", encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:
     """Bring the lane up for ``make test-oracle``, reporting why when it cannot.
 
-    Exits 0 even when the lane stays down, because the checks that need it say
-    so themselves; a deploy that is already running is a reason to leave the
-    stack alone, not to fail the target.
+    Only a deploy that is already running exits 0: it holds the stack this
+    one would touch, and leaving it alone is the right answer. Every other
+    way of not bringing the lane up exits 1, including a deploy that crashed
+    and a deploy that ran and left a role silent. The suite skips itself when
+    the lane is down, and a skip is a green exit, so a target that returned 0
+    here would report a verdict it never reached.
 
     Args:
         argv: application ids, defaulting to every role the lane serves.
@@ -251,16 +338,25 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     from utils import PROJECT_ROOT
+    from utils.i18n.libretranslate import baked_languages
 
     default_roles = [LIBRETRANSLATE_ROLE, S1_ROLE]
     parser = argparse.ArgumentParser(description="Bring the tools lane up.")
     parser.add_argument("roles", nargs="*", default=default_roles)
     args = parser.parse_args(argv)
     roles = tuple(args.roles) or tuple(default_roles)
+    root = Path(PROJECT_ROOT)
     try:
-        ensure(Path(PROJECT_ROOT), roles)
-    except (RuntimeError, OSError, KeyError, subprocess.CalledProcessError) as down:
+        ensure(root, roles)
+    except RuntimeError as held:
+        print(f"tools lane left alone: {held!r}")
+        return 0
+    except (OSError, KeyError, subprocess.CalledProcessError) as down:
         print(f"tools lane not brought up: {down!r}")
+        return 1
+    if not serving(root, baked_languages(root), roles):
+        print(f"tools lane deployed but {', '.join(roles)} still do not all answer")
+        return 1
     return 0
 
 
