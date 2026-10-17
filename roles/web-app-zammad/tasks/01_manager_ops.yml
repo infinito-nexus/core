@@ -1,4 +1,11 @@
 ---
+- name: "⏳ Transferring search_allocation_precheck.sh to {{ ZAMMAD_SEARCH_PRECHECK_ABS }}"
+  stack_host_copy:
+    src: shell/search_allocation_precheck.sh
+    dest: "{{ ZAMMAD_SEARCH_PRECHECK_ABS }}"
+    mode: "0555"
+  notify: compose-up
+
 - name: "🎬 Stage Zammad host-side init files (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

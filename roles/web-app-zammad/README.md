@@ -51,6 +51,7 @@ flowchart LR
         svc_websocket["websocket"]
         svc_search["search"]
         svc_elasticsearch["elasticsearch"]
+        svc_precheck["precheck"]
         svc_init["init"]
         svc_scheduler["scheduler"]
         svc_nginx["nginx"]
@@ -95,6 +96,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Mail-to-ticket:** When `web-app-stalwart` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
 - **Server-name alias:** `zammad.helpdesk.{{ DOMAIN_PRIMARY }}` is a true vhost alias of `helpdesk.{{ DOMAIN_PRIMARY }}` (not a 301 redirect).
 - **Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists.
+- **Search allocation precheck:** the one-shot `precheck` service runs [search_allocation_precheck.sh](files/shell/search_allocation_precheck.sh) and `init` starts only after it completed successfully. It creates a one-shard probe index and exits 0 once Elasticsearch allocates it; otherwise it exits 1 with the answer of `_cluster/allocation/explain`, which names the disk watermark when the data disk is too full, and `compose up` stops on it.
 - **Search index per Elasticsearch major:** The index lives in a directory named after the Elasticsearch major inside the `zammad_search` volume. A new major starts on an empty directory and `zammad-init` rebuilds the index from the database on the same deploy.
 - **Wizard bypass:** First deploy seeds `auto_wizard.json` so no manual setup UI step is required.
 

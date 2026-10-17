@@ -18,6 +18,13 @@ zammad_search:
   mounts:
     - service: elasticsearch
       target: /usr/share/elasticsearch/data
+search_allocation_precheck:
+  type: config
+  source: "{{ [lookup('container', 'web-app-zammad', 'directories.config'), 'search_allocation_precheck.sh'] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: precheck
+      target: /usr/local/bin/search_allocation_precheck.sh
 auto_wizard:
   type: config
   source: "{{ [lookup('container', 'web-app-zammad', 'directories.volumes'), 'auto_wizard.json'] | path_join }}"
