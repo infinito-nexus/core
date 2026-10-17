@@ -26,11 +26,12 @@
 - name: "🔑 Realign the declared administrator password of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i
+      container exec -i -e KIX_HOME
       -e KIX_REALIGN_LOGIN -e KIX_REALIGN_PASSWORD -e KIX_REALIGN_USAGE_CONTEXT
       {{ KIX_BACKEND_LOCAL_CID | quote }} perl {{ KIX_PERL_INCLUDE_ARGS }}
     stdin: "{{ lookup('file', 'perl/realign_admin_password.pl') }}"
   environment:
+    KIX_HOME: "{{ KIX_HOME }}"
     KIX_REALIGN_LOGIN: "{{ KIX_ADMIN_USERNAME }}"
     KIX_REALIGN_PASSWORD: "{{ KIX_INITIAL_ADMIN_PW }}"
     KIX_REALIGN_USAGE_CONTEXT: "{{ KIX_ADMIN_USAGE_CONTEXT }}"

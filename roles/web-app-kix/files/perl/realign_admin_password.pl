@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# Param env KIX_HOME: install root the ObjectManager reads EXPORTS from; the image exports it in the entrypoint's shell only, and for a program on STDIN its FindBin fallback resolves to the working directory instead, so every `container exec` must hand it over
 # Param env KIX_REALIGN_LOGIN: login of the account the deployment declares
 # Param env KIX_REALIGN_PASSWORD: password that login must accept afterwards, handed over with `container exec -e <name>` so it reaches no argument list
 # Param env KIX_REALIGN_USAGE_CONTEXT: usage context the account signs in with
@@ -23,7 +24,7 @@ Fail('KIX_REALIGN_LOGIN, KIX_REALIGN_PASSWORD and KIX_REALIGN_USAGE_CONTEXT must
     if !length $Login || !length $Password || !length $UsageContext;
 
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    'Kernel::System::Log' => { LogPrefix => 'infinito-realign-admin-password' },
+    'Log' => { LogPrefix => 'infinito-realign-admin-password' },
 );
 
 my $UserObject = $Kernel::OM->Get('Kernel::System::User');
