@@ -9,8 +9,10 @@ from ansible.plugins.lookup import LookupBase
 from utils.cache import ROLES_DIR
 from utils.roles.applications.services.wazuh import (
     PROVIDER_ENTITY,
+    SAMPLES_FILE,
     SELFTEST_TAG,
     decoder_name,
+    load_samples,
 )
 from utils.roles.entity.name import get_entity_name
 
@@ -35,6 +37,9 @@ class LookupModule(LookupBase):
         ``src`` is ``roles/<role>/files/wazuh/<kind>.xml``, ``kind`` is
         ``decoders`` or ``rules``, and ``name`` is ``<entity>_<kind>.xml``.
         A role without one or both files contributes only the files it has.
+        ``samples`` is ``[{role, program, decoder, lines, rule, level}]``:
+        the self-test samples of the Wazuh role first, then each opted-in
+        role's ``files/wazuh/samples.yml`` in entity order.
 
     Raises:
         AnsibleError: two opted-in roles share an entity name, so their
@@ -103,10 +108,29 @@ class LookupModule(LookupBase):
 
         entities.sort(key=lambda e: e["entity"])
         files.sort(key=lambda f: (f["kind"], f["name"]))
+        selftest = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
+        sources = [
+            (role, selftest)
+            for role in sorted(applications)
+            if get_entity_name(role) == PROVIDER_ENTITY
+        ] + [(owners[e["entity"]], e) for e in entities]
+        samples = [
+            {
+                "role": role,
+                "program": source["program"],
+                "decoder": source["decoder"],
+                **sample,
+            }
+            for role, source in sources
+            for sample in load_samples(
+                ROLES_DIR / role / "files" / "wazuh" / SAMPLES_FILE
+            )
+        ]
         return [
             {
-                "selftest": {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG},
+                "selftest": selftest,
                 "entities": entities,
                 "files": files,
+                "samples": samples,
             }
         ]

@@ -1,0 +1,6 @@
+- log: INFINITO_WAZUH_CANARY self-test
+  rule: 100110
+  level: 3
+- log: plain self-test event
+  rule: 100100
+  level: 0

@@ -80,6 +80,7 @@ WAZUH_RULESET: "{{ lookup('wazuh_ruleset') }}"
 WAZUH_RULESET_FILES: "{{ WAZUH_RULESET.files }}"
 WAZUH_RULESET_ENTITIES: "{{ WAZUH_RULESET.entities }}"
 WAZUH_RULESET_SELFTEST: "{{ WAZUH_RULESET.selftest }}"
+WAZUH_RULESET_SAMPLES: "{{ WAZUH_RULESET.samples }}"
 WAZUH_CANARY_SOURCES: "{{ [WAZUH_RULESET_SELFTEST] + WAZUH_RULESET_ENTITIES }}"
 WAZUH_RULESET_BASE_FILES:
   - { src: ruleset/base/decoders.xml.j2, dest: base/decoders/infinito_base_decoders.xml }

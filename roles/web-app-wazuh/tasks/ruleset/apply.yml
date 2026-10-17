@@ -97,3 +97,27 @@
       {{ wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | map(attribute='item.program') | list }}.
       wazuh-logtest output: {{ wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | map(attribute='stdout') | list }}
   when: wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | list | length > 0
+
+- name: "🧾 Run every role's sample events through wazuh-logtest"
+  ansible.builtin.shell:
+    cmd: >-
+      printf '%s\n'
+      {% for line in item.lines %}{{ ('Oct 17 00:00:00 ' ~ WAZUH_MANAGER_CONTAINER ~ ' ' ~ item.program ~ '[1]: ' ~ line) | quote }} {% endfor %}|
+      container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-logtest
+      -U {{ item.rule }}:{{ item.level }}:{{ item.decoder }} 2>&1
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ WAZUH_RULESET_SAMPLES }}"
+  loop_control:
+    label: "{{ item.role }} → {{ item.rule }}"
+  register: wazuh_ruleset_samples
+  changed_when: false
+  failed_when: false
+
+- name: "🛑 Fail when a sample event does not hit its expected rule"
+  ansible.builtin.fail:
+    msg: >-
+      {% for result in wazuh_ruleset_samples.results | rejectattr('rc', 'equalto', 0) %}
+      Role {{ result.item.role }}: sample {{ result.item.lines }} expected rule {{ result.item.rule }}
+      at level {{ result.item.level }} with decoder {{ result.item.decoder }}. wazuh-logtest output: {{ result.stdout }}
+      {% endfor %}
+  when: wazuh_ruleset_samples.results | rejectattr('rc', 'equalto', 0) | list | length > 0

@@ -54,6 +54,33 @@ wazuh:
 
 The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block or on its parent ID, a rule without a chain into its own block, a decoder with a foreign parent, and the reserved entity name `infinito-selftest`.
 
+### Samples
+
+Each opted-in role ships `files/wazuh/samples.yml`, a list of events with the rule and level they must hit:
+
+```yaml
+- log: "user alice failed to log in"
+  rule: 101001
+  level: 5
+- log: "unrelated message"
+  rule: 101000
+  level: 0
+- log:
+    - "user alice failed to log in"
+    - "user alice failed to log in"
+  rule: 101002
+  level: 10
+```
+
+`log` is the message after the syslog header: the deploy prefixes every line with a header carrying the role's tag, so the role's own parent decoder is implied.
+A negative or injection sample expects the role's parent rule (the block start) at level 0.
+After the canary, it sends each sample through `wazuh-logtest -U <rule>:<level>:<decoder>` in its own session and fails the deploy, with the role, the sample and the logtest output, when one does not match; the rollback then restores the previous ruleset.
+A sample whose `log` is a list is sent as one session and only its last line is checked, which is how `-U` reports.
+Each sample costs about 2 s of deploy time: about 1.3 s for the logtest session itself, the rest for the Ansible loop item.
+This role's own `files/wazuh/samples.yml` holds the self-test samples, the only ones that may use the base range.
+
+The same lint checks that every sample's rule lies in the role's own block (the base range for this role), that `level` is an integer and `log` a single line, that a list has at least two lines and is used only for a correlation rule (`frequency`, `if_matched_sid`, `if_matched_group`), and that every rule ID in `rules.xml` has at least one sample.
+
 ## Cosmos
 
 The diagram places Wazuh in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).

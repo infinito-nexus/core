@@ -12,7 +12,7 @@ from plugins.lookup.wazuh_ruleset import LookupModule
 from utils.roles.applications.services.wazuh import SELFTEST_TAG
 
 _SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
-_EMPTY = {"selftest": _SELFTEST, "entities": [], "files": []}
+_EMPTY = {"selftest": _SELFTEST, "entities": [], "files": [], "samples": []}
 
 
 def _run(roles_dir: Path, wazuh: dict, groups: dict | None = None) -> dict:
@@ -59,6 +59,12 @@ def _ship(roles_dir: Path, role: str, *kinds: str) -> None:
     target.mkdir(parents=True, exist_ok=True)
     for kind in kinds:
         (target / f"{kind}.xml").write_text("<group/>\n")
+
+
+def _write_samples(roles_dir: Path, role: str, content: str) -> None:
+    target = roles_dir / role / "files" / "wazuh"
+    target.mkdir(parents=True, exist_ok=True)
+    (target / "samples.yml").write_text(content)
 
 
 class TestWazuhRuleset(unittest.TestCase):
@@ -157,6 +163,48 @@ class TestWazuhRuleset(unittest.TestCase):
             _run(self.roles_dir, {"web-app-wazuh": True}),
             _EMPTY,
         )
+
+    def test_wazuh_role_samples_are_selftest_samples(self):
+        _write_samples(self.roles_dir, "web-app-wazuh", "- log: plain\n  rule: 100100\n  level: 0\n")
+        self.assertEqual(
+            _run(self.roles_dir, {"web-app-wazuh": True})["samples"],
+            [
+                {
+                    "role": "web-app-wazuh",
+                    "program": SELFTEST_TAG,
+                    "decoder": SELFTEST_TAG,
+                    "lines": ["plain"],
+                    "rule": 100100,
+                    "level": 0,
+                }
+            ],
+        )
+
+    def test_opted_in_role_samples_carry_tag_and_decoder(self):
+        _write_samples(
+            self.roles_dir,
+            "web-app-pixelfed",
+            "- log: [a, b]\n  rule: 101002\n  level: 10\n",
+        )
+        self.assertEqual(
+            _run(self.roles_dir, {"web-app-pixelfed": True})["samples"],
+            [
+                {
+                    "role": "web-app-pixelfed",
+                    "program": "pixelfed",
+                    "decoder": "infinito-pixelfed",
+                    "lines": ["a", "b"],
+                    "rule": 101002,
+                    "level": 10,
+                }
+            ],
+        )
+
+    def test_disabled_role_samples_are_skipped(self):
+        _write_samples(
+            self.roles_dir, "web-app-pixelfed", "- log: a\n  rule: 101000\n  level: 0\n"
+        )
+        self.assertEqual(_run(self.roles_dir, {"web-app-pixelfed": False})["samples"], [])
 
     def test_duplicate_entity_name_fails(self):
         _ship(self.roles_dir, "web-app-pixelfed", "rules")
