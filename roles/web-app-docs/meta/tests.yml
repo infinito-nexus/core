@@ -2,3 +2,5 @@
 cli:
   once: true
   timeout: 9000
+playwright:
+  timeout: 9000

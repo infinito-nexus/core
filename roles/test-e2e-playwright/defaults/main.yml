@@ -3,7 +3,9 @@
 #
 # Param test_e2e_playwright_run_timeout: hard cap per role in seconds; Ansible
 #   kills the sidecar when it is exceeded. Sized for addon-heavy roles that run
-#   many per-addon specs, e.g. nextcloud (~50 addons).
+#   many per-addon specs, e.g. nextcloud (~50 addons). A role whose specs
+#   legitimately outlast it raises its own cap with `playwright.timeout` in
+#   `meta/tests.yml`, the way `cli.timeout` raises the CLI harness cap.
 # Param test_e2e_playwright_test_timeout: per-test timeout in ms
 #   (config.timeout); caps a single spec.
 # Param test_e2e_playwright_workers: parallel Playwright workers. Spec FILES run

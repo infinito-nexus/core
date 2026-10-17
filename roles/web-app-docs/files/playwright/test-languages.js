@@ -9,6 +9,9 @@ const preload = decodeDotenvJsonList(
 const samples = JSON.parse(decodeDotenvQuotedValue(process.env.DOCS_I18N_SAMPLES_JSON || "") || "{}");
 const translated = preload.filter((code) => code in samples);
 
+const VERSION_BUILD = 5_300_000;
+const VERSION_THEN_TRANSLATION = 2 * VERSION_BUILD;
+
 function normalized(text) {
   return (text || "").replace(/\s+/g, " ");
 }
@@ -23,7 +26,7 @@ exports.register = function (shared) {
 
     for (const language of translated) {
       test(`the deployed working tree is published in ${language} with a language switcher`, async ({ page, request }) => {
-        test.setTimeout(resolveTimeout(5_400_000));
+        test.setTimeout(resolveTimeout(VERSION_THEN_TRANSLATION + 100_000));
         const sample = samples[language];
         expect(Object.keys(sample).length, `Expected ${language} translations of README messages in docs.po`).toBeGreaterThan(0);
         await pollStatus(
@@ -31,7 +34,7 @@ exports.register = function (shared) {
           `${shared.appBaseUrl}/deployed/${language}/`,
           200,
           `Expected the ${language} site of the deployed working tree to be built`,
-          5_300_000,
+          VERSION_THEN_TRANSLATION,
         );
 
         await gotoOnion(page, `${shared.appBaseUrl}/deployed/${language}/`);
