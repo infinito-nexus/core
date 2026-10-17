@@ -237,7 +237,9 @@ stops routing `/mcp/*`.
 
 ## Networks
 
-Baserow's Caddy layer answers only the hosts named in `BASEROW_PUBLIC_URL` and `BASEROW_EXTRA_PUBLIC_URLS`; any other host is treated as a published builder domain and gets `404`. The role therefore lists every network sibling of the canonical URL (for example the onion host in `multi` mode) in `BASEROW_EXTRA_PUBLIC_URLS`. `BASEROW_PUBLIC_URL` stays the canonical clearnet URL that Baserow writes into emails.
+Baserow's web frontend sends every API call to its one `PUBLIC_BACKEND_URL` and marks its `jwt_token` cookie `Secure` from its one public URL, so a session cannot live on the onion sibling. `meta/networks.yml` therefore opts into `reachability.handover`: the onion vhost in [proxy.conf.j2](templates/proxy.conf.j2) answers `/` with a redirect to the same path on the canonical clearnet URL.
+
+Baserow's Caddy layer answers only the hosts named in `BASEROW_PUBLIC_URL` and `BASEROW_EXTRA_PUBLIC_URLS`; any other host is treated as a published builder domain and gets `404`. The role lists every network sibling of the canonical URL in `BASEROW_EXTRA_PUBLIC_URLS`, so the onion vhost's `/healthz/ready` probe still reaches the backend.
 
 ## Security: SECRET_KEY
 
