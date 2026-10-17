@@ -58,6 +58,7 @@ class TestSearchAllocationPrecheck(unittest.TestCase):
             env["ELASTICSEARCH_HOST"] = "elasticsearch"
             env["ELASTICSEARCH_PORT"] = "9200"
             env["ELASTICSEARCH_NAMESPACE"] = "zammad"
+            env["HOSTNAME"] = "0A1B2C3D4E5F"
             done = subprocess.run(
                 ["bash", str(SCRIPT), "1", "1", "60", *entrypoint],
                 env=env,
@@ -75,7 +76,7 @@ class TestSearchAllocationPrecheck(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("ENTRYPOINT", output)
         self.assertIn(
-            "-X PUT http://elasticsearch:9200/zammad_allocation_probe?wait_for_active_shards=1&timeout=60s",
+            "-X PUT http://elasticsearch:9200/zammad_allocation_probe_0a1b2c3d4e5f?wait_for_active_shards=1&timeout=60s",
             calls,
         )
         self.assertEqual(calls.count("-X DELETE"), 2)
@@ -84,7 +85,10 @@ class TestSearchAllocationPrecheck(unittest.TestCase):
         code, output, calls = self.run_precheck(REFUSED)
         self.assertEqual(code, 1)
         self.assertNotIn("ENTRYPOINT", output)
-        self.assertIn("allocated no primary shard for zammad_allocation_probe", output)
+        self.assertIn(
+            "allocated no primary shard for zammad_allocation_probe_0a1b2c3d4e5f",
+            output,
+        )
         self.assertIn("watermark.high.max_headroom=150gb", output)
         self.assertIn("_cluster/allocation/explain", calls)
         self.assertEqual(calls.count("-X DELETE"), 2)

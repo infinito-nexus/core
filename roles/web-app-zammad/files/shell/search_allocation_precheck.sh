@@ -11,7 +11,7 @@ shift 3
 }
 
 base="${ELASTICSEARCH_SCHEMA:?}://${ELASTICSEARCH_HOST:?}:${ELASTICSEARCH_PORT:?}"
-probe="${ELASTICSEARCH_NAMESPACE:?}_allocation_probe"
+probe="${ELASTICSEARCH_NAMESPACE:?}_allocation_probe_${HOSTNAME,,}"
 
 deadline=$(($(date +%s) + ready_seconds))
 until curl -fsS --connect-timeout 5 --max-time 10 -o /dev/null "${base}/_cluster/health"; do

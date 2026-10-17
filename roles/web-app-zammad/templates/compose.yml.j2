@@ -1,5 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
+  {% if DEPLOYMENT_MODE == 'compose' %}
   {% set service_name = ZAMMAD_PRECHECK_SERVICE %}
   {% set docker_restart_policy = 'no' %}
   {{ service_name }}:
@@ -12,6 +13,7 @@
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
+  {% endif %}
   {% set service_name = ZAMMAD_INIT_SERVICE %}
   {% set docker_restart_policy = 'on-failure' %}
   {{ service_name }}:
@@ -20,9 +22,9 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["{{ ZAMMAD_SEARCH_PRECHECK_TARGET }}", "{{ ZAMMAD_SEARCH_READY_SECONDS }}", "{{ ZAMMAD_SEARCH_POLL_SECONDS }}", "{{ ZAMMAD_SEARCH_ALLOCATION_TIMEOUT_SECONDS }}", "/opt/zammad/bin/docker-entrypoint", "zammad-init"]
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {{ lookup('container_depends_on', application_id, extra={
+    {{ lookup('container_depends_on', application_id, extra=({
   ZAMMAD_PRECHECK_SERVICE: {'condition': 'service_completed_successfully'},
-}) | indent(4) }}
+} if DEPLOYMENT_MODE == 'compose' else {})) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
