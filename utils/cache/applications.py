@@ -419,9 +419,6 @@ def get_merged_applications(
         carried_nested = getattr(_RENDER_GUARD, "nested_payloads", {}).get(cache_key)
         if carried_nested is not None:
             return carried_nested
-        unrendered = getattr(_RENDER_GUARD, "unrendered_applications", None)
-        if unrendered is not None and unrendered[0] == cache_key:
-            return unrendered[1]
 
     defaults = get_application_defaults(roles_dir=resolved_roles_dir)
 
@@ -436,7 +433,7 @@ def get_merged_applications(
         payloads[cache_key] = merged
         return merged
 
-    _RENDER_GUARD.unrendered_applications = (cache_key, copy.deepcopy(merged))
+    _RENDER_GUARD.nested_payloads = {cache_key: copy.deepcopy(merged)}
 
     for app_cfg in merged.values():
         if isinstance(app_cfg, dict):
@@ -459,7 +456,6 @@ def get_merged_applications(
     finally:
         _RENDER_GUARD.applications = False
         _RENDER_GUARD.nested_payloads = {}
-        _RENDER_GUARD.unrendered_applications = None
 
     for app_id in rendered:
         raw_volumes = get_canonical_volumes(app_id)
