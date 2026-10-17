@@ -16,11 +16,11 @@ from statistics import median
 
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import catalog_path, read_catalog
-from utils.i18n.languages import load_languages, translatable
 from utils.i18n.libretranslate import (
     READY_TIMEOUT_SECONDS,
     LibreTranslate,
     download_status,
+    served_languages,
     server,
 )
 from utils.i18n.translate import pending
@@ -144,7 +144,7 @@ def main(code: str, cpus: int) -> int:
     Returns:
         0 on success, 2 when no catalog offers the language.
     """
-    if code not in translatable(load_languages(PROJECT_ROOT), "docs"):
+    if code not in served_languages(PROJECT_ROOT):
         print(f"LibreTranslate does not support {code}")
         return 2
     outcome = tune(cpus, code)

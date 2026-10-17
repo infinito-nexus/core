@@ -7,7 +7,7 @@ import json
 import unittest
 import unittest.mock
 
-from utils.i18n import judge as JUDGE
+from utils.i18n import judge
 from utils.i18n.judge import LEVELS, MIDDLE, ChatJudge, parse_level, question
 
 
@@ -61,7 +61,7 @@ class ScoreTestCase(unittest.TestCase):
         self.judge = ChatJudge("http://gateway:4000/", "chat", api_key="k")
 
     def _call(self, content):
-        with unittest.mock.patch.object(JUDGE.urllib.request, "urlopen") as urlopen:
+        with unittest.mock.patch.object(judge.urllib.request, "urlopen") as urlopen:
             urlopen.return_value.__enter__.return_value = _answer(content)
             result = self.judge.score("source", "translation")
         self.request = urlopen.call_args[0][0]

@@ -196,19 +196,29 @@ def await_runner(name: str, env: dict[str, str]) -> None:
     raise RuntimeError(f"The tools runner {name} did not reach the running state.")
 
 
+def served_languages(root: Path) -> list[str]:
+    """Return the codes this engine's models cover.
+
+    Args:
+        root: repository root.
+
+    Returns:
+        ``services.<SERVICE_KEY>.serves`` of the engine's own role. The set is
+        declared there rather than read back from ``/languages`` because both
+        callers run before any engine answers: one pins the models the image
+        prefetches, the other is the readiness probe itself.
+    """
+    service = load_yaml(root / SERVICES_FILE)[SERVICE_KEY]
+    return sorted(service["serves"])
+
+
 def baked_languages(root: Path) -> list[str]:
     """Return every code the lane's image prefetches models for.
 
     Args:
         root: repository root.
     """
-    from utils.i18n.languages import DOMAINS, load_languages, translatable
-
-    languages = load_languages(root)
-    codes = {PIVOT_LANGUAGE}
-    for domain in DOMAINS:
-        codes.update(translatable(languages, domain))
-    return sorted(codes)
+    return sorted({PIVOT_LANGUAGE, *served_languages(root)})
 
 
 def _vars_file(root: Path) -> Path:

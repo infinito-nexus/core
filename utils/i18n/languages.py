@@ -1,4 +1,19 @@
-"""The language list of ``meta/languages.yml``."""
+"""The language list of ``meta/languages.yml``.
+
+The file is the one place that names the languages this repository supports,
+and it carries nothing but their identity: name, endonym and writing
+direction. Every language it names gets a catalog in every domain.
+
+Which engine renders into a language is deliberately not written here. The
+translation gateway offers each backend that serves the pair, falls through to
+the next one when an engine refuses or mangles the answer, drops an engine
+whose failures pile up, and settles a language on the engine that wins its
+comparisons. A static table beside that would be a second opinion that goes
+stale the moment the router learns something. What a single engine can do is
+declared with that engine instead: ``services.libretranslate-engine.serves``
+of ``roles/svc-ai-libretranslate-engine`` states the codes its models cover,
+because the lane prefetches those models before any engine can be asked.
+"""
 
 from __future__ import annotations
 
@@ -25,27 +40,8 @@ def domain_languages(languages: dict[str, dict], domain: str) -> list[str]:
 
     Args:
         languages: the mapping returned by ``load_languages``.
-        domain: ``core`` for every language but the source language, ``docs``
-            for the languages LibreTranslate supports.
+        domain: a name of :data:`DOMAINS`.
     """
-    if domain == "core":
-        return sorted(code for code in languages if code != SOURCE_LANGUAGE)
-    if domain == "docs":
-        return sorted(
-            code for code, entry in languages.items() if entry["libretranslate"]
-        )
-    raise ValueError(f"unknown domain: {domain}")
-
-
-def translatable(languages: dict[str, dict], domain: str) -> list[str]:
-    """Return the codes of ``domain`` LibreTranslate can machine-translate.
-
-    Args:
-        languages: the mapping returned by ``load_languages``.
-        domain: gettext domain.
-    """
-    return [
-        code
-        for code in domain_languages(languages, domain)
-        if languages[code]["libretranslate"]
-    ]
+    if domain not in DOMAINS:
+        raise ValueError(f"unknown domain: {domain}")
+    return sorted(code for code in languages if code != SOURCE_LANGUAGE)

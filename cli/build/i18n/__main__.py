@@ -3,7 +3,7 @@
 Usage:
   python -m cli.build.i18n extract [--domain core|docs]
   python -m cli.build.i18n translate --domain core|docs [--languages de,fr]
-  python -m cli.build.i18n languages [--domain core|docs]
+  python -m cli.build.i18n languages
   python -m cli.build.i18n prune [--domain core|docs] [--languages de,fr]
   python -m cli.build.i18n retry [--domain core|docs] [--languages de,fr]
   python -m cli.build.i18n tune [--language de]
@@ -37,7 +37,6 @@ from utils.i18n.languages import (
     DOMAINS,
     domain_languages,
     load_languages,
-    translatable,
 )
 from utils.i18n.gateway import (
     READY_TIMEOUT_SECONDS,
@@ -45,6 +44,7 @@ from utils.i18n.gateway import (
     download_status,
     server,
 )
+from utils.i18n.libretranslate import served_languages
 from utils.i18n.placeholders import Rejected
 from utils.i18n.translate import (
     apply,
@@ -97,8 +97,17 @@ def extract(domains: list[str]) -> int:
 
 
 def languages(domains: list[str]) -> int:
+    """Print every language carrying a catalog, as a JSON array.
+
+    The caller is the CI matrix of ``entry-pr-translate.yml``, which opens one
+    branch and one pull request per code. Every language the repository names
+    is translated, so every one of them belongs in the matrix: the gateway
+    offers each backend that serves the pair and falls through to its chat
+    backend, which declares no catalogue and therefore answers for the pairs
+    the dedicated engines do not cover.
+    """
     loaded = load_languages(PROJECT_ROOT)
-    codes = sorted({code for d in domains for code in translatable(loaded, d)})
+    codes = sorted({code for d in domains for code in domain_languages(loaded, d)})
     print(json.dumps(codes))
     return 0
 
@@ -223,15 +232,16 @@ def translate(domains: list[str], requested: list[str], redeploy: bool = False) 
     loaded = load_languages(PROJECT_ROOT)
     work: list[tuple[str, str]] = []
     for domain in domains:
-        supported = translatable(loaded, domain)
+        supported = domain_languages(loaded, domain)
         unsupported = sorted(set(requested) - set(supported))
         if unsupported:
-            print(f"the translation gateway does not serve {unsupported}", file=sys.stderr)
+            print(f"{', '.join(unsupported)} is not a language this repository names", file=sys.stderr)
             return 2
         work += [
             (domain, code)
             for code in (sorted(requested) if requested else supported)
-            if pending(read_catalog(catalog_path(PROJECT_ROOT, code, domain)))
+            if catalog_path(PROJECT_ROOT, code, domain).is_file()
+            and pending(read_catalog(catalog_path(PROJECT_ROOT, code, domain)))
         ]
     if not work:
         print(f"{', '.join(domains)}: nothing to translate")

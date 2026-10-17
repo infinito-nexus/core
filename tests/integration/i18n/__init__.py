@@ -42,7 +42,7 @@ from tests.utils.services import progress as _progress
 from utils.i18n.catalog import MACHINE_TRANSLATION, catalog_path, read_catalog
 from utils.i18n.damage import COLLAPSE_FLOOR as MIN_SOURCE_CHARS
 from utils.i18n.damage import MAX_SHARING_SOURCES as MAX_SHARING_SOURCES
-from utils.i18n.languages import DOMAINS, load_languages, translatable
+from utils.i18n.languages import DOMAINS, domain_languages, load_languages
 from utils.i18n.spans import prose
 from utils.i18n.untranslatable import untranslatable
 
@@ -203,7 +203,7 @@ def scan() -> Findings:
     pending: list[tuple[str, str]] = []
 
     for domain in DOMAINS:
-        for code in translatable(languages, domain):
+        for code in domain_languages(languages, domain):
             path = catalog_path(PROJECT_ROOT, code, domain)
             if not path.is_file():
                 continue

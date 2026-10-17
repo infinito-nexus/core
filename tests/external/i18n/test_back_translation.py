@@ -27,8 +27,7 @@ import unittest
 from tests.utils.services import answers as serves
 from tests.utils.services import progress as _progress
 from utils.i18n.catalog import MACHINE_TRANSLATION, catalog_path, read_catalog
-from utils.i18n.languages import load_languages, translatable
-from utils.i18n.libretranslate import PIVOT_LANGUAGE, SERVICE_KEY
+from utils.i18n.libretranslate import PIVOT_LANGUAGE, SERVICE_KEY, served_languages
 from utils.i18n.untranslatable import untranslatable
 from utils.inventory.tools import LIBRETRANSLATE_ROLE, lane_url
 
@@ -76,11 +75,10 @@ class TestBackTranslation(unittest.TestCase):
 
         client = LibreTranslate(self.url, WORKERS)
         available = client.targets()
-        languages = load_languages(PROJECT_ROOT)
         offenders: list[str] = []
         echoed = 0
 
-        for code in translatable(languages, DOMAIN):
+        for code in served_languages(PROJECT_ROOT):
             if client.server_code(code) not in available:
                 continue
             path = catalog_path(PROJECT_ROOT, code, DOMAIN)

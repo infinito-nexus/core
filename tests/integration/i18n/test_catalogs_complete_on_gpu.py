@@ -4,6 +4,12 @@ Translating the full language set is only affordable where LibreTranslate can
 use a GPU, so this runs nowhere else. It reads the catalogs on disk, which is
 what a release ships, not what a translation run reported.
 
+The set is the language table, every entry of it. Narrowing it to one engine's
+declared coverage would hide the languages that engine does not render into,
+and those are exactly the ones worth watching: the gateway reaches them
+through its chat backend, so a gap there means that backend is absent or
+failing, not that the language is unreachable.
+
 Parsing a catalog dominates the runtime and there are two questions to ask of
 each one, so a worker parses its catalog once, answers both, and sends back
 two counts instead of the catalog.
@@ -19,7 +25,7 @@ from typing import ClassVar, NamedTuple
 
 from utils import PROJECT_ROOT
 from utils.i18n.catalog import catalog_path, read_catalog
-from utils.i18n.languages import DOMAINS, load_languages, translatable
+from utils.i18n.languages import DOMAINS, domain_languages, load_languages
 from utils.i18n.libretranslate import accelerated
 from utils.i18n.translate import damaged, pending
 
@@ -44,15 +50,15 @@ def measure(task: tuple[str, str]) -> Counts:
 @unittest.skipUnless(accelerated(), "no NVIDIA runtime on this host")
 class TestCatalogsCompleteOnGpu(unittest.TestCase):
     root: ClassVar[Path] = Path(PROJECT_ROOT)
-    languages: ClassVar[dict] = load_languages(Path(PROJECT_ROOT))
     missing: ClassVar[list[str]] = []
     counts: ClassVar[list[Counts]] = []
 
     @classmethod
     def setUpClass(cls) -> None:
+        languages = load_languages(cls.root)
         tasks: list[tuple[str, str]] = []
         for domain in DOMAINS:
-            for code in translatable(cls.languages, domain):
+            for code in domain_languages(languages, domain):
                 path = catalog_path(cls.root, code, domain)
                 if path.is_file():
                     tasks.append((f"{domain}/{code}", str(path)))

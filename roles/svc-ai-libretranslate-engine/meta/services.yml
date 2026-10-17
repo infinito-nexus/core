@@ -21,6 +21,54 @@ libretranslate-engine:
   custom: true
   min_storage: 402MB
   load_only: []
+  serves:
+    - ar
+    - az
+    - bg
+    - bn
+    - ca
+    - cs
+    - da
+    - de
+    - el
+    - eo
+    - es
+    - et
+    - eu
+    - fa
+    - fi
+    - fr
+    - ga
+    - gl
+    - he
+    - hi
+    - hu
+    - id
+    - it
+    - ja
+    - ko
+    - ky
+    - lt
+    - lv
+    - ms
+    - nb
+    - nl
+    - pl
+    - pt
+    - ro
+    - ru
+    - sk
+    - sl
+    - sq
+    - sv
+    - sw
+    - th
+    - tl
+    - tr
+    - uk
+    - ur
+    - vi
+    - zh
   loading_model: lazy
   models_dir: "{{ [DIR_CACHE, 'models', 'libretranslate'] | path_join }}"
   directions: both
