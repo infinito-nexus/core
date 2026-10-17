@@ -27,6 +27,7 @@ const PRIMARY_DRAWER = ".drawer.drawer-primary";
 const USER_TOUR = '[data-role="flexitour-step"]';
 const MODES = ["light", "dark"];
 const BOOST_SHEET = 'link[rel="stylesheet"][href*="/theme/styles.php/boost/"]';
+const LOGIN_PATH = "/login/index.php?loginredirect=0";
 
 const designTitle = decodeDotenvQuotedValue(process.env.DESIGN_TITLE);
 const logoEnabled = process.env.DESIGN_LOGO_ENABLED === "true";
@@ -237,7 +238,7 @@ exports.register = function (shared) {
 
   test("design: the compiled theme sheet carries the token mapping", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php?noredirect=1`);
+    await gotoOnion(page, `${shared.env.moodleBaseUrl}${LOGIN_PATH}`);
     const href = await page.locator(BOOST_SHEET).first().getAttribute("href");
     const sheet = await apiGetOnion(page.request, href);
     expect(sheet.ok(), "Moodle serves the compiled Boost sheet").toBe(true);
@@ -249,7 +250,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page shows the frame panel and a primary button in the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php?noredirect=1`);
+    await gotoOnion(page, `${shared.env.moodleBaseUrl}${LOGIN_PATH}`);
     await page.locator("#loginbtn").waitFor();
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
@@ -337,7 +338,7 @@ exports.register = function (shared) {
 
   test("design: every page title carries the configured site name", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php?noredirect=1`);
+    await gotoOnion(page, `${shared.env.moodleBaseUrl}${LOGIN_PATH}`);
     await page.locator("#loginbtn").waitFor();
     await expect(page).toHaveTitle(new RegExp(designTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   });
@@ -346,7 +347,7 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("design");
     test.skip(!logoEnabled, "no logo is configured for this deployment");
     const base = shared.env.moodleBaseUrl;
-    await gotoOnion(page, `${base}/login/index.php?noredirect=1`);
+    await gotoOnion(page, `${base}${LOGIN_PATH}`);
     await page.locator("#loginbtn").waitFor();
     await expect(page.locator("#logoimage")).toHaveAttribute("src", /\/core_admin\/logo\//);
     await expect(page.locator('link[rel="shortcut icon"]')).toHaveAttribute("href", /\/core_admin\/favicon\//);
@@ -386,7 +387,7 @@ exports.register = function (shared) {
       },
     });
 
-    await capture([view("login", "/login/index.php?noredirect=1"), view("forgot-password", "/login/forgot_password.php")]);
+    await capture([view("login", LOGIN_PATH), view("forgot-password", "/login/forgot_password.php")]);
 
     await signIn(page, shared);
     const { course, activities } = await seedShowcaseCourse(page, base);
