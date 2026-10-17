@@ -60,7 +60,7 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      const link = interactivePage.getByRole("link", { name: /^user accounts$/i }).first();
+      const link = interactivePage.locator('#topmenu a[href*="route=/server/privileges"]').first();
       await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
       await link.click({ timeout: resolveTimeout(30_000) });
       await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
