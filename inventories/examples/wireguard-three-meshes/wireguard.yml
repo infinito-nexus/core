@@ -1,0 +1,35 @@
+---
+applications:
+  svc-net-wireguard:
+    networks:
+      meshes:
+        - name: alpha
+          subnet: "10.100.10.0/24"
+          listen_port: 51830
+        - name: beta
+          subnet: "10.100.11.0/24"
+          listen_port: 51831
+        - name: gamma
+          subnet: "10.100.12.0/24"
+          listen_port: 51832
+  svc-swarm-node:
+    networks:
+      meshes: [alpha]
+  svc-storage-nfs-server:
+    networks:
+      meshes: [beta]
+  svc-bkp-volume-2-local:
+    networks:
+      meshes: [gamma]
+  svc-bkp-secrets-2-local:
+    networks:
+      meshes: [gamma]
+  svc-bkp-nfs-2-local:
+    networks:
+      meshes: [gamma]
+  svc-bkp-remote-2-local:
+    networks:
+      meshes: [gamma]
+  svc-bkp-local-2-device:
+    networks:
+      meshes: [gamma]

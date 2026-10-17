@@ -13,13 +13,20 @@ from utils.storage.nfs import (
 
 
 class LookupModule(LookupBase):
-    """NFS client mount src (server:path): {{ lookup('nfs_client_src') }}."""
+    """NFS client mount src (server:path): {{ lookup('nfs_client_src') }}.
+
+    ``{{ lookup('nfs_client_src', 'controller') }}`` addresses the server as
+    the Ansible controller reaches it.
+    """
 
     def run(self, terms, variables=None, **kwargs):
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
         nfs = variables.get("storage", {}).get("nfs", {})
+        server = nfs.get("server")
+        if terms and terms[0] == "controller":
+            server = nfs.get("controller_server") or server
         flavor = lookup_loader.get(
             "nfs_flavor", loader=self._loader, templar=self._templar
         ).run([], variables=variables)[0]
         state = state_path(get_export_base(), STATE_SUBDIR)
-        return [client_src(nfs.get("server"), get_client_version(), flavor, state)]
+        return [client_src(server, get_client_version(), flavor, state)]

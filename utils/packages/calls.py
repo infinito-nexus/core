@@ -61,6 +61,9 @@ class ModuleCall:
     retry: RetryPolicy | None = None
 
 
+MANAGER_ARGS: dict[str, dict[str, Any]] = {"apt": {"install_recommends": False}}
+
+
 def package_call(names: list[str], state: str) -> ModuleCall:
     """Install or remove *names* through the host's own package manager."""
     return ModuleCall(

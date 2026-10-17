@@ -1,0 +1,24 @@
+---
+all:
+  children:
+    svc-net-wireguard:
+      hosts:
+        mesh-hub-01:
+        mesh-wrk-01:
+        mesh-wrk-02:
+        mesh-nfs-01:
+        mesh-bkp-01:
+    svc-swarm-manager:
+      hosts:
+        mesh-hub-01:
+    svc-swarm-node:
+      hosts:
+        mesh-hub-01:
+        mesh-wrk-01:
+        mesh-wrk-02:
+    svc-storage-nfs-server:
+      hosts:
+        mesh-nfs-01:
+    svc-bkp-remote-2-local:
+      hosts:
+        mesh-bkp-01:

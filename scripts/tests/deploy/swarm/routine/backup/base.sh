@@ -49,6 +49,15 @@ DEV_MOUNT="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]
 DEV_TARGET="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]))['applications']['svc-bkp-local-2-device']['services']['local-2-device']['target'])" "${DRILL_EXTRAS}")"
 DEV_DEST="${DEV_MOUNT}${DEV_TARGET}"
 
+if [ "${DRILL_PROBE:-false}" = "true" ]; then
+	if [ -n "${PRIMARY_NFS_VOLUME}" ]; then
+		echo "DRILL=yes"
+	else
+		echo "DRILL=no"
+	fi
+	exit 0
+fi
+
 if [ -z "${PRIMARY_NFS_VOLUME}" ]; then
 	echo "SKIP drill: ${APP_ID} declares no NFS-flagged volume — nothing to prove a restore against"
 	exit 0

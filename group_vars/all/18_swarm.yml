@@ -22,7 +22,8 @@ swarm_stack_fatal_grace: 180
 
 swarm:
   manager:
-    advertise_addr: ""
+    advertise_addr: >-
+      {{ lookup('mesh_address', STACK_HOST) if (WIREGUARD_ENABLED | bool) else '' }}
   network:
     encryption: true
   registry:
