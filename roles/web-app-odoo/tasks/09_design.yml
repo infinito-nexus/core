@@ -30,6 +30,6 @@
     or ('DESIGN_CHANGED' not in odoo_design_apply.stdout and 'DESIGN_UNCHANGED' not in odoo_design_apply.stdout)
   timeout: "{{ lookup('timeout', 300) | int }}"
 
-- name: "♻️ Reload Odoo so every replica compiles the converged theme into its asset bundles"
+- name: "♻️ Reload Odoo so every replica picks up the converged theme"
   include_tasks: 08_reload_provisioned_config.yml
   when: odoo_design_apply is changed

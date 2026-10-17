@@ -127,8 +127,8 @@ class TestDistrosLoop(unittest.TestCase):
     def test_a_distro_needs_the_slowest_run_plus_headroom_to_start(self) -> None:
         proc, record = self._run(
             DISTROS,
-            'sleep 4\necho "${INFINITO_DISTRO}" >> "${RECORD}"',
-            INFINITO_CI_DISTRO_BUDGET_SECONDS="7",
+            'sleep 10\necho "${INFINITO_DISTRO}" >> "${RECORD}"',
+            INFINITO_CI_DISTRO_BUDGET_SECONDS="19",
         )
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(len(record.split()), 1)
