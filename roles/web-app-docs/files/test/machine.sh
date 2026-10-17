@@ -8,7 +8,10 @@
 #   DOCS_TEST_ROLE           role under replay, names the compose project
 #   DOCS_TEST_SRC_DIR        repository checkout, holds the generated .env and
 #                            carries the tree a host install replays from
-#   DOCS_TEST_WORK           work directory, holds the replay key pair
+#   DOCS_TEST_DOMAIN         domain the published block deploys, wildcarded onto
+#                            the target for the length of the replay
+#   DOCS_TEST_WORK           work directory, holds the replay key pair and the
+#                            rendered Corefile
 #   DOCS_TEST_REPLAY_PUBKEY  public half, authorized for root on the target
 
 set -euo pipefail
@@ -16,6 +19,7 @@ set -euo pipefail
 BLOCK="${1:?}"
 : "${DOCS_TEST_ROLE:?}"
 : "${DOCS_TEST_SRC_DIR:?}"
+: "${DOCS_TEST_DOMAIN:?}"
 : "${DOCS_TEST_WORK:?}"
 : "${DOCS_TEST_REPLAY_PUBKEY:?}"
 
@@ -26,6 +30,8 @@ SYSTEMD_TRIES=40
 SYSTEMD_DELAY=3
 SSH_TRIES=30
 SSH_DELAY=2
+RESOLVER_TRIES=30
+RESOLVER_DELAY=2
 
 machine() {
 	docker compose --project-directory "${STAGE}" -p "${PROJECT}" "$@"
@@ -33,7 +39,7 @@ machine() {
 
 cleanup() {
 	machine down -v --rmi local --remove-orphans >/dev/null 2>&1
-	rm -f "${REPLAY_KEY}" "${REPLAY_KEY}.pub"
+	rm -f "${REPLAY_KEY}" "${REPLAY_KEY}.pub" "${COREFILE}"
 	if [ "${RECIPE_WORKDIR_PREEXISTED}" = "0" ]; then
 		rm -rf "${RECIPE_WORKDIR}"
 	fi
@@ -74,6 +80,61 @@ target_address() {
 		awk '{print $1}'
 }
 
+resolver_upstream() {
+	# shellcheck disable=SC2016
+	machine exec -T machine \
+		awk '$1 == "nameserver" && $2 !~ /^127\./ { printf "%s ", $2 }' /etc/resolv.conf
+}
+
+await_wildcard() {
+	local address="$1" probe seen
+	probe="docs-guide-probe.${DOCS_TEST_DOMAIN}"
+	seen=""
+	for _ in $(seq 1 "${RESOLVER_TRIES}"); do
+		seen="$(machine exec -T machine getent hosts "${probe}" | awk '{print $1}')" || seen=""
+		if [ "${seen}" = "${address}" ]; then
+			return 0
+		fi
+		sleep "${RESOLVER_DELAY}"
+	done
+	echo "the ${DOCS_TEST_ROLE} target resolves ${probe} to '${seen}' instead of its own ${address}" >&2
+	return 1
+}
+
+resolve_domain_to_target() {
+	local address="$1" upstream
+	upstream="$(resolver_upstream)"
+	if [ -z "${upstream}" ]; then
+		echo "the ${DOCS_TEST_ROLE} target carries no forwardable nameserver, so every name outside ${DOCS_TEST_DOMAIN} would stop resolving" >&2
+		return 1
+	fi
+
+	echo "=== Answering *.${DOCS_TEST_DOMAIN} with the target's own ${address} ==="
+	sed -e "s#\${DOCS_TEST_DOMAIN}#${DOCS_TEST_DOMAIN}#g" \
+		-e "s#\${DOCS_TEST_TARGET_IP}#${address}#g" \
+		-e "s#\${DOCS_TEST_UPSTREAM}#${upstream}#g" \
+		"${STAGE}/Corefile.tmpl" >"${COREFILE}"
+
+	machine up -d resolver
+	printf 'nameserver %s\n' "${address}" | machine exec -T machine tee /etc/resolv.conf >/dev/null
+	await_wildcard "${address}"
+}
+
+report_failed_units() {
+	local failed units unit
+	failed="$(machine exec -T machine systemctl --no-pager --no-legend --plain --failed)" || failed=""
+	echo "=== systemctl --failed on the ${DOCS_TEST_ROLE} target ==="
+	printf '%s\n' "${failed}"
+	units="$(printf '%s\n' "${failed}" | awk '{print $1}')"
+	for unit in ${units}; do
+		echo "=== journalctl -xeu ${unit} ==="
+		if ! machine exec -T machine journalctl --no-pager -xeu "${unit}"; then
+			echo "=== no journal for ${unit} ==="
+		fi
+	done
+	return 0
+}
+
 await_ssh() {
 	local address="$1"
 	for _ in $(seq 1 "${SSH_TRIES}"); do
@@ -100,20 +161,17 @@ replay_over_ssh() {
 	echo "=== Giving the target an ssh server the published recipe can reach ==="
 	machine exec -T -e DOCS_TEST_REPLAY_PUBKEY machine sh -s <"${STAGE}/sshd.sh"
 
-	local address
-	address="$(target_address)"
-	if [ -z "${address}" ]; then
-		echo "the ${DOCS_TEST_ROLE} target reported no bridge address" >&2
-		return 1
-	fi
-	await_ssh "${address}"
+	await_ssh "${TARGET_ADDRESS}"
 
-	sed -i "s#^HOST=.*#HOST=${address}#" "${BLOCK}"
+	sed -i "s#^HOST=.*#HOST=${TARGET_ADDRESS}#" "${BLOCK}"
 	guard_placeholders
 
 	echo "=== Replay image: $(sed -nE 's#^[[:space:]]*([^[:space:]]+) bash -c .*#\1#p' "${BLOCK}" | head -1 || true) ==="
-	echo "=== Replaying the instructions against ${address} ==="
-	(cd "${DOCS_TEST_WORK}" && bash -e "${BLOCK}")
+	echo "=== Replaying the instructions against ${TARGET_ADDRESS} ==="
+	if ! (cd "${DOCS_TEST_WORK}" && bash -e "${BLOCK}"); then
+		report_failed_units
+		return 1
+	fi
 }
 
 replay_in_target() {
@@ -128,10 +186,14 @@ replay_in_target() {
 	sed -i -E '/^git clone /d; /^cd core$/d' "${BLOCK}"
 
 	echo "=== Replaying the instructions inside the target ==="
-	machine exec -T -w "${DOCS_TEST_SRC_DIR}" machine bash -e -s <"${BLOCK}"
+	if ! machine exec -T -w "${DOCS_TEST_SRC_DIR}" machine bash -e -s <"${BLOCK}"; then
+		report_failed_units
+		return 1
+	fi
 }
 
 REPLAY_KEY="${DOCS_TEST_WORK}/docs-guide-${DOCS_TEST_ROLE}-key"
+COREFILE="${DOCS_TEST_WORK}/Corefile"
 RECIPE_WORKDIR="${HOME}/.infinito.nexus"
 if [ -e "${RECIPE_WORKDIR}" ]; then
 	RECIPE_WORKDIR_PREEXISTED=1
@@ -154,7 +216,14 @@ export MACHINE_BASE_IMAGE
 echo "=== Target: ${MACHINE_BASE_IMAGE} ==="
 sweep_dead_machines
 trap cleanup EXIT
-machine up -d --build --pull always
+machine up -d --build --pull always machine
 await_systemd
+
+TARGET_ADDRESS="$(target_address)"
+if [ -z "${TARGET_ADDRESS}" ]; then
+	echo "the ${DOCS_TEST_ROLE} target reported no bridge address" >&2
+	exit 1
+fi
+resolve_domain_to_target "${TARGET_ADDRESS}"
 
 "${REPLAY}"

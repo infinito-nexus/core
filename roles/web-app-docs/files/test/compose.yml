@@ -17,5 +17,12 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - engine:/var/lib/docker
 
+  resolver:
+    image: coredns/coredns:1.14.4
+    command: ["-conf", "/Corefile"]
+    network_mode: "service:machine"
+    volumes:
+      - ${DOCS_TEST_WORK}/Corefile:/Corefile:ro
+
 volumes:
   engine:
