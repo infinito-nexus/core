@@ -33,6 +33,8 @@ lexers["j2"] = DjangoLexer()
 
 exclude_patterns = ["docs/build", "venv", "venv/**"]
 
+autodoc_mock_imports = ["ansible.module_utils.kcadm_json"]
+
 html_theme = "sphinxawesome_theme"
 html_sidebars = {
     "**": ["logo.html", "versions.html", "languages.html", "structure.html"]
@@ -69,6 +71,7 @@ extensions = [
 ]
 
 autosummary_generate = True
+napoleon_use_ivar = True
 
 locale_dirs = ["locale"]
 gettext_compact = "docs"

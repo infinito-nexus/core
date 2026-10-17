@@ -19,8 +19,9 @@
                              be reserved words (call, end, class, graph, style).
 
   Optional context:
-    application_invokable          When true, emit the Quick Setup section
-                                   (invokable roles only; forbidden otherwise).
+    application_invokable          When true, emit the Architecture and Quick
+                                   Setup sections (invokable roles only;
+                                   forbidden otherwise).
     application_author_url         The author's social profile, derived from the
                                    address .mailmap folds their commits into.
     architecture_intro             Sentence above the Architecture links.
@@ -38,6 +39,7 @@
 
 {{ application_overview }}
 
+{% if application_invokable -%}
 ## Architecture
 
 {{ architecture_intro | default('[ARCHITECTURE.md](ARCHITECTURE.md) draws ' ~ application_name ~ ' from its own metadata: the containers it runs under compose, what changes under swarm, how each volume is backed, and every role it depends on or is depended upon by.') }}
@@ -49,6 +51,7 @@
 | [Volumes](ARCHITECTURE.md#volumes) | `meta/volumes.yml` against the NFS decision chain |
 | [Dependencies](ARCHITECTURE.md#dependencies) | `meta/services.yml` and `meta/main.yml` of every role |
 
+{% endif -%}
 ## Features
 
 {% for feature in application_features -%}

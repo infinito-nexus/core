@@ -88,7 +88,7 @@ class LookupModule(LookupBase):
     ) -> list[str]:
         """Render the pins this application needs to reach onion-hosted services.
 
-        Kwargs:
+        Keyword Args:
           application_id: role whose pins to resolve; defaults to the play var.
           extra_hosts:    additional `name:address` entries from the caller.
           host_alias:     also pin `host.docker.internal` to the gateway.

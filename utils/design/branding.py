@@ -93,10 +93,13 @@ def resolve_branding(
         project_root: Repository root; relative logo paths resolve against it.
 
     Returns:
-        ``{"logo": <absolute path> | False, "title": <str> | False,
-        "name": <README H1>, "label": <title, else name>,
-        "bootstrap": <bool>,
-        "slots": {name: {"width", "height", "text_only", "frame"}}}``.
+        A mapping of the shape::
+
+            {"logo": <absolute path> | False, "title": <str> | False,
+             "name": <README H1>, "label": <title, else name>,
+             "bootstrap": <bool>,
+             "slots": {name: {"width", "height", "text_only", "frame"}}}
+
         ``label`` serves installers that require a site name even when the
         title replacement is disabled. ``bootstrap`` tells whether the role
         links the shared Bootstrap component mapping. A slot with ``frame``

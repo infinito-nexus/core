@@ -1,6 +1,6 @@
 """Derive the per-role ARCHITECTURE sub-page from the role's own metadata.
 
-Four sections, each a mermaid diagram over a different `meta/` file:
+Four sections, each a mermaid diagram over a different ``meta/`` file::
 
   Compose       the services `meta/services.yml` declares, with the image and
                 the ports each one publishes.
@@ -14,6 +14,7 @@ Four sections, each a mermaid diagram over a different `meta/` file:
                 diagram that states only the outcome hides the coupling that
                 makes a placement change move data silently.
   Dependencies  the cosmos graph, uncapped.
+
 """
 
 from __future__ import annotations
