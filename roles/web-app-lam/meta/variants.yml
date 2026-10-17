@@ -22,6 +22,8 @@
     prometheus:
       enabled: true
       shared: true
+    redis:
+      shared: true
 
     design:
       enabled: true

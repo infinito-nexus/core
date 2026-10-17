@@ -15,7 +15,6 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
-# nocheck: playwright-service-flag — self-provider
 # nocheck: playwright-service-flag — session store behind every request, no Playwright surface of its own
 redis:
   bond: 1
@@ -26,6 +25,7 @@ redis:
   cpus: "0.25"
   mem_reservation: 128m
 
+# nocheck: playwright-service-flag — self-provider
 lam:
   modes:
     compose:

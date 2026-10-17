@@ -6,8 +6,9 @@ USER root
 
 RUN set -eu; \
     php_version="$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')"; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends "php${php_version}-redis"; \
+    rm -rf /var/lib/apt/lists/*; \
+    apt-get -o Acquire::Retries=3 update; \
+    apt-get -o Acquire::Retries=3 install -y --no-install-recommends "php${php_version}-redis"; \
     rm -rf /var/lib/apt/lists/*; \
     php -m | grep -qx redis
 
