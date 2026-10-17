@@ -54,7 +54,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 
 - [x] web-app-akaunting
 - [x] web-app-baserow
-- [ ] web-app-bigbluebutton: title not set through Greenlight (the spec asserts the literal upstream name); the meeting client keeps the upstream design; `vars/main.yml` rewritten after the last full run.
+- [x] web-app-bigbluebutton
 - [x] web-app-bluesky
 - [x] web-app-bookwyrm
 - [x] web-app-checkmk
@@ -66,12 +66,12 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-espocrm
 - [x] web-app-fediwall
 - [x] web-app-fider
-- [ ] web-app-flowise: `env.j2`, `playwright.env.j2` and `tasks/utils/mcp.yml` changed after the last green run.
+- [x] web-app-flowise
 - [x] web-app-friendica
 - [x] web-app-funkwhale
 - [x] web-app-fusiondirectory
 - [x] web-app-gitea
-- [ ] web-app-gitlab: final state never ran (the design-only commit removed the administrator provisioning); `/admin` is checked for HTTP 200 only.
+- [x] web-app-gitlab
 - [x] web-app-hermes
 - [x] web-app-homeassistant
 - [x] web-app-hugo
