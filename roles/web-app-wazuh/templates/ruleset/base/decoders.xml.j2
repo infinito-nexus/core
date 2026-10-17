@@ -1,0 +1,8 @@
+{% for source in WAZUH_CANARY_SOURCES %}
+<decoder name="{{ source.decoder }}">
+  <program_name>^{{ source.program }}$</program_name>
+</decoder>
+{% if not loop.last %}
+
+{% endif %}
+{% endfor %}

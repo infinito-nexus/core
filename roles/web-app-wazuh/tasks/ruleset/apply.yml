@@ -1,4 +1,14 @@
 ---
+- name: "📄 Render the base decoders and rules for every opted-in tag"
+  stack_host_template:
+    src: "{{ item.src }}"
+    dest: "{{ [ WAZUH_RULESET_DIR_HOST, item.dest ] | path_join }}"
+    mode: "0644"
+  loop: "{{ WAZUH_RULESET_BASE_FILES }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  register: wazuh_ruleset_base
+
 - name: "📋 Copy the rule files of the opted-in roles"
   ansible.builtin.copy: # nocheck: stack-host-consumer (03_ruleset.yml is included with `when: IS_STACK_HOST | bool`)
     src: "{{ item.src }}"
@@ -11,7 +21,7 @@
 
 - name: "🔍 Find the files in the ruleset directories"
   ansible.builtin.find:
-    paths: "{{ WAZUH_RULESET_KINDS | map('regex_replace', '^', WAZUH_RULESET_DIR_HOST ~ '/') | list }}"
+    paths: "{{ WAZUH_RULESET_DIRS | map('regex_replace', '^', WAZUH_RULESET_DIR_HOST ~ '/') | list }}"
     file_type: any
     hidden: true
   register: wazuh_ruleset_found
@@ -20,7 +30,10 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  loop: "{{ wazuh_ruleset_found.files | map(attribute='path') | difference(wazuh_ruleset_copy.results | map(attribute='dest')) }}"
+  loop: >-
+    {{ wazuh_ruleset_found.files | map(attribute='path')
+       | difference(wazuh_ruleset_copy.results | map(attribute='dest'))
+       | difference(wazuh_ruleset_base.results | map(attribute='dest')) }}
   register: wazuh_ruleset_stale
 
 - name: "🔐 Check that the wazuh user can read the whole ruleset"
@@ -44,7 +57,7 @@
   ansible.builtin.shell:
     cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-control restart 2>&1"
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
-  when: wazuh_ruleset_copy is changed or wazuh_ruleset_stale is changed
+  when: wazuh_ruleset_base is changed or wazuh_ruleset_copy is changed or wazuh_ruleset_stale is changed
   register: wazuh_ruleset_restart
   changed_when: true
 
@@ -59,3 +72,28 @@
   delay: 5
   changed_when: false
   failed_when: "'wazuh-analysisd is running' not in wazuh_ruleset_status.stdout"
+
+- name: "🐤 Run the deploy canary through wazuh-logtest for every tag"
+  ansible.builtin.shell:
+    cmd: >-
+      printf '%s\n' {{ ('Oct 17 00:00:00 ' ~ WAZUH_MANAGER_CONTAINER ~ ' ' ~ item.program ~ '[1]: ' ~ WAZUH_CANARY_MARKER ~ ' deploy') | quote }} |
+      container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-logtest
+      -U {{ WAZUH_CANARY_RULE_ID }}:{{ WAZUH_LOG_ALERT_LEVEL }}:{{ item.decoder }} 2>&1
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ WAZUH_CANARY_SOURCES }}"
+  loop_control:
+    label: "{{ item.program }}"
+  register: wazuh_ruleset_canary
+  until: wazuh_ruleset_canary.rc == 0
+  retries: 6
+  delay: 5
+  changed_when: false
+  failed_when: false
+
+- name: "🛑 Fail when the deploy canary did not fire for a tag"
+  ansible.builtin.fail:
+    msg: >-
+      Canary rule {{ WAZUH_CANARY_RULE_ID }} (level {{ WAZUH_LOG_ALERT_LEVEL }}) did not fire for
+      {{ wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | map(attribute='item.program') | list }}.
+      wazuh-logtest output: {{ wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | map(attribute='stdout') | list }}
+  when: wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | list | length > 0

@@ -9,25 +9,38 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from plugins.lookup.wazuh_ruleset import LookupModule
+from utils.roles.applications.services.wazuh import SELFTEST_TAG
+
+_SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
+_EMPTY = {"selftest": _SELFTEST, "entities": [], "files": []}
 
 
-def _run(roles_dir: Path, enabled: dict, groups: dict | None = None) -> list:
+def _run(roles_dir: Path, wazuh: dict, groups: dict | None = None) -> dict:
     """Run the lookup against a temporary roles directory.
 
     Args:
         roles_dir: directory holding the role fixtures.
-        enabled: ``{role: services.wazuh.enabled}``; every key is an application.
+        wazuh: ``{role: services.wazuh}``; every key is an application. A
+            ``bool`` is shorthand for ``{enabled: <bool>, rule_block: 101000}``.
         groups: inventory groups; defaults to one host per application.
     """
     if groups is None:
-        groups = {role: ["localhost"] for role in enabled}
-    applications = {role: {} for role in enabled}
+        groups = {role: ["localhost"] for role in wazuh}
+    applications = {role: {} for role in wazuh}
+    blocks = {
+        role: {"enabled": cfg, "rule_block": 101000} if isinstance(cfg, bool) else cfg
+        for role, cfg in wazuh.items()
+    }
+
+    def _config(terms, **_k):
+        role, path, default = terms
+        return [blocks[role].get(path.rsplit(".", 1)[1], default)]
 
     def _get(name, *a, **k):
         if name == "applications":
             return mock.MagicMock(run=lambda *_a, **_k: [applications])
         if name == "config":
-            return mock.MagicMock(run=lambda terms, **_k: [enabled[terms[0]]])
+            return mock.MagicMock(run=_config)
         raise AssertionError(name)
 
     lm = LookupModule()
@@ -59,7 +72,7 @@ class TestWazuhRuleset(unittest.TestCase):
     def test_opted_in_role_ships_both_files(self):
         _ship(self.roles_dir, "web-app-pixelfed", "decoders", "rules")
         self.assertEqual(
-            _run(self.roles_dir, {"web-app-pixelfed": True}),
+            _run(self.roles_dir, {"web-app-pixelfed": True})["files"],
             [
                 {
                     "src": str(
@@ -79,22 +92,52 @@ class TestWazuhRuleset(unittest.TestCase):
             ],
         )
 
+    def test_opted_in_role_is_an_entity_with_its_block(self):
+        result = _run(
+            self.roles_dir,
+            {"web-app-pixelfed": {"enabled": True, "rule_block": 101200}},
+        )
+        self.assertEqual(
+            result["entities"],
+            [
+                {
+                    "entity": "pixelfed",
+                    "program": "pixelfed",
+                    "decoder": "infinito-pixelfed",
+                    "rule_block": 101200,
+                }
+            ],
+        )
+
+    def test_selftest_source_comes_from_the_helper(self):
+        self.assertEqual(_run(self.roles_dir, {})["selftest"], _SELFTEST)
+
     def test_rules_only_role_contributes_rules(self):
         _ship(self.roles_dir, "web-app-pixelfed", "rules")
         result = _run(self.roles_dir, {"web-app-pixelfed": True})
-        self.assertEqual([f["name"] for f in result], ["pixelfed_rules.xml"])
+        self.assertEqual([f["name"] for f in result["files"]], ["pixelfed_rules.xml"])
 
-    def test_tag_only_role_contributes_nothing(self):
-        self.assertEqual(_run(self.roles_dir, {"web-app-pixelfed": True}), [])
+    def test_tag_only_role_is_an_entity_without_files(self):
+        result = _run(self.roles_dir, {"web-app-pixelfed": True})
+        self.assertEqual(result["files"], [])
+        self.assertEqual([e["entity"] for e in result["entities"]], ["pixelfed"])
+
+    def test_opt_in_without_rule_block_fails(self):
+        with self.assertRaises(AnsibleError):
+            _run(self.roles_dir, {"web-app-pixelfed": {"enabled": True}})
 
     def test_disabled_role_is_skipped(self):
         _ship(self.roles_dir, "web-app-pixelfed", "decoders", "rules")
-        self.assertEqual(_run(self.roles_dir, {"web-app-pixelfed": False}), [])
+        self.assertEqual(
+            _run(self.roles_dir, {"web-app-pixelfed": False}),
+            _EMPTY,
+        )
 
     def test_role_outside_inventory_is_skipped(self):
         _ship(self.roles_dir, "web-app-pixelfed", "rules")
         self.assertEqual(
-            _run(self.roles_dir, {"web-app-pixelfed": True}, groups={}), []
+            _run(self.roles_dir, {"web-app-pixelfed": True}, groups={}),
+            _EMPTY,
         )
 
     def test_role_group_without_hosts_is_skipped(self):
@@ -105,12 +148,15 @@ class TestWazuhRuleset(unittest.TestCase):
                 {"web-app-pixelfed": True},
                 groups={"web-app-pixelfed": []},
             ),
-            [],
+            _EMPTY,
         )
 
     def test_wazuh_role_is_skipped(self):
         _ship(self.roles_dir, "web-app-wazuh", "rules")
-        self.assertEqual(_run(self.roles_dir, {"web-app-wazuh": True}), [])
+        self.assertEqual(
+            _run(self.roles_dir, {"web-app-wazuh": True}),
+            _EMPTY,
+        )
 
     def test_duplicate_entity_name_fails(self):
         _ship(self.roles_dir, "web-app-pixelfed", "rules")
@@ -121,15 +167,18 @@ class TestWazuhRuleset(unittest.TestCase):
                 {"web-app-pixelfed": True, "web-svc-pixelfed": True},
             )
 
-    def test_result_is_sorted_by_kind_then_name(self):
+    def test_result_is_sorted(self):
         _ship(self.roles_dir, "web-app-zammad", "decoders", "rules")
         _ship(self.roles_dir, "web-app-akaunting", "rules")
         result = _run(
             self.roles_dir, {"web-app-zammad": True, "web-app-akaunting": True}
         )
         self.assertEqual(
-            [f["name"] for f in result],
+            [f["name"] for f in result["files"]],
             ["zammad_decoders.xml", "akaunting_rules.xml", "zammad_rules.xml"],
+        )
+        self.assertEqual(
+            [e["entity"] for e in result["entities"]], ["akaunting", "zammad"]
         )
 
 

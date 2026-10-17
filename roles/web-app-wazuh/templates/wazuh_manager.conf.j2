@@ -10,7 +10,7 @@
   </global>
 
   <alerts>
-    <log_alert_level>3</log_alert_level>
+    <log_alert_level>{{ WAZUH_LOG_ALERT_LEVEL }}</log_alert_level>
     <email_alert_level>12</email_alert_level>
   </alerts>
 
@@ -205,8 +205,11 @@
     <list>etc/lists/malicious-ioc/malware-hashes</list>
     <decoder_dir>etc/decoders</decoder_dir>
     <rule_dir>etc/rules</rule_dir>
-    <decoder_dir>{{ [ WAZUH_RULESET_DIR_CONTAINER | regex_replace('^/var/ossec/', ''), 'decoders' ] | path_join }}</decoder_dir>
-    <rule_dir>{{ [ WAZUH_RULESET_DIR_CONTAINER | regex_replace('^/var/ossec/', ''), 'rules' ] | path_join }}</rule_dir>
+{% set ruleset_dir = WAZUH_RULESET_DIR_CONTAINER | regex_replace('^/var/ossec/', '') %}
+    <decoder_dir>{{ ruleset_dir }}/base/decoders</decoder_dir>
+    <decoder_dir>{{ ruleset_dir }}/decoders</decoder_dir>
+    <rule_dir>{{ ruleset_dir }}/base/rules</rule_dir>
+    <rule_dir>{{ ruleset_dir }}/rules</rule_dir>
   </ruleset>
 
   <rule_test>

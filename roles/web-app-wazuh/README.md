@@ -24,6 +24,36 @@ The mount sits outside every path the image seeds or overwrites at start, so the
 Before the manager restarts, the deploy checks that the `wazuh` user can read every file and runs `wazuh-analysisd -t`. If either fails, the previous files are restored, the manager keeps running on its loaded ruleset, and the deploy fails with the test output.
 If a step fails after the manager has already restarted onto the new files, the previous files are restored, the manager is restarted again onto them, and the deploy fails.
 
+### Base decoders, base rules and canary
+
+The deploy renders the base files into `ruleset/base/decoders` and `ruleset/base/rules`, which `ossec.conf` lists before the app directories, so every parent exists before an app file refers to it.
+For each opted-in tag (the role's entity name, set as the journald `tag` by `sys-svc-container`) the base holds a parent decoder `infinito-<entity>` that matches `program_name` exactly, and a level 0 parent rule with the first ID of the role's rule block.
+A role's `decoders.xml` holds only children with `<parent>infinito-<entity></parent>`; its `rules.xml` holds only rules chained by `<if_sid>` or `<if_matched_sid>` to IDs inside its own block.
+
+After every deploy, `wazuh-logtest -U` sends one canary line per tag, `<tag>[1]: INFINITO_WAZUH_CANARY deploy`, through the running manager and requires canary rule `100110` at level 3 (the alert threshold) with the tag's parent decoder.
+The reserved tag `infinito-selftest` always takes part, so the check also runs while no role opts in. A canary that does not fire fails the deploy and rolls the ruleset back.
+
+### Rule IDs
+
+Custom rules use the Wazuh range 100000-120000:
+
+| Range | Use |
+|---|---|
+| 100000-100099 | Reserved: Wazuh examples, `etc/rules/local_rules.xml` uses 100001 |
+| 100100-100999 | Base: `100100` self-test parent, `100110` canary |
+| 101000-118999 | App blocks of 100 IDs; the first ID is the central parent rule |
+| 119000-119999 | Tests and drills, never shipped |
+
+A role that opts in declares its block start in `meta/services.yml`, next to the flag:
+
+```yaml
+wazuh:
+  enabled: true
+  rule_block: 101000
+```
+
+The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block or on its parent ID, a rule without a chain into its own block, a decoder with a foreign parent, and the reserved entity name `infinito-selftest`.
+
 ## Cosmos
 
 The diagram places Wazuh in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).

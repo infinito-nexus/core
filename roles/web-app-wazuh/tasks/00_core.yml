@@ -18,7 +18,7 @@
     path: "{{ [ WAZUH_RULESET_DIR_HOST, item ] | path_join }}"
     state: directory
     mode: "0755"
-  loop: "{{ [''] + WAZUH_RULESET_KINDS }}"
+  loop: "{{ ['', 'base'] + WAZUH_RULESET_DIRS }}"
 
 - name: "📄 Render node topology for wazuh-certs-generator"
   stack_host_template:

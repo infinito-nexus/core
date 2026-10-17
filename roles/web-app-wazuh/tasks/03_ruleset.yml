@@ -5,8 +5,8 @@
     state: absent
 
 - name: "📸 Snapshot the active ruleset"
-  ansible.builtin.command:
-    argv: [cp, -a, "{{ WAZUH_RULESET_DIR_HOST }}", "{{ WAZUH_RULESET_PREVIOUS_DIR_HOST }}"]
+  ansible.builtin.command: # nocheck: stack-host-consumer (03_ruleset.yml is included with `when: IS_STACK_HOST | bool`)
+    argv: [cp, -a,"{{ WAZUH_RULESET_DIR_HOST }}", "{{ WAZUH_RULESET_PREVIOUS_DIR_HOST }}"]
   changed_when: false
 
 - name: "📜 Apply and test the ruleset, roll back on failure"

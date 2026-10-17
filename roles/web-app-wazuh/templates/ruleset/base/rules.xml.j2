@@ -1,0 +1,22 @@
+<group name="infinito,">
+  <rule id="{{ WAZUH_SELFTEST_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_SELFTEST.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} Wazuh self-test event.</description>
+  </rule>
+{% for app in WAZUH_RULESET_ENTITIES %}
+
+  <rule id="{{ app.rule_block }}" level="0">
+    <decoded_as>{{ app.decoder }}</decoded_as>
+    <description>{{ app.entity }} event.</description>
+    <group>{{ app.entity }},</group>
+  </rule>
+{% endfor %}
+</group>
+
+<group name="infinito_canary,">
+  <rule id="{{ WAZUH_CANARY_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_group>infinito</if_group>
+    <match>^{{ WAZUH_CANARY_MARKER }} </match>
+    <description>{{ SOFTWARE_NAME }} deploy canary.</description>
+  </rule>
+</group>
