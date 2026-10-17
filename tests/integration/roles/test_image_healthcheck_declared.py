@@ -143,7 +143,7 @@ class TestImageHealthcheckDeclared(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
             cls.probed = list(
                 pool.map(
-                    lambda ref: image_healthcheck_probed(ref.name, ref.version),
+                    lambda ref: image_healthcheck_probed(ref.addressable, ref.version),
                     cls.refs,
                 )
             )

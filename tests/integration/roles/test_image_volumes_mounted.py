@@ -146,7 +146,9 @@ class TestImageVolumesMounted(unittest.TestCase):
         )
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
             cls.volumes = list(
-                pool.map(lambda ref: image_volumes(ref.name, ref.version), cls.refs)
+                pool.map(
+                    lambda ref: image_volumes(ref.addressable, ref.version), cls.refs
+                )
             )
 
     def test_every_declared_volume_has_a_mount(self) -> None:

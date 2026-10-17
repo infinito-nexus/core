@@ -1,5 +1,7 @@
 ---
 mini-qr:
+  healthcheck:
+    flavor: http
   modes:
     compose:
       enabled: true

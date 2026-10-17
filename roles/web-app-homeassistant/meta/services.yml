@@ -1,6 +1,9 @@
 ---
 # nocheck: playwright-service-flag
 homeassistant:
+  healthcheck:
+    flavor: curl
+    path: manifest.json
   modes:
     compose:
       enabled: true

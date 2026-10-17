@@ -1,5 +1,8 @@
 ---
 litellm:
+  healthcheck:
+    flavor: http_status
+    path: health/liveliness
   modes:
     compose:
       enabled: true
