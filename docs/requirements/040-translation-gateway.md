@@ -244,7 +244,7 @@ flowchart TD
 
 ## Cross-linking
 
-- Implementing PR: _to be linked_
+- Implementing PR: *to be linked*
 
 ## See Also
 
