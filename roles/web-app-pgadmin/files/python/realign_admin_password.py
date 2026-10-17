@@ -44,7 +44,9 @@ def converge(email: str, password: str) -> str:
             }
         )
         if not created:
-            print(f"[FAIL] creating the administrator failed: {message}", file=sys.stderr)
+            print(
+                f"[FAIL] creating the administrator failed: {message}", file=sys.stderr
+            )
             raise SystemExit(1)
         return "changed"
     secret = normalise_password(password)
@@ -83,9 +85,13 @@ def main() -> None:
     with app.test_request_context():
         state = converge(email, password)
     if state == "changed":
-        print("[CHANGED] the pgAdmin administrator was realigned with the declared state")
+        print(
+            "[CHANGED] the pgAdmin administrator was realigned with the declared state"
+        )
     else:
-        print("[UNCHANGED] the pgAdmin administrator already matches the declared state")
+        print(
+            "[UNCHANGED] the pgAdmin administrator already matches the declared state"
+        )
 
 
 if __name__ == "__main__":
