@@ -74,6 +74,12 @@ Re-opening any of these MUST be recorded in the implementing PR.
 
 16. **The heavy backends live in separate variants.** LTEngine and Ollama are not enabled in the same variant, and the variant set is measured with `cli/meta/roles/applications/ressources` against the budget before the matrix runs.
 
+17. **A refusal re-asks the next engine instead of ending the request.** Decision 11 rejects an answer that mangles a protected term. That verdict is about one engine's answer for one language pair, not about the string being untranslatable, because a refusal class is a property of the engine *and* the pair. The gateway therefore offers the same request to the next candidate of the set decision 5 ranked, minus the engines that already refused it, and returns the first answer that survives the check. Only when every candidate has refused does the gateway report the refusal, and never a mangled translation.
+
+18. **Refusals are counted on their own axis.** An engine whose answer is rejected is neither unreachable like decision 13's failures nor worse like decision 8's lost comparisons: it is unsuited to that pair. The three counts are stored separately so decision 5's criteria line can say which of the three happened, and so a pair an engine keeps mangling steers the next decision away from it without that engine losing standing on the pairs it serves well.
+
+19. **Translation quality is judged against the source, not only against the catalogue.** Echo, collapse and a damaged protected span are visible in the catalogue alone; a fluent translation that means something else is not. A `score` question to the decider, carrying the source text, the translation and the file the entry came from, places each sampled entry on an ordered scale from "says something different" to "carries the source faithfully". Anything the decider places below the middle level is a finding, named with its catalogue, its entry and its file, because a silent wrong translation is the failure this whole requirement exists to prevent.
+
 ## Re-opened Decisions
 
 **Decision 3, the backend gate.** As first written it demanded `lookup('config', '<providing role>', …)` and forbade `group_names`. That gate cannot work: `lookup('config', …)` resolves through `get_merged_applications` ([plugins/lookup/config.py:45](../../plugins/lookup/config.py#L45)), which merges every role in the repository rather than the ones this deploy carries, so `services.ltengine.enabled` reads `true` whether or not LTEngine is deployed and every backend would always be offered. The play-scoped set lives behind a separate lookup ([plugins/lookup/applications_current_play.py:69](../../plugins/lookup/applications_current_play.py#L69)), and the applications cache keys its renders on `group_names` ([utils/cache/base.py:108](../../utils/cache/base.py#L108)) rather than on the whole inventory, so a deployment-wide presence test inside `meta/services.yml` would be cached across inventories that differ.
@@ -160,6 +166,9 @@ flowchart TD
 | A saturated signature skips the decider | a unit test over the sampler and the saturation rule |
 | An unreadable log does not fail a request | a unit test with the store raising |
 | No backend reachable fails loudly | a unit test asserting an error, not a passthrough |
+| A refused answer reaches the next engine | a unit test where the first engine mangles a protected term and the second answers cleanly |
+| Refusals, failures and lost comparisons are three counts | a unit test moving each one without moving the others |
+| A translation that drifts from its source is found | an external test scoring sampled entries against their source through the decider |
 | Extraction changed no model-router behaviour | the existing `svc-ai-litellm` router tests, unchanged |
 | Each consumer integration is a valid addon | the 026 addon lints, including the bridge and Playwright-spec checks |
 | The variant set fits the budget | `tests/integration/roles/meta/variants/test_resource_budget.py` |
@@ -174,6 +183,9 @@ flowchart TD
 - [ ] `services.translate.router.strategy` derives from `services.s1.enabled` and resolves to `system_one` with the decider deployed and to `preference` without it.
 - [ ] With no backend reachable the gateway answers an error and never returns the untranslated source as a translation.
 - [ ] An engine that errors repeatedly leaves the candidate set, and its failure count is stored separately from its lost comparisons.
+- [ ] An answer rejected for a mangled protected term sends the same request to the next candidate engine, and the first answer that survives the check is returned.
+- [ ] A request every candidate refuses is reported as a refusal, and no mangled translation is returned or cached.
+- [ ] Refusals, failures and lost comparisons are three separate counts, and the criteria line of the next decision can tell them apart.
 
 ### Backends
 
@@ -214,6 +226,13 @@ flowchart TD
 
 - [ ] WordPress and Discourse each declare a `translate` consumer entry and an addon under [026](026-unified-addon-syntax.md) that bridges it; Nextcloud, Moodle, Matrix and OpenProject stay open for the reason stated under [Re-opened Decisions](#re-opened-decisions).
 - [ ] Every one of those addons passes the 026 addon lints, including the bridge resolution and the per-addon Playwright spec check.
+
+### Translation quality
+
+- [ ] An external test samples entries per language the way `tests/external/i18n/test_back_translation.py` does, and asks the decider one `score` question per sampled entry.
+- [ ] That question carries the source text, the translation and the file the entry was extracted from, and places the answer on an ordered scale whose middle level is "carries the source but distorts a detail".
+- [ ] Every sampled entry the decider places below the middle level fails the test, and the report names each one with its language, its catalogue and its source file.
+- [ ] The test skips rather than fails when the decider is not deployed, the way the other external tests treat an absent service.
 
 ### Tests and documentation
 
