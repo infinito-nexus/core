@@ -18,9 +18,9 @@ from .test_library import LibraryFixture, _commit, builder, library
 
 CHATTY = """
 import time
-for step in range(10):
+for step in range(15):
     print(step, flush=True)
-    time.sleep(0.1)
+    time.sleep(0.2)
 """
 
 
@@ -41,12 +41,12 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
         state: dict = {"log": [], "progress": 0}
         command = [sys.executable, "-c", CHATTY]
 
-        with patch.object(builder, "RUN_SILENCE_SECONDS", 0.3):
+        with patch.object(builder, "RUN_SILENCE_SECONDS", 1.0):
             self.library._run(
                 "latest", state, command, dict(os.environ), str(self.data)
             )
 
-        self.assertEqual(state["log"][-1], "9")
+        self.assertEqual(state["log"][-1], "14")
 
     def test_latest_is_built_from_the_last_commit(self) -> None:
         self.library.build("latest")
