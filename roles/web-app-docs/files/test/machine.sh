@@ -6,7 +6,8 @@
 #
 # Env (test.env):
 #   DOCS_TEST_ROLE           role under replay, names the compose project
-#   DOCS_TEST_SRC_DIR        repository checkout, holds the generated .env
+#   DOCS_TEST_SRC_DIR        repository checkout, holds the generated .env and
+#                            carries the tree a host install replays from
 #   DOCS_TEST_WORK           work directory, holds the replay key pair
 #   DOCS_TEST_REPLAY_PUBKEY  public half, authorized for root on the target
 
@@ -86,6 +87,50 @@ await_ssh() {
 	return 1
 }
 
+guard_placeholders() {
+	if grep -q '<your-' "${BLOCK}"; then
+		echo "ERROR: the instructions carry a placeholder this test does not fill:" >&2
+		grep -o '<your-[a-z-]*>' "${BLOCK}" | sort -u >&2
+		return 1
+	fi
+	return 0
+}
+
+replay_over_ssh() {
+	echo "=== Giving the target an ssh server the published recipe can reach ==="
+	machine exec -T -e DOCS_TEST_REPLAY_PUBKEY machine sh -s <"${STAGE}/sshd.sh"
+
+	local address
+	address="$(target_address)"
+	if [ -z "${address}" ]; then
+		echo "the ${DOCS_TEST_ROLE} target reported no bridge address" >&2
+		return 1
+	fi
+	await_ssh "${address}"
+
+	sed -i "s#^HOST=.*#HOST=${address}#" "${BLOCK}"
+	guard_placeholders
+
+	echo "=== Replay image: $(sed -nE 's#^[[:space:]]*([^[:space:]]+) bash -c .*#\1#p' "${BLOCK}" | head -1 || true) ==="
+	echo "=== Replaying the instructions against ${address} ==="
+	(cd "${DOCS_TEST_WORK}" && bash -e "${BLOCK}")
+}
+
+replay_in_target() {
+	guard_placeholders
+
+	if ! machine exec -T machine test -f "${DOCS_TEST_SRC_DIR}/Makefile"; then
+		echo "the target carries no checkout at ${DOCS_TEST_SRC_DIR}, so the host install has no tree to replay from" >&2
+		return 1
+	fi
+
+	echo "=== Dropping the clone; ${DOCS_TEST_SRC_DIR} is the tree under test ==="
+	sed -i -E '/^git clone /d; /^cd core$/d' "${BLOCK}"
+
+	echo "=== Replaying the instructions inside the target ==="
+	machine exec -T -w "${DOCS_TEST_SRC_DIR}" machine bash -e -s <"${BLOCK}"
+}
+
 REPLAY_KEY="${DOCS_TEST_WORK}/docs-guide-${DOCS_TEST_ROLE}-key"
 RECIPE_WORKDIR="${HOME}/.infinito.nexus"
 if [ -e "${RECIPE_WORKDIR}" ]; then
@@ -94,8 +139,12 @@ else
 	RECIPE_WORKDIR_PREEXISTED=0
 fi
 
-if ! grep -qE '^docker run ' "${BLOCK}"; then
-	echo "the ${DOCS_TEST_ROLE} block starts no container; this harness replays it on the stack host and would configure the host itself" >&2
+if grep -qE '^docker run ' "${BLOCK}"; then
+	REPLAY=replay_over_ssh
+elif grep -qE '^git clone ' "${BLOCK}"; then
+	REPLAY=replay_in_target
+else
+	echo "the ${DOCS_TEST_ROLE} block neither starts a container nor clones the repository, so this harness cannot tell whether it addresses a server or the machine it runs on" >&2
 	exit 1
 fi
 
@@ -108,24 +157,4 @@ trap cleanup EXIT
 machine up -d --build --pull always
 await_systemd
 
-echo "=== Giving the target an ssh server the published recipe can reach ==="
-machine exec -T -e DOCS_TEST_REPLAY_PUBKEY machine sh -s <"${STAGE}/sshd.sh"
-
-TARGET_ADDRESS="$(target_address)"
-if [ -z "${TARGET_ADDRESS}" ]; then
-	echo "the ${DOCS_TEST_ROLE} target reported no bridge address" >&2
-	exit 1
-fi
-await_ssh "${TARGET_ADDRESS}"
-
-sed -i "s#^HOST=.*#HOST=${TARGET_ADDRESS}#" "${BLOCK}"
-
-if grep -q '<your-' "${BLOCK}"; then
-	echo "ERROR: the instructions carry a placeholder this test does not fill:" >&2
-	grep -o '<your-[a-z-]*>' "${BLOCK}" | sort -u >&2
-	exit 1
-fi
-
-echo "=== Replay image: $(sed -nE 's#^[[:space:]]*([^[:space:]]+) bash -c .*#\1#p' "${BLOCK}" | head -1 || true) ==="
-echo "=== Replaying the instructions against ${TARGET_ADDRESS} ==="
-(cd "${DOCS_TEST_WORK}" && bash -e "${BLOCK}")
+"${REPLAY}"

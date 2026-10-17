@@ -13,6 +13,7 @@ services:
       - /run
       - /run/lock
     volumes:
+      - ${DOCS_TEST_SRC_DIR}:${DOCS_TEST_SRC_DIR}
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - engine:/var/lib/docker
 

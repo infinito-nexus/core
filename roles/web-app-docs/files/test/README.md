@@ -6,11 +6,13 @@ The CLI test of `web-app-docs` reads the Production block out of the running doc
 
 | | What it is | What runs there |
 | --- | --- | --- |
-| 🖥️ **Stack host** | the worker the outer play already runs on | `test.sh`, `machine.sh`, and the published block itself |
-| 🎯 **Target** | a throwaway container, project `docs-guide-<role>` | systemd and an ssh server, nothing else until the deploy lands |
+| 🖥️ **Stack host** | the worker the outer play already runs on | `test.sh`, `machine.sh`, and a block that starts a container |
+| 🎯 **Target** | a throwaway container, project `docs-guide-<role>` | systemd and an ssh server, nothing else until the deploy lands; a host install also runs there |
 | 🐳 **Recipe container** | started by the block's own `docker run`, on the stack daemon | the deploy that the instructions tell a reader to run |
 
 The target is what the instructions call "a managed server". It is deliberately bare: everything else it ends up with arrives through the deploy under test.
+
+A role that ships no container stack publishes a host install instead of a recipe: a block that opens with `git clone` and configures the machine it runs on. The target is that machine, so the block is replayed inside it over the checkout mounted at `DOCS_TEST_SRC_DIR`, and the two clone lines are dropped so the replay reads the tree under test. A block that neither starts a container nor clones the repository fails the test.
 
 ## Schema
 
@@ -22,6 +24,7 @@ flowchart TD
         EXTRACT["2️⃣ 📖 extract.py<br>reads the block off the live docs site"]
         FILL["3️⃣ 🔑 ed25519 pair + placeholder fill<br>everything except HOST"]
         MACHINE["4️⃣ 🚜 machine.sh"]
+        SHAPE{"🔀 docker run or git clone"}
         ADDR["7️⃣ 📍 HOST = the target's bridge address"]
         GUARD["8️⃣ 🚦 placeholder guard"]
         BLOCK["9️⃣ ▶️ bash -e block.sh"]
@@ -31,6 +34,7 @@ flowchart TD
         direction TB
         INIT["5️⃣ ⚙️ systemd, no engine<br>Dockerfile + init.sh"]
         SSHD["6️⃣ 🔐 sshd.sh<br>ssh server + run key for root"]
+        HOSTRUN["▶️ bash -e block.sh in the mounted checkout<br>clone lines dropped"]
         DEPLOYED["🔟 📦 docker-ce and the role"]
     end
 
@@ -38,10 +42,13 @@ flowchart TD
 
     TEST --> EXTRACT --> FILL --> MACHINE
     MACHINE -->|"🌉 compose up"| INIT
-    INIT -->|"⏳ await systemd"| SSHD
+    INIT -->|"⏳ await systemd"| SHAPE
+    SHAPE -->|"🐳 recipe"| SSHD
+    SHAPE -->|"🏠 host install"| HOSTRUN
     SSHD --> ADDR --> GUARD --> BLOCK
     BLOCK --> RECIPE
     RECIPE -->|"🔗 ssh as root"| DEPLOYED
+    HOSTRUN --> DEPLOYED
     MACHINE -.->|"🧹 trap EXIT"| TARGET
 
     classDef host fill:#e8f0fe,stroke:#1a73e8,color:#102a43;
@@ -49,12 +56,12 @@ flowchart TD
     classDef pivot fill:#fef7e0,stroke:#b06000,color:#3d2600;
     classDef recipe fill:#f3e8fd,stroke:#8430ce,color:#2a0b45;
     class TEST,EXTRACT,FILL,MACHINE,BLOCK host;
-    class INIT,SSHD,DEPLOYED target;
-    class ADDR,GUARD pivot;
+    class INIT,SSHD,HOSTRUN,DEPLOYED target;
+    class SHAPE,ADDR,GUARD pivot;
     class RECIPE recipe;
 ```
 
-🔵 stack host · 🟢 target · 🟣 the recipe's own container · 🟠 the two steps that bridge them
+🔵 stack host · 🟢 target · 🟣 the recipe's own container · 🟠 the steps that bridge them
 
 ## Flow
 
@@ -65,6 +72,7 @@ flowchart TD
 | 3️⃣ | 🔑 key pair and placeholders | an ed25519 pair per run under `DOCS_TEST_WORK`; every placeholder except `HOST` is substituted |
 | 4️⃣ | 🚜 `machine.sh` brings the target up | from `compose.yml`, on the default bridge |
 | 5️⃣ | ⚙️ the target boots | image built from `Dockerfile` + `init.sh`; `MACHINE_BASE_IMAGE` comes from `INFINITO_PARENT_IMAGE` in the checkout's `.env` |
+| 🔀 | the shape decides where the block runs | `docker run` on the stack host, `git clone` inside the target; steps 6️⃣ to 9️⃣ are the first of the two |
 | 6️⃣ | 🔐 `sshd.sh` is piped in | installs an ssh server, authorizes the run's public key for `root`, writes a `PermitRootLogin prohibit-password` drop-in |
 | 7️⃣ | 📍 `HOST` is filled | `container inspect --type container` reads the bridge address; the bridge has no DNS, so it is an address and not a name |
 | 8️⃣ | 🚦 the guard runs | fails on any remaining `<your-`; it runs **after** step 7, because the address does not exist before it |
@@ -81,7 +89,7 @@ flowchart TD
 | `DOCS_TEST_MODE` | `templates/test.env.j2` | deployment mode; the test runs only for compose |
 | `DOCS_TEST_DOMAIN` | `templates/test.env.j2` | fills `<your-domain>` |
 | `DOCS_TEST_DNS` | `templates/test.env.j2` | fills `<your-clearnet-resolver>` |
-| `DOCS_TEST_SRC_DIR` | `templates/test.env.j2` | checkout holding the generated `.env` |
+| `DOCS_TEST_SRC_DIR` | `templates/test.env.j2` | checkout holding the generated `.env`; mounted into the target at the same path, where a host install replays from it |
 | `DOCS_TEST_TIMEOUT` | `templates/test.env.j2` | wait for the on-demand documentation build |
 | `DOCS_TEST_WORK` | `test.sh` | holds the replay key pair |
 | `DOCS_TEST_REPLAY_PUBKEY` | `test.sh` | public half, consumed by `sshd.sh` |
