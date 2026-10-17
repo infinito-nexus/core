@@ -1,0 +1,20 @@
+---
+- name: "⏭️ Skip the Wazuh agent: switched off for this host"
+  ansible.builtin.debug:
+    msg: "WAZUH_AGENT_ENABLED is false for {{ inventory_hostname }}; no Wazuh agent is installed or configured."
+  when: not (WAZUH_AGENT_ENABLED | bool)
+
+- name: "⏭️ Skip the Wazuh agent: no manager in this deployment"
+  ansible.builtin.debug:
+    msg: >-
+      sys-svc-wazuh-agent was requested on this host, but {{ WAZUH_AGENT_MANAGER_ROLE }} has no host in this
+      deployment, so there is no manager to register with. No repository is set up and nothing is installed.
+  when:
+    - WAZUH_AGENT_ENABLED | bool
+    - not (WAZUH_AGENT_MANAGER_DEPLOYED | bool)
+
+- include_tasks: 00_core.yml
+  when:
+    - run_once_sys_svc_wazuh_agent is not defined
+    - WAZUH_AGENT_ENABLED | bool
+    - WAZUH_AGENT_MANAGER_DEPLOYED | bool

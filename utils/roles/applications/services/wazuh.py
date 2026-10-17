@@ -18,7 +18,10 @@ BASE_RULE_MIN = 100100
 BASE_RULE_MAX = 100999
 SELFTEST_TAG = "infinito-selftest"
 PROVIDER_ENTITY = "wazuh"
+MANAGER_ROLE = "web-app-wazuh"
 SAMPLES_FILE = "samples.yml"
+AGENT_ID = "001"
+AGENT_TIME_RECONNECT = 60
 
 
 def decoder_name(entity: str) -> str:

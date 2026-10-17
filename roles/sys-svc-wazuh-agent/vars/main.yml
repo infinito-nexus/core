@@ -1,0 +1,29 @@
+---
+WAZUH_AGENT_MANAGER_ROLE: "web-app-wazuh"
+WAZUH_AGENT_MANAGER_DEPLOYED: "{{ WAZUH_AGENT_MANAGER_ROLE in groups and groups[WAZUH_AGENT_MANAGER_ROLE] | length > 0 }}"
+
+WAZUH_AGENT_VERSION: "{{ lookup('config', WAZUH_AGENT_MANAGER_ROLE, 'services.manager.version') }}"
+WAZUH_AGENT_PACKAGE_REVISION: "1"
+WAZUH_AGENT_PACKAGE_VERSION: "{{ WAZUH_AGENT_VERSION }}-{{ WAZUH_AGENT_PACKAGE_REVISION }}"
+WAZUH_AGENT_PACKAGE: "wazuh-agent"
+WAZUH_AGENT_SERVICE: "wazuh-agent.service"
+WAZUH_AGENT_REPO_URL: "https://packages.wazuh.com/{{ WAZUH_AGENT_VERSION.split('.')[0] }}.x"
+WAZUH_AGENT_GPG_KEY_URL: "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+WAZUH_AGENT_APT_KEY: "/etc/apt/keyrings/wazuh.asc"
+WAZUH_AGENT_APT_SOURCE: "/etc/apt/sources.list.d/wazuh.list"
+WAZUH_AGENT_YUM_REPO: "wazuh"
+
+WAZUH_AGENT_DIR: "/var/ossec"
+WAZUH_AGENT_CONFIG: "{{ [ WAZUH_AGENT_DIR, 'etc', 'ossec.conf' ] | path_join }}"
+WAZUH_AGENT_CLIENT_KEYS: "{{ [ WAZUH_AGENT_DIR, 'etc', 'client.keys' ] | path_join }}"
+
+WAZUH_AGENT_ENTRY: "{{ lookup('wazuh_agent') }}"
+WAZUH_AGENT_MANAGER_ADDRESS: "{{ DOCKER_REACH_HOST }}"
+WAZUH_AGENT_MANAGER_PORT: "{{ lookup('config', WAZUH_AGENT_MANAGER_ROLE, 'services.manager.ports.local.agent') }}"
+
+WAZUH_AGENT_RULESET: "{{ lookup('wazuh_ruleset', scope='host') }}"
+WAZUH_AGENT_JOURNALD_TAGS: "{{ [WAZUH_AGENT_RULESET.selftest.program] + (WAZUH_AGENT_RULESET.entities | map(attribute='program') | list) + ['sshd', 'sudo'] }}"
+
+# Starting values until Kevin sets the tolerated event loss (criterion K); these are Wazuh's own defaults, stated explicitly.
+WAZUH_AGENT_BUFFER_QUEUE_SIZE: 5000
+WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND: 500

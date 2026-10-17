@@ -44,6 +44,12 @@
   vars:
     engine_consumer_id: "{{ application_id }}"
 
+# Exception: a role that opts in to Wazuh pulls in its host's agent here, because sys-* roles cannot be shared-service providers the service loader would deploy.
+- name: "🛡️ For '{{ application_id }}': Load the host's Wazuh agent"
+  include_role:
+    name: sys-svc-wazuh-agent
+  when: lookup('config', application_id, 'services.wazuh.enabled', False) | bool
+
 - name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:
     name: sys-svc-compose

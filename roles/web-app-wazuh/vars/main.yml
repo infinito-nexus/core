@@ -76,7 +76,7 @@ WAZUH_RULESET_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'ruleset' ] | path_join }}"
 WAZUH_RULESET_PREVIOUS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'ruleset.previous' ] | path_join }}"
 WAZUH_RULESET_DIR_CONTAINER: "{{ lookup('volume', application_id, 'manager_ruleset').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
 WAZUH_RULESET_DIRS: ["base/decoders", "base/rules", "decoders", "rules"]
-WAZUH_RULESET: "{{ lookup('wazuh_ruleset') }}"
+WAZUH_RULESET: "{{ lookup('wazuh_ruleset', scope='deployment') }}"
 WAZUH_RULESET_FILES: "{{ WAZUH_RULESET.files }}"
 WAZUH_RULESET_ENTITIES: "{{ WAZUH_RULESET.entities }}"
 WAZUH_RULESET_SELFTEST: "{{ WAZUH_RULESET.selftest }}"
@@ -91,11 +91,10 @@ WAZUH_SELFTEST_RULE_ID: 100100
 WAZUH_CANARY_RULE_ID: 100110
 WAZUH_CANARY_MARKER: "INFINITO_WAZUH_CANARY"
 
-# Dev and CI inventories name their only host "localhost", which says nothing in the dashboard; DOMAIN_PRIMARY names that host instead.
-WAZUH_AGENTS:
-  - id: "001"
-    name: "{{ DOMAIN_PRIMARY if inventory_hostname in ['localhost', '127.0.0.1'] else inventory_hostname }}"
-    key: "{{ lookup('config', application_id, 'secrets.credentials.agent_key') }}"
+WAZUH_AGENTS: "{{ [lookup('wazuh_agent')] }}"
+WAZUH_AGENT_WAIT_DELAY: 5
+WAZUH_AGENT_WAIT_RECONNECTS: 3
+WAZUH_CANARY_WAIT_RETRIES: 36
 
 WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"

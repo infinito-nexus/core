@@ -27,8 +27,13 @@ class LookupModule(LookupBase):
     The Wazuh role itself is skipped, because its ``wazuh`` entry is the
     provider, not an opt-in.
 
+    Args:
+        scope: ``deployment`` covers every role with hosts in ``groups``, which
+            is what the manager loads rules for; ``host`` covers the roles in
+            this host's ``group_names``, which is what its agent collects.
+
     Returns:
-        ``{selftest, entities, files}``. ``selftest`` is ``{program, decoder}``
+        ``{selftest, entities, files, samples}``. ``selftest`` is ``{program, decoder}``
         of the reserved self-test tag. ``entities`` is
         ``[{entity, program, decoder, rule_block}]`` sorted by ``entity``, one
         per opted-in role, tag-only roles included: ``program`` is the
@@ -60,10 +65,17 @@ class LookupModule(LookupBase):
         ).run([], variables=vars_)[0]
         config = lookup_loader.get("config", loader=self._loader, templar=templar)
 
-        groups = vars_.get("groups") or {}
-        inventory_roles = sorted(
-            name for name, hosts in groups.items() if hosts and name in applications
-        )
+        scope = kwargs.get("scope")
+        if scope == "deployment":
+            groups = vars_.get("groups") or {}
+            in_scope = [name for name, hosts in groups.items() if hosts]
+        elif scope == "host":
+            in_scope = list(vars_.get("group_names") or [])
+        else:
+            raise AnsibleError(
+                f"wazuh_ruleset: scope must be 'host' or 'deployment', got {scope!r}."
+            )
+        inventory_roles = sorted(name for name in in_scope if name in applications)
 
         owners: dict[str, str] = {}
         entities: list[dict[str, Any]] = []

@@ -15,7 +15,13 @@ _SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
 _EMPTY = {"selftest": _SELFTEST, "entities": [], "files": [], "samples": []}
 
 
-def _run(roles_dir: Path, wazuh: dict, groups: dict | None = None) -> dict:
+def _run(
+    roles_dir: Path,
+    wazuh: dict,
+    groups: dict | None = None,
+    scope: str | None = "deployment",
+    group_names: list | None = None,
+) -> dict:
     """Run the lookup against a temporary roles directory.
 
     Args:
@@ -23,6 +29,8 @@ def _run(roles_dir: Path, wazuh: dict, groups: dict | None = None) -> dict:
         wazuh: ``{role: services.wazuh}``; every key is an application. A
             ``bool`` is shorthand for ``{enabled: <bool>, rule_block: 101000}``.
         groups: inventory groups; defaults to one host per application.
+        scope: the lookup's ``scope`` kwarg; ``None`` omits it.
+        group_names: this host's groups for ``scope=host``.
     """
     if groups is None:
         groups = {role: ["localhost"] for role in wazuh}
@@ -51,7 +59,12 @@ def _run(roles_dir: Path, wazuh: dict, groups: dict | None = None) -> dict:
         patch("plugins.lookup.wazuh_ruleset.lookup_loader") as loader_mock,
     ):
         loader_mock.get.side_effect = _get
-        return lm.run([], variables={"groups": groups})[0]
+        scope_kwargs = {} if scope is None else {"scope": scope}
+        return lm.run(
+            [],
+            variables={"groups": groups, "group_names": group_names or []},
+            **scope_kwargs,
+        )[0]
 
 
 def _ship(roles_dir: Path, role: str, *kinds: str) -> None:
@@ -205,6 +218,29 @@ class TestWazuhRuleset(unittest.TestCase):
             self.roles_dir, "web-app-pixelfed", "- log: a\n  rule: 101000\n  level: 0\n"
         )
         self.assertEqual(_run(self.roles_dir, {"web-app-pixelfed": False})["samples"], [])
+
+    def test_host_scope_keeps_only_this_hosts_roles(self):
+        result = _run(
+            self.roles_dir,
+            {"web-app-pixelfed": True, "web-app-zammad": True},
+            scope="host",
+            group_names=["web-app-zammad"],
+        )
+        self.assertEqual([e["entity"] for e in result["entities"]], ["zammad"])
+
+    def test_deployment_scope_covers_every_inventory_role(self):
+        result = _run(
+            self.roles_dir,
+            {"web-app-pixelfed": True, "web-app-zammad": True},
+            group_names=["web-app-zammad"],
+        )
+        self.assertEqual(
+            [e["entity"] for e in result["entities"]], ["pixelfed", "zammad"]
+        )
+
+    def test_missing_scope_fails(self):
+        with self.assertRaises(AnsibleError):
+            _run(self.roles_dir, {"web-app-pixelfed": True}, scope=None)
 
     def test_duplicate_entity_name_fails(self):
         _ship(self.roles_dir, "web-app-pixelfed", "rules")

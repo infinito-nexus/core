@@ -16,6 +16,13 @@ The manager's vulnerability detection data (`/var/ossec/queue/vd`, volume `wazuh
 The manager downloads it again after a restore, which can take a long time.
 This matters once agents are enrolled.
 
+## Host agent verification
+
+This role includes [sys-svc-wazuh-agent](../sys-svc-wazuh-agent/README.md) for its own host after it has pre-registered the agents. An opted-in role deployed earlier in the run may already have installed the agent, which then keeps reconnecting until the manager exists.
+At the end of its deploy this role waits until every pre-registered agent is `Active` (`agent_control`), for up to three of the agent's reconnect intervals, and then sends a canary line with the self-test tag through journald (`logger`).
+The deploy fails unless the canary arrives as rule `100110` in `wazuh-alerts-*`: journald, agent, manager, indexer, end to end.
+Each deploy therefore leaves one canary alert (level 3) in the index.
+
 ## Custom ruleset
 
 Every role in the inventory that enables the `wazuh` service may ship `files/wazuh/decoders.xml` and `files/wazuh/rules.xml`; both are optional.

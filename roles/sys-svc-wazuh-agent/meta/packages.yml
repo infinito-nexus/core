@@ -1,0 +1,13 @@
+---
+wazuh-agent:
+  Archlinux: [] # nocheck: Wazuh ships no Arch package; the role's own source build (step 2.3d) installs it
+  Debian:
+    names:
+      - wazuh-agent
+    repo:
+      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com and installs the manager's exact version with a hold
+  RedHat:
+    names:
+      - wazuh-agent
+    repo:
+      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com and installs the manager's exact version behind an exclude

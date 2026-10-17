@@ -1,0 +1,60 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Stop on a distribution without a Wazuh agent install path"
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] in ['Debian', 'RedHat']
+    fail_msg: >-
+      The Wazuh agent is installed from the Wazuh package repository on the Debian and RedHat families only;
+      {{ ansible_facts['os_family'] }} has no install path yet.
+    quiet: true
+
+- name: "🔍 Read the installed packages"
+  ansible.builtin.package_facts:
+
+- name: "🔍 Resolve the installed agent version"
+  ansible.builtin.set_fact:
+    wazuh_agent_installed_version: >-
+      {{ ansible_facts.packages[WAZUH_AGENT_PACKAGE][0].version.split('-')[0]
+         if WAZUH_AGENT_PACKAGE in ansible_facts.packages else '' }}
+
+- name: "🛑 Refuse an installed agent newer than the manager {{ WAZUH_AGENT_VERSION }}"
+  ansible.builtin.assert:
+    that: >-
+      wazuh_agent_installed_version == ''
+      or wazuh_agent_installed_version is version(WAZUH_AGENT_VERSION, '<=')
+    fail_msg: >-
+      The installed {{ WAZUH_AGENT_PACKAGE }} {{ wazuh_agent_installed_version }} is newer than the manager
+      {{ WAZUH_AGENT_VERSION }}; a Wazuh agent must never be newer than its manager. Upgrade the manager first.
+    quiet: true
+
+- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_PACKAGE_VERSION }}"
+  include_tasks: "01_install/{{ ansible_facts['os_family'] | lower }}.yml"
+
+- name: "🔑 Write the pre-registered agent key"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host agent key, every host writes its own)
+    src: client.keys.j2
+    dest: "{{ WAZUH_AGENT_CLIENT_KEYS }}"
+    owner: root
+    group: wazuh
+    mode: "0640"
+  notify: wazuh-agent-restart
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📄 Render the agent configuration"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host agent config, every host renders its own)
+    src: ossec.conf.j2
+    dest: "{{ WAZUH_AGENT_CONFIG }}"
+    owner: root
+    group: wazuh
+    mode: "0640"
+  notify: wazuh-agent-restart
+
+- name: "🔄 Apply a changed agent key or configuration"
+  meta: flush_handlers
+
+- name: "✅ Ensure the Wazuh agent is enabled and running"
+  ansible.builtin.systemd:
+    name: "{{ WAZUH_AGENT_SERVICE }}"
+    state: started
+    enabled: true

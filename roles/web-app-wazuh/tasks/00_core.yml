@@ -153,3 +153,11 @@
   retries: 30
   delay: 5
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛡️ Load the Wazuh agent of the manager host"
+  include_role:
+    name: sys-svc-wazuh-agent
+
+- name: "🩺 Verify the host agent and the canary end to end"
+  include_tasks: 04_verify.yml
+  when: run_once_sys_svc_wazuh_agent is defined

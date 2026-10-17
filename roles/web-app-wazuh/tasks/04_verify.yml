@@ -1,0 +1,49 @@
+---
+- name: "⏳ Wait until every pre-registered Wazuh agent is Active"
+  ansible.builtin.shell:
+    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/agent_control -i {{ item.id }}"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ WAZUH_AGENTS }}"
+  loop_control:
+    label: "{{ item.id }} {{ item.name }}"
+  register: wazuh_agent_status
+  until: wazuh_agent_status.stdout is search('Status:\\s+Active')
+  retries: "{{ ((item.time_reconnect * WAZUH_AGENT_WAIT_RECONNECTS) / WAZUH_AGENT_WAIT_DELAY) | round(0, 'ceil') | int }}"
+  delay: "{{ WAZUH_AGENT_WAIT_DELAY }}"
+  changed_when: false
+
+- name: "🏷️ Name this deploy's canary"
+  ansible.builtin.set_fact:
+    wazuh_canary_id: "{{ WAZUH_CANARY_MARKER }} deploy-{{ now(utc=true, fmt='%Y%m%dT%H%M%S%f') }}"
+
+- name: "🐤 Send the canary through journald"
+  ansible.builtin.command:
+    argv: [logger, -t, "{{ WAZUH_RULESET_SELFTEST.program }}", "{{ wazuh_canary_id }}"]
+  changed_when: false
+
+- name: "🔎 Wait for the canary alert in wazuh-alerts-*"
+  uri_retry:
+    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/wazuh-alerts-*/_search"
+    method: POST
+    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
+    password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+    force_basic_auth: true
+    validate_certs: false
+    body_format: json
+    body:
+      query:
+        bool:
+          filter:
+            - term:
+                rule.id: "{{ WAZUH_CANARY_RULE_ID | string }}"
+            - match_phrase:
+                full_log: "{{ wazuh_canary_id }}"
+    status_code: 200
+    return_content: true
+  register: wazuh_canary_search
+  until: >-
+    wazuh_canary_search.json is defined and
+    wazuh_canary_search.json.hits.total.value > 0
+  retries: "{{ WAZUH_CANARY_WAIT_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_WAIT_DELAY }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

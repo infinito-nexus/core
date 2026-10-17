@@ -1,0 +1,32 @@
+<ossec_config>
+  <client>
+    <server>
+      <address>{{ WAZUH_AGENT_MANAGER_ADDRESS }}</address>
+      <port>{{ WAZUH_AGENT_MANAGER_PORT }}</port>
+      <protocol>tcp</protocol>
+    </server>
+    <enrollment>
+      <enabled>no</enabled>
+    </enrollment>
+    <time-reconnect>{{ WAZUH_AGENT_ENTRY.time_reconnect }}</time-reconnect>
+    <auto_restart>yes</auto_restart>
+  </client>
+
+  <client_buffer>
+    <disabled>no</disabled>
+    <queue_size>{{ WAZUH_AGENT_BUFFER_QUEUE_SIZE }}</queue_size>
+    <events_per_second>{{ WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND }}</events_per_second>
+  </client_buffer>
+{% for tag in WAZUH_AGENT_JOURNALD_TAGS %}
+
+  <localfile>
+    <location>journald</location>
+    <log_format>journald</log_format>
+    <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
+  </localfile>
+{% endfor %}
+
+  <logging>
+    <log_format>plain</log_format>
+  </logging>
+</ossec_config>
