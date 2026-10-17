@@ -1,0 +1,43 @@
+---
+- name: "🔍 Resolve the backend node and container of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ KIX_BACKEND_SERVICE }}"
+    resolve_output_prefix: KIX_BACKEND
+    resolve_compose_cid: "{{ KIX_BACKEND_CONTAINER }}"
+
+- name: "⏳ Wait until the backend of {{ application_id }} is healthy"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - --type
+      - container
+      - --format
+      - "{% raw %}{{.State.Health.Status}}{% endraw %}"
+      - "{{ KIX_BACKEND_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+  register: kix_backend_health
+  changed_when: false
+  retries: 120
+  delay: 5
+  until: (kix_backend_health.stdout | trim) == 'healthy'
+  delegate_to: "{{ KIX_BACKEND_HOST_NODE }}"
+
+- name: "🔑 Realign the declared administrator password of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e KIX_REALIGN_LOGIN -e KIX_REALIGN_PASSWORD -e KIX_REALIGN_USAGE_CONTEXT
+      {{ KIX_BACKEND_LOCAL_CID | quote }} perl {{ KIX_PERL_INCLUDE_ARGS }}
+    stdin: "{{ lookup('file', 'perl/realign_admin_password.pl') }}"
+  environment:
+    KIX_REALIGN_LOGIN: "{{ KIX_ADMIN_USERNAME }}"
+    KIX_REALIGN_PASSWORD: "{{ KIX_INITIAL_ADMIN_PW }}"
+    KIX_REALIGN_USAGE_CONTEXT: "{{ KIX_ADMIN_USAGE_CONTEXT }}"
+  register: kix_admin_password_realign
+  changed_when: kix_admin_password_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    kix_admin_password_realign.rc != 0
+    or kix_admin_password_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ KIX_BACKEND_HOST_NODE }}"
