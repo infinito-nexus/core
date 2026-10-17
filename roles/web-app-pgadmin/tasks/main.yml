@@ -12,4 +12,6 @@
 
 - name: "🖥️ pgAdmin stack-host post-deploy (administrator realign)"
   include_tasks: manager_ops.yml
-  when: IS_STACK_HOST | bool
+  when:
+    - IS_STACK_HOST | bool
+    - not PGADMIN_SERVER_MODE | bool
