@@ -19,7 +19,6 @@
   pre_tasks:
     - name: "🐍 Link the managed Python interpreter before any module needs it"
       ansible.builtin.script: scripts/system/python/managed_interpreter.sh
-      environment: {}
       register: managed_interpreter
       changed_when: "'linked' in managed_interpreter.stdout"
 
