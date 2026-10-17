@@ -371,7 +371,7 @@ test("design: the documentation renders the configured title in the tab, header,
   await expect(page.locator("header a > span.font-bold")).toHaveText(designTitle);
   await expect(page.locator(`${BREADCRUMBS} > a:first-child > span`)).toHaveText(designTitle);
   await page.setViewportSize({ width: 390, height: 844 });
-  await open(page, "/");
+  await open(page, HOME);
   await openSidebar(page);
   await expect(page.locator(`${SIDEBAR} > a > span.font-bold`)).toHaveText(designTitle);
 });
