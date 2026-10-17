@@ -1,3 +1,5 @@
 ---
 local:
   subnet: 192.168.46.0/24
+reachability:
+  handover: true # nocheck: network-reachability  Open WebUI takes its OIDC callback from one OPENID_REDIRECT_URI, so an onion login returns on the clearnet URL
