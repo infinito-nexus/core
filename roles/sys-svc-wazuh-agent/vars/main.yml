@@ -14,6 +14,18 @@ WAZUH_AGENT_APT_SOURCE: "/etc/apt/sources.list.d/wazuh.list"
 WAZUH_AGENT_YUM_REPO: "wazuh"
 
 WAZUH_AGENT_DIR: "/var/ossec"
+WAZUH_AGENT_VERSION_FILE: "{{ [ WAZUH_AGENT_DIR, 'VERSION.json' ] | path_join }}"
+
+WAZUH_AGENT_SOURCE_URL: "https://github.com/wazuh/wazuh/archive/v{{ WAZUH_AGENT_VERSION }}.tar.gz"
+# Param WAZUH_AGENT_SOURCE_PINS: version -> {source: SHA-256 of the release tarball, deps: SHA-256 of the make deps manifest}; computed as in the README.
+WAZUH_AGENT_SOURCE_PINS:
+  "4.14.6":
+    source: "1de971b9d0663a020a4d55ea713cae07b5c4188e67da896b779bc439029e7ee3"
+    deps: "494cd89ae64526e5bbe277c7d5035dc659ef1ddbb1f1c9b7f9c2ad8202269485"
+# Exception: Wazuh recommends GCC 14, which Arch no longer ships; gcc15 (meta/packages.yml) is the closest, with no fallback to Arch's default gcc.
+WAZUH_AGENT_ARCH_CC: "gcc-15"
+WAZUH_AGENT_ARCH_CXX: "g++-15"
+WAZUH_AGENT_BUILD_USER: "wazuh-build"
 WAZUH_AGENT_CONFIG: "{{ [ WAZUH_AGENT_DIR, 'etc', 'ossec.conf' ] | path_join }}"
 WAZUH_AGENT_CLIENT_KEYS: "{{ [ WAZUH_AGENT_DIR, 'etc', 'client.keys' ] | path_join }}"
 

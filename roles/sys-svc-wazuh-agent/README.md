@@ -6,8 +6,8 @@ The host agent of [Wazuh](https://wazuh.com/): it forwards the journald logs of 
 
 ## Overview
 
-The agent version is the manager's version from `web-app-wazuh`'s `services.manager.version`, installed exactly (`<version>-1`) from the Wazuh package repository and held against upgrades: `dpkg` hold on the Debian family, a repository `exclude` on the RedHat family that only the role's own pinned install lifts.
-Before any change, the role fails when the installed agent is newer than the manager; after the install, it fails unless the installed agent equals the manager's version.
+The agent version is the manager's version from `web-app-wazuh`'s `services.manager.version`, installed exactly (`<version>-1`) from the Wazuh package repository and held against upgrades: `dpkg` hold on the Debian family, a repository `exclude` on the RedHat family that only the role's own pinned install lifts. Arch Linux has no Wazuh package; there the role builds the agent from pinned official source (see below).
+Before any change, the role fails when the installed agent is newer than the manager; after the install, it fails unless the installed agent equals the manager's version. Both checks read `version` from the agent's own `/var/ossec/VERSION.json`, which the package and `install.sh` both write, so they work the same with and without a package manager.
 
 The agent does not enroll itself. It writes the entry the manager pre-registered through its API (`lookup('wazuh_agent')`) to `client.keys` (`root:wazuh`, `0640`: `wazuh-agentd` drops to the `wazuh` user before it reads the keys) and connects to the manager's agent port on the local host. Enrollment stays off.
 
@@ -49,6 +49,47 @@ Per-host switches: `WAZUH_AGENT_FIM_ENABLED` (default `true`), `WAZUH_AGENT_FIM_
 **Deploy markers.** Every deploy writes `deploy start run=<id>` at its beginning and `deploy end run=<id>` at its end to journald under `infinito-deploy`, and both become level 3 alerts. FIM alerts keep their normal level; a change whose time falls between the two markers of one run came from that deploy. A deploy that fails or is aborted writes no end marker: a start marker without its end is the signal.
 The deploy that first ships rules `100120`/`100121` to the manager logs its start marker before those rules exist, so that one start marker reaches the archive but raises no alert; its end marker does.
 
+### Arch Linux source build
+
+On Arch Linux the role builds the agent from Wazuh's official release tarball (`WAZUH_AGENT_SOURCE_URL`, for 4.14.6 `https://github.com/wazuh/wazuh/archive/v4.14.6.tar.gz`), only when the installed `VERSION.json` differs from the manager's version, so an unchanged version costs nothing:
+
+1. The version must have an entry in `WAZUH_AGENT_SOURCE_PINS` (`vars/main.yml`); a version bump without one fails before any download, with the steps to add it.
+2. The tarball is downloaded and checked against the pinned `source` SHA-256.
+3. `make TARGET=agent deps` fetches the external libraries from `packages.wazuh.com`, source and Wazuh's precompiled ones, without any check of its own. The role hashes the resulting `src/external` tree into one manifest and fails unless it equals the pinned `deps` SHA-256, so a changed dependency is caught before it is compiled in.
+4. Download, unpack, `make deps` and the compile run as the unprivileged system user `wazuh-build` in a temporary directory that is removed afterwards, also on failure.
+5. The compiler is `gcc15` (`WAZUH_AGENT_ARCH_CC`/`_CXX`): Wazuh recommends GCC 14, which Arch no longer ships, and gcc15 is the closest. There is no fallback to Arch's default gcc; when Arch drops gcc15, the build tool install fails loudly.
+6. `install.sh` installs the agent unattended through `etc/preloaded-vars.conf` (agent only, `/var/ossec`, no auto start, active response off, `USER_UPDATE` when an agent is already installed), so paths, the `wazuh` user and the agent's files match the package. `install.sh` still reads answers from stdin despite the preloaded answers; the role runs it without stdin. On an upgrade the role stops the agent first; `client.keys` stays, and `ossec.conf` is rendered by the role anyway.
+7. The role then requires the `wazuh-agent.service` unit that `install.sh` registers, and fails with a clear message if there is none. Plan B, if a real Arch host also gets no unit: render it from Wazuh's own unit template in the source tree.
+
+The build tools (`base-devel`, `gcc15`, `python` from the `wazuh-agent-build` id, plus the shared `cmake` id; `curl` for `make deps` is always there as a `pacman` dependency) stay installed after the build: a known trade-off, faster rebuilds on the next version bump versus a compiler on the host.
+A build takes about 4 minutes on 8 cores (deps 46-73 s, compile 133 s, `install.sh` about 9 s), measured in a probe.
+
+**Pinning a new version.** Compute both hashes in a throwaway `archlinux:latest` container, for example with `make compose-inner-run IMAGE=archlinux:latest`. The `sha256sum source.tar.gz` line gives `source`, the last line gives `deps`:
+
+```bash
+V=4.14.6
+curl -fsSL -o source.tar.gz "https://github.com/wazuh/wazuh/archive/v${V}.tar.gz"
+sha256sum source.tar.gz
+mkdir src && tar -xzf source.tar.gz -C src --strip-components=1
+make -C src/src TARGET=agent deps
+cd src/src && find external -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum
+```
+
+Run `make deps` twice in fresh directories and pin the `deps` hash only when both runs agree.
+
+**What is proven and what is pending.** The probe built and installed the agent in an `archlinux:latest` container inside the dev stack, without systemd; the full role run on an Arch host is pending for the combined Arch and RedHat distro test.
+
+| Item | Probe (Wazuh 4.14.6) | Pending for the distro test |
+|---|---|---|
+| `gcc15` from Arch's `extra`, `gcc14` gone | Proven (`gcc15` 15.3.0) | |
+| Source SHA-256 | Proven (`1de971b9…`) | |
+| `make deps` manifest stable | Proven, same hash in two fresh runs (`494cd89a…`, 25266 files) | |
+| Build as non-root with `gcc-15` | Proven, 133 s with `-j8` | The role's own `become_user` build steps |
+| `install.sh` with preloaded vars, unattended | Proven, `wazuh` user and group created | `USER_UPDATE` upgrade from an older pinned version |
+| `VERSION.json` and `wazuh-control info` | Proven (`4.14.6`) | The role's two version checks on Arch |
+| eBPF and Docker listener files | Proven (`libfimebpf.so`, `modern.bpf.o`, `DockerListener`) | Listener under the venv drop-in, FIM state |
+| systemd unit from `install.sh` | Not proven: the probe container has no systemd and got no unit | Unit present, agent `Active`, canary, idempotent second run without a rebuild |
+
 ## Cosmos
 
 The diagram places Wazuh Agent in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
@@ -65,6 +106,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Features
 
 - **Pinned to the manager:** the agent version follows `web-app-wazuh`'s manager version, held against upgrades, and never newer than the manager.
+- **Arch Linux from source:** built from Wazuh's official release with the source and its downloaded dependencies pinned by SHA-256, as an unprivileged user, only when the version changes.
 - **Pre-registered key:** no enrollment; the key comes from the manager's pre-registration.
 - **Opt-in log sources:** journald entries of opted-in tags only, plus `sshd` and `sudo`.
 - **Explicit buffer:** the agent's event buffer is set, not inherited.
@@ -93,7 +135,7 @@ Limits:
 
 ## Follow-ups
 
-- **Registry version/build schema:** `meta/packages.yml` can neither pin a version derived at deploy time nor verify a source build's checksum, so the exact-version installs call `apt` and `dnf` directly (`nocheck: dynamic-package`) and the Arch source build will live in the role. Proposal for Kevin: extend the registry with a `version` field and `url`/`sha256` on `build`, then move the installs back to `package_install`.
+- **Registry version/build schema:** `meta/packages.yml` can neither pin a version derived at deploy time nor verify a source build's checksum, so the exact-version installs call `apt` and `dnf` directly (`nocheck: dynamic-package`) and the Arch source build lives in the role. Proposal for Kevin: extend the registry with a `version` field and `url`/`sha256` on `build`, then move the installs back to `package_install`.
 
 ## Credits
 

@@ -1,0 +1,13 @@
+---
+- name: "🛑 Require pinned source and deps checksums for Wazuh {{ WAZUH_AGENT_VERSION }}"
+  ansible.builtin.assert:
+    that: WAZUH_AGENT_VERSION in WAZUH_AGENT_SOURCE_PINS
+    fail_msg: >-
+      No source pin for Wazuh {{ WAZUH_AGENT_VERSION }}: add WAZUH_AGENT_SOURCE_PINS['{{ WAZUH_AGENT_VERSION }}']
+      with the source and deps SHA-256 to roles/sys-svc-wazuh-agent/vars/main.yml; the role README
+      ("Arch Linux source build") shows how to compute both.
+    quiet: true
+
+- name: "🔨 Build and install Wazuh agent {{ WAZUH_AGENT_VERSION }} from source"
+  include_tasks: archlinux/build.yml
+  when: wazuh_agent_installed_version != WAZUH_AGENT_VERSION

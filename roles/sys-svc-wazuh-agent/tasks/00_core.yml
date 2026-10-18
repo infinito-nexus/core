@@ -3,20 +3,14 @@
 
 - name: "🛑 Stop on a distribution without a Wazuh agent install path"
   ansible.builtin.assert:
-    that: ansible_facts['os_family'] in ['Debian', 'RedHat']
+    that: ansible_facts['os_family'] in ['Debian', 'RedHat', 'Archlinux']
     fail_msg: >-
-      The Wazuh agent is installed from the Wazuh package repository on the Debian and RedHat families only;
-      {{ ansible_facts['os_family'] }} has no install path yet.
+      The Wazuh agent is installed from the Wazuh package repository on the Debian and RedHat families
+      and built from source on Arch Linux; {{ ansible_facts['os_family'] }} has no install path.
     quiet: true
 
-- name: "🔍 Read the installed packages"
-  ansible.builtin.package_facts:
-
-- name: "🔍 Resolve the installed agent version"
-  ansible.builtin.set_fact:
-    wazuh_agent_installed_version: >-
-      {{ ansible_facts.packages[WAZUH_AGENT_PACKAGE][0].version.split('-')[0]
-         if WAZUH_AGENT_PACKAGE in ansible_facts.packages else '' }}
+- name: "🔍 Read the installed agent version"
+  include_tasks: utils/installed_version.yml
 
 - name: "🛑 Refuse an installed agent newer than the manager {{ WAZUH_AGENT_VERSION }}"
   ansible.builtin.assert:
@@ -31,12 +25,8 @@
 - name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_PACKAGE_VERSION }}"
   include_tasks: "01_install/{{ ansible_facts['os_family'] | lower }}.yml"
 
-- name: "🔍 Re-read the installed packages after the agent install"
-  ansible.builtin.package_facts:
-
-- name: "🔍 Resolve the agent version after the install"
-  ansible.builtin.set_fact:
-    wazuh_agent_installed_version: "{{ ansible_facts.packages[WAZUH_AGENT_PACKAGE][0].version.split('-')[0] }}"
+- name: "🔍 Re-read the installed agent version"
+  include_tasks: utils/installed_version.yml
 
 - name: "🛑 Require the installed agent to equal the manager {{ WAZUH_AGENT_VERSION }}"
   ansible.builtin.assert:
