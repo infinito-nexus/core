@@ -40,6 +40,8 @@ if [ ! -s "${BLOCK}" ]; then
 	exit 1
 fi
 
+bash "${STAGE}/mirror.sh" "${BLOCK}"
+
 echo "=== Checking they parse as bash ==="
 bash -n "${BLOCK}"
 

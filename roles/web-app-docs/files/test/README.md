@@ -25,6 +25,7 @@ flowchart TD
         direction TB
         TEST["1️⃣ 🧪 test.sh<br>returns early unless DOCS_TEST_MODE=compose"]
         EXTRACT["2️⃣ 📖 extract.py<br>reads the block off the live docs site"]
+        MIRRORED["🪞 mirror.sh<br>--mirror when CI configured a GHCR mirror"]
         FILL["3️⃣ 🔑 ed25519 pair + placeholder fill<br>everything except HOST"]
         MACHINE["4️⃣ 🚜 machine.sh"]
         ADDR["6️⃣ 📍 the target's bridge address"]
@@ -46,7 +47,7 @@ flowchart TD
 
     RECIPE["🐳 docker run &lt;deploy image&gt;<br>on the stack daemon"]
 
-    TEST --> EXTRACT --> FILL --> MACHINE
+    TEST --> EXTRACT --> MIRRORED --> FILL --> MACHINE
     MACHINE -->|"🌉 compose up machine"| INIT
     INIT -->|"⏳ await systemd"| ADDR
     ADDR --> DNS
@@ -65,7 +66,7 @@ flowchart TD
     classDef target fill:#e6f4ea,stroke:#137333,color:#0b2e13;
     classDef pivot fill:#fef7e0,stroke:#b06000,color:#3d2600;
     classDef recipe fill:#f3e8fd,stroke:#8430ce,color:#2a0b45;
-    class TEST,EXTRACT,FILL,MACHINE,BLOCK host;
+    class TEST,EXTRACT,MIRRORED,FILL,MACHINE,BLOCK host;
     class INIT,RESOLV,SSHD,HOSTRUN,DEPLOYED,FAILED target;
     class SHAPE,ADDR,DNS,GUARD pivot;
     class RECIPE recipe;
@@ -79,6 +80,7 @@ flowchart TD
 | --- | --- | --- |
 | 1️⃣ | 🧪 `test.sh` starts on the stack host | returns early unless the deployment mode is compose |
 | 2️⃣ | 📖 `extract.py` writes `block.sh` | fetches the role's page over `DOCS_TEST_BASE_URL`; an empty block fails the test, and `bash -n` parses it before anything runs it |
+| 🪞 | the GHCR mirror is attached | `mirror.sh` rewrites the block's provision call to write `mirrors.yml` and pass `--mirror`, so the replay pulls every application image from the mirror instead of the upstream registry. Outside CI the two GitHub variables are empty and the block is left exactly as published |
 | 3️⃣ | 🔑 key pair and placeholders | an ed25519 pair per run under `DOCS_TEST_WORK`; every placeholder except `HOST` is substituted |
 | 4️⃣ | 🚜 `machine.sh` brings the target up | `compose up machine`, on the default bridge |
 | 5️⃣ | ⚙️ the target boots | image built from `Dockerfile` + `init.sh`; `MACHINE_BASE_IMAGE` comes from `INFINITO_PARENT_IMAGE` in the checkout's `.env` |
@@ -104,6 +106,9 @@ flowchart TD
 | `DOCS_TEST_TIMEOUT` | `templates/test.env.j2` | wait for the on-demand documentation build |
 | `DOCS_TEST_WORK` | `test.sh` | holds the replay key pair and the rendered `Corefile` |
 | `DOCS_TEST_REPLAY_PUBKEY` | `test.sh` | public half, consumed by `sshd.sh` |
+| `GITHUB_REPOSITORY` | `templates/test.env.j2` | names the GHCR repository the mirror lives under; empty outside CI, which leaves the block unmirrored |
+| `GITHUB_REPOSITORY_OWNER` | `templates/test.env.j2` | names the GHCR namespace; empty outside CI |
+| `INFINITO_GHCR_MIRROR_PREFIX` | `default.env` in `DOCS_TEST_SRC_DIR` | path segment separating mirrored images from the repository's own |
 
 ## Files
 
@@ -111,6 +116,7 @@ flowchart TD
 | --- | --- |
 | `test.sh` | entry point; extraction, key pair, placeholder fill |
 | `extract.py` | pulls the Production block off the live documentation site |
+| `mirror.sh` | points the extracted block's provision call at the GHCR image mirror when CI configured one |
 | `machine.sh` | target lifecycle, wildcard resolution, `HOST` fill, guard, replay, failed-unit report, teardown |
 | `compose.yml` | the target service on the default bridge with a named volume at `/var/lib/docker`, and the resolver service in the target's network namespace |
 | `Corefile.tmpl` | the resolver's configuration; `${DOCS_TEST_DOMAIN}`, `${DOCS_TEST_TARGET_IP}` and `${DOCS_TEST_UPSTREAM}` are substituted into `DOCS_TEST_WORK/Corefile` |
