@@ -18,7 +18,7 @@ import json
 import unittest
 from html.parser import HTMLParser
 
-from jinja2 import Environment
+from jinja2 import Environment, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT, read_text
 
@@ -31,7 +31,7 @@ TEMPLATE = (
     / "design-config.json.j2"
 )
 HOSTILE = (
-    "Kevin's \"Nexus\" <b>&</b> Co",
+    'Kevin\'s "Nexus" <b>&</b> Co',
     "</script><img src=x onerror=alert(1)>",
     "Zeilen\numbruch\tund Tab",
     "Ümläute und 😀",
@@ -52,7 +52,7 @@ class _Attribute(HTMLParser):
 
 
 def _render(title, logo, urls):
-    environment = Environment(autoescape=False)
+    environment = Environment(autoescape=select_autoescape(default_for_string=False))
     environment.filters["to_json"] = json.dumps
     body = read_text(str(TEMPLATE)).split("%}\n", 1)[1]
     design = {"title": title, "logo": logo, "urls": urls, "slots": {}}
@@ -60,7 +60,7 @@ def _render(title, logo, urls):
 
 
 def _through_attribute(rendered: str) -> dict:
-    environment = Environment(autoescape=False)
+    environment = Environment(autoescape=select_autoescape(default_for_string=False))
     tag = environment.from_string(
         '<script data-design="{{ value | e }}"></script>'
     ).render(value=rendered.strip())

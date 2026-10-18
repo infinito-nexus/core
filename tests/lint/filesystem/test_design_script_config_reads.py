@@ -20,7 +20,11 @@ import unittest
 from utils.cache.files import PROJECT_ROOT, read_text
 
 ROLES = PROJECT_ROOT / "roles"
-PATTERNS = ("*/templates/design.js", "*/templates/design.js.j2", "*/templates/js/design.js.j2")
+PATTERNS = (
+    "*/templates/design.js",
+    "*/templates/design.js.j2",
+    "*/templates/js/design.js.j2",
+)
 LITERAL = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'|`[^`\n]*`")
 INTERPOLATED = re.compile(r"\{\{[^}]*\bdesign\.urls\b")
 RULE = "design-script-config-reads"
@@ -43,7 +47,6 @@ class TestDesignScriptConfigReads(unittest.TestCase):
             "its own source text instead of the branding value:\n  "
             + "\n  ".join(offenders),
         )
-
 
     def test_no_script_bakes_a_branding_url_into_its_body(self) -> None:
         scripts = [path for pattern in PATTERNS for path in sorted(ROLES.glob(pattern))]

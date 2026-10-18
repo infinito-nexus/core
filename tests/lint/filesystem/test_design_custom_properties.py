@@ -110,9 +110,7 @@ class TestDesignCustomProperties(unittest.TestCase):
         )
 
     def test_every_referenced_property_is_declared(self) -> None:
-        sheets = [
-            path for name in COMPOSED for path in sorted(ROLES.glob(f"*/{name}"))
-        ]
+        sheets = [path for name in COMPOSED for path in sorted(ROLES.glob(f"*/{name}"))]
         self.assertTrue(sheets, f"[{RULE}] no composed sheet found under {ROLES}")
         offenders = []
         for path in sheets:
