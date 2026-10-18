@@ -3,6 +3,7 @@ application_id: svc-cache-package
 entity_name: "{{ application_id | entity_name }}"
 
 CACHE_PACKAGE_CONTAINER: "{{ lookup('config', application_id, 'services.package.name') }}"
+CACHE_PACKAGE_BOOTSTRAP_CONTAINER: "{{ lookup('config', application_id, 'services.bootstrap.name') }}"
 CACHE_PACKAGE_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 CACHE_PACKAGE_PORT: "{{ lookup('config', application_id, 'services.package.ports.internal.http') }}"
 
@@ -10,6 +11,8 @@ CACHE_PACKAGE_FRONTEND_CONF_HOST: "{{ [lookup('container', application_id, 'dire
 CACHE_PACKAGE_CA_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'ca'] | path_join }}"
 CACHE_PACKAGE_CERTS_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'certs'] | path_join }}"
 CACHE_PACKAGE_SHELL_DIR: "{{ [role_path, 'files', 'shell'] | path_join }}"
+CACHE_PACKAGE_BOOTSTRAP_SCRIPT_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'bootstrap.sh'] | path_join }}"
+CACHE_PACKAGE_BOOTSTRAP_SCRIPT_TARGET: "{{ lookup('volume', application_id, 'bootstrap_script').target }}"
 CACHE_PACKAGE_TLS_HOSTS: "{{ CACHE_PACKAGE_UPSTREAMS | selectattr('tls') | map(attribute='host') | list }}"
 
 CACHE_PACKAGE_UPSTREAMS: "{{ lookup('cache_upstreams') }}"

@@ -39,6 +39,27 @@ package:
   content_max_age_min: 8640
   metadata_max_age_min: 0
   lifecycle: beta
+# nocheck: dynamic-flag  the bootstrap has no group of its own; it runs exactly when the cache it provisions comes up
+bootstrap:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  placement: manager # nocheck: default-placement-manager  it provisions the cache beside it
+  enabled: true
+  shared: true
+  bond: 1
+  name: package-cache-bootstrap
+  # nocheck: single-replica
+  replicas: 1
+  # nocheck: min-storage-headroom  Reason: it runs the image the package service already pulled, so it transfers nothing of its own
+  min_storage: 64MB
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 128
+  lifecycle: beta
 # nocheck: dynamic-flag  the frontend has no group of its own; it is up exactly when the cache it fronts is
 frontend:
   healthcheck:

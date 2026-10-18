@@ -12,13 +12,15 @@ set -euo pipefail
 : "${INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_UPSTREAMS:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_CONTAINER:?Source scripts/meta/env/load.sh first}"
+: "${INFINITO_CACHE_PACKAGE_EXEC_MODE:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_PORT:?Source scripts/meta/env/load.sh first}"
+: "${INFINITO_CACHE_PACKAGE_REST_HOST:?Source scripts/meta/env/load.sh first}"
 
 CACHE_CONTENT_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN}"
 CACHE_METADATA_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN}"
 
 PKGCACHE_CONTAINER="${INFINITO_CACHE_PACKAGE_CONTAINER}"
-NEXUS_REST="http://127.0.0.1:${INFINITO_CACHE_PACKAGE_PORT}/service/rest"
+NEXUS_REST="http://${INFINITO_CACHE_PACKAGE_REST_HOST}:${INFINITO_CACHE_PACKAGE_PORT}/service/rest"
 
 BOOTSTRAP_DONE_FILE="/nexus-data/.infinito-bootstrap-done"
 NEXUS_ADMIN_PW_FILE="/nexus-data/.infinito-admin-password"
@@ -26,7 +28,22 @@ NEXUS_DEFAULT_PASSWORD="admin123"
 
 log() { printf '[package-cache-bootstrap] %s\n' "$*" >&2; }
 
-nexus_curl() { docker exec "${PKGCACHE_CONTAINER}" curl "$@"; }
+case "${INFINITO_CACHE_PACKAGE_EXEC_MODE}" in
+docker)
+	nexus_exec() { docker exec "${PKGCACHE_CONTAINER}" "$@"; }
+	nexus_exec_stdin() { docker exec -i "${PKGCACHE_CONTAINER}" "$@"; }
+	;;
+local)
+	nexus_exec() { "$@"; }
+	nexus_exec_stdin() { "$@"; }
+	;;
+*)
+	log "INFINITO_CACHE_PACKAGE_EXEC_MODE is '${INFINITO_CACHE_PACKAGE_EXEC_MODE}', expected 'docker' or 'local'"
+	exit 1
+	;;
+esac
+
+nexus_curl() { nexus_exec curl "$@"; }
 
 wait_for_nexus() {
 	local _attempt
@@ -42,14 +59,14 @@ wait_for_nexus() {
 
 store_admin_password() {
 	printf %s "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" |
-		docker exec -i "${PKGCACHE_CONTAINER}" sh -c "umask 077; cat > '${NEXUS_ADMIN_PW_FILE}'"
+		nexus_exec_stdin sh -c "umask 077; cat > '${NEXUS_ADMIN_PW_FILE}'"
 }
 
 rotate_admin_password() {
 	ADMIN_USER="admin"
-	if docker exec "${PKGCACHE_CONTAINER}" test -f "${BOOTSTRAP_DONE_FILE}"; then
+	if nexus_exec test -f "${BOOTSTRAP_DONE_FILE}"; then
 		log "Already bootstrapped; using stored admin password"
-		ADMIN_PASS="$(docker exec "${PKGCACHE_CONTAINER}" cat "${NEXUS_ADMIN_PW_FILE}" 2>/dev/null || true)"
+		ADMIN_PASS="$(nexus_exec cat "${NEXUS_ADMIN_PW_FILE}" 2>/dev/null || true)"
 		if [ -z "${ADMIN_PASS}" ]; then
 			ADMIN_PASS="${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"
 		fi
@@ -71,7 +88,7 @@ rotate_admin_password() {
 		fi
 	fi
 	store_admin_password
-	docker exec "${PKGCACHE_CONTAINER}" touch "${BOOTSTRAP_DONE_FILE}"
+	nexus_exec touch "${BOOTSTRAP_DONE_FILE}"
 	ADMIN_PASS="${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"
 }
 

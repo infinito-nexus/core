@@ -18,3 +18,4 @@ The role deploys two containers on its inventory group's host: the repository ma
 - **Mirror failover:** A repository that declares a mirror is served through a guarded location: a 5xx from its primary remote re-runs the same path against the sibling repository, while a 404 is passed straight back.
 - **Persistent store:** Proxied artefacts live in a named volume, so a redeploy reuses what earlier runs already pulled.
 - **Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream.
+- **Self-provisioning:** A `bootstrap` sidecar runs [bootstrap.sh](./files/shell/bootstrap.sh) from inside the stack whenever the cache starts, gated on the repository manager's healthcheck. It re-creates every declared repository on a `/nexus-data` that came back empty. The deploy runs the same script from the host, over `docker exec`, so a deployment converges before its tasks finish.

@@ -30,6 +30,13 @@
     - "{{ CACHE_PACKAGE_CA_DIR_HOST }}"
     - "{{ CACHE_PACKAGE_CERTS_DIR_HOST }}"
 
+- name: "📜 Install the bootstrap the stack re-runs whenever Nexus starts"
+  ansible.builtin.copy:
+    src: "shell/bootstrap.sh"
+    dest: "{{ CACHE_PACKAGE_BOOTSTRAP_SCRIPT_HOST }}"
+    mode: "0444"
+  notify: compose-up
+
 - name: "🔐 Issue the frontend CA and one leaf per TLS host"
   ansible.builtin.command:
     cmd: "{{ [CACHE_PACKAGE_SHELL_DIR, 'certs.sh'] | path_join }}"
