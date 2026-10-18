@@ -1,3 +1,4 @@
 fastapi==0.122.0
+python-multipart==0.0.32
 uvicorn[standard]==0.40.0
 asyncpg==0.31.0
