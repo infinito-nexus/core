@@ -7,7 +7,9 @@ const preload = decodeDotenvJsonList(
   "DOCS_I18N_PRELOAD_LANGUAGES_JSON",
 );
 const samples = JSON.parse(decodeDotenvQuotedValue(process.env.DOCS_I18N_SAMPLES_JSON || "") || "{}");
-const translated = preload.filter((code) => code in samples);
+const assertLanguages =
+  decodeDotenvQuotedValue(process.env.DOCS_I18N_ASSERT_LANGUAGES || "true") !== "false";
+const translated = assertLanguages ? preload.filter((code) => code in samples) : [];
 
 const VERSION_BUILD = 5_300_000;
 const VERSION_THEN_TRANSLATION = 2 * VERSION_BUILD;
