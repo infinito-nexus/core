@@ -21,6 +21,18 @@ WAZUH_AGENT_ENTRY: "{{ lookup('wazuh_agent') }}"
 WAZUH_AGENT_MANAGER_ADDRESS: "{{ DOCKER_REACH_HOST }}"
 WAZUH_AGENT_MANAGER_PORT: "{{ lookup('config', WAZUH_AGENT_MANAGER_ROLE, 'services.manager.ports.local.agent') }}"
 
+WAZUH_AGENT_DOCKER_LISTENER_SCRIPT: "wodles/docker/DockerListener"
+WAZUH_AGENT_DOCKER_LISTENER_INTERVAL: 60
+WAZUH_AGENT_DOCKER_LISTENER_VENV: "/opt/wazuh-agent/docker-listener-venv"
+WAZUH_AGENT_DOCKER_LISTENER_PYTHON: "{{ [ WAZUH_AGENT_DOCKER_LISTENER_VENV, 'bin', 'python3' ] | path_join }}"
+WAZUH_AGENT_DOCKER_LISTENER_DROPIN: "/etc/systemd/system/wazuh-agent.service.d/docker-listener-venv.conf"
+WAZUH_AGENT_DOCKER_LISTENER_PIP: "pip==26.2.1"
+# Exception: newer than Wazuh's documented pins (urllib3 1.26.20, requests 2.32.2) to clear pip-audit advisories; re-run pip-audit on every Wazuh version bump.
+WAZUH_AGENT_DOCKER_LISTENER_PIP_PACKAGES:
+  - docker==7.1.0
+  - urllib3==2.8.0
+  - requests==2.33.1
+
 WAZUH_AGENT_RULESET: "{{ lookup('wazuh_ruleset', scope='host') }}"
 WAZUH_AGENT_JOURNALD_TAGS: "{{ [WAZUH_AGENT_RULESET.selftest.program] + (WAZUH_AGENT_RULESET.entities | map(attribute='program') | list) + ['sshd', 'sudo'] }}"
 

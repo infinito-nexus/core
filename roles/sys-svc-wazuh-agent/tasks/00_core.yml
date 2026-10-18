@@ -31,6 +31,24 @@
 - name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_PACKAGE_VERSION }}"
   include_tasks: "01_install/{{ ansible_facts['os_family'] | lower }}.yml"
 
+- name: "🔍 Re-read the installed packages after the agent install"
+  ansible.builtin.package_facts:
+
+- name: "🔍 Resolve the agent version after the install"
+  ansible.builtin.set_fact:
+    wazuh_agent_installed_version: "{{ ansible_facts.packages[WAZUH_AGENT_PACKAGE][0].version.split('-')[0] }}"
+
+- name: "🛑 Require the installed agent to equal the manager {{ WAZUH_AGENT_VERSION }}"
+  ansible.builtin.assert:
+    that: wazuh_agent_installed_version == WAZUH_AGENT_VERSION
+    fail_msg: >-
+      The installed {{ WAZUH_AGENT_PACKAGE }} is {{ wazuh_agent_installed_version }}, but the manager is
+      {{ WAZUH_AGENT_VERSION }}; the agent must run the manager's exact version.
+    quiet: true
+
+- name: "🐳 Prepare the Docker listener"
+  include_tasks: 01_docker_listener.yml
+
 - name: "🔑 Write the pre-registered agent key"
   ansible.builtin.template: # nocheck: stack-host-template (per-host agent key, every host writes its own)
     src: client.keys.j2
@@ -58,3 +76,16 @@
     name: "{{ WAZUH_AGENT_SERVICE }}"
     state: started
     enabled: true
+
+- name: "⏳ Wait for the Docker listener, which starts one interval after the agent"
+  ansible.builtin.command:
+    argv:
+      - pgrep
+      - -f
+      - "{{ WAZUH_AGENT_DOCKER_LISTENER_SCRIPT }}"
+  register: wazuh_agent_docker_listener_process
+  changed_when: false
+  retries: "{{ ((WAZUH_AGENT_DOCKER_LISTENER_INTERVAL * 2) / 5) | round(0, 'ceil') | int }}"
+  delay: 5
+  until: wazuh_agent_docker_listener_process.rc == 0
+  when: WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool

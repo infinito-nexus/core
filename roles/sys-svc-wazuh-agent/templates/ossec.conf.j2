@@ -25,6 +25,13 @@
     <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
   </localfile>
 {% endfor %}
+{% if WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool %}
+
+  <wodle name="docker-listener">
+    <disabled>no</disabled>
+    <interval>{{ WAZUH_AGENT_DOCKER_LISTENER_INTERVAL }}s</interval>
+  </wodle>
+{% endif %}
 
   <logging>
     <log_format>plain</log_format>

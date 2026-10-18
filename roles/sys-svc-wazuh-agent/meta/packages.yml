@@ -1,4 +1,10 @@
 ---
+python3-venv:
+  Archlinux: [] # nocheck: empty - Arch's python package ships the venv module and ensurepip
+  Debian:
+    - python3-venv
+  RedHat: [] # nocheck: empty - Fedora's and EL's python3 packages ship the venv module and ensurepip
+
 wazuh-agent:
   Archlinux: [] # nocheck: Wazuh ships no Arch package; the role's own source build (step 2.3d) installs it
   Debian:
