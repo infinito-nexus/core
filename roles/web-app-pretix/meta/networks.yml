@@ -6,3 +6,5 @@ overlay:
   topology: shared_net
   consumer:
     kind: mcp_client
+reachability:
+  handover: true # nocheck: network-reachability  pretix answers every host other than its one PRETIX_URL and the organizers' own domains with 400 Unknown host
