@@ -34,6 +34,6 @@ Two properties of the workspace suite differ between `make act-workflow` and a G
 
 **Nested Docker state does not survive a teardown locally, but does in CI.** `INFINITO_DOCKER_VOLUME` is the named volume `docker` ([default.env](../../../../default.env)) and a host path (`/mnt/docker`) on GitHub. `compose down -v` removes a named volume and cannot remove a bind mount, so every workspace track starts on a clean inner daemon locally while CI carries the previous track's containers into the next one. Defects that need a container, network, or bind source to outlive a teardown cannot reproduce under act.
 
-**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way.
+**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way. The image mirror is the exception: CI declares `INFINITO_GHCR_MIRROR=true` for the workspace suite, while a local run keeps the generated `false` and pulls upstream.
 
 Run the local loop to iterate quickly; treat CI as the only authority for both classes.

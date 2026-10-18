@@ -96,6 +96,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
             "INFINITO_GPU_COUNT": "0",
+            "INFINITO_GHCR_MIRROR": "",
         },
         clear=False,
     )
@@ -154,6 +155,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
             "INFINITO_GPU_COUNT": "0",
+            "INFINITO_GHCR_MIRROR": "",
         },
         clear=False,
     )
@@ -206,6 +208,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "GITHUB_ACTIONS": "true",
             "INFINITO_RUNNING_ON_GITHUB": "true",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_GHCR_MIRROR": "",
         },
         clear=False,
     )
@@ -233,6 +236,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "GITHUB_ACTIONS": "true",
             "INFINITO_RUNNING_ON_GITHUB": "true",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_GHCR_MIRROR": "",
         },
         clear=False,
     )
@@ -269,6 +273,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_GIT_COMMON_DIR": "",
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_GHCR_MIRROR": "",
         },
         clear=False,
     )

@@ -28,10 +28,10 @@ fi
 if [[ -n "${INFINITO_APP_VARIANTS:-}" ]]; then
 	provision_args+=(--app-variants "${INFINITO_APP_VARIANTS}")
 fi
-if [[ "$(python3 -m cli.meta.runtime)" == "github" ]]; then
-	: "${INFINITO_GHCR_MIRROR_PREFIX:?required in github runtime}"
-	: "${GITHUB_REPOSITORY_OWNER:?required in github runtime}"
-	: "${GITHUB_REPOSITORY:?required in github runtime}"
+if [[ "${INFINITO_GHCR_MIRROR:?INFINITO_GHCR_MIRROR must be set}" == "true" ]]; then
+	: "${INFINITO_GHCR_MIRROR_PREFIX:?required when INFINITO_GHCR_MIRROR=true}"
+	: "${GITHUB_REPOSITORY_OWNER:?required when INFINITO_GHCR_MIRROR=true}"
+	: "${GITHUB_REPOSITORY:?required when INFINITO_GHCR_MIRROR=true}"
 	ghcr_namespace="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
 	ghcr_repository="$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2- | tr '[:upper:]' '[:lower:]')"
 	mirrors_file="${INV_DIR}/mirrors.yml"

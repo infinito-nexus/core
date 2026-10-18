@@ -862,6 +862,7 @@ swarm-zombie: install-act
 	 disable=$(disable); \
 	 SWARM_NAME=$(or $(name),$(app)); \
 	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \
+	 INFINITO_GHCR_MIRROR=$${INFINITO_GHCR_MIRROR}; \
 	 INFINITO_DISTROS=$(SWARM_DISTROS); \
 	 INFINITO_ARCHITECTURES=$(SWARM_ARCH); \
 	 INFINITO_ARCHITECTURE=$(SWARM_ARCH)" \

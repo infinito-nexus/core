@@ -74,6 +74,7 @@ class TestRunnerMirror(unittest.TestCase):
             "INFINITO_RUNNING_ON_GITHUB": "true",
             "INFINITO_GIT_COMMON_DIR": "",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_GHCR_MIRROR": "",
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_PUBLISH_PORTS": "",
             "INFINITO_GPU_COUNT": "0",
@@ -91,7 +92,9 @@ class TestRunnerMirror(unittest.TestCase):
         self.assertEqual(args[-2:], ["-f", runner_mirror.OVERRIDE])
 
     @patch.dict(
-        os.environ, {**GITHUB, "INFINITO_RUNNING_ON_GITHUB": "true"}, clear=False
+        os.environ,
+        {**GITHUB, "INFINITO_RUNNING_ON_GITHUB": "true", "INFINITO_GHCR_MIRROR": ""},
+        clear=False,
     )
     def test_the_cert_generator_gets_the_mirrored_init_image(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
