@@ -9,13 +9,13 @@
 
 - name: "📂 Load extensions procedures for '{{ application_id }}'"
   include_tasks:
-    file: "02_extensions.yml"
+    file: "{{ [role_path, 'tasks', '02_extensions.yml'] | path_join }}"
     apply:
       delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
   when: MEDIAWIKI_EXT_ENABLED | length > 0
 
 - name: "📂 Load update procedures for '{{ application_id }}'"
-  include_tasks: 03_install.yml
+  include_tasks: "{{ [role_path, 'tasks', '03_install.yml'] | path_join }}"
   when: >-
     (_role_templates_render.changed | default(false)) or
     (_install_results.changed | default(false)) or
