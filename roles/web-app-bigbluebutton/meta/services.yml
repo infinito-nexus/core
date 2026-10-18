@@ -152,7 +152,7 @@ etherpad:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-pads:
   image: alangecker/bbb-docker-pads
-  version: "v1.5.11"
+  version: "v1.5.8"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
