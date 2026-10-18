@@ -40,6 +40,9 @@ dev = [
   "pytest>=9.1",
   "pytest-xdist",
 ]
+fuzz = [
+  "atheris==3.1.0",
+]
 
 [project.scripts]
 infinito = "cli.__main__:main"

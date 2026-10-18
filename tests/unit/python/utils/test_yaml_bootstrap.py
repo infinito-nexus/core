@@ -115,6 +115,14 @@ STRUCTURES = (
     "a: see this: here\n",
     "a:b\n",
     "a: # note\n",
+    "\x1e/: R\n",
+    "a: b\x0bc: d\n",
+    "# note\x01\na: b\n",
+    "# note\rc: d\n",
+    "# note\x85c: d\n",
+    "# note\N{LINE SEPARATOR}c: d\n",
+    "a: b\r\nc: d\r\n",
+    " ---\nC: L\n",
 )
 
 
