@@ -3,6 +3,16 @@
     <decoded_as>{{ WAZUH_RULESET_SELFTEST.decoder }}</decoded_as>
     <description>{{ SOFTWARE_NAME }} Wazuh self-test event.</description>
   </rule>
+
+  <rule id="{{ WAZUH_DEPLOY_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_DEPLOY.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} deploy marker event.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_FIM_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_FIM.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} FIM who-data state.</description>
+  </rule>
 {% for app in WAZUH_RULESET_ENTITIES %}
 
   <rule id="{{ app.rule_block }}" level="0">
@@ -18,5 +28,33 @@
     <if_group>infinito</if_group>
     <match>^{{ WAZUH_CANARY_MARKER }} </match>
     <description>{{ SOFTWARE_NAME }} deploy canary.</description>
+  </rule>
+</group>
+
+<group name="infinito_deploy,">
+  <rule id="{{ WAZUH_DEPLOY_START_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOY_RULE_ID }}</if_sid>
+    <match>^deploy start </match>
+    <description>{{ SOFTWARE_NAME }} deploy started.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOY_END_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOY_RULE_ID }}</if_sid>
+    <match>^deploy end </match>
+    <description>{{ SOFTWARE_NAME }} deploy finished.</description>
+  </rule>
+</group>
+
+<group name="infinito_fim,">
+  <rule id="{{ WAZUH_WHODATA_UNAVAILABLE_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_FIM_RULE_ID }}</if_sid>
+    <match>^whodata=unavailable </match>
+    <description>{{ SOFTWARE_NAME }} FIM who-data is not running; changes are reported without user and process.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_WHODATA_UNKNOWN_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_FIM_RULE_ID }}</if_sid>
+    <match>^whodata=unknown </match>
+    <description>{{ SOFTWARE_NAME }} FIM who-data state could not be read from the agent log.</description>
   </rule>
 </group>

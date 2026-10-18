@@ -1,0 +1,39 @@
+---
+# Exception: syscheckd writes its who-data verdict only to ossec.log, so the lines since its last start are read newest first.
+- name: "🔍 Read the who-data verdict since syscheckd last started"
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail &&
+      tac {{ WAZUH_AGENT_FIM_LOG | quote }}
+      | sed '/wazuh-syscheckd: INFO: Started (pid/q'
+      | grep -oE '\((6019|6048|6913|6923|9203)\)|wazuh-syscheckd: INFO: Started'
+      || true
+    executable: /bin/bash
+  register: wazuh_agent_whodata_log
+  changed_when: false
+  # Exception: a verdict that never appears is reported as whodata=unknown, which alerts, instead of failing the deploy.
+  ignore_errors: true
+  retries: "{{ WAZUH_AGENT_FIM_STATE_RETRIES }}"
+  delay: 5
+  until: >-
+    'wazuh-syscheckd: INFO: Started' not in wazuh_agent_whodata_log.stdout
+    or ('(9203)' in wazuh_agent_whodata_log.stdout
+        and (not (WAZUH_AGENT_FIM_WHODATA_ENABLED | bool)
+             or wazuh_agent_whodata_log.stdout is search('\((6019|6048|6913|6923)\)')))
+
+- name: "🧭 Resolve the who-data state"
+  ansible.builtin.set_fact:
+    wazuh_agent_whodata_state: >-
+      {%- set log = wazuh_agent_whodata_log.stdout -%}
+      {%- if not (WAZUH_AGENT_FIM_WHODATA_ENABLED | bool) -%}whodata=unavailable reason=switched-off
+      {%- elif 'wazuh-syscheckd: INFO: Started' not in log -%}whodata=unknown reason=no-syscheckd-start-in-log
+      {%- elif '(6019)' in log -%}whodata=audit reason=engine-started
+      {%- elif '(6048)' in log -%}whodata=ebpf reason=healthcheck-passed
+      {%- elif '(6913)' in log or '(6923)' in log -%}whodata=unavailable reason=realtime-fallback
+      {%- else -%}whodata=unknown reason=no-verdict-in-log
+      {%- endif -%}
+
+- name: "🚩 Log the who-data state for the manager"
+  ansible.builtin.command:
+    argv: [logger, -t, "{{ WAZUH_AGENT_RULESET.fim.program }}", "{{ wazuh_agent_whodata_state }}"]
+  changed_when: false

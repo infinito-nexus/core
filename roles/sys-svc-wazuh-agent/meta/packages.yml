@@ -1,4 +1,12 @@
 ---
+auditd:
+  Archlinux:
+    - audit
+  Debian:
+    - auditd
+  RedHat:
+    - audit
+
 python3-venv:
   Archlinux: [] # nocheck: empty - Arch's python package ships the venv module and ensurepip
   Debian:

@@ -9,10 +9,20 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from plugins.lookup.wazuh_ruleset import LookupModule
-from utils.roles.applications.services.wazuh import SELFTEST_TAG
+from utils.roles.applications.services.wazuh import DEPLOY_TAG, FIM_TAG, SELFTEST_TAG
 
 _SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
-_EMPTY = {"selftest": _SELFTEST, "entities": [], "files": [], "samples": []}
+_DEPLOY = {"program": DEPLOY_TAG, "decoder": DEPLOY_TAG}
+_FIM = {"program": FIM_TAG, "decoder": FIM_TAG}
+_EMPTY = {
+    "selftest": _SELFTEST,
+    "deploy": _DEPLOY,
+    "fim": _FIM,
+    "own": [_SELFTEST, _DEPLOY, _FIM],
+    "entities": [],
+    "files": [],
+    "samples": [],
+}
 
 
 def _run(
@@ -189,6 +199,26 @@ class TestWazuhRuleset(unittest.TestCase):
                     "lines": ["plain"],
                     "rule": 100100,
                     "level": 0,
+                }
+            ],
+        )
+
+    def test_wazuh_role_sample_with_program_uses_that_own_tag(self):
+        _write_samples(
+            self.roles_dir,
+            "web-app-wazuh",
+            f"- log: deploy start run=x\n  rule: 100120\n  level: 3\n  program: {DEPLOY_TAG}\n",
+        )
+        self.assertEqual(
+            _run(self.roles_dir, {"web-app-wazuh": True})["samples"],
+            [
+                {
+                    "role": "web-app-wazuh",
+                    "program": DEPLOY_TAG,
+                    "decoder": DEPLOY_TAG,
+                    "lines": ["deploy start run=x"],
+                    "rule": 100120,
+                    "level": 3,
                 }
             ],
         )

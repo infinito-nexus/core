@@ -38,7 +38,7 @@ For each opted-in tag (the role's entity name, set as the journald `tag` by `sys
 A role's `decoders.xml` holds only children with `<parent>infinito-<entity></parent>`; its `rules.xml` holds only rules chained by `<if_sid>` or `<if_matched_sid>` to IDs inside its own block.
 
 After every deploy, `wazuh-logtest -U` sends one canary line per tag, `<tag>[1]: INFINITO_WAZUH_CANARY deploy`, through the running manager and requires canary rule `100110` at level 3 (the alert threshold) with the tag's parent decoder.
-The reserved tag `infinito-selftest` always takes part, so the check also runs while no role opts in. A canary that does not fire fails the deploy and rolls the ruleset back.
+The reserved tags `infinito-selftest`, `infinito-deploy` (deploy markers) and `infinito-fim` (FIM who-data state) always take part, so the check also runs while no role opts in. A canary that does not fire fails the deploy and rolls the ruleset back.
 
 ### Rule IDs
 
@@ -47,7 +47,7 @@ Custom rules use the Wazuh range 100000-120000:
 | Range | Use |
 |---|---|
 | 100000-100099 | Reserved: Wazuh examples, `etc/rules/local_rules.xml` uses 100001 |
-| 100100-100999 | Base: `100100` self-test parent, `100110` canary |
+| 100100-100999 | Base: parents `100100` self-test, `100101` deploy markers, `100102` FIM who-data state; `100110` canary; `100120`/`100121` deploy start/end; `100130`/`100131` who-data unavailable/unknown |
 | 101000-118999 | App blocks of 100 IDs; the first ID is the central parent rule |
 | 119000-119999 | Tests and drills, never shipped |
 
@@ -59,7 +59,7 @@ wazuh:
   rule_block: 101000
 ```
 
-The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block or on its parent ID, a rule without a chain into its own block, a decoder with a foreign parent, and the reserved entity name `infinito-selftest`.
+The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block or on its parent ID, a rule without a chain into its own block, a decoder with a foreign parent, and the reserved entity names `infinito-selftest`, `infinito-deploy` and `infinito-fim`.
 
 ### Samples
 
@@ -84,7 +84,7 @@ A negative or injection sample expects the role's parent rule (the block start) 
 After the canary, it sends each sample through `wazuh-logtest -U <rule>:<level>:<decoder>` in its own session and fails the deploy, with the role, the sample and the logtest output, when one does not match; the rollback then restores the previous ruleset.
 A sample whose `log` is a list is sent as one session and only its last line is checked, which is how `-U` reports.
 Each sample costs about 2 s of deploy time: about 1.3 s for the logtest session itself, the rest for the Ansible loop item.
-This role's own `files/wazuh/samples.yml` holds the self-test samples, the only ones that may use the base range.
+This role's own `files/wazuh/samples.yml` holds the samples of the reserved tags, the only ones that may use the base range; a sample there may name its tag in `program` (`infinito-deploy`, `infinito-fim`) and defaults to `infinito-selftest`.
 
 The same lint checks that every sample's rule lies in the role's own block (the base range for this role), that `level` is an integer and `log` a single line, that a list has at least two lines and is used only for a correlation rule (`frequency`, `if_matched_sid`, `if_matched_group`), and that every rule ID in `rules.xml` has at least one sample.
 

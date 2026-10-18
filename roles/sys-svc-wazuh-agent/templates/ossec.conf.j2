@@ -17,14 +17,52 @@
     <queue_size>{{ WAZUH_AGENT_BUFFER_QUEUE_SIZE }}</queue_size>
     <events_per_second>{{ WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND }}</events_per_second>
   </client_buffer>
-{% for tag in WAZUH_AGENT_JOURNALD_TAGS %}
+{% for tag in WAZUH_AGENT_JOURNALD_ROOT_TAGS %}
 
   <localfile>
     <location>journald</location>
     <log_format>journald</log_format>
     <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
+    <filter field="_UID">^0$</filter>
   </localfile>
 {% endfor %}
+{% for tag in WAZUH_AGENT_JOURNALD_CONTAINER_TAGS %}
+
+  <localfile>
+    <location>journald</location>
+    <log_format>journald</log_format>
+    <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
+    <filter field="_UID">^0$</filter>
+    <filter field="_COMM">^{{ WAZUH_AGENT_JOURNALD_CONTAINER_COMM }}$</filter>
+  </localfile>
+{% endfor %}
+
+{% set fim_mode = 'whodata="yes"' if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool else 'realtime="yes"' %}
+  <syscheck>
+    <disabled>{{ 'no' if WAZUH_AGENT_FIM_ENABLED | bool else 'yes' }}</disabled>
+    <frequency>{{ WAZUH_AGENT_FIM_FREQUENCY }}</frequency>
+    <scan_on_start>yes</scan_on_start>
+    <alert_new_files>yes</alert_new_files>
+    <directories>{{ WAZUH_AGENT_FIM_SCHEDULED_DIRS | join(',') }}</directories>
+{% for dir in WAZUH_AGENT_FIM_DIFF_DIRS %}
+    <directories {{ fim_mode }} report_changes="yes"{% if dir.restrict %} restrict="{{ dir.restrict }}"{% endif %}>{{ dir.path }}</directories>
+{% endfor %}
+{% for dir in WAZUH_AGENT_FIM_HASH_DIRS %}
+    <directories {{ fim_mode }}{% if dir.restrict %} restrict="{{ dir.restrict }}"{% endif %}>{{ dir.path }}</directories>
+{% endfor %}
+{% for path in WAZUH_AGENT_FIM_REALTIME_DIRS %}
+    <directories realtime="yes">{{ path }}</directories>
+{% endfor %}
+{% for path in WAZUH_AGENT_FIM_SCHEDULED_IGNORE + WAZUH_AGENT_FIM_COMPOSE_VOLUMES %}
+    <ignore>{{ path }}</ignore>
+{% endfor %}
+    <nodiff type="sregex">{{ WAZUH_AGENT_FIM_NODIFF }}</nodiff>
+{% if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool %}
+    <whodata>
+      <provider>{{ WAZUH_AGENT_FIM_WHODATA_PROVIDER }}</provider>
+    </whodata>
+{% endif %}
+  </syscheck>
 {% if WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool %}
 
   <wodle name="docker-listener">

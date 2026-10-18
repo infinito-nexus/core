@@ -17,6 +17,9 @@ RULE_BLOCK_SIZE = 100
 BASE_RULE_MIN = 100100
 BASE_RULE_MAX = 100999
 SELFTEST_TAG = "infinito-selftest"
+DEPLOY_TAG = "infinito-deploy"
+FIM_TAG = "infinito-fim"
+OWN_TAGS = (SELFTEST_TAG, DEPLOY_TAG, FIM_TAG)
 PROVIDER_ENTITY = "wazuh"
 MANAGER_ROLE = "web-app-wazuh"
 SAMPLES_FILE = "samples.yml"
@@ -40,7 +43,8 @@ def load_samples(path: Path) -> list[dict[str, Any]]:
         path: the role's ``files/wazuh/samples.yml``; absent means no samples.
 
     Returns:
-        ``[{lines, rule, level}]`` in file order.
+        ``[{lines, rule, level}]`` in file order, plus ``program`` where the
+        sample names one (only the Wazuh role's own-tag samples do).
     """
     samples = load_yaml_any(str(path), default_if_missing=[]) or []
     return [
@@ -48,6 +52,7 @@ def load_samples(path: Path) -> list[dict[str, Any]]:
             "lines": [sample["log"]] if isinstance(sample["log"], str) else list(sample["log"]),
             "rule": sample["rule"],
             "level": sample["level"],
+            **({"program": sample["program"]} if "program" in sample else {}),
         }
         for sample in samples
     ]
@@ -124,7 +129,11 @@ def _single_line(value: Any) -> bool:
 
 
 def _sample_errors(
-    role: str, wazuh_dir: Path, allowed: range, correlation: dict[int, bool]
+    role: str,
+    wazuh_dir: Path,
+    allowed: range,
+    correlation: dict[int, bool],
+    programs: tuple[str, ...] = (),
 ) -> list[str]:
     path = wazuh_dir / SAMPLES_FILE
     samples = load_yaml_any(str(path), default_if_missing=[]) or []
@@ -132,11 +141,19 @@ def _sample_errors(
         return [f"{path}: must be a list of {{log, rule, level}}"]
     errors: list[str] = []
     covered: set[int] = set()
+    keys = {"log", "rule", "level"}
     for index, sample in enumerate(samples):
         where = f"{role}: sample {index + 1}"
-        if not isinstance(sample, dict) or set(sample) != {"log", "rule", "level"}:
-            errors.append(f"{where}: needs exactly the keys log, rule, level")
+        if not isinstance(sample, dict) or not (
+            set(sample) == keys or (programs and set(sample) == keys | {"program"})
+        ):
+            errors.append(
+                f"{where}: needs exactly the keys log, rule, level"
+                + (", and optionally program" if programs else "")
+            )
             continue
+        if "program" in sample and sample["program"] not in programs:
+            errors.append(f"{where}: program must be one of {', '.join(programs)}")
         rule, level, log = sample["rule"], sample["level"], sample["log"]
         if not isinstance(level, int) or isinstance(level, bool):
             errors.append(f"{where}: level must be an integer")
@@ -180,11 +197,13 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
         wazuh_dir = roles_dir / role / "files" / "wazuh"
         if entity == PROVIDER_ENTITY:
             errors.extend(
-                _sample_errors(role, wazuh_dir, range(BASE_RULE_MIN, BASE_RULE_MAX + 1), {})
+                _sample_errors(
+                    role, wazuh_dir, range(BASE_RULE_MIN, BASE_RULE_MAX + 1), {}, OWN_TAGS
+                )
             )
             continue
-        if entity == SELFTEST_TAG:
-            errors.append(f"{role}: entity name '{SELFTEST_TAG}' is reserved")
+        if entity in OWN_TAGS:
+            errors.append(f"{role}: entity name '{entity}' is reserved")
         services = applications[role].get("services") or {}
         wazuh = services.get("wazuh") if isinstance(services, dict) else None
         opted_in = isinstance(wazuh, dict) and "enabled" in wazuh

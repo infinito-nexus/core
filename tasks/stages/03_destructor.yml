@@ -19,3 +19,8 @@
   include_role:
     name: sys-service-terminator
     tasks_from: 02_unlock.yml
+
+- name: "🏁 Mark the deploy end"
+  include_tasks: ./tasks/utils/deploy/marker.yml
+  vars:
+    deploy_marker_phase: end

@@ -34,7 +34,41 @@ WAZUH_AGENT_DOCKER_LISTENER_PIP_PACKAGES:
   - requests==2.33.1
 
 WAZUH_AGENT_RULESET: "{{ lookup('wazuh_ruleset', scope='host') }}"
-WAZUH_AGENT_JOURNALD_TAGS: "{{ [WAZUH_AGENT_RULESET.selftest.program] + (WAZUH_AGENT_RULESET.entities | map(attribute='program') | list) + ['sshd', 'sudo'] }}"
+# Exception: OpenSSH 9.8+ logs sessions and failed logins as sshd-session; the listener still logs as sshd.
+WAZUH_AGENT_JOURNALD_SYSTEM_TAGS: ["sshd", "sshd-session", "sudo"]
+WAZUH_AGENT_JOURNALD_ROOT_TAGS: "{{ (WAZUH_AGENT_RULESET.own | map(attribute='program') | list) + WAZUH_AGENT_JOURNALD_SYSTEM_TAGS }}"
+WAZUH_AGENT_JOURNALD_CONTAINER_TAGS: "{{ WAZUH_AGENT_RULESET.entities | map(attribute='program') | list }}"
+WAZUH_AGENT_JOURNALD_CONTAINER_COMM: "dockerd"
+
+WAZUH_AGENT_FIM_FREQUENCY: 43200
+WAZUH_AGENT_FIM_SCHEDULED_DIRS: ["/etc", "/usr/bin", "/usr/sbin", "/boot"]
+WAZUH_AGENT_FIM_SCHEDULED_IGNORE: ["/etc/mtab", "/etc/resolv.conf", "/etc/hosts", "/etc/hostname", "/etc/adjtime"]
+WAZUH_AGENT_FIM_DOCKER_UNITS_RESTRICT: "docker.service$|docker.socket$|containerd.service$"
+WAZUH_AGENT_FIM_SYSTEMD_LIB_DIR: "/usr/lib/systemd/system"
+WAZUH_AGENT_FIM_NGINX_DIR: "{{ lookup('nginx', 'files.configuration') | dirname if 'svc-prx-openresty' in group_names else '' }}"
+WAZUH_AGENT_FIM_COMPOSE_VOLUMES: "{{ group_names | map('get_entity_name') | unique | map('regex_replace', '^(.+)$', DIR_COMPOSITIONS ~ '\\1/volumes') | list }}"
+# Exception: report_changes keeps a plain copy of each file on the agent, so it is limited to files that cannot hold credentials; nodiff guards the private keys inside those directories.
+WAZUH_AGENT_FIM_DIFF_DIRS:
+  - { path: "/etc/ssh", restrict: "" }
+  - { path: "/etc/sudoers.d", restrict: "" }
+  - { path: "/root/.ssh", restrict: "authorized_keys$" }
+  - { path: "/home/*/.ssh", restrict: "authorized_keys$" }
+WAZUH_AGENT_FIM_NODIFF: "ssh_host_"
+WAZUH_AGENT_FIM_HASH_DIRS: >-
+  {{
+    [
+      {'path': '/etc/docker', 'restrict': ''},
+      {'path': WAZUH_AGENT_FIM_SYSTEMD_LIB_DIR, 'restrict': WAZUH_AGENT_FIM_DOCKER_UNITS_RESTRICT},
+      {'path': [DIR_SYSTEM_SERVICE, 'docker.service.d'] | path_join, 'restrict': ''},
+      {'path': DIR_COMPOSITIONS | regex_replace('/$', ''), 'restrict': ''},
+    ]
+    + ([{'path': WAZUH_AGENT_FIM_NGINX_DIR | regex_replace('/$', ''), 'restrict': ''}] if WAZUH_AGENT_FIM_NGINX_DIR else [])
+  }}
+WAZUH_AGENT_FIM_REALTIME_DIRS: ["{{ [ WAZUH_AGENT_DIR, 'etc' ] | path_join }}"]
+WAZUH_AGENT_FIM_WHODATA_PROVIDER: "ebpf"
+WAZUH_AGENT_FIM_LOG: "{{ [ WAZUH_AGENT_DIR, 'logs', 'ossec.log' ] | path_join }}"
+WAZUH_AGENT_FIM_STATE_RETRIES: 12
+WAZUH_AGENT_AUDITD_SERVICE: "auditd.service"
 
 # Starting values until Kevin sets the tolerated event loss (criterion K); these are Wazuh's own defaults, stated explicitly.
 WAZUH_AGENT_BUFFER_QUEUE_SIZE: 5000

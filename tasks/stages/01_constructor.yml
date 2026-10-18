@@ -103,6 +103,11 @@
       applications_carrier:
         clear: true
 
+- name: "🚩 Mark the deploy start"
+  ansible.builtin.include_tasks: ./tasks/utils/deploy/marker.yml
+  vars:
+    deploy_marker_phase: start
+
 - name: "💾 Persist {{ SOFTWARE_NAME }} version"
   ansible.builtin.include_role:
     name: sys-version

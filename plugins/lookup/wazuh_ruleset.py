@@ -8,6 +8,9 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.cache import ROLES_DIR
 from utils.roles.applications.services.wazuh import (
+    DEPLOY_TAG,
+    FIM_TAG,
+    OWN_TAGS,
     PROVIDER_ENTITY,
     SAMPLES_FILE,
     SELFTEST_TAG,
@@ -33,8 +36,10 @@ class LookupModule(LookupBase):
             this host's ``group_names``, which is what its agent collects.
 
     Returns:
-        ``{selftest, entities, files, samples}``. ``selftest`` is ``{program, decoder}``
-        of the reserved self-test tag. ``entities`` is
+        ``{selftest, deploy, fim, own, entities, files, samples}``.
+        ``selftest``, ``deploy`` and ``fim`` are ``{program, decoder}`` of the
+        reserved tags for the self-test, the deploy markers and the FIM
+        who-data state; ``own`` lists the three in that order. ``entities`` is
         ``[{entity, program, decoder, rule_block}]`` sorted by ``entity``, one
         per opted-in role, tag-only roles included: ``program`` is the
         journald tag and ``decoder`` its base parent decoder.
@@ -43,8 +48,9 @@ class LookupModule(LookupBase):
         ``decoders`` or ``rules``, and ``name`` is ``<entity>_<kind>.xml``.
         A role without one or both files contributes only the files it has.
         ``samples`` is ``[{role, program, decoder, lines, rule, level}]``:
-        the self-test samples of the Wazuh role first, then each opted-in
-        role's ``files/wazuh/samples.yml`` in entity order.
+        the Wazuh role's own-tag samples first (self-test unless the sample
+        names another own tag in ``program``), then each opted-in role's
+        ``files/wazuh/samples.yml`` in entity order.
 
     Raises:
         AnsibleError: two opted-in roles share an entity name, so their
@@ -120,27 +126,33 @@ class LookupModule(LookupBase):
 
         entities.sort(key=lambda e: e["entity"])
         files.sort(key=lambda f: (f["kind"], f["name"]))
-        selftest = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
+        own = {tag: {"program": tag, "decoder": tag} for tag in OWN_TAGS}
         sources = [
-            (role, selftest)
+            (role, own[SELFTEST_TAG])
             for role in sorted(applications)
             if get_entity_name(role) == PROVIDER_ENTITY
         ] + [(owners[e["entity"]], e) for e in entities]
-        samples = [
-            {
-                "role": role,
-                "program": source["program"],
-                "decoder": source["decoder"],
-                **sample,
-            }
-            for role, source in sources
+        samples = []
+        for role, source in sources:
             for sample in load_samples(
                 ROLES_DIR / role / "files" / "wazuh" / SAMPLES_FILE
-            )
-        ]
+            ):
+                program = sample.pop("program", None)
+                tagged = own[program] if program else source
+                samples.append(
+                    {
+                        "role": role,
+                        "program": tagged["program"],
+                        "decoder": tagged["decoder"],
+                        **sample,
+                    }
+                )
         return [
             {
-                "selftest": selftest,
+                "selftest": own[SELFTEST_TAG],
+                "deploy": own[DEPLOY_TAG],
+                "fim": own[FIM_TAG],
+                "own": [own[tag] for tag in OWN_TAGS],
                 "entities": entities,
                 "files": files,
                 "samples": samples,

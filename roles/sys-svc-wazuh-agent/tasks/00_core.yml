@@ -49,6 +49,26 @@
 - name: "🐳 Prepare the Docker listener"
   include_tasks: 01_docker_listener.yml
 
+- name: "📦 Install auditd as the who-data fallback for kernels without eBPF"
+  package_install:
+    id:
+      - auditd
+  notify: wazuh-agent-restart
+  when:
+    - WAZUH_AGENT_FIM_ENABLED | bool
+    - WAZUH_AGENT_FIM_WHODATA_ENABLED | bool
+    - WAZUH_AGENT_FIM_AUDITD_ENABLED | bool
+
+- name: "✅ Ensure auditd is enabled and running"
+  ansible.builtin.systemd:
+    name: "{{ WAZUH_AGENT_AUDITD_SERVICE }}"
+    state: started
+    enabled: true
+  when:
+    - WAZUH_AGENT_FIM_ENABLED | bool
+    - WAZUH_AGENT_FIM_WHODATA_ENABLED | bool
+    - WAZUH_AGENT_FIM_AUDITD_ENABLED | bool
+
 - name: "🔑 Write the pre-registered agent key"
   ansible.builtin.template: # nocheck: stack-host-template (per-host agent key, every host writes its own)
     src: client.keys.j2
@@ -89,3 +109,7 @@
   delay: 5
   until: wazuh_agent_docker_listener_process.rc == 0
   when: WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool
+
+- name: "🔍 Report the FIM who-data state"
+  include_tasks: 02_whodata_state.yml
+  when: WAZUH_AGENT_FIM_ENABLED | bool

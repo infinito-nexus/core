@@ -4,3 +4,27 @@
 - log: plain self-test event
   rule: 100100
   level: 0
+- log: deploy start run=20261018T120000Z
+  rule: 100120
+  level: 3
+  program: infinito-deploy
+- log: deploy end run=20261018T120000Z
+  rule: 100121
+  level: 3
+  program: infinito-deploy
+- log: unrelated deploy line
+  rule: 100101
+  level: 0
+  program: infinito-deploy
+- log: whodata=unavailable reason=realtime-fallback
+  rule: 100130
+  level: 3
+  program: infinito-fim
+- log: whodata=unknown reason=no-syscheckd-start-in-log
+  rule: 100131
+  level: 3
+  program: infinito-fim
+- log: whodata=ebpf reason=healthcheck-passed
+  rule: 100102
+  level: 0
+  program: infinito-fim

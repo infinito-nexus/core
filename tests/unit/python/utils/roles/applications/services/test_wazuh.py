@@ -152,11 +152,36 @@ class TestRuleBlockErrors(unittest.TestCase):
         self._ship("web-app-pixelfed", "rules.xml", "<rule id='101001'>")
         self._assert_error(self._errors(_PIXELFED), "not parseable")
 
-    def test_reserved_selftest_entity_fails(self):
-        self._assert_error(
-            self._errors({"web-app-infinito-selftest": {"enabled": True, "rule_block": 101000}}),
-            "reserved",
+    def test_reserved_own_tag_entities_fail(self):
+        for role in ("web-app-infinito-selftest", "web-app-infinito-deploy", "web-app-infinito-fim"):
+            with self.subTest(role=role):
+                self._assert_error(
+                    self._errors({role: {"enabled": True, "rule_block": 101000}}), "reserved"
+                )
+
+    def test_provider_sample_with_own_tag_program_passes(self):
+        self._ship(
+            "web-app-wazuh",
+            "samples.yml",
+            "- log: x\n  rule: 100120\n  level: 3\n  program: infinito-deploy\n",
         )
+        self.assertEqual(self._errors({"web-app-wazuh": {"enabled": True}}), [])
+
+    def test_provider_sample_with_foreign_program_fails(self):
+        self._ship(
+            "web-app-wazuh", "samples.yml", "- log: x\n  rule: 100120\n  level: 3\n  program: sshd\n"
+        )
+        self._assert_error(
+            self._errors({"web-app-wazuh": {"enabled": True}}), "program must be one of"
+        )
+
+    def test_app_sample_with_program_fails(self):
+        self._ship(
+            "web-app-pixelfed",
+            "samples.yml",
+            "- log: x\n  rule: 101000\n  level: 0\n  program: infinito-deploy\n",
+        )
+        self._assert_error(self._errors(_PIXELFED), "exactly the keys")
 
     def test_rule_without_sample_fails(self):
         self._ship("web-app-pixelfed", "rules.xml", _SCOPED_RULE)
@@ -229,12 +254,14 @@ class TestLoadSamples(unittest.TestCase):
             path.write_text(
                 "- log: one\n  rule: 101000\n  level: 0\n"
                 "- log: [a, b]\n  rule: 101002\n  level: 10\n"
+                "- log: two\n  rule: 100120\n  level: 3\n  program: infinito-deploy\n"
             )
             self.assertEqual(
                 load_samples(path),
                 [
                     {"lines": ["one"], "rule": 101000, "level": 0},
                     {"lines": ["a", "b"], "rule": 101002, "level": 10},
+                    {"lines": ["two"], "rule": 100120, "level": 3, "program": "infinito-deploy"},
                 ],
             )
 
