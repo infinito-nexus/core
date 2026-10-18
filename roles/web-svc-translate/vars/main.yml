@@ -49,10 +49,14 @@ TRANSLATE_WEBLATE_URL: "http://{{ lookup('config', 'web-app-weblate', 'services.
   }}"
 TRANSLATE_WEBLATE_TOKEN: "{{ lookup('users', 'platform_administrator', {}).get('tokens', {}).get('web-app-weblate', '') }}"
 
+TRANSLATE_CHAT_TARGETS: "{{ lookup('file', lookup('path_absolute', 'meta/languages.yml')) | from_yaml | dict2items | map(attribute='key') | reject('equalto', 'en') | list }}"
+TRANSLATE_CHAT_PAIRS: "{{ ['en', 'auto'] | product(TRANSLATE_CHAT_TARGETS) | map('list') | list }}"
+
 TRANSLATE_ENGINES: >-
   {{ [{'name': 'libretranslate', 'kind': 'libretranslate', 'url': TRANSLATE_LIBRETRANSLATE_URL}] * (TRANSLATE_LIBRETRANSLATE_ENABLED | bool | ternary(1, 0))
    + [{'name': 'ltengine', 'kind': 'libretranslate', 'url': TRANSLATE_LTENGINE_URL}] * (TRANSLATE_LTENGINE_ENABLED | bool | ternary(1, 0))
-   + [{'name': 'ollama', 'kind': 'chat', 'url': TRANSLATE_OLLAMA_URL, 'model': TRANSLATE_OLLAMA_MODEL, 'api_key': TRANSLATE_LITELLM_API_KEY}]
+   + [{'name': 'ollama', 'kind': 'chat', 'url': TRANSLATE_OLLAMA_URL, 'model': TRANSLATE_OLLAMA_MODEL, 'api_key': TRANSLATE_LITELLM_API_KEY,
+       'pairs': TRANSLATE_CHAT_PAIRS}]
      * ((TRANSLATE_OLLAMA_ENABLED | bool and TRANSLATE_LITELLM_ENABLED | bool and TRANSLATE_OLLAMA_MODEL | length > 0) | ternary(1, 0)) }}
 
 TRANSLATE_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"

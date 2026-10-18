@@ -25,6 +25,25 @@ class TestParallelDeployIsRefused(unittest.TestCase):
             pass
         started.assert_not_called()
 
+    def test_a_requested_redeploy_replaces_the_gateway_that_answers(self) -> None:
+        """``make i18n-translate redeploy=true`` reaches here as a keyword.
+
+        The parameter went missing once while the caller kept passing it, so
+        every run raised TypeError before translating a line, and the only
+        symptom was an empty log.
+        """
+        with (
+            mock.patch("utils.i18n.libretranslate.deploying", return_value=False),
+            mock.patch("utils.i18n.libretranslate.deployed") as probed,
+            mock.patch(
+                "utils.i18n.libretranslate.deploy", return_value="http://rebuilt"
+            ) as started,
+            server(Path("/repo"), redeploy=True) as url,
+        ):
+            self.assertEqual(url, "http://rebuilt")
+        probed.assert_not_called()
+        started.assert_called_once()
+
     def test_a_live_pid_that_is_not_the_router_reports_no_deploy(self) -> None:
         """This process is alive and is not a deploy.
 

@@ -23,6 +23,9 @@ __all__ = ["LibreTranslate", "Outcome", "merge", "server"]
 ROLE = "svc-ai-libretranslate-engine"
 SERVICE_KEY = "libretranslate-engine"
 SERVICES_FILE = Path("roles") / ROLE / ROLE_FILE_META_SERVICES
+GATEWAY_ROLE = "web-svc-translate"
+GATEWAY_SERVICE_KEY = "translate"
+GATEWAY_SERVICES_FILE = Path("roles") / GATEWAY_ROLE / ROLE_FILE_META_SERVICES
 POLL_SECONDS = 5
 READY_TIMEOUT_SECONDS = 3600
 DEPLOYED_TIMEOUT_SECONDS = 5
@@ -56,12 +59,19 @@ def accelerated() -> bool:
 
 
 def service_url(root: Path) -> str:
-    """Return the base URL the dedicated LibreTranslate serves on.
+    """Return the base URL the translation gateway serves on.
+
+    The gateway speaks the same API as the engine behind it and is the only
+    address that reaches every language: it routes a pair the engine does not
+    serve to a chat model, and ``meta/languages.yml`` names 136 such
+    languages. Addressing the engine directly caps a run at the 47 codes
+    Argos ships models for, and the readiness wait then spins to its timeout
+    without translating anything.
 
     Args:
         root: repository root.
     """
-    service = load_yaml(root / SERVICES_FILE)[SERVICE_KEY]
+    service = load_yaml(root / GATEWAY_SERVICES_FILE)[GATEWAY_SERVICE_KEY]
     host = environment(root)["INFINITO_BIND_IP"]
     return f"http://{host}:{service['ports']['local']['http']}"
 
@@ -239,17 +249,17 @@ def _vars_file(root: Path) -> Path:
     return render(root, baked_languages(root))
 
 
-def deploy(root: Path, roles: tuple[str, ...] = (ROLE,)) -> str:
+def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
     """Deploy the named roles into the tools lane's own inventory.
 
     Args:
         root: repository root.
         roles: the application ids to provision and deploy. Defaults to the
-            translation engine, so the i18n targets are unaffected by callers
-            that bring up a different tool.
+            engine and the gateway in front of it, so the i18n targets are
+            unaffected by callers that bring up a different tool.
 
     Returns:
-        The translation engine's base URL, empty when it stays unreachable.
+        The gateway's base URL, empty when it stays unreachable.
     """
     from cli.administration.deploy.development.env import compose_file_args
 
@@ -324,11 +334,15 @@ def deploy(root: Path, roles: tuple[str, ...] = (ROLE,)) -> str:
 
 
 @contextmanager
-def server(root: Path) -> Iterator[str]:
-    """Yield the URL of the dedicated LibreTranslate, deploying it when absent.
+def server(root: Path, redeploy: bool = False) -> Iterator[str]:
+    """Yield the URL of the translation gateway, deploying it when absent.
 
     Args:
         root: repository root.
+        redeploy: deploy even when a gateway already answers. A gateway
+            serves whatever it was built with, so a change to its code or to
+            the backends it routes over is invisible to the probe and every
+            later run keeps using the old one.
 
     Yields:
         The base URL to translate against. The service answers only once it
@@ -344,7 +358,7 @@ def server(root: Path) -> Iterator[str]:
             "would touch. Wait for it to finish and re-run. The running deploy is "
             "left untouched."
         )
-    running = "" if unaccelerated(root) else deployed(root)
+    running = "" if redeploy or unaccelerated(root) else deployed(root)
     yield running or deploy(root)
 
 
