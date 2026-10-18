@@ -20,9 +20,9 @@
 {% if design.logo is string %}
     var icons = document.querySelectorAll("link[rel~='icon']");
     for (var index = 0; index < icons.length; index += 1) {
-      if (icons[index].getAttribute("href") !== {{ design.urls.favicon_ico | to_json }}) {
+      if (icons[index].getAttribute("href") !== INFINITO_DESIGN.urls.favicon_ico) {
         icons[index].setAttribute("type", "image/x-icon");
-        icons[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+        icons[index].setAttribute("href", INFINITO_DESIGN.urls.favicon_ico);
       }
     }
 {% endif %}

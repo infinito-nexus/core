@@ -25,7 +25,7 @@
   var icon = document.createElement("link");
   icon.setAttribute("rel", "icon");
   icon.setAttribute("type", "image/x-icon");
-  icon.setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+  icon.setAttribute("href", INFINITO_DESIGN.urls.favicon_ico);
   document.head.appendChild(icon);
 {% endif %}
 })();

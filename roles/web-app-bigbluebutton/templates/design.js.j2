@@ -2,7 +2,7 @@
 {% if design.logo is string or design.title is string %}
 (function () {
 {% if design.logo is string %}
-  var favicon = {{ design.urls.favicon_ico | to_json }};
+  var favicon = INFINITO_DESIGN.urls.favicon_ico;
 {% endif %}
 {% if design.title is string %}
   var title = {{ design.title | to_json }};

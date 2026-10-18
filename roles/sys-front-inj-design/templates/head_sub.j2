@@ -7,5 +7,5 @@
 <link rel="stylesheet" href="{{ [ lookup('cdn', application_id).urls.role.release.css, 'style.css', '?version=' ~ (app_style_css | hash('sha1'))] | url_join }}">
 {% endif %}
 {% if design_js_one_liner | length > 0 %}
-<script>{{ design_js_one_liner }}</script>
+<script{{ (' data-design="' ~ (design_config_json | e) ~ '"') if design_config_json | length > 0 else '' }}>{{ design_js_one_liner }}</script>
 {% endif %}

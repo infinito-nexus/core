@@ -14,7 +14,7 @@
 })();
 {% if design.logo is string %}
 (function () {
-  var favicon = {{ design.urls.favicon_ico | to_json }};
+  var favicon = INFINITO_DESIGN.urls.favicon_ico;
   function brandIcon() {
     var icons = document.querySelectorAll("link[rel~='icon']");
     for (var index = 0; index < icons.length; index += 1) {

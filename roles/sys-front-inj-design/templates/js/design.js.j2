@@ -1,7 +1,2 @@
-{% set design = lookup('design', application_id) %}
-var INFINITO_DESIGN = {{ {
-  'logo': design.logo is string,
-  'title': design.title if design.title is string else none,
-  'urls': design.urls if design.logo is string else {},
-} | to_json }};
+window.INFINITO_DESIGN = JSON.parse(document.currentScript.dataset.design || "{}");
 {{ design_body_js }}

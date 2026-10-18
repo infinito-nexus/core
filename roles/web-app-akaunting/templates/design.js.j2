@@ -13,10 +13,10 @@
   function icons() {
     var links = document.querySelectorAll("link[rel~='icon']");
     for (var index = 0; index < links.length; index += 1) {
-      if (links[index].getAttribute("href") !== {{ design.urls.favicon_ico | to_json }}) {
+      if (links[index].getAttribute("href") !== INFINITO_DESIGN.urls.favicon_ico) {
         links[index].removeAttribute("sizes");
         links[index].setAttribute("type", "image/x-icon");
-        links[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+        links[index].setAttribute("href", INFINITO_DESIGN.urls.favicon_ico);
       }
     }
   }

@@ -20,11 +20,11 @@
     var icon = document.querySelector("link[rel~='icon']");
     if (icon) {
       icon.setAttribute("type", "image/x-icon");
-      icon.setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+      icon.setAttribute("href", INFINITO_DESIGN.urls.favicon_ico);
     }
     var touch = document.querySelector("link[rel='apple-touch-icon']");
     if (touch) {
-      touch.setAttribute("href", {{ design.urls['apple-touch-icon'].png | to_json }});
+      touch.setAttribute("href", INFINITO_DESIGN.urls['apple-touch-icon'].png);
     }
   }
   brandIcons();

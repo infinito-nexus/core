@@ -9,7 +9,7 @@
     }
 {% endif %}
 {% if design.logo is string %}
-    var icon = {{ design.urls.favicon.png | to_json }};
+    var icon = INFINITO_DESIGN.urls.favicon.png;
     var links = document.querySelectorAll("link[rel~='icon']");
     for (var index = 0; index < links.length; index += 1) {
       if (links[index].getAttribute("href") !== icon) {

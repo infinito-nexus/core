@@ -9,7 +9,7 @@
   var icon = document.querySelector("link[rel='icon']") || document.head.appendChild(document.createElement("link"));
   icon.rel = "icon";
   icon.type = "image/x-icon";
-  icon.href = {{ design.urls.favicon_ico | to_json }};
+  icon.href = INFINITO_DESIGN.urls.favicon_ico;
 {% endif %}
   function chosenTheme() {
     try {
