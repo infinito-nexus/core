@@ -107,14 +107,6 @@ test("seaweedfs: an uploaded EspoCRM attachment is stored in the SeaweedFS bucke
         attachmentResponse.status(),
         "expected EspoCRM to accept the company-logo attachment",
       ).toBeLessThan(400);
-
-      await appPage
-        .getByRole("button", { name: /^(save|speichern)$/i })
-        .or(appPage.locator('button[data-name="save"]'))
-        .first()
-        .click({ timeout: resolveTimeout(60_000) })
-        .catch(() => {});
-      await appPage.waitForLoadState("networkidle", { timeout: resolveTimeout(60_000) }).catch(() => {});
     },
   });
 });
