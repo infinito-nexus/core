@@ -23,17 +23,20 @@
       - -e
       - "CHECKMK_ADMIN_USER=cmkadmin"
       - -e
-      - "CHECKMK_ADMIN_PASSWORD={{ CHECKMK_ADMIN_PASSWORD }}"
+      - CHECKMK_ADMIN_PASSWORD
       - -e
       - "CHECKMK_SITE={{ CHECKMK_SITE }}"
       - -e
       - "MCP_USER={{ CHECKMK_MCP_UPSTREAM_USER }}"
       - -e
-      - "MCP_SECRET={{ CHECKMK_MCP_UPSTREAM_KEY }}"
+      - MCP_SECRET
       - "{{ CHECKMK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
     stdin: "{{ lookup('file', 'python/provision_mcp_identity.py') }}"
+  environment:
+    CHECKMK_ADMIN_PASSWORD: "{{ CHECKMK_ADMIN_PASSWORD }}"
+    MCP_SECRET: "{{ CHECKMK_MCP_UPSTREAM_KEY }}"
   register: checkmk_mcp_identity
   retries: 30
   delay: 10

@@ -42,7 +42,9 @@
 
 - name: "✅ POSTGRES | Ensure postgres superuser password matches inventory"
   ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
-    shell/set_postgres_superuser_password.sh {{ POSTGRES_CONTAINER_ADDRESS | quote }} {{ POSTGRES_PASSWORD | quote }} postgres
+    shell/set_postgres_superuser_password.sh {{ POSTGRES_CONTAINER_ADDRESS | quote }} postgres
+  environment:
+    POSTGRES_SUPERUSER_PASSWORD: "{{ POSTGRES_PASSWORD }}"
   register: postgres_pw_result
   delegate_to: "{{ STACK_HOST }}"
   run_once: true

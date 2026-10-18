@@ -38,7 +38,7 @@
     prometheus:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     tor:
@@ -77,7 +77,7 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
@@ -112,7 +112,7 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:

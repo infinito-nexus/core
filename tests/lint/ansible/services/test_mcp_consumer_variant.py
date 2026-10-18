@@ -31,7 +31,7 @@ from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.applications import get_application_defaults, get_variants
 from utils.cache.files import read_text
 from utils.roles.applications.mcp import derive_allowed_consumers
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_MCP
 
 from . import PROJECT_ROOT
@@ -146,8 +146,7 @@ def offenders() -> list[str]:
         if is_suppressed_in_head(read_text(str(meta)).splitlines(), _RULE):
             continue
         consumer_ids = {
-            get_entity_name(c): c
-            for c in derive_allowed_consumers(role, services_by_role)
+            entity_name(c): c for c in derive_allowed_consumers(role, services_by_role)
         }
         consumers = set(consumer_ids)
         if not consumers:

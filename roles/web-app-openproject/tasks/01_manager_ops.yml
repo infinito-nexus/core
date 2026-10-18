@@ -38,3 +38,7 @@
 
 - name: 📁 Create OpenProject Administrator
   include_tasks: 04_admin.yml
+
+- name: "🧩 Provision the OpenProject addons"
+  include_tasks: 05_addons.yml
+  when: OPENPROJECT_ADDONS_ENABLED | length > 0

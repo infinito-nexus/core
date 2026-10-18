@@ -1,9 +1,13 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { registerMcpDisabledState } = require("./mcp-endpoint");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const mcpEndpointPath = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH || "");
 
 test.use({ ignoreHTTPSErrors: true });

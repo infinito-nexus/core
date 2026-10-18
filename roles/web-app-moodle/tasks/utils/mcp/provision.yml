@@ -8,13 +8,15 @@
       -e MCP_SERVICE_FUNCTIONS={{ MOODLE_MCP_EXTERNAL_FUNCTIONS | join(',') | quote }} \
       -e MCP_ACCOUNT_USERNAME={{ MOODLE_MCP_ACCOUNT_USERNAME | quote }} \
       -e MCP_ACCOUNT_EMAIL={{ MOODLE_MCP_ACCOUNT_EMAIL | quote }} \
-      -e MCP_ACCOUNT_PASSWORD={{ MOODLE_MCP_ACCOUNT_PASSWORD | quote }} \
+      -e MCP_ACCOUNT_PASSWORD \
       -e MCP_ROLE_SHORTNAME={{ MOODLE_MCP_ROLE_SHORTNAME | quote }} \
       -e MCP_ROLE_NAME={{ MOODLE_MCP_ROLE_NAME | quote }} \
       -e MCP_ROLE_CAPABILITIES={{ MOODLE_MCP_ROLE_CAPABILITIES | join(',') | quote }} \
       {{ MOODLE_MCP_LOCAL_CID | quote }} php
   args:
     stdin: "{{ lookup('file', 'php/provision/mcp.php') }}"
+  environment:
+    MCP_ACCOUNT_PASSWORD: "{{ MOODLE_MCP_ACCOUNT_PASSWORD }}"
   register: moodle_mcp_provision
   changed_when: false
   delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"

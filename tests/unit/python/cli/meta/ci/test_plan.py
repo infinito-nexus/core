@@ -30,6 +30,7 @@ def _entry(
         "clone": "true" if clone else "false",
         "distro": "debian",
         "filesystem": "zfs",
+        "architecture": "arm64",
         "label": f"{to_emoji(mode)}{app} {variant}",
     }
 
@@ -61,6 +62,12 @@ class TestCells(unittest.TestCase):
             rows[1][plan._COLUMNS.index("triggered")], to_emoji("disabled")
         )
         self.assertEqual(rows[1][plan._COLUMNS.index("chunk")], "")
+
+    def test_a_priority_row_the_budget_missed_keeps_its_star(self) -> None:
+        rows = plan.cells(_ENTRIES, [_REGULAR])
+        status = plan._COLUMNS.index("triggered")
+        self.assertEqual(rows[0][status], to_emoji("priority") + to_emoji("disabled"))
+        self.assertEqual(rows[0][plan._COLUMNS.index("chunk")], "")
 
     def test_a_clone_is_named_in_its_own_column(self) -> None:
         entries = [*_ENTRIES, _entry("web-app-d", "0", "compose", clone=True)]
@@ -130,6 +137,11 @@ class TestCells(unittest.TestCase):
         filesystem = plan._COLUMNS.index("filesystem")
         self.assertTrue(all(row[distro] == to_emoji("debian") for row in rows))
         self.assertTrue(all(row[filesystem] == to_emoji("zfs") for row in rows))
+
+    def test_every_row_carries_its_architecture_glyph(self) -> None:
+        rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
+        architecture = plan._COLUMNS.index("architecture")
+        self.assertTrue(all(row[architecture] == to_emoji("arm64") for row in rows))
 
 
 class TestRender(unittest.TestCase):

@@ -12,7 +12,7 @@ import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from utils.env.handlers import ORDERED_HANDLERS
+from utils.env.handlers import ORDERED_HANDLERS, docker_platform
 from utils.env.runtime import detect_gha_act
 
 if TYPE_CHECKING:
@@ -109,4 +109,5 @@ def build_env(
     for handler in ORDERED_HANDLERS:
         handler.apply(eb, ctx)
     apply_custom_env(eb, repo_root)
+    docker_platform.apply(eb, ctx)
     return eb

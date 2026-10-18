@@ -17,12 +17,18 @@ STUBS = {
     "docker": (
         "#!/usr/bin/env bash\n"
         'case " ${STUB_MISSING} " in *" ${3##*:} "*) exit 1 ;; esac\n'
+        'printf \'{"manifests":[{"platform":{"architecture":"amd64"}},'
+        '{"platform":{"architecture":"arm64"}}]}\\n\'\n'
     ),
 }
 
 
 def pick(*missing: str) -> subprocess.CompletedProcess:
     """Run the picker against stubbed ``git`` tags and ``docker`` manifests.
+
+    A present tag answers with a manifest index serving the whole architecture
+    pool, because ``architectures.sh`` parses that index and reads an empty
+    answer as every architecture missing.
 
     Args:
         missing: tags whose images the registry does not hold.

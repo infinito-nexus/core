@@ -13,7 +13,6 @@ Privacy-conscious users, developers, journalists, and independent professionals.
 This bundle activates the following Infinito.Nexus roles:
 
 - web-app-nextcloud
-- web-app-minio
 - web-app-keycloak
 - web-app-matrix
 - web-svc-libretranslate

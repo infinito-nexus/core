@@ -29,7 +29,7 @@ from utils.cache.files import iter_project_files_with_content
 from . import PROJECT_ROOT
 
 _RULE = "ansible-repeated-when-run"
-_MIN_RUN = 3
+_MIN_RUN = 2
 
 _TASK_MARKER = re.compile(
     r"^(?P<indent>\s*)-\s+(?:name|include_tasks|import_tasks|block|hosts)\s*:"
@@ -43,12 +43,35 @@ def _is_role_task_file(rel_path: str) -> bool:
     return "/tasks/" in rel_path and rel_path.endswith((".yml", ".yaml"))
 
 
+def _first_list_item(lines: list[str], when_idx: int, indent_len: int) -> str | None:
+    """Return the first ``- `` item under a list-form ``when:``.
+
+    A list-form guard shares its leading element across siblings exactly
+    the way an inline one does; reading only the inline form would let
+    the same copy-pasted condition through whenever a task also carries
+    a probe-dependent clause.
+    """
+    for j in range(when_idx + 1, len(lines)):
+        raw = lines[j]
+        stripped = raw.lstrip()
+        if not stripped:
+            continue
+        cur_indent = len(raw) - len(stripped)
+        if cur_indent <= indent_len + 2:
+            return None
+        if not stripped.startswith("- "):
+            return None
+        return stripped[2:].strip()
+    return None
+
+
 def _task_block_when(lines: list[str], start_idx: int, indent_len: int) -> str | None:
     """Return the textual ``when:`` expression of the task starting at
     *start_idx*, or None if the task carries no ``when:``. The body is
     everything until the next sibling marker at the same or shallower
     indent, or EOF. Only top-level ``when:`` inside this task body
-    counts (not a nested block child's when).
+    counts (not a nested block child's when). A list-form ``when:``
+    reports its first element, which is the shared guard.
     """
     indent_prefix = " " * indent_len
     for j in range(start_idx + 1, len(lines)):
@@ -66,6 +89,7 @@ def _task_block_when(lines: list[str], start_idx: int, indent_len: int) -> str |
         match = _WHEN_INLINE.match(raw)
         if match:
             return match.group("expr").strip()
+        return _first_list_item(lines, j, indent_len)
     return None
 
 

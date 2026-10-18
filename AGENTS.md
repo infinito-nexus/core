@@ -3,8 +3,9 @@
 ## Priority and Scope 🎯
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) is the single source of truth for contributor workflow, coding standards, testing, and review. You MUST read it.
-- You MUST read every file under `docs/contributing/` (full directory walk, including subdirectories) for the full contributor guidance.
-- You MUST read every file under `docs/agents/` (full directory walk, including subdirectories) for the agent execution flow.
+- You MUST read every file under [`docs/contributing/`](docs/contributing/) (full directory walk, including subdirectories) for the full contributor guidance.
+- You MUST read every file under [`docs/agents/`](docs/agents/) (full directory walk, including subdirectories) for the agent execution flow, EXCEPT [`docs/agents/action/`](docs/agents/action/).
+- [`docs/agents/action/`](docs/agents/action/) holds one runbook per action and is read on demand, not at session start: read a runbook when the matching `i8-` skill routes you to it, or when you are about to perform that action without one. It is the bulk of the agent documentation, and every runbook in it is inert until its action is the task.
 - This file extends CONTRIBUTING.md with agent-specific instructions; on conflict between CONTRIBUTING.md and this file, this file wins.
 - This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files.
 
@@ -59,7 +60,8 @@ Changes to the policy MUST edit [`.claude/settings.json`](.claude/settings.json)
 - For ANY non-trivial command (test runs, deploys, long pipelines), you MUST stream the FULL output to a file under `/tmp/` via `… 2>&1 | tee /tmp/<name>.log` and grep / inspect that file repeatedly instead of re-running the command. Reason: re-running `make test` to "find the failure I just lost" costs 2 minutes per cycle; grepping the saved log costs milliseconds.
 - Default the filename to a meaningful slug + monotonically increasing index (`/tmp/make-test-<slug>-<N>.log`, `/tmp/act-<slug>-<N>.log`) so you can compare runs.
 - **When a long-running command streams its output to a `/tmp/<name>.log` file** (e.g. background `make compose-deploy`, `make act-*`, or any `… 2>&1 | tee /tmp/<name>.log`), you MUST tell the operator the concrete `tail -f /tmp/<name>.log` command they can run in another terminal to follow the log live. Include the full path literally so it is copy-pasteable.
-- That pipe **destroys the exit status**: `make test | tee` reports `tee`'s success even when make ends with `Error 2`. You MUST judge such a run by its `📊 per-target wall-clock` table and its `FAILED TARGETS:` line, never by the exit code.
+- That pipe **destroys the exit status**: `make test | tee` reports `tee`'s success even when make ends with `Error 2`, and a backgrounded run reports the same bogus `exit code 0` in its completion notification. You MUST NEVER judge such a run by an exit code.
+- Judge it by the log instead, and start with the check that works for **every** target: `grep -aE 'make: \*\*\*|Error [0-9]+' /tmp/<name>.log`. Then assert the artefact the run was supposed to produce (the file it writes, the count it changes). Only aggregate targets additionally offer the `📊 per-target wall-clock` table and the `FAILED TARGETS:` line, because `scripts/make/parallel.sh` emits those; a single-recipe target such as `i18n-extract` prints neither, so looking for the table there finds nothing and tempts you back to the exit code.
 
 ## CI evidence 📊
 
@@ -105,7 +107,7 @@ When a credential must be compared, compute and compare digests inside the conta
 
 ## Container-Owned Filesystem Entries 🐳
 
-Files produced by the containerized runner (e.g. `__pycache__/*.pyc` under `tests/`, build artefacts) are often owned by `nobody` or another in-container UID and cannot be removed from the host. When a host-level `rm`/`chmod`/edit fails with `Permission denied` on such paths, agents MUST run the cleanup via `make compose-exec` (see [compose.yml](compose.yml); the repo is mounted at `/opt/src/infinito`) and MUST NOT ask the operator which path to take.
+Files produced by the containerized runner (e.g. `__pycache__/*.pyc` under [`tests/`](tests/), build artefacts) are often owned by `nobody` or another in-container UID and cannot be removed from the host. When a host-level `rm`/`chmod`/edit fails with `Permission denied` on such paths, agents MUST run the cleanup via `make compose-exec` (see [compose.yml](compose.yml); the repo is mounted at `/opt/src/infinito`) and MUST NOT ask the operator which path to take.
 
 ## Commit-Time Context Compaction 📦
 

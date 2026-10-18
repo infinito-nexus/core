@@ -5,10 +5,10 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
   # nocheck: matomo-track
   track: false
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
   # nocheck: matomo-track
   track: false
 prometheus:
@@ -17,6 +17,7 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
   # nocheck: prometheus-scrape
   scrape: false
+# nocheck: playwright-service-flag — self-provider
 html:
   modes:
     host:
@@ -30,6 +31,7 @@ html:
   mem_limit: 256m
   pids_limit: 512
 
+# nocheck: playwright-service-flag — no scenario gates on it, the onion row is told by the base URL
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5

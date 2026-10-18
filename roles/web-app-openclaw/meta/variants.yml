@@ -19,7 +19,7 @@
     matomo:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     prometheus:
@@ -45,7 +45,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -71,7 +71,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:

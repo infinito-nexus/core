@@ -7,11 +7,18 @@
   changed_when: false
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
+- name: "🔑 Matomo install | Realign the superuser of an existing install"
+  include_tasks:
+    file: utils/converge_superuser.yml
+    apply:
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
+  when: (matomo_install_state.stdout | trim) == 'installed'
+
 - name: "🥾 Bootstrap Matomo (Initialisation and setting of API token if not defined)"
   include_tasks: 04_bootstrap.yml
   when: >
     ((matomo_install_state.stdout | trim) != 'installed') or
-    ((lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
+    ((lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
 
 - name: "🩹 Patch database credentials for {{ application_id }}"
   include_tasks:
@@ -28,7 +35,7 @@
   meta: flush_handlers
 
 - name: "🐝 Matomo install | Swarm: restart matomo so patched config is re-read"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
   block:
     - name: "🐝 Matomo install | Swarm: force-restart matomo service"
       ansible.builtin.command: >-
@@ -68,3 +75,7 @@
 
 - name: "📄 Matomo | Re-render consumer injections after the final compose flush"
   include_tasks: 08_reinject_consumers.yml
+  when: matomo_token_value is defined
+
+- name: "🎨 Apply the corporate design of {{ application_id }}"
+  include_tasks: 09_design.yml

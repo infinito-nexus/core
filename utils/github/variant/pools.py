@@ -15,9 +15,16 @@ from utils.distros import distro_names
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+MODES = ("compose", "swarm", "host")
+
 DISTROS = distro_names()
 
 FILESYSTEMS = ("zfs", "btrfs", "ext4")
+
+ARCHITECTURES = ("amd64", "arm64")
+
+RUNNERS = {"amd64": "ubuntu-latest", "arm64": "ubuntu-24.04-arm"}
+"""The runner label each architecture deploys on."""
 
 
 def resolve_pool(
@@ -55,6 +62,23 @@ def resolve_filesystems(raw: str | None) -> tuple[str, ...]:
     """The docker data-root kinds this run spreads its rows over; empty means
     all."""
     return resolve_pool(raw, FILESYSTEMS, "filesystem")
+
+
+def resolve_architectures(raw: str | None) -> tuple[str, ...]:
+    """The CPU architectures this run spreads its rows over; empty means
+    both."""
+    return resolve_pool(raw, ARCHITECTURES, "architecture")
+
+
+def runner_of(architecture: str) -> str:
+    """The runner label *architecture* deploys on.
+
+    Raises:
+        KeyError: the architecture has no label. Falling back to the amd64
+            runner would deploy an arm64 row on amd64 hardware and report it
+            green under an arm64 job title.
+    """
+    return RUNNERS[architecture]
 
 
 def rotate(pool: Sequence[str], position: int, sweep: int) -> str:

@@ -32,6 +32,16 @@ header_filter_by_lua_block {
         end
 {% endif %}
     end
+
+    if (ngx.ctx.is_html or ngx.ctx.is_css) and ngx.ctx.inj_inflate then
+        local encoding = (ngx.header["Content-Encoding"] or ""):lower()
+        if encoding == "gzip" then
+            ngx.ctx.gunzip = true
+            ngx.header["Content-Encoding"] = nil
+        elseif encoding ~= "" and encoding ~= "identity" then
+            ngx.log(ngx.WARN, "upstream sent ", encoding, "-encoded markup, nothing gets injected")
+        end
+    end
 }
 
 proxy_hide_header Content-Security-Policy;

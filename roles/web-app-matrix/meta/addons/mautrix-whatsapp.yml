@@ -9,6 +9,8 @@ update:
   upstream_id: mautrix-whatsapp
 config:
   bridge_name: "whatsapp"
+  upstream_flags:
+    - matrix_bridge_mautrix_whatsapp_enabled
   appservice_port: 29318
   database_username: "mautrix_whatsapp_bridge"
   database_name: "mautrix_whatsapp_bridge"

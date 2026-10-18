@@ -97,7 +97,7 @@
 
 - name: 🚀 Run CLI test script for {{ application_id }}
   ansible.builtin.shell:
-    cmd: "set -a && . {{ _cli_stage_dir }}/test.env && set +a && timeout {{ _cli_timeout }} bash {{ _cli_test_script }}"
+    cmd: "set -ea; . {{ _cli_stage_dir }}/test.env; set +ea; timeout {{ _cli_timeout }} bash {{ _cli_test_script }}"
     executable: /bin/bash
   vars:
     _cli_timeout_base: "{{ lookup('role_tests', application_id, 'cli.timeout', default='') }}"
@@ -111,20 +111,21 @@
   delegate_to: "{{ CLI_HOST_NODE }}"
   throttle: 1
 
-- name: 📄 Print CLI test output on failure for {{ application_id }}
-  ansible.builtin.debug:
-    msg: |
-      stdout:
-      {{ _cli_run.stdout }}
-      stderr:
-      {{ _cli_run.stderr }}
+- name: ❌ Handle the failed CLI test run of {{ application_id }}
   when: _cli_run.rc != 0
-  changed_when: false
+  block:
+    - name: 📄 Print CLI test output on failure for {{ application_id }}
+      ansible.builtin.debug:
+        msg: |
+          stdout:
+          {{ _cli_run.stdout }}
+          stderr:
+          {{ _cli_run.stderr }}
+      changed_when: false
 
-- name: ❌ Record failure for {{ application_id }}
-  ansible.builtin.set_fact:
-    _cli_failures: "{{ (_cli_failures | default([])) + [application_id] }}"
-  when: _cli_run.rc != 0
+    - name: ❌ Record failure for {{ application_id }}
+      ansible.builtin.set_fact:
+        _cli_failures: "{{ (_cli_failures | default([])) + [application_id] }}"
 
 - name: 🧹 Remove the delegated stage dir of {{ application_id }}
   ansible.builtin.file:

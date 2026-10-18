@@ -14,32 +14,33 @@
   set_fact:
     portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
 
-- name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
-  uri_retry:
-    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
-    method: HEAD
-    status_code: [200, 404]
-    validate_certs: false
-  register: dashboard_simpleicons_probe
-  loop: "{{ portfolio_cards | simpleicon_slugs }}"
-  loop_control:
-    label: "{{ item }}"
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
+- name: "🖼️ Attach the Simple Icons brand logos to the cards"
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
-  changed_when: false
+  block:
+    - name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
+      uri_retry:
+        url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
+        method: HEAD
+        status_code: [200, 404]
+        validate_certs: false
+      register: dashboard_simpleicons_probe
+      loop: "{{ portfolio_cards | simpleicon_slugs }}"
+      loop_control:
+        label: "{{ item }}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      changed_when: false
 
-- name: "📄 Load Dashboard Brand logos"
-  set_fact:
-    portfolio_cards: >-
-      {{ portfolio_cards | add_simpleicon_source(
-           dashboard_simpleicons_probe.results
-             | selectattr('status', 'equalto', 200)
-             | map(attribute='item')
-             | list,
-           DASHBOARD_SIMPLEICONS_URL_BASE) }}
-  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
-  changed_when: false
+    - name: "📄 Load Dashboard Brand logos"
+      set_fact:
+        portfolio_cards: >-
+          {{ portfolio_cards | add_simpleicon_source(
+               dashboard_simpleicons_probe.results
+                 | selectattr('status', 'equalto', 200)
+                 | map(attribute='item')
+                 | list,
+               DASHBOARD_SIMPLEICONS_URL_BASE) }}
+      changed_when: false
 
 - name: 👥 Group docker cards
   set_fact:

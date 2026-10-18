@@ -466,7 +466,7 @@ def main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 1
-    depth = int(os.environ.get("RESCUE_DEPTH", "0"))
+    depth = int(os.environ.get("RESCUE_DEPTH", 0))
     seen = [cid for cid in os.environ.get("RESCUE_SEEN", "").split(",") if cid]
     stamp = datetime.now(tz=UTC).strftime("%Y%m%d%H%M%SZ")
     out = Path(out_base) / f"{app_id}-{stamp}-{os.getpid()}"

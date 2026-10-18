@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-jenkins', 'services.mattermost.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: upstream
+version: "latest"
+bridges:
+  - mattermost
+config:
+  plugin_id: mattermost
+  server_url: "{{ lookup('tls', 'web-app-mattermost', 'url.base') }}"

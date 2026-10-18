@@ -1,4 +1,7 @@
-cpus:               {{ lookup('applications') | resource_filter(application_id, 'cpus',            service_name | default(''), RESOURCE_CPUS) }}
+cpus:               {{ lookup('applications') | resource_filter(application_id, 'cpus',            service_name | default(''), RESOURCE_CPUS, host_cpus=RESOURCE_HOST_CPUS) }}
 mem_reservation:    {{ lookup('applications') | resource_filter(application_id, 'mem_reservation', service_name | default(''), RESOURCE_MEM_RESERVATION) }}
 mem_limit:          {{ lookup('applications') | resource_filter(application_id, 'mem_limit',       service_name | default(''), RESOURCE_MEM_LIMIT) }}
 pids_limit:         {{ lookup('applications') | resource_filter(application_id, 'pids_limit',      service_name | default(''), RESOURCE_PIDS_LIMIT) }}
+{% if lookup('gpu', application_id, service_name | default('')) %}
+runtime:            nvidia
+{% endif %}

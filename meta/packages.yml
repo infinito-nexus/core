@@ -164,6 +164,16 @@ nfs-client:
   RedHat:
     - nfs-utils
 
+npm:
+  Archlinux:
+    - npm
+  Debian:
+    - npm
+  RedHat:
+    names:
+      - npm
+    virtual: true
+
 php:
   Archlinux:
     - php

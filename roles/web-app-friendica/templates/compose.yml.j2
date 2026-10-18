@@ -7,11 +7,6 @@
       args:
         FRIENDICA_IMAGE: "{{ FRIENDICA_IMAGE }}"
         FRIENDICA_VERSION: "{{ FRIENDICA_VERSION }}"
-    environment:
-      FRIENDICA_CONFIG_FILE: "{{ FRIENDICA_CONFIG_FILE }}"
-      {% if DEPLOYMENT_MODE == 'swarm' %}
-      TASK_SLOT: "{% raw %}{{.Task.Slot}}{% endraw %}"
-      {% endif %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['friendica', 'http', DOCKER_BIND_HOST]) | indent(4) }}

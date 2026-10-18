@@ -17,7 +17,7 @@ class TestStage(unittest.TestCase):
 
     def test_role_stage_by_category(self) -> None:
         self.assertEqual(role_stage("web-app-nextcloud"), "server")
-        self.assertEqual(role_stage("desk-gnome"), "workstation")
+        self.assertEqual(role_stage("dsk-gnome"), "workstation")
         self.assertEqual(role_stage("update-pacman"), "constructor")
 
     def test_deepest_category_wins(self) -> None:
@@ -30,16 +30,16 @@ class TestStage(unittest.TestCase):
     def test_sort_key_orders_by_stage_then_category_then_name(self) -> None:
         keys = [
             role_sort_key(r)
-            for r in ["svc-opt-ssd-hdd", "web-app-a", "web-svc-html", "desk-gnome"]
+            for r in ["svc-opt-ssd-hdd", "web-app-a", "web-svc-html", "dsk-gnome"]
         ]
         self.assertEqual(
             [
                 r
                 for _, r in sorted(
-                    zip(keys, ["svc-opt", "web-app", "web-svc", "desk"], strict=True)
+                    zip(keys, ["svc-opt", "web-app", "web-svc", "dsk"], strict=True)
                 )
             ],
-            ["desk", "web-svc", "web-app", "svc-opt"],
+            ["dsk", "web-svc", "web-app", "svc-opt"],
         )
 
     def test_stage_groups_match_wired_stage_loops(self) -> None:
@@ -61,7 +61,7 @@ class TestStage(unittest.TestCase):
             ],
         )
         self.assertEqual(stage_groups("server"), ["web-svc", "web-app", "web-opt"])
-        self.assertEqual(stage_groups("workstation"), ["desk"])
+        self.assertEqual(stage_groups("workstation"), ["dsk"])
         self.assertEqual(stage_groups("destructor"), ["svc-opt"])
 
     def test_bootstrap_groups_excluded_from_stage_groups(self) -> None:

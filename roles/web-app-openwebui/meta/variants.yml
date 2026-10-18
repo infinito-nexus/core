@@ -7,7 +7,7 @@
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -27,6 +27,12 @@
       shared: true
     litellm:
       enabled: true
+    agent-broker:
+      enabled: true
+      shared: true
+    qdrant:
+      enabled: true
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -42,7 +48,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -62,6 +68,12 @@
       shared: true
     litellm:
       enabled: false
+    agent-broker:
+      enabled: false
+      shared: false
+    qdrant:
+      enabled: false
+      shared: false
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -83,7 +95,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -100,6 +112,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    agent-broker:
+      enabled: false
+      shared: false
+    qdrant:
+      enabled: false
+      shared: false
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

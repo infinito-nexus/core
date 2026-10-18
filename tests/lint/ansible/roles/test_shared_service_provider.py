@@ -37,7 +37,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -137,7 +137,7 @@ def _collect_findings(root: Path) -> list[ProviderFinding]:
 
     entity_to_role: dict[str, str] = {}
     for role in applications:
-        entity = get_entity_name(role)
+        entity = entity_name(role)
         if entity:
             entity_to_role.setdefault(entity, role)
 
@@ -153,10 +153,10 @@ def _collect_findings(root: Path) -> list[ProviderFinding]:
         services = _load_yaml(config_path)
         if not isinstance(services, dict):
             continue
-        entity_name = get_entity_name(role_dir.name)
+        entity = entity_name(role_dir.name)
         for service_key, raw_conf in services.items():
             responsible_role.setdefault(service_key, role_dir.name)
-            if service_key == entity_name or not isinstance(raw_conf, dict):
+            if service_key == entity or not isinstance(raw_conf, dict):
                 continue
             if not _is_active(raw_conf) or _has_resource_keys(raw_conf):
                 continue

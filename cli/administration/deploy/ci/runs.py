@@ -85,6 +85,7 @@ CONFIG_INPUTS = (
     "mode",
     "lifecycles",
     "filesystem",
+    "architectures",
     "chunk_gate",
     "workspace",
 )

@@ -318,7 +318,7 @@ littlejs_examples:
         description: "Shader effects and filters"
         is_project: false
         tags: "webgl, visual, effect"
-        icon: "fa-solid fa-sparkles"
+        icon: "fa-solid fa-layer-group"
 
       # - name: "UI System"
       #   file: "uiSystem.js"

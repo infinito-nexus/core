@@ -1,5 +1,8 @@
 ---
 lmstudio:
+  healthcheck:
+    flavor: curl
+    path: lmstudio-greeting
   modes:
     compose:
       enabled: true
@@ -10,12 +13,18 @@ lmstudio:
   shared: true
   backup:
     no_stop_required: true
-  image: lmstudio/llmster-preview
-  # nocheck: docker-version -- the repository publishes 2 tags and neither is a version; 'cpu' selects the backend, not a release
-  version: cpu
+  image: ubuntu
+  version: "22.04"
+  custom: true
+  app_version: 0.0.25-1
+  update:
+    key: app_version
+    type: http_regex
+    url: https://lmstudio.ai/install.sh
+    pattern: 'APP_VERSION="([0-9][0-9.-]*)"'
   name: lmstudio
-  platform_arch: x86_64
-  min_storage: 588MB
+  # nocheck: min-storage-headroom  Reason: the build holds the llmster release archive (1.3 GB on arm64) beside its 2.3 GB extraction until the GPU backends are trimmed; the finished image keeps 1.4 GB on arm64
+  min_storage: 4GB
   cpus: "4.0"
   mem_reservation: 6g
   mem_limit: 8g

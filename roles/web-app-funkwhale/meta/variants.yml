@@ -7,7 +7,7 @@
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -46,7 +46,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -91,7 +91,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:

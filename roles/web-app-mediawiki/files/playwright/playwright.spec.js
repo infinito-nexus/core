@@ -1,17 +1,31 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const {
+  expectHstsWhenTls,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
+
+require("./test-seaweedfs");
+require("./test-partner-extensions");
+
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
   await page.context().clearCookies();
 });
+
+require("./test-design");
 
 test("MediaWiki front page is served under canonical domain with TLS", async ({ page }) => {
   const response = await gotoOnion(page, `${appBaseUrl}/`);
@@ -48,20 +62,5 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-mediawiki admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(edit|view source|talk|history|admin)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /wiki|edit|page|main page|history|mediawiki/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page);
 });

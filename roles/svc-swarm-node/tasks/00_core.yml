@@ -2,7 +2,7 @@
 - include_tasks: utils/once/flag.yml
 
 - name: "🐝 Swarm-only node setup (cluster bootstrap + shared CA anchor)"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
   block:
     - name: "🥾 Bootstrap docker swarm cluster"
       ansible.builtin.include_tasks: 00_core/bootstrap_cluster.yml

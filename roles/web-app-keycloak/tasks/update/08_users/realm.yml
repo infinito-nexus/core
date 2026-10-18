@@ -12,7 +12,7 @@
     KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"
     KEYCLOAK_REALM: "{{ KEYCLOAK_REALM }}"
     KEYCLOAK_USERNAME: "{{ item.value.username }}"
-    KEYCLOAK_PASSWORD: "{{ item.value.password }}"
+    KEYCLOAK_CREDENTIAL_JSON: "{{ {'type': 'password', 'value': item.value.password, 'temporary': false} | to_json }}"
     KEYCLOAK_EMAIL: "{{ item.value.email | default('') }}"
     KEYCLOAK_FIRSTNAME: "{{ item.value.firstname | default('') }}"
     KEYCLOAK_LASTNAME: "{{ item.value.lastname | default('') }}"

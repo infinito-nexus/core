@@ -1,0 +1,34 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "pretix"
+    resolve_output_prefix: PRETIX_DESIGN
+    resolve_compose_cid: "{{ PRETIX_CONTAINER }}"
+
+- name: "🎨 Converge the corporate shop colors of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - DESIGN_STATE
+      - -e
+      - DESIGN_COLORS
+      - "{{ PRETIX_DESIGN_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - pretix
+      - shell_scoped
+      - --override
+    stdin: "{{ lookup('file', 'python/converge_design_colors.py') }}"
+  environment:
+    DESIGN_STATE: "{{ 'present' if PRETIX_DESIGN_ENABLED else 'absent' }}"
+    DESIGN_COLORS: "{{ (PRETIX_DESIGN_COLORS if PRETIX_DESIGN_ENABLED else {}) | to_json }}"
+  register: pretix_design_colors
+  retries: 10
+  delay: 6
+  until: pretix_design_colors.stdout is search('(?m)PRETIX_RESULT=[A-Z]+$')
+  changed_when: pretix_design_colors.stdout is search('(?m)PRETIX_RESULT=CHANGED$')
+  failed_when: pretix_design_colors.stdout is not search('(?m)PRETIX_RESULT=(UN)?CHANGED$')
+  delegate_to: "{{ PRETIX_DESIGN_HOST_NODE }}"
+  run_once: true

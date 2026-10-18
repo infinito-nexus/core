@@ -1,7 +1,15 @@
-const { expect } = require("@playwright/test");
+const { expect, request } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const {
+  apiFetchOnion,
+  apiGetOnion,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+  runGuestFlow,
+} = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
@@ -24,13 +32,50 @@ async function zammadLogout(page) {
   await page.context().clearCookies();
 }
 
+/**
+ * Seed a ticket over the Basic-auth REST API.
+ *
+ * @param {string} subject ticket title and article subject.
+ * @param {string} body article body.
+ * @returns {Promise<object>} the ticket as Zammad returned it.
+ */
+async function seedTicketViaApi(subject, body) {
+  const api = await request.newContext({
+    ignoreHTTPSErrors: true,
+    extraHTTPHeaders: {
+      Authorization: `Basic ${Buffer.from(`${adminApiUsername}:${adminApiPassword}`).toString("base64")}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const resp = await api.post(`${zammadBaseUrl}/api/v1/tickets`, {
+    data: {
+      title: subject,
+      group: "Users",
+      customer: adminApiUsername,
+      article: {
+        subject,
+        body,
+        type: "note",
+        internal: false,
+      },
+    },
+  });
+
+  if (resp.status() >= 300) {
+    throw new Error(`Seed POST /api/v1/tickets failed: ${resp.status()} ${await resp.text()}`);
+  }
+  const ticket = await resp.json();
+  await api.dispose();
+  return ticket;
+}
+
 async function signInAsApiBot(page) {
   // page.context().request shares the browser cookie jar; in-page fetch hits Keycloak cross-origin in OIDC variants.
   await page.context().clearCookies();
 
   const apiRequest = page.context().request;
 
-  // Exception: /api/v1/getting_started answers 403 since Zammad 7.0; signshow is the unauthenticated csrf seed.
   const seed = await apiRequest.get(`${zammadBaseUrl}/api/v1/signshow`, {
     headers: { Accept: "application/json" },
     failOnStatusCode: true,
@@ -53,6 +98,28 @@ async function signInAsApiBot(page) {
   }
 
   await gotoOnion(page, `${zammadBaseUrl}/`, { waitUntil: "domcontentloaded" });
+}
+
+/**
+ * Args:
+ *   page: Playwright page whose cookie jar receives the Zammad session.
+ *   username: login of a native Zammad account.
+ *   password: its password.
+ *
+ * Returns:
+ *   The response of `POST /api/v1/signin`.
+ */
+async function signInWithZammadPassword(page, username, password) {
+  await page.context().clearCookies();
+  const request = page.context().request;
+  const seed = await apiGetOnion(request, `${zammadBaseUrl}/api/v1/signshow`, { headers: { Accept: "application/json" } });
+  const csrfToken = seed.headers()["csrf-token"];
+  expect(csrfToken, "signshow must hand out a csrf token").toBeTruthy();
+  return apiFetchOnion(request, `${zammadBaseUrl}/api/v1/signin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRF-Token": csrfToken },
+    data: { username, password, fingerprint: "playwright-password" },
+  });
 }
 
 async function signInViaZammadOidc(page, username, password, personaLabel) {
@@ -110,7 +177,9 @@ module.exports = {
     biberPassword,
     canonicalDomain,
   },
+  seedTicketViaApi,
   signInViaZammadOidc,
+  signInWithZammadPassword,
   signInAsApiBot,
   zammadLogout,
   beforeEach,

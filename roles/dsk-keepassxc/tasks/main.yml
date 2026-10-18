@@ -1,0 +1,8 @@
+---
+- block:
+    - name: "📦 Install keepassxc"
+      package_install:
+        id: keepassxc
+
+    - include_tasks: utils/once/flag.yml
+  when: run_once_dsk_keepassxc is not defined

@@ -120,8 +120,6 @@ def swarm_nfs_backed(entry, *, application_id, deployment_mode, storage_backend)
         return False
     if entry.get("nfs") is False:
         return False
-    # Exception: imported lazily because this module stays import-safe for the
-    # .env bootstrap, which runs before PyYAML exists.
     from utils.roles.meta_lookup import get_role_placement
 
     if str(get_role_placement(application_id) or "").strip().lower() == "manager":

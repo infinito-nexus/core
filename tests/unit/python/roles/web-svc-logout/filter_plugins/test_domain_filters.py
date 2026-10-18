@@ -86,12 +86,12 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_onion_page_drops_clearnet_only_app(self):
         applications = {
             "web-svc-logout": {"services": {"logout": {"enabled": True}}},
-            "web-app-seaweedfs": {"services": {"logout": {"enabled": True}}},
+            "web-svc-seaweedfs": {"services": {"logout": {"enabled": True}}},
             "web-app-nextcloud": {"services": {"logout": {"enabled": True}}},
         }
         domains = {
             "web-svc-logout": ["logout.abc.onion"],
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "api": "api.s3.example",
                 "filer": "filer.s3.example",
                 "master": "master.s3.example",
@@ -128,7 +128,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_disabled_entity_keys_excluded(self):
         applications = {
             "web-svc-logout": {"services": {"logout": {"enabled": True}}},
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "services": {
                     "logout": {"enabled": True},
                     "frontend": {"enabled": False, "domains": ["filer", "master"]},
@@ -137,7 +137,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
         }
         domains = {
             "web-svc-logout": ["logout.example"],
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "api": "api.s3.example",
                 "filer": "filer.s3.example",
                 "master": "master.s3.example",

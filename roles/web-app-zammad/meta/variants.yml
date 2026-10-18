@@ -6,7 +6,7 @@
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -36,6 +36,15 @@
       shared: true
     redis:
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     litellm:
       enabled: false
     tor:
@@ -53,7 +62,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -83,6 +92,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     litellm:
       enabled: false
     tor:
@@ -101,7 +119,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -133,6 +151,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: true
+    seaweedfs:
+      enabled: false
+      shared: false
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     tor:
       enabled: true
     openwebui:

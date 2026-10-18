@@ -48,10 +48,14 @@ chess:
   proxy:
     service_key: chess
   lifecycle: beta
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    favicon:
+      width: 64
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

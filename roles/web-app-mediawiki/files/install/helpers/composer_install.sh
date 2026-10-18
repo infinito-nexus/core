@@ -5,7 +5,8 @@
 #
 # Uses /tmp/composer for HOME and CACHE to avoid /var/www permission issues,
 # and strips require-dev first (see strip_require_dev.php for why). Emits a
-# stable status line for the caller's changed_when.
+# stable status line for the caller's changed_when. Runs without composer
+# plugins, because the role places every extension itself.
 #
 # Usage:
 #   composer_install.sh EXT_DIR EXT_BRANCH EXT_NAME
@@ -27,6 +28,6 @@ export COMPOSER_ROOT_VERSION="dev-${EXT_BRANCH}"
 
 cd "${EXT_DIR}"
 php /tmp/strip_require_dev.php composer.json
-composer install --no-dev -n --prefer-dist
+composer install --no-dev -n --prefer-dist --no-plugins
 
 echo "COMPOSER_INSTALLED:${EXT_NAME}"

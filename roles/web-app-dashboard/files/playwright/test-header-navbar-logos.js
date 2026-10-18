@@ -5,6 +5,7 @@ const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const platformLogoUrl = decodeDotenvQuotedValue(process.env.PLATFORM_LOGO_URL);
 const platformFaviconUrl = decodeDotenvQuotedValue(process.env.PLATFORM_FAVICON_URL);
+const platformTitle = decodeDotenvQuotedValue(process.env.PLATFORM_TITLE);
 
 async function getCurrentImageSource(locator) {
   return locator.evaluate((img) => img.currentSrc || img.src || "");
@@ -36,7 +37,10 @@ async function expectImageLoaded(locator, label, expectedUrl) {
 exports.register = function (shared) {
   test("dashboard loads role-core JavaScript modules and renders header/navbar logos", async ({ page }) => {
     shared.skipUnlessServiceEnabled("cdn");
-    shared.skipUnlessServiceEnabled("asset");
+    test.skip(
+      !shared.isServiceEnabled("asset") && !shared.isServiceEnabled("design"),
+      "neither the asset service nor the corporate design provides the platform logo"
+    );
 
     const diagnostics = shared.attachDiagnostics(page);
     const documentResponse = await gotoOnion(page,"/");
@@ -60,6 +64,7 @@ exports.register = function (shared) {
     await expectImageLoaded(headerLogo, "Header logo", platformLogoUrl);
     await expectImageLoaded(navbarLogo, "Navbar logo", platformLogoUrl);
     expect(await getCurrentImageSource(headerLogo)).toBe(await getCurrentImageSource(navbarLogo));
+    await expect(page.locator("header.header h1").first()).toHaveText(platformTitle);
 
     // Favicon — a <link rel="icon"> is not "visible" in Playwright's sense,
     // so just assert that its href is the resolved PLATFORM_FAVICON_URL.

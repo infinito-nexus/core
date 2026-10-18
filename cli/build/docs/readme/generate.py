@@ -16,7 +16,7 @@ Modes:
   * override  – regenerate every managed section, overwriting the current
                 content in place (position is left untouched).
   * only      – restrict the run to a subset of the managed sections
-                (e.g. ``("Cosmos",)`` for ``--update-cosmos``).
+                (e.g. ``("Architecture",)`` for ``--update-architecture``).
 """
 
 from __future__ import annotations
@@ -24,18 +24,19 @@ from __future__ import annotations
 import jinja2
 
 from cli.build.docs.readme import schema
-from cli.build.docs.readme.cosmos import derive_cosmos_mermaid
+from cli.build.docs.readme.architecture import derive_architecture_page
 from cli.build.docs.readme.sections import Readme, parse_readme
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
-from utils.roles.credits import author_urls
+from utils.meta.identity import by_name, profile_url
 from utils.roles.deploy import role_has_stack
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
+from utils.roles.meta_lookup import get_role_guide_companions
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
-from utils.symbol_glossary import to_emoji
+from utils.software import SOFTWARE_REPOSITORY, deploy_image
 
-MANAGED_SECTIONS = ("Cosmos", "Quick Setup", "Credits")
+MANAGED_SECTIONS = ("Architecture", "Quick Setup", "Credits")
 _DEFAULT_AUTHOR = "Kevin Veen-Birkenbach"
 
 
@@ -67,7 +68,7 @@ def _app_name(preamble: str, role_name: str) -> str:
     for line in preamble.splitlines():
         if line.startswith("# "):
             return line[2:].strip()
-    entity = get_entity_name(role_name) or role_name
+    entity = entity_name(role_name) or role_name
     return entity.replace("-", " ").title()
 
 
@@ -96,26 +97,40 @@ def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -
             {"name": "Feature", "description": "Describe a capability."}
         ],
         "application_author": _role_author(role_dir),
-        "application_author_url": author_urls().get(_role_author(role_dir)),
+        "application_author_url": profile_url(
+            by_name().get(_role_author(role_dir), "")
+        ),
         "application_is_host": not role_has_stack(role_dir),
         "application_needs_clearnet_resolver": _needs_clearnet_resolver(role_dir),
-        "cosmos_mermaid": derive_cosmos_mermaid(role_dir, role_name),
-        "cosmos_legend": _cosmos_legend(),
+        "application_deploy_ids": ",".join(
+            [role_name, *get_role_guide_companions(role_dir, role_name=role_name)]
+        ),
+        "software_repository": SOFTWARE_REPOSITORY,
+        "application_deploy_image": deploy_image(),
     }
 
 
-def _cosmos_legend() -> str:
-    """Reading key rendered below the diagram; emojis come from the shared
-    symbol glossary so a glyph means the same thing everywhere."""
-    return (
-        f"Solid `1:1` edges are fixed relationships; dashed `0..1` edges are "
-        f"conditional (enabled only in matching deployments); red `0..0` edges "
-        f"are turned off in this role. Node markers "
-        f"show the role's deploy modes ({to_emoji('host')} host, "
-        f"{to_emoji('compose')} compose, {to_emoji('swarm')} swarm); "
-        f"{to_emoji('disabled')} marks a service that is explicitly turned "
-        f"off, and {to_emoji('role_dependency')} an Ansible role dependency "
-        f"declared in `meta/main.yml`."
+def generate_architecture_page(role_dir, role_name: str) -> str | None:
+    """Return the ARCHITECTURE.md body, or None when the role gets no page.
+
+    Args:
+        role_dir: the role directory.
+        role_name: the role identifier.
+
+    Returns:
+        The page, titled after the committed README so both documents name the
+        application the same way, or None for a role that is not invokable.
+    """
+    if not _is_invokable(role_name):
+        return None
+    readme_path = role_dir / ROLE_FILE_README
+    preamble = (
+        parse_readme(read_text(str(readme_path))).preamble
+        if readme_path.is_file()
+        else ""
+    )
+    return derive_architecture_page(
+        role_dir, role_name, _app_name(preamble, role_name)
     )
 
 

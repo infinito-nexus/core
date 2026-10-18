@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { gotoOnion } = require("../personas");
+const { gotoOnion, normalizeBaseUrl } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -10,7 +10,7 @@ test("addon auth_oidc: the login page bounces to the Keycloak authorization endp
   skipUnlessAddonEnabled("auth_oidc");
   skipUnlessServiceEnabled("sso");
 
-  const appBaseUrl = (process.env.APP_BASE_URL || "").replace(/\/$/, "");
+  const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL);
   test.skip(!appBaseUrl, "APP_BASE_URL not set for this role");
 
   await page.context().clearCookies();

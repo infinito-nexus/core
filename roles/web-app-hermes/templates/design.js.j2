@@ -1,0 +1,38 @@
+{% if lookup('config', application_id, 'services.webui.enabled') | bool %}
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+{% if design.title is string %}
+  document.title = {{ design.title | to_json }};
+{% endif %}
+{% if design.logo is string %}
+  var icon = document.querySelector("link[rel='icon']") || document.head.appendChild(document.createElement("link"));
+  icon.rel = "icon";
+  icon.type = "image/x-icon";
+  icon.href = {{ design.urls.favicon_ico | to_json }};
+{% endif %}
+  function chosenTheme() {
+    try {
+      return window.localStorage.getItem("hermes-dashboard-theme");
+    } catch (error) {
+      return null;
+    }
+  }
+  function mirrorTheme() {
+    var name = chosenTheme();
+    var hex = root.style.getPropertyValue("--background-base").trim().replace("#", "");
+    if (hex.length === 3) {
+      hex = hex.charAt(0) + hex.charAt(0) + hex.charAt(1) + hex.charAt(1) + hex.charAt(2) + hex.charAt(2);
+    }
+    var luminance =
+      (0.2126 * parseInt(hex.slice(0, 2), 16) + 0.7152 * parseInt(hex.slice(2, 4), 16) + 0.0722 * parseInt(hex.slice(4, 6), 16)) / 255;
+    if (!name || name === {{ HERMES_DESIGN_THEME | to_json }} || !(luminance >= 0)) {
+      root.removeAttribute("data-design-theme");
+      return;
+    }
+    root.setAttribute("data-design-theme", luminance < 0.5 ? "dark" : "light");
+  }
+  new MutationObserver(mirrorTheme).observe(root, { attributes: true, attributeFilter: ["style"] });
+  mirrorTheme();
+})();
+{% endif %}

@@ -1,0 +1,20 @@
+---
+base:
+  provides: desktop-base
+  modes:
+    host:
+      enabled: true
+  lifecycle: beta
+  bond: 1
+  enabled: true
+  shared: true
+  min_storage: "50MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "64m"
+  pids_limit: 64
+# nocheck: dynamic-flag  the login account is what this role exists for, so the edge cannot depend on the provider already being in group_names
+workstation:
+  bond: 1
+  enabled: true
+  shared: true

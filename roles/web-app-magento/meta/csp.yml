@@ -1,4 +1,6 @@
 ---
 flags:
+  script-src:
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: Knockout compiles every data-bind attribute with new Function; blocked, the admin's Knockout forms never render ("Unable to parse bindings"), measured on the two-factor code form
   script-src-elem:
     unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface

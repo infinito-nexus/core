@@ -2,6 +2,7 @@
 # nocheck: required-by-coverage — TODO: declare proper required_by
 test-e2e-playwright:
   lifecycle: beta
+# nocheck: image-healthcheck  spec runner started as `container run --rm` by tasks/02_run_one.yml, it exits with the run; the role renders no compose service to carry a probe
 playwright:
   image: mcr.microsoft.com/playwright
   version: "v1.64.1-noble"

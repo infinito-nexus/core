@@ -49,7 +49,7 @@ def _run(
 def _make_roles(tmp: Path, specs: dict) -> dict:
     """Create minimal role fixtures under tmp/ and return an applications dict.
 
-    In real Ansible, role config/main.yml defaults are merged into the
+    In real Ansible, role meta/services.yml defaults are merged into the
     `applications` variable before any play runs. This helper replicates that
     by building both the filesystem structure (for fragment discovery) and the
     applications dict (for get_app_conf lookups) from the same spec.

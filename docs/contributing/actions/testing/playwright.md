@@ -17,7 +17,7 @@ For what the `files/playwright/playwright.spec.js` of a role MUST contain, see
 ## When to Write ✍️
 
 - You MUST provide Playwright tests for every `web-*` role.
-- For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Scenarios section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#scenarios-).
+- For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Triggers section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#triggers-when-to-add-or-update-a-scenario-).
 
 ## Role-Local Files 📁
 

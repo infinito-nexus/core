@@ -1,9 +1,12 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
+const { awaitOnionHandoff, decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 const { onionOptions } = require("./_shared");
+
+require("./test-seaweedfs");
+
 test.use({
   ignoreHTTPSErrors: true,
   ...onionOptions
@@ -77,7 +80,7 @@ async function isOdooAuthenticated(locator) {
 }
 
 async function logOutThroughTheUserMenu(page) {
-  await page.locator("button.o_user_menu").first().click({ timeout: resolveTimeout(30_000) });
+  await page.locator("button.o_user_menu, .o_user_menu button").first().click({ timeout: resolveTimeout(30_000) });
   await page.locator('[data-menu="logout"]').first().click({ timeout: resolveTimeout(30_000) });
 }
 
@@ -111,12 +114,10 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
   await clickOdooSsoButton(page);
 
   // 3. After clicking SSO, the page navigates to Keycloak.
-  await expect
-    .poll(() => page.url(), {
-      timeout: resolveTimeout(60_000),
-      message: "Expected page to navigate to Keycloak for authentication"
-    })
-    .toContain(oidcIssuerUrl.replace(/\/$/, ""));
+  await awaitOnionHandoff(page, oidcIssuerUrl.replace(/\/$/, ""), async () => {
+    await gotoOnion(page, odooLoginUrl);
+    await clickOdooSsoButton(page);
+  });
 
   // 4. Perform OIDC login with admin credentials
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
@@ -173,12 +174,10 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
   await clickOdooSsoButton(page);
 
   // 3. Wait for navigation to Keycloak
-  await expect
-    .poll(() => page.url(), {
-      timeout: resolveTimeout(60_000),
-      message: "Expected page to navigate to Keycloak for authentication"
-    })
-    .toContain(oidcIssuerUrl.replace(/\/$/, ""));
+  await awaitOnionHandoff(page, oidcIssuerUrl.replace(/\/$/, ""), async () => {
+    await gotoOnion(page, odooLoginUrl);
+    await clickOdooSsoButton(page);
+  });
 
   // 4. Perform OIDC login with biber credentials
   await performKeycloakLoginForm(page, biberUsername, biberPassword);
@@ -230,20 +229,7 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-odoo admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(settings|users|companies|apps|administrator)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /settings|users|companies|apps|technical|developer/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page);
 });
+
+require("./test-design").register(require("./_shared"));

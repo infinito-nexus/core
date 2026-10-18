@@ -1,0 +1,41 @@
+---
+design_theme_json:
+  type: config
+  source: "{{ [lookup('container', 'web-app-phpmyadmin', 'directories.volumes'), 'theme', 'theme.json'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: phpmyadmin
+      target: /var/www/html/themes/infinito/theme.json
+      when: &phpmyadmin_design_when "{{ lookup('config', 'web-app-phpmyadmin', 'services.design.enabled') | bool }}"
+design_theme_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-phpmyadmin', 'directories.volumes'), 'theme', 'css', 'theme.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: phpmyadmin
+      target: /var/www/html/themes/infinito/css/theme.css
+      when: *phpmyadmin_design_when
+design_theme_rtl_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-phpmyadmin', 'directories.volumes'), 'theme', 'css', 'theme.rtl.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: phpmyadmin
+      target: /var/www/html/themes/infinito/css/theme.rtl.css
+      when: *phpmyadmin_design_when
+design_theme_design_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-phpmyadmin', 'directories.volumes'), 'theme', 'css', 'design.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: phpmyadmin
+      target: /var/www/html/themes/infinito/css/design.css
+      when: *phpmyadmin_design_when
+design_theme_jquery_ui_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-phpmyadmin', 'directories.volumes'), 'theme', 'jquery', 'jquery-ui.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: phpmyadmin
+      target: /var/www/html/themes/infinito/jquery/jquery-ui.css
+      when: *phpmyadmin_design_when

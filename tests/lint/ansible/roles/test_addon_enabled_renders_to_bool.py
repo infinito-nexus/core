@@ -25,6 +25,7 @@ not carry.
 
 from __future__ import annotations
 
+import functools
 import unittest
 from typing import Any
 
@@ -62,6 +63,7 @@ def _hostile_scope() -> dict[str, Any]:
     return variables
 
 
+@functools.lru_cache(maxsize=1)
 def _rendered_addons() -> dict[str, dict[str, Any]]:
     variables = _hostile_scope()
     templar = Templar(loader=DataLoader(), variables=dict(variables))

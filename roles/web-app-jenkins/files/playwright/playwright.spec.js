@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
@@ -32,15 +32,21 @@ test("OIDC: oic-auth plugin redirects unauthenticated visitors through Keycloak 
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  const landing = await gotoOnion(page, `${expectedBase}/`);
+  expect(
+    landing.status(),
+    "the oic realm must serve the dashboard once the callback returns; 4xx or 5xx means the session never authenticated",
+  ).toBeLessThan(400);
+  await expect(
+    page.locator("#root-action-UserAction").first(),
+    "Expected the header user menu, which Jenkins renders only while a user is current; a gateway error page and an anonymous session both lack it",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   const expectedBase = baseUrl.replace(/\/$/, "");
-  // Jenkins LDAP login uses the local /login form rather than an
-  // OIDC redirect; pin to the form path so the spec doesn't bounce
-  // through Keycloak.
   await gotoOnion(page, `${expectedBase}/login`);
   const u = page.locator("input[name='j_username']").first();
   const p = page.locator("input[name='j_password']").first();
@@ -48,10 +54,17 @@ test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1
   await u.fill(adminUsername);
   await p.fill(adminPassword);
   await page.locator("button[name='Submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  const landing = await gotoOnion(page, `${expectedBase}/`);
+  expect(
+    landing.status(),
+    "the LDAP realm must serve the dashboard; 403 means the bind never authenticated",
+  ).toBeLessThan(400);
+  await expect(page.locator(`a[href$='/user/${adminUsername}']`).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 require("./test-mcp-guest");
+require("./test-partner-plugins");
+require("./test-design");
 
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js
@@ -66,20 +79,5 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-jenkins admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(manage jenkins|configure system|nodes|plugins|users)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /manage jenkins|configure system|nodes|plugins|users|credentials/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page);
 });

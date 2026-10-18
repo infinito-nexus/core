@@ -1,7 +1,7 @@
 """Abstract recover flow shared by every ``svc-bkp-*`` role.
 
 A recover mirrors a snapshot into a live target directory
-(``rsync -a --delete``), so the target's current state would be lost
+(``rsync -aHAX --delete``), so the target's current state would be lost
 without a net. The flow therefore first runs the role's deployed backup
 service (``systemctl start`` on the role's unit), which applies the
 usual differential backup logic to the live data before anything is
@@ -87,7 +87,7 @@ class DirectoryRecovery(ABC):
         subprocess.run(
             [
                 "rsync",
-                "-a",
+                "-aHAX",
                 "--numeric-ids",
                 "--delete",
                 *self.rsync_extra_args,

@@ -2,7 +2,7 @@
 application_id: "web-svc-logout"
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 http_port: "{{ lookup('config', application_id, 'services.logout.ports.local.http') }}"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 LOGOUT_DOMAINS: "{{ (lookup('applications') | logout_domains(group_names, lookup('domains'))) | unique | sort }}"
 LOGOUT_URLS: "{{ LOGOUT_DOMAINS | map('regex_replace', '^(.*)$', lookup('tls', application_id, 'protocols.web') ~ '://\\1') | list }}"

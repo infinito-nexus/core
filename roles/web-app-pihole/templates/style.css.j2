@@ -1,0 +1,928 @@
+{% set design = lookup('design', application_id) %}
+{% set default_theme = 'html:has(link[href*="style/themes/default-light.css"], link[href*="style/themes/default-dark.css"])' %}
+{% set fills = ['primary', 'success', 'info', 'warning', 'danger'] %}
+{% set statuses = ['success', 'info', 'warning', 'danger'] %}
+{% set named_fills = [('red', 'danger'), ('yellow', 'warning'), ('aqua', 'info'), ('green', 'success'), ('light-blue', 'primary')] %}
+{% set named_texts = [('red', 'danger'), ('green', 'success'), ('green-light', 'success'), ('orange', 'warning'), ('yellow', 'warning'), ('aqua', 'info'), ('blue', 'info'), ('light-blue', 'info'), ('vivid-blue', 'info'), ('danger', 'danger'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
+{{ default_theme }} {
+  --datatable-bgcolor: var(--design-surface-active);
+  --overlay-bgcolor: rgba(var(--design-surface-3-rgb), 0.85);
+  --allowed-color: var(--design-success);
+  --blocked-color: var(--design-danger);
+  --cached-color: var(--design-info);
+  --other-color: var(--design-neutral-500);
+  background-color: var(--design-surface-3);
+}
+:where({{ default_theme }}) {
+  & body,
+  .layout-boxed {
+    background: var(--design-surface-3);
+    color: var(--design-text);
+  }
+  .login-page {
+    background: var(--design-surface-1);
+  }
+  .layout-boxed .wrapper {
+    box-shadow: var(--design-shadow-2);
+  }
+  & a,
+  & a:hover,
+  & a:active,
+  & a:focus,
+  .btn-link,
+  .btn-link:hover,
+  .btn-link:focus {
+    color: var(--design-link);
+  }
+  & h4 {
+    color: inherit;
+  }
+  & hr,
+  .page-header {
+    border-color: var(--design-border);
+  }
+  .page-header > small,
+  & :is(h1, h2, h3, h4, h5, h6) :is(small, .small) {
+    color: var(--design-text-muted);
+  }
+
+  .main-header,
+  .main-sidebar {
+    --design-focus: var(--design-on-frame);
+  }
+  .main-header .dropdown-menu {
+    --design-focus: var(--design-link);
+  }
+  & a:focus-visible,
+  .btn:focus-visible,
+  .dropdown-toggle:focus-visible,
+  .dropdown-menu > li > a:focus-visible,
+  .sidebar-toggle-svg:focus-visible {
+    outline: 2px solid var(--design-focus, var(--design-link));
+    outline-offset: 2px;
+  }
+  .main-header a:focus-visible,
+  .main-sidebar a:focus-visible,
+  .sidebar-toggle-svg:focus-visible {
+    outline-offset: -2px;
+  }
+  .main-header .logo,
+  .main-header .navbar,
+  .main-header li.user-header,
+  .wrapper,
+  .main-sidebar,
+  .left-side {
+    background-color: var(--design-frame);
+    color: var(--design-on-frame);
+  }
+  .main-header .logo:hover,
+  .sidebar-toggle-svg:hover,
+  .main-header .navbar .sidebar-toggle:hover {
+    background: var(--design-frame-hover);
+    color: var(--design-on-frame);
+  }
+  .sidebar-toggle-svg,
+  .main-header .navbar .sidebar-toggle,
+  .main-header .navbar .nav > li > a,
+  .main-header .navbar .nav > li > .navbar-text,
+  .navbar-nav > .user-menu > .dropdown-menu > li.user-header > p,
+  .user-panel > .info,
+  .user-panel > .info > a,
+  .sidebar a,
+  .treeview-menu > li > a {
+    color: var(--design-on-frame);
+  }
+  .main-header .navbar .nav > li > a:hover,
+  .main-header .navbar .nav > li > a:active,
+  .main-header .navbar .nav > li > a:focus {
+    background-color: var(--design-frame-hover);
+    color: var(--design-on-frame);
+  }
+  .main-header .navbar .nav .open > a,
+  .main-header .navbar .nav .open > a:hover,
+  .main-header .navbar .nav .open > a:focus,
+  .main-header .navbar .nav > .active > a {
+    background-color: var(--design-frame-active);
+    color: var(--design-on-frame);
+  }
+  @media screen and (min-width: 767px) {
+    .navbar-nav > .user-menu {
+      background: var(--design-frame-hover);
+    }
+    .main-header .navbar .nav > li.user-menu > a:hover,
+    .main-header .navbar .nav > li.user-menu > a:focus {
+      background-color: var(--design-frame-active);
+    }
+  }
+  .main-header .navbar code,
+  .sidebar-menu > li.header {
+    background-color: var(--design-frame-active);
+    color: var(--design-on-frame);
+  }
+  .sidebar-menu > li:hover > a,
+  .sidebar-menu > li > a:focus,
+  .sidebar-menu > li.menu-donate:hover > a,
+  .sidebar-menu > li.menu-donate > a:focus {
+    background-color: var(--design-frame-hover);
+    color: var(--design-on-frame);
+    border-color: var(--design-on-frame);
+  }
+  .sidebar-menu > li.active > a {
+    background-color: var(--design-frame-active);
+    color: var(--design-on-frame);
+    border-color: var(--design-on-frame);
+  }
+  .sidebar-menu > li > .treeview-menu {
+    background-color: var(--design-frame-hover);
+  }
+  .treeview-menu > li.active > a,
+  .treeview-menu > li > a:hover,
+  .treeview-menu > li > a:focus {
+    background-color: var(--design-frame-active);
+    color: var(--design-on-frame);
+  }
+{% for name, status in named_texts %}
+  .main-sidebar .text-{{ name }} {
+    color: color-mix(in srgb, var(--design-{{ status }}) 40%, var(--design-on-frame)) !important;
+  }
+{% endfor %}
+  .warning-count {
+    background: var(--design-warning);
+    color: var(--design-on-warning);
+  }
+
+  .content-wrapper,
+  .right-side {
+    background-color: var(--design-surface-1);
+    color: var(--design-text);
+  }
+  .main-footer {
+    background: var(--design-surface-2);
+    color: var(--design-text);
+    border-top-color: var(--design-border);
+  }
+  .box,
+  .box-solid,
+  .info-box,
+  .box-footer,
+  .login-box,
+  .panel,
+  .panel-body,
+  .panel-default > .panel-heading,
+  .modal-content,
+  .nav-tabs-custom,
+  .nav-tabs-custom > .tab-content,
+  .list-group,
+  .list-group .list-group-item {
+    background: var(--design-surface-2);
+    color: var(--design-text);
+    border-color: var(--design-border);
+  }
+  .box,
+  .nav-tabs-custom {
+    box-shadow: var(--design-shadow-1);
+  }
+  .modal-content {
+    box-shadow: var(--design-shadow-3);
+  }
+  .box-header,
+  .box-solid > .box-header,
+  .box > .box-header {
+    color: var(--design-text);
+  }
+  .box-header.with-border,
+  .modal-header {
+    border-bottom-color: var(--design-border);
+  }
+  .box-footer,
+  .modal-footer {
+    border-top-color: var(--design-border);
+  }
+  .box.box-primary {
+    border-top-color: var(--design-primary);
+  }
+{% for status in statuses %}
+  .box.box-{{ status }} {
+    border-top-color: var(--design-{{ status }});
+  }
+  .box.box-solid.box-{{ status }} {
+    border-color: var(--design-{{ status }});
+  }
+  .box.box-solid.box-{{ status }} > .box-header {
+    background: var(--design-{{ status }}) !important;
+    border-color: var(--design-{{ status }});
+    color: var(--design-on-{{ status }});
+  }
+  .box.box-solid.box-{{ status }} > .box-header :is(a, .btn) {
+    color: var(--design-on-{{ status }});
+  }
+  .box.box-solid.box-{{ status }} > .box-header :is(a, .btn):hover {
+    background: var(--design-{{ status }}-hover);
+  }
+{% endfor %}
+  .box .overlay,
+  .overlay-wrapper .overlay {
+    background-color: rgba(var(--design-surface-2-rgb), 0.7);
+  }
+  .box .overlay > .fa,
+  .overlay-wrapper .overlay > .fa {
+    color: var(--design-text) !important;
+  }
+  .close,
+  .close:focus,
+  .close:hover,
+  .alert .close {
+    color: inherit;
+    text-shadow: none;
+  }
+  .list-group-item {
+    border-color: var(--design-border);
+    color: var(--design-text);
+  }
+  .bstreeview .list-group-item:hover {
+    background-color: var(--design-surface-hover);
+  }
+  .alSpinner {
+    border-color: var(--design-border-strong);
+    border-right-color: transparent;
+  }
+  .alSuccess .fa-inverse {
+    color: var(--design-on-success);
+  }
+  .alFailure .fa-inverse {
+    color: var(--design-on-danger);
+  }
+
+  .nav > li > a:hover,
+  .nav > li > a:active,
+  .nav > li > a:focus {
+    background: var(--design-surface-hover);
+    color: var(--design-text);
+  }
+  .nav-pills > li > a {
+    color: var(--design-text);
+  }
+  .nav-pills > li.active > a,
+  .nav-pills > li.active > a:hover,
+  .nav-pills > li.active > a:focus {
+    background-color: var(--design-primary);
+    border-top-color: var(--design-primary);
+    color: var(--design-on-primary);
+  }
+  .nav-tabs-custom > .nav-tabs {
+    background: var(--design-surface-3);
+    border-bottom-color: var(--design-border);
+  }
+  .nav-tabs-custom > .nav-tabs > li {
+    color: var(--design-text);
+  }
+  .nav-tabs-custom > .nav-tabs > li > a,
+  .nav-tabs-custom > .nav-tabs > li > a:hover,
+  .nav-tabs-custom > .nav-tabs > li > a:focus,
+  .nav-tabs-custom > .nav-tabs > li:hover > a {
+    background-color: transparent;
+    color: var(--design-text-muted);
+  }
+  .nav-tabs-custom > .nav-tabs > li:not(.active):hover {
+    background: var(--design-surface-hover);
+    border-top-color: var(--design-border-strong);
+  }
+  .nav-tabs-custom > .nav-tabs > li.active {
+    border-top-color: var(--design-primary);
+  }
+  .nav-tabs-custom > .nav-tabs > li.active > a,
+  .nav-tabs-custom > .nav-tabs > li.active:hover > a {
+    background-color: var(--design-surface-2);
+    color: var(--design-text);
+    border-left-color: var(--design-border);
+    border-right-color: var(--design-border);
+  }
+  #advanced-settings-menu ul > li a {
+    border-color: var(--design-border);
+  }
+  #advanced-settings-menu ul > li:not(.active) a:hover,
+  #advanced-settings-menu ul > li:not(.active) a:focus {
+    background: var(--design-surface-hover);
+  }
+
+  .table > thead > tr > th,
+  .table > tbody > tr > th,
+  .table > tfoot > tr > th,
+  .table > thead > tr > td,
+  .table > tbody > tr > td,
+  .table > tfoot > tr > td {
+    border-top: 1px solid var(--design-border);
+  }
+  .table > thead > tr > th {
+    border-bottom-color: var(--design-border);
+  }
+  .table-bordered,
+  .table-bordered > thead > tr > th,
+  .table-bordered > tbody > tr > th,
+  .table-bordered > tfoot > tr > th,
+  .table-bordered > thead > tr > td,
+  .table-bordered > tbody > tr > td,
+  .table-bordered > tfoot > tr > td {
+    border: 1px solid var(--design-border);
+  }
+  .table-responsive {
+    border-color: var(--design-border);
+  }
+  .table .table {
+    background-color: var(--design-surface-2);
+  }
+  .table-striped > tbody > tr:nth-of-type(2n + 1),
+  .table > thead > tr.odd,
+  .table > tbody > tr.odd,
+  .table > tfoot > tr.odd {
+    background-color: var(--design-surface-3);
+  }
+  .table-hover > tbody > tr:hover,
+  .table > thead > tr.odd:hover,
+  .table > tbody > tr.odd:hover,
+  .table > tfoot > tr.odd:hover,
+  .table > thead > tr.even:hover,
+  .table > tbody > tr.even:hover,
+  .table > tfoot > tr.even:hover {
+    background-color: var(--design-surface-hover);
+  }
+  table.dataTable thead .sorting_asc_disabled::after,
+  table.dataTable thead .sorting_desc_disabled::after {
+    color: var(--design-text-muted);
+  }
+  .blocked-row td,
+  .network-never,
+  .table-danger {
+    background-color: var(--design-danger-subtle);
+  }
+  .allowed-row td,
+  .network-recent {
+    background-color: var(--design-success-subtle);
+  }
+  .network-gradient {
+    background-image: none;
+    background-color: var(--design-success-subtle);
+  }
+  .network-old,
+  & td.highlight {
+    background-color: var(--design-warning-subtle);
+  }
+  .network-older {
+    background-color: var(--design-info-subtle);
+  }
+  #domainsTable tr,
+  #domainsTable td {
+    border-color: var(--design-border);
+  }
+  .hr-small {
+    border-top-color: var(--design-danger);
+  }
+  .line-numbers {
+    color: var(--design-text-muted);
+    border-right-color: var(--design-border);
+  }
+  #revServers-table :is(td, tfoot th):empty::before {
+    color: var(--design-text-muted);
+  }
+  div:has(> .table-responsive #StaticDHCPTable .save-static-row)::after,
+  .dhcp-hosts-wrapper:has(textarea[disabled]):hover::before {
+    background: var(--design-warning-subtle);
+    color: var(--design-text);
+  }
+
+  & input,
+  & select,
+  select.form-control,
+  .form-group .input-group-addon,
+  .input-group .input-group-addon,
+  .form-group input,
+  .input-group input,
+  .form-group textarea,
+  .input-group textarea,
+  .form-control,
+  div.dataTables_wrapper div.dataTables_length select,
+  .dataTables_wrapper input[type="search"],
+  .select2 .select2-selection,
+  .select2-dropdown,
+  .select2-dropdown .select2-search__field,
+  .select2-container--default .select2-search--dropdown .select2-search__field,
+  .bootstrap-select > .dropdown-toggle {
+    background-color: var(--design-surface-2);
+    color: var(--design-text);
+    border-color: var(--design-border-strong);
+  }
+  .dataTables_wrapper input[type="search"] {
+    border: 1px solid var(--design-border-strong);
+  }
+  .select2 .select2-selection .select2-selection__rendered,
+  .select2-container--default .select2-selection--single .select2-selection__rendered,
+  #loginform,
+  #loginform input {
+    color: var(--design-text);
+  }
+  .select2-container--default.select2-container--open {
+    background-color: transparent;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__placeholder,
+  .select2-container--default .select2-selection--multiple .select2-selection__placeholder,
+  .form-control::placeholder {
+    color: var(--design-text-muted);
+  }
+  .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-top-color: var(--design-text-muted);
+  }
+  .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-bottom-color: var(--design-text-muted);
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--design-surface-3);
+    border-color: var(--design-border-strong);
+    color: var(--design-text);
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: var(--design-text-muted);
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: var(--design-text);
+  }
+  .select2-container--default.select2-container--focus .select2-selection,
+  .select2-container--default.select2-container--open .select2-selection {
+    border-color: var(--design-link);
+  }
+  .select2-container--default.select2-container--focus .select2-selection--multiple,
+  .select2-container--default .select2-search--dropdown .select2-search__field {
+    border-color: var(--design-link) !important;
+  }
+  & input[type="file"]::file-selector-button {
+    background-color: var(--design-surface-3);
+    border: 1px solid var(--design-border-strong);
+    border-radius: var(--design-radius-sm);
+    color: var(--design-text);
+  }
+  & input[type="file"]::file-selector-button:hover {
+    background-color: var(--design-surface-hover);
+  }
+  .form-group .input-group-addon,
+  .input-group .input-group-addon,
+  .form-control[disabled],
+  .form-control[readonly],
+  fieldset[disabled] .form-control,
+  .select2-container--default.select2-container--disabled .select2-selection {
+    background-color: var(--design-surface-3);
+    color: var(--design-text-muted);
+  }
+  .form-control:focus {
+    border-color: var(--design-link);
+    box-shadow: var(--design-focus-ring-inset);
+  }
+  .help-block,
+  .text-muted,
+  .nav-tabs-custom > .nav-tabs > li > a.text-muted {
+    color: var(--design-text-muted);
+  }
+{% for state, status in [('success', 'success'), ('warning', 'warning'), ('error', 'danger')] %}
+  .has-{{ state }} :is(.help-block, .control-label, .radio, .checkbox, .radio-inline, .checkbox-inline, .form-control-feedback),
+  .form-group.has-{{ state }} label,
+  .form-group.has-{{ state }} .help-block {
+    color: var(--design-{{ status }});
+  }
+  .has-{{ state }} .form-control,
+  .has-{{ state }} .form-control:focus,
+  .has-{{ state }} .input-group-addon,
+  .form-group.has-{{ state }} .form-control,
+  .form-group.has-{{ state }} .input-group-addon {
+    border-color: var(--design-{{ status }});
+    box-shadow: none;
+  }
+{% endfor %}
+  & input:-webkit-autofill,
+  & input:-webkit-autofill:focus,
+  & textarea:-webkit-autofill,
+  & select:-webkit-autofill {
+    -webkit-text-fill-color: var(--design-text) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--design-surface-2) inset;
+  }
+  .select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: var(--design-surface-active);
+    color: var(--design-text);
+  }
+  .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--design-primary);
+    color: var(--design-on-primary);
+  }
+  .select2-container--default .select2-results__option[aria-disabled="true"] {
+    color: var(--design-text-muted);
+  }
+  [class*="icheck-"] > input:first-child + input[type="hidden"] + label::before,
+  [class*="icheck-"] > input:first-child + label::before,
+  .login-options [class*="icheck-"] > input:first-child + input[type="hidden"] + label::before,
+  .login-options [class*="icheck-"] > input:first-child + label::before {
+    background: var(--design-surface-2);
+    border-color: var(--design-border-strong);
+  }
+  .icheck-primary > input:first-child:not(:checked):not(:disabled):hover + input[type="hidden"] + label::before,
+  .icheck-primary > input:first-child:not(:checked):not(:disabled):hover + label::before {
+    border-color: var(--design-primary);
+  }
+  .icheck-primary > input:first-child:checked + input[type="hidden"] + label::before,
+  .icheck-primary > input:first-child:checked + label::before {
+    background-color: var(--design-primary);
+    border-color: var(--design-primary);
+  }
+  [class*="icheck-"] > input:first-child:checked + input[type="hidden"] + label::after,
+  [class*="icheck-"] > input:first-child:checked + label::after {
+    border-color: var(--design-on-primary);
+  }
+  [class*="icheck-"] > input:first-child:focus + label::before {
+    outline-color: var(--design-link);
+    border-color: var(--design-link);
+  }
+
+{% for name in ['default'] + fills %}
+{% set rest = 'var(--design-surface-3)' if name == 'default' else 'var(--design-' ~ name ~ ')' %}
+{% set hover = 'var(--design-surface-hover)' if name == 'default' else 'var(--design-' ~ name ~ '-hover)' %}
+{% set active = 'var(--design-surface-active)' if name == 'default' else 'var(--design-' ~ name ~ '-active)' %}
+{% set text = 'var(--design-text)' if name == 'default' else 'var(--design-on-' ~ name ~ ')' %}
+{% set edge = 'var(--design-border-strong)' if name == 'default' else rest %}
+{% set hover_edge = 'var(--design-border-strong)' if name == 'default' else hover %}
+{% set active_edge = 'var(--design-border-strong)' if name == 'default' else active %}
+  .btn-{{ name }},
+  .btn-{{ name }}.disabled:is(.focus, :focus, :hover),
+  .btn-{{ name }}[disabled]:is(.focus, :focus, :hover),
+  fieldset[disabled] .btn-{{ name }}:is(.focus, :focus, :hover) {
+    background-color: {{ rest }};
+    border-color: {{ edge }};
+    color: {{ text }};
+    box-shadow: none;
+  }
+  .btn-{{ name }}:is(.focus, :focus, :hover, .hover) {
+    background-color: {{ hover }};
+    border-color: {{ hover_edge }};
+    color: {{ text }};
+  }
+  .btn-{{ name }}:is(.active, :active),
+  .btn-{{ name }}:is(.active, :active):is(.focus, :focus, :hover),
+  .open > .dropdown-toggle.btn-{{ name }},
+  .open > .dropdown-toggle.btn-{{ name }}:is(.focus, :focus, :hover) {
+    background-color: {{ active }};
+    border-color: {{ active_edge }};
+    color: {{ text }};
+  }
+  .btn-{{ name }} .badge {
+    background-color: {{ text }};
+    color: {{ rest }};
+  }
+{% endfor %}
+  .btn-app,
+  .btn-app:is(:focus, :active) {
+    background-color: var(--design-surface-3);
+    border-color: var(--design-border-strong);
+    color: var(--design-text);
+  }
+  .btn-app:hover {
+    background: var(--design-surface-hover);
+    border-color: var(--design-border-strong);
+    color: var(--design-text);
+  }
+  .bootstrap-select > .dropdown-toggle,
+  .bootstrap-select > .dropdown-toggle:is(.focus, :focus, :hover) {
+    background-color: var(--design-surface-2);
+    border-color: var(--design-border-strong);
+    color: var(--design-text);
+  }
+  .bootstrap-select > .dropdown-toggle.bs-placeholder,
+  .bootstrap-select > .dropdown-toggle.bs-placeholder:is(:active, :focus, :hover) {
+    color: var(--design-text-muted);
+  }
+  .bootstrap-select .no-results {
+    background: var(--design-surface-3);
+    color: var(--design-text);
+  }
+  .datatable-bt,
+  .datatable-bt:active,
+  .datatable-bt:active:focus,
+  .datatable-bt:focus {
+    background: var(--design-surface-3);
+    color: var(--design-text);
+    border-color: var(--design-border-strong);
+  }
+  .datatable-bt:hover,
+  .datatable-bt:active:hover {
+    background: var(--design-primary);
+    border-color: var(--design-primary);
+    color: var(--design-on-primary);
+  }
+  .btn-box-tool {
+    color: var(--design-text-muted);
+  }
+  .btn-box-tool:hover,
+  .open .btn-box-tool {
+    color: var(--design-text);
+  }
+
+{% for name, fill in named_fills %}
+  .bg-{{ name }} {
+    background-color: var(--design-{{ fill }}) !important;
+    color: var(--design-on-{{ fill }}) !important;
+  }
+  .small-box.bg-{{ name }} > .small-box-footer {
+    background: var(--design-{{ fill }}-hover);
+    color: var(--design-on-{{ fill }});
+  }
+  .small-box.bg-{{ name }} > .small-box-footer:hover {
+    background: var(--design-{{ fill }}-active);
+    color: var(--design-on-{{ fill }});
+  }
+  .small-box.bg-{{ name }} .icon {
+    color: rgba(var(--design-on-{{ fill }}-rgb), 0.2);
+  }
+  .small-box.bg-{{ name }}:hover,
+  .small-box.bg-{{ name }} p > small {
+    color: var(--design-on-{{ fill }});
+  }
+  .progress-bar-{{ name }} {
+    background-color: var(--design-{{ fill }});
+    color: var(--design-on-{{ fill }});
+  }
+{% endfor %}
+  .small-box {
+    box-shadow: var(--design-shadow-1);
+  }
+  .progress-bar {
+    background-color: var(--design-primary);
+    color: var(--design-on-primary);
+  }
+{% for fill in fills %}
+  .progress-bar-{{ fill }} {
+    background-color: var(--design-{{ fill }});
+    color: var(--design-on-{{ fill }});
+  }
+  .label-{{ fill }} {
+    background-color: var(--design-{{ fill }}) !important;
+    color: var(--design-on-{{ fill }}) !important;
+  }
+{% endfor %}
+{% for status in statuses %}
+  .alert-{{ status }},
+  .callout.callout-{{ status }} {
+    background-color: var(--design-{{ status }}) !important;
+    border-color: var(--design-{{ status }});
+    color: var(--design-on-{{ status }}) !important;
+  }
+  .alert-{{ status }} a,
+  .callout.callout-{{ status }} a,
+  .callout.callout-{{ status }} a:hover {
+    color: var(--design-on-{{ status }});
+  }
+{% endfor %}
+  .callout code,
+  .callout .highlight {
+    background-color: var(--design-surface-2);
+    color: var(--design-text);
+  }
+  .label-default,
+  .badge {
+    background-color: var(--design-surface-3);
+    color: var(--design-text);
+  }
+{% for name, status in named_texts %}
+  .text-{{ name }} {
+    color: var(--design-{{ status }}) !important;
+  }
+{% endfor %}
+  .text-black {
+    color: var(--design-text) !important;
+  }
+  .text-primary {
+    color: var(--design-link);
+  }
+  .lookatme,
+  .lookatme::after {
+    color: var(--design-danger);
+    text-shadow: none;
+  }
+  .list-status-0,
+  .log-gray {
+    color: var(--design-text-muted);
+  }
+  .list-status-1,
+  .list-status-2,
+  .log-green {
+    color: var(--design-success);
+  }
+  .list-status-3,
+  .log-yellow {
+    color: var(--design-warning);
+  }
+  .list-status-4,
+  .log-red {
+    color: var(--design-danger);
+  }
+  .log-blue,
+  .log-cyan,
+  .log-purple {
+    color: var(--design-info);
+  }
+  .danger-area {
+    border-left-color: var(--design-danger);
+    border-right-color: var(--design-danger);
+    box-shadow: none;
+  }
+  .no-danger-area {
+    border-left-color: var(--design-success);
+    border-right-color: var(--design-success);
+    box-shadow: none;
+  }
+  .error-box {
+    border-color: var(--design-danger);
+    animation: none;
+  }
+
+  .dropdown-menu,
+  .navbar-custom-menu > .navbar-nav > li > .dropdown-menu {
+    background: var(--design-surface-2);
+    color: var(--design-text);
+    border-color: var(--design-border);
+    box-shadow: var(--design-shadow-2);
+  }
+  .dropdown-menu > li > a {
+    color: var(--design-text);
+  }
+  .dropdown-menu > li > a:hover,
+  .dropdown-menu > li > a:focus {
+    background-color: var(--design-surface-hover);
+    color: var(--design-text);
+  }
+  .dropdown-menu > .active > a,
+  .dropdown-menu > .active > a:hover,
+  .dropdown-menu > .active > a:focus {
+    background-color: var(--design-primary);
+    color: var(--design-on-primary);
+  }
+  .dropdown-menu > .disabled > a,
+  .dropdown-menu > .disabled > a:hover,
+  .dropdown-menu > .disabled > a:focus,
+  .dropdown-header {
+    color: var(--design-text-muted);
+  }
+  .dropdown-menu .divider {
+    background-color: var(--design-border);
+  }
+  .bootstrap-select .dropdown-menu li.active small {
+    color: var(--design-on-primary) !important;
+  }
+  .navbar-nav > .user-menu > .dropdown-menu > li.user-header > img {
+    border-color: transparent;
+  }
+  .navbar-nav > .user-menu > .dropdown-menu > .user-body {
+    background: var(--design-surface-3);
+    border-color: var(--design-border);
+    color: var(--design-text);
+  }
+  .navbar-nav > .user-menu > .dropdown-menu > .user-footer {
+    background: var(--design-surface-2);
+  }
+  .navbar-nav > .user-menu > .dropdown-menu > .user-body a {
+    background: transparent !important;
+    color: var(--design-text) !important;
+  }
+  .navbar-nav > .user-menu > .dropdown-menu > .user-footer a {
+    color: var(--design-text) !important;
+  }
+  .navbar-nav > .user-menu > .dropdown-menu > .user-footer a:hover {
+    color: var(--design-link) !important;
+  }
+  .user-menu hr {
+    border-color: var(--design-border);
+    opacity: 1;
+  }
+  .tooltip-inner {
+    background-color: var(--design-text);
+    color: var(--design-surface-1);
+  }
+  .tooltip.top .tooltip-arrow,
+  .tooltip.top-left .tooltip-arrow,
+  .tooltip.top-right .tooltip-arrow {
+    border-top-color: var(--design-text);
+  }
+  .tooltip.bottom .tooltip-arrow,
+  .tooltip.bottom-left .tooltip-arrow,
+  .tooltip.bottom-right .tooltip-arrow {
+    border-bottom-color: var(--design-text);
+  }
+  .tooltip.left .tooltip-arrow {
+    border-left-color: var(--design-text);
+  }
+  .tooltip.right .tooltip-arrow {
+    border-right-color: var(--design-text);
+  }
+  .chartjs-tooltip {
+    background-color: var(--design-text);
+    color: var(--design-surface-1);
+  }
+  .chartjs-tooltip.bottom .arrow {
+    border-top-color: var(--design-text);
+  }
+  .chartjs-tooltip.top .arrow {
+    border-bottom-color: var(--design-text);
+  }
+  .chartjs-tooltip.right.center .arrow {
+    border-left-color: var(--design-text);
+  }
+  .chartjs-tooltip.left.center .arrow {
+    border-right-color: var(--design-text);
+  }
+
+  .pagination > li > a,
+  .pagination > li > span,
+  .dataTables_paginate .pagination li > a {
+    background-color: var(--design-surface-2);
+    border-color: var(--design-border);
+    color: var(--design-link);
+  }
+  .pagination > li > a:focus,
+  .pagination > li > a:hover,
+  .pagination > li > span:focus,
+  .pagination > li > span:hover {
+    background-color: var(--design-surface-hover);
+    border-color: var(--design-border);
+    color: var(--design-link);
+  }
+  .pagination > .active > a,
+  .pagination > .active > a:focus,
+  .pagination > .active > a:hover,
+  .pagination > .active > span,
+  .pagination > .active > span:focus,
+  .pagination > .active > span:hover,
+  .dataTables_paginate .pagination > .active > a,
+  .dataTables_paginate .pagination > .active > a:focus,
+  .dataTables_paginate .pagination > .active > a:hover {
+    background-color: var(--design-primary);
+    border-color: var(--design-primary);
+    color: var(--design-on-primary);
+  }
+  .pagination > .disabled > a,
+  .pagination > .disabled > a:focus,
+  .pagination > .disabled > a:hover,
+  .dataTables_paginate .pagination > .disabled > a,
+  .pagination > .disabled > span,
+  .pagination > .disabled > span:focus,
+  .pagination > .disabled > span:hover {
+    background-color: var(--design-surface-2);
+    border-color: var(--design-border);
+    color: var(--design-text-muted);
+  }
+
+  & code,
+  & pre,
+  #output,
+  #apiTokenModal pre {
+    background: var(--design-surface-3);
+    color: var(--design-text);
+    border-color: var(--design-border);
+  }
+  & kbd {
+    background-color: var(--design-text);
+    color: var(--design-surface-1);
+    box-shadow: none;
+  }
+  .password_background {
+    background-image: none;
+  }
+  .loading::before {
+    background: var(--design-text);
+    box-shadow: none;
+  }
+  .loading::after {
+    color: var(--design-surface-1);
+  }
+  .progress {
+    background-color: var(--design-surface-3);
+  }
+  .graphs-grid {
+    background-color: var(--design-border);
+  }
+  .graphs-ticks {
+    color: var(--design-text-muted);
+  }
+  #nprogress .bar {
+    background: var(--design-primary);
+  }
+  #nprogress .peg {
+    box-shadow: none;
+  }
+  #nprogress .spinner-icon {
+    border-top-color: var(--design-primary);
+    border-left-color: var(--design-primary);
+  }
+{% if design.logo is string %}
+
+  & img.logo-img,
+  & img.loginpage-logo {
+    content: url("{{ design.urls.logo.svg }}");
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
+{% endif %}
+}

@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-zammad', 'services.email.enabled') | bool }}"
+required: false
+mechanism: bridge
+source: bundled
+bridges:
+  - email
+config:
+  area: "Email::Account"

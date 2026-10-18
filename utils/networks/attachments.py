@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -67,7 +67,7 @@ def _matches_kind(
         ).strip()
         if direction not in ("client", "both"):
             return False
-        consumer_key = get_entity_name(application_id)
+        consumer_key = entity_name(application_id)
         if (
             lookup_config(application_id, f"services.{consumer_key}.mcp_consumer", None)
             is not True
@@ -204,12 +204,12 @@ def _suppress_default(
 def _own_shared_net_provider(
     attachments: list[dict[str, Any]],
     own_entity: str,
-    get_entity_name: Callable[[str], str],
+    entity_name: Callable[[str], str],
 ) -> bool:
     return any(
         att["is_provider"]
         and att["topology"] == "shared_net"
-        and get_entity_name(att["role"]) == own_entity
+        and entity_name(att["role"]) == own_entity
         for att in attachments
     )
 
@@ -217,8 +217,8 @@ def _own_shared_net_provider(
 def _shared_network_key(
     attachments: list[dict[str, Any]],
     own_entity: str,
-    get_entity_name: Callable[[str], str],
+    entity_name: Callable[[str], str],
 ) -> str:
-    if _own_shared_net_provider(attachments, own_entity, get_entity_name):
+    if _own_shared_net_provider(attachments, own_entity, entity_name):
         return own_entity
     return "default"

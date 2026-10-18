@@ -30,14 +30,15 @@
   when: compose_mode == 'swarm'
   notify: swarm-deploy
 
-- name: "🔄 Flush compose up handlers for '{{ application_id }}'"
-  meta: flush_handlers
+- name: "🏁 Settle the compose deployment of '{{ application_id }}'"
   when: compose_handlers_flush | bool
+  block:
+    - name: "🔄 Flush compose up handlers for '{{ application_id }}'"
+      meta: flush_handlers
 
-- name: "🚀 Post-deploy steps for '{{ application_id }}'"
-  ansible.builtin.include_tasks:
-    file: post_deploy.yml
-    apply:
-      delegate_to: "{{ STACK_HOST }}"
-      run_once: true
-  when: compose_handlers_flush | bool
+    - name: "🚀 Post-deploy steps for '{{ application_id }}'"
+      ansible.builtin.include_tasks:
+        file: post_deploy.yml
+        apply:
+          delegate_to: "{{ STACK_HOST }}"
+          run_once: true

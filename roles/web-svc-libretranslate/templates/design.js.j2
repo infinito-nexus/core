@@ -1,0 +1,60 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+{% if design.title is string %}
+  if (window.location.pathname.indexOf("/docs") === 0) {
+    document.title = {{ design.title | to_json }};
+  }
+{% endif %}
+{% if design.logo is string %}
+  var icons = document.querySelectorAll("link[rel~='icon']");
+  for (var index = 1; index < icons.length; index += 1) {
+    icons[index].parentNode.removeChild(icons[index]);
+  }
+  var icon = icons[0] || document.head.appendChild(document.createElement("link"));
+  icon.rel = "icon";
+  icon.type = "image/x-icon";
+  icon.removeAttribute("sizes");
+  icon.href = {{ design.urls.favicon_ico | to_json }};
+{% endif %}
+  var rules = Object.getOwnPropertyDescriptor(CSSStyleSheet.prototype, "cssRules");
+  Object.defineProperty(CSSStyleSheet.prototype, "cssRules", {
+    configurable: true,
+    enumerable: rules.enumerable,
+    get: function () {
+      try {
+        return rules.get.call(this);
+      } catch (error) {
+        return [];
+      }
+    },
+  });
+  function chosen() {
+    try {
+      var scheme = window.localStorage.getItem("scheme");
+      return scheme === "light" || scheme === "dark" ? scheme : null;
+    } catch (error) {
+      return null;
+    }
+  }
+  function mirror() {
+    var scheme = chosen();
+    if (scheme) {
+      root.setAttribute("data-design-theme", scheme);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  mirror();
+  document.addEventListener("DOMContentLoaded", function () {
+    var save = window.savePreferredColorScheme;
+    if (typeof save === "function") {
+      window.savePreferredColorScheme = function (scheme) {
+        save(scheme);
+        mirror();
+      };
+    }
+    mirror();
+  });
+  window.addEventListener("storage", mirror);
+})();

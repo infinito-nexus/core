@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-erpnext', 'services.email.enabled') | bool }}"
+required: false
+mechanism: module
+source: bundled
+bridges:
+  - email

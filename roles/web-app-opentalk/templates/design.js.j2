@@ -1,0 +1,53 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  var prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+  var recheck = 0;
+  function appMode() {
+    if (!document.body) {
+      return null;
+    }
+    var channels = (getComputedStyle(document.body).color.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+    if (channels.length < 3) {
+      return null;
+    }
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2] > 127 ? "dark" : "light";
+  }
+  function mirror() {
+    var mode = appMode();
+    if (mode === null || mode === (prefersDark.matches ? "dark" : "light")) {
+      root.removeAttribute("data-design-theme");
+    } else if (root.getAttribute("data-design-theme") !== mode) {
+      root.setAttribute("data-design-theme", mode);
+    }
+  }
+  function brand() {
+{% if design.title is string %}
+    var wanted = document.title.replace(/OpenTalk/g, {{ design.title | to_json }});
+    if (document.title !== wanted) {
+      document.title = wanted;
+    }
+{% endif %}
+{% if design.logo is string %}
+    var icons = document.querySelectorAll("link[rel~='icon'], link[rel='apple-touch-icon']");
+    for (var index = 0; index < icons.length; index += 1) {
+      if (icons[index].getAttribute("href") !== {{ design.urls.favicon_ico | to_json }}) {
+        icons[index].setAttribute("type", "image/x-icon");
+        icons[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+      }
+    }
+{% endif %}
+  }
+  function refresh() {
+    mirror();
+    brand();
+  }
+  new MutationObserver(refresh).observe(document.head, { childList: true, subtree: true, characterData: true });
+  prefersDark.addEventListener("change", function () {
+    root.removeAttribute("data-design-theme");
+    window.clearTimeout(recheck);
+    recheck = window.setTimeout(mirror, 400);
+  });
+  document.addEventListener("DOMContentLoaded", refresh);
+  refresh();
+})();

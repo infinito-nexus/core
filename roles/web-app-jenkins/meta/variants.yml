@@ -27,9 +27,18 @@
     ldap:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
+    gitea:
+      enabled: true
+      shared: true
+    gitlab:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     openwebui:
@@ -63,9 +72,18 @@
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitea:
+      enabled: false
+      shared: false
+    gitlab:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: true
+      shared: true
     tor:
       enabled: true
     openwebui:
@@ -87,7 +105,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -102,6 +120,15 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitea:
+      enabled: false
+      shared: false
+    gitlab:
+      enabled: true
+      shared: true
+    mattermost:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     openwebui:

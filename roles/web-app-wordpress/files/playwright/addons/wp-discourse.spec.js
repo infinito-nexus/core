@@ -29,7 +29,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
     );
 
     await gotoOnion(page,
-      `${shared.env.wpBaseUrl}/wp-admin/admin.php?page=wp_discourse_options&tab=connection`,
+      `${shared.env.wpBaseUrl}/wp-admin/admin.php?page=wp_discourse_options&tab=connection_options`,
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
 

@@ -1,0 +1,10 @@
+{% set design = lookup('design', application_id) %}
+public:
+  app:
+    appName: BigBlueButton HTML5 Client (docker)
+{% if BBB_DESIGN_ENABLED | bool %}
+{% if design.title is string %}
+    clientTitle: {{ design.title | to_json }}
+{% endif %}
+    customStyleUrl: {{ BBB_MEETING_STYLE_URL | to_json }}
+{% endif %}

@@ -7,7 +7,7 @@
 - services:
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -33,13 +33,16 @@
     ldap:
       enabled: true
       shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
     tor:
       enabled: true
 - services:
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -65,6 +68,9 @@
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true
 - services:
@@ -77,7 +83,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -95,5 +101,8 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true

@@ -98,6 +98,8 @@ class TestSmtpHostLookup(unittest.TestCase):
         vars_ = {
             "DOCKER_IN_CONTAINER": True,
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "group_names": ["svc-swarm-node"],
         }
         self.assertEqual(self._resolve(vars_), "127.0.0.1")
@@ -106,6 +108,8 @@ class TestSmtpHostLookup(unittest.TestCase):
         vars_ = {
             "DOCKER_IN_CONTAINER": True,
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "group_names": ["svc-nfs-server"],
             "groups": {"svc-swarm-manager": [MANAGER, "swarm-manager-02"]},
         }
@@ -115,6 +119,8 @@ class TestSmtpHostLookup(unittest.TestCase):
         vars_ = {
             "DOCKER_IN_CONTAINER": True,
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "group_names": ["svc-nfs-server"],
             "groups": {"svc-swarm-manager": []},
         }
@@ -128,6 +134,8 @@ class TestSmtpHostLookup(unittest.TestCase):
         vars_ = {
             "DOCKER_IN_CONTAINER": True,
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "group_names": ["svc-swarm-node"],
             "groups": {"svc-swarm-manager": [MANAGER]},
         }

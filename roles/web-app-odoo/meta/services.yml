@@ -1,5 +1,4 @@
 ---
-# nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -40,7 +39,7 @@ odoo:
     swarm:
       enabled: true
   image: odoo
-  version: "20.0"
+  version: "19.0"
   custom: true
   name: odoo
   min_storage: 897MB
@@ -76,11 +75,19 @@ redis:
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+seaweedfs:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 280
+      height: 80
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
@@ -97,6 +104,11 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+# nocheck: playwright-service-flag: bridged nextcloud partner, covered by partner role spec
+nextcloud:
+  bond: 0.5
+  enabled: "{{ 'web-app-nextcloud' in group_names }}"
+  shared: "{{ 'web-app-nextcloud' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

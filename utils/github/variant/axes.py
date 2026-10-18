@@ -1,6 +1,6 @@
 """Assign the deploy axes to CI matrix rows.
 
-Every row of the CI matrix is one ``role#variant`` selection. Four axes are
+Every row of the CI matrix is one ``role#variant`` selection. Five axes are
 decided here, all as a deterministic rotation over the row's position in the
 *global* discovery order and the sweep number -- never at random, so a red job
 can be reproduced by re-running the same sweep, and so consecutive sweeps
@@ -29,6 +29,15 @@ cover the combinations instead of sampling them:
   the same length, and no sweep would unlock it, because the sweep shifts both
   by the same amount.
 
+* **architecture** -- which CPU architecture the row deploys on, and through
+  :func:`utils.github.variant.pools.runner_of` which runner it lands on. It
+  rotates on the position directly rather than as a further odometer digit:
+  two values against five distros and fifteen distro/filesystem positions are
+  coprime with both, so walking it fastest still reaches every pairing, while
+  making it the slowest digit would hand a role with few rows a single
+  architecture forever. A role may narrow the pool to one value in
+  ``meta/services.yml`` when only that hardware can run it.
+
 A row's position is its index in the uncapped discovery order, not its index
 inside a chunk, so slicing the list into chunks never changes what a row is
 assigned. A priority row, which deploys several mode/tor combinations at once,
@@ -39,11 +48,24 @@ than repeating one pair.
 from __future__ import annotations
 
 import os
-import re
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING
 
 from utils.github.variant import instructions
-from utils.github.variant.pools import DISTROS, FILESYSTEMS, rotate
+from utils.github.variant.label import (
+    LABEL_RE,
+    LOCAL_GLYPH,
+    Label,
+    artifact_slug,
+    parse_label,
+)
+from utils.github.variant.pools import (
+    ARCHITECTURES,
+    DISTROS,
+    FILESYSTEMS,
+    MODES,
+    rotate,
+    runner_of,
+)
 from utils.github.variant.tor import (
     TOR_DEPLOY_MODES,
     combinations,
@@ -53,87 +75,30 @@ from utils.github.variant.tor import (
     wants_tor,
 )
 from utils.roles.display import VARIANT_SEPARATOR, display_names
-from utils.symbol_glossary import to_emoji, to_word
+from utils.roles.meta_lookup import get_role_architectures
+from utils.symbol_glossary import to_emoji
+
+__all__ = [
+    "ARCHITECTURES",
+    "DISTROS",
+    "FILESYSTEMS",
+    "LABEL_RE",
+    "LOCAL_GLYPH",
+    "MODES",
+    "Label",
+    "artifact_slug",
+    "assign",
+    "check_pins",
+    "parse_label",
+    "pick_mode",
+    "resolve_sweep",
+    "row_architectures",
+    "sort_key",
+]
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from typing import Any
-
-MODES = ("compose", "swarm", "host")
-
-LOCAL_GLYPH = to_emoji("test_host")
-
-_AXIS_GLYPHS = (
-    "".join(to_emoji(word) for word in ("tor", "clearnet", "priority", "instructions"))
-    + LOCAL_GLYPH
-)
-
-
-def _alternation(words: Sequence[str]) -> str:
-    """A regex alternation over the glyphs of *words*."""
-    return "|".join(re.escape(to_emoji(word)) for word in words)
-
-
-LABEL_RE = re.compile(
-    r"^.*(?P<mode>" + _alternation(MODES) + r")️?"
-    r"(?P<tor>" + re.escape(to_emoji("tor")) + r")?"
-    r"(?:" + re.escape(to_emoji("clearnet")) + r"|" + re.escape(LOCAL_GLYPH) + r")?️?"
-    r"(?P<distro>" + _alternation(DISTROS) + r")?️?"
-    r"(?P<filesystem>" + _alternation(FILESYSTEMS) + r")?️?"
-    r"[" + re.escape(_AXIS_GLYPHS) + r"️\s]*"
-    r"(?P<name>.+?)"
-    r"(?:" + re.escape(VARIANT_SEPARATOR) + r"(?P<variant>[0-9,]+))?"
-    r"[" + re.escape(_AXIS_GLYPHS) + r"️\s]*$"
-)
-"""The leading ``.*`` is greedy on purpose: it anchors on the LAST mode glyph.
-A reusable-workflow caller path can carry a mode glyph of its own (``z / 💻
-Host / 💻 sys-front-proxy``), and matching the first one would swallow the
-caller name into the role."""
-
-
-class Label(NamedTuple):
-    """One deploy job title, taken apart."""
-
-    mode: str
-    name: str
-    variant: str
-    tor: bool
-    distro: str = ""
-    filesystem: str = ""
-
-
-def parse_label(name: str) -> Label | None:
-    """Take a deploy job title apart.
-
-    The inverse of what :func:`assign` builds, kept next to it so the two
-    cannot drift: consumers that hand-rolled their own regex over raw role
-    ids silently matched nothing once job titles carried display names, and
-    every failure went unreported.
-
-    Args:
-        name: the job title, with or without a reusable-workflow caller path
-            in front of it.
-
-    Returns:
-        ``None`` when the title carries no deploy row. ``name`` is the display
-        name, returned unresolved -- callers decode it through
-        ``utils.roles.display``, which is what knows the role tree. ``tor``,
-        ``distro`` and ``filesystem`` matter because a priority role runs the
-        same mode and variant several times over, and only the glyphs tell
-        those jobs apart -- a retrigger built from the title alone would
-        otherwise replay a different combination than the one that failed.
-    """
-    match = LABEL_RE.match(name.strip())
-    if match is None:
-        return None
-    return Label(
-        to_word(match.group("mode")),
-        match.group("name").strip(),
-        match.group("variant") or "",
-        match.group("tor") is not None,
-        to_word(match.group("distro") or ""),
-        to_word(match.group("filesystem") or ""),
-    )
 
 
 def resolve_sweep(raw: str | None = None) -> int:
@@ -164,23 +129,6 @@ def pick_mode(offered: Sequence[str], position: int, sweep: int) -> str:
     return rotate(offered, position, sweep)
 
 
-def artifact_slug(
-    mode: str, app: str, variant: str, tor: bool, distro: str = "", filesystem: str = ""
-) -> str:
-    """What identifies one deploy job's artifacts.
-
-    Built here rather than as a workflow expression so the matrix entry and
-    every consumer read the same string: a priority role runs the same mode
-    and variant twice, once behind the onion and once not, and two jobs
-    uploading under one name is an artifact conflict, not an overwrite. The
-    distro and filesystem are in it for the same reason -- a selection may
-    name one row on two distros (``role#0%debian role#0%fedora``), and those
-    are two deploys of one mode, variant and onion state.
-    """
-    shards = (variant, "tor" if tor else "", distro, filesystem)
-    return f"{mode}-{app}" + "".join(f"-{shard}" for shard in shards if shard)
-
-
 def _reject(app: str, variant: str, reason: str) -> None:
     """Abort on a selection the row cannot satisfy.
 
@@ -202,10 +150,12 @@ def check_pins(
     pin_tor: bool | None,
     pin_distro: str | None,
     pin_filesystem: str | None,
+    pin_architecture: str | None = None,
     capable: bool,
     tor_mode: str,
     distros: Sequence[str],
     filesystems: Sequence[str],
+    architectures: Sequence[str] = ARCHITECTURES,
 ) -> None:
     """Prove the row can take what the selection token pinned on it.
 
@@ -224,6 +174,7 @@ def check_pins(
     for value, pool, axis in (
         (pin_distro, distros, "distro"),
         (pin_filesystem, filesystems, "filesystem"),
+        (pin_architecture, architectures, "architecture"),
     ):
         if value is not None and value not in pool:
             _reject(
@@ -243,6 +194,45 @@ def check_pins(
         f"pinned onion state {'tor' if pin_tor else 'clearnet'} is impossible "
         f"here (mode, variant or the run's tor axis rules it out)",
     )
+
+
+def row_architectures(
+    app: str, run_pool: Sequence[str], services: Sequence[str] = ()
+) -> tuple[str, ...]:
+    """The architectures one role's rows may draw from this run.
+
+    A role that declares none takes the run's whole pool, which is what
+    spreads both architectures evenly over its variants: every row of the
+    catalogue advances the same rotation, so a role's consecutive rows
+    alternate rather than repeating one architecture.
+
+    Args:
+        app: role id, read for its ``meta/services.yml`` declaration.
+        run_pool: what the run permits, already narrowed by its own input.
+        services: the roles the row's variant deploys, each narrowing the
+            row like the role's own declaration.
+
+    Raises:
+        SystemExit: the role and the run permit nothing in common. Dropping
+            the row instead would report a green run for a role that never
+            deployed, and picking one anyway would deploy it on hardware one
+            of the two sides ruled out.
+    """
+    allowed = tuple(run_pool)
+    declarations: list[str] = []
+    for role in (app, *services):
+        declared = get_role_architectures(role)
+        if declared:
+            declarations.append(f"{role} ({', '.join(declared)})")
+            allowed = tuple(value for value in allowed if value in declared)
+    if not allowed:
+        raise SystemExit(
+            f"{app}: meta/services.yml declares architectures for "
+            f"{'; '.join(declarations)}, and this run permits "
+            f"{', '.join(run_pool) or 'none'}. Widen the run's architecture "
+            f"pool or the declarations."
+        )
+    return allowed
 
 
 def sort_key(entry: Mapping[str, str]) -> tuple[Any, ...]:
@@ -269,6 +259,7 @@ def assign(
     tor_mode: str,
     distros: Sequence[str],
     filesystems: Sequence[str],
+    architectures: Sequence[str] = ARCHITECTURES,
     variants_per_app: Mapping[str, Sequence[Mapping[str, Any]]] | None = None,
 ) -> list[dict[str, str]]:
     """Turn ordered discovery rows into CI matrix entries.
@@ -326,6 +317,10 @@ def assign(
         pin_tor = row.get("pin_tor")
         pin_distro = row.get("pin_distro")
         pin_filesystem = row.get("pin_filesystem")
+        pin_architecture = row.get("pin_architecture")
+        offered_architectures = row_architectures(
+            app, architectures, row.get("services", ())
+        )
         check_pins(
             app,
             variant_csv,
@@ -334,10 +329,12 @@ def assign(
             pin_tor=pin_tor,
             pin_distro=pin_distro,
             pin_filesystem=pin_filesystem,
+            pin_architecture=pin_architecture,
             capable=capable,
             tor_mode=tor_mode,
             distros=distros,
             filesystems=filesystems,
+            architectures=offered_architectures,
         )
         if priority:
             picked = [
@@ -372,6 +369,9 @@ def assign(
             filesystem = pin_filesystem or rotate(
                 filesystems, (position + step) // len(distros), sweep
             )
+            architecture = pin_architecture or rotate(
+                offered_architectures, position + step, sweep
+            )
             glyphs = (
                 to_emoji(mode)
                 + (
@@ -381,6 +381,7 @@ def assign(
                 )
                 + to_emoji(distro)
                 + to_emoji(filesystem)
+                + to_emoji(architecture)
             )
             entries.append(
                 {
@@ -390,6 +391,8 @@ def assign(
                     "tor": "true" if enabled else "false",
                     "distro": distro,
                     "filesystem": filesystem,
+                    "architecture": architecture,
+                    "runner": runner_of(architecture),
                     "enforce_filesystem": "true"
                     if pin_filesystem is not None or len(filesystems) == 1
                     else "false",
@@ -400,7 +403,13 @@ def assign(
                     "covered": str(row.get("covered_by", 0)),
                     "clone": "true" if row.get("clone") else "false",
                     "artifact": artifact_slug(
-                        mode, app, variant_csv, enabled, distro, filesystem
+                        mode,
+                        app,
+                        variant_csv,
+                        enabled,
+                        distro,
+                        filesystem,
+                        architecture,
                     ),
                     "label": f"{glyphs}{label}"
                     + (f" {to_emoji('priority')}" if priority else ""),

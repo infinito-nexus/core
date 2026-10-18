@@ -1,0 +1,57 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: MOODLE_OBJSTORE
+    resolve_compose_cid: "{{ MOODLE_CONTAINER_ADDRESS }}"
+
+- name: "🔎 Check the objectfs plugin is baked into the image"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user root {{ MOODLE_OBJSTORE_LOCAL_CID | quote }} \
+      test -d {{ MOODLE_OBJECTFS_PLUGIN_SOURCE_DIR | quote }}
+  register: moodle_objectfs_plugin_source
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ MOODLE_OBJSTORE_HOST_NODE }}"
+  run_once: true
+
+- name: "🛑 Refuse a Moodle image built without the objectfs plugin"
+  ansible.builtin.assert:
+    that:
+      - moodle_objectfs_plugin_source.rc == 0
+    fail_msg: >-
+      {{ MOODLE_OBJECTFS_PLUGIN_SOURCE_DIR }} is missing, so the image carries no
+      tool_objectfs plugin and Moodle cannot store its files in SeaweedFS.
+
+- name: "📋 Sync the objectfs plugin into the bootstrapped code volume"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_OBJSTORE_LOCAL_CID | quote }} \
+      cp -aT {{ MOODLE_OBJECTFS_PLUGIN_SOURCE_DIR | quote }} {{ MOODLE_OBJECTFS_PLUGIN_DIR | quote }}
+  changed_when: false
+  delegate_to: "{{ MOODLE_OBJSTORE_HOST_NODE }}"
+  run_once: true
+
+- name: "▶️ Install the objectfs plugin database records"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_OBJSTORE_LOCAL_CID | quote }} \
+      php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
+  changed_when: false
+  delegate_to: "{{ MOODLE_OBJSTORE_HOST_NODE }}"
+  run_once: true
+
+- name: "🏁 Release the object file system now that its tables exist"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_OBJSTORE_LOCAL_CID | quote }} \
+      touch {{ MOODLE_OBJECTFS_READY_FILE | quote }}
+  changed_when: true
+  delegate_to: "{{ MOODLE_OBJSTORE_HOST_NODE }}"
+  run_once: true
+
+- name: "🧹 Purge the Moodle caches so the object file system takes effect"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_OBJSTORE_LOCAL_CID | quote }} \
+      php {{ MOODLE_CLI_DIR }}/purge_caches.php
+  changed_when: true
+  delegate_to: "{{ MOODLE_OBJSTORE_HOST_NODE }}"
+  run_once: true

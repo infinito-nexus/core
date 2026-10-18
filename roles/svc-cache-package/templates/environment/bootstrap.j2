@@ -1,0 +1,12 @@
+{#
+  Environment for the Nexus bootstrap. The script is shared with the dev
+  stack, so it reads the same INFINITO_* names there; only the values differ.
+  The admin password is why the task carries no_log.
+#}
+INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: {{ CACHE_PACKAGE_ADMIN_PASSWORD | to_json }}
+INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX: {{ CACHE_PACKAGE_BLOBSTORE_MAX | to_json }}
+INFINITO_CACHE_PACKAGE_CONTAINER: {{ CACHE_PACKAGE_CONTAINER | to_json }}
+INFINITO_CACHE_PACKAGE_MAX_AGE_MIN: {{ CACHE_PACKAGE_MAX_AGE_MIN | to_json }}
+INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN: {{ CACHE_PACKAGE_METADATA_MAX_AGE_MIN | to_json }}
+INFINITO_CACHE_PACKAGE_PORT: {{ CACHE_PACKAGE_PORT | to_json }}
+INFINITO_CACHE_UPSTREAMS: {{ CACHE_PACKAGE_UPSTREAM_RECORDS | to_json }}

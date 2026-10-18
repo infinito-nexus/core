@@ -1,0 +1,20 @@
+---
+- name: "🛑 Require the resolved PeerTube instance URL"
+  ansible.builtin.assert:
+    that:
+      - WORDPRESS_PEERTUBE_INSTANCE_URL is match('^https?://')
+    fail_msg: >-
+      {{ application_id }} enables the peertube service but the addon resolved
+      instance_url='{{ WORDPRESS_PEERTUBE_INSTANCE_URL }}'. The video manager
+      lists and embeds videos from that instance only, so without it the
+      integration installs dead. Deploy web-app-peertube so its url.base
+      exists.
+
+- name: "🔧 PeerTube instance pairing is entered on the plugin's own settings page"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: video-manager-for-peertube reads the instance
+      {{ WORDPRESS_PEERTUBE_INSTANCE_URL }} and its account token from the
+      plugin's own options, whose upstream keys are not part of a documented
+      contract; enter them under Settings -> PeerTube after the deploy.
+  changed_when: false

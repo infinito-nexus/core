@@ -23,8 +23,10 @@
 
 - name: 🔁 Stash first-pass failures for one flake retry
   ansible.builtin.set_fact:
-    _playwright_retry_roles: "{{ _playwright_failures }}"
-    _playwright_failures: []
+    _playwright_retry_roles: "{{ _playwright_failures | difference(_budget_timeouts) }}"
+    _playwright_failures: "{{ _playwright_failures | intersect(_budget_timeouts) }}"
+  vars:
+    _budget_timeouts: "{{ _playwright_budget_timeouts | default([]) }}"
   when: (_playwright_failures | default([])) | length > 0
 
 - name: 🔁 Retry failed roles once on rotated Tor circuits

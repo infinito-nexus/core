@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-gitlab', 'services.jira.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - jira
+config:
+  url: "{{ lookup('tls', 'web-app-jira', 'url.base') }}"

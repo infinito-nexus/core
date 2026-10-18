@@ -28,19 +28,23 @@
       - -e
       - "JELLYFIN_ADMIN_USER={{ JELLYFIN_ADMIN_USERNAME }}"
       - -e
-      - "JELLYFIN_ADMIN_PASSWORD={{ JELLYFIN_ADMIN_PASSWORD }}"
+      - JELLYFIN_ADMIN_PASSWORD
       - -e
       - "MCP_USER={{ JELLYFIN_MCP_UPSTREAM_USER }}"
       - -e
-      - "MCP_PASSWORD={{ JELLYFIN_MCP_UPSTREAM_PASSWORD }}"
+      - MCP_PASSWORD
       - -e
       - "MCP_DEVICE_ID={{ JELLYFIN_MCP_UPSTREAM_DEVICE_ID }}"
       - -e
-      - "MCP_CURRENT_TOKEN={{ MCP_UPSTREAM_CURRENT_KEY }}"
+      - MCP_CURRENT_TOKEN
       - "{{ JELLYFIN_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
     stdin: "{{ lookup('file', 'python/provision_mcp_identity.py') }}"
+  environment:
+    JELLYFIN_ADMIN_PASSWORD: "{{ JELLYFIN_ADMIN_PASSWORD }}"
+    MCP_PASSWORD: "{{ JELLYFIN_MCP_UPSTREAM_PASSWORD }}"
+    MCP_CURRENT_TOKEN: "{{ MCP_UPSTREAM_CURRENT_KEY }}"
   register: jellyfin_mcp_identity
   retries: 30
   delay: 10

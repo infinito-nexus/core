@@ -9,3 +9,9 @@
 - name: "🔴 Deinstall and disable auth-openid-connect plugin if OIDC is disabled"
   include_tasks: oidc/disable.yml
   when: not PEERTUBE_OIDC_ENABLED | bool
+
+- name: "🔐 PEERTUBE | Converge the root administrator"
+  include_tasks: 03_admin.yml
+
+- name: "🎨 PEERTUBE | Converge the corporate logos"
+  include_tasks: 04_design.yml

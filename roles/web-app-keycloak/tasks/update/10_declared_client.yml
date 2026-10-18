@@ -1,6 +1,6 @@
 ---
 # Realm import only runs for a MISSING realm; this kcadm create-or-update brings
-# application-declared clients to existing realms too. Desired state is the
+# application-declared and SAML clients to existing realms too. Desired state is the
 # import's own client object, so the realm template stays the one SPOT.
 - name: "✅ Ensure the '{{ kc_declared_client_id }}' client"
   vars:

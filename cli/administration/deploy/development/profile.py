@@ -35,6 +35,10 @@ class Profile:
         declared = _declared("INFINITO_CACHE_STACK")
         return (not self.is_ci()) if declared is None else declared
 
+    def gpu_reservable(self) -> bool:
+        """True iff the docker daemon registers an NVIDIA runtime."""
+        return (os.environ.get("INFINITO_GPU_COUNT") or "0").strip() not in ("", "0")
+
     def image_mirror_enabled(self) -> bool:
         """True iff image references should be rewritten to the GHCR mirror."""
         return self.runs_on_github()

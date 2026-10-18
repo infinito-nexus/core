@@ -1,0 +1,19 @@
+---
+- name: "🛑 Require the resolved Listmonk API endpoint"
+  ansible.builtin.assert:
+    that:
+      - WORDPRESS_LISTMONK_API_URL is match('^https?://')
+    fail_msg: >-
+      {{ application_id }} enables the listmonk service but the addon resolved
+      api_url='{{ WORDPRESS_LISTMONK_API_URL }}'. The newsletter plugin posts
+      every subscription to that endpoint, so without it the integration
+      installs dead. Deploy web-app-listmonk so its url.base exists.
+
+- name: "🔧 Listmonk API credentials are entered on the plugin's own settings page"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: the Listmonk integration talks to
+      {{ WORDPRESS_LISTMONK_API_URL }} with an API user Listmonk issues per
+      installation; no credential is provisioned here, so create the API user
+      in Listmonk and enter it under Settings -> Listmonk after the deploy.
+  changed_when: false

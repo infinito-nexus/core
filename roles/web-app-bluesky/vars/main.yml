@@ -4,7 +4,99 @@ application_id: "web-app-bluesky"
 BLUESKY_SOCIAL_APP_DIR: "{{ [ lookup('container', application_id, 'directories.services'), 'social-app' ] | path_join  }}"
 BLUESKY_SOCIAL_APP_REPOSITORY: "{{ lookup('config', application_id, 'services.view.repository') }}"
 BLUESKY_SOCIAL_APP_REF: "{{ lookup('config', application_id, 'services.view.ref') }}"
-BLUESKY_GEOLOCATION_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/geolocation/index.tsx' ] | path_join }}"
+BLUESKY_ENV_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/env/common.ts' ] | path_join }}"
+BLUESKY_SOCIAL_APP_DOCKERFILE: "{{ [ BLUESKY_SOCIAL_APP_DIR,'Dockerfile' ] | path_join }}"
+BLUESKY_ALF_THEMES_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR, 'src/alf/themes.ts' ] | path_join }}"
+BLUESKY_HEADINGS_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR, 'src/lib/strings/headings.ts' ] | path_join }}"
+BLUESKY_LOGOTYPE_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR, 'src/view/icons/Logotype.tsx' ] | path_join }}"
+BLUESKY_SAME_ORIGIN_URL_PATCHES:
+  - regexp: "^export const GEOLOCATION_PROD_URL = .*$"
+    replace: "export const GEOLOCATION_PROD_URL = ''"
+  - regexp: "^export const APP_CONFIG_PROD_URL = .*$"
+    replace: "export const APP_CONFIG_PROD_URL = ''"
+BLUESKY_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+BLUESKY_DESIGN_TITLE_ENABLED: "{{ (BLUESKY_DESIGN_ENABLED | bool) and lookup('design', application_id).title is string }}"
+BLUESKY_DESIGN_LOGOTYPE_ENABLED: "{{ (BLUESKY_DESIGN_TITLE_ENABLED | bool) and lookup('design', application_id).logo is string }}"
+BLUESKY_DESIGN_MARKERS_UNWANTED: >-
+  {{
+    ([] if (BLUESKY_DESIGN_ENABLED | bool) else ['DESIGN_THEMES'])
+    + ([] if (BLUESKY_DESIGN_TITLE_ENABLED | bool) else ['DESIGN_TITLE'])
+    + ([] if (BLUESKY_DESIGN_LOGOTYPE_ENABLED | bool) else ['DESIGN_LOGOTYPE'])
+  }}
+BLUESKY_DESIGN_TITLE_HTML: >-
+  {{
+    (lookup('design', application_id).title | string)
+    | replace('&', '&amp;') | replace('<', '&lt;') | replace('>', '&gt;') | replace('"', '&quot;')
+    | replace('{', '&#123;') | replace('\\', '\\\\')
+  }}
+BLUESKY_DESIGN_TITLE_PATCHES:
+  - path: bskyweb/templates/base.html
+    regexp: "(<title>[{]%- block head_title -%[}]).*?([{]%- endblock -%[}]</title>)"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/base.html
+    regexp: '(<meta name="application-name" content=")[^"]*(">)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/base.html
+    regexp: '(<meta property="og:site_name" content=")[^"]*(">)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/home.html
+    regexp: "([{]% block head_title %[}]).*?([{]% endblock %[}])"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/home.html
+    regexp: '(<meta (?:property="og:title"|name="twitter:title") content=")[^"]*(" />)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/home.html
+    regexp: '(<h1 lang="en">)[^<]*(</h1>)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/post.html
+    regexp: "^(  @[{][{] [A-Za-z.]+ [}][}] on ).*$"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}"
+  - path: bskyweb/templates/post.html
+    regexp: "([{]%- else -%[}]\\n  ).*(\\n[{]%- endif -%[}]\\n[{]% endblock %[}])"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/post.html
+    regexp: '(<meta property="og:site_name" content=")[^"]*(">)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/profile.html
+    regexp: "^(  @[{][{] [A-Za-z.]+ [}][}] on ).*$"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}"
+  - path: bskyweb/templates/profile.html
+    regexp: "([{]%- else -%[}]\\n  ).*(\\n[{]%- endif -%[}]\\n[{]% endblock %[}])"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/profile.html
+    regexp: '(<meta property="og:site_name" content=")[^"]*(">)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/feed.html
+    regexp: "^(  [{][{] feedView\\.DisplayName [}][}] by @[{][{] feedView\\.Creator\\.Handle [}][}] [|] ).*( Feed)$"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/feed.html
+    regexp: "([{]%- else -%[}]\\n  ).*(\\n[{]%- endif -%[}]\\n[{]% endblock %[}])"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/feed.html
+    regexp: '(<meta property="og:site_name" content=")[^"]*(">)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/error.html
+    regexp: "([{]% block head_title %[}]Error [{][{] statusCode [}][}] - ).*?([{]% endblock %[}])"
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>"
+  - path: bskyweb/templates/chatinvite.html
+    regexp: '([{]%- else -%[}]\n  <meta property="og:title" content=")[^"]*(" />\n  <meta name="twitter:title" content=")[^"]*(" />)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<3>"
+  - path: bskyweb/templates/starterpack.html
+    regexp: '([{]%- else -%[}]\n  <meta property="og:title" content=")[^"]*(" />\n  <meta name="twitter:title" content=")[^"]*(" />)'
+    replace: "\\g<1>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<2>{{ BLUESKY_DESIGN_TITLE_HTML }}\\g<3>"
+BLUESKY_DESIGN_SOURCE_PATCHES:
+  - path: src/components/Button.tsx
+    regexp: "backgroundColor: t\\.palette\\.primary_600,"
+    replace: "backgroundColor: t.palette.design_primary_hover,"
+  - path: src/components/Button.tsx
+    regexp: "(color === 'negative'\\) \\{\\n\\s+if \\(!disabled\\) \\{\\n\\s+baseStyles\\.push\\(\\{color: t\\.palette\\.)white\\}"
+    replace: "\\1design_on_negative}"
+  - path: src/screens/Settings/AccountSettings.tsx
+    regexp: "\\{color: t\\.palette\\.primary_500\\}, a\\.font_semi_bold"
+    replace: "{color: t.palette.primary_600}, a.font_semi_bold"
+  - path: src/view/com/composer/select-language/PostLanguageSelect.tsx
+    regexp: "pressed \\|\\| hovered \\? t\\.palette\\.primary_300 : t\\.palette\\.primary_500"
+    replace: "pressed || hovered ? t.palette.primary_700 : t.palette.primary_600"
 
 BLUESKY_PDSADMIN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_FILE: "{{ [ BLUESKY_PDSADMIN_DIR, 'pdsadmin' ] | path_join }}"
@@ -36,13 +128,18 @@ BLUESKY_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enable
 BLUESKY_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_secret') }}"
 BLUESKY_ROTATION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.plc_rotation_key_k256_private_key_hex') }}"
 
-BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-BLUESKY_ADMIN_HANDLE: "kc-{{ lookup('users', 'administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
+BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+BLUESKY_ADMIN_HANDLE: "kc-{{ lookup('users', 'platform_administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
 BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_API_PORT }}"
 
 BLUESKY_FRONT_PROXY_CONTENT: "{{ lookup('template', 'extra_locations.conf.j2') }}"
-BLUESKY_CONFIG_UPSTREAM_URL: "{{ lookup('config', application_id, 'server.config_upstream_url') }}"
+BLUESKY_FRONT_PROXY_TIMEOUT: 5s
+BLUESKY_FRONT_PROXY_ENDPOINTS:
+  - path: /config
+    upstream: "{{ lookup('config', application_id, 'server.config_upstream_url') }}"
+  - path: /geolocation
+    upstream: "{{ lookup('config', application_id, 'server.geolocation_upstream_url') }}"
 
 BLUESKY_BROKER_BUILD_CONTEXT: "{{ [ lookup('container', application_id, 'directories.services'), 'login-broker' ] | path_join }}"
 BLUESKY_BROKER_SRC_DIR: "{{ role_path }}/files/login-broker"

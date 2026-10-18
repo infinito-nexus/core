@@ -15,7 +15,7 @@
       - -e
       - "NC_CLIENT_NAME={{ nextcloud_crm_client_name }}"
       - -e
-      - "NC_CLIENT_SECRET={{ nextcloud_crm_client_secret }}"
+      - NC_CLIENT_SECRET
       - "{{ nextcloud_crm_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
       - php
       - -d
@@ -23,6 +23,8 @@
       - -
     chdir: "{{ nextcloud_crm_instance_dir }}"
     stdin: "{{ lookup('file', 'php/addons/suitecrm/provision_oauth_password_client.php') }}"
+  environment:
+    NC_CLIENT_SECRET: "{{ nextcloud_crm_client_secret }}"
   register: nextcloud_crm_provision
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

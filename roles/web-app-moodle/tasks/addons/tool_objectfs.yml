@@ -1,0 +1,5 @@
+---
+- name: "🪣 tool_objectfs is staged into the image and switched on by config.php"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: tasks/utils/objectfs.yml runs upgrade.php and writes the readiness file"
+  changed_when: false

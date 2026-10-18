@@ -26,7 +26,7 @@
       --env-file {{ lookup('container', application_id, 'files.env') | quote }} \
       --env AKAUNTING_SETUP=true \
       --mount type=volume,source={{ AKAUNTING_VOLUME | quote }},target={{ lookup('volume', 'web-app-akaunting', 'data').target }} \
-      --network {{ application_id | get_entity_name | quote }} \
+      --network {{ application_id | entity_name | quote }} \
       {% if lookup('database', application_id, 'shared') | bool %}--network {{ lookup('database', application_id, 'network') | quote }} {% endif %}\
       {{ AKAUNTING_IMAGE }}:{{ AKAUNTING_VERSION }} \
       {{ AKAUNTING_ENTRYPOINT }}

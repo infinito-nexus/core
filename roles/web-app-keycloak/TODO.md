@@ -2,6 +2,7 @@
 
 - Implement working logout for all applications
 - Implement general logout button
+- Mode flip of the logout status panel: `sys-svc-webserver-core/tasks/03_directories.yml` applies the directory mode `0755` recursively to `conf.d/lua/web-app-keycloak-logout-panel.js`, and `📄 Deploy the logout status panel` in `tasks/00_core.yml` sets it back to `0644`, so that task reports `changed` and reloads the proxy on every second deploy. Options: give the task the mode the directory task enforces, or stop the directory task from recursing into files.
 
 ## Req 019 rollout: deploy gate
 

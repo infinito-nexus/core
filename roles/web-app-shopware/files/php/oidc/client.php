@@ -6,7 +6,7 @@
  * Runs INSIDE the Shopware web container (piped via
  * `container exec -i ... php < this-file`).
  *
- * Required env, supplied via `container exec -e KEY=VALUE`:
+ * Required env, supplied by the calling task via `container exec -e KEY`:
  *   SHOPWARE_API_BASE   base URL of the Shopware API as seen from the container
  *   ADMIN_USER          admin username for the password grant
  *   ADMIN_PASSWORD      admin password for the password grant

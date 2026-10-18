@@ -10,8 +10,8 @@
         webserver_proxy_service_key
         | default(
             lookup('config', application_id,
-              'services.' ~ (application_id | get_entity_name) ~ '.proxy.service_key',
-              application_id | get_entity_name
+              'services.' ~ (application_id | entity_name) ~ '.proxy.service_key',
+              application_id | entity_name
             )
           )
       }}
@@ -20,7 +20,7 @@
         http_port
         | default(
             lookup('config', application_id,
-              'services.' ~ (application_id | get_entity_name) ~ '.ports.local.http',
+              'services.' ~ (application_id | entity_name) ~ '.ports.local.http',
               ''
             )
           )
@@ -30,7 +30,7 @@
         proxy_internal_port
         | default(
             lookup('config', application_id,
-              'services.' ~ (application_id | get_entity_name) ~ '.proxy.internal_port',
+              'services.' ~ (application_id | entity_name) ~ '.proxy.internal_port',
               ''
             )
           )
@@ -129,26 +129,26 @@
 - name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
   ansible.builtin.meta: flush_handlers
 
-- name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
-  uri_probe:
-    url: "{{ front_proxy_probe_url }}"
-    status_code: "{{ front_proxy_status_codes }}"
-  register: front_proxy_reload_check
-  failed_when: false
-  changed_when: false
+- name: "🔁 Re-check '{{ front_proxy_domain }}' after a config change"
   when: nginx_conf.changed
+  block:
+    - name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
+      uri_probe:
+        url: "{{ front_proxy_probe_url }}"
+        status_code: "{{ front_proxy_status_codes }}"
+      register: front_proxy_reload_check
+      failed_when: false
+      changed_when: false
 
-- name: "🔄 Redeploy: reload left {{ front_proxy_reload_check.status | default('none') }}"
-  ansible.builtin.command:
-    cmd: "true"
-  notify: restart-openresty
-  when:
-    - nginx_conf.changed
-    - front_proxy_reload_check.status | default(-1) not in front_proxy_status_codes
-    - >-
-      not openresty_reload.changed
-      or front_proxy_reload_check.status | default(-1) in front_proxy_stale_config_status_codes
+    - name: "🔄 Redeploy: reload left {{ front_proxy_reload_check.status | default('none') }}"
+      ansible.builtin.command:
+        cmd: "true"
+      notify: restart-openresty
+      when:
+        - front_proxy_reload_check.status | default(-1) not in front_proxy_status_codes
+        - >-
+          not openresty_reload.changed
+          or front_proxy_reload_check.status | default(-1) in front_proxy_stale_config_status_codes
 
-- name: "🔄 Flush the fallback redeploy for '{{ front_proxy_domain }}'"
-  ansible.builtin.meta: flush_handlers
-  when: nginx_conf.changed
+    - name: "🔄 Flush the fallback redeploy for '{{ front_proxy_domain }}'"
+      ansible.builtin.meta: flush_handlers

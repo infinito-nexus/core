@@ -1,0 +1,33 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var documentColor = {{ AKAUNTING_DOCUMENT_COLOR | lower | to_json }};
+  function documentHeads() {
+    if (!documentColor) return;
+    var painted = document.querySelectorAll('[style*="' + documentColor + '" i]');
+    for (var index = 0; index < painted.length; index += 1) {
+      var style = painted[index].getAttribute("style");
+      painted[index].setAttribute("style", style.split(new RegExp(documentColor, "i")).join("var(--design-primary)"));
+    }
+  }
+{% if design.logo is string %}
+  function icons() {
+    var links = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < links.length; index += 1) {
+      if (links[index].getAttribute("href") !== {{ design.urls.favicon_ico | to_json }}) {
+        links[index].removeAttribute("sizes");
+        links[index].setAttribute("type", "image/x-icon");
+        links[index].setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+      }
+    }
+  }
+{% endif %}
+  function brand() {
+    documentHeads();
+{% if design.logo is string %}
+    icons();
+{% endif %}
+  }
+  new MutationObserver(brand).observe(document.documentElement, { childList: true, subtree: true });
+  brand();
+  document.addEventListener("DOMContentLoaded", brand);
+})();

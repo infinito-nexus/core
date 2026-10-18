@@ -29,11 +29,12 @@ SLEEP_SECONDS="${SLEEP_SECONDS:-15}"
 
 DB_PASSWORD="$(printf '%s' "${DB_PASSWORD_B64}" | base64 -d 2>/dev/null)"
 [ -n "${DB_PASSWORD}" ] || { echo "[FATAL] DB_PASSWORD_B64 missing or undecodable" >&2; exit 2; }
+export PGPASSWORD="${DB_PASSWORD}"
 
 # Local: authenticate inside the container over TCP (127.0.0.1) so pg_hba
 # enforces password auth — a genuine credential check, not a peer/trust socket.
 auth_local() {
-	container exec -e PGPASSWORD="${DB_PASSWORD}" "${DB_CONTAINER}" \
+	container exec -e PGPASSWORD "${DB_CONTAINER}" \
 		psql -h 127.0.0.1 -U "${DB_USER}" -d "${DB_NAME}" -Atqc 'SELECT 1' 2>/dev/null |
 		grep -qx 1
 }

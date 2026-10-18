@@ -1,9 +1,4 @@
 ---
-# Exception: upstream provisions the admin from SH_ADMIN_PASSWORD in
-# platform/standalone/adapter.py on_startup but never calls mark_complete(), so the SPA keeps
-# rendering the setup wizard. Re-posting the same credentials is a no-op for provision_admin()
-# and flips the setup flag; 409 means a previous run already did it.
-
 - name: "⏳ Wait for Social Home at {{ SOCIALHOME_INTERNAL_URL }}/healthz"
   uri_retry:
     url: "{{ SOCIALHOME_INTERNAL_URL }}/healthz"
@@ -25,4 +20,29 @@
     status_code: [201, 409]
   register: socialhome_setup
   changed_when: socialhome_setup.status == 201
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Resolve the hosting node + container id of '{{ application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: SOCIALHOME
+    resolve_compose_cid: "{{ SOCIALHOME_CONTAINER_ADDRESS }}"
+
+- name: "🔑 Realign the Social Home administrator password with the declared one"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SOCIALHOME_REALIGN_USERNAME -e SOCIALHOME_REALIGN_PASSWORD
+      {{ SOCIALHOME_LOCAL_CID | quote }} python
+    stdin: "{{ lookup('file', 'python/realign_admin_password.py') }}"
+  environment:
+    SOCIALHOME_REALIGN_USERNAME: "{{ SOCIALHOME_ADMIN_USERNAME }}"
+    SOCIALHOME_REALIGN_PASSWORD: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
+  register: socialhome_admin_password_realign
+  changed_when: socialhome_admin_password_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    socialhome_admin_password_realign.rc != 0
+    or socialhome_admin_password_realign.stdout is search('\[FAIL\]')
+  delegate_to: "{{ SOCIALHOME_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

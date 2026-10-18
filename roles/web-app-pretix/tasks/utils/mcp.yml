@@ -21,17 +21,19 @@
       - -e
       - "MCP_TEAM={{ PRETIX_MCP_UPSTREAM_TEAM }}"
       - -e
-      - "MCP_TOKEN={{ PRETIX_MCP_UPSTREAM_KEY }}"
+      - MCP_TOKEN
       - "{{ PRETIX_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
       - pretix
       - shell_scoped
       - --override
     stdin: "{{ lookup('file', 'python/provision_mcp_identity.py') }}"
+  environment:
+    MCP_TOKEN: "{{ PRETIX_MCP_UPSTREAM_KEY }}"
   register: pretix_mcp_identity
   retries: 30
   delay: 10
-  until: pretix_mcp_identity.rc == 0
-  changed_when: pretix_mcp_identity.stdout_lines[-1] | default('') == 'CHANGED'
+  until: "pretix_mcp_identity.rc == 0 and (pretix_mcp_identity.stdout is search('(?m)^PRETIX_RESULT=(UN)?CHANGED'))"
+  changed_when: "pretix_mcp_identity.stdout is search('(?m)^PRETIX_RESULT=CHANGED')"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ PRETIX_IDENTITY_HOST_NODE }}"
   run_once: true

@@ -2,6 +2,7 @@
 
 Usage:
   python -m cli.meta.ci.plan [--distros "debian"] [--filesystem "zfs"]
+      [--architectures "arm64"]
       [--whitelist "..."] [--priority "..."] [--modes auto]
       [--lifecycles "..."] [--sweep N] [--cli]
 
@@ -11,7 +12,9 @@ diverge. One row per ``role#variant`` candidate in global query order, with
 the chunk it falls into and the axes it was assigned.
 
 Status per row: ⭐ a priority row, ✅ deployed by this sweep, ❌ beyond the
-sweep's budget (raise ``--offset`` to reach it), ✂️ cut as redundant coverage —
+sweep's budget (raise ``--offset`` to reach it), ⭐❌ a priority row the budget
+did not reach — ``--offset`` indexes the regular line only, so this one needs a
+shorter priority line or a run of its own, ✂️ cut as redundant coverage —
 a clone or a row an earlier one already embeds, which no sweep deploys.
 ``--cli`` renders fixed-width terminal tables instead of Markdown.
 
@@ -50,13 +53,14 @@ _COLUMNS = (
     "mode",
     "distro",
     "filesystem",
+    "architecture",
     "tor",
     "triggered",
     "covered_by",
     "instructions",
     "clone",
 )
-_GLYPH = {"triggered": "enabled", "distro": "distros"}
+_GLYPH = {"triggered": "enabled", "distro": "distros", "architecture": "architectures"}
 _HEADERS = tuple(
     f"{to_emoji(_GLYPH.get(key, key))} {key.replace('_', ' ').capitalize()}"
     for key in _COLUMNS
@@ -79,6 +83,7 @@ def _key(entry: dict[str, str]) -> tuple[str, ...]:
         entry["tor"],
         entry["distro"],
         entry["filesystem"],
+        entry["architecture"],
     )
 
 
@@ -105,7 +110,8 @@ def cells(
         if instructions.redundant(entry):
             status, where = _CUT, ""
         elif chunk is None:
-            status, where = _OFF, ""
+            status = f"{_STAR}{_OFF}" if entry["priority"] == "true" else _OFF
+            where = ""
         else:
             status = _STAR if entry["priority"] == "true" else _OK
             where = str(chunk)
@@ -119,6 +125,7 @@ def cells(
                 to_emoji(entry["mode"]),
                 to_emoji(entry["distro"]),
                 to_emoji(entry["filesystem"]),
+                to_emoji(entry["architecture"]),
                 to_emoji("tor" if entry["tor"] == "true" else "clearnet"),
                 status,
                 positions.get(covered, covered) if covered not in ("", "0") else "",
@@ -178,6 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sweep", type=int, default=None)
     parser.add_argument("--tor", default=None)
     parser.add_argument("--filesystem", default="")
+    parser.add_argument("--architectures", default="")
     parser.add_argument("--offset", default=None)
     parser.add_argument("--cli", action="store_true")
     args = parser.parse_args(argv)
@@ -196,6 +204,7 @@ def main(argv: list[str] | None = None) -> int:
         tor_mode=tor.resolve_tor_mode(args.tor),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
+        architectures=pools.resolve_architectures(args.architectures),
     )
     plan = matrix.chunks_of(entries, matrix.resolve_offset(args.offset))
     rows = cells(entries, plan)

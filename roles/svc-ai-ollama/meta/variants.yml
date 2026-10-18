@@ -6,6 +6,21 @@
 # variant changed. Apps with fewer variants stay on variant 0 in the
 # extra rounds.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# Variant 0 runs the round that every other role's variant 0 runs with, so it
+# preloads nothing: the gateway then serves its deterministic mock and no row
+# pays for pulling or running a model. Variant 1 preloads for real and is the
+# round that proves this role actually serves.
+#
+# Variant 1 serves three models whose declared windows differ, because that is
+# what makes the gateway's router observable: a prompt larger than the smallest
+# window can only be answered by a larger one, so the model that answers says
+# which route was chosen. A declared window below what the tag supports is
+# deliberate; it bounds the KV cache and it is the number the router filters on.
+#
+# Order is load-bearing. The CLI probe sizes its prompt off the smallest
+# declared window, so whichever model holds that window is the one the request
+# must exclude, and the model answering instead is what shows the filter ran.
 
 - services:
     container_backup:
@@ -13,3 +28,18 @@
     ollama:
       mem_reservation: 1g
       mem_limit: 2g
+      preload_models: []
+
+- services:
+    container_backup:
+      enabled: true
+    ollama:
+      mem_reservation: 3g
+      mem_limit: 6g
+      preload_models:
+        - alias: qwen2.5:0.5b
+          context: 4096
+        - alias: smollm2:135m
+          context: 8192
+        - alias: llama3.2:1b
+          context: 65536

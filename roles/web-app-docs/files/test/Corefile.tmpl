@@ -1,0 +1,15 @@
+${DOCS_TEST_DOMAIN}:53 {
+  template IN A {
+    answer "{{ .Name }} 60 IN A ${DOCS_TEST_TARGET_IP}"
+  }
+
+  template IN AAAA {
+  }
+
+  errors
+}
+
+.:53 {
+  forward . ${DOCS_TEST_UPSTREAM}
+  errors
+}

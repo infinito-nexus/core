@@ -58,7 +58,7 @@ roles/web-app-jellyfin/
 ### Routing & TLS
 
 - [ ] `media.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to Jellyfin (`8096`); `GET /` returns the Jellyfin web UI; `JELLYFIN_PublishedServerUrl` is set to the canonical URL.
-- [ ] The role emits a `Content-Security-Policy` header on the canonical surface.
+- [x] The role emits a `Content-Security-Policy` header on the canonical surface.
 
 ### Role layout & image
 
@@ -71,7 +71,7 @@ roles/web-app-jellyfin/
 
 ### Authentication (Decision #2)
 
-- [ ] The chosen auth integration is provisioned non-interactively: for LDAP, `jellyfin-plugin-ldapauth` is installed and configured against `svc-db-openldap` (server/bind/search/attributes); for the OIDC plugin, it is installed and pointed at Keycloak.
+- [x] The chosen auth integration is provisioned non-interactively: for LDAP, `jellyfin-plugin-ldapauth` is installed and configured against `svc-db-openldap` (server/bind/search/attributes); for the OIDC plugin, it is installed and pointed at Keycloak.
 - [ ] An LDAP/SSO user can sign in and reach the Jellyfin home; a dedicated Playwright scenario (gated on the chosen service) covers it.
 
 ### Variants

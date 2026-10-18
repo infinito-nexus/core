@@ -18,7 +18,7 @@ class TestRunReporting(unittest.TestCase):
     def _run_capturing(self, rc: int) -> tuple[int, str]:
         buffer = io.StringIO()
         with (
-            mock.patch.object(matrix, "_run_watched", return_value=rc) as watched,
+            mock.patch.object(matrix, "run_watched", return_value=rc) as watched,
             contextlib.redirect_stdout(buffer),
         ):
             returned = matrix._run(["true"], env={"A": "b"}, label="demo phase")

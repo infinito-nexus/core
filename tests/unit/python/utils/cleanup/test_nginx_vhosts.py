@@ -18,6 +18,7 @@ from utils.cleanup.nginx_vhosts import (
     main,
     purge_vhost_files_for_entities,
 )
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
 
@@ -365,7 +366,9 @@ class TestResolveDomainPrimary(unittest.TestCase):
             if k not in ("DOMAIN", "INFINITO_DOMAIN")
         }
         with patch.dict(os.environ, env, clear=True):
-            self.assertEqual(mod._resolve_domain_primary(None), "infinito.test")
+            self.assertEqual(
+                mod._resolve_domain_primary(None), default_domain_primary()
+            )
 
 
 if __name__ == "__main__":  # pragma: no cover

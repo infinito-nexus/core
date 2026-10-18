@@ -1,0 +1,14 @@
+---
+data:
+  type: volume
+  name: seaweedfs_data
+  mounts:
+    - service: seaweedfs
+      target: /data
+s3_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-svc-seaweedfs', 'directories.volumes'), 's3.json' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: seaweedfs
+      target: /etc/seaweedfs/s3.json

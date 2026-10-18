@@ -13,6 +13,12 @@ ENTRYPOINT = PROJECT_ROOT / "roles/web-app-moodle/files/build/moodle-entrypoint.
 
 FPM_STUB = "#!/usr/bin/env bash\nexit 0\n"
 
+CP_STUB = (
+    "#!/usr/bin/env bash\n"
+    'printf %s "$SIBLING_RELEASE" > "${MOODLE_CODE_DIR}/.bootstrap.done"\n'
+    'exec @REAL_CP@ "$@"\n'
+)
+
 LAYOUT_4 = {"version.php": "4.5.11", "auth/oidc/version.php": "4.5.8"}
 LAYOUT_5 = {"public/version.php": "5.3.0", "public/auth/oidc/version.php": "5.2.1"}
 
@@ -24,21 +30,37 @@ class TestMoodleEntrypoint(unittest.TestCase):
         self.root = Path(tmp.name)
         self.source = self.root / "source"
         self.code = self.root / "code"
-        bin_dir = self.root / "bin"
-        bin_dir.mkdir()
-        stub = bin_dir / "php-fpm"
+        self.stage = self.code / ".bootstrap.stage"
+        self.sentinel = self.code / ".bootstrap.done"
+        self.bin_dir = self.root / "bin"
+        self.bin_dir.mkdir()
+        self.real_cp = shutil.which("cp")
+        stub = self.bin_dir / "php-fpm"
         stub.write_text(FPM_STUB)
         stub.chmod(0o755)
         self.env = dict(os.environ)
         self.env.update(
-            PATH=f"{bin_dir}{os.pathsep}{self.env['PATH']}",
+            PATH=f"{self.bin_dir}{os.pathsep}{self.env['PATH']}",
             MOODLE_CODE_DIR=str(self.code),
             MOODLE_DATA_DIR=str(self.root / "data"),
             MOODLE_LOCAL_CACHE_DIR=str(self.root / "localcache"),
             MOODLE_SOURCE_DIR=str(self.source),
+            MOODLE_BOOTSTRAP_STAGE=str(self.stage),
+            MOODLE_BOOTSTRAP_SENTINEL=str(self.sentinel),
             MOODLE_RUNTIME_USER=pwd.getpwuid(os.getuid()).pw_name,
             MOODLE_VERSION_FILE="public/version.php",
         )
+
+    def sibling_finishes_during_the_copy(self, release):
+        """Stub ``cp`` so another container marks the volume done mid-bootstrap.
+
+        Args:
+            release: release the sibling records in the bootstrap sentinel.
+        """
+        stub = self.bin_dir / "cp"
+        stub.write_text(CP_STUB.replace("@REAL_CP@", self.real_cp))
+        stub.chmod(0o755)
+        self.env["SIBLING_RELEASE"] = release
 
     def write(self, tree, files):
         for name, content in files.items():
@@ -108,6 +130,16 @@ class TestMoodleEntrypoint(unittest.TestCase):
         self.assertNotEqual(done.returncode, 0)
         self.assertEqual(self.shipped_files_in_the_volume(), set(LAYOUT_4))
         self.assertEqual(read_text(str(self.code / ".bootstrap.done")), "4.5.11")
+
+    def test_a_sibling_that_finishes_first_keeps_its_tree(self):
+        self.ship(LAYOUT_5)
+        installed = {"public/local/installed/version.php": "written by the deploy"}
+        self.write(self.code, installed)
+        self.sibling_finishes_during_the_copy("5.3.0")
+        self.start("5.3.0")
+        self.assertTrue((self.code / "public/local/installed/version.php").is_file())
+        self.assertFalse(self.stage.exists())
+        self.assertEqual(read_text(str(self.code / ".bootstrap.done")), "5.3.0")
 
     def test_an_image_older_than_the_recorded_release_refuses_to_replace_it(self):
         self.ship(LAYOUT_5)

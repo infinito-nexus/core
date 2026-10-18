@@ -1,0 +1,29 @@
+---
+- name: "📥 Read the generated logo set of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [SUITECRM_DESIGN_ASSETS_DIR, item] | path_join }}"
+  loop:
+    - logo.png
+    - favicon.ico
+  register: suitecrm_design_assets
+  when: SUITECRM_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Converge the SuiteCRM design carriers"
+  ansible.builtin.shell:
+    cmd: >
+      container exec -i --user {{ SUITECRM_WEB_USER }} {{ SUITECRM_CONTAINER_ADDRESS }} php
+    stdin: "<?php $DESIGN_PAYLOAD = '{{ suitecrm_design_payload | to_json | b64encode }}'; ?>{{ lookup('ansible.builtin.file', SUITECRM_DESIGN_SCRIPT) }}"
+  vars:
+    suitecrm_design_payload:
+      app_dir: "{{ SUITECRM_APP_DIR }}"
+      enabled: "{{ SUITECRM_DESIGN_ENABLED | bool }}"
+      css: "{{ lookup('ansible.builtin.template', SUITECRM_DESIGN_LEGACY_CSS) if SUITECRM_DESIGN_ENABLED | bool else '' }}"
+      title: "{{ SUITECRM_DESIGN_TITLE }}"
+      logo: "{{ suitecrm_design_assets.results[0].content if SUITECRM_DESIGN_LOGO_ENABLED | bool else '' }}"
+      favicon: "{{ suitecrm_design_assets.results[1].content if SUITECRM_DESIGN_LOGO_ENABLED | bool else '' }}"
+  register: suitecrm_design_apply
+  changed_when: "'DESIGN_CHANGED' in suitecrm_design_apply.stdout"
+  failed_when: >-
+    suitecrm_design_apply.rc != 0
+    or ('DESIGN_CHANGED' not in suitecrm_design_apply.stdout and 'DESIGN_UNCHANGED' not in suitecrm_design_apply.stdout)
+  timeout: "{{ lookup('timeout', 300) | int }}"

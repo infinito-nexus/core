@@ -1,0 +1,46 @@
+---
+- name: "📁 Ensure the design directory of {{ application_id }} exists"
+  ansible.builtin.file:
+    path: "{{ NEXTCLOUD_DESIGN_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🖼️ Render the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_role:
+    name: sys-front-inj-design
+    tasks_from: assets.yml
+  vars:
+    design_assets_dest: "{{ NEXTCLOUD_DESIGN_DIR }}"
+
+- name: "📤 Hand the corporate logo set to the Nextcloud container"
+  ansible.builtin.shell: >-
+    cat {{ [NEXTCLOUD_DESIGN_DIR, item] | path_join | quote }}
+    | {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }}
+    sh -c {{ ('cat > /tmp/design-' ~ item) | quote }}
+  args:
+    executable: /bin/bash
+  loop:
+    - icon.png
+    - apple-touch-icon.png
+  when: design_branding.logo is string
+  changed_when: false
+
+- name: "🎨 Apply the corporate theming of {{ application_id }}"
+  ansible.builtin.command: >-
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} theming:config {{ item.key }} {{ item.value | quote }}
+  loop: "{{ NEXTCLOUD_DESIGN_THEMING | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  changed_when: false
+
+- name: "🏷️ Apply the corporate logos of {{ application_id }}"
+  ansible.builtin.command: >-
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} theming:config {{ item.key }} {{ item.value | quote }}
+  loop:
+    - { key: logo, value: /tmp/design-icon.png }
+    - { key: logoheader, value: /tmp/design-icon.png }
+    - { key: favicon, value: /tmp/design-apple-touch-icon.png }
+  loop_control:
+    label: "{{ item.key }}"
+  when: design_branding.logo is string
+  changed_when: false

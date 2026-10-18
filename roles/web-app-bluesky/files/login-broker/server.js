@@ -72,6 +72,7 @@ const CONFIG = {
   // nocheck: env-default  the broker owns its own cookie, no role renders it
   handoffCookieMaxAgeSec: parseInt(process.env.HANDOFF_COOKIE_MAX_AGE || "3300", 10),
   insecureTls: (process.env.INSECURE_TLS || "").toLowerCase() === "true",
+  siteTitle: requireEnv("SITE_TITLE"),
   logoutPath: "/sso/logout"
 };
 
@@ -371,12 +372,12 @@ function renderHandoff(session, redirectTo) {
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Bluesky SSO handoff</title>
+<title>${escapeHtml(CONFIG.siteTitle)} SSO handoff</title>
 <meta name="referrer" content="no-referrer" />
-<style>body{font-family:sans-serif;background:#001a33;color:#eef;margin:0;padding:2em;text-align:center}</style>
+<style>body{font-family:sans-serif;background:var(--design-surface-1);color:var(--design-text);margin:0;padding:2em;text-align:center}</style>
 </head>
 <body>
-<p id="status">Signing you in to Bluesky…</p>
+<p id="status">Signing you in to ${escapeHtml(CONFIG.siteTitle)}…</p>
 <script>
 (function(){
   try {
@@ -467,7 +468,7 @@ const server = http.createServer(async (req, res) => {
     const kcEmail = (req.headers["x-forwarded-email"] || "").toString();
     if (!kcUsername) {
       console.log(`[broker:${reqId}] missing X-Forwarded-User → 401 (${Date.now() - reqStart}ms)`);
-      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>Bluesky login required</title></head><body><p>Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.</p></body></html>`);
+      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>${escapeHtml(CONFIG.siteTitle)} login required</title></head><body><p>Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.</p></body></html>`);
       return;
     }
 

@@ -1,0 +1,244 @@
+{% set design = lookup('design', application_id) %}
+{% set any_scheme = 'html:root[data-mantine-color-scheme]' %}
+{% set frame = ':root :is(.mantine-AppShell-header, .mantine-AppShell-navbar)' %}
+{% set filled = ['.mantine-Button-root', '.mantine-ActionIcon-root', '.mantine-Badge-root', '[data-combobox-selected]'] %}
+{% set status = [('red', 'danger'), ('green', 'success'), ('teal', 'success'), ('lime', 'success'), ('yellow', 'warning'), ('orange', 'warning')] %}
+{% set scales = status + [('blue', 'info')] %}
+{% set light_steps = [(0, '-subtle'), (1, '-subtle'), (2, '-subtle'), (3, '-border'), (4, '-border'), (5, ''), (6, ''), (7, ''), (8, ''), (9, '')] %}
+{% set dark_steps = [(0, ''), (1, ''), (2, ''), (3, ''), (4, ''), (5, ''), (6, ''), (7, '-border'), (8, '-border'), (9, '-subtle')] %}
+html:root,
+{{ any_scheme }} {
+  --mantine-color-body: var(--design-surface-1);
+  --mantine-color-text: var(--design-text);
+  --mantine-color-bright: var(--design-text);
+  --mantine-color-dimmed: var(--design-text-muted);
+  --mantine-color-placeholder: var(--design-text-muted);
+  --mantine-color-anchor: var(--design-link);
+  --mantine-color-error: var(--design-danger);
+  --mantine-color-success: var(--design-success);
+  --mantine-color-default: var(--design-surface-2);
+  --mantine-color-default-hover: var(--design-surface-hover);
+  --mantine-color-default-color: var(--design-text);
+  --mantine-color-default-border: var(--design-border-strong);
+  --mantine-color-disabled: var(--design-surface-3);
+  --mantine-color-disabled-color: var(--design-text-muted);
+  --mantine-color-disabled-border: var(--design-border);
+  --mantine-primary-color-filled: var(--design-primary);
+  --mantine-primary-color-filled-hover: var(--design-primary-hover);
+  --mantine-primary-color-light: var(--design-info-subtle);
+  --mantine-primary-color-light-hover: var(--design-surface-hover);
+  --mantine-primary-color-light-color: var(--design-info);
+  --mantine-primary-color-contrast: var(--design-on-primary);
+  --mantine-color-blue-filled: var(--design-primary);
+  --mantine-color-blue-filled-hover: var(--design-primary-hover);
+  --mantine-color-blue-light: var(--design-surface-3);
+  --mantine-color-blue-light-hover: var(--design-surface-hover);
+  --mantine-color-blue-light-color: var(--design-link);
+  --mantine-color-blue-outline: var(--design-link);
+  --mantine-color-blue-outline-hover: var(--design-surface-hover);
+  --mantine-color-blue-text: var(--design-link);
+  --mantine-color-gray-filled: var(--design-surface-active);
+  --mantine-color-gray-filled-hover: var(--design-surface-hover);
+  --mantine-color-gray-light: var(--design-surface-3);
+  --mantine-color-gray-light-hover: var(--design-surface-hover);
+  --mantine-color-gray-light-color: var(--design-text);
+  --mantine-color-gray-outline: var(--design-border-strong);
+  --mantine-color-gray-outline-hover: var(--design-surface-hover);
+  --mantine-color-gray-text: var(--design-text-muted);
+{% for color, token in status %}
+  --mantine-color-{{ color }}-filled: var(--design-{{ token }});
+  --mantine-color-{{ color }}-filled-hover: var(--design-{{ token }}-hover);
+  --mantine-color-{{ color }}-light: var(--design-{{ token }}-subtle);
+  --mantine-color-{{ color }}-light-hover: var(--design-surface-hover);
+  --mantine-color-{{ color }}-light-color: var(--design-{{ token }});
+  --mantine-color-{{ color }}-outline: var(--design-{{ token }});
+  --mantine-color-{{ color }}-outline-hover: var(--design-{{ token }}-subtle);
+  --mantine-color-{{ color }}-text: var(--design-{{ token }});
+{% endfor %}
+}
+html:root,
+html:root[data-mantine-color-scheme="light"] {
+  --mantine-color-white: var(--design-surface-2);
+  --mantine-color-black: var(--design-text);
+  --mantine-color-gray-0: var(--design-surface-3);
+  --mantine-color-gray-1: var(--design-surface-hover);
+  --mantine-color-gray-2: var(--design-surface-active);
+  --mantine-color-gray-3: var(--design-border);
+  --mantine-color-gray-4: var(--design-border-strong);
+  --mantine-color-gray-5: var(--design-text-muted);
+  --mantine-color-gray-6: var(--design-text-muted);
+  --mantine-color-gray-7: var(--design-text);
+  --mantine-color-gray-8: var(--design-text);
+  --mantine-color-gray-9: var(--design-text);
+{% for color, token in scales %}
+{% for step, suffix in light_steps %}
+  --mantine-color-{{ color }}-{{ step }}: var(--design-{{ token }}{{ suffix }});
+{% endfor %}
+{% endfor %}
+}
+html:root[data-mantine-color-scheme="dark"] {
+  --mantine-color-white: var(--design-text);
+  --mantine-color-black: var(--design-surface-1);
+  --mantine-color-dark-0: var(--design-text);
+  --mantine-color-dark-1: var(--design-text);
+  --mantine-color-dark-2: var(--design-text-muted);
+  --mantine-color-dark-3: var(--design-text-muted);
+  --mantine-color-dark-4: var(--design-border);
+  --mantine-color-dark-5: var(--design-surface-3);
+  --mantine-color-dark-6: var(--design-surface-2);
+  --mantine-color-dark-7: var(--design-surface-1);
+  --mantine-color-dark-8: var(--design-surface-3);
+  --mantine-color-dark-9: var(--design-surface-3);
+  --mantine-color-gray-0: var(--design-text);
+  --mantine-color-gray-1: var(--design-text);
+  --mantine-color-gray-2: var(--design-text);
+  --mantine-color-gray-3: var(--design-text);
+  --mantine-color-gray-4: var(--design-text-muted);
+  --mantine-color-gray-5: var(--design-text-muted);
+  --mantine-color-gray-6: var(--design-text-muted);
+  --mantine-color-gray-7: var(--design-surface-active);
+  --mantine-color-gray-8: var(--design-surface-active);
+  --mantine-color-gray-9: var(--design-surface-3);
+{% for color, token in scales %}
+{% for step, suffix in dark_steps %}
+  --mantine-color-{{ color }}-{{ step }}: var(--design-{{ token }}{{ suffix }});
+{% endfor %}
+{% endfor %}
+}
+html:root[data-mantine-color-scheme="dark"] [style*="color: var(--mantine-color-gray-7)"] {
+  --mantine-color-gray-7: var(--design-text-muted);
+}
+html:root[data-mantine-color-scheme="dark"] [style*="color: var(--mantine-color-orange-7)"] {
+  --mantine-color-orange-7: var(--design-warning);
+}
+{% for root in filled %}
+:root {{ root }}{{ ',' if not loop.last else ' {' }}
+{% endfor %}
+  --mantine-color-white: var(--design-on-primary);
+}
+:root .mantine-Checkbox-root {
+  --checkbox-icon-color: var(--design-on-primary);
+}
+:root [style*="var(--mantine-color-gray-filled)"] {
+  --mantine-color-white: var(--design-text);
+}
+{% for color, token in status %}
+:root [style*="var(--mantine-color-{{ color }}-filled)"] {
+  --mantine-color-white: var(--design-on-{{ token }});
+}
+{% endfor %}
+:root .mantine-Input-wrapper[data-variant="default"] {
+  --input-bd: var(--design-border-strong);
+}
+{{ any_scheme }} [class*="_panelHealthErr_"] {
+  border-left-color: var(--design-danger-border) !important;
+}
+{{ any_scheme }} [class*="_panelHealthWarn_"] {
+  border-left-color: var(--design-warning-border) !important;
+}
+{{ any_scheme }} [class*="_healthErr_"],
+{{ any_scheme }} [class*="_nodeText_"][class*="_nodeTextError_"] {
+  background-color: var(--design-danger-subtle);
+}
+{{ any_scheme }} [class*="_typeLabel_"] {
+  color: var(--design-info);
+}
+{{ any_scheme }} [class*="_helpLabel_"] {
+  color: var(--design-text-muted);
+}
+{{ any_scheme }} [class*="_chartWrapper_"],
+{{ any_scheme }} [class*="_tableWrapper_"] {
+  border-color: var(--design-border);
+}
+{{ any_scheme }} [class*="_nodeText_"][class*="_nodeTextSelected_"] {
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+{{ any_scheme }} [class*="_labelPair_"]:hover {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+{{ frame }} {
+  background: var(--design-frame) !important;
+  color: var(--design-on-frame) !important;
+  --design-focus: var(--design-on-frame);
+  --mantine-primary-color-filled: var(--design-on-frame);
+  --mantine-color-white: var(--design-on-frame);
+  --mantine-color-gray-0: var(--design-on-frame);
+  --mantine-color-gray-2: var(--design-on-frame);
+  --mantine-color-gray-6: var(--design-frame-hover);
+  --mantine-color-gray-8: var(--design-frame-hover);
+  --mantine-color-gray-filled: var(--design-frame-hover);
+  --mantine-color-gray-filled-hover: var(--design-frame-active);
+  --mantine-color-blue-filled: var(--design-frame-active);
+  --app-shell-border-color: var(--design-frame-active);
+}
+{{ frame }} :is(.mantine-Button-root, .mantine-ActionIcon-root) {
+  --mantine-color-white: var(--design-on-frame);
+}
+:root .mantine-AppShell-header a[href] {
+  color: var(--design-on-frame) !important;
+}
+{{ frame }} [data-injected-logout] {
+  background: var(--design-frame-hover) !important;
+  border-color: var(--design-frame-active) !important;
+  color: var(--design-on-frame) !important;
+}
+{{ frame }} [data-injected-logout]:hover {
+  background: var(--design-frame-active) !important;
+}
+:root .cm-editor .cm-tooltip {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+:root .cm-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li:hover {
+  background-color: var(--design-surface-hover);
+}
+:root .cm-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+:root .cm-editor .cm-tooltip.cm-completionInfo {
+  background-color: var(--design-surface-3);
+}
+:root .cm-editor .cm-completionDetail {
+  color: var(--design-text-muted);
+}
+:root .cm-editor .cm-completionMatchedText {
+  color: var(--design-link);
+}
+{{ any_scheme }} .uplot .u-under {
+  background-color: var(--design-surface-2);
+}
+{{ any_scheme }} .uplot .u-over {
+  box-shadow: 0 0 0 0.5px var(--design-border);
+}
+{{ any_scheme }} .uplot .u-select {
+  background: rgba(var(--design-primary-rgb), 0.2);
+}
+{{ any_scheme }} .uplot .u-cursor-x,
+{{ any_scheme }} .uplot .u-cursor-y {
+  border-color: var(--design-text-muted);
+}
+{{ any_scheme }} .u-tooltip {
+  background: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+  color: var(--design-text);
+}
+{% if design.logo is string %}
+:root .mantine-AppShell-header a > .mantine-Group-root > img {
+  content: url("{{ design.urls.logo.svg }}");
+  height: calc(2.75rem * var(--mantine-scale));
+}
+{% if design.title is string %}
+:root .mantine-AppShell-header a > .mantine-Group-root > img ~ .mantine-Text-root {
+  display: none;
+}
+{% endif %}
+@media (min-width: 48em) and (max-width: 61.99em) {
+  :root .mantine-AppShell-header a > .mantine-Group-root > img {
+    content: url("{{ design.urls.symbol.svg }}");
+  }
+}
+{% endif %}

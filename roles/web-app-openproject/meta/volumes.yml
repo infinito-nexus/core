@@ -23,8 +23,6 @@ await_migrations:
     - service: worker
       target: *await_migrations_target
 pgdata_dummy:
-  # Exception: mount only exists to prevent OpenProject images from creating
-  # anonymous volumes for the unused embedded postgres data path.
   type: volume
   name: openproject_pgdata_dummy
   # nocheck: nfs-false-data-loss  Reason: throwaway dummy, never read or written, re-provisioned on redeploy

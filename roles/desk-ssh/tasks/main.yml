@@ -1,3 +1,0 @@
----
-- include_tasks: 00_core.yml
-  when: run_once_desk_ssh is not defined

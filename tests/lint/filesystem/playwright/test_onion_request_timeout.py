@@ -7,7 +7,7 @@ address reached through the Tor SOCKS proxy. The standalone ``request`` fixture
 cold Tor circuit + descriptor fetch on first contact: the request times out
 before the circuit is built. This was observed deterministically (30s ×3) for
 ``web-svc-simpleicons``, ``web-app-prometheus`` (``/metricz``) and
-``web-svc-css`` — and ``web-svc-css`` flaked across jobs (green in one batch,
+``web-svc-design`` — and ``web-svc-design`` flaked across jobs (green in one batch,
 red in another), confirming a timing gap rather than a broken fixture.
 
 ``page.request`` / ``ctx.request`` inherit the browser context (which already

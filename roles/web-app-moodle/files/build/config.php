@@ -17,6 +17,10 @@ function moodle_env_bool(string $name): bool {
     return filter_var(moodle_env($name), FILTER_VALIDATE_BOOLEAN);
 }
 
+function moodle_env_lines(string $name): string {
+    return implode(PHP_EOL, preg_split('/[\s,]+/', moodle_env($name), -1, PREG_SPLIT_NO_EMPTY));
+}
+
 unset($CFG);
 global $CFG;
 $CFG = new stdClass();
@@ -45,6 +49,9 @@ $CFG->routerconfigured     = true;
 $CFG->reverseproxy = moodle_env_bool('MOODLE_REVERSEPROXY');
 $CFG->sslproxy     = moodle_env_bool('MOODLE_SSLPROXY');
 
+$CFG->curlsecurityblockedhosts = moodle_env_lines('MOODLE_EGRESS_BLOCKED_HOSTS');
+$CFG->curlsecurityallowedport  = moodle_env_lines('MOODLE_EGRESS_ALLOWED_PORTS');
+
 $_moodle_internal_host = moodle_env('MOODLE_INTERNAL_HOST');
 if (explode(':', $_SERVER['HTTP_HOST'] ?? '', 2)[0] === $_moodle_internal_host) {
     $_SERVER['HTTP_HOST']   = parse_url($CFG->wwwroot, PHP_URL_HOST);
@@ -54,5 +61,27 @@ if (explode(':', $_SERVER['HTTP_HOST'] ?? '', 2)[0] === $_moodle_internal_host) 
 $_moodle_debug     = moodle_env_bool('MOODLE_DEBUG');
 $CFG->debug        = $_moodle_debug ? 32767 : 0;
 $CFG->debugdisplay = $_moodle_debug;
+
+if (moodle_env_bool('MOODLE_OBJECTFS_ENABLED')
+        && is_file(moodle_env('MOODLE_OBJECTFS_READY_FILE'))) {
+    $CFG->alternative_file_system_class = '\\tool_objectfs\\s3_file_system';
+    $CFG->pathtophp = PHP_BINDIR . '/php';
+    $CFG->forced_plugin_settings = array(
+        'tool_objectfs' => array(
+            'enabletasks'   => 1,
+            'filesystem'    => '\\tool_objectfs\\s3_file_system',
+            'minimumage'    => 0,
+            'sizethreshold' => 0,
+            's3_base_url'   => moodle_env('MOODLE_OBJECTFS_S3_BASE_URL'),
+            's3_bucket'     => moodle_env('MOODLE_OBJECTFS_S3_BUCKET'),
+            's3_key'        => moodle_env('MOODLE_OBJECTFS_S3_KEY'),
+            's3_region'     => moodle_env('MOODLE_OBJECTFS_S3_REGION'),
+            's3_secret'     => moodle_env('MOODLE_OBJECTFS_S3_SECRET'),
+        ),
+        'tool_task' => array(
+            'enablerunnow' => 1,
+        ),
+    );
+}
 
 require_once(__DIR__ . '/lib/setup.php');

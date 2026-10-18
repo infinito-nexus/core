@@ -1,0 +1,32 @@
+{% set design = lookup('design', application_id) %}
+{% if design.title is string or design.logo is string %}
+(function () {
+{% if design.title is string %}
+  var title = {{ design.title | to_json }};
+  function brand(text) {
+    return text.replace(/^(\s*)SeaweedFS\b/, function (match, space) {
+      return space + title;
+    });
+  }
+  document.title = brand(document.title);
+  document.addEventListener("DOMContentLoaded", function () {
+    var heading = document.querySelector(".page-header h1");
+    if (!heading) return;
+    for (var index = 0; index < heading.childNodes.length; index += 1) {
+      var node = heading.childNodes[index];
+      if (node.nodeType === 3 && node.nodeValue.trim() !== "") {
+        node.nodeValue = brand(node.nodeValue);
+        return;
+      }
+    }
+  });
+{% endif %}
+{% if design.logo is string %}
+  var icon = document.createElement("link");
+  icon.setAttribute("rel", "icon");
+  icon.setAttribute("type", "image/x-icon");
+  icon.setAttribute("href", {{ design.urls.favicon_ico | to_json }});
+  document.head.appendChild(icon);
+{% endif %}
+})();
+{% endif %}

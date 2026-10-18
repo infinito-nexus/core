@@ -53,7 +53,6 @@ shopware:
   package:
     name: shopware/production
     version: 6.7.13.0
-  title: "{{ ORGANIZATION }} Shop"
   proxy:
     service_key: web
   ports:
@@ -153,13 +152,26 @@ opensearch:
   pids_limit: 1024
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ ORGANIZATION }} Shop"
+  bootstrap: true
+  slots:
+    logo:
+      width: 300
+      height: 60
+    favicon:
+      width: 96
+      height: 96
+    menu-logo:
+      width: 34
+      height: 34
+      frame: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

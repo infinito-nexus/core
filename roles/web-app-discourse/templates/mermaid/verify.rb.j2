@@ -1,0 +1,7 @@
+url = '{{ DISCOURSE_MERMAID_REPOSITORY }}'
+theme = Theme.joins(:remote_theme).find_by(remote_themes: { remote_url: url })
+parent = Theme.find_by(id: SiteSetting.default_theme_id)
+puts "mermaid_installed=#{!theme.nil?}"
+puts "mermaid_component=#{theme && theme.component}"
+puts "mermaid_enabled=#{theme && theme.enabled?}"
+puts "mermaid_attached=#{!theme.nil? && !parent.nil? && parent.child_themes.include?(theme)}"

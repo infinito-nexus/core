@@ -64,6 +64,13 @@
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
 
+- name: 🎨 Apply the corporate design
+  include_tasks:
+    file: 02_manager_ops/08_design.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  when: NEXTCLOUD_DESIGN_ENABLED | bool
+
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml
   when: NEXTCLOUD_MCP_ENABLED | bool

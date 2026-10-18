@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-odoo"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 swarm_stack_converge_retries: 600
 
@@ -14,6 +14,8 @@ ODOO_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.im
 ODOO_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
 ODOO_SERVICE: "{{ entity_name }}"
 ODOO_REPLICAS: "{{ groups[application_id] | length }}"
+
+ODOO_PIP_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'pip' ] | path_join }}"
 
 ODOO_CONF_FILE_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}odoo.conf"
 ODOO_ADDONS_HOST: "{{ lookup('container', application_id, 'directories.volumes') }}addons/"
@@ -29,16 +31,41 @@ ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 ODOO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 ODOO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
+ODOO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 
-ODOO_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
-ODOO_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-ODOO_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'administrator').email }}"
+ODOO_OBJSTORE_STORAGE_CODE: "{{ lookup('objstore', application_id, 'engine') }}"
+ODOO_OBJSTORE_STORAGE_NAME: "Infinito Object Store"
+ODOO_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"
+ODOO_OBJSTORE_OPTIONS:
+  key: "{{ lookup('objstore', application_id, 'access_key') }}"
+  secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
+  client_kwargs:
+    endpoint_url: "{{ lookup('objstore', application_id, 'url') }}"
+    region_name: "{{ lookup('objstore', application_id, 'region') }}"
+  config_kwargs:
+    s3:
+      addressing_style: path
+ODOO_OBJSTORE_FORCE_DB_RULES: '{"image/": 51200, "application/javascript": 0, "text/css": 0}'
+
+ODOO_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+ODOO_DESIGN_LOGO_ENABLED: "{{ ODOO_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+ODOO_DESIGN_TITLE: "{{ lookup('design', application_id).title if ODOO_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+ODOO_DESIGN_ASSETS_DIR: "{{ lookup('design', application_id).dest }}"
+ODOO_DESIGN_SCRIPT: "{{ [role_path, 'files/python/apply/design_settings.py'] | path_join }}"
+ODOO_DESIGN_THEMES:
+  web.assets_backend: "{{ [role_path, 'files/theme/backend.css'] | path_join }}"
+  web.assets_frontend: "{{ [role_path, 'files/theme/frontend.css'] | path_join }}"
+
+ODOO_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+ODOO_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+ODOO_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
 ODOO_MASTER_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.master_password') }}"
 
-ODOO_MODULES_CORE: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','equalto','core') | map(attribute='key') | list }}"
-ODOO_MODULES_OPTIONAL: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','equalto','optional') | map(attribute='key') | list
-  }}"
+ODOO_MODULES_CORE: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','defined') | selectattr('value.group','equalto','core')
+  | map(attribute='key') | list }}"
+ODOO_MODULES_OPTIONAL: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','defined') | selectattr('value.group','equalto','optional')
+  | map(attribute='key') | list }}"
 
 ODOO_DB_HOST: "{{ lookup('database', application_id, 'host') }}"
 ODOO_DB_NAME: "{{ lookup('database', application_id, 'name') }}"

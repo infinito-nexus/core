@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-confluence"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
 

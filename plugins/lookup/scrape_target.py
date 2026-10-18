@@ -13,7 +13,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 def _as_str(value: Any) -> str:
@@ -82,7 +82,7 @@ class LookupModule(LookupBase):
             )
 
         if deployment_mode == "swarm":
-            entity = get_entity_name(application_id)
+            entity = entity_name(application_id)
             if not entity:
                 raise AnsibleError(
                     f"scrape_target: cannot derive entity from {application_id!r}"

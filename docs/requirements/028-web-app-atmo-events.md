@@ -101,9 +101,9 @@ mobilizon:
 matomo:
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared:  "{{ 'web-app-matomo' in group_names }}"
-css:
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared:  "{{ 'web-svc-css' in group_names }}"
+design:
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared:  "{{ 'web-svc-design' in group_names }}"
 atmo:
   image:   atmo                    # self-built (Open Question 2)
   version: "<upstream-git-ref>"    # concrete ref, never :latest

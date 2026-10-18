@@ -17,7 +17,7 @@ The value searched for is read from ``default.env`` at test time, so this rule
 follows the SPOT rather than repeating it.
 
 Scope: every git-tracked file except ``default.env`` itself, ``.md``
-documentation, and three places where a concrete host is the point rather than a
+documentation and its ``.po`` translations, and three places where a concrete host is the point rather than a
 copy -- the test trees (``tests/`` and ``scripts/tests/``) whose fixtures assert
 against a named host, and ``inventories/``, where declaring the real values is
 what an inventory is for. Gitignored build output is skipped too: a generated
@@ -57,7 +57,7 @@ def _is_scan_target(rel_path: str) -> bool:
     Args:
         rel_path: repository-relative path of the candidate file.
     """
-    if rel_path == _SPOT_FILE or rel_path.endswith(".md"):
+    if rel_path == _SPOT_FILE or rel_path.endswith((".md", ".po")):
         return False
     return not rel_path.startswith(_SKIP_DIRS)
 

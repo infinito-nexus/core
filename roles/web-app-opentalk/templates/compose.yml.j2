@@ -40,7 +40,7 @@
     {{ lookup('container_image', application_id, 'rabbit') }}
     {{ lookup('compose_only', 'container_name', OPENTALK_RABBIT_CONTAINER) }}
     {{ lookup('compose_restart') }}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file rabbit includes deploy.yml.j2 only, so it has no env_file; env.j2 would drop this key here and add it to opentalk and controller
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit consumer_timeout 30000"
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}

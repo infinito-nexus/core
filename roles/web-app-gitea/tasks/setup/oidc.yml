@@ -2,14 +2,17 @@
 - name: "➕ Add Keycloak OIDC Provider"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+    container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth add-oauth \
         --provider openidConnect \
         --name     "{{ OIDC.BUTTON_TEXT }}" \
         --key      "{{ OIDC.CLIENT.ID }}" \
-        --secret   "{{ OIDC.CLIENT.SECRET }}" \
+        --secret   "$GITEA_OIDC_CLIENT_SECRET" \
         --auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}" \
         --scopes   "openid profile email"
+    '
+  environment:
+    GITEA_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_manage
   failed_when: oidc_manage.rc != 0 and not (oidc_manage.stderr | gitea_auth_noop)
@@ -35,15 +38,18 @@
 - name: "🔄 Update Keycloak OIDC Provider"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+    container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth update-oauth \
         --id {{ oidc_source_id }}\
         --provider openidConnect \
         --name     "{{ OIDC.BUTTON_TEXT }}" \
         --key      "{{ OIDC.CLIENT.ID }}" \
-        --secret   "{{ OIDC.CLIENT.SECRET }}" \
+        --secret   "$GITEA_OIDC_CLIENT_SECRET" \
         --auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}" \
         --scopes   "openid profile email"
+    '
+  environment:
+    GITEA_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_manage
   failed_when: oidc_manage.rc != 0

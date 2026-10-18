@@ -88,7 +88,7 @@ host_dev_disk:
   mounts:
     - service: cadvisor
       target: /dev/disk
-      when: "{{ DEPLOYMENT_MODE == 'compose' }}"
+      when: "{{ IS_COMPOSE_MODE }}"
 
 host_proc:
   type: bind

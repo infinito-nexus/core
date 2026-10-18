@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 _FORWARDED_ENV_KEYS = (
+    "APP_ID",
     "GH_TOKEN",
     "GITHUB_TOKEN",
     "GITHUB_REPOSITORY_OWNER",

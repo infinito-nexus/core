@@ -17,6 +17,12 @@ MW_URL="${12}"; MW_SITENAME="${13}"; ADMIN_NAME="${14}"; ADMIN_PASSWORD="${15}"
 : "${MW_VOLUME_IMAGES:?MW_VOLUME_IMAGES env var required for update}"
 : "${MW_VOLUME_EXTENSIONS:?MW_VOLUME_EXTENSIONS env var required for update}"
 
+MW_NETWORK_OBJSTORE="${MW_NETWORK_OBJSTORE:-}"
+objstore_network=()
+if [ -n "$MW_NETWORK_OBJSTORE" ] && [ "$MW_NETWORK_OBJSTORE" != "$NETWORK" ]; then
+    objstore_network=(--network "$MW_NETWORK_OBJSTORE")
+fi
+
 has_tables=0
 if container run --rm --network "$NETWORK" "mariadb:${MARIADB_VERSION:-latest}" \
         mariadb -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASSWORD" \
@@ -50,6 +56,7 @@ fi
 echo "[mw] Running update --quick via one-shot custom-image container"
 container run --rm \
     --network "$NETWORK" \
+    ${objstore_network[@]+"${objstore_network[@]}"} \
     -u "$MW_USER" \
     -v "${MW_VOLUME_IMAGES}:${MW_HTML_DIR}/images" \
     -v "${MW_VOLUME_EXTENSIONS}:${MW_HTML_DIR}/extensions" \

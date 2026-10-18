@@ -54,19 +54,20 @@
   loop: "{{ deploy_services }}"
   when: deploy_services | length > 0
 
-- name: "🚀 DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} timers (best-effort)"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    state: stopped
-  loop: "{{ deploy_timers }}"
+- name: "🚀 DEPLOY | Shut down the {{ SOFTWARE_DOMAIN }} timers"
   when: deploy_timers | length > 0
+  block:
+    - name: "🚀 DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} timers (best-effort)"
+      become: true
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+      loop: "{{ deploy_timers }}"
 
-- name: "🚀 DEPLOY | Disable all {{ SOFTWARE_DOMAIN }} timers (keep unit files)"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    enabled: false
-    state: stopped
-  loop: "{{ deploy_timers }}"
-  when: deploy_timers | length > 0
+    - name: "🚀 DEPLOY | Disable all {{ SOFTWARE_DOMAIN }} timers (keep unit files)"
+      become: true
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      loop: "{{ deploy_timers }}"

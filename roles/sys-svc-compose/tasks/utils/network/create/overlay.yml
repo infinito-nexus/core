@@ -1,0 +1,46 @@
+---
+- name: "🔍 Probe existing overlay network for '{{ network_role_id }}' (swarm scope)"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - ls
+      - --filter
+      - "name={{ network_role_id | entity_name }}"
+      - --format
+      - "{{ '{{json .}}' }}"
+  register: sys_svc_compose_overlay_probe
+  changed_when: false
+
+- name: "🛑 Fail on network driver drift for '{{ network_role_id }}' (swarm)"
+  ansible.builtin.fail:
+    msg: >-
+      Network '{{ network_role_id | entity_name }}' exists with driver
+      '{{ lookup('network_driver', sys_svc_compose_overlay_probe, network_role_id) }}' but 'overlay' is required.
+      Remove the stale network or revert the networks.local.force_bridge change.
+  when: lookup('network_driver', sys_svc_compose_overlay_probe, network_role_id) not in ['', 'overlay']
+
+- name: "✅ Ensure docker overlay network for '{{ network_role_id }}' exists (swarm scope)"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - create
+      - --driver
+      - overlay
+      - --attachable
+      - --scope
+      - swarm
+      - --opt
+      - "encrypted={{ 'true' if swarm.network.encryption else 'false' }}"
+      - --subnet
+      - "{{ lookup('config', network_role_id, 'networks.local.subnet') }}"
+      - --label
+      - "com.docker.compose.network={{ lookup('shared_network_key', network_role_id) }}"
+      - --label
+      - "com.docker.compose.project={{ network_role_id | entity_name }}"
+      - --label
+      - "com.docker.stack.namespace={{ network_role_id | entity_name }}"
+      - "{{ network_role_id | entity_name }}"
+  when: lookup('network_driver', sys_svc_compose_overlay_probe, network_role_id) == ''
+  changed_when: true

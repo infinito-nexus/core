@@ -60,8 +60,10 @@ def want_get(data: Any, dotted: str) -> Any:
 
 def iter_domains(value: Any) -> Iterable[str]:
     """
-    Flatten domains from the *global* domains mapping entry.
+    Flatten domains from the global domains mapping entry.
+
     Supports:
+
       - str
       - list[str]
       - dict[str, str]   (only one level, legacy behavior)
@@ -193,13 +195,15 @@ def resolve_term(
     Returns (app_id, primary_domain) where primary_domain is normalized lower-case.
 
     term can be:
+
       - application_id
       - domain (canonical or alias)
 
     forced_mode: "auto" | "domain" | "app"
 
-    Behavior:
-      1) If term is a domain and exists in *global* domains mapping -> primary_domain = that term (normalized).
+    Behavior::
+
+      1) If term is a domain and exists in the global domains mapping -> primary_domain = that term (normalized).
       2) If term is a domain and only exists in applications[*].domains -> map to app_id,
          and primary_domain = canonical primary from global domains mapping (first entry).
     """

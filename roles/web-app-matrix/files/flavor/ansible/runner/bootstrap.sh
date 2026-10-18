@@ -49,8 +49,8 @@ else
 fi
 
 START_PLAY=$SECONDS
-echo ">>> matrix-mdad-bootstrap: starting ansible-playbook setup.yml --tags=${MATRIX_MDAD_PLAYBOOK_TAGS:-setup-all,start}"
-/opt/ansible/bin/ansible-playbook -i inventory/hosts setup.yml --tags="${MATRIX_MDAD_PLAYBOOK_TAGS:-setup-all,start}"
+echo ">>> matrix-mdad-bootstrap: starting ansible-playbook setup.yml --tags=${MATRIX_MDAD_PLAYBOOK_TAGS}"
+/opt/ansible/bin/ansible-playbook -i inventory/hosts setup.yml --tags="${MATRIX_MDAD_PLAYBOOK_TAGS}"
 echo "<<< matrix-mdad-bootstrap: playbook done in $((SECONDS - START_PLAY))s"
 
 touch "$MARKER"

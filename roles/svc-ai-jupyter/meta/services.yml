@@ -1,0 +1,26 @@
+---
+# nocheck: playwright-service-flag - sandboxed kernel backend reached over the container network
+jupyter:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: quay.io/jupyter/minimal-notebook
+  version: "2026-09-21"
+  name: jupyter
+  healthcheck:
+    flavor: http_status
+    path: api
+  min_storage: 1GB
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    internal:
+      http: 8888
+  lifecycle: alpha

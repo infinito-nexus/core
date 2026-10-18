@@ -226,14 +226,14 @@ class TestManifestTransferSize(_IsolatedProbeCache):
 class TestProbeOrder(_IsolatedProbeCache):
     def test_the_mirror_is_probed_before_the_upstream_registry(self) -> None:
         with mock.patch.dict(os.environ, {"INFINITO_GHCR_MIRROR_PREFIX": "mirror"}):
-            order = registry._probe_order("postgres")
+            order = registry.probe_order("postgres")
         self.assertEqual(len(order), 2)
         self.assertTrue(order[0].startswith("ghcr.io/"))
         self.assertTrue(order[0].endswith("/mirror/docker.io/postgres"))
         self.assertEqual(order[1], "postgres")
 
     def test_upstream_is_the_only_probe_without_a_mirror(self) -> None:
-        self.assertEqual(registry._probe_order("postgres"), ["postgres"])
+        self.assertEqual(registry.probe_order("postgres"), ["postgres"])
 
     def test_upstream_answers_when_the_mirror_lacks_the_image(self) -> None:
         with (

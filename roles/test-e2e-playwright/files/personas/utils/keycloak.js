@@ -1,14 +1,24 @@
 /**
  * Keycloak OIDC login helpers.
  *
- *   `performKeycloakLoginForm(target, username, password)`
+ *   `isAuthChain(url)`
+ *     Whether a URL belongs to the oauth2-proxy / Keycloak redirect
+ *     chain rather than the application itself.
+ *
+ *   `performKeycloakLoginForm(target, username, password, options)`
  *     Fills the Keycloak login form on `target` (a `Page` OR a
  *     `FrameLocator`) and clicks sign-in. Tolerates both the
  *     role-based selector strategy (`getByRole({ name: /username|
  *     email/i })`, etc.) and the legacy input-name selector strategy
  *     (`input[name='username']`, etc.) so iframe-embedded Keycloak
- *     forms work without branching at the call site. Does NOT assert
- *     post-login navigation.
+ *     forms work without branching at the call site.
+ *     `options.settle` (default `true`, `Page` targets only): hold the
+ *     call open until the SSO redirect chain reaches a terminal state —
+ *     a URL outside `/protocol/openid-connect/`, `/login-actions/` and
+ *     `/oauth2/`, a main-frame navigation response of 400 or above
+ *     (oauth2-proxy denying a user it authenticated), or a closed popup.
+ *     A caller may then navigate without racing an in-flight hop.
+ *     `settle: false` returns right after the click.
  *
  *   `performKeycloakLogin(page, username, password, canonicalDomain)`
  *     Calls `performKeycloakLoginForm` and additionally polls the
@@ -21,6 +31,9 @@
  *     asserts the round-trip ends on a denial state (Keycloak error
  *     page, the same authorization endpoint with an error indicator,
  *     or a 401 / 403 on the relying party after the callback).
+ *     Passes `settle: false`: a rejected login legitimately ends on a
+ *     200 Keycloak error page inside the hop, which the settle
+ *     predicate cannot tell apart from a stalled chain.
  *     Returns the resulting URL so callers can assert additional
  *     details if needed.
  */
@@ -37,7 +50,7 @@ const { hostnameOf } = require("./dom");
 // without racing the adapter.
 const OIDC_LOGIN_READY_FLAG = "__oidcLoginReady";
 
-const OIDC_TRIGGER_NAME = /sso|openid|single[\s-]?sign/i;
+const OIDC_TRIGGER_NAME = /sso|oidc|openid|single[\s-]?sign/i;
 
 // Keycloak's end-session URL also contains `openid-connect`; a page that
 // renders a hidden Logout item before its Login link would otherwise pin
@@ -46,12 +59,51 @@ const OIDC_ENTRY_SELECTOR = [
   "a[href*='openid_connect' i]:not([href*='logout' i])",
   "a[href*='openid-connect' i]:not([href*='logout' i])",
   "a[href*='/auth/auth/' i]:not([href*='logout' i])",
+  "a[data-href*='oidc' i]:not([data-href*='logout' i])",
+  "a[data-href*='openid' i]:not([data-href*='logout' i])",
   "form[action*='openid' i] button",
   "a[data-testid*='oidc' i]",
   "button[data-testid*='oidc' i]",
 ].join(", ");
 
-async function performKeycloakLoginForm(target, username, password) {
+const SSO_HOP = /\/protocol\/openid-connect\/|\/login-actions\/|\/oauth2\//;
+
+function isPage(target) {
+  return typeof target.url === "function" && typeof target.on === "function";
+}
+
+function watchFailedNavigations(page) {
+  const state = { failedUrl: "" };
+  const onResponse = (response) => {
+    if (response.status() < 400) return;
+    if (!response.request().isNavigationRequest()) return;
+    state.failedUrl = response.url();
+  };
+  page.on("response", onResponse);
+  return { state, stop: () => page.off("response", onResponse) };
+}
+
+async function settleSsoChain(page, state) {
+  const probe = () => {
+    const url = page.url();
+    if (page.isClosed() || url.split("#")[0] === state.failedUrl || !SSO_HOP.test(url)) return "settled";
+    return url;
+  };
+
+  await expect
+    .poll(probe, {
+      timeout: resolveTimeout(60_000),
+      message:
+        "Expected the Keycloak SSO redirect chain to settle: a URL outside /protocol/openid-connect/, " +
+        "/login-actions/ and /oauth2/, a main-frame navigation response of 400 or above, or a closed popup",
+    })
+    .toBe("settled");
+
+  if (page.isClosed()) return;
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) });
+}
+
+async function performKeycloakLoginForm(target, username, password, { settle = true } = {}) {
   const usernameField = target
     .getByRole("textbox", { name: /username|email/i })
     .or(target.locator("input[name='username'], input#username"))
@@ -69,7 +121,20 @@ async function performKeycloakLoginForm(target, username, password) {
   await usernameField.fill(username);
   await usernameField.press("Tab").catch(() => {});
   await passwordField.fill(password);
-  await signInButton.click({ timeout: resolveTimeout(30_000) });
+
+  const page = settle && isPage(target) ? target : null;
+  if (!page) {
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
+    return;
+  }
+
+  const watcher = watchFailedNavigations(page);
+  try {
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
+    await settleSsoChain(page, watcher.state);
+  } finally {
+    watcher.stop();
+  }
 }
 
 async function performKeycloakLogin(page, username, password, canonicalDomain) {
@@ -158,7 +223,7 @@ async function clickOidcLoginLink(page, strictLink, looseLink) {
 }
 
 async function performKeycloakLoginExpectingDenial(page, username, password, canonicalDomain) {
-  await performKeycloakLoginForm(page, username, password);
+  await performKeycloakLoginForm(page, username, password, { settle: false });
 
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
 
@@ -178,8 +243,13 @@ async function performKeycloakLoginExpectingDenial(page, username, password, can
   return finalUrl;
 }
 
+function isAuthChain(url) {
+  return /\/oauth2\/|\/realms\/|\/protocol\/openid-connect\//.test(url || "");
+}
+
 module.exports = {
   OIDC_LOGIN_READY_FLAG,
+  isAuthChain,
   performKeycloakLoginForm,
   performKeycloakLogin,
   clickOidcLoginLink,

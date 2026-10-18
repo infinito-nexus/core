@@ -17,6 +17,7 @@ hermes:
   image: nousresearch/hermes-agent
   version: "v2026.9.24"
   name: hermes
+  min_context: 64000
   min_storage: 1146MB
   cpus: "2.0"
   mem_reservation: 2g
@@ -26,11 +27,20 @@ hermes:
     local:
       http: 8092
       sso: 16512
+      agent: 8501
     internal:
       http: 8642
+      agent: 9119
+    onion:
+      # nocheck: onion-flag  this port carries the web UI, which answers on the root of the proxy vhost that the node onion already forwards; a direct forward would bypass the proxy, its sign-in gate and its CSP
+      agent: false
   lifecycle: beta
   proxy:
     service_key: hermes
+
+# nocheck: dynamic-flag - the web UI is a role-local off-switch; no provider role exists whose group membership could decide it
+webui:
+  enabled: false
 
 # nocheck: playwright-service-flag, dynamic-flag
 kata:
@@ -46,7 +56,8 @@ sso:
   oauth2:
     origin:
       host: hermes
-      port: 8642
+      port: "{{ lookup('config', 'web-app-hermes', 'services.hermes.ports.internal.' ~ ('agent' if lookup('config', 'web-app-hermes', 'services.webui.enabled') |
+        bool else 'http')) }}"
     acl:
       whitelist:
         - /v1/
@@ -74,10 +85,15 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Agent"
+  slots:
+    brand:
+      width: 320
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

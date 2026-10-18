@@ -1,5 +1,5 @@
 server {
-    server_name {{ domain }};
+    server_name {{ MATRIX_SYNAPSE_DOMAIN }};
     {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
     listen {{ MATRIX_SYNAPSE_LISTEN_FLAGS }};

@@ -1,0 +1,30 @@
+(function () {
+  var root = document.documentElement;
+  var denim = { "--sidebar-bg": "#1e325c", "--center-channel-bg": "#ffffff", "--button-bg": "#1c58d9" };
+
+  function channel(hex, index) {
+    return parseInt(hex.substr(1 + 2 * index, 2), 16) / 255;
+  }
+
+  function isDark(hex) {
+    return 0.2126 * channel(hex, 0) + 0.7152 * channel(hex, 1) + 0.0722 * channel(hex, 2) < 0.5;
+  }
+
+  function mirror() {
+    var surface = root.style.getPropertyValue("--center-channel-bg").trim().toLowerCase();
+    var isDefault = Object.keys(denim).every(function (name) {
+      var value = root.style.getPropertyValue(name).trim().toLowerCase();
+      return value === "" || value === denim[name];
+    });
+    if (isDefault || !/^#[0-9a-f]{6}$/.test(surface)) {
+      root.removeAttribute("data-design-theme");
+      root.setAttribute("data-design-app-theme", "default");
+      return;
+    }
+    root.setAttribute("data-design-app-theme", "custom");
+    root.setAttribute("data-design-theme", isDark(surface) ? "dark" : "light");
+  }
+
+  mirror();
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["style"] });
+})();

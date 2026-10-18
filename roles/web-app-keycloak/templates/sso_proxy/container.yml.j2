@@ -3,19 +3,19 @@
     {{ lookup('container_image', 'web-app-keycloak', 'sso_proxy') }}
     {{ lookup('compose_restart') }}
     command: --config /oauth2-proxy.cfg
-    {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-sso-proxy')) }}
+    {{ lookup('compose_only', 'container_name', ((application_id | entity_name) ~ '-sso-proxy')) }}
     hostname: sso-proxy
     labels:
       infinito.sso-proxy.config-sha256: "{{ lookup('template', lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2'), template_vars={'sso_proxy_application_id': application_id}) | hash('sha256') }}"
     ports:
       # nocheck: compose-ports-must-use-container-ports  the published port belongs to the consuming role's own entity and the container port to web-app-keycloak's sso_proxy, so the mapping spans two application_ids and no single container_ports call can read both
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso') }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}/tcp
+      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.sso') }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}/tcp
     volumes:
       - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}:/oauth2-proxy.cfg"
 {% if (TLS_MODE | lower) == 'self_signed' and OIDC.CLIENT.ISSUER_URL.startswith('https') %}
       - "{{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_container }}:ro"
 {% endif %}
-{% if DEPLOYMENT_MODE == 'swarm' %}
+{% if IS_SWARM_MODE %}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
     deploy:
       placement:

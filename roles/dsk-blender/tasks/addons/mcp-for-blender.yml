@@ -1,0 +1,81 @@
+---
+- name: ✅ Ensure pipx is installed
+  package_install:
+    id: pipx
+  become: true
+  become_user: root
+
+- name: "📦 install the Blender MCP server {{ blender_mcp_version }}"
+  ansible.builtin.command:
+    cmd: "pipx install --force {{ blender_mcp_distribution }}=={{ blender_mcp_version }}"
+  register: blender_mcp_install
+  changed_when: "'installed package' in (blender_mcp_install.stdout | lower)"
+
+- name: 📁 Let Blender name and create its user addons directory
+  ansible.builtin.command:
+    argv:
+      - blender
+      - --background
+      - --python-expr
+      - >-
+        import bpy, sys;
+        sys.stdout.write('ADDONS=' + bpy.utils.user_resource('SCRIPTS', path='addons', create=True))
+  register: blender_addons_probe
+  changed_when: false
+
+- name: 🧩 Install the Blender side of the MCP bridge
+  ansible.builtin.command:
+    argv:
+      - "{{ blender_mcp_command }}"
+      - install-addon
+  environment:
+    BLENDERMCP_ADDONS_DIR: "{{ blender_addons_probe.stdout | regex_search('ADDONS=(\\S+)', '\\1') | first }}"
+    PATH: "{{ blender_pipx_bin_dir }}:/usr/local/bin:/usr/bin:/bin"
+  register: blender_mcp_addon
+  changed_when: "'installed' in (blender_mcp_addon.stdout | lower)"
+
+- name: 🤖 Wire the Blender MCP server into Claude
+  when: blender_mcp_claude_enabled | bool
+  block:
+    - name: 🔎 Read the MCP servers Claude already carries
+      ansible.builtin.command:
+        argv:
+          - claude
+          - mcp
+          - list
+      register: blender_mcp_claude_list
+      changed_when: false
+      failed_when: false
+
+    - name: 🤖 Register the Blender MCP server with Claude
+      ansible.builtin.command:
+        argv:
+          - claude
+          - mcp
+          - add
+          - --scope
+          - user
+          - "{{ blender_mcp_server_name }}"
+          - "{{ blender_mcp_command }}"
+      register: blender_mcp_claude_add
+      changed_when: blender_mcp_claude_add.rc == 0
+      when: blender_mcp_server_name not in (blender_mcp_claude_list.stdout | default(''))
+
+- name: 🧰 Wire the Blender MCP server into the editor
+  when: blender_mcp_code_enabled | bool
+  block:
+    - name: 🔎 Look for the editor binary on this host
+      ansible.builtin.shell: "command -v {{ blender_mcp_code_binary }}"
+      register: blender_mcp_code_lookup
+      changed_when: false
+      failed_when: blender_mcp_code_lookup.rc not in [0, 1]
+
+    - name: 🧰 Register the Blender MCP server with the editor
+      ansible.builtin.command:
+        argv:
+          - "{{ blender_mcp_code_binary }}"
+          - --add-mcp
+          - '{"name": "{{ blender_mcp_server_name }}", "command": "{{ blender_mcp_command }}"}'
+      register: blender_mcp_code_add
+      changed_when: blender_mcp_code_add.rc == 0
+      when: blender_mcp_code_lookup.rc == 0

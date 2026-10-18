@@ -1,0 +1,77 @@
+---
+- name: "⏳ Fider | Wait for the migrated schema"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/count-tenants.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_design_schema
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: fider_design_schema is succeeded
+
+- name: "📥 Fider | Read the generated logo"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, 'logo.png'] | path_join }}"
+  register: fider_design_logo
+  when: FIDER_DESIGN_LOGO_ENABLED | bool
+
+- name: "🪣 Fider | Logo in the object store"
+  when: FIDER_OBJSTORE_ENABLED | bool
+  block:
+    - name: "🪣 Fider | Read the tenant id"
+      database_query:
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/select-tenant-id.sql"
+        expect_rows: true
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      register: fider_design_tenant
+      changed_when: false
+
+    - name: "🪣 Fider | Store or remove the generated logo in the bucket"
+      ansible.builtin.shell: >
+        container exec -i {{ FIDER_OBJSTORE_CONTAINER_ADDRESS }}
+        sh -c {{ lookup('file', 'shell/design-logo-object.sh') | quote }} design-logo-object
+        {{ 'put' if FIDER_DESIGN_LOGO_ENABLED | bool else 'delete' }}
+        {{ (lookup('objstore', application_id, 'url') ~ '/' ~ lookup('objstore', application_id, 'bucket') ~ '/tenants/' ~ fider_design_tenant.rows[0][0] ~ '/' ~
+        FIDER_DESIGN_LOGO_KEY) | quote }}
+        {{ lookup('objstore', application_id, 'region') | quote }}
+      args:
+        stdin: "{{ lookup('objstore', application_id, 'access_key') }}:{{ lookup('objstore', application_id, 'secret_key') }}\n{{ fider_design_logo.content if FIDER_DESIGN_LOGO_ENABLED
+          | bool else '' }}"
+      register: fider_design_logo_object
+      changed_when: fider_design_logo_object.stdout in ['CHANGED', 'REMOVED']
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      when: fider_design_tenant.rows[0][0] | int > 0
+
+- name: "🎨 Fider | Apply title, custom CSS and logo"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/apply-design.sql"
+    named_args:
+      title: "{{ FIDER_DESIGN_TITLE }}"
+      bootstrap_name: "{{ SOFTWARE_NAME }}"
+      css: "{{ lookup('template', 'custom.css.j2') }}"
+      logo_key: "{{ FIDER_DESIGN_LOGO_KEY }}"
+      logo_base64: "{{ fider_design_logo.content if FIDER_DESIGN_LOGO_ENABLED | bool and not (FIDER_OBJSTORE_ENABLED | bool) else '' }}"
+      logo_stored: "{{ 'true' if FIDER_DESIGN_LOGO_ENABLED | bool else '' }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_design_apply
+  changed_when: (fider_design_apply.rows[0][0] | int) > 0
+  when: FIDER_DESIGN_ENABLED | bool
+
+- name: "🧹 Fider | Remove title, custom CSS and logo the role set"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/remove-design.sql"
+    named_args:
+      title: "{{ lookup('design', application_id).label }}"
+      bootstrap_name: "{{ SOFTWARE_NAME }}"
+      logo_key: "{{ FIDER_DESIGN_LOGO_KEY }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_design_removal
+  changed_when: (fider_design_removal.rows[0][0] | int) > 0
+  when: not (FIDER_DESIGN_ENABLED | bool)

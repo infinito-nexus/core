@@ -15,19 +15,6 @@ Optimized for portability and idempotency, this role performs the following task
 - Ensures the installation runs only once using a shared run-once mechanism
 - Serves as a reusable system-level SSH dependency for other roles
 
-## Cosmos
-
-The diagram places SSH Service (Client) in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-svc-ssh 💻]
-        svc_svc_ssh["svc-ssh"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Purpose
 
 The primary purpose of this role is to guarantee that an SSH client is available on the system before executing any SSH-related operations, such as key generation, remote access, or automated provisioning.
@@ -50,9 +37,3 @@ The role installs the correct SSH client package for the following platforms:
 - **Minimal scope** (client-only, no server configuration)
 - **Reusable dependency role** for higher-level SSH workflows
 - **Best practices compliant** with modern SSH usage
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

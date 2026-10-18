@@ -55,6 +55,20 @@ class TestDirectoryRecovery(unittest.TestCase):
             self.assertEqual(text, "from-snapshot")
             self.assertFalse((target / "live.txt").exists())
 
+    def test_restore_carries_extended_attributes(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            source, target = self._mk(td)
+            recovery = _Recovery(str(source), str(target))
+            with mock.patch("utils.recovery.base.subprocess.run") as run:
+                recovery.restore()
+            self.assertEqual(
+                run.call_args.args[0][:2],
+                ["rsync", "-aHAX"],
+                "a restore without -X returns the payload byte-identical while "
+                "every xattr-backed application (OpenCloud posixfs) reads the "
+                "tree as unknown",
+            )
+
     def test_missing_unit_refuses(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             source, target = self._mk(td)

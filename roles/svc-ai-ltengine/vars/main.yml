@@ -1,0 +1,26 @@
+---
+application_id: "svc-ai-ltengine"
+entity_name: "{{ application_id | entity_name }}"
+
+LTENGINE_SERVICE: "{{ entity_name }}"
+LTENGINE_CONTAINER: "{{ lookup('config', application_id, 'services.ltengine.name') }}"
+LTENGINE_PORT: "{{ lookup('config', application_id, 'services.ltengine.ports.internal.http') }}"
+LTENGINE_MODEL: "{{ lookup('config', application_id, 'services.ltengine.model') }}"
+LTENGINE_CHAR_LIMIT: "{{ lookup('config', application_id, 'services.ltengine.char_limit') }}"
+LTENGINE_MODELS_TARGET: "{{ lookup('volume', application_id, 'ltengine_models').target }}"
+
+LTENGINE_BASE_IMAGE: "{{ lookup('config', application_id, 'services.ltengine.image') }}"
+LTENGINE_BASE_VERSION: "{{ lookup('config', application_id, 'services.ltengine.version') }}"
+LTENGINE_BUILDER_IMAGE: "{{ lookup('config', application_id, 'services.ltengine.builder_image') }}"
+LTENGINE_BUILDER_VERSION: "{{ lookup('config', application_id, 'services.ltengine.builder_version') }}"
+LTENGINE_RUST_VERSION: "{{ lookup('config', application_id, 'services.ltengine.rust_version') }}"
+LTENGINE_REPOSITORY: "{{ lookup('config', application_id, 'services.ltengine.repository') }}"
+LTENGINE_REF: "{{ lookup('config', application_id, 'services.ltengine.ref') }}"
+
+LTENGINE_GPU: "{{ lookup('gpu', application_id, 'ltengine') }}"
+LTENGINE_FEATURES: "{{ 'cuda' if LTENGINE_GPU | bool else '' }}"
+LTENGINE_IMAGE_VERSION: "{{ LTENGINE_BASE_VERSION ~ ('-cuda' if LTENGINE_GPU | bool else '') }}"
+
+LTENGINE_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+LTENGINE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
+LTENGINE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

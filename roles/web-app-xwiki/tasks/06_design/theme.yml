@@ -1,0 +1,69 @@
+---
+- name: "🔎 XWIKI | Read the stock theme the corporate theme derives from"
+  uri_retry:
+    url: "{{ [XWIKI_REST_XWIKI, 'spaces/FlamingoThemes/pages', XWIKI_DESIGN_STOCK_THEME_PAGE, XWIKI_DESIGN_THEME_OBJECT] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200]
+    headers:
+      Accept: application/json
+    return_content: true
+  register: _xwiki_design_stock_theme
+  changed_when: false
+
+- name: "🔎 XWIKI | Read the corporate theme object"
+  uri_retry:
+    url: "{{ [XWIKI_REST_THEME_PAGE, XWIKI_DESIGN_THEME_OBJECT] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200, 404]
+    headers:
+      Accept: application/json
+    return_content: true
+  register: _xwiki_design_theme_object
+  changed_when: false
+
+- name: "🧮 XWIKI | Derive the corporate theme from the stock theme and the palette"
+  ansible.builtin.set_fact:
+    xwiki_design_theme_properties: >-
+      {{ _xwiki_design_stock_theme.json.properties
+         | items2dict(key_name='name', value_name='value')
+         | combine(XWIKI_DESIGN_THEME_COLORS, {
+             'lessCode': XWIKI_DESIGN_LESS_CODE,
+             'logo': XWIKI_DESIGN_LOGO_FILE if design_branding.logo is string else '',
+             'logo-description': design_branding.label
+           }) }}
+
+- name: "➕ XWIKI | Add the corporate theme object"
+  uri_retry:
+    url: "{{ [XWIKI_REST_THEME_PAGE, 'objects'] | url_join }}"
+    method: POST
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [201]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/design/theme/object.xml.j2') }}"
+  when: _xwiki_design_theme_object.status == 404
+  changed_when: true
+
+- name: "🎨 XWIKI | Update the corporate theme object"
+  uri_retry:
+    url: "{{ [XWIKI_REST_THEME_PAGE, XWIKI_DESIGN_THEME_OBJECT] | url_join }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [202]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/design/theme/object.xml.j2') }}"
+  when:
+    - _xwiki_design_theme_object.status == 200
+    - >-
+      (_xwiki_design_theme_object.json.properties | items2dict(key_name='name', value_name='value'))
+      != xwiki_design_theme_properties
+  changed_when: true

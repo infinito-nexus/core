@@ -17,7 +17,8 @@ several pins declares a list of such blocks. The types are
 ``git_tags`` (repository), ``registry_tags`` (image), ``npm`` (package),
 ``http_regex`` (one url or several, pattern, optionally a template over the
 pattern's named groups) and ``script`` (path, run with the current version and
-printing the latest one).
+printing the latest one). A pin whose asset is fetched by digest names its
+companion checksum beside the type; see :mod:`utils.update.checksum`.
 
 An addon in ``meta/addons/<id>.yml`` declares the same fields in its
 ``update:`` block, beside ``monitored``, ``catalog`` and ``upstream_id``. A
@@ -40,6 +41,7 @@ from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.update import checksum
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
 from utils.update.base import (
     captured_versions,
@@ -57,6 +59,7 @@ from utils.update.docker import (
     is_mcr,
 )
 from utils.update.fetch import TIMEOUT_SECONDS, documents, get
+from utils.update.pins import archive_index, key_line, top_level_line
 from utils.update.repository import git_ls_remote_tags
 
 if TYPE_CHECKING:
@@ -235,36 +238,6 @@ def candidates(entry: VersionSourceEntry, repo_root: Path) -> list[str]:
     return found
 
 
-def _key_line(lines: list[str], entity: str, key: str) -> int | None:
-    """Return the 1-indexed line of ``key`` inside the block of ``entity``."""
-    inside = False
-    for number, line in enumerate(lines, start=1):
-        if re.match(rf"^{re.escape(entity)}\s*:", line):
-            inside = True
-            continue
-        if inside and line and not line[0].isspace():
-            inside = False
-        if inside and re.match(rf"^\s+{re.escape(key)}\s*:", line):
-            return number
-    return None
-
-
-def _top_level_line(lines: list[str], key: str) -> int | None:
-    """Return the 1-indexed line of ``key`` at the root of an addon file."""
-    for number, line in enumerate(lines, start=1):
-        if re.match(rf"^{re.escape(key)}\s*:", line):
-            return number
-    return None
-
-
-def _archive_index(lines: list[str]) -> int | None:
-    """Return the 0-indexed line of ``config.archive`` in an addon file."""
-    for index, line in enumerate(lines):
-        if re.match(r"^\s+archive\s*:", line):
-            return index
-    return None
-
-
 def _archive(spec: Any) -> str:
     """Return the ``config.archive`` URL of an addon, or an empty string."""
     config = spec.get("config") if isinstance(spec, dict) else None
@@ -331,6 +304,7 @@ def _declaration_problems(
             f"{label}.{key}: unknown update.type "
             f"'{source.get('type')}', expected one of {', '.join(TYPES)}"
         )
+    problems += checksum.problems(label, key, config, source)
     archive = _archive(config) if owner == "addon" else ""
     if archive and str(config.get(key, "")) not in archive:
         problems.append(
@@ -388,7 +362,7 @@ def _addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
         for source in addon_sources(spec):
             key = str(source.get("key", DEFAULT_KEY))
             current = str(spec.get(key, "")).strip()
-            line = _top_level_line(lines, key)
+            line = top_level_line(lines, key)
             if not current or line is None:
                 continue
             if any(
@@ -428,7 +402,7 @@ def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
                     continue
                 key = str(source.get("key", DEFAULT_KEY))
                 current = str(config.get(key, "")).strip()
-                line = _key_line(lines, str(entity), key)
+                line = key_line(lines, str(entity), key)
                 if not current or line is None:
                     continue
                 if is_suppressed_at(lines, line, NOCHECK_MARKER):
@@ -478,11 +452,17 @@ def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
         ).splitlines(keepends=True)
         index = update.entry.line - 1
         lines[index] = lines[index].replace(update.entry.current, update.latest, 1)
-        archive = _archive_index(lines) if update.entry.addon else None
+        archive = archive_index(lines) if update.entry.addon else None
         if archive is not None:
             lines[archive] = lines[archive].replace(
                 update.entry.current, update.latest, 1
             )
+        checksum.rewrite(
+            lines,
+            "" if update.entry.addon else update.entry.entity,
+            update.entry.source,
+            update.latest,
+        )
         path.write_text("".join(lines), encoding="utf-8")
         if path not in changed:
             changed.append(path)

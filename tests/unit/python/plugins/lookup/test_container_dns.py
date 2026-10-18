@@ -42,6 +42,8 @@ def _vars(**overrides):
         "group_names": ["svc-net-tor"],
         "networks": _CLEARNET,
         "DEPLOYMENT_MODE": "compose",
+        "IS_COMPOSE_MODE": True,
+        "IS_SWARM_MODE": False,
         "NETWORK_DOCKER_ADDRESS_POOLS": _POOLS,
         "NETWORK_PUBLIC_DNS_RESOLVERS": _PUBLIC,
     }

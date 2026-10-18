@@ -1,16 +1,21 @@
 {
     "api": "{{ lookup('tls', application_id, 'protocols.web') }}://{{ lookup('domain', application_id) }}/api/v1/",
     "eventsUrl": "{{ lookup('tls', application_id, 'protocols.websocket') }}://{{ lookup('domain', application_id) }}/events",
+    "baseHref": "/",
     "eventsMaxMissedHeartbeats": 5,
     "eventsHeartbeatIntervalTime": 60000,
     "eventsReconnectTries": 3,
     "tribeHost": null,
     "importers": [],
     "gravatar": false,
+    "defaultLanguage": "en",
+    "themes": ["taiga"],
+    "defaultTheme": "taiga",
+    "publicRegisterEnabled": false,
     "defaultLoginEnabled": {{ 'false' if TAIGA_OIDC_ENABLED | bool else 'true' }},
     "rtlLanguages": ["fa"]{% if TAIGA_LDAP_ENABLED | bool %},
-    "loginFormType": "ldap"{% endif %}{% if TAIGA_OIDC_ENABLED | bool %},
-    "contribPlugins": ["/plugins/oidc-auth/oidc-auth.json"],
+    "loginFormType": "ldap"{% endif %},
+    "contribPlugins": {{ ((['/plugins/oidc-auth/oidc-auth.json'] if TAIGA_OIDC_ENABLED | bool else []) + (['/plugins/infinito-design/infinito-design.json'] if TAIGA_DESIGN_ENABLED | bool else [])) | to_json }}{% if TAIGA_OIDC_ENABLED | bool %},
     "oidcButtonText": "{{ OIDC.BUTTON_TEXT }}",
     "oidcMountPoint": "/oidc"{% endif %}
 }

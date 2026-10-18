@@ -14,7 +14,7 @@ fi
 
 : "${APP_ID:?APP_ID required}"
 
-ENTITY="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "from utils.roles.entity.name import get_entity_name; print(get_entity_name('${APP_ID}'))")"
+ENTITY="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "from utils.roles.entity.name import entity_name; print(entity_name('${APP_ID}'))")"
 
 STACK_NAME="${ENTITY}"
 CUSTOM_IMAGE_REPO="${ENTITY}_custom"
@@ -45,11 +45,11 @@ if [ -f "${ROLE_DIR}/meta/services.yml" ]; then
 	fi
 fi
 
-DEFAULT_PLACEMENT_MANAGER=false
-if [ -f "${ROLE_DIR}/meta/services.yml" ] &&
-	grep -qE "placement:[[:space:]]*manager\b" "${ROLE_DIR}/meta/services.yml"; then
-	DEFAULT_PLACEMENT_MANAGER=true
-fi
+DEFAULT_PLACEMENT_MANAGER="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
+from utils.roles.meta_lookup import get_role_placement
+placement = get_role_placement('${ROLE_DIR}', role_name='${APP_ID}') or ''
+print('true' if placement.strip() == 'manager' else 'false')
+")"
 
 PROBE_PORT="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
 import os, yaml

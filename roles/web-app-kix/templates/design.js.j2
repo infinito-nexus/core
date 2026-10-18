@@ -1,0 +1,18 @@
+{% set design = lookup('design', application_id) %}
+{% if design.title is string %}
+(function () {
+  var title = {{ design.title | to_json }};
+  var tail = " · " + title;
+  var stock = /^KIX \d+$/;
+  function brand() {
+    var current = document.title;
+    if (current === title || current.slice(-tail.length) === tail) {
+      return;
+    }
+    document.title = current === "" || stock.test(current) ? title : current + tail;
+  }
+  new MutationObserver(brand).observe(document.head, { childList: true, subtree: true, characterData: true });
+  brand();
+  document.addEventListener("DOMContentLoaded", brand);
+})();
+{% endif %}

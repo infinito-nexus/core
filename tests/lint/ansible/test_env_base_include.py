@@ -37,18 +37,18 @@ from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
 
-_BASE_REL = "roles/sys-svc-container/templates/env.j2"
+BASE_REL = "roles/sys-svc-container/templates/env.j2"
 _INCLUDE_RULE = "env-base-include"
 _DUP_RULE = "env-base-duplicate-key"
 
 _INCLUDE_RE = re.compile(
-    r"\{%-?\s*include\s+['\"]" + re.escape(_BASE_REL) + r"['\"]\s*-?%\}"
+    r"\{%-?\s*include\s+['\"]" + re.escape(BASE_REL) + r"['\"]\s*-?%\}"
 )
 _ASSIGN_RE = re.compile(r"^\s*(?P<key>[A-Za-z_][A-Za-z0-9_]*)\s*=")
 
 
 def _base_owned_keys() -> list[str]:
-    base = PROJECT_ROOT / _BASE_REL
+    base = PROJECT_ROOT / BASE_REL
     keys: list[str] = []
     for line in read_text(str(base)).splitlines():
         m = _ASSIGN_RE.match(line)
@@ -58,7 +58,7 @@ def _base_owned_keys() -> list[str]:
 
 
 def _candidate_paths() -> list[Path]:
-    base_abs = (PROJECT_ROOT / _BASE_REL).resolve()
+    base_abs = (PROJECT_ROOT / BASE_REL).resolve()
     out: list[Path] = []
     for s in iter_project_files(extensions=(".j2",)):
         p = Path(s)
@@ -98,7 +98,7 @@ class TestEnvBaseInclude(unittest.TestCase):
                     f"{len(offenders)} role env.j2 file(s) do not include the shared "
                     "container env base."
                 ),
-                f"  Fix: add `{{% include '{_BASE_REL}' %}}` at the top of the file.",
+                f"  Fix: add `{{% include '{BASE_REL}' %}}` at the top of the file.",
                 f"  Suppress a genuine exception with `# nocheck: {_INCLUDE_RULE}`.",
             ]
             report.extend(f"  - {o}" for o in sorted(offenders))
@@ -106,7 +106,7 @@ class TestEnvBaseInclude(unittest.TestCase):
 
     def test_env_files_do_not_reset_base_keys(self) -> None:
         owned = _base_owned_keys()
-        self.assertTrue(owned, f"base {_BASE_REL} defines no KEY= lines")
+        self.assertTrue(owned, f"base {BASE_REL} defines no KEY= lines")
         key_re = re.compile(r"^\s*(?P<key>" + "|".join(owned) + r")\s*=")
 
         offenders: dict[str, list[str]] = {}
@@ -132,7 +132,7 @@ class TestEnvBaseInclude(unittest.TestCase):
                 (
                     f"{sum(len(v) for v in offenders.values())} role env.j2 line(s) "
                     f"re-set a base-owned key ({', '.join(owned)}). These come from "
-                    f"{_BASE_REL} only."
+                    f"{BASE_REL} only."
                 ),
                 "  Fix: delete the line; the base supplies the value.",
                 f"  Suppress a genuine exception with `# nocheck: {_DUP_RULE}`.",

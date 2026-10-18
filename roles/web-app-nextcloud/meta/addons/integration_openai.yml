@@ -7,6 +7,7 @@ source: upstream
 bridges:
   - openwebui
   - litellm
+  - flowise
 config:
   plugin_configuration:
     - appid: "integration_openai"

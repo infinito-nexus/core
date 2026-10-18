@@ -56,17 +56,27 @@ opencloud:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 240
+      height: 70
+    logo-mobile:
+      width: 70
+      height: 70
+    favicon:
+      width: 180
+      height: 180
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
 # nocheck: playwright-service-flag
+# nocheck: variants-coverage this role pairs with no service that refuses the onion, so variant-tor-off-needs-a-reason keeps the onion on in every variant and the false polarity has nowhere to live
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"

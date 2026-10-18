@@ -2,6 +2,10 @@
   {% set service_name = 'dashboard' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        DASHBOARD_IMAGE: "{{ DASHBOARD_IMAGE }}"
+        DASHBOARD_VERSION: "{{ DASHBOARD_VERSION }}"
     {{ lookup('container_image', application_id, 'dashboard') }}
     {{ lookup('compose_only', 'container_name', DASHBOARD_CONTAINER) }}
     {{ lookup('container_ports', ['dashboard', 'http', DOCKER_BIND_HOST]) | indent(4) }}

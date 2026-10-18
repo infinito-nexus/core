@@ -1,0 +1,141 @@
+upstream funkwhale-api {
+    server ${FUNKWHALE_API_HOST}:${FUNKWHALE_API_PORT};
+}
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+
+server {
+    listen      80;
+    listen [::]:80;
+
+    server_name _;
+
+    root /usr/share/nginx/html;
+    client_max_body_size ${NGINX_MAX_BODY_SIZE};
+    charset utf-8;
+
+    gzip on;
+    gzip_comp_level    5;
+    gzip_min_length    256;
+    gzip_proxied       any;
+    gzip_vary          on;
+    gzip_types
+        application/javascript
+        application/vnd.geo+json
+        application/vnd.ms-fontobject
+        application/x-font-ttf
+        application/x-web-app-manifest+json
+        font/opentype
+        image/bmp
+        image/svg+xml
+        image/x-icon
+        text/cache-manifest
+        text/css
+        text/plain
+        text/vcard
+        text/vnd.rim.location.xloc
+        text/vtt
+        text/x-component
+        text/x-cross-domain-policy;
+
+    add_header Content-Security-Policy "default-src 'self'; connect-src https: wss: http: ws: 'self' 'unsafe-eval'; script-src 'self' 'wasm-unsafe-eval'; style-src https: http: 'self' 'unsafe-inline'; img-src https: http: 'self' data:; font-src https: http: 'self' data:; media-src https: http: 'self' data:; object-src 'none'";
+    add_header Referrer-Policy "strict-origin-when-cross-origin";
+    add_header X-Frame-Options "SAMEORIGIN" always; # nocheck: deprecated-http-header  this is funkwhale's in-container front vhost, not the sys-svc-proxy vhost that owns the CSP SPOT
+    add_header Service-Worker-Allowed "/";
+
+    location /api/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        client_max_body_size ${NGINX_MAX_BODY_SIZE};
+        proxy_pass   http://funkwhale-api;
+    }
+
+    location ~ ^/library/(albums|tracks|artists|playlists)/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        proxy_pass   http://funkwhale-api;
+    }
+
+    location /channels/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        proxy_pass   http://funkwhale-api;
+    }
+
+    location ~ ^/@(vite-plugin-pwa|vite|id)/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        alias /usr/share/nginx/html/;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /@ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        proxy_pass   http://funkwhale-api;
+    }
+
+    location / {
+        include /etc/nginx/funkwhale_proxy.conf;
+        alias /usr/share/nginx/html/;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~ "/(front/)?embed.html" {
+        alias /usr/share/nginx/html/embed.html;
+        add_header Content-Security-Policy "connect-src https: http: 'self'; default-src 'self'; script-src 'self' unpkg.com 'unsafe-inline' 'unsafe-eval'; style-src https: http: 'self' 'unsafe-inline'; img-src https: http: 'self' data:; font-src https: http: 'self' data:; object-src 'none'; media-src https: http: 'self' data:";
+        add_header Referrer-Policy "strict-origin-when-cross-origin";
+
+        expires 1d;
+    }
+
+    location /federation/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        proxy_pass   http://funkwhale-api;
+    }
+
+    location /rest/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        proxy_pass   http://funkwhale-api/api/subsonic/rest/;
+    }
+
+    location /.well-known/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        proxy_pass   http://funkwhale-api;
+    }
+
+    location /media/__sized__/ {
+        alias ${MEDIA_ROOT}/__sized__/;
+        add_header Access-Control-Allow-Origin '*';
+    }
+
+    location /media/attachments/ {
+        alias ${MEDIA_ROOT}/attachments/;
+        add_header Access-Control-Allow-Origin '*';
+    }
+
+    location /media/dynamic_preferences/ {
+        alias ${MEDIA_ROOT}/dynamic_preferences/;
+        add_header Access-Control-Allow-Origin '*';
+    }
+
+    location ~ /_protected/media/(.+) {
+        internal;
+        {{ NETWORK_DOCKER_DNS_NGINX_DIRECTIVE }}
+        proxy_set_header Authorization "";
+        proxy_set_header Host $proxy_host;
+        proxy_ssl_server_name on;
+        proxy_pass $1;
+        add_header Access-Control-Allow-Origin '*';
+    }
+
+    location /_protected/music/ {
+        internal;
+        alias   ${MUSIC_DIRECTORY_PATH}/;
+        add_header Access-Control-Allow-Origin '*';
+    }
+
+    location /manifest.json {
+        return 302 ${FUNKWHALE_PROTOCOL}://${FUNKWHALE_HOSTNAME}/api/v2/instance/spa-manifest.json;
+    }
+
+}

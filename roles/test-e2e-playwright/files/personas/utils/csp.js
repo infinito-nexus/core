@@ -8,7 +8,7 @@
  * covered by the role's CSP.
  *
  * The intent is symmetric: when an injector role like `mastodon`,
- * `web-svc-asset`, `web-svc-cdn`, `web-svc-css`, `web-svc-javascript`
+ * `web-svc-asset`, `web-svc-cdn`, `web-svc-design`, `web-svc-javascript`
  * or `web-svc-simpleicons` is enabled, its origin MUST appear in the
  * CSP. When the injector is disabled, its origin MUST NOT appear in
  * any rendered `<script>` / `<link>` / `<img>` tag — otherwise the
@@ -35,8 +35,8 @@ function injectorBaseUrl(service) {
       return process.env.ASSET_BASE_URL || "";
     case "cdn":
       return process.env.CDN_BASE_URL || "";
-    case "css":
-      return process.env.CSS_BASE_URL || "";
+    case "design":
+      return process.env.DESIGN_BASE_URL || "";
     case "javascript":
       return process.env.JAVASCRIPT_BASE_URL || "";
     case "simpleicons":
@@ -48,7 +48,7 @@ function injectorBaseUrl(service) {
   }
 }
 
-const INJECTOR_SERVICES = ["asset", "cdn", "css", "javascript", "simpleicons", "matomo"];
+const INJECTOR_SERVICES = ["asset", "cdn", "design", "javascript", "simpleicons", "matomo"];
 
 function hostOf(url) {
   if (!url) return "";
@@ -246,6 +246,39 @@ async function assertCspMetaParity(page, headerDirectives, label) {
   }
 }
 
+/** Collect console errors, page errors and the CSP-related subset of both.
+ *
+ * @param {import("@playwright/test").Page} page page to listen on.
+ * @returns {{consoleErrors: string[], pageErrors: string[], cspRelated: {source: string, text: string}[]}}
+ *   live arrays, filled as the page runs.
+ */
+function attachDiagnostics(page) {
+  const consoleErrors = [];
+  const pageErrors = [];
+  const cspRelated = [];
+
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      consoleErrors.push(message.text());
+    }
+
+    if (/content security policy|csp/i.test(message.text())) {
+      cspRelated.push({ source: "console", text: message.text() });
+    }
+  });
+
+  page.on("pageerror", (error) => {
+    const text = String(error);
+    pageErrors.push(text);
+
+    if (/content security policy|csp/i.test(text)) {
+      cspRelated.push({ source: "pageerror", text });
+    }
+  });
+
+  return { consoleErrors, pageErrors, cspRelated };
+}
+
 /** Assert no `securitypolicyviolation` events fired AND (when the
  * caller passes a diagnostics object captured by `attachDiagnostics`)
  * no CSP-related console / pageerror entries surfaced.
@@ -333,6 +366,7 @@ async function assertInjectedAssetLoadsWithoutCspBlock(page, {
 
 module.exports = {
   assertCspInjections,
+  attachDiagnostics,
   EXPECTED_CSP_DIRECTIVES,
   installCspHeaderRecorder,
   installCspViolationObserver,

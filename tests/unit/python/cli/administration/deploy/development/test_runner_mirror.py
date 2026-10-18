@@ -76,6 +76,9 @@ class TestRunnerMirror(unittest.TestCase):
             "INFINITO_CACHE_STACK": "",
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_PUBLISH_PORTS": "",
+            "INFINITO_GPU_COUNT": "0",
+            "INFINITO_TOOLS_LIBRETRANSLATE_PORT": "",
+            "INFINITO_TOOLS_MODELS_HOST_PATH": "",
         },
         clear=False,
     )

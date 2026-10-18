@@ -1,0 +1,67 @@
+{{ LISTMONK_DESIGN_CSS_MARKER }}
+body {
+  background: var(--design-surface-1);
+  color: var(--design-text);
+}
+a {
+  color: var(--design-link);
+  text-decoration-color: currentColor;
+}
+a:hover {
+  color: var(--design-text);
+}
+label {
+  color: var(--design-text);
+}
+input[type="text"], input[type="email"], input[type="password"], select {
+  background: var(--design-surface-2);
+  color: var(--design-text);
+  border-color: var(--design-border-strong);
+  box-shadow: 2px 2px 0 var(--design-border);
+}
+input:focus {
+  border-color: var(--design-link);
+}
+.error {
+  color: var(--design-danger);
+}
+.button {
+  background: var(--design-primary);
+  color: var(--design-on-primary);
+}
+.button:hover {
+  background: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.button.button-outline {
+  background: var(--design-surface-2);
+  border-color: var(--design-primary);
+  color: var(--design-link);
+}
+.button.button-outline:hover {
+  border-color: var(--design-primary-hover);
+  background-color: var(--design-primary-hover);
+  color: var(--design-on-primary);
+}
+.wrap {
+  background: var(--design-surface-2);
+  border-color: var(--design-border);
+  box-shadow: 2px 2px 0 var(--design-border);
+}
+.header {
+  border-bottom-color: var(--design-border);
+}
+.unsub-all {
+  border-top-color: var(--design-border);
+}
+.lists .description,
+.archive .date {
+  color: var(--design-text-muted);
+}
+footer.container,
+footer a {
+  color: var(--design-text-muted);
+}
+footer a:hover {
+  color: var(--design-text);
+}

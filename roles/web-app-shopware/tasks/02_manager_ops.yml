@@ -72,3 +72,9 @@
     file: 04_cleanup.yml
     apply:
       delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"
+
+- name: "🎨 Feed or withdraw the corporate design of the Storefront"
+  ansible.builtin.include_tasks:
+    file: 05_design.yml
+    apply:
+      delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"

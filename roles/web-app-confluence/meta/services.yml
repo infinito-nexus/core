@@ -27,7 +27,10 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 confluence:
+  enabled: false
+  shared: true
   healthcheck:
     flavor: curl
     hostname: localhost
@@ -56,10 +59,10 @@ confluence:
   run_after:
     - web-app-matomo
   lifecycle: eol
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

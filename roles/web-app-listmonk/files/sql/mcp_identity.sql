@@ -21,3 +21,16 @@ WHERE username = :'username' AND type = 'api'
   AND (password IS DISTINCT FROM :'token_hash'
        OR user_role_id IS DISTINCT FROM (SELECT id FROM roles WHERE name = :'role_name')
        OR status IS DISTINCT FROM 'enabled');
+
+SELECT CASE WHEN EXISTS (
+         SELECT 1
+         FROM users u
+         JOIN roles r ON r.id = u.user_role_id
+         WHERE u.username = :'username'
+           AND u.type = 'api'
+           AND u.password = :'token_hash'
+           AND u.status = 'enabled'
+           AND r.name = :'role_name'
+       ) THEN '[OK]'
+       ELSE '[FAIL] the MCP identity of ' || :'username' || ' is not converged'
+       END AS converged;

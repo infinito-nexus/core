@@ -116,6 +116,7 @@ def ensure_swarm_keypairs() -> dict[str, str]:
     rather than through the replacing extra-vars file.
     """
     static_env = parse_static_env(PROJECT_ROOT / "default.env")
+    # nocheck: environ-get-default  the swarm-test admin keypair is created here, not deployed: default.env declares only INFINITO_SWARM_BACKUP_KEY, and nothing in the repo sets KEY_PATH
     admin_key = Path(os.environ.get("KEY_PATH", "/tmp/swarm-nfs-admin.key"))  # noqa: S108 - ephemeral swarm-test path, overridable via KEY_PATH
     backup_key = Path(
         os.environ.get("INFINITO_SWARM_BACKUP_KEY")
@@ -131,6 +132,7 @@ def main() -> int:
     nfs_ip = os.environ["NFS_IP"]
     mgr_ip = os.environ["MGR_IP"]
     mgr = os.environ["MGR"]
+    # nocheck: environ-get-default  nothing in the repo sets OUT_PATH; this script is the writer of the extras file, so where it lands is its own decision, not the inventory's
     out_path = Path(os.environ.get("OUT_PATH", "/tmp/swarm-nfs-extras.yml"))  # noqa: S108 - ephemeral swarm-test path, overridable via OUT_PATH
 
     pubkeys = ensure_swarm_keypairs()

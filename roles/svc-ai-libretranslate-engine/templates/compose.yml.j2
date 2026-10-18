@@ -1,0 +1,27 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  {% set service_name = LIBRETRANSLATE_ENGINE_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      cache_from:
+        - "{{ lookup('image', application_id, 'libretranslate-engine') }}"
+      args:
+        BUILDKIT_INLINE_CACHE: "1"
+        LIBRETRANSLATE_IMAGE: "{{ LIBRETRANSLATE_ENGINE_IMAGE }}"
+        LIBRETRANSLATE_VERSION: "{{ LIBRETRANSLATE_ENGINE_VERSION }}"
+        LIBRETRANSLATE_LOAD_ONLY: "{{ LIBRETRANSLATE_ENGINE_LOAD_ONLY }}"
+        LIBRETRANSLATE_DIRECTIONS: "{{ LIBRETRANSLATE_ENGINE_DIRECTIONS }}"
+        LIBRETRANSLATE_LOADING_MODEL: "{{ LIBRETRANSLATE_ENGINE_LOADING_MODEL }}"
+        LIBRETRANSLATE_CA_BUNDLE: "{{ LIBRETRANSLATE_ENGINE_CA_BUNDLE }}"
+        APP_USER: "{{ LIBRETRANSLATE_ENGINE_APP_USER }}"
+    {{ lookup('container_image', application_id, 'libretranslate-engine') }}
+    {{ lookup('compose_only', 'container_name', LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_ports', ['libretranslate-engine', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+
+{{ lookup('compose_volumes') }}
+
+{{ lookup('compose_networks') }}

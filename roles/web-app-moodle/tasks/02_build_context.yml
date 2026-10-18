@@ -23,6 +23,7 @@
     - "{{ _moodle_build_dir }}"
     - "{{ [_moodle_build_dir, 'php-conf'] | path_join }}"
     - "{{ [_moodle_build_dir, 'install'] | path_join }}"
+    - "{{ [_moodle_build_dir, 'patch'] | path_join }}"
 
 - name: "📋 Copy static build assets into compose context"
   ansible.builtin.copy:
@@ -37,6 +38,8 @@
     - { path: "{{ MOODLE_BUILD_FILES.install_source }}", mode: "0755" }
     - { path: "{{ MOODLE_BUILD_FILES.install_oidc }}", mode: "0755" }
     - { path: "{{ MOODLE_BUILD_FILES.install_mcp }}", mode: "0755" }
+    - { path: "{{ MOODLE_BUILD_FILES.install_objectfs }}", mode: "0755" }
+    - { path: "{{ MOODLE_BUILD_FILES.patch_objectfs }}", mode: "0644" }
   loop_control:
     label: "{{ item.path }}"
   notify:

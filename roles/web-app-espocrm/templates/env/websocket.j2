@@ -1,0 +1,6 @@
+{% include 'roles/web-app-espocrm/templates/env.j2' %}
+
+ESPOCRM_CONFIG_USE_WEB_SOCKET=true
+ESPOCRM_CONFIG_WEB_SOCKET_URL={{  lookup('tls', application_id, 'protocols.websocket') }}://{{ lookup('domain',application_id) }}/ws
+ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBSCRIBER_DSN=tcp://*:7777
+ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBMISSION_DSN=tcp://websocket:7777

@@ -34,7 +34,7 @@
       enabled: true
       shared: true
 
-    css:
+    design:
       enabled: true
       shared: true
     tor:
@@ -47,7 +47,7 @@
       enabled: false
       shared: false
 
-    css:
+    design:
       enabled: false
       shared: false
     tor:
@@ -60,8 +60,6 @@
       enabled: true
       shared: true
     fediwall:
-      # Exception: variants replace lists wholesale rather than deep-merging, so
-      # every wall.config field is restated here - a template fallback never applies.
       walls:
         - slug: default
           config:
@@ -110,7 +108,7 @@
             showText: true
             showMedia: true
             playVideos: true
-    css:
+    design:
       enabled: false
       shared: false
     tor:

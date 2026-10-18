@@ -67,7 +67,7 @@
     seaweedfs:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     prometheus:
@@ -163,7 +163,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -301,7 +301,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -395,7 +395,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -489,7 +489,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -583,7 +583,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -677,7 +677,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -771,7 +771,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -865,7 +865,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -959,7 +959,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -1053,7 +1053,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -1103,8 +1103,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1147,7 +1147,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -1241,7 +1241,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -1335,7 +1335,7 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:

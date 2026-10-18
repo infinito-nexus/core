@@ -1,0 +1,197 @@
+{% macro tokens(mode) -%}
+{% for name, value in CSS_PALETTE[mode].items() %}
+  {{ name }}: {{ value }};
+{% endfor %}
+  --design-shadow-color: {{ '0, 0, 0, 0.10' if mode == 'light' else '0, 0, 0, 0.45' }};
+  --design-invert: {{ '0' if mode == 'light' else '1' }};
+{%- endmacro %}
+{% if CSS_FONT.import_url %}
+@import url('{{ CSS_FONT.import_url }}');
+{% endif %}
+:root {
+{{ tokens('light') }}
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-design-theme="light"]) {
+{{ tokens('dark') }}
+  }
+}
+:root[data-design-theme="dark"] {
+{{ tokens('dark') }}
+}
+:root {
+  --design-font: {{ CSS_FONT.type }};
+  --design-radius-sm: 4px;
+  --design-radius: 8px;
+  --design-radius-lg: 12px;
+  --design-space-1: 4px;
+  --design-space-2: 8px;
+  --design-space-3: 12px;
+  --design-space-4: 16px;
+  --design-space-5: 24px;
+  --design-space-6: 32px;
+  --design-shadow-1: 0 1px 2px rgba(var(--design-shadow-color));
+  --design-shadow-2: 0 2px 8px rgba(var(--design-shadow-color));
+  --design-shadow-3: 0 8px 24px rgba(var(--design-shadow-color));
+  --design-focus-ring: 0 0 0 3px color-mix(in srgb, var(--design-link) 45%, transparent);
+  --design-focus-ring-inset: inset 0 0 0 1px var(--design-link);
+}
+:root {
+  --bs-font-sans-serif: var(--design-font);
+  --bs-body-font-family: var(--design-font);
+  --bs-body-color: var(--design-text);
+  --bs-body-color-rgb: var(--design-text-rgb);
+  --bs-body-bg: var(--design-surface-1);
+  --bs-body-bg-rgb: var(--design-surface-1-rgb);
+  --bs-emphasis-color: var(--design-text);
+  --bs-emphasis-color-rgb: var(--design-text-rgb);
+  --bs-secondary-color: var(--design-text-muted);
+  --bs-secondary-color-rgb: var(--design-text-muted-rgb);
+  --bs-secondary-bg: var(--design-surface-3);
+  --bs-secondary-bg-rgb: var(--design-surface-3-rgb);
+  --bs-tertiary-color: var(--design-text-muted);
+  --bs-tertiary-color-rgb: var(--design-text-muted-rgb);
+  --bs-tertiary-bg: var(--design-surface-2);
+  --bs-tertiary-bg-rgb: var(--design-surface-2-rgb);
+  --bs-primary: var(--design-primary);
+  --bs-primary-rgb: var(--design-primary-rgb);
+  --bs-secondary: var(--design-neutral-600);
+  --bs-secondary-rgb: var(--design-neutral-600-rgb);
+{% for status in ['success', 'warning', 'danger', 'info'] %}
+  --bs-{{ status }}: var(--design-{{ status }});
+  --bs-{{ status }}-rgb: var(--design-{{ status }}-rgb);
+  --bs-{{ status }}-text-emphasis: var(--design-{{ status }});
+  --bs-{{ status }}-bg-subtle: var(--design-{{ status }}-subtle);
+  --bs-{{ status }}-border-subtle: var(--design-{{ status }}-border);
+{% endfor %}
+  --bs-primary-text-emphasis: var(--design-link);
+  --bs-primary-bg-subtle: var(--design-primary-100);
+  --bs-primary-border-subtle: var(--design-primary-300);
+  --bs-light: var(--design-surface-2);
+  --bs-light-rgb: var(--design-surface-2-rgb);
+  --bs-dark: var(--design-neutral-900);
+  --bs-dark-rgb: var(--design-neutral-900-rgb);
+  --bs-white: var(--design-surface-2);
+  --bs-white-rgb: var(--design-surface-2-rgb);
+  --bs-black: var(--design-text);
+  --bs-black-rgb: var(--design-text-rgb);
+  --bs-gray: var(--design-neutral-500);
+  --bs-gray-dark: var(--design-neutral-800);
+{% for step in [100, 200, 300, 400, 500, 600, 700, 800, 900] %}
+  --bs-gray-{{ step }}: var(--design-neutral-{{ step }});
+{% endfor %}
+  --bs-link-color: var(--design-link);
+  --bs-link-color-rgb: var(--design-link-rgb);
+  --bs-link-hover-color: var(--design-primary-800);
+  --bs-link-hover-color-rgb: var(--design-primary-800-rgb);
+  --bs-code-color: var(--design-danger);
+  --bs-highlight-color: var(--design-text);
+  --bs-highlight-bg: var(--design-warning-subtle);
+  --bs-border-color: var(--design-border);
+  --bs-border-color-translucent: rgba(var(--design-text-rgb), 0.15);
+  --bs-border-radius-sm: var(--design-radius-sm);
+  --bs-border-radius: var(--design-radius);
+  --bs-border-radius-lg: var(--design-radius-lg);
+  --bs-box-shadow-sm: var(--design-shadow-1);
+  --bs-box-shadow: var(--design-shadow-2);
+  --bs-box-shadow-lg: var(--design-shadow-3);
+  --bs-focus-ring-color: color-mix(in srgb, var(--design-link) 45%, transparent);
+  --bs-table-color: var(--design-text);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--design-border);
+  --bs-table-striped-bg: var(--design-surface-3);
+  --bs-table-hover-bg: rgba(var(--design-primary-rgb), 0.06);
+}
+@layer infinito-design {
+  :root {
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-design-theme="light"]) {
+      color-scheme: dark;
+    }
+  }
+  :root[data-design-theme="dark"] {
+    color-scheme: dark;
+  }
+  html {
+    accent-color: var(--design-primary);
+    scrollbar-color: var(--design-neutral-400) var(--design-surface-1);
+  }
+  body {
+    background-color: var(--design-surface-1);
+    color: var(--design-text);
+    font-family: var(--design-font);
+  }
+  ::selection {
+    background-color: var(--design-primary-200);
+    color: var(--design-text);
+  }
+  a {
+    color: var(--design-link);
+  }
+  a:hover {
+    color: var(--bs-link-hover-color);
+  }
+  :focus-visible {
+    outline: 2px solid var(--design-focus, var(--design-link));
+    outline-offset: 2px;
+  }
+  button {
+    background-color: var(--design-surface-3);
+    color: var(--design-text);
+    border: 1px solid var(--design-border);
+    border-radius: var(--design-radius);
+  }
+  button:hover {
+    background-color: var(--design-surface-hover);
+  }
+  button:active {
+    background-color: var(--design-surface-active);
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,
+  select {
+    background-color: var(--design-surface-2);
+    color: var(--design-text);
+    border: 1px solid var(--design-border-strong);
+    border-radius: var(--design-radius);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--design-text-muted);
+  }
+  input:hover,
+  textarea:hover,
+  select:hover {
+    border-color: var(--design-primary);
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    border-color: var(--design-focus, var(--design-link));
+    outline-offset: -2px;
+  }
+  input:user-invalid,
+  textarea:user-invalid,
+  select:user-invalid {
+    border-color: var(--design-danger);
+  }
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    background-color: var(--design-surface-3);
+    color: var(--design-text-muted);
+  }
+  option {
+    background-color: var(--design-surface-2);
+    color: var(--design-text);
+  }
+  th, td {
+    border-color: var(--design-border);
+  }
+  thead {
+    background-color: var(--design-surface-3);
+    color: var(--design-text);
+  }
+}

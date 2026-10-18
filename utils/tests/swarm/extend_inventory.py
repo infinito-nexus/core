@@ -53,9 +53,6 @@ _BACKUP = f"{_PREFIX}{_NAMES['INFINITO_SWARM_BACKUP_NAME']}"
 
 def _host_topology(app_id: str) -> list[tuple[str, str]]:
     app_hosts: list[tuple[str, str]] = [(app_id, _MANAGER)]
-    # Exception: svc-swarm-manager is the IS_STACK_HOST marker group; leaking
-    # workers into it flips IS_STACK_HOST true on workers and skips the CA
-    # fetch. Keep it manager-only.
     if app_id != "svc-swarm-manager" and get_role_placement(app_id) != "manager":
         app_hosts.extend((app_id, w) for w in _WORKERS)
     return [
@@ -98,6 +95,7 @@ def main() -> int:
     if not os.environ.get("SWARM_NAME"):
         raise SystemExit("extend_inventory: SWARM_NAME is required (cluster id)")
     app_id = os.environ["APP_ID"]
+    # nocheck: environ-get-default  swarm-test base: matrix.py exports INV_PATH per round, a contributor running this step standalone gets the same /tmp/inv base the routine scripts use
     inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_PATH
 
     closure = derive_includes(app_id)

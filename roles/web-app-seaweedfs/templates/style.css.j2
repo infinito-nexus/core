@@ -1,0 +1,99 @@
+{% set design = lookup('design', application_id) %}
+body {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+a,
+a:hover,
+a:focus {
+  color: var(--design-link);
+}
+a:focus {
+  outline: 2px solid var(--design-focus, var(--design-link));
+  outline-offset: 2px;
+}
+h1 small,
+h2 small {
+  color: var(--design-text-muted);
+}
+.page-header {
+  border-bottom-color: var(--design-border);
+}
+code {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td {
+  border-top-color: var(--design-border);
+}
+.table > thead > tr > th {
+  border-bottom-color: var(--design-border);
+}
+.table-striped > tbody > tr:nth-child(odd) {
+  background-color: var(--design-surface-2);
+}
+.table-hover > tbody > tr:hover {
+  background-color: var(--design-surface-hover);
+}
+.breadcrumb {
+  background-color: var(--design-surface-3);
+}
+.breadcrumb > li + li:before {
+  color: var(--design-text-muted);
+}
+.btn:hover,
+.btn:focus {
+  color: var(--design-text);
+}
+.btn-default {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border-strong);
+}
+.btn-default:hover,
+.btn-default:focus {
+  color: var(--design-text);
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border-strong);
+}
+.btn-default:active {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+  border-color: var(--design-border-strong);
+}
+.progress {
+  background-color: var(--design-surface-3);
+}
+.progress-bar {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+.progress-bar-success {
+  color: var(--design-on-success);
+  background-color: var(--design-success);
+}
+.progress-bar-striped {
+  background-image: none;
+}
+#drop-area.highlight {
+  border-color: var(--design-border-strong);
+}
+.footer {
+  background-color: var(--design-surface-2);
+  border-left-color: var(--design-border);
+  border-right-color: var(--design-border);
+}
+.add-files {
+  color: var(--design-text-muted);
+  border-color: var(--design-border-strong);
+}
+{% if design.logo is string %}
+.page-header h1 > a > img {
+  content: url("{{ design.urls.logo.svg }}");
+  width: 50px;
+  height: 50px;
+}
+{% endif %}

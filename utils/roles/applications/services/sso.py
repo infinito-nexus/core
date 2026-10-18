@@ -86,7 +86,8 @@ def get_sso_config(
 ) -> dict[str, Any]:
     """Resolve the SSO state for a consumer role.
 
-    Returns a dict with keys:
+    Returns a dict with keys::
+
         enabled                 bool — ``services.sso.enabled``
         shared                  bool — ``services.sso.shared``
         flavor                  str  — one of {oidc, oauth2, saml}; default 'oidc'

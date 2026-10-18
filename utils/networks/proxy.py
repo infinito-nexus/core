@@ -11,7 +11,7 @@ import re
 from typing import Any
 
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 _REGEX_OR_NAMED_LOCATION = re.compile(r"^[@~]")
 _LOCATION_MODIFIER = re.compile(r"^(?:=|\^~)\s*")
@@ -40,7 +40,7 @@ def resolve_upstream(
     ``host.docker.internal:<local>`` via the host gateway (the caller sets
     this off the real DEPLOYMENT_MODE, since such apps force a compose-style
     render). Missing swarm internal port hard-fails."""
-    entity = get_entity_name(application_id)
+    entity = entity_name(application_id)
     if not entity:
         raise ValueError(
             f"resolve_upstream: cannot derive entity from {application_id!r}"

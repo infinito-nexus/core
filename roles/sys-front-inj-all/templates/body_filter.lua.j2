@@ -30,6 +30,67 @@ end
 local whole = table.concat(ngx.ctx.buf)
 ngx.ctx.buf = nil
 
+if ngx.ctx.gunzip and whole ~= "" then
+    local gunzip = package.loaded.infinito_gunzip
+    if not gunzip then
+        local ffi = require("ffi")
+        ffi.cdef([[
+            typedef struct {
+                const unsigned char *next_in;
+                unsigned int avail_in;
+                unsigned long total_in;
+                unsigned char *next_out;
+                unsigned int avail_out;
+                unsigned long total_out;
+                const char *msg;
+                void *state;
+                void *zalloc;
+                void *zfree;
+                void *opaque;
+                int data_type;
+                unsigned long adler;
+                unsigned long reserved;
+            } infinito_z_stream;
+            const char *zlibVersion(void);
+            int inflateInit2_(infinito_z_stream *strm, int windowBits, const char *version, int stream_size);
+            int inflate(infinito_z_stream *strm, int flush);
+            int inflateEnd(infinito_z_stream *strm);
+        ]])
+        local zlib = ffi.load("libz.so.1")
+        gunzip = function(data)
+            local stream = ffi.new("infinito_z_stream")
+            if zlib.inflateInit2_(stream, 47, zlib.zlibVersion(), ffi.sizeof(stream)) ~= 0 then
+                return nil, "inflateInit2_ failed"
+            end
+            local size = 65536
+            local buffer = ffi.new("unsigned char[?]", size)
+            local parts = {}
+            stream.next_in = ffi.cast("const unsigned char *", data)
+            stream.avail_in = #data
+            local status
+            repeat
+                stream.next_out = buffer
+                stream.avail_out = size
+                status = zlib.inflate(stream, 0)
+                if status ~= 0 and status ~= 1 then
+                    zlib.inflateEnd(stream)
+                    return nil, "inflate returned " .. status
+                end
+                parts[#parts + 1] = ffi.string(buffer, size - stream.avail_out)
+            until status == 1
+            zlib.inflateEnd(stream)
+            return table.concat(parts)
+        end
+        package.loaded.infinito_gunzip = gunzip
+    end
+    local plain, err = gunzip(whole)
+    if plain then
+        whole = plain
+    else
+        ngx.log(ngx.ERR, "gunzip of the upstream markup failed: ", err)
+    end
+end
+
 {% set _mirror_tor_enabled = lookup('config', application_id, 'services.tor.enabled', False) | bool %}
 {% if _mirror_tor_enabled %}
 {% set _mirror_origins = lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY) %}
@@ -68,14 +129,29 @@ local function onionize(s)
     return s
 end
 
+local function marked(snippets)
+    return "<!--infinito-inj-->" .. table.concat(snippets, "\n") .. "<!--/infinito-inj-->"
+end
+
 -- Remove inline CSP <meta http-equiv="Content-Security-Policy"> (case-insensitive)
 local meta_re = [[<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>\s*]]
 whole = ngx.re.gsub(whole, meta_re, "", "ijo")
 
+local top_snippets = {}
+{{ push_snippets('top_snippets', inj_top_features) }}
+if #top_snippets > 0 then
+    local top_payload = onionize(marked(top_snippets))
+    local function repl_top(m) return m[0] .. top_payload end
+    local with_top = ngx.re.sub(whole, [[<head\b[^>]*>]], repl_top, "ijo")
+    if with_top then
+        whole = with_top
+    end
+end
+
 -- Build head snippets (rendered by Jinja at template time)
 local head_snippets = {}
 {{ push_snippets('head_snippets', inj_head_features) }}
-local head_payload = onionize(table.concat(head_snippets, "\n")) .. "</head>"
+local head_payload = onionize(marked(head_snippets)) .. "</head>"
 
 -- Inject before </head> (first occurrence)
 local function repl_head(_) return head_payload end
@@ -86,7 +162,7 @@ else
     ngx.log(ngx.WARN, "No </head> found; trying <body> fallback: ", err or "nil")
     -- Fallback: inject right AFTER the opening <body ...> tag
     local body_open_re = [[<body\b[^>]*>]]
-    new, n, err = ngx.re.sub(whole, body_open_re, "$0\n" .. table.concat(head_snippets, "\n"), "ijo")
+    new, n, err = ngx.re.sub(whole, body_open_re, "$0\n" .. marked(head_snippets), "ijo")
     if new then
         whole = new
     else
@@ -97,7 +173,7 @@ end
 -- Build body snippets (rendered by Jinja at template time)
 local body_snippets = {}
 {{ push_snippets('body_snippets', inj_body_features) }}
-local body_payload = onionize(table.concat(body_snippets, "\n")) .. "</body>"
+local body_payload = onionize(marked(body_snippets)) .. "</body>"
 
 -- Inject before </body> (first occurrence), or append if missing
 local function repl_body(_) return body_payload end
@@ -106,7 +182,7 @@ if new then
     whole = new
 else
     ngx.log(ngx.WARN, "No </body> found; appending body snippets at end: ", err or "nil")
-    whole = whole .. table.concat(body_snippets, "\n")
+    whole = whole .. marked(body_snippets)
 end
 
 -- Emit the modified HTML

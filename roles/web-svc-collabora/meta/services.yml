@@ -40,6 +40,11 @@ collabora:
   proxy:
     service_key: collabora
   lifecycle: beta
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: '/' answers a plain OK, the admin console is off and the editor opens only as a POST from the WOPI host (Nextcloud)
+design:
+  enabled: false
+  shared: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

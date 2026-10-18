@@ -403,5 +403,45 @@ class TestOnionFlagsAreRendered(unittest.TestCase):
             )
 
 
+class TestOnionNodeIsRequiredWhenTorIsDeployed(unittest.TestCase):
+    """A deploy carrying `svc-net-tor` without a provisioned node used to
+    answer the clearnet map and cache it under its own key, because
+    `group_names` is part of that key. One scope then served onion while
+    another froze a clearnet asset URL into a stylesheet, which
+    `body_filter.lua`'s `onionize` returns before rewriting.
+    """
+
+    ONION = TestOnionDomainInjection.ONION
+
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def _merge(self, node, group_names):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            with patch(
+                "utils.cache.applications.get_merged_applications",
+                return_value={"svc-net-tor": {"services": {"tor": {"node": node}}}},
+            ):
+                return cache_domains.get_merged_domains(
+                    variables={
+                        "DOMAIN_PRIMARY": "infinito.test",
+                        "group_names": group_names,
+                    },
+                    roles_dir=roles,
+                    templar=None,
+                )
+
+    def test_an_empty_node_is_an_error(self):
+        with self.assertRaisesRegex(ValueError, "services.tor.node"):
+            self._merge("", ["svc-net-tor", "web-app-x"])
+
+    def test_a_provisioned_node_is_accepted(self):
+        self.assertIsInstance(self._merge(self.ONION, ["svc-net-tor"]), dict)
+
+    def test_an_empty_node_is_fine_without_tor_in_the_groups(self):
+        self.assertIsInstance(self._merge("", ["web-app-x"]), dict)
+
+
 if __name__ == "__main__":
     unittest.main()

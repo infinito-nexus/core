@@ -1,6 +1,6 @@
 ---
 # include-gated: when: STALWART_IMPORT_MAILU and 'web-app-mailu' in group_names
-#                and STALWART_ACTIVE_PROVIDER and DEPLOYMENT_MODE == 'compose'
+#                and STALWART_ACTIVE_PROVIDER and IS_COMPOSE_MODE
 - name: "🔍 Resolve the legacy Mailu maildir volume mountpoint"
   ansible.builtin.command: >-
     container volume inspect --format "{{ '{{' }} .Mountpoint {{ '}}' }}"

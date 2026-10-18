@@ -44,4 +44,6 @@ test("administrator: can log in natively to pihole", async ({ page }) => {
     })
     .not.toContain("/login");
   await expect(passwordInput).toBeHidden({ timeout: resolveTimeout(30_000) });
+  await page.locator(".navbar-custom-menu .navbar-nav").waitFor({ state: "attached", timeout: resolveTimeout(30_000) });
+  await expect(page.locator("#oauth2-logout-btn"), "the OAuth2 logout link must not be injected without SSO").toHaveCount(0);
 });

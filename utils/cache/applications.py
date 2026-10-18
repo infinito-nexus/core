@@ -392,6 +392,14 @@ def get_merged_applications(
     roles_dir: str | os.PathLike[str] | None = None,
     templar: Any = None,
 ) -> dict[str, Any]:
+    """Return the applications payload for *variables*, cached per key.
+
+    Exception: a re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE``
+    is written, because its payload carries no users and keeps its volumes. It
+    is therefore memoised on the render guard instead, which drops it when the
+    guard releases. Without that, one template render recomputed the payload
+    for every ``lookup('applications')`` it made.
+    """
     from .users import get_merged_users
 
     variables = variables or {}
@@ -406,11 +414,11 @@ def get_merged_applications(
         _MERGED_APPLICATIONS_CACHE[cache_key] = carried
         return carried
 
-    guarded = getattr(_RENDER_GUARD, "applications", False)
-    if guarded:
-        unrendered = getattr(_RENDER_GUARD, "unrendered_applications", None)
-        if unrendered is not None and unrendered[0] == cache_key:
-            return unrendered[1]
+    nested = getattr(_RENDER_GUARD, "applications", False)
+    if nested:
+        carried_nested = getattr(_RENDER_GUARD, "nested_payloads", {}).get(cache_key)
+        if carried_nested is not None:
+            return carried_nested
 
     defaults = get_application_defaults(roles_dir=resolved_roles_dir)
 
@@ -418,10 +426,14 @@ def get_merged_applications(
 
     merged = merge_with_defaults(defaults, overrides)
 
-    if guarded:
+    if nested:
+        payloads = getattr(_RENDER_GUARD, "nested_payloads", None)
+        if payloads is None:
+            payloads = _RENDER_GUARD.nested_payloads = {}
+        payloads[cache_key] = merged
         return merged
 
-    _RENDER_GUARD.unrendered_applications = (cache_key, copy.deepcopy(merged))
+    _RENDER_GUARD.nested_payloads = {cache_key: copy.deepcopy(merged)}
 
     for app_cfg in merged.values():
         if isinstance(app_cfg, dict):
@@ -443,7 +455,7 @@ def get_merged_applications(
         )
     finally:
         _RENDER_GUARD.applications = False
-        _RENDER_GUARD.unrendered_applications = None
+        _RENDER_GUARD.nested_payloads = {}
 
     for app_id in rendered:
         raw_volumes = get_canonical_volumes(app_id)

@@ -19,3 +19,11 @@ ldapauth_config:
     - service: friendica
       target: /var/www/html/config/ldapauth.config.php
       when: "{{ lookup('config', 'web-app-friendica', 'services.ldap.enabled') | bool }}"
+design_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-friendica', 'directories.volumes'), 'design.config.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: friendica
+      target: /var/www/html/config/zz-infinito-design.config.php
+      when: "{{ lookup('config', 'web-app-friendica', 'services.design.enabled') | bool }}"

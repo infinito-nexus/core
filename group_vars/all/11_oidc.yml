@@ -48,4 +48,8 @@ defaults_oidc:
     FAMILY_NAME: "surname"
     EMAIL: "email"
 
+  ADMIN:
+    USERNAME: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
+    PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+
 OIDC: "{{ defaults_oidc | combine(OIDC_OVERRIDE | default({}, true), recursive=True) }}"

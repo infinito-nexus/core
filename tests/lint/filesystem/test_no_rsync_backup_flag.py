@@ -70,6 +70,8 @@ def _scan_file(path: Path) -> list[Violation]:
     rel = path.relative_to(PROJECT_ROOT).as_posix()
     try:
         text = read_text(str(path))
+    except FileNotFoundError:
+        return []
     except (OSError, UnicodeDecodeError) as exc:
         return [Violation(rel, 0, str(exc))]
 

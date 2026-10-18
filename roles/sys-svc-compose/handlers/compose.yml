@@ -41,7 +41,7 @@
     cmd: >-
       python/pull.py
       --chdir {{ lookup('container', application_id, 'directories.instance') }}
-      --project {{ application_id | get_entity_name }}
+      --project {{ application_id | entity_name }}
       --compose-files {{ lookup('compose_file_args', application_id, include_ca=False) | quote }}
       {% if lookup('container', application_id, 'files.env') is file %}
       --env-file {{ lookup('container', application_id, 'files.env') }}

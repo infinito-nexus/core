@@ -1,0 +1,32 @@
+name: "📦 Test: Install"
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  test-install:
+    name: 🛠️ Makefile
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NIX_CONFIG: |
+        access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+
+      - name: 🔍 Resolve paths from default.env
+        run: |
+          for key in INFINITO_SRC_DIR INFINITO_VENV_DIR; do
+            value="$(awk -F= -v k="^${key}=" '$0 ~ k {print $2; exit}' default.env)"
+            test -n "${value}" || { echo "${key} not found in default.env" >&2; exit 1; }
+            echo "${key}=${value}" >> "$GITHUB_ENV"
+          done
+
+      - name: 📦 Install & test in every distribution base container (parallel)
+        run: ./scripts/tests/install/make.sh

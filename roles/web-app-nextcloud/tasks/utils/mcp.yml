@@ -63,19 +63,20 @@
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: nextcloud_mcp_probe is not defined or nextcloud_mcp_probe.stdout != '200'
 
-- name: "♻️ Re-register the ExApp a rotated app secret left behind"
-  ansible.builtin.include_tasks:
-    file: "{{ role_path }}/tasks/utils/mcp/register.yml"
-    apply:
-      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
-      run_once: true
-  vars:
-    nextcloud_exapp_renew: true
+- name: "♻️ Repair the MCP endpoint a rotated app secret left behind"
   when: nextcloud_mcp_probe.stdout != '200'
+  block:
+    - name: "♻️ Re-register the ExApp a rotated app secret left behind"
+      ansible.builtin.include_tasks:
+        file: "{{ role_path }}/tasks/utils/mcp/register.yml"
+        apply:
+          delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+          run_once: true
+      vars:
+        nextcloud_exapp_renew: true
 
-- name: "🩺 Re-check the endpoint behind the re-registered ExApp"
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
-  when: nextcloud_mcp_probe.stdout != '200'
+    - name: "🩺 Re-check the endpoint behind the re-registered ExApp"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
 
 - name: "🛑 Refuse an MCP endpoint that rejects the stored app password"
   ansible.builtin.assert:

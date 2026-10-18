@@ -28,21 +28,26 @@
 
 - name: "📁 Create the Pixelfed administrator via artisan"
   ansible.builtin.command:
+    expand_argument_vars: false
     argv:
       - container
       - exec
       - -u
       - "{{ PIXELFED_APP_USER }}"
+      - -e
+      - PIXELFED_ADMIN_PASSWORD
       - "{{ PIXELFED_LOCAL_CID }}" # nocheck: container-exec-resolver  PIXELFED_LOCAL_CID resolved at delegate_to runtime
-      - php
-      - artisan
-      - user:create
+      - sh
+      - -c
+      - exec php artisan user:create "$@" --password="$PIXELFED_ADMIN_PASSWORD"
+      - sh
       - "--name={{ PIXELFED_ADMIN_NAME }}"
       - "--username={{ PIXELFED_ADMIN_USERNAME }}"
       - "--email={{ PIXELFED_ADMIN_EMAIL }}"
-      - "--password={{ PIXELFED_ADMIN_PASSWORD }}"
-      - --is_admin=1
+      - --is_admin=true
       - --confirm_email=1
+  environment:
+    PIXELFED_ADMIN_PASSWORD: "{{ PIXELFED_ADMIN_PASSWORD }}"
   when: pixelfed_admin_id_existing.rows | length == 0
   register: pixelfed_admin_create
   changed_when: pixelfed_admin_create.rc == 0
@@ -60,4 +65,16 @@
   register: pixelfed_admin_id
   changed_when: false
   failed_when: pixelfed_admin_id.rows | length == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👑 Ensure the Pixelfed administrator carries the admin flag"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/admin-flag.sql"
+    named_args:
+      admin_username: "{{ PIXELFED_ADMIN_USERNAME }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: pixelfed_admin_flag
+  changed_when: (pixelfed_admin_flag.rows[-1][0] | int) > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

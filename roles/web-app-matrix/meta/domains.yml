@@ -1,4 +1,4 @@
 ---
 canonical:
-  synapse: matrix.{{ DOMAIN_PRIMARY }}
   element: element.{{ DOMAIN_PRIMARY }}
+  synapse: matrix.{{ DOMAIN_PRIMARY }}

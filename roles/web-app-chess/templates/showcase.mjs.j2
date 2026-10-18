@@ -1,0 +1,200 @@
+import crypto from "node:crypto";
+import { createRequire } from "node:module";
+
+const require = createRequire("/app/package.json");
+const pg = require("pg");
+const { default: createGame } = await import("/app/dist/util/chess.js");
+
+const SHOWCASE = {{ CHESS_SHOWCASE | to_json }};
+const STATE = process.env.CHESS_SHOWCASE_STATE;
+const ORIGIN = `${process.env.APP_SCHEME}://${process.env.APP_DOMAIN}`;
+const KING = `${ORIGIN}/@king`;
+const AS_CONTEXT = "https://www.w3.org/ns/activitystreams";
+const CHESS_CONTEXT = "https://castling.club/ns/chess/v0";
+const PLAYERS = `${SHOWCASE.players}/users/`;
+const OBJECTS = `${ORIGIN}/objects/${SHOWCASE.prefix}-`;
+const STEP_MS = 7 * 60 * 1000;
+const PIECES = {
+  wp: "♙", wn: "♘", wb: "♗", wr: "♖", wq: "♕", wk: "♔",
+  bp: "♟", bn: "♞", bb: "♝", br: "♜", bq: "♛", bk: "♚",
+};
+const GAMES = [
+  {
+    key: "live",
+    white: "ada",
+    black: "grace",
+    badge: "\u{1F419}",
+    start: "2026-01-05T09:00:00Z",
+    moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5", "c3", "Nf6", "d4", "exd4", "cxd4", "Bb4+"],
+  },
+  {
+    key: "mate",
+    white: "linus",
+    black: "margaret",
+    badge: "\u{1F33B}",
+    start: "2026-01-04T15:00:00Z",
+    moves: ["e4", "e5", "Bc4", "Nc6", "Qh5", "Nf6", "Qxf7#"],
+  },
+  { key: "fresh", white: "alan", black: "edsger", badge: "\u{1F98B}", start: "2026-01-06T11:00:00Z", moves: [] },
+];
+const BOARD = ["ada", "barbara", "ken"];
+
+const sign = (slug) => crypto.createHmac("sha256", process.env.APP_HMAC_SECRET).update(slug).digest("hex");
+
+function imageUrl(pieces, side, move) {
+  const slug = move ? `${pieces}${side}-${move.from}${move.to}` : `${pieces}${side}`;
+  return `${ORIGIN}/images/${slug}/${sign(slug)}.png`;
+}
+
+function images(fen, move) {
+  const [pieces, side] = fen.replace(/\//g, "").split(" ", 2);
+  const board = {
+    boardImage: imageUrl(pieces, side),
+    boardImageWhite: imageUrl(pieces, "w"),
+    boardImageBlack: imageUrl(pieces, "b"),
+  };
+  if (!move) {
+    return { ...board, moveImage: board.boardImage, moveImageWhite: board.boardImageWhite, moveImageBlack: board.boardImageBlack };
+  }
+  return {
+    ...board,
+    moveImage: imageUrl(pieces, side, move),
+    moveImageWhite: imageUrl(pieces, "w", move),
+    moveImageBlack: imageUrl(pieces, "b", move),
+  };
+}
+
+const mention = (name) =>
+  `<span class="h-card"><a class="u-url mention" href="${PLAYERS}${name}">@<span class="p-nickname">${name}</span></a></span>`;
+
+function describe(move) {
+  const piece = PIECES[move.color + move.piece];
+  if (move.flags.includes("k")) return `${piece} castled king-side`;
+  if (move.flags.includes("q")) return `${piece} castled queen-side`;
+  const opponent = move.color === "w" ? "b" : "w";
+  let text = `${piece} ${move.from} → ${move.to}`;
+  if (move.flags.includes("p")) text += `, promoted to ${PIECES[move.color + move.promotion]}`;
+  else if (move.flags.includes("c")) text += `, captured ${PIECES[opponent + move.captured]}`;
+  else if (move.flags.includes("e")) text += `, en passant captured ${PIECES[opponent + move.captured]}`;
+  return text;
+}
+
+function notesOf(spec, gameUrl) {
+  const game = createGame();
+  const notes = [];
+  for (let ply = 0; ply <= spec.moves.length; ply += 1) {
+    const move = ply === 0 ? undefined : game.move(spec.moves[ply - 1]);
+    if (ply > 0 && !move) throw new Error(`illegal showcase move ${spec.key} ${spec.moves[ply - 1]}`);
+    const line1 = move
+      ? `${spec.badge} [${Math.floor((ply - 1) / 2) + 1}. ${move.san}] ${describe(move)}`
+      : `${spec.badge} ♙ ${mention(spec.white)} vs. ♟ ${mention(spec.black)}`;
+    let line2;
+    if (game.isInCheckmate()) line2 = "Checkmate.";
+    else if (game.isInDraw()) line2 = "Draw.";
+    else {
+      line2 = `${mention(game.turn() === "w" ? spec.white : spec.black)}'s turn`;
+      if (game.isInCheck()) line2 += " (Check)";
+      if (!move) line2 += ", reply with your move.";
+    }
+    const paragraphs = [`<p>${line1}</p>`, `<p>${line2}</p>`];
+    if (!move) paragraphs.push(`<p>View the full game at any time at: <a href="${gameUrl}">${gameUrl}</a></p>`);
+    const id = `${OBJECTS}${spec.key}-${String(ply).padStart(2, "0")}`;
+    const published = new Date(Date.parse(spec.start) + ply * STEP_MS);
+    const fen = game.fen();
+    const urls = images(fen, move);
+    const object = {
+      "@context": [AS_CONTEXT, CHESS_CONTEXT],
+      type: "Note",
+      published: published.toISOString(),
+      attributedTo: KING,
+      inReplyTo: `${SHOWCASE.players}/notes/${spec.key}-${ply}`,
+      to: [`${PLAYERS}${spec.white}`, `${PLAYERS}${spec.black}`],
+      content: paragraphs.join(""),
+      attachment: [{ type: "Image", mediaType: "image/png", url: urls.moveImage }],
+      tag: [
+        { type: "Mention", href: `${PLAYERS}${spec.white}` },
+        { type: "Mention", href: `${PLAYERS}${spec.black}` },
+      ],
+      game: gameUrl,
+      san: move ? move.san : undefined,
+      fen,
+      ...urls,
+      id,
+    };
+    const activity = {
+      "@context": AS_CONTEXT,
+      id: `${id}/activity`,
+      type: "Create",
+      actor: KING,
+      object: id,
+      to: object.to,
+      published: object.published,
+    };
+    notes.push({ id, object, activity, published });
+  }
+  return { notes, fen: game.fen(), over: game.isGameOver() };
+}
+
+const client = new pg.Client();
+await client.connect();
+let changed = 0;
+const run = async (text, values) => {
+  changed += (await client.query(text, values)).rowCount;
+};
+
+try {
+  await client.query("begin");
+  const ids = GAMES.map((spec) => SHOWCASE.games[spec.key]);
+  if (STATE === "present") {
+    for (const spec of GAMES) {
+      const gameId = SHOWCASE.games[spec.key];
+      const gameUrl = `${ORIGIN}/games/${gameId}`;
+      const { notes, fen, over } = notesOf(spec, gameUrl);
+      const updated = notes[notes.length - 1].published;
+      await run(
+        `insert into games (id, white_id, white_name, black_id, black_name, fen, game_over, num_moves, badge, created_at, updated_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+         on conflict (id) do update set fen = excluded.fen, game_over = excluded.game_over,
+           num_moves = excluded.num_moves, updated_at = excluded.updated_at
+         where (games.fen, games.game_over, games.num_moves, games.updated_at)
+           is distinct from (excluded.fen, excluded.game_over, excluded.num_moves, excluded.updated_at)`,
+        [gameId, `${PLAYERS}${spec.white}`, spec.white, `${PLAYERS}${spec.black}`, spec.black, fen, over,
+          spec.moves.length, spec.badge, notes[0].published, updated],
+      );
+      for (const note of notes) {
+        await run(
+          `insert into outbox (id, object, activity, has_fen, created_at) values ($1, $2, $3, true, $4)
+           on conflict (id) do update set object = excluded.object, activity = excluded.activity, created_at = excluded.created_at
+           where outbox.object::text is distinct from excluded.object::text or outbox.created_at is distinct from excluded.created_at`,
+          [note.id, note.object, note.activity, note.published],
+        );
+        await run(
+          "insert into game_objects (object_id, game_id) values ($1, $2) on conflict (object_id) do nothing",
+          [note.id, gameId],
+        );
+      }
+    }
+    for (const [index, name] of BOARD.entries()) {
+      const at = new Date(Date.parse("2026-01-06T08:00:00Z") - index * STEP_MS);
+      await run(
+        `insert into challenge_board (actor_id, actor_name, bumped_at, created_at) values ($1, $2, $3, $3)
+         on conflict (actor_id) do nothing`,
+        [`${PLAYERS}${name}`, name, at],
+      );
+    }
+  } else if (STATE === "absent") {
+    await run("delete from game_objects where game_id = any($1::uuid[])", [ids]);
+    await run("delete from outbox where id like $1", [`${OBJECTS}%`]);
+    await run("delete from games where id = any($1::uuid[])", [ids]);
+    await run("delete from challenge_board where actor_id like $1", [`${PLAYERS}%`]);
+  } else {
+    throw new Error(`CHESS_SHOWCASE_STATE must be present or absent, got ${STATE}`);
+  }
+  await client.query("commit");
+} catch (error) {
+  await client.query("rollback");
+  throw error;
+} finally {
+  await client.end();
+}
+console.log(changed > 0 ? "CHANGED" : "OK");

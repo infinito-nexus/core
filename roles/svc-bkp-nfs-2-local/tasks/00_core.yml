@@ -3,12 +3,14 @@
 
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ item }}"
+    name: "{{ dependency_role }}"
   loop:
     - sys-lock
     - sys-ctl-alm-compose
     - sys-ctl-cln-bkps
     - user-backup
+  loop_control:
+    loop_var: dependency_role
 
 - include_role:
     name: sys-service

@@ -28,9 +28,9 @@ from utils.annotations.message import in_github_actions
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import iter_project_files_with_content, read_text
+from utils.docker.image.config import image_healthcheck_probed
 from utils.docker.image.discovery import iter_role_images, load_yaml
 from utils.docker.mirror import mirror_image
-from utils.docker.registry import image_healthcheck_probed
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 WORKERS = 16
@@ -143,7 +143,7 @@ class TestImageHealthcheckDeclared(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
             cls.probed = list(
                 pool.map(
-                    lambda ref: image_healthcheck_probed(ref.name, ref.version),
+                    lambda ref: image_healthcheck_probed(ref.addressable, ref.version),
                     cls.refs,
                 )
             )

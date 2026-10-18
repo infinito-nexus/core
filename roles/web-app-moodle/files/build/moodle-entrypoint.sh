@@ -6,19 +6,23 @@
 # /proc/self/fd/2; workers fork to ${MOODLE_RUNTIME_USER} per the pool).
 # All paths come from env vars exported by the Dockerfile (single
 # source of truth: roles/web-app-moodle/vars/main.yml).
+#
+# The lock sits on the code volume and does not serialize the replicas and
+# cron across NFS clients, so the sentinel is re-read after the copy: a
+# second swap would wipe the tree the deploy has already installed into.
 set -euo pipefail
 
 : "${MOODLE_CODE_DIR:?required}"
 : "${MOODLE_DATA_DIR:?required}"
 : "${MOODLE_LOCAL_CACHE_DIR:?required}"
 : "${MOODLE_SOURCE_DIR:?required}"
+: "${MOODLE_BOOTSTRAP_STAGE:?required}"
+: "${MOODLE_BOOTSTRAP_SENTINEL:?required}"
 : "${MOODLE_RUNTIME_USER:?required}"
 : "${MOODLE_VERSION_FILE:?required}"
 : "${MOODLE_RELEASE:?required}"
 
-MOODLE_BOOTSTRAP_SENTINEL="${MOODLE_CODE_DIR}/.bootstrap.done"
 MOODLE_BOOTSTRAP_LOCK="${MOODLE_CODE_DIR}/.bootstrap.lock"
-MOODLE_BOOTSTRAP_STAGE="${MOODLE_CODE_DIR}/.bootstrap.stage"
 
 mkdir -p "${MOODLE_DATA_DIR}"
 chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_DATA_DIR}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
@@ -51,6 +55,10 @@ moodle_bootstrap_code_dir() {
   rm -rf "${MOODLE_BOOTSTRAP_STAGE}"
   mkdir "${MOODLE_BOOTSTRAP_STAGE}"
   cp -a "${MOODLE_SOURCE_DIR}/." "${MOODLE_BOOTSTRAP_STAGE}/"
+  if moodle_code_dir_is_current; then
+    rm -rf "${MOODLE_BOOTSTRAP_STAGE}"
+    return 0
+  fi
   find "${MOODLE_CODE_DIR}" -mindepth 1 -maxdepth 1 ! -name "${MOODLE_BOOTSTRAP_LOCK##*/}" ! -name "${MOODLE_BOOTSTRAP_STAGE##*/}" -exec rm -rf {} +
   find "${MOODLE_BOOTSTRAP_STAGE}" -mindepth 1 -maxdepth 1 -exec mv -t "${MOODLE_CODE_DIR}" {} +
   rmdir "${MOODLE_BOOTSTRAP_STAGE}"

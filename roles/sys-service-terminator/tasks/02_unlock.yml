@@ -22,19 +22,20 @@
         | list
       }}
 
-- name: "🚀 DEPLOY | Unmask all {{ SOFTWARE_DOMAIN }} timers"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    masked: false
-  loop: "{{ deploy_timers_unlock }}"
+- name: "🚀 DEPLOY | Activate the collected {{ SOFTWARE_DOMAIN }} timers"
   when: deploy_timers_unlock | length > 0
+  block:
+    - name: "🚀 DEPLOY | Unmask all {{ SOFTWARE_DOMAIN }} timers"
+      become: true
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        masked: false
+      loop: "{{ deploy_timers_unlock }}"
 
-- name: "🚀 DEPLOY | Enable and start all {{ SOFTWARE_DOMAIN }} timers"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    enabled: true
-    state: started
-  loop: "{{ deploy_timers_unlock }}"
-  when: deploy_timers_unlock | length > 0
+    - name: "🚀 DEPLOY | Enable and start all {{ SOFTWARE_DOMAIN }} timers"
+      become: true
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop: "{{ deploy_timers_unlock }}"

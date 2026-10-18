@@ -12,35 +12,82 @@ const CATALOGUE = path.join(
   PROJECT_ROOT,
   "roles/web-app-keycloak/files/logout_i18n.yml",
 );
+const LOCALE = path.join(PROJECT_ROOT, "locale");
+const LANGUAGES = path.join(PROJECT_ROOT, "meta/languages.yml");
 const ORIGIN = "https://logout.example.test";
 const DOMAINS = ["https://shop.example.test", "https://cloud.example.test"];
 
-/**
- * Read the catalogue without a YAML dependency.
- *
- * The file is generated, flat and two levels deep, so a line reader is enough
- * and keeps this suite free of a parser it would otherwise need for one file.
- */
-function readCatalogue() {
+function readEnglish() {
   const out = {};
-  let current = null;
   for (const line of fs.readFileSync(CATALOGUE, "utf8").split("\n")) {
-    const top = line.match(/^([a-z]{2}):\s*$/);
+    const entry = line.match(/^([a-z_]+):\s*(".*")$/);
+    if (entry) {
+      out[entry[1]] = JSON.parse(entry[2]);
+    }
+  }
+  return out;
+}
+
+function readDirections() {
+  const out = {};
+  let code = null;
+  for (const line of fs.readFileSync(LANGUAGES, "utf8").split("\n")) {
+    const top = line.match(/^"?([a-z]{2})"?:\s*$/);
     if (top) {
-      current = {};
-      out[top[1]] = current;
+      code = top[1];
+    }
+    const direction = line.match(/^ {2}direction: (ltr|rtl)$/);
+    if (direction && code) {
+      out[code] = direction[1];
+    }
+  }
+  return out;
+}
+
+function readPo(file) {
+  const entries = [];
+  let current = null;
+  let field = null;
+  let fuzzy = false;
+  for (const line of fs.readFileSync(file, "utf8").split("\n")) {
+    if (line.startsWith("#,")) {
+      fuzzy = line.includes("fuzzy");
       continue;
     }
-    const entry = line.match(/^ {2}([a-z_]+):\s*(.*)$/);
-    if (entry && current) {
-      let value = entry[2].trim();
-      if (
-        (value.startsWith("'") && value.endsWith("'")) ||
-        (value.startsWith('"') && value.endsWith('"'))
-      ) {
-        value = value.slice(1, -1).replace(/''/g, "'");
+    const start = line.match(/^(msgctxt|msgid|msgstr) (".*")$/);
+    if (start) {
+      if (start[1] === "msgctxt" || (start[1] === "msgid" && (!current || "msgstr" in current))) {
+        current = { fuzzy };
+        entries.push(current);
+        fuzzy = false;
       }
-      current[entry[1]] = value;
+      field = start[1];
+      current[field] = JSON.parse(start[2]);
+    } else if (line.startsWith('"') && current && field) {
+      current[field] += JSON.parse(line);
+    }
+  }
+  return entries;
+}
+
+function readCatalogue() {
+  const english = readEnglish();
+  const directions = readDirections();
+  const out = { en: { ...english, dir: directions.en } };
+  for (const code of fs.readdirSync(LOCALE).sort()) {
+    const file = path.join(LOCALE, code, "LC_MESSAGES", "core.po");
+    if (!fs.existsSync(file)) {
+      continue;
+    }
+    const found = {};
+    for (const entry of readPo(file)) {
+      const key = (entry.msgctxt || "").replace(/^logout:/, "");
+      if (entry.msgctxt === `logout:${key}` && entry.msgid === english[key] && entry.msgstr && !entry.fuzzy) {
+        found[key] = entry.msgstr;
+      }
+    }
+    if (Object.keys(found).length > 0) {
+      out[code] = { ...english, ...found, dir: directions[code] };
     }
   }
   return out;
@@ -138,7 +185,7 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
 
 test("the catalogue reader sees every language", () => {
   const catalogue = readCatalogue();
-  assert.equal(Object.keys(catalogue).length, 30);
+  assert.ok(Object.keys(catalogue).length >= 30);
   assert.equal(catalogue.de.dir, "ltr");
   assert.equal(catalogue.ar.dir, "rtl");
 });

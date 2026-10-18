@@ -1,0 +1,11 @@
+{% set design = lookup('design', application_id) %}
+{% set image = design.urls.logo.png if design.logo is string else 'images/jitsilogo.png?v=1' %}
+<title>{{ design.label }}</title>
+<meta property="og:title" content="{{ design.label }}"/>
+<meta property="og:image" content="{{ image }}"/>
+<meta property="og:description" content="Join a WebRTC video conference powered by the Jitsi Videobridge"/>
+<meta description="Join a WebRTC video conference powered by the Jitsi Videobridge"/>
+<meta itemprop="name" content="{{ design.label }}"/>
+<meta itemprop="description" content="Join a WebRTC video conference powered by the Jitsi Videobridge"/>
+<meta itemprop="image" content="{{ image }}"/>
+<link rel="icon" href="{{ design.urls.favicon_ico if design.logo is string else 'images/favicon.svg?v=1' }}">

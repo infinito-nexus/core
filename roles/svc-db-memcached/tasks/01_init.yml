@@ -19,5 +19,5 @@
   ansible.builtin.debug:
     msg: >-
       Memcached has no native auth or namespace; consumer '{{ database_consumer_id }}'
-      is isolated by the key-prefix '{{ database_consumer_id | get_entity_name }}' which
+      is isolated by the key-prefix '{{ database_consumer_id | entity_name }}' which
       the 'engine' lookup resolves at consume time. Nothing to provision here.

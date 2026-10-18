@@ -41,7 +41,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         return lm
 
     @staticmethod
-    def _fake_get_entity_name(role_name: str) -> str:
+    def _fake_entity_name(role_name: str) -> str:
         """
         Make entity resolution deterministic for unit tests (no filesystem access).
         Mirrors the typical behavior for your role naming.
@@ -58,9 +58,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         lookup = self._make_lookup(vars_)
         with (
             mock.patch.object(self.mod, "lookup_loader") as loader_mock,
-            patch.object(
-                self.mod, "get_entity_name", side_effect=self._fake_get_entity_name
-            ),
+            patch.object(self.mod, "entity_name", side_effect=self._fake_entity_name),
         ):
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [applications]
@@ -106,6 +104,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["url"], "")
         self.assertEqual(out["public_domain"], "")
         self.assertEqual(out["public_bucket"], "")
+        self.assertEqual(out["public_endpoint"], "")
         self.assertEqual(out["public_url"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
@@ -117,7 +116,7 @@ class ObjstoreLookupTests(unittest.TestCase):
                 "services": {"seaweedfs": {"enabled": True, "shared": True}},
                 "secrets": {"credentials": {"objstore_secret_key": "sk"}},
             },
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "services": {
                     "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
                 },
@@ -127,7 +126,7 @@ class ObjstoreLookupTests(unittest.TestCase):
 
         out = self._run(["web-app-foo"], applications)[0]
 
-        self.assertEqual(out["id"], "web-app-seaweedfs")
+        self.assertEqual(out["id"], "web-svc-seaweedfs")
         self.assertEqual(out["engine"], "seaweedfs")
         self.assertTrue(out["enabled"])
         self.assertTrue(out["shared"])
@@ -141,11 +140,61 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["url"], "http://seaweedfs-central:8334")
         self.assertEqual(out["public_domain"], "api.seaweedfs.s3.example.com")
         self.assertEqual(out["public_bucket"], "api.seaweedfs.s3.example.com/foo")
+        self.assertEqual(out["public_endpoint"], "https://api.seaweedfs.s3.example.com")
         self.assertEqual(out["public_url"], "https://api.seaweedfs.s3.example.com/foo")
 
         self.assertEqual(
             self._run(["web-app-foo", "url"], applications)[0],
             "http://seaweedfs-central:8334",
+        )
+
+    def test_named_canonical_siblings_do_not_win_over_the_api(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"minio": {"enabled": True, "shared": True}},
+                "secrets": {"credentials": {"objstore_secret_key": "sk"}},
+            },
+            "web-app-minio": {
+                "services": {"minio": {"name": "minio-central"}},
+                "domains": {
+                    "canonical": {
+                        "console": "console.minio.s3.example.com",
+                        "api": "api.minio.s3.example.com",
+                    }
+                },
+            },
+        }
+
+        out = self._run(["web-app-foo"], applications)[0]
+
+        self.assertEqual(out["public_domain"], "api.minio.s3.example.com")
+        self.assertEqual(out["public_endpoint"], "https://api.minio.s3.example.com")
+
+    def test_credentialed_url_percent_encodes_both_halves(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"seaweedfs": {"enabled": True, "shared": True}},
+                "secrets": {"credentials": {"objstore_secret_key": "a/b+c=d"}},
+            },
+            "web-svc-seaweedfs": {
+                "services": {
+                    "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
+                },
+            },
+        }
+
+        out = self._run(["web-app-foo"], applications)[0]
+
+        self.assertEqual(
+            out["credentialed_url"],
+            "http://foo:a%2Fb%2Bc%3Dd@seaweedfs-central:8334",
+        )
+        self.assertEqual(out["url"], "http://seaweedfs-central:8334")
+
+    def test_credentialed_url_is_empty_without_an_engine(self):
+        applications = {"web-app-foo": {"services": {}}}
+        self.assertEqual(
+            self._run(["web-app-foo", "credentialed_url"], applications)[0], ""
         )
 
     def test_public_url_scheme_follows_provider_tls(self):
@@ -176,7 +225,7 @@ class ObjstoreLookupTests(unittest.TestCase):
 
         out = self._run(["web-app-foo"], applications)[0]
 
-        self.assertEqual(out["id"], "web-app-seaweedfs")
+        self.assertEqual(out["id"], "web-svc-seaweedfs")
         self.assertEqual(out["engine"], "seaweedfs")
         self.assertTrue(out["enabled"])
         self.assertFalse(out["shared"])

@@ -66,7 +66,7 @@ Rules:
 ## Keycloak Client Templates 📦
 
 Keycloak client definitions are imported from
-[clients](../../../../roles/web-app-keycloak/templates/import/clients/). The
+`roles/web-app-keycloak/templates/import/clients/`. The
 default template in
 [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2)
 is shared by every application client.
@@ -107,7 +107,7 @@ Every application role SHOULD follow the same shape: discovery on, the `OIDC.CLI
 | [11_oidc.yml](../../../../group_vars/all/11_oidc.yml) | OIDC SPOT, defines `OIDC.*` |
 | [web-app-keycloak](../../../../roles/web-app-keycloak/) | OIDC provider role |
 | [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2) | Shared client template, MUST stay app-agnostic |
-| [scopes](../../../../roles/web-app-keycloak/templates/import/scopes/) | Per-app client scopes for extra mappers |
+| `roles/web-app-keycloak/templates/import/scopes/` | Per-app client scopes for extra mappers |
 | [realm.json.j2](../../../../roles/web-app-keycloak/templates/import/realm.json.j2) | Realm definition, including the `preferred_username` mapper |
 | [ldap.md](ldap.md) | LDAP-side counterpart, paired user identifier |
 | [common.md](common.md) | Cross-cutting IAM principles and integration checklist |

@@ -26,7 +26,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
-PROVIDER = "web-app-seaweedfs"
+PROVIDER = "web-svc-seaweedfs"
 DECLARED_CONSUMER = "web-app-matrix"
 OVERRIDE_CONSUMER = "web-app-hugo"
 NON_CONSUMER = "svc-db-postgres"

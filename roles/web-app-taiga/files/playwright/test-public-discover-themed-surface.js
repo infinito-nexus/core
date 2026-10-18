@@ -4,23 +4,23 @@ const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("taiga public discover keeps the themed surface", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("css");
+    shared.skipUnlessServiceEnabled("design");
 
     const taigaUrls = shared.getTaigaUrls();
 
     await gotoOnion(page, taigaUrls.discoverUrl);
     await expect(page.getByRole("heading", { name: /discover projects/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
-    await shared.expectGradientBackground(
-      page.locator("div.master"),
-      "Expected the Taiga discover page to use the themed master background",
-    );
-    await shared.expectGradientBackground(
-      page.locator(".discover-header form"),
-      "Expected the Taiga discover search form to use the themed surface",
-    );
-    await shared.expectGradientBackground(
-      page.locator(".discover-header input[type='text']"),
-      "Expected the Taiga discover search input to use the themed input surface",
-    );
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      await shared.expectTokenSurface(page, "nav.navbar", "--design-frame", `taiga discover navbar ${mode}`);
+      await shared.expectTokenSurface(page, ".discover-header", "--design-surface-3", `taiga discover header ${mode}`);
+      await shared.expectTokenSurface(
+        page,
+        ".discover-header input[type='text']",
+        "--design-surface-1",
+        `taiga discover search field ${mode}`,
+      );
+    }
+    await page.emulateMedia({ colorScheme: null });
   });
 };

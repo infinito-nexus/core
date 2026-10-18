@@ -3,7 +3,7 @@
 Rationale
 =========
 ``plugins/lookup/addon_env_flags.py`` turns an addon's ``bridges:`` list into
-its Playwright gate flag: a required addon is announced as enabled only when a
+its Playwright gate flag: an enabled addon is announced only when a
 bridged partner is part of the run. A bridge therefore names a **service** —
 ``sso``, ``ldap``, ``coturn``, ``talk`` — and the lookup maps that service to
 the role carrying it.

@@ -48,3 +48,11 @@ SSO with auto-account-creation, which collapses the chain to a single
 - First-login autocreate via SAML's `auto_register` option must be tested
   with both the `administrator` and `biber` openldap-sourced identities
   before ldapauth is removed.
+
+## First frio scheme save of a fresh account is dropped
+
+- An account whose `user.theme` is still empty (every account the role or a visitor creates) loses the frio scheme on its first save of `/settings/display`: `src/Module/Settings/Display.php:194` calls `theme_post()` only when the posted theme equals the stored one, so the first post only stores `theme = frio` (measured 2026-10-14: a post with `frio_scheme=dark` while the stored theme differed left the scheme at `---`; the second post stored it); options: report upstream to compare against `$user['theme'] ?: system.theme`, or let the role store `theme = frio` for the accounts it provisions.
+
+## Open self-registration
+
+- `/register` serves the sign-up form to every visitor because the installer writes `'register_policy' => \Friendica\Module\Register::OPEN` into `config/local.config.php:27` (`bin/console config config register_policy` reports `2`), while upstream's own default in `static/settings.config.php:27` is `CLOSED`; options: set `config.register_policy` to `CLOSED` (or `APPROVE`) from the role through `bin/console config` or a mounted `config/*.config.php`, or make it an inventory switch.

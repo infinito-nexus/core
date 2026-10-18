@@ -13,7 +13,7 @@ from . import PROJECT_ROOT
 SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-litellm/files/python/warm_model.py"
 
 ENVIRONMENT = {
-    "LITELLM_MK": "sk-master-key",
+    "LITELLM_MASTER_KEY": "sk-master-key",
     "LITELLM_PORT": "4000",
     "LITELLM_MODEL": "smollm2:135m",
 }

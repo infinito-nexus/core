@@ -17,6 +17,7 @@ import re
 from tests.utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.github.variant.axes import (
+    ARCHITECTURES,
     DISTROS,
     FILESYSTEMS,
     LOCAL_GLYPH,
@@ -60,10 +61,11 @@ def row_label(
     priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
+    architecture: str = ARCHITECTURES[0],
 ) -> str:
     """The ``matrix.label`` axes assigns to one row: mode glyph, tor glyph on
-    the modes that carry the onion axis, distro and filesystem glyphs, display
-    name, and the priority star."""
+    the modes that carry the onion axis, distro, filesystem and architecture
+    glyphs, display name, and the priority star."""
     deploy_mode = _MODE_NAMES[mode]
     glyphs = to_emoji(deploy_mode)
     glyphs += (
@@ -71,7 +73,7 @@ def row_label(
         if deploy_mode in TOR_DEPLOY_MODES
         else LOCAL_GLYPH
     )
-    glyphs += to_emoji(distro) + to_emoji(filesystem)
+    glyphs += to_emoji(distro) + to_emoji(filesystem) + to_emoji(architecture)
     label = f"{glyphs}{display_names().encode(app, variant)}"
     return f"{label} {to_emoji('priority')}" if priority else label
 
@@ -85,6 +87,7 @@ def deploy_job_name(
     priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
+    architecture: str = ARCHITECTURES[0],
     chunk: int = 0,
     orchestrated: bool = True,
 ) -> str:
@@ -98,6 +101,7 @@ def deploy_job_name(
         priority: whether the row belongs to the priority line.
         distro: the distribution the row was assigned.
         filesystem: the docker data-root kind the row was assigned.
+        architecture: the CPU architecture the row was assigned.
         chunk: chunk index, for the orchestrator prefix.
         orchestrated: include the ci-orchestrator caller prefix (real runs do).
     """
@@ -111,6 +115,7 @@ def deploy_job_name(
             priority=priority,
             distro=distro,
             filesystem=filesystem,
+            architecture=architecture,
         ),
     )
     return (orchestrator_prefix(chunk) if orchestrated else "") + rendered

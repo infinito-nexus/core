@@ -1,5 +1,7 @@
 ---
 mini-qr:
+  healthcheck:
+    flavor: http
   modes:
     compose:
       enabled: true
@@ -42,10 +44,26 @@ redis:
     disabled: true
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    favicon:
+      width: 64
+      height: 64
+    apple-touch-icon:
+      width: 180
+      height: 180
+    logo:
+      width: 200
+      height: 48
+    pwa-192:
+      width: 192
+      height: 192
+    pwa-512:
+      width: 512
+      height: 512
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

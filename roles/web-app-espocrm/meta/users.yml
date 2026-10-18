@@ -1,7 +1,7 @@
 ---
-administrator: {}
 contact:
   description: General contact account
   username: contact
   roles:
     - bot
+platform_administrator: {}

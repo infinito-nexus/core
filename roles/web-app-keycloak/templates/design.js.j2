@@ -1,0 +1,8 @@
+(function () {
+  var root = document.documentElement;
+  var scheme = document.querySelector('meta[name="color-scheme"]');
+  root.setAttribute("data-design-palette", "");
+  if (scheme && !/dark/.test(scheme.getAttribute("content") || "")) {
+    root.setAttribute("data-design-theme", "light");
+  }
+})();

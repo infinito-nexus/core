@@ -5,10 +5,17 @@ server
 
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
+  {% include 'roles/sys-front-inj-all/templates/server.conf.j2' %}
+
   {% include 'roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2' %}
 
   {% set aca_origin = "* always" %}
   {% include 'roles/sys-svc-proxy/templates/headers/access_control_allow.conf.j2' %}
+
+{% if lookup('prometheus_integration_active', application_id) %}
+  set $app_id "{{ application_id }}";
+  {% include 'roles/web-app-prometheus/templates/nginx/location.conf.j2' %}
+{% endif %}
 
   charset utf-8;
 

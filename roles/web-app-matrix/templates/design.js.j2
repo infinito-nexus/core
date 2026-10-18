@@ -1,0 +1,22 @@
+(function () {
+  var root = document.documentElement;
+  var system = window.matchMedia("(prefers-color-scheme: dark)");
+  function mirror() {
+    var classes = document.body.className || "";
+    var app = /\bcpd-theme-dark(-hc)?\b/.test(classes) ? "dark" : /\bcpd-theme-light(-hc)?\b/.test(classes) ? "light" : "";
+    if (app && app !== (system.matches ? "dark" : "light")) {
+      root.setAttribute("data-design-theme", app);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  function watch() {
+    mirror();
+    new MutationObserver(mirror).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  }
+  if (document.body) {
+    watch();
+  } else {
+    document.addEventListener("DOMContentLoaded", watch);
+  }
+})();

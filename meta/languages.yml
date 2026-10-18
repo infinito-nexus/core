@@ -1,0 +1,737 @@
+---
+aa:
+  name: "Afar"
+  native: "Qafaraf"
+  direction: ltr
+ab:
+  name: "Abkhazian"
+  native: "Аԥсшәа"
+  direction: ltr
+ae:
+  name: "Avestan"
+  native: "Avesta"
+  direction: ltr
+af:
+  name: "Afrikaans"
+  native: "Afrikaans"
+  direction: ltr
+ak:
+  name: "Akan"
+  native: "Akan"
+  direction: ltr
+am:
+  name: "Amharic"
+  native: "አማርኛ"
+  direction: ltr
+an:
+  name: "Aragonese"
+  native: "Aragonés"
+  direction: ltr
+ar:
+  name: "Arabic"
+  native: "العربية"
+  direction: rtl
+as:
+  name: "Assamese"
+  native: "অসমীয়া"
+  direction: ltr
+av:
+  name: "Avaric"
+  native: "Авар мацӀ"
+  direction: ltr
+ay:
+  name: "Aymara"
+  native: "Aymar aru"
+  direction: ltr
+az:
+  name: "Azerbaijani"
+  native: "Azərbaycan"
+  direction: ltr
+ba:
+  name: "Bashkir"
+  native: "Башҡорт"
+  direction: ltr
+be:
+  name: "Belarusian"
+  native: "Беларуская"
+  direction: ltr
+bg:
+  name: "Bulgarian"
+  native: "Български"
+  direction: ltr
+bh:
+  name: "Bihari"
+  native: "भोजपुरी"
+  direction: ltr
+bi:
+  name: "Bislama"
+  native: "Bislama"
+  direction: ltr
+bm:
+  name: "Bambara"
+  native: "Bamanakan"
+  direction: ltr
+bn:
+  name: "Bangla"
+  native: "বাংলা"
+  direction: ltr
+bo:
+  name: "Tibetan"
+  native: "བོད་སྐད་"
+  direction: ltr
+br:
+  name: "Breton"
+  native: "Brezhoneg"
+  direction: ltr
+bs:
+  name: "Bosnian"
+  native: "Bosanski"
+  direction: ltr
+ca:
+  name: "Catalan"
+  native: "Català"
+  direction: ltr
+ce:
+  name: "Chechen"
+  native: "Нохчийн"
+  direction: ltr
+ch:
+  name: "Chamorro"
+  native: "Chamoru"
+  direction: ltr
+co:
+  name: "Corsican"
+  native: "Corsu"
+  direction: ltr
+cr:
+  name: "Cree"
+  native: "ᓀᐦᐃᔭᐍᐏᐣ"
+  direction: ltr
+cs:
+  name: "Czech"
+  native: "Čeština"
+  direction: ltr
+cu:
+  name: "Church Slavic"
+  native: "Словѣньскъ"
+  direction: ltr
+cv:
+  name: "Chuvash"
+  native: "Чӑваш чӗлхи"
+  direction: ltr
+cy:
+  name: "Welsh"
+  native: "Cymraeg"
+  direction: ltr
+da:
+  name: "Danish"
+  native: "Dansk"
+  direction: ltr
+de:
+  name: "German"
+  native: "Deutsch"
+  direction: ltr
+dv:
+  name: "Divehi"
+  native: "ދިވެހި"
+  direction: rtl
+dz:
+  name: "Dzongkha"
+  native: "རྫོང་ཁ"
+  direction: ltr
+ee:
+  name: "Ewe"
+  native: "Eʋegbe"
+  direction: ltr
+el:
+  name: "Greek"
+  native: "Ελληνικά"
+  direction: ltr
+en:
+  name: "English"
+  native: "English"
+  direction: ltr
+eo:
+  name: "Esperanto"
+  native: "Esperanto"
+  direction: ltr
+es:
+  name: "Spanish"
+  native: "Español"
+  direction: ltr
+et:
+  name: "Estonian"
+  native: "Eesti"
+  direction: ltr
+eu:
+  name: "Basque"
+  native: "Euskara"
+  direction: ltr
+fa:
+  name: "Persian"
+  native: "فارسی"
+  direction: rtl
+ff:
+  name: "Fula"
+  native: "Pulaar"
+  direction: ltr
+fi:
+  name: "Finnish"
+  native: "Suomi"
+  direction: ltr
+fj:
+  name: "Fijian"
+  native: "Vosa Vakaviti"
+  direction: ltr
+fo:
+  name: "Faroese"
+  native: "Føroyskt"
+  direction: ltr
+fr:
+  name: "French"
+  native: "Français"
+  direction: ltr
+fy:
+  name: "Western Frisian"
+  native: "Frysk"
+  direction: ltr
+ga:
+  name: "Irish"
+  native: "Gaeilge"
+  direction: ltr
+gd:
+  name: "Scottish Gaelic"
+  native: "Gàidhlig"
+  direction: ltr
+gl:
+  name: "Galician"
+  native: "Galego"
+  direction: ltr
+gn:
+  name: "Guarani"
+  native: "Avañeʼẽ"
+  direction: ltr
+gu:
+  name: "Gujarati"
+  native: "ગુજરાતી"
+  direction: ltr
+gv:
+  name: "Manx"
+  native: "Gaelg"
+  direction: ltr
+ha:
+  name: "Hausa"
+  native: "Hausa"
+  direction: ltr
+he:
+  name: "Hebrew"
+  native: "עברית"
+  direction: rtl
+hi:
+  name: "Hindi"
+  native: "हिन्दी"
+  direction: ltr
+ho:
+  name: "Hiri Motu"
+  native: "Hiri Motu"
+  direction: ltr
+hr:
+  name: "Croatian"
+  native: "Hrvatski"
+  direction: ltr
+ht:
+  name: "Haitian Creole"
+  native: "Kreyòl ayisyen"
+  direction: ltr
+hu:
+  name: "Hungarian"
+  native: "Magyar"
+  direction: ltr
+hy:
+  name: "Armenian"
+  native: "Հայերեն"
+  direction: ltr
+hz:
+  name: "Herero"
+  native: "Otjiherero"
+  direction: ltr
+ia:
+  name: "Interlingua"
+  native: "Interlingua"
+  direction: ltr
+id:
+  name: "Indonesian"
+  native: "Indonesia"
+  direction: ltr
+ie:
+  name: "Interlingue"
+  native: "Interlingue"
+  direction: ltr
+ig:
+  name: "Igbo"
+  native: "Igbo"
+  direction: ltr
+ii:
+  name: "Sichuan Yi"
+  native: "ꆈꌠꉙ"
+  direction: ltr
+ik:
+  name: "Inupiaq"
+  native: "Iñupiaq"
+  direction: ltr
+io:
+  name: "Ido"
+  native: "Ido"
+  direction: ltr
+is:
+  name: "Icelandic"
+  native: "Íslenska"
+  direction: ltr
+it:
+  name: "Italian"
+  native: "Italiano"
+  direction: ltr
+iu:
+  name: "Inuktitut"
+  native: "ᐃᓄᒃᑎᑐᑦ"
+  direction: ltr
+ja:
+  name: "Japanese"
+  native: "日本語"
+  direction: ltr
+jv:
+  name: "Javanese"
+  native: "Jawa"
+  direction: ltr
+ka:
+  name: "Georgian"
+  native: "Ქართული"
+  direction: ltr
+kg:
+  name: "Kongo"
+  native: "Kikongo"
+  direction: ltr
+ki:
+  name: "Kikuyu"
+  native: "Gikuyu"
+  direction: ltr
+kj:
+  name: "Kuanyama"
+  native: "Oshikwanyama"
+  direction: ltr
+kk:
+  name: "Kazakh"
+  native: "Қазақ тілі"
+  direction: ltr
+kl:
+  name: "Kalaallisut"
+  native: "Kalaallisut"
+  direction: ltr
+km:
+  name: "Khmer"
+  native: "ខ្មែរ"
+  direction: ltr
+kn:
+  name: "Kannada"
+  native: "ಕನ್ನಡ"
+  direction: ltr
+ko:
+  name: "Korean"
+  native: "한국어"
+  direction: ltr
+kr:
+  name: "Kanuri"
+  native: "Kanuri"
+  direction: ltr
+ks:
+  name: "Kashmiri"
+  native: "کٲشُر"
+  direction: rtl
+ku:
+  name: "Kurdish"
+  native: "Kurdî (kurmancî)"
+  direction: ltr
+kv:
+  name: "Komi"
+  native: "Коми кыв"
+  direction: ltr
+kw:
+  name: "Cornish"
+  native: "Kernewek"
+  direction: ltr
+ky:
+  name: "Kyrgyz"
+  native: "Кыргызча"
+  direction: ltr
+la:
+  name: "Latin"
+  native: "Latina"
+  direction: ltr
+lb:
+  name: "Luxembourgish"
+  native: "Lëtzebuergesch"
+  direction: ltr
+lg:
+  name: "Ganda"
+  native: "Luganda"
+  direction: ltr
+li:
+  name: "Limburgish"
+  native: "Limburgs"
+  direction: ltr
+ln:
+  name: "Lingala"
+  native: "Lingála"
+  direction: ltr
+lo:
+  name: "Lao"
+  native: "ລາວ"
+  direction: ltr
+lt:
+  name: "Lithuanian"
+  native: "Lietuvių"
+  direction: ltr
+lu:
+  name: "Luba-Katanga"
+  native: "Tshiluba"
+  direction: ltr
+lv:
+  name: "Latvian"
+  native: "Latviešu"
+  direction: ltr
+mg:
+  name: "Malagasy"
+  native: "Malagasy"
+  direction: ltr
+mh:
+  name: "Marshallese"
+  native: "Kajin M̧ajeļ"
+  direction: ltr
+mi:
+  name: "Māori"
+  native: "Māori"
+  direction: ltr
+mk:
+  name: "Macedonian"
+  native: "Македонски"
+  direction: ltr
+ml:
+  name: "Malayalam"
+  native: "മലയാളം"
+  direction: ltr
+mn:
+  name: "Mongolian"
+  native: "Монгол"
+  direction: ltr
+mr:
+  name: "Marathi"
+  native: "मराठी"
+  direction: ltr
+ms:
+  name: "Malay"
+  native: "Melayu"
+  direction: ltr
+mt:
+  name: "Maltese"
+  native: "Malti"
+  direction: ltr
+my:
+  name: "Burmese"
+  native: "မြန်မာ"
+  direction: ltr
+na:
+  name: "Nauru"
+  native: "Dorerin Naoero"
+  direction: ltr
+nb:
+  name: "Norwegian Bokmål"
+  native: "Norsk bokmål"
+  direction: ltr
+nd:
+  name: "North Ndebele"
+  native: "IsiNdebele"
+  direction: ltr
+ne:
+  name: "Nepali"
+  native: "नेपाली"
+  direction: ltr
+ng:
+  name: "Ndonga"
+  native: "Oshindonga"
+  direction: ltr
+nl:
+  name: "Dutch"
+  native: "Nederlands"
+  direction: ltr
+nn:
+  name: "Norwegian Nynorsk"
+  native: "Norsk nynorsk"
+  direction: ltr
+"no":
+  name: "Norwegian"
+  native: "Norsk"
+  direction: ltr
+nr:
+  name: "South Ndebele"
+  native: "IsiNdebele"
+  direction: ltr
+nv:
+  name: "Navajo"
+  native: "Diné bizaad"
+  direction: ltr
+ny:
+  name: "Nyanja"
+  native: "Chichewa"
+  direction: ltr
+oc:
+  name: "Occitan"
+  native: "Occitan"
+  direction: ltr
+oj:
+  name: "Ojibwa"
+  native: "Anishinaabemowin"
+  direction: ltr
+om:
+  name: "Oromo"
+  native: "Oromoo"
+  direction: ltr
+or:
+  name: "Odia"
+  native: "ଓଡ଼ିଆ"
+  direction: ltr
+os:
+  name: "Ossetic"
+  native: "Ирон"
+  direction: ltr
+pa:
+  name: "Punjabi"
+  native: "ਪੰਜਾਬੀ"
+  direction: ltr
+pi:
+  name: "Pali"
+  native: "पाळि"
+  direction: ltr
+pl:
+  name: "Polish"
+  native: "Polski"
+  direction: ltr
+ps:
+  name: "Pashto"
+  native: "پښتو"
+  direction: rtl
+pt:
+  name: "Portuguese"
+  native: "Português"
+  direction: ltr
+qu:
+  name: "Quechua"
+  native: "Runasimi"
+  direction: ltr
+rm:
+  name: "Romansh"
+  native: "Rumantsch"
+  direction: ltr
+rn:
+  name: "Rundi"
+  native: "Ikirundi"
+  direction: ltr
+ro:
+  name: "Romanian"
+  native: "Română"
+  direction: ltr
+ru:
+  name: "Russian"
+  native: "Русский"
+  direction: ltr
+rw:
+  name: "Kinyarwanda"
+  native: "Ikinyarwanda"
+  direction: ltr
+sa:
+  name: "Sanskrit"
+  native: "संस्कृत भाषा"
+  direction: ltr
+sc:
+  name: "Sardinian"
+  native: "Sardu"
+  direction: ltr
+sd:
+  name: "Sindhi"
+  native: "سنڌي"
+  direction: rtl
+se:
+  name: "Northern Sami"
+  native: "Davvisámegiella"
+  direction: ltr
+sg:
+  name: "Sango"
+  native: "Sängö"
+  direction: ltr
+si:
+  name: "Sinhala"
+  native: "සිංහල"
+  direction: ltr
+sk:
+  name: "Slovak"
+  native: "Slovenčina"
+  direction: ltr
+sl:
+  name: "Slovenian"
+  native: "Slovenščina"
+  direction: ltr
+sm:
+  name: "Samoan"
+  native: "Gagana Samoa"
+  direction: ltr
+sn:
+  name: "Shona"
+  native: "ChiShona"
+  direction: ltr
+so:
+  name: "Somali"
+  native: "Soomaali"
+  direction: ltr
+sq:
+  name: "Albanian"
+  native: "Shqip"
+  direction: ltr
+sr:
+  name: "Serbian"
+  native: "Српски"
+  direction: ltr
+ss:
+  name: "Swati"
+  native: "SiSwati"
+  direction: ltr
+st:
+  name: "Southern Sotho"
+  native: "Sesotho"
+  direction: ltr
+su:
+  name: "Sundanese"
+  native: "Basa Sunda"
+  direction: ltr
+sv:
+  name: "Swedish"
+  native: "Svenska"
+  direction: ltr
+sw:
+  name: "Swahili"
+  native: "Kiswahili"
+  direction: ltr
+ta:
+  name: "Tamil"
+  native: "தமிழ்"
+  direction: ltr
+te:
+  name: "Telugu"
+  native: "తెలుగు"
+  direction: ltr
+tg:
+  name: "Tajik"
+  native: "Тоҷикӣ"
+  direction: ltr
+th:
+  name: "Thai"
+  native: "ไทย"
+  direction: ltr
+ti:
+  name: "Tigrinya"
+  native: "ትግርኛ"
+  direction: ltr
+tk:
+  name: "Turkmen"
+  native: "Türkmen dili"
+  direction: ltr
+tl:
+  name: "Tagalog"
+  native: "Filipino"
+  direction: ltr
+tn:
+  name: "Tswana"
+  native: "Setswana"
+  direction: ltr
+to:
+  name: "Tongan"
+  native: "Lea fakatonga"
+  direction: ltr
+tr:
+  name: "Turkish"
+  native: "Türkçe"
+  direction: ltr
+ts:
+  name: "Tsonga"
+  native: "Xitsonga"
+  direction: ltr
+tt:
+  name: "Tatar"
+  native: "Татар"
+  direction: ltr
+tw:
+  name: "Twi"
+  native: "Twi"
+  direction: ltr
+ty:
+  name: "Tahitian"
+  native: "Reo Tahiti"
+  direction: ltr
+ug:
+  name: "Uyghur"
+  native: "ئۇيغۇرچە"
+  direction: rtl
+uk:
+  name: "Ukrainian"
+  native: "Українська"
+  direction: ltr
+ur:
+  name: "Urdu"
+  native: "اردو"
+  direction: rtl
+uz:
+  name: "Uzbek"
+  native: "O‘zbek"
+  direction: ltr
+ve:
+  name: "Venda"
+  native: "Tshivenḓa"
+  direction: ltr
+vi:
+  name: "Vietnamese"
+  native: "Tiếng Việt"
+  direction: ltr
+vo:
+  name: "Volapük"
+  native: "Volapük"
+  direction: ltr
+wa:
+  name: "Walloon"
+  native: "Walon"
+  direction: ltr
+wo:
+  name: "Wolof"
+  native: "Wolof"
+  direction: ltr
+xh:
+  name: "Xhosa"
+  native: "IsiXhosa"
+  direction: ltr
+yi:
+  name: "Yiddish"
+  native: "ייִדיש"
+  direction: rtl
+yo:
+  name: "Yoruba"
+  native: "Èdè Yorùbá"
+  direction: ltr
+za:
+  name: "Zhuang"
+  native: "Vahcuengh"
+  direction: ltr
+zh:
+  name: "Chinese"
+  native: "中文"
+  direction: ltr
+zu:
+  name: "Zulu"
+  native: "IsiZulu"
+  direction: ltr

@@ -69,10 +69,6 @@
   ansible.builtin.systemd:
     daemon_reload: true
 
-# Exception: only safe while the export set stays NFSv4-only. ganesha registers
-# v4 with rpcbind best-effort, but NFSv3/MOUNT/NLM/RQUOTA registration is fatal
-# on failure -- flipping Protocols, Enable_NLM or Enable_RQUOTA in
-# ganesha.conf.j2 turns this mask into a startup abort.
 - name: "🔍 Detect which rpcbind units this distro ships"
   ansible.builtin.command:
     cmd: systemctl list-unit-files rpcbind.socket rpcbind.service --no-legend
@@ -94,8 +90,6 @@
     name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha'][ansible_facts['os_family']] }}"
     enabled: true
 
-# Exception: flushing after the start task instead boots ganesha twice --
-# once here, once from the queued handler a second later.
 - name: "🚿 Flush handlers so a pending config change restarts ganesha first"
   ansible.builtin.meta: flush_handlers
 

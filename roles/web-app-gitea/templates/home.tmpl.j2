@@ -1,0 +1,44 @@
+{% raw %}{{template "base/head" .}}
+<div role="main" aria-label="{{if .IsSigned}}{{ctx.Locale.Tr "dashboard"}}{{else}}{{ctx.Locale.Tr "home_title"}}{{end}}" class="page-content home">
+	<div class="tw-mb-8 tw-px-8">
+		<div class="center">
+			<img class="logo" width="220" height="220" src="{{AssetUrlPrefix}}/img/logo.svg" alt="{{ctx.Locale.Tr "logo"}}">
+			<div class="hero">
+				<h1 class="ui icon header title tw-text-balance">
+					{{AppName}}
+				</h1>
+{% endraw %}				<h2 class="tw-text-balance">{{ service_provider.platform.subtitel | e }}</h2>
+{% raw %}			</div>
+		</div>
+	</div>
+	<div class="ui stackable middle very relaxed page grid">
+		<div class="eight wide center column">
+			<h1 class="hero ui icon header">
+				{{svg "octicon-key"}} One account
+			</h1>
+{% endraw %}			<p class="large tw-text-balance">Sign in once and use every application of {{ service_provider.platform.titel | e }}.</p>
+{% raw %}		</div>
+		<div class="eight wide center column">
+			<h1 class="hero ui icon header">
+				{{svg "octicon-shield-lock"}} Sovereign hosting
+			</h1>
+			<p class="large tw-text-balance">Your repositories stay on infrastructure you control.</p>
+		</div>
+	</div>
+	<div class="ui stackable middle very relaxed page grid">
+		<div class="eight wide center column">
+			<h1 class="hero ui icon header">
+				{{svg "octicon-git-pull-request"}} Built for teams
+			</h1>
+			<p class="large tw-text-balance">Issues, pull requests, reviews and wikis in one place.</p>
+		</div>
+		<div class="eight wide center column">
+			<h1 class="hero ui icon header">
+				{{svg "octicon-code"}} Open source
+			</h1>
+{% endraw %}			<p class="large tw-text-balance">Gitea, deployed and maintained as part of {{ SOFTWARE_NAME | e }}.</p>
+{% raw %}		</div>
+	</div>
+</div>
+{{template "base/footer" .}}
+{% endraw %}

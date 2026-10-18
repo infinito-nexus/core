@@ -19,7 +19,10 @@ from .inventory_generator import generate_dynamic_inventory
 from .mirror_overrides import apply_mirror_overrides
 from .passwords import generate_random_password
 from .project import build_env_with_project_root, detect_project_root
-from .services_disabler import apply_services_disabled_from_env
+from .services_disabler import (
+    apply_services_disabled_from_env,
+    reconcile_services_disabled_from_env,
+)
 from .tor_node import apply_tor_node_onion
 from .users_generator import generate_user_passwords
 from .yaml_io import dump_yaml, load_yaml
@@ -229,6 +232,9 @@ def main(argv: list[str] | None = None) -> int:
     ensure_host_vars_file(
         host_vars_file=host_vars_file,
         host=args.host,
+    )
+    reconcile_services_disabled_from_env(
+        host_vars_file=host_vars_file, roles_dir=roles_dir
     )
 
     print(f"[INFO] Ensuring ansible_become_password for host '{args.host}'")

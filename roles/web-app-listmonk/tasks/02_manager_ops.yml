@@ -25,9 +25,9 @@
   shell: |
     {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
     UPDATE users
-    SET email = '{{ lookup('users', 'administrator').email }}',
+    SET email = '{{ lookup('users', 'platform_administrator').email }}',
         password_login = {{ 'false' if lookup('config',application_id, 'services.sso.enabled') else 'true' }}
-    WHERE username = 'administrator';
+    WHERE username = '{{ LISTMONK_ADMIN_USERNAME }}';
     EOSQL
   args:
     executable: /bin/bash
@@ -36,11 +36,16 @@
   ansible.builtin.shell:
     cmd: >-
       {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1
-      -v pw={{ lookup('config', application_id, 'secrets.credentials.administrator_password') | quote }}
+      -v login={{ LISTMONK_ADMIN_USERNAME | quote }}
     stdin: "{{ lookup('file', 'sql/realign_admin_credential.sql') }}"
+  environment:
+    LISTMONK_REALIGN_PASSWORD: "{{ LISTMONK_ADMIN_PASSWORD }}"
   register: listmonk_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: "'UPDATE 1' in listmonk_admin_password.stdout"
+  changed_when: listmonk_admin_password.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    listmonk_admin_password.rc != 0
+    or listmonk_admin_password.stdout is search('\[FAIL\]')
 
 - name: 📌 Apply all Listmonk settings
   shell: |
@@ -69,6 +74,9 @@
     async_reap_jobs: "{{ listmonk_settings.results | default([listmonk_settings]) }}"
     async_reap_label: "Listmonk settings"
     async_reap_tolerate: []
+
+- name: "🎨 Carry the corporate design in the Listmonk settings"
+  ansible.builtin.include_tasks: 03_design.yml
 
 - name: "🚿 Recreate Listmonk so the settings above are loaded"
   ansible.builtin.meta: flush_handlers
