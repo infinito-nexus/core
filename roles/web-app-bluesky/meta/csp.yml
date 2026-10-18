@@ -4,7 +4,7 @@ flags:
     unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
 whitelist:
   connect-src:
-    - "{{ lookup('config', 'web-app-bluesky', 'domains.canonical.api') }}"
+    - "{{ lookup('canonical_url', 'web-app-bluesky', 'api') }}"
     - https://plc.directory
     - https://bsky.social
     - https://api.bsky.app
