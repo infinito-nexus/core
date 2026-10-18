@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Set color variables for the welcome text based on the current user
+case $- in
+*i*) ;;
+*) return ;;
+esac
+
 if [ "$USER" = "root" ]; then
     HEADER_COLOR="\033[1;31m"             # Bold red for root
 elif [ "$USER" = "administrator" ]; then
