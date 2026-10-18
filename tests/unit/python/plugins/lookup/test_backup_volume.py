@@ -58,9 +58,16 @@ class TestBackupVolumeLookup(unittest.TestCase):
         apps = {"r": {"volumes": {"semantic": {"name": "pinned", "backup": False}}}}
         self.assertEqual(_run(type(self)._module, apps), ["pinned"])
 
-    def test_a_nameless_entry_falls_back_to_its_key(self) -> None:
+    def test_a_nameless_entry_gets_the_project_prefix(self) -> None:
         apps = {"r": {"volumes": {"semantic": {"backup": False}}}}
-        self.assertEqual(_run(type(self)._module, apps), ["semantic"])
+        self.assertEqual(_run(type(self)._module, apps), ["r_semantic"])
+
+    def test_the_docs_cache_is_excluded_under_its_deployed_name(self) -> None:
+        """web-app-docs pins no ``name:``, so the engine calls its volume
+        ``docs_docs_sites``. Emitting the bare key left the 17 GB regenerable
+        site tree in the backup and filled the runner's container root."""
+        apps = {"web-app-docs": {"volumes": {"docs_sites": {"backup": False}}}}
+        self.assertEqual(_run(type(self)._module, apps), ["docs_docs_sites"])
 
     def test_names_are_deduplicated_and_sorted(self) -> None:
         apps = {
