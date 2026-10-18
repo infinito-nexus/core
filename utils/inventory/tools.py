@@ -287,7 +287,9 @@ def _gateway_covers_the_catalogs(root: Path) -> bool:
     except (ValueError, KeyError, TypeError):
         return False
     languages = load_languages(root)
-    wanted = {code for domain in DOMAINS for code in domain_languages(languages, domain)}
+    wanted = {
+        code for domain in DOMAINS for code in domain_languages(languages, domain)
+    }
     return wanted <= served
 
 

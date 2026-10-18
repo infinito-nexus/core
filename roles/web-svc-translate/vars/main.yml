@@ -49,7 +49,8 @@ TRANSLATE_WEBLATE_URL: "http://{{ lookup('config', 'web-app-weblate', 'services.
   }}"
 TRANSLATE_WEBLATE_TOKEN: "{{ lookup('users', 'platform_administrator', {}).get('tokens', {}).get('web-app-weblate', '') }}"
 
-TRANSLATE_CHAT_TARGETS: "{{ lookup('file', lookup('path_absolute', 'meta/languages.yml')) | from_yaml | dict2items | map(attribute='key') | reject('equalto', 'en') | list }}"
+TRANSLATE_CHAT_TARGETS: "{{ lookup('file', lookup('path_absolute', 'meta/languages.yml')) | from_yaml | dict2items | map(attribute='key') | reject('equalto', 'en')
+  | list }}"
 TRANSLATE_CHAT_PAIRS: "{{ ['en', 'auto'] | product(TRANSLATE_CHAT_TARGETS) | map('list') | list }}"
 
 TRANSLATE_ENGINES: >-

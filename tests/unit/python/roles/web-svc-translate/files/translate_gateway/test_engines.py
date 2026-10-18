@@ -233,7 +233,9 @@ class CleanTestCase(unittest.TestCase):
         )
 
     def test_a_colon_in_a_clean_answer_is_not_read_as_a_label(self) -> None:
-        self.assertEqual(ENGINES.clean("Hinweis: Das Haus", "House"), "Hinweis: Das Haus")
+        self.assertEqual(
+            ENGINES.clean("Hinweis: Das Haus", "House"), "Hinweis: Das Haus"
+        )
 
     def test_a_non_latin_rendering_keeps_every_character(self) -> None:
         self.assertEqual(ENGINES.clean("дом", "House"), "дом")
