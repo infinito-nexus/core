@@ -58,6 +58,7 @@ from utils.i18n.translate import (
 
 CHUNK_SIZE = 500
 SPHINX_JOBS_FLOOR = 2
+CHAT_LANES = 2
 
 
 def sphinx_jobs() -> int:
@@ -250,18 +251,26 @@ def translate(domains: list[str], requested: list[str], redeploy: bool = False) 
     cpus = usable_cpus()
     codes = sorted({code for _, code in work})
     tuned = int(os.environ.get("INFINITO_I18N_LANES") or 0)
-    lanes = min(len(work), tuned or cpus)
     batch = int(os.environ.get("INFINITO_I18N_BATCH_SIZE") or BATCH_SIZE)
+    engine = set(served_languages(PROJECT_ROOT))
+    passes = (
+        ([job for job in work if job[1] in engine], tuned or cpus),
+        ([job for job in work if job[1] not in engine], tuned or CHAT_LANES),
+    )
     with server(PROJECT_ROOT, redeploy=redeploy) as url:
-        client = LibreTranslate(url, max(cpus // lanes, 1), batch_size=batch)
-        client.wait(
+        LibreTranslate(url, 1, batch_size=batch).wait(
             codes,
             READY_TIMEOUT_SECONDS,
             status=lambda: download_status(PROJECT_ROOT),
         )
-        with ThreadPoolExecutor(lanes) as pool:
-            for _ in pool.map(lambda job: one_catalog(client, *job), work):
-                pass
+        for group, width in passes:
+            if not group:
+                continue
+            lanes = min(len(group), width)
+            client = LibreTranslate(url, max(cpus // lanes, 1), batch_size=batch)
+            with ThreadPoolExecutor(lanes) as pool:
+                for _ in pool.map(lambda job: one_catalog(client, *job), group):
+                    pass
     return 0
 
 

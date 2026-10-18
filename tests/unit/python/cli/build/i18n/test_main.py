@@ -110,6 +110,32 @@ class TestTranslate(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(client.return_value.wait.call_args.args[0], ["fr"])
 
+    def test_the_engine_languages_are_translated_before_the_chat_ones(self) -> None:
+        """A language the engine serves costs a fraction of a chat-served one.
+
+        Measured on this deployment, the engine answers in 0.15s and the chat
+        model in about 6s, so running the catalogs in the table's alphabetical
+        order spends hours on ``aa`` before it has delivered ``fr``. The
+        passes are also what bounds the chat lanes: one model instance
+        answered 40 requests of a single catalog with HTTP 503 when every
+        core got a lane.
+        """
+        (self.root / LANGUAGES_FILE).write_text(
+            LANGUAGES + "aa: {name: Afar, native: Qafar, direction: ltr}\n",
+            encoding="utf-8",
+        )
+        _catalog(self.root, "aa", "")
+        _catalog(self.root, "fr", "")
+        seen: list[str] = []
+
+        with mock.patch.object(
+            cli, "one_catalog", lambda _client, _domain, code: seen.append(code)
+        ):
+            status, _started, _client = self._run()
+
+        self.assertEqual(status, 0)
+        self.assertEqual(seen, ["fr", "aa"])
+
     def test_nothing_pending_starts_no_container(self) -> None:
         _catalog(self.root, "fr", "Bonjour")
 
