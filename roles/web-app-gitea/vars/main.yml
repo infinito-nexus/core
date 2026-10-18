@@ -43,7 +43,7 @@ GITEA_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enable
 GITEA_REDIS_ADDRESS: "{{ lookup('engine', 'redis', application_id, 'host') }}:{{ lookup('engine', 'redis', application_id, 'port') }}"
 GITEA_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'password') }}"
 
-GITEA_INTERNAL_API_URL: "http://{{ entity_name }}:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}/api/v1"
+GITEA_INTERNAL_API_URL: "{{ lookup('container_url', application_id, 'gitea') }}/api/v1"
 
 GITEA_MCP_ENABLED: "{{ lookup('config', application_id, 'services.giteamcp.enabled') | bool }}"
 GITEA_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}"
@@ -65,7 +65,7 @@ GITEA_MCP_CONTRACT:
   tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
-GITEA_MCP_UPSTREAM_URL: "http://{{ entity_name }}:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}"
+GITEA_MCP_UPSTREAM_URL: "{{ lookup('container_url', application_id, 'gitea') }}"
 GITEA_MCP_TOKEN_NAME: "gitea-mcp"
 GITEA_MCP_TOKEN_SCOPES: "read:repository,read:issue,read:user,read:organization,read:notification"
 GITEA_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-gitea') }}"

@@ -60,9 +60,7 @@ MEDIAWIKI_LITELLM_CONNECTION:
 MEDIAWIKI_LITELLM_HTTP_TIMEOUT: 120
 
 MEDIAWIKI_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.translate.enabled') | bool }}"
-# nocheck: literal-protocol-lookup  the gateway is reached on the container network, which speaks plaintext
-MEDIAWIKI_TRANSLATE_URL: "http://{{ lookup('config', 'web-svc-translate', 'services.translate.name') }}:{{ lookup('config', 'web-svc-translate',
-  'services.translate.ports.internal.http') }}"
+MEDIAWIKI_TRANSLATE_URL: "{{ lookup('container_url', 'web-svc-translate', 'translate') }}"
 MEDIAWIKI_TRANSLATE_SERVICE_CONFIG:
   type: LibreTranslate
   url: "{{ MEDIAWIKI_TRANSLATE_URL }}"
