@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import unittest
 
-import yaml
-
 from utils import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_any
 from utils.inventory.tools import LANE_MODEL_ALIAS, render
 
 OLLAMA_ROLE = "svc-ai-ollama"
@@ -23,7 +22,7 @@ class TestLaneModel(unittest.TestCase):
         the probe expects another never reports ready and redeploys on every
         call.
         """
-        rendered = yaml.safe_load(render(PROJECT_ROOT, ["en"]).read_text("utf-8"))
+        rendered = load_yaml_any(str(render(PROJECT_ROOT, ["en"])))
         ollama = rendered["applications"][OLLAMA_ROLE]["services"]["ollama"]
 
         self.assertEqual(

@@ -136,7 +136,7 @@ class TestOtherFlavors(unittest.TestCase):
             subprocess.run(["bash", "-c", script], check=True)
             self.assertEqual(
                 b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n",
-                sent.read_bytes(),
+                sent.read_bytes(),  # nocheck: cache-read - bash writes this file inside the test, so a cached read would answer with the previous run's bytes
             )
 
     def test_http_status_demands_a_2xx_or_3xx_status_line(self):
