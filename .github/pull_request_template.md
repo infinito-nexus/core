@@ -19,23 +19,23 @@ Then select the template that best matches your change:
 
 If the buttons do not work in your GitHub client, append one of these query parameters to the current pull request creation URL:
 
-* `&template=server.md`
-* `&template=workstation.md`
-* `&template=system.md`
-* `&template=pipeline.md`
-* `&template=agents.md`
-* `&template=documentation.md`
+- `&template=server.md`
+- `&template=workstation.md`
+- `&template=system.md`
+- `&template=pipeline.md`
+- `&template=agents.md`
+- `&template=documentation.md`
 
 ### Contribution Guide
 
 📘 Repository-wide contribution and review expectations:
 
-* [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ### Need Help?
 
 💬 If you need support choosing the right template or preparing your pull request:
 
-* [Support and Contact](../SUPPORT.md)
-* Hub: <https://hub.infinito.nexus/>
-* Matrix: `#public:infinito.nexus`
+- [Support and Contact](../SUPPORT.md)
+- Hub: <https://hub.infinito.nexus/>
+- Matrix: `#public:infinito.nexus`

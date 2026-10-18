@@ -25,11 +25,11 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-* Jinja filters: `cdn_paths`, `cdn_urls`, `cdn_dirs`
-* Variables: `CDN_ROOT`, `CDN_VERSION`, `CDN_BASE_URL`, `cdn`, `cdn_dirs`, `cdn_urls`
-* Creates shared/vendor/release directories
-* Maintains `roles/<id>/latest` symlink (when version ≠ `latest`)
-* Plays nicely with `web-svc-cdn` without circular inclusion
+- Jinja filters: `cdn_paths`, `cdn_urls`, `cdn_dirs`
+- Variables: `CDN_ROOT`, `CDN_VERSION`, `CDN_BASE_URL`, `cdn`, `cdn_dirs`, `cdn_urls`
+- Creates shared/vendor/release directories
+- Maintains `roles/<id>/latest` symlink (when version ≠ `latest`)
+- Plays nicely with `web-svc-cdn` without circular inclusion
 
 ## Credits
 

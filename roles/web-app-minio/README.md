@@ -60,11 +60,11 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-* S3-compatible API for broad app compatibility
-* Buckets, users, access keys, and fine-grained policies
-* Optional versioning, lifecycle rules, and object lock
-* Presigned URLs for secure, time-limited uploads/downloads
-* Ideal for AI stacks: datasets, embeddings, and artifacts
+- S3-compatible API for broad app compatibility
+- Buckets, users, access keys, and fine-grained policies
+- Optional versioning, lifecycle rules, and object lock
+- Presigned URLs for secure, time-limited uploads/downloads
+- Ideal for AI stacks: datasets, embeddings, and artifacts
 
 ## Quick Setup
 
@@ -107,8 +107,8 @@ docker run --rm -it \
 
 ## Further Resources
 
-* MinIO: [www.min.io](https://www.min.io)
-* AWS S3 (API background): [aws.amazon.com/s3](https://aws.amazon.com/s3)
+- MinIO: [www.min.io](https://www.min.io)
+- AWS S3 (API background): [aws.amazon.com/s3](https://aws.amazon.com/s3)
 
 ## Persona contract opt-outs
 

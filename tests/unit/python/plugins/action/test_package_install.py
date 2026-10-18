@@ -107,6 +107,27 @@ class TestModuleName(unittest.TestCase):
             self._module_name(GENERIC_PACKAGE, {})
 
 
+class TestManagerArguments(unittest.TestCase):
+    def _args(self, module, facts):
+        action = _action({})
+        action._connection = mock.Mock(become=None, transport="local")
+        action._execute_module = mock.Mock(return_value={})
+        action._execute(ModuleCall(module, {"name": ["wireguard-tools"]}), {}, facts)
+        return action._execute_module.call_args.kwargs["module_args"]
+
+    def test_apt_installs_without_recommends(self):
+        args = self._args(GENERIC_PACKAGE, {"pkg_mgr": "apt"})
+        self.assertFalse(args["install_recommends"])
+
+    def test_other_managers_keep_their_defaults(self):
+        args = self._args(GENERIC_PACKAGE, {"pkg_mgr": "dnf"})
+        self.assertNotIn("install_recommends", args)
+
+    def test_a_concrete_module_is_left_alone(self):
+        args = self._args("ansible.builtin.apt", {"pkg_mgr": "apt"})
+        self.assertNotIn("install_recommends", args)
+
+
 class TestBecomeEscalation(unittest.TestCase):
     def setUp(self):
         self.become = become_loader.get("sudo")

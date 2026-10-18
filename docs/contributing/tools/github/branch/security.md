@@ -4,34 +4,34 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 ## Enforcement 🔒
 
-* Ruleset is **Enabled (Enforced)**
+- Ruleset is **Enabled (Enforced)**
 
 👉 **Meaning for contributors:**
 
-* All rules in this document are **actively enforced** on the default branch (`main`).
-* Contributors MUST comply; violations will block pushes/merges.
+- All rules in this document are **actively enforced** on the default branch (`main`).
+- Contributors MUST comply; violations will block pushes/merges.
 
 ---
 
 ## Bypass 🚪
 
-* Organization admins and repository admins can always bypass rules
+- Organization admins and repository admins can always bypass rules
 
 👉 **Meaning for contributors:**
 
-* Normal contributors MUST follow all rules
-* Admins MAY merge without approvals or checks
+- Normal contributors MUST follow all rules
+- Admins MAY merge without approvals or checks
 
 ---
 
 ## Branch Target 🎯
 
-* Applies to: **`main` (default branch)**
+- Applies to: **`main` (default branch)**
 
 👉 **Meaning for contributors:**
 
-* All rules apply when targeting `main`.
-* Feature branches are NOT restricted until a PR targets `main`.
+- All rules apply when targeting `main`.
+- Feature branches are NOT restricted until a PR targets `main`.
 
 ---
 
@@ -39,32 +39,32 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 ### Restrict Updates ✅
 
-* Direct pushes are blocked
+- Direct pushes are blocked
 
 👉 **Contributor impact:**
 
-* You MUST NOT push directly to `main`
-* You MUST use a Pull Request (PR)
+- You MUST NOT push directly to `main`
+- You MUST use a Pull Request (PR)
 
 ---
 
 ### Restrict Deletions ✅
 
-* Protected branch cannot be deleted
+- Protected branch cannot be deleted
 
 👉 **Contributor impact:**
 
-* You MUST NOT delete the main branch
+- You MUST NOT delete the main branch
 
 ---
 
 ### Restrict Creations ❌
 
-* Branch creation is allowed
+- Branch creation is allowed
 
 👉 **Contributor impact:**
 
-* You MAY create branches freely
+- You MAY create branches freely
 
 ---
 
@@ -74,8 +74,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* You MUST open a PR to merge into `main`
-* Direct commits to `main` are rejected
+- You MUST open a PR to merge into `main`
+- Direct commits to `main` are rejected
 
 ---
 
@@ -83,8 +83,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* You MUST get **2 approvals** before merging
-* Self-approval does not count
+- You MUST get **2 approvals** before merging
+- Self-approval does not count
 
 ---
 
@@ -92,10 +92,10 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* If you push new commits:
+- If you push new commits:
 
-  * Previous approvals are INVALIDATED
-* You MUST get approvals again
+  - Previous approvals are INVALIDATED
+- You MUST get approvals again
 
 ---
 
@@ -103,10 +103,10 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* If you modify owned files:
+- If you modify owned files:
 
-  * A CODEOWNER MUST approve
-* PR cannot be merged without them
+  - A CODEOWNER MUST approve
+- PR cannot be merged without them
 
 ---
 
@@ -114,10 +114,10 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* After your last commit:
+- After your last commit:
 
-  * Someone ELSE MUST approve again
-* You CANNOT approve your own changes
+  - Someone ELSE MUST approve again
+- You CANNOT approve your own changes
 
 ---
 
@@ -125,8 +125,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* All review comments MUST be resolved
-* Open discussions block merging
+- All review comments MUST be resolved
+- Open discussions block merging
 
 ---
 
@@ -134,8 +134,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* No fixed team is always required
-* Only CODEOWNERS matter
+- No fixed team is always required
+- Only CODEOWNERS matter
 
 ---
 
@@ -145,8 +145,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* PRs are merged using merge commits
-* History MAY become non-linear
+- PRs are merged using merge commits
+- History MAY become non-linear
 
 ---
 
@@ -154,8 +154,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* Merge commits ARE allowed
-* You MAY see branching history
+- Merge commits ARE allowed
+- You MAY see branching history
 
 ---
 
@@ -163,8 +163,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* PRs can be merged immediately after approval
-* No automatic queueing
+- PRs can be merged immediately after approval
+- No automatic queueing
 
 ---
 
@@ -174,7 +174,7 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* Your PR MUST pass CI before merging
+- Your PR MUST pass CI before merging
 
 ---
 
@@ -182,8 +182,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* Currently, no checks are enforced
-* Effectively: nothing blocks merge here
+- Currently, no checks are enforced
+- Effectively: nothing blocks merge here
 
 ---
 
@@ -191,11 +191,11 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* You MUST update your branch before merging
-* Typically via:
+- You MUST update your branch before merging
+- Typically via:
 
-  * merge `main`
-  * or rebase
+  - merge `main`
+  - or rebase
 
 ---
 
@@ -205,8 +205,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* All commits MUST be signed (GPG/SSH)
-* Unsigned commits will be rejected
+- All commits MUST be signed (GPG/SSH)
+- Unsigned commits will be rejected
 
 ---
 
@@ -214,8 +214,8 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 👉 **Contributor impact:**
 
-* You MUST NOT rewrite history on protected branches
-* `git push --force` is blocked
+- You MUST NOT rewrite history on protected branches
+- `git push --force` is blocked
 
 ---
 
@@ -225,13 +225,13 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 Configured tools:
 
-* CodeQL (High severity)
-* Hadolint (High severity)
+- CodeQL (High severity)
+- Hadolint (High severity)
 
 👉 **Contributor impact:**
 
-* PR MUST NOT introduce high-severity issues
-* Otherwise merge is blocked
+- PR MUST NOT introduce high-severity issues
+- Otherwise merge is blocked
 
 ---
 
@@ -239,11 +239,11 @@ Configured tools:
 
 ### Require Code Quality Results ✅
 
-* Threshold: Warnings and higher
+- Threshold: Warnings and higher
 
 👉 **Contributor impact:**
 
-* You MUST fix code quality issues before merge
+- You MUST fix code quality issues before merge
 
 ---
 
@@ -253,6 +253,6 @@ Configured tools:
 
 👉 **Contributor impact:**
 
-* Copilot may automatically review your PR
-* It may comment on issues
-* It does not replace human approvals
+- Copilot may automatically review your PR
+- It may comment on issues
+- It does not replace human approvals

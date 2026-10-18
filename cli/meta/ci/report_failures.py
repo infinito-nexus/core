@@ -28,6 +28,7 @@ class Failure(NamedTuple):
     network: str
     distro: str
     filesystem: str
+    vpn: bool = False
 
 
 def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
@@ -58,6 +59,7 @@ def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
                 label.network,
                 label.distro,
                 label.filesystem,
+                label.vpn,
             )
         )
     return out
@@ -77,6 +79,7 @@ def artifact_name(role: str, failure: Failure) -> str:
         failure.network,
         failure.distro,
         failure.filesystem,
+        failure.vpn,
     )
 
 

@@ -92,11 +92,11 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-* Familiar multi-chat interface with quick model switching
-* Supports local backends (Ollama) and OpenAI-compatible APIs
-* Optional **offline mode** for air-gapped environments
-* File/paste input for summaries and extraction (model dependent)
-* Suitable for teams: predictable, private, reproducible
+- Familiar multi-chat interface with quick model switching
+- Supports local backends (Ollama) and OpenAI-compatible APIs
+- Optional **offline mode** for air-gapped environments
+- File/paste input for summaries and extraction (model dependent)
+- Suitable for teams: predictable, private, reproducible
 
 ## Quick Setup
 
@@ -139,8 +139,8 @@ docker run --rm -it \
 
 ## Further Resources
 
-* Open WebUI: [openwebui.com](https://openwebui.com)
-* Ollama: [ollama.com](https://ollama.com)
+- Open WebUI: [openwebui.com](https://openwebui.com)
+- Ollama: [ollama.com](https://ollama.com)
 
 ## MCP Client
 

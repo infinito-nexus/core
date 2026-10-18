@@ -10,23 +10,23 @@ This directory contains default variable definition files for the `svc-db-mariad
 
 Defines default values for how the MariaDB database should be created.
 
-* **`database_encoding`** (string):
+- **`database_encoding`** (string):
 
-  * **Default:** `"utf8mb4"`
-  * **Reasoning:**
+  - **Default:** `"utf8mb4"`
+  - **Reasoning:**
 
-    * **Full Unicode support**: `utf8mb4` is the only MySQL/MariaDB character set that fully implements 4‑byte UTF‑8, allowing storage of emojis, supplementary symbols, and all global scripts without data loss.
-    * **Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later.
-    * **Performance trade‑off:** While slightly more storage might be used compared to `latin1`, the universality of `utf8mb4` outweighs the cost for most deployments.
+    - **Full Unicode support**: `utf8mb4` is the only MySQL/MariaDB character set that fully implements 4‑byte UTF‑8, allowing storage of emojis, supplementary symbols, and all global scripts without data loss.
+    - **Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later.
+    - **Performance trade‑off:** While slightly more storage might be used compared to `latin1`, the universality of `utf8mb4` outweighs the cost for most deployments.
 
-* **`database_collation`** (string):
+- **`database_collation`** (string):
 
-  * **Default:** `"utf8mb4_unicode_ci"`
-  * **Reasoning:**
+  - **Default:** `"utf8mb4_unicode_ci"`
+  - **Reasoning:**
 
-    * **Accurate sorting & comparison:** This collation uses full Unicode algorithm rules, ensuring linguistically correct comparisons across many languages.
-    * **Case‑insensitive (`ci`):** Most web apps expect case‑insensitive matching for usernames, emails, and search queries, improving usability.
-    * **Neutral choice:** Unlike language‑specific collations, `unicode_ci` works robustly in multilingual contexts without bias.
+    - **Accurate sorting & comparison:** This collation uses full Unicode algorithm rules, ensuring linguistically correct comparisons across many languages.
+    - **Case‑insensitive (`ci`):** Most web apps expect case‑insensitive matching for usernames, emails, and search queries, improving usability.
+    - **Neutral choice:** Unlike language‑specific collations, `unicode_ci` works robustly in multilingual contexts without bias.
 
 > **Tip:** If you have a legacy application requiring a different charset or collation (e.g., for backward compatibility with existing data), simply override `database_encoding` and `database_collation` in your playbook-level variables.
 

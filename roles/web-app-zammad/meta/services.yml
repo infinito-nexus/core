@@ -141,12 +141,20 @@ elasticsearch:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
+precheck:
+  name: zammad-search-precheck
+  cpus: "0.2"
+  mem_reservation: 32m
+  mem_limit: 128m
+  pids_limit: 64
 init:
   name: zammad-init
   cpus: "1.0"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 1024
+  # nocheck: single-replica one-shot zammad-init migrates the database; the swarm wait reads one task
+  replicas: 1
 scheduler:
   name: zammad-scheduler
   cpus: "1.0"

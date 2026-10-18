@@ -23,12 +23,11 @@ cover the combinations instead of sampling them:
   exact distribution it died on.
 
 * **filesystem** -- which kind the row's docker data root runs on. The two
-  read the row's position like an odometer: the distro is the low digit and
-  the filesystem the high one, so consecutive rows walk every pairing rather
-  than a diagonal through it. Turning both on the position directly would
-  cover only ``n`` of the ``n x m`` pairs whenever the two pools happen to be
-  the same length, and no sweep would unlock it, because the sweep shifts both
-  by the same amount.
+  read the row's position like an odometer, the distro as the low digit, so
+  consecutive rows walk every pairing rather than a diagonal through it.
+  Turning both on the position directly would cover only ``n`` of the
+  ``n x m`` pairs whenever the pools are the same length, and no sweep would
+  unlock it.
 
 A row's position is its index in the uncapped discovery order, not its index
 inside a chunk, so slicing the list into chunks never changes what a row is
@@ -40,10 +39,15 @@ rather than repeating one pair.
 from __future__ import annotations
 
 import os
-import re
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING
 
 from utils.github.variant import instructions
+from utils.github.variant.label import (  # noqa: F401
+    LABEL_RE,
+    LOCAL_GLYPH,
+    Label,
+    parse_label,
+)
 from utils.github.variant.network import (
     NETWORK_DEPLOY_MODES,
     combinations,
@@ -52,96 +56,25 @@ from utils.github.variant.network import (
     row_pulls_tor,
     row_states,
 )
-from utils.github.variant.pools import DISTROS, FILESYSTEMS, rotate
+from utils.github.variant.pools import (  # noqa: F401
+    DISTROS,
+    FILESYSTEMS,
+    rotate,
+)
+from utils.github.variant.vpn import (
+    VPN_DEPLOY_MODES,
+    pinned_vpn_states,
+    rotated_vpn,
+)
 from utils.networks.reachability import CLEARNET, NODE_MODES
 from utils.roles.display import VARIANT_SEPARATOR, display_names
-from utils.symbol_glossary import to_emoji, to_word
+from utils.symbol_glossary import to_emoji
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from typing import Any
 
 MODES = ("compose", "swarm", "host")
-
-LOCAL_GLYPH = to_emoji("test_host")
-
-_AXIS_GLYPHS = (
-    "".join(to_emoji(word) for word in (*NODE_MODES, "priority", "instructions"))
-    + LOCAL_GLYPH
-)
-
-
-def _alternation(words: Sequence[str]) -> str:
-    """A regex alternation over the glyphs of *words*."""
-    return "|".join(re.escape(to_emoji(word)) for word in words)
-
-
-LABEL_RE = re.compile(
-    r"^.*(?P<mode>" + _alternation(MODES) + r")️?"
-    r"(?:(?P<network>"
-    + _alternation(tuple(NODE_MODES))
-    + r")|"
-    + re.escape(LOCAL_GLYPH)
-    + r")?️?"
-    r"(?P<distro>" + _alternation(DISTROS) + r")?️?"
-    r"(?P<filesystem>" + _alternation(FILESYSTEMS) + r")?️?"
-    r"[" + re.escape(_AXIS_GLYPHS) + r"️\s]*"
-    r"(?P<name>.+?)"
-    r"(?:" + re.escape(VARIANT_SEPARATOR) + r"(?P<variant>[0-9,]+))?"
-    r"[" + re.escape(_AXIS_GLYPHS) + r"️\s]*$"
-)
-"""The leading ``.*`` is greedy on purpose: it anchors on the LAST mode glyph.
-A reusable-workflow caller path can carry a mode glyph of its own (``z / 💻
-Host / 💻 sys-front-proxy``), and matching the first one would swallow the
-caller name into the role."""
-
-
-class Label(NamedTuple):
-    """One deploy job title, taken apart."""
-
-    mode: str
-    name: str
-    variant: str
-    network: str = CLEARNET
-    distro: str = ""
-    filesystem: str = ""
-
-
-def parse_label(name: str) -> Label | None:
-    """Take a deploy job title apart.
-
-    The inverse of what :func:`assign` builds, kept next to it so the two
-    cannot drift: consumers that hand-rolled their own regex over raw role
-    ids silently matched nothing once job titles carried display names, and
-    every failure went unreported.
-
-    Args:
-        name: the job title, with or without a reusable-workflow caller path
-            in front of it.
-
-    Returns:
-        ``None`` when the title carries no deploy row. ``name`` is the display
-        name, returned unresolved -- callers decode it through
-        ``utils.roles.display``, which is what knows the role tree. A title
-        without a network glyph (host rows) reads as ``clearnet``.
-        ``network``, ``distro`` and ``filesystem`` matter because a priority
-        role runs the same mode and variant several times over, and only the
-        glyphs tell those jobs apart -- a retrigger built from the title alone
-        would otherwise replay a different combination than the one that
-        failed.
-    """
-    match = LABEL_RE.match(name.strip())
-    if match is None:
-        return None
-    glyph = match.group("network")
-    return Label(
-        to_word(match.group("mode")),
-        match.group("name").strip(),
-        match.group("variant") or "",
-        to_word(glyph) if glyph else CLEARNET,
-        to_word(match.group("distro") or ""),
-        to_word(match.group("filesystem") or ""),
-    )
 
 
 def resolve_sweep(raw: str | None = None) -> int:
@@ -179,6 +112,7 @@ def artifact_slug(
     network: str,
     distro: str = "",
     filesystem: str = "",
+    vpn: bool = False,
 ) -> str:
     """What identifies one deploy job's artifacts.
 
@@ -190,7 +124,13 @@ def artifact_slug(
     (``role#0%debian role#0%fedora``), and those are two deploys of one mode,
     variant and network mode.
     """
-    shards = (variant, "" if network == CLEARNET else network, distro, filesystem)
+    shards = (
+        variant,
+        "" if network == CLEARNET else network,
+        "vpn" if vpn else "",
+        distro,
+        filesystem,
+    )
     return f"{mode}-{app}" + "".join(f"-{shard}" for shard in shards if shard)
 
 
@@ -285,6 +225,7 @@ def assign(
     network_input: str,
     distros: Sequence[str],
     filesystems: Sequence[str],
+    vpn_mode: str = "auto",
     variants_per_app: Mapping[str, Sequence[Mapping[str, Any]]] | None = None,
 ) -> list[dict[str, str]]:
     """Turn ordered discovery rows into CI matrix entries.
@@ -304,12 +245,12 @@ def assign(
         distros: the distributions this run may draw from
             (:func:`resolve_pool`).
         filesystems: the docker data-root kinds this run may draw from. A pool
-            of exactly one, like a token that pins the kind, is a human naming
-            it: the entry then carries ``enforce_filesystem``, and a host that
-            cannot serve it fails instead of substituting one. A wider pool
-            leaves the row's kind a preference, because the matrix narrows
-            every row to one kind and reading that as a demand would fail rows
-            for conditions the applying step is built to tolerate.
+            of exactly one is a human naming it: the entry then carries
+            ``enforce_filesystem`` and a host that cannot serve it fails
+            instead of substituting one. A wider pool leaves the kind a
+            preference, because the matrix narrows every row to one anyway.
+        vpn_mode: ``enforced`` meshes every swarm row, ``disabled`` none,
+            ``auto`` rotates.
         variants_per_app: rendered variant configs per app, so a variant that
             switches the tor gate off is never offered a Tor network mode.
 
@@ -323,10 +264,10 @@ def assign(
         sweep. A priority row yields every combination :func:`combinations`
         allows, so the roles a run is told to prove are proven everywhere at
         once rather than sampled over several sweeps. ``network`` is the node
-        ``NETWORK_MODE`` the deploy runs with, and ``disable`` carries the
-        provider tokens the deploy drill switches off; a ``clearnet`` row
-        disables the Tor provider so no dependency edge can pull it back into
-        the closure.
+        ``NETWORK_MODE`` the deploy runs with, ``vpn`` whether a swarm row
+        runs meshed, and ``disable`` carries the provider tokens the deploy
+        drill switches off; a ``clearnet`` row disables the Tor provider so no
+        dependency edge can pull it back into the closure.
     """
     codec = display_names()
     entries: list[dict[str, str]] = []
@@ -343,6 +284,7 @@ def assign(
         pin_network = row.get("pin_network")
         pin_distro = row.get("pin_distro")
         pin_filesystem = row.get("pin_filesystem")
+        pin_vpn = row.get("pin_vpn")
         check_pins(
             app,
             variant_csv,
@@ -358,11 +300,12 @@ def assign(
         )
         if priority:
             picked = [
-                (mode, state)
+                (mode, state, meshed)
                 for mode, state in combinations(
                     offered, states=states, network_input=network_input
                 )
                 if pin_mode in (None, mode) and pin_network in (None, state)
+                for meshed in pinned_vpn_states(mode, pin=pin_vpn, vpn_mode=vpn_mode)
             ]
         else:
             modes = _offering(
@@ -370,7 +313,17 @@ def assign(
             )
             mode = pin_mode or (pick_mode(modes, position, sweep) if modes else None)
             picked = [
-                (mode, state)
+                (
+                    mode,
+                    state,
+                    rotated_vpn(
+                        mode,
+                        position=position,
+                        sweep=sweep,
+                        pin=pin_vpn,
+                        vpn_mode=vpn_mode,
+                    ),
+                )
                 for state in (
                     _rotated_network(
                         mode,
@@ -385,7 +338,7 @@ def assign(
                 )
             ]
         label = codec.encode(app, variant_csv)
-        for step, (mode, state) in enumerate(picked):
+        for step, (mode, state, meshed) in enumerate(picked):
             distro = pin_distro or rotate(distros, position + step, sweep)
             filesystem = pin_filesystem or rotate(
                 filesystems, (position + step) // len(distros), sweep
@@ -393,6 +346,11 @@ def assign(
             glyphs = (
                 to_emoji(mode)
                 + (to_emoji(state) if mode in NETWORK_DEPLOY_MODES else LOCAL_GLYPH)
+                + (
+                    to_emoji("vpn" if meshed else "direct")
+                    if mode in VPN_DEPLOY_MODES or mode == "compose"
+                    else ""
+                )
                 + to_emoji(distro)
                 + to_emoji(filesystem)
             )
@@ -402,6 +360,7 @@ def assign(
                     "variant": variant_csv,
                     "mode": mode,
                     "network": state,
+                    "vpn": "true" if meshed else "false",
                     "distro": distro,
                     "filesystem": filesystem,
                     "enforce_filesystem": "true"
@@ -414,7 +373,7 @@ def assign(
                     "covered": str(row.get("covered_by", 0)),
                     "clone": "true" if row.get("clone") else "false",
                     "artifact": artifact_slug(
-                        mode, app, variant_csv, state, distro, filesystem
+                        mode, app, variant_csv, state, distro, filesystem, meshed
                     ),
                     "label": f"{glyphs}{label}"
                     + (f" {to_emoji('priority')}" if priority else ""),

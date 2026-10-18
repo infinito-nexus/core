@@ -190,6 +190,7 @@ class TestArtifactSlug(unittest.TestCase):
                             entry["network"],
                             entry["distro"],
                             entry["filesystem"],
+                            entry["vpn"] == "true",
                         ),
                     ),
                 )
@@ -343,7 +344,7 @@ class TestPriorityCoverage(unittest.TestCase):
         entries = _assign(
             rows, sweep=0, network_input="auto", variants_per_app=_VARIANTS
         )
-        self.assertEqual([e["network"] for e in entries], ["clearnet", "clearnet"])
+        self.assertEqual({e["network"] for e in entries}, {"clearnet"})
 
     def test_a_single_mode_priority_row_never_runs_multi(self) -> None:
         rows = [_row("web-app-single", 0, ("compose",), priority=True)]
@@ -498,6 +499,29 @@ class TestAssign(unittest.TestCase):
                     self.assertNotIn("clearnet", [e["network"] for e in entries])
 
 
+class TestMeshRotation(unittest.TestCase):
+    _ROWS = tuple(_row("web-app-b", 0, ("compose", "swarm")) for _ in range(8))
+
+    def _entries(self, sweep: int) -> list[dict[str, str]]:
+        return _assign(
+            self._ROWS, sweep=sweep, network_input="auto", variants_per_app=_VARIANTS
+        )
+
+    def test_every_sweep_lands_swarm_rows_on_both_arms(self) -> None:
+        for sweep in range(8):
+            with self.subTest(sweep=sweep):
+                arms = {e["vpn"] for e in self._entries(sweep) if e["mode"] == "swarm"}
+                self.assertEqual(arms, {"true", "false"})
+
+    def test_a_compose_row_never_carries_the_mesh(self) -> None:
+        for sweep in range(8):
+            with self.subTest(sweep=sweep):
+                arms = {
+                    e["vpn"] for e in self._entries(sweep) if e["mode"] == "compose"
+                }
+                self.assertEqual(arms, {"false"})
+
+
 class TestPinnedAxes(unittest.TestCase):
     def _entries(self, row: dict) -> list[dict[str, str]]:
         return _assign([row], sweep=0, network_input="auto", variants_per_app=_VARIANTS)
@@ -547,8 +571,29 @@ class TestPinnedAxes(unittest.TestCase):
             priority=True,
             pin_mode="swarm",
             pin_network="clearnet",
+            pin_vpn=False,
         )
         self.assertEqual(len(self._entries(row)), 1)
+
+    def test_a_held_mesh_axis_overrides_a_priority_rows_pin(self) -> None:
+        row = _row(
+            "web-app-b", 0, ("swarm",), priority=True, pin_mode="swarm", pin_vpn=False
+        )
+        entries = _assign(
+            [row],
+            sweep=0,
+            network_input="auto",
+            variants_per_app=_VARIANTS,
+            vpn_mode="enforced",
+        )
+        self.assertNotEqual(entries, [])
+        self.assertEqual({e["vpn"] for e in entries}, {"true"})
+
+    def test_a_priority_rows_pin_still_narrows_a_rotating_axis(self) -> None:
+        row = _row(
+            "web-app-b", 0, ("swarm",), priority=True, pin_mode="swarm", pin_vpn=False
+        )
+        self.assertEqual({e["vpn"] for e in self._entries(row)}, {"false"})
 
     def test_an_unoffered_mode_aborts_the_matrix(self) -> None:
         row = _row("web-app-b", 0, ("compose",), pin_mode="swarm")
@@ -638,6 +683,9 @@ class TestDistroAndFilesystemAxes(unittest.TestCase):
         self.assertEqual(
             len({e["distro"] for e in entries}),
             min(len(entries), len(axes.DISTROS)),
+            "a priority row must walk the pool, not repeat one distribution; "
+            "once it has more combinations than the pool has members, the "
+            "rotation wraps and every distribution is proven at least once",
         )
 
     def test_a_pinned_distro_replaces_the_rotation(self) -> None:
@@ -697,6 +745,7 @@ class TestDistroAndFilesystemAxes(unittest.TestCase):
             entry["label"].startswith(
                 to_emoji("compose")
                 + to_emoji("clearnet")
+                + to_emoji("direct")
                 + to_emoji("debian")
                 + to_emoji("zfs")
             )

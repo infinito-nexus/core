@@ -1,8 +1,0 @@
----
-wireguard:
-  Archlinux:
-    - wireguard-tools
-  Debian:
-    - wireguard
-  RedHat:
-    - wireguard-tools

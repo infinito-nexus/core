@@ -63,12 +63,12 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-* **Decentralized Content Sharing:** Empower users to share photos and visual content across an interoperable, federated network with enhanced privacy controls.
-* **Modern, Responsive Web Interface:** Access an intuitive and adaptive UI for effortless browsing, administration, and content management.
-* **Robust Scalability & Performance:** Leverage integrated Redis caching and a reliable database (MariaDB or PostgreSQL) for smooth scaling and high performance.
-* **Flexible Configuration:** Customize cache sizes, domain settings, and authentication options via environment variables and templated configuration files.
-* **Maintenance & Administration Tools:** Built-in CLI and web-app-based tools to clear caches, manage the database, and monitor application health.
-* **Single Sign-On (SSO) / OpenID Connect (OIDC):** Seamless integration with external identity providers for centralized authentication.
+- **Decentralized Content Sharing:** Empower users to share photos and visual content across an interoperable, federated network with enhanced privacy controls.
+- **Modern, Responsive Web Interface:** Access an intuitive and adaptive UI for effortless browsing, administration, and content management.
+- **Robust Scalability & Performance:** Leverage integrated Redis caching and a reliable database (MariaDB or PostgreSQL) for smooth scaling and high performance.
+- **Flexible Configuration:** Customize cache sizes, domain settings, and authentication options via environment variables and templated configuration files.
+- **Maintenance & Administration Tools:** Built-in CLI and web-app-based tools to clear caches, manage the database, and monitor application health.
+- **Single Sign-On (SSO) / OpenID Connect (OIDC):** Seamless integration with external identity providers for centralized authentication.
 
 ## Quick Setup
 
@@ -111,8 +111,8 @@ docker run --rm -it \
 
 ## Other Resources
 
-* [Official Pixelfed website](https://pixelfed.org/)
-* [Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)
+- [Official Pixelfed website](https://pixelfed.org/)
+- [Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)
 
 ## Persona contract opt-outs
 

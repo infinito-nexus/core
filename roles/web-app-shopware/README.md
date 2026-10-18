@@ -73,11 +73,11 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-* **Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation.
-* **Automated Setup & Maintenance:** Installs, migrates, and configures Shopware automatically.
-* **Extensible Architecture:** Optional Redis, OpenSearch, and plugin-based IAM integrations.
-* **Centralized Database Access:** Connects seamlessly to the shared MariaDB service.
-* **Integrated Configuration:** Environment and Docker Compose variables managed automatically.
+- **Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation.
+- **Automated Setup & Maintenance:** Installs, migrates, and configures Shopware automatically.
+- **Extensible Architecture:** Optional Redis, OpenSearch, and plugin-based IAM integrations.
+- **Centralized Database Access:** Connects seamlessly to the shared MariaDB service.
+- **Integrated Configuration:** Environment and Docker Compose variables managed automatically.
 
 ## Quick Setup
 
@@ -120,9 +120,9 @@ docker run --rm -it \
 
 ## Further Resources
 
-* [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->
-* [Shopware Developer Documentation](https://developer.shopware.com/)
-* [Shopware Store (Plugins)](https://store.shopware.com/en/)
+- [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->
+- [Shopware Developer Documentation](https://developer.shopware.com/)
+- [Shopware Store (Plugins)](https://store.shopware.com/en/)
 
 ## Persona contract opt-outs
 

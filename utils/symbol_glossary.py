@@ -35,6 +35,8 @@ SYMBOLS: dict[str, str] = {
     "tor": "🧅",
     "clearnet": "🌐",
     "multi": "🌈",
+    "vpn": "🚇",
+    "direct": "🛣️",
     "stack": "🥞",
     "host": "💻",
     "row": "🔢",

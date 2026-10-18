@@ -1,0 +1,30 @@
+---
+x-host: &host
+  command: ["sleep", "infinity"]
+  cap_add:
+    - NET_ADMIN
+  networks:
+    - underlay
+
+services:
+  host-i:
+    <<: *host
+    image: debian:13.7-slim
+    container_name: "${HOST_I:?set by test.sh}"
+    hostname: "${HOST_I:?set by test.sh}"
+
+  host-ii:
+    <<: *host
+    image: debian:13.7-slim
+    container_name: "${HOST_II:?set by test.sh}"
+    hostname: "${HOST_II:?set by test.sh}"
+
+  host-iii:
+    <<: *host
+    image: debian:13.7-slim
+    container_name: "${HOST_III:?set by test.sh}"
+    hostname: "${HOST_III:?set by test.sh}"
+
+networks:
+  underlay:
+    name: "${NETWORK:?set by test.sh}"

@@ -21,7 +21,7 @@ import sys
 from cli.administration.deploy.ci import gh, runs, selections
 from cli.meta.ci import matrix, query
 from utils.github import run_name
-from utils.github.variant import network, pools, selection
+from utils.github.variant import network, pools, selection, vpn
 
 _WORKFLOW = "entry-manual-steer.yml"
 _ALL = "__ALL__"
@@ -49,6 +49,7 @@ def _ranking(whitelist: str, config: dict[str, str]) -> list[dict[str, str]]:
         lifecycles=config.get("lifecycles", ""),
         sweep=0,
         network_input=network.resolve_network_input(config.get("network")),
+        vpn_mode=vpn.resolve_vpn_mode(config.get("vpn")),
         distros=pools.resolve_distros(config.get("distros")),
         filesystems=pools.resolve_filesystems(config.get("filesystem")),
     )
