@@ -158,6 +158,7 @@ The inventory under `$WORKDIR` is written by the container as `root`, including 
 {%- endif %}
 ## Credits
 
-{% if application_author_url %}Implemented by **[{{ application_author }}]({{ application_author_url }})**.{% else %}Implemented by **{{ application_author }}**.{% endif %}
+{% if application_author_url %}**[{{ application_author }}]({{ application_author_url }})**{% else %}**{{ application_author }}**{% endif %}
+
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
