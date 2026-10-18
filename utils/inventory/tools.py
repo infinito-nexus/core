@@ -25,6 +25,11 @@ or passing a secret on a command line. It is a fixed literal because the lane
 serves the repository's own tooling on a developer machine and reaches no
 deployment that holds data, the same standing as the dummy authorized key the
 template already carries. Never reuse it anywhere a real caller could reach.
+
+:data:`LITELLM_KEY` pins the model gateway's master key for the same reason
+and under the same standing. A deployment hands each consumer a virtual key
+instead, which is what the role's secret description asks for; the oracle
+judge is not a deployed consumer and has no vault to read one from.
 """
 
 from __future__ import annotations
@@ -42,9 +47,14 @@ TEMPLATE = Path("inventories") / "development" / "tools.yml.j2"
 RENDERED = Path("inventories") / "development" / "tools.rendered.yml"
 ADDRESS = Path("inventories") / "development" / "tools.address"
 API_KEY = "toolsLaneTestKeyNotASecret0000000000"
+LITELLM_KEY = "toolsLaneLiteLlmMasterKeyNotASecret000000000000000000"
 LIBRETRANSLATE_ROLE = "svc-ai-libretranslate-engine"
 S1_ROLE = "svc-ai-s1"
+LITELLM_ROLE = "svc-ai-litellm"
+OLLAMA_ROLE = "svc-ai-ollama"
+GATEWAY_ROLE = "web-svc-translate"
 LANE_SERVICE = "tools"
+LOCAL_MODELS_FILE = Path("group_vars") / "all" / "16_ai.yml"
 PROBE_TIMEOUT_SECONDS = 10
 
 
@@ -170,17 +180,26 @@ def host_url(root: Path, role: str, service_key: str) -> str:
     return f"http://{environment(root)['INFINITO_BIND_IP']}:{port}"
 
 
-def _answers(url: str) -> bytes | None:
+def _answers(url: str, api_key: str = "") -> bytes | None:
     """Return what ``url`` served, or None when it did not answer.
 
     Args:
         url: absolute URL to read.
+        api_key: sent as a bearer token, for a route that authenticates its
+            callers. A 401 reads as no answer, which is what it means here:
+            the service is up but holds a key the checks cannot use, and a
+            lane in that state has to be deployed again rather than reused.
     """
     import urllib.error
     import urllib.request
 
+    request = urllib.request.Request(url)  # noqa: S310 - the URL is this repository's own service definition
+    if api_key:
+        request.add_header("Authorization", f"Bearer {api_key}")
     try:
-        with urllib.request.urlopen(url, timeout=PROBE_TIMEOUT_SECONDS) as response:  # noqa: S310 - the URL is this repository's own service definition
+        with urllib.request.urlopen(  # noqa: S310 - the URL is this repository's own service definition
+            request, timeout=PROBE_TIMEOUT_SECONDS
+        ) as response:
             return response.read()
     except (urllib.error.URLError, OSError, ValueError):
         return None
@@ -197,6 +216,77 @@ def _base_subtag(code: str) -> str:
         code: an ISO 639-1 code, optionally with a subtag.
     """
     return code.split("-", 1)[0].strip().lower()
+
+
+def _litellm_serves_the_named_model(root: Path) -> bool:
+    """Return whether the model gateway answers with the catalogue's model.
+
+    Reachability is not enough twice over. The route authenticates, so a
+    gateway holding a key these checks cannot use looks healthy from outside
+    and refuses every call they make. And a lane brought up before
+    ``AI_LOCAL_MODELS`` named a different model keeps serving the old one,
+    which no probe of liveliness can see.
+
+    Args:
+        root: repository root.
+    """
+    import json
+
+    alias = _named_model(root)
+    body = _answers(f"{host_url(root, LITELLM_ROLE, 'litellm')}/models", LITELLM_KEY)
+    if body is None or not alias:
+        return False
+    try:
+        served = {entry.get("id") for entry in json.loads(body).get("data") or []}
+    except (ValueError, AttributeError, TypeError):
+        return False
+    return alias in served
+
+
+def _named_model(root: Path) -> str:
+    """Return the alias the lane's model server is expected to serve.
+
+    Args:
+        root: repository root.
+    """
+    models = load_yaml(root / LOCAL_MODELS_FILE).get("AI_LOCAL_MODELS") or []
+    first = models[0] if models else {}
+    return str(first.get("alias") or "") if isinstance(first, dict) else ""
+
+
+def _gateway_covers_the_catalogs(root: Path) -> bool:
+    """Return whether the gateway offers every language the catalogs name.
+
+    A gateway that answers is not a gateway that routes: its ``/languages``
+    is the union over its backends, so one whose chat backend declares no
+    pairs advertises the engine's 47 codes and nothing else. The translation
+    run waits on exactly this list, so a lane left in that state is not
+    serving however healthy each container looks.
+
+    Args:
+        root: repository root.
+    """
+    import json
+
+    from utils.i18n.languages import (
+        DOMAINS,
+        SOURCE_LANGUAGE,
+        domain_languages,
+        load_languages,
+    )
+
+    body = _answers(f"{host_url(root, GATEWAY_ROLE, 'translate')}/languages")
+    if body is None:
+        return False
+    try:
+        served = {
+            entry["code"]: set(entry["targets"]) for entry in json.loads(body)
+        }.get(SOURCE_LANGUAGE, set())
+    except (ValueError, KeyError, TypeError):
+        return False
+    languages = load_languages(root)
+    wanted = {code for domain in DOMAINS for code in domain_languages(languages, domain)}
+    return wanted <= served
 
 
 def serving(root: Path, load_only: list[str], roles: tuple[str, ...]) -> bool:
@@ -221,6 +311,10 @@ def serving(root: Path, load_only: list[str], roles: tuple[str, ...]) -> bool:
     import json
 
     if S1_ROLE in roles and _answers(f"{host_url(root, S1_ROLE, 's1')}/health") is None:
+        return False
+    if LITELLM_ROLE in roles and not _litellm_serves_the_named_model(root):
+        return False
+    if GATEWAY_ROLE in roles and not _gateway_covers_the_catalogs(root):
         return False
     if LIBRETRANSLATE_ROLE not in roles:
         return True
@@ -264,6 +358,7 @@ def render(root: Path, load_only: list[str]) -> Path:
     body = env.get_template(template_path.name).render(
         load_only=sorted(load_only),
         s1_api_key=API_KEY,
+        litellm_master_key=LITELLM_KEY,
         models_dir=models_dir(),
     )
     rendered = root / RENDERED
@@ -340,7 +435,13 @@ def main(argv: list[str] | None = None) -> int:
     from utils import PROJECT_ROOT
     from utils.i18n.libretranslate import baked_languages
 
-    default_roles = [LIBRETRANSLATE_ROLE, S1_ROLE]
+    default_roles = [
+        LIBRETRANSLATE_ROLE,
+        S1_ROLE,
+        OLLAMA_ROLE,
+        LITELLM_ROLE,
+        GATEWAY_ROLE,
+    ]
     parser = argparse.ArgumentParser(description="Bring the tools lane up.")
     parser.add_argument("roles", nargs="*", default=default_roles)
     args = parser.parse_args(argv)

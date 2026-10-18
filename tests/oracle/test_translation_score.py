@@ -50,7 +50,7 @@ from utils.i18n.judge import MIDDLE, ChatJudge
 from utils.i18n.languages import DOMAINS, domain_languages, load_languages
 from utils.i18n.libretranslate import SERVICE_KEY
 from utils.i18n.spans import prose
-from utils.inventory.tools import LIBRETRANSLATE_ROLE, lane_url
+from utils.inventory.tools import LIBRETRANSLATE_ROLE, LITELLM_KEY, lane_url
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT, SUITE
@@ -100,16 +100,12 @@ class TestTranslationScore(unittest.TestCase):
     def setUpClass(cls):
         cls.base = lane_url(PROJECT_ROOT, JUDGE_ROLE, JUDGE_SERVICE_KEY)
         cls.engine = lane_url(PROJECT_ROOT, LIBRETRANSLATE_ROLE, SERVICE_KEY)
-        for url in (f"{cls.base}/health", f"{cls.engine}/languages"):
+        for url in (f"{cls.base}/health/liveliness", f"{cls.engine}/languages"):
             if not serves(url):
                 raise unittest.SkipTest(
                     f"nothing answers on {url}. `make test-oracle` brings the "
                     "tools lane up before the suite runs, and this check cannot "
-                    f"deploy it from inside the stack's container. The lane's "
-                    f"default roles are the translation engine and System One "
-                    f"(utils/inventory/tools.py, default_roles), so {JUDGE_ROLE} "
-                    "and the model server behind it are not among them and this "
-                    "check stays skipped until they are."
+                    "deploy it from inside the stack's container."
                 )
         _progress(SUITE, f"the judge answers on {cls.base}")
 
@@ -151,7 +147,7 @@ class TestTranslationScore(unittest.TestCase):
 
         client = LibreTranslate(self.engine, ENGINE_WORKERS)
         available = client.targets()
-        judge = ChatJudge(self.base, _model())
+        judge = ChatJudge(self.base, _model(), api_key=LITELLM_KEY)
         languages = load_languages(PROJECT_ROOT)
         verdicts: dict[str, str] = {}
         offenders: list[str] = []

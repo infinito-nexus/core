@@ -32,6 +32,14 @@ applications:
         cpus: "{{ lookup('resource', 'host_cpus') }}"
         mem_limit: "{{ lookup('resource', 'mem_limit') }}"
         pids_limit: 4096
+  svc-ai-litellm:
+    secrets:
+      credentials:
+        master_key: [[ litellm_master_key ]]
+  svc-ai-ollama:
+    services:
+      ollama:
+        cpus: "{{ lookup('resource', 'host_cpus') }}"
   svc-ai-s1:
     secrets:
       credentials:
@@ -39,3 +47,8 @@ applications:
     services:
       s1:
         models_dir: [[ models_dir ]]/s1
+  web-svc-translate:
+    services:
+      translate:
+        router:
+          strategy: preference

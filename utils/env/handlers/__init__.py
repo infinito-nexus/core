@@ -63,6 +63,7 @@ from .infinito.running_on import github as running_on_github
 from .infinito.swarm_nfs import export_base as swarm_nfs_export_base
 from .infinito.swarm_nfs import state_path as swarm_nfs_state_path
 from .infinito.tools import libretranslate as tools_libretranslate
+from .infinito.tools import litellm as tools_litellm
 from .infinito.tools import models as tools_models
 from .infinito.tools import s1 as tools_s1
 from .infinito.tools import translate as tools_translate
@@ -119,6 +120,7 @@ ORDERED_HANDLERS = [
     git_identity,
     gpu_count,
     tools_libretranslate,
+    tools_litellm,
     tools_models,
     tools_s1,
     tools_translate,
