@@ -104,6 +104,19 @@ test("discourse-translator: posts are translated through the in-cluster gateway"
   const csrf = await readCsrf(page, discourseBaseUrl);
   expect(csrf, "expected /session/csrf.json to hand the signed-in admin a token").toBeTruthy();
 
+  const catalogue = await callJson(page, {
+    origin: discourseBaseUrl,
+    path: "/categories.json",
+    method: "GET",
+  });
+  expect(catalogue.status, `expected /categories.json to answer as admin (status ${catalogue.status})`).toBe(200);
+  const categories = (catalogue.body && catalogue.body.category_list && catalogue.body.category_list.categories) || [];
+  const category = categories.find((entry) => !entry.read_only_banner) || categories[0];
+  expect(
+    category,
+    "the source topic needs a category: Discourse refuses an uncategorized topic unless allow_uncategorized_topics is on",
+  ).toBeTruthy();
+
   const nonce = Date.now().toString(36);
   const created = await callJson(page, {
     origin: discourseBaseUrl,
@@ -113,6 +126,7 @@ test("discourse-translator: posts are translated through the in-cluster gateway"
     payload: {
       title: `${GERMAN_TITLE} ${nonce}`,
       raw: `${GERMAN_BODY} Kennung ${nonce}.`,
+      category: category.id,
       archetype: "regular",
     },
   });
