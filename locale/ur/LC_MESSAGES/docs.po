@@ -687,16 +687,15 @@ msgid "**Aliased asset channels:** Exposes `css` and `javascript` as canonical a
 msgstr "**سرمایہ کاری چینل:** انکار `css` اور `javascript` بطور – `cdn` واضح طور پر ایک دوسرے کے لئے تیار."
 
 # translated-by: libretranslate
-msgid "**All changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the whitelist is the transitive closure of those seeds expanded upwards over `run_after`, `dependencies`, and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) contains one of the seeds is included, together with the seeds themselves."
-msgstr "**سب نے حسب ذیل راستے تبدیل کیے `roles/<role>/...`**: تبدیل شدہ کردار بیج سیٹ بن جاتے ہیں اور سفید فہرست ان بیجوں کی عبوری بندش ہے جو اوپر پھیلے ہوئے ہیں `run_after`: `dependencies`، اور مشترکہ خدمات۔ یعنی ہر وہ کردار جس کا قبل از وقت تعین طے شدہ قرار دیا جائے۔ [باہم حل شدہ](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) اس میں ایک بیج شامل ہوتا ہے جس میں خود بھی بیج شامل ہوتے ہیں۔."
-
-# translated-by: libretranslate
 msgid "**All other platforms** (including Arch Linux ARM, Debian, Ubuntu, Fedora, EL, Generic Linux)"
 msgstr "**دیگر تمام پلیٹ فارمز** (جن میں آرچ لینکس آر ایم، ڈیبیو، اوبنٹو، فیڈورا، ایل ایل، جینیریک لینکس شامل ہیں۔)"
 
 # translated-by: libretranslate
 msgid "**All other platforms** (including Arch Linux ARM, Debian, Ubuntu, Fedora, EL, Generic Linux)   Uses the **official Nix installer** in multi-user (daemon) mode."
 msgstr "**دیگر تمام پلیٹ فارمز** (جن میں آرچ لینکس آر ایم، ڈیبیو، اوبنٹو، فیڈورا، ایل ایل، جینیریک لینکس شامل ہیں۔) استعمال کرتا ہے۔ **سرکاری Nix تنصیب کار** کثیر تعداد میں (ڈیممون) موڈ."
+
+msgid "**All remaining changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the whitelist is the transitive closure of those seeds expanded upwards over `run_after`, `dependencies`, and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) contains one of the seeds is included, together with the seeds themselves."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
@@ -1448,13 +1447,13 @@ msgstr "**پمپ**تجدید: ``services.erpnext.version`` اندر ``meta/servi
 msgid "**Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. Schema migrations run automatically on first start of the new image (Frappe ships `bench migrate` in the backend container's entrypoint)."
 msgstr "**پمپ**تجدید: `services.erpnext.version` اندر `meta/services.yml`، ریڈپلی. نئے تصور کے آغاز میں پہلے پہل شیما ہجرت خودبخود چلتی ہے۔ (بحری جہاز `bench migrate` پچھلی منزل کے مقام پر). ."
 
-# translated-by: libretranslate
-msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central ``svc-db-elasticsearch`` exists."
-msgstr "**بائٹس Elasticsearch:** ایک مرکزے تک کردار کے ساتھ تلاش انجن ``svc-db-elasticsearch`` موجود."
+#, no-python-format
+msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central ``svc-db-elasticsearch`` exists. Its disk watermarks follow the disk size (85 / 90 / 95 % used, requiring at most 200 / 150 / 100 GB free, ``services.search.watermark``); the CI and development variants lower those caps to 10 / 5 / 2 GB."
+msgstr ""
 
-# translated-by: libretranslate
-msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists."
-msgstr "**بائٹس Elasticsearch:** ایک مرکزے تک کردار کے ساتھ تلاش انجن `svc-db-elasticsearch` موجود."
+#, no-python-format
+msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists. Its disk watermarks follow the disk size (85 / 90 / 95 % used, requiring at most 200 / 150 / 100 GB free, `services.search.watermark`); the CI and development variants lower those caps to 10 / 5 / 2 GB."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CDN Cache (Cloudflare):** If your domain is proxied through Cloudflare, Cloudflare may cache your content at their edge servers and serve it from there, often without requests reaching your origin server."
@@ -7012,6 +7011,9 @@ msgstr "**مارکس کردار:** کوئی بھی کام نہیں کرنا؛ ج
 msgid "**Marketing & Automation:** Create email campaigns, marketing automation workflows, and social media management integrated with CRM data."
 msgstr ""
 
+msgid "**Marko Pjevac, Kevin Veen-Birkenbach**"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Matomo Analytics & Global CSS:** Built-in support for analytics and unified styling."
 msgstr "**Matomo Analytics & Global CSS:** اناطولیہ اور اتحاد کی حمایت."
@@ -7615,9 +7617,8 @@ msgstr "**کوئی بھی ما لک کے بغیر وضع نہیں کیا جاس�
 msgid "**No configuration without a key:** the settings file is written only once both the gateway URL and the key are set."
 msgstr "**کوئی بھی ما لک کے بغیر وضع نہیں کیا جاسکتا:** فائل کی ترتیبات صرف ایک دفعہ لکھی جاتی ہیں اور کلید نصب کی جاتی ہیں۔."
 
-# translated-by: libretranslate
-msgid "**No diff at all** OR **any changed path outside `roles/<role>/...`**: no whitelist is set, so the full deploy across the workflow's scope runs."
-msgstr "**کچھ بھی نہیں** یا **باہر کوئی بھی تبدیل راستہ `roles/<role>/...`**: کوئی سفید فہرست مقرر نہیں کی جاتی، تو کام کی فضاء میں بھر پور ایبٹ آباد چلتی ہے۔."
+msgid "**No diff at all**, OR **any other changed path outside `roles/<role>/...`**, OR **only skipped paths**: no whitelist is set, so the full deploy across the workflow's scope runs."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**No external database** - self-contained SQLite under `/config`."
@@ -10152,6 +10153,9 @@ msgstr "**تنہا ماڈل:** ایک شرف‌یافتہ شناخت ، پھاٹ
 msgid "**Single-owner model:** One privileged identity, gated by `req.session.loggedIn`."
 msgstr "**تنہا ماڈل:** ایک شرف‌یافتہ شناخت ، پھاٹک `req.session.loggedIn`. ."
 
+msgid "**Skipped paths:** `.md` and `.rst` files and everything under `tests/` outside `roles/<role>/...` neither seed a role nor widen the deploy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Smart Execution Logic**"
 msgstr "**س . ع .**"
@@ -10883,9 +10887,8 @@ msgstr ""
 msgid "**The router is an alias beside the default, and it fails loud.** The gateway publishes one additional `model_name` (`auto`). `LITELLM_CHAT_MODEL` and every existing alias keep resolving exactly as they do today, and a consumer opts in by naming `auto`."
 msgstr "**سڑکوں کے کنارے سے گزرنے والا ایک تالاب ہوتا ہے اور اُس کی آواز تیز ہو جاتی ہے ۔** ایک اضافی کتاب شائع کرتی ہے `model_name` (`auto`). . `LITELLM_CHAT_MODEL` اور ہر حال میں اپنے کام کو بالکل اسی طرح انجام دیتے رہتے ہیں جس طرح آجکل لوگ کرتے ہیں ۔ `auto`. ."
 
-# translated-by: libretranslate
-msgid "**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way."
-msgstr "**عارضی شناخت مختلف ہوتی ہے۔** عمل `ACT=true`، `detect_gha_act()` اندر [runtime.py](../../../../utils/env/runtime.py) حل کرتا ہے `INFINITO_RUNNING_ON_GITHUB=false` جہاں ایک حقیقی تحریک حل کرتی ہے۔ `true`. . اس حقیقت کو مختلف طریقے سے استعمال کِیا گیا ہے اور عمل بھی اسے درست ثابت نہیں کر سکتا ۔."
+msgid "**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way. The image mirror is the exception: CI declares `INFINITO_GHCR_MIRROR=true` for the workspace suite, while a local run keeps the generated `false` and pulls upstream."
+msgstr ""
 
 # '[', ']']
 # کے ساتھ ربط جڑ کو لپیٹ لیتا ہے۔ ``secrets.credentials.seal_key``...
@@ -14991,6 +14994,9 @@ msgstr ":data:`DEFAULT_OK` اور جو بھی ایپ اس ڈومین کے لئے
 msgid ":data:`FILE_META_CATEGORIES` stays repository-root *relative* and is not pre-joined onto ``PROJECT_ROOT`` at import time on purpose: the root is not fixed. ``utils.roles.validation.invokable`` is exercised against a patched ``PROJECT_ROOT`` and test fixtures build the file inside a temporary tree. A module level absolute constant would freeze the root at import time and silently ignore both."
 msgstr ":data:`FILE_META_CATEGORIES` باقی جگہ *رشتہ دار* اور وہ پوشیدہ بات نہیں ہے ``PROJECT_ROOT`` مقررہ وقت پر درآمد کرنا: جڑ کا تعین نہیں ہوتا۔ ``utils.roles.validation.invokable`` ایک متضاد کے خلاف عمل کیا جاتا ہے۔ ``PROJECT_ROOT`` اور عارضی درخت کے اندر فائل کو ٹیسٹ کرو. اگر آپ اِس بات پر غور کریں گے کہ آیا آپ نے کبھی سوچا بھی نہیں ہے تو آپ کیا کریں گے ؟."
 
+msgid ":data:`LITELLM_KEY` pins the model gateway's master key for the same reason and under the same standing. A deployment hands each consumer a virtual key instead, which is what the role's secret description asks for; the oracle judge is not a deployed consumer and has no vault to read one from."
+msgstr ""
+
 # translated-by: libretranslate
 msgid ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` otherwise."
 msgstr ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` دیگر."
@@ -15957,17 +15963,7 @@ msgstr "ایک کام کا سبز نتیجہ ہے۔ **نہیں** ایک مخصو
 msgid "A key set in the role's own ``services.design`` entry wins over the ``web-svc-design`` value; ``false``/``0`` disables the replacement for that scope, and a ``true`` title resolves to the role README H1."
 msgstr ""
 
-# لہٰذا کسی مخصوص عمل کے ذریعے لکھی جاتی ہے `eb.set`... برآمد کرنے والی شیل اب
-# بھی اپنے ہی چلانے کے لئے جیت جاتا ہے، کیونکہ
-# [load.sh](../../scripts/meta/env/load.sh) غیر درج شدہ جواب دینے والی اقدار
-# کو محفوظ کریں جب یہ ماخوذ ہو۔ `.env`) ؛ فائل سے حاصل ہونے والی کمی کو برقرار
-# رکھتا ہے۔ `INFINITO_RUNNING_ON_GITHUB` اور `INFINITO_CACHE_STACK` اس طرح
-# لکھا گیا ہے۔ آئیں ، دیکھیں کہ اِس کا کیا نتیجہ نکلا ۔ `.env` اور دوڑنا مناسب
-# طور پر مختلف ہو سکتا ہے `.env` کوئی اختیار نہیں ہے.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ایک ایسی کُنجی جو کہ کچھ ماحول ہر دوڑ کو بتاتا ہے
-msgid "A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB` and `INFINITO_CACHE_STACK` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority."
+msgid "A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB`, `INFINITO_CACHE_STACK` and `INFINITO_GHCR_MIRROR` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority."
 msgstr ""
 
 # translated-by: libretranslate
@@ -26680,6 +26676,9 @@ msgstr "صرف گن رہا ہے (جمع مختصر ``dna`` اور بھائی ک�
 msgid "Coverage Matrix 📋"
 msgstr "پردہ Matrix 📋"
 
+msgid "Coverage-guided atheris harnesses, run weekly in CI, excluded from `make test`"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Create API Token at [platform.openai.com](https://platform.openai.com/api-keys)."
 msgstr "بنائیں API اوپر لکھیں [platform.openai.com](https://platform.openai.com/api-keys). ."
@@ -36468,6 +36467,9 @@ msgstr "INFINITO_FORK_ACCOUNT: GitHub اکاؤنٹ کا رکن ہوتا ہے، �
 msgid "INFINITO_FORK_REPOSITORY_URL: GitHub URL of the operator's fork, composed from INFINITO_FORK_ACCOUNT and INFINITO_FORK_REPOSITORY_NAME."
 msgstr "INFINITO_FORK_REPOSITORY_URL: عملے کے فارمک کا جِٹْھُبُبُک جو اِس سے بنا ہے۔ INFINITO_FORK_ACCOUNT اور INFINITO_FORK_REPOSITORY_NAME. ."
 
+msgid "INFINITO_GHCR_MIRROR: whether image references are rewritten to the GHCR mirror."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "INFINITO_GIT_AUTHOR_NAME / INFINITO_GIT_AUTHOR_EMAIL: the identity this checkout commits under. The test container mounts the checkout but not the contributor's git configuration, so the suite cannot ask git who is about to commit; the ``.env`` carries the answer across."
 msgstr "INFINITO_GIT_AUTHOR_NAME / INFINITO_GIT_AUTHOR_EMAIL: اس چیک آؤٹ کی شناخت مندرجہ ذیل ہے۔ ٹیسٹ اسٹور چیک آؤٹ پر سوار ہو جاتا ہے لیکن شیئرر کی جٹ کی ترکیب نہیں، اس لیے سوٹ نہیں پوچھ سکتا کہ کون کر رہا ہے؛ ``.env`` اِس سوال کا جواب حاصل کریں ۔."
@@ -36537,6 +36539,9 @@ msgid "INFINITO_SWARM_NFS_STATE_PATH: cluster-shared NFS state dir for the act-s
 msgstr "INFINITO_SWARM_NFS_STATE_PATH: Collead-constitution NFS state Dir for the act-serves test provinces for the act-constitution Export-base SPOT سے ماخوذ ہے۔ (INFINITO_SWARM_NFS_EXPORT_BASE) اور مشترکہ ریاستیں مستقل طور پر قائم ہیں۔."
 
 msgid "INFINITO_TOOLS_LIBRETRANSLATE_PORT: loopback port the tools runner forwards to its LibreTranslate, read from roles/svc-ai-libretranslate-engine/meta/services.yml."
+msgstr ""
+
+msgid "INFINITO_TOOLS_LITELLM_PORT: loopback port the tools runner forwards to its model gateway, read from roles/svc-ai-litellm/meta/services.yml."
 msgstr ""
 
 msgid "INFINITO_TOOLS_MODELS_HOST_PATH: node-local directory the tools lane keeps its downloaded models in."
@@ -37559,60 +37564,6 @@ msgstr "اصلاح کا حکم"
 # translated-by: libretranslate
 msgid "Implementation: [suppress.py](../../../../utils/annotations/suppress.py)."
 msgstr "ترمیم: [suppress.py](../../../../utils/annotations/suppress.py). ."
-
-# [Infinito.Nexus منصوبہ بندی](https://s.infinito.nexus/code) اور (اس کے
-# باوجود) وہ (اللہ کے حضور) بچ جاتا رہا، [کین
-# ویئن-بیرنباخ](https://www.veen.world). درج ذیل لائسنس [Infinito.Nexus
-# کمیونٹی لائسنس (غیر معمولی)](https://s.infinito.nexus/license). .
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: جواب **مارکو پژواک، کیلی ویین-بیرنباچ**. . .
-msgid "Implemented by **Marko Pjevac, Kevin Veen-Birkenbach**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
-
-# nocheck: url
-# .](https://social.infinito.nexus/profile/alexromanibanez/profile)**. . .
-# [Infinito.Nexus منصوبہ بندی](https://s.infinito.nexus/code) اور (اس کے
-# باوجود) وہ (اللہ کے حضور) بچ جاتا رہا، [کین
-# ویئن-بیرنباخ](https://www.veen.world). درج ذیل لائسنس [Infinito.Nexus
-# کمیونٹی لائسنس (غیر معمولی)](https://s.infinito.nexus/license). .
-# translation-refused: libretranslate structure
-# translation-rejected: جواب **[ع
-msgid "Implemented by **[Alejandro Roman Ibanez](https://social.infinito.nexus/profile/alexromanibanez/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
-
-# nocheck: url
-# تسکاودس](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**.
-# . . [Infinito.Nexus منصوبہ بندی](https://s.infinito.nexus/code) اور (اس کے
-# باوجود) وہ (اللہ کے حضور) بچ جاتا رہا، [کین
-# ویئن-بیرنباخ](https://www.veen.world). درج ذیل لائسنس [Infinito.Nexus
-# کمیونٹی لائسنس (غیر معمولی)](https://s.infinito.nexus/license). .
-# translation-refused: libretranslate structure
-# translation-rejected: جواب **[انجیلوس
-msgid "Implemented by **[Evangelos Tsakoudis](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
-
-# ویئن-بیرنباخ](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**.
-# . . [Infinito.Nexus منصوبہ بندی](https://s.infinito.nexus/code) اور (اس کے
-# باوجود) وہ (اللہ کے حضور) بچ جاتا رہا، [کین
-# ویئن-بیرنباخ](https://www.veen.world). درج ذیل لائسنس [Infinito.Nexus
-# کمیونٹی لائسنس (غیر معمولی)](https://s.infinito.nexus/license). .
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: جواب **[کین
-msgid "Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
-
-# پنکر](https://social.infinito.nexus/profile/prageethpanicker/profile)**. . .
-# [Infinito.Nexus منصوبہ بندی](https://s.infinito.nexus/code) اور (اس کے
-# باوجود) وہ (اللہ کے حضور) بچ جاتا رہا، [کین
-# ویئن-بیرنباخ](https://www.veen.world). درج ذیل لائسنس [Infinito.Nexus
-# کمیونٹی لائسنس (غیر معمولی)](https://s.infinito.nexus/license). .
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: جواب **[پرگیتھ
-msgid "Implemented by **[Prageeth Panicker](https://social.infinito.nexus/profile/prageethpanicker/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
 
 # translated-by: libretranslate
 msgid "Implemented robust, idempotent PostgreSQL superuser password rotation"
@@ -47405,6 +47356,9 @@ msgstr "منصوبے پریز `default.env`. ."
 msgid "Parses `--app-variants <JSON>` and forwards the per-app variant index to `generate_credentials_for_roles`."
 msgstr "پیرس `--app-variants <JSON>` اور ترقی پسند انڈیکس کو آگے کرتا ہے۔ `generate_credentials_for_roles`. ."
 
+msgid "Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Pass 'application_id' as term 0 (string). 'applications' is obtained via lookup('applications'), the merged-config SPOT."
 msgstr "رسائی 'application_id' ایک معین مقدار 0 (آواز). . 'applications' منظر کے ذریعے حاصل کیا جاتا ہے۔('applications')، ضم شدہ SPOT."
@@ -56802,6 +56756,9 @@ msgstr "نظام‌اُلعمل کے ذریعے باقاعدہ ، صفائی‌�
 msgid "Runs the Ansible syntax validation for `playbook.yml`."
 msgstr "اِن سب باتوں کی تصدیق کریں `playbook.yml`. ."
 
+msgid "Runs the [atheris](https://github.com/google/atheris) harness [_yaml_bootstrap.py](../../../../../tests/fuzz/_yaml_bootstrap.py) for 15 minutes and uploads every crashing input as the `fuzz-crashes` artifact. Reproduce one locally with `pip install -e \".[fuzz]\"` and `python3 tests/fuzz/_yaml_bootstrap.py <crash-file>`."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Compose Loop](../../agents/action/iteration/compose.md)."
 msgstr "ایک کنکریٹ ایپ کے لئے بنیاد لائن صحیح راہ چلاتی ہے. ری ایکٹر کی پالیسی کے لیے دیکھیے۔ [لوپ](../../agents/action/iteration/compose.md). ."
@@ -65699,6 +65656,9 @@ msgstr "قسم ہے"
 msgid "The lane holds the toolchain services the repository's own targets and tests call: the translation engine behind the ``i18n`` targets, and the System One classifier the semantic suite asks for a verdict. A caller names the roles it needs and gets them running, so a check is never skipped merely because nothing happened to be up."
 msgstr ""
 
+msgid "The lane pins its own model in the template, rather than taking the repository's ``AI_LOCAL_MODELS`` default: the oracle needs a judge that can tell a faithful rendering from an unrelated text, a demand no deployment makes. :data:`LANE_MODEL_ALIAS` repeats that one name here because the readiness probe compares it against what the gateway actually serves, and the rendered inventory is written by the deploy this probe runs before. The two are held together by a test that renders the template."
+msgstr ""
+
 msgid "The lane runs its services in a docker daemon of its own, inside the runner container. The inventory pins ``DOCKER_BIND_HOST=0.0.0.0`` so their ports are open on the runner's own interface, which the group_vars default would not do (see ``inventories/development/tools.yml.j2``). The host instead reaches only the ports the runner republishes through ``compose/tools.override.yml``."
 msgstr ""
 
@@ -70260,9 +70220,8 @@ msgstr ""
 msgid "This directory contains the iteration loops agents follow while driving a role end to end: the [Compose Loop](compose.md), the [Swarm Loop](swarm.md), the [Playwright Spec Loop](playwright.md), the [Workflow Loop](workflow.md), and the cross-mode [Roundtrip Loop](roundtrip.md) gate that runs compose then swarm. Its scope is the mechanics of those loops."
 msgstr "اس ادارہ میں ereration species کے ایجنٹ ہوتے ہیں جبکہ ختم ہونے تک کردار چلاتے ہیں: [لوپ](compose.md)، [سُرخ رنگ](swarm.md)، [براہ راست Spec Loop](playwright.md)، [کام کی تیاری](workflow.md)''اور صلیب کا انداز۔ [راؤنڈ](roundtrip.md) جو دروازہ چلاتا ہے، اس کے بعد سوراخ کرتا ہے. اس کی وسعت ان چوٹیوں کی میکانیات ہے۔."
 
-# translated-by: libretranslate
-msgid "This directory contains the modular workspace test suite for Infinito.Nexus. It validates the full local development flow from a clean state."
-msgstr "اس ادارہ میں مدارس کا عملہ ٹیسٹ سوٹ ہے۔ Infinito.Nexus. یہ مکمل مقامی ترقی کے بہاؤ کو خالص حالت سے خارج کرتی ہے۔."
+msgid "This directory contains the modular workspace test suite for Infinito.Nexus. It validates the full local development flow from a clean state. In CI it runs exactly like that flow, except that it pulls images through the GHCR mirror (`INFINITO_GHCR_MIRROR=true`, see [mirror.md](../../../docs/contributing/artefact/image/mirror.md))."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This directory contains the repository documentation published for Infinito.Nexus. Its scope is contributor guidance, agent instructions, operational guides, requirements, and security guidance across the project."
@@ -78829,9 +78788,8 @@ msgstr "ہوائی اڈے میں ``volume['mounts']`` کہ نشانہ ``service`
 msgid "Yield project files filtered through ``.gitignore``."
 msgstr "شامل کردہ پروجیکٹ فائلیں ``.gitignore``. ."
 
-# translated-by: libretranslate
-msgid "Yield the URL of the dedicated LibreTranslate, deploying it when absent."
-msgstr "مخصوص‌شُدہ اشخاص کی مخصوصیت LibreTranslateاور جب غائب نہ ہوئی تو اسے نکالنے لگے."
+msgid "Yield the URL of the translation gateway, deploying it when absent."
+msgstr ""
 
 msgid "Yield the gateway's URL, deploying the whole bundle when it is absent."
 msgstr ""
@@ -89329,6 +89287,9 @@ msgstr "`INFINITO_DISTRO`: `INFINITO_CONTAINER`... `INSPECT_CMD` جگہ"
 msgid "`INFINITO_DNS_HOSTS` can still override the generated list explicitly"
 msgstr "`INFINITO_DNS_HOSTS` اب بھی قابلِ‌غور فہرست تیار کی جا سکتی ہے"
 
+msgid "`INFINITO_GHCR_MIRROR` decides whether a run uses the mirror. The generated `.env` sets it to `true` on a real GitHub runner and to `false` everywhere else, act included. A non-empty exported value overrides that for one run. [call-test-workspace.yml](../../../../.github/workflows/call-test-workspace.yml) exports `true`, so the workspace suite runs like a local setup and still pulls from GHCR, in its compose drills and, through `make swarm-zombie`, in its swarm drills."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`INFINITO_VERSION_ENV_NAME` (default: `INFINITO_VERSION`)"
 msgstr "`INFINITO_VERSION_ENV_NAME` (طے شدہ `INFINITO_VERSION`)"
@@ -95656,6 +95617,9 @@ msgstr "آٹو (`schedule`: 00:00 یو ٹی سی)، دستی"
 msgid "auto (`schedule`: weekly Mon 00:00 UTC), manual"
 msgstr "آٹو (`schedule`: ہفتے کا دن 00:00 یو ٹی سی)، دستی"
 
+msgid "auto (`schedule`: weekly Sun 04:00 UTC), manual"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "auto (vCPUs ÷ 2)"
 msgstr "آٹو (معجزے 2)"
@@ -97406,6 +97370,9 @@ msgstr "عرفیت"
 # translated-by: libretranslate
 msgid "deploy"
 msgstr "پرنٹ"
+
+msgid "deploy even when a gateway already answers. A gateway serves whatever it was built with, so a change to its code or to the backends it routes over is invisible to the probe and every later run keeps using the old one."
+msgstr ""
 
 msgid "deploy even when a gateway already serves. The reuse check asks whether a gateway answers, which cannot see that the bundle or the gateway's own code changed since it started, so an iteration on either reaches a container that keeps the old one."
 msgstr ""
@@ -104844,6 +104811,9 @@ msgstr "utils.env.handlers.infinito.fork.account طےشدہ"
 msgid "utils.env.handlers.infinito.fork.repository\\_url module"
 msgstr ""
 
+msgid "utils.env.handlers.infinito.ghcr\\_mirror module"
+msgstr ""
+
 # lost=['utils.env.handlers.infinito.git']
 # gained=['utils.env.handlers.infinito.gitخودکار']
 # translation-refused: libretranslate protected-span
@@ -105048,6 +105018,9 @@ msgid "utils.env.handlers.infinito.tools package"
 msgstr ""
 
 msgid "utils.env.handlers.infinito.tools.libretranslate module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.tools.litellm module"
 msgstr ""
 
 msgid "utils.env.handlers.infinito.tools.models module"

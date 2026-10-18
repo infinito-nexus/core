@@ -663,16 +663,15 @@ msgid "**Aliased asset channels:** Exposes `css` and `javascript` as canonical a
 msgstr "**ערוצי נכסים:** חשיפה `css` ו `javascript` כינוי Canonical Alias `cdn` ברור יותר לכל הערכה."
 
 # translated-by: libretranslate
-msgid "**All changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the whitelist is the transitive closure of those seeds expanded upwards over `run_after`, `dependencies`, and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) contains one of the seeds is included, together with the seeds themselves."
-msgstr "**כל הדרכים השתנו `roles/<role>/...`**התפקידים המשתנים הופכים למערך הזרעים, והלבן הוא סגר המעבר של הזרעים האלה התרחבו. `run_after`, `dependencies`, שירותים משותפים. במילים אחרות, כל תפקיד שתנאי היסוד שלו מוגדרים על ידי [פתרון משולב](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) מכיל אחד הזרעים הכלולים, יחד עם הזרעים עצמם."
-
-# translated-by: libretranslate
 msgid "**All other platforms** (including Arch Linux ARM, Debian, Ubuntu, Fedora, EL, Generic Linux)"
 msgstr "**כל הפלטפורמות האחרות** (כולל Arch Linux ARM, Debian, Ubuntu, פדורה, אל, Generic Linux)"
 
 # translated-by: libretranslate
 msgid "**All other platforms** (including Arch Linux ARM, Debian, Ubuntu, Fedora, EL, Generic Linux)   Uses the **official Nix installer** in multi-user (daemon) mode."
 msgstr "**כל הפלטפורמות האחרות** (כולל Arch Linux ARM, Debian, Ubuntu, פדורה, אל, Generic Linux) שימושים **המונחים: Nix Installer** Multi-user (דימון) מצב."
+
+msgid "**All remaining changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the whitelist is the transitive closure of those seeds expanded upwards over `run_after`, `dependencies`, and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) contains one of the seeds is included, together with the seeds themselves."
+msgstr ""
 
 # Clearnet) הפסקות oauth2קישור ל-proxy
 # ([oauth2תגית:proxykeycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2)
@@ -1373,13 +1372,13 @@ msgstr "**מסלול Bump**עדכון: ``services.erpnext.version`` פנימה `
 msgid "**Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. Schema migrations run automatically on first start of the new image (Frappe ships `bench migrate` in the backend container's entrypoint)."
 msgstr "**מסלול Bump**עדכון: `services.erpnext.version` פנימה `meta/services.yml`, אדום. הגירה של שema מופעלת באופן אוטומטי בתחילת התמונה החדשה (ספינות הונאה `bench migrate` נקודת הכניסה של מיכל)."
 
-# translated-by: libretranslate
-msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central ``svc-db-elasticsearch`` exists."
-msgstr "**בונד Elasticsearch:** ספינות חיפוש עם התפקיד עד למרכז ``svc-db-elasticsearch`` קיים."
+#, no-python-format
+msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central ``svc-db-elasticsearch`` exists. Its disk watermarks follow the disk size (85 / 90 / 95 % used, requiring at most 200 / 150 / 100 GB free, ``services.search.watermark``); the CI and development variants lower those caps to 10 / 5 / 2 GB."
+msgstr ""
 
-# translated-by: libretranslate
-msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists."
-msgstr "**בונד Elasticsearch:** ספינות חיפוש עם התפקיד עד למרכז `svc-db-elasticsearch` קיים."
+#, no-python-format
+msgid "**Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists. Its disk watermarks follow the disk size (85 / 90 / 95 % used, requiring at most 200 / 150 / 100 GB free, `services.search.watermark`); the CI and development variants lower those caps to 10 / 5 / 2 GB."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CDN Cache (Cloudflare):** If your domain is proxied through Cloudflare, Cloudflare may cache your content at their edge servers and serve it from there, often without requests reaching your origin server."
@@ -6591,6 +6590,9 @@ msgstr "**תפקידו של מארקר:** אין משימות; בוחרים `svc
 msgid "**Marketing & Automation:** Create email campaigns, marketing automation workflows, and social media management integrated with CRM data."
 msgstr "**שיווק ואוטומציה:** צור קמפיינים דוא\"ל, סוללות עבודה אוטומציה שיווק וניהול מדיה חברתית משולבת עם נתוני CRM."
 
+msgid "**Marko Pjevac, Kevin Veen-Birkenbach**"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Matomo Analytics & Global CSS:** Built-in support for analytics and unified styling."
 msgstr "**Matomo Analytics & Global CSS:** תמיכה מובנה בניתוח וסטיילינג מאוחד."
@@ -7152,9 +7154,8 @@ msgstr "**אין תצורה ללא מפתח:** הקובץ נכתב רק פעם �
 msgid "**No configuration without a key:** the settings file is written only once both the gateway URL and the key are set."
 msgstr "**אין תצורה ללא מפתח:** קובץ ההגדרות נכתב רק פעם אחת את כתובת ה- Gateway והמפתח נקבע."
 
-# translated-by: libretranslate
-msgid "**No diff at all** OR **any changed path outside `roles/<role>/...`**: no whitelist is set, so the full deploy across the workflow's scope runs."
-msgstr "**אין דיפר בכלל** או **כל דרך אחרת בחוץ `roles/<role>/...`**• אין Whitelist מוגדר, כך שההפצה המלאה על פני השטח של זרימת העבודה."
+msgid "**No diff at all**, OR **any other changed path outside `roles/<role>/...`**, OR **only skipped paths**: no whitelist is set, so the full deploy across the workflow's scope runs."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**No external database** - self-contained SQLite under `/config`."
@@ -9398,6 +9399,9 @@ msgstr "**מודל בעל יחיד:** זהות חסויה אחת, ששורשיה
 msgid "**Single-owner model:** One privileged identity, gated by `req.session.loggedIn`."
 msgstr "**מודל בעל יחיד:** זהות חסויה אחת, ששורשיה `req.session.loggedIn`."
 
+msgid "**Skipped paths:** `.md` and `.rst` files and everything under `tests/` outside `roles/<role>/...` neither seed a role nor widen the deploy."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "**Smart Execution Logic**"
 msgstr "**לוגיקה חכמה**"
@@ -10055,9 +10059,8 @@ msgstr "**הנתב הוא LiteLLM pre-call , לא נתב סמנטי.** הוו מ
 msgid "**The router is an alias beside the default, and it fails loud.** The gateway publishes one additional `model_name` (`auto`). `LITELLM_CHAT_MODEL` and every existing alias keep resolving exactly as they do today, and a consumer opts in by naming `auto`."
 msgstr "**הנתב הוא כינוי לצד ברירת המחדל, והוא נכשל בקול רם.** השער מפרסם אחד נוסף `model_name` (`auto`). `LITELLM_CHAT_MODEL` וכל כינויים קיימים ממשיכים לפתור בדיוק כפי שהם עושים היום, וצרכן בוחר בשמו. `auto`."
 
-# translated-by: libretranslate
-msgid "**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way."
-msgstr "**הזהות של זמן הריצה שונה.** קבוצות פעולה `ACT=true`, כך, `detect_gha_act()` פנימה [runtime.py](../../../../utils/env/runtime.py) פתרונות `INFINITO_RUNNING_ON_GITHUB=false` איפה רץ אמיתי פותר `true`. כל דבר שמפתח את העובדה הזו מתנהג אחרת, ומעשה אינו יכול להוכיח תיקון לכך או בדרך."
+msgid "**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way. The image mirror is the exception: CI declares `INFINITO_GHCR_MIRROR=true` for the workspace suite, while a local run keeps the generated `false` and pulls upstream."
+msgstr ""
 
 # translated-by: libretranslate
 # ``static`` חותם עוטף את מפתח שורש רפטינג עם
@@ -13940,6 +13943,9 @@ msgstr ":data:`DEFAULT_OK` בנוסף לכל מה שהאפליקציות מכר�
 msgid ":data:`FILE_META_CATEGORIES` stays repository-root *relative* and is not pre-joined onto ``PROJECT_ROOT`` at import time on purpose: the root is not fixed. ``utils.roles.validation.invokable`` is exercised against a patched ``PROJECT_ROOT`` and test fixtures build the file inside a temporary tree. A module level absolute constant would freeze the root at import time and silently ignore both."
 msgstr ":data:`FILE_META_CATEGORIES` תגית: repository-root *יחסי* והוא לא נצמד לפני ``PROJECT_ROOT`` בזמן היבוא בכוונה: השורש אינו קבוע. ``utils.roles.validation.invokable`` מופעל נגד תיקון ``PROJECT_ROOT`` תיקוני מבחן בונים את הקובץ בתוך עץ זמני. קבוע מודול מוחלט יקפא את השורש בזמן היבוא ויתעלם בשקט."
 
+msgid ":data:`LITELLM_KEY` pins the model gateway's master key for the same reason and under the same standing. A deployment hands each consumer a virtual key instead, which is what the role's secret description asks for; the oracle judge is not a deployed consumer and has no vault to read one from."
+msgstr ""
+
 # translated-by: libretranslate
 msgid ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` otherwise."
 msgstr ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` אחרת."
@@ -14986,9 +14992,8 @@ msgstr "מסקנה ירוקה של עבודה היא **לא לא** ראיות ל
 msgid "A key set in the role's own ``services.design`` entry wins over the ``web-svc-design`` value; ``false``/``0`` disables the replacement for that scope, and a ``true`` title resolves to the role README H1."
 msgstr ""
 
-# translated-by: libretranslate
-msgid "A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB` and `INFINITO_CACHE_STACK` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority."
-msgstr "מפתח שאיזו סביבה מכריזה על ריצה חייב להיות כתוב על ידי מטפל מסור דרך `eb.set`. הקליפה המייצאת עדיין מנצחת בזכות עצמה, כי [load.sh](../../scripts/meta/env/load.sh) משמר ערכים שאינם מטיפים כאשר הוא מקור `.env`; הקובץ שומר על ברירת המחדל. `INFINITO_RUNNING_ON_GITHUB` ו `INFINITO_CACHE_STACK` נכתב כך. הערה: עבור המפתחות `.env` ופגז הריצה יכול שלא להסכים באופן לגיטימי, `.env` לא הסמכות."
+msgid "A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB`, `INFINITO_CACHE_STACK` and `INFINITO_GHCR_MIRROR` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A key's comment is the most recent contiguous block of `# ...` lines directly above the `KEY=...` line, joined with single spaces. Section headers (`# --- ... ---`) are treated as separators: they reset the pending comment so the next key starts fresh, instead of inheriting the heading line as its own documentation."
@@ -25242,6 +25247,9 @@ msgstr "סופרים רק (תוספת קצרה ``dna`` ספירת אחים). ש�
 msgid "Coverage Matrix 📋"
 msgstr "Coverage Matrix 📋"
 
+msgid "Coverage-guided atheris harnesses, run weekly in CI, excluded from `make test`"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Create API Token at [platform.openai.com](https://platform.openai.com/api-keys)."
 msgstr "יצירת API Token [platform.openai.com](https://platform.openai.com/api-keys)."
@@ -34489,6 +34497,9 @@ msgstr "INFINITO_FORK_ACCOUNT: חשבון GitHub מחזיק את התוספת ש
 msgid "INFINITO_FORK_REPOSITORY_URL: GitHub URL of the operator's fork, composed from INFINITO_FORK_ACCOUNT and INFINITO_FORK_REPOSITORY_NAME."
 msgstr "INFINITO_FORK_REPOSITORY_URL: כתובת: GitHub של ה-Fork של המפעיל, המורכבת מ- INFINITO_FORK_ACCOUNT ו INFINITO_FORK_REPOSITORY_NAME."
 
+msgid "INFINITO_GHCR_MIRROR: whether image references are rewritten to the GHCR mirror."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "INFINITO_GIT_AUTHOR_NAME / INFINITO_GIT_AUTHOR_EMAIL: the identity this checkout commits under. The test container mounts the checkout but not the contributor's git configuration, so the suite cannot ask git who is about to commit; the ``.env`` carries the answer across."
 msgstr "INFINITO_GIT_AUTHOR_NAME / / / / INFINITO_GIT_AUTHOR_EMAIL: הזהות שקופה זו תתבצע. מיכל המבחן עולה את הסימון אבל לא את התצורה של התורם, כך שהחבילה לא יכולה לשאול ג'יט מי עומד לבצע; ``.env`` נושא את התשובה על פני."
@@ -34558,6 +34569,9 @@ msgid "INFINITO_SWARM_NFS_STATE_PATH: cluster-shared NFS state dir for the act-s
 msgstr "INFINITO_SWARM_NFS_STATE_PATH: מדינה משותפת NFS מלוכלכים עבור רתמת מבחן אקט-מלחמתם, הנגזרת מבסיס היצוא-בסיס SPOT (INFINITO_SWARM_NFS_EXPORT_BASE) המדינה המשותפת תהיה קבועה."
 
 msgid "INFINITO_TOOLS_LIBRETRANSLATE_PORT: loopback port the tools runner forwards to its LibreTranslate, read from roles/svc-ai-libretranslate-engine/meta/services.yml."
+msgstr ""
+
+msgid "INFINITO_TOOLS_LITELLM_PORT: loopback port the tools runner forwards to its model gateway, read from roles/svc-ai-litellm/meta/services.yml."
 msgstr ""
 
 msgid "INFINITO_TOOLS_MODELS_HOST_PATH: node-local directory the tools lane keeps its downloaded models in."
@@ -35507,28 +35521,6 @@ msgstr "הוראות"
 # translated-by: libretranslate
 msgid "Implementation: [suppress.py](../../../../utils/annotations/suppress.py)."
 msgstr "יישום: [suppress.py](../../../../utils/annotations/suppress.py)."
-
-# translated-by: libretranslate
-msgid "Implemented by **Marko Pjevac, Kevin Veen-Birkenbach**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "המונחים: **מארקו פאג'ובאק, קווין ואן-בירקנבאבך**חלק מן [Infinito.Nexus פרויקט](https://s.infinito.nexus/code) נשמר על ידי [קווין ואן-בירקנבאבך](https://www.veen.world). רישיון תחת [Infinito.Nexus רישיון הקהילה (Non-Commercial)](https://s.infinito.nexus/license)."
-
-# nocheck: url
-# translated-by: libretranslate
-msgid "Implemented by **[Alejandro Roman Ibanez](https://social.infinito.nexus/profile/alexromanibanez/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "המונחים: **[אלחנדרו רומאי Ibanez](https://social.infinito.nexus/profile/alexromanibanez/profile)**חלק מן [Infinito.Nexus פרויקט](https://s.infinito.nexus/code) נשמר על ידי [קווין ואן-בירקנבאבך](https://www.veen.world). רישיון תחת [Infinito.Nexus רישיון הקהילה (Non-Commercial)](https://s.infinito.nexus/license)."
-
-# nocheck: url
-# translated-by: libretranslate
-msgid "Implemented by **[Evangelos Tsakoudis](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "המונחים: **[אוונגלוס Tsakoudis](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**חלק מן [Infinito.Nexus פרויקט](https://s.infinito.nexus/code) נשמר על ידי [קווין ואן-בירקנבאבך](https://www.veen.world). רישיון תחת [Infinito.Nexus רישיון הקהילה (Non-Commercial)](https://s.infinito.nexus/license)."
-
-# translated-by: libretranslate
-msgid "Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "המונחים: **[קווין ואן-בירקנבאבך](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**חלק מן [Infinito.Nexus פרויקט](https://s.infinito.nexus/code) נשמר על ידי [קווין ואן-בירקנבאבך](https://www.veen.world). רישיון תחת [Infinito.Nexus רישיון הקהילה (Non-Commercial)](https://s.infinito.nexus/license)."
-
-# translated-by: libretranslate
-msgid "Implemented by **[Prageeth Panicker](https://social.infinito.nexus/profile/prageethpanicker/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "המונחים: **[פאניקה פאניקה](https://social.infinito.nexus/profile/prageethpanicker/profile)**חלק מן [Infinito.Nexus פרויקט](https://s.infinito.nexus/code) נשמר על ידי [קווין ואן-בירקנבאבך](https://www.veen.world). רישיון תחת [Infinito.Nexus רישיון הקהילה (Non-Commercial)](https://s.infinito.nexus/license)."
 
 # translated-by: libretranslate
 msgid "Implemented robust, idempotent PostgreSQL superuser password rotation"
@@ -45021,6 +45013,9 @@ msgstr "פרסו את הפרויקט `default.env`."
 msgid "Parses `--app-variants <JSON>` and forwards the per-app variant index to `generate_credentials_for_roles`."
 msgstr "פרס `--app-variants <JSON>` מקדם את מדד ה- Per-app ל `generate_credentials_for_roles`."
 
+msgid "Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "Pass 'application_id' as term 0 (string). 'applications' is obtained via lookup('applications'), the merged-config SPOT."
 msgstr "מעבר 'application_id' המונחים 0 (מחרוזת). 'applications' ניתן להשיג באמצעות ההסתכלות('applications')ה- SPOT הממוזג."
@@ -54169,6 +54164,9 @@ msgstr "פועל באופן קבוע, עבודות ניקוי אוטומטיות
 # translated-by: libretranslate
 msgid "Runs the Ansible syntax validation for `playbook.yml`."
 msgstr "הפעל את אימות הסינרט האפשרי עבור `playbook.yml`."
+
+msgid "Runs the [atheris](https://github.com/google/atheris) harness [_yaml_bootstrap.py](../../../../../tests/fuzz/_yaml_bootstrap.py) for 15 minutes and uploads every crashing input as the `fuzz-crashes` artifact. Reproduce one locally with `pip install -e \".[fuzz]\"` and `python3 tests/fuzz/_yaml_bootstrap.py <crash-file>`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Compose Loop](../../agents/action/iteration/compose.md)."
@@ -63507,6 +63505,9 @@ msgstr "הסוג הוא"
 msgid "The lane holds the toolchain services the repository's own targets and tests call: the translation engine behind the ``i18n`` targets, and the System One classifier the semantic suite asks for a verdict. A caller names the roles it needs and gets them running, so a check is never skipped merely because nothing happened to be up."
 msgstr ""
 
+msgid "The lane pins its own model in the template, rather than taking the repository's ``AI_LOCAL_MODELS`` default: the oracle needs a judge that can tell a faithful rendering from an unrelated text, a demand no deployment makes. :data:`LANE_MODEL_ALIAS` repeats that one name here because the readiness probe compares it against what the gateway actually serves, and the rendered inventory is written by the deploy this probe runs before. The two are held together by a test that renders the template."
+msgstr ""
+
 msgid "The lane runs its services in a docker daemon of its own, inside the runner container. The inventory pins ``DOCKER_BIND_HOST=0.0.0.0`` so their ports are open on the runner's own interface, which the group_vars default would not do (see ``inventories/development/tools.yml.j2``). The host instead reaches only the ports the runner republishes through ``compose/tools.override.yml``."
 msgstr ""
 
@@ -67868,9 +67869,8 @@ msgstr "הבמאי הזה מכיל את העוזרים שנבעו על ידי [c
 msgid "This directory contains the iteration loops agents follow while driving a role end to end: the [Compose Loop](compose.md), the [Swarm Loop](swarm.md), the [Playwright Spec Loop](playwright.md), the [Workflow Loop](workflow.md), and the cross-mode [Roundtrip Loop](roundtrip.md) gate that runs compose then swarm. Its scope is the mechanics of those loops."
 msgstr "במאי זה מכיל את סוכני הלולאות ההצתה לעקוב אחרי נהיגה תפקיד לסיום: [תגית: Loop](compose.md), [תגית: Loop](swarm.md), [תגית: Loop](playwright.md), [תגית: Loop](workflow.md), והצלב [עקבו אחרי Loop](roundtrip.md) השער שמרכיב לאחר מכן נחיל. היקף זה הוא מכניקה של הלולאות האלה."
 
-# translated-by: libretranslate
-msgid "This directory contains the modular workspace test suite for Infinito.Nexus. It validates the full local development flow from a clean state."
-msgstr "במאי זה מכיל את חבילת מבחן סביבת העבודה מודולרית עבור Infinito.Nexus. זה מאמת את זרימת ההתפתחות המקומית המלאה ממדינה נקייה."
+msgid "This directory contains the modular workspace test suite for Infinito.Nexus. It validates the full local development flow from a clean state. In CI it runs exactly like that flow, except that it pulls images through the GHCR mirror (`INFINITO_GHCR_MIRROR=true`, see [mirror.md](../../../docs/contributing/artefact/image/mirror.md))."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This directory contains the repository documentation published for Infinito.Nexus. Its scope is contributor guidance, agent instructions, operational guides, requirements, and security guidance across the project."
@@ -75929,9 +75929,8 @@ msgstr "לקט ספרים in ``volume['mounts']`` מטרה זו ``service``."
 msgid "Yield project files filtered through ``.gitignore``."
 msgstr "קובצי הפרויקט המומסים באמצעות ``.gitignore``."
 
-# translated-by: libretranslate
-msgid "Yield the URL of the dedicated LibreTranslate, deploying it when absent."
-msgstr "אתר ה-URL של הייעוד LibreTranslateלפרוס אותו כאשר הוא נעדר."
+msgid "Yield the URL of the translation gateway, deploying it when absent."
+msgstr ""
 
 msgid "Yield the gateway's URL, deploying the whole bundle when it is absent."
 msgstr ""
@@ -86219,6 +86218,9 @@ msgstr "`INFINITO_DISTRO`, `INFINITO_CONTAINER`, אופציונלי `INSPECT_CMD
 msgid "`INFINITO_DNS_HOSTS` can still override the generated list explicitly"
 msgstr "`INFINITO_DNS_HOSTS` עדיין ניתן להתגבר על הרשימה שנוצרת במפורש"
 
+msgid "`INFINITO_GHCR_MIRROR` decides whether a run uses the mirror. The generated `.env` sets it to `true` on a real GitHub runner and to `false` everywhere else, act included. A non-empty exported value overrides that for one run. [call-test-workspace.yml](../../../../.github/workflows/call-test-workspace.yml) exports `true`, so the workspace suite runs like a local setup and still pulls from GHCR, in its compose drills and, through `make swarm-zombie`, in its swarm drills."
+msgstr ""
+
 # translated-by: libretranslate
 msgid "`INFINITO_VERSION_ENV_NAME` (default: `INFINITO_VERSION`)"
 msgstr "`INFINITO_VERSION_ENV_NAME` (ברירת מחדל: `INFINITO_VERSION`)"
@@ -92359,6 +92361,9 @@ msgstr "רכב (`schedule`: יום: 00:00 UTC), ידני"
 msgid "auto (`schedule`: weekly Mon 00:00 UTC), manual"
 msgstr "רכב (`schedule`: שבועי מונ 00:00 UTC), ידני"
 
+msgid "auto (`schedule`: weekly Sun 04:00 UTC), manual"
+msgstr ""
+
 # translated-by: libretranslate
 msgid "auto (vCPUs ÷ 2)"
 msgstr "רכב (VCPUs ÷ 2)"
@@ -94099,6 +94104,9 @@ msgstr "תלות"
 # translated-by: libretranslate
 msgid "deploy"
 msgstr "פריסה"
+
+msgid "deploy even when a gateway already answers. A gateway serves whatever it was built with, so a change to its code or to the backends it routes over is invisible to the probe and every later run keeps using the old one."
+msgstr ""
 
 msgid "deploy even when a gateway already serves. The reuse check asks whether a gateway answers, which cannot see that the bundle or the gateway's own code changed since it started, so an iteration on either reaches a container that keeps the old one."
 msgstr ""
@@ -101453,6 +101461,9 @@ msgstr "utils.env.handlers.infinito.fork.account מודול"
 msgid "utils.env.handlers.infinito.fork.repository\\_url module"
 msgstr ""
 
+msgid "utils.env.handlers.infinito.ghcr\\_mirror module"
+msgstr ""
+
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.git']
 # gained=['utils.env.handlers.infinito.gitהמונחים']
@@ -101683,6 +101694,9 @@ msgid "utils.env.handlers.infinito.tools package"
 msgstr ""
 
 msgid "utils.env.handlers.infinito.tools.libretranslate module"
+msgstr ""
+
+msgid "utils.env.handlers.infinito.tools.litellm module"
 msgstr ""
 
 msgid "utils.env.handlers.infinito.tools.models module"
