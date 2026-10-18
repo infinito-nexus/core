@@ -13,11 +13,11 @@ The `dsk-torbrowser` role uses the `community.general.pacman` module to:
 
 ## Features
 
-* Idempotent installation of Tor and Tor Browser Launcher  
-* Ensures the Tor service is available for anonymous network traffic  
-* Simplifies first-time setup of Tor Browser  
+- Idempotent installation of Tor and Tor Browser Launcher  
+- Ensures the Tor service is available for anonymous network traffic  
+- Simplifies first-time setup of Tor Browser  
 
 ## Further Resources
 
-* [Tor Project documentation](https://www.torproject.org/)
-* [Infinito.Nexus GitHub repository](https://s.infinito.nexus/code)
+- [Tor Project documentation](https://www.torproject.org/)
+- [Infinito.Nexus GitHub repository](https://s.infinito.nexus/code)
