@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 _FORWARDED_ENV_KEYS = (
     "APP_ID",
+    "guide_host",
     "GH_TOKEN",
     "GITHUB_TOKEN",
     "GITHUB_REPOSITORY_OWNER",
