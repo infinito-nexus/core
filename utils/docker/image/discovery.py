@@ -46,7 +46,7 @@ RETIRED = "eol"
 class ImageRef:
     """Role-declared container image reference.
 
-    Fields:
+    Attributes:
         role: e.g. ``svc-db-postgres``
         service: e.g. ``postgres``
         name: canonical image name without registry, e.g. ``postgis/postgis``
