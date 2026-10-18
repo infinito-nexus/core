@@ -73,7 +73,8 @@ WAZUH_AUTHD_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.
 WAZUH_AUTHD_PASS_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'authd.pass' ] | path_join }}"
 
 WAZUH_RULESET_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'ruleset' ] | path_join }}"
-WAZUH_RULESET_PREVIOUS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'ruleset.previous' ] | path_join }}"
+WAZUH_STATE_DIR_HOST: "{{ [ DIR_VAR_LIB, application_id ] | path_join }}"
+WAZUH_RULESET_PREVIOUS_DIR_HOST: "{{ [ WAZUH_STATE_DIR_HOST, 'ruleset.previous' ] | path_join }}"
 WAZUH_RULESET_DIR_CONTAINER: "{{ lookup('volume', application_id, 'manager_ruleset').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
 WAZUH_RULESET_DIRS: ["base/decoders", "base/rules", "decoders", "rules"]
 WAZUH_RULESET: "{{ lookup('wazuh_ruleset', scope='deployment') }}"

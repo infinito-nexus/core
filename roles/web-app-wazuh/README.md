@@ -30,6 +30,7 @@ The deploy copies them as `<entity>_decoders.xml` and `<entity>_rules.xml` into 
 The mount sits outside every path the image seeds or overwrites at start, so the deploy alone decides which files are active; the default ruleset and `etc/rules/local_rules.xml` stay untouched.
 Before the manager restarts, the deploy checks that the `wazuh` user can read every file and runs `wazuh-analysisd -t`. If either fails, the previous files are restored, the manager keeps running on its loaded ruleset, and the deploy fails with the test output.
 If a step fails after the manager has already restarted onto the new files, the previous files are restored, the manager is restarted again onto them, and the deploy fails.
+The previous files are a snapshot taken at the start of each ruleset run and removed at its end. It lives in `/var/lib/infinito/web-app-wazuh/ruleset.previous` (`DIR_VAR_LIB`, root-only, `0700`), outside the compose tree, so the agent's file integrity monitoring of `DIR_COMPOSITIONS` does not report it on every deploy and the compose tree needs no FIM exclusion that could hide other files.
 
 ### Base decoders, base rules and canary
 

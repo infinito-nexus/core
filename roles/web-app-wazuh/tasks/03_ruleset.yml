@@ -1,4 +1,12 @@
 ---
+- name: "📂 Ensure the root-only state directory for the ruleset snapshot"
+  ansible.builtin.file:
+    path: "{{ WAZUH_STATE_DIR_HOST }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
 - name: "🧹 Remove a ruleset snapshot left by an aborted run"
   ansible.builtin.file:
     path: "{{ WAZUH_RULESET_PREVIOUS_DIR_HOST }}"
