@@ -1,0 +1,120 @@
+:root {
+  --background: var(--design-surface-1);
+  --header-background: var(--design-surface-1);
+  --header-color: var(--design-text);
+  --header-border: var(--design-border);
+  --text-color: var(--design-text);
+  --text-color-secondary: var(--design-text-muted);
+  --secondary: var(--design-text-muted);
+  --accent-color: var(--design-primary);
+  --primary-hover: var(--design-primary-hover);
+  --primary-active: var(--design-primary-active);
+  --focus-input-border: var(--design-focus, var(--design-link));
+  --focus-input-glow: color-mix(in srgb, var(--design-focus, var(--design-link)) 25%, transparent);
+  --selection-color: color-mix(in srgb, var(--design-primary) 25%, transparent);
+
+  --success-color: var(--design-success);
+  --build-color: var(--design-success);
+  --warning-color: var(--design-warning);
+  --unstable-build-icon-color: var(--design-warning);
+  --error-color: var(--design-danger);
+  --danger-color: var(--design-danger);
+  --destructive-color: var(--design-danger);
+  --info-color: var(--design-info);
+  --skipped-color: var(--design-text-muted);
+  --weather-icon-color: var(--design-link);
+  --red: var(--design-danger);
+  --green: var(--design-success);
+  --orange: var(--design-warning);
+  --yellow: var(--design-warning);
+  --blue: var(--design-info);
+
+  --alert-success-text-color: var(--design-success);
+  --alert-success-bg-color: var(--design-success-subtle);
+  --alert-info-text-color: var(--design-info);
+  --alert-info-bg-color: var(--design-info-subtle);
+  --alert-warning-text-color: var(--design-warning);
+  --alert-warning-bg-color: var(--design-warning-subtle);
+  --alert-danger-text-color: var(--design-danger);
+  --alert-danger-bg-color: var(--design-danger-subtle);
+
+  --jenkins-border-color: var(--design-border);
+  --jenkins-border-color--subtle: var(--design-border);
+  --input-border: var(--design-border-strong);
+  --input-border-hover: var(--design-text-muted);
+  --input-color: var(--design-surface-2);
+  --card-background: var(--design-surface-2);
+  --card-background--hover: var(--design-surface-hover);
+  --card-background--active: var(--design-surface-active);
+  --card-border-color: var(--design-border);
+  --card-border-color--hover: var(--design-border-strong);
+  --card-border-color--active: var(--design-border-strong);
+  --overlay-surface-background: var(--design-surface-2);
+  --overlay-surface-box-shadow: var(--design-shadow-3);
+  --tooltip-color: var(--design-text);
+  --tabs-item-foreground: var(--design-text-muted);
+  --tabs-item-background--selected: var(--design-surface-2);
+
+  --table-background: var(--design-surface-3);
+  --table-header-foreground: var(--design-text);
+  --table-body-background: var(--design-surface-2);
+  --table-body-foreground: var(--design-text);
+  --table-parameters-bg--hover: var(--design-surface-hover);
+  --table-striped-bg--hover: var(--design-surface-hover);
+  --even-row-color: var(--design-surface-2);
+  --bigtable-header-bg: var(--design-surface-3);
+  --bigtable-header-text-color: var(--design-text);
+  --bigtable-row-border-color: var(--design-border);
+
+  --very-light-grey: var(--design-surface-2);
+  --light-grey: var(--design-surface-3);
+  --medium-grey: var(--design-border-strong);
+  --dark-grey: var(--design-text-muted);
+  --pane-header-bg: var(--design-surface-3);
+  --pane-header-border-color: var(--design-border);
+  --pane-border-color: var(--design-border);
+  --pane-header-text-color: var(--design-text);
+  --pane-text-color: var(--design-text);
+  --pane-link-color: var(--design-text);
+  --pane-link-color--visited: var(--design-text);
+  --panel-header-bg-color: var(--design-surface-3);
+  --panel-border-color: var(--design-border);
+  --plugin-manager-bg-color-already-upgraded: var(--design-surface-3);
+
+  --link-color: var(--design-link);
+  --link-visited-color: var(--design-link);
+  --link-color--hover: var(--design-link);
+  --link-color--active: var(--design-link);
+  --link-dark-color: var(--design-text);
+  --link-dark-visited-color: var(--design-text);
+  --link-dark-color--hover: var(--design-link);
+  --link-dark-color--active: var(--design-link);
+
+  --button-background: var(--design-surface-3);
+  --button-background--hover: var(--design-surface-hover);
+  --button-background--active: var(--design-surface-active);
+  --button-box-shadow--focus: color-mix(in srgb, var(--design-focus, var(--design-link)) 40%, transparent);
+  --button-color--primary: var(--design-on-primary);
+  --item-background--hover: var(--design-surface-hover);
+  --item-background--active: var(--design-surface-active);
+  --item-box-shadow--focus: color-mix(in srgb, var(--design-focus, var(--design-link)) 40%, transparent);
+  --pre-background: var(--design-surface-3);
+  --pre-color: var(--design-text);
+}
+
+.jenkins-button--primary {
+  --button-background: var(--design-primary);
+  --button-background--hover: var(--design-primary-hover);
+  --button-background--active: var(--design-primary-active);
+  --button-box-shadow--focus: color-mix(in srgb, var(--design-primary) 40%, transparent);
+}
+
+.app-branding::before {
+  background-color: var(--design-frame);
+  background-image: none;
+  opacity: 1;
+}
+
+.app-branding .app-branding__conic::before {
+  display: none;
+}

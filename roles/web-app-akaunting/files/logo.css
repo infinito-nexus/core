@@ -1,0 +1,3 @@
+img[src*="akaunting-logo-green.svg"] {
+  content: var(--design-url-logo-svg);
+}

@@ -1,0 +1,29 @@
+.app-branding .app-branding__conic img {
+  content: var(--design-url-branding-svg);
+}
+
+.app-sign-in-register__content-logo {
+  content: var(--design-url-icon-svg);
+}
+
+.jenkins-header .app-jenkins-logo #jenkins-head-icon {
+  content: var(--design-url-masthead-svg);
+  width: auto;
+  height: 2.25rem;
+}
+
+.jenkins-header .app-jenkins-logo span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (width <= 767px) {
+  .jenkins-header .app-jenkins-logo #jenkins-head-icon {
+    content: var(--design-url-icon-svg);
+    height: 2rem;
+  }
+}

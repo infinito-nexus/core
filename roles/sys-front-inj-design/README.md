@@ -21,7 +21,7 @@ It makes all applications feel like part of the same ecosystem, visually and fun
 - ♿ **WCAG 2.2 contrast** guaranteed for text, links, controls and status colors
 - 📁 **Unified CSS Base Configuration** deployment for all NGINX applications
 - 🌒 **Dark mode** via `prefers-color-scheme` or an app-native switch
-- 🧩 **Design script channel** for a role's `design.js.j2`
+- 🧩 **Design script channel** for a role's `design.js`, behind the per-app `INFINITO_DESIGN` config
 - 🚫 **No duplication** – tasks run once per deployment
 - ⏱️ **Versioning logic** to bust browser cache
 - 🎯 **Bootstrap override compatibility**

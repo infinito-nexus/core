@@ -1,9 +1,7 @@
 {% set design = lookup('design', application_id) %}
-{% set sign_in = 'form[action$="/login"]' %}
 {% set neutral = ['gray', 'slate'] %}
 {% set brand = ['blue', 'indigo'] %}
 {% set status = [('red', 'danger'), ('green', 'success'), ('emerald', 'success'), ('yellow', 'warning'), ('amber', 'warning'), ('orange', 'warning'), ('teal', 'info')] %}
-{% set code_block = 'pre:has(> code[class*="language-"])' %}
 {% set code_tokens = [
   ('112, 128, 144', 'text-muted'),
   ('153, 153, 153', 'text-muted'),
@@ -476,75 +474,75 @@ button[id^="headlessui-listbox-button"] {
 .to-tremor-background {
   --tw-gradient-to: var(--design-surface-2) var(--tw-gradient-to-position);
 }
-{{ code_block }} {
+pre:has(> code[class*="language-"]) {
   background: var(--design-surface-3) !important;
 }
-{{ code_block }},
-{{ code_block }} > code {
+pre:has(> code[class*="language-"]),
+pre:has(> code[class*="language-"]) > code {
   color: var(--design-text) !important;
   text-shadow: none !important;
 }
-{{ code_block }} .token {
+pre:has(> code[class*="language-"]) .token {
   background: none !important;
   color: inherit !important;
 }
 {% for rgb, token in code_tokens %}
-{{ code_block }} .token[style*="rgb({{ rgb }})"] {
+pre:has(> code[class*="language-"]) .token[style*="rgb({{ rgb }})"] {
   color: var(--design-{{ token }}) !important;
 }
 {% endfor %}
-:root:has({{ sign_in }}) body {
+:root:has(form[action$="/login"]) body {
   background-color: var(--design-surface-1);
   color: var(--design-text);
 }
-{{ sign_in }} {
+form[action$="/login"] {
   background-color: var(--design-surface-2);
   box-shadow: var(--design-shadow-3);
 }
-{{ sign_in }} :is(.logo, h2, label, .info-box p) {
+form[action$="/login"] :is(.logo, h2, label, .info-box p) {
   color: var(--design-text);
 }
-{{ sign_in }} :is(.subtitle, .help-text) {
+form[action$="/login"] :is(.subtitle, .help-text) {
   color: var(--design-text-muted);
 }
-{{ sign_in }} .info-box {
+form[action$="/login"] .info-box {
   background-color: var(--design-info-subtle);
   border-left-color: var(--design-info);
 }
-{{ sign_in }} .info-header {
+form[action$="/login"] .info-header {
   color: var(--design-info);
 }
-{{ sign_in }} .required {
+form[action$="/login"] .required {
   color: var(--design-danger);
 }
-{{ sign_in }} :is(input[type="text"], input[type="password"]) {
+form[action$="/login"] :is(input[type="text"], input[type="password"]) {
   border-color: var(--design-border-strong);
   background-color: var(--design-surface-2);
   color: var(--design-text);
 }
-{{ sign_in }} :is(input[type="text"], input[type="password"]):focus {
+form[action$="/login"] :is(input[type="text"], input[type="password"]):focus {
   border-color: var(--design-link);
   box-shadow: var(--design-focus-ring);
 }
-{{ sign_in }} input[type="submit"] {
+form[action$="/login"] input[type="submit"] {
   background-color: var(--design-primary);
   color: var(--design-on-primary);
 }
-{{ sign_in }} input[type="submit"]:hover {
+form[action$="/login"] input[type="submit"]:hover {
   background-color: var(--design-primary-hover);
 }
-{{ sign_in }} input[type="submit"]:active {
+form[action$="/login"] input[type="submit"]:active {
   background-color: var(--design-primary-active);
 }
-{{ sign_in }} a {
+form[action$="/login"] a {
   color: var(--design-link);
 }
-{{ sign_in }} code {
+form[action$="/login"] code {
   background-color: var(--design-surface-3);
   color: var(--design-text);
 }
 {% if design.logo is string %}
-{{ sign_in }} .logo {
+form[action$="/login"] .logo {
   height: 3rem;
   font-size: 0;
   background: url("{{ design.urls.logo.svg }}") center / contain no-repeat;

@@ -1,10 +1,9 @@
 {% set design = lookup('design', application_id) %}
-{% set default_theme = 'html:has(link[href*="style/themes/default-light.css"], link[href*="style/themes/default-dark.css"])' %}
 {% set fills = ['primary', 'success', 'info', 'warning', 'danger'] %}
 {% set statuses = ['success', 'info', 'warning', 'danger'] %}
 {% set named_fills = [('red', 'danger'), ('yellow', 'warning'), ('aqua', 'info'), ('green', 'success'), ('light-blue', 'primary')] %}
 {% set named_texts = [('red', 'danger'), ('green', 'success'), ('green-light', 'success'), ('orange', 'warning'), ('yellow', 'warning'), ('aqua', 'info'), ('blue', 'info'), ('light-blue', 'info'), ('vivid-blue', 'info'), ('danger', 'danger'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
-{{ default_theme }} {
+html:has(link[href*="style/themes/default-light.css"], link[href*="style/themes/default-dark.css"]) {
   --datatable-bgcolor: var(--design-surface-active);
   --overlay-bgcolor: rgba(var(--design-surface-3-rgb), 0.85);
   --allowed-color: var(--design-success);
@@ -13,7 +12,7 @@
   --other-color: var(--design-neutral-500);
   background-color: var(--design-surface-3);
 }
-:where({{ default_theme }}) {
+:where(html:has(link[href*="style/themes/default-light.css"], link[href*="style/themes/default-dark.css"])) {
   & body,
   .layout-boxed {
     background: var(--design-surface-3);

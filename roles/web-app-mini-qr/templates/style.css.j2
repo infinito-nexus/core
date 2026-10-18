@@ -1,7 +1,5 @@
 {% set design = lookup('design', application_id) %}
 {% set focus = 'var(--design-focus, var(--design-link))' %}
-{% set modal = '[aria-labelledby="data-to-encode-modal-title"]' %}
-{% set chrome = ':where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))' %}
 {% macro paint(property, value, classes, state='') %}
 {% for cls in classes %}
 :root [class~="{{ cls }}"]{{ state }}{{ ',' if not loop.last else ' {' }}
@@ -14,9 +12,9 @@ body,
   background-color: var(--design-surface-1);
   color: var(--design-text);
 }
-{{ chrome }},
-{{ chrome }}::before,
-{{ chrome }}::after {
+:where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *)),
+:where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))::before,
+:where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))::after {
   border-color: var(--design-border);
 }
 {{ paint('background-color', 'var(--design-surface-2)', ['bg-white', 'bg-zinc-50', 'bg-background', 'bg-popover']) }}
@@ -51,24 +49,24 @@ a:visited,
 a:active {
   color: var(--design-link);
 }
-:root p{{ chrome }},
+:root p:where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *)),
 :root label,
 :root legend,
 :root .radio > label,
 :root .radio > * > label {
   color: var(--design-text);
 }
-:root {{ chrome }}::selection {
+:root :where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))::selection {
   background-color: var(--design-surface-active);
   color: var(--design-text);
 }
-:root {{ chrome }}::-webkit-scrollbar-track {
+:root :where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))::-webkit-scrollbar-track {
   background-color: var(--design-surface-3);
 }
-:root {{ chrome }}::-webkit-scrollbar-thumb {
+:root :where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))::-webkit-scrollbar-thumb {
   background-color: var(--design-border-strong);
 }
-:root {{ chrome }}::-webkit-scrollbar-thumb:hover {
+:root :where(:not(#element-to-export, #element-to-export *, #drawer-preview-container .origin-center *))::-webkit-scrollbar-thumb:hover {
   background-color: var(--design-text-muted);
 }
 :root input::placeholder,
@@ -141,11 +139,11 @@ a:active {
 #app footer {
   background-color: rgba(var(--design-surface-1-rgb), 0.8);
 }
-:is(.icon-button, .button, .secondary-button, [role="combobox"], {{ modal }}) svg :is([fill="#abcbca"], [fill="#abcabc"], [fill="#888888"]) {
+:is(.icon-button, .button, .secondary-button, [role="combobox"], [aria-labelledby="data-to-encode-modal-title"]) svg :is([fill="#abcbca"], [fill="#abcabc"], [fill="#888888"]) {
   fill: currentColor;
 }
-:is(.icon-button, .button, .secondary-button, [role="combobox"], {{ modal }}) svg[stroke="#abcbca"],
-:is(.icon-button, .button, .secondary-button, [role="combobox"], {{ modal }}) svg :is([stroke="#abcbca"], [stroke="#888888"]) {
+:is(.icon-button, .button, .secondary-button, [role="combobox"], [aria-labelledby="data-to-encode-modal-title"]) svg[stroke="#abcbca"],
+:is(.icon-button, .button, .secondary-button, [role="combobox"], [aria-labelledby="data-to-encode-modal-title"]) svg :is([stroke="#abcbca"], [stroke="#888888"]) {
   stroke: currentColor;
 }
 .prose {

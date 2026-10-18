@@ -42,6 +42,7 @@ SPEC_FILE = (
 )
 BASE_PATHS: tuple[str, ...] = (
     "roles/sys-front-inj-design/templates/css",
+    "roles/sys-front-inj-design/templates/js",
     "utils/design/palette.py",
 )
 UI_PREFIXES: tuple[str, ...] = ("web-app-", "web-svc-")

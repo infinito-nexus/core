@@ -10,7 +10,17 @@
            'files': ['templates/style.css.j2','files/style.css'],
            'paths': [app_role_dir]
          }, errors='ignore') | default('', true) }}
-    _app_style_css: "{{ (lookup('template', _app_style_src) | trim) if _app_style_src | length > 0 else '' }}"
+    _app_logo_src: >-
+      {{ lookup('first_found', {
+           'files': ['files/logo.css'],
+           'paths': [app_role_dir]
+         }, errors='ignore') | default('', true) }}
+    app_body_css: "{{ (lookup('template', _app_style_src) | trim) if _app_style_src | length > 0 else '' }}"
+    app_logo_css: "{{ (lookup('template', _app_logo_src) | trim) if _app_logo_src | length > 0 else '' }}"
+    _app_compose_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'css', 'app.css.j2') }}"
+    _app_style_css: >-
+      {{ (lookup('template', _app_compose_src) | trim)
+         if (app_body_css ~ app_logo_css) | length > 0 else '' }}
   set_fact:
     app_style_src: "{{ _app_style_src }}"
     app_style_css: "{{ _app_style_css }}"
@@ -40,10 +50,14 @@
   vars:
     _design_js_src: >-
       {{ lookup('first_found', {
-           'files': ['templates/design.js.j2'],
+           'files': ['templates/design.js.j2','templates/design.js'],
            'paths': [lookup('path_absolute', 'roles', application_id)]
          }, errors='ignore') | default('', true) }}
-    _design_js: "{{ (lookup('template', _design_js_src) | trim) if _design_js_src | length > 0 else '' }}"
+    _design_compose_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'js', 'design.js.j2') }}"
+    design_body_js: "{{ (lookup('template', _design_js_src) | trim) if _design_js_src | length > 0 else '' }}"
+    _design_js: >-
+      {{ (lookup('template', _design_compose_src) | trim)
+         if 'INFINITO_DESIGN' in design_body_js else design_body_js }}
   set_fact:
     design_js_one_liner: "{{ (_design_js | to_one_liner) if _design_js | length > 0 else '' }}"
 

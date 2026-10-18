@@ -13,7 +13,7 @@
     DESIGN_TITLE: "{{ ERPNEXT_DESIGN_TITLE }}"
     DESIGN_LOGO_URL: "{{ ERPNEXT_DESIGN_LOGO_URL }}"
     DESIGN_FAVICON_URL: "{{ ERPNEXT_DESIGN_FAVICON_URL }}"
-    DESIGN_THEME_CSS: "{{ lookup('ansible.builtin.template', 'theme.css.j2') if ERPNEXT_DESIGN_ENABLED | bool else '' }}"
+    DESIGN_THEME_CSS: "{{ lookup('ansible.builtin.file', 'theme.css', rstrip=False) if ERPNEXT_DESIGN_ENABLED | bool else '' }}"
   register: erpnext_design_apply
   changed_when: "'DESIGN_CHANGED' in erpnext_design_apply.stdout"
   timeout: "{{ lookup('timeout', 60) | int }}"

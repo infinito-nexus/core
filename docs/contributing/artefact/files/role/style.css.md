@@ -7,14 +7,17 @@ For browser-side validation requirements after visible UI changes, see [Playwrig
 
 ## `style.css.j2` ⚙️
 
-- A role ships its override as `templates/style.css.j2` or `files/style.css`.
+- A role ships its override as `files/style.css` when it needs no Jinja, otherwise as `templates/style.css.j2`.
+- Rules that apply only while the role ships a logo go into `files/logo.css`. `sys-front-inj-design` appends that file only when `design.logo` resolves to a path, so the guard lives in one place instead of in every sheet.
+- `sys-front-inj-design` renders `templates/css/app.css.j2` ahead of both: a `:root` block declaring `--design-url-<slot>-<png|svg>`, `--design-url-favicon-ico`, `--design-slot-<slot>-<width|height>` and `--design-url-app-<key>` for every entry of the role's `design_css_urls`. A sheet reads the branding through those properties instead of interpolating a URL.
+- Those properties reach the composed sheet only, meaning `templates/style.css.j2` or `files/style.css`, plus `files/logo.css`. A sheet the role deploys on its own path never sees them, so reading one there leaves the declaration invalid and the rule silently does nothing.
 - `sys-front-inj-design` renders it when `services.design.enabled` is enabled.
 - The shared element styles (`body`, links, buttons, form fields, tables, focus outline) sit in the cascade layer `infinito-design`. `layer.css` is linked first in `<head>` and declares that layer before the app's own stylesheets, so every rule of the app wins over them, layered or not. They only style what the app leaves unstyled.
 - The app's own configuration outranks the role stylesheet. A theming configuration carries the palette first (Nextcloud takes the primary color, logo, name and slogan via `occ theming:config` and ships no stylesheet), then an in-house theme or custom CSS option.
 - An in-house theme carries a variable mapping natively (see [web-app-gitea](../../../../../roles/web-app-gitea/templates/theme.css.j2)). The role stylesheet maps the app's CSS variables onto the tokens only for what no in-house option reaches.
 - The Bootstrap component mapping in `bootstrap.css` is unlayered. A role built on Bootstrap links it by setting `bootstrap: true` in its `design:` entry. Set in `web-svc-design`, the value applies to every role.
 - A role stylesheet or design script that renders empty counts as absent: nothing is deployed, linked or injected for it.
-- A role MAY ship `templates/design.js.j2`. `sys-front-inj-design` collapses it, adds its CSP hash and injects it whenever `services.design.enabled` is enabled, independent of `services.javascript.enabled`.
+- A role MAY ship `templates/design.js`, or `templates/design.js.j2` when it needs Jinja. `sys-front-inj-design` prepends the per-app config `var INFINITO_DESIGN = {logo, title, urls, slots}`, collapses the result, adds its CSP hash and injects it whenever `services.design.enabled` is enabled, independent of `services.javascript.enabled`. A static script branches on `INFINITO_DESIGN.logo` and `INFINITO_DESIGN.title` at runtime instead of on Jinja at render time.
 
 ## Inventory 📋
 
@@ -56,5 +59,5 @@ The [design_palette](../../../../../plugins/lookup/design_palette.py) lookup der
 
 - Every color token also exists as `<token>-rgb` for `rgba()` use.
 - Scale step `50` sits next to the surface and `950` next to the text in light and dark mode, so a mapping onto the scale follows dark mode without a media query.
-- Dark mode follows `prefers-color-scheme`. A role whose app has its own theme switch sets `data-design-theme="light"` or `data-design-theme="dark"` on `<html>` from its `design.js.j2`; the attribute wins over the browser preference.
+- Dark mode follows `prefers-color-scheme`. A role whose app has its own theme switch sets `data-design-theme="light"` or `data-design-theme="dark"` on `<html>` from its design script; the attribute wins over the browser preference.
 - Role CSS MUST use only `--design-*` tokens for colors. Hard-coded colors break the base color override.

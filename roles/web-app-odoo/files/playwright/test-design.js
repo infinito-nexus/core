@@ -15,7 +15,8 @@ const { resolveTimeout } = require("./timeouts");
 
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const logoEnabled = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_ENABLED || "") === "true";
-const odooMajor = Number.parseInt(decodeDotenvQuotedValue(process.env.ODOO_VERSION || ""), 10);
+const odooVersion = decodeDotenvQuotedValue(process.env.ODOO_VERSION || "");
+const odooMajor = odooVersion ? Number.parseInt(odooVersion, 10) : 0;
 const rendersSearchPanelHeaderClass = odooMajor >= 20;
 const rendersDangerConfirmButton = odooMajor >= 20;
 

@@ -1,7 +1,6 @@
 {% if lookup('config', application_id, 'services.webui.enabled') | bool %}
 {% set design = lookup('design', application_id) %}
-{% set sign_in = ':root:has(.provider-list)' %}
-{{ sign_in }} {
+:root:has(.provider-list) {
   --background: var(--design-surface-1);
   --background-base: var(--design-surface-1);
   --midground: var(--design-link);
@@ -9,41 +8,41 @@
   --hairline: var(--design-border);
   --hairline-strong: var(--design-border-strong);
 }
-{{ sign_in }} body {
+:root:has(.provider-list) body {
   background-image: none;
 }
-{{ sign_in }} :is(.card, .field-input) {
+:root:has(.provider-list) :is(.card, .field-input) {
   background: var(--design-surface-2);
 }
-{{ sign_in }} .card {
+:root:has(.provider-list) .card {
   box-shadow: var(--design-shadow-3);
 }
-{{ sign_in }} :is(.subtitle, .form-title, .field-label, footer) {
+:root:has(.provider-list) :is(.subtitle, .form-title, .field-label, footer) {
   color: var(--design-text-muted);
 }
-{{ sign_in }} .form-error {
+:root:has(.provider-list) .form-error {
   color: var(--design-danger);
 }
-{{ sign_in }} .provider-btn {
+:root:has(.provider-list) .provider-btn {
   background: var(--design-primary);
   color: var(--design-on-primary);
   box-shadow: none;
 }
-{{ sign_in }} .provider-btn:hover {
+:root:has(.provider-list) .provider-btn:hover {
   background: var(--design-primary-hover);
   filter: none;
 }
-{{ sign_in }} .provider-btn:active {
+:root:has(.provider-list) .provider-btn:active {
   background: var(--design-primary-active);
   filter: none;
 }
 {% if design.logo is string %}
-{{ sign_in }} .brand {
+:root:has(.provider-list) .brand {
   height: 3rem;
   font-size: 0;
   background: url("{{ design.urls.brand.svg }}") center / contain no-repeat;
 }
-{{ sign_in }} .brand .dot {
+:root:has(.provider-list) .brand .dot {
   display: none;
 }
 {% endif %}

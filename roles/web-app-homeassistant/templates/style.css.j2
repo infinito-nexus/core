@@ -1,10 +1,9 @@
 {% set design = lookup('design', application_id) %}
-{% set sign_in = ':root:has(ha-authorize)' %}
-{{ sign_in }} {
+:root:has(ha-authorize) {
   background-color: var(--design-surface-1);
   color: var(--design-text);
 }
-{{ sign_in }} body {
+:root:has(ha-authorize) body {
 {% for name, value in HOMEASSISTANT_DESIGN_VARIABLES | dictsort %}
   --{{ name }}: {{ value }};
 {% endfor %}
@@ -31,7 +30,7 @@
   --wa-form-control-placeholder-color: var(--ha-color-text-secondary);
 }
 {% if design.logo is string %}
-{{ sign_in }} .header img {
+:root:has(ha-authorize) .header img {
   content: url("{{ design.urls.logo.svg }}");
 }
 {% endif %}

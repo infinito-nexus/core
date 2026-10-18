@@ -45,7 +45,7 @@ SNIPE_IT_DESIGN_COLORS:
   nav_link_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-on-frame'] }}"
   link_light_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-link'] }}"
   link_dark_color: "{{ SNIPE_IT_DESIGN_PALETTE.dark['--design-link'] }}"
-  custom_css: "{{ lookup('template', 'custom_css.css.j2') }}"
+  custom_css: "{{ lookup('file', 'custom_css.css', rstrip=False) }}"
 SNIPE_IT_DESIGN_SETTINGS: >-
   {{
     SNIPE_IT_DESIGN_COLORS

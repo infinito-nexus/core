@@ -9,8 +9,6 @@ module.exports = [
       "venv/**",
       ".venv/**",
       "**/__pycache__/**",
-      // Jinja2-templated JS — not valid JS until rendered.
-      "roles/*/templates/**/*.js",
       "roles/web-app-bigbluebutton/files/javascript/ep_redis_publisher_index.js",
     ],
   },
@@ -29,7 +27,7 @@ module.exports = [
     },
   },
   {
-    files: ["roles/**/files/**/*.js"],
+    files: ["roles/**/files/**/*.js", "roles/**/templates/**/*.js"],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: "commonjs",
@@ -40,6 +38,7 @@ module.exports = [
         // adding the browser globals avoids a sea of `no-undef` false
         // positives.
         ...globals.browser,
+        INFINITO_DESIGN: "readonly",
       },
     },
     rules: {

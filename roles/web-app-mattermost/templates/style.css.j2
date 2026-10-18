@@ -1,5 +1,4 @@
 {% set design = lookup('design', application_id) %}
-{% set scope = 'html:not([data-design-app-theme="custom"])' %}
 {% set colors = {
   'center-channel-bg': 'surface-1',
   'center-channel-color': 'text',
@@ -39,7 +38,7 @@
 } %}
 {% set opacity_exceptions = {'button-bg-30': '32'} %}
 {% set fills = {'button-bg': 'primary', 'button-color': 'on-primary'} %}
-{{ scope }} body {
+html:not([data-design-app-theme="custom"]) body {
 {% for name, token in colors.items() %}
   --{{ name }}: var(--design-{{ token }});
   --{{ triplet_names.get(name, name) }}-rgb: var(--design-{{ token }}-rgb);
@@ -107,8 +106,8 @@
   --elevation-6: var(--design-shadow-3);
 }
 
-{{ scope }} body .btn-primary,
-{{ scope }} body .SendMessageButton {
+html:not([data-design-app-theme="custom"]) body .btn-primary,
+html:not([data-design-app-theme="custom"]) body .SendMessageButton {
 {% for name, token in fills.items() %}
   --{{ name }}: var(--design-{{ token }});
   --{{ name }}-rgb: var(--design-{{ token }}-rgb);
@@ -8991,46 +8990,46 @@ html:not([data-design-app-theme="custom"]) .app__body .post .post-collapse__show
   background-color: var(--design-primary-hover);
 }
 
-{{ scope }} body #global-header,
-{{ scope }} body #SidebarContainer,
-{{ scope }} body #navbar,
-{{ scope }} body .admin-sidebar {
+html:not([data-design-app-theme="custom"]) body #global-header,
+html:not([data-design-app-theme="custom"]) body #SidebarContainer,
+html:not([data-design-app-theme="custom"]) body #navbar,
+html:not([data-design-app-theme="custom"]) body .admin-sidebar {
   --design-focus: var(--design-on-frame);
   --border-default: solid 1px var(--design-frame-active);
   --border-light: solid 1px var(--design-frame-active);
   --border-dark: solid 1px var(--design-frame-active);
 }
 
-{{ scope }} body #global-header .Menu__content,
-{{ scope }} body #global-header .dropdown-menu,
-{{ scope }} body #SidebarContainer .Menu__content,
-{{ scope }} body #SidebarContainer .dropdown-menu {
+html:not([data-design-app-theme="custom"]) body #global-header .Menu__content,
+html:not([data-design-app-theme="custom"]) body #global-header .dropdown-menu,
+html:not([data-design-app-theme="custom"]) body #SidebarContainer .Menu__content,
+html:not([data-design-app-theme="custom"]) body #SidebarContainer .dropdown-menu {
   --design-focus: var(--design-link);
   --border-default: solid 1px var(--design-border);
   --border-light: solid 1px var(--design-border);
   --border-dark: solid 1px var(--design-border-strong);
 }
 
-{{ scope }} body #root .main-wrapper {
+html:not([data-design-app-theme="custom"]) body #root .main-wrapper {
   border-color: var(--design-frame-active);
 }
 
-{{ scope }} body #global-header .a11y--focused,
-{{ scope }} body #SidebarContainer .a11y--focused,
-{{ scope }} body #navbar .a11y--focused {
+html:not([data-design-app-theme="custom"]) body #global-header .a11y--focused,
+html:not([data-design-app-theme="custom"]) body #SidebarContainer .a11y--focused,
+html:not([data-design-app-theme="custom"]) body #navbar .a11y--focused {
   box-shadow: 0 0 1px 3px rgba(var(--design-on-frame-rgb), 0.5), 0 0 0 1px var(--design-on-frame);
 }
 
-{{ scope }} body #SidebarContainer .SidebarChannel.active .SidebarLink {
+html:not([data-design-app-theme="custom"]) body #SidebarContainer .SidebarChannel.active .SidebarLink {
   background-color: var(--design-frame-active);
 }
 
-{{ scope }} body .header-footer-route .header-footer-route-container {
+html:not([data-design-app-theme="custom"]) body .header-footer-route .header-footer-route-container {
   background-image: none;
 }
 {% if design.logo is string %}
 
-{{ scope }} body #global-header [aria-controls="product-switcher-menu"] > span > svg {
+html:not([data-design-app-theme="custom"]) body #global-header [aria-controls="product-switcher-menu"] > span > svg {
   width: {{ (24 * design.slots['logo-frame'].width / design.slots['logo-frame'].height) | round | int }}px;
   height: 24px;
   background: url("{{ design.urls['logo-frame'].svg }}") left center / contain no-repeat;
@@ -9042,7 +9041,7 @@ body .hfroute-header .header-main .header-logo-link > svg {
   background: url("{{ design.urls.logo.svg }}") left center / contain no-repeat;
 }
 
-{{ scope }} body #global-header [aria-controls="product-switcher-menu"] > span > svg > *,
+html:not([data-design-app-theme="custom"]) body #global-header [aria-controls="product-switcher-menu"] > span > svg > *,
 body .hfroute-header .header-logo-link > svg > * {
   visibility: hidden;
 }

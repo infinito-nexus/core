@@ -19,7 +19,7 @@ For repository wiring, inventory keys, and the generated palette contract, see [
 - You MUST map the app's status colors onto `--design-success`, `--design-warning`, `--design-danger` and `--design-info`, and the text on filled status surfaces onto the matching `--design-on-*` token.
 - You MUST map brand-colored app chrome (sidebar, masthead, top bar) onto `--design-frame`, its text and icons onto `--design-on-frame`, and its hovered and selected entries onto `--design-frame-hover` and `--design-frame-active`. `--design-primary` is the accent of controls and MUST NOT fill a large area. On the frame element you MUST set `--design-focus: var(--design-on-frame)`, and set it back to `var(--design-link)` on a surface the frame hosts (a popup, a menu).
 - You MUST NOT add your own `prefers-color-scheme` block for colors. The tokens switch with the mode.
-- If the app has its own theme switch, you MUST mirror its state onto `<html data-design-theme="light|dark">` from `templates/design.js.j2` so the tokens follow the app, not only the browser.
+- If the app has its own theme switch, you MUST mirror its state onto `<html data-design-theme="light|dark">` from `templates/design.js` so the tokens follow the app, not only the browser.
 
 ## Replace
 

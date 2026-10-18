@@ -1,5 +1,4 @@
 {% set design = lookup('design', application_id) %}
-{% set any_scheme = 'html:root[data-mantine-color-scheme]' %}
 {% set frame = ':root :is(.mantine-AppShell-header, .mantine-AppShell-navbar)' %}
 {% set filled = ['.mantine-Button-root', '.mantine-ActionIcon-root', '.mantine-Badge-root', '[data-combobox-selected]'] %}
 {% set status = [('red', 'danger'), ('green', 'success'), ('teal', 'success'), ('lime', 'success'), ('yellow', 'warning'), ('orange', 'warning')] %}
@@ -7,7 +6,7 @@
 {% set light_steps = [(0, '-subtle'), (1, '-subtle'), (2, '-subtle'), (3, '-border'), (4, '-border'), (5, ''), (6, ''), (7, ''), (8, ''), (9, '')] %}
 {% set dark_steps = [(0, ''), (1, ''), (2, ''), (3, ''), (4, ''), (5, ''), (6, ''), (7, '-border'), (8, '-border'), (9, '-subtle')] %}
 html:root,
-{{ any_scheme }} {
+html:root[data-mantine-color-scheme] {
   --mantine-color-body: var(--design-surface-1);
   --mantine-color-text: var(--design-text);
   --mantine-color-bright: var(--design-text);
@@ -130,31 +129,31 @@ html:root[data-mantine-color-scheme="dark"] [style*="color: var(--mantine-color-
 :root .mantine-Input-wrapper[data-variant="default"] {
   --input-bd: var(--design-border-strong);
 }
-{{ any_scheme }} [class*="_panelHealthErr_"] {
+html:root[data-mantine-color-scheme] [class*="_panelHealthErr_"] {
   border-left-color: var(--design-danger-border) !important;
 }
-{{ any_scheme }} [class*="_panelHealthWarn_"] {
+html:root[data-mantine-color-scheme] [class*="_panelHealthWarn_"] {
   border-left-color: var(--design-warning-border) !important;
 }
-{{ any_scheme }} [class*="_healthErr_"],
-{{ any_scheme }} [class*="_nodeText_"][class*="_nodeTextError_"] {
+html:root[data-mantine-color-scheme] [class*="_healthErr_"],
+html:root[data-mantine-color-scheme] [class*="_nodeText_"][class*="_nodeTextError_"] {
   background-color: var(--design-danger-subtle);
 }
-{{ any_scheme }} [class*="_typeLabel_"] {
+html:root[data-mantine-color-scheme] [class*="_typeLabel_"] {
   color: var(--design-info);
 }
-{{ any_scheme }} [class*="_helpLabel_"] {
+html:root[data-mantine-color-scheme] [class*="_helpLabel_"] {
   color: var(--design-text-muted);
 }
-{{ any_scheme }} [class*="_chartWrapper_"],
-{{ any_scheme }} [class*="_tableWrapper_"] {
+html:root[data-mantine-color-scheme] [class*="_chartWrapper_"],
+html:root[data-mantine-color-scheme] [class*="_tableWrapper_"] {
   border-color: var(--design-border);
 }
-{{ any_scheme }} [class*="_nodeText_"][class*="_nodeTextSelected_"] {
+html:root[data-mantine-color-scheme] [class*="_nodeText_"][class*="_nodeTextSelected_"] {
   background-color: var(--design-surface-active);
   border-color: var(--design-border-strong);
 }
-{{ any_scheme }} [class*="_labelPair_"]:hover {
+html:root[data-mantine-color-scheme] [class*="_labelPair_"]:hover {
   background-color: var(--design-surface-active);
   color: var(--design-text);
 }
@@ -208,20 +207,20 @@ html:root[data-mantine-color-scheme="dark"] [style*="color: var(--mantine-color-
 :root .cm-editor .cm-completionMatchedText {
   color: var(--design-link);
 }
-{{ any_scheme }} .uplot .u-under {
+html:root[data-mantine-color-scheme] .uplot .u-under {
   background-color: var(--design-surface-2);
 }
-{{ any_scheme }} .uplot .u-over {
+html:root[data-mantine-color-scheme] .uplot .u-over {
   box-shadow: 0 0 0 0.5px var(--design-border);
 }
-{{ any_scheme }} .uplot .u-select {
+html:root[data-mantine-color-scheme] .uplot .u-select {
   background: rgba(var(--design-primary-rgb), 0.2);
 }
-{{ any_scheme }} .uplot .u-cursor-x,
-{{ any_scheme }} .uplot .u-cursor-y {
+html:root[data-mantine-color-scheme] .uplot .u-cursor-x,
+html:root[data-mantine-color-scheme] .uplot .u-cursor-y {
   border-color: var(--design-text-muted);
 }
-{{ any_scheme }} .u-tooltip {
+html:root[data-mantine-color-scheme] .u-tooltip {
   background: var(--design-surface-2);
   border-color: var(--design-border-strong);
   color: var(--design-text);

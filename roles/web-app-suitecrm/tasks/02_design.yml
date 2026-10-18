@@ -17,7 +17,7 @@
     suitecrm_design_payload:
       app_dir: "{{ SUITECRM_APP_DIR }}"
       enabled: "{{ SUITECRM_DESIGN_ENABLED | bool }}"
-      css: "{{ lookup('ansible.builtin.template', SUITECRM_DESIGN_LEGACY_CSS) if SUITECRM_DESIGN_ENABLED | bool else '' }}"
+      css: "{{ lookup('ansible.builtin.file', SUITECRM_DESIGN_LEGACY_CSS, rstrip=False) if SUITECRM_DESIGN_ENABLED | bool else '' }}"
       title: "{{ SUITECRM_DESIGN_TITLE }}"
       logo: "{{ suitecrm_design_assets.results[0].content if SUITECRM_DESIGN_LOGO_ENABLED | bool else '' }}"
       favicon: "{{ suitecrm_design_assets.results[1].content if SUITECRM_DESIGN_LOGO_ENABLED | bool else '' }}"

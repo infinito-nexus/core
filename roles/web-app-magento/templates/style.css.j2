@@ -1,6 +1,5 @@
 {% set design = lookup('design', application_id) %}
 {% set static = MAGENTO_URL | regex_replace('/+$', '') ~ '/static' %}
-{% set shop = ':where(html:not(:has(> head > link[href*="/adminhtml/"])))' %}
 {% set admin = ':where(html:has(> head > link[href*="/adminhtml/"]))' %}
 :where(html:not(:has(> head > link[href*="/adminhtml/"]))) {
 & body {
@@ -7479,8 +7478,8 @@
 }
 }
 
-{{ shop }} .page-header .panel.wrapper,
-{{ shop }} .copyright,
+:where(html:not(:has(> head > link[href*="/adminhtml/"]))) .page-header .panel.wrapper,
+:where(html:not(:has(> head > link[href*="/adminhtml/"]))) .copyright,
 {{ admin }} .menu-wrapper,
 {{ admin }} body.page-layout-admin-login {
   --design-focus: var(--design-on-frame);
@@ -7490,7 +7489,7 @@
   --design-focus: var(--design-link);
 }
 
-{{ shop }} body._keyfocus .page-header .panel.wrapper :focus,
+:where(html:not(:has(> head > link[href*="/adminhtml/"]))) body._keyfocus .page-header .panel.wrapper :focus,
 {{ admin }} body._keyfocus .menu-wrapper a:focus,
 {{ admin }} body._keyfocus .menu-wrapper a.logo:focus {
   box-shadow: inset 0 0 0 2px var(--design-on-frame);

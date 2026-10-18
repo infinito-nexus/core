@@ -18,3 +18,12 @@ YOURLS_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 YOURLS_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
+
+design_css_urls:
+  share: "{{ YOURLS_URL }}/images/share.svg"
+  pencil: "{{ YOURLS_URL }}/images/pencil.svg"
+  delete: "{{ YOURLS_URL }}/images/delete.svg"
+  chart-bar: "{{ YOURLS_URL }}/images/chart_bar.svg"
+  twitter: "{{ YOURLS_URL }}/images/twitter.svg"
+  facebook: "{{ YOURLS_URL }}/images/facebook.svg"
+  copy: "{{ YOURLS_URL }}/images/copy.svg"
