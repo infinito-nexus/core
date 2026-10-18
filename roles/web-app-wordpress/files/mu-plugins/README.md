@@ -39,7 +39,7 @@ It hooks `http_api_curl` rather than `http_request_args` because the args array 
 
 ## Network origins (infinito-network-origins.php) 🌐
 
-[infinito-network-origins.php](infinito-network-origins.php) answers the `home` and `siteurl` options with the base URL of the network sibling the request's `Host` names, taken from `INFINITO_NETWORK_BASE_URLS` in [env.j2](../../templates/env.j2). The stored options keep the canonical URL, so WP-CLI and requests on any other host read them unchanged. Multisite keeps its per-site URLs and is left alone.
+[infinito-network-origins.php](infinito-network-origins.php) answers the `home` and `siteurl` options with the base URL of the network sibling the request's `Host` names, taken from `INFINITO_NETWORK_BASE_URLS` in [env.j2](../../templates/env.j2). It also rewrites `content_url` and `plugins_url` results on a sibling host to that origin, because WordPress fixes `WP_CONTENT_URL` and `WP_PLUGIN_URL` from `siteurl` before any mu-plugin loads. The stored options keep the canonical URL, so WP-CLI and requests on any other host read them unchanged. Multisite keeps its per-site URLs and is left alone.
 
 ## Deployment 🚚
 

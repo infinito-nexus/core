@@ -25,4 +25,10 @@ if (!defined('ABSPATH')) {
     foreach (['option_home', 'option_siteurl'] as $hook) {
         add_filter($hook, static fn (): string => $origin);
     }
+    $rehost = static fn (string $url): string => isset($origins[strtolower((string) parse_url($url, PHP_URL_HOST))])
+        ? (string) preg_replace('#^https?://[^/]+#i', $origin, $url)
+        : $url;
+    foreach (['content_url', 'plugins_url'] as $hook) {
+        add_filter($hook, $rehost);
+    }
 })();
