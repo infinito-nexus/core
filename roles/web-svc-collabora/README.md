@@ -6,19 +6,19 @@ This Ansible role deploys Collabora Online (CODE) in Docker to enable real-time,
 
 ## Overview
 
-* **Dockerized Collabora CODE:** Uses the official `collabora/code` image.
-* **NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for `/cool/` paths.
-* **Docker Network Management:** Creates an isolated `/28` subnet for Collabora and connects containers securely.
-* **Environment Configuration:** Generates a `.env` file that names the Nextcloud origin as the only allowed WOPI host (`aliasgroup1`) and passes the extra parameters to coolwsd.
+- **Dockerized Collabora CODE:** Uses the official `collabora/code` image.
+- **NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for `/cool/` paths.
+- **Docker Network Management:** Creates an isolated `/28` subnet for Collabora and connects containers securely.
+- **Environment Configuration:** Generates a `.env` file that names the Nextcloud origin as the only allowed WOPI host (`aliasgroup1`) and passes the extra parameters to coolwsd.
 
 ## Features
 
-* Automatic creation of a dedicated Docker network for Collabora.
-* Proxy configuration template for NGINX with long timeouts and WebSocket upgrades.
-* Customizable domain names and ports via Ansible variables.
-* Support for SSL termination at the proxy level.
-* Integration hooks to restart NGINX and recreate Docker Compose stacks on changes.
+- Automatic creation of a dedicated Docker network for Collabora.
+- Proxy configuration template for NGINX with long timeouts and WebSocket upgrades.
+- Customizable domain names and ports via Ansible variables.
+- Support for SSL termination at the proxy level.
+- Integration hooks to restart NGINX and recreate Docker Compose stacks on changes.
 
 ## Further Resources
 
-* [Official Collabora CODE website](https://www.collaboraonline.com/code/)
+- [Official Collabora CODE website](https://www.collaboraonline.com/code/)

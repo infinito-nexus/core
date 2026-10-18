@@ -40,7 +40,7 @@ from cli.administration.deploy.development.inventory.planner import (
 from cli.meta.ci import chunks, query, slots
 from utils.cache.applications import get_variants
 from utils.cache.files import PROJECT_ROOT
-from utils.github.variant import axes, instructions, pools, selection, tor
+from utils.github.variant import axes, instructions, pools, selection, tor, vpn
 from utils.roles.display import display_names
 
 DROPPED = ("priority", "id", "covered", "clone")
@@ -112,6 +112,7 @@ def entries_of(
     lifecycles: str,
     sweep: int,
     tor_mode: str,
+    vpn_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
     architectures: tuple[str, ...] = pools.ARCHITECTURES,
@@ -129,6 +130,7 @@ def entries_of(
         ],
         sweep=sweep,
         tor_mode=tor_mode,
+        vpn_mode=vpn_mode,
         distros=distros,
         filesystems=filesystems,
         architectures=architectures,
@@ -212,6 +214,7 @@ def build_sweep(
     lifecycles: str,
     sweep: int,
     tor_mode: str,
+    vpn_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
     architectures: tuple[str, ...] = pools.ARCHITECTURES,
@@ -226,6 +229,7 @@ def build_sweep(
             lifecycles=lifecycles,
             sweep=sweep,
             tor_mode=tor_mode,
+            vpn_mode=vpn_mode,
             distros=distros,
             filesystems=filesystems,
             architectures=architectures,
@@ -245,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--priority", default="")
     parser.add_argument("--lifecycles", default="")
     parser.add_argument("--tor", default=None)
+    parser.add_argument("--vpn", default=None)
     parser.add_argument("--distros", default="")
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--architectures", default="")
@@ -263,6 +268,7 @@ def main(argv: list[str] | None = None) -> int:
         lifecycles=args.lifecycles,
         sweep=sweep,
         tor_mode=tor.resolve_tor_mode(args.tor),
+        vpn_mode=vpn.resolve_vpn_mode(args.vpn),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
         architectures=pools.resolve_architectures(args.architectures),

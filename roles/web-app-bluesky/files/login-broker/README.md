@@ -55,15 +55,15 @@ broker returns HTTP 401, there is no anonymous fallback by design.
 
 ## Failure modes
 
-* **PDS unreachable:** the broker bubbles up the createAccount or
+- **PDS unreachable:** the broker bubbles up the createAccount or
   createSession failure and the user sees an HTML error page on the
   handoff route. Re-trying the visit after PDS recovery completes
   the handoff.
-* **Encrypted attribute decrypt failure:** indicates a key mismatch
+- **Encrypted attribute decrypt failure:** indicates a key mismatch
   between the SPI and the broker. The broker rejects the request
   with HTTP 500 rather than risk silently re-provisioning a fresh
   PDS account that loses the user's existing posts. Recovery: rotate
   the key and clear the attribute (manual op for now, key rotation
   is in the doc 013 Future Hardening section).
-* **social-app upstream error:** the broker forwards the upstream's
+- **social-app upstream error:** the broker forwards the upstream's
   error response.

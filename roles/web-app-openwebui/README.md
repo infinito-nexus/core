@@ -21,20 +21,20 @@ applications:
 
 ## Features
 
-* Familiar multi-chat interface with quick model switching
-* Supports local backends (Ollama) and OpenAI-compatible APIs
-* Optional **offline mode** for air-gapped environments
-* File/paste input for summaries and extraction (model dependent)
-* Suitable for teams: predictable, private, reproducible
-* With `svc-ai-agent-broker` deployed, lists `hermes` and `openclaw` only to members of the matching `agent-user` group and grants every LiteLLM model to all users; a `svc-ai-litellm` deploy re-grants the gateway models in a running Open WebUI
-* Retrieval, web search and code execution come from platform services (`svc-ai-tika`, `svc-ai-searxng`, `svc-ai-jupyter`, `svc-db-qdrant`) rather than from a third-party API, each switched on per deployment
-* `services.openwebui.embedding_model`, `.image_model`, `.speech_to_text_model` and `.text_to_speech_model` route embeddings, images, speech recognition and speech synthesis through the gateway; an embedding model set here also replaces the sentence-transformer the image otherwise downloads from Hugging Face on first start
+- Familiar multi-chat interface with quick model switching
+- Supports local backends (Ollama) and OpenAI-compatible APIs
+- Optional **offline mode** for air-gapped environments
+- File/paste input for summaries and extraction (model dependent)
+- Suitable for teams: predictable, private, reproducible
+- With `svc-ai-agent-broker` deployed, lists `hermes` and `openclaw` only to members of the matching `agent-user` group and grants every LiteLLM model to all users; a `svc-ai-litellm` deploy re-grants the gateway models in a running Open WebUI
+- Retrieval, web search and code execution come from platform services (`svc-ai-tika`, `svc-ai-searxng`, `svc-ai-jupyter`, `svc-db-qdrant`) rather than from a third-party API, each switched on per deployment
+- `services.openwebui.embedding_model`, `.image_model`, `.speech_to_text_model` and `.text_to_speech_model` route embeddings, images, speech recognition and speech synthesis through the gateway; an embedding model set here also replaces the sentence-transformer the image otherwise downloads from Hugging Face on first start
 
 ## Further Resources
 
-* Open WebUI: [openwebui.com](https://openwebui.com)
-* Ollama: [ollama.com](https://ollama.com)
-* Corporate design review: [screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/VTv2HRQf1bMXVJW4e5WJPY)
+- Open WebUI: [openwebui.com](https://openwebui.com)
+- Ollama: [ollama.com](https://ollama.com)
+- Corporate design review: [screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/VTv2HRQf1bMXVJW4e5WJPY)
 
 ## MCP Client
 

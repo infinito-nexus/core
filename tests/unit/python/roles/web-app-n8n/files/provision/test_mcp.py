@@ -472,5 +472,42 @@ class TestProvisionMcp(unittest.TestCase):
         self.assertIn("2 workflows", str(exit_.exception))
 
 
+class TestRecordsRejectsAShapeItCannotRead(unittest.TestCase):
+    def setUp(self) -> None:
+        self.module = load_script()
+
+    def test_a_list_of_records_passes_through(self) -> None:
+        rows = [{"id": "a"}, {"id": "b"}]
+        self.assertEqual(rows, self.module.records({"data": rows}, "api keys"))
+        self.assertEqual(rows, self.module.records(rows, "api keys"))
+
+    def test_an_absent_payload_is_empty(self) -> None:
+        self.assertEqual([], self.module.records({"data": None}, "api keys"))
+        self.assertEqual([], self.module.records(None, "api keys"))
+
+    def test_a_string_body_names_its_type_and_the_endpoint(self) -> None:
+        with self.assertRaises(SystemExit) as exit_:
+            self.module.records("gateway timeout", "api keys")
+        self.assertIn("api keys", str(exit_.exception))
+        self.assertIn("str", str(exit_.exception))
+
+    def test_a_mapping_that_is_not_the_paged_shape_names_its_keys(self) -> None:
+        with self.assertRaises(SystemExit) as exit_:
+            self.module.records({"data": {"data": [{"id": "a"}]}}, "workflows")
+        self.assertIn("workflows", str(exit_.exception))
+        self.assertIn("data", str(exit_.exception))
+
+    def test_a_list_of_strings_names_the_offending_entries(self) -> None:
+        with self.assertRaises(SystemExit) as exit_:
+            self.module.records({"data": ["a", "b"]}, "credentials")
+        self.assertIn("credentials", str(exit_.exception))
+        self.assertIn("str", str(exit_.exception))
+
+    def test_the_failure_never_carries_the_body(self) -> None:
+        with self.assertRaises(SystemExit) as exit_:
+            self.module.records({"data": "s3cret-token"}, "credentials")
+        self.assertNotIn("s3cret-token", str(exit_.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

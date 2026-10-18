@@ -6,12 +6,12 @@ Fill this in for any change. A specialised template carries extra prompts for it
 area; to open one, append its `template=` parameter to the pull request creation
 URL, for example `?quick_pull=1&template=server.md`.
 
-* [Server](PULL_REQUEST_TEMPLATE/server.md) - `web-*` roles
-* [Workstation](PULL_REQUEST_TEMPLATE/workstation.md) - `dsk-*` roles
-* [System](PULL_REQUEST_TEMPLATE/system.md) - `sys-*`, `svc-*`, `dev-*`, `drv-*`
-* [Pipeline](PULL_REQUEST_TEMPLATE/pipeline.md) - CI/CD
-* [Agents](PULL_REQUEST_TEMPLATE/agents.md) - agent instruction files
-* [Documentation](PULL_REQUEST_TEMPLATE/documentation.md) - docs only
+- [Server](PULL_REQUEST_TEMPLATE/server.md) - `web-*` roles
+- [Workstation](PULL_REQUEST_TEMPLATE/workstation.md) - `dsk-*` roles
+- [System](PULL_REQUEST_TEMPLATE/system.md) - `sys-*`, `svc-*`, `dev-*`, `drv-*`
+- [Pipeline](PULL_REQUEST_TEMPLATE/pipeline.md) - CI/CD
+- [Agents](PULL_REQUEST_TEMPLATE/agents.md) - agent instruction files
+- [Documentation](PULL_REQUEST_TEMPLATE/documentation.md) - docs only
 
 ---
 
@@ -25,8 +25,8 @@ Briefly describe the change and the effect it has.
 
 List what this change touches.
 
-* Primary role(s), module(s) or file(s):
-* Related services, timers, packages, inventories, or workflows:
+- Primary role(s), module(s) or file(s):
+- Related services, timers, packages, inventories, or workflows:
 
 ---
 
@@ -46,9 +46,9 @@ roles:
 
 Select the semantic version impact of this change:
 
-* [ ] **Major** - Breaking change
-* [ ] **Minor** - New backwards-compatible feature
-* [ ] **Patch** - Small improvement or compatible adjustment
+- [ ] **Major** - Breaking change
+- [ ] **Minor** - New backwards-compatible feature
+- [ ] **Patch** - Small improvement or compatible adjustment
 
 ---
 
@@ -58,11 +58,11 @@ Explain what changed and why.
 
 Key points:
 
-* What problem does this solve?
-* How does it integrate with the existing stack?
-* Were variables, defaults, and shared logic kept DRY?
-* Are there migration or compatibility implications?
-* Which alternatives were considered?
+- What problem does this solve?
+- How does it integrate with the existing stack?
+- Were variables, defaults, and shared logic kept DRY?
+- Are there migration or compatibility implications?
+- Which alternatives were considered?
 
 ---
 
@@ -70,9 +70,9 @@ Key points:
 
 Describe how the change was validated locally.
 
-* [ ] Fresh deploy or targeted rerun tested
-* [ ] Idempotency verified
-* [ ] Relevant tests or lints run
+- [ ] Fresh deploy or targeted rerun tested
+- [ ] Idempotency verified
+- [ ] Relevant tests or lints run
 
 ---
 
@@ -80,14 +80,14 @@ Describe how the change was validated locally.
 
 Indicate whether this change has security implications.
 
-* [ ] No relevant security impact
-* [ ] Security impact present
+- [ ] No relevant security impact
+- [ ] Security impact present
 
 If security impact is present, explain:
 
-* Affected auth, TLS, permissions, secrets, services, or exposed surfaces:
-* Risk reduction, new exposure, migration, or compatibility considerations:
-* Security-specific validation performed:
+- Affected auth, TLS, permissions, secrets, services, or exposed surfaces:
+- Risk reduction, new exposure, migration, or compatibility considerations:
+- Security-specific validation performed:
 
 ---
 
@@ -96,15 +96,15 @@ If security impact is present, explain:
 Help reviewers focus on the riskiest parts of this PR.
 For repository-wide contribution and review expectations, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
-* Highest-risk files, roles, or flows:
-* Idempotency, compatibility, or rollout concerns:
-* Specific feedback requested from reviewers:
+- Highest-risk files, roles, or flows:
+- Idempotency, compatibility, or rollout concerns:
+- Specific feedback requested from reviewers:
 
 ---
 
 ## Definition of Done (DoD)
 
-* [ ] The implementation follows the Definition of Done, and the contribution guidelines in [CONTRIBUTING.md](../CONTRIBUTING.md) were considered and applied during implementation.
+- [ ] The implementation follows the Definition of Done, and the contribution guidelines in [CONTRIBUTING.md](../CONTRIBUTING.md) were considered and applied during implementation.
 
 ---
 

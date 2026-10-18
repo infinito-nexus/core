@@ -1,0 +1,32 @@
+---
+applications:
+  svc-net-wireguard:
+    networks:
+      meshes:
+        - name: swarm
+          subnet: "10.100.0.0/24"
+          listen_port: 51820
+        - name: data
+          subnet: "10.100.1.0/24"
+          listen_port: 51821
+  svc-swarm-node:
+    networks:
+      meshes: [swarm]
+  svc-storage-nfs-server:
+    networks:
+      meshes: [data]
+  svc-bkp-volume-2-local:
+    networks:
+      meshes: [data]
+  svc-bkp-secrets-2-local:
+    networks:
+      meshes: [data]
+  svc-bkp-nfs-2-local:
+    networks:
+      meshes: [data]
+  svc-bkp-remote-2-local:
+    networks:
+      meshes: [data]
+  svc-bkp-local-2-device:
+    networks:
+      meshes: [data]

@@ -47,8 +47,14 @@
         loop_var: application_id # nocheck: loop-var-shadow  the item IS the role id, so run_one reads the same value the tested role declares
         label: "{{ application_id }}"
       when: >-
-        not (ASYNC_ENABLED | bool)
-        or not (lookup('role_tests', application_id, 'cli.once', default=false) | bool)
+        (
+          not (ASYNC_ENABLED | bool)
+          or not (lookup('role_tests', application_id, 'cli.once', default=false) | bool)
+        )
+        and (
+          not (lookup('role_tests', application_id, 'cli.controller_only', default=false) | bool)
+          or (ansible_connection | default('')) == 'local'
+        )
 
     - name: ✅ Fail if there were CLI test failures
       ansible.builtin.fail:

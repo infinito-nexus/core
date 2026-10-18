@@ -28,14 +28,15 @@ class Failure(NamedTuple):
     distro: str
     filesystem: str
     architecture: str
+    vpn: bool = False
 
 
 def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
     """Map role -> [:class:`Failure`] for every failed deploy job.
 
-    A deploy job is titled ``<mode glyph><tor glyph><distro glyph><filesystem
-    glyph><architecture glyph><display name> <variant>`` with an optional
-    trailing ⭐ for a
+    A deploy job is titled ``<mode glyph><tor glyph><vpn glyph><distro
+    glyph><filesystem glyph><architecture glyph><display name> <variant>``
+    with an optional trailing ⭐ for a
     priority row. The middle is resolved through the display-name codec rather
     than matched as a raw role id: job names carry display names, so a regex
     over ``web-app-…`` silently matched nothing and every failure went
@@ -60,6 +61,7 @@ def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
                 label.distro,
                 label.filesystem,
                 label.architecture,
+                label.vpn,
             )
         )
     return out
@@ -80,6 +82,7 @@ def artifact_name(role: str, failure: Failure) -> str:
         failure.distro,
         failure.filesystem,
         failure.architecture,
+        failure.vpn,
     )
 
 

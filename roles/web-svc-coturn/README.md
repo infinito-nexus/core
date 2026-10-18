@@ -12,38 +12,38 @@ Coturn solves this by acting as a **relay server** and/or **discovery service** 
 
 More background:  
 
-* Wikipedia: [Traversal Using Relays around NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)  
-* Wikipedia: [Session Traversal Utilities for NAT](https://en.wikipedia.org/wiki/STUN)  
-* Official Coturn Docs: [https://github.com/coturn/coturn/wiki](https://github.com/coturn/coturn/wiki)
+- Wikipedia: [Traversal Using Relays around NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)  
+- Wikipedia: [Session Traversal Utilities for NAT](https://en.wikipedia.org/wiki/STUN)  
+- Official Coturn Docs: [https://github.com/coturn/coturn/wiki](https://github.com/coturn/coturn/wiki)
 
 ## Overview
 
 This role deploys Coturn via Docker Compose using the `sys-stk-semi-stateless` stack.  
 It automatically configures:
 
-* TURN and STUN listening ports
-* Relay port ranges
-* TLS certificates (via Let’s Encrypt integration)
-* Long-term credentials and/or REST API secrets
+- TURN and STUN listening ports
+- Relay port ranges
+- TLS certificates (via Let’s Encrypt integration)
+- Long-term credentials and/or REST API secrets
 
 Typical use cases:
 
-* Nextcloud Talk
-* Jitsi
-* BigBlueButton
-* Any WebRTC-based application
+- Nextcloud Talk
+- Jitsi
+- BigBlueButton
+- Any WebRTC-based application
 
 ## Features
 
-* Stateless container deployment (no database or persistent volume required)  
-* Automatic TLS handling via `sys-stk-front-base`  
-* TURN and STUN support over TCP and UDP  
-* Configurable relay port ranges for scaling  
-* Integration into Infinito.Nexus inventory/variable system
+- Stateless container deployment (no database or persistent volume required)  
+- Automatic TLS handling via `sys-stk-front-base`  
+- TURN and STUN support over TCP and UDP  
+- Configurable relay port ranges for scaling  
+- Integration into Infinito.Nexus inventory/variable system
 
 ## Further Resources
 
-* Coturn Project: [github.com/coturn/coturn](https://github.com/coturn/coturn)  
-* Coturn Wiki: [github.com/coturn/coturn/wiki](https://github.com/coturn/coturn/wiki)  
-* TURN on Wikipedia: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)  
-* STUN on Wikipedia: [en.wikipedia.org/wiki/STUN](https://en.wikipedia.org/wiki/STUN)
+- Coturn Project: [github.com/coturn/coturn](https://github.com/coturn/coturn)  
+- Coturn Wiki: [github.com/coturn/coturn/wiki](https://github.com/coturn/coturn/wiki)  
+- TURN on Wikipedia: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)  
+- STUN on Wikipedia: [en.wikipedia.org/wiki/STUN](https://en.wikipedia.org/wiki/STUN)

@@ -12,19 +12,19 @@ The role builds a minimal custom image on top of the official Confluence image, 
 
 ## Features
 
-* **Fully Dockerized:** Compose stack with a dedicated data volume (`confluence_data`) and a slim overlay image for future add-ons.
-* **Reverse-Proxy Ready:** Sets `ATL_PROXY_NAME/PORT/SCHEME/SECURE` so Confluence generates correct external URLs behind HTTPS.
-* **OIDC SSO (Optional):** Pre-templated vars for issuer, client, scopes, JWKS; compatible with Atlassian DC SSO/OIDC marketplace apps.
-* **Central Database:** PostgreSQL integration (local or central DB) with bootstrap credentials from role vars.
-* **JVM Auto-Tuning:** `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` are 35 % and 70 % of the service `mem_limit`.
-* **Health Checks:** Curl-based container healthcheck for early failure detection.
-* **CSP & Canonical Domains:** Hooks into platform CSP/SSL/domain management to keep policies strict and URLs stable.
-* **Backup Friendly:** Data isolated under `{{ CONFLUENCE_HOME }}`.
+- **Fully Dockerized:** Compose stack with a dedicated data volume (`confluence_data`) and a slim overlay image for future add-ons.
+- **Reverse-Proxy Ready:** Sets `ATL_PROXY_NAME/PORT/SCHEME/SECURE` so Confluence generates correct external URLs behind HTTPS.
+- **OIDC SSO (Optional):** Pre-templated vars for issuer, client, scopes, JWKS; compatible with Atlassian DC SSO/OIDC marketplace apps.
+- **Central Database:** PostgreSQL integration (local or central DB) with bootstrap credentials from role vars.
+- **JVM Auto-Tuning:** `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` are 35 % and 70 % of the service `mem_limit`.
+- **Health Checks:** Curl-based container healthcheck for early failure detection.
+- **CSP & Canonical Domains:** Hooks into platform CSP/SSL/domain management to keep policies strict and URLs stable.
+- **Backup Friendly:** Data isolated under `{{ CONFLUENCE_HOME }}`.
 
 ## Further Resources
 
-* Product page: [Atlassian Confluence](https://www.atlassian.com/software/confluence)
-* Docker Hub (official image): [atlassian/confluence](https://hub.docker.com/r/atlassian/confluence)
+- Product page: [Atlassian Confluence](https://www.atlassian.com/software/confluence)
+- Docker Hub (official image): [atlassian/confluence](https://hub.docker.com/r/atlassian/confluence)
 
 ## Persona contract opt-outs
 

@@ -8,6 +8,7 @@ cache:
     argos-net.com:
       repo: raw-argos-net
       read_timeout: "1800s"
+meshes: []
 local:
   subnet: 192.168.69.0/24
 overlay:

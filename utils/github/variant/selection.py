@@ -2,20 +2,20 @@
 
 A selection token names a role and MAY narrow the axes that role's rows would
 otherwise be assigned: which variants run, which deploy mode, whether the row
-goes behind the node onion, which distribution it deploys on, which
-filesystem its docker data root runs on and which CPU architecture it lands
-on. What a token leaves open stays open, exactly as an unpinned run leaves it:
-the priority line covers every mode and onion state the row can take, and the
-sweep rotation picks the distro, the filesystem and the architecture on both
-lines.
+goes behind the node onion, whether it runs over the WireGuard mesh, which
+distribution it deploys on, which filesystem its docker data root runs on and
+which CPU architecture it lands on. What a token leaves open stays open,
+exactly as an unpinned run leaves it: the priority line covers every mode and
+onion state the row can take, and the sweep rotation picks the distro, the
+filesystem and the architecture on both lines.
 
 Two spellings are accepted, so an operator can either type the token or paste
 back the job title of the run they want repeated:
 
 * the job label CI emits (``🐳🧅🌀🦓🦾网络应用·Nextcloud#2``) -- the glyphs carry
-  mode, onion state, distro, filesystem and architecture, the ``#`` shard the
-  variants;
-* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64``).
+  mode, onion state, mesh state, distro, filesystem and architecture, the
+  ``#`` shard the variants;
+* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&vpn``).
 
 The onion state spells out as ``+tor``/``+clearnet`` rather than as a ``-tor``
 suffix: a role id may itself end in ``-tor`` (``svc-net-tor``), and a suffix
@@ -50,7 +50,11 @@ FILESYSTEM_SEPARATOR = "/"
 
 ARCHITECTURE_SEPARATOR = ":"
 
+VPN_SEPARATOR = "&"
+
 TOR_WORDS = {"tor": True, "clearnet": False}
+
+VPN_WORDS = {"vpn": True, "direct": False}
 
 _STRIPPED_GLYPHS = ("priority", "test_host")
 
@@ -63,6 +67,7 @@ _SEPARATORS = (
     + DISTRO_SEPARATOR
     + FILESYSTEM_SEPARATOR
     + ARCHITECTURE_SEPARATOR
+    + VPN_SEPARATOR
 )
 
 _TOKEN = re.compile(
@@ -72,7 +77,8 @@ _TOKEN = re.compile(
     r"(?:" + re.escape(TOR_SEPARATOR) + r"(?P<tor>[a-z]+))?"
     r"(?:" + re.escape(DISTRO_SEPARATOR) + r"(?P<distro>[a-z0-9]+))?"
     r"(?:" + re.escape(FILESYSTEM_SEPARATOR) + r"(?P<filesystem>[a-z0-9]+))?"
-    r"(?:" + re.escape(ARCHITECTURE_SEPARATOR) + r"(?P<architecture>[a-z0-9]+))?$"
+    r"(?:" + re.escape(ARCHITECTURE_SEPARATOR) + r"(?P<architecture>[a-z0-9]+))?"
+    r"(?:" + re.escape(VPN_SEPARATOR) + r"(?P<vpn>[a-z]+))?$"
 )
 
 _SYNTAX = (
@@ -82,6 +88,7 @@ _SYNTAX = (
     f"[{DISTRO_SEPARATOR}<{'|'.join(DISTROS)}>]"
     f"[{FILESYSTEM_SEPARATOR}<{'|'.join(FILESYSTEMS)}>]"
     f"[{ARCHITECTURE_SEPARATOR}<{'|'.join(ARCHITECTURES)}>]"
+    f"[{VPN_SEPARATOR}<{'|'.join(VPN_WORDS)}>]"
 )
 
 
@@ -89,8 +96,8 @@ class Pin(NamedTuple):
     """One selection token, taken apart.
 
     ``variants`` empty and ``mode``/``tor``/``distro``/``filesystem``/
-    ``architecture`` ``None`` each mean "not pinned": that axis keeps whatever
-    the line it stands in would assign.
+    ``architecture``/``vpn`` ``None`` each mean "not pinned": that axis keeps
+    whatever the line it stands in would assign.
     """
 
     app: str
@@ -100,6 +107,7 @@ class Pin(NamedTuple):
     distro: str | None = None
     filesystem: str | None = None
     architecture: str | None = None
+    vpn: bool | None = None
 
     @property
     def pinned(self) -> bool:
@@ -112,15 +120,25 @@ class Pin(NamedTuple):
                 self.distro,
                 self.filesystem,
                 self.architecture,
+                self.vpn,
             )
         )
 
     @property
     def axes(
         self,
-    ) -> tuple[str | None, bool | None, str | None, str | None, str | None]:
+    ) -> tuple[
+        str | None, bool | None, str | None, str | None, str | None, bool | None
+    ]:
         """What the token narrows, as the key two tokens are equal under."""
-        return (self.mode, self.tor, self.distro, self.filesystem, self.architecture)
+        return (
+            self.mode,
+            self.tor,
+            self.distro,
+            self.filesystem,
+            self.architecture,
+            self.vpn,
+        )
 
 
 def describe(pin: Pin) -> str:
@@ -138,6 +156,11 @@ def describe(pin: Pin) -> str:
         + (f"{DISTRO_SEPARATOR}{pin.distro}" if pin.distro else "")
         + (f"{FILESYSTEM_SEPARATOR}{pin.filesystem}" if pin.filesystem else "")
         + (f"{ARCHITECTURE_SEPARATOR}{pin.architecture}" if pin.architecture else "")
+        + (
+            f"{VPN_SEPARATOR}{'vpn' if pin.vpn else 'direct'}"
+            if pin.vpn is not None
+            else ""
+        )
     )
 
 
@@ -153,13 +176,16 @@ def _word_glyph(text: str, words: Iterable[str]) -> tuple[str, str | None]:
 
 def _glyphs(
     text: str,
-) -> tuple[str, str | None, bool | None, str | None, str | None, str | None]:
+) -> tuple[
+    str, str | None, bool | None, str | None, str | None, str | None, bool | None
+]:
     """Take the label glyphs off a pasted job title and read them as axes."""
     text, mode = _word_glyph(text, MODES)
     text, onion = _word_glyph(text, TOR_WORDS)
     text, distro = _word_glyph(text, DISTROS)
     text, filesystem = _word_glyph(text, FILESYSTEMS)
     text, architecture = _word_glyph(text, ARCHITECTURES)
+    text, mesh = _word_glyph(text, VPN_WORDS)
     for word in _STRIPPED_GLYPHS:
         text = text.replace(to_emoji(word), "")
     return (
@@ -169,6 +195,7 @@ def _glyphs(
         distro,
         filesystem,
         architecture,
+        None if mesh is None else VPN_WORDS[mesh],
     )
 
 
@@ -194,9 +221,15 @@ def parse(token: str) -> Pin:
             that does not exist. A typo must abort the run rather than narrow
             it to nothing.
     """
-    text, glyph_mode, glyph_tor, glyph_distro, glyph_fs, glyph_arch = _glyphs(
-        _VARIATION.sub("", token.strip())
-    )
+    (
+        text,
+        glyph_mode,
+        glyph_tor,
+        glyph_distro,
+        glyph_fs,
+        glyph_arch,
+        glyph_vpn,
+    ) = _glyphs(_VARIATION.sub("", token.strip()))
     match = _TOKEN.match(text)
     if match is None:
         raise SystemExit(f"unparsable selection token {token!r}; expected {_SYNTAX}")
@@ -207,6 +240,7 @@ def parse(token: str) -> Pin:
         ("distro", "distro", DISTROS),
         ("filesystem", "filesystem", FILESYSTEMS),
         ("architecture", "architecture", ARCHITECTURES),
+        ("vpn", "mesh state", VPN_WORDS),
     ):
         value = match.group(group)
         if value is not None and value not in declared:
@@ -218,6 +252,7 @@ def parse(token: str) -> Pin:
     name = match.group("name")
     variants = match.group("variants")
     word = match.group("tor")
+    mesh_word = match.group("vpn")
     return Pin(
         display_names().decode(name) or name,
         tuple(int(index) for index in variants.split(",")) if variants else (),
@@ -226,6 +261,7 @@ def parse(token: str) -> Pin:
         _agree(match.group("distro"), glyph_distro, token, "distro"),
         _agree(match.group("filesystem"), glyph_fs, token, "filesystem"),
         _agree(match.group("architecture"), glyph_arch, token, "architecture"),
+        _agree(VPN_WORDS[mesh_word] if mesh_word else None, glyph_vpn, token, "mesh"),
     )
 
 
@@ -251,7 +287,10 @@ def covers(pin: Pin, entry: Mapping[str, Any]) -> bool:
     ):
         if value is not None and entry.get(key) != value:
             return False
-    return pin.tor is None or (entry.get("tor") == "true") == pin.tor
+    for pinned, key in ((pin.tor, "tor"), (pin.vpn, "vpn")):
+        if pinned is not None and (entry.get(key) == "true") != pinned:
+            return False
+    return True
 
 
 def parse_list(tokens: str) -> list[Pin]:
@@ -334,6 +373,7 @@ def apply(
                     "pin_distro": pin.distro,
                     "pin_filesystem": pin.filesystem,
                     "pin_architecture": pin.architecture,
+                    "pin_vpn": pin.vpn,
                 }
             )
     for index, pin in enumerate(pins):

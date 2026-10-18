@@ -1,32 +1,28 @@
-"""Swarm variant-matrix round orchestrator.
-
-Mirrors the compose matrix deploy (``cli.administration.deploy.development.deploy``)
-for the swarm test cluster: for each variant round of the primary app it
-provisions a per-round inventory (baking that round's ``meta/variants.yml``
-overlay into ``host_vars`` so the deploy sees the round's config, e.g. the
-keycloak totp-off variant), extends it with the swarm topology, writes runtime
-extras, and deploys via ``cli.administration.deploy.swarm`` (the Playwright e2e
-runs in-deploy). Each round mirrors the compose ``--full-cycle``: an initial
-deploy then an async update pass, each followed by a convergence + reachability
-wait; on the first round the backup + restore DR drill runs between them. Prior
-rounds' stacks are purged between rounds.
-
-Runs on the cluster host (the test-deploy-swarm workflow's single orchestrator
-step) and reaches the nodes through the existing ``scripts/tests/deploy/swarm``
-helpers, which it drives per round via environment variables.
-"""
+"""Swarm variant-matrix round orchestrator."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import subprocess
 import sys
 import time
 
+from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.storage.constrained import host_storage_constrained
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
+from utils.tests.swarm.extend_inventory import mesh_enabled
+from utils.tests.swarm.mesh import (
+    bootstrap_mesh,
+    converge_mesh,
+    lab_sudo_without_prompt,
+    layout_applications,
+    mesh_controller,
+    switch_to_mesh_transport,
+    write_mesh,
+)
 from utils.tests.swarm.watchdog import DISK_FLOOR_MB, run_watched
 from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 
@@ -110,18 +106,7 @@ def _write_extras(*, extras_path: str) -> int:
 def _reset_credentials(
     *, app_id: str, inv_dir: str, round_variants: dict[str, int]
 ) -> int:
-    """Regenerate the round's credentials so the update pass has to carry them.
-
-    `administrator` stays exempt: its password is `ansible_become_password`,
-    and rotating it would lock the deploy out of the nodes it manages.
-
-    The credential scope is `derive_includes`, the same source
-    `02_provision_inventory.sh` feeds provision's `--include`, so the gate
-    rotates the ids the round provisioned. A matrix host_vars file also holds
-    an application block per mirror artefact, and rotating those costs one
-    subprocess each for credentials provision never generated. Every declared
-    user password still rotates, so PASS 2 has to carry all of them.
-    """
+    """Regenerate the round's credentials so the update pass has to carry them."""
     return _run(
         [
             "python3",
@@ -138,6 +123,8 @@ def _reset_credentials(
             "--app-variants",
             json.dumps(round_variants, sort_keys=True),
             "--mirror",
+            "--mirror-keep",
+            "applications.svc-net-wireguard",
             "--backup",
             "--except",
             "administrator",
@@ -156,6 +143,11 @@ def _deploy(
     total: int,
     update_pass: bool = False,
 ) -> int:
+    """Run one deploy of the round.
+
+    Args:
+        update_pass: run it as the async update pass.
+    """
     env = os.environ.copy()
     env["APP_ID"] = app_id
     cmd = [
@@ -229,17 +221,49 @@ def _converge_and_verify(*, app_id: str) -> int:
     )
 
 
-def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int:
+def _drill_env(*, app_id: str, inv_dir: str, extras_path: str) -> dict[str, str]:
     env = os.environ.copy()
     env["APP_ID"] = app_id
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["DRILL_EXTRAS"] = extras_path
     env["DISK_FLOOR_MB"] = str(DISK_FLOOR_MB)
-    return _run(
+    return env
+
+
+def _drill_is_coming(*, app_id: str, inv_dir: str, extras_path: str) -> bool:
+    env = _drill_env(app_id=app_id, inv_dir=inv_dir, extras_path=extras_path)
+    env["DRILL_PROBE"] = "true"
+    probe = subprocess.run(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "base.sh")],
         env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if "DRILL=no" in probe.stdout:
+        return False
+    if "DRILL=yes" not in probe.stdout:
+        print(f"=== drill probe gave no verdict for {app_id}; assuming it drills ===")
+    return True
+
+
+def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int:
+    return _run(
+        ["bash", str(_SWARM_SCRIPTS / "backup" / "base.sh")],
+        env=_drill_env(app_id=app_id, inv_dir=inv_dir, extras_path=extras_path),
         label="backup + restore DR drill",
     )
+
+
+def _backup_phase(
+    *, app_id: str, inv_dir: str, deploy_extras: str, drill_extras: str
+) -> int:
+    rc = _deploy_backup_host(app_id=app_id, inv_dir=inv_dir, extras_path=deploy_extras)
+    if rc == 0:
+        rc = _backup_restore_drill(
+            app_id=app_id, inv_dir=inv_dir, extras_path=drill_extras
+        )
+    return rc
 
 
 def _verify_recovered_marker(*, app_id: str) -> int:
@@ -250,6 +274,32 @@ def _verify_recovered_marker(*, app_id: str) -> int:
         env=env,
         label="verify recovered marker (post update pass)",
     )
+
+
+def _mesh_prologue(*, app_id: str, inv_dir: str, round_variants: dict[str, int]) -> int:
+    """Put every node and the controller on the mesh, then move the transport.
+
+    Args:
+        app_id: primary application of the round.
+        inv_dir: inventory directory of the round.
+        round_variants: the round's ``{app_id: variant_index}`` map.
+    """
+    rc = bootstrap_mesh(inv_dir=inv_dir)
+    if rc == 0:
+        rc = lab_sudo_without_prompt(inv_dir=inv_dir)
+    if rc == 0:
+        rc = _reset_credentials(
+            app_id=app_id, inv_dir=inv_dir, round_variants=round_variants
+        )
+    if rc == 0:
+        rc = write_mesh(inv_dir=inv_dir, rotate=True)
+    if rc == 0:
+        rc = converge_mesh(inv_dir=inv_dir)
+    if rc == 0:
+        rc = mesh_controller(inv_dir=inv_dir)
+    if rc == 0:
+        rc = switch_to_mesh_transport(inv_dir=inv_dir)
+    return rc
 
 
 def _purge(*, purge_set: tuple[str, ...]) -> int:
@@ -323,6 +373,7 @@ def main(argv: list[str] | None = None) -> int:
 
     total = len(plan)
     rc = 0
+    meshed = mesh_enabled()
     for plan_index, (
         round_index,
         inv_dir,
@@ -357,9 +408,12 @@ def main(argv: list[str] | None = None) -> int:
             flush=True,
         )
         pubkeys = ensure_swarm_keypairs()
+        applications = backup_applications_overrides(providers)
+        if meshed:
+            applications = merge_with_defaults(applications, layout_applications())
         vars_payload = _bake_overrides(
             base_overrides={
-                "applications": backup_applications_overrides(providers),
+                "applications": applications,
                 "users": {
                     name: {"authorized_keys": [key]} for name, key in pubkeys.items()
                 },
@@ -370,6 +424,7 @@ def main(argv: list[str] | None = None) -> int:
             variant_payloads=variant_payloads,
         )
         extras_path = f"{inv_root}/swarm-nfs-extras.yml"
+        deploy_extras = f"{inv_root}/swarm-nfs-extras.deploy.yml"
 
         rc = _provision(
             app_id=app_id,
@@ -384,40 +439,47 @@ def main(argv: list[str] | None = None) -> int:
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
         if rc == 0:
+            rc = write_mesh(inv_dir=inv_root)
+        if rc == 0:
             rc = _write_extras(extras_path=extras_path)
-        if rc == 0:
-            rc = _deploy(
-                app_id=app_id,
-                inv_dir=inv_root,
-                extras_path=f"{inv_root}/swarm-nfs-extras.deploy.yml",
-                round_index=round_index,
-                total=total,
-            )
-        if rc == 0:
-            rc = _converge_and_verify(app_id=app_id)
-        if rc == 0 and round_index == 0:
-            rc = _deploy_backup_host(
-                app_id=app_id,
-                inv_dir=inv_root,
-                extras_path=f"{inv_root}/swarm-nfs-extras.deploy.yml",
-            )
-        if rc == 0 and round_index == 0:
-            rc = _backup_restore_drill(
+
+        deploy_args = {
+            "app_id": app_id,
+            "inv_dir": inv_root,
+            "extras_path": deploy_extras,
+            "round_index": round_index,
+            "total": total,
+        }
+        drills = (
+            rc == 0
+            and round_index == 0
+            and _drill_is_coming(
                 app_id=app_id, inv_dir=inv_root, extras_path=extras_path
             )
+        )
+        if rc == 0 and meshed:
+            rc = _mesh_prologue(
+                app_id=app_id,
+                inv_dir=inv_root,
+                round_variants=round_variants,
+            )
         if rc == 0:
+            rc = _deploy(**deploy_args)
+        if rc == 0:
+            rc = _converge_and_verify(app_id=app_id)
+        if rc == 0 and drills:
+            rc = _backup_phase(
+                app_id=app_id,
+                inv_dir=inv_root,
+                deploy_extras=deploy_extras,
+                drill_extras=extras_path,
+            )
+        if rc == 0 and not meshed:
             rc = _reset_credentials(
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
         if rc == 0:
-            rc = _deploy(
-                app_id=app_id,
-                inv_dir=inv_root,
-                extras_path=f"{inv_root}/swarm-nfs-extras.deploy.yml",
-                round_index=round_index,
-                total=total,
-                update_pass=True,
-            )
+            rc = _deploy(**deploy_args, update_pass=True)
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
         if rc == 0 and round_index == 0:

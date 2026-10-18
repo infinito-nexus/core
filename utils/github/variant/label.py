@@ -15,7 +15,10 @@ if TYPE_CHECKING:
 LOCAL_GLYPH = to_emoji("test_host")
 
 _AXIS_GLYPHS = (
-    "".join(to_emoji(word) for word in ("tor", "clearnet", "priority", "instructions"))
+    "".join(
+        to_emoji(word)
+        for word in ("tor", "clearnet", "vpn", "direct", "priority", "instructions")
+    )
     + LOCAL_GLYPH
 )
 
@@ -29,6 +32,8 @@ LABEL_RE = re.compile(
     r"^.*(?P<mode>" + _alternation(MODES) + r")️?"
     r"(?P<tor>" + re.escape(to_emoji("tor")) + r")?"
     r"(?:" + re.escape(to_emoji("clearnet")) + r"|" + re.escape(LOCAL_GLYPH) + r")?️?"
+    r"(?P<vpn>" + re.escape(to_emoji("vpn")) + r")?️?"
+    r"(?:" + re.escape(to_emoji("direct")) + r")?️?"
     r"(?P<distro>" + _alternation(DISTROS) + r")?️?"
     r"(?P<filesystem>" + _alternation(FILESYSTEMS) + r")?️?"
     r"(?P<architecture>" + _alternation(ARCHITECTURES) + r")?️?"
@@ -37,6 +42,10 @@ LABEL_RE = re.compile(
     r"(?:" + re.escape(VARIANT_SEPARATOR) + r"(?P<variant>[0-9,]+))?"
     r"[" + re.escape(_AXIS_GLYPHS) + r"️\s]*$"
 )
+"""The leading ``.*`` is greedy on purpose: it anchors on the LAST mode glyph.
+A reusable-workflow caller path can carry a mode glyph of its own (``z / 💻
+Host / 💻 sys-front-proxy``), and matching the first one would swallow the
+caller name into the role."""
 
 
 class Label(NamedTuple):
@@ -49,6 +58,7 @@ class Label(NamedTuple):
     distro: str = ""
     filesystem: str = ""
     architecture: str = ""
+    vpn: bool = False
 
 
 def parse_label(name: str) -> Label | None:
@@ -67,10 +77,11 @@ def parse_label(name: str) -> Label | None:
         ``None`` when the title carries no deploy row. ``name`` is the display
         name, returned unresolved -- callers decode it through
         ``utils.roles.display``, which is what knows the role tree. ``tor``,
-        ``distro`` and ``filesystem`` matter because a priority role runs the
-        same mode and variant several times over, and only the glyphs tell
-        those jobs apart -- a retrigger built from the title alone would
-        otherwise replay a different combination than the one that failed.
+        ``distro``, ``filesystem``, ``architecture`` and ``vpn`` matter
+        because a priority role runs the same mode and variant several times
+        over, and only the glyphs tell those jobs apart -- a retrigger built
+        from the title alone would otherwise replay a different combination
+        than the one that failed.
     """
     match = LABEL_RE.match(name.strip())
     if match is None:
@@ -83,6 +94,7 @@ def parse_label(name: str) -> Label | None:
         to_word(match.group("distro") or ""),
         to_word(match.group("filesystem") or ""),
         to_word(match.group("architecture") or ""),
+        match.group("vpn") is not None,
     )
 
 
@@ -94,6 +106,7 @@ def artifact_slug(
     distro: str = "",
     filesystem: str = "",
     architecture: str = "",
+    vpn: bool = False,
 ) -> str:
     """What identifies one deploy job's artifacts.
 
@@ -105,5 +118,12 @@ def artifact_slug(
     name one row on two distros (``role#0%debian role#0%fedora``), and those
     are two deploys of one mode, variant and onion state.
     """
-    shards = (variant, "tor" if tor else "", distro, filesystem, architecture)
+    shards = (
+        variant,
+        "tor" if tor else "",
+        "vpn" if vpn else "",
+        distro,
+        filesystem,
+        architecture,
+    )
     return f"{mode}-{app}" + "".join(f"-{shard}" for shard in shards if shard)

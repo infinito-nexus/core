@@ -13,18 +13,18 @@ With automated setup, update handling, variable management, and plugin-based aut
 
 ## Features
 
-* **Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation.
-* **Automated Setup & Maintenance:** Installs, migrates, and configures Shopware automatically.
-* **Extensible Architecture:** Optional Redis, OpenSearch, and plugin-based IAM integrations.
-* **Centralized Database Access:** Connects seamlessly to the shared MariaDB service.
-* **Integrated Configuration:** Environment and Docker Compose variables managed automatically.
+- **Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation.
+- **Automated Setup & Maintenance:** Installs, migrates, and configures Shopware automatically.
+- **Extensible Architecture:** Optional Redis, OpenSearch, and plugin-based IAM integrations.
+- **Centralized Database Access:** Connects seamlessly to the shared MariaDB service.
+- **Integrated Configuration:** Environment and Docker Compose variables managed automatically.
 
 ## Further Resources
 
-* [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->
-* [Shopware Developer Documentation](https://developer.shopware.com/)
-* [Shopware Store (Plugins)](https://store.shopware.com/en/)
-* [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/TLzWb6b51sQTvihCdbdXbT)
+- [Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->
+- [Shopware Developer Documentation](https://developer.shopware.com/)
+- [Shopware Store (Plugins)](https://store.shopware.com/en/)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/TLzWb6b51sQTvihCdbdXbT)
 
 ## Persona contract opt-outs
 
