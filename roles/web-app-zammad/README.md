@@ -94,7 +94,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **LDAP federation:** When `svc-db-openldap` is present, Zammad authenticates and provisions accounts against the central LDAP.
 - **Mail-to-ticket:** When `web-app-stalwart` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
 - **Server-name alias:** `zammad.helpdesk.{{ DOMAIN_PRIMARY }}` is a true vhost alias of `helpdesk.{{ DOMAIN_PRIMARY }}` (not a 301 redirect).
-- **Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists.
+- **Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists. Its disk watermarks follow the disk size (85 / 90 / 95 % used, requiring at most 200 / 150 / 100 GB free, `services.search.watermark`); the CI and development variants lower those caps to 10 / 5 / 2 GB.
 - **Search index per Elasticsearch major:** The index lives in a directory named after the Elasticsearch major inside the `zammad_search` volume. A new major starts on an empty directory and `zammad-init` rebuilds the index from the database on the same deploy.
 - **Wizard bypass:** First deploy seeds `auto_wizard.json` so no manual setup UI step is required.
 

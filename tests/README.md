@@ -10,5 +10,6 @@ All automated tests for Infinito.Nexus live here.
 | `e2e/` | End-to-end Playwright tests | [playwright.md](../docs/contributing/actions/testing/playwright.md) |
 | `regression/` | Regression guard rules | [regression.md](../docs/contributing/actions/testing/regression.md) |
 | `lint/` | Structural lint checks | [lint.md](../docs/contributing/actions/testing/lint.md) |
+| `fuzz/` | Coverage-guided atheris harnesses, run weekly in CI, excluded from `make test` | [workflows.md](../docs/contributing/tools/github/actions/workflows.md) |
 
 Run each suite via the `make` targets documented in the linked guides.
