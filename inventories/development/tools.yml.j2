@@ -40,6 +40,18 @@ applications:
     services:
       ollama:
         cpus: "{{ lookup('resource', 'host_cpus') }}"
+        min_storage: 4600MB
+        preload_models:
+          - alias: qwen2.5:3b
+            context: 32768
+            name: qwen2.5-3b-instruct
+            repo: lmstudio-community/Qwen2.5-3B-Instruct-GGUF
+            url: https://huggingface.co/lmstudio-community/Qwen2.5-3B-Instruct-GGUF/resolve/main/Qwen2.5-3B-Instruct-Q4_K_M.gguf
+            source: https://huggingface.co/lmstudio-community/Qwen2.5-3B-Instruct-GGUF
+            quant: q4_k_m
+            file: Qwen2.5-3B-Instruct-Q4_K_M.gguf
+            sha256: "d44e2c5d1ec3cae1d5cf6a744bee528e46c65a1e66e741fa92730967e7d625bb"
+            bytes: 1929903008
   svc-ai-s1:
     secrets:
       credentials:

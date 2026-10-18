@@ -30,6 +30,14 @@ template already carries. Never reuse it anywhere a real caller could reach.
 and under the same standing. A deployment hands each consumer a virtual key
 instead, which is what the role's secret description asks for; the oracle
 judge is not a deployed consumer and has no vault to read one from.
+
+The lane pins its own model in the template, rather than taking the
+repository's ``AI_LOCAL_MODELS`` default: the oracle needs a judge that can
+tell a faithful rendering from an unrelated text, a demand no deployment
+makes. :data:`LANE_MODEL_ALIAS` repeats that one name here because the
+readiness probe compares it against what the gateway actually serves, and
+the rendered inventory is written by the deploy this probe runs before. The
+two are held together by a test that renders the template.
 """
 
 from __future__ import annotations
@@ -54,7 +62,7 @@ LITELLM_ROLE = "svc-ai-litellm"
 OLLAMA_ROLE = "svc-ai-ollama"
 GATEWAY_ROLE = "web-svc-translate"
 LANE_SERVICE = "tools"
-LOCAL_MODELS_FILE = Path("group_vars") / "all" / "16_ai.yml"
+LANE_MODEL_ALIAS = "qwen2.5:3b"
 PROBE_TIMEOUT_SECONDS = 10
 
 
@@ -232,7 +240,7 @@ def _litellm_serves_the_named_model(root: Path) -> bool:
     """
     import json
 
-    alias = _named_model(root)
+    alias = _named_model()
     body = _answers(f"{host_url(root, LITELLM_ROLE, 'litellm')}/models", LITELLM_KEY)
     if body is None or not alias:
         return False
@@ -243,15 +251,9 @@ def _litellm_serves_the_named_model(root: Path) -> bool:
     return alias in served
 
 
-def _named_model(root: Path) -> str:
-    """Return the alias the lane's model server is expected to serve.
-
-    Args:
-        root: repository root.
-    """
-    models = load_yaml(root / LOCAL_MODELS_FILE).get("AI_LOCAL_MODELS") or []
-    first = models[0] if models else {}
-    return str(first.get("alias") or "") if isinstance(first, dict) else ""
+def _named_model() -> str:
+    """Return the alias the lane's model server is expected to serve."""
+    return LANE_MODEL_ALIAS
 
 
 def _gateway_covers_the_catalogs(root: Path) -> bool:
