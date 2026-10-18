@@ -15,6 +15,9 @@ const { resolveTimeout } = require("./timeouts");
 
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const logoEnabled = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_ENABLED || "") === "true";
+const odooMajor = Number.parseInt(decodeDotenvQuotedValue(process.env.ODOO_VERSION || ""), 10);
+const rendersSearchPanelHeaderClass = odooMajor >= 20;
+const rendersDangerConfirmButton = odooMajor >= 20;
 
 const MODES = ["light", "dark"];
 const THEME_URL = "/_custom/infinito/design";
@@ -422,13 +425,15 @@ exports.register = function (shared) {
       };
       const link = (await tokenValue(page, "--design-link", "color")).match(/\d+/g).slice(0, 3).join(", ");
       const header = `${ACTION} .o_search_panel_category_value_header:visible`;
-      await openBackend(page, "apps", header);
-      const panel = await ringOf(header, "search panel entry");
-      expect(panel, "the search panel entry draws a focus ring").not.toBe("none");
-      expect(panel, "the inner ring of the search panel entry takes --design-primary").toContain(
-        await tokenValue(page, "--design-primary", "color"),
-      );
-      expect(panel, "the outer ring of the search panel entry takes --design-link at half opacity").toContain(`rgba(${link}, 0.5)`);
+      await openBackend(page, "apps", rendersSearchPanelHeaderClass ? header : ACTION);
+      if (rendersSearchPanelHeaderClass) {
+        const panel = await ringOf(header, "search panel entry");
+        expect(panel, "the search panel entry draws a focus ring").not.toBe("none");
+        expect(panel, "the inner ring of the search panel entry takes --design-primary").toContain(
+          await tokenValue(page, "--design-primary", "color"),
+        );
+        expect(panel, "the outer ring of the search panel entry takes --design-link at half opacity").toContain(`rgba(${link}, 0.5)`);
+      }
       await openBackend(page, "contacts", PRIMARY_ACTION);
       expect(await ringOf(PRIMARY_ACTION, "primary action"), "a focused button draws its ring in --design-link").toContain(
         `rgba(${link}, 0.5)`,
@@ -530,8 +535,10 @@ exports.register = function (shared) {
         await page.locator(`${MENU} .dropdown-item`).filter({ hasText: "Delete" }).first().click();
         await settled(page, DIALOG);
         await assertToken(page, DIALOG, "background-color", "--design-surface-2", `dialog ${mode}`);
-        await assertToken(page, `${DIALOG} .btn-danger`, "background-color", "--design-danger", `dialog ${mode}`);
-        await assertToken(page, `${DIALOG} .btn-danger`, "color", "--design-on-danger", `dialog ${mode}`);
+        if (rendersDangerConfirmButton) {
+          await assertToken(page, `${DIALOG} .btn-danger`, "background-color", "--design-danger", `dialog ${mode}`);
+          await assertToken(page, `${DIALOG} .btn-danger`, "color", "--design-on-danger", `dialog ${mode}`);
+        }
         await expect(page.locator(`${DIALOG} .btn-close`), `the close icon takes the text tone in ${mode} mode`).toHaveCSS(
           "filter",
           `brightness(0) invert(${mode === "dark" ? 1 : 0})`,
