@@ -110,8 +110,10 @@ class TestContainerUrlLookup(unittest.TestCase):
             return
 
         lines = [
-            f"{len(offenders)} file(s) assemble a container-network origin by "
-            f"hand instead of asking for it:",
+            (
+                f"{len(offenders)} file(s) assemble a container-network origin "
+                f"by hand instead of asking for it:"
+            ),
         ]
         for path, issues in sorted(offenders.items()):
             lines.append(f"  - {path.relative_to(PROJECT_ROOT)}:")
