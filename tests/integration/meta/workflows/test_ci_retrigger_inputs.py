@@ -138,7 +138,8 @@ class TestRecomputedSelection(unittest.TestCase):
             ["--failed", "--run", _RUN_URL], {"priority": ""}
         )
         self.assertEqual(
-            priority, f"web-app-x#0@swarm+tor%{DISTROS[0]}:{ARCHITECTURES[0]}"
+            priority,
+            f"web-app-x#0@swarm+tor%{DISTROS[0]}:{ARCHITECTURES[0]}&direct",
         )
 
     def test_a_green_selection_of_the_same_run_is_left_alone(self) -> None:
