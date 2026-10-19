@@ -31,6 +31,8 @@ DISK_FLOOR_MB = 6 * 2**10
 MEM_FLOOR_RATIO = 0.06
 IO_STALL_CEILING_PCT = 50.0
 SAMPLE_INTERVAL_S = 10
+STALL_WINDOW_S = 60
+WEDGE_SAMPLES = 2
 ABORT_RC = 75
 
 
@@ -86,7 +88,13 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     a full disk truncates the job without diagnostics; terminating the step at
     DISK_FLOOR_MB keeps enough room for rescue artifacts and the log upload.
     A stuck mount produces the same silence without touching either floor, so
-    IO_STALL_CEILING_PCT ends the step while the runner can still upload.
+    IO_STALL_CEILING_PCT ends the step while the runner can still upload. It
+    takes three things together, because the pressure reading alone cannot
+    tell a wedge from a busy disk and is not even this step's: a task in D
+    state on the same sample, WEDGE_SAMPLES breaches in a row, and a step old
+    enough to own a whole STALL_WINDOW_S of the trailing average. Without the
+    last one an I/O-heavy predecessor aborts its successor before that step
+    has issued a single read.
 
     Args:
         cmd: argv of the step.
@@ -96,10 +104,13 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
         The step's exit code, or ABORT_RC when a floor was hit.
     """
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env)
+    samples = 0
+    wedged = 0
     while True:
         try:
             return int(proc.wait(timeout=SAMPLE_INTERVAL_S))
         except subprocess.TimeoutExpired:
+            samples += 1
             free_mb = shutil.disk_usage("/").free // 2**20
             if free_mb < DISK_FLOOR_MB:
                 return _abort(
@@ -111,6 +122,7 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
             avail = mem_available_mb()
             total = mem_total_mb()
             io_stall = io_stall_pct()
+            dstate = uninterruptible_procs()
             print(
                 sample_line(
                     avail=avail,
@@ -119,7 +131,7 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
                     mem_stall=mem_stall_pct(),
                     io_stall=io_stall,
                     cpu_stall=cpu_stall_pct(),
-                    dstate=uninterruptible_procs(),
+                    dstate=dstate,
                 ),
                 flush=True,
             )
@@ -131,11 +143,15 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
                     " - aborting step ===",
                     ["free", "-m"],
                 )
-            if io_stall >= IO_STALL_CEILING_PCT:
+            owns_window = samples * SAMPLE_INTERVAL_S >= STALL_WINDOW_S
+            breached = io_stall >= IO_STALL_CEILING_PCT and dstate > 0
+            wedged = wedged + 1 if owns_window and breached else 0
+            if wedged >= WEDGE_SAMPLES:
                 return _abort(
                     proc,
                     "=== swarm-matrix: I/O WEDGE "
-                    f"({io_stall:.1f}% full stall60, at or above "
+                    f"({io_stall:.1f}% full stall60 with {dstate} task(s) in D "
+                    f"state, {wedged} samples at or above "
                     f"{IO_STALL_CEILING_PCT:.0f}%) - aborting step ===",
                     ["cat", "/proc/pressure/io"],
                 )

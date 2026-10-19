@@ -70,6 +70,13 @@ class TestSampleLine(unittest.TestCase):
         self.assertNotIn("\n", line)
 
 
+_WEDGE_SAMPLES = (
+    watchdog.STALL_WINDOW_S // watchdog.SAMPLE_INTERVAL_S + watchdog.WEDGE_SAMPLES
+)
+"""Samples before the earliest possible wedge abort: one whole stall window
+the step owns, then the consecutive breaches on top of it."""
+
+
 class TestRunWatched(unittest.TestCase):
     def _watch(
         self,
@@ -80,6 +87,7 @@ class TestRunWatched(unittest.TestCase):
         avail: int = 9324,
         total: int = 15947,
         free_mb: int = 38948,
+        dstate: int = 3,
     ) -> tuple[int, str, _FakeProc]:
         proc = _FakeProc(timeouts=timeouts, rc=rc)
         buffer = io.StringIO()
@@ -96,7 +104,9 @@ class TestRunWatched(unittest.TestCase):
             mock.patch.object(watchdog, "mem_stall_pct", return_value=0.0),
             mock.patch.object(watchdog, "io_stall_pct", return_value=io_stall),
             mock.patch.object(watchdog, "cpu_stall_pct", return_value=11.0),
-            mock.patch.object(watchdog, "uninterruptible_procs", return_value=3),
+            mock.patch.object(
+                watchdog, "uninterruptible_procs", return_value=dstate
+            ),
             contextlib.redirect_stdout(buffer),
         ):
             returned = watchdog.run_watched(["true"], env={})
@@ -120,19 +130,37 @@ class TestRunWatched(unittest.TestCase):
 
     def test_an_io_wedge_aborts_the_step_with_a_banner(self) -> None:
         returned, output, proc = self._watch(
-            timeouts=5, rc=0, io_stall=watchdog.IO_STALL_CEILING_PCT
+            timeouts=_WEDGE_SAMPLES, rc=0, io_stall=watchdog.IO_STALL_CEILING_PCT
         )
         self.assertEqual(returned, watchdog.ABORT_RC)
         self.assertTrue(proc.terminated)
         self.assertIn("I/O WEDGE", output)
         self.assertIn(f"{watchdog.IO_STALL_CEILING_PCT:.1f}% full stall60", output)
 
+    def test_a_busy_disk_with_nothing_blocked_is_not_a_wedge(self) -> None:
+        returned, output, proc = self._watch(
+            timeouts=_WEDGE_SAMPLES, rc=0, io_stall=99.0, dstate=0
+        )
+        self.assertEqual(returned, 0)
+        self.assertFalse(proc.terminated)
+        self.assertNotIn("I/O WEDGE", output)
+
+    def test_pressure_a_predecessor_left_behind_does_not_abort(self) -> None:
+        returned, output, proc = self._watch(
+            timeouts=watchdog.STALL_WINDOW_S // watchdog.SAMPLE_INTERVAL_S - 1,
+            rc=0,
+            io_stall=99.0,
+        )
+        self.assertEqual(returned, 0)
+        self.assertFalse(proc.terminated)
+        self.assertNotIn("I/O WEDGE", output)
+
     def test_the_wedge_sample_is_printed_before_the_abort(self) -> None:
-        _, output, _ = self._watch(timeouts=5, rc=0, io_stall=99.0)
+        _, output, _ = self._watch(timeouts=_WEDGE_SAMPLES, rc=0, io_stall=99.0)
         self.assertLess(output.index("host mem"), output.index("I/O WEDGE"))
 
     def test_the_abort_probes_the_pressure_file_not_the_mount_table(self) -> None:
-        self._watch(timeouts=5, rc=0, io_stall=99.0)
+        self._watch(timeouts=_WEDGE_SAMPLES, rc=0, io_stall=99.0)
         self.probe.assert_called_once_with(["cat", "/proc/pressure/io"], check=False)
 
     def test_io_below_the_ceiling_does_not_abort(self) -> None:
