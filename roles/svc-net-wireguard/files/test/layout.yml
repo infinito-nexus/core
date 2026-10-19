@@ -1,0 +1,13 @@
+---
+meshes:
+  - name: alpha
+    subnet: 10.100.200.0/24
+    listen_port: 51900
+  - name: beta
+    subnet: 10.100.201.0/24
+    listen_port: 51901
+
+members:
+  I: [alpha]
+  II: [alpha, beta]
+  III: [beta]

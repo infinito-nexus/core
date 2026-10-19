@@ -165,7 +165,7 @@ fi
 matrix_cmd=(timeout "${step_timeout}" python3 -m utils.tests.swarm.matrix)
 if [ "$(id -u)" -ne 0 ]; then
 	matrix_cmd=(
-		sudo -E env
+		sudo --preserve-env="$(compgen -e | paste -sd, -)" env
 		"PATH=$PATH"
 		"HOME=$HOME"
 		"SWARM_NAME=${SWARM_NAME:-}"

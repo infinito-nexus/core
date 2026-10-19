@@ -12,7 +12,7 @@ import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from utils.env.handlers import ORDERED_HANDLERS, docker_platform
+from utils.env.handlers import ORDERED_HANDLERS, docker_platform, ip_range
 from utils.env.runtime import detect_gha_act
 
 if TYPE_CHECKING:
@@ -94,8 +94,10 @@ def build_env(
     ``comments`` is the parsed per-key comment map from default.env
     (see :func:`utils.env.parser.parse_static_env_with_comments`).
     Dynamic keys carry their comments via each handler's ``COMMENT``
-    constant. ``custom.env`` overrides run last (see
-    :func:`apply_custom_env`).
+    constant. ``custom.env`` overrides run after every handler (see
+    :func:`apply_custom_env`); only ``INFINITO_IP_RANGE`` is derived after
+    them, because it follows the final ``INFINITO_SUBNET`` a worktree pins
+    there.
     """
     on_gha, on_act = detect_gha_act()
     ctx = BuildContext(
@@ -110,4 +112,5 @@ def build_env(
         handler.apply(eb, ctx)
     apply_custom_env(eb, repo_root)
     docker_platform.apply(eb, ctx)
+    ip_range.finalize(eb)
     return eb

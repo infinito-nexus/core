@@ -26,7 +26,7 @@ if command -v apt-get >/dev/null 2>&1; then
 	if [ "$(id -u)" -eq 0 ]; then
 		timeout -k 30 "${APT_TIMEOUT}" apt-get "${APT_OPTS[@]}" update -qq || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	else
-		sudo -E timeout -k 30 "${APT_TIMEOUT}" apt-get "${APT_OPTS[@]}" update -qq || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		sudo --preserve-env="$(compgen -e | paste -sd, -)" timeout -k 30 "${APT_TIMEOUT}" apt-get "${APT_OPTS[@]}" update -qq || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 fi
 

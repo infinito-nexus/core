@@ -281,7 +281,7 @@ for _i in $(seq 1 24); do
 done
 for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	docker exec "${_node}" timeout 180 sh -c \
-		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}' && mount '${DIR_BACKUPS}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done
 for _i in $(seq 1 24); do
 	if docker exec "${MGR}" sh -c \

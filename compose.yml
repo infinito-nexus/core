@@ -139,4 +139,5 @@ networks:
     ipam:
       config:
         - subnet: ${INFINITO_SUBNET:?Run 'make dotenv' to generate the .env single source of truth}
+          ip_range: ${INFINITO_IP_RANGE:?Run 'make dotenv' to generate the .env single source of truth}
           gateway: ${INFINITO_GATEWAY:?Run 'make dotenv' to generate the .env single source of truth}

@@ -1,5 +1,46 @@
 # Changelog
 
+## [16.1.0] - 2026-10-19
+
+Added:
+
+- Wazuh: new *web-app-wazuh* role runs Wazuh 4.14.6 as a single-node SIEM
+- Wazuh: Keycloak OIDC login, LDAP group roles and three RBAC tiers
+- Wazuh: the SIEM console is served on clearnet only, never as an onion
+
+Fixed:
+
+- NFS client: swarm backups stay on local disk with their extended attributes
+- NFS client: the backup user keeps access; a changed mount line remounts
+- Docker: RedHat installs iptables-nft, so Fedora no longer needs ip_tables
+- Compose: worktree stacks no longer take the primary stack's static IPs
+- Backup: the baudolo version comes from *pyproject.toml* alone
+- CI: runners with sudo-rs keep the environment the swarm matrix needs
+
+Version jumps (net since 16.0.1):
+
+- *pkgmgr*: v2.0.2 to v2.0.4
+- *web-app-gitea*: 28.1.0 to 28.2.0, MCP server 1.9.0 to 1.10.0
+- *web-app-n8n*: 2.44.3 to 2.44.4
+- *web-app-pixelfed*: 20261017 to 20261019
+- *web-app-semaphore*: v2.19.16 to v2.19.17
+- *web-app-stalwart*: v0.16.26 to v0.16.27
+- *web-app-stalwart*: webmail 1.7.4-apache to 1.7.5-apache
+- *ruff* (dev): 0.17.0 to 0.17.1
+- *@playwright/test* (dev): ^1.64.0 to ^1.64.1
+
+Upgrade notes:
+
+- Dev: run *make dotenv* once; compose now requires *INFINITO_IP_RANGE*
+- Dev: a compose network created earlier keeps no IP pool until recreated
+- NFS client: [older generations](roles/svc-storage-nfs-client/README.md) stay on the share; delete them by hand
+
+Contributors:
+
+- [Prageeth Panicker](https://github.com/pragepani): the Wazuh role
+- [Evangelos Tsakoudis](https://evangelostsak.com): the WireGuard CLI test
+- [Kevin Veen-Birkenbach](https://veen.world): NFS backups, compose IPs
+
 ## [16.0.1] - 2026-10-18
 
 Fixed:

@@ -32,6 +32,9 @@ from .infinito import (
     registry_cache_max_size,
     tor_socks_port,
 )
+from .infinito import (
+    ip_range as ip_range,
+)
 from .infinito.ca import bundle_candidates as ca_bundle_candidates
 from .infinito.ca import cert_host as ca_cert_host
 from .infinito.cache import conf as cache_conf
