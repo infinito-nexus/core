@@ -23,22 +23,6 @@ docker-cli:
     repo:
       managed_externally: sys-svc-container configures the download.docker.com repository per distro before installing
 
-iproute:
-  Archlinux:
-    - iproute2
-  Debian:
-    - iproute2
-  RedHat:
-    - iproute
-
-iputils-ping:
-  Archlinux:
-    - iputils
-  Debian:
-    - iputils-ping
-  RedHat:
-    - iputils
-
 nvidia-container-toolkit:
   Archlinux:
     - nvidia-container-toolkit
