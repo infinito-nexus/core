@@ -21,31 +21,31 @@
 
 ## Key Features 🎯
 
-* **Automated Deployment** 📦
+- **Automated Deployment** 📦
   Turn up servers and workstations in minutes with ready-made Ansible roles.
 
-* **Enterprise-Grade Security** 🔒
+- **Enterprise-Grade Security** 🔒
   Centralized user management via LDAP & OIDC (Keycloak), plus optional 2FA and encrypted storage.
 
-* **Modular Scalability** 📈
+- **Modular Scalability** 📈
   Grow from small teams to global enterprises by composing only the services you need.
 
-* **Fediverse & ActivityPub Support** 🌐
+- **Fediverse & ActivityPub Support** 🌐
   Seamlessly integrate Mastodon, Peertube, Matrix and other ActivityPub apps out of the box.
 
-* **Self-Healing & Maintenance** ⚙️
+- **Self-Healing & Maintenance** ⚙️
   Automated cleanup, container healing, and auto-updates keep infrastructure healthy without human intervention.
 
-* **Monitoring, Alerting & Analytics** 📊
+- **Monitoring, Alerting & Analytics** 📊
   Built-in system, application, and security monitoring with multi-channel notifications.
 
-* **Backup & Disaster Recovery** 💾
+- **Backup & Disaster Recovery** 💾
   Scheduled backups and scripted recovery processes to safeguard your data.
 
-* **Continuous Updates** 🔄
+- **Continuous Updates** 🔄
   Automatic patching and version upgrades across the stack.
 
-* **Application Ecosystem** 🚀
+- **Application Ecosystem** 🚀
   A curated suite of self-hosted apps, from **project management**, **version control**, and **CI/CD** to **chat**, **video conferencing**, **CMS**, **e-learning**, **social networking**, and **e-commerce**, all seamlessly integrated.
 
 ---
@@ -193,9 +193,9 @@ Every invokable role in the tested lifecycle envelope, with its upstream homepag
 
 ## Guides 📚
 
-* [Installation Guide](docs/administration/installation.md) for local CLI installation, Docker execution, and source builds.
-* [Deploy Guide](docs/administration/deploy.md) for inventory creation, full deploys, and redeploy flows.
-* [CI & Self-Hosted Runners](docs/administration/ci-runners.md) for the test gate and adding your own hardware to the CI pool.
+- [Installation Guide](docs/administration/installation.md) for local CLI installation, Docker execution, and source builds.
+- [Deploy Guide](docs/administration/deploy.md) for inventory creation, full deploys, and redeploy flows.
+- [CI & Self-Hosted Runners](docs/administration/ci-runners.md) for the test gate and adding your own hardware to the CI pool.
 
 ## Contributing 🔨
 
@@ -221,10 +221,10 @@ For expert installation, contact details, and project participation, see [SUPPOR
 
 Infinito.Nexus is developed independently. Your support helps fund development, infrastructure, documentation, and the long-term growth of the project.
 
-* 💙 **[GitHub Sponsors](https://github.com/sponsors/kevinveenbirkenbach)**
-* ☕ **[Buy Us a Coffee](https://buymeacoffee.com/kevinveenbirkenbach)**
-* 💳 **[PayPal](https://s.veen.world/paypaldonate)**
-* ₿ `bitcoin:bc1qn667c729cy64p5x58m3vg7zmudwqvf0fww7ph5`
+- 💙 **[GitHub Sponsors](https://github.com/sponsors/kevinveenbirkenbach)**
+- ☕ **[Buy Us a Coffee](https://buymeacoffee.com/kevinveenbirkenbach)**
+- 💳 **[PayPal](https://s.veen.world/paypaldonate)**
+- ₿ `bitcoin:bc1qn667c729cy64p5x58m3vg7zmudwqvf0fww7ph5`
 
 ## License ⚖️
 

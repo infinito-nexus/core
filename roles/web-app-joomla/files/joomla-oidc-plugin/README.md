@@ -55,17 +55,17 @@ memberships from Keycloak.
 
 ## Watch points
 
-* The plugin trusts the Keycloak-issued ID token. The
+- The plugin trusts the Keycloak-issued ID token. The
   `jumbojett/openid-connect-php` library validates the JWT signature
   against the realm's JWKS, so the issuer URL MUST be reachable
   from the Joomla container at the time the user authenticates.
-* The plugin lives in the `system` plugin group so it can intercept
+- The plugin lives in the `system` plugin group so it can intercept
   every request via `onAfterInitialise`. It MUST run BEFORE the
   Joomla local form-login plugin in the system event chain so the
   redirect short-circuits any local-account authentication attempt.
   System plugins are ordered alphabetically. `keycloak` ranks
   before `users`, which is the typical local-form gate.
-* The local-form fallback at `?fallback=local` is documented as an
+- The local-form fallback at `?fallback=local` is documented as an
   emergency hatch. For high-security deployments, set
   `JOOMLA_OIDC_FALLBACK_ENABLED=false` to disable it (Modus 1
   effective).
