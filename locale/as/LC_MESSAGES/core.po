@@ -2172,29 +2172,24 @@ msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
-msgstr ""
+msgstr "নিশ্চিত কৰা হোৱা নাই"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "logout:manual"
 msgid "sign out manually"
-msgstr ""
+msgstr "হাতেৰে ছাইন আউট কৰক"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr ""
+msgstr "ছাইন আউট হৈছে"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr ""
+msgstr "ছাইন আউট হৈ আছে"
 
-# translation-refused: libretranslate damaged-span
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr ""
+msgstr "{total} টা সেৱাৰ ভিতৰত {done} টা ছাইন আউট হৈছে"
 
