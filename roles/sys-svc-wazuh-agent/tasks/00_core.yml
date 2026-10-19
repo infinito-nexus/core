@@ -103,3 +103,8 @@
 - name: "🔍 Report the FIM who-data state"
   include_tasks: 02_whodata_state.yml
   when: WAZUH_AGENT_FIM_ENABLED | bool
+
+- name: "📂 Include dependency 'sys-ctl-hlth-wazuh-agent'"
+  include_role:
+    name: sys-ctl-hlth-wazuh-agent
+  when: run_once_sys_ctl_hlth_wazuh_agent is not defined

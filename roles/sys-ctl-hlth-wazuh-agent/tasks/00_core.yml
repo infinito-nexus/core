@@ -1,0 +1,20 @@
+---
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
+  include_role:
+    name: sys-ctl-alm-compose
+  when: run_once_sys_ctl_alm_compose is not defined
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_WAZUH_AGENT }}"
+    system_service_timer_enabled: true
+    system_service_tpl_exec_start: >-
+      {{ system_service_script_exec }}
+      --service {{ HLTH_WAZUH_AGENT_SERVICE }}
+      --run-dir {{ HLTH_WAZUH_AGENT_RUN_DIR }}
+      --threshold {{ HLTH_WAZUH_AGENT_THRESHOLD }}
+      {{ ('--manager ' ~ HLTH_WAZUH_AGENT_MANAGER_NAME) if HLTH_WAZUH_AGENT_MANAGER_HOST | bool else '' }}
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+
+- include_tasks: utils/once/flag.yml

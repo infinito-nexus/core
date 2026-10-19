@@ -1,0 +1,9 @@
+---
+system_service_id: sys-ctl-hlth-wazuh-agent
+
+HLTH_WAZUH_AGENT_MANAGER_ROLE: "web-app-wazuh"
+HLTH_WAZUH_AGENT_SERVICE: "wazuh-agent.service"
+HLTH_WAZUH_AGENT_RUN_DIR: "/var/ossec/var/run"
+HLTH_WAZUH_AGENT_THRESHOLD: "{{ lookup('wazuh_agent').time_reconnect * 3 }}"
+HLTH_WAZUH_AGENT_MANAGER_HOST: "{{ HLTH_WAZUH_AGENT_MANAGER_ROLE in group_names }}"
+HLTH_WAZUH_AGENT_MANAGER_NAME: "{{ lookup('config', HLTH_WAZUH_AGENT_MANAGER_ROLE, 'services.manager.name') }}"
