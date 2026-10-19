@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 import unittest.mock as mock
 
-from utils.github.variant import axes, pools, tor
+from utils.github.variant import axes, pins, pools, tor
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
@@ -711,7 +711,7 @@ class TestArchitectureAxis(unittest.TestCase):
 
     def test_a_role_declaring_one_architecture_never_draws_the_other(self) -> None:
         rows = [_row("web-app-b", index, ("compose",)) for index in range(4)]
-        with mock.patch.object(axes, "get_role_architectures", return_value=["arm64"]):
+        with mock.patch.object(pins, "get_role_architectures", return_value=["arm64"]):
             entries = _assign(
                 rows, sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS
             )
@@ -724,7 +724,7 @@ class TestArchitectureAxis(unittest.TestCase):
         ]
         declared = {"svc-db-x": ["amd64"]}
         with mock.patch.object(
-            axes,
+            pins,
             "get_role_architectures",
             side_effect=lambda role: declared.get(role, []),
         ):
@@ -736,7 +736,7 @@ class TestArchitectureAxis(unittest.TestCase):
     def test_a_role_and_run_that_permit_nothing_in_common_abort(self) -> None:
         rows = [_row("web-app-b", 0, ("compose",))]
         with (
-            mock.patch.object(axes, "get_role_architectures", return_value=["arm64"]),
+            mock.patch.object(pins, "get_role_architectures", return_value=["arm64"]),
             self.assertRaises(SystemExit),
         ):
             _assign(
@@ -755,7 +755,7 @@ class TestArchitectureAxis(unittest.TestCase):
     def test_a_pin_the_role_forbids_aborts_the_matrix(self) -> None:
         rows = [_row("web-app-b", 0, ("compose",), pin_architecture="amd64")]
         with (
-            mock.patch.object(axes, "get_role_architectures", return_value=["arm64"]),
+            mock.patch.object(pins, "get_role_architectures", return_value=["arm64"]),
             self.assertRaises(SystemExit),
         ):
             _assign(rows, sweep=0, tor_mode="auto", variants_per_app=_VARIANTS)

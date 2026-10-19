@@ -59,6 +59,7 @@ from utils.github.variant.label import (
     artifact_slug,
     parse_label,
 )
+from utils.github.variant.pins import check_pins, row_architectures
 from utils.github.variant.pools import (
     ARCHITECTURES,
     DISTROS,
@@ -80,8 +81,7 @@ from utils.github.variant.vpn import (
     pinned_vpn_states,
     rotated_vpn,
 )
-from utils.roles.display import VARIANT_SEPARATOR, display_names
-from utils.roles.meta_lookup import get_role_architectures
+from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
 __all__ = [
@@ -133,112 +133,6 @@ def pick_mode(offered: Sequence[str], position: int, sweep: int) -> str:
     if not offered:
         raise ValueError("row offers no deploy mode; the query should have dropped it")
     return rotate(offered, position, sweep)
-
-
-def _reject(app: str, variant: str, reason: str) -> None:
-    """Abort on a selection the row cannot satisfy.
-
-    Raises:
-        SystemExit: always. A pin the row cannot take is an operator mistake,
-            and dropping the row instead would report a green run for a
-            combination that never ran.
-    """
-    shard = f"{VARIANT_SEPARATOR}{variant}" if variant else ""
-    raise SystemExit(f"selection {app}{shard}: {reason}")
-
-
-def check_pins(
-    app: str,
-    variant: str,
-    offered: Sequence[str],
-    *,
-    pin_mode: str | None,
-    pin_tor: bool | None,
-    pin_distro: str | None,
-    pin_filesystem: str | None,
-    pin_architecture: str | None = None,
-    capable: bool,
-    tor_mode: str,
-    distros: Sequence[str],
-    filesystems: Sequence[str],
-    architectures: Sequence[str] = ARCHITECTURES,
-) -> None:
-    """Prove the row can take what the selection token pinned on it.
-
-    The offered modes are already narrowed by the run's ``--modes`` input, the
-    onion states by its ``--tor`` input and the two pools by ``--distros`` and
-    ``--filesystem``, so this catches a pin that fights the role, the variant,
-    or the run's own axes with one check each.
-    """
-    if pin_mode is not None and pin_mode not in offered:
-        _reject(
-            app,
-            variant,
-            f"pinned mode {pin_mode!r} is not available here "
-            f"(offered: {', '.join(offered)})",
-        )
-    for value, pool, axis in (
-        (pin_distro, distros, "distro"),
-        (pin_filesystem, filesystems, "filesystem"),
-        (pin_architecture, architectures, "architecture"),
-    ):
-        if value is not None and value not in pool:
-            _reject(
-                app,
-                variant,
-                f"pinned {axis} {value!r} is outside this run's {axis} pool "
-                f"({', '.join(pool) or 'empty'})",
-            )
-    if pin_tor is None:
-        return
-    for mode in (pin_mode,) if pin_mode else offered:
-        if pin_tor in tor_states(mode, capable=capable, tor_mode=tor_mode):
-            return
-    _reject(
-        app,
-        variant,
-        f"pinned onion state {'tor' if pin_tor else 'clearnet'} is impossible "
-        f"here (mode, variant or the run's tor axis rules it out)",
-    )
-
-
-def row_architectures(
-    app: str, run_pool: Sequence[str], services: Sequence[str] = ()
-) -> tuple[str, ...]:
-    """The architectures one role's rows may draw from this run.
-
-    A role that declares none takes the run's whole pool, which is what
-    spreads both architectures evenly over its variants: every row of the
-    catalogue advances the same rotation, so a role's consecutive rows
-    alternate rather than repeating one architecture.
-
-    Args:
-        app: role id, read for its ``meta/services.yml`` declaration.
-        run_pool: what the run permits, already narrowed by its own input.
-        services: the roles the row's variant deploys, each narrowing the
-            row like the role's own declaration.
-
-    Raises:
-        SystemExit: the role and the run permit nothing in common. Dropping
-            the row instead would report a green run for a role that never
-            deployed, and picking one anyway would deploy it on hardware one
-            of the two sides ruled out.
-    """
-    allowed = tuple(run_pool)
-    declarations: list[str] = []
-    for role in (app, *services):
-        declared = get_role_architectures(role)
-        if declared:
-            declarations.append(f"{role} ({', '.join(declared)})")
-            allowed = tuple(value for value in allowed if value in declared)
-    if not allowed:
-        raise SystemExit(
-            f"{app}: meta/services.yml declares architectures for "
-            f"{'; '.join(declarations)}, and this run permits "
-            f"{', '.join(run_pool) or 'none'}. Widen the run's architecture "
-            f"pool or the declarations."
-        )
-    return allowed
 
 
 def sort_key(entry: Mapping[str, str]) -> tuple[Any, ...]:
