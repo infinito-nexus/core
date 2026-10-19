@@ -265,11 +265,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Client-side NFS setup yéé na amfani ná iíra expórt nínụ́ mìànlẹ́ gómọ́ àárìn náà ní àwọn èdèyìn àárìn àwọn ọ̀kan àárìn, bí ìdànlé àáhùrùn tí o jẹ́ o jẹ́kọkọ"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client-side WireGuard VPN role for stable connectivity with a systemd service and script taat taimaléta MTU na interface"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Gestionnaire d'étiquette avec une historique editable, des actions personnalisées et le support du scipting"
@@ -412,19 +407,6 @@ msgstr "Bloc biinshi ai na ai yi—sugbonyane ka setšaba, gateways na setšaba 
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Core NGINX webserver wiht HTTP akadaba akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
-# akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
 # akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado
 # akwado akwado akwado akwado akwado akwado akwado akwado akwado akwado akw
 msgctxt "role:sys-svc-webserver-core:description"
@@ -820,11 +802,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Haici-performance, zikríri-gíriíri, táawánsíríri táánsi ko táakwánsírikú táánsi tó fárí fárí tó fárí táakwánsírikú dáadáadan kaakú tó fárí sússu-gássu daga tó ní Amazon S3."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Svéej-hõdoo WireGuard VPN service benna wg-quick config, pakcage install, bënjëfet ip-forwarding sysctl za tunni biitròkkòk wo"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Konfigurasi ntonwen nibo nne wawo journald systemd nnye kwalla gbogbo nnye wawo streaming journald nnye gbogbo gbogbo"
@@ -910,6 +887,10 @@ msgstr "Plateau d'interface d'issue et de projet pour les équipes de logiciels,
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Runtime JavaScript pour la construction et l'exécution d'applications côté serveur et outils de développement"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1099,11 +1080,6 @@ msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Sankofa-wide DNS sankofa para adba da wosannu na wosannun na ghira, kyina DHC pa na sankofa admin bura banta web"
 
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Helper engheni gwurtu a iptables a yensekwin a yenehakwa a WireGuard a bayani ne na yenni kuma yensekwin a yenehakwa a firewall o da yenni"
-
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -1210,20 +1186,6 @@ msgstr "Serve automatik po weli CI/CD po weli, bãjọrọ, ogbón òpọ̀tọ�
 # nocheck: url
 # translation-rejected: Plateau na community daa nkyonko nke ak pa gyie gyie
 # gyie gyie na gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
-# gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
 # gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie gyie
 # gyie gyie gyie gyie gyie gyie gyie gy
 msgctxt "role:web-app-fider:description"
@@ -2061,20 +2023,6 @@ msgstr "Rol yi tarekta kyerhemon Docker volumes ya SSF ou HDD ya gyesteyi wata, 
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Chalomma michele ya Python ya developmen ta taasom na
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
-# taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
 # taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom taasom
 # ta
 msgctxt "role:dev-python:description"

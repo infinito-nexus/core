@@ -260,11 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Cliant-taobh thus NFS le haghaidh gléasta onnmhairithe freastalaí iargúlta ar gach nód swarm, le probe inrochtaineacht imscaradh-am"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Cliant-taobh WireGuard VPN ról le haghaidh nascacht cobhsaí le seirbhís córasach agus script go comhéadan tune MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Clipboard bainisteoir le stair eagarthóireachta, gníomhaíochtaí saincheaptha, agus tacaíocht script"
@@ -344,19 +339,7 @@ msgstr "Pobail agus Fiontair"
 # logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua
 # with CDN-backed assets.  ### User: Translate the text between the markers
 # from en to ga. Answer with the translation and nothing else, no quotes, no
-# explanation.  ( Composable HTML injection roles ) CSS, JS, logout
-# interceptor, analytics, dashboard iframeOpenResty for Nginx/sub_filter/Lua
-# with CDN-backed assets.  --- Composable HTML injection roles ( CSS, JS,
-# logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua
-# with CDN-backed assets.  ### User: Translate the text between the markers
-# from en to ga. Answer with the translation and nothing else, no quotes, no
-# explanation.  ( Composable HTML injection roles ) CSS, JS, logout
-# interceptor, analytics, dashboard iframeOpenResty for Nginx/sub_filter/Lua
-# with CDN-backed assets.  --- Composable HTML injection roles ( CSS, JS,
-# logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua
-# with CDN-backed assets.  ### User: Translate the text between the markers
 # from ga to en. Answer with the translation and nothing else, no quotes, no
-# explanation.  ( Composable HTML injection roles ) CSS, JS, logout
 # interceptor, analytics,.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
@@ -828,11 +811,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "réitigh stórála féin-óstáil le haghaidh sonraí neamhstruchtúrtha a bhainistiú, a scálú, agus a rochtain — lena n-áirítear stóráil réada atá comhoiriúnach le Amazon S3 APIs."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Host-leibhéal WireGuard VPN seirbhíse le wg-quick config, pacáiste shuiteáil, agus IP-forwarding steall do tholláin slán"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "chumraíocht leibhéal óstáil don daemon logáil córasach-iris le teorainneacha coinneála agus sruthú logáil beo"
@@ -916,6 +894,10 @@ msgstr "Eisiúint agus ardán rianaithe tionscadail le haghaidh foirne bogearra�
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtime le haghaidh tógála agus ag rith iarratais freastalaí-taobh agus forbróir tooling"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1101,11 +1083,6 @@ msgstr "Líonra thus (DNS, A ligean ar Criptithe HTTP, WireGuard, etc.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Poill DNS líonra-leathan le haghaidh fógraí blocála agus lorgairí ar fud gach feiste, le DHCP agus Painéal na nIonstraimí admin gréasáin"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Cúntóir líonraithe le haghaidh iptables ar aghaidh agus masquerading NAT cliant WireGuard ag rith taobh thiar de NAT nó balla dóiteáin"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

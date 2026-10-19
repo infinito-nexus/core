@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "ग्राहक-साइड एनएफएस सेटअप के लिए एक दूरदराज के सर्वर निर्यात को माउंट करने के लिए हर swarm नोड पर, एक तैनात समय तक पहुंच जांच के साथ"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "एक व्यवस्थित सेवा और स्क्रिप्ट के साथ स्थिर कनेक्टिविटी के लिए क्लाइंट-साइड वायरगार्ड वीपीएन भूमिका जो इंटरफ़ेस MTU को ट्यून करती है"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "संपादन योग्य इतिहास, कस्टम क्रियाओं और स्क्रिप्टिंग समर्थन के साथ क्लिपबोर्ड प्रबंधक"
@@ -792,11 +787,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "प्रबंधन, स्केलिंग और असंरचनात्मक डेटा तक पहुंचने के लिए उच्च प्रदर्शन, स्व-होस्टेड भंडारण समाधान - जिसमें अमेज़ॅन एस के साथ संगत ऑब्जेक्ट स्टोरेज शामिल है3 एपीआई"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "सुरक्षित सुरंगों के लिए Wg-quick config, पैकेज इंस्टॉल और IP-forwarding sysctl के साथ होस्ट लेवल वायरगार्ड वीपीएन सेवा"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "अवधारण सीमा और लाइव लॉग स्ट्रीमिंग के साथ सिस्टम-जोरनाल्ड लॉगिंग डेमन के लिए होस्ट-लेवल कॉन्फ़िगरेशन"
@@ -880,6 +870,10 @@ msgstr "सॉफ्टवेयर टीमों के लिए मुद�
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "बिल्डिंग और रनिंग सर्वर-साइड एप्लिकेशन और डेवलपर टूलिंग के लिए जावास्क्रिप्ट रनटाइम"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1065,11 +1059,6 @@ msgstr "नेटवर्क सेटअप (DNS, Let's Encrypt HTTP, WireGuar
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "सभी उपकरणों में विज्ञापनों और ट्रैकर्स को अवरुद्ध करने के लिए नेटवर्क-व्यापी DNS सिंकहोल, DHCP और एक वेब व्यवस्थापक डैशबोर्ड के साथ"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "नेटवर्किंग सहायक के लिए IPtables अग्रेषण और NAT masquerading के लिए एक WireGuard ग्राहक NAT या एक फ़ायरवॉल के पीछे चल रहा है"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

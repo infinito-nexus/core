@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "クライアント側 NFS は、デプロイ時のリーダビリティプローブで、すべてのスワアーノードにリモートサーバのエクスポートを実装するためのセットアップです。"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "クライアント・サイドのWireGuard VPN は、システム化されたサービスやスクリプトと安定した接続を実現するため、MTU インターフェイスをチューニングします。"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "編集可能な履歴、カスタムアクション、スクリプトサポートを備えたクリップボードマネージャ"
@@ -795,15 +790,6 @@ msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr "Amazon Sと互換性のあるオブジェクトストレージを含む、管理、スケーリング、および非構造化されたデータへのアクセスのための高性能、セルフホストストレージソリューション3 API の"
 
-# config、パッケージインストール、および安全なトンネル用のIP-forwarding sysctl)
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Host-level WireGuard VPN service with wg-quick config,
-# package install, and IP-forwarding sysctl for secure tunnels
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr ""
-
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -888,6 +874,10 @@ msgstr "ソフトウェアチーム、アジャイルボード、ワークフロ
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "サーバサイドのアプリケーションと開発者ツールの構築と実行のためのJavaScriptランタイム"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1073,11 +1063,6 @@ msgstr "ネットワーク設定 (DNS、HTTP、WireGuardなどの暗号化をし
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "ネットワーク全体でDNSのシンクホールは、DHCPとWeb管理者ダッシュボードを使用して、すべてのデバイス間で広告やトラッカーをブロックします"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "iptablesの転送とNATの監視のためのネットワーキングヘルパー NATまたはファイアウォールの背後にあるWireGuardクライアント"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

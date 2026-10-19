@@ -281,11 +281,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Client-fræði-NFS-stafræði ferða á remote tengingafjöldi í öllum swarm-níðum í kynningarreið, með en aðgangsreiðla stafræði í aðkynningu"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client-side WireGuard VPN róður fyrir stabili konníkling við systəmfræðingu séri og skrifaður sem týtir interfáijum MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Clipboard manager viðskapur viðskapsnotat, tilviksáttesting og skráðskilífrásunastriður"
@@ -845,11 +840,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "High-performance, sjöboðstækningsselur lokiðarframleiðingur fyrir myndbyggingu stækningu — eins og object stækning með sjávarleikar mismunandi Amazon S3."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Hósturstafur WIREGUARD VPN streið við wg-quick konfiglíringu pakka install og IP-fáðingar sysctl ferði fyrir fræðilegt hlaupa"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Host-skálu konfiglurð fyrir jöfnauti-logging-dæmið með árævstrátturgráfini og læti-log skráningin"
@@ -933,6 +923,10 @@ msgstr "Skoðaður-og-billráðingaútgáfuframleiðsgögn fyrir byggtingaskrá,
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript rutin fórbygging og fáingaræðunar fyrir sérstaka skrefum og dæmi-vísindareynir"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1125,11 +1119,6 @@ msgstr "Networkur støtting (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Hlaibarar dns lóðmiða fyrir aukastjóðum ads og tækjar á öllum spurningum, megi DHCP og web bæði-værikaskráar"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Nólgsamborga heimur fyrir iptables vefreytingar og NAT másakráðburðar af mikiðguðskvæði sem býur innan NAT eða veftöngafyrirtæki"
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-front-inj-logout:description"
@@ -1430,14 +1419,6 @@ msgstr "Skalafræðir"
 # nocheck: url
 # translation-rejected: Public RST ðagarmároum ár API ðagarmáruum xóra, xóra
 # ðagarmáruum Infinito.Nexus óx xóra ðagarma xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
-# xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
 # xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra
 # xóra xóra xóra xóra xóra xóra xóra xóra xóra xóra x
 msgctxt "role:web-svc-api:description"

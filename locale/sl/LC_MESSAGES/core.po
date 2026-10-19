@@ -260,11 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Nastavitev NFS na strani odjemalca za namestitev izvoza oddaljenega strežnika na vsako vozlišče roja s sondo, ki omogoča časovno razporeditev"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Vloga WireGuard VPN na strani naročnika za stabilno povezljivost s sistemsko storitvijo in skripto, ki uglašuje vmesnik MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Upravljalnik odložišča z urejevalno zgodovino, dejanji po meri in podporo za skripte"
@@ -795,11 +790,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Visoko zmogljive, samogostoljubne rešitve shranjevanja za upravljanje, povečevanje in dostop do nestrukturiranih podatkov – vključno s shranjevanjem predmetov, združljivim z Amazon S3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Storitev WireGuard VPN na ravni gostitelja z wg-quick config, namestitev paketa in IP-forward sysctl za varne predore"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Konfiguracija nivoja gostitelja za program za beleženje v sistemskih dnevnikih z omejitvami zadrževanja in pretakanjem v živo"
@@ -883,6 +873,10 @@ msgstr "Platforma za spremljanje izdaje in projektov za programske ekipe z agiln
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Čas delovanja javascripta za gradnjo in delovanje aplikacij na strani strežnika ter orodja za razvijalce"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1068,11 +1062,6 @@ msgstr "Nastavitev omrežja (DNS, Šifrirajmo HTTP, WireGuard itd.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Omrežna luknja DNS za blokiranje oglasov in sledilnikov po vseh napravah, z DHCP in spletno admin armaturno ploščo"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Omrežni pomočnik za posredovanje iptables in NAT masquerading odjemalca WireGuard, ki teče za NAT ali požarnim zidom"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

@@ -263,11 +263,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Kliento pusės NFS nustatymas nuotolinio serverio eksporto montavimui į kiekvieną sūpynės mazgas, su dislokavimo laiko pasiekiamumo zondas"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Kliento pusėje WireGuard VPN vaidmuo stabilaus ryšio su sistemine paslauga ir scenarijų, kad suderinti sąsaja MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Iškarpinės tvarkyklė su redaguojama istorija, pasirinktiniais veiksmais ir scenarijų palaikymu"
@@ -819,11 +814,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Aukštos kokybės, savarankiški saugojimo sprendimai, skirti valdyti, plėsti ir gauti nestruktūrizuotus duomenis - įskaitant objektų saugojimą, suderinamą su Amazon S3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Host- Level WireGuard VPN paslauga su wg- greitai konfigūruoti, paketas įdiegti, ir IP- ekspedijavimo sysctl saugiems tuneliams"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Vietų lygio konfigūracija, skirta sistemiškai žurnalistų registravimui su išlaikymo ribomis ir tiesioginio žurnalo srautiniam srautui"
@@ -907,6 +897,10 @@ msgstr "Išdavimo ir projekto sekimo platforma programinės įrangos komandoms, 
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript bėgimo laikas kuriant ir eksploatuojant serverių prietaikas ir programuotojų įrankius"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1092,11 +1086,6 @@ msgstr "Tinklo sąranka (DNS, Užšifruokime HTTP, WireGuard ir t. t.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Tinklo pločio DNS sinkhole blokuoti skelbimus ir sekliai visuose įrenginiuose, su DHCP ir web admin prietaisų skydelio"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Tinklo pagalbininkas iptables ekspedijavimo ir NAT maskavimosi WireGuard kliento veikia už NAT arba ugniasienės"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

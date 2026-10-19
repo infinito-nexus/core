@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Setup NFS sisi-klien untuk melekap ekspor server jauh pada setiap node kawanan, dengan prob jangkauan waktu penyebaran"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Peran VPN WireGuard sisi-Client untuk sambungan stabil dengan layanan sistem dan skrip yang tune antarmuka MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Manajer papan klip dengan sejarah, aksi, dan dukungan skrip yang dapat disunting"
@@ -450,8 +445,6 @@ msgstr "Hubungan Pelanggan"
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: Manajemen Hubungan Pelanggan (♪ CRM ♪) Perangkat lunak
-# untuk mengelola hubungan pelanggan, pipa penjualan, pemasaran, dan kegiatan
-# pendukung.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -809,11 +802,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Performansi tinggi, solusi penyimpanan yang dihost sendiri untuk mengelola, menskala, dan mengakses data yang tidak terstruktur — termasuk penyimpanan objek yang kompatibel dengan Amazon S3 APIs."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Layanan VPN WireGuard Aras-Host dengan konfigurasi wg-quick, pemasangan paket, dan sysctl canggih IP untuk terowongan aman"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Konfigurasi level-hostis untuk daemon loging berjurnal sistem dengan batasan retensi dan live log streaming"
@@ -897,6 +885,10 @@ msgstr "Perusahaan dan platform pelacakan proyek untuk tim perangkat lunak, deng
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "runtime JavaScript untuk membangun dan menjalankan aplikasi sisi-server dan alat pengembang"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1088,11 +1080,6 @@ msgstr "Penyetelan jaringan (DNS, Let's Encrypt HTTP, WireGuard, dll.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Sistem pembuangan DNS di seluruh jaringan untuk memblokir iklan dan pelacak di semua perangkat, dengan DHCP dan dashboard admin web"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Pembantu Jaringan untuk iptables forwarding dan NAT masquerading dari klien WireGuard berjalan di belakang NAT atau firewall"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
@@ -1295,7 +1282,6 @@ msgstr "Manajer paket untuk memasang dan mengelola paket Python pada host target
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: O-user Hermes dan OpenClaw Agen agen agen agen mulai
-# menuntut di balik titik akhir OpenAI-kompatibel
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
@@ -1874,7 +1860,6 @@ msgstr "Aras stack untuk mengatur server"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Pelayan konten Stachetik (aset aset aset, HTML, legal,
-# file)
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""

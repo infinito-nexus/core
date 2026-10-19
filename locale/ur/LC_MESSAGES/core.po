@@ -260,11 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Client-side NFS sep for a دور سرور برآمد کرنے کے لیے ہر ڈرافٹ پر ایک بعید وقتی رسائی کے ساتھ،"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client-side Wirestrict for Sited settlement for systemd Service and ta تحریر جس میں interface MTU داخل ہوتا ہے۔"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "کلپ بورڈ مینیجر جس میں قابل تجدید تاریخ، دستوری عمل اور اسکرپٹنگ معاونت ہوتی ہے۔"
@@ -807,11 +802,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "ہائی رائز سے چلنے والا، خود ساختہ ذخیرہ جات کا حل جس میں انتظامیہ، نقل و حمل اور رسائی کے لیے ناقابل رسائی اعداد و شمار شامل ہیں جن میں امیزون ایس کے ساتھ مواد محفوظ ہے۔3 اپ ہے."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "میزبانی کی سطح وی پی این سروس کے ساتھ Wg-خطرناک نیٹ ورک، پیکج تنصیب کے ساتھ، اور پی پی-پی-پی-پی-وینگ سیکٹل کے لیے"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "میزبانی کی سطح کی دیکھ بھال سسٹمڈ-جوورنلڈ انفنٹری ڈیمon کے ساتھ غیر واضح حدود اور زندہ لاگ سیریز کے لئے"
@@ -901,6 +891,10 @@ msgstr "شمارے اور پروجیکٹ سافٹ وئیر ٹیموں کے لی�
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtime for building and running server-side applications و تطوير أدوات المطور"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1088,11 +1082,6 @@ msgid "Network-wide DNS sinkhole for blocking ads and trackers across all device
 msgstr "نیٹ ورک بھر میں ابلاغ اور راستوں کو بند کرنے کے لئے."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "NAT یا آتش فشاں کے پیچھے چلنے والی گاڑیوں کے ذریعے NAT یا فائرنگ کے پیچھے چلنے والی ایک NAT کی جانب سے چلنے والی کمپنی اور NAT Masquerding کے لئے مددگار"
-
-# translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr "گنس sub_filter JavaScrip production تمام افعال کو مرکزی طور پر OIDC واحد علامت کے اختتامی پوائنٹ پر منتقل کرتا ہے۔"
@@ -1142,8 +1131,6 @@ msgstr "object-storage see for SeaweedFS/MinIO backnd حل اور per Consumer c
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: On-target Automation for struction a space a space a
-# space a construct space a space a space a space space a space a spapfile
-# taff -
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr ""

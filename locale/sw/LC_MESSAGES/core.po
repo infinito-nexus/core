@@ -117,8 +117,6 @@ msgstr "Huduma ya kupona ya moja kwa moja inayoanza tena au isiyo na afya Docker
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Jukumu la Automation kwa reverse DNS (wa wa wa wa)
-# Rekodi kwenye seva za Hetzner Cloud, IPs za msingi, IP zinazozunguka, na
-# mizani ya mzigo
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
@@ -268,11 +266,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Mpangilio wa upande wa mteja wa NFS kwa kupanda nje ya seva ya mbali kwenye kila node ya kikundi, na uchunguzi wa upatikanaji wa wakati"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Mteja upande WireGuard VPN jukumu kwa kuunganishwa imara na huduma systemd na script kwamba tune interface MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Meneja wa clipboard na historia inayoweza kuhaririwa, vitendo vya desturi, na msaada wa maandishi"
@@ -336,11 +329,8 @@ msgstr "Jumuiya ya Jumuiya"
 # Kwa kupitia sub_filterTumia rasilimali zinazoungwa mkono na CDN.
 # gained=['sub_filterTumia']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
-# gained=['sub_filterTumia']
 # nocheck: url
 # translation-rejected: Majukumu ya sindano ya HTML (CSS, JS, uingizaji wa
-# logout, analytics, iframe ya dashibodi) kwa hisani ya RaiaMwema/OpenResty
-# Kwa kupitia sub_filterTumia rasilimali zinazoungwa mkono na CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -400,7 +390,6 @@ msgstr "Usimamizi wa Maudhui"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa
-# ya kuchapisha mtandao
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -469,8 +458,6 @@ msgstr "Uhusiano wa Wateja"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya
-# kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
-# msaada.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -822,11 +809,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "High-utendaji, ufumbuzi wa uhifadhi wa kujitegemea kwa kusimamia, kupiga, na kupata data isiyo na muundo - ikiwa ni pamoja na kuhifadhi kitu sambamba na Amazon S3 ya API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Huduma ya WireGuard VPN ya kiwango cha jeshi na config ya wg-quick, kufunga mfuko, na sysctl ya mbele ya IP kwa tunnels salama"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Mpangilio wa ngazi ya jeshi kwa daemon ya magogo ya utaratibu na mipaka ya uhifadhi na Streaming ya kuishi"
@@ -910,6 +892,10 @@ msgstr "Jukwaa la kufuatilia mradi kwa timu za programu, na bodi za agile, kazi 
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript kukimbia wakati wa kujenga na kuendesha maombi ya upande wa seva na developer tooling"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1097,16 +1083,10 @@ msgid "Network-wide DNS sinkhole for blocking ads and trackers across all device
 msgstr "Hifadhi ya DNS ya mtandao kwa kuzuia matangazo na trackers katika vifaa vyote, na DHCP na dashibodi ya admin wa wavuti"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Msaidizi wa Mtandao kwa iptables forwarding na NAT masquerading ya mteja WireGuard mbio nyuma ya NAT au firewall"
-
-# translated-by: libretranslate
 # zote logout kwa centralized OIDC moja ishara-nje mwisho
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Ya ya ya sub_filter JavaScript sindano kuelekeza hatua
-# zote logout kwa centralized OIDC moja ishara-nje mwisho
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""

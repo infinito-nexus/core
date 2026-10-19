@@ -267,11 +267,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Client-side NFS 설정은 모든 swarm 노드에서 원격 서버 수출을 거치며, 배포 시간 범위의 조사"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client-side WireGuard VPN 역할은 시스템화된 서비스 및 스크립트를 사용하여 인터페이스 MTU를 조정합니다."
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "편집 가능한 역사, 사용자 정의 작업 및 스크립트 지원이있는 클립 보드 관리자"
@@ -422,7 +417,6 @@ msgstr "HTTP 및 TCP / UDP 스트림 지원 및 성능 조정 기본이있는 Co
 # translation-refused: libretranslate lost-token
 # nocheck: url
 # translation-rejected: `design` `design` service flag `design` configuration
-# owner
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
@@ -679,7 +673,6 @@ msgstr "Extensible Vim 기반 명령 줄 텍스트 편집기 터미널 구동 �
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Federated chess server for playing and following
-# rule-validated games over ActivityPub 건너편 Fediverse
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr ""
@@ -822,11 +815,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "고성능, 자체 호스팅 스토리지 솔루션 관리, 스케일링 및 Amazon S와 호환되는 객체 저장 포함3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "wg-quick config, Package install, IP-forwarding sysctl을 사용하여 호스트 수준의 WireGuard VPN 서비스"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "유지 제한과 라이브 로그 스트리밍을 가진 systemd-journald logging daemon에 대한 호스트 레벨 구성"
@@ -910,6 +898,10 @@ msgstr "소프트웨어 팀을위한 문제 및 프로젝트 추적 플랫폼, a
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtime for building and running server-side application and 개발자 툴링"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1071,7 +1063,6 @@ msgstr "NGINX subfilter 인젝터 추가 Matomo 분석 스크립트 및 noscript
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: NGINX vhost for serving static HTML websites over
-# HTTPS with automatic Let's Encrypt 인증서
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1100,11 +1091,6 @@ msgstr "네트워크 설정 (DNS, HTTP, WireGuard 등을 암호화합시다.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "DHCP 및 웹 관리자 대쉬보드와 함께 모든 장치에서 광고 및 추적기를 차단하기위한 Network-wide DNS Sinkhole"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "NAT 또는 방화벽 뒤에 실행되는 WireGuard 클라이언트의 IPtables 운송 및 NAT masquerading에 대한 네트워킹 도우미"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
@@ -1672,7 +1658,6 @@ msgstr "협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Self-hosted federated reading platform for book review
-# and reading tracking throughout the Fediverse
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""

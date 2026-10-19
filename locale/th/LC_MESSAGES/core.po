@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "โปรแกรมบริการด้านข้างของบริการ NFS เพื่อติดตั้งเซิร์ฟเวอร์ที่ส่งออกมาบนโหนดทุกกลุ่ม โดยมีการตรวจสอบความจุการใช้งาน"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "บทบาทของ Cuperal Service VPN สําหรับการเชื่อมต่อแบบคงที่กับบริการและสคริปต์ของระบบ ซึ่งปรับแต่งส่วนติดต่อผู้ใช้ MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "ระบบจัดการคลิปบอร์ดที่มีการแก้ไขประวัติ, การกระทําที่กําหนดเอง และรองรับสคริปต์"
@@ -327,11 +322,8 @@ msgstr "ชุมชน"
 # Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 # gained=['sub_filterส']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
-# gained=['sub_filterส']
 # nocheck: url
 # translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
-# เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
-# Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -804,11 +796,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "การดําเนินงานระดับสูง, การจัดเก็บสินค้าด้วยตนเอง สําหรับการจัดการ, การปรับขนาด, และการเข้าถึงข้อมูลที่ยังไม่มีการจัดการ — รวมถึงการจัดเก็บวัตถุที่เข้ากันได้กับ Amazon S3 เอพีเอส"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "บริการ Netwer-ระดับ Victor VPN ด้วยการปรับแต่ง wg-queck, ติดตั้งแพกเกจ และ IP transctl สําหรับอุโมงค์ที่ปลอดภัย"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "การปรับแต่งระดับเครื่องโฮสต์สําหรับดีมอนปูมบันทึกระบบแบบถอดเสียบ โดยมีข้อจํากัดการจองใหม่ และบันทึกการรับข้อมูลแบบสด"
@@ -892,6 +879,10 @@ msgstr "ปัญหาและโครงการติดตามสํา
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "เวลาที่จาวาสคริปต์ทํางานสําหรับการสร้างและใช้งานโปรแกรมแม่ข่ายด้านข้างและนักพัฒนา"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1088,11 +1079,6 @@ msgstr "ตั้งค่าเครือข่าย (DNS, เข้าร�
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "หลุมยุบเครือข่าย DNS สําหรับบล็อกโฆษณาและเครื่องติดตามทั้งหมด โดยมี DHCP และแผงวงจรเว็บ"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "ผู้ช่วยเหลือเครือข่ายสําหรับ ipables froming และ NAT squading ของไคลเอนต์ Wirecord ที่ทํางานอยู่หลังระบบ NAT หรือไฟร์วอลล์"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

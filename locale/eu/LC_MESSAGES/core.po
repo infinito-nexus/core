@@ -260,11 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "NFS bezero-aldearen konfigurazioa urruneko zerbitzari baten esportazioa muntatzeko leku guztietan, zabaltze-denborako zunda batekin"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Bezero-aldeko WireGuard VPN-ren papera konexio egonkorra izateko, sistematutako zerbitzu batekin eta MTU interfaze sintonizatuarekin"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Arbeleko kudeatzailea historia editagarriarekin, ekintza pertsonalizatuak eta script-en euskarriarekin"
@@ -795,11 +790,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Errendimendu handiko biltegiratze soluzioak, datu egituratuak kudeatzeko, eskalatzeko eta atzitzeko, Amazon S-rekin bateragarriak diren objektuen biltegia barne.3 APIak."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Ostalari mailako WireGuard VPN zerbitzua wg-quick konfigurazioarekin, paketeen instalazioa eta IP-forwarding sysctl tunel seguruetarako"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Ostalari-mailaren konfigurazioa sistematutako egunkari-erregistroen daemonarentzat, atxikipen-mugak eta zuzeneko egunkari-korrontea dituena"
@@ -883,6 +873,10 @@ msgstr "Software-taldeentzako jaulkipen- eta proiektuen jarraipen-plataforma, oh
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript exekuzio-denbora zerbitzariaren aldeko aplikazioak eta garatzaileen tresnak eraikitzeko eta exekutatzeko"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1068,11 +1062,6 @@ msgstr "Sareko konfigurazioa (DNS, enkriptatu HTTP, WireGuard eta abar.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Sareko DNS zuloa gailu guztietan iragarkiak eta jarraipenak blokeatzeko, DHCP eta web-administratzaileak arbelarekin"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Sare-laguntzailea posta-telefonoen birbidalketa eta NAT WireGuard bezero baten maskaraketa NAT edo suebaki baten atzetik korrika"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

@@ -260,11 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Клиент тараптагы NFS орнотуусу ар бир үйүр түйүнүнө алыскы сервер экспортун орнотуу үчүн, жайгаштыруу убактысында жеткиликтүү зонд менен"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Клиент тараптагы WireGuard VPN ролу системалык кызмат жана MTU интерфейсин жөнгө салуучу скрипт менен туруктуу туташуу үчүн"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Клипборддун менеджери түзөтүү тарыхы, атайын иш-аракеттер жана скрипттерди колдоо менен"
@@ -332,11 +327,8 @@ msgstr "Коомчулук"
 # камсыздалган активдери бар Луа.
 # gained=['sub_filterМЧН']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
-# gained=['sub_filterМЧН']
 # nocheck: url
 # translation-rejected: HTML инжекциялык ролдору (CSS, JS, Logout Interceptor,
-# аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
-# камсыздалган активдери бар Луа.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -807,11 +799,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Структураланбаган маалыматтарды башкаруу, масштабдоо жана аларга жетүү үчүн жогорку натыйжалуу, өз алдынча сактоочу чечимдер, анын ичинде Amazon S менен шайкеш келген объектилерди сактоо3 APIs."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "WireGuard VPN кызматы, wg-quick конфигурациясы, пакеттерди орнотуу жана коопсуз туннелдер үчүн IP жөнөтүү системасы"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Системаланган журналдагы жыгач дамон үчүн хост деңгээлиндеги конфигурация, кармоо чектөөлөрү жана тирүү жыгач агымы"
@@ -830,7 +817,6 @@ msgstr "Bash жана Zsh login кабыктарын айлана-чөйрөнү
 # via /etc/environment --- Host-level provisioning for exposing the project's
 # <x id="2"></x> version system-wide via /etc/environment --- Host-level
 # provisioning for exposing the project's <x id="3"></x> version system-wide
-# via /etc/environment --- Host-level provisioning for exposing the project's
 # <x id="4"></x> version system-wide via /etc/environment
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -905,6 +891,10 @@ msgstr "Программалык камсыздоо командалары үч�
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript сервердик тиркемелерди жана иштеп чыгуучу куралдарды куруу жана иштетүү үчүн иштөө убактысы"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1076,7 +1066,6 @@ msgstr "NGINX негизделген веб-платформа жана беки
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: NGINX кызмат кылган статикалык баракча юридикалык изин
-# берет (Импрессия) Жинжадан2 үлгүсү үлгүсү үлгүсү
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr ""
@@ -1095,11 +1084,6 @@ msgstr "Тармакты түзүү (DNS, Келгиле HTTP, WireGuard ж.б. 
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "DHCP жана веб-админ панели менен бардык түзмөктөрдө жарнамаларды жана трекерлерди бөгөт коюу үчүн тармактык DNS чуңкуру"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "IPtables жөнөтүү жана NAT маскаралоо үчүн тармактык жардамчы, NAT же Firewall артында иштеген WireGuard клиентинин"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
@@ -1819,8 +1803,6 @@ msgstr "Керектөөчүлөргө виртуалдык хост жана к
 # translation-refused: libretranslate added-span lost=[] gained=['<unk>']
 # nocheck: url
 # translation-rejected: Көп түйүндүү жайгаштыруулар тарабынан колдонулган
-# жалпы туруктуу сактоочу арткы бөлүктөр <unk> NFSv4 Сервердик жана клиенттик
-# ролдор.
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""

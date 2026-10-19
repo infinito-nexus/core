@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Клиентская настройка NFS для установки удаленного экспорта сервера на каждом роевом узле с зондом доступности развертывания"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Клиентская роль WireGuard VPN для стабильной связи с системным сервисом и скриптом, настраивающим интерфейс MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Менеджер Clipboard с редактируемой историей, пользовательскими действиями и поддержкой сценариев"
@@ -792,11 +787,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Высокопроизводительные решения для самостоятельного хранения данных для управления, масштабирования и доступа к неструктурированным данным, включая объектное хранилище, совместимое с Amazon S3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "VPN-сервис WireGuard хост-уровня с wg-quick конфигурацией, установкой пакетов и IP-форвардингом для безопасных туннелей"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Конфигурация хост-уровня для системно-журналистского лесозаготовительного демона с ограничениями удержания и потоковой передачей в реальном времени"
@@ -880,6 +870,10 @@ msgstr "Платформа отслеживания проблем и проек
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript Runtime для создания и запуска серверных приложений и инструментов для разработчиков"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1065,11 +1059,6 @@ msgstr "Настройка сети (DNS, Let’s Encrypt HTTP, WireGuard и д�
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Сетевой провал DNS для блокировки рекламы и трекеров на всех устройствах с DHCP и панелью управления веб-администрацией"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Сетевой помощник для пересылки iptables и маскировки NAT клиента WireGuard, работающего за NAT или брандмауэром"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

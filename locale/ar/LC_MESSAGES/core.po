@@ -270,11 +270,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "إنشاء جهاز أمن وطني من جانب العملاء من أجل زيادة تصدير الخواديم عن بُعد في كل عقدة حزامية، مع إجراء اختبار للقابلية للنشر"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "دور شبكة ويريغارد للتواصل المستقر مع خدمة نظامية وكتاب يربط بين شبكة MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "مدير لوح النسيج مع تاريخ قابل للتقسيم، إجراءات العرف، كتابة الدعم"
@@ -835,11 +830,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "إيجاد حلول تخزين ذاتية الأداء لإدارة البيانات غير المنظمة وتوسيع نطاقها والوصول إليها - بما في ذلك تخزين المواد المتوافقة مع الأمازون س3 مساعدين"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "خدمة شبكة ويري غارد في الشبكة ذات المستوى المضيف مع مجموعة البحّار، وتركيب الطرود، وشاشة IP-forwarding لأنفاق آمنة"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "تشكيلة على المستوى المضيف لقطع غيار دايمون النظامي بالصحافة بحدود استبقاء وتدفقات حية"
@@ -924,6 +914,10 @@ msgstr "منصة تعقب القضايا والمشاريع لأفرقة الب�
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "الوقت الذي يستغرقه بناء وتشغيل تطبيقات جانب الخادم وأدوات المطور"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # من صندوق الرمال
 # translated-by: libretranslate
@@ -1070,7 +1064,6 @@ msgstr "جهاز فحص لتعويذة متعددة اللغات مزودة بأ
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: NGINX glue role for 301 Redirects from source to
-# target domains with automatic SSL for the source hosts
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr ""
@@ -1102,7 +1095,6 @@ msgstr "حقن مرشّح فرعي لشبكة إن جيناكس Matomo محلل 
 # translation-refused: libretranslate echo
 # nocheck: url
 # translation-rejected: NGINX vhost for serving static HTML websites over
-# HTTPS with automatic Let's Encrypt certificates
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1132,12 +1124,6 @@ msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "حفرة مغسلة على نطاق الشبكة لحجب الإعلانات والمتعقبات عبر جميع الأجهزة، مع البارافينات المكلورة قصيرة السلسلة وورشة على شبكة الإنترنت"
 
-# "وايرغارد" للتسوّق مع شركة "نايت" و "نايت"
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "مُساعدة للتواصل مع المُساعدين المُرسلين إلى شركة \"وايرغارد\" للتسوّق مع شركة \"نايت\" و \"نايت\""
-
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -1163,7 +1149,6 @@ msgstr "الخادم الذي يوجد مقره في نجينكس لاستضاف
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Node.js حزمة حزمة حزمة تركيبة Npm واختياريا تشغيل 'npm
-# ci داخل دليل المشروع
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1322,7 +1307,6 @@ msgstr "تحسين أدوات تطوير المترجم لإنشاء برامج 
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Orchestration wrapper for perdomain NGINX provisioning
-# with TLS certificates, vHost templates, and optional OAuth2
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
@@ -1463,7 +1447,6 @@ msgstr "سحب من خلال المواهب لحزمة من أعلى المجر�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Python CLI package manager for cloning multiple code
-# repositos and automating common Git العمليات
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr ""

@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Thiết lập bên khách NFS để lắp đặt một máy chủ từ xa xuất khẩu trên mỗi nút thu nhỏ, với một thăm dò khả năng sử dụng thời gian"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Vai trò khách hàng bên Wire Guard VPN cho việc kết nối ổn định với một dịch vụ hệ thống và văn lệnh mà giai điệu giao diện MT"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Bộ quản lý bảng tạm với lịch sử soạn thảo, hành động tự chọn và hỗ trợ văn lệnh"
@@ -798,11 +793,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Các giải pháp lưu trữ có hiệu quả cao, tự lưu trữ để quản lý, phóng to và truy cập dữ liệu chưa cấu trúc — bao gồm các đối tượng lưu trữ tương thích với Amazon S3 ADIs."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Dịch vụ Wire cao cấp máy bảo vệ VPN với wg-quick conrig, gói cài đặt, và IP-backing Sysctl cho đường hầm bảo mật"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Cấu hình cấp máy cho trình nền ghi nhật ký hệ thống với giới hạn ghi nhớ và truyền dữ liệu trực tiếp"
@@ -886,6 +876,10 @@ msgstr "Phát hành và dự án theo dõi nền tảng cho các đội phần m
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Chạy JavaScript thời gian để xây dựng và chạy ứng dụng cạnh máy chủ và phát triển tooling"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1073,11 +1067,6 @@ msgstr "Thiết lập mạng (DNS, hãy mã hóa HTTP, Wire Guard, etc.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Hang ổ DNS toàn mạng cho việc chặn quảng cáo và theo dõi trên mọi thiết bị, với DHCP và bảng điều khiển quảng cáo trên mạng"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Trình trợ giúp mạng cho iptables chuyển tiếp và phát thanh NT của một khách hàng Wire Guard chạy phía sau NAT hoặc tường lửa"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

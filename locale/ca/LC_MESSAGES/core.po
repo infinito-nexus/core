@@ -260,14 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Configuració NFS del client per a muntar una exportació al servidor remot a cada node de eixam, amb una sonda d'abastiment ràpid"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Funció Comment
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr ""
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Gestor del porta- retalls amb història editable, accions personalitzades i implementació d' scripting"
@@ -798,11 +790,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Funcionalitat alta, solucions d'emmagatzematge auto-ordinadors per gestionar, escalar i accedir a dades no estructurades, incloent l' emmagatzematge compatible amb Amazon S3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "El servei VPN de la màquina, amb configuració wg-ràpid, instal·lació de paquets, i l'IP- systl per a túnels segurs"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Configuració del nivell de la màquina pel dimoni de registre del sistema amb límits de recuperació i desenvolupament del registre"
@@ -886,6 +873,10 @@ msgstr "Una plataforma de seguiment i projectes per a equips de programari, amb 
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Temps d' execució del JavaScript per a construir i executar aplicacions de la banda del servidor i eines de desenvolupadors"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1071,11 +1062,6 @@ msgstr "Configuració de xarxa (DNS, encriptarem HTTP, WiredGard, etc.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Bloc de xarxa per a bloquejar anuncis i rastrejadors a través de tots els dispositius, amb DHCP i un tauler d'administració web"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Ajudant en xarxa per a reenviar i fer una còpia de seguretat i NAT d'un client WireGard executant- se darrere de NAT o un tallafocs"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

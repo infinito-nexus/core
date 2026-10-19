@@ -260,11 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Εγκατάσταση NFS πλευρά πελάτη για την τοποθέτηση ενός απομακρυσμένου διακομιστή εξαγωγής σε κάθε κόμβο σμήνος, με έναν ανιχνευτή προσιτό χρόνο ανάπτυξης"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Πελάτης-side WireGuard VPN ρόλος για σταθερή συνδεσιμότητα με μια συστηματοποιημένη υπηρεσία και σενάριο που μελωδία διεπαφή MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Διαχείριση προχείρου με επεξεργάσιμο ιστορικό, προσαρμοσμένες ενέργειες και υποστήριξη σεναρίων"
@@ -802,11 +797,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr ""
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "WireGuard VPN σε επίπεδο υποδοχής με wg-γρήγορο config, εγκατάσταση πακέτων και IP-προωθώντας το σύστημα για ασφαλείς σήραγγες"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Διαμόρφωση επιπέδου υπολογιστή για τον δαίμονα καταγραφής του συστήματος με όρια διατήρησης και ζωντανή ροή καταγραφής"
@@ -890,6 +880,10 @@ msgstr "Έκδοση και παρακολούθηση έργων για ομά�
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtime για την κατασκευή και εκτέλεση εφαρμογών και εργαλείων ανάπτυξης server"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1079,11 +1073,6 @@ msgstr "setup δικτύου (DNS, ας κρυπτογραφήσουμε HTTP, W
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Καταβόθρα δικτύου DNS για την παρεμπόδιση διαφημίσεων και ανιχνευτών σε όλες τις συσκευές, με DHCP και ένα ταμπλό διαχείρισης ιστού"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Βοηθός δικτύωσης για iptables προώθηση και NAT masquerading ενός πελάτη WireGuard που τρέχει πίσω από NAT ή ένα τείχος προστασίας"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

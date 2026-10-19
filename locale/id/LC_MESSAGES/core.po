@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Klien - sisi NFS setup untuk mengait sebuah ekspor server jauh pada setiap titik kerumunan, dengan probe reachability waktu pengiriman"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client- side WireGuard peran VPN untuk konektivitas stabil dengan layanan sistemd dan skrip yang tune interface MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Manajer papan klip dengan riwayat yang dapat disunting, aksi gubahan, dan dukungan skrip"
@@ -793,11 +788,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Penampilan-tinggi, solusi penyimpanan diri yang diselenggarakan untuk mengelola, skala, dan mengakses data yang tidak terstruktur - termasuk penyimpanan objek yang kompatibel dengan Amazon S3 APIs."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Host-level Wireguard layanan VPN dengan wg-quick config, memasang paket, dan IP- meneruskan sysctl untuk terowongan aman"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Konfigurasi tingkat host bagi sistem-Jurnalis log daemon dengan batas penahanan dan streaming log hidup"
@@ -881,6 +871,10 @@ msgstr "Issue and project tracking platform for software team, with agile board,
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript waktu jalan untuk membangun dan menjalankan aplikasi sisi server- dan pengembang tooling"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1066,11 +1060,6 @@ msgstr "Penyiapan jaringan (DNS, Mari kita Encrypt HTTP, WireGuard, dll.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Network- wide DNS sinkhole untuk memblokir iklan dan pelacak di seluruh perangkat, dengan DHCP dan dasbor web admin"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Pembantu jaringan untuk penerusan dan NAT menyamar dari klien WireGuard yang berjalan di belakang NAT atau firewall"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

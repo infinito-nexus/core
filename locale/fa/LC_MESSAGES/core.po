@@ -259,11 +259,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "تنظیم Client-side NFS برای نصب یک سرور از راه دور صادرات بر روی هر گره گرد، با یک کاوشگر دسترسی به زمان استقرار"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "نقش VPN Client-side WireGuard برای اتصال پایدار با یک سرویس سیستم و اسکریپت که رابط MTU را تنظیم می کند"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "مدیر Clipboard با تاریخ قابل ویرایش، اقدامات سفارشی و پشتیبانی اسکریپتینگ"
@@ -385,7 +380,6 @@ msgstr "مدیریت محتوا"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: سیستم های مدیریت محتوا (CMS CMS CMS CMS) پلتفرم های
-# انتشار وب
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -676,7 +670,6 @@ msgstr "حوادث"
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Extensible Vim-line text Editor for Terminal-based
-# code and Configuration
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -817,11 +810,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "عملکرد بالا، راه حل های ذخیره سازی خود میزبان برای مدیریت، مقیاس پذیری و دسترسی به داده های بدون ساختار - از جمله ذخیره سازی شی سازگار با آمازون S3 API ها"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "سرویس WireGuard VPN با wg-quick config، نصب بسته و IP-forward sysctl برای تونل های امن"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "پیکربندی سطح میزبان برای ورود به سیستمd-Journald daemon با محدودیت های حفظ و جریان ورود زنده"
@@ -905,6 +893,10 @@ msgstr "موضوع و پلت فرم ردیابی پروژه برای تیم ها
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "جاوا اسکریپت زمان برای ساخت و اجرای برنامه های سرور و ابزار توسعه دهنده"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1090,11 +1082,6 @@ msgstr "راه اندازی شبکه (DNS، بیایید HTTP، WireGuard و غ�
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "شکاف DNS در سراسر شبکه برای مسدود کردن تبلیغات و ردیاب ها در تمام دستگاه ها، با DHCP و داشبورد مدیران وب"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "کمک کننده شبکه برای ارسال iptables و NAT masquerading از یک مشتری WireGuard در پشت NAT یا فایروال"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

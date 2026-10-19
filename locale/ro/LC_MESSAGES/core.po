@@ -260,11 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Client-side NFS setup pentru montarea unui export de server la distanță pe fiecare nod roi, cu o sondă de accesibilitate în timp"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client-side WireGuard VPN rol pentru conectivitate stabilă cu un serviciu sistemat și script care ton interfata MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Manager clipboard cu istorie editabilă, acțiuni personalizate și suport de scripting"
@@ -795,11 +790,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Soluții de stocare de înaltă performanță, auto-hosted pentru gestionarea, scalarea și accesarea datelor nestructurate 3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Serviciul WireGuard WireGuard VPN cu configurare wg-quick, instalare pachet, și IP-forwarding Sysctl pentru tuneluri securizate"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Configurație la nivelul gazdei pentru demonul de logare sistemat-jurnald cu limite de reținere și streaming live log"
@@ -883,6 +873,10 @@ msgstr "Platforma de urmărire a proiectelor și emisiunilor pentru echipe de so
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Timp de rulare JavaScript pentru construirea și rularea aplicațiilor de server și instrumentare dezvoltator"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1068,11 +1062,6 @@ msgstr "Configurare rețea (DNS, Să criptăm HTTP, WireGuard etc.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Canal DNS la nivel de rețea pentru blocarea anunțurilor și a trackerelor pe toate dispozitivele, cu DHCP și un panou de bord web admin"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Asistent de rețea pentru iptables forwarding și Masquerading NAT de un client WireGuard rulează în spatele NAT sau un firewall"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

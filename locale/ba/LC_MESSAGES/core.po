@@ -266,11 +266,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Setup NFS klien untuk menonjolkan ekspor server jarak jauh pada setiap node swarm pada masa berlayar, dengan pemeriksa keberadaan pada masa berlayar"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client-sid WireGuard VPN rol untuk koneksi stabil dengan sivit systemd dan skrip yang memasak ukuran paket jaringan"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Sistem jemah kad yang boleh diubahpadam hisbah, aksi yang dipilihan secara sendiri, dan sokongan kepada pengetesan程式"
@@ -814,11 +809,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "High-performance, self-hosted solutiosn za konsoljung, skalaung, un odkazaung podatok neopisanih — inkluzivn obyektne konsutung kompatiblihne s Amazon S3."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Servic ng-level WireGuard VPN amb konfigurasi wg-quick, instalasyon paket, dan pengurusan sysctl untuk kawalan arah IP untuk talun keperluan yang aman"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Konfigurasi tingkat host untuk daemon pengumpul jurnal systemd dengan batasan penyimpanan dan streaming jurnal yang hidup"
@@ -846,32 +836,6 @@ msgstr "Identity-based secrets, PKI o encryption manager, OIDC log-in, policiés
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Cache cache cache cache-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
-# i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
 # i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache i-cache
 # i-cache i-cache i-cache i-cache i-cache i-cache i-cache i
 msgctxt "role:svc-db-redis:description"
@@ -937,6 +901,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Runtime JavaScript para bangunan dan menjalankan aplikasi di sisi server dan alat pengembangan"
 
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
@@ -975,18 +943,6 @@ msgstr "Platform za științifică, instrumente de colaborare în clasa și medi
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Provider Let Encrypt la bai SSL la te tisao te teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
-# teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
 # teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu teu
 # te
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1140,11 +1096,6 @@ msgstr "Setupsir siri (DNS, Let's Encrypt HTTP, WireGuard, dll.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Rahubangan DNS sinkol untuk melarang iklan dan pemantauan di seluruh peranti, dengan DHCP dan layar admin web"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Helper networking untuk forwarding dan NAT masquerading klien WireGuard yang berjalan di belakang NAT atau firewall"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

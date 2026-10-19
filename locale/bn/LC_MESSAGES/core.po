@@ -68,7 +68,6 @@ msgstr "সতর্কবার্তা"
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: IMAP, IMAP সার্ভার %s-র মধ্যে মেইল প্রেরণ করা হচ্ছে3;
-# Syv, CalDAV, কার্ডADV, এবং স্প্যাম ফিল্টার পরিচালনা করুন
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -268,11 +267,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "উচ্চ পর্যায়ের নোডে দূরবর্তী সার্ভার এক্সপোর্টের জন্য ক্লায়েন্ট-এর সুবিধা উপলব্ধ করা হয়, যেখানে একটি বহনযোগ্য অনুসন্ধানের জন্য ব্যবহৃত হয়"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "সিস্টেম বিজ্ঞাপনী সার্ভিস এবং স্ক্রিপ্ট দ্বারা স্থায়ী সংযোগের জন্য ক্লায়েন্ট-এর পাশাপাশি Wiরেগ্রে VPN ভূমিকা"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "ক্লিপবোর্ড ইতিহাস, স্বনির্বাচিত কাজ এবং স্ক্রিপ্ট সমর্থন দ্বারা ক্লিপবোর্ড ব্যবস্থাপক"
@@ -337,7 +331,6 @@ msgstr "সম্প্রদায়"
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: ভূমিকা: (CSS, JS, লগার, Alickits, ড্যাশবোর্ড SSI)
-# এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -807,11 +800,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "পরিচালনা, ব্যবস্থাপনা, স্ব-সীম্যপূর্ণ সমাধান, মাপ, এবং সুসংগত তথ্য — যার মধ্যে আমাজন এস.3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "নিরাপদ টানেলের জন্য হোস্ট-লেভেল Wicad VPN পরিসেবা, wg-queic প্যাকেজ ইনস্টল এবং IP-অনুসন্ধানের জন্য হোস্ট"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "আবশ্যক সীমা সহ সিস্টেমের জন্য হোস্ট- লেভেল কনফিগারেশন এবং লাইভ স্ট্রিমিং এর লগ করা লগ-আউট ডেমন"
@@ -896,6 +884,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "নির্মাণ ও পরিচালনার অ্যাপ্লিকেশন এবং ডেভেলপার টুলের জন্য JavaScript টুল"
 
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
@@ -925,7 +917,6 @@ msgstr "দূরবর্তী হোস্ট- নেম সার্ভা�
 # translation-refused: libretranslate added-span lost=[] gained=['♪']
 # nocheck: url
 # translation-rejected: লিয়েট-থেকে- অনুমোদনকৃত অনুবাদ ইঞ্জিন LibreTranslate
-# API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
 msgstr ""
@@ -1010,7 +1001,6 @@ msgstr "সার্টিফিকেটের জন্য দায়ী ভ
 # translation-refused: libretranslate added-span lost=[] gained=['%s']
 # nocheck: url
 # translation-rejected: হোস্টের মতো ভূমিকা ধার্যকারী Docker Swarm ব্যবস্থাপক
-# নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""
@@ -1089,11 +1079,6 @@ msgstr "নেটওয়ার্ক সেটআপ (ডি. এন. এস. 
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "DHCP এবং একটি ওয়েব প্রশাসক ড্যাশবোর্ড দ্বারা সমস্ত ডিভাইস জুড়ে একটি বিজ্ঞাপন এবং ট্র্যাকার বন্ধ করার জন্য নেটওয়ার্ক DNS-সমার্গ"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "NAT অথবা ফায়ারওয়ালের আড়ালে চলমান ক্লায়েন্টের জন্য Cipparth এবং NAT MRADP এর নেটওয়ার্ক ব্যবস্থা"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

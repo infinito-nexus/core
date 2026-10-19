@@ -260,14 +260,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "Klient- side NFS nastavení pro montáž vzdáleného serveru export na každý roj uzlu, s nasazením -time reachability sond"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr ""
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Clipboard manažer s editovatelnou historií, vlastní akce, a skript podporu"
@@ -798,11 +790,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "Společnost Amazon uvádí, že společnost LuxSCS je v souladu se zásadou tržně jednajícího hospodářského subjektu.3 API."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Host- level WireGuard VPN služba s wg- rychlý config, instalace balíčků a IP- přesměrování sysctl pro zabezpečené tunely"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Konfigurace úrovně Host-level pro systém- journald loging démona s retenčními limity a live log streaming"
@@ -886,6 +873,10 @@ msgstr "Sborování a sledování projektů pro software týmy, s Agilemi, praco
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtime pro budování a běh serverside aplikací a vývojářské nástroje"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1073,11 +1064,6 @@ msgstr "Nastavení sítě (DNS, Pojďme šifrovat HTTP, WireGuard, atd.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Network- wide DNS dřez pro blokování reklamy a trackery napříč všemi zařízeními, s DHCP a web admin palubní deska"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Síťový pomocník pro iptables přesměrování a NAT maskování klienta WireGuard běží za NAT nebo firewall"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"

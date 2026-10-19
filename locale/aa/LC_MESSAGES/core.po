@@ -267,11 +267,6 @@ msgid "Client-side NFS setup for mounting a remote server export on every swarm 
 msgstr "NFS-montadoi aileiide siidibiide siidibiide erëgidaar bihi aamga iikamwoodhii aamgaga swamga, gaara iikamwoodhii iikamwoodhii"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Klientsele WireGuard VPN rol foor stabe koollegaattanbil biid systemd diyeysiin og skript ke taale yi interfasi MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Clipboard manager wi bi dhenya yola bi dënyar bi, ak'ñaala ak skripti bi taalaa"
@@ -383,26 +378,6 @@ msgstr "Containerized ikon server fi hoshunta ikon kolligjoon ya Simple Icons br
 # nocheck: url
 # translation-rejected: Bază_de_date relational serializibel meeleb dibaya
 # dibala dibale dibale dibale dibala dibale dibala dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
-# dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
 # dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
 # dibale dibale dibale dibale dibale dibale dibale dib
 msgctxt "role:svc-db-postgres:description"
@@ -844,11 +819,6 @@ msgid "High-performance, self-hosted storage solutions for managing, scaling, an
 msgstr "High-performance, self-hosted størvorskemål for håndtering, skalering og tilgang til uløybrukad data – inkludert objektsvorskemål som kompatible med Amazon S3 API-sättene."
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Host-levele WireGuard VPS servise mitu wg-quick konfiguratsiooni, paketi instalatsiooni ja IP-forwarding sysctl-un for securit tunnel"
-
-# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Host-levele konsolitekonfigurasjon for systemd-journald-loggveksteloddeddon med forlenginglimesar og livelog-streaming"
@@ -936,6 +906,10 @@ msgstr "Istiwee na aapaaleet na aapaale, waaye aapaaleet kala siitaa, waaye waa 
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtimii firmi gof bi gof kasutamisega ja tõstmisega veebisaitidekasutavate apligaadidega"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1121,11 +1095,6 @@ msgstr "Nätverkssetning (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Sjelbina DNS sitaala lai waga wey waa loo aad helo weyn xukuba aad iwe yararay ay weyn daadu waxay ahaan iwe helo dhawo, wuxuu sameeyn kala dhinac DHCP waa loo aad helo weyn xukuba aad iwe helo dhawo waxyaabo. La akkaan weyn wajisal dhaawad ee website."
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Nätverkohjautushjelmabot fi iptables-hallitusta ja WireGuard kliendin NAT-maskerijassa käynnissä NATin tai hallintalaiton takia"
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-front-inj-logout:description"
@@ -1844,19 +1813,6 @@ msgstr "Sagazimaji"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Koshaa aasat ayasut ayasut yi aasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
-# ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
 # ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
 # ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
 msgctxt "role:sys-openssl:description"

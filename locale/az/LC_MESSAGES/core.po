@@ -267,11 +267,6 @@ msgstr ""
 "Klient-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 
 # translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-plain:description"
-msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Client-side WireGuard VPN rolu sistemli xidmət və melodi interfeys MTU"
-
-# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Videoboard meneceri rəsmi, xüsusi fəaliyyətlər, və dəstək dəstək"
@@ -788,7 +783,6 @@ msgstr "Yardım"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: CA-trust enjeksiyon aktivlərinin qarşısını almaq
-# Docker Compose stack and and and and
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
@@ -807,11 +801,6 @@ msgstr "Daxil ol"
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr "Amazon S ilə uyğun olaraq, səhifə saxlamaq, səviyyətləşdirilməsi və konfiqurasiyasız məlumatların daxil olmaq üçün yüksək keyfiyyətli depozitləri3 API."
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-core:description"
-msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Wg-quick konfiqurasiyası ilə Host-level WireGuard VPN xidməti, paketi yükləyir və IP-i təhlükəsiz squl üçün sctl"
 
 # translation-refused: libretranslate collapsed
 # nocheck: url
@@ -902,6 +891,10 @@ msgstr "Proqram komandaları üçün fayl və layihə izleme platforması, çevi
 # translation-rejected: Yadda saxla
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr ""
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
 
 # translated-by: libretranslate
@@ -1088,11 +1081,6 @@ msgstr "Axtarış (DNS, Yadda saxla)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "DHCP və bir web admin paneli ilə bütün cihazlar arasında reklam və trackers blok üçün Network-wide DNS batareya"
-
-# translated-by: libretranslate
-msgctxt "role:svc-net-wireguard-firewalled:description"
-msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "NAT və ya bir firewall üzərində çalışan bir WireGuard müştərinin iptables üçün yardımçısı"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
@@ -1855,9 +1843,6 @@ msgstr "Sizə xidmətlərinə baxın..."
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Single-user ActivityPub bookmarking site ictimai kitab
-# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
-# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
-# məlumatları öyrənmək Mastodon Fediverse
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
