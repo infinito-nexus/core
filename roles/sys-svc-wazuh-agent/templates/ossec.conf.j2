@@ -22,6 +22,7 @@
   <localfile>
     <location>journald</location>
     <log_format>journald</log_format>
+    <only-future-events>no</only-future-events>
     <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
     <filter field="_UID">^0$</filter>
   </localfile>
@@ -31,11 +32,22 @@
   <localfile>
     <location>journald</location>
     <log_format>journald</log_format>
+    <only-future-events>no</only-future-events>
     <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
     <filter field="_UID">^0$</filter>
     <filter field="_COMM">^{{ WAZUH_AGENT_JOURNALD_CONTAINER_COMM }}$</filter>
   </localfile>
 {% endfor %}
+
+  <localfile>
+    <location>journald</location>
+    <log_format>journald</log_format>
+    <only-future-events>no</only-future-events>
+    <filter field="SYSLOG_IDENTIFIER">^{{ WAZUH_AGENT_RULESET.journald.program }}$</filter>
+    <filter field="_UID">^0$</filter>
+    <filter field="_TRANSPORT">^driver$</filter>
+    <filter field="MESSAGE">^Suppressed [0-9]+ messages from </filter>
+  </localfile>
 
 {% set fim_mode = 'whodata="yes"' if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool else 'realtime="yes"' %}
   <syscheck>

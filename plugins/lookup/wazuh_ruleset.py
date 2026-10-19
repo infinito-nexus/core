@@ -10,6 +10,8 @@ from utils.cache import ROLES_DIR
 from utils.roles.applications.services.wazuh import (
     DEPLOY_TAG,
     FIM_TAG,
+    JOURNALD_DECODER,
+    JOURNALD_PROGRAM,
     OWN_TAGS,
     PROVIDER_ENTITY,
     SAMPLES_FILE,
@@ -36,10 +38,12 @@ class LookupModule(LookupBase):
             this host's ``group_names``, which is what its agent collects.
 
     Returns:
-        ``{selftest, deploy, fim, own, entities, files, samples}``.
+        ``{selftest, deploy, fim, own, journald, entities, files, samples}``.
         ``selftest``, ``deploy`` and ``fim`` are ``{program, decoder}`` of the
         reserved tags for the self-test, the deploy markers and the FIM
-        who-data state; ``own`` lists the three in that order. ``entities`` is
+        who-data state; ``own`` lists the three in that order. ``journald``
+        is ``{program, decoder}`` of journald's own messages, which report
+        rate-limit suppression. ``entities`` is
         ``[{entity, program, decoder, rule_block}]`` sorted by ``entity``, one
         per opted-in role, tag-only roles included: ``program`` is the
         journald tag and ``decoder`` its base parent decoder.
@@ -48,8 +52,8 @@ class LookupModule(LookupBase):
         ``decoders`` or ``rules``, and ``name`` is ``<entity>_<kind>.xml``.
         A role without one or both files contributes only the files it has.
         ``samples`` is ``[{role, program, decoder, lines, rule, level}]``:
-        the Wazuh role's own-tag samples first (self-test unless the sample
-        names another own tag in ``program``), then each opted-in role's
+        the Wazuh role's samples first (self-test unless the sample names
+        another own tag or ``systemd-journald`` in ``program``), then each opted-in role's
         ``files/wazuh/samples.yml`` in entity order.
 
     Raises:
@@ -127,6 +131,8 @@ class LookupModule(LookupBase):
         entities.sort(key=lambda e: e["entity"])
         files.sort(key=lambda f: (f["kind"], f["name"]))
         own = {tag: {"program": tag, "decoder": tag} for tag in OWN_TAGS}
+        journald = {"program": JOURNALD_PROGRAM, "decoder": JOURNALD_DECODER}
+        sample_sources = {**own, JOURNALD_PROGRAM: journald}
         sources = [
             (role, own[SELFTEST_TAG])
             for role in sorted(applications)
@@ -138,7 +144,7 @@ class LookupModule(LookupBase):
                 ROLES_DIR / role / "files" / "wazuh" / SAMPLES_FILE
             ):
                 program = sample.pop("program", None)
-                tagged = own[program] if program else source
+                tagged = sample_sources[program] if program else source
                 samples.append(
                     {
                         "role": role,
@@ -153,6 +159,7 @@ class LookupModule(LookupBase):
                 "deploy": own[DEPLOY_TAG],
                 "fim": own[FIM_TAG],
                 "own": [own[tag] for tag in OWN_TAGS],
+                "journald": journald,
                 "entities": entities,
                 "files": files,
                 "samples": samples,

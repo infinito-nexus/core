@@ -1,0 +1,26 @@
+---
+- name: "📂 Ensure the {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }} drop-in directory"
+  ansible.builtin.file:
+    path: "{{ SYS_SVC_JOURNALCTL_DOCKER_DROPIN | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+# Exception: systemd hands this limit to journald only when docker.service starts; this file never restarts Docker.
+- name: "🔧 Set the journald log rate limit of {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }}"
+  ansible.builtin.copy:
+    dest: "{{ SYS_SVC_JOURNALCTL_DOCKER_DROPIN }}"
+    content: |
+      [Service]
+      LogRateLimitIntervalSec={{ SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC }}s
+      LogRateLimitBurst={{ SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_BURST }}
+    owner: root
+    group: root
+    mode: "0644"
+  register: sys_svc_journalctl_docker_dropin
+
+- name: "🔄 Reload systemd for the {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }} drop-in"
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: sys_svc_journalctl_docker_dropin is changed

@@ -9,6 +9,30 @@
       and built from source on Arch Linux; {{ ansible_facts['os_family'] }} has no install path.
     quiet: true
 
+- name: "🕐 Read whether the host clock is synchronized"
+  ansible.builtin.command:
+    argv: [timedatectl, show, --property=NTPSynchronized, --value]
+  register: wazuh_agent_clock_sync
+  changed_when: false
+  # Exception: a host still converging after boot gets retries; when they run out, the assert below fails with the reason.
+  ignore_errors: true
+  retries: "{{ WAZUH_AGENT_CLOCK_SYNC_RETRIES }}"
+  delay: 10
+  until: wazuh_agent_clock_sync.stdout | trim == 'yes'
+
+- name: "🧭 Resolve the clock synchronization state"
+  ansible.builtin.set_fact:
+    wazuh_agent_clock_synchronized: "{{ wazuh_agent_clock_sync.stdout | default('') | trim == 'yes' }}"
+
+- name: "🛑 Require a synchronized host clock"
+  ansible.builtin.assert:
+    that: wazuh_agent_clock_synchronized | bool
+    fail_msg: >-
+      The host clock is not synchronized (timedatectl NTPSynchronized is not 'yes'), so Wazuh event times
+      cannot be trusted. Run one time sync service, systemd-timesyncd or chrony, whichever the distribution
+      uses, and redeploy (policy P4).
+    quiet: true
+
 - name: "🔍 Read the installed agent version"
   include_tasks: utils/installed_version.yml
 

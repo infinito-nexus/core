@@ -9,7 +9,13 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from plugins.lookup.wazuh_ruleset import LookupModule
-from utils.roles.applications.services.wazuh import DEPLOY_TAG, FIM_TAG, SELFTEST_TAG
+from utils.roles.applications.services.wazuh import (
+    DEPLOY_TAG,
+    FIM_TAG,
+    JOURNALD_DECODER,
+    JOURNALD_PROGRAM,
+    SELFTEST_TAG,
+)
 
 _SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
 _DEPLOY = {"program": DEPLOY_TAG, "decoder": DEPLOY_TAG}
@@ -19,6 +25,7 @@ _EMPTY = {
     "deploy": _DEPLOY,
     "fim": _FIM,
     "own": [_SELFTEST, _DEPLOY, _FIM],
+    "journald": {"program": JOURNALD_PROGRAM, "decoder": JOURNALD_DECODER},
     "entities": [],
     "files": [],
     "samples": [],
@@ -221,6 +228,17 @@ class TestWazuhRuleset(unittest.TestCase):
                     "level": 3,
                 }
             ],
+        )
+
+    def test_wazuh_role_journald_sample_uses_the_journald_decoder(self):
+        _write_samples(
+            self.roles_dir,
+            "web-app-wazuh",
+            f"- log: Suppressed 5 messages from docker.service\n  rule: 100140\n  level: 7\n  program: {JOURNALD_PROGRAM}\n",
+        )
+        sample = _run(self.roles_dir, {"web-app-wazuh": True})["samples"][0]
+        self.assertEqual(
+            (sample["program"], sample["decoder"]), (JOURNALD_PROGRAM, JOURNALD_DECODER)
         )
 
     def test_opted_in_role_samples_carry_tag_and_decoder(self):

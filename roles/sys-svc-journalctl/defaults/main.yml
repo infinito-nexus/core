@@ -1,0 +1,13 @@
+---
+# Param SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE: disk cap of the persistent journal; the forensic window is min(MAX_RETENTION_SEC, this cap / daily volume).
+SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE: "4G"
+# Param SYS_SVC_JOURNALCTL_SYSTEM_KEEP_FREE: free space journald leaves on the filesystem before it rotates out old entries.
+SYS_SVC_JOURNALCTL_SYSTEM_KEEP_FREE: "15%"
+# Param SYS_SVC_JOURNALCTL_MAX_RETENTION_SEC: upper bound on how long entries are kept, for data minimisation; not a guarantee.
+SYS_SVC_JOURNALCTL_MAX_RETENTION_SEC: 604800
+# Param SYS_SVC_JOURNALCTL_RATE_LIMIT_INTERVAL_SEC and _BURST: per-unit rate limit of every unit without its own.
+SYS_SVC_JOURNALCTL_RATE_LIMIT_INTERVAL_SEC: 30
+SYS_SVC_JOURNALCTL_RATE_LIMIT_BURST: 10000
+# Param SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC and _BURST: docker.service's own limit, shared by every container's log lines.
+SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC: 30
+SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_BURST: 50000

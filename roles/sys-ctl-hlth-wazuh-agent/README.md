@@ -14,6 +14,8 @@ On every agent host the check fails when:
 - `wazuh-agentd` is not running although the unit is active (the unit keeps `RemainAfterExit=yes`, so it stays active when the daemons die);
 - `wazuh-agentd` reports itself not `connected` in `var/run/wazuh-agentd.state` and its last ACK from the manager is older than the threshold.
 
+On every agent host it also fails when the host clock is not synchronized (`timedatectl` `NTPSynchronized` is not `yes`), because Wazuh event times are only as good as the clock (policy P4).
+
 On the manager host it also lists every agent registered on the manager (`agent_control -l`); agents are pre-registered and enrollment is off, so this is the expected set. It fails when the manager is unreachable, or when a registered agent other than the manager's own (`000`) is not `Active` and its last keepalive is older than the threshold or it never connected. This also catches an agent on another host that was registered but never came up.
 
 **Threshold and grace: 180 s**, three times the agent's reconnect interval (`lookup('wazuh_agent').time_reconnect`), the same window the deploy waits for an agent to become Active. A disconnect shorter than that, such as the manager's restart during a deploy, does not alert. The same 180 s are the grace after `wazuh-agentd` starts (judged by the process, not the unit, so the agent's own daemon restart after the manager pushes shared configuration is covered) and after the manager container starts or stops (`State.StartedAt`, `State.FinishedAt`), so a manager restart alerts only when it lasts longer than that.

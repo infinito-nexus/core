@@ -13,15 +13,15 @@
 # See journald.conf(5) for details.
 
 [Journal]
-#Storage=auto
+Storage=persistent
 #Compress=yes
 #Seal=yes
 #SplitMode=uid
 #SyncIntervalSec=5m
-#RateLimitIntervalSec=30s
-#RateLimitBurst=10000
-#SystemMaxUse=
-#SystemKeepFree=
+RateLimitIntervalSec={{ SYS_SVC_JOURNALCTL_RATE_LIMIT_INTERVAL_SEC }}s
+RateLimitBurst={{ SYS_SVC_JOURNALCTL_RATE_LIMIT_BURST }}
+SystemMaxUse={{ SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE }}
+SystemKeepFree={{ SYS_SVC_JOURNALCTL_SYSTEM_KEEP_FREE }}
 #SystemMaxFileSize=
 #SystemMaxFiles=100
 #RuntimeMaxUse=
@@ -29,8 +29,7 @@
 #RuntimeMaxFileSize=
 #RuntimeMaxFiles=100
 
-# Store logs for one week:
-MaxRetentionSec=604800
+MaxRetentionSec={{ SYS_SVC_JOURNALCTL_MAX_RETENTION_SEC }}
 
 #MaxFileSec=1month
 #ForwardToSyslog=no

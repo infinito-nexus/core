@@ -111,6 +111,20 @@ class TestEvaluateManager(TestCase):
         self.assertEqual(self.evaluate(listing=listing), [])
 
 
+class TestEvaluateClock(TestCase):
+    def setUp(self):
+        self.script = load_script()
+
+    def test_synchronized_clock_is_healthy(self):
+        self.assertEqual(self.script.evaluate_clock("yes"), [])
+
+    def test_unsynchronized_clock_fails(self):
+        self.assertIn("NTPSynchronized=no", self.script.evaluate_clock("no")[0])
+
+    def test_unreadable_clock_state_fails(self):
+        self.assertIn("NTPSynchronized=unreadable", self.script.evaluate_clock(None)[0])
+
+
 class TestParsing(TestCase):
     def setUp(self):
         self.script = load_script()

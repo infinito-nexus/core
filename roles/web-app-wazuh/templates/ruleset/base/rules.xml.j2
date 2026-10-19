@@ -13,6 +13,12 @@
     <decoded_as>{{ WAZUH_RULESET_FIM.decoder }}</decoded_as>
     <description>{{ SOFTWARE_NAME }} FIM who-data state.</description>
   </rule>
+
+  <rule id="{{ WAZUH_JOURNALD_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_JOURNALD.decoder }}</decoded_as>
+    <program_name>^{{ WAZUH_RULESET_JOURNALD.program }}$</program_name>
+    <description>journald message.</description>
+  </rule>
 {% for app in WAZUH_RULESET_ENTITIES %}
 
   <rule id="{{ app.rule_block }}" level="0">
@@ -56,5 +62,13 @@
     <if_sid>{{ WAZUH_FIM_RULE_ID }}</if_sid>
     <match>^whodata=unknown </match>
     <description>{{ SOFTWARE_NAME }} FIM who-data state could not be read from the agent log.</description>
+  </rule>
+</group>
+
+<group name="infinito_journald,">
+  <rule id="{{ WAZUH_JOURNALD_SUPPRESSED_RULE_ID }}" level="{{ WAZUH_JOURNALD_SUPPRESSED_LEVEL }}">
+    <if_sid>{{ WAZUH_JOURNALD_RULE_ID }}</if_sid>
+    <regex>^Suppressed \d+ messages from </regex>
+    <description>journald dropped log lines of a unit that exceeded its rate limit; a flood can hide other lines of that unit.</description>
   </rule>
 </group>

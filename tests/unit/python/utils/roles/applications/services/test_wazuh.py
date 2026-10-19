@@ -167,6 +167,14 @@ class TestRuleBlockErrors(unittest.TestCase):
         )
         self.assertEqual(self._errors({"web-app-wazuh": {"enabled": True}}), [])
 
+    def test_provider_sample_with_journald_program_passes(self):
+        self._ship(
+            "web-app-wazuh",
+            "samples.yml",
+            "- log: Suppressed 5 messages from x\n  rule: 100140\n  level: 7\n  program: systemd-journald\n",
+        )
+        self.assertEqual(self._errors({"web-app-wazuh": {"enabled": True}}), [])
+
     def test_provider_sample_with_foreign_program_fails(self):
         self._ship(
             "web-app-wazuh", "samples.yml", "- log: x\n  rule: 100120\n  level: 3\n  program: sshd\n"

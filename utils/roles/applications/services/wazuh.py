@@ -20,6 +20,10 @@ SELFTEST_TAG = "infinito-selftest"
 DEPLOY_TAG = "infinito-deploy"
 FIM_TAG = "infinito-fim"
 OWN_TAGS = (SELFTEST_TAG, DEPLOY_TAG, FIM_TAG)
+JOURNALD_PROGRAM = "systemd-journald"
+# Exception: Wazuh's default decoder "systemd" claims every program name containing "systemd", so journald's lines use it instead of an own decoder.
+JOURNALD_DECODER = "systemd"
+SAMPLE_PROGRAMS = (*OWN_TAGS, JOURNALD_PROGRAM)
 PROVIDER_ENTITY = "wazuh"
 MANAGER_ROLE = "web-app-wazuh"
 SAMPLES_FILE = "samples.yml"
@@ -198,7 +202,7 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
         if entity == PROVIDER_ENTITY:
             errors.extend(
                 _sample_errors(
-                    role, wazuh_dir, range(BASE_RULE_MIN, BASE_RULE_MAX + 1), {}, OWN_TAGS
+                    role, wazuh_dir, range(BASE_RULE_MIN, BASE_RULE_MAX + 1), {}, SAMPLE_PROGRAMS
                 )
             )
             continue

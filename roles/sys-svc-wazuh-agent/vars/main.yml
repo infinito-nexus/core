@@ -14,6 +14,7 @@ WAZUH_AGENT_APT_SOURCE: "/etc/apt/sources.list.d/wazuh.list"
 WAZUH_AGENT_YUM_REPO: "wazuh"
 
 WAZUH_AGENT_DIR: "/var/ossec"
+WAZUH_AGENT_CLOCK_SYNC_RETRIES: 6
 WAZUH_AGENT_VERSION_FILE: "{{ [ WAZUH_AGENT_DIR, 'VERSION.json' ] | path_join }}"
 
 WAZUH_AGENT_SOURCE_URL: "https://github.com/wazuh/wazuh/archive/v{{ WAZUH_AGENT_VERSION }}.tar.gz"

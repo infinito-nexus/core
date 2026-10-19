@@ -86,6 +86,17 @@ def evaluate_manager(listing, keepalives, since_change, now_epoch, threshold):
     return problems
 
 
+def evaluate_clock(ntp_synchronized):
+    """Return the clock problem, empty when the host clock is synchronized.
+
+    Args:
+        ntp_synchronized: timedatectl's NTPSynchronized value, None when it could not be read.
+    """
+    if ntp_synchronized == "yes":
+        return []
+    return [f"the host clock is not synchronized (NTPSynchronized={ntp_synchronized or 'unreadable'}); Wazuh event times cannot be trusted"]
+
+
 def parse_agents(listing):
     """Return (id, name, status) of every agent line in agent_control -l output.
 
@@ -140,7 +151,7 @@ def manager_problems(container, threshold):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Check the Wazuh agent on this host and, on the manager host, every registered agent.")
+    parser = argparse.ArgumentParser(description="Check the Wazuh agent and the host clock on this host and, on the manager host, every registered agent.")
     parser.add_argument("--service", required=True, help="systemd unit of the agent")
     parser.add_argument("--run-dir", required=True, help="the agent's var/run directory")
     parser.add_argument("--threshold", required=True, type=int, help="seconds of tolerated disconnect and of grace after a start")
@@ -155,6 +166,8 @@ def main():
         state = None
     service_active = subprocess.run(["systemctl", "is-active", "--quiet", args.service], check=False).returncode == 0
     problems = evaluate_host(service_active, agentd_age(args.run_dir), state, datetime.now(), args.threshold)
+    ntp = run(["timedatectl", "show", "--property=NTPSynchronized", "--value"])
+    problems += evaluate_clock(ntp.strip() if ntp is not None else None)
     if args.manager:
         problems += manager_problems(args.manager, args.threshold)
 

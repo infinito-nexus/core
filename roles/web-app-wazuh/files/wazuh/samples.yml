@@ -28,3 +28,11 @@
   rule: 100102
   level: 0
   program: infinito-fim
+- log: Suppressed 51234 messages from docker.service
+  rule: 100140
+  level: 7
+  program: systemd-journald
+- log: Journal started
+  rule: 100103
+  level: 0
+  program: systemd-journald
