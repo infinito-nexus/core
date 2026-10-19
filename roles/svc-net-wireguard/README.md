@@ -36,19 +36,6 @@ sees every host at once; this role renders what its own host was handed and
 then proves the result. It acts on every host in the `svc-net-wireguard`
 group; outside swarm mode a host the mesh CLI gave no mesh is skipped.
 
-## Cosmos
-
-The diagram places WireGuard in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [svc-net-wireguard 💻]
-        svc_wireguard["wireguard"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - Any number of hub-and-spoke meshes around one hub, so the planes stay
@@ -64,45 +51,6 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   every plane.
 - A hard gate that fails the deploy before swarm initialises when any peer is
   unreachable or the path will not carry a full-size payload.
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy WireGuard onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=svc-net-wireguard full_cycle=false
-```
-
-### Production
-
-Install WireGuard directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-bash scripts/install/package.sh
-make install
-source scripts/meta/env/load.sh
-
-APP=svc-net-wireguard
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-INVENTORY=inventories/production
-infinito administration inventory provision "$INVENTORY" \
-  --inventory-file "$INVENTORY/devices.yml" \
-  --host localhost \
-  --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
-infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-  --password-file "$INVENTORY/.password" \
-  --diff -vv
-```
 
 ## Administration
 
@@ -147,9 +95,3 @@ A peer with no recent handshake is either unreachable on the underlay or
 carrying a key its peer does not know. The second case means the inventory and
 the running interface disagree: re-run the mesh writer and redeploy rather than
 editing `/etc/wireguard` by hand, which the next deploy overwrites.
-
-## Credits
-
-Implemented by **[Evangelos Tsakoudis](https://github.com/evangelostsak)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
