@@ -11,7 +11,9 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 
+from utils.cache.files import PROJECT_ROOT
 from utils.i18n import names
+from utils.i18n.languages import non_latin_languages
 from utils.i18n.repairs import resegment, tighten
 from utils.i18n.spans import PRINTF, mask, matches, prose
 
@@ -29,51 +31,7 @@ STUTTER = re.compile(r"\b(\w+)(?:\s+\1\b){2,}", re.IGNORECASE | re.UNICODE)
 WORDS = re.compile(r"[^\W\d_]{2,}", re.UNICODE)
 LATIN_FLOOR = 6
 LATIN_SHARE = 0.9
-NON_LATIN_SCRIPTS = frozenset(
-    {
-        "am",
-        "ar",
-        "be",
-        "bg",
-        "bn",
-        "dv",
-        "dz",
-        "el",
-        "fa",
-        "gu",
-        "he",
-        "hi",
-        "hy",
-        "ja",
-        "ka",
-        "km",
-        "kn",
-        "ko",
-        "ky",
-        "lo",
-        "mk",
-        "ml",
-        "mn",
-        "mr",
-        "my",
-        "ne",
-        "or",
-        "pa",
-        "ps",
-        "ru",
-        "si",
-        "sr",
-        "ta",
-        "te",
-        "th",
-        "ti",
-        "ug",
-        "uk",
-        "ur",
-        "yi",
-        "zh",
-    }
-)
+NON_LATIN_SCRIPTS = non_latin_languages(PROJECT_ROOT)
 
 
 def protected_spans(text: str) -> Counter:

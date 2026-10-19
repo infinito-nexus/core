@@ -58,7 +58,7 @@ from . import PROJECT_ROOT, SUITE
 JUDGE_ROLE = "svc-ai-litellm"
 JUDGE_SERVICE_KEY = "litellm"
 JUDGE_SERVICES_FILE = PROJECT_ROOT / "roles" / JUDGE_ROLE / ROLE_FILE_META_SERVICES
-SAMPLES_PER_LANGUAGE = 4
+SAMPLES_PER_LANGUAGE = 12
 MIN_SOURCE_CHARS = 40
 ENGINE_WORKERS = 1
 FIXTURE_SOURCE = (
@@ -140,6 +140,19 @@ class TestTranslationScore(unittest.TestCase):
                 f"an unrelated text scored {other}, at or above the middle "
                 f"level {MIDDLE}"
             )
+        name = self.names.get(code, code)
+        reads = judge.speaks(faithful, name)
+        english = judge.speaks(FIXTURE_UNRELATED, name)
+        if reads < MIDDLE:
+            return (
+                f"the engine's own rendering was placed at {reads} on being "
+                f"written in {name}, below the middle level {MIDDLE}"
+            )
+        if english >= MIDDLE:
+            return (
+                f"an English sentence was placed at {english} on being written "
+                f"in {name}, at or above the middle level {MIDDLE}"
+            )
         return ""
 
     def test_every_sampled_translation_carries_its_source(self):
@@ -149,6 +162,9 @@ class TestTranslationScore(unittest.TestCase):
         available = client.targets()
         judge = ChatJudge(self.base, _model(), api_key=LITELLM_KEY)
         languages = load_languages(PROJECT_ROOT)
+        self.names = {
+            code: str(entry.get("name", code)) for code, entry in languages.items()
+        }
         verdicts: dict[str, str] = {}
         offenders: list[str] = []
         judged = 0
@@ -171,6 +187,7 @@ class TestTranslationScore(unittest.TestCase):
                 stride = max(1, len(pairs) // SAMPLES_PER_LANGUAGE)
                 sample = pairs[::stride][:SAMPLES_PER_LANGUAGE]
                 _progress(SUITE, f"scoring {len(sample)} samples of {where}")
+                name = self.names.get(code, code)
                 for source, translation in sample:
                     judged += 1
                     level = judge.score(source, translation)
@@ -178,6 +195,14 @@ class TestTranslationScore(unittest.TestCase):
                         offenders.append(
                             f"{where}: {level} below the middle level {MIDDLE}: "
                             f"{source[:60]!r} -> {translation[:60]!r}"
+                        )
+                        continue
+                    spoken = judge.speaks(translation, name)
+                    if spoken < MIDDLE:
+                        offenders.append(
+                            f"{where}: states its source but was placed at "
+                            f"{spoken} on being written in {name}: "
+                            f"{translation[:60]!r}"
                         )
 
         unjudged = {code: why for code, why in sorted(verdicts.items()) if why}

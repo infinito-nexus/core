@@ -17,6 +17,9 @@ because the lane prefetches those models before any engine can be asked.
 
 from __future__ import annotations
 
+import re
+import unicodedata
+from functools import lru_cache
 from pathlib import Path
 
 from utils.cache.yaml import load_yaml
@@ -24,6 +27,7 @@ from utils.cache.yaml import load_yaml
 SOURCE_LANGUAGE = "en"
 LANGUAGES_FILE = Path("meta") / "languages.yml"
 DOMAINS = ("core", "docs")
+_LETTER = re.compile(r"[^\W\d_]", re.UNICODE)
 
 
 def load_languages(root: Path) -> dict[str, dict]:
@@ -33,6 +37,36 @@ def load_languages(root: Path) -> dict[str, dict]:
         root: repository root.
     """
     return load_yaml(root / LANGUAGES_FILE)
+
+
+@lru_cache(maxsize=1)
+def non_latin_languages(root: Path) -> frozenset[str]:
+    """Return the codes whose endonym is not written in the Latin script.
+
+    The endonym is the evidence: a language writes its own name in its own
+    script, so the table already states which script each language expects
+    and a second hand-kept list beside it only drifts. It drifted: the set
+    this replaces named 41 languages and missed 21 the table answers for,
+    Assamese among them, which is how a catalogue filled with Latin text
+    passed every check.
+
+    Args:
+        root: repository root.
+    """
+    return frozenset(
+        code
+        for code, entry in load_languages(root).items()
+        if _is_non_latin(str(entry.get("native", "")))
+    )
+
+
+def _is_non_latin(endonym: str) -> bool:
+    """Whether fewer than half of a name's letters are Latin ones."""
+    letters = [char for char in endonym if _LETTER.match(char)]
+    if not letters:
+        return False
+    latin = sum(1 for char in letters if "LATIN" in unicodedata.name(char, ""))
+    return latin / len(letters) < 0.5
 
 
 def domain_languages(languages: dict[str, dict], domain: str) -> list[str]:

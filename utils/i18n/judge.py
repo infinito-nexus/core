@@ -29,6 +29,11 @@ LEVELS = (
     "the second text states the first text but distorts a detail",
     "the second text faithfully states the first text",
 )
+LANGUAGE_LEVELS = (
+    "the text is not written in {language}",
+    "the text mixes {language} with another language",
+    "the text is written in {language}",
+)
 MIDDLE = (len(LEVELS) - 1) // 2
 TIMEOUT_SECONDS = 120
 _INDEX = re.compile(r"-?\d+")
@@ -46,6 +51,16 @@ Second text:
 {translation}
 """
 
+LANGUAGE_PROMPT = """\
+Decide which language the text below is written in.
+
+Answer with one digit and nothing else, choosing the line that fits best:
+{levels}
+
+Text:
+{text}
+"""
+
 
 def question(source: str, translation: str) -> str:
     """Return the prompt that asks for a level index.
@@ -56,6 +71,24 @@ def question(source: str, translation: str) -> str:
     """
     levels = "\n".join(f"{index} {level}" for index, level in enumerate(LEVELS))
     return PROMPT.format(levels=levels, source=source, translation=translation)
+
+
+def language_question(text: str, language: str) -> str:
+    """Return the prompt that asks which language a text is written in.
+
+    Faithfulness alone passes a translation that states the source correctly
+    in the wrong language, which is how catalogues end up holding one
+    language's text under another's code.
+
+    Args:
+        text: the text to place on the levels.
+        language: the English name of the language it should be written in.
+    """
+    levels = "\n".join(
+        f"{index} {level.format(language=language)}"
+        for index, level in enumerate(LANGUAGE_LEVELS)
+    )
+    return LANGUAGE_PROMPT.format(levels=levels, text=text)
 
 
 def parse_level(answer: str) -> int:
@@ -108,11 +141,27 @@ class ChatJudge:
             OSError: the gateway cannot be reached.
             ValueError: it answered without a completion, or with no level.
         """
+        return self._ask(question(source, translation))
+
+    def speaks(self, text: str, language: str) -> int:
+        """Return the level the judge places this text's language on.
+
+        Args:
+            text: the text to place on :data:`LANGUAGE_LEVELS`.
+            language: the English name of the language it should be in.
+
+        Raises:
+            OSError: the gateway cannot be reached.
+            ValueError: it answered without a completion, or with no level.
+        """
+        return self._ask(language_question(text, language))
+
+    def _ask(self, prompt: str) -> int:
         payload = {
             "model": self._model,
             "stream": False,
             "temperature": 0,
-            "messages": [{"role": "user", "content": question(source, translation)}],
+            "messages": [{"role": "user", "content": prompt}],
         }
         headers = {"Content-Type": "application/json"}
         if self._api_key:
