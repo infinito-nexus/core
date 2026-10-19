@@ -220,7 +220,7 @@ exports.register = function (shared) {
         }
         for (const [, name, value] of source.matchAll(/(?:^|[{;])\s*(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+)/gm)) {
           if (!colorProperty.test(name)) continue;
-          if (/^(?:-webkit-)?(?:background|mask)-image$/.test(name) && /^var\(--design-[\w-]+\)$/.test(value.trim())) {
+          if (/^(?:-webkit-)?(?:background|mask)-image$/.test(name) && /^var\(--design-(?!url-)[\w-]+\)$/.test(value.trim())) {
             found.push(`${name}: ${value.trim()}`);
             continue;
           }
