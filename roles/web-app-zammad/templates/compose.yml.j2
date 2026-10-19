@@ -1,6 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {% if DEPLOYMENT_MODE == 'compose' %}
+  {% if IS_COMPOSE_MODE %}
   {% set service_name = ZAMMAD_PRECHECK_SERVICE %}
   {% set docker_restart_policy = 'no' %}
   {{ service_name }}:
@@ -24,7 +24,7 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra=({
   ZAMMAD_PRECHECK_SERVICE: {'condition': 'service_completed_successfully'},
-} if DEPLOYMENT_MODE == 'compose' else {})) | indent(4) }}
+} if IS_COMPOSE_MODE else {})) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

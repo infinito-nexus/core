@@ -46,7 +46,7 @@
   delay: 5
   until: zammad_init_state.rc != 1
   failed_when: zammad_init_state.rc != 0
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "▶️ process auto_wizard.json if Zammad setup wizard incomplete (idempotent)"
   ansible.builtin.shell: |
