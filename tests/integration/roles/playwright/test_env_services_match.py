@@ -33,6 +33,10 @@ own provider service (forbidden self-gate).
 The catalog entry lives in
 ``docs/contributing/actions/testing/suppression.md``.
 
+Host-agent flags (``HOST_AGENT_SERVICES``, today ``wazuh``) need no
+flag either: the opt-in has no Playwright surface, and ``web-app-wazuh``
+verifies it with its deploy canary.
+
 Globally-exempt services
 ------------------------
 
@@ -58,6 +62,7 @@ from typing import TYPE_CHECKING
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.services.host_agent import is_host_agent_service
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -106,6 +111,46 @@ def _suppressed_top_level_keys(file_path: Path) -> set[str]:
     return exceptions
 
 
+def missing_flags(role_name: str, services: dict, exempt: set[str], declared_keys: set[str]) -> list[str]:
+    """Return one message per gateable service without its env flag.
+
+    Args:
+        role_name: the role the services belong to.
+        services: the parsed meta/services.yml mapping.
+        exempt: service keys marked ``# nocheck: playwright-service-flag``.
+        declared_keys: the ``KEY=`` names in the role's playwright.env.j2.
+    """
+    offenders = []
+    for service_key, entry in services.items():
+        if not isinstance(service_key, str):
+            continue
+        if not isinstance(entry, dict):
+            continue
+        if "enabled" not in entry:
+            continue
+        if service_key in exempt or is_host_agent_service(service_key):
+            continue
+        if (
+            service_key in _SPOT_OWNED_SERVICES
+            and role_name != f"web-app-{service_key}"
+        ):
+            continue
+
+        expected_flag = _service_to_env_key(service_key)
+        if expected_flag in declared_keys:
+            continue
+
+        offenders.append(
+            f"{role_name}: meta/services.yml declares '{service_key}' "
+            f"with `enabled:` but {_ENV_TEMPLATE_REL} has no "
+            f"`{expected_flag}=...` line. Add the flag (e.g. "
+            f"`{expected_flag}={{{{ ... }}}}`) or mark the service "
+            f"with `# nocheck: {_RULE}` above its key in "
+            f"meta/services.yml."
+        )
+    return offenders
+
+
 def _env_keys_declared(env_text: str) -> set[str]:
     """Return every ``KEY=`` left-hand-side declared in a
     ``playwright.env.j2`` body. The same scan as
@@ -135,36 +180,14 @@ class TestPlaywrightEnvServicesMatch(unittest.TestCase):
             if not isinstance(services, dict):
                 continue
 
-            exempt = _suppressed_top_level_keys(services_path)
-            declared_keys = _env_keys_declared(read_text(str(env_path)))
-
-            for service_key, entry in services.items():
-                if not isinstance(service_key, str):
-                    continue
-                if not isinstance(entry, dict):
-                    continue
-                if "enabled" not in entry:
-                    continue
-                if service_key in exempt:
-                    continue
-                if (
-                    service_key in _SPOT_OWNED_SERVICES
-                    and role_name != f"web-app-{service_key}"
-                ):
-                    continue
-
-                expected_flag = _service_to_env_key(service_key)
-                if expected_flag in declared_keys:
-                    continue
-
-                offenders.append(
-                    f"{role_name}: meta/services.yml declares '{service_key}' "
-                    f"with `enabled:` but {_ENV_TEMPLATE_REL} has no "
-                    f"`{expected_flag}=...` line. Add the flag (e.g. "
-                    f"`{expected_flag}={{{{ ... }}}}`) or mark the service "
-                    f"with `# nocheck: {_RULE}` above its key in "
-                    f"meta/services.yml."
+            offenders.extend(
+                missing_flags(
+                    role_name,
+                    services,
+                    _suppressed_top_level_keys(services_path),
+                    _env_keys_declared(read_text(str(env_path))),
                 )
+            )
 
         if offenders:
             self.fail(
@@ -172,6 +195,18 @@ class TestPlaywrightEnvServicesMatch(unittest.TestCase):
                 "as `<NAME>_SERVICE_ENABLED=` in playwright.env.j2:\n"
                 + "\n".join(f"  - {o}" for o in offenders)
             )
+
+
+class TestHostAgentExemption(unittest.TestCase):
+    def test_a_wazuh_opt_in_needs_no_env_flag(self):
+        services = {"wazuh": {"enabled": True, "rule_block": 101000}}
+        self.assertEqual(missing_flags("web-app-pixelfed", services, set(), set()), [])
+
+    def test_another_service_without_env_flag_still_fails(self):
+        self.assertEqual(len(missing_flags("web-app-pixelfed", {"matomo": {"enabled": True}}, set(), set())), 1)
+
+    def test_a_key_outside_the_list_cannot_use_the_exemption(self):
+        self.assertEqual(len(missing_flags("web-app-pixelfed", {"wazuh-agent": {"enabled": True}}, set(), set())), 1)
 
 
 if __name__ == "__main__":  # pragma: no cover

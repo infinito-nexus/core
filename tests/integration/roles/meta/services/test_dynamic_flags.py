@@ -59,6 +59,13 @@ Two suppression placements are accepted, each with its own scope:
        mariadb:
          enabled: true  # nocheck: dynamic-flag
          shared: "{{ 'svc-db-mariadb' in group_names }}"
+
+Host-agent flags (``HOST_AGENT_SERVICES`` in
+``utils/roles/applications/services/host_agent.py``, today ``wazuh``)
+may set ``enabled`` to a literal boolean: the flag means "this host's
+agent collects the role's logs", and a ``group_names`` expression would
+be false on an app host without the manager. Their ``shared`` is still
+checked.
 """
 
 from __future__ import annotations
@@ -69,6 +76,7 @@ from typing import TYPE_CHECKING
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.services.host_agent import is_host_agent_service
 from utils.roles.applications.services.registry import (
     build_covered_key_to_role,
     build_role_to_primary_service_key,
@@ -150,12 +158,74 @@ def _references_role_in_group_names(value, role_name: str) -> bool:
     return f"'{role_name}'" in value or f'"{role_name}"' in value
 
 
+def flag_offenders(
+    role_name: str,
+    data: dict,
+    block_exempt: set[str],
+    inline_exempt: set[tuple[str, str]],
+    key_to_role: dict[str, str],
+) -> list[str]:
+    """Return the literal or mis-referenced enabled/shared flags of one role.
+
+    Args:
+        role_name: the role the services belong to.
+        data: the parsed meta/services.yml mapping.
+        block_exempt: service keys marked ``# nocheck: dynamic-flag`` above the key.
+        inline_exempt: ``(service_key, flag)`` pairs marked on the flag's own line.
+        key_to_role: service key to the role that provides it.
+    """
+    offenders: list[str] = []
+    own_entity = get_entity_name(role_name)
+    for service_key, entry in data.items():
+        if not isinstance(entry, dict):
+            continue
+        if service_key in block_exempt:
+            continue
+        if service_key == own_entity:
+            continue
+
+        expected_role = key_to_role.get(service_key)
+
+        for flag in ("enabled", "shared"):
+            if flag not in entry:
+                continue
+            if (service_key, flag) in inline_exempt:
+                continue
+            value = entry[flag]
+            if flag == "enabled" and isinstance(value, bool) and is_host_agent_service(service_key):
+                continue
+            if not (isinstance(value, str) and "in group_names" in value):
+                offenders.append(
+                    f"{role_name}: services.{service_key}.{flag}={value!r} "
+                    f"is literal; replace with a Jinja "
+                    f"\"{{{{ '<role>' in group_names }}}}\" expression "
+                    f"(or add a `# nocheck: {_RULE}` comment above "
+                    f"`{service_key}:` for legitimate exceptions like "
+                    f"databases)."
+                )
+                continue
+            if (
+                service_key == "email"
+                and isinstance(value, str)
+                and _MAIL_PROVIDER_INDIRECTION in value
+            ):
+                continue
+            if expected_role and not _references_role_in_group_names(
+                value, expected_role
+            ):
+                offenders.append(
+                    f"{role_name}: services.{service_key}.{flag}={value!r} "
+                    f"must reference `'{expected_role}' in group_names`."
+                )
+    return offenders
+
+
 class TestServicesDynamicFlags(unittest.TestCase):
     def test_enabled_and_shared_use_in_group_names(self):
         registry = build_service_registry_from_roles_dir(ROLES_DIR)
         role_to_primary_key = build_role_to_primary_service_key(registry)
         primary_key_to_role = {key: role for role, key in role_to_primary_key.items()}
-        covered_key_to_role = build_covered_key_to_role(registry)
+        key_to_role = {**primary_key_to_role, **build_covered_key_to_role(registry)}
 
         offenders: list[str] = []
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
@@ -171,58 +241,38 @@ class TestServicesDynamicFlags(unittest.TestCase):
             if not isinstance(data, dict):
                 continue
 
-            block_exempt = _suppressed_top_level_keys(services_file)
-            inline_exempt = _suppressed_inline_flags(services_file)
-            own_entity = get_entity_name(role_name)
-
-            for service_key, entry in data.items():
-                if not isinstance(entry, dict):
-                    continue
-                if service_key in block_exempt:
-                    continue
-                if service_key == own_entity:
-                    continue
-
-                expected_role = covered_key_to_role.get(
-                    service_key,
-                    primary_key_to_role.get(service_key),
+            offenders.extend(
+                flag_offenders(
+                    role_name,
+                    data,
+                    _suppressed_top_level_keys(services_file),
+                    _suppressed_inline_flags(services_file),
+                    key_to_role,
                 )
-
-                for flag in ("enabled", "shared"):
-                    if flag not in entry:
-                        continue
-                    if (service_key, flag) in inline_exempt:
-                        continue
-                    value = entry[flag]
-                    if not (isinstance(value, str) and "in group_names" in value):
-                        offenders.append(
-                            f"{role_name}: services.{service_key}.{flag}={value!r} "
-                            f"is literal; replace with a Jinja "
-                            f"\"{{{{ '<role>' in group_names }}}}\" expression "
-                            f"(or add a `# nocheck: {_RULE}` comment above "
-                            f"`{service_key}:` for legitimate exceptions like "
-                            f"databases)."
-                        )
-                        continue
-                    if (
-                        service_key == "email"
-                        and isinstance(value, str)
-                        and _MAIL_PROVIDER_INDIRECTION in value
-                    ):
-                        continue
-                    if expected_role and not _references_role_in_group_names(
-                        value, expected_role
-                    ):
-                        offenders.append(
-                            f"{role_name}: services.{service_key}.{flag}={value!r} "
-                            f"must reference `'{expected_role}' in group_names`."
-                        )
+            )
 
         if offenders:
             self.fail(
                 f"services.<key>.enabled / shared MUST be dynamic "
                 f"({_RULE}):\n" + "\n".join(f"  - {o}" for o in offenders)
             )
+
+
+class TestHostAgentExemption(unittest.TestCase):
+    def offenders(self, services: dict) -> list[str]:
+        return flag_offenders("web-app-pixelfed", services, set(), set(), {"wazuh": "web-app-wazuh"})
+
+    def test_a_literal_wazuh_opt_in_passes(self):
+        self.assertEqual(self.offenders({"wazuh": {"enabled": True, "rule_block": 101000}}), [])
+
+    def test_another_literal_service_flag_still_fails(self):
+        self.assertEqual(len(self.offenders({"matomo": {"enabled": True}})), 1)
+
+    def test_a_key_outside_the_list_cannot_use_the_exemption(self):
+        self.assertEqual(len(self.offenders({"wazuh-agent": {"enabled": True}})), 1)
+
+    def test_a_literal_shared_on_wazuh_still_fails(self):
+        self.assertEqual(len(self.offenders({"wazuh": {"enabled": True, "shared": True}})), 1)
 
 
 if __name__ == "__main__":  # pragma: no cover
