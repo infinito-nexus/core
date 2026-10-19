@@ -15,9 +15,9 @@ from tests.utils.ci.run_name import render
 from utils.github.variant.pools import ARCHITECTURES, DISTROS, FILESYSTEMS
 
 
-def _job(mode: str, app: str, conclusion: str) -> dict:
+def _job(mode: str, app: str, conclusion: str, *, vpn: bool = False) -> dict:
     return {
-        "name": deploy_job_name(mode, app, "0,1"),
+        "name": deploy_job_name(mode, app, "0,1", vpn=vpn),
         "status": "completed",
         "conclusion": conclusion,
     }
@@ -46,10 +46,12 @@ the effective one, while the architecture is the machine the job really ran
 on."""
 
 _FAILED_TOKENS = (
-    f"web-app-x#0,1@swarm+clearnet{_AXES} web-app-y#0,1@compose+clearnet{_AXES}"
+    f"web-app-x#0,1@swarm+clearnet{_AXES}&direct"
+    f" web-app-y#0,1@compose+clearnet{_AXES}"
 )
 """What _JOBS failed at, exactly: x in swarm, y in compose, both on variant
-shard 0,1, both on the clearnet and both on the same distro."""
+shard 0,1, both on the clearnet and both on the same distro. Only the swarm
+row states its mesh state, because the mesh axis covers no other mode."""
 
 _RUN_URL = "https://github.com/o/r/actions/runs/55"  # nocheck: url
 _SOURCE_CONFIG = {
@@ -156,7 +158,15 @@ class TestTriggerMain(unittest.TestCase):
         _rc, calls = self._run(["--failed"], run={"_jobs": both})
         self.assertEqual(
             calls[0][3],
-            f"web-app-x#0,1@compose+clearnet{_AXES} web-app-x#0,1@swarm+clearnet{_AXES}",
+            f"web-app-x#0,1@compose+clearnet{_AXES}"
+            f" web-app-x#0,1@swarm+clearnet{_AXES}&direct",
+        )
+
+    def test_a_meshed_swarm_row_comes_back_meshed(self) -> None:
+        meshed = [_job("swarm", "web-app-x", "failure", vpn=True)]
+        _rc, calls = self._run(["--failed"], run={"_jobs": meshed})
+        self.assertEqual(
+            calls[0][3], f"web-app-x#0,1@swarm+clearnet{_AXES}&vpn"
         )
 
     def test_never_deployed_priority_roles_join_the_retrigger(self) -> None:

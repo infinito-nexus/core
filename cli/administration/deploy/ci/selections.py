@@ -1,12 +1,19 @@
 """Turn a run's deploy jobs back into selection tokens.
 
 A deploy job title carries the whole row it deployed -- role, variant, mode,
-onion state, distro, filesystem, architecture -- and
+onion state, mesh state, distro, filesystem, architecture -- and
 :mod:`utils.github.variant.selection` is the grammar that writes it back down.
 
 The architecture is replayed like the distro rather than left to the rotation:
 it is the machine the job ran on, not a preference the deploy may fall back
 from, so the title states what it actually was.
+
+The mesh state is replayed the same way, and as the boolean the title carried
+rather than only when it is true. These tokens feed the priority line, where
+an unpinned mesh axis offers both states: a failed direct swarm row came back
+as itself *and* as a meshed sibling, spending two jobs to reproduce one. The
+pin halves that to the arm that actually failed. Only a mode the mesh axis
+covers takes it, so a compose token stays as short as it was.
 
 The filesystem is the one axis a token built here leaves out. The title states
 the kind the matrix *assigned*, which a deploy is allowed to fall back from
@@ -24,6 +31,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.github.variant import axes, selection
+from utils.github.variant.vpn import VPN_DEPLOY_MODES
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -68,6 +76,7 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
                     label.tor,
                     label.distro or None,
                     architecture=label.architecture or None,
+                    vpn=label.vpn if label.mode in VPN_DEPLOY_MODES else None,
                 )
             )
         )

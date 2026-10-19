@@ -23,6 +23,7 @@ from utils.github.variant.axes import (
     LOCAL_GLYPH,
     TOR_DEPLOY_MODES,
 )
+from utils.github.variant.vpn import VPN_DEPLOY_MODES
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
@@ -58,20 +59,27 @@ def row_label(
     variant: str = "",
     *,
     tor: bool = False,
+    vpn: bool = False,
     priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
     architecture: str = ARCHITECTURES[0],
 ) -> str:
     """The ``matrix.label`` axes assigns to one row: mode glyph, tor glyph on
-    the modes that carry the onion axis, distro, filesystem and architecture
-    glyphs, display name, and the priority star."""
+    the modes that carry the onion axis, mesh glyph on the modes that carry
+    the mesh axis, distro, filesystem and architecture glyphs, display name,
+    and the priority star."""
     deploy_mode = _MODE_NAMES[mode]
     glyphs = to_emoji(deploy_mode)
     glyphs += (
         to_emoji("tor" if tor else "clearnet")
         if deploy_mode in TOR_DEPLOY_MODES
         else LOCAL_GLYPH
+    )
+    glyphs += (
+        to_emoji("vpn" if vpn else "direct")
+        if deploy_mode in VPN_DEPLOY_MODES or deploy_mode == "compose"
+        else ""
     )
     glyphs += to_emoji(distro) + to_emoji(filesystem) + to_emoji(architecture)
     label = f"{glyphs}{display_names().encode(app, variant)}"
@@ -84,6 +92,7 @@ def deploy_job_name(
     variant: str = "",
     *,
     tor: bool = False,
+    vpn: bool = False,
     priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
@@ -112,6 +121,7 @@ def deploy_job_name(
             app,
             variant,
             tor=tor,
+            vpn=vpn,
             priority=priority,
             distro=distro,
             filesystem=filesystem,
