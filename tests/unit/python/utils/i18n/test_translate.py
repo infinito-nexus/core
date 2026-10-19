@@ -323,7 +323,7 @@ class TestDamagedMarkup(unittest.TestCase):
             "Siehe [den Leitfaden]](docs/guide.md) zuerst.",
         )
 
-        self.assertEqual(len(damaged(catalog)), 1)
+        self.assertEqual(len(damaged(catalog, "de")), 1)
 
     def test_a_dropped_bracket_is_damage(self):
         catalog = self._catalog(
@@ -331,7 +331,7 @@ class TestDamagedMarkup(unittest.TestCase):
             "!Logo](assets/img/logo.png)",
         )
 
-        self.assertEqual(len(damaged(catalog)), 1)
+        self.assertEqual(len(damaged(catalog, "de")), 1)
 
     def test_an_intact_translation_is_not_damage(self):
         catalog = self._catalog(
@@ -339,7 +339,7 @@ class TestDamagedMarkup(unittest.TestCase):
             "Siehe [den Leitfaden](docs/guide.md) zuerst.",
         )
 
-        self.assertEqual(damaged(catalog), [])
+        self.assertEqual(damaged(catalog, "de"), [])
 
 
 class TestDuplicateTranslation(unittest.TestCase):

@@ -125,7 +125,7 @@ def prune(domains: list[str], requested: list[str]) -> int:
             catalog = read_catalog(path)
             shared = over_shared(catalog)
             discard(shared)
-            broken = damaged(catalog)
+            broken = damaged(catalog, code)
             discard(broken)
             if not shared and not broken:
                 continue

@@ -103,7 +103,7 @@ def pending(catalog: Catalog) -> list[Message]:
     ]
 
 
-def damaged(catalog: Catalog) -> list[Message]:
+def damaged(catalog: Catalog, language: str) -> list[Message]:
     """Return the entries whose translation altered a protected span or the markup around it.
 
     A tightened protection rule turns silently corrupted translations - a
@@ -112,10 +112,15 @@ def damaged(catalog: Catalog) -> list[Message]:
     what masking cannot: a bracket the translator added or dropped next to a
     protected span leaves every span intact and still breaks the link.
 
+    The language is the caller's, never ``catalog.locale``: 44 catalogs carry
+    no locale header at all, and 6 more name a code the directory disagrees
+    with (``tl`` holds ``fil_PH``), so reading it there turns the script check
+    into a no-op for exactly the catalogs nothing else guards.
+
     Args:
         catalog: a language catalog.
+        language: the ISO code the catalog's path names.
     """
-    language = str(catalog.locale or "").split("_")[0]
     return [
         message
         for message in catalog

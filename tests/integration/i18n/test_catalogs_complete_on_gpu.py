@@ -44,7 +44,9 @@ def measure(task: tuple[str, str]) -> Counts:
     """
     name, path = task
     catalog = read_catalog(Path(path))
-    return Counts(name, len(pending(catalog)), len(damaged(catalog)))
+    return Counts(
+        name, len(pending(catalog)), len(damaged(catalog, name.split("/")[1]))
+    )
 
 
 @unittest.skipUnless(accelerated(), "no NVIDIA runtime on this host")
