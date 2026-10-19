@@ -8,9 +8,9 @@ data:
   nfs: false
   mounts:
     - service: package
-      target: /nexus-data
+      target: &nexus_data /nexus-data
     - service: bootstrap
-      target: /nexus-data
+      target: *nexus_data
 bootstrap_script:
   type: config
   source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'bootstrap.sh'] | path_join }}"

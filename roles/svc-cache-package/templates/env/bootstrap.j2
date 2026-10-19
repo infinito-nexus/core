@@ -1,8 +1,10 @@
 {#
   The sidecar runs the same script the deploy runs, but from inside the stack:
-  EXEC_MODE=local drops the `docker exec` wrapper the host side needs, and
+  EXEC_MODE=local drops the container-entry wrapper the host side needs, and
   REST_HOST has to name the cache over the compose network, not loopback.
 #}
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
 INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD={{ CACHE_PACKAGE_ADMIN_PASSWORD }}
 INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX={{ CACHE_PACKAGE_BLOBSTORE_MAX }}
 INFINITO_CACHE_PACKAGE_CONTAINER={{ CACHE_PACKAGE_CONTAINER }}
