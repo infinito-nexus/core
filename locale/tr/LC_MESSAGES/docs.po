@@ -14028,7 +14028,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
-msgstr "**iptables Rule Adaptasyon:** TelGuard müşterisi için ileri ve NAT maskrading'e izin vermek için iptables'i değiştirin."
+msgstr ""
 
 # `test-oidc-fallback.js:52` (The the the the `?fallback=local` Acil Yardım:
 # yerel Joomla admin form giriş kontrol paneline ulaşmak zorundadır). Kök

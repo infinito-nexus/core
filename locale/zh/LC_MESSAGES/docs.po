@@ -3248,7 +3248,7 @@ msgstr "**说明 :** 帮助者角色安装 CA 信任注入资产 Docker Compose 
 # IP 前置系统
 # translated-by: libretranslate
 msgid "**Description:** Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**说明 :** 主机级无线守护 VPN 服务,配备 wg- quick 配置, 包安装, 以及安全隧道的 IP 前置系统"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -12669,7 +12669,7 @@ msgstr "**说明**: 帮助者角色安装 CA 信任注入资产 Docker Compose �
 # IP 前置系统
 # translated-by: libretranslate
 msgid "**description**: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**说明**:主机级无线Guard VPN服务,配备 wg-quick 配置,包安装,以及用于安全隧道的 IP 前置系统"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -31875,11 +31875,11 @@ msgstr "确保维护任务只在系统处于安全状态时执行."
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with [wg-quick](https://www.wireguard.com/quickstart/)."
-msgstr "确保MTU在启动线导前配置正确 [微量速报](https://www.wireguard.com/quickstart/)。 。 。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with `wg-quick <https://www.wireguard.com/quickstart/>`__."
-msgstr "确保MTU在启动线导前配置正确 `wg-quick <https://www.wireguard.com/quickstart/>`__。 。 。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the ``openssl`` CLI is installed on the host."
@@ -37125,7 +37125,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "主机级无线守护 VPN 服务,配备 wg- quick 配置, 包安装, 以及安全隧道的 IP 前置系统"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-runner hygiene around image builds and deploys (disk, swap, Docker daemon, diagnostics)."
@@ -87622,7 +87622,7 @@ msgstr "[打开演讲](https://opentalk.eu/) 是海因莱因集团开发的一�
 
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
-msgstr "[OpenWrt 论坛关于线导的讨论](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
@@ -87885,7 +87885,7 @@ msgstr "[通过 SSH 命令限制 authorized_keys](https://www.thomas-krenn.com/d
 
 # translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
-msgstr "[SSH 失败与线导 IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"
@@ -88129,7 +88129,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[UFW and SSH via WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
-msgstr "[UFW和SSH 通过线导](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Unit Tests](testing/unit.md)"

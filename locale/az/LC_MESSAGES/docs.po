@@ -30132,11 +30132,11 @@ msgstr "Sistemin təhlükəsiz dövründə olduğu halda, saxlama işlərinin ya
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with [wg-quick](https://www.wireguard.com/quickstart/)."
-msgstr "MTU başlanğıcdan əvvəl düz yapılandırılmışdır [w](https://www.wireguard.com/quickstart/)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with `wg-quick <https://www.wireguard.com/quickstart/>`__."
-msgstr "MTU başlanğıcdan əvvəl düz yapılandırılmışdır `wg-quick <https://www.wireguard.com/quickstart/>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the ``openssl`` CLI is installed on the host."

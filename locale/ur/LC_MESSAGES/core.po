@@ -892,9 +892,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtime for building and running server-side applications و تطوير أدوات المطور"
 
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "کرنل WireGuard سرنگیں، کیپ-اور اس کے نیچے میزائلوں کے نیچے ایک ریسنگ مینیجر کے تحت اور جیپ فوجیوں کے درمیان مکمل میزائل"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1074,7 +1075,7 @@ msgstr "نیٹ ورک"
 # translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "نیٹ ورک اتصال (DNS، چلو HTP، Wiresct،.)"
+msgstr "نیٹ ورک اتصال (DNS، چلو HTP، WireGuard۔۔)"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"

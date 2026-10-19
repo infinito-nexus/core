@@ -877,9 +877,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Chạy JavaScript thời gian để xây dựng và chạy ứng dụng cạnh máy chủ và phát triển tooling"
 
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "Nhân WireGuard Đường hầm, trung tâm và nói chuyện với y tá dưới sự quản lý của đàn và đầy đủ meshes giữa chủ thể dàn nhạc"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1061,7 +1062,7 @@ msgstr "Mạng"
 # translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "Thiết lập mạng (DNS, hãy mã hóa HTTP, Wire Guard, etc.)"
+msgstr "Thiết lập mạng (DNS, hãy mã hóa HTTP, WireGuard, etc.)"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"

@@ -2629,7 +2629,7 @@ msgstr "**Përshkrimi:** NFS në dalje të klientit për të rritur një server 
 
 # translated-by: libretranslate
 msgid "**Description:** Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**Përshkrimi:** Roli i Wire Guard VPN-së në anën e klientit për lidhje të qëndrueshme me një shërbim të sistemit dhe script-in që akordon interfaqen MTU"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Clipboard manager with editable history, custom actions, and scripting support"
@@ -2880,7 +2880,7 @@ msgstr "**Përshkrimi:** Roli i ndihmës për të instaluar vlerat e injeksionit
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**Përshkrimi:** Shërbimi i Gardës VPN në nivel Host me konfigurim wg-quick, instalim të paketave, dhe sisktl IP-forward për tunele të sigurta"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -3050,7 +3050,7 @@ msgstr "**Përshkrimi:** Vrima e rrjetit të gjerë DNS për bllokimin e reklama
 
 # translated-by: libretranslate
 msgid "**Description:** Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**Përshkrimi:** Asistent në rrjet për iptables proaving and NAT conquerading of a Wire guard klient që shkon pas NAT ose një firewall"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -6613,7 +6613,7 @@ msgstr "**Interfaqja moderne e Internetit:** Hyrje në një UI intuitive dhe ada
 
 # translated-by: libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
-msgstr "**Zgjidh** E lehtë të integrohet me role të tjera të gardës apo role të konfigurimit të rrjetit."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Modular Integration:** Integrates with common routines and roles to further enhance system security."
@@ -8430,11 +8430,11 @@ msgstr "**Gjurmimi i gjakut:** Gjurmo bashkëveprimet e përdoruesve në të gji
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**Roli i integrimit:** Varet nga [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) Roli për t'u siguruar që Wire Garden të jetë konfiguruar siç duhet para se të zbatojë rregullat e firewall-it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**Roli i integrimit:** Varet nga `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ Roli për t'u siguruar që Wire Garden të jetë konfiguruar siç duhet para se të zbatojë rregullat e firewall-it."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Role-Based Access Control & Security:** Manage user permissions precisely to ensure that sensitive information and critical functions remain secure."
@@ -11083,7 +11083,7 @@ msgstr "**përshkrimi**: Klient-side NFS për rritjen e një eksporti serveri n�
 
 # translated-by: libretranslate
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**përshkrimi**: Roli i Wire Guard VPN-së nga klienti për lidhje të qëndrueshme me një shërbim të sistemit dhe script që përmban interfaqen MTU"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
@@ -11347,7 +11347,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**përshkrimi**: Shërbimi i Gardës VPN në nivel Host me konfigurim wg-quick, instalimi i paketave, dhe sisktl IP-forward për tunele të sigurta"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -11521,7 +11521,7 @@ msgstr "**përshkrimi**: Rrjeti i gjerë DNS për bllokimin e reklamave dhe gjur
 
 # translated-by: libretranslate
 msgid "**description**: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**përshkrimi**: Asistent në rrjet për iptables përcjellë dhe NAT cosquerading of a Wire guard klient që punon pas NAT ose një firewall"
+msgstr ""
 
 # translation-refused: libretranslate truncated
 # nocheck: url
@@ -12305,7 +12305,7 @@ msgstr "**https mbi qepën IdP ⇩ hetuar dhe REJECTED, mos e ri-derr.** OIDC Di
 
 # translated-by: libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
-msgstr "**Përshtatja:** Modifikon iptables për të lejuar paraqitjen përpara dhe NAT masking për klientin Wire Watcher."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the `?fallback=local` emergency hatch: local Joomla admin form login must reach the control panel). Root cause UNCONFIRMED. It is independent of the fixed OIDC-login spec: the fallback path short-circuits before the plugin's server-side discovery, so the committed `extra_hosts` fix does not cover it. The `secure => true` sticky-cookie hypothesis was rejected (`.onion` is a potentially-trustworthy origin and the e2e Firefox sets `dom.securecontext.allowlist_onions`, so Secure cookies are accepted over plain-http onion). Next step when it fails again post-fix: isolate the post-submit URL — Keycloak redirect (cookie lost) vs. form reject vs. slow control-panel render."
@@ -17718,11 +17718,11 @@ msgstr "Lejon numrin e tepërt `| bool | ternary('true','false')` Model kur një
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. `wg0-client`) and sets up NAT masquerading on the external interface (e.g. `eth0`)."
-msgstr "Lejon trafikun nga ndërfaqja e ndërfaqes së Gardës së Klientëve Wire (e.g. `wg0-client`) dhe në (e.g. `eth0`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. ``wg0-client``) and sets up NAT masquerading on the external interface (e.g. ``eth0``)."
-msgstr "Lejon trafikun nga ndërfaqja e ndërfaqes së Gardës së Klientëve Wire (e.g.``wg0-client``) dhe në (e.g.``eth0``)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Alpine Linux → ``openssh-client``"
@@ -22505,7 +22505,7 @@ msgstr "NFS në dalje të klientit për të rritur një server eksportimi në di
 
 # translated-by: libretranslate
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Roli i Wire Guard VPN-së në anën e klientit për lidhje të qëndrueshme me një shërbim të sistemit dhe script-in që akordon interfaqen MTU"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Client-side configuration bind-mounted into the `infinito` runner so that pip, npm, and apt route through the Sonatype Nexus 3 OSS pull-through proxy."
@@ -28956,11 +28956,11 @@ msgstr "Siguron që detyrat e mirëmbajtjes të ekzekutohen vetëm kur sistemi �
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with [wg-quick](https://www.wireguard.com/quickstart/)."
-msgstr "Siguron që MTU është konfiguruar si duhet para se të nisë WireGard me [wg-quick](https://www.wireguard.com/quickstart/)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with `wg-quick <https://www.wireguard.com/quickstart/>`__."
-msgstr "Siguron që MTU është konfiguruar si duhet para se të nisë WireGard me `wg-quick <https://www.wireguard.com/quickstart/>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the ``openssl`` CLI is installed on the host."
@@ -33861,7 +33861,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Shërbimi i Gardës VPN në nivel Host me konfigurim wg-quick, instalim të paketave, dhe sisktl IP-forward për tunele të sigurta"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-runner hygiene around image builds and deploys (disk, swap, Docker daemon, diagnostics)."
@@ -41740,7 +41740,7 @@ msgstr "Rrjeti"
 
 # translated-by: libretranslate
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Asistent në rrjet për iptables proaving and NAT conquerading of a Wire guard klient që shkon pas NAT ose një firewall"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Networks 🌐"
@@ -63278,11 +63278,11 @@ msgstr "Qëllimi kryesor i këtij roli është të automatizojë procesin e krij
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to configure WireGuard on a client by setting appropriate MTU values on network interfaces. This ensures a stable and optimized VPN connection."
-msgstr "Qëllimi kryesor i këtij roli është të konfigurojë WireGard mbi një klient duke vendosur vlerat e përshtatshme MTU në interfaqet e rrjetit. Kjo siguron një lidhje të qëndrueshme dhe të optimizuar VPN."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enable proper routing and connectivity for a WireGuard client situated behind a firewall or NAT device. By adapting iptables rules, it ensures that the client can communicate effectively with external networks."
-msgstr "Qëllimi kryesor i këtij roli është të mundësojë ndërprerjen dhe lidhjen e duhur për një klient të Gardës Wire, që ndodhet pas një pajisjeje mbrojtëse ose NAT. Duke përshtatur rregullat e iptables, ai siguron që klienti mund të komunikojë efektivisht me rrjetet e jashtme."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enhance system performance by ensuring that Docker volumes are stored on the most appropriate storage medium, optimizing both speed and capacity."
@@ -67421,7 +67421,7 @@ msgstr "Ky rol **nuk** dhe prandaj kërkon qasje në rrjet gjatë instalimit."
 
 # translated-by: libretranslate
 msgid "This role adapts iptables rules to enable proper connectivity for a WireGuard client running behind a NAT or firewall. It ensures that traffic is forwarded correctly by applying necessary masquerading rules."
-msgstr "Ky rol përshtat rregullat e iptables për të mundësuar lidhjen e duhur për një klient vigjilent që shkon pas një NAT apo firewall. Ai siguron që trafiku të përcillet siç duhet, duke zbatuar rregullat e nevojshme të maskimit."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role addresses a common issue on Linux laptops: closing the lid while docked or plugged in leads to unintended sleep or hibernation. It installs the necessary hibernation tools and updates `/etc/systemd/logind.conf` to:"
@@ -68564,7 +68564,7 @@ msgstr "Ky rol administron GNOME Shell Shtojca duke siguruar që shtesat e përd
 
 # translated-by: libretranslate
 msgid "This role manages WireGuard on a client system. It sets up essential services and scripts to configure and optimize WireGuard connectivity."
-msgstr "Ky rol menaxhon Wire Watch në një sistem klienti. Ai krijon shërbime dhe script-e thelbësore për të konfiguruar dhe për të optimizuar lidhjen e Gardës Wire."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role manages [Wireguard](https://www.wireguard.com/) on the host. It installs the necessary Wireguard packages, configures sysctl settings for IPv4/IPv6 forwarding, and deploys the Wireguard configuration file to enable the VPN service using [wg-quick](https://www.wireguard.com/quickstart/)."
@@ -74395,7 +74395,7 @@ msgstr "Programet e punës tregojnë përparim të vërtetë."
 
 # translated-by: libretranslate
 msgid "Works as an extension to the native WireGuard client role."
-msgstr "Punon si një zgjatje e rolit të klientit vendas Wire Watch."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Works hand in hand with ``sys-svc-mail-msmtp``, which configures msmtp to talk to ``localhost:25`` when Mailu is not present."
@@ -80202,7 +80202,7 @@ msgstr "[Hap bisedën](https://opentalk.eu/) është një platformë e hapur vid
 
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
-msgstr "[Forumi i OpenWrt diskuton mbi gardën](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
@@ -80448,7 +80448,7 @@ msgstr "[SSH Kufizime në komandë nëpërmjet authorized_keys](https://www.thom
 
 # translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
-msgstr "[SSH dështon me Wire Watch IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"
@@ -80680,7 +80680,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[UFW and SSH via WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
-msgstr "[UFW dhe SSH nëpërmjet Wire Guard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Unit Tests](testing/unit.md)"

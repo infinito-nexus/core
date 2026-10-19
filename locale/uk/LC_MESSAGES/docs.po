@@ -6506,7 +6506,7 @@ msgstr "**Сучасний, адаптивний веб-інтерфейс:** Д
 
 # translated-by: libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
-msgstr "**Модульний дизайн:** Легко інтегрується з іншими ролями або мережевими конфігураціями."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Modular Integration:** Integrates with common routines and roles to further enhance system security."

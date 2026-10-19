@@ -62041,7 +62041,7 @@ msgstr "Eginkizun honen helburu nagusia bezero batean WireGuard konfiguratzea da
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enable proper routing and connectivity for a WireGuard client situated behind a firewall or NAT device. By adapting iptables rules, it ensures that the client can communicate effectively with external networks."
-msgstr "Eginkizun honen helburu nagusia da haridun bezero baten bideraketa eta konektibitatea erraztea suebaki edo NAT gailu baten atzean. iptableen arauak egokituz, bezeroak eraginkortasunez komunikatu ahal izatea kanpoko sareekin."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enhance system performance by ensuring that Docker volumes are stored on the most appropriate storage medium, optimizing both speed and capacity."

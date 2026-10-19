@@ -2878,7 +2878,7 @@ msgstr "**Keterangan:** Peran pembantu memasang aset injeksi CA- trust untuk Doc
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**Keterangan:** Host-level Wireguard layanan VPN dengan wg-quick config, memasang paket, dan IP- meneruskan sysctl untuk terowongan aman"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -6528,7 +6528,7 @@ msgstr "**Antarmuka Web Modern, Responsif:** Akses UI intuitif dan adaptif untuk
 
 # translated-by: libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
-msgstr "**Desain Modular:** Mudah bersatu dengan peran Wireguard lain atau peran konfigurasi jaringan."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Modular Integration:** Integrates with common routines and roles to further enhance system security."
@@ -10931,7 +10931,7 @@ msgstr "**deskripsi**: Klien-sisi NFS setup untuk mengait sebuah ekspor server j
 
 # translated-by: libretranslate
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**deskripsi**: Client- side Wireguard peran VPN untuk konektivitas stabil dengan layanan sistemd dan skrip yang tune interface MTU"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
@@ -33363,7 +33363,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Host-level Wireguard layanan VPN dengan wg-quick config, memasang paket, dan IP- meneruskan sysctl untuk terowongan aman"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-runner hygiene around image builds and deploys (disk, swap, Docker daemon, diagnostics)."
@@ -79545,7 +79545,7 @@ msgstr "[Larangan Perintah SSH via authorized_keys](https://www.thomas-krenn.com
 
 # translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
-msgstr "[SSH Gagal dengan IP Wire Guard](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"

@@ -2665,7 +2665,7 @@ msgstr "**Mô tả:** Thiết lập bên khách NFS để lắp đặt một má
 
 # translated-by: libretranslate
 msgid "**Description:** Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**Mô tả:** Vai trò khách hàng bên Wire Guard VPN cho việc kết nối ổn định với một dịch vụ hệ thống và văn lệnh mà giai điệu giao diện MT"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Clipboard manager with editable history, custom actions, and scripting support"
@@ -2922,7 +2922,7 @@ msgstr "**Mô tả:** Đang hỗ trợ việc cài đặt tài sản phun CA tin
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**Mô tả:** Dịch vụ Wire cao cấp máy bảo vệ VPN với wg-quick conrig, gói cài đặt, và IP-backing Sysctl cho đường hầm bảo mật"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -3099,7 +3099,7 @@ msgstr "**Mô tả:** Hang ổ DNS toàn mạng cho việc chặn quảng cáo v
 
 # translated-by: libretranslate
 msgid "**Description:** Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**Mô tả:** Trình trợ giúp mạng cho iptables chuyển tiếp và phát thanh NT của một khách hàng Wire Guard chạy phía sau NAT hoặc tường lửa"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -6580,7 +6580,7 @@ msgstr "**Giao diện mạng hiện đại:** Truy cập vào một UI trực qu
 
 # translated-by: libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
-msgstr "**Thiết kế kiểu dáng:** Dễ dàng kết hợp với các vai trò bảo vệ Wire khác hoặc các vai trò cấu hình mạng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Modular Integration:** Integrates with common routines and roles to further enhance system security."
@@ -8463,11 +8463,11 @@ msgstr "**Truyền:** Theo dõi tương tác người dùng trên trang web củ
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**Hợp nhất vai trò:** Phụ thuộc vào [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) Vai trò để đảm bảo Wire Guard được cấu hình đúng trước khi áp dụng luật tường lửa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**Hợp nhất vai trò:** Phụ thuộc vào `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ Vai trò để đảm bảo Wire Guard được cấu hình đúng trước khi áp dụng luật tường lửa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Role-Based Access Control & Security:** Manage user permissions precisely to ensure that sensitive information and critical functions remain secure."
@@ -11060,7 +11060,7 @@ msgstr "**Mô tả**: máy khách-bên NFS thiết lập để lắp đặt mộ
 
 # translated-by: libretranslate
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**Mô tả**: chương trình khách bên Wire Guard VPN vai trò ổn định kết nối với dịch vụ hệ thống và tập lệnh mà giao diện tập hợp MUT"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
@@ -11306,7 +11306,7 @@ msgstr "**Mô tả**: hỗ trợ việc cài đặt tài sản phun CA- Trust ch
 
 # translated-by: libretranslate
 msgid "**description**: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**Mô tả**: Host- level Wire Guard VPN Dịch vụ với wg-quick conchig, gói cài đặt, và IP-backing Sysctl cho đường hầm bảo mật"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -11476,7 +11476,7 @@ msgstr "**Mô tả**: Mạng lưới hang ổ DNS cho việc chặn quảng cáo
 
 # translated-by: libretranslate
 msgid "**description**: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**Mô tả**: Mạng hỗ trợ cho iptables chuyển tiếp và NAT masquerading của một khách hàng Wire Guard chạy phía sau NAT hoặc tường lửa"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -12248,7 +12248,7 @@ msgstr "**https trên IdP — điều tra và phục hồi, không tái sinh.** 
 
 # translated-by: libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
-msgstr "**Điều luật điều chỉnh iptables:** Bộ phận chuyển tiếp cho khách hàng Wire do thám."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the `?fallback=local` emergency hatch: local Joomla admin form login must reach the control panel). Root cause UNCONFIRMED. It is independent of the fixed OIDC-login spec: the fallback path short-circuits before the plugin's server-side discovery, so the committed `extra_hosts` fix does not cover it. The `secure => true` sticky-cookie hypothesis was rejected (`.onion` is a potentially-trustworthy origin and the e2e Firefox sets `dom.securecontext.allowlist_onions`, so Secure cookies are accepted over plain-http onion). Next step when it fails again post-fix: isolate the post-submit URL — Keycloak redirect (cookie lost) vs. form reject vs. slow control-panel render."
@@ -17596,11 +17596,11 @@ msgstr "Cho phép dư thừa `| bool | ternary('true','false')` Mô hình khi ng
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. `wg0-client`) and sets up NAT masquerading on the external interface (e.g. `eth0`)."
-msgstr "Cho phép giao diện khách Wire Guard (e.g. `wg0-client`) Và thiết lập masquerading trên giao diện bên ngoài (e.g. `eth0`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. ``wg0-client``) and sets up NAT masquerading on the external interface (e.g. ``eth0``)."
-msgstr "Cho phép giao diện khách Wire Guard (e.g.``wg0-client``) Và thiết lập masquerading trên giao diện bên ngoài (e.g.``eth0``)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Alpine Linux → ``openssh-client``"
@@ -22361,7 +22361,7 @@ msgstr "Thiết lập bên khách NFS để lắp đặt một máy chủ từ x
 
 # translated-by: libretranslate
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "Vai trò khách hàng bên Wire Guard VPN cho việc kết nối ổn định với một dịch vụ hệ thống và văn lệnh mà giai điệu giao diện MT"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Client-side configuration bind-mounted into the `infinito` runner so that pip, npm, and apt route through the Sonatype Nexus 3 OSS pull-through proxy."
@@ -28794,11 +28794,11 @@ msgstr "Bảo đảm rằng chỉ thi hành nhiệm vụ bảo trì khi hệ th�
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with [wg-quick](https://www.wireguard.com/quickstart/)."
-msgstr "Để đảm bảo rằng MT được cấu hình đúng trước khi bắt đầu Wire Guard với [wg-quick](https://www.wireguard.com/quickstart/)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with `wg-quick <https://www.wireguard.com/quickstart/>`__."
-msgstr "Để đảm bảo rằng MT được cấu hình đúng trước khi bắt đầu Wire Guard với `wg-quick <https://www.wireguard.com/quickstart/>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the ``openssl`` CLI is installed on the host."
@@ -33577,7 +33577,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "Dịch vụ Wire cao cấp máy bảo vệ VPN với wg-quick conrig, gói cài đặt, và IP-backing Sysctl cho đường hầm bảo mật"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-runner hygiene around image builds and deploys (disk, swap, Docker daemon, diagnostics)."
@@ -41419,7 +41419,7 @@ msgstr "Mạng"
 
 # translated-by: libretranslate
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Trình trợ giúp mạng cho iptables chuyển tiếp và phát thanh NT của một khách hàng Wire Guard chạy phía sau NAT hoặc tường lửa"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Networks 🌐"
@@ -62741,11 +62741,11 @@ msgstr "Mục đích chính của vai trò này là tự động hóa quá trìn
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to configure WireGuard on a client by setting appropriate MTU values on network interfaces. This ensures a stable and optimized VPN connection."
-msgstr "Mục đích chính của vai trò này là để cấu hình Wire Guard trên một ứng dụng khách bằng cách thiết lập các giá trị tiện ích cho giao diện mạng. Việc này đảm bảo kết nối VPN ổn định và tối ưu hóa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enable proper routing and connectivity for a WireGuard client situated behind a firewall or NAT device. By adapting iptables rules, it ensures that the client can communicate effectively with external networks."
-msgstr "Mục đích chính của vai trò này là kích hoạt sự định tuyến và kết nối thích hợp cho một khách hàng Wire Guard nằm sau một bức tường lửa hoặc thiết bị NT. Bằng cách điều chỉnh các quy tắc, nó đảm bảo rằng khách hàng có thể giao tiếp hiệu quả với các mạng lưới bên ngoài."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enhance system performance by ensuring that Docker volumes are stored on the most appropriate storage medium, optimizing both speed and capacity."
@@ -66820,7 +66820,7 @@ msgstr "Vai trò này **không gửi văn lệnh cài đặt** và do đó yêu 
 
 # translated-by: libretranslate
 msgid "This role adapts iptables rules to enable proper connectivity for a WireGuard client running behind a NAT or firewall. It ensures that traffic is forwarded correctly by applying necessary masquerading rules."
-msgstr "Vai trò này thích nghi các quy tắc iptables để cho phép kết nối thích hợp cho một khách hàng Wire Guard chạy đằng sau một bức tường lửa NAT. Nó đảm bảo rằng giao thông được cải tiến chính xác bằng cách áp dụng những luật lệ cần thiết."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role addresses a common issue on Linux laptops: closing the lid while docked or plugged in leads to unintended sleep or hibernation. It installs the necessary hibernation tools and updates `/etc/systemd/logind.conf` to:"
@@ -67896,7 +67896,7 @@ msgstr "Vai trò này quản lý GNOME Shell Phần mở rộng bằng cách đ�
 
 # translated-by: libretranslate
 msgid "This role manages WireGuard on a client system. It sets up essential services and scripts to configure and optimize WireGuard connectivity."
-msgstr "Vai trò này quản lý Wire Guard trên hệ thống khách hàng. Nó thiết lập các dịch vụ và kịch bản cần thiết để cấu hình và tối ưu hóa kết nối Wire Guard."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role manages [Wireguard](https://www.wireguard.com/) on the host. It installs the necessary Wireguard packages, configures sysctl settings for IPv4/IPv6 forwarding, and deploys the Wireguard configuration file to enable the VPN service using [wg-quick](https://www.wireguard.com/quickstart/)."
@@ -73662,7 +73662,7 @@ msgstr "Phần mềm hoạt động cho thấy sự tiến bộ thực sự."
 
 # translated-by: libretranslate
 msgid "Works as an extension to the native WireGuard client role."
-msgstr "Làm việc như là mở rộng vai trò khách hàng Wire Guard bản địa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Works hand in hand with ``sys-svc-mail-msmtp``, which configures msmtp to talk to ``localhost:25`` when Mailu is not present."
@@ -79453,7 +79453,7 @@ msgstr "[Mở tài khoản](https://opentalk.eu/) là một nền tảng video m
 
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
-msgstr "[Cuộc thảo luận mở đầu về Wire Guard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
@@ -79696,7 +79696,7 @@ msgstr "[Hạn chế lệnh SSH thông qua authorized_keys](https://www.thomas-k
 
 # translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
-msgstr "[SSH thất bại với IP bảo vệ Wire](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"
@@ -79928,7 +79928,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[UFW and SSH via WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
-msgstr "[UFW và SSH qua Wire Guard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Unit Tests](testing/unit.md)"

@@ -3010,7 +3010,7 @@ msgstr "**Paglalarawan:** Network-wide DNS sinkhole para sa pagharang ng mga anu
 
 # translated-by: libretranslate
 msgid "**Description:** Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**Paglalarawan:** Networking helper para sa iptables forwarding at NAT masquerading ng isang wireGuard client na tumatakbo sa likod ng NAT o isang firewall"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -11058,7 +11058,7 @@ msgstr "**paglalarawan**: Katulong na papel na nag-install ng CA-trust injection
 
 # translated-by: libretranslate
 msgid "**description**: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**paglalarawan**: Serbisyo ng Host-level Wire Guard VPN na may wg-link na pag-install ng pakete, at IP-forwarding sysctl para sa mga secure tunnels"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -11228,7 +11228,7 @@ msgstr "**paglalarawan**: Network-wide DNS sinkhole para sa pagharang ng mga pat
 
 # translated-by: libretranslate
 msgid "**description**: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**paglalarawan**: Networking helper para sa mga iptables forwarding at NAT masquerading ng isang wireGuard client na tumatakbo sa likod ng NAT o isang firewall"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -11979,7 +11979,7 @@ msgstr "**Mga http tungkol sa sibuyas IdP — inimbestigahan at REJECTED, huwag 
 
 # translated-by: libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
-msgstr "**Iptables Rule adjustment:** Modifies iptables upang payagan ang forwarding at NAT masquerading para sa Wire Guard client."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the `?fallback=local` emergency hatch: local Joomla admin form login must reach the control panel). Root cause UNCONFIRMED. It is independent of the fixed OIDC-login spec: the fallback path short-circuits before the plugin's server-side discovery, so the committed `extra_hosts` fix does not cover it. The `secure => true` sticky-cookie hypothesis was rejected (`.onion` is a potentially-trustworthy origin and the e2e Firefox sets `dom.securecontext.allowlist_onions`, so Secure cookies are accepted over plain-http onion). Next step when it fails again post-fix: isolate the post-submit URL — Keycloak redirect (cookie lost) vs. form reject vs. slow control-panel render."
@@ -17263,11 +17263,11 @@ msgstr "Ipinahihintulot ang Papula `| bool | ternary('true','false')` pattern ka
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. `wg0-client`) and sets up NAT masquerading on the external interface (e.g. `eth0`)."
-msgstr "Pinapapasok ang trapiko mula sa kliyenteng Wire Guard (e.g. `wg0-client`) at inilalagay ang NAT masquerading sa panlabas na anyo (e.g. `eth0`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. ``wg0-client``) and sets up NAT masquerading on the external interface (e.g. ``eth0``)."
-msgstr "Pinapapasok ang trapiko mula sa kliyenteng Wire Guard (e.g.``wg0-client``) at inilalagay ang NAT masquerading sa panlabas na anyo (e.g.``eth0``)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Alpine Linux → ``openssh-client``"
@@ -40812,7 +40812,7 @@ msgstr "Pag - uusap"
 
 # translated-by: libretranslate
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "Networking helper para sa iptables forwarding at NAT masquerading ng isang wireGuard client na tumatakbo sa likod ng NAT o isang firewall"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Networks 🌐"

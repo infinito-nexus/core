@@ -37,7 +37,7 @@ msgstr "Klud AI dan pānāmā, pānēmā un eksperimentēmā ar modeliem."
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr "AI-code editor ed ku aiwan kari bai ba ba, nga endpoint override kai a matsayin aroono ba ba"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
@@ -52,12 +52,12 @@ msgstr "Agent"
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr "Aggregate NGINX sub-filtr injector theming Matomo, global theming, iFrame dan snippets JS snippets oleh flag fungsi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
-msgstr "Aggregate desktop environment bundling caffeine, shell extensions, és terminal into a complete GNOME setup on Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
@@ -67,7 +67,7 @@ msgstr "Pewme"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "All-in-one Stalwart server untuk pesan dengan SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV dan filter spam built-in"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -77,7 +77,7 @@ msgstr "Analitika"
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
-msgstr "Ruwa helper role pa idempotent persisten dan lokasi perawetan dan penyumbangan token aplikasi perwakilan dalam penyimpanan YAML lokal"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
@@ -87,12 +87,12 @@ msgstr "Applikasi"
 # translated-by: libretranslate
 msgctxt "menu:Sales:description"
 msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Applikasi untuk e-commerce, tiket, dan pengelolaan penjualan."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
 msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
-msgstr "Arch Linux driver bundle untuk Epson pemrintingan multifungsi dan skan via escpr dan imagescan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:title"
@@ -107,7 +107,7 @@ msgstr "Management Asset"
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Automated recovery service játendraxing jaya keunggulatan menghentikan atau kebasuhan Docker Compose stak dan menyelesaikan kekerusan port"
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -131,9 +131,6 @@ msgstr "Servis Hilangan²"
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
 msgstr ""
-"Strategjis kopia kembali dan perbuatan memulihakan \n"
-"---\n"
-"Note: The term \"restore procedures\" can also be translated as \"perbuatan memulihakan\" in this context."
 
 # translated-by: libretranslate
 msgctxt "role:dev-core:description"
@@ -153,22 +150,22 @@ msgstr "工作站 Blender instalasi síarkan kepada agen pada host melalui Proto
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr "Interface administratif du navigateur pour l'objet SeaweedFS de la boutique des objets, servant les consoles de filtre et la console maître derrière SSO"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
-msgstr "Applikasi roda putar berbasis browser untuk membuat keputusan, pilihan acak, dan gamifikasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "Interfejs amfiteraban browseri untuk gateway LLM bersamaan yang dipublikasikan di domainnya sendiri di belakang proxy awal"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
-msgstr "Kodej sammantir untuk menggambarkan perintah file yang dimiliki oleh rizal tanpa hak akses tinggi selama pembuatan paket"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
@@ -183,17 +180,17 @@ msgstr "Central Dockerized search engine tham bi voi nhung ap nhiều voi khoá 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr "Central document extraktor engine kekunci yang mengubah fail yang diunggah kepada teks untuk penarikan yang diperluaskan balik-cakap"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
-msgstr "Central recursos hilang, termasuk dokumen, alat sokongan, dan panduan."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
-msgstr "Central engine de kaching pada memori yang sama dengan isolasi berdasarkan dekstopan per konsumen, yang boleh digunakan secara menyerasi atau sebagai sisi sarang yang ikut yang tersemat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-loader:description"
@@ -203,7 +200,7 @@ msgstr "Central loader rol för ordenade delserver preload och kvoteafransade po
 # translated-by: libretranslate
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr "Central logout proxy untuk sign-out satu tindak lanjat ke semua aplikasi yang terhubung dengan OIDC, dengan snippet Nginx dan halaman status yang hidup"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
@@ -213,7 +210,7 @@ msgstr "Central mail orchestration rol för Infinito.Nexus, integrerând Email S
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Central recursiu/resender resolutor DNS enkines (Unbound, etc.)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -228,17 +225,17 @@ msgstr "Central laje tarikai și analitik mehketu cu spațiuri de nume de tenant
 # translated-by: libretranslate
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
-msgstr "Central vector database engine untuk menyimpan dan mencari embunggulan per-pengguna yang dibagikan seluruh stack"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Sistem MariaDB atau PostgreSQL penadbiran database yang disentralizasi yang dilibatkan semula oleh aplikasi via Docker Compose"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
-msgstr "Certbot service yang menggunakan protokol ACME untuk sertifikasi TLS SSL v3, sertifikasi TLS untuk Domain Sekar Let's Encrypt, dan sertifikasi TLS untuk Domain Berhak Letak Wildcard pada Domain NGINX"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:checking"
@@ -253,22 +250,22 @@ msgstr "Rapeak"
 # translated-by: libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr "Ritual de net cleaning untuk domain yang sudah tidak diperlukan, menghapus konfigurasi Nginx dan menghapus sertifikat Certbot nya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
-msgstr "Routine kampung untuk membebaskan ruang penyimpanan dari file file sementara, pustaka paket, data opsi Docker dan backup lama"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr "Setup NFS klien untuk menonjolkan ekspor server jarak jauh pada setiap node swarm pada masa berlayar, dengan pemeriksa keberadaan pada masa berlayar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
-msgstr "Sistem jemah kad yang boleh diubahpadam hisbah, aksi yang dipilihan secara sendiri, dan sokongan kepada pengetesan程式"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
@@ -278,12 +275,12 @@ msgstr "Haze"
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
-msgstr "Cloudflare DNS bootstrap rol untuk aksi dan wildcard A/AAAA rekod (dan CAA) opsi di atas dasar domain web stack"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr "Kernam registry untuk mengirim gambar image yang dikustomisasi ke Docker Swarm node pekerja"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-cache-package:description"
@@ -293,7 +290,7 @@ msgstr "Klaster-local proxy găid cache pörkopa upstreams, tasyan apt, pip, npm
 # translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr "Cluster-lan laiye haung-tou kasa untuk pull kembangan Docker Hub imej asas, mengurangkan transfer yang dupel dan batasan kadar"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:dsk.gnt:description"
@@ -303,7 +300,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr "Platform za wwiwik geyawey geyen magacyen tekyen ekstensibali te konten managemen"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-jrnl:description"
@@ -328,12 +325,12 @@ msgstr "Komunita"
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr "Kompozibl Komponen HTML injeksi roli (CSS, JS, logout interceptor, analytics, dashboard iframe) untuk Nginx/OpenResty melalui sub_filter/Lua dengan aset yang dibenamkan oleh CDN."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
 msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Rol buket yang kombinasikan antara contoh database berbantalan dengan kawas frontend untuk akses web berbantuan proxy berbalik HTTP"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
@@ -348,32 +345,32 @@ msgstr "Registries kontainer"
 # translated-by: libretranslate
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
-msgstr "Runtime kontainer engine dengan Compose untuk membangun dan menjalankan kontainer aplikasi pada host Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr "Klaster orchestration kontaineri kui kalkulaan kuraari kuraarbi krõppiga haldur vaheline ja haldur nodaiga"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
-msgstr "Servis-saraluk kontainer-registryi - lokal saraluk i kiri-pull saraluk."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-navigator:description"
 msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
-msgstr "Kalkulan Reveal.js kontainerisan sahityen baikan tampilan kepada admin, pengembang, pengguna, dan investornen"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Containerized ikon server untuk menyokong koleksi ikon SVG dan PNG bendera Simple Icons untuk penerokaan web dan maklumat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
-msgstr "Bakkesakadatabase sadyang relasional sa automated saakadatabase, saakaduser, dan saakadprivilage saakapuan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
@@ -388,7 +385,7 @@ msgstr "Content Management Systems CMS) và platform publisihing web("
 # translated-by: libretranslate
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr "Sistem administasi konten untuk membangun dan mengelola situs web, blog, dan jaringan situs multi dengan tema dan pernak-pernik"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
@@ -398,17 +395,17 @@ msgstr "Kontrol"
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
-msgstr "Galeri kiri untuk pengurusan hayat hidup sistem—mengurus penyegelan, pengawasan, backup, pemberian peringatan, tugas perkhidmatan, dan perbaikan."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
-msgstr "Core AI blok-blok—melayani model, gateway-OpenAI, buku simbol vektor, pengaturan, dan antarmuka UI percakapan."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr "Core NGINX webserver amb support HTTP dan srib stream TCP/UDP dan pengaturan default yang diukir untuk kecepatan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
@@ -418,7 +415,7 @@ msgstr "Corporate design configuration owner și flag de serviciu `design`, redi
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr "Dizin amfiterin bagi aplikasi yang dimelayani oleh NGINX, menggabungkan tema terang dan gelap dari token desain OKLCH"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -438,7 +435,7 @@ msgstr "Installer de distribució de codi cridat al manager de pacients Nix amb 
 # translated-by: libretranslate
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
-msgstr "Maintenance routine pente-distributif untuk pengembaliannyaan kesatuan penyimpanan antara kontainer, lingkungan CI, dan lingkungan penguburkan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -448,7 +445,7 @@ msgstr "Kumbuh Rumah"
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "Relació Kontakta (KRM) program untuk mengelola hubungan pelanggan, pipelining penjualan, promosi, dan kebijakan sokongan."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -463,7 +460,7 @@ msgstr "DNS Resolutors"
 # translated-by: libretranslate
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
-msgstr "DNS provider, records, dan rDNS management (Cloudflare, Hetzner, etc.)."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-cloudflare-records:description"
@@ -483,42 +480,37 @@ msgstr "Bazas"
 # translated-by: libretranslate
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
-msgstr "Decentralisasi, platform federasi untuk menyimpan, streaming, dan saling bertrabbing video peer ke peer"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
-msgstr "Platform decentralizatsiyang, federatsiyang untuk bagikan foto dan feeds imegam ke seluruh fediverse"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr "Decentralisats, federats social-networking platform for peer-to-peer komunikasi dan pembangunan komuniti"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr "Administrator konto ambilauh SSH key sah dan ambilauh-authentitk sudo sah sah"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr "Kontak system khusus dengan perintah SSH terkendali dan rsync tanpa kata sandi untuk akses backup yang aman"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
-msgstr "Orchestrator de start tunda untuk mengaktifkan dan memulakan sokatan systemd yang dikumpulkan selepas satu permainan selesai"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
-"Deployable web applications \n"
-"(GitLab \n"
-"Nextcloud \n"
-"Mastodon \n"
-")"
 
 # translated-by: libretranslate
 msgctxt "category:dsk:title"
@@ -528,12 +520,12 @@ msgstr "Computer"
 # translated-by: libretranslate
 msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
-msgstr "Client kliken za stream ngemuzi, pakleyes, na korsiki"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
-msgstr "Desktop client setup linking home folders into the directory for cloud-synced integrated file synchronization"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-extensions:description"
@@ -548,22 +540,22 @@ msgstr "Roles & aplikasi (GNOME, browser, LibreOffice, dll.)"
 # translated-by: libretranslate
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
-msgstr "Konfigurasi pemain media desktop dengan VLC dan library AACS/BD+ untuk enkripsi dan tontonan Blu-ray pada Arch Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
-msgstr "Programme doc, tabell, dan presentasi dengan font Liberation dan paket bahasa"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr "Gestor de pratical ambulator untuk melaraskan e napsakan e layar dan mulai automatik pada desktop GNOME"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
-msgstr "Client za konferencijama u dugocene, webinarima i dizajna"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Development:title"
@@ -578,12 +570,12 @@ msgstr "Desarollopam ja Tegjamjiya"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Distributed S3-compatible object store na kompartimentasi obyek untuk perubatan, perubatan individu di kenderaan kenderaan pelanggan meluas ke wargawepon rôle"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
-msgstr "Sistemu kontrol kontinuitet untuk mengawasi perubahan kod asas dan mengkoordinasi kerja pengembangan"
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -606,7 +598,7 @@ msgstr "Bootstrap gruop i rolai gyùmolu gyùmolu mìntìwùgùn fi gùmọ̀sè
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Server backend za dokument, tabell, danai, na real-time eduki nera dokument, tabell, danai nera"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
@@ -621,7 +613,7 @@ msgstr "Buku Panjang dan Aplikasi Wiki"
 # translated-by: libretranslate
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
-msgstr "Driver integrasi untuk keyboard warna bergerak dan penerangan RGB pada laptop MSI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:drv:title"
@@ -641,7 +633,7 @@ msgstr "Educación"
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
-msgstr "Robot platform embodyan Herma sa peranti tunggal yang terkelab dan terisolated dijejari jaringan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mcp-reconcile:description"
@@ -651,7 +643,7 @@ msgstr "Konvergència sèmprire des de kaolèm MCP deployit ki te paievi te înt
 # translated-by: libretranslate
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
-msgstr "Engine-agnostic laje kawal pemasangan untuk salinan berbagi, peti pesa Hanna, pencarian, dan mesin vektor dengan pembebasan per-konsumen"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-confluence:description"
@@ -676,7 +668,7 @@ msgstr "Editor de tekst terminal-ului bazat pe Vim extensible pentru editare a c
 # translated-by: libretranslate
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr "Servidor de xoc federat deng palaingg dan mengiklak game-games yang dihujoh sah deng ActivityPub di luas Fediverse"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-matrix:description"
@@ -686,12 +678,12 @@ msgstr "Federisit, end-to-end-šifratet platforma за писма с клиен�
 # translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
-msgstr "Federisats, self-hosted platform para jemayetin ogurma veb-konfederasyonun unutmaya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "Federasi ponti Connecting ActivityPub (Fediverse), AT Protocol (AT ProtocolBlueskyAT Protocol), dan IndieWeb"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -706,7 +698,7 @@ msgstr "Software keuangan dan akuntansi"
 # translated-by: libretranslate
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
-msgstr "Server TURN/STUN open source dan bebas untuk tranversal NAT dalam WebRTC dan komunikasi real-time"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-obs:description"
@@ -716,22 +708,22 @@ msgstr "Plikaan a bebas neraa a lëtta a beku a ku a lëtta a beku a jene a kasa
 # translated-by: libretranslate
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
-msgstr "App stambonlu danang aplikasi pribadi dan kecil untuk manajemen keuangan dan akuntansi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-dashboard:description"
 msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
-msgstr "Front-end JS injeksi notifying parent windows of iframe lokasi perubahan dan mendorong link luar ke tab baru"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
-msgstr "Front-layér baz untuk aplikasi web: Dasar HTTPS, setup tambahan Cloudflare, dan pemasangan tayang balik handler"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
-msgstr "Frontend helpers untuk apps reverse-proxied (injection, sumber bersama, penyambungan CDN)."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Games:title"
@@ -741,7 +733,7 @@ msgstr "Ga-me-s"
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Plataformas de joc i aplicacions de divertiment."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -751,37 +743,37 @@ msgstr "Ba"
 # translated-by: libretranslate
 msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
-msgstr "Generic end-to-end test runner executant rol-provad Playwright spec în Docker terapet aplikasi yang dipasang"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
-msgstr "Role genpak pakol dol CLI ta kai pakol symlin karun kai pakol dotfile karun kai pakol genpak ta tigun"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr "Global JavaScript injection layer for NGINX HTML responses via sub_filter, mit hashing CSP"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr "Konfigurasi SSH Daemon Kembaran untuk Akses Jauh Berbasis Hak Akses dengan Penghapusan Penggunaan Hak Akses dan Verifikasi Kata Laluan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
-msgstr "Browser web desktop harinon khatram dengan pemanusim kepercayaan dan aksesoris manajer kata laluan melalui Penjimat Jemaah Enterprise"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr "Kereta rawan muka sentuh untuk server LLM terbuka dengan talian jaringan yang memiliki ciri API"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
-msgstr "Check sauvetaj sa orphaned konta anonim sa Docker sa sahitya sa agant, sa whitelist sa sahitya"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "menu:Help:title"
@@ -791,12 +783,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "Helper rool menam assets CA-trust injection ke pesta Docker Compose dan memvalidasi pahitikan CA projek"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
-msgstr "Helper rols & instalatori (git, locales, timer, etc.)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
@@ -806,22 +798,22 @@ msgstr "Máy giúp việc"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "High-performance, self-hosted solutiosn za konsoljung, skalaung, un odkazaung podatok neopisanih — inkluzivn obyektne konsutung kompatiblihne s Amazon S3."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
-msgstr "Konfigurasi tingkat host untuk daemon pengumpul jurnal systemd dengan batasan penyimpanan dan streaming jurnal yang hidup"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
-msgstr "Konfigurasi tingkat host linking shell Bash dan Zsh login ke .profile yang bersama untuk memuat lingkungan yang konsisten"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
-msgstr "Host-level provisioning untuk mengungkapkan sistem versi proyek pyproject.toml secara keseluruhan melalui /etc/environment"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:user-root:description"
@@ -831,7 +823,7 @@ msgstr "Host-lvl rol kēmprovisāsion RSA 4096-bit SSH clave parapet lau kēmpro
 # translated-by: libretranslate
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr "Identity-based secrets, PKI o encryption manager, OIDC log-in, policiés gruppalt mapmt, seal statik auto-unseal"
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -845,7 +837,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
-msgstr "Infinito.Nexus dokumentasyon dla komitasi terkini dan setiap perlembagaan, dibangunkan sahaja dengan Sphinx"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:title"
@@ -860,7 +852,7 @@ msgstr "Infrastruktur dan alat jaringan"
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
-msgstr "Ruolo untuk mengelola struktur proyek aplikasi kontaineris, file .env, dan handler lifecycle"
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -884,7 +876,7 @@ msgstr "Injeksiyonen"
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr "Intel VA-API media driver untuk pengecualian video decode dan encode melalui driver Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-meta:description"
@@ -899,7 +891,7 @@ msgstr "Platform za izrađivanje i štampa zadataka za softverne skupine, sa agi
 # translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "Runtime JavaScript para bangunan dan menjalankan aplikasi di sisi server dan alat pengembangan"
+msgstr ""
 
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
@@ -908,32 +900,32 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr "Backend kernel naa run sa code chat naa bai, in ka kontainer naa baad sa in ka sandooka biyaai"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr "Kernel-isolat agent runtim sivusan an OpenAI-sampanya API, ruten sa an model sa trought gateway LLM sampanya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
-msgstr "Kernel-isolating container runtimes sa kontainer naam: Kata Containers microVMs sa kontainer naam dan gVisor naam fallback."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-virt-kata:description"
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
-msgstr "Kernel-isolating kontainer runcit yang kandang bebas beban kerja tidak dipercayai dalam VM mikro atau kernel penggunaananananan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr "Kernel-niv NFS server la eksporting kumpol kumpul sekolah IP-restricted akses la untuk swarm-node host"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
-msgstr "LLM-backet saung engine thamakin LibreTranslate API, thamakin pipeganan yang panggilakin direkko"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Education:description"
@@ -952,32 +944,32 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
-msgstr "Libretro-basierte vjeter za emulator, igraoci i predmeti medije, s stilima meniju XMB i Ozone"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
-msgstr "Kliens SMTP leightweighe dan penggantian sendmail untuk mengirim surat melalui server SMTP luar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr "Service self-hosted lighweight Git untuk kolaborasi kode, kontrol versi, dan pengaturan penyimpanan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr "Local name resolution untuk domains yang diawalinya, melalui modul myhostname NSS"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
-msgstr "Local self-signed Root CA untuk mengeluarkan kepercayaan sehingga kontainer menerima titik awal TLS internal"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr "Local-first kripsy cross-platform computer passmaneger sa ulangak kredensyal dalam bahan benda KeePass-format yang dirujuk"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
@@ -992,7 +984,7 @@ msgstr "Mechanism za kritičeske usluga da zaključi mehanizem za korekcije zadr
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr "Relay Postfix hanya untuk relay postfix ringkas keluaran surat melalui localhost apabila tidak berjalan stack surat pusat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-flowise:description"
@@ -1017,7 +1009,7 @@ msgstr "Zones za certificats, püştisensungu, na tsekerejekera tasks."
 # translated-by: libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr "Docker Swarm manager node rol, sa svc-swarm-node init logika delegatat"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "menu:Marketing:title"
@@ -1027,12 +1019,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr "Plataforma engine metasearch mengquery hasil web tanpa memberikan tanya pengguna kepada penyedia penelusuran yang mengawasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr "Terminal coding agen bat dengan kecenderungan melayani sistem penambahan kecenderungan, terhubung ke jembatan model platform sendiri"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
@@ -1042,12 +1034,12 @@ msgstr "Kontrolés"
 # translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
-msgstr "Multi-khledan spell checker dengan pustaka penyekat huruf yang boleh disesuaikan untuk penyuntingan teks perangkat keras dan ruang kerja"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
-msgstr "NGINX rol za klej 301 menetlje nered izvorne domene u ciljne domene sa automatskim SSL za izvorne hostove"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-https:description"
@@ -1057,22 +1049,22 @@ msgstr "NGINX laja xətt HTTPS ilə Let's Encrypt ACME xəlləmə tənkləri yox
 # translated-by: libretranslate
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr "Sblok server NginX yang berlaku dengan cara mengarahkan subdomain www kepada puncak domain asas yang tidak mempunyai www"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr "NGINX subfilter injector menambahkan Matomo skrip analitik dan gambar pemuter tidak script ke halaman HTML yang diproses"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "Vhost NGINX untuk menyajikan situs web HTML statis melalui HTTPS dengan sertifikat Let's Encrypt yang otomatis"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-prx-openresty:description"
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
-msgstr "Nginx-based platform web dan antiproxy dengan penguat konfigurasi yang diuji dan integrasi Let's Encrypt"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-legal:description"
@@ -1090,12 +1082,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "Setupsir siri (DNS, Let's Encrypt HTTP, WireGuard, dll.)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
-msgstr "Rahubangan DNS sinkol untuk melarang iklan dan pemantauan di seluruh peranti, dengan DHCP dan layar admin web"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
@@ -1105,17 +1097,17 @@ msgstr "Nginx sub_filter JavaScript injecție redirectionant toacă toate acțiu
 # translated-by: libretranslate
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr "Nginx-basierte ject delivery network para obremi jadi kajali static ject di aplikasi web inti"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
-msgstr "Nginx-based privacy proxy yang memantulkan aset ketiga yang diwhitelist di bawah domain penukaran terlembat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr "Ngx-based server untuk menghost sumber daya statik memindahkan dari direktori sumber ke path data web"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:dev-npm:description"
@@ -1135,17 +1127,17 @@ msgstr "OS & pakkuu pandawa"
 # translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr "Object-sahtung-layahet sa SeaweedFS/MinIO layahet rezolwsiun sa kunguwa-ni sa kredentiasel layahet kubabakar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
-msgstr "On-target automation sa kreuai va sa luat lai swap sa saa saa script swapfile sa saa luat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-translate:description"
 msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
-msgstr "One endpoint de tip ngai ai chai jom phaen kai paen chang string human khao khlui"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -1155,82 +1147,82 @@ msgstr "Pagina de desconexió"
 # translated-by: libretranslate
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
-msgstr "Open la sypen logout dan tandai keluar daripada seselesian layar itu sendiri."
+msgstr "Сығыу битен асығыҙ һәм ҡалған хеҙмәттәрҙән үҙегеҙ сығығыҙ."
 
 # translated-by: libretranslate
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
-msgstr "Platform CRM open-source untuk mengelola penjualan, interaksi pelanggan, dan proses bisnis di antara tim"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
-msgstr "Platform CRM sasenate, pelayanan, perkataan, dan pengurusan kampanye dengan automasi jalan‌‌"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
-msgstr "ERP suite erp-suit suite ERP suite erp-suit suite"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
-msgstr "Open-source IT dan pemeriksaan aplikasi server yang berada di belakang SSO dengan pemeliharaan pengguna native LDAP"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
-msgstr "Sistem manajemen aset IT aset sediaan siri open-source untuk mengawasi laporan penyediaan peranti dan peranti luaran"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
-msgstr "Open-source ITSM dan platform helpdesk (OTRS fork) untuk tiket, CMDB, base maklumat, dan perisian"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
-msgstr "Platform za proekti koordinacii na agile na skriptka za Scrum, Kanban, un kombinert workflw za skupine"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
-msgstr "Server otomasi jembatan CI/CD, pembangunan, dan workflows penginstalan yang dijalankan oleh plugin"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr "Platform za komunitat opensource untuk mengumpulkan, memilih, dan menetapkan keinginan dan gagasan kecuali"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-joomla:description"
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
-msgstr "Sistem terawalka pengelolaan konten sumber terbuka untuk membangun website, intranet, dan aplikasi online tanpa menulis kod"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
-msgstr "BitTorrent kafter client untuk desktop yang boleh dijelaskan sebagai kumpulan sumber terbuka untuk mengambil dan berbagi fail melalui protokol BitTorrent"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
-msgstr "Platform untuk diskusi dan komuniti dengan papan perbincangan yang boleh diakses secara sumber terbuka dengan pemeriksaan, pemberitaraan, dan sokongan pelengkap"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
-msgstr "Open-source platform kompiliran na Symfony sa Vue.js untuk pembinaan dan perancangan awamkanan wina lapangan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr "System helpdesk dan sistem mencatatan tiket untuk mengatasi permintaan pelanggan melalui email, obrolan, telepon, dan web yang terbuka"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
-msgstr "LMS open-source untuk menciptakan, mengelola, dan memberikan kursus dan e-learning secara online"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-prometheus:description"
@@ -1240,7 +1232,7 @@ msgstr "Kolekciok juziatarului și alerturilor gratuit pentru stocarea metricilo
 # translated-by: libretranslate
 msgctxt "role:web-app-decidim:description"
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
-msgstr "Plataforma demokrasi demokrasi berpartisipasi untuk konsepnas, proses sipil, dan pilihan komunitari berterusan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mattermost:description"
@@ -1250,7 +1242,7 @@ msgstr "Platform de peselu tim send-hosted, platforma de peselu tim desfasurată
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI-kompability LLM gateway routing a single /v1 endpoint to lokali dan model-backend dengan per-konsumen kunci"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:dev-java:description"
@@ -1270,7 +1262,7 @@ msgstr "Optimation sirvitsa mejaya systemyo"
 # translated-by: libretranslate
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr "Optimisasi alat gilirannya kompilator untuk membangun program-program native seperti C, C++, dan yang lainnya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
@@ -1295,26 +1287,22 @@ msgstr "Pastrykaciju instalatsióon GNU Makas autoparkažu dzīvoklis izpildes p
 # translated-by: libretranslate
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
-msgstr "Gabinetman untuk menginstall dan mengatur paket Python pada host tujuan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
-"Per-user Hermes va OpenClaw agens bi keu started on demand behin an endpoint compatible cu OpenAI\n"
-"---\n"
-"\n"
-"Note: The translation maintains the structure and terms as closely as possible, adapting the syntax to Bahasa Indonesia."
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
-msgstr "Pausa meditasi kesihatan periodik untuk penyerapan pesan keluar, mengirim perintah uji melalui msmtp dan memberikan peringatan pada kegagalannya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr "Persistent systemd user-service SSH agent para masa Wayland, dengan .ssh konfigurasi dikaitkan dari Git"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
@@ -1329,17 +1317,17 @@ msgstr "Platformas par kūpretingo mājaslapu, produktu katalogu un digitūrais 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
-msgstr "Bukan pada tutup halaman ini sekarang."
+msgstr "Зинһар, был битте әлегә ябмағыҙ."
 
 # translated-by: libretranslate
 msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
-msgstr "Ba ba sao seh nga pieng lai seuh khuen den."
+msgstr "Зинһар, был эш тамамланғансы битте асыҡ ҡалдырығыҙ."
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "Plug-triggered systemd backup para snappings dedupilatyon hard-link yang dipadankan kepada pustaka backup tanah air ke dalam peralatan USB yang boleh digantung"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
@@ -1349,17 +1337,17 @@ msgstr "Politikal-web mésa baka ba Arch Linux mésa baka ba ye auto-installan e
 # translated-by: libretranslate
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
-msgstr "Konfigurasi systemd logind yang mempunyai keupayaan menyedari kekuatan untuk perilaku tutup top sulung yang dapat diramalkan di laptop di atas keadaan daya, aliran listrik, dan berada di dalam kawat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
-msgstr "Platform social privat-first untuk rumah, federating peer-to-peer lewat WebRTC pada melek SQLite"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
-msgstr "Privileg-eksalasi pakakai dan konfigurasi sudaus yang menegak dengan sokongan /etc/sudoers.d"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
@@ -1374,12 +1362,12 @@ msgstr "Managements Tools"
 # translated-by: libretranslate
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
-msgstr "Installer za driver GPU proprietary melhwd penggunaan nonfree peranti keras daripada sistem Arch"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
-msgstr "Kurasi pemasangan peranan untuk pautan DNS wildcard Cloudflare (*.parent) pada pengurus utama dan domain akar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:user-workstation:description"
@@ -1389,7 +1377,7 @@ msgstr "Provisioning rol dla konto logowania komputera工作站 dotfiles, klucze
 # translated-by: libretranslate
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
-msgstr "Provisioning role untuk pemasangan lingkungan per-user, mengelola file-dot shell dan SSH authorized_keys"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
@@ -1404,22 +1392,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr "Public vhost ke eksposur ke System One ke keputusan API daripada svc-ai-s1"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr "Pull-thru kaskades para upsteam - repositori proxy dan frontend TLS yang menjawab untuk mereka."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
-msgstr "Python CLI pakket manager untuk mengkloni berbagai repositori kode dan melakukan operasi umum Git secara otomatis"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr "Pins para kompilator GitHub-release lint"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
@@ -1429,37 +1417,37 @@ msgstr "Répair"
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
-msgstr "Koreakom ja perakom rol—Docker, Btrfs perakom balansorer, un low-level sistem perakom jay khawg."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr "Primitve kiti Git gabarit untuk pengkotakan rendah, pembaruan yang terputus, menandakan pinjaman, dan pemantauan perubahan yang tepat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr "Adaptor MCP per-provider yang boleh digunakan sekali, membezakan permukaan baca yang diizinkan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
-msgstr "Proxy revers front-end untuk layanan Docker yang disentralisasi dengan dukungan otomatis TLS, soket WebSocket, dan tata letak vHost per-aplikasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr "Layer ke kontrol TLS seleket Let's Encrypt, penyertaan sendiri, atau penyertaan dilock Nginx"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
-msgstr "Rol proxy terusane gauna a routing a lauagh-balancing a traffi a pashiran a sivisitesegui"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr "Rolos luung kaundrya varied sistem resources—baruuyan kalendaran, sitawakang sertipika, file kaundang, volums kaundang Docker, kalendaran disk, domain kainihan, ataggan lagi."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:drv:description"
@@ -1479,12 +1467,12 @@ msgstr "Rolos za sistem misiun și chekuri zdravii – encombin chekuri de tip b
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
-msgstr "SAN-aware certifikat provider generatin dan menjarakkan sertifikat TLS tanda pautan sendiri untuk lapisan TLS front-proxy"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor-smtp:description"
 msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
-msgstr "Gateway SMTP yang relays pesananan .onion melalui penyambung SOCKS Tor"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "menu:Sales:title"
@@ -1499,27 +1487,27 @@ msgstr "Runtime Sandubi"
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-nfs-2-local:description"
 msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
-msgstr "Sesiul kuncangan pekerjaan penyimpanan balas untuk pengambilan cecair yang berbeza yang terkait dengan hard-link kepada snapshot rsync dari ekspor NFS ke kek penyimpanan balas"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
-msgstr "Puskompera alat untuk mengecek dan menghapus sertifikasi SSL Let's Encrypt yang tidak digunakan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
-msgstr "Kedudukan deduplikasi keselamatan mesin, kredensial CA, kredensial ACME, dan kebenaran mesin telah dipisahkan ke dalam pendar backup lokalku"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr "Sistem keselamatan cadangan deduplikasi disyariptkan untuk pemulangan kontainer Docker kepada direktori lokakarya, dengan cadangan SQL yang konsisten"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
-msgstr "Crawling checker periksa sumber CSP dijembangkan melalui alat Node.js berbasis Puppeteer"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-btrfs:description"
@@ -1529,7 +1517,7 @@ msgstr "Rozpčtu zdravotního kontrolního testu pro systémy Btrfs, který vyk�
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-disc-space:description"
 msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
-msgstr "Prakhar kontrol keselamatan kesihatan, pemberitahuan apabila sembarang penampungan melebihi kiraan kadar peringatan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-journalctl:description"
@@ -1539,7 +1527,7 @@ msgstr "Rozpocnete kontrolu zdraví przesuňe Systemd věstník pro denní chyby
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-webserver:description"
 msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
-msgstr "Verifikasyon sa tulong sa health na may pagkatuto ng mga domain ng NGINX na ipakita ang ekspektadong HTTP status at alert ang mga deviates"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-faild-bkps:description"
@@ -1559,51 +1547,47 @@ msgstr "Zaměřené pushovací náhrada základní kopie na tuto hostitelskou s�
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
-msgstr "Servis systemd yang disusun untuk keperluan menjalankan tindakan pengelupasan versi backup yang telah kadaluwarsa apabila penggunaan diskian melebihi tingkatan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr "Planed sistem systemd dan jemputan untuk membalasikan sistem Btrfs untuk menyimpan file untuk menyimpan alokasi penyimpanan optimal"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
-msgstr "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot dan memuat ulang NGINX kemudian"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
 msgstr ""
-"Infrastruktur untuk menjalankan job tugas workflow GitHub Actions dalam kontainer Docker yang sementara\n"
-"---\n"
-"\n"
-"Please note that the term \"CI runner\" and \"GitHub Actions\" might not have direct translation, so I have translated it in a way that maintains the context but may not be a literal translation."
 
 # translated-by: libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr "Platform untuk pengelolaan kod sumber Git, pipaikan CI/CD dan pengejaran isu"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
-msgstr "Self-hosted Fediverse untuk menunjukkan posting publik terkini menggunakan # atau akun dalam grid masonry yang hidup"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr "Deplyoam GitHub Actions runner lokal dan konfigurasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "Self-hosted HTML5 game sandbox untuk memandang dan menjalankan demonstrasi mesin kecil dan permainan di browser"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
-msgstr "Sesjio dirivai LDAP ambahan pengurus pengguna, kumpulan, dan skema dengan akses yang terpusatkan yang dipantasi dengan TLS"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
@@ -1618,27 +1602,27 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "Url korte korteraser, kramaar bimbe, og kartoonaar kramaar bi niilek na bimbe na kramaar kramaar click bineka"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr "Platform webRTC self-hosted untuk konferensi video end-to-end enkripsi dengan autentikasi federasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "Browser tool pendedih yang boleh menghasilkan kawasan QR daripadan teks atau URL dengan menelaah tempatan yang ramaian privasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr "Self-hosted chat interface untuk menginteraksui model AI lokal dan privat melalui backend seperti Ollama"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "Platform na-hosted sendiri untuk penyimpanan, perbagi, kolaborasi real-time, dan ruang kerja tim di domain sendiri"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Cloud:description"
@@ -1648,12 +1632,12 @@ msgstr "Sistemy nakhodeti važak sakol ažnyen file synchronization, collaborasi
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
-msgstr "Social network decentralizad dan self-hosted pada AT Protocol yang terbuka, dengan Server Data Pribadi miliknya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
-msgstr "Platform de taskek dan dan kontroliranje UI/UX, kolaboraciju trenutno i odlaganje razvijalaše"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-magento:description"
@@ -1663,12 +1647,12 @@ msgstr "Platforma elektronichne komerčne komunikácie pre správu knižnice, v�
 # translated-by: libretranslate
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr "Wiki e managements platform jalan raya dengan pengerjaan kolaboratif dan ekstensibiliti berbasisken ciri"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "Plataforma federat jurnal pribadi untuk perbincangan buku dan petaan bacaan di Fediverse"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
@@ -1678,12 +1662,12 @@ msgstr "Social network federat ny tekebukob, blog mikro, líma-line, és moderas
 # translated-by: libretranslate
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
-msgstr "Platform za identita i pristupačnost koji se hostira samostalno za jedinstvenu prihvatanje, dvokriterijsku autentifikaciju i federaciju korisnika"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "Platform asuransia low-code untuk automasi menghubungkan sumber daya dan mengintegrasikan integrasi proses secara grafik"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mailu:description"
@@ -1702,22 +1686,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr "Self-hosted model server untuk menjalankan LLM terbuka lokal di belakang sambungan HTTP API"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "Platform ku-database self-hosted tan no-code dengan antaraalan layar laman seperti jurnal"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Sesuai-hosted online kantor belakang untuk pengetikan dalam browser yang real-time dari dokumen, lembar kerja, dan presentasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
-msgstr "Pomveu a sendiri suite ERP open source untuk keuangan, CRM, stok, penerbitan, perkhidmatan manusia, jual-beli, dan projek"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-libretranslate:description"
@@ -1727,52 +1711,52 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr "Self-hosted agent AI pribadi dengan gateway kontrol UI browser, diandbox di dalam Kata microVM atau runtime gVisor"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr "Self-hosted platform untuk penyimpanan, perbagi, dan kolaborasi dengan SSO Keycloak dan direktori LDAP pusat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
-msgstr "Pallaweb platform untuk surat langsung dan daftar penerima dengan pemisahan subskribur dan analisis kampanye"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
-msgstr "Plataforma sendiri untuk akuntansi online, pengurusan buku keuangan, dan pemeliharaan keuangan bisnis"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr "Platform localisalth untuk pengurusan projek, pemeriksaan paket kerja, perancangan Gantt, dan kemitraan tim"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr "Portal jendela untuk akses terpadu ke semua aplikasi yang terinstal melalui antologi dan antologi yang dikustomisasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr "Platform perjalanan diri untuk pameran dengan penjualan online, pemeliharaan pendaftaran, dan pembayaran yang aman"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
-msgstr "Platform za konferencije na webu lokalizirani za virtualne predmete, online mesecvine in ustrezna sklicevanje za trenutno v času"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
-msgstr "Self-hosted, federated platform untuk membagikan, menampung, dan streaming koleksi musik dan audio anda sendiri"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr "Platform web analitik self-hosted dan pertutuhan pertama untuk petaan keputusan pengunjung dan indikator pantulan langsung"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
@@ -1787,7 +1771,7 @@ msgstr "Optimizasyon"
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr "Slut-level kopi dan penyambunnan komponen—mengelola kopion tambahan data secara otomatis, kopian jauh, sumberdaya penyambunnan, dan penyambunnan pembiayaan secara menyambunnan di antara basis data, fail, dan kontainer."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"
@@ -1807,22 +1791,22 @@ msgstr "Kontejner Storage"
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
-msgstr "Koneksi host bersama mengasuransikan bahawa OpenSSL CLI telah dipasang sekali untuk peranan yang menghendaki perintah OpenSSL dipanggil"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr "Mesenger sipil bersama untuk pesan async dengan virtual host dan isolasi pengguna per konsumen"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "Shared persistent-storage backends user peka perintah-nod multi — NFSv4 server dan perintah-nod."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr "Premisa komunen kepada role desktop, akses kepada kačen sahaja dan fail-nya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
@@ -1843,7 +1827,7 @@ msgstr "Dihautlen, kecuali {failed} daripada {total} sesebuah jasa."
 # translation-refused: libretranslate damaged-span
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
-msgstr ""
+msgstr "Һеҙҙе хеҙмәттәрегеҙҙән сығарабыҙ…"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-postmarks:description"
@@ -1873,7 +1857,7 @@ msgstr "Software Desarollopament Utensils"
 # translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "Platform video konferens sumber terbuka penguasa, untuk panggilan audio/video, perbagi layar, ruang keluar, dan SSO"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
@@ -1893,12 +1877,12 @@ msgstr "Static conținut servisi (assets, HTML, lege, fisiere)"
 # translated-by: libretranslate
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
-msgstr "Servej fajl server stasionar o HTTPS ambil pustak direktori, .well-known tindakan, dan sertifikasi TLS otomatis"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr "Statik sitem generator menyelesaikan HTML daripada sebuah perangkat lunak upstream Git pada masa menulis dan menyumbangkannya melalui nginx"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Storage:title"
@@ -1918,47 +1902,47 @@ msgstr "System Frontend Benders"
 # translated-by: libretranslate
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
-msgstr "Rol kongfigurasi untuk mengatur dan menghasilkan lokales melalui locale.gen dan locale.conf moldoh"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-hostname:description"
 msgid "System hostname configuration derived from the inventory host entry"
-msgstr "Konfigurasi konfigurasi maklumat hos didarabkan daripada ecambaran hos insentivis"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys:description"
 msgid "System near components. Will be automaticly called if necessary from other roles."
-msgstr "Sistem komponenti. Awdikati jalu iki iki ike komponen lain wot kawansar."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
-msgstr "Rol za uskanjenie rol na obnovljanje indeksa paketa in nadupgradejendo posodobljenih paketa z upravljalejo paketov operacijskega sistema"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr "Sistem-abhibat imegegebono imebanyo lokukwanisa na kugweta iplatform ekukufuna kuti kuonero"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
-msgstr "System-pip helper untuk menginstall atau meningkatkan paket Python melalui Python sistem host"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Systemd service dan timer untuk sinkronisasi sertifikat Let's Encrypt ke Docker Compose stack-NGINX dengan reload panas"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
-msgstr "Unit timer systemd untuk memulai satu layanan pada jadual kalender berulang untuk tugas pengejenan yang automatis"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
-msgstr "Service per siltan systemd yang membuang pemusnahan kontainer anonim Docker, termasuk gambar, kontainer, jaringan, dan memori penyimpanan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
@@ -1968,17 +1952,17 @@ msgstr "Systemd-scheduled maintenans rolé @ük Docker Compose stack restarts, w
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr "Systemd-timed monitor untuk mewaspadai container Docker yang tidak sehat atau yang telah berhenti dengan kode keluaran tidak nol dan mengirim alert kegagalan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
-msgstr "Systemd-goni msmtp mottaper untuk mengirim notifikasi kepada pemilik operator apabila unit unit jasa yang dipantau gagal"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr "Systemd-uredaforu traivaltaran aulak-urafora ara luurutetha saa-service auran luurutetha a ba-foru a Telegram auran"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnt-claude:description"
@@ -2008,17 +1992,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
-msgstr "Eto obyekti obyekti nim fa lah leleh sekunt."
+msgstr "Был ғәҙәттә бер нисә секунд ала."
 
 # translated-by: libretranslate
 msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
-msgstr "Rol bising tiering, meangih Docker volums ke SSD atau HDD oleh tipe workload, dengan symlinks mengekalkan jalan raya konsisten"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
-msgstr "Toolchain untuk Python skript, pengembangan aplikasi, dan ilmu data pada Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
@@ -2028,7 +2012,7 @@ msgstr "Máterial"
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
-msgstr "Mekanismin perkenalan dan Pengurusan Identiti, termasuk autentikasi, penyediaan pengguna, dan kontrol akses yang aman."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:description"
@@ -2038,7 +2022,7 @@ msgstr "Mekanisit untuk komunikasi"
 # translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
-msgstr "Mekanismeri untuk kampani email, pemanasan pengikut, otomatisasi, dan workflows pemasaran digital."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:description"
@@ -2093,12 +2077,12 @@ msgstr "Güncelas dan Paket Manajemen"
 # translated-by: libretranslate
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
-msgstr "Sekali sajam kabuutha links abia hawa a kusaara a ni."
+msgstr "Ҡалғандарынан үҙегеҙ сығыу өсөн түбәндәге һылтанмаларҙы ҡулланығыҙ."
 
 # translated-by: libretranslate
 msgctxt "logout:stalled_hint"
 msgid "Use the links below to sign out of the services still listed."
-msgstr "Usal salinai paham links dibawah untuk keluar daripada layanan yang masih dilist."
+msgstr "Исемлектә ҡалған хеҙмәттәрҙән сығыу өсөн түбәндәге һылтанмаларҙы ҡулланығыҙ."
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:title"
@@ -2123,7 +2107,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr "Ruta layout aset versi untuk pengiriman CDN dengan direktori semula jadi bersama, vendor, dan per-peranan"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-code:description"
@@ -2138,12 +2122,12 @@ msgstr "Infrastruktur Web"
 # translated-by: libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr "Web UI dan API untuk menjalankan Ansible, Terraform/OpenTofu, dan otomasi perintah pada jadwal atau permintaan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
-msgstr "Interfaccia web per l'amministrazione dei directory LDAP: gestione degli utenti, dei gruppi e di altre ognac object directory"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-fusiondirectory:description"
@@ -2158,12 +2142,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Platform online untuk administrasi dan perkembangan dengan mengelola lebih dari satu server PostgreSQL dengan masuk login opsi OAuth2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr "Web-based admin tool untuk MySQL dan MariaDB dengan pemeliharaan skema, pemrograman, dan impor/export"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
@@ -2173,17 +2157,17 @@ msgstr "Optimizació del servidor Web"
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Setup masamandalan untuk Docker dan Docker Compose dengan pengguna lokal dalam keluar group untuk pengembangan tanpa root dengan menggunakan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "Mekanisam alatkan kios dan izin port seri untuk pengembangan board Arduino pada sistem Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
-msgstr "Role avatara untuk pemasangan dan perbaruan paket idempoten melalui paketmanejor pemimpin universal"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:may_close"

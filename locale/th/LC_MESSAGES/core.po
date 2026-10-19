@@ -880,9 +880,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "เวลาที่จาวาสคริปต์ทํางานสําหรับการสร้างและใช้งานโปรแกรมแม่ข่ายด้านข้างและนักพัฒนา"
 
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "เคอร์เนล WireGuard อุโมงค์, Hot- and sschell myches ภายใต้ผู้จัดการกลุ่มและเต็ม metches ระหว่างโฮสต์รวม"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1073,7 +1074,7 @@ msgstr "เครือข่าย"
 # translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "ตั้งค่าเครือข่าย (DNS, เข้ารหัส HTTP, แผงวงจรไฟ เป็นต้น)"
+msgstr "ตั้งค่าเครือข่าย (DNS เข้ารหัส HTTP WireGuardฯลฯ)"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"

@@ -893,9 +893,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
 
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "Qalereya WireGuard tunnel , , , , , ,"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1075,7 +1076,7 @@ msgstr "Axtar"
 # translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "Axtarış (DNS, Yadda saxla)"
+msgstr "Axtarış (DNS, Yadda saxla WireGuard,)"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"

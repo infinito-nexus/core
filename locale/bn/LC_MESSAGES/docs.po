@@ -2907,7 +2907,7 @@ msgstr "**বিবরণ:** উচ্চ পর্যায়ের নোড�
 
 # translated-by: libretranslate
 msgid "**Description:** Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**বিবরণ:** সিস্টেম বিজ্ঞাপনী সার্ভিস এবং স্ক্রিপ্ট দ্বারা স্থায়ী সংযোগের জন্য ক্লায়েন্ট-এর পাশাপাশি Wiরেগ্রে VPN ভূমিকা"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Clipboard manager with editable history, custom actions, and scripting support"
@@ -3153,7 +3153,7 @@ msgstr "**বিবরণ:** CA-র বিশ্বাসের জন্য স
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**বিবরণ:** নিরাপদ টানেলের জন্য হোস্ট-লেভেল Wicad VPN পরিসেবা, wg-queic প্যাকেজ ইনস্টল এবং IP-অনুসন্ধানের জন্য হোস্ট"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -3328,7 +3328,7 @@ msgstr "**বিবরণ:** DHCP এবং একটি ওয়েব প্�
 
 # translated-by: libretranslate
 msgid "**Description:** Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**বিবরণ:** NAT অথবা ফায়ারওয়ালের আড়ালে চলমান ক্লায়েন্টের জন্য Cipparth এবং NAT MRADP এর নেটওয়ার্ক ব্যবস্থা"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -7115,7 +7115,7 @@ msgstr "**আধুনিক, রেসপ্সনিক ওয়েব ইন
 
 # translated-by: libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
-msgstr "**মডুলার ডিজাইন:** অন্যান্য উইরাগার্ড ভূমিকা বা নেটওয়ার্ক ভূমিকার সাথে সহজ সম্পর্কিত।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Modular Integration:** Integrates with common routines and roles to further enhance system security."
@@ -9167,11 +9167,11 @@ msgstr "**রোস্তট অনুসরণ:** আপনার ওয়ে�
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**ভূমিকা:** চিহ্নিত সামগ্রীর উপর নির্ভরশীল [svc-net-রিওয়্যারগার্ড](../svc-net-wireguard-plain/README.md) ফায়ারওয়াল নিয়ম প্রয়োগ করার পূর্বে Wirregard সঠিকভাবে কনফিগার করা হয়েছে ।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**ভূমিকা:** চিহ্নিত সামগ্রীর উপর নির্ভরশীল `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ ফায়ারওয়াল নিয়ম প্রয়োগ করার পূর্বে Wirregard সঠিকভাবে কনফিগার করা হয়েছে ।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Role-Based Access Control & Security:** Manage user permissions precisely to ensure that sensitive information and critical functions remain secure."
@@ -12213,7 +12213,7 @@ msgstr "**বিবরণ**: দূরবর্তী নোডের মধ্�
 
 # translated-by: libretranslate
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**বিবরণ**: একটি সিস্টেম বিজ্ঞাপন এবং স্ক্রিপ্ট দ্বারা স্থায়ী সংযোগের জন্য ক্লায়েন্ট-অভিযান VPN ভূমিকা"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
@@ -12463,7 +12463,7 @@ msgstr "**বিবরণ**: CA-র বিশ্বাসের জন্য স
 
 # translated-by: libretranslate
 msgid "**description**: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**বিবরণ**: নিরাপদ টানেলের জন্য হোস্ট- লেভেল Wicrereguard VPN পরিসেবা, wg-queic প্যাকেজ ইনস্টল, এবং IP- কন্‌ট্রোগের মাধ্যমে scted"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -12642,7 +12642,7 @@ msgstr "**বিবরণ**: নেটওয়ার্ক- ব্যাপী 
 
 # translated-by: libretranslate
 msgid "**description**: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**বিবরণ**: Viptables এবং NAT Greresher-র জন্য নেটওয়ার্ক সহায়তা ব্যবস্থা"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -13514,7 +13514,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
-msgstr "**পদ্ধতি:** Harraguar ক্লায়েন্টের জন্য Harking এবং NATMagard এর জন্য কনফিগার করা।"
+msgstr ""
 
 # `test-oidc-fallback.js:52` (এটা `?fallback=local` জরুরি হ্যাণ্ড: স্থানীয়
 # Joomla প্রশাসনিক লগ-ইন ব্যবস্থা দ্বারা স্বয়ংক্রিয়রূপে লগ-ইন করা আবশ্যক)-
@@ -19349,11 +19349,11 @@ msgstr "অবচিত করার অনুমোদন প্রদান �
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. `wg0-client`) and sets up NAT masquerading on the external interface (e.g. `eth0`)."
-msgstr "Wirrereguar ক্লায়েন্ট থেকে ট্রাফিক অনুমোদন করে (জি. `wg0-client`) বহিস্থিত ইন্টারফেসের মধ্যে NATMas প্রস্তুত করা হয় (জি. `eth0`). ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. ``wg0-client``) and sets up NAT masquerading on the external interface (e.g. ``eth0``)."
-msgstr "Wirrereguar ক্লায়েন্ট থেকে ট্রাফিক অনুমোদন করে (জি.``wg0-client``) বহিস্থিত ইন্টারফেসের মধ্যে NATMas প্রস্তুত করা হয় (জি.``eth0``). ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Alpine Linux → ``openssh-client``"
@@ -24516,7 +24516,7 @@ msgstr "উচ্চ পর্যায়ের নোডে দূরবর্
 
 # translated-by: libretranslate
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "সিস্টেম বিজ্ঞাপনী সার্ভিস এবং স্ক্রিপ্ট দ্বারা স্থায়ী সংযোগের জন্য ক্লায়েন্ট-এর পাশাপাশি Wiরেগ্রে VPN ভূমিকা"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Client-side configuration bind-mounted into the `infinito` runner so that pip, npm, and apt route through the Sonatype Nexus 3 OSS pull-through proxy."
@@ -31357,7 +31357,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with `wg-quick <https://www.wireguard.com/quickstart/>`__."
-msgstr "নিশ্চিত করে যে MTPAD সঠিকভাবে কনফিগার করা হয়েছে কিনা তা নিশ্চিত করুন `wg-quick <https://www.wireguard.com/quickstart/>`__. ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the ``openssl`` CLI is installed on the host."
@@ -36501,7 +36501,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "নিরাপদ টানেলের জন্য হোস্ট-লেভেল Wicad VPN পরিসেবা, wg-queic প্যাকেজ ইনস্টল এবং IP-অনুসন্ধানের জন্য হোস্ট"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-runner hygiene around image builds and deploys (disk, swap, Docker daemon, diagnostics)."
@@ -44835,7 +44835,7 @@ msgstr "নেটওয়ার্ক ব্যবস্থা"
 
 # translated-by: libretranslate
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "NAT অথবা ফায়ারওয়ালের আড়ালে চলমান ক্লায়েন্টের জন্য Cipparth এবং NAT MRADP এর নেটওয়ার্ক ব্যবস্থা"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Networks 🌐"
@@ -67732,11 +67732,11 @@ msgstr "এই কাজের প্রধান উদ্দেশ্য হ�
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to configure WireGuard on a client by setting appropriate MTU values on network interfaces. This ensures a stable and optimized VPN connection."
-msgstr "নেটওয়ার্ক ইন্টারফেসের মধ্যে উপযুক্ত MTP মান নির্ধারণের জন্য এই ভূমিকার মূল উদ্দেশ্য হচ্ছে, Wirrayguard-কে কনফিগার করা। এর ফলে, একটি স্থায়ী এবং স্থায়ী VPN সংযোগ নিশ্চিত করুন।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enable proper routing and connectivity for a WireGuard client situated behind a firewall or NAT device. By adapting iptables rules, it ensures that the client can communicate effectively with external networks."
-msgstr "এই ভূমিকার মূল উদ্দেশ্য হল, ফায়ারওয়াল অথবা NAT ডিভাইসের আড়ালে একটি Wireregrade ক্লায়েন্টের আড়ালে একটি Workar বা সংযোগের জন্য সঠিক রুট এবং সংযোগ সক্রিয় করা। • কীভাবে আমরা দেখাতে পারি যে, আমরা যিহোবাকে ভালোবাসি?"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enhance system performance by ensuring that Docker volumes are stored on the most appropriate storage medium, optimizing both speed and capacity."
@@ -72341,7 +72341,7 @@ msgstr "ভূমিকা **ইনস্টলার স্ক্রিপ্�
 
 # translated-by: libretranslate
 msgid "This role adapts iptables rules to enable proper connectivity for a WireGuard client running behind a NAT or firewall. It ensures that traffic is forwarded correctly by applying necessary masquerading rules."
-msgstr "NAT অথবা ফায়ারওয়ালের আড়ালে চলমান একটি Wirerereguar ক্লায়েন্টের সাথে সঠিক সংযোগ সক্রিয় করতে এই ভূমিকার প্রয়োগ করা হয়েছে। এটা নিশ্চিত করে যে, প্রয়োজনীয় পরিমাণ ট্রাফিক প্রয়োগ করার মাধ্যমে তা সঠিকভাবে চালু করা হয়েছে।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role addresses a common issue on Linux laptops: closing the lid while docked or plugged in leads to unintended sleep or hibernation. It installs the necessary hibernation tools and updates `/etc/systemd/logind.conf` to:"
@@ -73620,7 +73620,7 @@ msgstr "এই ভূমিকার সাহায্যে পরিচাল
 
 # translated-by: libretranslate
 msgid "This role manages WireGuard on a client system. It sets up essential services and scripts to configure and optimize WireGuard connectivity."
-msgstr "ক্লায়েন্ট সিস্টেমের মধ্যে Wrrayguard পরিচালনা করে । এটা প্রয়োজনীয় সেবা এবং স্ক্রিপ্ট সেট করা হয়েছে Wirrerguard সংযোগ কনফিগার এবং কনফিগার করতে।."
+msgstr ""
 
 # [Wireguard](https://www.wireguard.com/) বস. এটি প্রয়োজনীয় ইনস্টল Wireguard
 # IPv4-র জন্য sccl সেটিং কনফিগার করুন4/ একটিমাত্র6 ফরওয়ার্ড করে পাঠিয়ে দাও
@@ -79776,7 +79776,7 @@ msgstr "কাজের সফটওয়্যার আসল অগ্রগ
 
 # translated-by: libretranslate
 msgid "Works as an extension to the native WireGuard client role."
-msgstr "স্থানীয় উইয়ারগুর ক্লায়েন্ট ভূমিকার জন্য একটি এক্সটেনশন হিসাবে কাজ করে।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Works hand in hand with ``sys-svc-mail-msmtp``, which configures msmtp to talk to ``localhost:25`` when Mailu is not present."
@@ -85963,7 +85963,7 @@ msgstr "[খুলুন](https://opentalk.eu/) হেইনলেট গ্র�
 
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
-msgstr "[Wirreguar সম্পর্কে আলোচনা](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
@@ -86209,7 +86209,7 @@ msgstr "[SSH কমান্ডের মাধ্যমে প্রবেশ�
 
 # translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
-msgstr "[Wirerereguar IP দিয়ে SSH ব্যর্থ](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"
@@ -86444,7 +86444,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[UFW and SSH via WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
-msgstr "[WiFW এবং SSH-র মাধ্যমে ইউ-আর-এল](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Unit Tests](testing/unit.md)"

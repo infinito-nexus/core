@@ -874,9 +874,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "runtime JavaScript per la costruzione e l'esecuzione di applicazioni lato server e strumenti di sviluppo"
 
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "Kernel WireGuard gallerie, mesh hub-and-spoke sotto un gestore di sciami e mesh complete tra host Compose"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"

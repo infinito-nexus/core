@@ -884,9 +884,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "নির্মাণ ও পরিচালনার অ্যাপ্লিকেশন এবং ডেভেলপার টুলের জন্য JavaScript টুল"
 
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "কার্নেল WireGuard টানেল, দুর-এবং-আধক মেক"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
@@ -1073,7 +1074,7 @@ msgstr "নেটওয়ার্ক"
 # translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "নেটওয়ার্ক সেটআপ (ডি. এন. এস. টি. HTTP, Wiraguar, ইত্যাদি)"
+msgstr "डिजिटल प्रोटोकॉल ( डीएनस, लेटसेटिक HTTP, WireGuard, आदि.)"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"

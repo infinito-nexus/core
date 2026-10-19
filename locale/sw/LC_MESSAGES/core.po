@@ -893,9 +893,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript kukimbia wakati wa kujenga na kuendesha maombi ya upande wa seva na developer tooling"
 
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "Kernel ya WireGuard tunnels, hub-na-spoke meshes chini ya meneja wa kundi na meshes kamili kati ya majeshi ya Compose"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"

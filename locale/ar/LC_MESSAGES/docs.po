@@ -3025,7 +3025,7 @@ msgstr "**الوصف:** إنشاء جهاز أمن وطني من جانب الع
 
 # translated-by: libretranslate
 msgid "**Description:** Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**الوصف:** دور شبكة ويريغارد للتواصل المستقر مع خدمة نظامية وكتاب يربط بين شبكة MTU"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Clipboard manager with editable history, custom actions, and scripting support"
@@ -3314,7 +3314,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**الوصف:** خدمة شبكة ويري غارد في الشبكة ذات المستوى المضيف مع مجموعة البحّار، وتركيب الطرود، وشاشة IP-forwarding لأنفاق آمنة"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
@@ -3524,7 +3524,7 @@ msgstr "**الوصف:** حفرة مغسلة على نطاق الشبكة لحج�
 # شركة "وايرغارد" للتسوّق مع شركة "نايت" و "نايت"
 # translated-by: libretranslate
 msgid "**Description:** Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**الوصف:** مُساعدة للتواصل مع المُساعدين المُرسلين إلى شركة \"وايرغارد\" للتسوّق مع شركة \"نايت\" و \"نايت\""
+msgstr ""
 
 # قطع الأشجار إلى نقطة نهاية مركزيّة
 # translation-refused: libretranslate structure
@@ -9755,11 +9755,11 @@ msgstr "**التعقب الآلي:** تتبع تفاعلات المستخدمي�
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**تكامل الأدوار:** يعتمد على [Svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) دور ضمان تشكيل ويرغارد بشكل سليم قبل تطبيق قواعد الجدار الناري."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Role Integration:** Depends on the `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ role to ensure that WireGuard is properly configured before applying firewall rules."
-msgstr "**تكامل الأدوار:** يعتمد على `svc-net-wireguard-plain <../svc-net-wireguard-plain/README.md>`__ دور ضمان تشكيل ويرغارد بشكل سليم قبل تطبيق قواعد الجدار الناري."
+msgstr ""
 
 # للمستخدمين على وجه الدقة لضمان أن تظل المعلومات الحساسة والوظائف الحاسمة
 # آمنة.
@@ -13178,7 +13178,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "**الوصف**: خدمة شبكة ويريغارد للناموسيات ذات المستوى المضيف مع عقدة العجلات، وتركيب الطرود، وشبكة IP-forwarding لأنفاق آمنة"
+msgstr ""
 
 # translated-by: libretranslate
 # systemd-journald logging daemon with retention limits and live log streaming
@@ -20423,11 +20423,11 @@ msgstr "يَسْمحُ للتَكرار `| bool | ternary('true','false')` ال�
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. `wg0-client`) and sets up NAT masquerading on the external interface (e.g. `eth0`)."
-msgstr "يسمح المرور من واجهة عملاء ويريغارد (e.g. `wg0-client`) وتأسيس سلاسل على واجهة خارجية (e.g. `eth0`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Allows traffic from the WireGuard client interface (e.g. ``wg0-client``) and sets up NAT masquerading on the external interface (e.g. ``eth0``)."
-msgstr "يسمح المرور من واجهة عملاء ويريغارد (e.g.``wg0-client``) وتأسيس سلاسل على واجهة خارجية (e.g.``eth0``)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Alpine Linux → ``openssh-client``"
@@ -25729,7 +25729,7 @@ msgstr "إنشاء جهاز أمن وطني من جانب العملاء من أ
 
 # translated-by: libretranslate
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "دور شبكة ويريغارد للتواصل المستقر مع خدمة نظامية وكتاب يربط بين شبكة MTU"
+msgstr ""
 
 # وطريقاً ملائماً عبر نيكسوس 3 الـ "إس إس إس" من خلال المحترفين.
 # translation-refused: libretranslate stutter
@@ -32665,11 +32665,11 @@ msgstr "تضمن عدم تنفيذ مهام الصيانة إلا عندما ي�
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with [wg-quick](https://www.wireguard.com/quickstart/)."
-msgstr "ضمان أن يتم تشكيل وحدة مكافحة الإرهاب بشكل صحيح قبل أن تبدأ في ويريغارد مع [wg-quick](https://www.wireguard.com/quickstart/)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the MTU is configured correctly before starting WireGuard with `wg-quick <https://www.wireguard.com/quickstart/>`__."
-msgstr "ضمان أن يتم تشكيل وحدة مكافحة الإرهاب بشكل صحيح قبل أن تبدأ في ويريغارد مع `wg-quick <https://www.wireguard.com/quickstart/>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ensures that the ``openssl`` CLI is installed on the host."
@@ -37989,7 +37989,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
-msgstr "خدمة شبكة ويري غارد في الشبكة ذات المستوى المضيف مع مجموعة البحّار، وتركيب الطرود، وشاشة IP-forwarding لأنفاق آمنة"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Host-runner hygiene around image builds and deploys (disk, swap, Docker daemon, diagnostics)."
@@ -40679,7 +40679,7 @@ msgstr "Install Virtual Box مباشرة إلى آلة الهدف: استنسا�
 
 # translated-by: libretranslate
 msgid "Install WireGuard Client behind NAT directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
-msgstr "Install WireGuard Client behind NAT directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (لا توجد حاوية):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Install Wireguard Client directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
@@ -46675,7 +46675,7 @@ msgstr "الربط الشبكي"
 # "وايرغارد" للتسوّق مع شركة "نايت" و "نايت"
 # translated-by: libretranslate
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "مُساعدة للتواصل مع المُساعدين المُرسلين إلى شركة \"وايرغارد\" للتسوّق مع شركة \"نايت\" و \"نايت\""
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Networks 🌐"
@@ -70307,11 +70307,11 @@ msgstr "ويتمثل الغرض الرئيسي من هذا الدور في تي�
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to configure WireGuard on a client by setting appropriate MTU values on network interfaces. This ensures a stable and optimized VPN connection."
-msgstr "ويتمثل الغرض الرئيسي من هذا الدور في تشكيل وير غارد على زبون من خلال وضع قيم ملائمة للوحدة على واجهات الشبكات. This ensures a stable and optimized VPN connection."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enable proper routing and connectivity for a WireGuard client situated behind a firewall or NAT device. By adapting iptables rules, it ensures that the client can communicate effectively with external networks."
-msgstr "ويتمثل الغرض الرئيسي من هذا الدور في التمكين من تحديد المسارات والربط المناسبين لزبون فيريغارد الذي يقع خلف جدار ناري أو جهاز تابع للحركة. ومن خلال تكييف قواعد النهوج، يكفل أن يكون بوسع العميل الاتصال بفعالية بالشبكات الخارجية."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The primary purpose of this role is to enhance system performance by ensuring that Docker volumes are stored on the most appropriate storage medium, optimizing both speed and capacity."
@@ -83213,7 +83213,7 @@ msgstr "برامجيات العمل تظهر تقدماً حقيقياً."
 
 # translated-by: libretranslate
 msgid "Works as an extension to the native WireGuard client role."
-msgstr "يعمل كإمداد لدور زبون الأرملة."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Works hand in hand with ``sys-svc-mail-msmtp``, which configures msmtp to talk to ``localhost:25`` when Mailu is not present."
