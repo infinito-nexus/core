@@ -19,9 +19,17 @@ Routing a checkpoint per language was the previous answer and it is gone:
 ``meta/languages.yml`` carries identity only, and one judge covers every
 language the catalogs hold.
 
-The control is a known-answer fixture, not two catalog entries. The engine
-renders one fixed English sentence and one unrelated English sentence into
-the target language, and the language is judged only when the rendering
+The control is a known-answer fixture, not two catalog entries. It is
+rendered by the gateway, the same path ``cli/build/i18n`` fills the catalogs
+through, and not by the LibreTranslate engine behind it: the engine declares
+a fraction of the table, so asking it for the fixture excluded every language
+the gateway reaches through its chat backend, which is most of them. Those
+are the languages worth watching, because a gap there means that backend is
+absent or failing rather than that the language is unreachable.
+
+The gateway renders one fixed English sentence and one unrelated English
+sentence into the target language, and the language is judged only when the
+rendering
 scores at or above the middle level while the unrelated text scores below it.
 Both legs are required: a catalog-derived mismatch is one-sided, so a judge
 answering at the bottom of the scale for everything passes it and then
@@ -48,9 +56,9 @@ from utils.cache.yaml import load_yaml
 from utils.i18n.catalog import MACHINE_TRANSLATION, catalog_path, read_catalog
 from utils.i18n.judge import MIDDLE, ChatJudge
 from utils.i18n.languages import DOMAINS, domain_languages, load_languages
-from utils.i18n.libretranslate import SERVICE_KEY
+from utils.i18n.libretranslate import GATEWAY_ROLE, GATEWAY_SERVICE_KEY
 from utils.i18n.spans import prose
-from utils.inventory.tools import LIBRETRANSLATE_ROLE, LITELLM_KEY, lane_url
+from utils.inventory.tools import LITELLM_KEY, lane_url
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT, SUITE
@@ -59,6 +67,7 @@ JUDGE_ROLE = "svc-ai-litellm"
 JUDGE_SERVICE_KEY = "litellm"
 JUDGE_SERVICES_FILE = PROJECT_ROOT / "roles" / JUDGE_ROLE / ROLE_FILE_META_SERVICES
 SAMPLES_PER_LANGUAGE = 12
+MAX_REFUSED_SHARE = 0.02
 MIN_SOURCE_CHARS = 40
 ENGINE_WORKERS = 1
 FIXTURE_SOURCE = (
@@ -99,8 +108,8 @@ class TestTranslationScore(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.base = lane_url(PROJECT_ROOT, JUDGE_ROLE, JUDGE_SERVICE_KEY)
-        cls.engine = lane_url(PROJECT_ROOT, LIBRETRANSLATE_ROLE, SERVICE_KEY)
-        for url in (f"{cls.base}/health/liveliness", f"{cls.engine}/languages"):
+        cls.gateway = lane_url(PROJECT_ROOT, GATEWAY_ROLE, GATEWAY_SERVICE_KEY)
+        for url in (f"{cls.base}/health/liveliness", f"{cls.gateway}/languages"):
             if not serves(url):
                 raise unittest.SkipTest(
                     f"nothing answers on {url}. `make test-oracle` brings the "
@@ -113,9 +122,9 @@ class TestTranslationScore(unittest.TestCase):
         """Return why the judge cannot be trusted on this language.
 
         Args:
-            client: the engine the fixture is rendered with.
+            client: the gateway the fixture is rendered with.
             judge: the model asked to place a pair on the levels.
-            available: the target codes that engine serves.
+            available: the target codes that gateway serves.
             code: ISO 639-1 code of the language to judge.
 
         Returns:
@@ -123,10 +132,10 @@ class TestTranslationScore(unittest.TestCase):
             so its verdicts on this language's samples carry information.
         """
         if client.server_code(code) not in available:
-            return "the engine does not render the fixture into this language"
+            return "the gateway does not render the fixture into this language"
         values = client.translate([FIXTURE_SOURCE, FIXTURE_UNRELATED], code).values
         if not all(isinstance(value, str) and value for value in values):
-            return f"the engine rendered no usable fixture: {values!r}"
+            return f"the gateway rendered no usable fixture: {values!r}"
         faithful, unrelated = values
         kept = judge.score(FIXTURE_SOURCE, faithful)
         other = judge.score(FIXTURE_SOURCE, unrelated)
@@ -145,7 +154,7 @@ class TestTranslationScore(unittest.TestCase):
         english = judge.speaks(FIXTURE_UNRELATED, name)
         if reads < MIDDLE:
             return (
-                f"the engine's own rendering was placed at {reads} on being "
+                f"the gateway's own rendering was placed at {reads} on being "
                 f"written in {name}, below the middle level {MIDDLE}"
             )
         if english >= MIDDLE:
@@ -158,7 +167,7 @@ class TestTranslationScore(unittest.TestCase):
     def test_every_sampled_translation_carries_its_source(self):
         from utils.i18n.client import LibreTranslate
 
-        client = LibreTranslate(self.engine, ENGINE_WORKERS)
+        client = LibreTranslate(self.gateway, ENGINE_WORKERS)
         available = client.targets()
         judge = ChatJudge(self.base, _model(), api_key=LITELLM_KEY)
         languages = load_languages(PROJECT_ROOT)
@@ -167,6 +176,7 @@ class TestTranslationScore(unittest.TestCase):
         }
         verdicts: dict[str, str] = {}
         offenders: list[str] = []
+        refused: list[str] = []
         judged = 0
 
         for domain in DOMAINS:
@@ -189,15 +199,26 @@ class TestTranslationScore(unittest.TestCase):
                 _progress(SUITE, f"scoring {len(sample)} samples of {where}")
                 name = self.names.get(code, code)
                 for source, translation in sample:
+                    try:
+                        level = judge.score(source, translation)
+                    except ValueError as exc:
+                        refused.append(f"{where}: {exc}")
+                        continue
                     judged += 1
-                    level = judge.score(source, translation)
                     if level < MIDDLE:
                         offenders.append(
                             f"{where}: {level} below the middle level {MIDDLE}: "
                             f"{source[:60]!r} -> {translation[:60]!r}"
                         )
                         continue
-                    spoken = judge.speaks(translation, name)
+                    written = prose(translation).strip()
+                    if len(written) < MIN_SOURCE_CHARS:
+                        continue
+                    try:
+                        spoken = judge.speaks(written, name)
+                    except ValueError as exc:
+                        refused.append(f"{where}: {exc}")
+                        continue
                     if spoken < MIDDLE:
                         offenders.append(
                             f"{where}: states its source but was placed at "
@@ -219,9 +240,15 @@ class TestTranslationScore(unittest.TestCase):
                 "something other than their source:\n"
                 + "\n".join(f"  - {o}" for o in offenders)
             )
+        if len(refused) > judged * MAX_REFUSED_SHARE:
+            self.fail(
+                f"the judge named no level for {len(refused)} sample(s) "
+                f"against {judged} it judged, so the green rests on too "
+                "little:\n" + "\n".join(f"  - {r}" for r in refused[:20])
+            )
         _progress(
             SUITE,
             f"{judged} sampled translations carry their source in "
             f"{len(verdicts) - len(unjudged)} language(s) the judge reads, "
-            f"{len(unjudged)} it does not",
+            f"{len(unjudged)} it does not, {len(refused)} it would not answer",
         )

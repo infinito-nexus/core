@@ -36,6 +36,8 @@ LANGUAGE_LEVELS = (
 )
 MIDDLE = (len(LEVELS) - 1) // 2
 TIMEOUT_SECONDS = 120
+ASK_ATTEMPTS = 3
+NUDGE = "Answer with one digit and nothing else."
 _INDEX = re.compile(r"-?\d+")
 
 PROMPT = """\
@@ -157,11 +159,41 @@ class ChatJudge:
         return self._ask(language_question(text, language))
 
     def _ask(self, prompt: str) -> int:
+        """Return the level the judge names, re-asking a reply that names none.
+
+        A small judge sometimes continues the text instead of answering, and
+        the reply is then the source echoed back. That is a protocol failure,
+        not a verdict, so the question is put again with the format restated.
+        The answer is never supplied: a judge that keeps refusing raises.
+
+        Args:
+            prompt: the question to put.
+
+        Raises:
+            OSError: the gateway cannot be reached.
+            ValueError: every attempt answered without a level.
+        """
+        messages = [{"role": "user", "content": prompt}]
+        for attempt in range(ASK_ATTEMPTS):
+            answer = self._complete(messages)
+            try:
+                return parse_level(answer)
+            except ValueError:
+                if attempt == ASK_ATTEMPTS - 1:
+                    raise
+                messages = [
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": answer},
+                    {"role": "user", "content": NUDGE},
+                ]
+        raise ValueError("the judge named no level")
+
+    def _complete(self, messages: list[dict[str, str]]) -> str:
         payload = {
             "model": self._model,
             "stream": False,
             "temperature": 0,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": messages,
         }
         headers = {"Content-Type": "application/json"}
         if self._api_key:
@@ -184,4 +216,4 @@ class ChatJudge:
         )
         if not answer:
             raise ValueError("the judge answered without a completion")
-        return parse_level(answer)
+        return answer
