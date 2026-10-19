@@ -1,4 +1,5 @@
 ---
+meshes: []
 local:
   subnet: 192.168.224.0/24
 overlay:
