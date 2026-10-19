@@ -37946,7 +37946,7 @@ msgstr "लाइसेंस ⚖️"
 # translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "Liest die Datei rel_path (relative zum PROJECT_ROOT), ersetzt rekursiv alle \"{% include 'path' %}\"-Zeilen durch den Inhalt der jeweiligen Datei (mit gleicher Einrückung)."
-msgstr "लीस्ट डाई डेटी rel_path (सापेक्ष zum PROJECT_ROOT), ersetzt rekursiv alle \"{% include 'path' %}\"-Zeilen durch den Inhalt der jeweiligen Datei (मिटर gleicher Einrückung)।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Lifecycle"

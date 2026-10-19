@@ -13384,13 +13384,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
 msgstr ""
-"---\n"
-"**description**: Ứng dụng quản lý bộ đệm chuột với lịch sử thay đổi, các hành động tùy chỉnh và hỗ trợ mã nguồn\n"
-"---\n"
-"\n"
-"### Ko: \n"
-"\n"
-" Ứng dụng quản lý bộ đệm chuột với lịch sử thay đổi, các hành động tùy chỉnh và hỗ trợ mã nguồn"
 
 # 부트 스트랩 역할 (옵션 CAA) 웹 스택의 기본 도메인
 # translation-refused: libretranslate structure
@@ -13866,11 +13859,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "**description**: Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr ""
-"---\n"
-"**description**: Rīteda desktop web browseru sastādīšana ar noteiktu skaista un atpērītu privāci un pasūdītoņu izsargumu veidām\n"
-"---\n"
-"\n"
-"### Translator:"
 
 # 네트워크에
 # translation-refused: libretranslate lost-token
@@ -14222,11 +14210,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "**description**: Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
 msgstr ""
-"---\n"
-"**description**: Ojoneva vaikalnytų kalimų gautydis su kitomis pasodomis diktaturos pasipratymo kintorų tikslais į mūsų nusprendymą\n"
-"---\n"
-"\n"
-"###"
 
 # 도메인으로 리디렉션
 # translation-refused: libretranslate structure
@@ -14614,7 +14597,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Package manager for installing and managing Python packages on the target host"
-msgstr "**description**: パッケージマネージャー für Installs and Managers of Python Packages on the Target Host"
+msgstr ""
 
 # 수요에 시작
 # translation-refused: libretranslate lost-token
@@ -57235,7 +57218,7 @@ msgstr "일반 Jinja를 사용하여 ONE 패스 렌더링2 StrictUndefined와 �
 
 # translated-by: libretranslate
 msgid "Render Playwright JUnit XML reports as GitHub Actions step-summary markdown."
-msgstr "Render Playwright JUnit XML은 GitHub Actions step-summary Markdown으로 보고합니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Render a distro image reference from the ``meta/distros.yml`` SPOT."
@@ -82132,7 +82115,7 @@ msgstr "마운트가 활성화되면 true."
 # '1']
 # translated-by: libretranslate
 msgid "True when the provider declares at least one credential and none of them is empty."
-msgstr "Đó khi nhà cung cấp tuyên bố ít nhất một giấy phép và không ai là vắng mặt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "True when the role owns this DB on purpose and swarm can host it."
@@ -84458,7 +84441,7 @@ msgstr ""
 # * host_vars matrix-deploy에 의해 구운 variants.yml 분류되지 않은 "기본 설정"·.
 # translated-by: libretranslate
 msgid "Variants.yml is part of the role contract: a variant overlay may legitimately introduce service-keys absent from meta/services.yml (e.g. roles/web-opt-rdr-www declares services.dashboard only in meta/variants.yml). Widen the allow-set to defaults ∪ union(variant overlays) so host_vars baked by matrix-deploy from variants.yml aren't flagged as \"Missing default\"."
-msgstr "Variants.yml là một thỏa thuận quyền sử dụng: một bản khác đính kèm được cho phép giới thiệu mã dịch vụ không có trong meta/services.yml (. web-opt-rdr-www tuyên bố services.dashboard chỉ là trong meta/variants.yml). Giảm phạm vi ( để kết hợp với ) default host_vars được phát triển bởi matrix variants.yml sẽ không được xác định làm \" thiếu thiết lập \"."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Vars & Defaults Tests 📐"

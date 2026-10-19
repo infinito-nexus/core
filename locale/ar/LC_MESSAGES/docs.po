@@ -12685,7 +12685,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Browser-based spinning wheel app for decision making, random selection, and gamification"
-msgstr "**الوصف**: Browser-basedدوارing wheel app for decision making, random selection, and gamification"
+msgstr ""
 
 # translated-by: libretranslate
 # shared LLM gateway, published on its own domain behind the front proxy

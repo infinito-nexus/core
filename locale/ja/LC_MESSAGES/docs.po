@@ -651,7 +651,7 @@ msgstr "**資産チャネル:** 展示会情報 `css` そして、 `javascript` 
 
 # translated-by: libretranslate
 msgid "**All other platforms** (including Arch Linux ARM, Debian, Ubuntu, Fedora, EL, Generic Linux)"
-msgstr "**他のすべてのプラットフォーム** (Arch Linux ARM、Debian、Ubuntu、Fedora、EL、Generic Linuxなど)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**All other platforms** (including Arch Linux ARM, Debian, Ubuntu, Fedora, EL, Generic Linux)   Uses the **official Nix installer** in multi-user (daemon) mode."
@@ -59623,7 +59623,7 @@ msgstr "A/AAAA、CNAME、MX、TXT、SRVを支えて下さい"
 
 # translated-by: libretranslate
 msgid "Supports Arch, Debian, Ubuntu, Fedora, CentOS Stream"
-msgstr "Arch、Debian、Ubuntu、Fedora、CentOS Streamをサポート"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Supports WebSocket upgrades for hybrid APIs."

@@ -2095,13 +2095,7 @@ msgstr "用户账户和访问控制"
 # translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
-msgstr ""
-"Users & Access\n"
-"English: Users\n"
-"Chinese:用户\n"
-"German: Nutzer\n"
-"French: Utilisateurs\n"
-"Spanish: Usuários"
+msgstr "用户 & 访问"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
