@@ -46,8 +46,7 @@ the effective one, while the architecture is the machine the job really ran
 on."""
 
 _FAILED_TOKENS = (
-    f"web-app-x#0,1@swarm+clearnet{_AXES}&direct"
-    f" web-app-y#0,1@compose+clearnet{_AXES}"
+    f"web-app-x#0,1@swarm+clearnet{_AXES}&direct web-app-y#0,1@compose+clearnet{_AXES}"
 )
 """What _JOBS failed at, exactly: x in swarm, y in compose, both on variant
 shard 0,1, both on the clearnet and both on the same distro. Only the swarm
@@ -165,9 +164,7 @@ class TestTriggerMain(unittest.TestCase):
     def test_a_meshed_swarm_row_comes_back_meshed(self) -> None:
         meshed = [_job("swarm", "web-app-x", "failure", vpn=True)]
         _rc, calls = self._run(["--failed"], run={"_jobs": meshed})
-        self.assertEqual(
-            calls[0][3], f"web-app-x#0,1@swarm+clearnet{_AXES}&vpn"
-        )
+        self.assertEqual(calls[0][3], f"web-app-x#0,1@swarm+clearnet{_AXES}&vpn")
 
     def test_never_deployed_priority_roles_join_the_retrigger(self) -> None:
         source = {"jobs": _JOBS, "displayTitle": render(_SOURCE_CONFIG)}

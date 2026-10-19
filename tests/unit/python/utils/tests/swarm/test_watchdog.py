@@ -104,9 +104,7 @@ class TestRunWatched(unittest.TestCase):
             mock.patch.object(watchdog, "mem_stall_pct", return_value=0.0),
             mock.patch.object(watchdog, "io_stall_pct", return_value=io_stall),
             mock.patch.object(watchdog, "cpu_stall_pct", return_value=11.0),
-            mock.patch.object(
-                watchdog, "uninterruptible_procs", return_value=dstate
-            ),
+            mock.patch.object(watchdog, "uninterruptible_procs", return_value=dstate),
             contextlib.redirect_stdout(buffer),
         ):
             returned = watchdog.run_watched(["true"], env={})
