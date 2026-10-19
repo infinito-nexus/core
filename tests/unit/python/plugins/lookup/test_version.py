@@ -26,7 +26,7 @@ class TestVersionLookup(unittest.TestCase):
                 f"Ansible not available for unit tests: {exc}"
             ) from exc
 
-    def _run_with_repo_layout(self, pyproject_content: str | None):
+    def _run_with_repo_layout(self, pyproject_content: str | None, terms=()):
         """
         Creates a temporary repo-like layout:
           <tmp>/pyproject.toml              (optional)
@@ -45,7 +45,7 @@ class TestVersionLookup(unittest.TestCase):
 
             try:
                 plugin = self.LookupModule()
-                return plugin.run([])
+                return plugin.run(list(terms))
             finally:
                 plugin_mod.PROJECT_ROOT = original_root
 
@@ -68,6 +68,50 @@ version = "2.3.4"
 """
         )
         self.assertEqual(result, ["2.3.4"])
+
+    def test_reads_the_exact_pin_of_a_dependency(self):
+        result = self._run_with_repo_layout(
+            """
+[project]
+name = "demo"
+version = "1.2.3"
+dependencies = ["bcrypt", "backup-docker-to-local==7.1.1", "PyYAML"]
+""",
+            terms=["backup-docker-to-local"],
+        )
+        self.assertEqual(result, ["7.1.1"])
+
+    def test_a_dependency_without_an_exact_pin_raises(self):
+        from ansible.errors import AnsibleError
+
+        for dependencies in ('["backup-docker-to-local>=7"]', '["bcrypt"]'):
+            with (
+                self.subTest(dependencies=dependencies),
+                self.assertRaises(AnsibleError),
+            ):
+                self._run_with_repo_layout(
+                    f"""
+[project]
+name = "demo"
+version = "1.2.3"
+dependencies = {dependencies}
+""",
+                    terms=["backup-docker-to-local"],
+                )
+
+    def test_more_than_one_term_raises(self):
+        from ansible.errors import AnsibleError
+
+        with self.assertRaises(AnsibleError):
+            self._run_with_repo_layout(
+                """
+[project]
+name = "demo"
+version = "1.2.3"
+dependencies = ["a==1", "b==2"]
+""",
+                terms=["a", "b"],
+            )
 
     def test_missing_pyproject_raises(self):
         from ansible.errors import AnsibleError

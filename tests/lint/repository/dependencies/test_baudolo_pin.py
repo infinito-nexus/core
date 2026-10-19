@@ -46,12 +46,20 @@ class TestBaudoloPin(unittest.TestCase):
             f"{_PACKAGE} must be pinned in [project.dependencies] of {_PYPROJECT}",
         )
 
-        found = _TASK_PIN_RE.findall(read_text(str(_INSTALL_TASK)))
+        task = read_text(str(_INSTALL_TASK))
+        found = _TASK_PIN_RE.findall(task)
         self.assertEqual(
             found,
-            [declared],
-            f"{_INSTALL_TASK} pins {found}, while pyproject.toml declares "
-            f"'{declared}'. Both must name the same version.",
+            [],
+            f"{_INSTALL_TASK} pins {found} literally. The pip pin updater bumps "
+            f"that literal and dependabot bumps pyproject.toml, each on its own, "
+            f"so the role must read the version from pyproject.toml.",
+        )
+        self.assertIn(
+            f"{_PACKAGE}=={{{{ lookup('version', '{_PACKAGE}') }}}}",
+            task,
+            f"{_INSTALL_TASK} must install {_PACKAGE} at "
+            f"lookup('version', '{_PACKAGE}'), the pin of pyproject.toml.",
         )
 
     def test_baudolo_is_installed_here(self) -> None:
