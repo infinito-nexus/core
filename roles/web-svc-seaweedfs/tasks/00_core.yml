@@ -22,7 +22,9 @@
   stack_host_template:
     src: s3.json.j2
     dest: "{{ SEAWEEDFS_S3_CONFIG_PATH }}"
-  notify: compose-up
+  notify:
+    - compose-up
+    - container-recreate
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "▶️ Start the SeaweedFS stack"
