@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n import names
-from utils.i18n.languages import non_latin_languages
+from utils.i18n.languages import latin_share, non_latin_languages
 from utils.i18n.repairs import resegment, tighten
 from utils.i18n.spans import PRINTF, mask, matches, prose
 
@@ -98,7 +98,7 @@ def untranslated(translation: str, language: str) -> bool:
     words = WORDS.findall(prose(translation))
     if len(words) < LATIN_FLOOR:
         return False
-    latin = sum(1 for word in words if word.isascii())
+    latin = sum(1 for word in words if (latin_share(word) or 0) > 0.5)
     return latin / len(words) >= LATIN_SHARE
 
 

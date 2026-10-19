@@ -60,13 +60,27 @@ def non_latin_languages(root: Path) -> frozenset[str]:
     )
 
 
+def latin_share(text: str) -> float | None:
+    """Return the share of this text's letters written in the Latin script.
+
+    The script of a letter, not its codepoint range: ``ð`` and ``í`` are
+    Latin and not ASCII, which is the difference between reading
+    pseudo-Faroese as Latin text and reading it as something else.
+
+    Args:
+        text: any text; None when it carries no letter at all.
+    """
+    letters = [char for char in text if _LETTER.match(char)]
+    if not letters:
+        return None
+    latin = sum(1 for char in letters if "LATIN" in unicodedata.name(char, ""))
+    return latin / len(letters)
+
+
 def _is_non_latin(endonym: str) -> bool:
     """Whether fewer than half of a name's letters are Latin ones."""
-    letters = [char for char in endonym if _LETTER.match(char)]
-    if not letters:
-        return False
-    latin = sum(1 for char in letters if "LATIN" in unicodedata.name(char, ""))
-    return latin / len(letters) < 0.5
+    share = latin_share(endonym)
+    return share is not None and share < 0.5
 
 
 def domain_languages(languages: dict[str, dict], domain: str) -> list[str]:
