@@ -7,6 +7,8 @@
     label: "{{ item.key }}"
   register: bookwyrm_design_images
   when: BOOKWYRM_DESIGN_LOGO_ENABLED | bool
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
