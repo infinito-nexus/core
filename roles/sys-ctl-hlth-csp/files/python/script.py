@@ -291,6 +291,17 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--clearnet-timeout",
+        type=int,
+        default=0,
+        help=(
+            "Navigation budget in milliseconds for the clearnet batch. The "
+            "checker's own default expires before a PHP app that renders every "
+            "asset through its bootstrap reaches domcontentloaded on the "
+            "slowest supported target. 0 leaves that default in place."
+        ),
+    )
+    parser.add_argument(
         "--onion-timeout",
         type=int,
         default=0,
@@ -351,7 +362,7 @@ def main() -> None:
 
     rc = 0
     for batch_domains, batch_proxy, batch_timeout in (
-        (clearnet_domains, "", 0),
+        (clearnet_domains, "", args.clearnet_timeout),
         (onion_domains, args.tor_proxy, args.onion_timeout),
     ):
         if not batch_domains:

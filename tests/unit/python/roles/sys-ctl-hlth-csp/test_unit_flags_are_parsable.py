@@ -17,6 +17,7 @@ _VALUE = {
     "--image": "img",
     "--tor-proxy": "socks5://127.0.0.1:9050",
     "--onion-timeout": "1000",
+    "--clearnet-timeout": "1000",
 }
 _LIST_VALUE = {
     "--ignore-network-blocks-from": "a.test",
