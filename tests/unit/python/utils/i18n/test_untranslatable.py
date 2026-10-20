@@ -103,6 +103,37 @@ class TestUntranslatable(unittest.TestCase):
     def test_surrounding_whitespace_does_not_hide_a_name(self) -> None:
         self.assertTrue(untranslatable("  Mastodon \n"))
 
+    def test_a_link_labelled_with_its_own_filename_is_withheld(self) -> None:
+        for written in (
+            "[000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)",
+            "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)",
+            "[CODEOWNERS](.github/CODEOWNERS)",
+            "[ruff](https://github.com/astral-sh/ruff)",
+        ):
+            with self.subTest(written):
+                self.assertTrue(untranslatable(written))
+
+    def test_a_link_that_says_something_about_its_target_is_sent(self) -> None:
+        self.assertFalse(
+            untranslatable("[the OIDC defaults](../../group_vars/all/11_oidc.yml)")
+        )
+
+    def test_an_abbreviation_on_its_own_is_withheld(self) -> None:
+        for written in ("DKIM", "OIDC", "RBAC", "SMTP"):
+            with self.subTest(written):
+                self.assertTrue(untranslatable(written))
+
+    def test_a_version_on_its_own_is_withheld(self) -> None:
+        for written in ("v2026.7.20", "18.x", "1.2.3-rc1"):
+            with self.subTest(written):
+                self.assertTrue(untranslatable(written))
+
+    def test_a_run_of_options_is_withheld(self) -> None:
+        self.assertTrue(untranslatable("--distro debian --owner acme --tag ci-abc"))
+
+    def test_a_sentence_naming_an_abbreviation_is_still_sent(self) -> None:
+        self.assertFalse(untranslatable("The DKIM record is missing."))
+
 
 if __name__ == "__main__":
     unittest.main()
