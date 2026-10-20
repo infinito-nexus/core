@@ -34,7 +34,7 @@ from utils.roles.applications.services.registry import (
 )
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 
-from . import ROLES_DIR, load_role_meta, role_dirs
+from . import ROLES_DIR, load_role_meta, pin_line, role_dirs, variant_spans
 
 RULE = "variant-tor-collateral"
 TOR_KEY = "tor"
@@ -49,31 +49,6 @@ def _incapable_roles() -> set[str]:
         if isinstance(tor, dict) and tor.get("enabled") is False:
             found.add(role_dir.name)
     return found
-
-
-def _variant_spans(lines: list[str]) -> list[range]:
-    """The line range each top-level list entry occupies.
-
-    Args:
-        lines: the variants file's lines.
-    """
-    starts = [n for n, line in enumerate(lines, 1) if line.startswith("- ")]
-    bounds = [*starts[1:], len(lines) + 1]
-    return [range(start, end) for start, end in zip(starts, bounds, strict=True)]
-
-
-def _pin_line(lines: list[str], span: range, key: str) -> int | None:
-    """The line declaring *key* inside one variant entry.
-
-    Args:
-        lines: the variants file's lines.
-        span: the variant's line range.
-        key: the service key to locate.
-    """
-    for number in span:
-        if lines[number - 1].strip().startswith(f"{key}:"):
-            return number
-    return None
 
 
 def _collateral(
@@ -113,7 +88,7 @@ class TestVariantTorCollateral(unittest.TestCase):
             if not path.is_file():
                 continue
             lines = read_text(str(path)).splitlines()
-            spans = _variant_spans(lines)
+            spans = variant_spans(lines)
             for index, variant in enumerate(variants):
                 services = variant.get("services") or {}
                 if (services.get(TOR_KEY) or {}).get("enabled") is not False:
@@ -123,7 +98,7 @@ class TestVariantTorCollateral(unittest.TestCase):
                 collateral = _collateral(services, role, registry, incapable)
                 if not collateral:
                     continue
-                number = _pin_line(lines, spans[index], TOR_KEY)
+                number = pin_line(lines, spans[index], TOR_KEY)
                 if number is None or not is_suppressed_at(lines, number, RULE):
                     offenders.append(
                         f"{role} variant {index}: drops the onion while pinning "

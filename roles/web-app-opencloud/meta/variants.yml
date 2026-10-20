@@ -67,7 +67,7 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    tor:
+    tor: # nocheck: variant-tor-off without Keycloak OpenCloud runs its built-in lico IDP, which refuses a non-https issuer, and an onion has no TLS
       enabled: false
 
 - services:
@@ -98,5 +98,5 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    tor:
+    tor: # nocheck: variant-tor-off without Keycloak OpenCloud runs its built-in lico IDP, which refuses a non-https issuer, and an onion has no TLS
       enabled: false

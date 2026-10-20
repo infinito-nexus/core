@@ -16,20 +16,29 @@ Scope: a variant is excused when its own role is one of the incapable ones, or
 when it pins a service whose provider role is. A role coupled only through
 ``group_names`` is invisible here, which is why the failure message asks for a
 pin rather than assuming the author is wrong.
+
+A role can also be incapable only in some of its variants, which no service
+pin expresses: web-app-opencloud serves the onion with Keycloak and cannot
+serve it without, because its built-in IDP refuses a non-https issuer. Such a
+variant marks its own ``tor`` pin with ``# nocheck: variant-tor-off``, the
+same placement :mod:`test_variant_tor_collateral` uses.
 """
 
 from __future__ import annotations
 
 import unittest
 
+from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_variants
+from utils.cache.files import read_text
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 
-from . import ROLES_DIR, load_role_meta, role_dirs
+from . import ROLES_DIR, load_role_meta, pin_line, role_dirs, variant_spans
 
+RULE = "variant-tor-off"
 TOR_KEY = "tor"
 
 
@@ -63,6 +72,11 @@ class TestVariantTorOffNeedsAReason(unittest.TestCase):
         for role, variants in sorted(get_variants().items()):
             if role in incapable:
                 continue
+            path = ROLES_DIR / role / ROLE_FILE_META_VARIANTS
+            if not path.is_file():
+                continue
+            lines = read_text(str(path)).splitlines()
+            spans = variant_spans(lines)
             for index, variant in enumerate(variants):
                 services = variant.get("services") or {}
                 if (services.get(TOR_KEY) or {}).get("enabled") is not False:
@@ -74,7 +88,10 @@ class TestVariantTorOffNeedsAReason(unittest.TestCase):
                     and entry.get("enabled") is True
                     and providers.get(key) in incapable
                 ]
-                if not excused:
+                if excused:
+                    continue
+                number = pin_line(lines, spans[index], TOR_KEY) if index < len(spans) else None
+                if number is None or not is_suppressed_at(lines, number, RULE):
                     offenders.append(
                         f"{role} variant {index}: pins tor.enabled false while "
                         "enabling nothing that refuses the onion"
@@ -83,9 +100,10 @@ class TestVariantTorOffNeedsAReason(unittest.TestCase):
         if offenders:
             self.fail(
                 f"{len(offenders)} variant(s) drop the onion for no reason. Either "
-                "pin tor.enabled true so the round keeps onion coverage, or pin the "
-                "service whose role refuses the onion so the drop is visible:\n"
-                + "\n".join(offenders)
+                "pin tor.enabled true so the round keeps onion coverage, pin the "
+                "service whose role refuses the onion so the drop is visible, or "
+                f"mark the tor pin '# nocheck: {RULE} <why this variant cannot "
+                "carry one>':\n" + "\n".join(offenders)
             )
 
     def test_at_least_one_role_refuses_the_onion(self) -> None:
