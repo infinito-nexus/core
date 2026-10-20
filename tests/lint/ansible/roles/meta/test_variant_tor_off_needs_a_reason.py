@@ -90,7 +90,11 @@ class TestVariantTorOffNeedsAReason(unittest.TestCase):
                 ]
                 if excused:
                     continue
-                number = pin_line(lines, spans[index], TOR_KEY) if index < len(spans) else None
+                number = (
+                    pin_line(lines, spans[index], TOR_KEY)
+                    if index < len(spans)
+                    else None
+                )
                 if number is None or not is_suppressed_at(lines, number, RULE):
                     offenders.append(
                         f"{role} variant {index}: pins tor.enabled false while "
