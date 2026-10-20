@@ -61,7 +61,7 @@ def mount_opts(version, runtime):
         else "hard,timeo=600"
     )
     locking = "" if int(version) >= 4 else ",nolock"
-    return f"vers={version},rw,{reliability}{locking}"
+    return f"vers={version},rw,noresvport,{reliability}{locking}"
 
 
 def client_src(server, version, flavor, state_path_value):
