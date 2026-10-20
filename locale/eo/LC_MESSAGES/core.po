@@ -1156,6 +1156,11 @@ msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, k
 msgstr "Open-source ITSM kaj helpdesk platformo (OTRS fork) Por biletado, CMDB, sciobazo, kaj raportado"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-wazuh:description"
+msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
+msgstr "Open-source SIEM kaj XDR-platformo por monitorado, tagaranalizo, entrudiĝo/vulanca detekto, kaj observo"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "Open-source facilmova administra platformo por Scrum, Kanban, kaj hibrida teamlaborfluoj"

@@ -927,6 +927,10 @@ msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
 msgstr ""
 
+msgctxt "role:web-app-wazuh:description"
+msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
+msgstr ""
+
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr ""

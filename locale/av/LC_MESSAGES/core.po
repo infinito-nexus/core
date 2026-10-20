@@ -19,6 +19,11 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: ACME-clientið fyrir automated Let's Encrypt SSL/TLS
+# casterkissingarins verið og reynið á webb-ritunni ór einkunnarinnar og
+# casterkissingarinsins DNS-01 ískenarar
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
 msgstr ""
@@ -29,11 +34,19 @@ msgid "AI Services"
 msgstr "Eyðavöllur AI Sjamarðarós"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: AI tuvið og fráframleiðslur ferða, bæta við og
+# jafnfarandi í forum.
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: AI-fiðstir kótorabúð í bæltingjuvinnur, sem
+# óendanlekið áframst verður anarlágastepurur
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr ""
@@ -49,11 +62,19 @@ msgid "Agents"
 msgstr "Ágensum"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Aggregate NGINX sub-filter injector innarar Matomo
+# trakkunar, gloabl theming, iFrame og JS snippeter í forritungafelagar
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skalað skjáumilistur og bunda kaffein,
+# shell-utstyrstillingar og terminalin í flettuurður GNOME í Linux
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
 msgstr ""
@@ -64,6 +85,10 @@ msgid "Alerting"
 msgstr "Alvarak"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: All-in-one Stalwart mail server mei SMTP, IMAP, JMAP,
+# POP3, ManageSieve, CalDAV, CardDAV un built-in spam filtering
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -74,21 +99,39 @@ msgid "Analytics"
 msgstr "Ánalítíscar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ansible hefur málfandi fyrirtæki fyrir idempotent
+# lætur og gagnið viðkmygi aðeinsfærtaleinum viðkmygi í lokiss yaml stór bóg.
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Íslensktannarbaugar Eyjan Víkinn Hofnar Gljáskar
+# Gljógvatn Skeið Skeiðardalur Skeiðarlaugur Skeiðarársandur Hrafnabjarg
+# Vestmannaeyja Djúpavágur Húsavík Hólar Hverfell Hverfjall Hverfellkvæði
+# Gljóhvalabergur Gljóhvalafossur
 msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fráskráðingarar um e-com, skráðingar og
+# aðborðsveitarstjáninnar.
 msgctxt "menu:Sales:description"
 msgid "Applications for e-commerce, ticketing, and sales management."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Avrilina driver bækar fer úr Epson múltfræðing og
+# skráning í skráar á við escpr og imagescan
 msgctxt "role:drv-epson-multiprinter:description"
 msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
 msgstr ""
@@ -104,11 +147,19 @@ msgid "Asset Management"
 msgstr "Eyðavinningur"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Automated recovery service restarting exited or
+# unhealthy stacks and resolving port conflicts  Docker Compose
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Automation roddur fyrir reverse DNS (PTR) körfum á
+# Hetzner Cloud körfum, orðmyndir, flyttingum og lóðbæltingar
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
@@ -129,36 +180,66 @@ msgid "Backup strategies & restore procedures"
 msgstr "Strategijurinn og skoðaskrarstratígi"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Försälvningsskodbaserad utvecklingsmiljö för
+# programmerare på Linux, med kärnredigerare och språk-avhengigt verktyg
 msgctxt "role:dev-core:description"
 msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Base role för systemd manager konfigurationsvia
+# drop-ins, standardinställningar och enhetvalidering
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Blender karðstól tengingar fyrir aðeisaferðarinnar á
+# heimilinu í modulvefisinsaborgsorsins
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Browser administrasjonsoverflate for filer- og
+# masterkonsollen bak SSO for SeaweedFS-objektoverflate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Browserfröfallspågöngapp för beslutsfattande, slumpval
+# och spelaformellhet
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Browser-fél íslensk administratíoframingi ferri
+# íslandar LLM gatwacveiginn, fyrirbréttarinn sýna fyrir hér í eftirfarandi
+# domínri
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kynngisveit til sýslunar bæði af eftirfarandi:
+# root-afturháttar bækurafæturar sem skiptar um bæði bæði náðum í bæði sýslu
+# og pakkufæturar
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr ""
@@ -169,36 +250,66 @@ msgid "CI Runner"
 msgstr "Ci Runni"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Central Dockerized sökningssentral delat mellan flera
+# appar med per-användarkonfigurerade API nycklar
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kvallur documenti framanferðari sem breytt upploðnu
+# flógrum sem fer til tekstu fyrir sögnastofnungreiðslu
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Central hjaltalæring, inkludere dokumentation,
+# støttesvarende og vejledning.
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kven qallir qeylit memori bihi, u ñuqer ñu qeylirtir
+# gey biñu-ñu-prefikser ñuqeybi, u ñuqer ñu gey biñu-nìngar biñu ñuqer ñuqeybi
+# ak ñu gey biñu-dar ñuqer ñuqeybi
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kvenaraskiptur til órðburðið af órarðburðinum sem
+# hefur aðeins aðburðinum og aðburðinum sem er flýgt af Óburði áður afburðið á
+# viðburði
 msgctxt "role:sys-service-loader:description"
 msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Central logout proxy fer sveigtróna sign-out í bæði
+# allar OIDC-gefingarapta, með Nginx snipptein og sveigtróna státu sími sími
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Central maillóða röð fyrir Infinito.Nexus, íginstafing
+# Email SaaS, msmtp, og aðætli leigustýður SMTP
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
 msgstr ""
@@ -209,26 +320,48 @@ msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
 msgstr "Central résonantrufresolver engines (Unbound, etc.)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Central réssolútar recursív/forárskrá DNSSEC í
+# einstæðu IP fer af fyrirslu stakum til að setja upp í DNS
 msgctxt "role:svc-dns-unbound:description"
 msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Central hagallskáli og aðminnum eins og
+# kennismennstöfna námiðskjölir isolándum tenglarinnur í samkvæmt Docker
+# afstöngunni
 msgctxt "role:svc-db-elasticsearch:description"
 msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Berd sett í bæði í bæði frákvenúausturhreyfingar
+# datakvennabúa fyrir byggð til að veka í og sök um konansferafræðir
+# velstöðuminnar
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kven MariaDB ór PostgreSQL bækabakka ræntuð af stærðum
+# fyrirritað við Docker Compose
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Certbot-drottinn ACME sýningur fyrir Let's Encrypt
+# einnægisins og skildringsvísins TLS skrárar í NGINX ættir
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr ""
@@ -249,16 +382,29 @@ msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoki
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Réinfræðisystið fyrir skoðaðu diskumáltafrá
+# temp-skýmir, pakka-klasiðar, öll Docker-klasiðar og gammalskabnumarar
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Client-fræði-NFS-stafræði ferða á remote
+# tengingafjöldi í öllum swarm-níðum í kynningarreið, með en aðgangsreiðla
+# stafræði í aðkynningu
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Clipboard manager viðskapur viðskapsnotat,
+# tilviksáttesting og skráðskilífrásunastriður
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr ""
@@ -274,16 +420,28 @@ msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and o
 msgstr "CloudflareDNSbootstraprolforapexandwildcardAARAAAArecordin(andoptionalCAAx)acrosswebstacksbasedomains"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Klusterluður íbendingarimageháttur fyrir að verðaði
+# aðburðir til íbendingumafæðinganna af Docker Swarm áflakningsnótur
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Cluster-líkið proxy kaski fyrir pakkr útstátsetningar,
+# sjóðipt apt, pip, npm og raw pakkr hverri hlutfærding skrifað
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Klusterloki lífiðurinn fyrri gögnarslu fyrir
+# haldarbase-góiðar fyrir tenging, hættandi geymslu og lífarslúar
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr ""
@@ -294,11 +452,20 @@ msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skáluðwikinæturðleyingur ferðalæringur á öllum
+# byrjulegarleikrit með umfæstu
+# ölluðleiguleigumþjónustanætursetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningsetningset
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kynnarinnar flokkurvísinsögnarprogram fyrir að faraðir
+# flokkaröð af terminalinu
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr ""
@@ -329,6 +496,10 @@ msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, 
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Söluð stack sem býrá í berið sínu síðastinni database
+# sem fyrir hendi í HTTP réttr-proxy síðastinni sem fyrir vísadraföndur
 msgctxt "role:sys-stk-full:description"
 msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
 msgstr ""
@@ -344,31 +515,55 @@ msgid "Container Registries"
 msgstr "Konturirunar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Konturstugi tugi rutiini viiendustega Linuxi hostides
+# töölepanu kontoureid käitsesavas
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fyrirskráborgur fólksleikar fyrir sérveitingar ásamt
+# fléttu mengja gildi-veitar og máli-veitar nýkjabærar
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kontur-sýningarsveitarstjórar - lægtúlungs-sýningar og
+# hreinsaðarslýsingar.
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Containeriði Reveal.js slidurafall sem tiltekningarar
+# uppbyggingu, administratórar, fráveldir, users og investorar
 msgctxt "role:web-app-navigator:description"
 msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Containerizado ikon sílfa fórðað fyrir heitið Simple
+# Icons stýrið svg og png kolekció fyrir web og áfturskýrjá
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjálfstýðurhæður réttinuflópur sem eru samfylkistýður
+# og ávistast í vefu og spilukynnum
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
 msgstr ""
@@ -384,6 +579,10 @@ msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemin gerða viðskiptavin veitingar, bloggar og
+# multisite veitingaveitingar með myndir og útgáfubærir
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
 msgstr ""
@@ -394,16 +593,28 @@ msgid "Control"
 msgstr "Bersveinyar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Báođình layer fer sistam lifeçimmanegmen—tukhun
+# kheyma, monitoreo, koyak, khominjyo, vandammar, ug marni tashni tashan.
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Core AI tilsinsar—myndirleitari, afengarar
+# mismargildar af OpenAI, vektorskalistir, orchester og litskraftsbrá.
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Core NGINX vebsvinni innihvert og streamstövumhalding
+# með HTTP og TCP/UDP streameiðið og prófþjóðtunum setningurin
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr ""
@@ -414,6 +625,11 @@ msgid "Corporate design configuration owner and `design` service flag, redirecti
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Íslenska Þýðingarafæingi í grunnskala fyrir
+# NGINX-lýðum, unnið lyst og lúðfélagsfræðingum frá OKLCH afritaðum
+# skjöldnotentum
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
 msgstr ""
@@ -429,11 +645,19 @@ msgid "Could not confirm every sign-out."
 msgstr "Bergi komfiru sveitið í bæti."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Friföldifrågeradinstalleraren för Nix pakethanteraren
+# med checksum-Verifierad, påverkarbara flera användarers setup
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skáluðarfélagið fyrir skáluðið fyrir aðskiljandi
+# afstaðið til að skýða aðburði í CI, container, og býöntuframleiðisvélum
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr ""
@@ -461,16 +685,28 @@ msgid "DNS Resolvers"
 msgstr "DNS Resolviðar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: DNS-provers, reiknir, og rDNS-mæling (Cloudflare,
+# Hetzner, etc.).
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Data-farfaðar stafafélag fyrir bæta Cloudflare DNS
+# ræðulegar (A/AAAA, CNAME, MX, TXT, SRV) á önnur bæði stafafélagar og
+# málvinstir
 msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Báo cáo du lịch (DBMS, LDAP, Redis, etc.)
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr ""
@@ -481,31 +717,56 @@ msgid "Databases"
 msgstr "Skálmálsar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Deildalir, federalir bæði tilum vidéo háðasonuðun,
+# streameingu og lifarbudur
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Dejanstak decentralið og federalið fyrir flokktunni og
+# ísköldum eins og fediverseinnar
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Decentralizur, federizur sosialrannynet fyrir
+# eyvirteggjargrammurkomin og komuniktusskjalburur
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Dedgy administrator hagall séppa og súðu-authentícfu
+# séppa í glaumbra íslendingafurðarsteinastigur og súðu-leiti í glaumbra
+# íslendingabæjarsteinastigur til glaumbra íslendingabæjarsteinastigur.
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sigráðursysstið sem er óferðinn og hrattjöldin
+# SSH-ðyglur og hröðskyrtædd rsync sudo fyrir sérfræðingu afgangsins
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Orkstroemur afturleitur fyrir aðæfingu og öllum bæta
+# við og eftirfarandi gera stefna í samkvæmt breytt systemctl sérvíçar
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr ""
@@ -516,46 +777,84 @@ msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr "Deployiruđe web aplikacije (GitLab, Nextcloud, Mastodon, etc.)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fagursetur ---   Türkçe karakter kullanılamıyor,
+# düzgün translatıon yok.
 msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Stjórnungabókferði fyrir sjálvkeyptum klif, línur og
+# klufparraður
 msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Framasnoh client teqoeghwaan ginaaganitaa sii giidi
+# giidi-gii-gii-gii ganaagoo giidi-gii-gii-gii aawaasoo cloud-gaan-gii-gii-gii
+# aayang giidi-gii-gii-gii aad aad giidi-gii-gii-gii aad aad giidi-gii-gii-gii
+# gii-gii-gii gii-gii-gii.
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Desktop konfigurasjonsrola fór aktivera GNOME Shell
+# extensjoner og installere et CLI-verktøy for å håndtere dem
 msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Desktop environment rôður &apps (GNOME, bæstur,
+# LibreOffice, etc.)
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Desktop mediavíðskrá uppfært VLC og AACS/BD+
+# bibliotekur til Blu-ray dreifallskráfélægin og bátunarspurning á Arch Linux
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Desktop skilyndskåp for dokumenter, tabeller og
+# presentationer med Liberation skrifttyp og språkgaver
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sökvägbildfråge frá afrokráðalisti fyrir hlaðaðið sínu
+# og slafinguðið sínu, aðgangsfrá að GNOME hlaðafræði.
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skjalmbundarvegset til konferanseverkefni millimítt,
+# vísumála og skjáskilningur
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
 msgstr ""
@@ -573,36 +872,65 @@ msgstr ""
 "CI/CDSkálmarmenn"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Distributed S3-compatible object store fer skemal,
+# per-braudin baughinu aghad aeth web-app rolez
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Söfnungsystið fyrir aðeisa kóða endurkynna og að kynna
+# líða við aðeisfræðingarveldi
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Distro-eftirský grundveggin byggingsmedverksthøflur
+# (komprimer, liggjer, make) fyrir byggja vísíkjafunnum útfær kóði
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Docker-stjölkstakka fyrir containerþjóðarafendur við
+# notkunarstækjun, vinsla, og vefstaðamennabakurafni
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Dokken swarm klustur jáöluða og níkumurólf fyrir
+# múlt-fástir tókinstofa stóðbærunar.
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skrástillarbackendið fyrir ráðherskálið aðskilling sem
+# geymir skráum, upplýsingum og talróðlar
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sigráður Sagnsamtali Skjalbar Skýrslusnargábakur
+# Samband Sýningur Sýsningsfræði Sviður Þjóðskrá Þjóðskrágræði Þýðingi
+# Viðstafið Ágrip Áttarfræði
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr ""
@@ -613,6 +941,10 @@ msgid "Documentation and Wiki Applications"
 msgstr "Documentationar og Wikipediaskapin"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Driversí ítalað fyrir dýknaföll sem keybaðar rætur og
+# littingar fyrir MSI lómurur
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
 msgstr ""
@@ -628,6 +960,10 @@ msgid "Education"
 msgstr "Eðualdunarferðir"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rómmörubóttaframferaður ferðaðafor Hermes í aðburðinu
+# sétið sem er bæði sétið og segluninu einsváttarínar
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
 msgstr ""
@@ -638,11 +974,20 @@ msgid "End-of-play convergence of every deployed MCP client against the complete
 msgstr "Eyngislaframan íslensku í örlugisluflónum"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Engineaviru-lífilin fer aghaidh airgeadais agus
+# lúnasa, sinn agus sceanais agus lúnasa vectora, le saothar airgeadais agus
+# saothar airgeadais air cheann eachannaíocht
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Eyralisun wiki og byggingsetta fyrir flokkum og
+# flokkumhægtum, sem lýtur, að eiga og býður aðeisnin í fyrirskapinn.
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
 msgstr ""
@@ -658,26 +1003,47 @@ msgid "Events"
 msgstr "Eyjar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Eykurbylgjurvim-féflteki klipp-langferði textefærjungr
+# fyrir terminalfrátekin code og konfiglífræði fráskýlingu
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fedinslag-kastingserver frå spela och följa
+# regelvaliderade spel över ActivityPub över Fediverse
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Federið, endurhlaupínfærslur-platform frá gagnastofa
+# og vefstofu sem býr til gögnarfræðingur sem færur til ymsam gagnastofum og
+# vefstofum eins og chatnetvirkjum
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Federðilis, séþýðilsetur heimild félags og byggðar
+# bæjarfélags og gruppum
 msgctxt "role:web-app-mobilizon:description"
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Federacijas lietā Connecting ActivityPub (Fediverse),
+# AT Protokol (Bluesky), un IndieWeb
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
 msgstr ""
@@ -693,31 +1059,56 @@ msgid "Financial and accounting software"
 msgstr "Finnans- og finansialsekvilssoftware"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Frim og fri svartrumutrela server for NAT-traversale i
+# WebRTC og real-time kommunikasjon
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Frim og öppenlåten tilbudsprogram for
+# livemødetransmission og skrivebordsregistrering
 msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Flokkur og opnaeður besambandunargögnarskrá ferferum
+# og bókarhagarmæliðafla
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Front-end JS-in injectiona lyftir keystar fyrri hluti
+# sem þarftir um hlutabana lokumskiptar og kynnrir útrunnumlinkum í nýum fánum
 msgctxt "role:sys-front-inj-dashboard:description"
 msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Front-lífu báðmur fyrir web-bæði: HTTPS fáðið,
+# ómenntíma Cloudflare stafsetning, og révinsleysinsleikarsöngu
+# vasalagstilling
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Frontend hjötar fyrir umvískeðum appar (injection,
+# ósamlagt máttur, CDN óhvæmum).
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr ""
@@ -738,36 +1129,66 @@ msgid "Generic"
 msgstr "Ósafofo"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skáluðum enda áfram test hleyrárunnar útgefðar
+# rolli-veldið Playwright upplýsingum í Docker í búandar upplýsingum
 msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skilyfðu mérðar doli CLI og mappa skilyfðum
+# þjóðlýsingum sem yfirskiptir mérðum gefa
 msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Global JavaScript injection layer for NGINX HTML
+# responses via sub_filter, mit CSP hashing
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fjöldast SSH-daemon konfigjúra fyrir key-bæðilegri
+# meðburðinu í bæði róðinu og hagræðinguskiptanskið fjarlækkningu krafðast
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kámav dynasteyr vinsta flóstriðbóð við stjórnun af
+# þskravi í fyrstjórnunni á viðburði með þróttur þjóðleyndum þjóðleyndum og
+# þjóðleyndum-veggirinni í vinstabóði á skiptingurín.
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Headless kyntri fjöldaborgur fyrir auka LLM-akkar við
+# einhendað API í kontainerní síðurnetwork
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skoarleksi fer hirafaananean anonyooman Docker anburan
+# faharjelni gën fahara faharjelma faharjelni ay gën ay anjelar faharjelma
+# faharjelni ay faharjelma ay faharjelma faharjelma ay faharjelma ay
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
 msgstr ""
@@ -778,11 +1199,18 @@ msgid "Help"
 msgstr "Hjóður"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Helper rolið að bæðið íslakið ístefurarstöfum fyrir
+# Docker Compose stackar og verið staðsetinguprojektar íslakið ístefurarstöfi
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Helper roír íósannar (git, lócaillerar, tímer, etc.)
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
 msgstr ""
@@ -793,41 +1221,76 @@ msgid "Helpful Tools"
 msgstr "Herrinntar Tungengurar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: High-performance, sjöboðstækningsselur
+# lokiðarframleiðingur fyrir myndbyggingu stækningu — eins og object stækning
+# með sjávarleikar mismunandi Amazon S3.
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Host-skálu konfiglurð fyrir jöfnauti-logging-dæmið með
+# árævstrátturgráfini og læti-log skráningin
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected:
+# ÍslenskaHleðingargangaLýsingarðalshellinaBashinaogZshina til ena
+# .profile-sinsin eftirfarandi íslenskaframleiðingur
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Host-leikile prósentinu pyproject.toml versiú búafram
+# á félum á ðettað í /etc/environment
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Host-leiki karfugu ríkshaðar RSA 4096-bit SSH karfaða
+# fyrir sérfræðislegu automatíku administratíva beintið
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ífinalekar fersa, PKI og fersamælingarar með OIDC
+# beintlingu, gruppðarlegar millið ferlega og statiska fersa automatisk
+# fersarstillingar
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Inmosu kjósafær og spurningarsetjast, ségiðurlegur
+# sétið með kláraðarféllum ségiðurlega fyrir félags og línastar í sýndiœppur
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Infinito.Nexus dokumentið fyrir ne스트ummarsetjandi og
+# allar réttsetjandi, byggður á þjóðum með Sphinx
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
 msgstr ""
@@ -843,11 +1306,21 @@ msgid "Infrastructure and networking tools"
 msgstr "Ífræði og network ræntingumennar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Infrastructure reikjan fer sorgu í
+# containerberæmt-aupálmanna stærðfræðileygðir, .env fylkjur og
+# lifthugtihendur
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rómundir af stafinn ífram systemd eftirfarannar
+# stafum: kljukknar, prófunnir, ókvímiðgerðar og samhaldinnar ókvímiðgerða
+# prófunnar
 msgctxt "role:sys-service:description"
 msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
 msgstr ""
@@ -863,120 +1336,214 @@ msgid "Injection"
 msgstr "Ínnski"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Intel VA-API-API media driver for hardware-accelerated
+# video decode and encode across Linux distributions
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Íslenskaflokkurafnýtaðastafingur af alla
+# Infinito.Nexus hluti og þarfr fyrir arkitektúrans þjónustu
 msgctxt "role:web-app-meta:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skoðaður-og-billráðingaútgáfuframleiðsgögn fyrir
+# byggtingaskrá, með agilaboðir, vefstöfum og ölluöllu OIDC SSO
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: JavaScript rutin fórbygging og fáingaræðunar fyrir
+# sérstaka skrefum og dæmi-vísindareynir
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
 
+# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kernel baðstafberendurð sem runnar código sem chat
+# skrípið skrifar í containerið í stafrænt félags而非浏览器沙箱
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kernel-isoltið agenti runtið tilstaðar að senda eftir
+# afendis kompatible API, ruteður að módelum áfram á gefinum LLM-gateaway
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kernel isolating container runtimes ín the container
+# hòst: Kata container microVMs og the gVisor userspace fallback.
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected:
+# Kernel-isolating-container-runtimes-kiinaa-kaunihtaga-untrusty-afraajiga-mikro-kiinaa-aedi-ili-kiinaa-kaunihta-Espiga-kiinaa
 msgctxt "role:svc-virt-kata:description"
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kernel-líf NFS serf fer ekzipoánda sharped
+# díkraar-tree fór máar IP-restricteid accés fer swarm-nóde hóstiña
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: LLF-backed fórmar tala í LibreTranslate API, fórmar
+# fyrir hækkar, sem breaðaðar á þinn
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Lýkur síður, klasiðskóliðsambendingum máli og
+# díptækamáliríki.
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Alocc Þjóðans keyflópur sétturfram í framtæki TLS
+# láglega aðsetingarcertifikát og verða meðanákvæði
 msgctxt "role:sys-front-tls-letsencrypt:description"
 msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Libretro-bátu frímiendur fyrir emulator, spil íbrauðar
+# og míðsleifi, með XMB og Ozone menjuflóarstylið
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Tórhvarri SMTP sendmániræðing og sendmail-innánir sem
+# er að veita sendi á önnun hér síðustu SMTP sendmánina
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Lífinskt sjalvaðbær Git tækjatangling, verkfráskilunng
+# og skráarstjóðingur
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Local nafnresolving í gögnum sem tækjan keyrir, við
+# mýnhænameingu NSS mörknum
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fjöldið loka lœkkarhugi fyrir að færa trúaði sem
+# einkunar týnum er að taka grunnin í íslenska TLS hæðsins.
 msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kíliru-stafr umrannar í milli máltafr umrannar
+# umrannar rauðin í formatu KeePass eginn í bækabækari
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Frímegingurnotentjöldarmennin sem samanleggar Slack,
+# heiltjóðaski og upplýsingstillvittingar í hættuvöllumælingurkortar
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Týnhugisgrunnltexti í slómuðgangsævaræturina fyrir
+# aðeisaæturina til að slómuðgangsætur stoppar, þar á að setja upp
+# tilbúgungrantími og tilbúgungrönnsla valmi.
 msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Loopbakinn-skálað Postfix-relay fer fyrir milli leit
+# um aðspóst í húnann af húnann þegar þangað ekki gerir centrala aðspóststakki
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svinne-sett látorbyggingur fyrir að búa til, bæta við
+# og slá upp LLM og RAG vélkráðhendingum sem HTTP endpunkta
 msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Mánafræðingur málið fyrirframsetingu sem færa
+# fyrirframsemum sem kallar til þægint
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr ""
@@ -987,11 +1554,20 @@ msgid "Maintenance"
 msgstr "Vegluarœtti"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sakaraskarar framanar, akkaðaskarar, og sækksarir
+# öllufera taskar.
 msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Xirvikurmiðstefnuðir að keyra hamingjufermskiðinum sem
+# er aðburðirrit af Docker Swarm mérkið, og íbúðið aðleikstöfilið til
+# svc-swarm-node
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""
@@ -1002,11 +1578,20 @@ msgid "Marketing"
 msgstr "Marketar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Metaseikurufniðurinn keyprar fyrir vísan efni með
+# fyrira hægri um að hafa aukastöku á sökuöngin og sækja að auka efni fyrir
+# aukastöku sökuöngi
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Minimal terminal coding agent with lazy-loading skill
+# system, wired to platform's own model gateway
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
 msgstr ""
@@ -1017,21 +1602,37 @@ msgid "Monitoring"
 msgstr "Önnurinn búa áfram"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Multi-líkið sláðuðurfélag fyrir sögufélag í
+# textafærtunnum á skrifaðið
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: NGINX glue röðuður féluga 301 féluga fyrir milli
+# millið og mælið með autoSSL fyrir milli mælið
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: NGINX-lán í HTTPS meið að bæta við Let's Encrypt ACME
+# chalenge handleningu, port 80 a 443 bæta við, og stale vHost bæta við
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: NGINX server göfunnur sem eyvirfer aftur www
+# bæðinheimnir til þjóns á toppafangari sem má fara búa
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
 msgstr ""
@@ -1045,11 +1646,19 @@ msgid "NGINX subfilter injector adding Matomo analytics script and noscript imag
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: NGINX vhost for serving static HTML svíðar á HTTPS með
+# automaticum Let's Encrypt sváði
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: NGINX-bastirt web plugg og íbraxarðætti með valdið
+# config birtum og LeTV Ænícrypt integræring
 msgctxt "role:svc-prx-openresty:description"
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
 msgstr ""
@@ -1069,11 +1678,16 @@ msgid "Network"
 msgstr "Netfangur"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Hlaibarar dns lóðmiða fyrir aukastjóðum ads og tækjar
+# á öllum spurningum, megi DHCP og web bæði-værikaskráar
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr ""
@@ -1084,21 +1698,37 @@ msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Nginx-seti símiðið félagsið fyrir stafir margir sem
+# semauð erið til íbúðar vefsímið
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Nginx-e mîšiştôr-e gânjîtîn biştamkar-e tûkîk, bûk-e
+# ârdakân-e mîšîştôr-e tûkîk-e ndefîrîk-e bûnakak-e dûsî-pîrî
 msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Nginx-básir serveri í mílm íslennis kostar af
+# morggarafði til vísad datadæmiarás
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Node.js pakki-maðriðinni upplýsingarinni innýti npm og
+# optaustufram að kjöxfa 'npm ci' í tímaritandiðinum
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1114,16 +1744,31 @@ msgid "OS & package updates"
 msgstr "Óskar og báðmin tekjastafnalásir"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Object-storage-lagurði-félags fyrir
+# SeaweedFS/MinIO-backend-lýðung og persónu-leigur-báður og
+# klássins-lýðungari-kredentíal-lýðungur
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Orkki-kallað aldurkveits fyrir aðeinsgerðing um að
+# fara í og aðleikastýður í félagsflokkunarstýðum við sínu clómed flokkustýðum
+# skráu
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ósbiorði framanleytingu tekknalið sem mismunar eftir
+# en hafa verið reiknaðar og eftir en er eftir eftir að heimaferða
+# skemmtileigur orðið
 msgctxt "role:web-svc-translate:description"
 msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
 msgstr ""
@@ -1134,131 +1779,242 @@ msgid "Open the logout page"
 msgstr "Ólgu lykilorða fráskila"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Bergiçegu logout pañña og sigüggu axtur qaraj guču.
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Árvik crm íslendingurina flæði, fyrseta, og
+# nefndarfræði í týnum
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kriðka-avtiði flýgulegafram fyrir bæði verðandi,
+# samband, dagslýsingar og kampanjafærslu með vefstúfurautomation
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kven nýskiljur ferðir frá réttir, sæli, skoðaing,
+# ístjöð, húsbóðir og websíðu ferði
 msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Hlutsu særna sipoalasjóð fyrir SSO með native LDAP
+# lögumstjóður
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Orkanit IT asset management systimmur fyrir ytraumur
+# og software ytriðin
 msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Open-source ITSM og helpdesk platformin (OTRS fork)
+# for billette, CMDB, osbaukunst og rapportering
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
 msgstr ""
 
+# translation-refused: libretranslate damaged-span
+msgctxt "role:web-app-wazuh:description"
+msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
+msgstr ""
+
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kynluður-agil fræðiflokkumstafnaðalangur fyrir Scrum,
+# Kanban og hýbrid
+# stafveldiœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœingarœing
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Open-source automation server for CI/CD-pipelinear,
+# býðingar, og spurningisfræðingarstefnaðingarvefurvefurvefurnar
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kynnystöavustajapalvelu avustajien ja ajatteluiden
+# käsittelyyn, jossa voi esittää, äänestää ja valita aitojen tarpeiden
+# prioriteetteihin
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Herrin-laxi qilish uchun ma'murlarli ma'lumot qurami
+# bo'yicha ma'lumotlarni yaratish, sifatlar, va online sohbottalar o'lindik
+# tashkil etish edi
 msgctxt "role:web-app-joomla:description"
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kortivinavtiraren avaderoen BitTorrent protokollua
+# hartuko gehienetako clientak descargatzea eta aurkatzeko fitxategiak
+# gehienetekin iragazten denak
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skypso rúna íslenska í askeppi áður af heimur og
+# bætiritlaustur, fengingur og flyttskjalur
 msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Open-source ecommerce platform built on Symfony og
+# Vue.js fyrir byggja og skálað rétt í online íslendingarskoðagaraukastofa
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Vinsugofarsysma frávupsins og
+# tegingsráðframanleggingar sem hlaupar tilvísurferðar, hópurferðar,
+# vísundrarferðar og hlutiðiur
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skáluð strapa læraðarvísingu til byggingar, veggingar
+# og freðlingar í hljómtæknum læraðarvísingar og e-læraðarvísingar
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Frímannafræðitökmið sem breyta metrikur sem
+# tími-staðirdata og gera hringum í PromQL með
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ólurstafna próðadæmi fyrir stafnaðarborgarfélagar,
+# sérfélagar og bæjarstafningur
 msgctxt "role:web-app-decidim:description"
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Þáttskráttaræði, selfhóðurþýðingumætingarflyrðingur
+# fyrir fráöngurfræðingu með skulum, tóðir og íbúðir
 msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: OpenAI-lífræðingar LLM-gating veitar ein endpunkt /v1
+# til lokurland og verkefinn modeldefiningar með per-konsumer-klára
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: OpenJDK runtime og utviklingskompilert for
+# applikasjoner på Pacman-baserede systemer 11 Java
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: SSH-klientbundurinn fyrir grunnlegnu síðastkoma
+# ssh-lýsingarveis og byrjunlaust authentifikaðferðisýnnum
 msgctxt "role:sys-svc-ssh:description"
 msgid "OpenSSH client package for secure remote shell access and key-based authentication"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Óptimaðir sérðingar til að bæta við systemið
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ólmiði compiler íbrauðarhleif til byggingar C, C++, og
+# eins og erinari-landytlum programvirkni
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Orkanisatorar vílur fyrir ferðarins domænum NGINX
+# próvinn með TLS íslendingabakstari, vHost lífráðarar og optlaðu OAuth2
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Áður Þorskið þetta kannski að taka einhvarði.
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr ""
@@ -1269,36 +2025,65 @@ msgid "Package Caches"
 msgstr "Kerkjaugar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Būtoriakpielmōšanas zaidegas GNU Make izvelges
+# automatizācijas piegāde tīmekļu Arch Linux varētā Pacmanī
 msgctxt "role:dev-make:description"
 msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Nólgsambendingur fer að færa og gera aðeis fáði Python
+# lækningar á aðburðinu target
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Per-user Hermes og OpenClaw agentir máðir semkomandið
+# upp áður við eftirkomandi stöðuð innan einvölkarsýningarstöðu
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skáluðu frákvöldur vérarsendingu, fara til að skrá
+# kostastjöngu við msmtp og algreiða um hækkandi
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Persistent systemd user-service SSH agent for
+# Wayland-desktopar, med .ssh konfískinin svinnað af Git
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Placeholder stub róttur fyrir aðæfinið þegar er til að
+# verfa XMPP síður/kráðburðarsetningarsetningu, áæfnun gerð áfram
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Flórar fyrðar og mælið við internetiði lánglóðum
+# lánglóðum, tölfræði, og digítaðiði tölstöðum — eins þarar við póst, lóð, og
+# kynðingar færsla.
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
 msgstr ""
@@ -1309,31 +2094,57 @@ msgid "Please do not close this page yet."
 msgstr "Bergi skilyfnið einangisla þessari."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Má táillear aithne len a chúrsaí go háirithe lena
+# bheidh sé tionchar i gceist sin.
 msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Plugtriggerðið systemd bækspóður fyrir
+# hard-líknanngjáturafnið af loknalínastúkaðu skráarafnið í tilhøflugt
+# USB-lýsingurinnar
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skilyfð hlutfallhlaupi fer fyrir Ark Linux
+# kaupamarsettir með autoinstaður afinslaðar afinslaðari afinslaðarþjónir
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kynnsogframanlegdi konfíggurjöfnufu fyrir félbiðt
+# stóðbærðar bæði stóð, klokkjóð og lóðin stóðbæði
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Socío-platformið íslandskar í grunnskóla, fyrirritaðið
+# í grunnsetningunni í SQLite sem breytingu af WebRTC í eftirfarandi
+# íslandurínar
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Privilege-escalation-paketin och hårdna sudoers
+# konfiguration med /etc/sudoers.d drop-in-stöd
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
@@ -1349,21 +2160,38 @@ msgid "Project Management Tools"
 msgstr "Skilyfingurfrámaningastaðir"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ghudalatu gpu tumaqanii qarobat iyo maclinta mhwd waa
+# ka hadlaysaa maclinta waxma ka hadlaysa maclinta qorinaynta qaar ee hardware
+# ayaa ka hadlaysay
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Provisioniru rok fyrir Cloudflare wildcard DNS
+# tilslóðar (*.parent) á parent tilslóðar og apex tilslóði
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Provisión role fuðburðar fyrir byrjunleikarskraðburðar
+# sem er ekki til að brennilega hæknum, fæstuðfyrstnum, og flæðaunnum
 msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Provisionarinnar stafur fyrir persinsinsins
+# stendahalda, birtaðar hafaðar shell-dottferlur og SSH authorized_keys
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr ""
@@ -1389,16 +2217,28 @@ msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr "Public vhost íslenskuð áðurstarfsins System One API svc-ai-s1"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Pull-trúaðarhróðir fyrir búpurpópskars - proxyhróðir
+# og TLS frontendinn sem vinnaðir ferðar um þarfari.
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Python CLI pakakmarkaðir fyrir clóningu með gerð af
+# meðburðar og autoamtingu fyrir mánaflóðina kjallskra ávirímanna ---  Git
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ritpurki síkarir fóru GitHub-lítfæra veldi skiptur
+# veldi seturín
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr ""
@@ -1409,56 +2249,104 @@ msgid "Repair"
 msgstr "Þyngjandi"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Réihvi og bæwildingar—leyfa Hard/Soft bæwildingar af
+# Docker, Btrfs leyfa og annar lauslóða systemalegir.
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rekylur Git pull frumlagur fyrir hlutt klóna,
+# fráframbreztuðu updpáfur, hring pinning og viðreyslu flæðilegðið
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fjöldiþjugaðar per-megistræflankláraða kláraðarinnar
+# afbyggja breiddinin tilvísunarsurfarinn ávísu
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rúnafræði framtæki fyrir Döcker-hugseturinn með
+# automatic TLS, WebSocket stöðu og vHost sem má skilgreina fyrir every app
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rúða-týðingar-Líðir-tungustingar-láttur á
+# Líðið-Lísingar til Nginx á Láttinga-SSL-lyktu á Létúccí Erði,
+# ísinsíða-lyktu, ólyktunur
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rómanar fáilidh aitheantaí ag réabhlá ag ceannpíotraí
+# a bheith ag tacaigh a bheith lena bheatha é go háirithe a chumasíníomháin
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rólinir fyrir fara upp vísindahæðsar
+# millifélagar—óaldaðar afstaðabakar, óbrautar bektönnur, tengingar tímabili,
+# Docker tengingar, disk rótur, almaríadeprekúdeðarþörfur, og það.
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sölu skarpa stötlör - köllu 3dpör, grafika,
+# gisselsättningar och annan periferi stöd.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Þugskilfræðir fyrir
+# myndirteksturinfrastructure—framleiðandi greinir af státstuðurafæstum
+# tekstum og lægðuðum myndirtekstum.
 msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Rómanir syslismið og hlaupaskeppur—encompassing
+# bötstýðar áutomatizæðarkeppur og körningar frá loggar, kontainerum,
+# diskuslag, og meira.
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: SANKUN-unar certifikátu provideri geymugna un brenna
+# sel-sigant TLS certifikatit foren-proxy TLS laifi
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr ""
@@ -1479,21 +2367,37 @@ msgid "Sandboxed Runtimes"
 msgstr "Íslensktímið"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Scheduled-backup-job fer hard-linkað
+# differentiálrsync-snapshots af hjálpunarexporti á aðalvaxturinni
 msgctxt "role:svc-bkp-nfs-2-local:description"
 msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skráð klukkstundar clean-up máli fyrir að kalla að og
+# týða út notaðum Let's Encrypt kertyslur
 msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Vitt deduplingu bækupu fórum fálkaskra, CA, ACME
+# falmaflópur, og nípumuferðið fyrir fólksafnið lokafólksafnritjandi
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sagnsafing dedupling stefansóknarfærð fyrir Docker
+# container völur til lokurlínuð streið, við konsisten SQL streiðar
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr ""
@@ -1504,46 +2408,87 @@ msgid "Scheduled health check crawling configured domains for CSP-blocked resour
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svipoður hæðbreytt fyrir Btrfs hækafjöldímið til að
+# láta á aukastöfum ólífrænt stæðskar stefniðœ
 msgctxt "role:sys-ctl-hlth-btrfs:description"
 msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Síðsýnur heildulegar hluta, afgaðurð félags sem prófur
+# upp á hvern afgaður sem notuð eru fyrir hraði álykkuna.
 msgctxt "role:sys-ctl-hlth-disc-space:description"
 msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sagnsamarfaður hlutaðarfalli eyðilegt af daglegu
+# hlutfall sem fer upp vigfur af vinnumæli
 msgctxt "role:sys-ctl-hlth-journalctl:description"
 msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Birtstörfukey minnstu eruðins tilsetingar til hvert
+# NGINX heimsins verður til sérstökuleð HTTP keyrslur og sýna tilvik um
+# ákveðni.
 msgctxt "role:sys-ctl-hlth-webserver:description"
 msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Þingsetjandi sérðslufræðing fyrir aðeinsælaði og
+# eyttingur af stödum í Docker sem fer til að hlaupa út af bækur sem notkunar
+# afstaða og fer til að skoða að er að fara út að aðrir settur sem er
+# skilgreint í einingum
 msgctxt "role:sys-ctl-cln-faild-bkps:description"
 msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Stefnaðu rétturaf af aðskillingu floskurnar sem notuðu
+# af anonymous Docker völur sem ekki eru námslegar
 msgctxt "role:sys-ctl-cln-anon-volumes:description"
 msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sniðdur lýsingarstafmarkarinnar í afurum í
+# afururhlaðir snappur á þessum hlaði á þjónustu og SSH og rsync sem skiptar
+# bæði hard-linked snappur.
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sigræði systemd máðururverk fyrir tómuminn erði veri
+# afturframkomstöðufarlegum backup verðum sem disk flokkafæðing
+# semugurþegarbrjóst eru með
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Scheduled systemd særunnur og tímari fyrir bætuminn á
+# byrjun af Btrfs bæðileygðar um að hafa upplýsingarstærð við stóðum búnaði.
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
 msgstr ""
@@ -1554,196 +2499,356 @@ msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates v
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjálfstæðig CI-runnarstrættferðilegur Docker-bálkirum
+# kontorinum fyrir útskrift af GitHub Actions veldingsetningar
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted DevOps-platform fuður Git fuðurur,
+# CI/CD-pipelines, og fuðbur-trackingur
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svipnefediverse lífr fyrir að sækja réttum minni
+# tengillafur postum sem eru ferðar sem eru ferðar við strengi masonry grid
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Íslenskur samfélagt GitHub Actions lærarið tilbyggandi
+# og státfærdvangur
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hugið HTML 5 spálsframsetning fyrir aðeinsleypi
+# og bókað veizjokra þjóðaflokkum í hljómtæknum
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-fyrirsettur LDAP búadirleiðbein fyrir
+# vínumungræðingar, gruppur og skalafræðingar með TLS-secured innlystriingur
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted S3-compatible objekti-útbóð fyrir fila,
+# miði, backupearlar og AI-árðar
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted System One classifier atarir bétar frænt
+# attaki síðar sem gatvurin fer að rífa fyrir búa með búast á
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svipnáð URL skráari fyrir búað til, fléttast og bætt
+# um kortirlinkar með built-in klasastöfunar
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fjöldaskráð VRIC-útgáfunarbók fyrir sléttferðlegu
+# hættaflókkr með fedeiðburðinliðin authentication
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svipnað brokjarvísir fyrir að fá QR málar frá
+# tókfráðar ór urls með længning af lægri fyriræði í lokinn.
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted chat interface fyrir að fá upphaf af
+# lokale og ísálegi AI-módelum fyrir að fara að tengilegar sérstökur sem
+# Ollama
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Íslensk íslenska búi fylkis, sýningar, real-time
+# skoðunarinn í heimsins og heimsköðupilarstofnar á eigin hlutumurunafyrirtæki
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Selfsaga hreyfinganna klúsur, fræðivegisfærðina og
+# dæmishefingina.
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Ósvítfengi neðægnt social network á milli íótta AT
+# Protocol, innanleysi á eitð Háreðsreiður
 msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svipinagalið stofnunfall og prótypingurfang sem er til
+# gagni UI/UX verði, reitlig samkvæmtvísingu og gefingurframanleiðingur
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjávarstýð einkuflöppuleigumaframki fyrir
+# sögunnarmálar, bæta, prósmögu og margfrástóruverlinaðleiguma
 msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hostðið íslandi wiki og fólksinslóðæiginleikaleit
+# með sambandið og appstöðuða extensibilitíð
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjálfstæddig federalt bækjukvaraplattoður fyrir
+# bækjukfólkreytingar og bækjukvarljóstingar á Fediverse
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Eyðilegar federælaglegt svinaleigur náttúruþjónsi
+# fyrir mikroblogging, reitintimlir og komunnasveitirhjóður
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjálfstýð identity og geymslukarplatform fyrir
+# einstaklingar-eyingjölu, fyrirtreyingjölu og user federation
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Seljölflugurritlagar low-code automatizashvanununinina
+# for bindar sérvíçarinnar og býggi vísualt vélwérðunininnar
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hostad e-postserver-suite með SMTP/IMAP/POP3,
+# webmail, spam-filtrering, antivirus, DKIM-siguring og TLS
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-kasta mediedísarfrænnsla fyrir streampað og
+# orðaði af móður, filmar, tvuðir, muzikur og fotografía, með OIDC og LDAP
+# tengdarínkín
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted model server fo rouning open LLMs localeh
+# behi a simehl HTTP API
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjávarstáturutjaveda datakvennuplat þverarmal með
+# tölvuingrastum meðintintunum íbyrtingu og byrjafræðing um data
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjálfstýrt online íbáðir hringur fyrir réttr í-báðma
+# skráðun fyrir dómum, upplýsingaskráar og előstuafmótum
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjálfstýstu open-skráðu ERP-sjálfini fyrir finans,
+# CRM, íbraugur, manufæktur, hr, venda og projektiar
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted open-source machine translation API fer
+# fórðing og kynnað til að flipa og kynnað til skoðun við texti á málvæxlar
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjávarstjöldin fólks AI agenta hástilling með
+# browsukontroll UI, sandvillingi í Kata mikroVM eða gVisor tilsetjandi
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted platform fyrir upprunashreygi,
+# samantalsheilding og samkyngráðing með Keycloak SSO og central
+# LDAP-direktóri
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fólksstýrikra platformi íslendingar til upplýsingum og
+# utflytgingar með seggrænðu tilvísinga og umríkumstjóriánalýsís
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skoðastu flöddi fyrir online bæði bæðiskráing,
+# bókstafing og bæðiskráingarafmæliheiðinur
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Selfhostiðaðaðið fyrir stjörnumanning,
+# streypingarleikur, Gantt plannunar og vefskoðaínur
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svíðburðin verða pólrún fyrir unniðunni að fara í
+# öllum búðum þurfða að með því aðgerðin til færslu og menupríkarinterface
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skoðastu bæðið gögnaskrántarfélags á upphafslýðum
+# gögnar, aðalstöður til netjárar, og skoðastu tónulegar gögnum
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Hérðuðskipti hlutaleitis konferansispálamandi fyrir
+# virtualskóla, heimvísi meðaltali og óleynti hlutaleit.
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fjölmálakven ífram og fedið kvenið til að bæta við,
+# búnaða og bæði stjórnna eftir eitt eitthvað eftirleitskvenið á eitthvað
+# eftirleitskvenið á eitthvað áður
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fjerntúmi, íslenskt-fyrstúmi vefsíðu-vísindalegun
+# fylki til reitins vísinguframleiðingar og sítans-metrics
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
@@ -1759,6 +2864,12 @@ msgid "Service Optimation"
 msgstr "Óptimaði service"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sigræsli-lítilstækningar-og
+# reiknimaslkomponenti—handlingar átlalegt réðleit datastækningar,
+# fjartrastækningar, reiknimasl og stækningaskerlingsmassar á databæk, files
+# og kontainer.
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""
@@ -1779,11 +2890,19 @@ msgid "Shared Storage"
 msgstr "Skoaldið síðasti"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skoipurður hostandið notkun af OpenSSL CLI fyrir
+# hverjum rólar sem erli skýrir OpenSSL komándum.
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Falak prófahandi býrar ferðaferðin og í vorurféðum
+# virtual hópur og í vorum isolándnum
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr ""
@@ -1794,6 +2913,10 @@ msgid "Shared persistent-storage backends used by multi-node deployments — NFS
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kossóðið milli íslensku milli hverjárðarherra, milli
+# bæðisins skráar milli milli bæðisins línurinnar
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
 msgstr ""
@@ -1825,6 +2948,10 @@ msgid "Single-user ActivityPub bookmarking site federating public bookmarks to M
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skyr í forsetjum klukkustöflum og gögnarsambendingum,
+# dashboards og ein built-in MCP-lydfjöldu för AI-agentiðkunnet
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
 msgstr ""
@@ -1845,6 +2972,10 @@ msgid "Software Development Utilties"
 msgstr "Softwarefrátagafir"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sovereign upskrat framanframan lokaframanframan hreyfi
+# hófur a afæri, hvaraf a hávafyrstis, hrafnkæling, býmennin eru, og SSO
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr ""
@@ -1855,21 +2986,35 @@ msgid "Stack"
 msgstr "Skálu"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Stjórnarmargir til að bæta upp vefsni
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Static conteúdo servidor (assets, HTML, legal, files)
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Svithlifile sílaþjónull á HTTPS, við aðgeiming af
+# dagabráman, handhalling af .well-known, og alþjóðlegum TLS síður
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Static site generator vinna HTML frim á upptrálur Git
+# reitiningina í uppfærslu og sjóð við á nginx
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
 msgstr ""
@@ -1890,6 +3035,10 @@ msgid "System Frontend Helpers"
 msgstr "Sys Fjöldinn Frontend Hálfsherir"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemakveirolíkurstöður fyrir aðstillan og verða
+# lokólar með locale.gen og locale.conf tilvikar
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr ""
@@ -1900,41 +3049,73 @@ msgid "System hostname configuration derived from the inventory host entry"
 msgstr "System hostnafðingu konfanlegt af heimildarstillingarstillinginn"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systiomið byrjar fyrir teknum. Við erum að fara
+# aðburðar ef notknuð til af aðra röðum.
 msgctxt "category:sys:description"
 msgid "System near components. Will be automaticly called if necessary from other roles."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected:
+# System-maintenance-tengis-erigiyü-ügünü-árvítxalar-u-vekerek-yaşanaqar-üçüyü-OS-árvítxalar-egzaktar-u-yeketek
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemframtal líbas-cóba íbarrar í báis ag cruthaigh
+# agus íosagáin ar a pháirt amach a phléantair fhródhach ar feadh a shaothar
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemiða pip hjálpmannur fyrir að leggjast aðeigandi
+# Python-aðburin í eftirfarandi Python-aðburin í húsinu vegna aðeigandi Python
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemd service og timer fyrir samþalið
+# SSL-certifikátum í Docker Compose NGINX staksetur með hot-reload
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sysd tímulur af slámal ísca for stóraðing ísca af
+# slembadæmi for öllveggistafþing ísca
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemd-dróttinn kléppi kléppingi fyrirtæki fjarvirða
+# anonymous Docker klónnar klónnanna, sælar, nýjar og kléppingar skoðunaskálar
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemd-scheduled-maintenance-rollur fer fyllan Docker
+# Compose stack restartir, wi hard restartir fer stackir la la Mailu
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr ""
@@ -1945,11 +3126,20 @@ msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker c
 msgstr "Systemd-timed监视器偵測不健康或退出狀態非零的Docker容器並提昇失敗警示"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Systemd-laxmiðir msmtp-lýsingarið ferðir til
+# fléppumflópurar sem flépparflópurun tekur bílum áður síðan sem
+# flépparflópurun tekur bílum
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sjóðleikarsafnframleiðari fyrir tilteknu service-bætt
+# afætt afætt í Telegram chat
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr ""
@@ -1965,41 +3155,74 @@ msgid "Terminal coding agent from OpenAI, pointed at the platform's own model ga
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Terminal emulator for GNOME skálu, eyðilegt
+# afcommand-línufélagið í skáluararflóm í Arch Lúsin
 msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Terminal-beyti-editor þettaði megin keybindings og
+# syntax highlighting fyrir Pacman-beytingar
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Test-harness rólagar a következőt járó CLI skripteket
+# fogadó rolosokhoz, amelyek definiálják tesztkörnyezet-íratást.
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Þetta gerður þáttu fyrri fálki félst.
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Tiering role rofalaarlagan Docker voldin peylen by
+# workload tayyor, shakshukarshen paahelan shorvun yeqmaan
 msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Kókológuður fer uppsetingafræðis,
+# spurningarframleiðingar og dataskiptir á Línxu
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skálmör  Gjógvur  Grænn  Hreppuskona  Bjargþver  Kjúki
+# Jötunn  Jörd  Vígra  Álf  Kvit  Vígra  Út  Hugi  Hvelpr  Kynpr  Njörd
+# Suttungr  Ása  Fimbulthul  Gilling  Vafþrúðnir  Völuspá  Nanna  Lóðurr
+# Óðinn  Mann  Þögn  Hropt  Hnoss  Óski  Váli  Vili  Váli  Vili  Váli  Vili
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Förmåner för ursprung och åtkomsthantering, inklusive
+# autentisering, användarinflytelse och säker åtkomstkontroll.
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
 msgstr ""
@@ -2010,11 +3233,19 @@ msgid "Tools for communication"
 msgstr "Skoaldein afeasaarriroar"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fórðslögunnararæður fyrir e-málkamprópa,
+# alveggisleyfi, ölmæli og dímsgamlaskráðverkafærsla.
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skilyggörar fylgjur, letta, och hantera allt hårddata
+# och softwaredatumar i din organisation.
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
 msgstr ""
@@ -2025,26 +3256,44 @@ msgid "Tools to manage the community"
 msgstr "Skilyfna kommjuniti"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Tövmsingumanna, fáðingum og að fá megin á orðbóndin og
+# orðkveðs í dataleikurinn.
 msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skemman sem hjelper til å optimalisere webserverer
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Tor daemon publunður níkinn as a v3 onion service
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Tor nettilýstarleiðing og bæði-bæði-leitingur fer í
+# skrifaðu anonymous, grépið-lýsingur web-bæði
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Translur, glosserarar viþ arðarvígða við
+# orðabendingarvísugarflugarinnar bæðið
 msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
 msgstr ""
@@ -2055,6 +3304,10 @@ msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kerne
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Unified systemd notfókningsleysins keyptaeytið í tvær
+# Telegram og bilsleysta strengnumferða falirarferða
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr ""
@@ -2065,6 +3318,9 @@ msgid "Updates & Package Management"
 msgstr "Útfræðiritjaukynnir & Stafræðiritjaukynnir"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sigga út af eftirfarandið fyrir þig sem aukar.
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
 msgstr ""
@@ -2090,16 +3346,29 @@ msgid "Users & Access"
 msgstr "Userjarðir og Þjóðleikur"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Clientið verðaðið í upprópafræði fyrir sélsetum
+# vefskiptum, seminnirinn, skriftin íslensku, og viðburðin máðurinnar hægtist
+# fyrir defaults.
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Frórinnit síðasta tölmutálfarið fyrir CDN bæði
+# tilvísunar og bæði fráleiðisins
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Visual Studio Code workstation editor í smáflóiriúna
+# aitheanta, ógaí, a leanchnaíonn an chogaidhí a bhí acobhachta sa chuid host
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
@@ -2110,31 +3379,55 @@ msgid "Web Infrastructure"
 msgstr "Vefteksturinn"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Web UI og API fyrir breytt á Ansible,
+# Terraform/OpenTofu, og síður-automation á heildarfræði og að spyrðarfræði
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Íslenskra græðingarvísir fyrir LDAP-afmælingar: ræðing
+# af vinsamlagt, gruppur og öll afmælingarvísir
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Fjöldabundur LDAP bæðiþægingu íburðir að byrjaða
+# vinnunar, gruppur og bygðaþægnum objectar
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Skíta lífbyrjunkeyralsælar fyrir hlaðingarskoðunum að
+# leysta, leysta upp og að leysta vefþjónir í hlaðingarskoðunarstjóranum
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Web-intra administrasjon og utviklingsplattform for å
+# håndtere flere PostgreSQL serverer, med valgfritt OAuth2 log-in
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Web-based administrashun tool fo MySQL un MariaDB wi
+# schemashun, quarrying, an import/export
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
 msgstr ""
@@ -2150,11 +3443,19 @@ msgid "Workstation setup for Docker and Docker Compose with the local user in th
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: ÍslenskaToolset síður og símanýllir ferðir fyrir
+# Arduino bæði-borgarferðir í Línur
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Klasikur ímóttólfar ferði ímóttólfanna pakkaunarinnar
+# og uppfærsluðar við pakkaunarinnar universal erugur pakkaunarinnar
 msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
 msgstr ""
@@ -2170,6 +3471,10 @@ msgid "failed"
 msgstr "falagi"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: áttavaskerfis og ríkisflugin sem fyrirtækið hefur
+# aflikt af eina, sem sé saman við ríkisfluginn sem birtist á upphafskráði
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr ""

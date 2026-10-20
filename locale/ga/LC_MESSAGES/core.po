@@ -1176,6 +1176,11 @@ msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, k
 msgstr "ITSM foinse oscailte agus ardán deisce cabhrach (Seirbhís do Chustaiméirí) do ticéadú, CMDB, bonn eolais, agus tuairisciú"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-wazuh:description"
+msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
+msgstr "Open-source SIEM agus XDR ardán le haghaidh monatóireachta, anailís logáil, intrusion / invulnerability bhrath, agus comhlíonadh"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "ardán bainistíochta tionscadail agraile foinse oscailte do Sreabhadh oibre Scrum, Kanban, agus foireann hibrideach"

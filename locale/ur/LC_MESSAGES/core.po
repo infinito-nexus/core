@@ -1180,6 +1180,11 @@ msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, k
 msgstr "اوپن ٹی ایس ایم اور مدد کے پلیٹ فارم (عالمی اُفق) ٹکٹ، سی ایم ڈی بی، علم بصری اور اطلاع کے لیے"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-wazuh:description"
+msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
+msgstr "Open-source SEEM اور XDR پلیٹ فارم فار نگرانی، لاگ تجزیہ، introussion/vulnerability settlection اور مطابقت پذیری کے لیے"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "اوپن سپرنگ پروجیکٹ انتظامیہ کے لیے اسکروم، قنبانی اور ہیبئین ٹیم کے لیے کام کرنے والا پلیٹ فارم ہے۔"

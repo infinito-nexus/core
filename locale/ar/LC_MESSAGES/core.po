@@ -1218,6 +1218,11 @@ msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, k
 msgstr "دائرة تكنولوجيا المعلومات والاتصالات المفتوحة المصدر ومنصة المساعدة (OTRS fork) التذاكر، وقاعدة البيانات، وقاعدة المعارف، والإبلاغ"
 
 # translated-by: libretranslate
+msgctxt "role:web-app-wazuh:description"
+msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
+msgstr "منبر مفتوح المصدر: SIEM وXDR للرصد، وتحليل السجلات، والكشف عن التدخل/القابلية للتأثر، والامتثال"
+
+# translated-by: libretranslate
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "منصة إدارة المشاريع المفتوحة المصدر من أجل سكروم، كانبان، وتدفقات عمل الأفرقة المختلطة"
