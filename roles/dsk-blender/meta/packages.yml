@@ -6,4 +6,8 @@ pipx:
     - pipx
   RedHat:
     - pipx
-  centos: [] # nocheck: empty - CentOS Stream 10 ships pipx only through EPEL, which the base repositories do not carry; TODO: install it from EPEL through a repo source
+  centos:
+    names:
+      - pipx
+    repo:
+      bootstrap_package: epel-release
