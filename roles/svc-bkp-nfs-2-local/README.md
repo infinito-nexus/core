@@ -44,7 +44,7 @@ flowchart TD
     UNIT["svc-bkp-nfs-2-local.&lt;version&gt;.&lt;domain&gt;.service"] --> LOCK["ExecStartPre: sys-lock against the manipulation group"]
     LOCK --> SCRIPT["ExecStart: script.sh &lt;export_base&gt; &lt;backups_dir&gt;<br>backup-nfs-to-local &lt;state&gt;/backup"]
     SCRIPT -->|export_base missing| ALARM["ERROR exit 1<br>OnFailure alarm"]
-    SCRIPT --> RSYNC["rsync -a --delete<br>--exclude /&lt;state&gt;/backup (no backups-in-backups)<br>--link-dest previous generation (hard links)"]
+    SCRIPT --> RSYNC["rsync -aHAX --delete<br>--exclude /&lt;state&gt;/backup (no backups-in-backups)<br>--link-dest previous generation (hard links)"]
     RSYNC -->|exit 24: live export churn| WARN["WARN, snapshot kept"]
     RSYNC -->|any other failure| CLEAN["generation removed, exit != 0"]
     RSYNC --> TREE["&lt;backups_dir&gt;/&lt;sha256(machine-id)&gt;/<br>backup-nfs-to-local/&lt;YYYYmmddHHMMSS&gt;/files/..."]
@@ -105,7 +105,7 @@ recover.py <backups>/<machine-hash>/backup-nfs-to-local/<generation>/files/<stat
 ```
 
 1. Stop every stack consuming the subtree: `docker stack rm <stack>`.
-2. Run the script; it first starts the role's deployed backup unit (a fresh differential `backup-nfs-to-local` generation of the live export), then mirrors the snapshot into the target (`rsync -a --delete`, with the shared `<state>/backup` root protected from deletion and never copied in). `--no-safety-backup` skips the unit run when the target holds nothing worth saving.
+2. Run the script; it first starts the role's deployed backup unit (a fresh differential `backup-nfs-to-local` generation of the live export), then mirrors the snapshot into the target (`rsync -aHAX --delete`, with the shared `<state>/backup` root protected from deletion and never copied in). `--no-safety-backup` skips the unit run when the target holds nothing worth saving.
 3. Redeploy the stack; the NFS clients re-mount and pick up the restored state.
 
 The target subtree must already exist; the script refuses to create export subtrees implicitly.

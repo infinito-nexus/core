@@ -6,7 +6,7 @@
 
 Runs the role's deployed backup unit first (the usual differential
 ``backup-nfs-to-local`` generation of the live export), then mirrors the
-snapshot into the target (``rsync -a --delete``). Run on the host
+snapshot into the target (``rsync -aHAX --delete``). Run on the host
 serving the export with every consuming stack stopped; NFS clients
 re-mount on redeploy.
 

@@ -47,7 +47,7 @@ def commands(
         return (
             [
                 ["ssh", host, shlex.join(remote)],
-                ["rsync", "-a", f"{host}:{REMOTE_ROOT}/", f"{LOCAL_ROOT}/"],
+                ["rsync", "-aHAX", f"{host}:{REMOTE_ROOT}/", f"{LOCAL_ROOT}/"],
             ],
             LOCAL_ROOT,
         )

@@ -45,7 +45,7 @@ trap cleanup_failed_generation ERR
 
 mkdir -p "${DEST_DIR}"
 
-rsync_args=(-a --numeric-ids --delete)
+rsync_args=(-aHAX --numeric-ids --delete)
 if [[ -n "${EXCLUDE_REL}" ]]; then
     rsync_args+=(--exclude "/${EXCLUDE_REL#/}")
 fi

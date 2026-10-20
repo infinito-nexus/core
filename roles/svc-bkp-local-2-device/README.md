@@ -97,7 +97,7 @@ Run `files/python/recover.py` on the host with the backup device attached:
 recover.py /dev/sdX1 /mnt/usb-recover /var/lib/infinito/backup [--snapshot <timestamp>]
 ```
 
-The script opens the LUKS device (interactive passphrase prompt; `--passphrase-stdin` for automation), mounts it, picks the newest device snapshot across every machine hash (a fresh host after total loss has a new machine id), mirrors it into the target (`rsync -a --delete`) and unmounts/closes the device again. No pre-recover service backup runs: the device itself is the backup this role maintains. Afterwards restore individual applications from the backup root with the matching role's `recover.py` (`svc-bkp-volume-2-local` for docker volumes, `svc-bkp-nfs-2-local` for NFS exports).
+The script opens the LUKS device (interactive passphrase prompt; `--passphrase-stdin` for automation), mounts it, picks the newest device snapshot across every machine hash (a fresh host after total loss has a new machine id), mirrors it into the target (`rsync -aHAX --delete`) and unmounts/closes the device again. No pre-recover service backup runs: the device itself is the backup this role maintains. Afterwards restore individual applications from the backup root with the matching role's `recover.py` (`svc-bkp-volume-2-local` for docker volumes, `svc-bkp-nfs-2-local` for NFS exports).
 
 ## Credits
 

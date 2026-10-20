@@ -78,7 +78,7 @@ flowchart TD
     TREE --> RECOVER["files/python/recover.py volume<br>resolves Mountpoint + Options"]
     RECOVER -->|"Options set"| PROBE{"mountpoint -q<br>(ssh for --docker-host)"}
     PROBE -->|unmounted| REFUSE["SystemExit: a restore would land<br>on the node disk and be shadowed<br>on the next mount"]
-    PROBE -->|mounted| RSYNC["rsync -a --delete through the<br>mounted export onto the server"]
+    PROBE -->|mounted| RSYNC["rsync -aHAX --delete through the<br>mounted export onto the server"]
     DRILL["DR drill [9/9]<br>mounts the export at the volume<br>mountpoint with the volume's own opts"] --> RECOVER
     RSYNC --> VERIFY["marker asserted on the<br>NFS server's disk"]
 ```
@@ -304,7 +304,7 @@ recover.py <backups>/<machine-hash>/backup-docker-to-local/<generation>/<volume>
 ```
 
 1. Stop the consuming project (`docker compose down` / `docker stack rm <stack>`).
-2. Run the script; it first starts the role's deployed backup unit (a fresh differential baudolo generation of every volume and database), resolves the volume's mountpoint and mirrors the snapshot into it (`rsync -a --delete`). `--no-safety-backup` skips the unit run when the target holds nothing worth saving.
+2. Run the script; it first starts the role's deployed backup unit (a fresh differential baudolo generation of every volume and database), resolves the volume's mountpoint and mirrors the snapshot into it (`rsync -aHAX --delete`). `--no-safety-backup` skips the unit run when the target holds nothing worth saving.
 3. Restore the databases with the `--databases` mode above **while the project is still down**, then start it again; on swarm, NFS-backed volumes are restored via `svc-bkp-nfs-2-local`'s `recover.py` instead (see below).
 
 ## Credits

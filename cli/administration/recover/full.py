@@ -72,7 +72,7 @@ def plan(root: Path) -> tuple[list[tuple[str, str]], list[str]]:
 
 def _pull_cmd(source: str) -> list[str]:
     remote = source if ":" in source else f"{source}:{paths.BACKUP_ROOT}"
-    return ["rsync", "-a", f"{remote}/", f"{PULL_STAGE}/"]
+    return ["rsync", "-aHAX", f"{remote}/", f"{PULL_STAGE}/"]
 
 
 def _is_device(source: str) -> bool:
