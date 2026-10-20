@@ -96,38 +96,6 @@ msgstr "Ansible լուդուղությունը վայքացի հիպոթեսի �
 # DiscountService   CouponService   OrderService   CartService
 # CatalogService   PaymentService   NotificationService   DiscountService
 # CouponService   OrderService   CartService   CatalogService   PaymentService
-# NotificationService   DiscountService   CouponService   OrderService
-# CartService   CatalogService   PaymentService   NotificationService
-# DiscountService   CouponService   OrderService   CartService
-# CatalogService   PaymentService   NotificationService   DiscountService
-# CouponService   OrderService   CartService   CatalogService   PaymentService
-# NotificationService   DiscountService   CouponService   OrderService
-# CartService   CatalogService   PaymentService   NotificationService
-# DiscountService   CouponService   OrderService   CartService
-# CatalogService   PaymentService   NotificationService   DiscountService
-# CouponService   OrderService   CartService   CatalogService   PaymentService
-# NotificationService   DiscountService   CouponService   OrderService
-# CartService   CatalogService   PaymentService   NotificationService
-# DiscountService   CouponService   OrderService   CartService
-# CatalogService   PaymentService   NotificationService   DiscountService
-# CouponService   OrderService   CartService   CatalogService   PaymentService
-# NotificationService   DiscountService   CouponService   OrderService
-# CartService   CatalogService   PaymentService   NotificationService
-# DiscountService   CouponService   OrderService   CartService
-# CatalogService   PaymentService   NotificationService   DiscountService
-# CouponService   OrderService   CartService   CatalogService   PaymentService
-# NotificationService   DiscountService   CouponService   OrderService
-# CartService   CatalogService   PaymentService   NotificationService
-# DiscountService   CouponService   OrderService   CartService
-# CatalogService   PaymentService   NotificationService   DiscountService
-# CouponService   OrderService   CartService   CatalogService   PaymentService
-# NotificationService   DiscountService   CouponService   OrderService
-# CartService   CatalogService   PaymentService   NotificationService
-# DiscountService   CouponService   OrderService   CartService
-# CatalogService   PaymentService   NotificationService   DiscountService
-# CouponService   OrderService   CartService   CatalogService   PaymentService
-# NotificationService   DiscountService   CouponService   OrderService
-# CartService   CatalogService   PaymentService   NotificationService
 msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr ""
@@ -214,18 +182,6 @@ msgstr ""
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Browser-based سور点钟 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
-# سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
 # سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
 # سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
 msgctxt "role:web-app-roulette-wheel:description"
@@ -860,7 +816,6 @@ msgstr "/fwsysphox ենթագույն աշխատար /fw"
 # nocheck: url
 # translation-rejected: Unf independents, ծառայում ծառայում ավելի առավեր
 # ռելվելվացված ռելվելվացված ռելվելվացված ռելվելվացված ռելվելվացված
-# ռելվելվացված ռելվելվացված ռելվելվացված ռելվելվացված ռելվելվացված
 # ռելվելվացված ռելվելվացված ռելվելվացված
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
@@ -1333,6 +1288,10 @@ msgstr ""
 # ımpııntım) şıım2 temlımı
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
+msgstr ""
+
+msgctxt "role:svc-ai-nllb-engine:description"
+msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
 msgstr ""
 
 # translated-by: libretranslate

@@ -1518,6 +1518,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr ""
 
+msgctxt "role:svc-ai-nllb-engine:description"
+msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
 msgid "Network"
@@ -2276,7 +2280,6 @@ msgstr ""
 # nocheck: url
 # translation-rejected: Tsolotlo hlobo eWebRTC iphetshweni futhu futhu futhu
 # futhu futhu futhu futhu futhu futhu futhu futhu futhu futhu futhu futhu
-# futhu futhu futhu futhu futhu futhu futhu futhu futhu futhu futhu futhu
 # futhu futhu
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
@@ -2467,14 +2470,6 @@ msgstr ""
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Sis-hostid hoăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
-# kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
 # kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăăăăăăăăăăăăăăăăăăă
 # kaăăăăăăăăăăăăăăăăăăăăăăăă kaăăăăăăă
 msgctxt "role:web-app-dashboard:description"

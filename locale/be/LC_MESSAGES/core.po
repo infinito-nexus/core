@@ -1447,6 +1447,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr ""
 
+msgctxt "role:svc-ai-nllb-engine:description"
+msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
+msgstr ""
+
 # translation-refused: libretranslate damaged-span
 msgctxt "category:svc.net:title"
 msgid "Network"
@@ -1723,26 +1727,6 @@ msgstr ""
 # nocheck: url
 # translation-rejected: Optymizowanie链piler chainow chainu chainu dla
 # buildowania C, C++, i innych programów native-language chainów chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
-# chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
 # chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu chainu
 # chainu chainu chainu chainu chainu chainu chainu chainu chainu
 msgctxt "role:dev-gcc:description"
