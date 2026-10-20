@@ -12,7 +12,7 @@ filesystem and the architecture on both lines.
 Two spellings are accepted, so an operator can either type the token or paste
 back the job title of the run they want repeated:
 
-* the job label CI emits (``🐳🧅🌀🦓🦾网络应用·Nextcloud#2``) -- the glyphs carry
+* the job label CI emits (``🐳🧅🌀🦓🦾𓏴𓏛·Nextcloud#2``) -- the glyphs carry
   mode, onion state, mesh state, distro, filesystem and architecture, the
   ``#`` shard the variants;
 * an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&vpn``).

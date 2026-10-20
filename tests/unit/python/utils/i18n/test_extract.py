@@ -35,7 +35,7 @@ class TestCoreMessages(unittest.TestCase):
                 roles:
                   web:
                     title: Web
-                    hanzi: 网络
+                    glyph: 𓏴
                     app:
                       title: Applications
                       description: Apps for users

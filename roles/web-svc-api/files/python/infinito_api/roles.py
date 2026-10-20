@@ -14,7 +14,7 @@ ROLE_FILE = re.compile(
 HEADING = re.compile(r"^#{1,3}\s+(.+?)\s*$", re.MULTILINE)
 CATEGORY_FILES = ("meta/categories.yml", "roles/categories.yml")
 CATEGORY_METADATA = frozenset(
-    {"title", "description", "icon", "invokable", "modes", "hanzi", "stage"}
+    {"title", "description", "icon", "invokable", "modes", "glyph", "stage"}
 )
 BUNDLE_FILE = re.compile(
     r"^inventories/bundles/(?P<target>[^/]+)/(?P<slug>[^/]+)/inventory\.yml$"

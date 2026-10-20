@@ -28,9 +28,7 @@ class TestRoleDisplayName(unittest.TestCase):
             ),
             self.codec.encode(long_heading),
         )
-        self.assertEqual(
-            "系统控制告警·compose", self.codec.encode("sys-ctl-alm-compose")
-        )
+        self.assertEqual("𓉐𓌀𓌉·compose", self.codec.encode("sys-ctl-alm-compose"))
 
     def test_the_id_section_drops_what_the_categories_already_say(self):
         self.assertEqual("nextcloud", self.codec.id_fragment(APP))

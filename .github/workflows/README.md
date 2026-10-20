@@ -135,7 +135,7 @@ row would otherwise be assigned. Two spellings are accepted:
 | Form | Example |
 |---|---|
 | ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64` |
-| the job label, pasted back out of the failed run | `🐳🧅🌀🦓🦾网络应用·Nextcloud#0` |
+| the job label, pasted back out of the failed run | `🐳🧅🌀🦓🦾𓏴𓏛·Nextcloud#0` |
 
 | Separator | Axis | Values |
 |---|---|---|

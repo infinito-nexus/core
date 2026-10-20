@@ -429,7 +429,7 @@ class TestConfigFromTitle(unittest.TestCase):
 
     def test_a_truncated_priority_entry_aborts_instead_of_passing_through(self) -> None:
         with self.assertRaises(SystemExit):
-            runs.untriggered_priority("web-app-a 网络应用·Funkwha...", {})
+            runs.untriggered_priority("web-app-a 𓏴𓏛·Funkwha...", {})
 
     def test_the_tor_mode_is_carried_over_from_the_job_log(self) -> None:
         title = render({"mode": "swarm"})

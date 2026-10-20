@@ -1,17 +1,19 @@
 ---
-# Hanzi labels are compact hierarchical category fragments.
-# Every label uses exactly two Chinese characters.
+# Glyph labels are compact hierarchical category fragments.
+# Every label is a single Egyptian hieroglyph; its Unicode name carries the
+# Gardiner sign code.
 #
-# The labels prioritize short, consistent, left-to-right navigation over
-# complete or grammatically natural Chinese terminology.
+# A glyph has to stay one codepoint: four UTF-8 bytes. A sign written with a
+# variation selector costs seven and is worse than the two Chinese characters
+# it replaced, at six.
 #
 # Display paths:
 #   parent · child · grandchild
 #
 # Examples:
-#   sys-ctl-cln -> 系统·控制·清理
-#   web-app     -> 网络·应用
-#   svc-ai      -> 服务·智能
+#   sys-ctl-cln -> 𓉐·𓌀·𓈖
+#   web-app     -> 𓏴·𓏛
+#   svc-ai      -> 𓊵·𓅝
 #
 # Deploy stages in call order (tasks/stages/0*.yml): the constructor pass
 # runs first, then the per-host-type passes (workstation, then server), and
@@ -27,27 +29,27 @@ stages:
 roles:
   dev:
     title: "Software Development Utilties"
-    hanzi: "开发" # Means "development".
+    glyph: "𓌸"
     stage: workstation
     invokable: false
 
   sys:
     title: "System"
-    hanzi: "系统" # Means "system".
+    glyph: "𓉐"
     description: "System near components. Will be automaticly called if necessary from other roles."
     stage: server
     invokable: false
 
     ctl:
       title: "Control"
-      hanzi: "控制" # Means "control" or "steering".
+      glyph: "𓌀"
       description: "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
       icon: "fas fa-cogs"
       invokable: false
 
       cln:
         title: "Cleanup"
-        hanzi: "清理" # Means "cleanup" or "clearing".
+        glyph: "𓈖"
         description: "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains,
           and more."
         icon: "fas fa-trash-alt"
@@ -55,7 +57,7 @@ roles:
 
       hlth:
         title: "Monitoring"
-        hanzi: "监控" # Means "monitoring" or "surveillance".
+        glyph: "𓁹"
         description: "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk
           usage, and more."
         icon: "fas fa-chart-area"
@@ -63,56 +65,56 @@ roles:
 
       bkp:
         title: "Backup & Restore"
-        hanzi: "备份" # Means "backup" or "copy".
+        glyph: "𓎟"
         description: "Backup strategies & restore procedures"
         icon: "fas fa-hdd"
         invokable: false
 
       alm:
         title: "Alerting"
-        hanzi: "告警" # Means "warning" or "alarm".
+        glyph: "𓌉"
         description: "Notification handlers for system events"
         icon: "fas fa-bell"
         invokable: false
 
       mtn:
         title: "Maintenance"
-        hanzi: "维护" # Means "maintenance" or "upkeep".
+        glyph: "𓍋"
         description: "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
         icon: "fas fa-tools"
         invokable: false
 
       rpr:
         title: "Repair"
-        hanzi: "修复" # Means "repair", "fix", or "restoration".
+        glyph: "𓋹"
         description: "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
         icon: "fas fa-wrench"
         invokable: false
 
     dns:
       title: "DNS Automation"
-      hanzi: "域名" # Means "domain name".
+      glyph: "𓏞"
       description: "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
       icon: "fas fa-network-wired"
       invokable: false
 
     stk:
       title: "Stack"
-      hanzi: "堆栈" # Means "stack".
+      glyph: "𓉻"
       description: "Stack levels to setup the server"
       icon: "fas fa-bars-staggered"
       invokable: false
 
     front:
       title: "System Frontend Helpers"
-      hanzi: "前端" # Means "frontend" or literally "front end".
+      glyph: "𓂋"
       description: "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
       icon: "fas fa-wand-magic-sparkles"
       invokable: false
 
       inj:
         title: "Injection"
-        hanzi: "注入" # Means "injection" or "insertion".
+        glyph: "𓆑"
         description: "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed
           assets."
         icon: "fas fa-filter"
@@ -120,7 +122,7 @@ roles:
 
   update:
     title: "Updates & Package Management"
-    hanzi: "更新" # Means "update" or "renewal".
+    glyph: "𓇳"
     description: "OS & package updates"
     icon: "fas fa-sync"
     stage: constructor
@@ -131,7 +133,7 @@ roles:
 
   drv:
     title: "Drivers"
-    hanzi: "驱动" # Means "driver", "drive", or "actuation".
+    glyph: "𓃒"
     description: "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
     icon: "fas fa-microchip"
     stage: constructor
@@ -143,7 +145,7 @@ roles:
 
   gen:
     title: "Generic"
-    hanzi: "通用" # Means "general-purpose" or "universal".
+    glyph: "𓏤"
     description: "Helper roles & installers (git, locales, timer, etc.)"
     icon: "fas fa-wrench"
     stage: constructor
@@ -152,7 +154,7 @@ roles:
 
   dsk:
     title: "Desktop"
-    hanzi: "桌面" # Means "desktop" or literally "desk surface".
+    glyph: "𓊨"
     description: "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
     icon: "fas fa-desktop"
     stage: workstation
@@ -160,27 +162,27 @@ roles:
 
     gnt:
       title: "Agents"
-      hanzi: "代理" # Means "agent" or "proxy".
+      glyph: "𓁐"
       description: "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
       icon: "fas fa-robot"
 
   web:
     title: "Web Infrastructure"
-    hanzi: "网络" # Means "network" or "web".
+    glyph: "𓏴"
     description: "Roles for managing web infrastructure—covering static content services and deployable web applications."
     icon: "fas fa-globe"
     stage: server
 
     svc:
       title: "Services"
-      hanzi: "服务" # Means "service".
+      glyph: "𓊵"
       description: "Static content servers (assets, HTML, legal, files)"
       icon: "fas fa-file"
       invokable: true
 
     app:
       title: "Applications"
-      hanzi: "应用" # Means "application" or "use".
+      glyph: "𓏛"
       description: "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
       icon: "fas fa-docker"
       run_after: [web-svc]
@@ -188,21 +190,21 @@ roles:
 
     opt:
       title: "Webserver Optimation"
-      hanzi: "优化" # Means "optimization".
+      glyph: "𓅱"
       description: "Tools which help to optimize webservers"
       run_after: [web-app]
       invokable: true
 
   svc:
     title: "Services"
-    hanzi: "服务" # Means "service".
+    glyph: "𓊵"
     description: "Infrastructure services like databases"
     stage: constructor
     invokable: false
 
     db:
       title: "Databases"
-      hanzi: "数据" # Means "data".
+      glyph: "𓎼"
       description: "Database applications (DBMS, LDAP, Redis, etc.)"
       icon: "fas fa-database"
       run_after: [svc-net]
@@ -210,7 +212,7 @@ roles:
 
     dns:
       title: "DNS Resolvers"
-      hanzi: "解析" # Means "resolution", "parsing", or "analysis".
+      glyph: "𓇋"
       description: "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
       icon: "fas fa-globe"
       run_after: [svc-db]
@@ -218,7 +220,7 @@ roles:
 
     opt:
       title: "Service Optimation"
-      hanzi: "优化" # Means "optimization".
+      glyph: "𓅱"
       description: "Optimation Services to improve your system"
       icon: "fas fa-database"
       stage: destructor
@@ -226,7 +228,7 @@ roles:
 
     prx:
       title: "Proxy Servers"
-      hanzi: "代理" # Means "proxy", "agent", or "representation".
+      glyph: "𓊛"
       description: "Reverse-proxy roles for routing and load-balancing traffic to backend services"
       icon: "fas fa-project-diagram"
       run_after: [svc-dns]
@@ -234,7 +236,7 @@ roles:
 
     net:
       title: "Network"
-      hanzi: "网络" # Means "network" or "web".
+      glyph: "𓈐"
       description: "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
       icon: "fas fa-globe"
       run_after: [gen]
@@ -245,7 +247,7 @@ roles:
 
     ai:
       title: "AI Services"
-      hanzi: "智能" # Means "intelligence" or "smart capability".
+      glyph: "𓅝"
       description: "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
       icon: "fas fa-brain"
       run_after: [svc-prx]
@@ -253,7 +255,7 @@ roles:
 
     bkp:
       title: "Backup Services"
-      hanzi: "备份" # Means "backup" or "copy".
+      glyph: "𓎟"
       description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration
         across databases, files, and containers."
       icon: "fas fa-database"
@@ -262,7 +264,7 @@ roles:
 
     cache:
       title: "Package Caches"
-      hanzi: "缓存" # Means "cache" or "buffer".
+      glyph: "𓏏"
       description: "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
       icon: "fas fa-warehouse"
       bootstrap: true
@@ -273,7 +275,7 @@ roles:
 
     registry:
       title: "Container Registries"
-      hanzi: "仓库" # Means "warehouse" or "repository".
+      glyph: "𓊖"
       description: "Container-registry services - local registry and pull-through cache."
       icon: "fas fa-box-archive"
       bootstrap: true
@@ -284,7 +286,7 @@ roles:
 
     storage:
       title: "Shared Storage"
-      hanzi: "存储" # Means "storage" or "to store".
+      glyph: "𓉔"
       description: "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
       icon: "fas fa-hdd"
       bootstrap: true
@@ -292,14 +294,14 @@ roles:
 
     swarm:
       title: "Container Orchestration"
-      hanzi: "编排" # Means "orchestration", "arrangement", or "coordination".
+      glyph: "𓅧"
       description: "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
       icon: "fas fa-network-wired"
       bootstrap: true
       invokable: true
     virt:
       title: "Sandboxed Runtimes"
-      hanzi: "沙箱" # Means "sandbox".
+      glyph: "𓈒"
       description: "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
       icon: "fas fa-shield-halved"
       bootstrap: true
@@ -310,7 +312,7 @@ roles:
 
     runner:
       title: "CI Runner"
-      hanzi: "运行" # Means "running", "operation", or "execution".
+      glyph: "𓂻"
       description: "Self-hosted GitHub Actions runner deployment and configuration"
       icon: "fas fa-play"
       run_after: [svc-bkp]
@@ -318,7 +320,7 @@ roles:
 
   user:
     title: "Users & Access"
-    hanzi: "用户" # Means "user".
+    glyph: "𓀀"
     description: "User accounts & access control"
     icon: "fas fa-users"
     invokable: false
