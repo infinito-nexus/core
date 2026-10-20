@@ -21,7 +21,7 @@ permissions:
 jobs:
   prepare:
     name: 🧑‍💻 Workspace Matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
@@ -44,7 +44,7 @@ jobs:
 
   test-workspace:
     name: ${{ matrix.icon }} Workspace (${{ matrix.label }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 345
     needs: prepare
 
@@ -87,6 +87,11 @@ jobs:
 
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
+
+      - name: 🛡️ Tear down host AppArmor profiles (dev-host parity)
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: make security-apparmor-teardown
 
       - name: "📥 Load the rescue paths into job env"
         shell: bash

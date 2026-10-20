@@ -21,7 +21,7 @@ jobs:
   update-docker-image-versions:
     name: 🐳 Update Docker image versions
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -68,7 +68,7 @@ jobs:
   update-version-sources:
     name: 🔖 Update declared version sources
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -115,7 +115,7 @@ jobs:
   update-pip-pins:
     name: 🐍 Update pinned pip requirements
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -162,7 +162,7 @@ jobs:
   update-galaxy-pins:
     name: 🌌 Update pinned Ansible collections
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -209,7 +209,7 @@ jobs:
   update-repository-refs:
     name: 🌿 Update repository refs
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -252,3 +252,45 @@ jobs:
           UPDATE_PR_BODY: "Automated update of semver-based git `ref:` values in `roles/*/meta/services.yml`. Upstream tags resolved via `git ls-remote --tags`."
           UPDATE_BASE_BRANCH: main
         run: bash scripts/github/update/open/role_prs.sh roles
+
+  update-runner-labels:
+    name: 🏃 Update GitHub-hosted runner labels
+    if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
+    runs-on: ubuntu-26.04
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: main
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: 🔄 Update runner labels
+        run: bash scripts/github/update/runner_labels.sh
+
+      - name: 🔎 Check for changes
+        id: diff
+        run: bash scripts/github/resolve/check_git_changes.sh .github/workflows
+
+      - name: ⚙️ Generate app token
+        if: steps.diff.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: 📂 Open PR if runner labels changed
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          UPDATE_BRANCH_PREFIX: update/runner-labels
+          UPDATE_COMMIT_MESSAGE: "update(ci): raise GitHub-hosted runner labels"
+          UPDATE_PR_TITLE: "update(ci): raise GitHub-hosted runner labels"
+          UPDATE_PR_BODY: "Automated raise of every `runs-on: ubuntu-NN.NN` in `.github/workflows/` to the newest GA x64 Ubuntu image listed in https://github.com/actions/runner-images. Its CI run is the proof that the stack works on the new image."
+          UPDATE_BASE_BRANCH: main
+        run: bash scripts/github/update/open/pr.sh .github/workflows

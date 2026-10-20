@@ -1,0 +1,27 @@
+---
+- name: "🔍 Read the NFS server's installed packages"
+  ansible.builtin.package_facts:
+  delegate_to: "{{ groups['svc-storage-nfs-server'] | first }}"
+  delegate_facts: true
+  run_once: true
+
+- name: "🔧 Stop requesting directory delegations from a ganesha that rejects them"
+  when: >-
+    (hostvars[groups['svc-storage-nfs-server'] | first].ansible_facts.packages['nfs-ganesha'] | first).version
+    is version('9.11', '<')
+  block:
+    - name: "🔧 Keep directory delegations off whenever nfsv4 loads"
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/infinito-nfs-directory-delegations.conf
+        line: "options nfsv4 directory_delegations=N"
+        create: true
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: "🔧 Turn directory delegations off in the running kernel"
+      ansible.builtin.script:
+        cmd: "{{ lookup('path_absolute', 'roles/svc-storage-nfs-client/files/shell/directory_delegations.sh') }}"
+        executable: /bin/bash
+      register: svc_storage_nfs_client_directory_delegations
+      changed_when: "'CHANGED' in svc_storage_nfs_client_directory_delegations.stdout"

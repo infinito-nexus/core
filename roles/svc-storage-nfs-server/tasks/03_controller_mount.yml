@@ -59,3 +59,7 @@
   retries: 12
   delay: 5
   until: _ctrl_nfs_mount is succeeded
+
+- name: "🔧 Align the controller's directory delegations with the ganesha server"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-storage-nfs-client/tasks/directory_delegations.yml') }}"
+  when: lookup('nfs_flavor') == 'ganesha'

@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   cancel-pr-runs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       actions: write
       contents: read

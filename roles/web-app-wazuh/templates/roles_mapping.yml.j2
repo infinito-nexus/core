@@ -1,0 +1,34 @@
+---
+_meta:
+  type: "rolesmapping"
+  config_version: 2
+
+all_access:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_ADMIN_GROUP }}"
+    - "{{ WAZUH_RBAC_ADMIN_LDAP_CN }}"
+    - "admin"
+
+security_analyst:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_ANALYST_GROUP }}"
+    - "{{ WAZUH_RBAC_ANALYST_LDAP_CN }}"
+
+readonly_auditor:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_READONLY_GROUP }}"
+    - "{{ WAZUH_RBAC_READONLY_LDAP_CN }}"
+
+kibana_read_only:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_READONLY_GROUP }}"
+    - "{{ WAZUH_RBAC_READONLY_LDAP_CN }}"
+
+kibana_server:
+  reserved: false
+  users:
+    - "{{ WAZUH_DASHBOARD_SERVICE_USERNAME }}"

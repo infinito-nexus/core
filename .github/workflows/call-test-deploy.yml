@@ -163,7 +163,7 @@ env:
 jobs:
   discover:
     name: 🔍 Chunk ${{ inputs.index }}${{ inputs.marker }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     outputs:
       apps: ${{ steps.discover.outputs.apps }}
@@ -251,7 +251,7 @@ jobs:
   deploy:
     name: "${{ matrix.label }}"
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 355
     needs: discover
 
@@ -307,6 +307,11 @@ jobs:
         if: ${{ !env.ACT }}
         shell: bash
         run: ./scripts/github/runner/relocate_docker_dataroot.sh
+
+      - name: 🛡️ Tear down host AppArmor profiles (dev-host parity)
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: make security-apparmor-teardown
 
       - name: 🔍 Resolve repository owner
         shell: bash

@@ -20,5 +20,6 @@ docker-cli:
       - docker-ce
       - docker-ce-cli
       - docker-compose-plugin
+      - iptables-nft
     repo:
       managed_externally: sys-svc-container configures the download.docker.com repository per distro before installing

@@ -30,7 +30,7 @@ env:
 jobs:
   check-ci-images:
     name: 🔎 Check CI images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       missing: ${{ steps.check.outputs.missing }}
       ci_tag: ${{ steps.citag.outputs.ci_tag }}
@@ -123,7 +123,7 @@ jobs:
         needs.build-ci-images-if-missing.result == 'success' ||
         needs.build-ci-images-if-missing.result == 'skipped'
       )
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write

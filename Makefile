@@ -227,6 +227,11 @@ compose-inner-run:
 compose-inventory-refresh:
 	@bash scripts/tests/deploy/local/reset/inventory.sh
 
+.PHONY: compose-network-recreate
+# Recreate the stack's default network after an IPAM change, keeping volumes and reattaching foreign stacks.
+compose-network-recreate: install
+	@"$${PYTHON}" -m cli.administration.deploy.development recreate
+
 .PHONY: compose-playwright
 # Rerun a role-local Playwright spec against the live running stack (no redeploy).
 # Usage: make compose-playwright role=<role> [pw="--grep <pattern>"] [keep=true]
