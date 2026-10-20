@@ -1,0 +1,3 @@
+location / {
+  return 302 {{ lookup('tls', lookup('domain', application_id), 'url.base') | regex_replace('/+$', '') }}$request_uri;
+}

@@ -14,9 +14,7 @@ server
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
   {% if lookup('network_handover', application_id, domain) %}
-  location / {
-    return 302 {{ lookup('tls', lookup('domain', application_id), 'url.base') | regex_replace('/+$', '') }}$request_uri;
-  }
+    {% include 'roles/sys-svc-proxy/templates/location/handover.conf.j2' %}
   {% elif lookup('sso', application_id, 'is_proxy_gated') %}
     {% set sso_proxy_enabled = true %}
     {% set webserver_location_extra_configuration = '' %}
