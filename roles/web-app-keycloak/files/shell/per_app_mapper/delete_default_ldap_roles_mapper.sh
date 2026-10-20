@@ -14,6 +14,8 @@ set -o pipefail
 : "${KC_REALM:?KC_REALM is required}"
 : "${LDAP_COMPONENT_ID:?LDAP_COMPONENT_ID is required}"
 
+exec </dev/null
+
 container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh get components \
   -r "$KC_REALM" \
   -q "parentId=$LDAP_COMPONENT_ID" \

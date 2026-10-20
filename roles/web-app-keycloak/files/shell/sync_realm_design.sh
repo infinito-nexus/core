@@ -20,6 +20,8 @@ set -euo pipefail
 : "${KEYCLOAK_DISPLAY_NAME?missing KEYCLOAK_DISPLAY_NAME}"
 : "${KEYCLOAK_DISPLAY_NAME_HTML?missing KEYCLOAK_DISPLAY_NAME_HTML}"
 
+exec </dev/null
+
 MARK_PREFIX='<div class="kc-logo-text"><span>'
 MARK_SUFFIX='</span></div>'
 EMPTY='""'

@@ -16,6 +16,8 @@ set -o pipefail
 : "${KC_RBAC_ROOT_PATH:?KC_RBAC_ROOT_PATH is required}"
 : "${DEPLOYED_APP_IDS:?DEPLOYED_APP_IDS is required}"
 
+exec </dev/null
+
 [ -z "$DEPLOYED_APP_IDS" ] && exit 0
 
 container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh get groups \

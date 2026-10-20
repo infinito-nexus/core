@@ -23,6 +23,8 @@ set -euo pipefail
 
 KEYCLOAK_EMAIL_VERIFIED="${KEYCLOAK_EMAIL_VERIFIED:-true}"
 
+exec </dev/null
+
 ${KEYCLOAK_EXEC_CONTAINER} sh -lc "
   set -euo pipefail
 
