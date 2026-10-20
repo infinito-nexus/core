@@ -1,6 +1,7 @@
 server.host: 0.0.0.0
 server.port: {{ WAZUH_DASHBOARD_INTERNAL_PORT }}
 server.ssl.enabled: false
+csp.warnLegacyBrowsers: false
 opensearch.hosts: {{ WAZUH_INDEXER_URL }}
 opensearch.ssl.verificationMode: certificate
 opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]
@@ -11,6 +12,20 @@ uiSettings.overrides.defaultRoute: /app/home
 opensearch_security.cookie.ttl: 900000
 opensearch_security.session.ttl: 900000
 opensearch_security.session.keepalive: true
+{% if WAZUH_DESIGN_ENABLED %}
+{% set design = lookup('design', application_id) %}
+{% if design.logo is string %}
+opensearchDashboards.branding.mark.defaultUrl: "{{ design.urls.mark.svg }}"
+opensearchDashboards.branding.mark.darkModeUrl: "{{ design.urls.mark.svg }}"
+opensearchDashboards.branding.loadingLogo.defaultUrl: "{{ design.urls.mark.svg }}"
+opensearchDashboards.branding.loadingLogo.darkModeUrl: "{{ design.urls.mark.svg }}"
+opensearchDashboards.branding.faviconUrl: "{{ design.urls.icon.png }}"
+opensearch_security.ui.basicauth.login.brandimage: "{{ design.urls.login.svg }}"
+{% endif %}
+{% if design.title is string %}
+opensearchDashboards.branding.applicationTitle: "{{ design.title }}"
+{% endif %}
+{% endif %}
 {% if WAZUH_OIDC_ENABLED %}
 opensearch_security.auth.type: "openid"
 opensearch_security.openid.connect_url: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"

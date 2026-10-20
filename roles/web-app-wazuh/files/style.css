@@ -1,0 +1,2272 @@
+:root .wz-login {
+  background: var(--design-frame) !important;
+  --design-focus: var(--design-on-frame);
+}
+:root .wz-login .application {
+  background-color: transparent;
+}
+:root .wz-login .application .euiPanel {
+  --design-focus: var(--design-link);
+}
+:root .osdWelcomeView {
+  background-color: var(--design-surface-1);
+}
+:root .osdWelcomeTitle {
+  color: var(--design-text);
+}
+:root .osdWelcomeText {
+  color: var(--design-text-muted);
+}
+:root .osdProgress {
+  background-color: var(--design-surface-3);
+}
+:root .osdProgress::before {
+  background-color: var(--design-primary);
+}
+:root .euiBadge[style*="211, 218, 230"] {
+  background-color: var(--design-surface-active) !important;
+  color: var(--design-text) !important;
+}
+:root .euiBadge[style*="109, 204, 177"] {
+  background-color: var(--design-success) !important;
+  color: var(--design-on-success) !important;
+}
+:root .euiAvatar--user {
+  background-color: var(--design-primary) !important;
+  color: var(--design-on-primary) !important;
+}
+:root .eui-yScroll::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .eui-yScroll::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .eui-yScroll::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+:root .eui-xScrollWithShadows {
+  -webkit-mask-image: linear-gradient(to right, rgba(var(--design-danger-rgb), 0.1) 0%, var(--design-danger) 7.5px, var(--design-danger) calc(100% - 7.5px), rgba(var(--design-danger-rgb), 0.1) 100%);
+  mask-image: linear-gradient(to right, rgba(var(--design-danger-rgb), 0.1) 0%, var(--design-danger) 7.5px, var(--design-danger) calc(100% - 7.5px), rgba(var(--design-danger-rgb), 0.1) 100%);
+}
+:root .eui-xScrollWithShadows::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .eui-xScrollWithShadows::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .eui-xScrollWithShadows::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+html:root {
+  color: var(--design-text);
+  background-color: var(--design-surface-1);
+}
+:root a {
+  color: var(--design-link);
+}
+:root button {
+  background-color: transparent;
+  background-image: none;
+  color: inherit;
+}
+html:root {
+  scrollbar-color: rgba(var(--design-text-muted-rgb), 0.5) transparent;
+}
+:root .euiAccordion__button:focus .euiAccordion__iconWrapper {
+  color: var(--design-link);
+}
+:root .euiAvatar--user:after {
+  border-color: rgba(var(--design-border-strong-rgb), 0.05);
+}
+:root .euiBadge--hollow {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+:root .euiBetaBadge {
+  box-shadow: inset 0 0 0 1px var(--design-border);
+}
+:root .euiBetaBadge:focus {
+  outline-color: var(--design-border-strong);
+}
+:root .euiNotificationBadge {
+  background-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+:root .euiNotificationBadge--subdued {
+  background-color: var(--design-surface-active);
+  color: var(--design-text);
+}
+:root .euiBasicTable-loading tbody:before {
+  background-color: var(--design-primary);
+}
+:root .euiBottomBar {
+  box-shadow: var(--design-shadow-3);
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
+:root .euiButton {
+  border-color: transparent;
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButton:hover,
+:root .euiButton:active {
+  box-shadow: var(--design-shadow-2);
+}
+:root .euiButton:not([class*=isDisabled]):hover {
+  background-color: rgba(var(--design-primary-hover-rgb), 0.1);
+}
+:root .euiButton:not([class*=isDisabled]):focus,
+:root .euiButton:not([class*=isDisabled]):focus-within {
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+}
+:root .euiButton.euiButton-isDisabled {
+  color: var(--design-text-muted);
+  border-color: var(--design-border-strong);
+}
+:root .euiButton.euiButton-isDisabled.euiButton--fill {
+  color: var(--design-text-muted);
+  background-color: var(--design-border-strong);
+  border-color: var(--design-border-strong);
+}
+:root .euiButton.euiButton-isDisabled.euiButton--fill:hover,
+:root .euiButton.euiButton-isDisabled.euiButton--fill:focus,
+:root .euiButton.euiButton-isDisabled.euiButton--fill:focus-within {
+  background-color: var(--design-border-strong);
+  border-color: var(--design-border-strong);
+}
+:root .euiButton.euiButton-isDisabled:hover,
+:root .euiButton.euiButton-isDisabled:focus,
+:root .euiButton.euiButton-isDisabled:focus-within {
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButton--primary {
+  color: var(--design-link);
+  border-color: var(--design-link);
+}
+:root .euiButton--primary.euiButton--fill {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+:root .euiButton--primary.euiButton--fill:not([class*=isDisabled]):hover {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+}
+:root .euiButton--primary.euiButton--fill:not([class*=isDisabled]):focus,
+:root .euiButton--primary.euiButton--fill:not([class*=isDisabled]):focus-within {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+:root .euiButton--primary.euiButton--fill:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-link-rgb), 0.4);
+}
+:root .euiButton--primary:not([class*=isDisabled]) {
+  box-shadow: 0 2px 2px -1px rgba(var(--design-link-rgb), 0.3);
+}
+:root .euiButton--primary:not([class*=isDisabled]):hover {
+  box-shadow: 0 4px 8px 0 rgba(var(--design-link-rgb), 0.15), 0 2px 2px -1px rgba(var(--design-link-rgb), 0.3);
+  background-color: rgba(var(--design-primary-hover-rgb), 0.1);
+}
+:root .euiButton--primary:not([class*=isDisabled]):focus,
+:root .euiButton--primary:not([class*=isDisabled]):focus-within {
+  box-shadow: 0 4px 8px 0 rgba(var(--design-link-rgb), 0.15), 0 2px 2px -1px rgba(var(--design-link-rgb), 0.3);
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+}
+:root .euiButton--primary:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-link-rgb), 0.15);
+}
+:root .euiButton--danger {
+  color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+:root .euiButton--danger.euiButton--fill {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+:root .euiButton--danger.euiButton--fill:not([class*=isDisabled]):hover {
+  background-color: var(--design-danger-hover);
+  border-color: var(--design-danger-hover);
+}
+:root .euiButton--danger.euiButton--fill:not([class*=isDisabled]):focus,
+:root .euiButton--danger.euiButton--fill:not([class*=isDisabled]):focus-within {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+:root .euiButton--danger.euiButton--fill:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-danger-rgb), 0.4);
+}
+:root .euiButton--danger:not([class*=isDisabled]) {
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButton--danger:not([class*=isDisabled]):hover {
+  box-shadow: var(--design-shadow-2);
+  background-color: rgba(var(--design-danger-hover-rgb), 0.1);
+}
+:root .euiButton--danger:not([class*=isDisabled]):focus,
+:root .euiButton--danger:not([class*=isDisabled]):focus-within {
+  box-shadow: var(--design-shadow-2);
+  background-color: rgba(var(--design-danger-rgb), 0.1);
+}
+:root .euiButton--danger:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-danger-rgb), 0.15);
+}
+:root .euiButtonEmpty {
+  border-color: transparent;
+  border-color: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
+:root .euiButtonEmpty:disabled {
+  color: var(--design-text-muted);
+}
+:root .euiButtonEmpty--primary {
+  color: var(--design-link);
+}
+:root .euiButtonEmpty--primary:focus {
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+}
+:root .euiButtonEmpty--danger {
+  color: var(--design-danger);
+}
+:root .euiButtonEmpty--danger:focus {
+  background-color: rgba(var(--design-danger-rgb), 0.1);
+}
+:root .euiButtonEmpty--ghost {
+  color: var(--design-on-primary);
+}
+:root .euiButtonEmpty--ghost:focus {
+  background-color: rgba(var(--design-surface-2-rgb), 0.1);
+}
+:root .euiButtonEmpty--text {
+  color: var(--design-text);
+}
+:root .euiButtonEmpty--text:focus {
+  background-color: rgba(var(--design-text-rgb), 0.1);
+}
+:root .euiButtonIcon {
+  border-color: transparent;
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButtonIcon--primary {
+  color: var(--design-link);
+  border-color: var(--design-link);
+}
+:root .euiButtonIcon--primary.euiButtonIcon--fill {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+:root .euiButtonIcon--primary.euiButtonIcon--fill:not([class*=isDisabled]):hover {
+  background-color: var(--design-primary-hover);
+  border-color: var(--design-primary-hover);
+}
+:root .euiButtonIcon--primary.euiButtonIcon--fill:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--primary.euiButtonIcon--fill:not([class*=isDisabled]):focus-within {
+  background-color: var(--design-primary);
+  border-color: var(--design-primary);
+}
+:root .euiButtonIcon--primary.euiButtonIcon--fill:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-link-rgb), 0.4);
+}
+:root .euiButtonIcon--primary:not([class*=isDisabled]) {
+  box-shadow: 0 2px 2px -1px rgba(var(--design-link-rgb), 0.3);
+}
+:root .euiButtonIcon--primary:not([class*=isDisabled]):hover {
+  box-shadow: 0 4px 8px 0 rgba(var(--design-link-rgb), 0.15), 0 2px 2px -1px rgba(var(--design-link-rgb), 0.3);
+  background-color: rgba(var(--design-primary-hover-rgb), 0.1);
+}
+:root .euiButtonIcon--primary:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--primary:not([class*=isDisabled]):focus-within {
+  box-shadow: 0 4px 8px 0 rgba(var(--design-link-rgb), 0.15), 0 2px 2px -1px rgba(var(--design-link-rgb), 0.3);
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+}
+:root .euiButtonIcon--primary:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-link-rgb), 0.15);
+}
+:root .euiButtonIcon--success {
+  color: var(--design-success);
+  border-color: var(--design-success);
+}
+:root .euiButtonIcon--success.euiButtonIcon--fill {
+  background-color: var(--design-success);
+  border-color: var(--design-success);
+  color: var(--design-on-success);
+}
+:root .euiButtonIcon--success.euiButtonIcon--fill:not([class*=isDisabled]):hover {
+  background-color: var(--design-success-hover);
+  border-color: var(--design-success-hover);
+}
+:root .euiButtonIcon--success.euiButtonIcon--fill:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--success.euiButtonIcon--fill:not([class*=isDisabled]):focus-within {
+  background-color: var(--design-success);
+  border-color: var(--design-success);
+}
+:root .euiButtonIcon--success.euiButtonIcon--fill:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-success-rgb), 0.4);
+}
+:root .euiButtonIcon--success:not([class*=isDisabled]) {
+  box-shadow: 0 2px 2px -1px rgba(var(--design-success-rgb), 0.3);
+}
+:root .euiButtonIcon--success:not([class*=isDisabled]):hover {
+  box-shadow: 0 4px 8px 0 rgba(var(--design-success-rgb), 0.15), 0 2px 2px -1px rgba(var(--design-success-rgb), 0.3);
+  background-color: rgba(var(--design-success-hover-rgb), 0.1);
+}
+:root .euiButtonIcon--success:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--success:not([class*=isDisabled]):focus-within {
+  box-shadow: 0 4px 8px 0 rgba(var(--design-success-rgb), 0.15), 0 2px 2px -1px rgba(var(--design-success-rgb), 0.3);
+  background-color: rgba(var(--design-success-rgb), 0.1);
+}
+:root .euiButtonIcon--success:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-success-rgb), 0.15);
+}
+:root .euiButtonIcon--danger {
+  color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+:root .euiButtonIcon--danger.euiButtonIcon--fill {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+  color: var(--design-on-danger);
+}
+:root .euiButtonIcon--danger.euiButtonIcon--fill:not([class*=isDisabled]):hover {
+  background-color: var(--design-danger-hover);
+  border-color: var(--design-danger-hover);
+}
+:root .euiButtonIcon--danger.euiButtonIcon--fill:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--danger.euiButtonIcon--fill:not([class*=isDisabled]):focus-within {
+  background-color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+:root .euiButtonIcon--danger.euiButtonIcon--fill:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-danger-rgb), 0.4);
+}
+:root .euiButtonIcon--danger:not([class*=isDisabled]) {
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButtonIcon--danger:not([class*=isDisabled]):hover {
+  box-shadow: var(--design-shadow-2);
+  background-color: rgba(var(--design-danger-hover-rgb), 0.1);
+}
+:root .euiButtonIcon--danger:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--danger:not([class*=isDisabled]):focus-within {
+  box-shadow: var(--design-shadow-2);
+  background-color: rgba(var(--design-danger-rgb), 0.1);
+}
+:root .euiButtonIcon--danger:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-danger-rgb), 0.15);
+}
+:root .euiButtonIcon--ghost {
+  color: var(--design-on-primary);
+  border-color: var(--design-surface-2);
+}
+:root .euiButtonIcon--ghost.euiButtonIcon--fill {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+:root .euiButtonIcon--ghost.euiButtonIcon--fill:not([class*=isDisabled]):hover {
+  background-color: var(--design-surface-hover);
+  border-color: var(--design-border);
+}
+:root .euiButtonIcon--ghost.euiButtonIcon--fill:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--ghost.euiButtonIcon--fill:not([class*=isDisabled]):focus-within {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+:root .euiButtonIcon--ghost.euiButtonIcon--fill:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-surface-2-rgb), 0.12);
+}
+:root .euiButtonIcon--ghost:not([class*=isDisabled]) {
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButtonIcon--ghost:not([class*=isDisabled]):hover,
+:root .euiButtonIcon--ghost:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--ghost:not([class*=isDisabled]):focus-within {
+  box-shadow: var(--design-shadow-2);
+  background-color: rgba(var(--design-surface-2-rgb), 0.1);
+}
+:root .euiButtonIcon--ghost:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-surface-2-rgb), 0.12);
+}
+:root .euiButtonIcon--text {
+  color: var(--design-text);
+  border-color: var(--design-border-strong);
+}
+:root .euiButtonIcon--text.euiButtonIcon--fill {
+  background-color: var(--design-text-muted);
+  border-color: var(--design-text-muted);
+  color: var(--design-surface-1);
+}
+:root .euiButtonIcon--text.euiButtonIcon--fill:not([class*=isDisabled]):hover,
+:root .euiButtonIcon--text.euiButtonIcon--fill:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--text.euiButtonIcon--fill:not([class*=isDisabled]):focus-within {
+  background-color: var(--design-text-muted);
+  border-color: var(--design-text-muted);
+}
+:root .euiButtonIcon--text.euiButtonIcon--fill:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-text-rgb), 0.12);
+}
+:root .euiButtonIcon--text:not([class*=isDisabled]) {
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButtonIcon--text:not([class*=isDisabled]):hover,
+:root .euiButtonIcon--text:not([class*=isDisabled]):focus,
+:root .euiButtonIcon--text:not([class*=isDisabled]):focus-within {
+  box-shadow: var(--design-shadow-2);
+  background-color: rgba(var(--design-text-muted-rgb), 0.1);
+}
+:root .euiButtonIcon--text:not([class*=isDisabled]):active {
+  box-shadow: inset 1px 2px 8px rgba(var(--design-text-rgb), 0.12);
+}
+:root .euiButtonGroup__buttons {
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiButtonGroup--compressed .euiButtonGroup__buttons {
+  background-color: var(--design-surface-2);
+  border-color: rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiButtonGroupButton:not([class*=isDisabled]):hover {
+  background-color: rgba(var(--design-primary-hover-rgb), 0.1);
+}
+:root .euiButtonGroupButton:not([class*=isDisabled]):focus,
+:root .euiButtonGroupButton:not([class*=isDisabled]):focus-within {
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+}
+:root .euiButtonGroupButton.euiButtonGroupButton--text:not([class*=isDisabled]) {
+  color: var(--design-text);
+}
+:root .euiButtonGroupButton.euiButtonGroupButton--text:not([class*=isDisabled]):hover,
+:root .euiButtonGroupButton.euiButtonGroupButton--text:not([class*=isDisabled]):focus,
+:root .euiButtonGroupButton.euiButtonGroupButton--text:not([class*=isDisabled]):focus-within {
+  background-color: rgba(var(--design-text-muted-rgb), 0.1);
+}
+:root .euiButtonGroup--medium .euiButtonGroupButton {
+  border-color: var(--design-border);
+}
+:root .euiButtonGroup--compressed .euiButtonGroupButton:not([class*=isDisabled]):focus,
+:root .euiButtonGroup--compressed .euiButtonGroupButton:not([class*=isDisabled]):focus-within,
+:root .euiFormControlLayout--group .euiButtonIcon:focus-visible {
+  outline-color: rgba(var(--design-link-rgb), 0.3);
+}
+:root .euiBreadcrumb,
+:root .euiBreadcrumb:hover {
+  color: var(--design-text-muted) !important;
+}
+:root .euiBreadcrumbWrapper::before {
+  background-color: var(--design-surface-active);
+}
+:root .euiBreadcrumbs:not(.euiBreadcrumbs__inPopover) .euiBreadcrumbWrapper.euiBreadcrumbWrapper--last::before {
+  background-color: var(--design-primary-200);
+}
+:root .euiBreadcrumbWrapper:has(.euiLink--subdued:focus)::before {
+  background-color: var(--design-surface-3);
+}
+:root .euiBreadcrumbWall {
+  background-image: linear-gradient(to right, var(--design-surface-active) 0 12px, transparent 12px);
+}
+:root .euiBreadcrumbWall:has(.euiLink--subdued:focus) {
+  background-image: linear-gradient(to right, var(--design-surface-3) 0 12px, transparent 12px);
+}
+:root .euiBreadcrumbWall--single {
+  background-image: linear-gradient(to right, var(--design-primary-200) 0 12px, transparent 12px);
+}
+:root .euiCallOut {
+  border-left-color: transparent;
+}
+:root .euiCallOut .euiCallOutHeader__title {
+  color: var(--design-text);
+}
+:root .euiCallOut--primary {
+  border-color: var(--design-link);
+  background-color: var(--design-surface-3);
+}
+:root .euiCallOut--primary .euiCallOutHeader__icon {
+  fill: var(--design-link);
+}
+:root .euiCallOut--primary .euiCallOutHeader__title {
+  color: var(--design-link);
+}
+:root .euiCallOut--warning {
+  border-color: var(--design-warning);
+  background-color: var(--design-surface-3);
+}
+:root .euiCallOut--warning .euiCallOutHeader__icon {
+  fill: var(--design-warning);
+}
+:root .euiCallOut--warning .euiCallOutHeader__title {
+  color: var(--design-warning);
+}
+:root .euiCard.euiCard--isClickable:not(.euiCard-isDisabled):focus-within {
+  box-shadow: var(--design-shadow-2);
+}
+:root .euiCard__betaBadge.euiBetaBadge--hollow {
+  background-color: var(--design-surface-2);
+}
+:root .euiCodeBlock {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+:root .euiCodeBlock .euiCodeBlock__pre::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiCodeBlock .euiCodeBlock__pre::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiCodeBlock .euiCodeBlock__pre::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+:root .euiCodeBlock.euiCodeBlock--inline {
+  color: var(--design-text);
+  background-color: var(--design-surface-3);
+}
+:root .euiCodeBlock .token.string {
+  color: var(--design-danger);
+}
+:root .euiCodeBlock .token.property {
+  color: inherit;
+}
+:root .euiCodeEditorKeyboardHint {
+  background-color: rgba(var(--design-surface-2-rgb), 0.7);
+}
+:root .euiCodeEditorKeyboardHint:focus {
+  border-color: var(--design-link);
+}
+:root .euiCollapsibleNavGroup {
+  background-color: inherit;
+}
+:root .euiCollapsibleNavGroup:not(:first-child) {
+  border-top-color: var(--design-border);
+}
+:root .euiCollapsibleNavGroup--light {
+  background-color: var(--design-surface-1);
+}
+:root .euiComboBox .euiComboBox__inputWrap {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  color: var(--design-text);
+}
+:root .euiComboBox .euiComboBox__inputWrap::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiComboBox .euiComboBox__inputWrap::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiComboBox .euiComboBox__inputWrap::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiComboBox .euiComboBox__inputWrap--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiComboBox .euiComboBox__input > input,
+:root .euiComboBoxPill--plainText,
+:root .euiSuperDatePicker__prettyFormat {
+  color: var(--design-text);
+}
+:root .euiDatePickerRange {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+}
+:root .euiDatePickerRange--inGroup {
+  box-shadow: none;
+}
+:root .euiQuickSelectPopover__section::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiQuickSelectPopover__section::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiQuickSelectPopover__section::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+:root .euiSuperDatePicker__prettyFormat::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSuperDatePicker__prettyFormat::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSuperDatePicker__prettyFormat::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSuperDatePicker__prettyFormat:disabled {
+  background-color: var(--design-surface-3);
+  color: var(--design-text-muted);
+}
+:root .euiSuperDatePicker__prettyFormatLink {
+  color: var(--design-link);
+}
+:root .euiDescriptionList.euiDescriptionList--column .euiDescriptionList__title,
+:root .euiDescriptionList.euiDescriptionList--column.euiDescriptionList--reverse .euiDescriptionList__title,
+:root .euiDescriptionList.euiDescriptionList--column.euiDescriptionList--reverse .euiDescriptionList__description,
+:root .euiDescriptionList.euiDescriptionList--column.euiDescriptionList--compressed .euiDescriptionList__title,
+:root .euiDescriptionList.euiDescriptionList--column.euiDescriptionList--compressed.euiDescriptionList--reverse .euiDescriptionList__title,
+:root .euiDescriptionList.euiDescriptionList--column.euiDescriptionList--compressed.euiDescriptionList--reverse .euiDescriptionList__description {
+  color: var(--design-text);
+}
+:root .euiDescriptionList.euiDescriptionList--inline .euiDescriptionList__title {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+}
+:root .euiFilterGroup {
+  border-right-color: rgba(var(--design-link-rgb), 0.1);
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiFilterButton {
+  background-color: var(--design-surface-2);
+  border-color: rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFilterButton:disabled,
+:root .euiCheckbox .euiCheckbox__input[disabled] ~ .euiCheckbox__label {
+  color: var(--design-text-muted);
+}
+:root .euiFlyout {
+  border-left-color: var(--design-border);
+  box-shadow: var(--design-shadow-3);
+  border-color: var(--design-border-strong);
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border-strong);
+  background-color: var(--design-surface-2);
+}
+:root .euiFlyout__closeButton {
+  background-color: rgba(var(--design-surface-2-rgb), 0.9);
+}
+:root .euiFlyout__closeButton--outside {
+  box-shadow: var(--design-shadow-3);
+}
+:root .euiFlyout--left {
+  border-right-color: var(--design-border);
+}
+:root .euiFlyoutBody .euiFlyoutBody__overflow {
+  -webkit-mask-image: linear-gradient(to bottom, rgba(var(--design-danger-rgb), 0.1) 0%, var(--design-danger) 7.5px, var(--design-danger) calc(100% - 7.5px), rgba(var(--design-danger-rgb), 0.1) 100%);
+  mask-image: linear-gradient(to bottom, rgba(var(--design-danger-rgb), 0.1) 0%, var(--design-danger) 7.5px, var(--design-danger) calc(100% - 7.5px), rgba(var(--design-danger-rgb), 0.1) 100%);
+}
+:root .euiFlyoutBody .euiFlyoutBody__overflow::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiFlyoutBody .euiFlyoutBody__overflow::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiFlyoutBody .euiFlyoutBody__overflow::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+:root .euiFlyoutFooter {
+  background-color: var(--design-surface-3);
+}
+:root .euiFlyoutHeader--hasBorder {
+  border-bottom-color: var(--design-border);
+}
+:root .euiCheckbox .euiCheckbox__input + .euiCheckbox__square {
+  box-shadow: var(--design-shadow-1);
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-2);
+}
+:root .euiCheckbox .euiCheckbox__input:checked + .euiCheckbox__square {
+  border-color: var(--design-primary-active);
+  background-color: var(--design-primary-active);
+}
+:root .euiCheckbox .euiCheckbox__input:indeterminate + .euiCheckbox__square {
+  border-color: var(--design-primary);
+  background-color: var(--design-primary);
+}
+:root .euiCheckbox .euiCheckbox__input[disabled] + .euiCheckbox__square,
+:root .euiCheckbox .euiCheckbox__input:checked[disabled] + .euiCheckbox__square,
+:root .euiCheckbox .euiCheckbox__input:indeterminate[disabled] + .euiCheckbox__square {
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-active);
+}
+:root .euiCheckbox .euiCheckbox__input:focus + .euiCheckbox__square,
+:root .euiCheckbox .euiCheckbox__input:active:not(:disabled) + .euiCheckbox__square {
+  border-color: var(--design-link);
+}
+:root .euiFieldNumber {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  color: var(--design-text);
+}
+:root .euiFieldNumber::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldNumber:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-2);
+}
+:root .euiFieldNumber:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldNumber:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldNumber:-webkit-autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldNumber:autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldNumber:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldNumber:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldNumber:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldNumber:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldNumber--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldNumber--compressed:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldNumber--compressed:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldNumber--compressed:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldNumber--compressed:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber--compressed:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber--compressed:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldNumber--compressed[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldPassword {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  color: var(--design-text);
+}
+:root .euiFieldPassword::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldPassword:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-2);
+}
+:root .euiFieldPassword:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldPassword:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldPassword:-webkit-autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldPassword:autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldPassword:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldPassword:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldPassword:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldPassword:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldPassword--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldPassword--compressed:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldPassword--compressed:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldPassword--compressed:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldPassword--compressed:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword--compressed:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword--compressed:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldPassword--compressed[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldSearch {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  color: var(--design-text);
+}
+:root .euiFieldSearch::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldSearch:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-2);
+}
+:root .euiFieldSearch:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldSearch:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldSearch:-webkit-autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldSearch:autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldSearch:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldSearch:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldSearch:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldSearch:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldSearch--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldSearch--compressed:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldSearch--compressed:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldSearch--compressed:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldSearch--compressed:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch--compressed:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch--compressed:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldSearch--compressed[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldText {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  color: var(--design-text);
+}
+:root .euiFieldText::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldText:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-2);
+}
+:root .euiFieldText:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldText:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldText:-webkit-autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldText:autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiFieldText:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldText:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldText:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldText:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiFieldText--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldText--compressed:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiFieldText--compressed:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldText--compressed:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFieldText--compressed:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText--compressed:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText--compressed:disabled::placeholder,
+:root .euiFilePicker__input:disabled ~ .euiFilePicker__prompt,
+:root .euiFilePicker:not(.euiFilePicker--large):not(.euiFilePicker-hasFiles) .euiFilePicker__promptText {
+  color: var(--design-text-muted);
+}
+:root .euiFieldText--compressed[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFilePicker__prompt {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+}
+:root .euiFilePicker__input:focus + .euiFilePicker__prompt {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-2);
+}
+:root .euiFilePicker__input:disabled + .euiFilePicker__prompt {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFilePicker__input:disabled + .euiFilePicker__prompt::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFilePicker__input:disabled + .euiFilePicker__prompt::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiFilePicker__input:disabled + .euiFilePicker__prompt::placeholder,
+:root *:disabled + .euiFormControlLayoutIcons,
+:root .euiFormControlLayoutCustomIcon--clickable:disabled,
+:root .euiFormHelpText {
+  color: var(--design-text-muted);
+}
+:root .euiFormControlLayout--group {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+}
+:root .euiFormControlLayout--group .euiFormControlLayout__prepend.euiIcon,
+:root .euiFormControlLayout--group .euiFormControlLayout__prepend .euiIcon,
+:root .euiFormControlLayout--group .euiFormControlLayout__append.euiIcon,
+:root .euiFormControlLayout--group .euiFormControlLayout__append .euiIcon,
+:root .euiFormControlLayout--group .euiButtonIcon:not(:focus),
+:root .euiFormControlLayout--group .euiToolTipAnchor > .euiIcon,
+:root .euiFormControlLayout--group .euiFormLabel,
+:root .euiFormControlLayout--group .euiText {
+  background-color: var(--design-surface-3);
+}
+:root .euiFormControlLayout--group .euiButtonEmpty {
+  border-right-color: var(--design-border);
+}
+:root .euiFormControlLayout--group .euiFormControlLayout__childrenWrapper ~ .euiButtonEmpty,
+:root .euiFormControlLayout--group .euiFormControlLayout__childrenWrapper ~ * .euiButtonEmpty {
+  border-left-color: var(--design-border);
+}
+:root .euiFormControlLayout--group.euiFormControlLayout--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiFormLabel {
+  color: var(--design-text);
+}
+:root .euiSelect {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  color: var(--design-text);
+}
+:root .euiSelect::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiSelect:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-2);
+}
+:root .euiSelect:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiSelect:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiSelect:-webkit-autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiSelect:autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiSelect:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiSelect:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiSelect:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiSelect:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiSelect--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiSelect--compressed:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiSelect--compressed:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiSelect--compressed:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiSelect--compressed:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect--compressed:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect--compressed:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiSelect--compressed[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiSelect:focus::-ms-value {
+  color: var(--design-text);
+}
+:root .euiSelect:-moz-focusring {
+  color: transparent;
+  text-shadow: none;
+}
+:root .euiSwitch .euiSwitch__button:focus .euiSwitch__track {
+  border-color: var(--design-link);
+}
+:root .euiSwitch .euiSwitch__button:disabled .euiSwitch__body {
+  background-color: rgba(var(--design-border-strong-rgb), 0.2);
+}
+:root .euiSwitch .euiSwitch__button:disabled .euiSwitch__thumb {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-active);
+  background-color: rgba(var(--design-border-strong-rgb), 0.2);
+}
+:root .euiSwitch .euiSwitch__button:disabled .euiSwitch__icon {
+  fill: var(--design-text-muted);
+}
+:root .euiSwitch .euiSwitch__button:disabled + .euiSwitch__label {
+  color: var(--design-text-muted);
+}
+:root .euiSwitch .euiSwitch__button[aria-checked=false] .euiSwitch__body {
+  background-color: rgba(var(--design-border-strong-rgb), 0.2);
+}
+:root .euiSwitch .euiSwitch__thumb,
+:root .euiSwitch.euiSwitch--compressed .euiSwitch__thumb {
+  box-shadow: var(--design-shadow-1);
+  border-color: var(--design-border-strong);
+  background-color: var(--design-surface-2);
+}
+:root .euiSwitch .euiSwitch__icon {
+  fill: var(--design-text);
+}
+:root .euiSwitch .euiSwitch__icon--checked {
+  fill: var(--design-on-primary);
+}
+:root .euiSwitch.euiSwitch--compressed .euiSwitch__button[aria-checked=false] .euiSwitch__thumb,
+:root .euiSwitch.euiSwitch--compressed .euiSwitch__button[aria-checked=true]:disabled .euiSwitch__thumb {
+  border-color: var(--design-border-strong);
+}
+:root .euiSwitch.euiSwitch--compressed .euiSwitch__button[aria-checked=true] .euiSwitch__thumb,
+:root .euiSwitch--primary.euiSwitch--compressed .euiSwitch__button[aria-checked=true] .euiSwitch__thumb {
+  border-color: var(--design-link);
+}
+:root .euiSwitch--primary .euiSwitch__body {
+  background-color: var(--design-primary);
+}
+:root .euiTextArea {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  color: var(--design-text);
+}
+:root .euiTextArea::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiTextArea:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-2);
+}
+:root .euiTextArea:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiTextArea:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiTextArea:-webkit-autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiTextArea:autofill {
+  -webkit-text-fill-color: var(--design-text);
+}
+:root .euiTextArea:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiTextArea:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiTextArea:-webkit-autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiTextArea:autofill ~ .euiFormControlLayoutIcons {
+  color: var(--design-text);
+}
+:root .euiTextArea--compressed {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiTextArea--compressed:invalid {
+  background-image: linear-gradient(to top, var(--design-danger), var(--design-danger) 2px, transparent 2px, transparent 100%);
+}
+:root .euiTextArea--compressed:focus {
+  background-color: var(--design-surface-2);
+  background-image: linear-gradient(to top, var(--design-primary), var(--design-primary) 2px, transparent 2px, transparent 100%);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiTextArea--compressed:disabled {
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiTextArea--compressed:disabled::-webkit-input-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea--compressed:disabled::-moz-placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea--compressed:disabled::placeholder {
+  color: var(--design-text-muted);
+}
+:root .euiTextArea--compressed[readOnly] {
+  background-color: rgba(var(--design-surface-active-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1);
+}
+:root .euiHeader {
+  box-shadow: var(--design-shadow-2);
+  background-color: var(--design-surface-2);
+  border-bottom-color: var(--design-border);
+}
+:root .euiHeaderSectionItem:after,
+:root .euiHorizontalRule {
+  background-color: var(--design-surface-active);
+}
+:root .euiIcon:focus,
+:root .euiLink:focus,
+:root .euiLink.euiLink--subdued:focus,
+:root .euiLink.euiLink--primary:focus,
+:root .euiLink.euiLink--text:focus {
+  background-color: var(--design-surface-3);
+}
+:root .euiIcon--app {
+  fill: var(--design-text);
+}
+:root .euiIcon--app .euiIcon__fillSecondary {
+  fill: var(--design-success);
+}
+:root .euiIcon--primary {
+  color: var(--design-link);
+}
+:root .euiIcon--secondary,
+:root .euiIcon--success {
+  color: var(--design-success);
+}
+:root .euiIcon--subdued {
+  color: var(--design-text-muted);
+}
+:root .euiIcon--text {
+  color: var(--design-text);
+}
+:root .euiIcon--warning {
+  color: var(--design-warning);
+}
+:root .euiIcon--inherit {
+  color: inherit;
+}
+:root .euiIcon--text,
+:root .euiIcon--text .euiIcon__fillSecondary,
+:root .euiIcon--subdued,
+:root .euiIcon--subdued .euiIcon__fillSecondary,
+:root .euiIcon--primary,
+:root .euiIcon--primary .euiIcon__fillSecondary,
+:root .euiIcon--customColor,
+:root .euiIcon--customColor .euiIcon__fillSecondary {
+  fill: currentColor;
+}
+:root .euiLink.euiLink--subdued,
+:root .euiLink.euiLink--subdued:hover,
+:root .euiLink.euiLink--subdued:focus {
+  color: var(--design-text-muted);
+}
+:root .euiLink.euiLink--primary,
+:root .euiLink.euiLink--primary:hover,
+:root .euiLink.euiLink--primary:focus {
+  color: var(--design-link);
+}
+:root .euiLink.euiLink--text,
+:root .euiLink.euiLink--text:hover,
+:root .euiLink.euiLink--text:focus {
+  color: var(--design-text);
+}
+:root .euiListGroupItem.euiListGroupItem-isClickable:hover {
+  background-color: rgba(var(--design-surface-hover-rgb), 0.25);
+}
+:root .euiListGroupItem.euiListGroupItem-isClickable:focus-within {
+  background-color: rgba(var(--design-surface-active-rgb), 0.25);
+}
+@media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+:root .euiListGroupItem__button:hover {
+  background-color: rgba(var(--design-surface-hover-rgb), 0.25);
+}
+:root .euiListGroupItem__button:focus {
+  background-color: rgba(var(--design-surface-active-rgb), 0.25);
+}
+}
+:root .euiListGroupItem--subdued .euiListGroupItem__text:not(:disabled),
+:root .euiListGroupItem--subdued .euiListGroupItem__button:not(:disabled) {
+  color: var(--design-text-muted);
+}
+:root .euiLoadingSpinner {
+  border-color: var(--design-border);
+  border-color: var(--design-link) var(--design-border) var(--design-border) var(--design-border);
+}
+:root .euiOverlayMask {
+  background-color: rgba(var(--design-surface-2-rgb), 0.8);
+}
+:root .euiPaginationButton-isActive.euiPaginationButton-isActive {
+  color: var(--design-link);
+}
+:root .euiPanel {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+:root .euiPanel.euiPanel--hasShadow {
+  box-shadow: var(--design-shadow-2);
+  border-color: var(--design-border);
+}
+:root .euiPanel.euiPanel--isClickable:hover,
+:root .euiPanel.euiPanel--isClickable:focus {
+  box-shadow: var(--design-shadow-2);
+}
+:root .euiPanel.euiPanel--plain {
+  background-color: var(--design-surface-2);
+}
+:root .euiPage {
+  background-color: var(--design-surface-1);
+}
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+:root .euiPageSideBar--sticky::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+}
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+:root .euiPageSideBar--sticky::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+}
+@media only screen and (min-width: 1200px) and (max-width: 1679px) {
+:root .euiPageSideBar--sticky::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+}
+@media only screen and (min-width: 1680px) and (max-width: 1919px) {
+:root .euiPageSideBar--sticky::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+}
+@media only screen and (min-width: 1920px) {
+:root .euiPageSideBar--sticky::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiPageSideBar--sticky::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+}
+:root .euiPopover__panel {
+  box-shadow: var(--design-shadow-3);
+  border-color: var(--design-border);
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border-strong);
+}
+:root .euiPopover__panel .euiPopover__panelArrow.euiPopover__panelArrow--bottom:before {
+  border-bottom-color: var(--design-border);
+}
+:root .euiPopover__panel .euiPopover__panelArrow.euiPopover__panelArrow--bottom:after {
+  border-bottom-color: var(--design-surface-2);
+}
+:root .euiPopover__panel .euiPopover__panelArrow.euiPopover__panelArrow--left:before {
+  border-bottom-color: transparent;
+  border-left-color: var(--design-border);
+}
+:root .euiPopover__panel .euiPopover__panelArrow.euiPopover__panelArrow--left:after {
+  border-bottom-color: transparent;
+  border-left-color: var(--design-surface-2);
+}
+:root .euiPopoverTitle {
+  color: var(--design-text);
+  border-bottom-color: var(--design-border);
+}
+:root .euiProgress {
+  background-color: var(--design-surface-active);
+}
+:root .euiProgress--fixed {
+  background-color: transparent;
+}
+:root .euiProgress--primary.euiProgress--indeterminate:before {
+  background-color: var(--design-primary);
+}
+:root .euiProgress--accent.euiProgress--indeterminate:before {
+  background-color: var(--design-danger);
+}
+:root .euiResizableButton:before,
+:root .euiResizableButton:after {
+  background-color: var(--design-text);
+}
+:root .euiResizableButton:hover:not(:disabled):before,
+:root .euiResizableButton:hover:not(:disabled):after {
+  background-color: var(--design-border-strong);
+}
+:root .euiResizableButton:focus:not(:disabled) {
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+}
+:root .euiResizableButton:focus:not(:disabled):before,
+:root .euiResizableButton:focus:not(:disabled):after {
+  background-color: var(--design-primary);
+}
+:root .euiResizableToggleButton {
+  box-shadow: var(--design-shadow-1);
+}
+:root .euiResizableToggleButton:focus {
+  box-shadow: var(--design-shadow-2);
+}
+:root .euiResizablePanel__content--scrollable::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiResizablePanel__content--scrollable::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiResizablePanel__content--scrollable::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+:root .euiSideNavItemButton {
+  color: inherit;
+}
+:root .euiSideNavItemButton.euiSideNavItemButton-isSelected {
+  color: var(--design-link);
+}
+:root .euiSideNavItemButton:disabled {
+  color: var(--design-text-muted);
+}
+:root .euiSideNavItem--root > .euiSideNavItemButton .euiSideNavItemButton__label {
+  color: var(--design-text);
+  color: inherit;
+}
+:root .euiSideNavItem--trunk,
+:root .euiStat .euiStat__title {
+  color: var(--design-text);
+}
+:root .euiStat .euiStat__title--primary {
+  color: var(--design-link);
+}
+:root .euiStepNumber {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+:root .euiStep:not(:last-of-type) {
+  background-image: linear-gradient(to right, transparent 0, transparent 15px, var(--design-surface-active) 15px, var(--design-surface-active) 17px, transparent 17px, transparent 100%);
+}
+:root .euiTable {
+  background-color: var(--design-surface-2);
+}
+:root .euiTableHeaderCell {
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+:root .euiTableHeaderButton {
+  color: inherit;
+}
+:root .euiTableHeaderButton:hover .euiTableCellContent__text,
+:root .euiTableHeaderButton:focus .euiTableCellContent__text {
+  color: var(--design-link);
+}
+:root .euiTableHeaderButton:hover .euiTableSortIcon,
+:root .euiTableHeaderButton:focus .euiTableSortIcon {
+  fill: var(--design-link);
+}
+:root .euiTableHeaderButton-isSorted .euiTableSortIcon {
+  fill: var(--design-text);
+}
+:root .euiTableHeaderCellCheckbox {
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border);
+}
+:root .euiTableRow:hover {
+  background-color: var(--design-surface-hover);
+}
+:root .euiTableRow.euiTableRow-isClickable:hover {
+  background-color: rgba(var(--design-primary-hover-rgb), 0.05);
+}
+:root .euiTableRow.euiTableRow-isClickable:focus {
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+}
+:root .euiTableRowCell {
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border);
+  color: var(--design-text);
+}
+:root .euiTableRowCellCheckbox {
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border);
+}
+@media only screen and (max-width: 574px) {
+:root .euiTable.euiTable--responsive .euiTableRowCell__mobileHeader {
+  color: var(--design-text-muted);
+}
+:root .euiTable.euiTable--responsive .euiTableRow {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+:root .euiTable.euiTable--responsive .euiTableRow {
+  box-shadow: var(--design-shadow-2);
+  background-color: var(--design-surface-2);
+}
+:root .euiTable.euiTable--responsive .euiTableRow:hover {
+  background-color: var(--design-surface-2);
+}
+}
+@media only screen and (min-width: 575px) and (max-width: 767px) {
+:root .euiTable.euiTable--responsive .euiTableRowCell__mobileHeader {
+  color: var(--design-text-muted);
+}
+:root .euiTable.euiTable--responsive .euiTableRow {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+:root .euiTable.euiTable--responsive .euiTableRow {
+  box-shadow: var(--design-shadow-2);
+  background-color: var(--design-surface-2);
+}
+:root .euiTable.euiTable--responsive .euiTableRow:hover {
+  background-color: var(--design-surface-2);
+}
+}
+:root .euiTabs::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiTabs::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiTabs::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+:root .euiTabs:not(.euiTabs--condensed)::before {
+  background-color: var(--design-surface-active);
+}
+:root .euiTab {
+  color: var(--design-text);
+  background-color: transparent;
+}
+:root .euiTab:focus {
+  background-color: var(--design-surface-3);
+}
+:root .euiTab:focus::before {
+  background-color: var(--design-surface-active);
+}
+:root .euiTab.euiTab-isSelected {
+  color: var(--design-link);
+}
+:root .euiTab.euiTab-isSelected::after {
+  background-color: var(--design-primary);
+}
+:root .euiTitle--xxxsmall,
+:root .euiTitle--xxsmall,
+:root .euiTitle--xsmall,
+:root .euiTitle--small,
+:root .euiTitle--medium,
+:root .euiTitle--large,
+:root .euiToastHeader__title {
+  color: var(--design-text);
+}
+:root .euiGlobalToastList::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+}
+:root .euiGlobalToastList::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+:root .euiGlobalToastList::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+:root .euiToast {
+  border-color: var(--design-border);
+  box-shadow: var(--design-shadow-3);
+  border-color: var(--design-border-strong);
+  border-top-color: var(--design-border);
+  border-bottom-color: var(--design-border-strong);
+  background-color: var(--design-surface-2);
+}
+:root .euiToast__closeButton svg {
+  fill: var(--design-text-muted);
+}
+:root .euiToast__closeButton:hover svg {
+  fill: var(--design-text);
+}
+:root .euiToast__closeButton:focus {
+  background-color: var(--design-surface-3);
+}
+:root .euiToast__closeButton:focus svg {
+  fill: var(--design-link);
+}
+:root .euiToast--warning {
+  border-top-color: var(--design-warning);
+}
+:root .euiToastHeader__icon {
+  fill: var(--design-text);
+}
+:root .euiToken--euiColorVis0 {
+  color: var(--design-success);
+}
+:root .euiToken--euiColorVis0.euiToken--light {
+  color: var(--design-success);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px var(--design-border);
+}
+:root .euiToken--euiColorVis1 {
+  color: var(--design-link);
+}
+:root .euiToken--euiColorVis1.euiToken--light {
+  color: var(--design-link);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px var(--design-border);
+}
+:root .euiToken--euiColorVis6 {
+  color: var(--design-warning);
+}
+:root .euiToken--euiColorVis6.euiToken--light {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px var(--design-border);
+}
+:root .euiToken--euiColorVis7 {
+  color: var(--design-warning);
+}
+:root .euiToken--euiColorVis7.euiToken--light {
+  color: var(--design-warning);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px var(--design-warning);
+}
+:root .euiToken--gray {
+  color: var(--design-text-muted);
+}
+:root .euiToken--gray.euiToken--light {
+  color: var(--design-text-muted);
+  background-color: var(--design-surface-3);
+  box-shadow: inset 0 0 0 1px var(--design-border);
+}
+:root .euiToolTip {
+  box-shadow: var(--design-shadow-3);
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+}
+:root .euiToolTip .euiToolTip__arrow {
+  background-color: var(--design-text);
+}
+:root .euiText {
+  color: var(--design-text);
+  color: inherit;
+}
+:root .euiText a:not([class]),
+:root .euiText a:not([class]):hover,
+:root .euiText a:not([class]):focus {
+  color: var(--design-link);
+}
+:root .euiText a:not([class]):focus {
+  background-color: var(--design-surface-3);
+}
+:root .euiText blockquote:before,
+:root .euiText blockquote:after {
+  background-color: var(--design-text-muted);
+}
+:root .euiText h1,
+:root .euiText h2,
+:root .euiText h3,
+:root .euiText h4,
+:root .euiText dt,
+:root .euiText h5,
+:root .euiText h6 {
+  color: var(--design-text);
+}
+:root .euiText pre {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+:root .euiTextColor--default {
+  color: var(--design-text);
+}
+:root .euiTextColor--subdued {
+  color: var(--design-text-muted);
+}
+:root .euiTextColor--danger {
+  color: var(--design-danger);
+}
+:root .table > thead > tr > th,
+:root .table > tbody > tr > th,
+:root .table > tfoot > tr > th,
+:root .table > thead > tr > td,
+:root .table > tbody > tr > td,
+:root .table > tfoot > tr > td,
+:root .table > tbody + tbody {
+  border-top-color: var(--design-border);
+}
+:root .table > thead > tr > th {
+  border-bottom-color: var(--design-border);
+}
+:root .table .table {
+  background-color: var(--design-surface-2);
+}
+:root #opensearch-dashboards-body > div > div.app-wrapper.hidden-chrome > div > div.application > div > ul > div.euiText.euiText--medium > div,
+:root #opensearch-dashboards-body > div > div.app-wrapper.hidden-chrome > div > div.application > div > ul > div.euiText.euiText--small > div {
+  color: var(--design-on-primary) !important;
+}
+:root #opensearch-dashboards-body > div > div.app-wrapper.hidden-chrome > div > div.application > div > ul > form {
+  box-shadow: var(--design-shadow-2);
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+}
+:root .wz-login .btn-login {
+  background-color: var(--design-primary) !important;
+  border-color: var(--design-primary) !important;
+  color: var(--design-on-primary);
+}
+:root .osdWelcomeView {
+  background-color: var(--design-surface-2);
+}
+:root .osdWelcomeTitle {
+  color: var(--design-text);
+}
+:root .osdWelcomeText {
+  color: var(--design-text-muted);
+}
+:root .ace_editor {
+  -webkit-tap-highlight-color: rgba(var(--design-text-rgb), 0);
+}
+:root .ace_scroller {
+  background-color: inherit;
+}
+:root .ace_text-input {
+  background-color: transparent;
+  background-image: none;
+}
+:root .ace_cursor {
+  border-left-color: currentcolor;
+}
+:root .ace_fold-widget {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAANElEQVR42mWKsQ0AMAzC8ixLlrzQjzmBiEjp0A6WwBCSPgKAXoLkqSot7nN3yMwR7pZ32NzpKkVoDBUxKAAAAABJRU5ErkJggg==");
+  border-color: transparent;
+}
+:root .ace_fold-widget:hover {
+  border-color: rgba(var(--design-border-strong-rgb), 0.3);
+  background-color: rgba(var(--design-surface-2-rgb), 0.2);
+  box-shadow: var(--design-shadow-1);
+}
+:root .ace_fold-widget:active {
+  border-color: rgba(var(--design-border-strong-rgb), 0.4);
+  background-color: rgba(var(--design-text-rgb), 0.05);
+  box-shadow: var(--design-shadow-1);
+}
+:root .ace-tm .ace_gutter {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+:root .ace-tm .ace_print-margin {
+  background-color: var(--design-surface-active);
+}
+:root .ace-tm {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+:root .ace-tm .ace_cursor {
+  color: var(--design-text);
+}
+:root .ace-tm .ace_constant {
+  color: var(--design-danger);
+}
+:root .ace-tm .ace_constant.ace_language {
+  color: var(--design-link);
+}
+:root .ace-tm .ace_string {
+  color: var(--design-success);
+}
+:root .ace-tm .ace_constant.ace_numeric {
+  color: var(--design-link);
+}
+:root .ace-tm .ace_variable {
+  color: var(--design-success);
+}
+:root .ace-tm .ace_marker-layer .ace_bracket {
+  border-color: var(--design-border-strong);
+}
+:root .ace-tm .ace_marker-layer .ace_active-line {
+  background-color: rgba(var(--design-text-rgb), 0.07);
+}
+:root .ace-tm .ace_gutter-active-line {
+  background-color: var(--design-surface-active);
+}
+:root .ace-tm .ace_indent-guide {
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bLly//BwAmVgd1/w11/gAAAABJRU5ErkJggg==") right repeat-y;
+}
+:root .echCanvasRenderer {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .coreSystemRootDomElement .ace-tm {
+  background-color: var(--design-surface-3);
+  color: var(--design-text);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+  border-color: rgba(var(--design-border-strong-rgb), 0);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_scrollbar::-webkit-scrollbar-corner {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_scrollbar::-webkit-scrollbar-track {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_gutter-active-line,
+:root .coreSystemRootDomElement .ace-tm .ace_marker-layer .ace_active-line {
+  background-color: rgba(var(--design-surface-active-rgb), 0.7);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_snippet-marker {
+  background-color: var(--design-surface-3);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_indent-guide {
+  background: linear-gradient(to left, var(--design-border-strong) 0%, var(--design-border-strong) 1px, transparent 1px, transparent 100%);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_method {
+  color: var(--design-danger);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_url {
+  color: var(--design-success);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_gutter {
+  background-color: var(--design-surface-2);
+  color: var(--design-text-muted);
+  border-left-color: var(--design-border);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_print-margin {
+  background-color: var(--design-surface-active);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_cursor {
+  color: var(--design-text);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_constant {
+  color: var(--design-danger);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_constant.ace_language {
+  color: var(--design-link);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_string,
+:root .coreSystemRootDomElement .ace-tm .ace_constant.ace_numeric,
+:root .coreSystemRootDomElement .ace-tm .ace_variable {
+  color: var(--design-success);
+}
+:root .coreSystemRootDomElement .ace-tm .ace_marker-layer .ace_bracket {
+  border-color: var(--design-border);
+}
+:root .osdOverviewPageHeader {
+  background-color: var(--design-surface-1);
+  border-bottom-color: var(--design-border);
+}
+:root .globalFilterItem,
+:root .embPanel__title {
+  color: var(--design-text);
+}
+:root .globalFilterItem:not(.globalFilterItem-isDisabled) {
+  background-color: var(--design-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--design-link-rgb), 0.1), var(--design-shadow-1);
+  box-shadow: inset 0 0 0 1px var(--design-border), var(--design-shadow-1);
+}
+:root .osdQueryBar__textarea:not(:focus):not(:invalid) {
+  mask-image: linear-gradient(to bottom, rgba(var(--design-danger-rgb), 0.1) 0%, var(--design-danger) 7.5px, var(--design-danger) calc(100% - 7.5px), rgba(var(--design-danger-rgb), 0.1) 100%);
+}
+:root .osdQueryBar__textarea:not(:focus):not(:invalid)::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+  border-color: rgba(var(--design-border-strong-rgb), 0);
+}
+:root .osdQueryBar__textarea:not(:focus):not(:invalid)::-webkit-scrollbar-corner {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .osdQueryBar__textarea:not(:focus):not(:invalid)::-webkit-scrollbar-track {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .osdUiAceKeyboardHint {
+  background-color: rgba(var(--design-surface-2-rgb), 0.7);
+}
+:root .osdUiAceKeyboardHint:focus {
+  border-color: var(--design-link);
+}
+:root .embPanel__optionsMenuButton {
+  background-color: rgba(var(--design-text-rgb), 0.1);
+}
+:root .embPanel__optionsMenuButton:focus {
+  background-color: var(--design-surface-3);
+}
+:root .embPanel--loading .embPanel__title {
+  color: var(--design-text-muted);
+}
+:root .react-grid-item>.react-resizable-handle:hover {
+  background-color: rgba(var(--design-warning-hover-rgb), 0.1);
+}
+:root .react-grid-item>.react-resizable-handle:focus {
+  background-color: rgba(var(--design-warning-rgb), 0.1);
+}
+:root .dshLayout-withoutMargins:not(.dshLayout--editing) .embPanel {
+  border-color: rgba(var(--design-border-strong-rgb), 0);
+}
+:root .react-resizable-handle {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2IDYiIHN0eWxlPSJiYWNrZ3JvdW5kLWNvbG9yOiNmZmZmZmYwMCIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2cHgiIGhlaWdodD0iNnB4Ij48ZyBvcGFjaXR5PSIwLjMwMiI+PHBhdGggZD0iTSA2IDYgTCAwIDYgTCAwIDQuMiBMIDQgNC4yIEwgNC4yIDQuMiBMIDQuMiAwIEwgNiAwIEwgNiA2IEwgNiA2IFoiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+');
+}
+:root .embPanel .visualization::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+  border-color: rgba(var(--design-border-strong-rgb), 0);
+}
+:root .embPanel .visualization::-webkit-scrollbar-corner {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .embPanel .visualization::-webkit-scrollbar-track {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .dscCanvas::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+  border-color: rgba(var(--design-border-strong-rgb), 0);
+}
+:root .dscCanvas::-webkit-scrollbar-corner {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .dscCanvas::-webkit-scrollbar-track {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root doc-table::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.5);
+  border-color: rgba(var(--design-border-strong-rgb), 0);
+}
+:root doc-table::-webkit-scrollbar-corner {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root doc-table::-webkit-scrollbar-track {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .osd-table dl.source dt {
+  background-color: rgba(var(--design-primary-rgb), 0.1);
+  color: var(--design-text);
+}
+:root .table .table {
+  background-color: var(--design-surface-2);
+}
+:root .euiDescriptionList.euiDescriptionList--inline .euiDescriptionList__title.osdDescriptionListFieldTitle {
+  background-color: var(--design-surface-3);
+}
+:root .osdDocTableCell__filter::before {
+  background-image: linear-gradient(to right, transparent 0, var(--design-surface-2) 16px);
+}
+:root .deSidebar_panel .dscSideBar_searchContainer {
+  border-bottom-color: var(--design-border);
+}
+:root .deSidebar_panel .dscSideBar_searchContainer .dscSideBar_searchInput {
+  border-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+:root .dscSidebar__item:hover {
+  background-color: var(--design-surface-hover);
+}
+:root .dscSidebar__item:focus {
+  background-color: var(--design-surface-3);
+}
+:root .ace_snippet-marker {
+  background-color: rgba(var(--design-border-strong-rgb), 0.09);
+  border-color: rgba(var(--design-border-rgb), 0.62);
+}
+:root .conApp__editorActionButton {
+  background-color: transparent;
+  background-image: none;
+}
+:root .conApp__editorActionButton--success {
+  color: var(--design-success);
+}
+:root .conApp__resizer {
+  background-color: var(--design-surface-1);
+}
+:root .conApp__resizer:hover {
+  background-color: var(--design-info-border);
+}
+:root .conApp__resizer:focus {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+:root .conApp__tabsExtension {
+  border-bottom-color: var(--design-border);
+}
+:root ::-webkit-scrollbar-corner {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root ::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-rgb), 0.1);
+}
+:root md-content,
+:root md-sidenav {
+  background-color: rgba(var(--design-text-rgb), 0) !important;
+}
+:root #wz-dev-tools-editor--separator {
+  background: linear-gradient(var(--design-surface-1));
+  border-left-color: rgba(var(--design-border-strong-rgb), 0.04);
+  border-right-color: rgba(var(--design-border-strong-rgb), 0.04);
+}
+:root #wz-dev-tools-editor--separator svg {
+  color: var(--design-text);
+}
+:root #wz-dev-tools-editor--separator:hover {
+  background: linear-gradient(var(--design-info-border));
+}
+:root #wz-dev-tools-editor--separator focusRingAnimate animation {
+  box-shadow: 0px 0px 0px 3px rgba(var(--design-link-rgb), 0.3);
+}
+:root #wz-progress {
+  background-color: var(--design-surface-active);
+}
+:root #wz-progress-bar {
+  color: var(--design-on-success);
+  background-color: var(--design-success);
+}
+:root .application {
+  background-color: var(--design-surface-1);
+}
+:root .health-check .euiCodeBlock {
+  border-color: rgba(var(--design-border-strong-rgb), 0.07);
+}
+:root .subdued-color {
+  color: var(--design-text-muted);
+}
+:root .wz-app .euiPage {
+  background-color: rgba(var(--design-text-rgb), 0);
+}
+:root .button-group-filter .euiButtonGroup__buttons {
+  box-shadow: inset 0 0 0 1px var(--design-border-strong), var(--design-shadow-1) !important;
+}
+:root .wz-welcome-page-agent-tabs {
+  border-bottom-color: var(--design-border);
+  background-color: var(--design-surface-2);
+}
+:root .wz-module-header-nav {
+  background-color: var(--design-surface-1);
+}
+:root .wz-app div.vulnerability-dashboard-metrics>div:nth-child(1)>div>div>div:nth-child(1)>div>div>div.embPanel__content>div>div>div>div.mtrVis__value {
+  color: var(--design-danger) !important;
+}
+:root .wz-app div.vulnerability-dashboard-metrics>div:nth-child(1)>div>div>div:nth-child(2)>div>div>div.embPanel__content>div>div>div>div.mtrVis__value {
+  color: var(--design-warning) !important;
+}
+:root .wz-app div.vulnerability-dashboard-metrics>div:nth-child(1)>div>div>div:nth-child(3)>div>div>div.embPanel__content>div>div>div>div.mtrVis__value {
+  color: var(--design-link) !important;
+}
+:root .wz-app div.vulnerability-dashboard-metrics>div:nth-child(1)>div>div>div:nth-child(4)>div>div>div.embPanel__content>div>div>div>div.mtrVis__value {
+  color: var(--design-success) !important;
+}
+:root :focus {
+  outline-color: rgba(var(--design-border-strong-rgb), 0) !important;
+}
+:root .wz-inventory .application .euiAccordion {
+  border-bottom-color: var(--design-border);
+}
+:root .CodeMirror {
+  color: var(--design-text);
+  border-top-color: var(--design-border);
+}
+:root .CodeMirror-scrollbar-filler,
+:root .CodeMirror-gutter-filler {
+  background-color: var(--design-surface-2);
+}
+:root .CodeMirror-styled-background {
+  background-color: var(--design-surface-3);
+}
+:root .CodeMirror-gutters {
+  border-right-color: var(--design-border);
+  background-color: var(--design-surface-3);
+}
+:root .CodeMirror-linenumber,
+:root .CodeMirror-guttermarker-subtle {
+  color: var(--design-text-muted);
+}
+:root .CodeMirror-cursor {
+  border-left-color: var(--design-border-strong);
+}
+:root .CodeMirror {
+  background-color: var(--design-surface-2);
+}
+:root .CodeMirror-sizer {
+  border-right-color: rgba(var(--design-border-strong-rgb), 0);
+}
+:root .CodeMirror-gutter-wrapper ::selection {
+  background-color: rgba(var(--design-surface-3-rgb), 0);
+}
+:root .CodeMirror-gutter-wrapper ::-moz-selection {
+  background-color: rgba(var(--design-surface-3-rgb), 0);
+}
+:root .CodeMirror pre {
+  background-color: rgba(var(--design-surface-3-rgb), 0);
+  color: inherit;
+  -webkit-tap-highlight-color: rgba(var(--design-text-rgb), 0);
+}
+:root .CodeMirror-line::selection,
+:root .CodeMirror-line>span::selection,
+:root .CodeMirror-line>span>span::selection {
+  background-color: var(--design-surface-active);
+}
+:root .CodeMirror-line::-moz-selection,
+:root .CodeMirror-line>span::-moz-selection,
+:root .CodeMirror-line>span>span::-moz-selection {
+  background-color: var(--design-surface-active);
+}
+:root .cm-s-http-request .cm-comment {
+  color: var(--design-success);
+}
+:root .cm-s-http-request .cm-method {
+  color: var(--design-danger);
+}
+:root .cm-s-http-request .cm-url,
+:root .cm-s-http-request .cm-variable,
+:root .cm-s-http-request .cm-string,
+:root .cm-s-http-request .cm-string.cm-property,
+:root .cm-s-http-request .cm-operator {
+  color: var(--design-success);
+}
+:root .homWrapper {
+  background-color: var(--design-surface-2);
+}
+:root [data-rbd-drag-handle-context-id="0"] {
+  -webkit-tap-highlight-color: rgba(var(--design-text-rgb), 0);
+}
+:root .echCanvasRenderer {
+  background-color: transparent;
+  background-image: none;
+}
+:root .panel-header-count {
+  color: var(--design-text-muted);
+}
+:root .security-steps-diagram::before {
+  background-color: var(--design-text);
+}
+:root .security-steps-diagram::after {
+  background-color: var(--design-primary);
+}

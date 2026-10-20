@@ -2,6 +2,7 @@
 application_id: "web-app-wazuh"
 
 WAZUH_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.manager.name') }}"
+WAZUH_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'manager') }}"
 
 WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
 WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
@@ -51,11 +52,15 @@ WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
 WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
 
 WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+WAZUH_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 WAZUH_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 
 WAZUH_INDEXER_ADMIN_USERNAME: "{{ lookup('users', 'admin').username }}"
 WAZUH_INDEXER_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.indexer_admin_password') }}"
 WAZUH_INDEXER_ADMIN_HASH: "{{ WAZUH_INDEXER_ADMIN_PASSWORD | bcrypt_hash(application_id ~ ':indexer-admin') }}"
+
+WAZUH_PLATFORM_ADMIN_USERNAME: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).username }}"
+WAZUH_PLATFORM_ADMIN_HASH: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password | bcrypt_hash(application_id ~ ':platform-admin') }}"
 
 WAZUH_DASHBOARD_SERVICE_USERNAME: "{{ lookup('users', 'web-app-wazuh-dashboard').username }}"
 WAZUH_DASHBOARD_SERVICE_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.dashboard_service_password') }}"
@@ -71,5 +76,10 @@ WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=applicat
 WAZUH_RBAC_READONLY_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='readonly-auditor') }}"
 
 WAZUH_RBAC_ADMIN_LDAP_CN: "{{ application_id }}-administrator"
+WAZUH_API_ADMIN_RULE: "infinito_administrators"
+WAZUH_API_ADMIN_BACKEND_ROLES:
+  - "admin"
+  - "{{ WAZUH_RBAC_ADMIN_GROUP }}"
+  - "{{ WAZUH_RBAC_ADMIN_LDAP_CN }}"
 WAZUH_RBAC_ANALYST_LDAP_CN: "{{ application_id }}-security-analyst"
 WAZUH_RBAC_READONLY_LDAP_CN: "{{ application_id }}-readonly-auditor"

@@ -14,3 +14,12 @@ _meta:
   hash: "{{ WAZUH_DASHBOARD_SERVICE_HASH }}"
   reserved: true
   description: "Service account wazuh.dashboard uses for its own backend calls to wazuh.indexer."
+{% if not WAZUH_OIDC_ENABLED %}
+
+"{{ WAZUH_PLATFORM_ADMIN_USERNAME }}":
+  hash: "{{ WAZUH_PLATFORM_ADMIN_HASH }}"
+  reserved: false
+  backend_roles:
+    - "admin"
+  description: "Platform administrator, signs in with HTTP basic auth while single sign-on is off."
+{% endif %}

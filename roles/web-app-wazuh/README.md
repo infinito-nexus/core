@@ -77,3 +77,4 @@ Variant matrix: [variants.yml](./meta/variants.yml). Service flags and image pin
 - [Wazuh Official Website](https://wazuh.com/)
 - [Wazuh Documentation](https://documentation.wazuh.com/current/)
 - [wazuh-docker GitHub](https://github.com/wazuh/wazuh-docker)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/3LsSm8JzVMq6n9iHGwMLUc)
