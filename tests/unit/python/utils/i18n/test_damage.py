@@ -68,5 +68,30 @@ class TestWrongScript(unittest.TestCase):
         self.assertEqual(reason("Status", "100 %", "be"), "")
 
 
+class TestForeignScript(unittest.TestCase):
+    """A Latin-script language came back in a script it does not use.
+
+    The model answers a language it cannot write with one it can. Chamorro
+    came back in Han because the ISO code ``ch`` reads as Chinese, Turkish in
+    Bengali, Avestan in Arabic, and none of it was caught while only the
+    non-Latin direction was checked.
+    """
+
+    def test_han_in_a_latin_script_catalog_is_condemned(self) -> None:
+        self.assertEqual(reason("AI Services", "人工智能服务", "ch"), "foreign-script")
+
+    def test_arabic_in_a_latin_script_catalog_is_condemned(self) -> None:
+        self.assertEqual(reason("Sales", "إدارة", "tr"), "foreign-script")
+
+    def test_a_latin_script_answer_is_kept(self) -> None:
+        self.assertEqual(reason("Applications", "Anwendungen", "de"), "")
+
+    def test_a_non_latin_target_is_not_judged_by_this_rule(self) -> None:
+        self.assertEqual(reason("Applications", "Праграмы", "be"), "")
+
+    def test_a_translation_without_a_word_is_kept(self) -> None:
+        self.assertEqual(reason("Status", "100 %", "ch"), "")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -107,6 +107,28 @@ def untranslated(translation: str, language: str) -> bool:
     return latin / len(words) >= LATIN_SHARE
 
 
+def foreign_script(translation: str, language: str) -> bool:
+    """Return whether a Latin-script language came back in another script.
+
+    The mirror of :func:`untranslated`, and the half that catches a model
+    answering a language it cannot write with one it can: Chamorro came back
+    in Han because the code ``ch`` reads as Chinese, Turkish in Bengali,
+    Avestan in Arabic. A target that writes its own name in Latin letters has
+    no business returning a line that carries almost none.
+
+    Args:
+        translation: what came back for the entry.
+        language: ISO 639-1 code of the catalog being filled.
+    """
+    if language in NON_LATIN_SCRIPTS:
+        return False
+    words = WORDS.findall(prose(translation))
+    if not words:
+        return False
+    latin = sum(1 for word in words if (latin_share(word) or 0) > 0.5)
+    return latin / len(words) <= 1 - LATIN_SHARE
+
+
 def stutters(source: str, translation: str) -> bool:
     """Return whether ``translation`` repeats a word the source does not.
 
@@ -246,6 +268,8 @@ def reason(source: str, translation: str, language: str = "") -> str:
         return "stutter"
     if untranslated(translation, language):
         return "untranslated"
+    if foreign_script(translation, language):
+        return "foreign-script"
     if truncated(source, translation, language):
         return "truncated"
     if collapsed(source, translation):
