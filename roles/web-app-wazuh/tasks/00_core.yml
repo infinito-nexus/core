@@ -35,7 +35,7 @@
     - wazuh.yml
   notify: compose-up
 
-- name: "📄 Render per-service env files for the Wazuh manager and dashboard"
+- name: "📄 Render the per-service env files of Wazuh"
   stack_host_template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -44,34 +44,37 @@
   loop:
     - { src: manager.env.j2, dest: "{{ WAZUH_MANAGER_ENV_FILE }}" }
     - { src: dashboard.env.j2, dest: "{{ WAZUH_DASHBOARD_ENV_FILE }}" }
+    - { src: indexer.env.j2, dest: "{{ WAZUH_INDEXER_ENV_FILE }}" }
+    - { src: certs_generator.env.j2, dest: "{{ WAZUH_CERTS_GENERATOR_ENV_FILE }}" }
   loop_control:
     label: "{{ item.src }}"
   notify: compose-up
 
-- name: "📋 Copy static Wazuh indexer roles.yml"
-  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
-    src: roles.yml
-    dest: "{{ [ WAZUH_INSTANCE_DIR, 'roles.yml' ] | path_join }}"
-    mode: "0644"
+- name: "📋 Copy the static Wazuh assets onto the stack host"
   when: IS_STACK_HOST | bool
-  notify: compose-up
+  block:
+    - name: "📋 Copy static Wazuh indexer roles.yml"
+      ansible.builtin.copy: # nocheck: stack-host-consumer (gated by the block's `when: IS_STACK_HOST | bool`)
+        src: roles.yml
+        dest: "{{ [ WAZUH_INSTANCE_DIR, 'roles.yml' ] | path_join }}"
+        mode: "0644"
+      notify: compose-up
 
-- name: "📋 Copy static Wazuh entrypoint scripts"
-  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
-    src: "shell/{{ item }}"
-    dest: "{{ [ WAZUH_INSTANCE_DIR, item ] | path_join }}"
-    mode: "0555"
-  loop:
-    - certs-entrypoint.sh
-    - indexer-entrypoint.sh
-  when: IS_STACK_HOST | bool
-  notify: compose-up
+    - name: "📋 Copy static Wazuh entrypoint scripts"
+      ansible.builtin.copy: # nocheck: stack-host-consumer (gated by the block's `when: IS_STACK_HOST | bool`)
+        src: "shell/{{ item }}"
+        dest: "{{ [ WAZUH_INSTANCE_DIR, item ] | path_join }}"
+        mode: "0555"
+      loop:
+        - certs-entrypoint.sh
+        - indexer-entrypoint.sh
+      notify: compose-up
 
 - name: "🔐 Pre-generate the Wazuh certs before the swarm stack deploys"
   include_tasks: certs/swarm.yml
   when:
     - IS_STACK_HOST | bool
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
 
 - name: "🔧 Set vm.max_map_count for the Wazuh indexer (OpenSearch requirement)"
   ansible.posix.sysctl:
@@ -90,8 +93,8 @@
     name: sys-stk-front-proxy
   vars:
     http_port: "{{ WAZUH_DASHBOARD_HTTP_PORT }}"
-    webserver_proxy_service_key: "{{ 'dashboard' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
-    proxy_internal_port: "{{ WAZUH_DASHBOARD_INTERNAL_PORT if DEPLOYMENT_MODE == 'swarm' else '' }}"
+    webserver_proxy_service_key: "{{ 'dashboard' if IS_SWARM_MODE else (application_id | entity_name) }}"
+    proxy_internal_port: "{{ WAZUH_DASHBOARD_INTERNAL_PORT if IS_SWARM_MODE else '' }}"
 
 - name: "⏳ Wait for Wazuh indexer to answer HTTPS requests (security plugin loaded)"
   uri_retry:

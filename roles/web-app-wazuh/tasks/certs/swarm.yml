@@ -25,7 +25,7 @@
       - ls
       - --quiet
       - --filter
-      - "label=com.docker.stack.namespace={{ application_id | get_entity_name }}"
+      - "label=com.docker.stack.namespace={{ application_id | entity_name }}"
   register: wazuh_certs_stack
   changed_when: false
 
@@ -41,54 +41,53 @@
     wazuh_certs_present: "{{ present | int }}"
     wazuh_certs_current: "{{ present | int == WAZUH_CERTS_REQUIRED_FILES | length and recorded == expected }}"
 
-- name: "⛔ Refuse to rotate the Wazuh CA under a running stack"
-  ansible.builtin.fail:
-    msg: >-
-      Wazuh TLS certs on {{ inventory_hostname }} are not current, and the stack
-      '{{ application_id | get_entity_name }}' is running, so they were NOT regenerated: that would
-      swap the CA under the live services.
-      Marker {{ WAZUH_CERTS_MARKER_HOST }} reads '{{ wazuh_certs_recorded or 'missing' }}',
-      expected '{{ wazuh_certs_expected }}' (sha256 of certs.yml, then tool version);
-      {{ wazuh_certs_present }}/{{ WAZUH_CERTS_REQUIRED_FILES | length }} cert files in
-      {{ WAZUH_CERTS_DIR_HOST }} exist and are non-empty.
-      To regenerate: run 'docker stack rm {{ application_id | get_entity_name }}', then redeploy.
-      To keep certs you know are good (a host deployed before this marker existed): write
-      '{{ wazuh_certs_expected }}' to {{ WAZUH_CERTS_MARKER_HOST }}, then redeploy.
-  when:
-    - not (wazuh_certs_current | bool)
-    - wazuh_certs_stack.stdout | trim | length > 0
-
-- name: "⬇️ Pull the Wazuh certs generator image on the stack host"
-  ansible.builtin.command:
-    argv:
-      - container
-      - pull
-      - "{{ WAZUH_CERTS_GENERATOR_IMAGE }}"
-  register: wazuh_certs_pull
-  retries: 10
-  delay: 6
-  until: wazuh_certs_pull.rc == 0
-  changed_when: false
+- name: "🔐 Renew the Wazuh certs while the recorded marker is stale"
   when: not (wazuh_certs_current | bool)
+  block:
+    - name: "⛔ Refuse to rotate the Wazuh CA under a running stack"
+      ansible.builtin.fail:
+        msg: >-
+          Wazuh TLS certs on {{ inventory_hostname }} are not current, and the stack
+          '{{ application_id | entity_name }}' is running, so they were NOT regenerated: that would
+          swap the CA under the live services.
+          Marker {{ WAZUH_CERTS_MARKER_HOST }} reads '{{ wazuh_certs_recorded or 'missing' }}',
+          expected '{{ wazuh_certs_expected }}' (sha256 of certs.yml, then tool version);
+          {{ wazuh_certs_present }}/{{ WAZUH_CERTS_REQUIRED_FILES | length }} cert files in
+          {{ WAZUH_CERTS_DIR_HOST }} exist and are non-empty.
+          To regenerate: run 'docker stack rm {{ application_id | entity_name }}', then redeploy.
+          To keep certs you know are good (a host deployed before this marker existed): write
+          '{{ wazuh_certs_expected }}' to {{ WAZUH_CERTS_MARKER_HOST }}, then redeploy.
+      when: wazuh_certs_stack.stdout | trim | length > 0
 
-- name: "🔐 Run the Wazuh certs generator once on the stack host"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    container ps -aq --filter {{ ('name=^' ~ WAZUH_CERTS_GENERATOR_CONTAINER ~ '$') | quote }} | xargs -r container rm -f
-    timeout -k 30 {{ lookup('timeout', 600) | int }} container run --rm \
-      --name {{ WAZUH_CERTS_GENERATOR_CONTAINER | quote }} \
-      --entrypoint {{ WAZUH_CERTS_ENTRYPOINT_TARGET | quote }} \
-      --env CERT_TOOL_VERSION={{ WAZUH_CERTS_TOOL_VERSION | quote }} \
-      --env WAZUH_MANAGER_NODE={{ WAZUH_MANAGER_CONTAINER | quote }} \
-      {% for mount in WAZUH_CERTS_GENERATOR_MOUNTS %}--mount {{ mount | quote }} {% endfor %}\
-      {{ WAZUH_CERTS_GENERATOR_IMAGE | quote }}
-  args:
-    executable: /bin/bash
-  register: wazuh_certs_generate
-  retries: 3
-  delay: 10
-  until: wazuh_certs_generate.rc == 0
-  when: not (wazuh_certs_current | bool)
+    - name: "⬇️ Pull the Wazuh certs generator image on the stack host"
+      ansible.builtin.command:
+        argv:
+          - container
+          - pull
+          - "{{ WAZUH_CERTS_GENERATOR_IMAGE }}"
+      register: wazuh_certs_pull
+      retries: 10
+      delay: 6
+      until: wazuh_certs_pull.rc == 0
+      changed_when: false
+
+    - name: "🔐 Run the Wazuh certs generator once on the stack host"
+      ansible.builtin.shell: |
+        set -euo pipefail
+        container ps -aq --filter {{ ('name=^' ~ WAZUH_CERTS_GENERATOR_CONTAINER ~ '$') | quote }} | xargs -r container rm -f
+        timeout -k 30 {{ lookup('timeout', 600) | int }} container run --rm \
+          --name {{ WAZUH_CERTS_GENERATOR_CONTAINER | quote }} \
+          --entrypoint {{ WAZUH_CERTS_ENTRYPOINT_TARGET | quote }} \
+          --env CERT_TOOL_VERSION={{ WAZUH_CERTS_TOOL_VERSION | quote }} \
+          --env WAZUH_MANAGER_NODE={{ WAZUH_MANAGER_CONTAINER | quote }} \
+          {% for mount in WAZUH_CERTS_GENERATOR_MOUNTS %}--mount {{ mount | quote }} {% endfor %}\
+          {{ WAZUH_CERTS_GENERATOR_IMAGE | quote }}
+      args:
+        executable: /bin/bash
+      register: wazuh_certs_generate
+      retries: 3
+      delay: 10
+      until: wazuh_certs_generate.rc == 0
 
 - name: "✅ Verify the generated Wazuh certs and record the marker"
   when: wazuh_certs_generate is not skipped
