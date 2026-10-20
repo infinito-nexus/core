@@ -3,6 +3,14 @@
 :func:`reason` is the single predicate both ends of the pipeline ask, and
 :func:`harms` is its boolean face; the rest of this module are the criteria it
 folds together.
+
+``WORDS`` takes one character as one word in Han, Kana, Thai, Lao, Khmer and
+Myanmar, which write without separators. Its single-character branch has to
+come first, or the run branch swallows a whole sentence together with the
+Latin product names inside it and returns one token whose Latin share decides
+the verdict alone. ``UNSPACED_RANGES`` holds codepoints rather than escapes
+because a formatter rewrites an escape into the character it names, and the
+literal blob that leaves behind cannot be read or reviewed.
 """
 
 from __future__ import annotations
@@ -28,7 +36,18 @@ COLLAPSE_RATIO = 0.15
 MAX_SHARING_SOURCES = 2
 ECHO_FLOOR = 30
 STUTTER = re.compile(r"\b(\w+)(?:\s+\1\b){2,}", re.IGNORECASE | re.UNICODE)
-WORDS = re.compile(r"[^\W\d_]{2,}", re.UNICODE)
+UNSPACED_RANGES = (
+    (0x3040, 0x30FF),
+    (0x3400, 0x4DBF),
+    (0x4E00, 0x9FFF),
+    (0xF900, 0xFAFF),
+    (0x0E00, 0x0E7F),
+    (0x0E80, 0x0EFF),
+    (0x1780, 0x17FF),
+    (0x1000, 0x109F),
+)
+UNSPACED = "".join(f"{chr(low)}-{chr(high)}" for low, high in UNSPACED_RANGES)
+WORDS = re.compile(rf"[{UNSPACED}]|[^\W\d_]{{2,}}", re.UNICODE)
 LATIN_SHARE = 0.9
 NON_LATIN_SCRIPTS = non_latin_languages(PROJECT_ROOT)
 
@@ -93,6 +112,12 @@ def untranslated(translation: str, language: str) -> bool:
     term the language keeps in English. The catalogs are mostly one- to
     four-word labels, which is where the wrong language hid for as long as a
     six-word floor stood here.
+
+    The ratio is only as good as the word count, which is why ``WORDS`` splits
+    a separator-less script per character: a Japanese sentence carrying two
+    Latin product names is one token to a run-based pattern, and one token
+    whose Latin share passes a half makes the ratio 1.0 on a sound
+    translation.
 
     Args:
         translation: what came back for the entry.

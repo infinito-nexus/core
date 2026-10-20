@@ -67,6 +67,34 @@ class TestWrongScript(unittest.TestCase):
     def test_a_translation_without_a_word_is_kept(self) -> None:
         self.assertEqual(reason("Status", "100 %", "be"), "")
 
+    def test_a_separatorless_script_counts_one_word_per_character(self) -> None:
+        """Japanese and Chinese write without spaces, so a run-based pattern
+        returns the whole sentence as one token, and two Latin product names
+        inside it carry that token past a half and the ratio to 1.0."""
+        self.assertEqual(
+            reason(
+                "Runs Playwright in Docker with stable browser settings",
+                "安定したブラウザ設定でDockerでPlaywrightを実行",
+                "ja",
+            ),
+            "",
+        )
+        self.assertEqual(
+            reason("Run Playwright in Docker", "在Docker中运行Playwright", "zh"), ""
+        )
+
+    def test_a_separatorless_script_answered_in_english_is_still_condemned(
+        self,
+    ) -> None:
+        self.assertEqual(
+            reason(
+                "Runs Playwright in Docker with stable settings",
+                "Runs Playwright in Docker with stable browser settings",
+                "ja",
+            ),
+            "untranslated",
+        )
+
 
 class TestForeignScript(unittest.TestCase):
     """A Latin-script language came back in a script it does not use.
