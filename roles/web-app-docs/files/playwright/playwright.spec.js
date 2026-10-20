@@ -16,6 +16,7 @@ require("./test-versions").register(shared);
 require("./test-languages").register(shared);
 require("./test-on-demand-build").register(shared);
 require("./test-yaml-page").register(shared);
+require("./test-licensing-page").register(shared);
 require("./test-design");
 
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {

@@ -22,7 +22,8 @@ role's own ``meta/networks.yml`` is read separately, and a README naming an
 upstream is prose rather than a fetch. ``meta/info.yml`` is skipped for that
 second reason: its ``homepage`` is where a human reads about the application,
 so a role whose upstream publishes on a cached domain would otherwise be
-charged with fetching from it.
+charged with fetching from it. ``meta/license.yml`` is skipped for the same
+reason: its ``url`` cites where the licence was read, and nothing fetches it.
 
 Fix a violation by moving the declaration to the role that fetches. Where two
 roles genuinely share an upstream, only one can own it; mark that entry
@@ -52,7 +53,11 @@ import yaml
 
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_INFO, ROLE_FILE_META_NETWORKS
+from utils.roles.mapping import (
+    ROLE_FILE_META_INFO,
+    ROLE_FILE_META_LICENSE,
+    ROLE_FILE_META_NETWORKS,
+)
 
 from . import PROJECT_ROOT
 
@@ -61,7 +66,11 @@ ROLES_DIR = PROJECT_ROOT / "roles"
 NETWORKS = ROLE_FILE_META_NETWORKS
 SHARED_OWNER = "svc-cache-package"
 SCANNED_SUFFIXES = (".yml", ".yaml", ".j2", ".py", ".sh", "Dockerfile")
-UNFETCHED = (Path(NETWORKS).name, Path(ROLE_FILE_META_INFO).name)
+UNFETCHED = (
+    Path(NETWORKS).name,
+    Path(ROLE_FILE_META_INFO).name,
+    Path(ROLE_FILE_META_LICENSE).name,
+)
 
 
 def _cache_hosts(role_dir) -> dict:

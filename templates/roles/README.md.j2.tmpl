@@ -162,3 +162,10 @@ The inventory under `$WORKDIR` is written by the container as `root`, including 
 
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+{% if application_license %}
+{% if application_license.is_own -%}
+This role deploys no third-party application, so the licence above is the only one that applies.
+{%- else -%}
+That licence covers this role. The software it deploys is a separate grant: [{{ application_license.spdx }}]({{ application_license.source }}), under which commercial use is {{ application_license.commercial }}. You owe its authors this much: {{ application_license.duties }}. Permission for one of the two is not permission for the other.
+{%- endif %}
+{%- endif %}

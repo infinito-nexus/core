@@ -31,7 +31,11 @@ from utils.cache.yaml import load_yaml
 from utils.meta.identity import by_name, profile_url
 from utils.roles.deploy import role_has_stack
 from utils.roles.entity.name import entity_name
-from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
+from utils.licensing.roles import OWN_LICENSE, declared
+from utils.roles.mapping import (
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_README,
+)
 from utils.roles.meta_lookup import get_role_guide_companions
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
 from utils.software import SOFTWARE_REPOSITORY, deploy_image
@@ -107,6 +111,29 @@ def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -
         ),
         "software_repository": SOFTWARE_REPOSITORY,
         "application_deploy_image": deploy_image(),
+        "application_license": _software_license(role_dir),
+    }
+
+
+def _software_license(role_dir) -> dict | None:
+    """Return the licence of the software the role deploys, or None.
+
+    The single source is ``meta/license.yml``; the README states it rather
+    than holding a second copy, because the licence of the deployed software
+    is a different fact from this repository's own licence that Credits names.
+
+    Args:
+        role_dir: the role directory.
+    """
+    entry = declared(role_dir)
+    if entry is None or not entry.spdx:
+        return None
+    return {
+        "spdx": entry.spdx,
+        "source": entry.url,
+        "commercial": entry.context.commercial,
+        "duties": entry.context.duties,
+        "is_own": entry.spdx == OWN_LICENSE,
     }
 
 

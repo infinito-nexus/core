@@ -184,6 +184,7 @@ ROLE_FILE_META_RBAC = "meta/rbac.yml"
 ROLE_FILE_META_VOLUMES = "meta/volumes.yml"
 ROLE_FILE_META_SECRETS = "meta/secrets.yml"
 ROLE_FILE_META_INFO = "meta/info.yml"
+ROLE_FILE_META_LICENSE = "meta/license.yml"
 ROLE_FILE_META_USERS = "meta/users.yml"
 ROLE_FILE_META_TESTS = "meta/tests.yml"
 
@@ -354,6 +355,14 @@ ROLE_FILES: dict[str, dict[str, object]] = {
     },
     ROLE_FILE_META_INFO: {
         "description": ("Optional dashboard / UI metadata (logo, label) for the role."),
+        "types": _all(mandatory=False),
+    },
+    ROLE_FILE_META_LICENSE: {
+        "description": (
+            "Licence of the software the role deploys: the SPDX expression, "
+            "where it was read, and inline rights for a grant the central "
+            "table does not carry."
+        ),
         "types": _all(mandatory=False),
     },
     ROLE_FILE_META_MCP: {

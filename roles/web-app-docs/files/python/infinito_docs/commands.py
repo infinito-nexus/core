@@ -104,6 +104,13 @@ def generate_commands(src):
             "--output-dir",
             generated / "integrations",
         ),
+        _generator(
+            "licensing",
+            "--roles-dir",
+            src / "roles",
+            "--output",
+            generated / "licensing.rst",
+        ),
         _generator("readmes", "--generated-dir", generated),
         _module(
             "cli.build.docs.readme",

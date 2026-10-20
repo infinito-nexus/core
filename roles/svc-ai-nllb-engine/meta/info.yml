@@ -2,4 +2,4 @@
 # nocheck: info-media no official demo video
 logo:
   class: ""
-homepage: https://ai.meta.com/research/no-language-left-behind/
+homepage: https://huggingface.co/facebook/nllb-200-distilled-600M
