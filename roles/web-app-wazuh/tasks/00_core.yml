@@ -127,3 +127,6 @@
   retries: 30
   delay: 5
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Map the platform administrators onto the Wazuh API administrator role"
+  include_tasks: 02_api_administrators.yml
