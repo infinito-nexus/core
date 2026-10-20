@@ -28,9 +28,10 @@
 - name: "📸 Archive the deployed working tree for '{{ application_id }}'"
   ansible.builtin.shell: >-
     set -o pipefail &&
-    tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner
-    --exclude=__pycache__ --exclude=node_modules --exclude='*.pyc'
-    -cf - {{ DOCS_SNAPSHOT_PATHS | join(' ') }}
+    find {{ DOCS_SNAPSHOT_PATHS | join(' ') }}
+    -name __pycache__ -prune -o -name node_modules -prune -o -name '*.pyc' -prune -o -print0
+    | LC_ALL=C sort -z
+    | tar --no-recursion --null --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - -T -
     | gzip -n > {{ docs_snapshot_archive.path | quote }}
   args:
     chdir: "{{ lookup('path_absolute', '.') }}"

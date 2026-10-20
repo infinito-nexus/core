@@ -122,8 +122,9 @@ resolve_domain_to_target() {
 
 report_failed_units() {
 	local failed units unit
-	failed="$(machine exec -T machine systemctl --no-pager --no-legend --plain --failed)" || failed=""
-	echo "=== systemctl --failed on the ${DOCS_TEST_ROLE} target ==="
+	failed="$(machine exec -T machine systemctl list-units --no-pager --no-legend --plain --all \
+		--state=failed,activating,auto-restart,deactivating)" || failed=""
+	echo "=== units not running on the ${DOCS_TEST_ROLE} target ==="
 	printf '%s\n' "${failed}"
 	units="$(printf '%s\n' "${failed}" | awk '{print $1}')"
 	for unit in ${units}; do
