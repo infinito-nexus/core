@@ -23,6 +23,13 @@ manager_queue:
   mounts:
     - service: manager
       target: /var/ossec/queue
+manager_vd:
+  type: volume
+  name: wazuh_manager_vd
+  backup: false
+  mounts:
+    - service: manager
+      target: /var/ossec/queue/vd
 manager_var_multigroups:
   type: volume
   name: wazuh_manager_var_multigroups

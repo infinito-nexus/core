@@ -91,6 +91,7 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 | `INFINITO_DOMAIN` | Base domain exported into the container environment. Default in [default.env](../../../../default.env). |
 | `INFINITO_BIND_IP` | Host address that all published ports bind to. |
 | `INFINITO_SUBNET` | IPAM subnet for the default bridge network. |
+| `INFINITO_IP_RANGE` | IPAM pool for containers that join the default bridge without a static address, such as worktree stacks on the primary's cache network. It is the upper half of `INFINITO_SUBNET`, derived after `custom.env` by [ip_range.py](../../../../utils/env/handlers/infinito/ip_range.py); every static address stays below it. |
 | `INFINITO_GATEWAY` | IPAM gateway for the default bridge network. |
 | `INFINITO_OUTER_NETWORK_MTU` | MTU for the bridge network. Lower when the host network is tunneled. |
 

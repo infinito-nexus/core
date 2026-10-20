@@ -10,6 +10,9 @@ This role deploys the single-node Wazuh stack (`wazuh.manager`, `wazuh.indexer`,
 A one-shot `wazuh-certs-generator` job creates the internal TLS material before the manager and the indexer start.
 The indexer is the stack's own datastore and holds the OpenSearch security configuration, so the role needs no shared database.
 Agent enrollment is not part of this role: the agent ports are declared in [services.yml](./meta/services.yml) but not published.
+The manager's vulnerability detection data (`/var/ossec/queue/vd`, volume `wazuh_manager_vd`) is deliberately not backed up.
+The manager downloads it again after a restore, which can take a long time.
+This matters once agents are enrolled.
 
 ## Cosmos
 

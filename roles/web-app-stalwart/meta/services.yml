@@ -105,7 +105,7 @@ webmail:
   image: roundcube/roundcubemail
   healthcheck:
     flavor: curl
-  version: "1.7.4-apache"
+  version: "1.7.5-apache"
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 1g

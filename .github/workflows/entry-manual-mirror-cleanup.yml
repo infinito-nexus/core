@@ -40,7 +40,7 @@ permissions:
 jobs:
   cleanup:
     name: 🗑️ Delete private GHCR mirror packages
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write

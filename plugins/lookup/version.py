@@ -1,13 +1,15 @@
 """
 Ansible lookup plugin: version
 
-No parameters.
 Reads ``pyproject.toml`` from the repository root, located by walking
 parents from this plugin file's location.
 
-Resolution order:
-1) [project].version (PEP 621)
-2) [tool.poetry].version (Poetry fallback)
+Args:
+    terms: empty for the project's own version, resolved as
+        1) [project].version (PEP 621)
+        2) [tool.poetry].version (Poetry fallback);
+        or one distribution name, for the version its exact ``==`` pin in
+        [project.dependencies] names.
 """
 
 from __future__ import annotations
@@ -40,6 +42,17 @@ def _get_nested(data: dict, path: list[str]):
     return cur
 
 
+def _dependency_pin(data: dict, package: str, pyproject_path: str) -> str:
+    prefix = f"{package}=="
+    for requirement in _get_nested(data, ["project", "dependencies"]) or []:
+        if isinstance(requirement, str) and requirement.startswith(prefix):
+            return requirement[len(prefix) :].strip()
+    raise AnsibleError(
+        f"version lookup: {package} has no exact '==' pin in "
+        f"[project.dependencies] of {pyproject_path}."
+    )
+
+
 class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
 
@@ -55,6 +68,13 @@ class LookupModule(LookupBase):
             raise AnsibleError(
                 f"version lookup: failed to parse TOML: {pyproject_path}: {exc}"
             ) from exc
+
+        if len(terms) > 1:
+            raise AnsibleError(
+                "version lookup accepts at most one term: a distribution name"
+            )
+        if terms:
+            return [_dependency_pin(data, str(terms[0]), pyproject_path)]
 
         version = _get_nested(data, ["project", "version"])
         if not version:

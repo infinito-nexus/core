@@ -43,6 +43,19 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   container boot.
 - **Strict assertion:** Missing `storage.nfs.server` or
   fails the deploy with a precise error.
+- **Node-local backups:** After the state mount, binds the node's own
+  `/var/lib/infinito-backup` over `/var/lib/infinito/backup`, so every
+  backup repository on a swarm node is written to local disk with its
+  extended attributes, and the backup host pulls it from there.
+  Generations written to the share before the bind stay under the
+  export's `backup/` directory, hidden from the nodes; remove them there
+  by hand.
+- **Directory delegations off against old ganesha:** When the server
+  runs nfs-ganesha older than 9.11, every client and the controller set
+  the kernel's `nfsv4` parameter `directory_delegations` to `N`, at
+  runtime and in `/etc/modprobe.d`. The parameter is kernel-wide, so on
+  a lab whose nodes share one kernel it covers every NFS mount of that
+  host until the module reloads.
 
 ## Quick Setup
 
