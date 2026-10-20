@@ -1,3 +1,4 @@
+---
 - name: "🔐 Grant the Wazuh API administrator role to the platform administrators"
   ansible.builtin.shell:
     cmd: >-

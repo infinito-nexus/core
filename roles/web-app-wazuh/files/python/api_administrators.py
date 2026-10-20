@@ -21,13 +21,18 @@ ADMINISTRATOR = "administrator"
 
 def call(method, path, token=None, body=None, auth=None):
     data = json.dumps(body).encode() if body is not None else None
-    request = urllib.request.Request(f"{API}{path}", method=method, data=data)
+    request = urllib.request.Request(f"{API}{path}", method=method, data=data)  # noqa: S310 - API is a module constant, so the scheme is always https
     request.add_header("Content-Type", "application/json")
     if auth is not None:
-        request.add_header("Authorization", "Basic " + base64.b64encode(auth.encode()).decode())
+        request.add_header(
+            "Authorization", "Basic " + base64.b64encode(auth.encode()).decode()
+        )
     else:
         request.add_header("Authorization", f"Bearer {token}")
-    with urllib.request.urlopen(request, context=ssl._create_unverified_context()) as response:
+    with urllib.request.urlopen(  # noqa: S310 - API is a module constant, so the scheme is always https
+        request,
+        context=ssl._create_unverified_context(),  # noqa: S323 - the Wazuh API answers on loopback inside the container this script is exec'd into, where its self-signed certificate has no issuer to verify and no path to intercept
+    ) as response:
         return json.loads(response.read())["data"]
 
 
@@ -37,19 +42,40 @@ def items(path, token):
 
 def main():
     name = os.environ["WAZUH_RBAC_RULE_NAME"]
-    rule = {"OR": [{"FIND": {"backend_roles": role}} for role in json.loads(os.environ["WAZUH_RBAC_BACKEND_ROLES"])]}
-    token = call("POST", "/security/user/authenticate", auth=f"{os.environ['API_USERNAME']}:{os.environ['API_PASSWORD']}")["token"]
+    rule = {
+        "OR": [
+            {"FIND": {"backend_roles": role}}
+            for role in json.loads(os.environ["WAZUH_RBAC_BACKEND_ROLES"])
+        ]
+    }
+    token = call(
+        "POST",
+        "/security/user/authenticate",
+        auth=f"{os.environ['API_USERNAME']}:{os.environ['API_PASSWORD']}",
+    )["token"]
     changed = False
-    current = next((item for item in items("/security/rules", token) if item["name"] == name), None)
+    current = next(
+        (item for item in items("/security/rules", token) if item["name"] == name), None
+    )
     if current is None:
-        current = call("POST", "/security/rules", token, {"name": name, "rule": rule})["affected_items"][0]
+        current = call("POST", "/security/rules", token, {"name": name, "rule": rule})[
+            "affected_items"
+        ][0]
         changed = True
     elif current["rule"] != rule:
         call("PUT", f"/security/rules/{current['id']}", token, {"rule": rule})
         changed = True
-    role = next(item for item in items("/security/roles", token) if item["name"] == ADMINISTRATOR)
+    role = next(
+        item
+        for item in items("/security/roles", token)
+        if item["name"] == ADMINISTRATOR
+    )
     if current["id"] not in role["rules"]:
-        call("POST", f"/security/roles/{role['id']}/rules?rule_ids={current['id']}", token)
+        call(
+            "POST",
+            f"/security/roles/{role['id']}/rules?rule_ids={current['id']}",
+            token,
+        )
         changed = True
     print("CHANGED" if changed else "OK")
 
