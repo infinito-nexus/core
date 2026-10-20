@@ -10,6 +10,9 @@
     ltengine:
       enabled: false
       shared: false
+    nllb-engine:
+      enabled: true
+      shared: true
     ollama:
       enabled: false
       shared: false
@@ -37,6 +40,9 @@
     ltengine:
       enabled: true
       shared: true
+    nllb-engine:
+      enabled: false
+      shared: false
     ollama:
       enabled: false
       shared: false
@@ -62,6 +68,9 @@
 
 - services:
     ltengine:
+      enabled: false
+      shared: false
+    nllb-engine:
       enabled: false
       shared: false
     ollama:

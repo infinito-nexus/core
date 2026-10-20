@@ -2,7 +2,7 @@
 
 ## Description
 
-[NLLB-200](https://ai.meta.com/research/no-language-left-behind/) is a sequence-to-sequence machine translation model covering 202 language-script combinations. It is a translation model rather than a chat model: the decoder is conditioned on a target language token, so it renders into a language instead of being asked to.
+[NLLB-200](https://huggingface.co/facebook/nllb-200-distilled-600M) is a sequence-to-sequence machine translation model covering 202 language-script combinations. It is a translation model rather than a chat model: the decoder is conditioned on a target language token, so it renders into a language instead of being asked to.
 
 ## Overview
 
@@ -33,5 +33,5 @@ The role declares its resources for the 600M checkpoint. A larger one needs `mem
 
 ## Further resources
 
-- [No Language Left Behind](https://ai.meta.com/research/no-language-left-behind/)
+- [No Language Left Behind (paper)](https://arxiv.org/abs/2207.04672)
 - [FLORES-200 language codes](https://github.com/facebookresearch/flores/blob/main/flores200/README.md)

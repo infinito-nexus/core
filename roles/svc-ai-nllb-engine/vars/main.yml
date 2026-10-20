@@ -13,7 +13,6 @@ NLLB_MODEL: "{{ lookup('config', application_id, 'services.nllb-engine.model') }
 NLLB_BEAMS: "{{ lookup('config', application_id, 'services.nllb-engine.beams') }}"
 NLLB_MAX_INPUT_TOKENS: "{{ lookup('config', application_id, 'services.nllb-engine.max_input_tokens') }}"
 NLLB_MAX_OUTPUT_TOKENS: "{{ lookup('config', application_id, 'services.nllb-engine.max_output_tokens') }}"
-NLLB_REQUEST_TIMEOUT: "{{ lookup('config', application_id, 'services.nllb-engine.request_timeout') }}"
 
 NLLB_GPU: "{{ lookup('gpu', application_id, 'nllb-engine') }}"
 NLLB_DEVICE: "{{ 'cuda' if NLLB_GPU | bool else 'cpu' }}"
