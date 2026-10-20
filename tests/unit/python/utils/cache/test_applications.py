@@ -15,8 +15,8 @@ import sys
 import tempfile
 import textwrap
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps

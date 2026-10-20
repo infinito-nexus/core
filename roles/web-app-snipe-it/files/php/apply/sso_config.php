@@ -2,14 +2,6 @@
 // nocheck: mirrored-unit-test - boots Snipe-IT's Laravel kernel through
 // bootstrap/app.php and writes the trusted-reverse-proxy login settings through
 // App\Models\Setting; the models only exist once the install has booted
-// Configure Snipe-IT trusted-reverse-proxy login via the Laravel `Setting`
-// model (same path the UI uses). The oauth2-proxy in front of Snipe-IT
-// authenticates the user against Keycloak and nginx injects the verified
-// identity into the `X-Forwarded-Preferred-Username` request header, which
-// PHP exposes as $_SERVER['HTTP_X_FORWARDED_PREFERRED_USERNAME'].
-// LoginController::loginViaRemoteUser() then matches users.username and mints
-// a native snipeit_session. The password/LDAP form stays available as a
-// fallback (login_common_disabled is kept at 0).
 require "vendor/autoload.php";
 $app = require "bootstrap/app.php";
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();

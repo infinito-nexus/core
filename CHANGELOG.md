@@ -1,5 +1,59 @@
 # Changelog
 
+## [16.2.1] - 2026-10-20
+
+Fixed:
+
+- Cache: the package cache frontend starts again; 16.2.0 broke its nginx
+- Snipe-IT: SSO login works again on v8.8.1 behind oauth2-proxy
+- Snipe-IT: the SSO header is only trusted with the proxy's shared secret
+- Wazuh: seeded bcrypt salts no longer leak a fast password digest
+
+Version jumps (net since 16.2.0):
+
+- *web-app-socialhome*: 2026.10.17 to 2026.10.20
+
+Upgrade notes:
+
+- Snipe-IT: re-run *infinito administration inventory provision* once
+
+Contributors:
+
+- [Kevin Veen-Birkenbach](https://veen.world): cache, Snipe-IT SSO, bcrypt
+
+## [16.2.0] - 2026-10-20
+
+Added:
+
+- Compose: *make compose-network-recreate* rebuilds the stack network safely
+- CI: the updater keeps the GitHub-hosted runner labels current
+
+Fixed:
+
+- Backup: hard links, ACLs and xattrs survive every backup and recover hop
+- NFS client: clients on Linux 6.19+ no longer fail writes on ganesha < 9.11
+- AppArmor: the teardown keeps docker-default, so containers keep starting
+- Wazuh: hosts can be put into WireGuard meshes like every other role
+- CI: GitHub-hosted runners are pinned to ubuntu-24.04
+
+Version jumps (net since 16.1.0):
+
+- *svc-db-rabbitmq*: 4.3-management-alpine to 4.4-management-alpine
+- *web-app-n8n*: 2.44.4 to 2.45.0
+- *web-app-pixelfed*: 20261019 to 20261020
+- *web-app-snipe-it*: v8.8.0-alpine to v8.8.1-alpine
+- *web-app-taiga*: RabbitMQ 4.3-management-alpine to 4.4-management-alpine
+- *eslint* (dev): ^10.12.0 to ^10.13.0
+
+Upgrade notes:
+
+- Backup: a target without xattr support now fails instead of losing them
+- Dev: worktree hosts apply the IP pool with *make compose-network-recreate*
+
+Contributors:
+
+- [Kevin Veen-Birkenbach](https://veen.world): backups, NFS, AppArmor, CI
+
 ## [16.1.0] - 2026-10-19
 
 Added:

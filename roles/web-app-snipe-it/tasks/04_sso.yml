@@ -26,3 +26,18 @@
   ansible.builtin.shell:
     cmd: "container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} php artisan optimize:clear"
   changed_when: true
+
+- name: "🔒 snipe-it: the SSO header bridge logs in only proxy-secret requests"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} sh -c
+      '{{ 30 | curl }} -s -o /dev/null -w "%{http_code}" -H "X-Forwarded-Preferred-Username: $1" {{ item.proxy_header }} http://localhost/login'
+      _ {{ lookup('users', 'administrator').username | quote }}
+  loop:
+    - { label: "forged header without the proxy secret", proxy_header: "", expected: "200" }
+    - { label: "header with the proxy secret", proxy_header: '-H "{{ SNIPE_IT_SSO_PROXY_HEADER }}: $INFINITO_SSO_PROXY_SECRET"', expected: "302" }
+  loop_control:
+    label: "{{ item.label }}"
+  register: snipe_it_sso_bridge_probe
+  changed_when: false
+  failed_when: snipe_it_sso_bridge_probe.stdout != item.expected
