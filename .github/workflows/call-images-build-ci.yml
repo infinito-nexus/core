@@ -48,7 +48,7 @@ concurrency:
 jobs:
   pools:
     name: 🏗️ Pools
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       matrix: ${{ steps.out.outputs.matrix }}
       image_tag: ${{ steps.out.outputs.image_tag }}
@@ -70,7 +70,7 @@ jobs:
   build:
     name: 💿 Images ${{ matrix.architecture }}
     needs: pools
-    runs-on: ${{ matrix.architecture == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.architecture == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-26.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -196,7 +196,7 @@ jobs:
     name: 🏷️ One tag per distro
     needs: [pools, build]
     if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write

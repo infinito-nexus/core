@@ -195,7 +195,7 @@ architecture.
 
 The architecture is the one axis a deploy job cannot apply to itself: the distro
 is installed and the filesystem is built, but the CPU arrives with the runner.
-The matrix therefore carries the runner label with the row (`ubuntu-latest` for
+The matrix therefore carries the runner label with the row (`ubuntu-26.04` for
 amd64, `ubuntu-24.04-arm` for arm64), `runs-on` reads it, and the job asserts
 `uname -m` against what it was assigned before deploying anything, so a label
 that stops resolving to arm64 hardware fails loudly instead of reporting an

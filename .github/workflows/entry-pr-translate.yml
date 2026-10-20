@@ -27,7 +27,7 @@ jobs:
   languages:
     name: 🗣️ Resolve machine-translatable languages
     if: vars.CI_ENABLE_AUTO_TRANSLATIONS == 'true' && github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       codes: ${{ steps.codes.outputs.codes }}
     steps:
@@ -53,7 +53,7 @@ jobs:
   extract:
     name: 📝 Extract catalogs
     if: vars.CI_ENABLE_AUTO_TRANSLATIONS == 'true' && github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
       - name: ⬇️ Checkout
@@ -86,7 +86,7 @@ jobs:
     needs:
       - languages
       - extract
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 340
     strategy:
       fail-fast: false
