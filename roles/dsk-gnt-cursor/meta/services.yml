@@ -5,6 +5,9 @@ desktop-base:
   enabled: true
   shared: true
 cursor:
+  # nocheck: architecture-pin  Reason: every AUR package the vendor's client is carried by, cursor-bin and cursor-appimage alike, declares arch=('x86_64'), and the vendor's own aarch64 artifacts are a separate acquisition path this role does not have yet
+  architectures:
+    - amd64
   modes:
     host:
       enabled: true

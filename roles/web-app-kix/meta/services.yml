@@ -65,6 +65,9 @@ redis:
   enabled: true
   shared: false
 kix:
+  # nocheck: architecture-pin  Reason: docker-registry.kixdesk.com serves proxy, backend and frontend as single manifest.v2+json images whose config declares amd64, and the public sources carry no build recipe to reach arm64 with: kix-on-premise ships a compose file and no Dockerfile, and kix-backend and kix-frontend publish neither tags nor releases, so a source build could not be pinned to the version the registry serves
+  architectures:
+    - amd64
   modes:
     compose:
       enabled: true
