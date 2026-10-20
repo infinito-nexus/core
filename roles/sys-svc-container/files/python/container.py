@@ -434,10 +434,17 @@ def exec_timeout_prefix() -> list[str]:
     """coreutils timeout prefix for `container exec` from CONTAINER_EXEC_TIMEOUT.
 
     Returns:
-        ['timeout', '--kill-after=15', '<seconds>'] when the env var holds a
-        positive duration; [] when it is unset, empty or 0 (no limit). Ansible
-        task timeouts are SIGALRM-based and sleep through a wedged docker
-        socket; this OS-level kill is the enforcement that still fires there.
+        ['timeout', '--foreground', '--kill-after=15', '<seconds>'] when the
+        env var holds a positive duration; [] when it is unset, empty or 0 (no
+        limit). Ansible task timeouts are SIGALRM-based and sleep through a
+        wedged docker socket; this OS-level kill is the enforcement that still
+        fires there.
+
+    ``--foreground`` keeps docker in the caller's process group. Without it
+    timeout calls setpgid, and `docker exec -i` reading a controlling tty from
+    a background group takes SIGTTIN and stops forever, which is how an
+    ansible.builtin.script task over ssh -tt hung for two hours. The cost is
+    that the signals reach the direct child only, not a whole tree.
     """
     raw = os.environ.get("CONTAINER_EXEC_TIMEOUT", "").strip()
     if not raw or raw == "0":
@@ -448,7 +455,7 @@ def exec_timeout_prefix() -> list[str]:
         die(f"Invalid CONTAINER_EXEC_TIMEOUT duration: {raw!r}")
     if seconds <= 0:
         return []
-    return ["timeout", "--kill-after=15", str(seconds)]
+    return ["timeout", "--foreground", "--kill-after=15", str(seconds)]
 
 
 def main() -> int:

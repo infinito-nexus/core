@@ -326,7 +326,7 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
     capture(
         out / "containers",
         "_events.txt",
-        ["timeout", "15", rt, "events", "--since", "6h"],
+        ["timeout", "--foreground", "15", rt, "events", "--since", "6h"],
         timeout=40,
     )
     containers = list_lines([rt, "ps", "-a", "--format", "{{.Names}}"])
