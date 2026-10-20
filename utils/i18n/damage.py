@@ -29,7 +29,6 @@ MAX_SHARING_SOURCES = 2
 ECHO_FLOOR = 30
 STUTTER = re.compile(r"\b(\w+)(?:\s+\1\b){2,}", re.IGNORECASE | re.UNICODE)
 WORDS = re.compile(r"[^\W\d_]{2,}", re.UNICODE)
-LATIN_FLOOR = 6
 LATIN_SHARE = 0.9
 NON_LATIN_SCRIPTS = non_latin_languages(PROJECT_ROOT)
 
@@ -89,6 +88,12 @@ def untranslated(translation: str, language: str) -> bool:
     English. Comparing scripts catches it wherever the target does not use the
     Latin one; for a Latin-script target it would need a language detector.
 
+    There is no length floor. :func:`verdict` reaches this only once an exact
+    echo is ruled out, so Latin text that differs from the source cannot be a
+    term the language keeps in English. The catalogs are mostly one- to
+    four-word labels, which is where the wrong language hid for as long as a
+    six-word floor stood here.
+
     Args:
         translation: what came back for the entry.
         language: ISO 639-1 code of the catalog being filled.
@@ -96,7 +101,7 @@ def untranslated(translation: str, language: str) -> bool:
     if language not in NON_LATIN_SCRIPTS:
         return False
     words = WORDS.findall(prose(translation))
-    if len(words) < LATIN_FLOOR:
+    if not words:
         return False
     latin = sum(1 for word in words if (latin_share(word) or 0) > 0.5)
     return latin / len(words) >= LATIN_SHARE

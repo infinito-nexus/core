@@ -14,7 +14,6 @@ import html
 from utils.i18n.damage import COLLAPSE_FLOOR as COLLAPSE_FLOOR
 from utils.i18n.damage import COLLAPSE_RATIO as COLLAPSE_RATIO
 from utils.i18n.damage import ECHO_FLOOR as ECHO_FLOOR
-from utils.i18n.damage import LATIN_FLOOR as LATIN_FLOOR
 from utils.i18n.damage import LATIN_SHARE as LATIN_SHARE
 from utils.i18n.damage import MARKUP as MARKUP
 from utils.i18n.damage import MAX_SHARING_SOURCES as MAX_SHARING_SOURCES
